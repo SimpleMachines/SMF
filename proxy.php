@@ -16,6 +16,15 @@
 if (!defined('SMF'))
 	define('SMF', 'proxy');
 
+if (!defined('SMF_VERSION'))
+	define('SMF_VERSION', '2.1 RC1');
+
+if (!defined('SMF_FULL_VERSION'))
+	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
+
+if (!defined('SMF_SOFTWARE_YEAR'))
+	define('SMF_SOFTWARE_YEAR', '2019');
+
 global $proxyhousekeeping;
 
 /**

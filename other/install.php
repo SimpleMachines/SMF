@@ -12,8 +12,10 @@
  */
 
 define('SMF_VERSION', '2.1 RC1');
-define('DB_SCRIPT_VERSION', '2-1');
+define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2019');
+define('DB_SCRIPT_VERSION', '2-1');
+define('SMF_INSTALLING', 1);
 
 $GLOBALS['required_php_version'] = '5.4.0';
 
@@ -1372,6 +1374,54 @@ function DatabasePopulation()
 		);
 	}
 
+	// Populate the smiley_files table.
+	// Can't just dump this data in the SQL file because we need to know the id for each smiley.
+	$smiley_filenames = array(
+		':)' => 'smiley',
+		';)' => 'wink',
+		':D' => 'cheesy',
+		';D' => 'grin',
+		'>:(' => 'angry',
+		':(' => 'sad',
+		':o' => 'shocked',
+		'8)' => 'cool',
+		'???' => 'huh',
+		'::)' => 'rolleyes',
+		':P' => 'tongue',
+		':-[' => 'embarrassed',
+		':-X' => 'lipsrsealed',
+		':-\\' => 'undecided',
+		':-*' => 'kiss',
+		':\'(' => 'cry',
+		'>:D' => 'evil',
+		'^-^' => 'azn',
+		'O0' => 'afro',
+		':))' => 'laugh',
+		'C:-)' => 'police',
+		'O:-)' => 'angel'
+	);
+	$smiley_set_extensions = array('fugue' => '.png', 'alienine' => '.png');
+
+	$smiley_inserts = array();
+	$request = $smcFunc['db_query']('', '
+		SELECT id_smiley, code
+		FROM {db_prefix}smileys',
+		array()
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		foreach ($smiley_set_extensions as $set => $ext)
+			$smiley_inserts[] = array($row['id_smiley'], $set, $smiley_filenames[$row['code']] . $ext);
+	}
+	$smcFunc['db_free_result']($request);
+
+	$smcFunc['db_insert']('ignore',
+		'{db_prefix}smiley_files',
+		array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
+		$smiley_inserts,
+		array('id_smiley', 'smiley_set')
+	);
+
 	// Let's optimize those new tables, but not on InnoDB, ok?
 	if (!$has_innodb)
 	{
@@ -1608,7 +1658,7 @@ function AdminAccount()
 function DeleteInstall()
 {
 	global $smcFunc, $db_character_set, $context, $txt, $incontext;
-	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $db_type, $boardurl;
+	global $databases, $sourcedir, $modSettings, $user_info, $db_type, $boardurl;
 
 	$incontext['page_title'] = $txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';
@@ -1736,13 +1786,12 @@ function DeleteInstall()
 	// Sanity check that they loaded earlier!
 	if (isset($modSettings['recycle_board']))
 	{
-		$forum_version = $current_smf_version; // The variable is usually defined in index.php so lets just use our variable to do it for us.
 		scheduled_fetchSMfiles(); // Now go get those files!
 
 		// We've just installed!
 		$user_info['ip'] = $_SERVER['REMOTE_ADDR'];
 		$user_info['id'] = isset($incontext['member_id']) ? $incontext['member_id'] : 0;
-		logAction('install', array('version' => $forum_version), 'admin');
+		logAction('install', array('version' => SMF_FULL_VERSION), 'admin');
 	}
 
 	// Disable the legacy BBC by default for new installs
@@ -1912,9 +1961,9 @@ function template_install_above()
 	<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
 	<meta name="robots" content="noindex">
 	<title>', $txt['smf_installer'], '</title>
-	<link rel="stylesheet" href="Themes/default/css/index.css?alp21">
-	<link rel="stylesheet" href="Themes/default/css/install.css?alp21">
-	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '', '
+	<link rel="stylesheet" href="Themes/default/css/index.css">
+	<link rel="stylesheet" href="Themes/default/css/install.css">
+	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css">' : '', '
 
 	<script src="Themes/default/scripts/jquery-3.2.1.min.js"></script>
 	<script src="Themes/default/scripts/script.js"></script>
@@ -2013,7 +2062,7 @@ function template_install_below()
 	</div><!-- #footerfix -->
 	<div id="footer">
 		<ul>
-			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; ' . SMF_SOFTWARE_YEAR . ', Simple Machines</a></li>
+			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">' . SMF_FULL_VERSION . ' &copy; ' . SMF_SOFTWARE_YEAR . ', Simple Machines</a></li>
 		</ul>
 	</div>
 </body>
@@ -2026,7 +2075,7 @@ function template_welcome_message()
 	global $incontext, $txt;
 
 	echo '
-	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
+	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . urlencode(SMF_VERSION) . '"></script>
 	<form action="', $incontext['form_url'], '" method="post">
 		<p>', sprintf($txt['install_welcome_desc'], SMF_VERSION), '</p>
 		<div id="version_warning" class="noticebox hidden">

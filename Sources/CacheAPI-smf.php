@@ -210,9 +210,7 @@ class smf_cache extends cache_api
 	 */
 	public function getVersion()
 	{
-		global $forum_version;
-
-		return isset($forum_version) ? $forum_version : '2.1';
+		return SMF_VERSION;
 	}
 }
 

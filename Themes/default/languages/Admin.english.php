@@ -579,6 +579,7 @@ $txt['legacyBBC'] = 'Legacy BBC tags';
 $txt['bbcTagsToUse'] = 'Enabled BBC tags';
 $txt['enabled_bbc_select'] = 'Select the tags allowed to be used';
 $txt['enabled_bbc_select_all'] = 'Select all tags';
+$txt['groups_can_use'] = 'Membergroups allowed to use %1$s';
 
 $txt['enableParticipation'] = 'Enable participation icons';
 $txt['oldTopicDays'] = 'Time before topic is warned as old on reply';

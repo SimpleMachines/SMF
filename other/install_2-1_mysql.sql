@@ -1033,12 +1033,23 @@ CREATE TABLE {$db_prefix}sessions (
 CREATE TABLE {$db_prefix}smileys (
 	id_smiley SMALLINT UNSIGNED AUTO_INCREMENT,
 	code VARCHAR(30) NOT NULL DEFAULT '',
-	filename VARCHAR(48) NOT NULL DEFAULT '',
 	description VARCHAR(80) NOT NULL DEFAULT '',
 	smiley_row TINYINT UNSIGNED NOT NULL DEFAULT '0',
 	smiley_order SMALLINT UNSIGNED NOT NULL DEFAULT '0',
 	hidden TINYINT UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_smiley)
+) ENGINE={$engine};
+
+#
+# Table structure for table `smiley_files`
+#
+
+CREATE TABLE {$db_prefix}smiley_files
+(
+		id_smiley SMALLINT NOT NULL DEFAULT '0',
+		smiley_set VARCHAR(48) NOT NULL DEFAULT '',
+		filename VARCHAR(48) NOT NULL DEFAULT '',
+		PRIMARY KEY (id_smiley, smiley_set)
 ) ENGINE={$engine};
 
 #
@@ -2065,7 +2076,6 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('cookieTime', '60'),
 	('lastActive', '15'),
 	('smiley_sets_known', 'fugue,alienine'),
-	('smiley_sets_exts', '.png,.png'),
 	('smiley_sets_names', '{$default_fugue_smileyset_name}\n{$default_alienine_smileyset_name}'),
 	('smiley_sets_default', 'fugue'),
 	('cal_days_for_index', '7'),
@@ -2118,7 +2128,6 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('drafts_show_saved_enabled', '1'),
 	('drafts_keep_days', '7'),
 	('topic_move_any', '0'),
-	('browser_cache', '?beta21'),
 	('mail_limit', '5'),
 	('mail_quantity', '5'),
 	('additional_options_collapsable', '1'),
@@ -2148,29 +2157,29 @@ VALUES ('smfVersion', '{$smf_version}'),
 #
 
 INSERT INTO {$db_prefix}smileys
-	(code, filename, description, smiley_order, hidden)
-VALUES (':)', 'smiley', '{$default_smiley_smiley}', 0, 0),
-	(';)', 'wink', '{$default_wink_smiley}', 1, 0),
-	(':D', 'cheesy', '{$default_cheesy_smiley}', 2, 0),
-	(';D', 'grin', '{$default_grin_smiley}', 3, 0),
-	('>:(', 'angry', '{$default_angry_smiley}', 4, 0),
-	(':(', 'sad', '{$default_sad_smiley}', 5, 0),
-	(':o', 'shocked', '{$default_shocked_smiley}', 6, 0),
-	('8)', 'cool', '{$default_cool_smiley}', 7, 0),
-	('???', 'huh', '{$default_huh_smiley}', 8, 0),
-	('::)', 'rolleyes', '{$default_roll_eyes_smiley}', 9, 0),
-	(':P', 'tongue', '{$default_tongue_smiley}', 10, 0),
-	(':-[', 'embarrassed', '{$default_embarrassed_smiley}', 11, 0),
-	(':-X', 'lipsrsealed', '{$default_lips_sealed_smiley}', 12, 0),
-	(':-\\', 'undecided', '{$default_undecided_smiley}', 13, 0),
-	(':-*', 'kiss', '{$default_kiss_smiley}', 14, 0),
-	(':''(', 'cry', '{$default_cry_smiley}', 15, 0),
-	('>:D', 'evil', '{$default_evil_smiley}', 16, 1),
-	('^-^', 'azn', '{$default_azn_smiley}', 17, 1),
-	('O0', 'afro', '{$default_afro_smiley}', 18, 1),
-	(':))', 'laugh', '{$default_laugh_smiley}', 19, 1),
-	('C:-)', 'police', '{$default_police_smiley}', 20, 1),
-	('O:-)', 'angel', '{$default_angel_smiley}', 21, 1);
+	(code, description, smiley_order, hidden)
+VALUES (':)', '{$default_smiley_smiley}', 0, 0),
+	(';)', '{$default_wink_smiley}', 1, 0),
+	(':D', '{$default_cheesy_smiley}', 2, 0),
+	(';D', '{$default_grin_smiley}', 3, 0),
+	('>:(', '{$default_angry_smiley}', 4, 0),
+	(':(', '{$default_sad_smiley}', 5, 0),
+	(':o', '{$default_shocked_smiley}', 6, 0),
+	('8)', '{$default_cool_smiley}', 7, 0),
+	('???', '{$default_huh_smiley}', 8, 0),
+	('::)', '{$default_roll_eyes_smiley}', 9, 0),
+	(':P', '{$default_tongue_smiley}', 10, 0),
+	(':-[', '{$default_embarrassed_smiley}', 11, 0),
+	(':-X', '{$default_lips_sealed_smiley}', 12, 0),
+	(':-\\', '{$default_undecided_smiley}', 13, 0),
+	(':-*', '{$default_kiss_smiley}', 14, 0),
+	(':''(', '{$default_cry_smiley}', 15, 0),
+	('>:D', '{$default_evil_smiley}', 16, 1),
+	('^-^', '{$default_azn_smiley}', 17, 1),
+	('O0', '{$default_afro_smiley}', 18, 1),
+	(':))', '{$default_laugh_smiley}', 19, 1),
+	('C:-)', '{$default_police_smiley}', 20, 1),
+	('O:-)', '{$default_angel_smiley}', 21, 1);
 # --------------------------------------------------------
 
 #
@@ -2181,15 +2190,17 @@ INSERT INTO {$db_prefix}spiders
 	(spider_name, user_agent, ip_info)
 VALUES ('Google', 'googlebot', ''),
 	('Yahoo!', 'slurp', ''),
-	('MSN', 'msnbot', ''),
+	('Bing', 'bingbot', ''),
 	('Google (Mobile)', 'Googlebot-Mobile', ''),
 	('Google (Image)', 'Googlebot-Image', ''),
 	('Google (AdSense)', 'Mediapartners-Google', ''),
 	('Google (Adwords)', 'AdsBot-Google', ''),
 	('Yahoo! (Mobile)', 'YahooSeeker/M1A1-R2D2', ''),
 	('Yahoo! (Image)', 'Yahoo-MMCrawler', ''),
-	('MSN (Mobile)', 'MSNBOT_Mobile', ''),
-	('MSN (Media)', 'msnbot-media', ''),
+	('Bing (Preview)', 'BingPreview', ''),
+	('Bing (Ads)', 'adidxbot', ''),
+	('Bing (MSNBot)', 'msnbot', ''),
+	('Bing (Media)', 'msnbot-media', ''),
 	('Cuil', 'twiceler', ''),
 	('Ask', 'Teoma', ''),
 	('Baidu', 'Baiduspider', ''),

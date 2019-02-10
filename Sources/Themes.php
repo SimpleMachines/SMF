@@ -1381,7 +1381,6 @@ function InstallFile()
 function InstallCopy()
 {
 	global $themedir, $themeurl, $settings, $smcFunc, $context;
-	global $forum_version;
 
 	// There's gotta be something to work with.
 	if (!isset($_REQUEST['copy']) || empty($_REQUEST['copy']))
@@ -1401,7 +1400,7 @@ function InstallCopy()
 		'name' => $name,
 		'images_url' => $themeurl . '/' . $name . '/images',
 		'version' => '1.0',
-		'install_for' => '2.1 - 2.1.99, ' . strtr($forum_version, array('SMF ' => '')),
+		'install_for' => '2.1 - 2.1.99, ' . SMF_VERSION,
 		'based_on' => '',
 		'based_on_dir' => $themedir . '/default',
 	);
@@ -1803,6 +1802,9 @@ function EditTheme()
 				$fp = fopen($currentTheme['theme_dir'] . '/' . $_REQUEST['filename'], 'w');
 				fwrite($fp, $_POST['entire_file']);
 				fclose($fp);
+
+				// Nuke any minified files and update $modSettings['browser_cache']
+				deleteAllMinified();
 
 				redirectexit('action=admin;area=theme;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;directory=' . dirname($_REQUEST['filename']));
 			}

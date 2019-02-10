@@ -267,7 +267,7 @@ function ModifyBasicSettings($return_config = false)
 		$_SESSION['adm-save'] = true;
 
 		// Do a bit of housekeeping
-		if (empty($_POST['minimize_files']))
+		if (empty($_POST['minimize_files']) || $_POST['minimize_files'] != $modSettings['minimize_files'])
 			deleteAllMinified();
 
 		writeLog();
@@ -307,6 +307,13 @@ function ModifyBBCSettings($return_config = false)
 		array('bbc', 'legacyBBC', 'help' => 'legacy_bbc'),
 	);
 
+	// Permissions for restricted BBC
+	if (!empty($context['restricted_bbc']))
+		$config_vars[] = '';
+
+	foreach ($context['restricted_bbc'] as $bbc)
+		$config_vars[] = array('permissions', 'bbc_' . $bbc, 'text_label' => sprintf($txt['groups_can_use'], '[' . $bbc . ']'));
+
 	$context['settings_post_javascript'] = '
 		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');
 		toggleBBCDisabled(\'legacyBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';
@@ -326,6 +333,13 @@ function ModifyBBCSettings($return_config = false)
 
 	// Legacy BBC are listed separately, but we use the same info in both cases
 	$modSettings['bbc_disabled_legacyBBC'] = $modSettings['bbc_disabled_disabledBBC'];
+
+	$extra = '';
+	if (isset($_REQUEST['cowsay']))
+	{
+		$config_vars[] = array('permissions', 'bbc_cowsay', 'text_label' => sprintf($txt['groups_can_use'], 'cowsay'));
+		$extra = ';cowsay';
+	}
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -363,10 +377,10 @@ function ModifyBBCSettings($return_config = false)
 
 		saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
-		redirectexit('action=admin;area=featuresettings;sa=bbc');
+		redirectexit('action=admin;area=featuresettings;sa=bbc' . $extra);
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=bbc';
+	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=bbc' . $extra;
 	$context['settings_title'] = $txt['manageposts_bbc_settings_title'];
 
 	prepareDBSettingContext($config_vars);
@@ -1682,7 +1696,6 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$list[] = $row;
-
 		$smcFunc['db_free_result']($request);
 	}
 

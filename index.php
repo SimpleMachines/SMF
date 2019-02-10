@@ -20,11 +20,12 @@
  * @version 2.1 RC1
  */
 
-$software_year = '2019';
-$forum_version = 'SMF 2.1 RC1';
-
 // Get everything started up...
 define('SMF', 1);
+define('SMF_VERSION', '2.1 RC1');
+define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
+define('SMF_SOFTWARE_YEAR', '2019');
+
 error_reporting(E_ALL);
 $time_start = microtime(true);
 
@@ -196,10 +197,48 @@ function smf_main()
 	if (!empty($topic) && empty($board_info['cur_topic_approved']) && !allowedTo('approve_posts') && ($user_info['id'] != $board_info['cur_topic_starter'] || $user_info['is_guest']))
 		fatal_lang_error('not_a_topic', false);
 
-	$no_stat_actions = array('clock', 'dlattach', 'findmember', 'jsoption', 'likes', 'loadeditorlocale', 'modifycat', 'requestmembers', 'smstats', 'suggest', 'about:unknown', '.xml', 'xmlhttp', 'verificationcode', 'viewquery', 'viewsmfile');
+	// Do some logging, unless this is an attachment, avatar, toggle of editor buttons, theme option, XML feed, popup, etc.
+	$no_stat_actions = array(
+		'about:unknown' => true,
+		'clock' => true,
+		'dlattach' => true,
+		'findmember' => true,
+		'helpadmin' => true,
+		'jsoption' => true,
+		'likes' => true,
+		'loadeditorlocale' => true,
+		'modifycat' => true,
+		'pm' => array('sa' => array('popup')),
+		'profile' => array('area' => array('popup', 'alerts_popup')),
+		'requestmembers' => true,
+		'smstats' => true,
+		'suggest' => true,
+		'verificationcode' => true,
+		'viewquery' => true,
+		'viewsmfile' => true,
+		'xmlhttp' => true,
+		'.xml' => true,
+	);
 	call_integration_hook('integrate_pre_log_stats', array(&$no_stat_actions));
-	// Do some logging, unless this is an attachment, avatar, toggle of editor buttons, theme option, XML feed etc.
-	if (empty($_REQUEST['action']) || !in_array($_REQUEST['action'], $no_stat_actions))
+
+	$should_log = true;
+	if (isset($_REQUEST['action']) && isset($no_stat_actions[$_REQUEST['action']]))
+	{
+		if (is_array($no_stat_actions[$_REQUEST['action']]))
+		{
+			foreach ($no_stat_actions[$_REQUEST['action']] as $subtype => $subnames)
+			{
+				if (isset($_REQUEST[$subtype]) && in_array($_REQUEST[$subtype], $subnames))
+				{
+					$should_log = false;
+					break;
+				}
+			}
+		}
+		else
+			$should_log = !empty($no_stat_actions[$_REQUEST['action']]);
+	}
+	if ($should_log)
 	{
 		// Log this user as online.
 		writeLog();

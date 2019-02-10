@@ -903,7 +903,7 @@ function EditPoll2()
 	else
 	{
 		// Something else
-		logAction('editpoll', array('topic' => $topic));
+		logAction('edit_poll', array('topic' => $topic));
 	}
 
 	// Off we go.

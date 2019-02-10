@@ -282,21 +282,66 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	call_integration_hook('integrate_fetch_alerts', array(&$alerts));
 
 	// For anything that wants us to check board or topic access, let's do that.
-	$boards = array();
-	$topics = array();
-	$msgs = array();
+	$board_msgs = array();
+	$topic_msgs = array();
+	$msg_msgs = array();
+	$possible_boards = array();
+	$possible_topics = array();
+	$possible_msgs = array();
 	foreach ($alerts as $id_alert => $alert)
 	{
-		if (isset($alert['extra']['board']))
-			$boards[$alert['extra']['board']] = $txt['board_na'];
-		if (isset($alert['extra']['topic']))
-			$topics[$alert['extra']['topic']] = $txt['topic_na'];
 		if ($alert['content_type'] == 'msg')
-			$msgs[$alert['content_id']] = $txt['topic_na'];
+			$possible_msgs[] = $alert['content_id'];
+		elseif (isset($alert['extra']['topic']))
+			$possible_topics[] = $alert['extra']['topic'];
+		elseif (isset($alert['extra']['board']))
+			$possible_boards[] = $alert['extra']['board'];
 	}
 
-	// Having figured out what boards etc. there are, let's now get the names of them if we can see them. If not, there's already a fallback set up.
-	if (!empty($boards))
+	if (!empty($possible_msgs))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT m.id_msg, t.id_topic, m.subject, b.id_board, b.name
+			FROM {db_prefix}messages AS m
+				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
+				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
+			WHERE ' . $query_see_board . '
+				AND m.id_msg IN ({array_int:msgs})',
+			array(
+				'msgs' => $possible_msgs,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$msg_msgs[$row['id_msg']] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>';
+			$topic_msgs[$row['id_topic']] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>';
+			$board_msgs[$row['id_board']] = '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>';
+		}
+
+		$smcFunc['db_free_result']($request);
+	}
+	if (!empty($possible_topics))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT t.id_topic, m.subject, b.id_board, b.name
+			FROM {db_prefix}topics AS t
+				INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
+				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
+			WHERE ' . $query_see_board . '
+				AND t.id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $possible_topics,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$topic_msgs[$row['id_topic']] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>';
+			$board_msgs[$row['id_board']] = '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>';
+		}
+
+		$smcFunc['db_free_result']($request);
+	}
+	if (!empty($possible_boards))
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT id_board, name
@@ -304,43 +349,13 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			WHERE ' . $query_see_board . '
 				AND id_board IN ({array_int:boards})',
 			array(
-				'boards' => array_keys($boards),
+				'boards' => $possible_boards,
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$boards[$row['id_board']] = '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>';
-	}
-	if (!empty($topics))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT t.id_topic, m.subject
-			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
-				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
-			WHERE ' . $query_see_board . '
-				AND t.id_topic IN ({array_int:topics})',
-			array(
-				'topics' => array_keys($topics),
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$topics[$row['id_topic']] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>';
-	}
-	if (!empty($msgs))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT m.id_msg, t.id_topic, m.subject
-			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
-				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
-			WHERE ' . $query_see_board . '
-				AND m.id_msg IN ({array_int:msgs})',
-			array(
-				'msgs' => array_keys($msgs),
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$msgs[$row['id_msg']] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>';
+			$board_msgs[$row['id_board']] = '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>';
+
+		$smcFunc['db_free_result']($request);
 	}
 
 	// Now to go back through the alerts, reattach this extra information and then try to build the string out of it (if a hook didn't already)
@@ -349,37 +364,47 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		if (!empty($alert['text']))
 			continue;
 
-		if (isset($alert['extra']['board']))
-		{
-			if ($boards[$alert['extra']['board']] == $txt['board_na'])
-			{
-				unset($alerts[$id_alert]);
-				continue;
-			}
-			else
-				$alerts[$id_alert]['extra']['board_msg'] = $boards[$alert['extra']['board']];
-		}
-
-		if (isset($alert['extra']['topic']))
-		{
-			if ($alert['extra']['topic'] == $txt['topic_na'])
-			{
-				unset($alerts[$id_alert]);
-				continue;
-			}
-			else
-				$alerts[$id_alert]['extra']['topic_msg'] = $topics[$alert['extra']['topic']];
-		}
-
 		if ($alert['content_type'] == 'msg')
 		{
-			if ($msgs[$alert['content_id']] == $txt['topic_na'])
+			if (empty($msg_msgs[$alert['content_id']]))
 			{
 				unset($alerts[$id_alert]);
 				continue;
 			}
 			else
-				$alerts[$id_alert]['extra']['msg_msg'] = $msgs[$alert['content_id']];
+			{
+				$alerts[$id_alert]['extra']['msg_msg'] = $msg_msgs[$alert['content_id']];
+				$alerts[$id_alert]['extra']['topic_msg'] = isset($alert['extra']['topic']) ? $topic_msgs[$alert['extra']['topic']] : $txt['topic_na'];
+				$alerts[$id_alert]['extra']['board_msg'] = isset($alert['extra']['board']) ? $board_msgs[$alert['extra']['board']] : $txt['board_na'];
+			}
+		}
+		elseif (isset($alert['extra']['topic']))
+		{
+			if (empty($topic_msgs[$alert['extra']['topic']]))
+			{
+				unset($alerts[$id_alert]);
+				continue;
+			}
+			else
+			{
+				$alerts[$id_alert]['extra']['msg_msg'] = $txt['topic_na'];
+				$alerts[$id_alert]['extra']['topic_msg'] = $topic_msgs[$alert['extra']['topic']];
+				$alerts[$id_alert]['extra']['board_msg'] = isset($alert['extra']['board']) ? $board_msgs[$alert['extra']['board']] : $txt['board_na'];
+			}
+		}
+		elseif (isset($alert['extra']['board']))
+		{
+			if (empty($board_msgs[$alert['extra']['board']]))
+			{
+				unset($alerts[$id_alert]);
+				continue;
+			}
+			else
+			{
+				$alerts[$id_alert]['extra']['msg_msg'] = $txt['topic_na'];
+				$alerts[$id_alert]['extra']['topic_msg'] = $txt['topic_na'];
+				$alerts[$id_alert]['extra']['board_msg'] = $board_msgs[$alert['extra']['board']];
+			}
 		}
 
 		if ($alert['content_type'] == 'profile')

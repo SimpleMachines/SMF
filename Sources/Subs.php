@@ -391,12 +391,12 @@ function updateMemberData($members, $data)
 			{
 				$val = 'CASE ';
 				foreach ($members as $k => $v)
-					$val .= 'WHEN id_member = ' . $v . ' THEN '. alert_count($v, false) . ' ';
+					$val .= 'WHEN id_member = ' . $v . ' THEN '. alert_count($v, true) . ' ';
 				$val = $val . ' END';
 				$type = 'raw';
 			}
 			else
-				$val = alert_count($members, false);
+				$val = alert_count($members, true);
 		}
 		elseif ($type == 'int' && ($val === '+' || $val === '-'))
 		{
@@ -1010,7 +1010,7 @@ function permute($array)
  * - only parses smileys if smileys is true.
  * - does nothing if the enableBBC setting is off.
  * - uses the cache_id as a unique identifier to facilitate any caching it may do.
- *  -returns the modified message.
+ * - returns the modified message.
  *
  * @param string $message The message
  * @param bool $smileys Whether to parse smileys as well
@@ -1022,7 +1022,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 {
 	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
 	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
-	static $disabled;
+	static $disabled, $alltags_regex = '', $param_regexes = array();
 
 	// Don't waste cycles
 	if ($message === '')
@@ -1116,8 +1116,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				- quoted: true if the value should be quoted.
 				- validate: callback to evaluate on the data, which is $data.
 				- value: a string in which to replace $1 with the data.
-				  either it or validate may be used, not both.
+					Either value or validate may be used, not both.
 				- optional: true if the parameter is optional.
+				- default: a default value for missing optional parameters.
 
 			test: a regular expression to test immediately after the tag's
 			  '=', ' ' or ']'.  Typically, should have a \] at the end.
@@ -1209,15 +1210,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'attach',
 				'type' => 'unparsed_content',
 				'parameters' => array(
-					'name' => array('optional' => true),
-					'type' => array('optional' => true),
+					'id' => array('match' => '(\d+)'),
 					'alt' => array('optional' => true),
-					'title' => array('optional' => true),
 					'width' => array('optional' => true, 'match' => '(\d+)'),
 					'height' => array('optional' => true, 'match' => '(\d+)'),
 				),
 				'content' => '$1',
-				'validate' => function(&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt)
+				'validate' => function(&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt, $smcFunc)
 				{
 					$returnContext = '';
 
@@ -1226,7 +1225,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						return $data;
 
 					// Save the attach ID.
-					$attachID = $data;
+					$attachID = $params['{id}'];
 
 					// Kinda need this.
 					require_once($sourcedir . '/Subs-Attachments.php');
@@ -1237,10 +1236,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (is_string($currentAttachment))
 						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
 
-					if (!empty($currentAttachment['is_image']))
+					if (!empty($currentAttachment['is_image']) && (!isset($param['{type}']) || strpos($param['{type}'], 'image') === 0))
 					{
 						$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $currentAttachment['name']) . '"';
-						$title = !empty($params['{title}']) ? ' title="' . $params['{title}'] . '"' : '';
+						$title = !empty($data) ? ' title="' . $smcFunc['htmlspecialchars']($data) . '"' : '';
 
 						$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
 						$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
@@ -1259,7 +1258,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					// No image. Show a link.
 					else
-						$returnContext .= $currentAttachment['link'];
+						$returnContext .= '<a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a>';
 
 					// Gotta append what we just did.
 					$data = $returnContext;
@@ -1291,7 +1290,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<span style="color: blue;" class="bbc_color">',
 				'after' => '</span>',
 			),
-			// Legacy (same as typing an actual line break character)
 			array(
 				'tag' => 'br',
 				'type' => 'closed',
@@ -1968,6 +1966,36 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => ' :-*</span>',
 			);
 		}
+		$codes[] = array(
+			'tag' => 'cowsay',
+			'parameters' => array(
+				'e' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => 'oo', 'validate' => function ($eyes) use ($smcFunc)
+					{
+						static $css_added;
+
+						if (empty($css_added))
+						{
+							$css = base64_decode('cHJlW2RhdGEtZV1bZGF0YS10XXt3aGl0ZS1zcGFjZTpwcmUtd3JhcDtsaW5lLWhlaWdodDppbml0aWFsO31wcmVbZGF0YS1lXVtkYXRhLXRdID4gZGl2e2Rpc3BsYXk6dGFibGU7Ym9yZGVyOjFweCBzb2xpZDtib3JkZXItcmFkaXVzOjAuNWVtO3BhZGRpbmc6MWNoO21heC13aWR0aDo4MGNoO21pbi13aWR0aDoxMmNoO31wcmVbZGF0YS1lXVtkYXRhLXRdOjphZnRlcntkaXNwbGF5OmlubGluZS1ibG9jazttYXJnaW4tbGVmdDo4Y2g7bWluLXdpZHRoOjIwY2g7ZGlyZWN0aW9uOmx0cjtjb250ZW50OidcNUMgICBeX19eXEEgIFw1QyAgKCcgYXR0cihkYXRhLWUpICcpXDVDX19fX19fX1xBICAgIChfXylcNUMgICAgICAgIClcNUMvXDVDXEEgICAgICcgYXR0cihkYXRhLXQpICcgfHwtLS0tdyB8XEEgICAgICAgIHx8ICAgICB8fCc7fQ==');
+
+							addInlineJavaScript('
+								$("head").append("<style>" + ' . JavaScriptEscape($css) . ' + "</style>");', true);
+
+							$css_added = true;
+						}
+
+						return $smcFunc['substr']($eyes . 'oo', 0, 2);
+					},
+				),
+				't' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => '  ', 'validate' => function ($tongue) use ($smcFunc)
+					{
+						return $smcFunc['substr']($tongue . '  ', 0, 2);
+					},
+				),
+			),
+			'before' => '<pre data-e="{e}" data-t="{t}"><div>',
+			'after' => '</div></pre>',
+			'block_level' => true,
+		);
 
 		foreach ($codes as $code)
 		{
@@ -2031,13 +2059,21 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	$open_tags = array();
 	$message = strtr($message, array("\n" => '<br>'));
 
-	$alltags = array();
-	foreach ($bbc_codes as $section)
+	if (!empty($parse_tags))
 	{
-		foreach ($section as $code)
-			$alltags[] = $code['tag'];
+		$real_alltags_regex = $alltags_regex;
+		$alltags_regex = '';
 	}
-	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
+	if (empty($alltags_regex))
+	{
+		$alltags = array();
+		foreach ($bbc_codes as $section)
+		{
+			foreach ($section as $code)
+				$alltags[] = $code['tag'];
+		}
+		$alltags_regex = '(?>\b' . build_regex(array_unique($alltags)) . '\b|' . build_regex(array_keys($itemcodes)) . ')';
+	}
 
 	$pos = -1;
 	while ($pos !== false)
@@ -2050,7 +2086,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		if ($pos === false || $last_pos > $pos)
 			$pos = strlen($message) + 1;
 
-		// Can't have a one letter smiley, URL, or email! (sorry.)
+		// Can't have a one letter smiley, URL, or email! (Sorry.)
 		if ($last_pos < $pos - 1)
 		{
 			// Make sure the $last_pos is not negative.
@@ -2097,7 +2133,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						if (preg_match('~action(=|%3d)(?!dlattach)~i', $imgtag) != 0)
 							$imgtag = preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $imgtag);
 
-						$placeholder = '[placeholder]' . ++$placeholders_counter . '[/placeholder]';
+						$placeholder = '<placeholder ' . ++$placeholders_counter . '>';
 						$placeholders[$placeholder] = '[img' . $alt . ']' . $imgtag . '[/img]';
 
 						$replaces[$matches[0][$match]] = $placeholder;
@@ -2127,6 +2163,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 				if (!$no_autolink_area)
 				{
+					// An &nbsp; right after a URL can break the autolinker
+					if (strpos($data, '&nbsp;') !== false)
+					{
+						$placeholders['<placeholder non-breaking-space>'] = '&nbsp;';
+						$data = strtr($data, array('&nbsp;' => '<placeholder non-breaking-space>'));
+					}
+
 					// Parse any URLs
 					if (!isset($disabled['url']) && strpos($data, '[url') === false)
 					{
@@ -2305,9 +2348,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		if ($pos >= strlen($message) - 1)
 			break;
 
-		$tags = strtolower($message[$pos + 1]);
+		$tag_character = strtolower($message[$pos + 1]);
 
-		if ($tags == '/' && !empty($open_tags))
+		if ($tag_character == '/' && !empty($open_tags))
 		{
 			$pos2 = strpos($message, ']', $pos + 1);
 			if ($pos2 == $pos + 2)
@@ -2418,12 +2461,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		}
 
 		// No tags for this character, so just keep going (fastest possible course.)
-		if (!isset($bbc_codes[$tags]))
+		if (!isset($bbc_codes[$tag_character]))
 			continue;
 
 		$inside = empty($open_tags) ? null : $open_tags[count($open_tags) - 1];
 		$tag = null;
-		foreach ($bbc_codes[$tags] as $possible)
+		foreach ($bbc_codes[$tag_character] as $possible)
 		{
 			$pt_strlen = strlen($possible['tag']);
 
@@ -2443,7 +2486,18 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// Do we want parameters?
 			elseif (!empty($possible['parameters']))
 			{
-				if ($next_c != ' ')
+				// Are all the parameters optional?
+				$param_required = false;
+				foreach ($possible['parameters'] as $param)
+				{
+					if (empty($param['optional']))
+					{
+						$param_required = true;
+						break;
+					}
+				}
+
+				if ($param_required && $next_c != ' ')
 					continue;
 			}
 			elseif (isset($possible['type']))
@@ -2492,9 +2546,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if (!empty($possible['parameters']))
 			{
 				// Build a regular expression for each parameter for the current tag.
-				$preg = array();
-				foreach ($possible['parameters'] as $p => $info)
-					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
+				$regex_key = $smcFunc['json_encode']($possible['parameters']);
+				if (!isset($params_regexes[$regex_key]))
+				{
+					$params_regexes[$regex_key] = '';
+
+					foreach ($possible['parameters'] as $p => $info)
+						$params_regexes[$regex_key] .= '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
+				}
 
 				// Extract the string that potentially holds our parameters.
 				$blob = preg_split('~\[/?(?:' . $alltags_regex . ')~i', substr($message, $pos));
@@ -2511,10 +2570,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$given_params = preg_split('~\s(?=(' . $splitters . '))~i', $given_param_string);
 					sort($given_params, SORT_STRING);
 
-					$match = preg_match('~^' . implode('', $preg) . '$~i', implode(' ', $given_params), $matches) !== 0;
+					$match = preg_match('~^' . $params_regexes[$regex_key] . '$~i', implode(' ', $given_params), $matches) !== 0;
 
 					if ($match)
-						$blob_counter = count($blobs) + 1;
+						break;
 				}
 
 				// Didn't match our parameter list, try the next possible.
@@ -2525,7 +2584,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				for ($i = 1, $n = count($matches); $i < $n; $i += 2)
 				{
 					$key = strtok(ltrim($matches[$i]), '=');
-					if (isset($possible['parameters'][$key]['value']))
+					if ($key === false)
+						continue;
+					elseif (isset($possible['parameters'][$key]['value']))
 						$params['{' . $key . '}'] = strtr($possible['parameters'][$key]['value'], array('$1' => $matches[$i + 1]));
 					elseif (isset($possible['parameters'][$key]['validate']))
 						$params['{' . $key . '}'] = $possible['parameters'][$key]['validate']($matches[$i + 1]);
@@ -2539,7 +2600,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				foreach ($possible['parameters'] as $p => $info)
 				{
 					if (!isset($params['{' . $p . '}']))
-						$params['{' . $p . '}'] = '';
+					{
+						if (!isset($info['default']))
+							$params['{' . $p . '}'] = '';
+						elseif (isset($possible['parameters'][$p]['value']))
+							$params['{' . $p . '}'] = strtr($possible['parameters'][$p]['value'], array('$1' => $info['default']));
+						elseif (isset($possible['parameters'][$p]['validate']))
+							$params['{' . $p . '}'] = $possible['parameters'][$p]['validate']($info['default']);
+						else
+							$params['{' . $p . '}'] = $info['default'];
+					}
 				}
 
 				$tag = $possible;
@@ -2698,7 +2768,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		// No type means 'parsed_content'.
 		if (!isset($tag['type']))
 		{
-			// @todo Check for end tag first, so people can say "I like that [i] tag"?
 			$open_tags[] = $tag;
 			$message = substr($message, 0, $pos) . "\n" . $tag['before'] . "\n" . substr($message, $pos1);
 			$pos += strlen($tag['before']) - 1 + 2;
@@ -2909,6 +2978,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$bbc_codes = $temp_bbc;
 			unset($temp_bbc);
 		}
+
+		if (empty($real_alltags_regex))
+			$alltags_regex = '';
+		else
+		{
+			$alltags_regex = $real_alltags_regex;
+			unset($real_alltags_regex);
+		}
 	}
 
 	return $message;
@@ -2940,49 +3017,39 @@ function parsesmileys(&$message)
 	// If smileyPregSearch hasn't been set, do it now.
 	if (empty($smileyPregSearch))
 	{
-		// Use the default smileys if it is disabled. (better for "portability" of smileys.)
-		if (empty($modSettings['smiley_enable']))
+		// Cache for longer when customized smiley codes aren't enabled
+		$cache_time = empty($modSettings['smiley_enable']) ? 7200 : 480;
+
+		// Load the smileys in reverse order by length so they don't get parsed incorrectly.
+		if (($temp = cache_get_data('parsing_smileys_' . $user_info['smiley_set'], $cache_time)) == null)
 		{
-			$smileysfrom = array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)');
-			$smileysto = array('evil', 'cheesy', 'rolleyes', 'angry', 'laugh', 'smiley', 'wink', 'grin', 'sad', 'shocked', 'cool', 'tongue', 'huh', 'embarrassed', 'lipsrsealed', 'kiss', 'cry', 'undecided', 'azn', 'afro', 'police', 'angel');
-			$smileysdescs = array('', $txt['icon_cheesy'], $txt['icon_rolleyes'], $txt['icon_angry'], '', $txt['icon_smiley'], $txt['icon_wink'], $txt['icon_grin'], $txt['icon_sad'], $txt['icon_shocked'], $txt['icon_cool'], $txt['icon_tongue'], $txt['icon_huh'], $txt['icon_embarrassed'], $txt['icon_lips'], $txt['icon_kiss'], $txt['icon_cry'], $txt['icon_undecided'], '', '', '', '');
+			$result = $smcFunc['db_query']('', '
+				SELECT s.code, f.filename, s.description
+				FROM {db_prefix}smileys AS s
+					JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
+				WHERE f.smiley_set = {string:smiley_set}' . (empty($modSettings['smiley_enable']) ? '
+					AND s.code IN ({array_string:default_codes})' : '') . '
+				ORDER BY LENGTH(s.code) DESC',
+				array(
+					'default_codes' => array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)'),
+					'smiley_set' => $user_info['smiley_set'],
+				)
+			);
+			$smileysfrom = array();
+			$smileysto = array();
+			$smileysdescs = array();
+			while ($row = $smcFunc['db_fetch_assoc']($result))
+			{
+				$smileysfrom[] = $row['code'];
+				$smileysto[] = $smcFunc['htmlspecialchars']($row['filename']);
+				$smileysdescs[] = !empty($txt['icon_' . strtolower($row['description'])]) ? $txt['icon_' . strtolower($row['description'])] : $row['description'];
+			}
+			$smcFunc['db_free_result']($result);
+
+			cache_put_data('parsing_smileys_' . $user_info['smiley_set'], array($smileysfrom, $smileysto, $smileysdescs), $cache_time);
 		}
 		else
-		{
-			// Load the smileys in reverse order by length so they don't get parsed wrong.
-			if (($temp = cache_get_data('parsing_smileys', 480)) == null)
-			{
-				$result = $smcFunc['db_query']('', '
-					SELECT code, filename, description
-					FROM {db_prefix}smileys
-					ORDER BY LENGTH(code) DESC',
-					array(
-					)
-				);
-				$smileysfrom = array();
-				$smileysto = array();
-				$smileysdescs = array();
-				while ($row = $smcFunc['db_fetch_assoc']($result))
-				{
-					$smileysfrom[] = $row['code'];
-					$smileysto[] = $smcFunc['htmlspecialchars']($row['filename']);
-					$smileysdescs[] = $row['description'];
-				}
-				$smcFunc['db_free_result']($result);
-
-				cache_put_data('parsing_smileys', array($smileysfrom, $smileysto, $smileysdescs), 480);
-			}
-			else
-				list ($smileysfrom, $smileysto, $smileysdescs) = $temp;
-		}
-
-		// Set proper extensions; do this post caching so cache doesn't become extension-specific
-		foreach ($smileysto AS $ix => $file)
-			// Need to use the default if user selection is disabled
-			if (empty($modSettings['smiley_sets_enable']))
-				$smileysto[$ix] = $file . $context['user']['smiley_set_default_ext'];
-			else
-				$smileysto[$ix] = $file . $user_info['smiley_set_ext'];
+			list ($smileysfrom, $smileysto, $smileysdescs) = $temp;
 
 		// The non-breaking-space is a complex thing...
 		$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
@@ -3019,8 +3086,7 @@ function parsesmileys(&$message)
 	}
 
 	// Replace away!
-	$message = preg_replace_callback($smileyPregSearch,
-		function($matches) use ($smileyPregReplacements)
+	$message = preg_replace_callback($smileyPregSearch, function($matches) use ($smileyPregReplacements)
 		{
 			return $smileyPregReplacements[$matches[1]];
 		}, $message);
@@ -3712,14 +3778,14 @@ function template_header()
  */
 function theme_copyright()
 {
-	global $forum_copyright, $software_year, $forum_version;
+	global $forum_copyright;
 
 	// Don't display copyright for things like SSI.
-	if (!isset($forum_version) || !isset($software_year))
+	if (SMF !== 1)
 		return;
 
 	// Put in the version...
-	printf($forum_copyright, $forum_version, $software_year);
+	printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR);
 }
 
 /**
@@ -3810,7 +3876,7 @@ function template_javascript($do_deferred = false)
 
 			else
 				echo '
-	<script src="', $js_file['fileUrl'], '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '', '></script>';
+	<script src="', $js_file['fileUrl'], isset($file['options']['seed']) ? $file['options']['seed'] : '', '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '', '></script>';
 		}
 
 		foreach ($toMinify as $js_files)
@@ -3861,7 +3927,6 @@ window.addEventListener("DOMContentLoaded", function() {';
 
 /**
  * Output the CSS files
- *
  */
 function template_css()
 {
@@ -3895,7 +3960,7 @@ function template_css()
 				$minSeed = $file['options']['seed'];
 		}
 		else
-			$normal[] = $file['fileUrl'];
+			$normal[] = $file['fileUrl'] . (isset($file['options']['seed']) ? $file['options']['seed'] : '');
 	}
 
 	if (!empty($toMinify))
@@ -3959,7 +4024,7 @@ function custMinify($data, $type)
 	// Different pages include different files, so we use a hash to label the different combinations
 	$hash = md5(implode(' ', array_map(function($file)
 	{
-		return $file['filePath'] . (int) @filesize($file['filePath']) . (int) @filemtime($file['filePath']);
+		return $file['filePath'] . '-' . $file['mtime'];
 	}, $data)));
 
 	// Is this a deferred or asynchronous JavaScript file?
@@ -4010,14 +4075,7 @@ function custMinify($data, $type)
 
 	foreach ($data as $id => $file)
 	{
-		if (empty($file['filePath']))
-			$toAdd = false;
-		else
-		{
-			$seed = isset($file['options']['seed']) ? $file['options']['seed'] : '';
-			$tempFile = str_replace($seed, '', $file['filePath']);
-			$toAdd = file_exists($tempFile) ? $tempFile : false;
-		}
+		$toAdd = !empty($file['filePath']) && file_exists($file['filePath']) ? $file['filePath'] : false;
 
 		// The file couldn't be located so it won't be added. Log this error.
 		if (empty($toAdd))
@@ -4055,13 +4113,14 @@ function custMinify($data, $type)
 }
 
 /**
- * Clears out old minimized CSS and JavaScript files
+ * Clears out old minimized CSS and JavaScript files and ensures $modSettings['browser_cache'] is up to date
  */
 function deleteAllMinified()
 {
-	global $smcFunc, $txt;
+	global $smcFunc, $txt, $modSettings;
 
 	$not_deleted = array();
+	$most_recent = 0;
 
 	// Kinda sucks that we need to do another query to get all the theme dirs, but c'est la vie.
 	$request = $smcFunc['db_query']('', '
@@ -4076,15 +4135,23 @@ function deleteAllMinified()
 	{
 		foreach (array('css', 'js') as $type)
 		{
-			foreach (glob(rtrim($theme['dir'], '/') . '/' . ($type == 'css' ? 'css' : 'scripts') . '/minified*.' . $type) as $filename)
+			foreach (glob(rtrim($theme['dir'], '/') . '/' . ($type == 'css' ? 'css' : 'scripts') . '/*.' . $type) as $filename)
 			{
-				// Try to delete the file. Add it to our error list if it fails.
-				if (!@unlink($filename))
+				// We want to find the most recent mtime of non-minified files
+				if (strpos(pathinfo($filename, PATHINFO_BASENAME), 'minified') === false)
+					$most_recent = max($modSettings['browser_cache'], (int) @filemtime($filename));
+
+				// Try to delete minified files. Add them to our error list if that fails.
+				elseif (!@unlink($filename))
 					$not_deleted[] = $filename;
 			}
 		}
 	}
 	$smcFunc['db_free_result']($request);
+
+	// This setting tracks the most recent modification time of any of our CSS and JS files
+	if ($most_recent > $modSettings['browser_cache'])
+		updateSettings(array('browser_cache' => $most_recent));
 
 	// If any of the files could not be deleted, log an error about it.
 	if (!empty($not_deleted))
@@ -4370,7 +4437,6 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  * Sets up all of the top menu buttons
  * Saves them in the cache if it is available and on
  * Places the results in $context
- *
  */
 function setupMenuContext()
 {

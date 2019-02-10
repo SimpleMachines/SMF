@@ -13,8 +13,10 @@
 
 // Version information...
 define('SMF_VERSION', '2.1 RC1');
-define('SMF_LANG_VERSION', '2.1 RC1');
+define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2019');
+define('SMF_LANG_VERSION', '2.1 RC1');
+define('SMF_INSTALLING', 1);
 
 /**
  * The minimum required PHP version.
@@ -91,8 +93,8 @@ $upcontext['steps'] = array(
 	1 => array(2, 'upgrade_step_options', 'UpgradeOptions', 2),
 	2 => array(3, 'upgrade_step_backup', 'BackupDatabase', 10),
 	3 => array(4, 'upgrade_step_database', 'DatabaseChanges', 50),
-	4 => array(5, 'upgrade_step_convertutf', 'ConvertUtf8', 20),
-	5 => array(6, 'upgrade_step_convertjson', 'serialize_to_json', 10),
+	4 => array(5, 'upgrade_step_convertjson', 'serialize_to_json', 10),
+	5 => array(6, 'upgrade_step_convertutf', 'ConvertUtf8', 20),
 	6 => array(7, 'upgrade_step_delete', 'DeleteUpgrade', 1),
 );
 // Just to remember which one has files in it.
@@ -153,6 +155,8 @@ if (isset($upgradeData))
 	$upcontext['updated'] = $upcontext['user']['updated'];
 
 	$is_debug = !empty($upcontext['user']['debug']) ? true : false;
+
+	$upcontext['skip_db_substeps'] = !empty($upcontext['user']['skip_db_substeps']);
 }
 
 // Nothing sensible?
@@ -160,6 +164,7 @@ if (empty($upcontext['updated']))
 {
 	$upcontext['started'] = time();
 	$upcontext['updated'] = 0;
+	$upcontext['skip_db_substeps'] = false;
 	$upcontext['user'] = array(
 		'id' => 0,
 		'name' => 'Guest',
@@ -332,6 +337,7 @@ function upgradeExit($fallThrough = false)
 		$upcontext['user']['step'] = $upcontext['current_step'];
 		$upcontext['user']['substep'] = $_GET['substep'];
 		$upcontext['user']['updated'] = time();
+		$upcontext['user']['skip_db_substeps'] = !empty($upcontext['skip_db_substeps']);
 		$upcontext['debug'] = $is_debug;
 		$upgradeData = base64_encode(json_encode($upcontext['user']));
 		require_once($sourcedir . '/Subs-Admin.php');
@@ -1572,7 +1578,7 @@ function DatabaseChanges()
 // Delete the damn thing!
 function DeleteUpgrade()
 {
-	global $command_line, $language, $upcontext, $sourcedir, $forum_version;
+	global $command_line, $language, $upcontext, $sourcedir;
 	global $user_info, $maintenance, $smcFunc, $db_type, $txt, $settings;
 
 	// Now it's nice to have some of the basic SMF source files.
@@ -1620,7 +1626,6 @@ function DeleteUpgrade()
 	else
 	{
 		require_once($sourcedir . '/ScheduledTasks.php');
-		$forum_version = SMF_VERSION; // The variable is usually defined in index.php so lets just use the constant to do it for us.
 		scheduled_fetchSMfiles(); // Now go get those files!
 		// This is needed in case someone invokes the upgrader using https when upgrading an http forum
 		if (httpsOn())
@@ -1640,7 +1645,7 @@ function DeleteUpgrade()
 		),
 		array(
 			time(), 3, $user_info['id'], $command_line ? '127.0.0.1' : $user_info['ip'], 'upgrade',
-			0, 0, 0, json_encode(array('version' => $forum_version, 'member' => $user_info['id'])),
+			0, 0, 0, json_encode(array('version' => SMF_FULL_VERSION, 'member' => $user_info['id'])),
 		),
 		array('id_action')
 	);
@@ -1666,7 +1671,7 @@ function DeleteUpgrade()
 // Just like the built in one, but setup for CLI to not use themes.
 function cli_scheduled_fetchSMfiles()
 {
-	global $sourcedir, $language, $forum_version, $modSettings, $smcFunc;
+	global $sourcedir, $language, $modSettings, $smcFunc;
 
 	if (empty($modSettings['time_format']))
 		$modSettings['time_format'] = '%B %d, %Y, %I:%M:%S %p';
@@ -1685,7 +1690,7 @@ function cli_scheduled_fetchSMfiles()
 		$js_files[$row['id_file']] = array(
 			'filename' => $row['filename'],
 			'path' => $row['path'],
-			'parameters' => sprintf($row['parameters'], $language, urlencode($modSettings['time_format']), urlencode($forum_version)),
+			'parameters' => sprintf($row['parameters'], $language, urlencode($modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
 		);
 	}
 	$smcFunc['db_free_result']($request);
@@ -1947,6 +1952,9 @@ function parse_sql($filename)
 					$upcontext['actioned_items'][] = $last_step;
 					if ($command_line)
 						echo ' * ';
+
+					// Starting a new main step in our DB changes, so it's time to reset this.
+					$upcontext['skip_db_substeps'] = false;
 				}
 			}
 			elseif ($type == '#')
@@ -1973,7 +1981,7 @@ function parse_sql($filename)
 					elseif (trim($line) != '---#')
 					{
 						if ($is_debug)
-							$upcontext['actioned_items'][] = htmlspecialchars(rtrim(substr($line, 4)));
+							$upcontext['actioned_items'][] = $upcontext['current_debug_item_name'];
 					}
 				}
 
@@ -1997,13 +2005,19 @@ function parse_sql($filename)
 			{
 				$current_type = 'sql';
 
-				if (!$do_current)
+				if (!$do_current || !empty($upcontext['skip_db_substeps']))
 				{
 					$current_data = '';
+
+					// Avoid confusion when skipping something we normally would have done
+					if ($do_current)
+						$done_something = true;
+
 					continue;
 				}
 
-				if (eval('global $db_prefix, $modSettings, $smcFunc, $txt; ' . $current_data) === false)
+				// @todo Update this to a try/catch for PHP 7+, because eval() now throws an exception for parse errors instead of returning false
+				if (eval('global $db_prefix, $modSettings, $smcFunc, $txt, $upcontext; ' . $current_data) === false)
 				{
 					$upcontext['error_message'] = 'Error in upgrade script ' . basename($filename) . ' on line ' . $line_number . '!' . $endl;
 					if ($command_line)
@@ -2023,9 +2037,13 @@ function parse_sql($filename)
 		{
 			if ((!$support_js || isset($_GET['xml'])))
 			{
-				if (!$do_current)
+				if (!$do_current || !empty($upcontext['skip_db_substeps']))
 				{
 					$current_data = '';
+
+					if ($do_current)
+						$done_something = true;
+
 					continue;
 				}
 
@@ -3174,6 +3192,30 @@ function ConvertUtf8()
 	return false;
 }
 
+/**
+ * Attempts to repair corrupted serialized data strings
+ *
+ * @param string $string Serialized data that has been corrupted
+ * @return string|bool A working version of the serialized data, or the original if the repair failed
+ */
+function fix_serialized_data($string)
+{
+	// If its not broken, don't fix it.
+	if (!is_string($string) || !preg_match('/^[bidsa]:/', $string) || @safe_unserialize($string) !== false)
+		return $string;
+
+	// This bit fixes incorrect string lengths, which can happen if the character encoding was changed (e.g. conversion to UTF-8)
+	$new_string = preg_replace_callback('~\bs:(\d+):"(.*?)";(?=$|[bidsa]:|[{}]|N;)~s', function ($matches) {return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";';}, $string);
+
+	// @todo Add more possible fixes here. For example, fix incorrect array lengths, try to handle truncated strings gracefully, etc.
+
+	// Did it work?
+	if (@safe_unserialize($new_string) !== false)
+		return $new_string;
+	else
+		return $string;
+}
+
 function serialize_to_json()
 {
 	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $txt;
@@ -3183,7 +3225,7 @@ function serialize_to_json()
 	if (!empty($modSettings['json_done']))
 	{
 		if ($command_line)
-			return DeleteUpgrade();
+			return ConvertUtf8();
 		else
 			return true;
 	}
@@ -3276,6 +3318,10 @@ function serialize_to_json()
 					{
 						// Attempt to unserialize the setting
 						$temp = @safe_unserialize($modSettings[$var]);
+						// Maybe conversion to UTF-8 corrupted it
+						if ($temp === false)
+							$temp = @safe_unserialize(fix_serialized_data($modSettings[$var]));
+
 						if (!$temp && $command_line)
 							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
 						elseif ($temp !== false)
@@ -3307,6 +3353,8 @@ function serialize_to_json()
 					while ($row = $smcFunc['db_fetch_assoc']($query))
 					{
 						$temp = @safe_unserialize($row['value']);
+						if ($temp === false)
+							$temp = @safe_unserialize(fix_serialized_data($row['value']));
 
 						if ($command_line)
 						{
@@ -3384,12 +3432,15 @@ function serialize_to_json()
 							if ($col !== true && $row[$col] != '')
 							{
 								$temp = @safe_unserialize($row[$col]);
+								if ($temp === false)
+									$temp = @safe_unserialize(fix_serialized_data($row[$col]));
 
 								if ($temp === false && $command_line)
 								{
 									echo "\nFailed to unserialize " . $row[$col] . "... Skipping\n";
 								}
-								else
+								// If unserialize failed, it's better to leave the data alone than to overwrite it with an empty JSON value
+								elseif ($temp !== false)
 								{
 									$row[$col] = json_encode($temp);
 
@@ -3439,7 +3490,7 @@ function serialize_to_json()
 		$_GET['substep'] = 0;
 		// Make sure we move on!
 		if ($command_line)
-			return DeleteUpgrade();
+			return ConvertUtf8();
 
 		return true;
 	}
@@ -3616,9 +3667,9 @@ function template_upgrade_above()
 	<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
 	<meta name="robots" content="noindex">
 	<title>', $txt['upgrade_upgrade_utility'], '</title>
-	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css?alp21">
-	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/install.css?alp21">
-	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css?alp21">' : '', '
+	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">
+	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/install.css">
+	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css">' : '', '
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 	<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 	<script>
@@ -3897,7 +3948,7 @@ function template_welcome_message()
 	echo '
 					<strong>', $txt['upgrade_admin_login'], ' ', $disable_security ? '(DISABLED)' : '', '</strong>
 					<h3>', $txt['upgrade_sec_login'], '</h3>
-					<dl class="settings">
+					<dl class="settings adminlogin">
 						<dt>
 							<label for="user"', $disable_security ? ' disabled' : '', '>', $txt['upgrade_username'], '</label>
 						</dt>
@@ -4274,6 +4325,7 @@ function template_database_changes()
 							var iSubStepProgress = -1;
 							var iDebugNum = 0;
 							var bIsComplete = 0;
+							var bSkipped = 0;
 							getData = "";
 
 							// We\'ve got something - so reset the timeout!
@@ -4340,6 +4392,7 @@ function template_database_changes()
 							iItemNum = oXMLDoc.getElementsByTagName("item")[0].getAttribute("num");
 							iDebugNum = parseInt(oXMLDoc.getElementsByTagName("debug")[0].getAttribute("num"));
 							bIsComplete = parseInt(oXMLDoc.getElementsByTagName("debug")[0].getAttribute("complete"));
+							bSkipped = parseInt(oXMLDoc.getElementsByTagName("debug")[0].getAttribute("skipped"));
 							iSubStepProgress = parseFloat(oXMLDoc.getElementsByTagName("debug")[0].getAttribute("percent"));
 							sLastString = sDebugName + " (Item: " + iDebugNum + ")";
 
@@ -4436,7 +4489,9 @@ console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes,
 							}
 							iLastSubStepProgress = iSubStepProgress;
 
-							if (bIsComplete)
+							if (bIsComplete && bSkipped)
+								setOuterHTML(document.getElementById(\'debuginfo\'), \'skipped<br><span id="debuginfo"><\' + \'/span>\');
+							else if (bIsComplete)
 								setOuterHTML(document.getElementById(\'debuginfo\'), \'done<br><span id="debuginfo"><\' + \'/span>\');
 							else
 								setOuterHTML(document.getElementById(\'debuginfo\'), \'...<span id="debuginfo"><\' + \'/span>\');
@@ -4521,7 +4576,7 @@ function template_database_xml()
 	echo '
 	<file num="', $upcontext['cur_file_num'], '" items="', $upcontext['total_items'], '" debug_items="', $upcontext['debug_items'], '">', $upcontext['cur_file_name'], '</file>
 	<item num="', $upcontext['current_item_num'], '">', $upcontext['current_item_name'], '</item>
-	<debug num="', $upcontext['current_debug_item_num'], '" percent="', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : '-1', '" complete="', empty($upcontext['completed_step']) ? 0 : 1, '">', $upcontext['current_debug_item_name'], '</debug>';
+	<debug num="', $upcontext['current_debug_item_num'], '" percent="', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : '-1', '" complete="', empty($upcontext['completed_step']) ? 0 : 1, '" skipped="', empty($upcontext['skip_db_substeps']) ? 0 : 1, '">', $upcontext['current_debug_item_name'], '</debug>';
 
 	if (!empty($upcontext['error_message']))
 		echo '

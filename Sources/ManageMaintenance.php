@@ -1334,7 +1334,7 @@ function AdminBoardRecount()
  */
 function VersionDetail()
 {
-	global $forum_version, $txt, $sourcedir, $context;
+	global $txt, $sourcedir, $context;
 
 	isAllowedTo('admin_forum');
 
@@ -1359,7 +1359,7 @@ function VersionDetail()
 	);
 
 	// Make it easier to manage for the template.
-	$context['forum_version'] = $forum_version;
+	$context['forum_version'] = SMF_FULL_VERSION;
 
 	$context['sub_template'] = 'view_versions';
 	$context['page_title'] = $txt['admin_version_check'];

@@ -1006,7 +1006,7 @@ function loadEssentialThemeData()
  */
 function scheduled_fetchSMfiles()
 {
-	global $sourcedir, $txt, $language, $forum_version, $modSettings, $smcFunc, $context;
+	global $sourcedir, $txt, $language, $modSettings, $smcFunc, $context;
 
 	// What files do we want to get
 	$request = $smcFunc['db_query']('', '
@@ -1023,7 +1023,7 @@ function scheduled_fetchSMfiles()
 		$js_files[$row['id_file']] = array(
 			'filename' => $row['filename'],
 			'path' => $row['path'],
-			'parameters' => sprintf($row['parameters'], $language, urlencode($modSettings['time_format']), urlencode($forum_version)),
+			'parameters' => sprintf($row['parameters'], $language, urlencode($modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
 		);
 	}
 
