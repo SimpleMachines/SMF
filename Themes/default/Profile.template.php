@@ -2892,8 +2892,8 @@ function template_profile_avatar_select()
 									<div>
 										<select name="file" id="file" size="10" style="display: none;" onchange="showAvatar()" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'server_stored\');" disabled><option></option></select>
 									</div>
-									<div>
-										<img id="avatar" src="', !empty($context['member']['avatar']['allow_external']) && $context['member']['avatar']['choice'] == 'external' ? $context['member']['avatar']['external'] : $modSettings['avatar_url'] . '/blank.png', '" alt="Do Nothing">
+									<div class="edit_avatar_img">
+										<img id="avatar" src="' . $context['member']['avatar']['href'] . '" alt="">
 									</div>
 									<script>
 										var files = ["' . implode('", "', $context['avatar_list']) . '"];
@@ -2919,6 +2919,7 @@ function template_profile_avatar_select()
 	if (!empty($context['member']['avatar']['allow_external']))
 		echo '
 								<div id="avatar_external">
+									', $context['member']['avatar']['choice'] == 'external' ? '<div class="edit_avatar_img"><img src="' . $context['member']['avatar']['href'] . '" alt=""></div>' : '', '
 									<div class="smalltext">', $txt['avatar_by_url'], '</div>', !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
 									<input type="text" name="userpicpersonal" size="45" value="', ((stristr($context['member']['avatar']['external'], 'http://') || stristr($context['member']['avatar']['external'], 'https://')) ? $context['member']['avatar']['external'] : 'http://'), '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);">
 								</div>';
@@ -2927,6 +2928,7 @@ function template_profile_avatar_select()
 	if (!empty($context['member']['avatar']['allow_upload']))
 		echo '
 								<div id="avatar_upload">
+									', $context['member']['avatar']['choice'] == 'upload' ? '<div class="edit_avatar_img"><img src="' . $context['member']['avatar']['href'] . '" alt=""></div>' : '', '
 									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onchange="readfromUpload(this)"  onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" accept="image/gif, image/jpeg, image/jpg, image/png">', template_max_size('upload'), '
 									', (!empty($context['member']['avatar']['id_attach']) ? '<br><img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt="" id="attached_image"><input type="hidden" name="id_attach" value="' . $context['member']['avatar']['id_attach'] . '">' : ''), '
 								</div>';
@@ -2936,7 +2938,7 @@ function template_profile_avatar_select()
 	{
 		echo '
 								<div id="avatar_gravatar">
-									<img src="' . $context['member']['avatar']['href'] . '" alt="">';
+									', $context['member']['avatar']['choice'] == 'gravatar' ? '<div class="edit_avatar_img"><img src="' . $context['member']['avatar']['href'] . '" alt=""></div>' : '';
 
 		if (empty($modSettings['gravatarAllowExtraEmail']))
 			echo '
