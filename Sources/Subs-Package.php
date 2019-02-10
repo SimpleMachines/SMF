@@ -3077,9 +3077,22 @@ function package_create_backup($id = 'backup')
 		if (function_exists('apache_reset_timeout'))
 			@apache_reset_timeout();
 
+		// Phar doesn't handle open_basedir restrictions very well and throws a PHP Warning. Ignore that.
+		set_error_handler(function($errno, $errstr, $errfile, $errline)
+		{
+			// error was suppressed with the @-operator
+			if (0 === error_reporting())
+			{
+				return false;
+			}
+			if (strpos($errstr, 'PharData::__construct(): open_basedir') === false && strpos($errstr, 'PharData::compress(): open_basedir') === false)
+				log_error($errstr, 'general', $errfile, $errline);
+		}
+		);
 		$a = new PharData($output_file);
 		$a->buildFromIterator($iterator);
 		$a->compress(Phar::GZ);
+		restore_error_handler();
 
 		/*
 		 * Destroying the local var tells PharData to close its internal
