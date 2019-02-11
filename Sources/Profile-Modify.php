@@ -2365,7 +2365,7 @@ function alert_count($memID, $unread = false)
 	$possible_boards = array_unique($possible_boards);
 
 	// If this isn't the current user, get their boards.
-	if (!isset($user_info) || $user_info['id'] != $memID)
+	if (!isset($user_info['id']) || $user_info['id'] != $memID)
 	{
 		$query_see_board = build_query_board($memID);
 		$query_see_board = $query_see_board['query_see_board'];
