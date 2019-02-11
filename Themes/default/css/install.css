@@ -119,25 +119,19 @@ h1.forumtitle {
 	max-height: 8.4em; /* 6 lines of text */
 	line-height: 1.4em;
 }
-dl.settings {
-	display: -ms-grid;
-	display: grid;
-	-ms-grid-gap: 0.5em 1em;
-	grid-gap: 0.5em 1em;
-	justify-content: start;
-}
 dl.settings dt, dl.settings dd {
-	float: none;
-	width: auto;
+	width: 50%;
 }
-dl.settings dt {
-	font-weight: bold;
-	-ms-grid-column: 1;
-	grid-column: 1;
+dl.settings.adminlogin dt {
+	width: 20ch;
 }
-dl.settings dd {
-	-ms-grid-column: 2;
-	grid-column: 2;
+dl.settings.adminlogin dd {
+	width: calc(100% - 20ch);
+}
+@media (max-width: 480px) {
+	dl.settings.adminlogin dt, dl.settings.adminlogin dd {
+		width: 100%;
+	}
 }
 /* [WIP] Warning: this next bit may cause trouble. */
 /* It's just to hide an empty div when the submits are not shown. */

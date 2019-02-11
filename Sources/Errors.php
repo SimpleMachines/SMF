@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -228,7 +228,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
 	}
 
-	log_error_online($error, true, $sprintf);
+	log_error_online($error, $sprintf);
 	setup_fatal_error_context($error_message, $error);
 }
 

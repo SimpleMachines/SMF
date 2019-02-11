@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -485,7 +485,7 @@ function template_modify_group()
 
 	if (!empty($modSettings['permission_enable_deny']) && $context['group']['id'] != -1)
 		echo '
-			<div class="information">
+			<div class="noticebox">
 				', $txt['permissions_option_desc'], '
 			</div>';
 
@@ -594,7 +594,11 @@ function template_modify_group_display($type)
 							<td>
 								', $permission['show_help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . $txt['help'] . '"></span></a>' : '', '
 							</td>
-							<td class="lefttext full_width">', $permission['name'], '</td><td>';
+							<td class="lefttext full_width">
+								', $permission['name'], (!empty($permission['note']) ? '<br>
+								<strong class="smalltext">' . $permission['note'] . '</strong>' : ''), '
+							</td>
+							<td>';
 
 					if ($permission['has_own_any'])
 					{

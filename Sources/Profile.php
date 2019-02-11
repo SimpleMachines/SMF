@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -858,12 +858,20 @@ function alerts_popup($memID)
 	// We only want to output our little layer here.
 	$context['template_layers'] = array();
 
+	// No funny business allowed
+	$fetch_all = !isset($_REQUEST['counter']);
+	$_REQUEST['counter'] = isset($_REQUEST['counter']) ? max(0, (int) $_REQUEST['counter']) : 0;
+
 	$context['unread_alerts'] = array();
-	if (empty($_REQUEST['counter']) || (int) $_REQUEST['counter'] < $cur_profile['alerts'])
+	if ($fetch_all || $_REQUEST['counter'] < $cur_profile['alerts'])
 	{
 		// Now fetch me my unread alerts, pronto!
 		require_once($sourcedir . '/Profile-View.php');
-		$context['unread_alerts'] = fetch_alerts($memID, false, $cur_profile['alerts'] - (!empty($_REQUEST['counter']) ? (int) $_REQUEST['counter'] : 0));
+		$context['unread_alerts'] = fetch_alerts($memID, false, $fetch_all ? null : $cur_profile['alerts'] - $_REQUEST['counter']);
+
+		// This shouldn't happen, but just in case...
+		if ($fetch_all && $cur_profile['alerts'] != count($context['unread_alerts']))
+			updateMemberData($memID, array('alerts' => count($context['unread_alerts'])));
 	}
 }
 

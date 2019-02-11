@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -667,12 +667,12 @@ function template_modify_board()
 			var nonDefaultTheme = document.getElementById("boardtheme").value == 0 ? false : true;
 
 			// What to show?
-			
-			if(redirectEnabled || !nonDefaultTheme) 
-				document.getElementById("override_theme_div").classList.add(\'hidden\'); 
-			else 
+
+			if(redirectEnabled || !nonDefaultTheme)
+				document.getElementById("override_theme_div").classList.add(\'hidden\');
+			else
 				document.getElementById("override_theme_div").classList.remove(\'hidden\');
-			
+
 			if(redirectEnabled) {
 				document.getElementById("board_theme_div").classList.add(\'hidden\');
 				document.getElementById("count_posts_div").classList.add(\'hidden\');
@@ -686,14 +686,14 @@ function template_modify_board()
 		echo '
 			if(redirectEnabled)
 				document.getElementById("redirect_address_div").classList.remove(\'hidden\');
-			else 
+			else
 				document.getElementById("redirect_address_div").classList.add(\'hidden\');';
 
 		if ($context['board']['redirect'])
 			echo '
 			if(redirectEnabled)
 				document.getElementById("reset_redirect_div").classList.remove(\'hidden\');
-			else 
+			else
 				document.getElementById("reset_redirect_div").classList.add(\'hidden\');';
 	}
 

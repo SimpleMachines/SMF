@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; Admin
+// Version: 2.1 RC1; Admin
 
 global $settings, $scripturl;
 
@@ -575,9 +575,11 @@ $txt['enableBBC'] = 'Enable bulletin board code (BBC)';
 $txt['enablePostHTML'] = 'Enable <em>basic</em> HTML in posts';
 $txt['autoLinkUrls'] = 'Automatically link posted URLs';
 $txt['disabledBBC'] = 'Enabled BBC tags';
+$txt['legacyBBC'] = 'Legacy BBC tags';
 $txt['bbcTagsToUse'] = 'Enabled BBC tags';
 $txt['enabled_bbc_select'] = 'Select the tags allowed to be used';
 $txt['enabled_bbc_select_all'] = 'Select all tags';
+$txt['groups_can_use'] = 'Membergroups allowed to use %1$s';
 
 $txt['enableParticipation'] = 'Enable participation icons';
 $txt['oldTopicDays'] = 'Time before topic is warned as old on reply';

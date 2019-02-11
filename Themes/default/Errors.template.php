@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 // @todo
@@ -208,7 +208,7 @@ function template_show_file()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['file_data']['file'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
 	</head>
 	<body>
 		<table class="errorfile_table">';
@@ -273,7 +273,7 @@ function template_show_backtrace()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>Backtrace</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
 	</head>
 	<body class="padding">';
 

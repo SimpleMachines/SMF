@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -165,12 +165,12 @@ abstract class cache_api implements cache_api_interface
 	/**
 	 * @var string The last version of SMF that this was tested on. Helps protect against API changes.
 	 */
-	protected $version_compatible = 'SMF 2.1 Beta 4';
+	protected $version_compatible = 'SMF 2.1 RC1';
 
 	/**
 	 * @var string The minimum SMF version that this will work with
 	 */
-	protected $min_smf_version = 'SMF 2.1 Beta 4';
+	protected $min_smf_version = 'SMF 2.1 RC1';
 
 	/**
 	 * @var string The prefix for all keys.

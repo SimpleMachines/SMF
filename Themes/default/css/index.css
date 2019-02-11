@@ -74,6 +74,11 @@ textarea {
 	font-size: 1em;
 }
 
+/* Use a consistent monospace font everywhere */
+.monospace, .bbc_code, .phpcode, pre, #error_log span.error_message {
+	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
+}
+
 .sceditor-container textarea, .sceditor-container textarea:focus {
 	box-shadow: none;
 }
@@ -330,7 +335,6 @@ blockquote cite::before {
 /* A code block - maybe PHP ;). */
 .bbc_code {
 	display: block;
-	font-family: "DejaVu Sans Mono", Monaco, Consolas, monospace;
 	font-size: 0.75em;
 	background: #f3f3f3;
 	border: 1px solid #dfdfdf;
@@ -401,7 +405,7 @@ blockquote cite::before {
 	margin-left: 1em;
 	clear: right;
 }
-.postarea .bbc_img:hover {
+.postarea .bbc_img.resized:hover {
 	cursor: pointer;
 }
 .bbc_img.original_size {
@@ -1609,7 +1613,7 @@ dl.register_form dd {
 	vertical-align: middle;
 }
 
-tr.windowbg td, .table_grid tr td {
+tr.windowbg td, tr.bg td, .table_grid tr td {
 	padding: 4px 8px;
 }
 #credits p {
@@ -2718,10 +2722,10 @@ dl.addrules dt.floatleft {
 	overflow: auto;
 }
 /* Here comes the glory... */
-.windowbg:nth-of-type(even) {
+.windowbg:nth-of-type(even), .bg.even {
 	background: #f0f4f7;
 }
-.windowbg:nth-of-type(odd) {
+.windowbg:nth-of-type(odd), .bg.odd {
 	background: #fdfdfd;
 }
 
@@ -2990,7 +2994,7 @@ span.postby {
 	border-bottom: none;
 	box-shadow: none;
 }
-#description_board h3, #description_board p {
+#description_board h3, #description_board div {
 	display: inline-block;
 }
 #description_board h3::after {
@@ -3826,6 +3830,8 @@ h3.profile_hd {
 }
 #attachment_previews .attach-ui {
 	min-height: 36px;
+	padding: 10px 0;
+	float: right;
 }
 input[name="attachBBC"] {
 	width: 100%;

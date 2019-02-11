@@ -37,7 +37,6 @@ ALTER TABLE {$db_prefix}members CHANGE birthdate birthdate date NOT NULL DEFAULT
 /******************************************************************************/
 --- Adding new settings...
 /******************************************************************************/
-
 ---# Adding login history...
 CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
 	id_login INT(10) AUTO_INCREMENT,
@@ -122,17 +121,6 @@ DROP TABLE IF EXISTS {$db_prefix}collapsed_categories;
 
 ---# Adding new "topic_move_any" setting
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1');
----#
-
----# Adding new "browser_cache" setting
----{
-	$smcFunc['db_insert']('replace',
-		'{db_prefix}settings',
-		array('variable' => 'string', 'value' => 'string'),
-		array('browser_cache', '?beta21'),
-		array('variable')
-	);
----}
 ---#
 
 ---# Adding new "enable_ajax_alerts" setting
@@ -491,7 +479,6 @@ elseif (empty($modSettings['json_done']))
 /******************************************************************************/
 --- Adding support for logging who fulfils a group request.
 /******************************************************************************/
-
 ---# Adding new columns to log_group_requests
 ALTER TABLE {$db_prefix}log_group_requests
 ADD COLUMN status TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
@@ -977,7 +964,7 @@ foreach ($toMove as $move)
 	$image = explode('#', $move);
 	$image = $image[1];
 
-	// PHP won't suppress errors when running things from shell, so make sure it exists first...
+	// PHP wont suppress errors when running things from shell, so make sure it exists first...
 	if (file_exists($modSettings['theme_dir'] . '/images/' . $image))
 		@rename($modSettings['theme_dir'] . '/images/' . $image, $modSettings['theme_dir'] . '/images/membericons/'. $image);
 }
@@ -2316,25 +2303,6 @@ ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip2 VARBINARY(16);
 ---#
 
 /******************************************************************************/
---- Update log_online ip with ipv6 support without converting
-/******************************************************************************/
----# Delete old column log banned ip
----{
-$doChange = true;
-$column_info = upgradeGetColumnInfo('{db_prefix}log_online', 'ip');
-if (stripos($column_info['type'], 'varbinary') !== false)
-	$doChange = false;
-
-if ($doChange)
-	upgrade_query("ALTER TABLE {$db_prefix}log_online DROP COLUMN ip;");
----}
----#
-
----# Add the new log banned ip
-ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
----#
-
-/******************************************************************************/
 --- Renaming the "profile_other" permission...
 /******************************************************************************/
 ---# Changing the "profile_other" permission to "profile_website"
@@ -2542,62 +2510,45 @@ DROP INDEX id_board;
 /******************************************************************************/
 --- Update smileys
 /******************************************************************************/
----# Remove hardcoded gif extensions
-UPDATE {$db_prefix}smileys
-SET filename = REPLACE(filename, '.gif', '')
-WHERE
-	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
-	filename LIKE '%.gif';
----#
-
----# Remove hardcoded png extensions
-UPDATE {$db_prefix}smileys
-SET filename = REPLACE(filename, '.png', '')
-WHERE
-	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
-	filename LIKE '%.png';
----#
-
----# Adding new extensions setting...
----{
-if (!isset($modSettings['smiley_sets_exts']))
-	upgrade_query("
-		INSERT INTO {$db_prefix}settings
-			(variable, value)
-		VALUES
-			('smiley_sets_exts', '')");
----}
+---# Adding the new `smiley_files` table
+CREATE TABLE IF NOT EXISTS {$db_prefix}smiley_files
+(
+	id_smiley SMALLINT NOT NULL DEFAULT '0',
+	smiley_set VARCHAR(48) NOT NULL DEFAULT '',
+	filename VARCHAR(48) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_smiley, smiley_set)
+) ENGINE=MyISAM;
 ---#
 
 ---# Cleaning up unused smiley sets and adding the lovely new ones
 ---{
 // Start with the prior values...
 $dirs = explode(',', $modSettings['smiley_sets_known']);
-$setexts = empty($modSettings['smiley_sets_exts']) ? array() : explode(',', $modSettings['smiley_sets_exts']);
 $setnames = explode("\n", $modSettings['smiley_sets_names']);
 
 // Build combined pairs of folders and names; bypass default which is not used anymore
-// If extensions not provided, assume its an old 2.0 one, i.e., a .gif
 $combined = array();
 foreach ($dirs AS $ix => $dir)
+{
 	if (!empty($setnames[$ix]) && $dir != 'default')
-	{
-		$combined[$dir] = array($setnames[$ix], empty($setexts[$ix]) ? '.gif' : $setexts[$ix]);
-	}
+		$combined[$dir] = array($setnames[$ix], '');
+}
 
 // Add our lovely new 2.1 smiley sets if not already there
-$combined['fugue'] = array($txt['default_fugue_smileyset_name'], '.png');
-$combined['alienine'] = array($txt['default_alienine_smileyset_name'], '.png');
+$combined['fugue'] = array($txt['default_fugue_smileyset_name'], 'png');
+$combined['alienine'] = array($txt['default_alienine_smileyset_name'], 'png');
 
 // Add/fix our 2.0 sets (to correct past problems where these got corrupted)
-$combined['aaron'] = array($txt['default_aaron_smileyset_name'], '.gif');
-$combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], '.gif');
+$combined['aaron'] = array($txt['default_aaron_smileyset_name'], 'gif');
+$combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], 'gif');
 
 // Confirm they exist in the filesystem
 $filtered = array();
-foreach ($combined AS $dir => $attrs)
+foreach ($combined as $dir => $attrs)
+{
 	if (is_dir($modSettings['smileys_dir'] . '/' . $dir . '/'))
-		$filtered[$dir] = $attrs;
+		$filtered[$dir] = $attrs[0];
+}
 
 // Update the Settings Table...
 upgrade_query("
@@ -2607,13 +2558,61 @@ upgrade_query("
 
 upgrade_query("
 	UPDATE {$db_prefix}settings
-	SET value = '" . $smcFunc['db_escape_string'](implode(',', array_column($filtered, 1))) . "'
-	WHERE variable = 'smiley_sets_exts'");
-
-upgrade_query("
-	UPDATE {$db_prefix}settings
-	SET value = '" . $smcFunc['db_escape_string'](implode("\n", array_column($filtered, 0))) . "'
+	SET value = '" . $smcFunc['db_escape_string'](implode("\n", $filtered)) . "'
 	WHERE variable = 'smiley_sets_names'");
+
+// Populate the smiley_files table
+$smileys_columns = $smcFunc['db_list_columns']('{db_prefix}smileys');
+if (in_array('filename', $smileys_columns))
+{
+	$inserts = array();
+
+	$request = upgrade_query("
+		SELECT id_smiley, filename
+		FROM {$db_prefix}smileys");
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$pathinfo = pathinfo($row['filename']);
+
+		foreach ($filtered as $set => $dummy)
+		{
+			$ext = $pathinfo['extension'];
+
+			// If we have a default extension for this set, check if we can switch to it.
+			if (isset($combined[$set]) && !empty($combined[$set][1]))
+			{
+				if (file_exists($modSettings['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.' . $combined[$set][1]))
+					$ext = $combined[$set][1];
+			}
+			// In a custom set and no extension specified? Ugh...
+			elseif (empty($ext))
+			{
+				// Any files matching this name?
+				$found = glob($modSettings['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.*');
+				$ext = !empty($found) ? pathinfo($found[0], PATHINFO_EXTENSION) : 'gif';
+			}
+
+			$inserts[] = array($row['id_smiley'], $set, $pathinfo['filename'] . '.' . $ext);
+		}
+	}
+	$smcFunc['db_free_result']($request);
+
+	if (!empty($inserts))
+	{
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}smiley_files',
+			array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
+			$inserts,
+			array('id_smiley', 'smiley_set')
+		);
+
+		// Unless something went horrifically wrong, drop the defunct column
+		if (count($inserts) == $smcFunc['db_affected_rows']())
+			upgrade_query("
+				ALTER TABLE {$db_prefix}smileys
+				DROP COLUMN filename;");
+	}
+}
 
 // Set new default if the old one doesnt exist
 // If fugue exists, use that.  Otherwise, what the heck, just grab the first one...
@@ -2622,7 +2621,7 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 	if (array_key_exists('fugue', $filtered))
 		$newdefault = 'fugue';
 	elseif (!empty($filtered))
-		$newdefault = array_keys($filtered)[0];
+		$newdefault = reset(array_keys($filtered));
 	else
 		$newdefault = '';
 	upgrade_query("
@@ -2643,7 +2642,7 @@ ADD COLUMN backtrace varchar(10000) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
---- Update permissions system
+--- Update permissions system board_permissions_view
 /******************************************************************************/
 ---# Create table board_permissions_view
 CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
@@ -2654,6 +2653,16 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
 	PRIMARY KEY (id_group, id_board, deny)
 ) ENGINE=MyISAM;
 
+---# upgrade check
+---{
+	// if one of source col is missing skip this step
+$table_columns = $smcFunc['db_list_columns']('{db_prefix}membergroups');
+$table_columns2 = $smcFunc['db_list_columns']('{db_prefix}boards');
+$upcontext['skip_db_substeps'] = !in_array('id_group', $table_columns) || !in_array('member_groups', $table_columns2) || !in_array('deny_member_groups', $table_columns2);
+---}
+---#
+
+---#
 TRUNCATE {$db_prefix}board_permissions_view;
 ---#
 
@@ -2691,5 +2700,234 @@ where (FIND_IN_SET(-1, b.deny_member_groups) != 0);
 INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, 0, 1
 FROM {$db_prefix}boards b
 where (FIND_IN_SET(0, b.deny_member_groups) != 0);
+---#
+
+/******************************************************************************/
+--- Update holidays
+/******************************************************************************/
+---# Delete all the dates
+DELETE FROM {$db_prefix}calendar_holidays WHERE title in
+('Mother''s Day','Father''s Day', 'Summer Solstice', 'Vernal Equinox', 'Winter Solstice', 'Autumnal Equinox',
+	'Thanksgiving', 'Memorial Day', 'Labor Day', 'New Year''s', 'Christmas', 'Valentine''s Day', 'St. Patrick''s Day',
+	'April Fools', 'Earth Day', 'United Nations Day', 'Halloween', 'Independence Day', 'Cinco de Mayo', 'Flag Day',
+	'Veterans Day', 'Groundhog Day', 'D-Day');
+---#
+
+---# Insert the updated dates
+INSERT INTO {$db_prefix}calendar_holidays
+	(title, event_date)
+VALUES ('New Year''s', '1004-01-01'),
+	('Christmas', '1004-12-25'),
+	('Valentine''s Day', '1004-02-14'),
+	('St. Patrick''s Day', '1004-03-17'),
+	('April Fools', '1004-04-01'),
+	('Earth Day', '1004-04-22'),
+	('United Nations Day', '1004-10-24'),
+	('Halloween', '1004-10-31'),
+	('Mother''s Day', '2010-05-09'),
+	('Mother''s Day', '2011-05-08'),
+	('Mother''s Day', '2012-05-13'),
+	('Mother''s Day', '2013-05-12'),
+	('Mother''s Day', '2014-05-11'),
+	('Mother''s Day', '2015-05-10'),
+	('Mother''s Day', '2016-05-08'),
+	('Mother''s Day', '2017-05-14'),
+	('Mother''s Day', '2018-05-13'),
+	('Mother''s Day', '2019-05-12'),
+	('Mother''s Day', '2020-05-10'),
+	('Mother''s Day', '2021-05-09'),
+	('Mother''s Day', '2022-05-08'),
+	('Mother''s Day', '2023-05-14'),
+	('Mother''s Day', '2024-05-12'),
+	('Mother''s Day', '2025-05-11'),
+	('Mother''s Day', '2026-05-10'),
+	('Mother''s Day', '2027-05-09'),
+	('Mother''s Day', '2028-05-14'),
+	('Mother''s Day', '2029-05-13'),
+	('Mother''s Day', '2030-05-12'),
+	('Father''s Day', '2010-06-20'),
+	('Father''s Day', '2011-06-19'),
+	('Father''s Day', '2012-06-17'),
+	('Father''s Day', '2013-06-16'),
+	('Father''s Day', '2014-06-15'),
+	('Father''s Day', '2015-06-21'),
+	('Father''s Day', '2016-06-19'),
+	('Father''s Day', '2017-06-18'),
+	('Father''s Day', '2018-06-17'),
+	('Father''s Day', '2019-06-16'),
+	('Father''s Day', '2020-06-21'),
+	('Father''s Day', '2021-06-20'),
+	('Father''s Day', '2022-06-19'),
+	('Father''s Day', '2023-06-18'),
+	('Father''s Day', '2024-06-16'),
+	('Father''s Day', '2025-06-15'),
+	('Father''s Day', '2026-06-21'),
+	('Father''s Day', '2027-06-20'),
+	('Father''s Day', '2028-06-18'),
+	('Father''s Day', '2029-06-17'),
+	('Father''s Day', '2030-06-16'),
+	('Summer Solstice', '2010-06-21'),
+	('Summer Solstice', '2011-06-21'),
+	('Summer Solstice', '2012-06-20'),
+	('Summer Solstice', '2013-06-21'),
+	('Summer Solstice', '2014-06-21'),
+	('Summer Solstice', '2015-06-21'),
+	('Summer Solstice', '2016-06-20'),
+	('Summer Solstice', '2017-06-20'),
+	('Summer Solstice', '2018-06-21'),
+	('Summer Solstice', '2019-06-21'),
+	('Summer Solstice', '2020-06-20'),
+	('Summer Solstice', '2021-06-21'),
+	('Summer Solstice', '2022-06-21'),
+	('Summer Solstice', '2023-06-21'),
+	('Summer Solstice', '2024-06-20'),
+	('Summer Solstice', '2025-06-21'),
+	('Summer Solstice', '2026-06-21'),
+	('Summer Solstice', '2027-06-21'),
+	('Summer Solstice', '2028-06-20'),
+	('Summer Solstice', '2029-06-21'),
+	('Summer Solstice', '2030-06-21'),
+	('Vernal Equinox', '2010-03-20'),
+	('Vernal Equinox', '2011-03-20'),
+	('Vernal Equinox', '2012-03-20'),
+	('Vernal Equinox', '2013-03-20'),
+	('Vernal Equinox', '2014-03-20'),
+	('Vernal Equinox', '2015-03-20'),
+	('Vernal Equinox', '2016-03-20'),
+	('Vernal Equinox', '2017-03-20'),
+	('Vernal Equinox', '2018-03-20'),
+	('Vernal Equinox', '2019-03-20'),
+	('Vernal Equinox', '2020-03-20'),
+	('Vernal Equinox', '2021-03-20'),
+	('Vernal Equinox', '2022-03-20'),
+	('Vernal Equinox', '2023-03-20'),
+	('Vernal Equinox', '2024-03-20'),
+	('Vernal Equinox', '2025-03-20'),
+	('Vernal Equinox', '2026-03-20'),
+	('Vernal Equinox', '2027-03-20'),
+	('Vernal Equinox', '2028-03-20'),
+	('Vernal Equinox', '2029-03-20'),
+	('Vernal Equinox', '2030-03-20'),
+	('Winter Solstice', '2010-12-21'),
+	('Winter Solstice', '2011-12-22'),
+	('Winter Solstice', '2012-12-21'),
+	('Winter Solstice', '2013-12-21'),
+	('Winter Solstice', '2014-12-21'),
+	('Winter Solstice', '2015-12-22'),
+	('Winter Solstice', '2016-12-21'),
+	('Winter Solstice', '2017-12-21'),
+	('Winter Solstice', '2018-12-21'),
+	('Winter Solstice', '2019-12-22'),
+	('Winter Solstice', '2020-12-21'),
+	('Winter Solstice', '2021-12-21'),
+	('Winter Solstice', '2022-12-21'),
+	('Winter Solstice', '2023-12-22'),
+	('Winter Solstice', '2024-12-21'),
+	('Winter Solstice', '2025-12-21'),
+	('Winter Solstice', '2026-12-21'),
+	('Winter Solstice', '2027-12-22'),
+	('Winter Solstice', '2028-12-21'),
+	('Winter Solstice', '2029-12-21'),
+	('Winter Solstice', '2030-12-21'),
+	('Autumnal Equinox', '2010-09-23'),
+	('Autumnal Equinox', '2011-09-23'),
+	('Autumnal Equinox', '2012-09-22'),
+	('Autumnal Equinox', '2013-09-22'),
+	('Autumnal Equinox', '2014-09-23'),
+	('Autumnal Equinox', '2015-09-23'),
+	('Autumnal Equinox', '2016-09-22'),
+	('Autumnal Equinox', '2017-09-22'),
+	('Autumnal Equinox', '2018-09-23'),
+	('Autumnal Equinox', '2019-09-23'),
+	('Autumnal Equinox', '2020-09-22'),
+	('Autumnal Equinox', '2021-09-22'),
+	('Autumnal Equinox', '2022-09-23'),
+	('Autumnal Equinox', '2023-09-23'),
+	('Autumnal Equinox', '2024-09-22'),
+	('Autumnal Equinox', '2025-09-22'),
+	('Autumnal Equinox', '2026-09-23'),
+	('Autumnal Equinox', '2027-09-23'),
+	('Autumnal Equinox', '2028-09-22'),
+	('Autumnal Equinox', '2029-09-22'),
+	('Autumnal Equinox', '2030-09-22');
+
+INSERT INTO {$db_prefix}calendar_holidays
+	(title, event_date)
+VALUES ('Independence Day', '1004-07-04'),
+	('Cinco de Mayo', '1004-05-05'),
+	('Flag Day', '1004-06-14'),
+	('Veterans Day', '1004-11-11'),
+	('Groundhog Day', '1004-02-02'),
+	('Thanksgiving', '2010-11-25'),
+	('Thanksgiving', '2011-11-24'),
+	('Thanksgiving', '2012-11-22'),
+	('Thanksgiving', '2013-11-28'),
+	('Thanksgiving', '2014-11-27'),
+	('Thanksgiving', '2015-11-26'),
+	('Thanksgiving', '2016-11-24'),
+	('Thanksgiving', '2017-11-23'),
+	('Thanksgiving', '2018-11-22'),
+	('Thanksgiving', '2019-11-28'),
+	('Thanksgiving', '2020-11-26'),
+	('Thanksgiving', '2021-11-25'),
+	('Thanksgiving', '2022-11-24'),
+	('Thanksgiving', '2023-11-23'),
+	('Thanksgiving', '2024-11-28'),
+	('Thanksgiving', '2025-11-27'),
+	('Thanksgiving', '2026-11-26'),
+	('Thanksgiving', '2027-11-25'),
+	('Thanksgiving', '2028-11-23'),
+	('Thanksgiving', '2029-11-22'),
+	('Thanksgiving', '2030-11-28'),
+	('Memorial Day', '2010-05-31'),
+	('Memorial Day', '2011-05-30'),
+	('Memorial Day', '2012-05-28'),
+	('Memorial Day', '2013-05-27'),
+	('Memorial Day', '2014-05-26'),
+	('Memorial Day', '2015-05-25'),
+	('Memorial Day', '2016-05-30'),
+	('Memorial Day', '2017-05-29'),
+	('Memorial Day', '2018-05-28'),
+	('Memorial Day', '2019-05-27'),
+	('Memorial Day', '2020-05-25'),
+	('Memorial Day', '2021-05-31'),
+	('Memorial Day', '2022-05-30'),
+	('Memorial Day', '2023-05-29'),
+	('Memorial Day', '2024-05-27'),
+	('Memorial Day', '2025-05-26'),
+	('Memorial Day', '2026-05-25'),
+	('Memorial Day', '2027-05-31'),
+	('Memorial Day', '2028-05-29'),
+	('Memorial Day', '2029-05-28'),
+	('Memorial Day', '2030-05-27'),
+	('Labor Day', '2010-09-06'),
+	('Labor Day', '2011-09-05'),
+	('Labor Day', '2012-09-03'),
+	('Labor Day', '2013-09-02'),
+	('Labor Day', '2014-09-01'),
+	('Labor Day', '2015-09-07'),
+	('Labor Day', '2016-09-05'),
+	('Labor Day', '2017-09-04'),
+	('Labor Day', '2018-09-03'),
+	('Labor Day', '2019-09-02'),
+	('Labor Day', '2020-09-07'),
+	('Labor Day', '2021-09-06'),
+	('Labor Day', '2022-09-05'),
+	('Labor Day', '2023-09-04'),
+	('Labor Day', '2024-09-02'),
+	('Labor Day', '2025-09-01'),
+	('Labor Day', '2026-09-07'),
+	('Labor Day', '2027-09-06'),
+	('Labor Day', '2028-09-04'),
+	('Labor Day', '2029-09-03'),
+	('Labor Day', '2030-09-02'),
+	('D-Day', '1004-06-06');
+---#
+
+/******************************************************************************/
+--- Add Attachments index
+/******************************************************************************/
+---# Create new index on Attachments
+CREATE INDEX idx_id_thumb ON {$db_prefix}attachments (id_thumb);
 ---#
 

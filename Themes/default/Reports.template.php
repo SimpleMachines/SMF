@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -144,7 +144,7 @@ function template_print_above()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/report.css', $modSettings['browser_cache'], '">
+		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/report.css', $context['browser_cache'], '">
 	</head>
 	<body>';
 }

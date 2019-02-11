@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -177,7 +177,7 @@ function template_bi_board_info($board)
 						<a href="', $scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', $context['session_var'], '=', $context['session_id'], '" title="', sprintf($txt['unapproved_posts'], $board['unapproved_topics'], $board['unapproved_posts']), '" class="moderation_link amt">!</a>';
 
 	echo '
-						<p class="board_description">', $board['description'], '</p>';
+						<div class="board_description">', $board['description'], '</div>';
 
 	// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
 	if (!empty($board['link_moderators']))

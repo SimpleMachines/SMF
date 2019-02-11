@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; Packages
+// Version: 2.1 RC1; Packages
 
 $txt['package_proceed'] = 'Proceed';
 $txt['php_script'] = 'Modification file was extracted, but this modification also comes with a PHP script which should be executed before it will work';
@@ -68,7 +68,6 @@ $txt['package_installed_key'] = 'Installed mods:';
 $txt['package_installed_warning1'] = 'This package is already installed, and no upgrade was found.';
 $txt['package_installed_warning2'] = 'You should uninstall the old version first to avoid problems, or ask the author to create an upgrade from your old version.';
 $txt['package_installed_warning3'] = 'Please remember to always make regular backups of your sources and database before installing mods, especially beta versions.';
-$txt['package_installed_extract'] = 'Extracting Package';
 $txt['package_installed_done'] = 'The package was installed successfully. You should now be able to use whatever functionality it adds or changes; or not be able to use functionality it removes.';
 $txt['package_installed_redirecting'] = 'Redirecting...';
 $txt['package_installed_redirect_go_now'] = 'Redirect Now';
@@ -95,7 +94,7 @@ $txt['package_file'] = 'File';
 $txt['package_tree'] = 'Tree';
 $txt['execute_modification'] = 'Execute Modification';
 $txt['execute_code'] = 'Execute Code';
-$txt['execute_database_changes'] = 'Execute file';
+$txt['execute_database_changes'] = 'Adapt Database';
 $txt['execute_hook_add'] = 'Add Hook';
 $txt['execute_hook_remove'] = 'Remove Hook';
 $txt['execute_hook_action'] = 'Adapting hook %1$s';
@@ -188,9 +187,10 @@ $txt['package_download_filename_info'] = 'Optional value. Should be used when th
 $txt['package_db_uninstall'] = 'Remove all data associated with this modification.';
 $txt['package_db_uninstall_details'] = 'Details';
 $txt['package_db_uninstall_actions'] = 'Checking this option will result in the following actions';
+$txt['package_db_code'] = 'Execute code file &quot;%1$s&quot;';
 $txt['package_db_remove_table'] = 'Drop table &quot;%1$s&quot;';
 $txt['package_db_remove_column'] = 'Remove column &quot;%2$s&quot; from &quot;%1$s&quot;';
-$txt['package_db_remove_index'] = 'Remove index &quot;%1$s&quot; from &quot;%2$s&quot;';
+$txt['package_db_remove_index'] = 'Remove index &quot;%2$s&quot; from &quot;%1$s&quot;';
 
 $txt['package_advanced_button'] = 'Emulation Support';
 $txt['package_advanced_options'] = 'Advanced Options';

@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 // Don't do anything if SMF is already loaded.
@@ -16,6 +16,9 @@ if (defined('SMF'))
 	return true;
 
 define('SMF', 'SSI');
+define('SMF_VERSION', '2.1 RC1');
+define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
+define('SMF_SOFTWARE_YEAR', '2019');
 
 // We're going to want a few globals... these are all set later.
 global $time_start, $maintenance, $msubject, $mmessage, $mbname, $language;
@@ -245,6 +248,52 @@ function ssi_shutdown()
 {
 	if (!isset($_GET['ssi_function']) || $_GET['ssi_function'] != 'shutdown')
 		template_footer();
+}
+
+/**
+ * Show the SMF version.
+ */
+function ssi_version($output_method = 'echo')
+{
+	if ($output_method == 'echo')
+		echo SMF_VERSION;
+	else
+		return SMF_VERSION;
+}
+
+/**
+ * Show the full SMF version string.
+ */
+function ssi_full_version($output_method = 'echo')
+{
+	if ($output_method == 'echo')
+		echo SMF_FULL_VERSION;
+	else
+		return SMF_FULL_VERSION;
+}
+
+/**
+ * Show the SMF software year.
+ */
+function ssi_software_year($output_method = 'echo')
+{
+	if ($output_method == 'echo')
+		echo SMF_SOFTWARE_YEAR;
+	else
+		return SMF_SOFTWARE_YEAR;
+}
+
+/**
+ * Show the forum copyright. Only used in our ssi_examples files.
+ */
+function ssi_copyright($output_method = 'echo')
+{
+	global $forum_copyright;
+
+	if ($output_method == 'echo')
+		printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR);
+	else
+		return sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR);
 }
 
 /**
