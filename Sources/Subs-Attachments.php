@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -939,7 +939,7 @@ function parseAttachBBC($attachID = 0)
 		// Fix the url to point out to showAvatar().
 		$attachContext['href'] = $scripturl . '?action=dlattach;attach=' . $attachID . ';type=preview';
 
-		$attachContext['link'] = '<a href="' . $scripturl . '?action=dlattach;attach=' . $attachID . ';type=preview' . (empty($attachContext['is_image']) ? ';file' : '') . '">' . $smcFunc['htmlspecialchars']($attachContext['name']) . '</a>';
+		$attachContext['link'] = '<a href="' . $scripturl . '?action=dlattach;attach=' . $attachID . ';type=preview' . (empty($attachContext['is_image']) ? ';file' : '') . '" class="bbc_link">' . $smcFunc['htmlspecialchars']($attachContext['name']) . '</a>';
 
 		// Fix the thumbnail too, if the image has one.
 		if (!empty($attachContext['thumbnail']) && !empty($attachContext['thumbnail']['has_thumb']))
@@ -1090,7 +1090,7 @@ function getAttachMsgInfo($attachID)
  */
 function getAttachsByMsg($msgID = 0)
 {
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $user_info;
 	static $attached = array();
 
 	if (!isset($attached[$msgID]))
@@ -1142,7 +1142,7 @@ function getAttachsByMsg($msgID = 0)
  */
 function loadAttachmentContext($id_msg, $attachments)
 {
-	global $modSettings, $txt, $scripturl, $sourcedir, $smcFunc;
+	global $modSettings, $txt, $scripturl, $sourcedir, $smcFunc, $context;
 
 	if (empty($attachments) || empty($attachments[$id_msg]))
 		return array();
@@ -1161,7 +1161,7 @@ function loadAttachmentContext($id_msg, $attachments)
 				'size' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . $txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . $txt['megabyte'],
 				'byte_size' => $attachment['filesize'],
 				'href' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
-				'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'] . '">' . $smcFunc['htmlspecialchars']($attachment['filename']) . '</a>',
+				'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars']($attachment['filename']) . '</a>',
 				'is_image' => !empty($attachment['width']) && !empty($attachment['height']) && !empty($modSettings['attachmentShowImages']),
 				'is_approved' => $attachment['approved'],
 				'topic' => $attachment['topic'],

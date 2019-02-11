@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -170,7 +170,7 @@ function get_all_themes($enable_only = false)
  */
 function get_theme_info($path)
 {
-	global $smcFunc, $sourcedir, $forum_version, $txt, $scripturl, $context;
+	global $smcFunc, $sourcedir, $txt, $scripturl, $context;
 	global $explicit_images;
 
 	if (empty($path))
@@ -206,18 +206,18 @@ function get_theme_info($path)
 	if (!$theme_info_xml->exists('theme-info/install'))
 	{
 		remove_dir($path);
-		fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
+		fatal_lang_error('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
 	}
 
 	// So, we have an install tag which is cool and stuff but we also need to check it and match your current SMF version...
-	$the_version = strtr($forum_version, array('SMF ' => ''));
+	$the_version = SMF_VERSION;
 	$install_versions = $theme_info_xml->path('theme-info/install/@for');
 
 	// The theme isn't compatible with the current SMF version.
 	if (!$install_versions || !matchPackageVersion($the_version, $install_versions))
 	{
 		remove_dir($path);
-		fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
+		fatal_lang_error('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
 	}
 
 	$theme_info_xml = $theme_info_xml->path('theme-info[0]');

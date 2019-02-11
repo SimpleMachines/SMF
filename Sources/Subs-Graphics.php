@@ -12,10 +12,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -87,9 +87,8 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 	if ($success)
 	{
 		// Remove the .tmp extension from the attachment.
-		if (rename($destName . '.tmp', empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash . '.dat'))
+		if (rename($destName . '.tmp', $destName))
 		{
-			$destName = empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash . '.dat';
 			list ($width, $height) = getimagesize($destName);
 			$mime_type = 'image/' . $ext;
 

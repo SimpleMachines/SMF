@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -175,19 +175,19 @@ function ModifyBasicSettings($return_config = false)
 
 		// Jquery source
 		array(
-			'select', 
-			'jquery_source', 
+			'select',
+			'jquery_source',
 			array(
-				'auto' => $txt['jquery_auto'], 
-				'local' => $txt['jquery_local'], 
-				'cdn' => $txt['jquery_cdn'], 
+				'auto' => $txt['jquery_auto'],
+				'local' => $txt['jquery_local'],
+				'cdn' => $txt['jquery_cdn'],
 				'custom' => $txt['jquery_custom']
-			), 
+			),
 			'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}'
 		),
 		array(
-			'text', 
-			'jquery_custom', 
+			'text',
+			'jquery_custom',
 			'disabled' => isset($modSettings['jquery_source']) && $modSettings['jquery_source'] != 'custom', 'size' => 75
 		),
 		'',
@@ -204,13 +204,13 @@ function ModifyBasicSettings($return_config = false)
 		// Number formatting, timezones.
 		array('text', 'time_format'),
 		array(
-			'float', 
-			'time_offset', 
-			'subtext' => $txt['setting_time_offset_note'], 
-			6, 
-			'postinput' => $txt['hours'], 
-			'step' => 0.25, 
-			'min' => -23.5, 
+			'float',
+			'time_offset',
+			'subtext' => $txt['setting_time_offset_note'],
+			6,
+			'postinput' => $txt['hours'],
+			'step' => 0.25,
+			'min' => -23.5,
 			'max' => 23.5
 		),
 		'default_timezone' => array('select', 'default_timezone', array()),
@@ -267,7 +267,7 @@ function ModifyBasicSettings($return_config = false)
 		$_SESSION['adm-save'] = true;
 
 		// Do a bit of housekeeping
-		if (empty($_POST['minimize_files']))
+		if (empty($_POST['minimize_files']) || $_POST['minimize_files'] != $modSettings['minimize_files'])
 			deleteAllMinified();
 
 		writeLog();
@@ -296,16 +296,27 @@ function ModifyBBCSettings($return_config = false)
 	$config_vars = array(
 		// Main tweaks
 		array('check', 'enableBBC'),
-		array('check', 'enableBBC', 0, 'onchange' => 'toggleBBCDisabled(\'disabledBBC\', !this.checked);'),
+		array('check', 'enableBBC', 0, 'onchange' => 'toggleBBCDisabled(\'disabledBBC\', !this.checked); toggleBBCDisabled(\'legacyBBC\', !this.checked);'),
 		array('check', 'enablePostHTML'),
 		array('check', 'autoLinkUrls'),
 		'',
 
 		array('bbc', 'disabledBBC'),
+
+		// This one is actually pretend...
+		array('bbc', 'legacyBBC', 'help' => 'legacy_bbc'),
 	);
 
+	// Permissions for restricted BBC
+	if (!empty($context['restricted_bbc']))
+		$config_vars[] = '';
+
+	foreach ($context['restricted_bbc'] as $bbc)
+		$config_vars[] = array('permissions', 'bbc_' . $bbc, 'text_label' => sprintf($txt['groups_can_use'], '[' . $bbc . ']'));
+
 	$context['settings_post_javascript'] = '
-		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';
+		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');
+		toggleBBCDisabled(\'legacyBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';
 
 	call_integration_hook('integrate_modify_bbc_settings', array(&$config_vars));
 
@@ -319,6 +330,16 @@ function ModifyBBCSettings($return_config = false)
 
 	// Make sure we check the right tags!
 	$modSettings['bbc_disabled_disabledBBC'] = empty($modSettings['disabledBBC']) ? array() : explode(',', $modSettings['disabledBBC']);
+
+	// Legacy BBC are listed separately, but we use the same info in both cases
+	$modSettings['bbc_disabled_legacyBBC'] = $modSettings['bbc_disabled_disabledBBC'];
+
+	$extra = '';
+	if (isset($_REQUEST['cowsay']))
+	{
+		$config_vars[] = array('permissions', 'bbc_cowsay', 'text_label' => sprintf($txt['groups_can_use'], 'cowsay'));
+		$extra = ';cowsay';
+	}
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -335,17 +356,31 @@ function ModifyBBCSettings($return_config = false)
 		elseif (!is_array($_POST['disabledBBC_enabledTags']))
 			$_POST['disabledBBC_enabledTags'] = array($_POST['disabledBBC_enabledTags']);
 
+		if (!isset($_POST['legacyBBC_enabledTags']))
+			$_POST['legacyBBC_enabledTags'] = array();
+		elseif (!is_array($_POST['legacyBBC_enabledTags']))
+			$_POST['legacyBBC_enabledTags'] = array($_POST['legacyBBC_enabledTags']);
+
+		$_POST['disabledBBC_enabledTags'] = array_unique(array_merge($_POST['disabledBBC_enabledTags'], $_POST['legacyBBC_enabledTags']));
+
 		// Work out what is actually disabled!
 		$_POST['disabledBBC'] = implode(',', array_diff($bbcTags, $_POST['disabledBBC_enabledTags']));
+
+		// $modSettings['legacyBBC'] isn't really a thing...
+		unset($_POST['legacyBBC_enabledTags']);
+		$config_vars = array_filter($config_vars, function($config_var)
+		{
+			return !isset($config_var[1]) || $config_var[1] != 'legacyBBC';
+		});
 
 		call_integration_hook('integrate_save_bbc_settings', array($bbcTags));
 
 		saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
-		redirectexit('action=admin;area=featuresettings;sa=bbc');
+		redirectexit('action=admin;area=featuresettings;sa=bbc' . $extra);
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=bbc';
+	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=bbc' . $extra;
 	$context['settings_title'] = $txt['manageposts_bbc_settings_title'];
 
 	prepareDBSettingContext($config_vars);
@@ -366,9 +401,9 @@ function ModifyLayoutSettings($return_config = false)
 		// Pagination stuff.
 		array('check', 'compactTopicPagesEnable'),
 		array(
-			'int', 
-			'compactTopicPagesContiguous', 
-			null, 
+			'int',
+			'compactTopicPagesContiguous',
+			null,
 			$txt['contiguous_page_display'] . '<div class="smalltext">' . str_replace(' ', '&nbsp;', '"3" ' . $txt['to_display'] . ': <strong>1 ... 4 [5] 6 ... 9</strong>') . '<br>' . str_replace(' ', '&nbsp;', '"5" ' . $txt['to_display'] . ': <strong>1 ... 3 4 [5] 6 7 ... 9</strong>') . '</div>'
 		),
 		array('int', 'defaultMaxMembers'),
@@ -515,28 +550,28 @@ function ModifyWarningSettings($return_config = false)
 			'',
 
 			array(
-				'int', 
-				'warning_watch', 
+				'int',
+				'warning_watch',
 				'subtext' => $txt['setting_warning_watch_note'] . ' ' . $txt['zero_to_disable']
 			),
 			'moderate' => array(
-				'int', 
-				'warning_moderate', 
+				'int',
+				'warning_moderate',
 				'subtext' => $txt['setting_warning_moderate_note'] . ' ' . $txt['zero_to_disable']
 			),
 			array(
-				'int', 
-				'warning_mute', 
+				'int',
+				'warning_mute',
 				'subtext' => $txt['setting_warning_mute_note'] . ' ' . $txt['zero_to_disable']
 			),
 			'rem1' => array(
-				'int', 
-				'user_limit', 
+				'int',
+				'user_limit',
 				'subtext' => $txt['setting_user_limit_note']
 			),
 			'rem2' => array(
-				'int', 
-				'warning_decrement', 
+				'int',
+				'warning_decrement',
 				'subtext' => $txt['setting_warning_decrement_note'] . ' ' . $txt['zero_to_disable']
 			),
 			array('permissions', 'view_warning'),
@@ -646,14 +681,14 @@ function ModifyAntispamSettings($return_config = false)
 		array('check', 'search_enable_captcha'),
 		// This, my friend, is a cheat :p
 		'guest_verify' => array(
-			'check', 
-			'guests_require_captcha', 
+			'check',
+			'guests_require_captcha',
 			'subtext' => $txt['setting_guests_require_captcha_desc']
 		),
 		array(
-			'int', 
-			'posts_require_captcha', 
-			'subtext' => $txt['posts_require_captcha_desc'], 
+			'int',
+			'posts_require_captcha',
+			'subtext' => $txt['posts_require_captcha_desc'],
 			'onchange' => 'if (this.value > 0){ document.getElementById(\'guests_require_captcha\').checked = true; document.getElementById(\'guests_require_captcha\').disabled = true;} else {document.getElementById(\'guests_require_captcha\').disabled = false;}'
 		),
 		'',
@@ -666,17 +701,17 @@ function ModifyAntispamSettings($return_config = false)
 		array('title', 'configure_verification_means'),
 		array('desc', 'configure_verification_means_desc'),
 		'vv' => array(
-			'select', 
-			'visual_verification_type', 
+			'select',
+			'visual_verification_type',
 			array(
-				$txt['setting_image_verification_off'], 
-				$txt['setting_image_verification_vsimple'], 
-				$txt['setting_image_verification_simple'], 
-				$txt['setting_image_verification_medium'], 
-				$txt['setting_image_verification_high'], 
+				$txt['setting_image_verification_off'],
+				$txt['setting_image_verification_vsimple'],
+				$txt['setting_image_verification_simple'],
+				$txt['setting_image_verification_medium'],
+				$txt['setting_image_verification_high'],
 				$txt['setting_image_verification_extreme']
-			), 
-			'subtext' => $txt['setting_visual_verification_type_desc'], 
+			),
+			'subtext' => $txt['setting_visual_verification_type_desc'],
 			'onchange' => $context['use_graphic_library'] ? 'refreshImages();' : ''
 		),
 		// reCAPTCHA
@@ -754,7 +789,7 @@ function ModifyAntispamSettings($return_config = false)
 		$(\'<dt><input type="text" name="question[\' + id + \'][\' + nextrow + \']" value="" size="50" class="verification_question"></dt><dd><input type="text" name="answer[\' + id + \'][\' + nextrow + \'][]" value="" size="50" class="verification_answer" / ><div class="qa_add_answer"><a href="javascript:void(0);">[ \' + ' . JavaScriptEscape($txt['setup_verification_add_answer']) . ' + \' ]</a></div></dd>\').insertBefore($(this).parent());
 		nextrow++;
 	});
-	$(".qa_add_answer a").click(function() {
+	$(".qa_fieldset ").on("click", ".qa_add_answer a", function() {
 		var attr = $(this).closest("dd").find(".verification_answer:last").attr("name");
 		$(\'<input type="text" name="\' + attr + \'" value="" size="50" class="verification_answer">\').insertBefore($(this).closest("div"));
 		return false;
@@ -792,7 +827,7 @@ function ModifyAntispamSettings($return_config = false)
 		{
 			// If we had some questions for this language before, but don't now, delete everything from that language.
 			if ((!isset($_POST['question'][$lang_id]) || !is_array($_POST['question'][$lang_id])) && !empty($context['qa_by_lang'][$lang_id]))
-				$changes['delete'] = array_merge($questions['delete'], $context['qa_by_lang'][$lang_id]);
+				$changes['delete'] = array_merge($changes['delete'], $context['qa_by_lang'][$lang_id]);
 
 			// Now step through and see if any existing questions no longer exist.
 			if (!empty($context['qa_by_lang'][$lang_id]))
@@ -1661,7 +1696,6 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$list[] = $row;
-
 		$smcFunc['db_free_result']($request);
 	}
 
