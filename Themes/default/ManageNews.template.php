@@ -239,7 +239,6 @@ function template_email_members_compose()
 					<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html"', !empty($context['send_html']) ? ' checked' : '', ' onclick="checkboxes_status(this);"> ', $txt['email_as_html'], '</label></li>
 					<li><label for="parse_html"><input type="checkbox" name="parse_html" id="parse_html" checked disabled> ', $txt['email_parsed_html'], '</label></li>
 				</ul>
-				<br class="clear_right">
 				<span id="post_confirm_buttons">
 					', template_control_richedit_buttons($context['post_box_name']), '
 				</span>

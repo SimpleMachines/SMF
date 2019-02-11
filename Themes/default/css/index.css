@@ -3394,7 +3394,7 @@ ul.post_options li {
 #post_draft_options .settings strong {
 	color: #555;
 }
-#post_confirm_strip /* < That may be deprecated. */, #shortcuts {
+#post_confirm_buttons, #shortcuts {
 	padding: 12px 0;
 }
 #post_confirm_buttons .smalltext {
