@@ -307,15 +307,11 @@ div.sceditor-smileyPopup, div.sceditor-dropdown {
 }
 @media screen and (min-width: 1024px) {
 	div.sceditor-smileyPopup {
-		height: 50%;
 		width: 50%;
 		position: fixed;
 	}
-	#sceditor-popup {
-		height: 100%;
-	}
 	#sceditor-popup-smiley {
-		height: 90%;
+		max-height: 12em;
 		overflow: auto;
 	}
 }
