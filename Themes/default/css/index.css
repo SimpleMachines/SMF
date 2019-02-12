@@ -2850,6 +2850,7 @@ h3 .collapse {
 }
 .boardindex_table .info {
 	width: calc(55% - 80px);
+	flex-grow: 0;
 }
 .boardindex_table .board_stats {
 	padding: 13px 10px 10px;
@@ -2872,7 +2873,6 @@ h3 .collapse {
 .board_stats {
 	width: 15%;
 	font-size: 0.9em;
-	margin: 0 0 0 auto;
 	text-align: center;
 }
 .lastpost {
