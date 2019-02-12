@@ -2358,12 +2358,12 @@ function loadIllegalBBCHtmlGroups()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group
 		FROM {db_prefix}membergroups
-		WHERE id_group NOT IN (1, COALESCE((
+		WHERE id_group != 1 AND id_group NOT IN (
 			SELECT DISTINCT id_group
 			FROM {db_prefix}permissions
 			WHERE permission IN ({array_string:permissions})
 				AND add_deny = {int:add}
-		), 1))',
+		)',
 		array(
 			'permissions' => $minimum_permissions,
 			'add' => 1,
