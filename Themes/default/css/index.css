@@ -735,6 +735,9 @@ img.sort, .sort {
 #main_menu {
 	margin: 0 0 4px 0;
 }
+#main_menu .popup_window, #main_menu .popup_container {
+	z-index: unset;
+}
 
 /* User information. */
 #profile_menu_top::after {
