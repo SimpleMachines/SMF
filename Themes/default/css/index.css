@@ -1047,6 +1047,8 @@ img.sort, .sort {
 #header {
 	padding: 2px 2px 12px 2px;
 	width: 90%;
+	display: flex;
+	align-items: flex-end;
 }
 #header::after {
 	content: "";
@@ -1058,8 +1060,8 @@ h1.forumtitle {
 	font-size: 1.8em;
 	font-family: "Tahoma", sans-serif;
 	padding: 22px 12px 6px 10px;
-	float: left;
 	font-weight: normal;
+	flex: 1 1 auto;
 }
 h1.forumtitle a {
 	color: #a85400;
@@ -1068,9 +1070,8 @@ h1.forumtitle a {
 /* Float these items to the right */
 #siteslogan, img#smflogo {
 	padding-right: 2px;
-	float: right;
 	line-height: 50px;
-	font-size: 1.8em;
+	font-size: 1.4em;
 }
 /* Tweak the SMF logo */
 img#smflogo {
