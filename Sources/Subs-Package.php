@@ -261,6 +261,7 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 			}
 			if (strpos($errstr, 'PharData::__construct(): open_basedir') === false)
 				log_error($errstr, 'general', $errfile, $errline);
+			return true;
 		}
 		);
 		$archive = new PharData($file, RecursiveIteratorIterator::SELF_FIRST, null, Phar::ZIP);
@@ -3087,6 +3088,7 @@ function package_create_backup($id = 'backup')
 			}
 			if (strpos($errstr, 'PharData::__construct(): open_basedir') === false && strpos($errstr, 'PharData::compress(): open_basedir') === false)
 				log_error($errstr, 'general', $errfile, $errline);
+			return true;
 		}
 		);
 		$a = new PharData($output_file);
