@@ -2387,7 +2387,7 @@ function loadIllegalBBCHtmlGroups()
  */
 function removeIllegalBBCHtmlPermission($reload = false)
 {
-	global $context;
+	global $context, $smcFunc;
 
 	if (empty($context['permissions_excluded']['bbc_html']) || $reload)
 		loadIllegalBBCHtmlGroups();
