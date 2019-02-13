@@ -48,8 +48,8 @@ function reloadSettings()
 		$modSettings = array();
 		if (!$request)
 			display_db_error();
-		while ($row = $smcFunc['db_fetch_row']($request))
-			$modSettings[$row[0]] = $row[1];
+		foreach ($smcFunc['db_fetch_all']($request) as $row)
+			$modSettings[$row['variable']] = $row['value'];
 		$smcFunc['db_free_result']($request);
 
 		// Do a few things to protect against missing settings or settings with invalid values...
@@ -1836,7 +1836,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 				)
 			);
 			// Pick between $settings and $options depending on whose data it is.
-			while ($row = $smcFunc['db_fetch_assoc']($result))
+			foreach ($smcFunc['db_fetch_all']($result) as $row)
 			{
 				// There are just things we shouldn't be able to change as members.
 				if ($row['id_member'] != 0 && in_array($row['variable'], array('actual_theme_url', 'actual_images_url', 'base_theme_dir', 'base_theme_url', 'default_images_url', 'default_theme_dir', 'default_theme_url', 'default_template', 'images_url', 'number_recent_posts', 'smiley_sets_default', 'theme_dir', 'theme_id', 'theme_layers', 'theme_templates', 'theme_url')))
