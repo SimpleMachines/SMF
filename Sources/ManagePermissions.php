@@ -2395,10 +2395,12 @@ function removeIllegalBBCHtmlPermission($reload = false)
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE id_group IN ({array_int:current_group_list})
-			AND permission = {string:current_permission}',
+			AND permission = {string:current_permission}
+			AND add_deny = {int:add}',
 		array(
 			'current_group_list' => $context['permissions_excluded']['bbc_html'],
 			'current_permission' => 'bbc_html',
+			'add' => 1,
 		)
 	);
 }
