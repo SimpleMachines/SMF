@@ -1898,7 +1898,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		if (isset($_GET['sslRedirect']))
 		{
 			loadLanguage('Errors');
-			fatal_lang_error($txt['login_ssl_required']);
+			fatal_lang_error('login_ssl_required');
 		}
 
 		redirectexit(strtr($_SERVER['REQUEST_URL'], array('http://' => 'https://')) . (strpos($_SERVER['REQUEST_URL'], '?') > 0 ? ';' : '?') . 'sslRedirect');
