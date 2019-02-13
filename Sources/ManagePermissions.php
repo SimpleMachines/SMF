@@ -614,6 +614,7 @@ function SetQuickGroups()
 		if ($_POST['add_remove'] == 'clear')
 		{
 			if ($permissionType == 'membergroup')
+			{
 				$smcFunc['db_query']('', '
 					DELETE FROM {db_prefix}permissions
 					WHERE id_group IN ({array_int:current_group_list})
@@ -625,6 +626,11 @@ function SetQuickGroups()
 						'illegal_permissions' => !empty($context['illegal_permissions']) ? $context['illegal_permissions'] : array(),
 					)
 				);
+
+				// Did these changes make anyone lose eligibility for the bbc_html permission?
+				if (!empty(array_diff($_POST['group'], $context['permissions_excluded']['bbc_html'])))
+					removeIllegalBBCHtmlPermission(true);
+			}
 			else
 				$smcFunc['db_query']('', '
 					DELETE FROM {db_prefix}board_permissions
@@ -960,6 +966,8 @@ function ModifyMembergroup2()
 
 	// Update any inherited permissions as required.
 	updateChildPermissions($_GET['group'], $_GET['pid']);
+
+	removeIllegalBBCHtmlPermission();
 
 	// Clear cached privs.
 	updateSettings(array('settings_updated' => time()));
@@ -1314,6 +1322,8 @@ function setPermissionLevel($level, $group, $profile = 'null')
 			$boardInserts,
 			array('id_profile', 'id_group')
 		);
+
+		removeIllegalBBCHtmlPermission();
 	}
 	// Setting profile permissions for a specific group.
 	elseif ($profile !== 'null' && $group !== 'null' && ($profile == 1 || $profile > 4))
@@ -1881,6 +1891,8 @@ function save_inline_permissions($permissions)
 
 	// Check they can't do certain things.
 	loadIllegalPermissions();
+	if (in_array('bbc_html', $permissions))
+		loadIllegalBBCHtmlGroups();
 
 	$insertRows = array();
 	foreach ($permissions as $permission)
@@ -1890,6 +1902,9 @@ function save_inline_permissions($permissions)
 
 		foreach ($_POST[$permission] as $id_group => $value)
 		{
+			if ($value == 'on' && !empty($context['excluded_permissions'][$permission]) && in_array($id_group, $context['excluded_permissions'][$permission]))
+				continue;
+
 			if (in_array($value, array('on', 'deny')) && (empty($context['illegal_permissions']) || !in_array($permission, $context['illegal_permissions'])))
 				$insertRows[] = array((int) $id_group, $permission, $value == 'on' ? 1 : 0);
 		}
@@ -2340,30 +2355,19 @@ function loadIllegalBBCHtmlGroups()
 {
 	global $context, $smcFunc;
 
-	if (empty($context['permissions_excluded']['bbc_html']))
-		$context['permissions_excluded']['bbc_html'] = array(-1, 0);
-	else
-	{
-		// Just because you're paranoid doesn't mean they aren't after you.
-		$context['permissions_excluded']['bbc_html'] = array_filter((array) $context['permissions_excluded']['bbc_html'], function ($v)
-			{
-				return is_int($v) || is_string($v) && (string) intval($v) === $v;
-			});
-
-		$context['permissions_excluded']['bbc_html'] = array_unique(array_merge(array(-1, 0), $context['permissions_excluded']['bbc_html']));
-	}
+	$context['permissions_excluded']['bbc_html'] = array(-1, 0);
 
 	$minimum_permissions = array('admin_forum', 'manage_membergroups', 'manage_permissions');
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group
 		FROM {db_prefix}membergroups
-		WHERE id_group NOT IN (1, COALESCE((
+		WHERE id_group != 1 AND id_group NOT IN (
 			SELECT DISTINCT id_group
 			FROM {db_prefix}permissions
 			WHERE permission IN ({array_string:permissions})
 				AND add_deny = {int:add}
-		), 1))',
+		)',
 		array(
 			'permissions' => $minimum_permissions,
 			'add' => 1,
@@ -2372,6 +2376,33 @@ function loadIllegalBBCHtmlGroups()
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$context['permissions_excluded']['bbc_html'][] = $row['id_group'];
 	$smcFunc['db_free_result']($request);
+
+	$context['permissions_excluded']['bbc_html'] = array_unique($context['permissions_excluded']['bbc_html']);
+}
+
+/**
+ * Removes the bbc_html permission from anyone who shouldn't have it
+ *
+ * @param bool $reload Before acting, refresh the list of membergroups who cannot be granted the bbc_html permission
+ */
+function removeIllegalBBCHtmlPermission($reload = false)
+{
+	global $context, $smcFunc;
+
+	if (empty($context['permissions_excluded']['bbc_html']) || $reload)
+		loadIllegalBBCHtmlGroups();
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}permissions
+		WHERE id_group IN ({array_int:current_group_list})
+			AND permission = {string:current_permission}
+			AND add_deny = {int:add}',
+		array(
+			'current_group_list' => $context['permissions_excluded']['bbc_html'],
+			'current_permission' => 'bbc_html',
+			'add' => 1,
+		)
+	);
 }
 
 /**

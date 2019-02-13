@@ -181,20 +181,25 @@ body#help_popup {
 
 #likes li {
 	clear: both;
+	padding: 1px 0;
 }
 #likes .avatar {
-	max-height: 90px;
-	max-width: 90px;
+	max-height: 45px;
+	max-width: 45px;
 	padding: 0 10px 0 0;
 }
-#likes span {
+#likes .avatar, #likes li .like_profile {
+	vertical-align: middle;
 	display: inline-block;
-	vertical-align: top;
+}
+#likes li .like_time {
+	padding: 4px 0;
 }
 #likes .description {
 	font-style: italic;
 	opacity: 0.4;
 	font-size: 0.9em;
+	display: block;
 }
 
 /* The "new" button */
@@ -330,7 +335,7 @@ blockquote cite::before {
 /* A code block - maybe PHP ;). */
 .bbc_code {
 	display: block;
-	font-size: 0.75em;
+	font-size: 0.85em;
 	background: #f3f3f3;
 	border: 1px solid #dfdfdf;
 	border-top: 2px solid #bbb;
@@ -340,7 +345,7 @@ blockquote cite::before {
 	padding: 3px 12px;
 	overflow: auto;
 	white-space: nowrap;
-	resize: vertical;
+	max-height: 25em;
 }
 /* The "Quote:" and "Code:" header parts... */
 .codeheader, .quoteheader {
@@ -351,6 +356,10 @@ blockquote cite::before {
 /* For links to change the code stuff... */
 .codeoperation {
 	font-weight: normal;
+}
+/* Expand code bbc */
+.expand_code {
+	max-height: none;
 }
 /* Let's get a bit more flexibility in font sizes for quotes and code. */
 /* We just need to stop em compounding when elements are nested. */
@@ -530,8 +539,9 @@ strong[id^='child_list_']::after {
 }
 
 a.moderation_link, a.moderation_link:visited {
-	color: red;
 	font-weight: bold;
+	padding: 0px 8px;
+	background: #f59e00;
 }
 /* AJAX notification bar
 ------------------------------------------------------- */
@@ -1047,6 +1057,8 @@ img.sort, .sort {
 #header {
 	padding: 2px 2px 12px 2px;
 	width: 90%;
+	display: flex;
+	align-items: flex-end;
 }
 #header::after {
 	content: "";
@@ -1058,8 +1070,8 @@ h1.forumtitle {
 	font-size: 1.8em;
 	font-family: "Tahoma", sans-serif;
 	padding: 22px 12px 6px 10px;
-	float: left;
 	font-weight: normal;
+	flex: 1 1 auto;
 }
 h1.forumtitle a {
 	color: #a85400;
@@ -1068,9 +1080,8 @@ h1.forumtitle a {
 /* Float these items to the right */
 #siteslogan, img#smflogo {
 	padding-right: 2px;
-	float: right;
 	line-height: 50px;
-	font-size: 1.8em;
+	font-size: 1.4em;
 }
 /* Tweak the SMF logo */
 img#smflogo {
@@ -2583,6 +2594,9 @@ dl.addrules dt.floatleft {
 	padding: 2px;
 	margin: 0 0 0 6px;
 	text-align: left;
+}
+#search_results {
+	margin-bottom: 5px;
 }
 
 /* Styles for the help section.

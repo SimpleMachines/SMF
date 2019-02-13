@@ -1223,7 +1223,8 @@ function getTreeOrder()
 		ORDER BY b.board_order',
 		array()
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+
+	foreach ($smcFunc['db_fetch_all']($request) as $row)
 	{
 		if (!in_array($row['id_cat'], $tree_order['cats']))
 			$tree_order['cats'][] = $row['id_cat'];

@@ -970,7 +970,15 @@ function smf_is_resource($result)
 function smf_db_fetch_all($request)
 {
 	// Return the right row.
-	return mysqli_fetch_all($request);
+	if (function_exists('mysqli_fetch_all'))
+		$return = mysqli_fetch_all($request, MYSQLI_ASSOC);
+	else
+	{
+		$return = array();
+		while($row = mysqli_fetch_assoc($request))
+			$return[] = $row;
+	}
+	return !empty($return) ? $return : array();
 }
 
 /**

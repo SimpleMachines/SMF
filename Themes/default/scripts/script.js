@@ -1678,6 +1678,30 @@ $(function() {
 
 		return typeof actOnElement !== "undefined" ? smfSelectText(actOnElement, true) : smfSelectText(this);
 	});
+	
+	// Show the Expand bbc button if needed
+	$('.bbc_code').each(function(index, item) {
+		if($(item).css('max-height') == 'none')
+			return;
+
+		if($(item).prop('scrollHeight') > parseInt($(item).css('max-height'), 10))
+			$(item.previousSibling).find('.smf_expand_code').removeClass('hidden');
+	});
+	// Expand or Shrink the code bbc area
+	$('.smf_expand_code').on('click', function(e) {
+		e.preventDefault();
+
+		var oCodeArea = this.parentNode.nextSibling;
+		
+		if(oCodeArea.classList.contains('expand_code')) {
+			$(oCodeArea).removeClass('expand_code');
+			$(this).html($(this).attr('data-expand-txt'));
+		}
+		else {
+			$(oCodeArea).addClass('expand_code');
+			$(this).html($(this).attr('data-shrink-txt'));
+		}
+	});
 });
 
 function avatar_fallback(e) {

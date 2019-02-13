@@ -1026,6 +1026,10 @@ function PackageInstall()
 			}
 			elseif ($action['type'] == 'hook' && isset($action['hook'], $action['function']))
 			{
+				// Set the system to ignore hooks, but only if it wasn't changed before.
+				if (!isset($context['ignore_hook_errors']))
+					$context['ignore_hook_errors'] = true;
+
 				if ($action['reverse'])
 					remove_integration_function($action['hook'], $action['function'], true, $action['include_file'], $action['object']);
 				else
