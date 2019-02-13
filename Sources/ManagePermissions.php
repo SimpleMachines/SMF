@@ -2360,8 +2360,6 @@ function loadIllegalBBCHtmlGroups()
 
 	$context['permissions_excluded']['bbc_html'] = array(-1, 0);
 
-	$minimum_permissions = array('admin_forum', 'manage_membergroups', 'manage_permissions');
-
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group
 		FROM {db_prefix}membergroups
@@ -2372,7 +2370,7 @@ function loadIllegalBBCHtmlGroups()
 				AND add_deny = {int:add}
 		)',
 		array(
-			'permissions' => $minimum_permissions,
+			'permissions' => array('admin_forum', 'manage_membergroups', 'manage_permissions'),
 			'add' => 1,
 		)
 	);
