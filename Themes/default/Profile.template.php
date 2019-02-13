@@ -2893,7 +2893,7 @@ function template_profile_avatar_select()
 										<select name="file" id="file" size="10" style="display: none;" onchange="showAvatar()" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'server_stored\');" disabled><option></option></select>
 									</div>
 									<div class="edit_avatar_img">
-										<img id="avatar" src="' . $context['member']['avatar']['href'] . '" alt="">
+										<img id="avatar" src="', $context['member']['avatar']['choice'] == 'server_stored' ? $context['member']['avatar']['href'] : $modSettings['avatar_url'] . '/blank.png', '" alt="">
 									</div>
 									<script>
 										var files = ["' . implode('", "', $context['avatar_list']) . '"];
