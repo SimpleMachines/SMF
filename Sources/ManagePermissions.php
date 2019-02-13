@@ -1621,6 +1621,9 @@ function loadAllPermissions()
 	// Provide a practical way to modify permissions.
 	call_integration_hook('integrate_load_permissions', array(&$permissionGroups, &$permissionList, &$leftPermissionGroups, &$hiddenPermissions, &$relabelPermissions));
 
+	$permissionList['membergroup']['bbc_cowsay'] = array(false, 'bbc');
+	$hiddenPermissions[] = 'bbc_cowsay';
+
 	$context['permissions'] = array();
 	$context['hidden_permissions'] = array();
 	foreach ($permissionList as $permissionType => $permissionList)
