@@ -1080,7 +1080,6 @@ h1.forumtitle a {
 /* Float these items to the right */
 #siteslogan, img#smflogo {
 	padding-right: 2px;
-	line-height: 50px;
 	font-size: 1.4em;
 }
 /* Tweak the SMF logo */
