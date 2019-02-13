@@ -1080,7 +1080,6 @@ h1.forumtitle a {
 /* Float these items to the right */
 #siteslogan, img#smflogo {
 	padding-right: 2px;
-	line-height: 50px;
 	font-size: 1.4em;
 }
 /* Tweak the SMF logo */
@@ -2871,6 +2870,9 @@ h3 .collapse {
 .boardindex_table .board_stats p {
 	border-left: 1px solid #ddd;
 	border-right: 1px solid #ddd;
+}
+.boardindex_table .board_stats:last-child p {
+	border-right: none;
 }
 .info {
 	overflow: hidden;
