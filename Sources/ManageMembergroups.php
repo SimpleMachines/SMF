@@ -500,6 +500,7 @@ function AddMembergroup()
 					)
 				);
 
+				$insert = array();
 				foreach ( $changed_boards[$board_action] as $board_id)
 					$insert[] = array($id_group, $board_id, $board_action == 'allow' ? 0 : 1);
 
