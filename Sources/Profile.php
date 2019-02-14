@@ -612,7 +612,7 @@ function ModifyProfile($post_errors = array())
 		{
 			// Check to ensure we're forcing SSL for authentication
 			if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
-				fatal_lang_error('login_ssl_required');
+				fatal_lang_error('login_ssl_required', false);
 
 			// You didn't even enter a password!
 			if (trim($_POST['oldpasswrd']) == '')

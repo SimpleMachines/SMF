@@ -4228,7 +4228,7 @@ function tfasetup($memID)
 	{
 		// Check to ensure we're forcing SSL for authentication
 		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
-			fatal_lang_error('login_ssl_required');
+			fatal_lang_error('login_ssl_required', false);
 
 		// In some cases (forced 2FA or backup code) they would be forced to be redirected here,
 		// we do not want too much AJAX to confuse them.
