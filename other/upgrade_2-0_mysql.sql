@@ -1214,6 +1214,7 @@ UPDATE {$db_prefix}attachments
 SET fileext = LOWER(SUBSTRING(filename, 1 - (INSTR(REVERSE(filename), '.'))))
 WHERE fileext = ''
 	AND INSTR(filename, '.')
+	AND INSTR(REVERSE(filename), '.') < 10
 	AND attachment_type != 3;
 ---#
 
