@@ -200,7 +200,7 @@ function Display()
 	}
 
 	// Short-cut to know if this user can see unapproved messages.
-	$approve_posts = (allowedTo('approve_posts') || $context['topicinfo']['id_member_started'] == $user_info['id']);
+	$approve_posts = allowedTo('approve_posts');
 
 	$context['real_num_replies'] = $context['num_replies'] = $context['topicinfo']['num_replies'];
 	$context['topic_started_time'] = timeformat($context['topicinfo']['topic_started_time']);
