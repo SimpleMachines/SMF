@@ -85,7 +85,7 @@ function Login2()
 
 	// Check to ensure we're forcing SSL for authentication
 	if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
-		fatal_lang_error('login_ssl_required');
+		fatal_lang_error('login_ssl_required', false);
 
 	// Load cookie authentication stuff.
 	require_once($sourcedir . '/Subs-Auth.php');
@@ -441,7 +441,7 @@ function LoginTFA()
 	{
 		// Check to ensure we're forcing SSL for authentication
 		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
-			fatal_lang_error('login_ssl_required');
+			fatal_lang_error('login_ssl_required', false);
 
 		$code = $_POST['tfa_code'];
 
@@ -464,7 +464,7 @@ function LoginTFA()
 	{
 		// Check to ensure we're forcing SSL for authentication
 		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
-			fatal_lang_error('login_ssl_required');
+			fatal_lang_error('login_ssl_required', false);
 
 		$backup = $_POST['tfa_backup'];
 
