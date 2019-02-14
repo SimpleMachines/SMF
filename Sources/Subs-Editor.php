@@ -1569,7 +1569,7 @@ function create_control_richedit($editorOptions)
 		'columns' => isset($editorOptions['columns']) ? $editorOptions['columns'] : 60,
 		'rows' => isset($editorOptions['rows']) ? $editorOptions['rows'] : 18,
 		'width' => isset($editorOptions['width']) ? $editorOptions['width'] : '70%',
-		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '250px',
+		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '175px',
 		'form' => isset($editorOptions['form']) ? $editorOptions['form'] : 'postmodify',
 		'bbc_level' => !empty($editorOptions['bbc_level']) ? $editorOptions['bbc_level'] : 'full',
 		'preview_type' => isset($editorOptions['preview_type']) ? (int) $editorOptions['preview_type'] : 1,
@@ -1879,6 +1879,8 @@ function create_control_richedit($editorOptions)
 
 	// Set up the SCEditor options
 	$sce_options = array(
+		'width' => isset($editorOptions['width']) ? $editorOptions['width'] : '100%',
+		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '175px',
 		'style' => $settings['default_theme_url'] . '/css/jquery.sceditor.default.css',
 		'emoticonsCompat' => true,
 		'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',

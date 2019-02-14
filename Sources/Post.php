@@ -1163,7 +1163,7 @@ function Post($post_errors = array())
 			'post_button' => $context['submit_label'],
 		),
 		// add height and width for the editor
-		'height' => '275px',
+		'height' => '175px',
 		'width' => '100%',
 		// We do XML preview here.
 		'preview_type' => 2,

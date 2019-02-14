@@ -1967,7 +1967,7 @@ function MessagePost()
 	$editorOptions = array(
 		'id' => 'message',
 		'value' => $context['message'],
-		'height' => '250px',
+		'height' => '175px',
 		'width' => '100%',
 		'labels' => array(
 			'post_button' => $txt['send_message'],
@@ -2166,7 +2166,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 		'id' => 'message',
 		'value' => $context['message'],
 		'width' => '90%',
-		'height' => '250px',
+		'height' => '175px',
 		'labels' => array(
 			'post_button' => $txt['send_message'],
 		),
