@@ -44,6 +44,16 @@
 
 /* We have shared things... */
 @media screen and (max-width: 720px) {
+  /* Generic Classes for Customizations */
+	.hide_720 {
+		display: none;
+	}
+	.block_720 {
+		display: block;
+	}
+	.inlineblock_720 {
+		display: inline-block;
+	}
 	/* New Mobile Action/Mod Pop (Test) */
 	.moderationbuttons_check {
 		display: none;
@@ -320,7 +330,7 @@
 	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
 	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
 	#member_list .ip, #member_list .last_active, #member_list .user_name,
-	#approve_list .ip, #approve_list .date_registered,
+	#approve_list .ip, #approve_list .date_registered, #group_members .date_registered,
 	#main_content_section .navigate_section, .pagesection.top, .time,
 	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
 	#header_custom_profile_fields_placement, #custom_profile_fields .active, #custom_profile_fields .field_type, #custom_profile_fields .placement {
@@ -328,7 +338,8 @@
 	}
 	/* Generic Lists */
 	#topic_notification_list .last_post, #topic_notification_list .started_by,
-	#request_list .time_applied {
+	#request_list .time_applied, #file_list .date, #ban_list .notes, #ban_list .reason, #ban_log .email,
+	#mail_queue .priority, #attachments .posted {
 		display: none;
 	}
 
@@ -375,6 +386,16 @@
 
 /* Entry level phones */
 @media (max-width: 480px) {
+  /* Generic Classes for Customizations */
+	.hide_480 {
+		display: none;
+	}
+	.block_480 {
+		display: block;
+	}
+	.inlineblock_480 {
+		display: inline-block;
+	}
 	/* This is general */
 	#main_menu .popup_container, #genericmenu .popup_container {
 		display: none;
@@ -504,8 +525,8 @@
 	}
 	/* some new stuff for far better UX */
 	.mobile_subject {
-		display: block;
-		padding: 9px 0;
+				 
+				 
 		position: relative;
 	}
 	.mobile_subject .board_description {
@@ -514,9 +535,9 @@
 		font-size: 0.9em;
 		color: #222;
 	}
-	.board_description {
-		display: none;
-	}
+					 
+				
+  
 	fieldset {
 		max-width: 100%;
 		min-width: unset;
@@ -652,7 +673,7 @@
 	.modbox .floatleft {
 		float: none;
 	}
-	#warning_list .reason, #moderation_log_list .position, #moderation_log_list .ip,
+	#warning_list .reason, #moderation_log_list .position, #moderation_log_list .ip, #group_members .last_active,
 	#group_request_list .date, #group_lists .icons, #regular_membergroups_list .icons, #post_count_membergroups_list .icons, #watch_user_list .last_login {
 		display: none;
 	}
@@ -734,7 +755,12 @@
 	}
 	/* Generic Lists */
 	#request_list .time_applied,
-	#track_user_list .date, #track_user_list .date2 {
+	#track_user_list .date, #track_user_list .date2, #file_list .filesize, #file_list .downloads,
+	#ban_list .added, #ban_list .num_triggers, #ban_log .date, #mail_queue .age, #attachments .subject {
+		display: none;
+	}
+	/* Likes */
+	#likes li .like_time {
 		display: none;
 	}
 	/* 3rd level menu tests */
