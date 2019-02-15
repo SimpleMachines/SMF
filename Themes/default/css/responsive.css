@@ -439,9 +439,6 @@
 	.board_moderators {
 		display: none;
 	}
-	#top_info {
-		width: 100%;
-	}
 	#pm_menu, #alerts_menu, #profile_menu {
 		left: 0;
 		right: 0;
