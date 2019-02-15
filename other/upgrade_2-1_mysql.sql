@@ -2183,7 +2183,7 @@ ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
 ---# Create an ip index for old ips
 ---{
 $doChange = true;
-$results = $smcFunc['db_list_columns']('{db_prefix}members');
+$results = $smcFunc['db_list_columns']('{db_prefix}messages');
 if (!in_array('member_ip_old', $results))
 	$doChange = false;
 
