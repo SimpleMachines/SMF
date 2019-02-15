@@ -444,7 +444,7 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 	global $context, $txt, $modSettings;
 
 	echo '
-							<fieldset id="visible_boards">
+							<fieldset id="visible_boards"', !empty($modSettings['deny_boards_access']) ? ' class="denyboards_layout"' : '', '>
 								<legend>', $txt['membergroups_new_board_desc'], '</legend>
 								<ul class="padding floatleft">';
 
@@ -457,10 +457,10 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 										<ul>';
 		else
 			echo '
-									<li class="category">
+									<li class="category clear">
 										<strong>', $category['name'], '</strong>
-										<span class="select_all_box">
-											<em style="margin-left:5em;">', $txt['all_boards_in_cat'], ': </em>
+										<span class="select_all_box floatright">
+											<em class="all_boards_in_cat">', $txt['all_boards_in_cat'], ': </em>
 											<select onchange="select_in_category(', $category['id'], ', this, [', implode(',', array_keys($category['boards'])), ']);">
 												<option>---</option>
 												<option value="allow">', $txt['board_perms_allow'], '</option>
@@ -479,9 +479,9 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 											</li>';
 			else
 				echo '
-											<li class="board" style="width:100%">
+											<li class="board clear">
 												<span style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">', $board['name'], ': </span>
-												<span style="width:50%;float:right">
+												<span class="floatright">
 													<input type="radio" name="boardaccess[', $board['id'], ']" id="allow_brd', $board['id'], '" value="allow"', $board['allow'] ? ' checked' : '', '> <label for="allow_brd', $board['id'], '">', $txt['permissions_option_on'], '</label>
 													<input type="radio" name="boardaccess[', $board['id'], ']" id="ignore_brd', $board['id'], '" value="ignore"', !$board['allow'] && !$board['deny'] ? ' checked' : '', '> <label for="ignore_brd', $board['id'], '">', $txt['permissions_option_off'], '</label>
 													<input type="radio" name="boardaccess[', $board['id'], ']" id="deny_brd', $board['id'], '" value="deny"', $board['deny'] ? ' checked' : '', '> <label for="deny_brd', $board['id'], '">', $txt['permissions_option_deny'], '</label>
