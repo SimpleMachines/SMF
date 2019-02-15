@@ -574,7 +574,8 @@ function ModifyWarningSettings($return_config = false)
 				'warning_decrement',
 				'subtext' => $txt['setting_warning_decrement_note'] . ' ' . $txt['zero_to_disable']
 			),
-			array('permissions', 'view_warning'),
+			array('permissions', 'view_warning_any'),
+			array('permissions', 'view_warning_own'),
 		);
 
 	call_integration_hook('integrate_warning_settings', array(&$config_vars));
