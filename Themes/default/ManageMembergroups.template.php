@@ -342,7 +342,7 @@ function template_edit_group()
 			echo $txt['membergroups_can_manage_access'];
 
 		else
-			template_add_edit_group_boards_list();
+			template_add_edit_group_boards_list(true, 'groupForm');
 
 		echo '
 					</dd>';
