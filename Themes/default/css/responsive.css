@@ -522,8 +522,6 @@
 	}
 	/* some new stuff for far better UX */
 	.mobile_subject {
-				 
-				 
 		position: relative;
 	}
 	.mobile_subject .board_description {
@@ -532,9 +530,6 @@
 		font-size: 0.9em;
 		color: #222;
 	}
-					 
-				
-  
 	fieldset {
 		max-width: 100%;
 		min-width: unset;
