@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -19,6 +19,7 @@ if (!defined('SMF'))
 /**
  * Maps the implementations in this file (smf_db_function_name)
  * to the $smcFunc['db_function_name'] variable.
+ *
  * @see Subs-Db-mysql.php#smf_db_initiate
  *
  * @param string $db_server The database server
@@ -40,11 +41,11 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_quote'                  => 'smf_db_quote',
 			'db_insert'                 => 'smf_db_insert',
 			'db_insert_id'              => 'smf_db_insert_id',
-			'db_fetch_assoc'            => 'smf_db_fetch_assoc',
-			'db_fetch_row'              => 'smf_db_fetch_row',
+			'db_fetch_assoc'            => 'pg_fetch_assoc',
+			'db_fetch_row'              => 'pg_fetch_row',
 			'db_free_result'            => 'pg_free_result',
 			'db_num_rows'               => 'pg_num_rows',
-			'db_data_seek'              => 'smf_db_data_seek',
+			'db_data_seek'              => 'pg_result_seek',
 			'db_num_fields'             => 'pg_num_fields',
 			'db_escape_string'          => 'smf_db_escape_string',
 			'db_unescape_string'        => 'stripslashes',
@@ -163,12 +164,12 @@ function smf_db_replacement__callback($matches)
 			if (!is_numeric($replacement) || (string) $replacement !== (string) (int) $replacement)
 				smf_db_error_backtrace('Wrong value type sent to the database. Integer expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 			return (string) (int) $replacement;
-		break;
+			break;
 
 		case 'string':
 		case 'text':
 			return sprintf('\'%1$s\'', pg_escape_string($replacement));
-		break;
+			break;
 
 		case 'array_int':
 			if (is_array($replacement))
@@ -189,7 +190,7 @@ function smf_db_replacement__callback($matches)
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Array of integers expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 
-		break;
+			break;
 
 		case 'array_string':
 			if (is_array($replacement))
@@ -204,44 +205,44 @@ function smf_db_replacement__callback($matches)
 			}
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Array of strings expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-		break;
+			break;
 
 		case 'date':
 			if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d)$~', $replacement, $date_matches) === 1)
-				return sprintf('\'%04d-%02d-%02d\'', $date_matches[1], $date_matches[2], $date_matches[3]).'::date';
+				return sprintf('\'%04d-%02d-%02d\'', $date_matches[1], $date_matches[2], $date_matches[3]) . '::date';
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Date expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-		break;
+			break;
 
 		case 'time':
 			if (preg_match('~^([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $time_matches) === 1)
-				return sprintf('\'%02d:%02d:%02d\'', $time_matches[1], $time_matches[2], $time_matches[3]).'::time';
+				return sprintf('\'%02d:%02d:%02d\'', $time_matches[1], $time_matches[2], $time_matches[3]) . '::time';
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Time expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-		break;
+			break;
 
 		case 'datetime':
 			if (preg_match('~^(\d{4})-([0-1]?\d)-([0-3]?\d) ([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)$~', $replacement, $datetime_matches) === 1)
-				return 'to_timestamp('.
-					sprintf('\'%04d-%02d-%02d %02d:%02d:%02d\'', $datetime_matches[1], $datetime_matches[2], $datetime_matches[3], $datetime_matches[4], $datetime_matches[5] ,$datetime_matches[6]).
+				return 'to_timestamp(' .
+					sprintf('\'%04d-%02d-%02d %02d:%02d:%02d\'', $datetime_matches[1], $datetime_matches[2], $datetime_matches[3], $datetime_matches[4], $datetime_matches[5], $datetime_matches[6]) .
 					',\'YYYY-MM-DD HH24:MI:SS\')';
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Datetime expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-		break;
+			break;
 
 		case 'float':
 			if (!is_numeric($replacement))
 				smf_db_error_backtrace('Wrong value type sent to the database. Floating point number expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 			return (string) (float) $replacement;
-		break;
+			break;
 
 		case 'identifier':
 			return '"' . strtr($replacement, array('`' => '', '.' => '"."')) . '"';
-		break;
+			break;
 
 		case 'raw':
 			return $replacement;
-		break;
+			break;
 
 		case 'inet':
 			if ($replacement == 'null' || $replacement == '')
@@ -269,11 +270,11 @@ function smf_db_replacement__callback($matches)
 			}
 			else
 				smf_db_error_backtrace('Wrong value type sent to the database. Array of IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-		break;
+			break;
 
 		default:
 			smf_db_error_backtrace('Undefined type used in the database query. (' . $matches[1] . ':' . $matches[2] . ')', '', false, __FILE__, __LINE__);
-		break;
+			break;
 	}
 }
 
@@ -405,7 +406,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$old_pos = 0;
 		$pos = -1;
 		// Remove the string escape for better runtime
-		$db_string_1 = str_replace('\'\'','',$db_string);
+		$db_string_1 = str_replace('\'\'', '', $db_string);
 		while (true)
 		{
 			$pos = strpos($db_string_1, '\'', $pos + 1);
@@ -618,66 +619,6 @@ function smf_db_error($db_string, $connection = null)
 }
 
 /**
- * A PostgreSQL specific function for tracking the current row...
- *
- * @param resource $request A PostgreSQL result resource
- * @param bool|int $counter The row number in the result to fetch (false to fetch the next one)
- * @return array The contents of the row that was fetched
- */
-function smf_db_fetch_row($request, $counter = false)
-{
-	global $db_row_count;
-
-	if ($counter !== false)
-		return pg_fetch_row($request, $counter);
-
-	// Reset the row counter...
-	if (!isset($db_row_count[(int) $request]))
-		$db_row_count[(int) $request] = 0;
-
-	// Return the right row.
-	return @pg_fetch_row($request, $db_row_count[(int) $request]++);
-}
-
-/**
- * Get an associative array
- *
- * @param resource $request A PostgreSQL result resource
- * @param int|bool $counter The row to get. If false, returns the next row.
- * @return array An associative array of row contents
- */
-function smf_db_fetch_assoc($request, $counter = false)
-{
-	global $db_row_count;
-
-	if ($counter !== false)
-		return pg_fetch_assoc($request, $counter);
-
-	// Reset the row counter...
-	if (!isset($db_row_count[(int) $request]))
-		$db_row_count[(int) $request] = 0;
-
-	// Return the right row.
-	return @pg_fetch_assoc($request, $db_row_count[(int) $request]++);
-}
-
-/**
- * Reset the pointer...
- *
- * @param resource $request A PostgreSQL result resource
- * @param int $counter The counter
- * @return bool Always returns true
- */
-function smf_db_data_seek($request, $counter)
-{
-	global $db_row_count;
-
-	$db_row_count[(int) $request] = $counter;
-
-	return true;
-}
-
-/**
  * Inserts data into a table
  *
  * @param string $method The insert method - can be 'replace', 'ignore' or 'insert'
@@ -709,7 +650,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	// Sanity check for replace is key part of the columns array
 	if ($method == 'replace' && count(array_intersect_key($columns, array_flip($keys))) !== count($keys))
 		smf_db_error_backtrace('Primary Key field missing in insert call',
-				'Change the method of db insert to insert or add the pk field to the columns array', E_USER_ERROR, __FILE__, __LINE__);
+			'Change the method of db insert to insert or add the pk field to the columns array', E_USER_ERROR, __FILE__, __LINE__);
 
 	// PostgreSQL doesn't support replace: we implement a MySQL-compatible behavior instead
 	if ($method == 'replace' || $method == 'ignore')
@@ -733,7 +674,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 					$key_str .= $columnName;
 					$count_pk++;
 				}
-				else if ($method == 'replace') //normal field
+				elseif ($method == 'replace') //normal field
 				{
 					$col_str .= ($count > 0 ? ',' : '');
 					$col_str .= $columnName . ' = EXCLUDED.' . $columnName;
@@ -745,7 +686,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 			else
 				$replace = ' ON CONFLICT (' . $key_str . ') DO NOTHING';
 		}
-		else if ($method == 'replace')
+		elseif ($method == 'replace')
 		{
 			foreach ($columns as $columnName => $type)
 			{
@@ -782,7 +723,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	if (!empty($keys) && (count($keys) > 0) && $returnmode > 0)
 	{
 		// we only take the first key
-		$returning = ' RETURNING '.$keys[0];
+		$returning = ' RETURNING ' . $keys[0];
 		$with_returning = true;
 	}
 
@@ -813,7 +754,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 			INSERT INTO ' . $table . '("' . implode('", "', $indexed_columns) . '")
 			VALUES
 				' . implode(',
-				', $insertRows).$replace.$returning,
+				', $insertRows) . $replace . $returning,
 			array(
 				'security_override' => true,
 				'db_error_skip' => $method == 'ignore' || $table === $db_prefix . 'log_errors',
@@ -826,7 +767,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 			if ($returnmode === 2)
 				$return_var = array();
 
-			while(($row = $smcFunc['db_fetch_row']($request)) && $with_returning)
+			while (($row = $smcFunc['db_fetch_row']($request)) && $with_returning)
 			{
 				if (is_numeric($row[0])) // try to emulate mysql limitation
 				{
@@ -862,6 +803,7 @@ function smf_db_select_db($db_name, $db_connection)
 
 /**
  * Get the current version.
+ *
  * @return string The client version
  */
 function smf_db_version()
@@ -955,7 +897,8 @@ function smf_db_escape_wildcard_string($string, $translate_human_wildcards = fal
 function smf_db_fetch_all($request)
 {
 	// Return the right row.
-	return @pg_fetch_all($request);
+	$return = @pg_fetch_all($request);
+	return !empty($return) ? $return : array();
 }
 
 /**
@@ -966,7 +909,7 @@ function smf_db_fetch_all($request)
  */
 function smf_db_error_insert($error_array)
 {
-	global  $db_prefix, $db_connection;
+	global $db_prefix, $db_connection;
 	static $pg_error_data_prep;
 
 	// without database we can't do anything
@@ -974,10 +917,11 @@ function smf_db_error_insert($error_array)
 		return;
 
 	if (empty($pg_error_data_prep))
-			$pg_error_data_prep = pg_prepare($db_connection, 'smf_log_errors',
-				'INSERT INTO ' . $db_prefix . 'log_errors(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
-													VALUES(		$1,		$2,		$3, $4, 	$5,		$6,			$7,		$8,	$9, $10)'
-			);
+		$pg_error_data_prep = pg_prepare($db_connection, 'smf_log_errors',
+			'INSERT INTO ' . $db_prefix . 'log_errors
+				(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
+			VALUES( $1, $2, $3, $4, $5, $6, $7, $8,	$9, $10)'
+		);
 
 	pg_execute($db_connection, 'smf_log_errors', $error_array);
 }
@@ -993,7 +937,7 @@ function smf_db_error_insert($error_array)
  */
 function smf_db_custom_order($field, $array_values, $desc = false)
 {
-	$return = 'CASE '. $field . ' ';
+	$return = 'CASE ' . $field . ' ';
 	$count = count($array_values);
 	$then = ($desc ? ' THEN -' : ' THEN ');
 
@@ -1045,7 +989,7 @@ function smf_db_cte_support()
 
 /**
  * Function which return the escaped string
- * 
+ *
  * @param string the unescaped text
  * @param resource $connection = null The connection to use (null to use $db_connection)
  * @return string escaped string

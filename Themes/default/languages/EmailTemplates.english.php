@@ -1,20 +1,15 @@
 <?php
-// Version: 2.1 Beta 4; EmailTemplates
+// Version: 2.1 RC1; EmailTemplates
 
 // Since all of these strings are being used in emails, numeric entities should be used.
 
 // Do not translate anything that is between {}, they are used as replacement variables and MUST remain exactly how they are.
-//   Additionally do not translate the @additioinal_parmas: line or the variable names in the lines that follow it. You may
+//   Additionally, do not translate the @additional_params: line or the variable names in the lines that follow it. You may
 //   translate the description of the variable. Do not translate @description:, however you may translate the rest of that line.
 
 // Do not use block comments in this file, they will have special meaning.
 
 global $txtBirthdayEmails;
-
-$txt['scheduled_approval_email_topic'] = 'The following topics are awaiting approval:';
-$txt['scheduled_approval_email_msg'] = 'The following posts are awaiting approval:';
-$txt['scheduled_approval_email_attach'] = 'The following attachments are awaiting approval:';
-$txt['scheduled_approval_email_event'] = 'The following events are awaiting approval:';
 
 /**
 	@additional_params: resend_activate_message
@@ -311,6 +306,21 @@ You can see it at
 {REGARDS}';
 
 /**
+	@additional_params: unapproved_attachment
+		SUBJECT: The subject of the topic causing the notification
+		LINK: A link to the message with the attachment.
+	@description:
+*/
+$txt['unapproved_attachment_subject'] = 'New Unapproved Attachment in: {SUBJECT}';
+$txt['unapproved_attachment_body'] = 'A new attachment has been made in \'{SUBJECT}\' which needs to be approved.
+
+You can approve or reject this attachment from the link below which will take you to the message that it is a part of.
+
+{LINK}
+
+{REGARDS}';
+
+/**
 	@additional_params: alert_unapproved_post
 		SUBJECT: The subject of the topic causing the notification
 		LINK: A link to the topic.
@@ -319,8 +329,7 @@ You can see it at
 $txt['alert_unapproved_post_subject'] = 'New Unapproved Post: {SUBJECT}';
 $txt['alert_unapproved_post_body'] = 'A new post has been made which needs to be approved: \'{SUBJECT}\'
 
-You can approve or reject this post by clicking the link below:
-
+You can approve or reject this post by using the link below:
 {LINK}
 
 {REGARDS}';
@@ -334,15 +343,14 @@ You can approve or reject this post by clicking the link below:
 $txt['alert_unapproved_topic_subject'] = 'New Unapproved Topic: {SUBJECT}';
 $txt['alert_unapproved_topic_body'] = 'A new topic has been made which needs to be approved: \'{SUBJECT}\'
 
-You can approve or reject this topic by clicking the link below:
-
+You can approve or reject this topic by using the link below:
 {LINK}
 
 {REGARDS}';
 
 /**
 	@additional_params: request_membership
-		RECPNAME: The name of the person recieving the email
+		RECPNAME: The name of the person receiving the email
 		APPYNAME: The name of the person applying for group membership
 		GROUPNAME: The name of the group being applied to.
 		REASON: The reason given by the applicant for wanting to join the group.
@@ -356,14 +364,14 @@ $txt['request_membership_body'] = '{RECPNAME},
 
 {REASON}
 
-You can approve or reject this application by clicking the link below:
+You can approve or reject this application by using the link below:
 
 {MODLINK}
 
 {REGARDS}';
 
 /**
-	@additional_params: scheduled_approval
+	@additional_params: paid_subscription
 		REALNAME: The real (display) name of the person receiving the email.
 		PROFILE_LINK: Link to profile of member receiving email where can renew.
 		SUBSCRIPTION: Name of the subscription.
@@ -413,24 +421,6 @@ This mail was sent because the \'forgot password\' function has been applied to 
 
 IP: {IP}
 Username: {MEMBERNAME}
-
-{REGARDS}';
-
-/**
-	@additional_params: scheduled_approval
-		REALNAME: The real (display) name of the person receiving the email.
-		BODY: The generated body of the mail.
-	@description:
-*/
-$txt['scheduled_approval_subject'] = 'Summary of posts awaiting approval at {FORUMNAME}';
-$txt['scheduled_approval_body'] = '{REALNAME},
-
-This email contains a summary of all items awaiting approval at {FORUMNAME}.
-
-{BODY}
-
-Please log in to the forum to review these items.
-{SCRIPTURL}
 
 {REGARDS}';
 
@@ -899,7 +889,9 @@ IMPORTANT: Remember, this is just a notification. Please do not reply to this em
 
 Read this Personal Message here: {READLINK}
 
-Reply to this Personal Message here: {REPLYLINK}';
+Reply to this Personal Message here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: new_pm_body
@@ -918,7 +910,9 @@ The message they sent you was:
 
 {MESSAGE}
 
-Reply to this Personal Message here: {REPLYLINK}';
+Reply to this Personal Message here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: new_pm_tolist
@@ -936,7 +930,9 @@ IMPORTANT: Remember, this is just a notification. Please do not reply to this em
 
 Read this Personal Message here: {READLINK}
 
-Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
+Reply to this Personal Message (to the sender only) here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: new_pm_body_tolist
@@ -956,7 +952,9 @@ The message they sent you was:
 
 {MESSAGE}
 
-Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
+Reply to this Personal Message (to the sender only) here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: msg_quote

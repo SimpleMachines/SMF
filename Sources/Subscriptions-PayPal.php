@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 // This won't be dedicated without this - this must exist in each gateway!
@@ -236,7 +236,7 @@ class paypal_payment
 			$header = 'POST /cgi-bin/webscr HTTP/1.1' . "\r\n";
 			$header .= 'content-type: application/x-www-form-urlencoded' . "\r\n";
 			$header .= 'Host: www.' . (!empty($modSettings['paidsubs_test']) ? 'sandbox.' : '') . 'paypal.com' . "\r\n";
-			$header .= 'content-length: ' . strlen ($requestString) . "\r\n";
+			$header .= 'content-length: ' . strlen($requestString) . "\r\n";
 			$header .= 'connection: close' . "\r\n\r\n";
 
 			// Open the connection.

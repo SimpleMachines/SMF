@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -42,17 +42,27 @@ function db_packages_init()
 	}
 
 	// We setup an array of SMF tables we can't do auto-remove on - in case a mod writer cocks it up!
-	$reservedTables = array('admin_info_files', 'approval_queue', 'attachments', 'background_tasks', 'ban_groups', 'ban_items',
-		'board_permissions', 'boards', 'calendar', 'calendar_holidays', 'categories',
-		'custom_fields', 'group_moderators', 'log_actions', 'log_activity', 'log_banned', 'log_boards', 'log_comments',
-		'log_digest', 'log_errors', 'log_floodcontrol', 'log_group_requests', 'log_mark_read', 'log_member_notices',
-		'log_notify', 'log_online', 'log_packages', 'log_polls', 'log_reported', 'log_reported_comments',
-		'log_scheduled_tasks', 'log_search_messages', 'log_search_results', 'log_search_subjects',
-		'log_search_topics', 'log_spider_hits', 'log_spider_stats', 'log_subscribed', 'log_topics',
-		'mail_queue', 'membergroups', 'members', 'mentions', 'message_icons',
-		'messages', 'moderator_groups', 'moderators', 'package_servers', 'permission_profiles', 'permissions', 'personal_messages',
-		'pm_labeled_messages', 'pm_labels', 'pm_recipients', 'pm_rules', 'poll_choices', 'polls', 'scheduled_tasks', 'sessions', 'settings', 'smileys',
-		'spiders', 'subscriptions', 'themes', 'topics', 'user_alerts', 'user_alerts_prefs', 'user_drafts', 'user_likes');
+	$reservedTables = array(
+		'admin_info_files', 'approval_queue', 'attachments',
+		'background_tasks', 'ban_groups', 'ban_items', 'board_permissions',
+		'board_permissions_view', 'boards', 'calendar', 'calendar_holidays',
+		'categories', 'custom_fields', 'group_moderators', 'log_actions',
+		'log_activity', 'log_banned', 'log_boards', 'log_comments',
+		'log_digest', 'log_errors', 'log_floodcontrol', 'log_group_requests',
+		'log_mark_read', 'log_member_notices', 'log_notify', 'log_online',
+		'log_packages', 'log_polls', 'log_reported', 'log_reported_comments',
+		'log_scheduled_tasks', 'log_search_messages', 'log_search_results',
+		'log_search_subjects', 'log_search_topics', 'log_spider_hits',
+		'log_spider_stats', 'log_subscribed', 'log_topics', 'mail_queue',
+		'member_logins', 'membergroups', 'members', 'mentions',
+		'message_icons', 'messages', 'moderator_groups', 'moderators',
+		'package_servers', 'permission_profiles', 'permissions',
+		'personal_messages', 'pm_labeled_messages', 'pm_labels',
+		'pm_recipients', 'pm_rules', 'poll_choices', 'polls', 'qanda',
+		'scheduled_tasks', 'sessions', 'settings', 'smiley_files', 'smileys',
+		'spiders', 'subscriptions', 'themes', 'topics', 'user_alerts',
+		'user_alerts_prefs', 'user_drafts', 'user_likes',
+	);
 	foreach ($reservedTables as $k => $table_name)
 		$reservedTables[$k] = strtolower($db_prefix . $table_name);
 
@@ -120,13 +130,13 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 		// This is a sad day... drop the table? If not, return false (error) by default.
 		if ($if_exists == 'overwrite')
 			$smcFunc['db_drop_table']($table_name);
-		else if ($if_exists == 'update')
+		elseif ($if_exists == 'update')
 		{
-			$smcFunc['db_drop_table']($table_name.'_old');
+			$smcFunc['db_drop_table']($table_name . '_old');
 			$smcFunc['db_transaction']('begin');
 			$db_trans = true;
-			$smcFunc['db_query']('','
-				ALTER TABLE '. $table_name .' RENAME TO ' . $table_name . '_old',
+			$smcFunc['db_query']('', '
+				ALTER TABLE ' . $table_name . ' RENAME TO ' . $table_name . '_old',
 				array(
 					'security_override' => true,
 				)
@@ -213,15 +223,15 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	{
 		$same_col = array();
 
-		$request = $smcFunc['db_query']('','
+		$request = $smcFunc['db_query']('', '
 			SELECT count(*), column_name
 			FROM information_schema.columns
 			WHERE table_name in ({string:table1},{string:table2}) AND table_schema = {string:schema}
 			GROUP BY column_name
 			HAVING count(*) > 1',
-			array (
+			array(
 				'table1' => $table_name,
-				'table2' => $table_name.'_old',
+				'table2' => $table_name . '_old',
 				'schema' => 'public',
 			)
 		);
@@ -231,11 +241,11 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 			$same_col[] = $row['column_name'];
 		}
 
-		$smcFunc['db_query']('','
-			INSERT INTO ' . $table_name .'('
+		$smcFunc['db_query']('', '
+			INSERT INTO ' . $table_name . '('
 			. implode($same_col, ',') .
 			')
-			SELECT '. implode($same_col, ',') . '
+			SELECT ' . implode($same_col, ',') . '
 			FROM ' . $table_name . '_old',
 			array()
 		);
@@ -244,10 +254,10 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	// And the indexes...
 	foreach ($index_queries as $query)
 		$smcFunc['db_query']('', $query,
-		array(
-			'security_override' => true,
-		)
-	);
+			array(
+				'security_override' => true,
+			)
+		);
 
 	// Go, go power rangers!
 	$smcFunc['db_transaction']('commit');
@@ -760,8 +770,7 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 
 	// Only char fields got size
 	if (strpos($type_name, 'char') === false)
-			$type_size = null;
-
+		$type_size = null;
 
 	return array($type_name, $type_size);
 }
@@ -803,7 +812,7 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 		SELECT column_name, column_default, is_nullable, data_type, character_maximum_length
 		FROM information_schema.columns
 		WHERE table_schema = {string:schema_public}
-		 AND table_name = {string:table_name}
+			AND table_name = {string:table_name}
 		ORDER BY ordinal_position',
 		array(
 			'schema_public' => 'public',

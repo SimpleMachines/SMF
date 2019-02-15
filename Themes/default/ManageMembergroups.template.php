@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -351,7 +351,7 @@ function template_edit_group()
 	echo '
 				</dl>
 				<input type="submit" name="save" value="', $txt['membergroups_edit_save'], '" class="button">', $context['group']['allow_delete'] ? '
-				<input type="submit" name="delete" value="'. $txt['membergroups_delete'] . '" data-confirm="' . ($context['is_moderator_group'] ? $txt['membergroups_confirm_delete_mod'] : $txt['membergroups_confirm_delete']) . '" class="button you_sure">' : '', '
+				<input type="submit" name="delete" value="' . $txt['membergroups_delete'] . '" data-confirm="' . ($context['is_moderator_group'] ? $txt['membergroups_confirm_delete_mod'] : $txt['membergroups_confirm_delete']) . '" class="button you_sure">' : '', '
 			</div><!-- .windowbg -->
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '">
@@ -531,7 +531,7 @@ function template_add_edit_group_boards_list($collapse = true)
 }
 
 /**
- * Templatine for viewing the members of a group.
+ * Template for viewing the members of a group.
  */
 function template_group_members()
 {
@@ -594,25 +594,25 @@ function template_group_members()
 			</div>
 			<br>
 			<div class="pagesection">', $context['page_index'], '</div>
-			<table class="table_grid">
+			<table class="table_grid" id="group_members">
 				<thead>
 					<tr class="title_bar">
-						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['name'], $context['sort_by'] == 'name' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>';
+						<th class="user_name"><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['name'], $context['sort_by'] == 'name' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>';
 
 	if ($context['can_send_email'])
 		echo '
-						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=email', $context['sort_by'] == 'email' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['email'], $context['sort_by'] == 'email' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>';
+						<th class="email"><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=email', $context['sort_by'] == 'email' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['email'], $context['sort_by'] == 'email' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>';
 
 	echo '
-						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=active', $context['sort_by'] == 'active' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['membergroups_members_last_active'], $context['sort_by'] == 'active' ? '<span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
-						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=registered', $context['sort_by'] == 'registered' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['date_registered'], $context['sort_by'] == 'registered' ? '<span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
-						<th ', empty($context['group']['assignable']) ? ' colspan="2"' : '', '>
-							<a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=posts', $context['sort_by'] == 'posts' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['posts'], $context['sort_by'] == 'posts' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+						<th class="last_active"><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=active', $context['sort_by'] == 'active' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['membergroups_members_last_active'], $context['sort_by'] == 'active' ? '<span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
+						<th class="date_registered"><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=registered', $context['sort_by'] == 'registered' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['date_registered'], $context['sort_by'] == 'registered' ? '<span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
+						<th class="posts"', empty($context['group']['assignable']) ? ' colspan="2"' : '', '>
+							<a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=posts', $context['sort_by'] == 'posts' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['posts'], $context['sort_by'] == 'posts' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 						</th>';
 
 	if (!empty($context['group']['assignable']))
 		echo '
-						<th style="width: 4%"><input type="checkbox" onclick="invertAll(this, this.form);"></th>';
+						<th class="quick_moderation" style="width: 4%"><input type="checkbox" onclick="invertAll(this, this.form);"></th>';
 
 	echo '
 					</tr>
@@ -629,22 +629,22 @@ function template_group_members()
 	{
 		echo '
 					<tr class="windowbg">
-						<td>', $member['name'], '</td>';
+						<td class="user_name">', $member['name'], '</td>';
 
 		if ($context['can_send_email'])
 			echo '
-						<td>
+						<td class="email">
 								<a href="mailto:', $member['email'], '">', $member['email'], '</a>
 						</td>';
 
 		echo '
-						<td>', $member['last_online'], '</td>
-						<td>', $member['registered'], '</td>
-						<td', empty($context['group']['assignable']) ? ' colspan="2"' : '', '>', $member['posts'], '</td>';
+						<td class="last_active">', $member['last_online'], '</td>
+						<td class="date_registered">', $member['registered'], '</td>
+						<td class="posts"', empty($context['group']['assignable']) ? ' colspan="2"' : '', '>', $member['posts'], '</td>';
 
 		if (!empty($context['group']['assignable']))
 			echo '
-						<td style="width: 4%"><input type="checkbox" name="rem[]" value="', $member['id'], '" ', ($context['user']['id'] == $member['id'] && $context['group']['id'] == 1 ? 'onclick="if (this.checked) return confirm(\'' . $txt['membergroups_members_deadmin_confirm'] . '\')" ' : ''), '/></td>';
+						<td class="quick_moderation" style="width: 4%"><input type="checkbox" name="rem[]" value="', $member['id'], '" ', ($context['user']['id'] == $member['id'] && $context['group']['id'] == 1 ? 'onclick="if (this.checked) return confirm(\'' . $txt['membergroups_members_deadmin_confirm'] . '\')" ' : ''), '/></td>';
 
 		echo '
 					</tr>';

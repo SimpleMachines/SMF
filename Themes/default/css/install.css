@@ -4,7 +4,7 @@ a:link, a:hover, a:visited {
 /* These divisions wrap the forum sections when a forum width is set. */
 h1.forumtitle {
 	color: #a85400;
-	text-shadow: -1px -1px 0 rgba(0,0,0,0.5), 1px 1px 0 #fff;
+	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.5), 1px 1px 0 #fff;
 }
 
 #inner_wrap {
@@ -62,7 +62,7 @@ h1.forumtitle {
 	font-size: 1.1em;
 	left: 0.5em;
 	z-index: 3;
-	text-shadow: 1px 1px rgba(255,255,255,.4);
+	text-shadow: 1px 1px rgba(255, 255, 255, .4);
 }
 #substep_bar_div {
 	line-height: 1.6em;
@@ -105,7 +105,7 @@ h1.forumtitle {
 	overflow: auto;
 }
 .upgrade_settings li + li {
-	margin-top: 0.5em; 
+	margin-top: 0.5em;
 }
 #commess {
 	font-weight: bold;
@@ -119,25 +119,19 @@ h1.forumtitle {
 	max-height: 8.4em; /* 6 lines of text */
 	line-height: 1.4em;
 }
-dl.settings {
-	display: -ms-grid;
-	display: grid;
-	-ms-grid-gap: 0.5em 1em;
-	grid-gap: 0.5em 1em;
-	justify-content: start;
-}
 dl.settings dt, dl.settings dd {
-	float: none;
-	width: auto;
+	width: 50%;
 }
-dl.settings dt {
-	font-weight: bold;
-	-ms-grid-column: 1;
-	grid-column: 1;
+dl.settings.adminlogin dt {
+	width: 20ch;
 }
-dl.settings dd {
-	-ms-grid-column: 2;
-	grid-column: 2;
+dl.settings.adminlogin dd {
+	width: calc(100% - 20ch);
+}
+@media (max-width: 480px) {
+	dl.settings.adminlogin dt, dl.settings.adminlogin dd {
+		width: 100%;
+	}
 }
 /* [WIP] Warning: this next bit may cause trouble. */
 /* It's just to hide an empty div when the submits are not shown. */
@@ -156,6 +150,6 @@ dl.settings dd {
 	padding: 6px 8px 8px 8px;
 	border: 1px solid #ddd;
 	border-radius: 5px;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
+	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.1);
 	/* End [WIP] */
 }

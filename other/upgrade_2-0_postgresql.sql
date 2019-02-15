@@ -4,7 +4,7 @@
 --- Adding Open ID support.
 /******************************************************************************/
 
----# Adding Open ID Assocation table...
+---# Adding Open ID Association table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}openid_assoc (
 	server_url text NOT NULL,
 	handle varchar(255) NOT NULL,
@@ -141,24 +141,26 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}spiders (
 
 INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (1, 'Google', 'googlebot', '') ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (2, 'Yahoo!', 'slurp', '') ON CONFLICT DO NOTHING;
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (3, 'MSN', 'msnbot', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (3, 'Bing', 'bingbot', '') ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (4, 'Google (Mobile)', 'Googlebot-Mobile', '') ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (5, 'Google (Image)', 'Googlebot-Image', '') ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (6, 'Google (AdSense)', 'Mediapartners-Google', '') ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (7, 'Google (Adwords)', 'AdsBot-Google', '') ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (8, 'Yahoo! (Mobile)', 'YahooSeeker/M1A1-R2D2', '') ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (9, 'Yahoo! (Image)', 'Yahoo-MMCrawler', '') ON CONFLICT DO NOTHING;
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (10, 'MSN (Mobile)', 'MSNBOT_Mobile', '') ON CONFLICT DO NOTHING;
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (11, 'MSN (Media)', 'msnbot-media', '') ON CONFLICT DO NOTHING;
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (12, 'Cuil', 'twiceler', '') ON CONFLICT DO NOTHING;
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (13, 'Ask', 'Teoma', '') ON CONFLICT DO NOTHING;
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (14, 'Baidu', 'Baiduspider', '') ON CONFLICT DO NOTHING;
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (15, 'Gigablast', 'Gigabot', '') ON CONFLICT DO NOTHING;
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (16, 'InternetArchive', 'ia_archiver-web.archive.org', '') ON CONFLICT DO NOTHING;
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (17, 'Alexa', 'ia_archiver', '') ON CONFLICT DO NOTHING;
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (18, 'Omgili', 'omgilibot', '') ON CONFLICT DO NOTHING;
-INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (19, 'EntireWeb', 'Speedy Spider', '') ON CONFLICT DO NOTHING;
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (20, 'Yandex', 'yandex', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (10, 'Bing (Preview)', 'BingPreview', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (11, 'Bing (Ads)', 'adidxbot', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (12, 'Bing (MSNBot)', 'msnbot', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (13, 'Bing (Media)', 'msnbot-media', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (14, 'Cuil', 'twiceler', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (15, 'Ask', 'Teoma', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (16, 'Baidu', 'Baiduspider', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (17, 'Gigablast', 'Gigabot', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (18, 'InternetArchive', 'ia_archiver-web.archive.org', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (19, 'Alexa', 'ia_archiver', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (20, 'Omgili', 'omgilibot', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (21, 'EntireWeb', 'Speedy Spider', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}spiders	(id_spider, spider_name, user_agent, ip_info) VALUES (22, 'Yandex', 'yandex', '') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Removing a spider.
@@ -235,7 +237,7 @@ $smcFunc['db_insert']('ignore',
 	'{db_prefix}themes',
 	array('id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-255'),
 	array(1, 'forum_width', '90%'),
-	array('id_theme', 'variable', 'value')
+	array('id_theme', 'variable')
 );
 ---}
 ---#
@@ -785,7 +787,7 @@ $smcFunc['db_remove_index']($db_prefix . 'log_activity', $db_prefix . 'log_activ
 // Don't do this if we've done this already.
 if (empty($modSettings['dont_repeat_buddylists']))
 {
-	// Make sure the pm_receive_from column has the right default value - early adoptors might have a '0' set here.
+	// Make sure the pm_receive_from column has the right default value - early adopters might have a '0' set here.
 	upgrade_query("
 		ALTER TABLE {$db_prefix}members
 		ALTER COLUMN pm_receive_from SET DEFAULT '1'");

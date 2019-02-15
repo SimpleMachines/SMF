@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -336,7 +336,7 @@ function template_notes()
 		foreach ($context['notes'] as $note)
 			echo '
 						<li class="smalltext">
-							', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . $context['mod-modnote-del_token_var'] . '=' . $context['mod-modnote-del_token'] . '" data-confirm="' . $txt['mc_reportedp_delete_confirm'] . '" class="you_sure"><span class="generic_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '
+							', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . $context['mod-modnote-del_token_var'] . '=' . $context['mod-modnote-del_token'] . '" data-confirm="' . $txt['mc_reportedp_delete_confirm'] . '" class="you_sure"><span class="main_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '
 						</li>';
 
 		echo '
@@ -503,27 +503,7 @@ function template_moderation_settings()
 	echo '
 	<div id="modcenter">';
 
-	if (!empty($context['can_moderate_approvals']))
-	{
-		echo '
-		<form action="', $scripturl, '?action=moderate;area=settings" method="post" accept-charset="', $context['character_set'], '">
-			<div class="windowbg">
-				<dl class="settings">
-					<dt>
-						<strong><label for="mod_notify_approval">', $txt['mc_prefs_notify_approval'], '</label>:</strong>
-					</dt>
-					<dd>
-						<input type="checkbox" id="mod_notify_approval" name="mod_notify_approval"', $context['mod_settings']['notify_approval'] ? ' checked' : '', '>
-					</dd>
-				</dl>
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['mod-set_token_var'], '" value="', $context['mod-set_token'], '">
-				<input type="submit" name="save" value="', $txt['save'], '" class="button">
-			</div>
-		</form>';
-	}
-	else
-		echo '
+	echo '
 		<div class="windowbg">
 			<div class="centertext">', $txt['mc_no_settings'], '</div>
 		</div>';
@@ -545,7 +525,7 @@ function template_show_notice()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
 	</head>
 	<body>
 		<div class="cat_bar">

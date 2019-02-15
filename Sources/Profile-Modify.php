@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -26,7 +26,7 @@ if (!defined('SMF'))
 function loadProfileFields($force_reload = false)
 {
 	global $context, $profile_fields, $txt, $scripturl, $modSettings, $user_info, $smcFunc, $cur_profile, $language;
-	global $sourcedir, $profile_vars;
+	global $sourcedir, $profile_vars, $settings;
 
 	// Don't load this twice!
 	if (!empty($profile_fields) && !$force_reload)
@@ -167,9 +167,9 @@ function loadProfileFields($force_reload = false)
 			'js_submit' => !empty($modSettings['send_validation_onChange']) ? '
 	form_handle.addEventListener(\'submit\', function(event)
 	{
-		if (this.email_address.value != "'. (!empty($cur_profile['email_address']) ? $cur_profile['email_address'] : '') . '")
+		if (this.email_address.value != "' . (!empty($cur_profile['email_address']) ? $cur_profile['email_address'] : '') . '")
 		{
-			alert('. JavaScriptEscape($txt['email_change_logout']) . ');
+			alert(' . JavaScriptEscape($txt['email_change_logout']) . ');
 			return true;
 		}
 	}, false);' : '',
@@ -430,7 +430,7 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['secret_answer'],
 			'subtext' => $txt['secret_desc2'],
 			'size' => 20,
-			'postinput' => '<span class="smalltext"><a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help"></span> ' . $txt['secret_why_blank'] . '</a></span>',
+			'postinput' => '<span class="smalltext"><a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ' . $txt['secret_why_blank'] . '</a></span>',
 			'value' => '',
 			'permission' => 'profile_password',
 			'input_validate' => function(&$value) use ($cur_profile)
@@ -458,11 +458,52 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'smiley_pick',
 			'enabled' => !empty($modSettings['smiley_sets_enable']),
 			'permission' => 'profile_extra',
-			'preload' => function() use ($modSettings, &$context, $txt, $cur_profile, $smcFunc)
+			'preload' => function() use ($modSettings, &$context, &$txt, $cur_profile, $smcFunc, $settings, $language)
 			{
 				$context['member']['smiley_set']['id'] = empty($cur_profile['smiley_set']) ? '' : $cur_profile['smiley_set'];
 				$context['smiley_sets'] = explode(',', 'none,,' . $modSettings['smiley_sets_known']);
 				$set_names = explode("\n", $txt['smileys_none'] . "\n" . $txt['smileys_forum_board_default'] . "\n" . $modSettings['smiley_sets_names']);
+
+				$filenames = array();
+				$result = $smcFunc['db_query']('', '
+					SELECT f.filename, f.smiley_set
+					FROM {db_prefix}smiley_files AS f
+						JOIN {db_prefix}smileys AS s ON (s.id_smiley = f.id_smiley)
+					WHERE s.code = {string:smiley}',
+					array(
+						'smiley' => ':)',
+					)
+				);
+				while ($row = $smcFunc['db_fetch_assoc']($result))
+					$filenames[$row['smiley_set']] = $row['filename'];
+				$smcFunc['db_free_result']($result);
+
+				// In case any sets don't contain a ':)' smiley
+				$no_smiley_sets = array_diff(explode(',', $modSettings['smiley_sets_known']), array_keys($filenames));
+				foreach ($no_smiley_sets as $set)
+				{
+					$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
+					$images = glob(implode('/', array($modSettings['smileys_dir'], $set, '*.{' . (implode(',', $allowedTypes) . '}'))), GLOB_BRACE);
+
+					// Just use some image or other
+					if (!empty($images))
+					{
+						$image = array_pop($images);
+						$filenames[$set] = pathinfo($image, PATHINFO_BASENAME);
+					}
+					// No images at all? That's no good. Let the admin know, and quietly skip for this user.
+					else
+					{
+						loadLanguage('Errors', $language);
+						log_error(sprintf($txt['smiley_set_dir_not_found'], $set_names[array_search($set, $context['smiley_sets'])]));
+
+						$context['smiley_sets'] = array_filter($context['smiley_sets'], function($v) use ($set)
+							{
+								return $v != $set;
+							});
+					}
+				}
+
 				foreach ($context['smiley_sets'] as $i => $set)
 				{
 					$context['smiley_sets'][$i] = array(
@@ -471,9 +512,25 @@ function loadProfileFields($force_reload = false)
 						'selected' => $set == $context['member']['smiley_set']['id']
 					);
 
+					if ($set === 'none')
+						$context['smiley_sets'][$i]['preview'] = $settings['images_url'] . '/blank.png';
+					elseif ($set === '')
+					{
+						$default_set = !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'];
+						$context['smiley_sets'][$i]['preview'] = implode('/', array($modSettings['smileys_url'], $default_set, $filenames[$default_set]));
+					}
+					else
+						$context['smiley_sets'][$i]['preview'] = implode('/', array($modSettings['smileys_url'], $set, $filenames[$set]));
+
 					if ($context['smiley_sets'][$i]['selected'])
+					{
 						$context['member']['smiley_set']['name'] = $set_names[$i];
+						$context['member']['smiley_set']['preview'] = $context['smiley_sets'][$i]['preview'];
+					}
+
+					$context['smiley_sets'][$i]['preview'] = $smcFunc['htmlspecialchars']($context['smiley_sets'][$i]['preview']);
 				}
+
 				return true;
 			},
 			'input_validate' => function(&$value)
@@ -703,13 +760,13 @@ function setupProfileContext($fields)
 	addInlineJavaScript('
 	var form_handle = document.forms.creator;
 	createEventListener(form_handle);
-	'. (!empty($context['require_password']) ? '
+	' . (!empty($context['require_password']) ? '
 	form_handle.addEventListener(\'submit\', function(event)
 	{
 		if (this.oldpasswrd.value == "")
 		{
 			event.preventDefault();
-			alert('. (JavaScriptEscape($txt['required_security_reasons'])) . ');
+			alert(' . (JavaScriptEscape($txt['required_security_reasons'])) . ');
 			return false;
 		}
 	}, false);' : ''), true);
@@ -1021,7 +1078,7 @@ function makeThemeChanges($memID, $id_theme)
 				$val = max(0, min($val, 50));
 			// Only let admins and owners change the censor.
 			elseif ($opt == 'allow_no_censored' && !$user_info['is_admin'] && !$context['user']['is_owner'])
-					continue;
+				continue;
 
 			$themeSetArray[] = array($memID, 1, $opt, is_array($val) ? implode(',', $val) : $val);
 			$erase_options[] = $opt;
@@ -1257,7 +1314,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			);
 			if (empty($value))
 			{
-				$deletes = array('id_theme' => 1 , 'variable' => $row['col_name'], 'id_member' => $memID);
+				$deletes = array('id_theme' => 1, 'variable' => $row['col_name'], 'id_member' => $memID);
 				unset($user_profile[$memID]['options'][$row['col_name']]);
 			}
 			else
@@ -1285,13 +1342,13 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				array('id_theme', 'variable', 'id_member')
 			);
 		if (!empty($deletes))
-			$smcFunc['db_query']('','
+			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}themes
 				WHERE id_theme = {int:id_theme} AND
-						variable = {string:variable} AND
-						id_member = {int:id_member}',
+					variable = {string:variable} AND
+					id_member = {int:id_member}',
 				$deletes
-				);
+			);
 		if (!empty($log_changes) && !empty($modSettings['modlog_enabled']))
 		{
 			require_once($sourcedir . '/Logging.php');
@@ -1355,7 +1412,7 @@ function editBuddyIgnoreLists($memID)
  */
 function editBuddies($memID)
 {
-	global $txt, $scripturl, $settings;
+	global $txt, $scripturl, $settings, $modSettings;
 	global $context, $user_profile, $memberContext, $smcFunc;
 
 	// For making changes!
@@ -1796,7 +1853,7 @@ function getAvatars($directory, $level)
 				'name' => '[' . $smcFunc['htmlspecialchars'](str_replace('_', ' ', $line)) . ']',
 				'is_dir' => true,
 				'files' => $tmp
-		);
+			);
 		unset($tmp);
 	}
 
@@ -1942,6 +1999,7 @@ function alert_configuration($memID)
 			'groupr_rejected' => array('alert' => 'always', 'email' => 'yes'),
 		),
 		'moderation' => array(
+			'unapproved_attachment' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'approve_posts', 'is_board' => true)),
 			'unapproved_post' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'approve_posts', 'is_board' => true)),
 			'msg_report' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_board', 'is_board' => true)),
 			'msg_report_reply' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_board', 'is_board' => true)),
@@ -1952,8 +2010,8 @@ function alert_configuration($memID)
 			'member_register' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_forum', 'is_board' => false)),
 			'request_group' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_any' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'issue_warning', 'is_board' => false)),
-			'buddy_request'  => array('alert' => 'yes', 'email' => 'never'),
-			'birthday'  => array('alert' => 'yes', 'email' => 'yes'),
+			'buddy_request' => array('alert' => 'yes', 'email' => 'never'),
+			'birthday' => array('alert' => 'yes', 'email' => 'yes'),
 		),
 		'calendar' => array(
 			'event_new' => array('alert' => 'yes', 'email' => 'yes', 'help' => 'alert_event_new'),
@@ -2254,6 +2312,8 @@ function alert_delete($toDelete, $memID = false)
 
 /**
  * Counts how many alerts a user has - either unread or all depending on $unread
+ * We can't use db_num_rows here, as we have to determine what boards the user can see
+ * Possibly in future versions as database support for json is mainstream, we can simplify this.
  *
  * @param int $memID The user ID.
  * @param bool $unread Whether to only count unread alerts.
@@ -2261,26 +2321,130 @@ function alert_delete($toDelete, $memID = false)
  */
 function alert_count($memID, $unread = false)
 {
-	global $smcFunc;
+	global $smcFunc, $user_info;
 
 	if (empty($memID))
 		return false;
 
+	// We have to do this the slow way as to iterate over all possible boards the user can see.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_alert
+		SELECT id_alert, content_id, content_type, extra
 		FROM {db_prefix}user_alerts
 		WHERE id_member = {int:id_member}
-			'.($unread ? '
+			' . ($unread ? '
 			AND is_read = 0' : ''),
 		array(
 			'id_member' => $memID,
 		)
 	);
 
-	$count = $smcFunc['db_num_rows']($request);
+	// First we dump alerts and possible boards information out.
+	$alerts = array();
+	$boards = array();
+	$topics = array();
+	$msgs = array();
+	$possible_boards = array();
+	$possible_topics = array();
+	$possible_msgs = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$alerts[$row['id_alert']] = !empty($row['extra']) ? $smcFunc['json_decode']($row['extra'], true) : array();
+
+		if ($row['content_type'] == 'msg')
+		{
+			$possible_msgs[] = $row['content_id'];
+			$alerts[$row['id_alert']]['msg'] = $row['content_id'];
+		}
+		elseif (isset($alerts[$row['id_alert']]['topic']))
+			$possible_topics[] = $alerts[$row['id_alert']]['topic'];
+		elseif (isset($alerts[$row['id_alert']]['board']))
+			$possible_boards[] = $alerts[$row['id_alert']]['board'];
+	}
 	$smcFunc['db_free_result']($request);
 
-	return $count;
+	$possible_boards = array_unique($possible_boards);
+
+	// If this isn't the current user, get their boards.
+	if (!isset($user_info['id']) || $user_info['id'] != $memID)
+	{
+		$query_see_board = build_query_board($memID);
+		$query_see_board = $query_see_board['query_see_board'];
+	}
+	else
+		$query_see_board = '{query_see_board}';
+
+	// We want only the stuff they can see.
+	if (!empty($possible_msgs))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT m.id_msg, m.id_topic, b.id_board
+			FROM {db_prefix}messages AS m
+				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
+			WHERE ' . $query_see_board . '
+				AND m.id_msg IN ({array_int:msgs})',
+			array(
+				'msgs' => $possible_msgs,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$msgs[] = $row['id_msg'];
+			$topics[] = $row['id_topic'];
+			$boards[] = $row['id_board'];
+		}
+
+		$smcFunc['db_free_result']($request);
+	}
+	if (!empty($possible_topics))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT t.id_topic, b.id_board
+			FROM {db_prefix}topics AS t
+				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
+			WHERE ' . $query_see_board . '
+				AND t.id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $possible_topics,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$topics[] = $row['id_topic'];
+			$boards[] = $row['id_board'];
+		}
+
+		$smcFunc['db_free_result']($request);
+	}
+	if (!empty($possible_boards))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT id_board
+			FROM {db_prefix}boards AS b
+			WHERE ' . $query_see_board . '
+				AND id_board IN ({array_int:boards})',
+			array(
+				'boards' => $possible_boards,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$boards[] = $row['id_board'];
+
+		$smcFunc['db_free_result']($request);
+	}
+	unset($possible_msgs, $possible_topics, $possible_boards);
+
+	// Now check alerts again and remove any they can't see.
+	foreach ($alerts as $id_alert => $extra)
+	{
+		if (isset($extra['msg']) && !in_array($extra['msg'], $msgs))
+			unset($alerts[$id_alert]);
+		elseif (isset($extra['topic']) && !in_array($extra['topic'], $topics))
+			unset($alerts[$id_alert]);
+		elseif (isset($extra['board']) && !in_array($extra['board'], $boards))
+			unset($alerts[$id_alert]);
+	}
+
+	return count($alerts);
 }
 
 /**
@@ -2779,7 +2943,7 @@ function ignoreboards($memID)
 	// Find all the boards this user is allowed to see.
 	$request = $smcFunc['db_query']('order_by_board_order', '
 		SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level,
-			'. (!empty($cur_profile['ignore_boards']) ? 'b.id_board IN ({array_int:ignore_boards})' : '0') . ' AS is_ignored
+			' . (!empty($cur_profile['ignore_boards']) ? 'b.id_board IN ({array_int:ignore_boards})' : '0') . ' AS is_ignored
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 		WHERE {query_see_board}
@@ -3171,6 +3335,7 @@ function profileSaveGroups(&$value)
 
 /**
  * The avatar is incredibly complicated, what with the options... and what not.
+ *
  * @todo argh, the avatar here. Take this out of here!
  *
  * @param string &$value What kind of avatar we're expecting. Can be 'none', 'server_stored', 'gravatar', 'external' or 'upload'
@@ -3537,7 +3702,8 @@ function profileValidateSignature(&$value)
 			{
 				foreach ($matches[0] as $key => $image)
 				{
-					$width = -1; $height = -1;
+					$width = -1;
+					$height = -1;
 
 					// Does it have predefined restraints? Width first.
 					if ($matches[6][$key])
@@ -4062,7 +4228,7 @@ function tfasetup($memID)
 	{
 		// Check to ensure we're forcing SSL for authentication
 		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
-			fatal_lang_error('login_ssl_required');
+			fatal_lang_error('login_ssl_required', false);
 
 		// In some cases (forced 2FA or backup code) they would be forced to be redirected here,
 		// we do not want too much AJAX to confuse them.
@@ -4158,10 +4324,12 @@ function tfadisable($memID)
 					'groups' => $groups,
 				)
 			);
-			// They belong to a membergroup that requires tfa.
-			if (!empty($smcFunc['db_num_rows']($request)))
-				fatal_lang_error('cannot_disable_tfa2', false);
+			$tfa_required_groups = $smcFunc['db_num_rows']($request);
 			$smcFunc['db_free_result']($request);
+
+			// They belong to a membergroup that requires tfa.
+			if (!empty($tfa_required_groups))
+				fatal_lang_error('cannot_disable_tfa2', false);
 		}
 	}
 	else

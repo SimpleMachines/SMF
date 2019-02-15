@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -16,6 +16,7 @@ if (!defined('SMF'))
 
 /**
  * Our Cache API class
+ *
  * @package cacheAPI
  */
 class smf_cache extends cache_api
@@ -100,7 +101,7 @@ class smf_cache extends cache_api
 			@unlink($cachedir . '/data_' . $key . '.php');
 		else
 		{
-			$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, '\\\'') . '\';}' . '?' . '>';
+			$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, "\0" . '\\\'') . '\';}' . '?' . '>';
 
 			// Write out the cache file, check that the cache write was successful; all the data must be written
 			// If it fails due to low diskspace, or other, remove the cache file
@@ -209,9 +210,7 @@ class smf_cache extends cache_api
 	 */
 	public function getVersion()
 	{
-		global $forum_version;
-
-		return isset($forum_version) ? $forum_version : '2.1';
+		return SMF_VERSION;
 	}
 }
 

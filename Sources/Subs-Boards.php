@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -217,7 +217,7 @@ function MarkRead()
 		$result = $smcFunc['db_query']('', '
 			SELECT t.id_first_msg, t.id_last_msg, COALESCE(lt.unwatched, 0) as unwatched
 			FROM {db_prefix}topics as t
-			LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
+				LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 			WHERE t.id_topic = {int:current_topic}',
 			array(
 				'current_topic' => $topic,
@@ -317,8 +317,7 @@ function MarkRead()
 				WHERE {query_see_board}
 					AND b.child_level > {int:no_parents}
 					AND b.id_board NOT IN ({array_int:board_list})
-				ORDER BY child_level ASC
-				',
+				ORDER BY child_level ASC',
 				array(
 					'no_parents' => 0,
 					'board_list' => $boards,
@@ -327,6 +326,7 @@ function MarkRead()
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 				if (in_array($row['id_parent'], $boards))
 					$boards[] = $row['id_board'];
+
 			$smcFunc['db_free_result']($request);
 		}
 
@@ -414,6 +414,7 @@ function MarkRead()
 
 /**
  * Get the id_member associated with the specified message.
+ *
  * @param int $messageID The ID of the message
  * @return int The ID of the member associated with that post
  */
@@ -437,6 +438,7 @@ function getMsgMemberID($messageID)
 	// The message doesn't even exist.
 	else
 		$memberID = 0;
+
 	$smcFunc['db_free_result']($result);
 
 	return (int) $memberID;
@@ -655,49 +657,44 @@ function modifyBoard($board_id, &$boardOptions)
 				'selected_board' => $board_id,
 			))
 		);
-	
+
+	// Before we add new access_groups or deny_groups, remove all of the old entries
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}board_permissions_view
+		WHERE id_board = {int:selected_board}',
+		array(
+			'selected_board' => $board_id,
+		)
+	);
+
 	// Do permission sync
 	if (!empty($boardUpdateParameters['deny_groups']))
 	{
 		$insert = array();
-		foreach($boardOptions['deny_groups'] as $value)
+		foreach ($boardOptions['deny_groups'] as $value)
 			$insert[] = array($value, $board_id, 1);
 
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}board_permissions_view
-			WHERE id_board = {int:selected_board} AND deny = 1',
-			array(
-				'selected_board' => $board_id,
-			)
-		);
 		$smcFunc['db_insert']('insert',
-				'{db_prefix}board_permissions_view',
-				array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-				$insert,
-				array('id_group','id_board','deny')
-				);
+			'{db_prefix}board_permissions_view',
+			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+			$insert,
+			array('id_group', 'id_board', 'deny')
+		);
 	}
 
 	if (!empty($boardUpdateParameters['member_groups']))
 	{
 		$insert = array();
-		foreach($boardOptions['access_groups'] as $value)
+		foreach ($boardOptions['access_groups'] as $value)
 			$insert[] = array($value, $board_id, 0);
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}board_permissions_view
-			WHERE id_board = {int:selected_board} AND deny = 0',
-			array(
-				'selected_board' => $board_id,
-			)
-		);
-		$smcFunc['db_insert']('insert',
-				'{db_prefix}board_permissions_view',
-				array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
-				$insert,
-				array('id_group','id_board','deny')
-				);
-	}
 
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}board_permissions_view',
+			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+			$insert,
+			array('id_group', 'id_board', 'deny')
+		);
+	}
 
 	// Set moderators of this board.
 	if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']) || isset($boardOptions['moderator_groups']) || isset($boardOptions['moderator_group_string']))
@@ -876,9 +873,9 @@ function createBoard($boardOptions)
 		'inherit_permissions' => true,
 		'dont_log' => true,
 	);
-	
+
 	$default_memgrps = '-1,0';
-	
+
 	$board_columns = array(
 		'id_cat' => 'int', 'name' => 'string-255', 'description' => 'string', 'board_order' => 'int',
 		'member_groups' => 'string', 'redirect' => 'string',
@@ -901,14 +898,14 @@ function createBoard($boardOptions)
 
 	$insert = array();
 
-	foreach(explode(',', $default_memgrps) as $value)
-			$insert[] = array($value, $board_id, 0);
+	foreach (explode(',', $default_memgrps) as $value)
+		$insert[] = array($value, $board_id, 0);
 
 	$smcFunc['db_insert']('',
 		'{db_prefix}board_permissions_view',
 		array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
 		$insert,
-		array('id_group','id_board','deny'),
+		array('id_group', 'id_board', 'deny'),
 		1
 	);
 
@@ -1226,7 +1223,8 @@ function getTreeOrder()
 		ORDER BY b.board_order',
 		array()
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+
+	foreach ($smcFunc['db_fetch_all']($request) as $row)
 	{
 		if (!in_array($row['id_cat'], $tree_order['cats']))
 			$tree_order['cats'][] = $row['id_cat'];
@@ -1301,7 +1299,7 @@ function getBoardModerators(array $boards)
 	$request = $smcFunc['db_query']('', '
 		SELECT mem.id_member, mem.real_name, mo.id_board
 		FROM {db_prefix}moderators AS mo
-		  INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mo.id_member)
+			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mo.id_member)
 		WHERE mo.id_board IN ({array_int:boards})',
 		array(
 			'boards' => $boards,
@@ -1341,7 +1339,7 @@ function getBoardModeratorGroups(array $boards)
 	$request = $smcFunc['db_query']('', '
 		SELECT mg.id_group, mg.group_name, bg.id_board
 		FROM {db_prefix}moderator_groups AS bg
-		  INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bg.id_group)
+			INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bg.id_group)
 		WHERE bg.id_board IN ({array_int:boards})',
 		array(
 			'boards' => $boards,
@@ -1522,6 +1520,7 @@ function recursiveBoards(&$_boardList, &$_tree)
 
 /**
  * Returns whether the child board id is actually a child of the parent (recursive).
+ *
  * @param int $child The ID of the child board
  * @param int $parent The ID of a parent board
  * @return boolean Whether the specified child board is actually a child of the specified parent board.

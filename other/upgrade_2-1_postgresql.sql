@@ -1,6 +1,186 @@
 /* ATTENTION: You don't need to run or use this file! The upgrade.php script does everything for you! */
 
 /******************************************************************************/
+--- Fixing sequences
+/******************************************************************************/
+
+---# Updating old sequences
+---{
+	$sequences = array(
+		'admin_info_files_seq' => array(
+			'table' => 'admin_info_files',
+			'field' => 'id_file',
+		),
+		'attachments_seq' => array(
+			'table' => 'attachments',
+			'field' => 'id_attach',
+		),
+		'ban_groups_seq' => array(
+			'table' => 'ban_groups',
+			'field' => 'id_ban_group',
+		),
+		'ban_items_seq' => array(
+			'table' => 'ban_items',
+			'field' => 'id_ban',
+		),
+		'boards_seq' => array(
+			'table' => 'boards',
+			'field' => 'id_board',
+		),
+		'calendar_seq' => array(
+			'table' => 'calendar',
+			'field' => 'id_event',
+		),
+		'calendar_holidays_seq' => array(
+			'table' => 'calendar_holidays',
+			'field' => 'id_holiday',
+		),
+		'categories_seq' => array(
+			'table' => 'categories',
+			'field' => 'id_cat',
+		),
+		'custom_fields_seq' => array(
+			'table' => 'custom_fields',
+			'field' => 'id_field',
+		),
+		'log_actions_seq' => array(
+			'table' => 'log_actions',
+			'field' => 'id_action',
+		),
+		'log_banned_seq' => array(
+			'table' => 'log_banned',
+			'field' => 'id_ban_log',
+		),
+		'log_comments_seq' => array(
+			'table' => 'log_comments',
+			'field' => 'id_comment',
+		),
+		'log_errors_seq' => array(
+			'table' => 'log_errors',
+			'field' => 'id_error',
+		),
+		'log_group_requests_seq' => array(
+			'table' => 'log_group_requests',
+			'field' => 'id_request',
+		),
+		'log_member_notices_seq' => array(
+			'table' => 'log_member_notices',
+			'field' => 'id_notice',
+		),
+		'log_packages_seq' => array(
+			'table' => 'log_packages',
+			'field' => 'id_install',
+		),
+		'log_reported_seq' => array(
+			'table' => 'log_reported',
+			'field' => 'id_report',
+		),
+		'log_reported_comments_seq' => array(
+			'table' => 'log_reported_comments',
+			'field' => 'id_comment',
+		),
+		'log_scheduled_tasks_seq' => array(
+			'table' => 'log_scheduled_tasks',
+			'field' => 'id_log',
+		),
+		'log_spider_hits_seq' => array(
+			'table' => 'log_spider_hits',
+			'field' => 'id_hit',
+		),
+		'log_subscribed_seq' => array(
+			'table' => 'log_subscribed',
+			'field' => 'id_sublog',
+		),
+		'mail_queue_seq' => array(
+			'table' => 'mail_queue',
+			'field' => 'id_mail',
+		),
+		'membergroups_seq' => array(
+			'table' => 'membergroups',
+			'field' => 'id_group',
+		),
+		'members_seq' => array(
+			'table' => 'members',
+			'field' => 'id_member',
+		),
+		'message_icons_seq' => array(
+			'table' => 'message_icons',
+			'field' => 'id_icon',
+		),
+		'messages_seq' => array(
+			'table' => 'messages',
+			'field' => 'id_msg',
+		),
+		'package_servers_seq' => array(
+			'table' => 'package_servers',
+			'field' => 'id_server',
+		),
+		'permission_profiles_seq' => array(
+			'table' => 'permission_profiles',
+			'field' => 'id_profile',
+		),
+		'personal_messages_seq' => array(
+			'table' => 'personal_messages',
+			'field' => 'id_pm',
+		),
+		'pm_rules_seq' => array(
+			'table' => 'pm_rules',
+			'field' => 'id_rule',
+		),
+		'polls_seq' => array(
+			'table' => 'polls',
+			'field' => 'id_poll',
+		),
+		'scheduled_tasks_seq' => array(
+			'table' => 'scheduled_tasks',
+			'field' => 'id_task',
+		),
+		'smileys_seq' => array(
+			'table' => 'smileys',
+			'field' => 'id_smiley',
+		),
+		'spiders_seq' => array(
+			'table' => 'spiders',
+			'field' => 'id_spider',
+		),
+		'subscriptions_seq' => array(
+			'table' => 'subscriptions',
+			'field' => 'id_subscribe',
+		),
+		'topics_seq' => array(
+			'table' => 'topics',
+			'field' => 'id_topic',
+		),
+	);
+
+	foreach ($sequences as $key => $value)
+	{
+		upgrade_query("
+			SELECT setval('{$db_prefix}" . $key . "', (SELECT COALESCE(MAX(" . $value['field'] ."),1) FROM {$db_prefix}" . $value['table'] ."))
+		");
+	}
+---}
+---#
+
+/******************************************************************************/
+--- add find_in_set function
+/******************************************************************************/
+---# add find_in_set function
+---{
+	upgrade_query("
+CREATE OR REPLACE FUNCTION FIND_IN_SET(needle text, haystack text) RETURNS integer AS '
+	SELECT i AS result
+	FROM generate_series(1, array_upper(string_to_array($2,'',''), 1)) AS g(i)
+	WHERE  (string_to_array($2,'',''))[i] = $1
+		UNION ALL
+	SELECT 0
+	LIMIT 1'
+LANGUAGE 'sql';
+");
+---}
+---#
+
+/******************************************************************************/
 --- Fixing dates...
 /******************************************************************************/
 ---# Updating old values
@@ -20,6 +200,9 @@ UPDATE {$db_prefix}log_spider_stats
 SET stat_date = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM stat_date) < 1004 THEN 1004 END, EXTRACT(MONTH FROM stat_date), EXTRACT(DAY FROM stat_date))::date
 WHERE EXTRACT(YEAR FROM stat_date) < 1004;
 
+ALTER TABLE {$db_prefix}log_spider_stats
+ALTER stat_date SET DEFAULT '1004-01-01';
+
 UPDATE {$db_prefix}members
 SET birthdate = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM birthdate) < 1004 THEN 1004 END, CASE WHEN EXTRACT(MONTH FROM birthdate) < 1 THEN 1 ELSE EXTRACT(MONTH FROM birthdate) END, CASE WHEN EXTRACT(DAY FROM birthdate) < 1 THEN 1 ELSE EXTRACT(DAY FROM birthdate) END)::date
 WHERE EXTRACT(YEAR FROM birthdate) < 1004;
@@ -29,7 +212,7 @@ WHERE EXTRACT(YEAR FROM birthdate) < 1004;
 ALTER TABLE {$db_prefix}calendar ALTER COLUMN start_date SET DEFAULT '1004-01-01'::date;
 ALTER TABLE {$db_prefix}calendar ALTER COLUMN end_date SET DEFAULT '1004-01-01'::date;
 ALTER TABLE {$db_prefix}calendar_holidays ALTER COLUMN event_date SET DEFAULT '1004-01-01'::date;
-ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN state_date SET DEFAULT '1004-01-01'::date;
+ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN stat_date SET DEFAULT '1004-01-01'::date;
 ALTER TABLE {$db_prefix}members ALTER COLUMN birthdate SET DEFAULT '1004-01-01'::date;
 ---#
 
@@ -50,6 +233,12 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
 	ip2 inet,
 	PRIMARY KEY (id_login)
 );
+
+DROP INDEX IF EXISTS {$db_prefix}member_logins_id_member;
+DROP INDEX IF EXISTS {$db_prefix}member_logins_time;
+
+CREATE INDEX {$db_prefix}member_logins_id_member ON {$db_prefix}member_logins (id_member);
+CREATE INDEX {$db_prefix}member_logins_time ON {$db_prefix}member_logins (time);
 ---#
 
 ---# Copying the current package backup setting...
@@ -125,17 +314,6 @@ DROP TABLE IF EXISTS {$db_prefix}collapsed_categories;
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1') ON CONFLICT DO NOTHING;
 ---#
 
----# Adding new "browser_cache" setting
----{
-	$smcFunc['db_insert']('replace',
-		'{db_prefix}settings',
-		array('variable' => 'string', 'value' => 'string'),
-		array('browser_cache', '?beta21'),
-		array('variable')
-	);
----}
----#
-
 ---# Adding new "enable_ajax_alerts" setting
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1') ON CONFLICT DO NOTHING;
 ---#
@@ -174,9 +352,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 		WHERE variable IN({array_string:ripped_settings})
 			AND id_member = 0
 			AND id_theme = 1',
-	array(
-		'ripped_settings' => $ripped_settings,
-	));
+		array(
+			'ripped_settings' => $ripped_settings,
+		)
+	);
 
 	$inserts = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -195,7 +374,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 ---# Disable Moderation Center Security if it doesn't exist
 ---{
 	if (!isset($modSettings['securityDisable_moderate']))
-		$smcFunc['db_insert']('insert',
+		$smcFunc['db_insert']('ignore',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('securityDisable_moderate', '1'),
@@ -403,7 +582,8 @@ $request = $smcFunc['db_query']('', '
 	SELECT id_attach, mime_type, width, height
 	FROM {db_prefix}attachments
 	WHERE id_member = 0
-		AND attachment_type = 0');
+		AND attachment_type = 0'
+);
 while ($row = $smcFunc['db_fetch_assoc']($request))
 {
 	if (($row['width'] > 0 || $row['height'] > 0) && strpos($row['mime_type'], 'image') !== 0)
@@ -529,40 +709,34 @@ upgrade_query("
 --- Adding support for MOVED topics enhancements
 /******************************************************************************/
 ---# Adding new columns to topics table
----{
-upgrade_query("
-	ALTER TABLE {$db_prefix}topics
-	ADD COLUMN redirect_expires int NOT NULL DEFAULT '0'");
-upgrade_query("
-	ALTER TABLE {$db_prefix}topics
-	ADD COLUMN id_redirect_topic int NOT NULL DEFAULT '0'");
----}
+ALTER TABLE {$db_prefix}topics
+ADD COLUMN redirect_expires int NOT NULL DEFAULT '0';
+
+ALTER TABLE {$db_prefix}topics
+ADD COLUMN id_redirect_topic int NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
 --- Adding new scheduled tasks
 /******************************************************************************/
 ---# Adding a new column "callable" to scheduled_tasks table
----{
-upgrade_query("
-	ALTER TABLE {$db_prefix}scheduled_tasks
-	ADD COLUMN callable varchar(60) NOT NULL default ''");
----}
+ALTER TABLE {$db_prefix}scheduled_tasks
+ADD COLUMN callable varchar(60) NOT NULL default '';
 ---#
 
 ---# Adding new scheduled tasks
 INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(0, 120, 1, 'd', 0, 'remove_temp_attachments', '');
+	(0, 120, 1, 'd', 0, 'remove_temp_attachments', '') ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(0, 180, 1, 'd', 0, 'remove_topic_redirect', '');
+	(0, 180, 1, 'd', 0, 'remove_topic_redirect', '') ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(0, 240, 1, 'd', 0, 'remove_old_drafts', '');
+	(0, 240, 1, 'd', 0, 'remove_old_drafts', '') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Adding a new task-related setting...
@@ -591,10 +765,9 @@ VALUES
 ---}
 ---#
 
----# Remove old mod tasks...
+---# Remove old tasks added by modifications...
 ---{
 	$vanilla_tasks = array(
-		'approval_notification',
 		'birthdayemails',
 		'daily_digest',
 		'daily_maintenance',
@@ -606,9 +779,9 @@ VALUES
 		'weekly_digest',
 		'weekly_maintenance');
 
-	$smcFunc['db_query']('',
-		'DELETE FROM {db_prefix}scheduled_tasks
-			WHERE task NOT IN ({array_string:keep_tasks});',
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}scheduled_tasks
+		WHERE task NOT IN ({array_string:keep_tasks});',
 		array(
 			'keep_tasks' => $vanilla_tasks
 		)
@@ -638,11 +811,8 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
 --- Adding support for deny boards access
 /******************************************************************************/
 ---# Adding new columns to boards...
----{
-upgrade_query("
-	ALTER TABLE {$db_prefix}boards
-	ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT ''");
----}
+ALTER TABLE {$db_prefix}boards
+ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
@@ -652,7 +822,7 @@ upgrade_query("
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
-	('boardindex_max_depth', '1');
+	('boardindex_max_depth', '1') ON CONFLICT DO NOTHING;
 ---#
 
 /******************************************************************************/
@@ -704,7 +874,7 @@ if (!empty($member_groups))
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}boards
 				SET member_groups = {string:member_groups}
-					WHERE id_board = {int:id_board}',
+				WHERE id_board = {int:id_board}',
 				array(
 					'member_groups' => $member_groups,
 					'id_board' => $id_board,
@@ -719,20 +889,15 @@ if (!empty($member_groups))
 --- Adding support for category descriptions
 /******************************************************************************/
 ---# Adding new columns to categories...
----{
-// Sadly, PostgreSQL whines if we add a NOT NULL column without a default value to an existing table...
-upgrade_query("
-	ALTER TABLE {$db_prefix}categories
-	ADD COLUMN description text");
+ALTER TABLE {$db_prefix}categories
+ADD COLUMN description text;
 
-upgrade_query("
-	UPDATE {$db_prefix}categories
-	SET description = ''");
 
-upgrade_query("
-	ALTER TABLE {$db_prefix}categories
-	ALTER COLUMN description SET NOT NULL");
----}
+UPDATE {$db_prefix}categories
+SET description = '';
+
+ALTER TABLE {$db_prefix}categories
+ALTER COLUMN description SET NOT NULL;
 ---#
 
 /******************************************************************************/
@@ -760,6 +925,9 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
 	PRIMARY KEY (id_alert)
 );
 
+DROP INDEX IF EXISTS {$db_prefix}user_alerts_id_member;
+DROP INDEX IF EXISTS {$db_prefix}user_alerts_alert_time;
+
 CREATE INDEX {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_member);
 CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (alert_time);
 ---#
@@ -772,28 +940,29 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
 	PRIMARY KEY (id_member, alert_pref)
 );
 
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_reply', 3);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'topic_notify', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'board_notify', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_mention', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_quote', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'pm_new', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'pm_reply', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'groupr_approved', 3);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'groupr_rejected', 3);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'birthday', 2);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'announcements', 0);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report_reply', 3);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report', 3);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_post', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'buddy_request', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'warn_any', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'request_group', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_reply', 3) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'topic_notify', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'board_notify', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_mention', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_quote', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'pm_new', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'pm_reply', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'groupr_approved', 3) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'groupr_rejected', 3) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'birthday', 2) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'announcements', 0) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report_reply', 3) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report', 3) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_attachment', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_post', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'buddy_request', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'warn_any', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'request_group', 1) ON CONFLICT DO NOTHING;
 ---#
 
 ---# Upgrading post notification settings
@@ -879,22 +1048,21 @@ SET unwatched = 0;
 ---#
 
 ---# Fixing column name change...
----{
-upgrade_query("
-	ALTER TABLE {$db_prefix}log_topics
-	DROP COLUMN disregarded");
----}
+ALTER TABLE {$db_prefix}log_topics
+DROP COLUMN disregarded;
 ---#
 
 /******************************************************************************/
 --- Name changes
 /******************************************************************************/
 ---# Altering the membergroup stars to icons
----{
-upgrade_query("
-	ALTER TABLE {$db_prefix}membergroups
-	RENAME stars TO icons");
----}
+ALTER TABLE {$db_prefix}membergroups
+RENAME stars TO icons;
+---#
+
+---# set default membergroup icons
+ALTER TABLE {$db_prefix}membergroups
+ALTER icons SET DEFAULT '';
 ---#
 
 ---# Renaming default theme...
@@ -913,7 +1081,7 @@ WHERE variable = 'newsfader_time';
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
-	('enableThemes', '1');
+	('enableThemes', '1') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Setting "default" as the default...
@@ -998,7 +1166,7 @@ foreach ($toMove as $move)
 	$image = explode('#', $move);
 	$image = $image[1];
 
-	// PHP won't suppress errors when running things from shell, so make sure it exists first...
+	// PHP wont suppress errors when running things from shell, so make sure it exists first...
 	if (file_exists($modSettings['theme_dir'] . '/images/' . $image))
 		@rename($modSettings['theme_dir'] . '/images/' . $image, $modSettings['theme_dir'] . '/images/membericons/'. $image);
 }
@@ -1013,9 +1181,9 @@ foreach ($toMove as $move)
 // Fetch list of theme directories
 $request = $smcFunc['db_query']('', '
 	SELECT id_theme, variable, value
-	  FROM {db_prefix}themes
+	FROM {db_prefix}themes
 	WHERE variable = {string:theme_dir}
-	  AND id_theme != {int:default_theme};',
+		AND id_theme != {int:default_theme};',
 	array(
 		'default_theme' => 1,
 		'theme_dir' => 'theme_dir',
@@ -1067,15 +1235,13 @@ ADD COLUMN show_mlist smallint NOT NULL default '0';
 
 ---# Insert fields
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 1, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1);
+('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 1, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1);
+('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" rel="noopener" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1);
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0);
-INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{KEY}" title="{INPUT}"></span>', 1);
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>', 1) ON CONFLICT DO NOTHING;
 ---#
 
 ---# Add an order value to each existing cust profile field.
@@ -1239,20 +1405,18 @@ if (@$modSettings['smfVersion'] < '2.1')
 	$inserts = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$inserts[] = "($row[id_group], $row[id_board], 'post_draft', $row[add_deny])";
+		$inserts[] = array($row['id_group'], $row['id_board'], 'post_draft', $row['add_deny']);
 	}
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
 	{
-		foreach ($inserts AS $insert)
-		{
-			upgrade_query("
-				INSERT INTO {$db_prefix}board_permissions
-					(id_group, id_board, permission, add_deny)
-				VALUES
-					" . $insert);
-		}
+		$smcFunc['db_insert']('replace',
+			'{$db_prefix}board_permissions',
+			array('id_group' => 'int', 'id_board' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
+			$inserts,
+			array('id_group', 'id_profile', 'permission')
+		);
 	}
 
 	// Next we find people who can send PMs, and assume they can save pm_drafts as well
@@ -1263,27 +1427,26 @@ if (@$modSettings['smfVersion'] < '2.1')
 	$inserts = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$inserts[] = "($row[id_group], 'pm_draft', $row[add_deny])";
+		$inserts[] = array($row['id_group'], 'pm_draft', $row['add_deny']);
 	}
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
 	{
-		foreach ($inserts AS $insert)
-		{
-			upgrade_query("
-				INSERT INTO {$db_prefix}permissions
-					(id_group, permission, add_deny)
-				VALUES
-					" . $insert);
-		}
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}permissions',
+			array('id_group' => 'int', 'add_deny' => 'int', 'permission' => 'string'),
+			$inserts,
+			array('id_group', 'permission')
+		);
 	}
 }
 ---}
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_show_saved_enabled', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7') ON CONFLICT DO NOTHING;
+
+INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_show_saved_enabled', '1') ON CONFLICT DO NOTHING;
 ---#
 
 /******************************************************************************/
@@ -1297,6 +1460,9 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
 	like_time int NOT NULL DEFAULT '0',
 	PRIMARY KEY (content_id, content_type, id_member)
 );
+
+DROP INDEX IF EXISTS {$db_prefix}user_likes_content;
+DROP INDEX IF EXISTS {$db_prefix}user_likes_liker;
 
 CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
 CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
@@ -1319,6 +1485,9 @@ CREATE TABLE IF NOT EXISTS  {$db_prefix}mentions (
 	time int NOT NULL DEFAULT 0,
 	PRIMARY KEY (content_id, content_type, id_mentioned)
 );
+
+DROP INDEX IF EXISTS {$db_prefix}mentions_content;
+DROP INDEX IF EXISTS {$db_prefix}mentions_mentionee;
 
 CREATE INDEX {$db_prefix}mentions_content ON {$db_prefix}mentions (content_id, content_type);
 CREATE INDEX {$db_prefix}mentions_mentionee ON {$db_prefix}mentions (id_member);
@@ -1359,7 +1528,8 @@ WHERE variable = 'avatar_action_too_large'
 	$request = $smcFunc['db_query']('', '
 		SELECT value
 		FROM {db_prefix}settings
-		WHERE variable = {literal:admin_features}');
+		WHERE variable = {literal:admin_features}'
+	);
 	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Some of these *should* already be set but you never know.
@@ -1419,7 +1589,8 @@ WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_rep
 	$request = $smcFunc['db_query']('', '
 		SELECT value
 		FROM {db_prefix}settings
-		WHERE variable = {literal:allow_sm_stats}');
+		WHERE variable = {literal:allow_sm_stats}'
+	);
 	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if (!empty($row['value']))
@@ -1516,6 +1687,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 ---#
 
 ---# Create index on qanda
+DROP INDEX IF EXISTS {$db_prefix}qanda_lngfile;
 CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pattern_ops);
 ---#
 
@@ -1549,13 +1721,6 @@ CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pat
 		");
 	}
 ---}
----#
-
-/******************************************************************************/
---- Fixing log_online table
-/******************************************************************************/
----# Changing ip to bigint
-ALTER TABLE {$db_prefix}log_online ALTER ip TYPE bigint;
 ---#
 
 /******************************************************************************/
@@ -1609,21 +1774,19 @@ $request = upgrade_query("
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$inserts[] = "($row[id_group], 'profile_password_own', $row[add_deny])";
+		$inserts[] = array($row['id_group'], 'profile_password_own', $row['add_deny']);
 	}
 
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
 	{
-		foreach ($inserts as $insert)
-		{
-			upgrade_query("
-				INSERT INTO {$db_prefix}permissions
-					(id_group, permission, add_deny)
-				VALUES
-					" . $insert);
-		}
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}permissions',
+			array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
+			$inserts,
+			array('id_group', 'permission')
+		);
 	}
 ---}
 ---#
@@ -1639,26 +1802,23 @@ $request = upgrade_query("
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$inserts[] = "($row[id_group], 'profile_blurb_own', $row[add_deny])";
-		$inserts[] = "($row[id_group], 'profile_displayed_name_own', $row[add_deny])";
-		$inserts[] = "($row[id_group], 'profile_forum_own', $row[add_deny])";
-		$inserts[] = "($row[id_group], 'profile_website_own', $row[add_deny])";
-		$inserts[] = "($row[id_group], 'profile_signature_own', $row[add_deny])";
+		$inserts[] = array($row['id_group'], 'profile_blurb_own', $row['add_deny']);
+		$inserts[] = array($row['id_group'], 'profile_displayed_name_own', $row['add_deny']);
+		$inserts[] = array($row['id_group'], 'profile_forum_own', $row['add_deny']);
+		$inserts[] = array($row['id_group'], 'profile_website_own', $row['add_deny']);
+		$inserts[] = array($row['id_group'], 'profile_signature_own', $row['add_deny']);
 	}
 
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
 	{
-		foreach ($inserts as $insert)
-		{
-			upgrade_query("
-				INSERT INTO {$db_prefix}permissions
-					(id_group, permission, add_deny)
-				VALUES
-					" . $insert
-			);
-		}
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}permissions',
+			array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
+			$inserts,
+			array('id_group', 'permission')
+		);
 	}
 ---}
 ---#
@@ -1888,7 +2048,7 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}board_permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_board_perms})',
+			AND permission IN ({array_string:illegal_board_perms})',
 		array(
 			'guests' => -1,
 			'illegal_board_perms' => $illegal_board_permissions,
@@ -1898,7 +2058,7 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_perms})',
+			AND permission IN ({array_string:illegal_perms})',
 		array(
 			'guests' => -1,
 			'illegal_perms' => $illegal_permissions,
@@ -2016,6 +2176,9 @@ WHERE variable='enableOpenID' OR variable='dh_keys';
 ---# Changing url column size in log_spider_hits from 255 to 1024
 ALTER TABLE {$db_prefix}log_spider_hits
 ALTER url TYPE varchar(1024);
+
+ALTER TABLE {$db_prefix}log_spider_hits
+ALTER url SET DEFAULT '';
 ---#
 
 ---# Changing url column in log_online from text to varchar(1024)
@@ -2056,6 +2219,10 @@ ADD COLUMN tfa_required smallint NOT NULL default '0';
 /******************************************************************************/
 --- optimization of members
 /******************************************************************************/
+---# DROP INDEX to members
+DROP INDEX IF EXISTS {$db_prefix}members_member_name_low;
+DROP INDEX IF EXISTS {$db_prefix}members_real_name_low;
+---#
 
 ---# ADD INDEX to members
 CREATE INDEX {$db_prefix}members_member_name_low ON {$db_prefix}members (LOWER(member_name) varchar_pattern_ops);
@@ -2116,7 +2283,6 @@ if(isset($pg_version))
 /******************************************************************************/
 --- remove redundant index
 /******************************************************************************/
-
 ---# duplicate to messages_current_topic
 DROP INDEX IF EXISTS {$db_prefix}messages_id_topic;
 DROP INDEX IF EXISTS {$db_prefix}messages_topic;
@@ -2129,6 +2295,13 @@ DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
 /******************************************************************************/
 --- update ban ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$table_columns = $smcFunc['db_list_columns']('{db_prefix}ban_items');
+$upcontext['skip_db_substeps'] = !in_array('ip_low', $table_columns);
+---}
+---#
+
 ---# add columns
 ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low inet;
 ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high inet;
@@ -2142,7 +2315,20 @@ WHERE ip_low1 > 0;
 ---#
 
 ---# index
+DROP INDEX IF EXISTS {$db_prefix}ban_items_id_ban_ip;
 CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip_high);
+---#
+
+---# Dropping columns from ban_items
+ALTER TABLE {$db_prefix}ban_items
+DROP ip_low1,
+DROP ip_low2,
+DROP ip_low3,
+DROP ip_low4,
+DROP ip_high1,
+DROP ip_high2,
+DROP ip_high3,
+DROP ip_high4;
 ---#
 
 /******************************************************************************/
@@ -2167,6 +2353,14 @@ upgrade_query("
 /******************************************************************************/
 --- update log_action ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}log_actions', 'ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skip_db_substeps'] = true;
+---}
+---#
+
 ---# convert column
 ALTER TABLE {$db_prefix}log_actions
 	ALTER ip DROP not null,
@@ -2177,6 +2371,14 @@ ALTER TABLE {$db_prefix}log_actions
 /******************************************************************************/
 --- update log_banned ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}log_banned', 'ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skip_db_substeps'] = true;
+---}
+---#
+
 ---# convert old column
 ALTER TABLE {$db_prefix}log_banned
 	ALTER ip DROP not null,
@@ -2187,11 +2389,33 @@ ALTER TABLE {$db_prefix}log_banned
 /******************************************************************************/
 --- update log_errors members ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}log_errors', 'ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skip_db_substeps'] = true;
+---}
+---#
+
 ---# convert old columns
 ALTER TABLE {$db_prefix}log_errors
 	ALTER ip DROP not null,
 	ALTER ip DROP default,
 	ALTER ip TYPE inet USING migrate_inet(ip);
+---#
+
+/******************************************************************************/
+--- update log_errors members ip with ipv6 support
+/******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}members', 'member_ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skip_db_substeps'] = true;
+---}
+---#
+
+---#
 ALTER TABLE {$db_prefix}members
 	ALTER member_ip DROP not null,
 	ALTER member_ip DROP default,
@@ -2205,6 +2429,14 @@ ALTER TABLE {$db_prefix}members
 /******************************************************************************/
 --- update messages poster_ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}messages', 'poster_ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skip_db_substeps'] = true;
+---}
+---#
+
 ---# convert old column
 ALTER TABLE {$db_prefix}messages
 	ALTER poster_ip DROP not null,
@@ -2215,6 +2447,14 @@ ALTER TABLE {$db_prefix}messages
 /******************************************************************************/
 --- update log_floodcontrol ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}log_floodcontrol', 'ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skip_db_substeps'] = true;
+---}
+---#
+
 ---# drop pk
 TRUNCATE TABLE {$db_prefix}log_floodcontrol;
 ALTER TABLE {$db_prefix}log_floodcontrol DROP CONSTRAINT {$db_prefix}log_floodcontrol_pkey;
@@ -2234,6 +2474,14 @@ ALTER TABLE {$db_prefix}log_floodcontrol
 /******************************************************************************/
 --- update log_online ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}log_online', 'ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skip_db_substeps'] = true;
+---}
+---#
+
 ---# convert old columns
 ALTER TABLE {$db_prefix}log_online
 	ALTER ip DROP not null,
@@ -2244,6 +2492,14 @@ ALTER TABLE {$db_prefix}log_online
 /******************************************************************************/
 --- update log_reported_comments member_ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}log_reported_comments', 'member_ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skip_db_substeps'] = true;
+---}
+---#
+
 ---# convert old columns
 ALTER TABLE {$db_prefix}log_reported_comments
 	ALTER member_ip DROP not null,
@@ -2254,6 +2510,14 @@ ALTER TABLE {$db_prefix}log_reported_comments
 /******************************************************************************/
 --- update member_logins ip with ipv6 support
 /******************************************************************************/
+---# upgrade check
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}member_logins', 'ip');
+if (stripos($column_info['type'], 'inet') !== false)
+	$upcontext['skip_db_substeps'] = true;
+---}
+---#
+
 ---# convert old columns
 ALTER TABLE {$db_prefix}member_logins
 	ALTER ip DROP not null,
@@ -2373,7 +2637,7 @@ SET lngfile = REPLACE(lngfile, '-utf8', '');
 ---{
 upgrade_query("
 	CREATE OR REPLACE FUNCTION indexable_month_day(date) RETURNS TEXT as '
-    SELECT to_char($1, ''MM-DD'');'
+	SELECT to_char($1, ''MM-DD'');'
 	LANGUAGE 'sql' IMMUTABLE STRICT;"
 );
 ---}
@@ -2395,62 +2659,45 @@ CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes DESC);
 /******************************************************************************/
 --- Update smileys
 /******************************************************************************/
----# Remove hardcoded gif extensions
-UPDATE {$db_prefix}smileys
-SET filename = REPLACE(filename, '.gif', '')
-WHERE
-	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
-	filename LIKE '%.gif';
----#
-
----# Remove hardcoded png extensions
-UPDATE {$db_prefix}smileys
-SET filename = REPLACE(filename, '.png', '')
-WHERE
-	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
-	filename LIKE '%.png';
----#
-
----# Adding new extensions setting...
----{
-if (!isset($modSettings['smiley_sets_exts']))
-	upgrade_query("
-		INSERT INTO {$db_prefix}settings
-			(variable, value)
-		VALUES
-			('smiley_sets_exts', '')");
----}
+---# Adding the new `smiley_files` table
+CREATE TABLE IF NOT EXISTS {$db_prefix}smiley_files
+(
+	id_smiley smallint NOT NULL DEFAULT '0',
+	smiley_set varchar(48) NOT NULL DEFAULT '',
+	filename varchar(48) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_smiley, smiley_set)
+);
 ---#
 
 ---# Cleaning up unused smiley sets and adding the lovely new ones
 ---{
 // Start with the prior values...
 $dirs = explode(',', $modSettings['smiley_sets_known']);
-$setexts = empty($modSettings['smiley_sets_exts']) ? array() : explode(',', $modSettings['smiley_sets_exts']);
 $setnames = explode("\n", $modSettings['smiley_sets_names']);
 
 // Build combined pairs of folders and names; bypass default which is not used anymore
-// If extensions not provided, assume its an old 2.0 one, i.e., a .gif
 $combined = array();
 foreach ($dirs AS $ix => $dir)
+{
 	if (!empty($setnames[$ix]) && $dir != 'default')
-	{
-		$combined[$dir] = array($setnames[$ix], empty($setexts[$ix]) ? '.gif' : $setexts[$ix]);
-	}
+		$combined[$dir] = array($setnames[$ix], '');
+}
 
 // Add our lovely new 2.1 smiley sets if not already there
-$combined['fugue'] = array($txt['default_fugue_smileyset_name'], '.png');
-$combined['alienine'] = array($txt['default_alienine_smileyset_name'], '.png');
+$combined['fugue'] = array($txt['default_fugue_smileyset_name'], 'png');
+$combined['alienine'] = array($txt['default_alienine_smileyset_name'], 'png');
 
 // Add/fix our 2.0 sets (to correct past problems where these got corrupted)
-$combined['aaron'] = array($txt['default_aaron_smileyset_name'], '.gif');
-$combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], '.gif');
+$combined['aaron'] = array($txt['default_aaron_smileyset_name'], 'gif');
+$combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], 'gif');
 
 // Confirm they exist in the filesystem
 $filtered = array();
-foreach ($combined AS $dir => $attrs)
+foreach ($combined as $dir => $attrs)
+{
 	if (is_dir($modSettings['smileys_dir'] . '/' . $dir . '/'))
-		$filtered[$dir] = $attrs;
+		$filtered[$dir] = $attrs[0];
+}
 
 // Update the Settings Table...
 upgrade_query("
@@ -2460,13 +2707,61 @@ upgrade_query("
 
 upgrade_query("
 	UPDATE {$db_prefix}settings
-	SET value = '" . $smcFunc['db_escape_string'](implode(',', array_column($filtered, 1))) . "'
-	WHERE variable = 'smiley_sets_exts'");
-
-upgrade_query("
-	UPDATE {$db_prefix}settings
-	SET value = '" . $smcFunc['db_escape_string'](implode("\n", array_column($filtered, 0))) . "'
+	SET value = '" . $smcFunc['db_escape_string'](implode("\n", $filtered)) . "'
 	WHERE variable = 'smiley_sets_names'");
+
+// Populate the smiley_files table
+$smileys_columns = $smcFunc['db_list_columns']('{db_prefix}smileys');
+if (in_array('filename', $smileys_columns))
+{
+	$inserts = array();
+
+	$request = upgrade_query("
+		SELECT id_smiley, filename
+		FROM {$db_prefix}smileys");
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$pathinfo = pathinfo($row['filename']);
+
+		foreach ($filtered as $set => $dummy)
+		{
+			$ext = $pathinfo['extension'];
+
+			// If we have a default extension for this set, check if we can switch to it.
+			if (isset($combined[$set]) && !empty($combined[$set][1]))
+			{
+				if (file_exists($modSettings['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.' . $combined[$set][1]))
+					$ext = $combined[$set][1];
+			}
+			// In a custom set and no extension specified? Ugh...
+			elseif (empty($ext))
+			{
+				// Any files matching this name?
+				$found = glob($modSettings['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.*');
+				$ext = !empty($found) ? pathinfo($found[0], PATHINFO_EXTENSION) : 'gif';
+			}
+
+			$inserts[] = array($row['id_smiley'], $set, $pathinfo['filename'] . '.' . $ext);
+		}
+	}
+	$smcFunc['db_free_result']($request);
+
+	if (!empty($inserts))
+	{
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}smiley_files',
+			array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
+			$inserts,
+			array('id_smiley', 'smiley_set')
+		);
+
+		// Unless something went horrifically wrong, drop the defunct column
+		if (count($inserts) == $smcFunc['db_affected_rows']())
+			upgrade_query("
+				ALTER TABLE {$db_prefix}smileys
+				DROP COLUMN IF EXISTS filename;");
+	}
+}
 
 // Set new default if the old one doesnt exist
 // If fugue exists, use that.  Otherwise, what the heck, just grab the first one...
@@ -2475,7 +2770,7 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 	if (array_key_exists('fugue', $filtered))
 		$newdefault = 'fugue';
 	elseif (!empty($filtered))
-		$newdefault = array_keys($filtered)[0];
+		$newdefault = reset(array_keys($filtered));
 	else
 		$newdefault = '';
 	upgrade_query("
@@ -2501,12 +2796,22 @@ ADD COLUMN backtrace text NOT NULL default '';
 ---# Create table board_permissions_view
 CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
 (
-    id_group smallint NOT NULL DEFAULT '0',
-    id_board smallint NOT NULL,
-    deny smallint NOT NULL,
-    PRIMARY KEY (id_group, id_board, deny)
+	id_group smallint NOT NULL DEFAULT '0',
+	id_board smallint NOT NULL,
+	deny smallint NOT NULL,
+	PRIMARY KEY (id_group, id_board, deny)
 );
 
+---# upgrade check
+---{
+	// if one of source col is missing skip this step
+$table_columns = $smcFunc['db_list_columns']('{db_prefix}membergroups');
+$table_columns2 = $smcFunc['db_list_columns']('{db_prefix}boards');
+$upcontext['skip_db_substeps'] = !in_array('id_group', $table_columns) || !in_array('member_groups', $table_columns2) || !in_array('deny_member_groups', $table_columns2);
+---}
+---#
+
+---#
 TRUNCATE {$db_prefix}board_permissions_view;
 ---#
 
@@ -2544,4 +2849,507 @@ where (FIND_IN_SET(-1, b.deny_member_groups) != 0);
 INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, 0, 1
 FROM {$db_prefix}boards b
 where (FIND_IN_SET(0, b.deny_member_groups) != 0);
+---#
+
+/******************************************************************************/
+--- Correct schema diff
+/******************************************************************************/
+---# log_subscribed
+ALTER TABLE {$db_prefix}log_subscribed
+ALTER pending_details DROP DEFAULT;
+---#
+
+---# mail_queue
+ALTER TABLE {$db_prefix}mail_queue
+ALTER recipient SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}mail_queue
+ALTER subject SET DEFAULT '';
+---#
+
+---# members
+ALTER TABLE {$db_prefix}members
+ALTER lngfile SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER real_name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER pm_ignore_list SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER email_address SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER personal_text SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER website_title SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER website_url SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER avatar SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER usertitle SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER secret_question SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER additional_groups SET DEFAULT '';
+---#
+
+---# messages
+ALTER TABLE {$db_prefix}messages
+ALTER subject SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}messages
+ALTER poster_name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}messages
+ALTER poster_email SET DEFAULT '';
+---#
+
+---# package_servers
+ALTER TABLE {$db_prefix}package_servers
+ALTER name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}package_servers
+ALTER url SET DEFAULT '';
+---#
+
+---# permission_profiles
+ALTER TABLE {$db_prefix}permission_profiles
+ALTER profile_name SET DEFAULT '';
+---#
+
+---# personal_messages
+ALTER TABLE {$db_prefix}personal_messages
+ALTER subject SET DEFAULT '';
+---#
+
+---# polls
+ALTER TABLE {$db_prefix}polls
+ALTER question SET DEFAULT '';
+---#
+
+---# poll_choices
+ALTER TABLE {$db_prefix}poll_choices
+ALTER label SET DEFAULT '';
+---#
+
+---# settings
+ALTER TABLE {$db_prefix}settings
+ALTER variable SET DEFAULT '';
+---#
+
+---# sessions
+ALTER TABLE {$db_prefix}sessions
+ALTER session_id SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}sessions
+ALTER last_update SET DEFAULT 0;
+---#
+
+---# spiders
+ALTER TABLE {$db_prefix}spiders
+ALTER spider_name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}spiders
+ALTER user_agent SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}spiders
+ALTER ip_info SET DEFAULT '';
+---#
+
+---# subscriptions
+ALTER TABLE {$db_prefix}subscriptions
+ALTER id_subscribe TYPE int;
+
+ALTER TABLE {$db_prefix}subscriptions
+ALTER name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}subscriptions
+ALTER description SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}subscriptions
+ALTER length SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}subscriptions
+ALTER add_groups SET DEFAULT '';
+---#
+
+---# themes
+ALTER TABLE {$db_prefix}themes
+ALTER variable SET DEFAULT '';
+---#
+
+---# admin_info_files
+ALTER TABLE {$db_prefix}admin_info_files
+ALTER filename SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}admin_info_files
+ALTER path SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}admin_info_files
+ALTER parameters SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}admin_info_files
+ALTER filetype SET DEFAULT '';
+---#
+
+---# attachments
+ALTER TABLE {$db_prefix}attachments
+ALTER filename SET DEFAULT '';
+---#
+
+---# ban_items
+ALTER TABLE {$db_prefix}ban_items
+ALTER hostname SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}ban_items
+ALTER email_address SET DEFAULT '';
+---#
+
+---# boards
+ALTER TABLE {$db_prefix}boards
+ALTER name SET DEFAULT '';
+---#
+
+---# categories
+ALTER TABLE {$db_prefix}categories
+ALTER name SET DEFAULT '';
+---#
+
+---# custom_fields
+ALTER TABLE {$db_prefix}custom_fields
+ALTER field_desc SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}custom_fields
+ALTER mask SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}custom_fields
+ALTER default_value SET DEFAULT '';
+---#
+
+---# log_activity
+ALTER TABLE {$db_prefix}log_activity
+ALTER date SET DEFAULT '1004-01-01';
+---#
+
+---# log_banned
+ALTER TABLE {$db_prefix}log_banned
+ALTER email SET DEFAULT '';
+---#
+
+---# log_comments
+ALTER TABLE {$db_prefix}log_comments
+ALTER recipient_name SET DEFAULT '';
+---#
+
+---# log_digest
+ALTER TABLE {$db_prefix}log_digest
+ALTER id_topic SET DEFAULT 0;
+
+ALTER TABLE {$db_prefix}log_digest
+ALTER id_msg SET DEFAULT 0;
+---#
+
+---# log_errors
+ALTER TABLE {$db_prefix}log_errors
+ALTER file SET DEFAULT '';
+---#
+
+---# log_member_notices
+ALTER TABLE {$db_prefix}log_member_notices
+ALTER subject SET DEFAULT '';
+---#
+
+---# log_online
+ALTER TABLE {$db_prefix}log_online
+ALTER url SET DEFAULT '';
+---#
+
+---# log_packages
+ALTER TABLE {$db_prefix}log_packages
+ALTER filename SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_packages
+ALTER package_id SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_packages
+ALTER name SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_packages
+ALTER version SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_packages
+ALTER themes_installed SET DEFAULT '';
+---#
+
+---# log_reported
+ALTER TABLE {$db_prefix}log_reported
+ALTER membername SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_reported
+ALTER subject SET DEFAULT '';
+---#
+
+---# log_reported_comments
+ALTER TABLE {$db_prefix}log_reported_comments
+ALTER membername SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_reported_comments
+ALTER comment SET DEFAULT '';
+---#
+
+---# log_actions
+DROP INDEX IF EXISTS {$db_prefix}log_actions_id_topic_id_log;
+CREATE INDEX {$db_prefix}log_actions_id_topic_id_log ON {$db_prefix}log_actions (id_topic, id_log);
+---#
+
+/******************************************************************************/
+--- FROM_UNIXTIME fix
+/******************************************************************************/
+---# Drop the old int version
+DROP FUNCTION IF EXISTS FROM_UNIXTIME(int);
+---#
+
+---# Add FROM_UNIXTIME for bigint
+CREATE OR REPLACE FUNCTION FROM_UNIXTIME(bigint) RETURNS timestamp AS
+	'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
+LANGUAGE 'sql';
+---#
+
+/******************************************************************************/
+--- Update holidays
+/******************************************************************************/
+---# Delete all the dates
+DELETE FROM {$db_prefix}calendar_holidays WHERE title in
+('Mother''s Day','Father''s Day', 'Summer Solstice', 'Vernal Equinox', 'Winter Solstice', 'Autumnal Equinox',
+	'Thanksgiving', 'Memorial Day', 'Labor Day', 'New Year''s', 'Christmas', 'Valentine''s Day', 'St. Patrick''s Day',
+	'April Fools', 'Earth Day', 'United Nations Day', 'Halloween', 'Independence Day', 'Cinco de Mayo', 'Flag Day',
+	'Veterans Day', 'Groundhog Day', 'D-Day');
+---#
+
+---# Insert the updated dates
+INSERT INTO {$db_prefix}calendar_holidays
+	(title, event_date)
+VALUES ('New Year''s', '1004-01-01'),
+	('Christmas', '1004-12-25'),
+	('Valentine''s Day', '1004-02-14'),
+	('St. Patrick''s Day', '1004-03-17'),
+	('April Fools', '1004-04-01'),
+	('Earth Day', '1004-04-22'),
+	('United Nations Day', '1004-10-24'),
+	('Halloween', '1004-10-31'),
+	('Mother''s Day', '2010-05-09'),
+	('Mother''s Day', '2011-05-08'),
+	('Mother''s Day', '2012-05-13'),
+	('Mother''s Day', '2013-05-12'),
+	('Mother''s Day', '2014-05-11'),
+	('Mother''s Day', '2015-05-10'),
+	('Mother''s Day', '2016-05-08'),
+	('Mother''s Day', '2017-05-14'),
+	('Mother''s Day', '2018-05-13'),
+	('Mother''s Day', '2019-05-12'),
+	('Mother''s Day', '2020-05-10'),
+	('Mother''s Day', '2021-05-09'),
+	('Mother''s Day', '2022-05-08'),
+	('Mother''s Day', '2023-05-14'),
+	('Mother''s Day', '2024-05-12'),
+	('Mother''s Day', '2025-05-11'),
+	('Mother''s Day', '2026-05-10'),
+	('Mother''s Day', '2027-05-09'),
+	('Mother''s Day', '2028-05-14'),
+	('Mother''s Day', '2029-05-13'),
+	('Mother''s Day', '2030-05-12'),
+	('Father''s Day', '2010-06-20'),
+	('Father''s Day', '2011-06-19'),
+	('Father''s Day', '2012-06-17'),
+	('Father''s Day', '2013-06-16'),
+	('Father''s Day', '2014-06-15'),
+	('Father''s Day', '2015-06-21'),
+	('Father''s Day', '2016-06-19'),
+	('Father''s Day', '2017-06-18'),
+	('Father''s Day', '2018-06-17'),
+	('Father''s Day', '2019-06-16'),
+	('Father''s Day', '2020-06-21'),
+	('Father''s Day', '2021-06-20'),
+	('Father''s Day', '2022-06-19'),
+	('Father''s Day', '2023-06-18'),
+	('Father''s Day', '2024-06-16'),
+	('Father''s Day', '2025-06-15'),
+	('Father''s Day', '2026-06-21'),
+	('Father''s Day', '2027-06-20'),
+	('Father''s Day', '2028-06-18'),
+	('Father''s Day', '2029-06-17'),
+	('Father''s Day', '2030-06-16'),
+	('Summer Solstice', '2010-06-21'),
+	('Summer Solstice', '2011-06-21'),
+	('Summer Solstice', '2012-06-20'),
+	('Summer Solstice', '2013-06-21'),
+	('Summer Solstice', '2014-06-21'),
+	('Summer Solstice', '2015-06-21'),
+	('Summer Solstice', '2016-06-20'),
+	('Summer Solstice', '2017-06-20'),
+	('Summer Solstice', '2018-06-21'),
+	('Summer Solstice', '2019-06-21'),
+	('Summer Solstice', '2020-06-20'),
+	('Summer Solstice', '2021-06-21'),
+	('Summer Solstice', '2022-06-21'),
+	('Summer Solstice', '2023-06-21'),
+	('Summer Solstice', '2024-06-20'),
+	('Summer Solstice', '2025-06-21'),
+	('Summer Solstice', '2026-06-21'),
+	('Summer Solstice', '2027-06-21'),
+	('Summer Solstice', '2028-06-20'),
+	('Summer Solstice', '2029-06-21'),
+	('Summer Solstice', '2030-06-21'),
+	('Vernal Equinox', '2010-03-20'),
+	('Vernal Equinox', '2011-03-20'),
+	('Vernal Equinox', '2012-03-20'),
+	('Vernal Equinox', '2013-03-20'),
+	('Vernal Equinox', '2014-03-20'),
+	('Vernal Equinox', '2015-03-20'),
+	('Vernal Equinox', '2016-03-20'),
+	('Vernal Equinox', '2017-03-20'),
+	('Vernal Equinox', '2018-03-20'),
+	('Vernal Equinox', '2019-03-20'),
+	('Vernal Equinox', '2020-03-20'),
+	('Vernal Equinox', '2021-03-20'),
+	('Vernal Equinox', '2022-03-20'),
+	('Vernal Equinox', '2023-03-20'),
+	('Vernal Equinox', '2024-03-20'),
+	('Vernal Equinox', '2025-03-20'),
+	('Vernal Equinox', '2026-03-20'),
+	('Vernal Equinox', '2027-03-20'),
+	('Vernal Equinox', '2028-03-20'),
+	('Vernal Equinox', '2029-03-20'),
+	('Vernal Equinox', '2030-03-20'),
+	('Winter Solstice', '2010-12-21'),
+	('Winter Solstice', '2011-12-22'),
+	('Winter Solstice', '2012-12-21'),
+	('Winter Solstice', '2013-12-21'),
+	('Winter Solstice', '2014-12-21'),
+	('Winter Solstice', '2015-12-22'),
+	('Winter Solstice', '2016-12-21'),
+	('Winter Solstice', '2017-12-21'),
+	('Winter Solstice', '2018-12-21'),
+	('Winter Solstice', '2019-12-22'),
+	('Winter Solstice', '2020-12-21'),
+	('Winter Solstice', '2021-12-21'),
+	('Winter Solstice', '2022-12-21'),
+	('Winter Solstice', '2023-12-22'),
+	('Winter Solstice', '2024-12-21'),
+	('Winter Solstice', '2025-12-21'),
+	('Winter Solstice', '2026-12-21'),
+	('Winter Solstice', '2027-12-22'),
+	('Winter Solstice', '2028-12-21'),
+	('Winter Solstice', '2029-12-21'),
+	('Winter Solstice', '2030-12-21'),
+	('Autumnal Equinox', '2010-09-23'),
+	('Autumnal Equinox', '2011-09-23'),
+	('Autumnal Equinox', '2012-09-22'),
+	('Autumnal Equinox', '2013-09-22'),
+	('Autumnal Equinox', '2014-09-23'),
+	('Autumnal Equinox', '2015-09-23'),
+	('Autumnal Equinox', '2016-09-22'),
+	('Autumnal Equinox', '2017-09-22'),
+	('Autumnal Equinox', '2018-09-23'),
+	('Autumnal Equinox', '2019-09-23'),
+	('Autumnal Equinox', '2020-09-22'),
+	('Autumnal Equinox', '2021-09-22'),
+	('Autumnal Equinox', '2022-09-23'),
+	('Autumnal Equinox', '2023-09-23'),
+	('Autumnal Equinox', '2024-09-22'),
+	('Autumnal Equinox', '2025-09-22'),
+	('Autumnal Equinox', '2026-09-23'),
+	('Autumnal Equinox', '2027-09-23'),
+	('Autumnal Equinox', '2028-09-22'),
+	('Autumnal Equinox', '2029-09-22'),
+	('Autumnal Equinox', '2030-09-22');
+
+INSERT INTO {$db_prefix}calendar_holidays
+	(title, event_date)
+VALUES ('Independence Day', '1004-07-04'),
+	('Cinco de Mayo', '1004-05-05'),
+	('Flag Day', '1004-06-14'),
+	('Veterans Day', '1004-11-11'),
+	('Groundhog Day', '1004-02-02'),
+	('Thanksgiving', '2010-11-25'),
+	('Thanksgiving', '2011-11-24'),
+	('Thanksgiving', '2012-11-22'),
+	('Thanksgiving', '2013-11-28'),
+	('Thanksgiving', '2014-11-27'),
+	('Thanksgiving', '2015-11-26'),
+	('Thanksgiving', '2016-11-24'),
+	('Thanksgiving', '2017-11-23'),
+	('Thanksgiving', '2018-11-22'),
+	('Thanksgiving', '2019-11-28'),
+	('Thanksgiving', '2020-11-26'),
+	('Thanksgiving', '2021-11-25'),
+	('Thanksgiving', '2022-11-24'),
+	('Thanksgiving', '2023-11-23'),
+	('Thanksgiving', '2024-11-28'),
+	('Thanksgiving', '2025-11-27'),
+	('Thanksgiving', '2026-11-26'),
+	('Thanksgiving', '2027-11-25'),
+	('Thanksgiving', '2028-11-23'),
+	('Thanksgiving', '2029-11-22'),
+	('Thanksgiving', '2030-11-28'),
+	('Memorial Day', '2010-05-31'),
+	('Memorial Day', '2011-05-30'),
+	('Memorial Day', '2012-05-28'),
+	('Memorial Day', '2013-05-27'),
+	('Memorial Day', '2014-05-26'),
+	('Memorial Day', '2015-05-25'),
+	('Memorial Day', '2016-05-30'),
+	('Memorial Day', '2017-05-29'),
+	('Memorial Day', '2018-05-28'),
+	('Memorial Day', '2019-05-27'),
+	('Memorial Day', '2020-05-25'),
+	('Memorial Day', '2021-05-31'),
+	('Memorial Day', '2022-05-30'),
+	('Memorial Day', '2023-05-29'),
+	('Memorial Day', '2024-05-27'),
+	('Memorial Day', '2025-05-26'),
+	('Memorial Day', '2026-05-25'),
+	('Memorial Day', '2027-05-31'),
+	('Memorial Day', '2028-05-29'),
+	('Memorial Day', '2029-05-28'),
+	('Memorial Day', '2030-05-27'),
+	('Labor Day', '2010-09-06'),
+	('Labor Day', '2011-09-05'),
+	('Labor Day', '2012-09-03'),
+	('Labor Day', '2013-09-02'),
+	('Labor Day', '2014-09-01'),
+	('Labor Day', '2015-09-07'),
+	('Labor Day', '2016-09-05'),
+	('Labor Day', '2017-09-04'),
+	('Labor Day', '2018-09-03'),
+	('Labor Day', '2019-09-02'),
+	('Labor Day', '2020-09-07'),
+	('Labor Day', '2021-09-06'),
+	('Labor Day', '2022-09-05'),
+	('Labor Day', '2023-09-04'),
+	('Labor Day', '2024-09-02'),
+	('Labor Day', '2025-09-01'),
+	('Labor Day', '2026-09-07'),
+	('Labor Day', '2027-09-06'),
+	('Labor Day', '2028-09-04'),
+	('Labor Day', '2029-09-03'),
+	('Labor Day', '2030-09-02'),
+	('D-Day', '1004-06-06');
+---#
+
+/******************************************************************************/
+--- Add Attachments index
+/******************************************************************************/
+---# Create new index on Attachments
+DROP INDEX IF EXISTS {$db_prefix}attachments_id_thumb;
+CREATE INDEX {$db_prefix}attachments_id_thumb ON {$db_prefix}attachments (id_thumb);
 ---#

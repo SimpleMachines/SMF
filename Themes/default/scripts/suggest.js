@@ -28,7 +28,7 @@ function smc_AutoSuggest(oOptions)
 	// Are there any items that should be added in advance?
 	this.aListItems = 'aListItems' in this.opt ? this.opt.aListItems : [];
 
-	this.sItemTemplate = 'sItemTemplate' in this.opt ? this.opt.sItemTemplate : '<input type="hidden" name="%post_name%[]" value="%item_id%"><a href="%item_href%" class="extern" onclick="window.open(this.href, \'_blank\'); return false;">%item_name%</a>&nbsp;<span class="generic_icons delete" title="%delete_text%" onclick="return %self%.deleteAddedItem(%item_id%);"></span>';
+	this.sItemTemplate = 'sItemTemplate' in this.opt ? this.opt.sItemTemplate : '<input type="hidden" name="%post_name%[]" value="%item_id%"><a href="%item_href%" class="extern" onclick="window.open(this.href, \'_blank\'); return false;">%item_name%</a>&nbsp;<span class="main_icons delete" title="%delete_text%" onclick="return %self%.deleteAddedItem(%item_id%);"></span>';
 
 	this.sTextDeleteItem = 'sTextDeleteItem' in this.opt ? this.opt.sTextDeleteItem : '';
 

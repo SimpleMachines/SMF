@@ -6,10 +6,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -17,12 +17,6 @@
  */
 class CreatePost_Notify_Background extends SMF_BackgroundTask
 {
-	/**
-	 * Constants for receiving email notfications.
-	*/
-	const RECEIVE_NOTIFY_EMAIL = 0x02;
-	const RECEIVE_NOTIFY_ALERT = 0x01;
-
 	/**
 	 * Constants for reply types.
 	*/
@@ -105,6 +99,22 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		$smcFunc['db_free_result']($request);
 
+		// Modified post
+		if ($type == 'edit')
+		{
+			// Filter out members who have already been notified about this post's topic
+			$unnotified = array_filter($watched, function ($member)
+			{
+				return empty($member['sent']);
+			});
+			$members = array_intersect($members, array_keys($unnotified));
+			$quotedMembers = array_intersect_key($quotedMembers, $unnotified);
+			$msgOptions['mentioned_members'] = array_intersect_key($msgOptions['mentioned_members'], $unnotified);
+
+			// Notifications about modified posts only go to members who were mentioned or quoted
+			$watched = array();
+		}
+
 		if (empty($members))
 			return true;
 
@@ -180,7 +190,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				if (!empty($prefs[$member]['msg_receive_body']))
 					$message_type .= '_body';
 			}
-			// If neither of the above, this might be a redundent row due to the OR clause in our SQL query, skip
+			// If neither of the above, this might be a redundant row due to the OR clause in our SQL query, skip
 			else
 				continue;
 

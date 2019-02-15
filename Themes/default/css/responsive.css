@@ -5,6 +5,16 @@
 
 /* Entry level phones */
 @media (max-width: 480px) {
+	/* Generic Classes for Customizations */
+	.hide_480 {
+		display: none;
+	}
+	.block_480 {
+		display: block;
+	}
+	.inlineblock_480 {
+		display: inline-block;
+	}
 	/* This is general */
 	#main_menu .popup_container, #genericmenu .popup_container {
 		display: none;
@@ -13,7 +23,7 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
-		background: rgba(40,64,80,0.5);
+		background: rgba(40, 64, 80, 0.5);
 		z-index: 5;
 	}
 	#main_menu .popup_heading, #genericmenu .popup_heading {
@@ -26,7 +36,7 @@
 		position: relative;
 		z-index: 99;
 		width: 90%;
-		box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+		box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
 		border: 1px solid #777;
 		border-radius: 7px 7px 3px 3px;
 		min-height: 285px !important;
@@ -64,7 +74,7 @@
 	#pm_menu, #alerts_menu {
 		padding-right: 9px;
 	}
-	.generic_menu, #topic_container .moderation .generic_icons {
+	.generic_menu, #topic_container .moderation .main_icons {
 		display: none;
 	}
 	#mobile_user_menu .dropmenu,
@@ -129,8 +139,6 @@
 	}
 	/* some new stuff for far better UX */
 	.mobile_subject {
-		display: block;
-		padding: 9px 0;
 		position: relative;
 	}
 	.mobile_subject .board_description {
@@ -138,9 +146,6 @@
 		font-weight: normal;
 		font-size: 0.9em;
 		color: #222;
-	}
-	.board_description {
-		display: none;
 	}
 	fieldset {
 		max-width: 100%;
@@ -191,7 +196,7 @@
 	.subject_title input {
 		width: 90%;
 	}
-	#quickReplyOptions .roundframe {
+	#quickreply_options .roundframe {
 		padding: 8px 10px 12px 10px;
 	}
 
@@ -205,7 +210,7 @@
 	img#icons {
 		margin: 0 0 0 5px;
 	}
-	#quickReplyOptions #postmodify {
+	#quickreply_options #postmodify {
 		width: 100%;
 	}
 	/* Poll */
@@ -259,7 +264,7 @@
 		margin: 0 !important;
 		width: 100% !important;
 	}
-	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
+	#upshrink_stats p.inline, #upshrink_stats p.last {
 		padding: 5px !important;
 	}
 	th.recentboard, th.recenttime,
@@ -321,12 +326,12 @@
 	.modbox .floatleft {
 		float: none;
 	}
-	#warning_list .reason, #moderation_log_list .position, #moderation_log_list .ip,
+	#warning_list .reason, #moderation_log_list .position, #moderation_log_list .ip, #group_members .last_active,
 	#group_request_list .date, #group_lists .icons, #regular_membergroups_list .icons, #post_count_membergroups_list .icons, #watch_user_list .last_login {
 		display: none;
 	}
 	/* Admin */
-	#live_news, #supportVersionsTable {
+	#live_news, #support_info {
 		width: 100% !important;
 		padding: 0 !important;
 		margin: 0 0 5px 0;
@@ -385,7 +390,7 @@
 		display: none;
 	}
 	tr[id^="list_mail_queue_"] td:first-of-type,
-	tr[id^="list_mail_queue_"] td:last-of-type	{
+	tr[id^="list_mail_queue_"] td:last-of-type {
 		display: table-cell;
 	}
 	.msearch_details {
@@ -403,7 +408,12 @@
 	}
 	/* Generic Lists */
 	#request_list .time_applied,
-	#track_user_list .date, #track_user_list .date2 {
+	#track_user_list .date, #track_user_list .date2, #file_list .filesize, #file_list .downloads,
+	#ban_list .added, #ban_list .num_triggers, #ban_log .date, #mail_queue .age, #attachments .subject {
+		display: none;
+	}
+	/* Likes */
+	#likes li .like_time {
 		display: none;
 	}
 	/* 3rd level menu tests */
@@ -428,8 +438,8 @@
 		max-height: 300px;
 	}
 	img.icon, #forumposts .catbg img,
-	#topic_container .moderation .generic_icons {
-		display:none;
+	#topic_container .moderation .main_icons {
+		display: none;
 	}
 	.keyinfo h5 .modified {
 		float: none !important;
@@ -440,7 +450,7 @@
 		margin: 0 !important;
 		width: 100% !important;
 	}
-	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
+	#upshrink_stats p.inline, #upshrink_stats p.last {
 		padding: 5px !important;
 	}
 
@@ -462,6 +472,16 @@
 }
 /* We have shared things... */
 @media screen and (max-width: 720px) {
+	/* Generic Classes for Customizations */
+	.hide_720 {
+		display: none;
+	}
+	.block_720 {
+		display: block;
+	}
+	.inlineblock_720 {
+		display: inline-block;
+	}
 	/* New Mobile Action/Mod Pop (Test) */
 	.moderationbuttons_check {
 		display: none;
@@ -656,14 +676,14 @@
 	/* PersonalMessages */
 	#personal_messages .pm_time, #personal_messages .pm_from_to {
 		display: none;
-	} 
+	}
 	#personal_messages .pm_inline_time {
 		display: block;
 	}
 	/* Alerts Page */
 	#alerts .alert_inline_time {
 		display: block;
-	} 
+	}
 	#alerts .alert_time {
 		display: none;
 	}
@@ -690,7 +710,7 @@
 	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
 	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
 	#member_list .ip, #member_list .last_active, #member_list .user_name,
-	#approve_list .ip, #approve_list .date_registered,
+	#approve_list .ip, #approve_list .date_registered, #group_members .date_registered,
 	#main_content_section .navigate_section, .pagesection.top, .time,
 	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
 	#header_custom_profile_fields_placement, #custom_profile_fields .active, #custom_profile_fields .field_type, #custom_profile_fields .placement {
@@ -698,7 +718,8 @@
 	}
 	/* Generic Lists */
 	#topic_notification_list .last_post, #topic_notification_list .started_by,
-	#request_list .time_applied {
+	#request_list .time_applied, #file_list .date, #ban_list .notes, #ban_list .reason, #ban_log .email,
+	#mail_queue .priority, #attachments .posted {
 		display: none;
 	}
 

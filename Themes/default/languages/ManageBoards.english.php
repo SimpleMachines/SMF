@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; ManageBoards
+// Version: 2.1 RC1; ManageBoards
 
 $txt['boards_and_cats'] = 'Manage Boards and Categories';
 $txt['order'] = 'Order';
@@ -8,13 +8,13 @@ $txt['name_on_display'] = 'This is the name that will be displayed.';
 $txt['boards_and_cats_desc'] = 'Edit your categories and boards here. List multiple moderators as <em>&quot;username&quot;, &quot;username&quot;</em>. (these must be usernames and *not* display names)<br>To create a new board, click the Add Board button. To make the new board a sub-board of a current board, select "Sub-board of..." from the Order drop down menu when creating the board.';
 $txt['parent_members_only'] = 'Regular Members';
 $txt['parent_guests_only'] = 'Guests';
-$txt['catConfirm'] = 'Do you really want to delete this category?';
-$txt['boardConfirm'] = 'Do you really want to delete this board?';
+$txt['cat_delete_confirm'] = 'Do you really want to delete this category?';
+$txt['board_delete_confirm'] = 'Do you really want to delete this board?';
 
-$txt['catEdit'] = 'Edit Category';
+$txt['cat_edit'] = 'Edit Category';
 $txt['collapse_enable'] = 'Collapsible';
 $txt['collapse_desc'] = 'Allow users to collapse this category';
-$txt['catModify'] = '(modify)';
+$txt['cat_modify'] = '(modify)';
 
 $txt['mboards_order_after'] = 'After ';
 $txt['mboards_order_inside'] = 'Inside ';

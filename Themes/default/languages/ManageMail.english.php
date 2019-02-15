@@ -1,7 +1,7 @@
 <?php
-// Version: 2.1 Beta 4; ManageMail
+// Version: 2.1 RC1; ManageMail
 
-$txt['mailqueue_desc'] = 'From this page you can configure your mail settings, as well as viewing and administrating the current mail queue if it is enabled.';
+$txt['mailqueue_desc'] = 'From this page you can configure your mail settings, as well as view and administer the current mail queue.';
 
 $txt['mail_type'] = 'Mail type';
 $txt['mail_type_default'] = '(PHP default)';

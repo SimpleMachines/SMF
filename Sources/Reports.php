@@ -15,10 +15,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -709,6 +709,9 @@ function GroupPermissionsReport()
 	{
 		if (in_array($row['permission'], $disabled_permissions))
 			continue;
+
+		if (strpos($row['permission'], 'bbc_') === 0)
+			$txt['group_perms_name_' . $row['permission']] = sprintf($txt['group_perms_name_bbc'], substr($row['permission'], 4));
 
 		// If this is a new permission flush the last row.
 		if ($row['permission'] != $lastPermission)

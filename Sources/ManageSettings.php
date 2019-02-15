@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -159,49 +159,81 @@ function ModifyBasicSettings($return_config = false)
 	$can_personal_text = !in_array('personal_text', $disabled_fields) && !in_array('personal_text', $reg_fields);
 
 	$config_vars = array(
-			// Big Options... polls, sticky, bbc....
-			array('select', 'pollMode', array($txt['disable_polls'], $txt['enable_polls'], $txt['polls_as_topics'])),
+		// Big Options... polls, sticky, bbc....
+		array('select', 'pollMode', array($txt['disable_polls'], $txt['enable_polls'], $txt['polls_as_topics'])),
 		'',
-			// Basic stuff, titles, flash, permissions...
-			array('check', 'allow_guestAccess'),
-			array('check', 'enable_buddylist'),
-			array('check', 'allow_hideOnline'),
-			array('check', 'titlesEnable'),
-			array('text', 'default_personal_text', 'subtext' => $txt['default_personal_text_note'], 'disabled' => !$can_personal_text),
-			array('check', 'topic_move_any'),
-			array('int', 'defaultMaxListItems', 'step' => 1, 'min' => 1, 'max' => 999),
+
+		// Basic stuff, titles, flash, permissions...
+		array('check', 'allow_guestAccess'),
+		array('check', 'enable_buddylist'),
+		array('check', 'allow_hideOnline'),
+		array('check', 'titlesEnable'),
+		array('text', 'default_personal_text', 'subtext' => $txt['default_personal_text_note'], 'disabled' => !$can_personal_text),
+		array('check', 'topic_move_any'),
+		array('int', 'defaultMaxListItems', 'step' => 1, 'min' => 1, 'max' => 999),
 		'',
-			// Jquery source
-			array('select', 'jquery_source', array('auto' => $txt['jquery_auto'], 'local' => $txt['jquery_local'], 'cdn' => $txt['jquery_cdn'], 'custom' => $txt['jquery_custom']), 'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}'),
-			array('text', 'jquery_custom', 'disabled' => isset($modSettings['jquery_source']) && $modSettings['jquery_source'] != 'custom', 'size' => 75),
+
+		// Jquery source
+		array(
+			'select',
+			'jquery_source',
+			array(
+				'auto' => $txt['jquery_auto'],
+				'local' => $txt['jquery_local'],
+				'cdn' => $txt['jquery_cdn'],
+				'custom' => $txt['jquery_custom']
+			),
+			'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}'
+		),
+		array(
+			'text',
+			'jquery_custom',
+			'disabled' => isset($modSettings['jquery_source']) && $modSettings['jquery_source'] != 'custom', 'size' => 75
+		),
 		'',
-			// css and js minification.
-			array('check', 'minimize_files'),
+
+		// css and js minification.
+		array('check', 'minimize_files'),
 		'',
-			// SEO stuff
-			array('check', 'queryless_urls', 'subtext' => '<strong>' . $txt['queryless_urls_note'] . '</strong>'),
-			array('text', 'meta_keywords', 'subtext' => $txt['meta_keywords_note'], 'size' => 50),
+
+		// SEO stuff
+		array('check', 'queryless_urls', 'subtext' => '<strong>' . $txt['queryless_urls_note'] . '</strong>'),
+		array('text', 'meta_keywords', 'subtext' => $txt['meta_keywords_note'], 'size' => 50),
 		'',
-			// Number formatting, timezones.
-			array('text', 'time_format'),
-			array('float', 'time_offset', 'subtext' => $txt['setting_time_offset_note'], 6, 'postinput' => $txt['hours'], 'step' => 0.25, 'min' => -23.5, 'max' => 23.5),
-			'default_timezone' => array('select', 'default_timezone', array()),
-			array('text', 'timezone_priority_countries', 'subtext' => $txt['setting_timezone_priority_countries_note']),
+
+		// Number formatting, timezones.
+		array('text', 'time_format'),
+		array(
+			'float',
+			'time_offset',
+			'subtext' => $txt['setting_time_offset_note'],
+			6,
+			'postinput' => $txt['hours'],
+			'step' => 0.25,
+			'min' => -23.5,
+			'max' => 23.5
+		),
+		'default_timezone' => array('select', 'default_timezone', array()),
+		array('text', 'timezone_priority_countries', 'subtext' => $txt['setting_timezone_priority_countries_note']),
 		'',
-			// Who's online?
-			array('check', 'who_enabled'),
-			array('int', 'lastActive', 6, 'postinput' => $txt['minutes']),
+
+		// Who's online?
+		array('check', 'who_enabled'),
+		array('int', 'lastActive', 6, 'postinput' => $txt['minutes']),
 		'',
-			// Statistics.
-			array('check', 'trackStats'),
-			array('check', 'hitStats'),
+
+		// Statistics.
+		array('check', 'trackStats'),
+		array('check', 'hitStats'),
 		'',
-			// Option-ish things... miscellaneous sorta.
-			array('check', 'allow_disableAnnounce'),
-			array('check', 'disallow_sendBody'),
+
+		// Option-ish things... miscellaneous sorta.
+		array('check', 'allow_disableAnnounce'),
+		array('check', 'disallow_sendBody'),
 		'',
-			// Alerts stuff
-			array('check', 'enable_ajax_alerts'),
+
+		// Alerts stuff
+		array('check', 'enable_ajax_alerts'),
 	);
 
 	// Get all the time zones.
@@ -235,7 +267,7 @@ function ModifyBasicSettings($return_config = false)
 		$_SESSION['adm-save'] = true;
 
 		// Do a bit of housekeeping
-		if (empty($_POST['minimize_files']))
+		if (empty($_POST['minimize_files']) || $_POST['minimize_files'] != $modSettings['minimize_files'])
 			deleteAllMinified();
 
 		writeLog();
@@ -262,17 +294,29 @@ function ModifyBBCSettings($return_config = false)
 	global $context, $txt, $modSettings, $scripturl, $sourcedir;
 
 	$config_vars = array(
-			// Main tweaks
-			array('check', 'enableBBC'),
-			array('check', 'enableBBC', 0, 'onchange' => 'toggleBBCDisabled(\'disabledBBC\', !this.checked);'),
-			array('check', 'enablePostHTML'),
-			array('check', 'autoLinkUrls'),
+		// Main tweaks
+		array('check', 'enableBBC'),
+		array('check', 'enableBBC', 0, 'onchange' => 'toggleBBCDisabled(\'disabledBBC\', !this.checked); toggleBBCDisabled(\'legacyBBC\', !this.checked);'),
+		array('check', 'enablePostHTML'),
+		array('check', 'autoLinkUrls'),
 		'',
-			array('bbc', 'disabledBBC'),
+
+		array('bbc', 'disabledBBC'),
+
+		// This one is actually pretend...
+		array('bbc', 'legacyBBC', 'help' => 'legacy_bbc'),
 	);
 
+	// Permissions for restricted BBC
+	if (!empty($context['restricted_bbc']))
+		$config_vars[] = '';
+
+	foreach ($context['restricted_bbc'] as $bbc)
+		$config_vars[] = array('permissions', 'bbc_' . $bbc, 'text_label' => sprintf($txt['groups_can_use'], '[' . $bbc . ']'));
+
 	$context['settings_post_javascript'] = '
-		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';
+		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');
+		toggleBBCDisabled(\'legacyBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';
 
 	call_integration_hook('integrate_modify_bbc_settings', array(&$config_vars));
 
@@ -286,6 +330,16 @@ function ModifyBBCSettings($return_config = false)
 
 	// Make sure we check the right tags!
 	$modSettings['bbc_disabled_disabledBBC'] = empty($modSettings['disabledBBC']) ? array() : explode(',', $modSettings['disabledBBC']);
+
+	// Legacy BBC are listed separately, but we use the same info in both cases
+	$modSettings['bbc_disabled_legacyBBC'] = $modSettings['bbc_disabled_disabledBBC'];
+
+	$extra = '';
+	if (isset($_REQUEST['cowsay']))
+	{
+		$config_vars[] = array('permissions', 'bbc_cowsay', 'text_label' => sprintf($txt['groups_can_use'], 'cowsay'));
+		$extra = ';cowsay';
+	}
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -301,17 +355,32 @@ function ModifyBBCSettings($return_config = false)
 			$_POST['disabledBBC_enabledTags'] = array();
 		elseif (!is_array($_POST['disabledBBC_enabledTags']))
 			$_POST['disabledBBC_enabledTags'] = array($_POST['disabledBBC_enabledTags']);
+
+		if (!isset($_POST['legacyBBC_enabledTags']))
+			$_POST['legacyBBC_enabledTags'] = array();
+		elseif (!is_array($_POST['legacyBBC_enabledTags']))
+			$_POST['legacyBBC_enabledTags'] = array($_POST['legacyBBC_enabledTags']);
+
+		$_POST['disabledBBC_enabledTags'] = array_unique(array_merge($_POST['disabledBBC_enabledTags'], $_POST['legacyBBC_enabledTags']));
+
 		// Work out what is actually disabled!
 		$_POST['disabledBBC'] = implode(',', array_diff($bbcTags, $_POST['disabledBBC_enabledTags']));
+
+		// $modSettings['legacyBBC'] isn't really a thing...
+		unset($_POST['legacyBBC_enabledTags']);
+		$config_vars = array_filter($config_vars, function($config_var)
+		{
+			return !isset($config_var[1]) || $config_var[1] != 'legacyBBC';
+		});
 
 		call_integration_hook('integrate_save_bbc_settings', array($bbcTags));
 
 		saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
-		redirectexit('action=admin;area=featuresettings;sa=bbc');
+		redirectexit('action=admin;area=featuresettings;sa=bbc' . $extra);
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=bbc';
+	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=bbc' . $extra;
 	$context['settings_title'] = $txt['manageposts_bbc_settings_title'];
 
 	prepareDBSettingContext($config_vars);
@@ -329,17 +398,24 @@ function ModifyLayoutSettings($return_config = false)
 	global $txt, $scripturl, $context;
 
 	$config_vars = array(
-			// Pagination stuff.
-			array('check', 'compactTopicPagesEnable'),
-			array('int', 'compactTopicPagesContiguous', null, $txt['contiguous_page_display'] . '<div class="smalltext">' . str_replace(' ', '&nbsp;', '"3" ' . $txt['to_display'] . ': <strong>1 ... 4 [5] 6 ... 9</strong>') . '<br>' . str_replace(' ', '&nbsp;', '"5" ' . $txt['to_display'] . ': <strong>1 ... 3 4 [5] 6 7 ... 9</strong>') . '</div>'),
-			array('int', 'defaultMaxMembers'),
+		// Pagination stuff.
+		array('check', 'compactTopicPagesEnable'),
+		array(
+			'int',
+			'compactTopicPagesContiguous',
+			null,
+			$txt['contiguous_page_display'] . '<div class="smalltext">' . str_replace(' ', '&nbsp;', '"3" ' . $txt['to_display'] . ': <strong>1 ... 4 [5] 6 ... 9</strong>') . '<br>' . str_replace(' ', '&nbsp;', '"5" ' . $txt['to_display'] . ': <strong>1 ... 3 4 [5] 6 7 ... 9</strong>') . '</div>'
+		),
+		array('int', 'defaultMaxMembers'),
 		'',
-			// Stuff that just is everywhere - today, search, online, etc.
-			array('select', 'todayMod', array($txt['today_disabled'], $txt['today_only'], $txt['yesterday_today'])),
-			array('check', 'onlineEnable'),
+
+		// Stuff that just is everywhere - today, search, online, etc.
+		array('select', 'todayMod', array($txt['today_disabled'], $txt['today_only'], $txt['yesterday_today'])),
+		array('check', 'onlineEnable'),
 		'',
-			// This is like debugging sorta.
-			array('check', 'timeLoadPageEnable'),
+
+		// This is like debugging sorta.
+		array('check', 'timeLoadPageEnable'),
 	);
 
 	call_integration_hook('integrate_layout_settings', array(&$config_vars));
@@ -465,19 +541,40 @@ function ModifyWarningSettings($return_config = false)
 	list ($currently_enabled, $modSettings['user_limit'], $modSettings['warning_decrement']) = explode(',', $modSettings['warning_settings']);
 
 	$config_vars = array(
-			// Warning system?
-			'enable' => array('check', 'warning_enable'),
+		// Warning system?
+		'enable' => array('check', 'warning_enable'),
 	);
 
 	if (!empty($modSettings['warning_settings']) && $currently_enabled)
 		$config_vars += array(
 			'',
-				array('int', 'warning_watch', 'subtext' => $txt['setting_warning_watch_note'] . ' ' . $txt['zero_to_disable']),
-				'moderate' => array('int', 'warning_moderate', 'subtext' => $txt['setting_warning_moderate_note'] . ' ' . $txt['zero_to_disable']),
-				array('int', 'warning_mute', 'subtext' => $txt['setting_warning_mute_note'] . ' ' . $txt['zero_to_disable']),
-				'rem1' => array('int', 'user_limit', 'subtext' => $txt['setting_user_limit_note']),
-				'rem2' => array('int', 'warning_decrement', 'subtext' => $txt['setting_warning_decrement_note'] . ' ' . $txt['zero_to_disable']),
-				array('permissions', 'view_warning'),
+
+			array(
+				'int',
+				'warning_watch',
+				'subtext' => $txt['setting_warning_watch_note'] . ' ' . $txt['zero_to_disable']
+			),
+			'moderate' => array(
+				'int',
+				'warning_moderate',
+				'subtext' => $txt['setting_warning_moderate_note'] . ' ' . $txt['zero_to_disable']
+			),
+			array(
+				'int',
+				'warning_mute',
+				'subtext' => $txt['setting_warning_mute_note'] . ' ' . $txt['zero_to_disable']
+			),
+			'rem1' => array(
+				'int',
+				'user_limit',
+				'subtext' => $txt['setting_user_limit_note']
+			),
+			'rem2' => array(
+				'int',
+				'warning_decrement',
+				'subtext' => $txt['setting_warning_decrement_note'] . ' ' . $txt['zero_to_disable']
+			),
+			array('permissions', 'view_warning'),
 		);
 
 	call_integration_hook('integrate_warning_settings', array(&$config_vars));
@@ -564,6 +661,7 @@ function ModifyWarningSettings($return_config = false)
 
 /**
  * Let's try keep the spam to a minimum ah Thantos?
+ *
  * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
  * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
@@ -579,32 +677,55 @@ function ModifyAntispamSettings($return_config = false)
 	$context['verification_image_href'] = $scripturl . '?action=verificationcode;rand=' . md5(mt_rand());
 
 	$config_vars = array(
-				array('check', 'reg_verification'),
-				array('check', 'search_enable_captcha'),
-				// This, my friend, is a cheat :p
-				'guest_verify' => array('check', 'guests_require_captcha', 'subtext' => $txt['setting_guests_require_captcha_desc']),
-				array('int', 'posts_require_captcha', 'subtext' => $txt['posts_require_captcha_desc'], 'onchange' => 'if (this.value > 0){ document.getElementById(\'guests_require_captcha\').checked = true; document.getElementById(\'guests_require_captcha\').disabled = true;} else {document.getElementById(\'guests_require_captcha\').disabled = false;}'),
-			'',
-			// PM Settings
-				'pm1' => array('int', 'max_pm_recipients', 'subtext' => $txt['max_pm_recipients_note']),
-				'pm2' => array('int', 'pm_posts_verification', 'subtext' => $txt['pm_posts_verification_note']),
-				'pm3' => array('int', 'pm_posts_per_hour', 'subtext' => $txt['pm_posts_per_hour_note']),
-			// Visual verification.
-			array('title', 'configure_verification_means'),
-			array('desc', 'configure_verification_means_desc'),
-				'vv' => array('select', 'visual_verification_type', array($txt['setting_image_verification_off'], $txt['setting_image_verification_vsimple'], $txt['setting_image_verification_simple'], $txt['setting_image_verification_medium'], $txt['setting_image_verification_high'], $txt['setting_image_verification_extreme']), 'subtext' => $txt['setting_visual_verification_type_desc'], 'onchange' => $context['use_graphic_library'] ? 'refreshImages();' : ''),
-			// reCAPTCHA
-			array('title', 'recaptcha_configure'),
-			array('desc', 'recaptcha_configure_desc', 'class' => 'windowbg'),
-				array('check', 'recaptcha_enabled', 'subtext' => $txt['recaptcha_enable_desc']),
-				array('text', 'recaptcha_site_key', 'subtext' => $txt['recaptcha_site_key_desc']),
-				array('text', 'recaptcha_secret_key', 'subtext' => $txt['recaptcha_secret_key_desc']),
-				array('select', 'recaptcha_theme', array('light' => $txt['recaptcha_theme_light'], 'dark' => $txt['recaptcha_theme_dark'])),
-			// Clever Thomas, who is looking sheepy now? Not I, the mighty sword swinger did say.
-			array('title', 'setup_verification_questions'),
-			array('desc', 'setup_verification_questions_desc'),
-				array('int', 'qa_verification_number', 'subtext' => $txt['setting_qa_verification_number_desc']),
-				array('callback', 'question_answer_list'),
+		array('check', 'reg_verification'),
+		array('check', 'search_enable_captcha'),
+		// This, my friend, is a cheat :p
+		'guest_verify' => array(
+			'check',
+			'guests_require_captcha',
+			'subtext' => $txt['setting_guests_require_captcha_desc']
+		),
+		array(
+			'int',
+			'posts_require_captcha',
+			'subtext' => $txt['posts_require_captcha_desc'],
+			'onchange' => 'if (this.value > 0){ document.getElementById(\'guests_require_captcha\').checked = true; document.getElementById(\'guests_require_captcha\').disabled = true;} else {document.getElementById(\'guests_require_captcha\').disabled = false;}'
+		),
+		'',
+
+		// PM Settings
+		'pm1' => array('int', 'max_pm_recipients', 'subtext' => $txt['max_pm_recipients_note']),
+		'pm2' => array('int', 'pm_posts_verification', 'subtext' => $txt['pm_posts_verification_note']),
+		'pm3' => array('int', 'pm_posts_per_hour', 'subtext' => $txt['pm_posts_per_hour_note']),
+		// Visual verification.
+		array('title', 'configure_verification_means'),
+		array('desc', 'configure_verification_means_desc'),
+		'vv' => array(
+			'select',
+			'visual_verification_type',
+			array(
+				$txt['setting_image_verification_off'],
+				$txt['setting_image_verification_vsimple'],
+				$txt['setting_image_verification_simple'],
+				$txt['setting_image_verification_medium'],
+				$txt['setting_image_verification_high'],
+				$txt['setting_image_verification_extreme']
+			),
+			'subtext' => $txt['setting_visual_verification_type_desc'],
+			'onchange' => $context['use_graphic_library'] ? 'refreshImages();' : ''
+		),
+		// reCAPTCHA
+		array('title', 'recaptcha_configure'),
+		array('desc', 'recaptcha_configure_desc', 'class' => 'windowbg'),
+		array('check', 'recaptcha_enabled', 'subtext' => $txt['recaptcha_enable_desc']),
+		array('text', 'recaptcha_site_key', 'subtext' => $txt['recaptcha_site_key_desc']),
+		array('text', 'recaptcha_secret_key', 'subtext' => $txt['recaptcha_secret_key_desc']),
+		array('select', 'recaptcha_theme', array('light' => $txt['recaptcha_theme_light'], 'dark' => $txt['recaptcha_theme_dark'])),
+		// Clever Thomas, who is looking sheepy now? Not I, the mighty sword swinger did say.
+		array('title', 'setup_verification_questions'),
+		array('desc', 'setup_verification_questions_desc'),
+		array('int', 'qa_verification_number', 'subtext' => $txt['setting_qa_verification_number_desc']),
+		array('callback', 'question_answer_list'),
 	);
 
 	call_integration_hook('integrate_spam_settings', array(&$config_vars));
@@ -668,7 +789,7 @@ function ModifyAntispamSettings($return_config = false)
 		$(\'<dt><input type="text" name="question[\' + id + \'][\' + nextrow + \']" value="" size="50" class="verification_question"></dt><dd><input type="text" name="answer[\' + id + \'][\' + nextrow + \'][]" value="" size="50" class="verification_answer" / ><div class="qa_add_answer"><a href="javascript:void(0);">[ \' + ' . JavaScriptEscape($txt['setup_verification_add_answer']) . ' + \' ]</a></div></dd>\').insertBefore($(this).parent());
 		nextrow++;
 	});
-	$(".qa_add_answer a").click(function() {
+	$(".qa_fieldset ").on("click", ".qa_add_answer a", function() {
 		var attr = $(this).closest("dd").find(".verification_answer:last").attr("name");
 		$(\'<input type="text" name="\' + attr + \'" value="" size="50" class="verification_answer">\').insertBefore($(this).closest("div"));
 		return false;
@@ -706,7 +827,7 @@ function ModifyAntispamSettings($return_config = false)
 		{
 			// If we had some questions for this language before, but don't now, delete everything from that language.
 			if ((!isset($_POST['question'][$lang_id]) || !is_array($_POST['question'][$lang_id])) && !empty($context['qa_by_lang'][$lang_id]))
-				$changes['delete'] = array_merge($questions['delete'], $context['qa_by_lang'][$lang_id]);
+				$changes['delete'] = array_merge($changes['delete'], $context['qa_by_lang'][$lang_id]);
 
 			// Now step through and see if any existing questions no longer exist.
 			if (!empty($context['qa_by_lang'][$lang_id]))
@@ -889,22 +1010,25 @@ function ModifySignatureSettings($return_config = false)
 	global $context, $txt, $modSettings, $sig_start, $smcFunc, $scripturl;
 
 	$config_vars = array(
-			// Are signatures even enabled?
-			array('check', 'signature_enable'),
+		// Are signatures even enabled?
+		array('check', 'signature_enable'),
 		'',
-			// Tweaking settings!
-			array('int', 'signature_max_length', 'subtext' => $txt['zero_for_no_limit']),
-			array('int', 'signature_max_lines', 'subtext' => $txt['zero_for_no_limit']),
-			array('int', 'signature_max_font_size', 'subtext' => $txt['zero_for_no_limit']),
-			array('check', 'signature_allow_smileys', 'onclick' => 'document.getElementById(\'signature_max_smileys\').disabled = !this.checked;'),
-			array('int', 'signature_max_smileys', 'subtext' => $txt['zero_for_no_limit']),
+
+		// Tweaking settings!
+		array('int', 'signature_max_length', 'subtext' => $txt['zero_for_no_limit']),
+		array('int', 'signature_max_lines', 'subtext' => $txt['zero_for_no_limit']),
+		array('int', 'signature_max_font_size', 'subtext' => $txt['zero_for_no_limit']),
+		array('check', 'signature_allow_smileys', 'onclick' => 'document.getElementById(\'signature_max_smileys\').disabled = !this.checked;'),
+		array('int', 'signature_max_smileys', 'subtext' => $txt['zero_for_no_limit']),
 		'',
-			// Image settings.
-			array('int', 'signature_max_images', 'subtext' => $txt['signature_max_images_note']),
-			array('int', 'signature_max_image_width', 'subtext' => $txt['zero_for_no_limit']),
-			array('int', 'signature_max_image_height', 'subtext' => $txt['zero_for_no_limit']),
+
+		// Image settings.
+		array('int', 'signature_max_images', 'subtext' => $txt['signature_max_images_note']),
+		array('int', 'signature_max_image_width', 'subtext' => $txt['zero_for_no_limit']),
+		array('int', 'signature_max_image_height', 'subtext' => $txt['zero_for_no_limit']),
 		'',
-			array('bbc', 'signature_bbc'),
+
+		array('bbc', 'signature_bbc'),
 	);
 
 	call_integration_hook('integrate_signature_settings', array(&$config_vars));
@@ -1032,7 +1156,8 @@ function ModifySignatureSettings($return_config = false)
 						$image_count_holder = array();
 						foreach ($matches[0] as $key => $image)
 						{
-							$width = -1; $height = -1;
+							$width = -1;
+							$height = -1;
 							$img_count++;
 							// Too many images?
 							if (!empty($sig_limits[3]) && $img_count > $sig_limits[3])
@@ -1339,7 +1464,7 @@ function ShowCustomProfiles()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						$isChecked = $rowData['disabled'] ? '' : ' checked';
 						$onClickHandler = $rowData['can_show_register'] ? sprintf(' onclick="document.getElementById(\'reg_%1$s\').disabled = !this.checked;"', $rowData['id']) : '';
@@ -1355,7 +1480,7 @@ function ShowCustomProfiles()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						$isChecked = $rowData['on_register'] && !$rowData['disabled'] ? ' checked' : '';
 						$isDisabled = $rowData['can_show_register'] ? '' : ' disabled';
@@ -1402,15 +1527,15 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_fieldorder'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($context, $txt, $scripturl)
+					'function' => function($rowData) use ($context, $txt, $scripturl)
 					{
-						$return = '<p class="centertext bold_text">'. $rowData['field_order'] .'<br>';
+						$return = '<p class="centertext bold_text">' . $rowData['field_order'] . '<br>';
 
 						if ($rowData['field_order'] > 1)
-							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="'. $txt['custom_edit_order_move'] .' '. $txt['custom_edit_order_up'] .'"></span></a>';
+							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . $txt['custom_edit_order_move'] . ' ' . $txt['custom_edit_order_up'] . '"></span></a>';
 
 						if ($rowData['field_order'] < $context['custFieldsMaxOrder'])
-							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="'. $txt['custom_edit_order_move'] .' '. $txt['custom_edit_order_down'] .'"></span></a>';
+							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="' . $txt['custom_edit_order_move'] . ' ' . $txt['custom_edit_order_down'] . '"></span></a>';
 
 						$return .= '</p>';
 
@@ -1428,7 +1553,7 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_fieldname'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($scripturl)
+					'function' => function($rowData) use ($scripturl)
 					{
 						return sprintf('<a href="%1$s?action=admin;area=featuresettings;sa=profileedit;fid=%2$d">%3$s</a><div class="smalltext">%4$s</div>', $scripturl, $rowData['id_field'], $rowData['field_name'], $rowData['field_desc']);
 					},
@@ -1444,7 +1569,7 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_fieldtype'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						$textKey = sprintf('custom_profile_type_%1$s', $rowData['field_type']);
 						return isset($txt[$textKey]) ? $txt[$textKey] : $textKey;
@@ -1461,7 +1586,7 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_active'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function($rowData) use ($txt)
 					{
 						return $rowData['active'] ? $txt['yes'] : $txt['no'];
 					},
@@ -1477,7 +1602,7 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_placement'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function($rowData)
 					{
 						global $txt, $context;
 
@@ -1526,6 +1651,7 @@ function ShowCustomProfiles()
 
 /**
  * Callback for createList().
+ *
  * @param int $start The item to start with (used for pagination purposes)
  * @param int $items_per_page The number of items to display per page
  * @param string $sort A string indicating how to sort the results
@@ -1578,6 +1704,7 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 
 /**
  * Callback for createList().
+ *
  * @return int The total number of custom profile fields
  */
 function list_getProfileFieldSize()
@@ -1711,7 +1838,7 @@ function EditCustomProfiles()
 			redirectexit('action=admin;area=featuresettings;sa=profile'); // @todo implement an error handler
 
 		// All good, proceed.
-		$smcFunc['db_query']('','
+		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}custom_fields
 			SET field_order = {int:old_order}
 			WHERE field_order = {int:new_order}',
@@ -1720,7 +1847,7 @@ function EditCustomProfiles()
 				'old_order' => $context['field']['order'],
 			)
 		);
-		$smcFunc['db_query']('','
+		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}custom_fields
 			SET field_order = {int:new_order}
 			WHERE id_field = {int:id_field}',
@@ -1816,13 +1943,15 @@ function EditCustomProfiles()
 			$current_fields = array();
 			$request = $smcFunc['db_query']('', '
 				SELECT id_field, col_name
-				FROM {db_prefix}custom_fields');
+				FROM {db_prefix}custom_fields'
+			);
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 				$current_fields[$row['id_field']] = $row['col_name'];
+
 			$smcFunc['db_free_result']($request);
 
 			$unique = false;
-			for ($i = 0; !$unique && $i < 9; $i ++)
+			for ($i = 0; !$unique && $i < 9; $i++)
 			{
 				if (!in_array($col_name, $current_fields))
 					$unique = true;
@@ -1995,7 +2124,7 @@ function EditCustomProfiles()
 		);
 
 		// Re-arrange the order.
-		$smcFunc['db_query']('','
+		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}custom_fields
 			SET field_order = field_order - 1
 			WHERE field_order > {int:current_order}',
@@ -2053,6 +2182,7 @@ function EditCustomProfiles()
 
 /**
  * Returns the maximum field_order value for the custom fields
+ *
  * @return int The maximum value of field_order from the custom_fields table
  */
 function custFieldsMaxOrder()
@@ -2061,10 +2191,10 @@ function custFieldsMaxOrder()
 
 	// Gotta know the order limit
 	$result = $smcFunc['db_query']('', '
-			SELECT MAX(field_order)
-			FROM {db_prefix}custom_fields',
-			array()
-		);
+		SELECT MAX(field_order)
+		FROM {db_prefix}custom_fields',
+		array()
+	);
 
 	list ($order_count) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
@@ -2074,6 +2204,7 @@ function custFieldsMaxOrder()
 
 /**
  * Allow to edit the settings on the pruning screen.
+ *
  * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
  * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
@@ -2087,30 +2218,31 @@ function ModifyLogSettings($return_config = false)
 	$context['page_title'] = $txt['log_settings'];
 
 	$config_vars = array(
-			array('check', 'modlog_enabled', 'help' => 'modlog'),
-			array('check', 'adminlog_enabled', 'help' => 'adminlog'),
-			array('check', 'userlog_enabled', 'help' => 'userlog'),
-			// The error log is a wonderful thing.
-			array('title', 'errlog'),
-			array('desc', 'error_log_desc'),
-			array('check', 'enableErrorLogging'),
-			array('check', 'enableErrorQueryLogging'),
-			array('check', 'log_ban_hits'),
-			// Even do the pruning?
-			array('title', 'pruning_title'),
-			array('desc', 'pruning_desc'),
-			// The array indexes are there so we can remove/change them before saving.
-			'pruningOptions' => array('check', 'pruningOptions'),
+		array('check', 'modlog_enabled', 'help' => 'modlog'),
+		array('check', 'adminlog_enabled', 'help' => 'adminlog'),
+		array('check', 'userlog_enabled', 'help' => 'userlog'),
+		// The error log is a wonderful thing.
+		array('title', 'errlog'),
+		array('desc', 'error_log_desc'),
+		array('check', 'enableErrorLogging'),
+		array('check', 'enableErrorQueryLogging'),
+		array('check', 'log_ban_hits'),
+		// Even do the pruning?
+		array('title', 'pruning_title'),
+		array('desc', 'pruning_desc'),
+		// The array indexes are there so we can remove/change them before saving.
+		'pruningOptions' => array('check', 'pruningOptions'),
 		'',
-			// Various logs that could be pruned.
-			array('int', 'pruneErrorLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Error log.
-			array('int', 'pruneModLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Moderation log.
-			array('int', 'pruneBanLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Ban hit log.
-			array('int', 'pruneReportLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Report to moderator log.
-			array('int', 'pruneScheduledTaskLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Log of the scheduled tasks and how long they ran.
-			array('int', 'pruneSpiderHitLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Log of the scheduled tasks and how long they ran.
-			// If you add any additional logs make sure to add them after this point.  Additionally, make sure you add them to the weekly scheduled task.
-			// Mod Developers: Do NOT use the pruningOptions master variable for this as SMF Core may overwrite your setting in the future!
+
+		// Various logs that could be pruned.
+		array('int', 'pruneErrorLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Error log.
+		array('int', 'pruneModLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Moderation log.
+		array('int', 'pruneBanLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Ban hit log.
+		array('int', 'pruneReportLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Report to moderator log.
+		array('int', 'pruneScheduledTaskLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Log of the scheduled tasks and how long they ran.
+		array('int', 'pruneSpiderHitLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Log of the scheduled tasks and how long they ran.
+		// If you add any additional logs make sure to add them after this point.  Additionally, make sure you add them to the weekly scheduled task.
+		// Mod Developers: Do NOT use the pruningOptions master variable for this as SMF Core may overwrite your setting in the future!
 	);
 
 	// We want to be toggling some of these for a nice user experience. If you want to add yours to the list of those magically hidden when the 'pruning' option is off, add to this.
@@ -2260,7 +2392,7 @@ function ModifyAlertsSettings()
 	$context['token_check'] = 'noti-admin';
 
 	// Specify our action since we'll want to post back here instead of the profile
-	$context['action'] = 'action=admin;area=featuresettings;sa=alerts;'. $context['session_var'] .'='. $context['session_id'];
+	$context['action'] = 'action=admin;area=featuresettings;sa=alerts;' . $context['session_var'] . '=' . $context['session_id'];
 
 	loadTemplate('Profile');
 	loadLanguage('Profile');

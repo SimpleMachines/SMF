@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -105,7 +105,7 @@ function template_registration_form()
 							<input type="text" name="user" id="smf_autov_username" size="50" tabindex="', $context['tabindex']++, '" maxlength="25" value="', isset($context['username']) ? $context['username'] : '', '">
 							<span id="smf_autov_username_div" style="display: none;">
 								<a id="smf_autov_username_link" href="#">
-									<span id="smf_autov_username_img" class="generic_icons check"></span>
+									<span id="smf_autov_username_img" class="main_icons check"></span>
 								</a>
 							</span>
 						</dd>
@@ -119,7 +119,7 @@ function template_registration_form()
 						<dd>
 							<input type="password" name="passwrd1" id="smf_autov_pwmain" size="50" tabindex="', $context['tabindex']++, '">
 							<span id="smf_autov_pwmain_div" style="display: none;">
-								<span id="smf_autov_pwmain_img" class="generic_icons invalid"></span>
+								<span id="smf_autov_pwmain_img" class="main_icons invalid"></span>
 							</span>
 						</dd>
 					</dl>
@@ -130,7 +130,7 @@ function template_registration_form()
 						<dd>
 							<input type="password" name="passwrd2" id="smf_autov_pwverify" size="50" tabindex="', $context['tabindex']++, '">
 							<span id="smf_autov_pwverify_div" style="display: none;">
-								<span id="smf_autov_pwverify_img" class="generic_icons valid"></span>
+								<span id="smf_autov_pwverify_img" class="main_icons valid"></span>
 							</span>
 						</dd>
 					</dl>
@@ -435,7 +435,7 @@ function template_verification_sound()
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['visual_verification_sound'], '</title>
 		<meta name="robots" content="noindex">
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'], '">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
 		<style>';
 
 	// Just show the help text and a "close window" link.
@@ -628,8 +628,6 @@ function template_edit_agreement()
 					</form>
 				</div><!-- .information -->';
 	}
-
-
 
 	// Show the actual agreement in an oversized text box.
 	echo '

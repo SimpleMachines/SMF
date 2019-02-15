@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -312,6 +312,7 @@ function DisplayStats()
 	);
 	$context['stats_blocks']['topics_replies'] = array();
 	$max_num_replies = 1;
+
 	while ($row_topic_reply = $smcFunc['db_fetch_assoc']($topic_reply_result))
 	{
 		censorText($row_topic_reply['subject']);
@@ -502,10 +503,10 @@ function DisplayStats()
 		// Figure out which things to show... (days, hours, minutes, etc.)
 		$timelogged = '';
 		if ($timeDays > 0)
-			$timelogged .= $timeDays . $txt['totalTimeLogged5'];
+			$timelogged .= $timeDays . $txt['total_time_logged_d'];
 		if ($timeHours > 0)
-			$timelogged .= $timeHours . $txt['totalTimeLogged6'];
-		$timelogged .= floor(($row_members['total_time_logged_in'] % 3600) / 60) . $txt['totalTimeLogged7'];
+			$timelogged .= $timeHours . $txt['total_time_logged_h'];
+		$timelogged .= floor(($row_members['total_time_logged_in'] % 3600) / 60) . $txt['total_time_logged_m'];
 
 		$context['stats_blocks']['time_online'][] = array(
 			'id' => $row_members['id_member'],
@@ -539,7 +540,7 @@ function DisplayStats()
 			FROM {db_prefix}messages as m
 				INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-			AND b.id_board != {int:recycle_board}' : '') . ')
+					AND b.id_board != {int:recycle_board}' : '') . ')
 			WHERE {query_see_board}' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY m.likes DESC
@@ -559,7 +560,7 @@ function DisplayStats()
 				'subject' => $row_liked_message['subject'],
 				'num' => $row_liked_message['likes'],
 				'href' => $scripturl . '?msg=' . $row_liked_message['id_msg'],
-				'link' => '<a href="' . $scripturl . '?msg=' . $row_liked_message['id_msg'] .'">' . $row_liked_message['subject'] . '</a>'
+				'link' => '<a href="' . $scripturl . '?msg=' . $row_liked_message['id_msg'] . '">' . $row_liked_message['subject'] . '</a>'
 			);
 
 			if ($max_liked_message < $row_liked_message['likes'])
@@ -712,6 +713,7 @@ function DisplayStats()
 /**
  * Loads the statistics on a daily basis in $context.
  * called by DisplayStats().
+ *
  * @param string $condition_string An SQL condition string
  * @param array $condition_parameters Parameters for $condition_string
  */
@@ -752,7 +754,7 @@ function getDailyStats($condition_string, $condition_parameters = array())
  */
 function SMStats()
 {
-	global $modSettings, $user_info, $forum_version, $sourcedir;
+	global $modSettings, $user_info, $sourcedir;
 
 	// First, is it disabled?
 	if (empty($modSettings['enable_sm_stats']) || empty($modSettings['sm_stats_key']))
@@ -785,7 +787,7 @@ function SMStats()
 		'php_version' => $serverVersions['php']['version'],
 		'database_type' => strtolower($serverVersions['db_engine']['version']),
 		'database_version' => $serverVersions['db_server']['version'],
-		'smf_version' => $forum_version,
+		'smf_version' => SMF_FULL_VERSION,
 		'smfd_version' => $modSettings['smfVersion'],
 	);
 
