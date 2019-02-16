@@ -1731,17 +1731,17 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	    // Get any members who were possibly mentioned
 		$msgOptions['mentioned_members'] = Mentions::getMentionedMembers($msgOptions['body']);
 		if (!empty($msgOptions['mentioned_members']))
-        {
-            // Replace @name with [member=id]@name[/member]
+		{
+			// Replace @name with [member=id]@name[/member]
 			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $msgOptions['mentioned_members']);
 
 			// Remove any members who weren't actually mentioned, to prevent bogus notifications
-            foreach ($msgOptions['mentioned_members'] as $m)
-            {
-                if (preg_match('~\[member=' . $m['id'] . '\]@' . $m['real_name'] . '\[/member\]~u', $msgOptions['body']) === 0)
-                    unset($msgOptions['mentioned_members'][$m['id']]);
-            }
-        }
+			foreach ($msgOptions['mentioned_members'] as $m)
+			{
+				if (preg_match('~\[member=' . $m['id'] . '\]@' . $m['real_name'] . '\[/member\]~u', $msgOptions['body']) === 0)
+					unset($msgOptions['mentioned_members'][$m['id']]);
+			}
+		}
 	}
 
 	// It's do or die time: forget any user aborts!
