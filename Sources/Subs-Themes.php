@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -94,6 +94,7 @@ function get_single_theme($id)
  * Loads and returns all installed themes.
  *
  * Stores all themes on $context['themes'] for easier use.
+ *
  * @param bool $enable_only false by default for getting all themes. If true the function will return all themes that are currently enable.
  * @return array With the theme's IDs as key.
  */
@@ -163,12 +164,13 @@ function get_all_themes($enable_only = false)
  * Reads an .xml file and returns the data as an array
  *
  * Removes the entire theme if the .xml file couldn't be found or read.
+ *
  * @param string $path The absolute path to the xml file.
  * @return array An array with all the info extracted from the xml file.
  */
 function get_theme_info($path)
 {
-	global $smcFunc, $sourcedir, $forum_version, $txt, $scripturl, $context;
+	global $smcFunc, $sourcedir, $txt, $scripturl, $context;
 	global $explicit_images;
 
 	if (empty($path))
@@ -204,18 +206,18 @@ function get_theme_info($path)
 	if (!$theme_info_xml->exists('theme-info/install'))
 	{
 		remove_dir($path);
-		fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
+		fatal_lang_error('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
 	}
 
 	// So, we have an install tag which is cool and stuff but we also need to check it and match your current SMF version...
-	$the_version = strtr($forum_version, array('SMF ' => ''));
+	$the_version = SMF_VERSION;
 	$install_versions = $theme_info_xml->path('theme-info/install/@for');
 
 	// The theme isn't compatible with the current SMF version.
 	if (!$install_versions || !matchPackageVersion($the_version, $install_versions))
 	{
 		remove_dir($path);
-		fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
+		fatal_lang_error('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
 	}
 
 	$theme_info_xml = $theme_info_xml->path('theme-info[0]');
@@ -253,6 +255,7 @@ function get_theme_info($path)
  * Inserts a theme's data to the DataBase.
  *
  * Ends execution with fatal_lang_error() if an error appears.
+ *
  * @param array $to_install An array containing all values to be stored into the DB.
  * @return int The newly created theme ID.
  */
@@ -353,8 +356,8 @@ function theme_install($to_install = array())
 			$request = $smcFunc['db_query']('', '
 				SELECT variable, value
 				FROM {db_prefix}themes
-					WHERE variable IN ({array_string:theme_values})
-						AND id_theme = ({int:based_on})
+				WHERE variable IN ({array_string:theme_values})
+					AND id_theme = ({int:based_on})
 				LIMIT 1',
 				array(
 					'no_member' => 0,
@@ -423,6 +426,7 @@ function theme_install($to_install = array())
  * Removes a directory from the themes dir.
  *
  * This is a recursive function, it will call itself if there are subdirs inside the main directory.
+ *
  * @param string $path The absolute path to the directory to be removed
  * @return bool true when success, false on error.
  */

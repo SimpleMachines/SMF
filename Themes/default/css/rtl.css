@@ -29,22 +29,23 @@
 	margin-left: 0.25em;
 }
 
-/* GenericList */
-.additional_row {
-	margin-left: 0;
-	margin-right: 1em;
-}
 /* All the signatures used in the forum. If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */
 .signature, .attachments, .custom_fields_above_signature {
 	clear: left;
 }
 
 /* the page navigation area */
-.generic_icons.move::before, .generic_icons.next_page::before {
+.main_icons.move::before, .main_icons.next_page::before {
 	background-position: -31px -57px;
 }
-.generic_icons.previous_page::before {
+.main_icons.previous_page::before {
 	background-position: -5px -31px;
+}
+
+/* Amounts */
+.amt {
+	margin-left: 0;
+	margin-right: 3px;
 }
 
 /* Lists with settings use these a lot.
@@ -88,7 +89,6 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	padding-left: 9px;
 }
 
-
 /* Styles for the standard dropdown menus.
 ------------------------------------------------------- */
 #main_menu {
@@ -97,23 +97,20 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 #menu_nav {
 	padding: 0;
 }
-.dropmenu {
-	float: right;
-	padding: 0;
-}
 
 /* Level 3 submenu wrapper positioning. */
 .dropmenu li ul ul {
 	margin: -2em 3.1em 0 0;
 }
 /* This is a small fix for dropmenu icons */
-.dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
+.dropmenu .main_icons, #profile_menu .main_icons, .dropmenu img {
 	margin: 0 -4px 0 8px;
 }
 
 /* Hiding Level 3 submenu off hover. */
 .dropmenu li:hover ul ul, .dropmenu li ul ul, .dropmenu li:hover ul ul ul, .dropmenu li ul ul ul {
 	right: -9999px;
+	left: unset;
 }
 /* Reposition as visible on hover. */
 .dropmenu li li:hover ul, .dropmenu li li ul {
@@ -122,31 +119,9 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 
 /* Indicator for additional levels. Best in the anchor so it stays visible on hover. */
 .dropmenu li li.subsections > a::after {
-	left: 2px;
+	left: 10px;
 	right: auto;
 	content: '\25c4';
-}
-
-/* The upper_section, float the two each way */
-.user {
-	width: 12%;
-	float: left;
-	padding-left: 0;
-}
-
-/* News section. */
-#inner_wrap .news {
-	max-width: 50%;
-	float: right;
-	overflow: auto;
-	padding: 0 5px 10px 0;
-	font-size: 0.9em;
-}
-
-/* The extra menu rows for admin sections, etc. */
-#adm_submenus {
-	padding-left: 0;
-	padding-right: 2em;
 }
 
 /* the main title. */
@@ -164,11 +139,31 @@ img#smflogo {
 
 /* Styles for the general looks of the theme.
 ------------------------------------------------------- */
-#upper_section .user {
-	float: left;
+.user {
+	padding-left: 0;
+	text-align: left;
 }
 #upper_section .news {
 	float: right;
+}
+.navigate_section .unread_links {
+	float: left;
+}
+
+/* Profile drop it needs reverse on RTL */
+#profile_menu_top > img.avatar {
+	float: right;
+	margin: 2px 0 0 5px;
+}
+#profile_menu .profile_user_info {
+	margin: 3px 10px 5px 0;
+}
+#profile_menu .profile_user_avatar img {
+	margin: 5px 10px 0 0;
+}
+.profile_user_links li {
+	padding-right: 24px;
+	padding-left: 0;
 }
 
 /* The framing graphics */
@@ -179,7 +174,10 @@ img#smflogo {
 /* The navigation list (i.e. linktree) */
 .navigate_section ul li {
 	float: right;
-	padding: 0 3px 5px 1px;
+}
+
+.navigate_section ul li .dividers {
+	padding: 0 6px 0 2px;
 }
 
 /* the posting icons */
@@ -203,6 +201,7 @@ img#smflogo {
 }
 #poll_options dl.options dd {
 	float: right;
+	text-align: left;
 }
 
 /* poster and postarea + moderation area underneath */
@@ -210,7 +209,10 @@ img#smflogo {
 	float: right;
 }
 .postarea, .moderatorbar {
-	margin: 0 16em 0 0;
+	margin: 0 175px 0 0;
+}
+.keyinfo h5::after {
+	clear: left;
 }
 .moderatorbar {
 	clear: left;
@@ -218,7 +220,7 @@ img#smflogo {
 /* poster details and list of items */
 .poster h4, .poster ul {
 	padding: 0;
-	margin: 0 1.5em 0 1em;
+	margin: 0;
 }
 
 /* The quick buttons */
@@ -244,6 +246,17 @@ ul.quickbuttons li {
 }
 .quickbuttons li ul {
 	text-align: right;
+	right: unset;
+	left: -1px;
+}
+/* The buttonrow */
+.buttonrow .button:last-child {
+	border-radius: 0;
+	border-right: 0;
+}
+.buttonrow .button:first-child {
+	border-radius: 0;
+	border-right: 1px solid #ccc;
 }
 
 .post_verification #verification_control {
@@ -251,10 +264,6 @@ ul.quickbuttons li {
 }
 .post {
 	clear: left;
-}
-.inner {
-	padding: 1em 0 0 1em;
-	margin: 0 0 0 1em;
 }
 #forumposts .modified {
 	float: right;
@@ -280,6 +289,11 @@ ul.quickbuttons li {
 	margin: 0 5px 0 0;
 }
 
+/* mlist */
+#mlist .website_url {
+	width: 80px;
+}
+
 /* Styles for edit post section
 ---------------------------------------------------- */
 #post_header dt {
@@ -293,7 +307,7 @@ ul.post_options {
 }
 ul.post_options li {
 	float: right;
-	margin: 0 2px ;
+	margin: 0 2px;
 }
 
 /* Styles for edit event section
@@ -314,7 +328,7 @@ ul.post_options li {
 #post_event ul.event_options {
 	padding: 0 .7em .7em 0;
 }
-#post_event #event_main select, #post_event ul.event_options li select, 
+#post_event #event_main select, #post_event ul.event_options li select,
 #post_event ul.event_options li input[type="checkbox"] {
 	margin: 0 0 0 1em;
 }
@@ -434,11 +448,6 @@ div#admin_menu {
 	padding: 7px 35px 7px 10px;
 }
 
-/* Level 1 button background. */
-.dropmenu li, #top_info > li {
-	float: right;
-}
-
 /* Styles for the profile section.
 ------------------------------------------------- */
 #basicinfo {
@@ -447,7 +456,7 @@ div#admin_menu {
 #detailedinfo {
 	float: left;
 }
-#basicinfo ul li {
+#basicinfo .icon_fields li {
 	float: right;
 	margin-right: 0;
 	margin-left: 5px;
@@ -458,15 +467,17 @@ div#admin_menu {
 #detailedinfo dt, #tracking dt {
 	float: right;
 }
-
+#userstatus .smalltext, .pm_icon {
+	margin: 0 5px 0 0 !important;
+}
 /* h3 HD Icons */
 h3.search_hd {
 	padding: 8px 45px 6px;
-	background-position : 99% 50%;
+	background-position: 99% 50%;
 }
 h3.profile_hd {
 	padding: 8px 50px 8px 0;
-	background-position : 99% 50%;
+	background-position: 99% 50%;
 }
 
 /* Activity by time */
@@ -482,6 +493,12 @@ h3.profile_hd {
 .activity_stats li.last span {
 	border-left: none;
 }
+.profile_pie {
+	background-image: url(../images/stats_pie_rtl.png);
+	float: right;
+	margin-right: 0;
+	margin-left: 1em;
+}
 
 /* Most popular boards by posts and activity */
 #popularposts {
@@ -489,13 +506,6 @@ h3.profile_hd {
 }
 #popularactivity {
 	float: left;
-}
-
-.profile_pie {
-	background: url(../images/stats_pie_rtl.png);
-	float: right;
-	margin-right: 0;
-	margin-left: 1em;
 }
 
 /* View posts */
@@ -510,9 +520,6 @@ h3.profile_hd {
 	text-align: left;
 	margin-right: 0;
 	margin-left: 1em;
-}
-#permissions div.permission_name {
-	margin: 0 0 0 1%;
 }
 
 #ip_list li.header, #ip_list li.ip {
@@ -549,9 +556,15 @@ dl.stats dt {
 	float: right;
 }
 dl.stats dd {
+	margin: 0 2% 4px 0;
+}
+#stats tr.windowbg th.stats_month {
 	text-align: right;
 }
-
+.generic_bar .bar, .progress_bar .bar {
+	left: unset;
+	right: 0;
+}
 tr.windowbg th.stats_month, tr.windowbg td.stats_day {
 	text-align: right;
 }
@@ -589,9 +602,8 @@ tr.windowbg th.stats_month, tr.windowbg td.stats_day {
 }
 /* put back the bullets please */
 #helpmain ul {
-	margin: 0 2em 1em 0;
+	margin: 0 25px 0 0;
 	padding-left: 0;
-	padding-right: 1em;
 }
 #helpmain #messageindex {
 	clear: left;
@@ -599,23 +611,13 @@ tr.windowbg th.stats_month, tr.windowbg td.stats_day {
 
 /* Styles for the admincenter (reverse admin.css).
 ------------------------------------------------- */
-#quick_search {
-	margin-left: 5px;
-}
-
-/* admin home */
-#smfAnnouncements dd {
-	padding: 0;
-	margin: 0 1.5em 1em 0;
-}
-
 /* common admin classes */
-.additional_row input {
-	margin-left: 0;
-	margin-right: 2em;
+#admin_content .button {
+	float: left;
 }
-#error_log td div.marginleft {
-	margin: 0 1ex 0 0 !important;
+
+#manage_boards .button {
+	margin: 2px 6px 0px 6px;
 }
 
 /* Styles for the package manager.
@@ -651,7 +653,10 @@ span.search_weight {
 /* Themes */
 .is_directory {
 	padding-right: 18px;
-	background: url(../images/admin/boards.png) no-repeat 100% 0;
+	padding-left: 0;
+}
+.is_directory span {
+	margin: -2px 0 0 3px;
 }
 
 /* Styles for the moderation center.
@@ -660,40 +665,19 @@ ul.moderation_notes li {
 	padding: 4px 4px 4px 0;
 }
 
-#inner_wrap a.avatar {
-	float: right;
-	width: 46px;
-}
-
-.unread_links {
-	float: left !important;
-	padding-left: 0;
-}
-.children p {
-	margin-right: 18px;
-}
 h3 .collapse {
 	float: left;
 }
 
-.pagelinks {
-	margin: 8px 5px 0 0;
-}
-span.pages {
-	float: right;
-	margin: 0 5px 0 5px;
+.pages {
+	margin-left: 0;
+	margin-right: 7px;
 }
 
-#userstatus .smalltext, .pm_icon {
-	margin: 0 20px 0 0 !important;
-}
-
-/* Profile drop it needs reverse on RTL */
-#profile_menu .profile_user_info {
-	margin: 3px 10px 5px 0;
-}
-#profile_menu .profile_user_avatar img {
-	margin: 5px 10px 0 0;
+/* Styles for the calendar.
+----------------------------- */
+#main_grid th.days, #main_grid td.days {
+	text-align: right;
 }
 
 /* Code is a code do it LTR */

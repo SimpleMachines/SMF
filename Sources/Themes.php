@@ -24,10 +24,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -117,8 +117,8 @@ function ThemesMain()
  *  - requires the admin_forum permission.
  *  - accessed with ?action=admin;area=theme;sa=admin.
  *
- *  @uses Themes template
- *  @uses Admin language file
+ * @uses Themes template
+ * @uses Admin language file
  */
 function ThemeAdmin()
 {
@@ -687,7 +687,7 @@ function SetThemeSettings()
 	{
 		$file_contents = implode('', file($settings['theme_dir'] . '/index.template.php'));
 		if (preg_match('~\$settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches))
-				eval('global $settings;' . $matches[0]);
+			eval('global $settings;' . $matches[0]);
 	}
 
 	// Let mods hook into the theme settings.
@@ -885,6 +885,7 @@ function EnableTheme()
  * - can edit everyone's (u = 0), guests' (u = -1), or a specific user's.
  * - uses the Themes template. (pick sub template.)
  * - accessed with ?action=admin;area=theme;sa=pick.
+ *
  * @todo thought so... Might be better to split this file in ManageThemes and Themes,
  * with centralized admin permissions on ManageThemes.
  */
@@ -1012,7 +1013,7 @@ function PickTheme()
 				// Remove any custom variants.
 				$smcFunc['db_query']('', '
 					DELETE FROM {db_prefix}themes
-					WHERE 
+					WHERE
 						variable = {string:theme_variant}
 						AND id_member = {int:id_member}',
 					array(
@@ -1299,6 +1300,7 @@ function ThemeInstall()
  * Installs a theme from a theme package.
  *
  * Stores the theme files on a temp dir, on success it renames the dir to the new theme's name. Ends execution with fatal_lang_error() on any error.
+ *
  * @return array The newly created theme's info.
  */
 function InstallFile()
@@ -1373,12 +1375,12 @@ function InstallFile()
  * Makes a copy from the default theme, assigns a name for it and installs it.
  *
  * Creates a new .xml file containing all the theme's info.
+ *
  * @return array The newly created theme's info.
  */
 function InstallCopy()
 {
 	global $themedir, $themeurl, $settings, $smcFunc, $context;
-	global $forum_version;
 
 	// There's gotta be something to work with.
 	if (!isset($_REQUEST['copy']) || empty($_REQUEST['copy']))
@@ -1398,7 +1400,7 @@ function InstallCopy()
 		'name' => $name,
 		'images_url' => $themeurl . '/' . $name . '/images',
 		'version' => '1.0',
-		'install_for' => '2.1 - 2.1.99, ' . strtr($forum_version, array('SMF ' => '')),
+		'install_for' => '2.1 - 2.1.99, ' . SMF_VERSION,
 		'based_on' => '',
 		'based_on_dir' => $themedir . '/default',
 	);
@@ -1469,7 +1471,7 @@ function InstallCopy()
 <!-- The theme\'s version, please try to use semantic versioning. -->
 <version>1.0</version>
 <!-- Install for, the SMF versions this theme was designed for. Uses the same wildcards used in the packager manager. This field is mandatory. -->
-<install for="'. $context['to_install']['install_for'] . '" />
+<install for="' . $context['to_install']['install_for'] . '" />
 <!-- Theme name, used purely for aesthetics. -->
 <name>' . $context['to_install']['name'] . '</name>
 <!-- Author: your email address or contact information. The name attribute is optional. -->
@@ -1503,6 +1505,7 @@ function InstallCopy()
  * Install a theme from a specific dir
  *
  * Assumes the dir is located on the main Themes dir. Ends execution with fatal_lang_error() on any error.
+ *
  * @return array The newly created theme's info.
  */
 function InstallDir()
@@ -1742,11 +1745,11 @@ function EditTheme()
 		}
 		else
 			$context['theme_files'] = get_file_listing($currentTheme['theme_dir'], '');
-		
+
 		// Do not list minified_ files
-		foreach($context['theme_files'] as $key=>$file)
+		foreach ($context['theme_files'] as $key => $file)
 		{
-			if(strpos($file['filename'], 'minified_') !== FALSE)
+			if (strpos($file['filename'], 'minified_') !== false)
 				unset($context['theme_files'][$key]);
 		}
 
@@ -1799,6 +1802,9 @@ function EditTheme()
 				$fp = fopen($currentTheme['theme_dir'] . '/' . $_REQUEST['filename'], 'w');
 				fwrite($fp, $_POST['entire_file']);
 				fclose($fp);
+
+				// Nuke any minified files and update $modSettings['browser_cache']
+				deleteAllMinified();
 
 				redirectexit('action=admin;area=theme;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;directory=' . dirname($_REQUEST['filename']));
 			}
@@ -1886,6 +1892,7 @@ function EditTheme()
 
 /**
  * Makes a copy of a template file in a new location
+ *
  * @uses Themes template, copy_template sub-template.
  */
 function CopyTemplate()

@@ -5,14 +5,17 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
-$GLOBALS['current_smf_version'] = '2.1 Beta 4';
-$GLOBALS['db_script_version'] = '2-1';
+define('SMF_VERSION', '2.1 RC1');
+define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
+define('SMF_SOFTWARE_YEAR', '2019');
+define('DB_SCRIPT_VERSION', '2-1');
+define('SMF_INSTALLING', 1);
 
 $GLOBALS['required_php_version'] = '5.4.0';
 
@@ -36,7 +39,8 @@ $databases = array(
 		'default_password' => 'mysql.default_password',
 		'default_host' => 'mysql.default_host',
 		'default_port' => 'mysql.default_port',
-		'utf8_support' => function() {
+		'utf8_support' => function()
+		{
 			return true;
 		},
 		'utf8_version' => '5.0.22',
@@ -44,7 +48,8 @@ $databases = array(
 		'utf8_default' => true,
 		'utf8_required' => true,
 		'alter_support' => true,
-		'validate_prefix' => function(&$value) {
+		'validate_prefix' => function(&$value)
+		{
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 			return true;
 		},
@@ -58,7 +63,8 @@ $databases = array(
 		'always_has_db' => true,
 		'utf8_default' => true,
 		'utf8_required' => true,
-		'utf8_support' => function() {
+		'utf8_support' => function()
+		{
 			$request = pg_query('SHOW SERVER_ENCODING');
 
 			list ($charcode) = pg_fetch_row($request);
@@ -70,7 +76,8 @@ $databases = array(
 		},
 		'utf8_version' => '8.0',
 		'utf8_version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
-		'validate_prefix' => function(&$value) {
+		'validate_prefix' => function(&$value)
+		{
 			global $txt;
 
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
@@ -209,7 +216,7 @@ function initialize_inputs()
 			foreach ($databases as $key => $dummy)
 			{
 				$type = ($key == 'mysqli') ? 'mysql' : $key;
-				$ftp->unlink('install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql');
+				$ftp->unlink('install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
 			}
 
 			$ftp->close();
@@ -223,7 +230,7 @@ function initialize_inputs()
 			foreach ($databases as $key => $dummy)
 			{
 				$type = ($key == 'mysqli') ? 'mysql' : $key;
-				@unlink(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql');
+				@unlink(dirname(__FILE__) . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
 			}
 		}
 
@@ -299,7 +306,7 @@ function load_lang_file()
 			body {
 				font-family: sans-serif;
 				max-width: 700px; }
-		
+
 			h1 {
 				font-size: 14pt; }
 
@@ -454,11 +461,11 @@ function Welcome()
 		if ($db['supported'])
 		{
 			$type = ($key == 'mysqli') ? 'mysql' : $key;
-			if (!file_exists(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql'))
+			if (!file_exists(dirname(__FILE__) . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql'))
 			{
 				$databases[$key]['supported'] = false;
 				$notFoundSQLFile = true;
-				$txt['error_db_script_missing'] = sprintf($txt['error_db_script_missing'], 'install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql');
+				$txt['error_db_script_missing'] = sprintf($txt['error_db_script_missing'], 'install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
 			}
 			else
 				$incontext['supported_databases'][] = $db;
@@ -840,7 +847,7 @@ function DatabaseSettings()
 		// Add in the port if needed
 		if (!empty($db_port))
 			$options['port'] = $db_port;
-		
+
 		if (!empty($db_mb4))
 			$options['db_mb4'] = $db_mb4;
 
@@ -940,12 +947,12 @@ function ForumSettings()
 	// What host and port are we on?
 	$host = empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
 
-		$secure = false;
+	$secure = false;
 
-		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
-			$secure = true;
-		elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
-			$secure = true;
+	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+		$secure = true;
+	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
+		$secure = true;
 
 	// Now, to put what we've learned together... and add a path.
 	$incontext['detected_url'] = 'http' . ($secure ? 's' : '') . '://' . $host . substr($_SERVER['PHP_SELF'], 0, strrpos($_SERVER['PHP_SELF'], '/'));
@@ -963,13 +970,15 @@ function ForumSettings()
 
 	// If redirect in effect, force ssl ON
 	require_once(dirname(__FILE__) . '/Sources/Subs.php');
-	if (https_redirect_active($incontext['detected_url'])) {
+	if (https_redirect_active($incontext['detected_url']))
+	{
 		$incontext['ssl_chkbx_protected'] = true;
 		$incontext['ssl_chkbx_checked'] = true;
 		$_POST['force_ssl'] = true;
 	}
 	// If no cert, make sure ssl stays OFF
-	if (!ssl_cert_found($incontext['detected_url'])) {
+	if (!ssl_cert_found($incontext['detected_url']))
+	{
 		$incontext['ssl_chkbx_protected'] = true;
 		$incontext['ssl_chkbx_checked'] = false;
 	}
@@ -1074,7 +1083,7 @@ function DatabasePopulation()
 		$smcFunc['db_free_result']($result);
 
 		// Do they match?  If so, this is just a refresh so charge on!
-		if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] != $GLOBALS['current_smf_version'])
+		if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] != SMF_VERSION)
 		{
 			$incontext['error'] = $txt['error_versions_do_not_match'];
 			return false;
@@ -1105,7 +1114,7 @@ function DatabasePopulation()
 		'{$boardurl}' => $boardurl,
 		'{$enableCompressedOutput}' => isset($_POST['compress']) ? '1' : '0',
 		'{$databaseSession_enable}' => isset($_POST['dbsession']) ? '1' : '0',
-		'{$smf_version}' => $GLOBALS['current_smf_version'],
+		'{$smf_version}' => SMF_VERSION,
 		'{$current_time}' => time(),
 		'{$sched_task_offset}' => 82800 + mt_rand(0, 86399),
 		'{$registration_method}' => isset($_POST['reg_mode']) ? $_POST['reg_mode'] : 0,
@@ -1162,7 +1171,7 @@ function DatabasePopulation()
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
 	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
-	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql')), $replaces));
+	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql')), $replaces));
 
 	// Execute the SQL.
 	$current_statement = '';
@@ -1365,6 +1374,54 @@ function DatabasePopulation()
 		);
 	}
 
+	// Populate the smiley_files table.
+	// Can't just dump this data in the SQL file because we need to know the id for each smiley.
+	$smiley_filenames = array(
+		':)' => 'smiley',
+		';)' => 'wink',
+		':D' => 'cheesy',
+		';D' => 'grin',
+		'>:(' => 'angry',
+		':(' => 'sad',
+		':o' => 'shocked',
+		'8)' => 'cool',
+		'???' => 'huh',
+		'::)' => 'rolleyes',
+		':P' => 'tongue',
+		':-[' => 'embarrassed',
+		':-X' => 'lipsrsealed',
+		':-\\' => 'undecided',
+		':-*' => 'kiss',
+		':\'(' => 'cry',
+		'>:D' => 'evil',
+		'^-^' => 'azn',
+		'O0' => 'afro',
+		':))' => 'laugh',
+		'C:-)' => 'police',
+		'O:-)' => 'angel'
+	);
+	$smiley_set_extensions = array('fugue' => '.png', 'alienine' => '.png');
+
+	$smiley_inserts = array();
+	$request = $smcFunc['db_query']('', '
+		SELECT id_smiley, code
+		FROM {db_prefix}smileys',
+		array()
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		foreach ($smiley_set_extensions as $set => $ext)
+			$smiley_inserts[] = array($row['id_smiley'], $set, $smiley_filenames[$row['code']] . $ext);
+	}
+	$smcFunc['db_free_result']($request);
+
+	$smcFunc['db_insert']('ignore',
+		'{db_prefix}smiley_files',
+		array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
+		$smiley_inserts,
+		array('id_smiley', 'smiley_set')
+	);
+
 	// Let's optimize those new tables, but not on InnoDB, ok?
 	if (!$has_innodb)
 	{
@@ -1438,13 +1495,14 @@ function AdminAccount()
 	reloadSettings();
 
 	// We need this to properly hash the password for Admin
-	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' : function($string) {
-			global $sourcedir;
-			if (function_exists('mb_strtolower'))
-				return mb_strtolower($string, 'UTF-8');
-			require_once($sourcedir . '/Subs-Charset.php');
-			return utf8_strtolower($string);
-		};
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' : function($string)
+	{
+		global $sourcedir;
+		if (function_exists('mb_strtolower'))
+			return mb_strtolower($string, 'UTF-8');
+		require_once($sourcedir . '/Subs-Charset.php');
+		return utf8_strtolower($string);
+	};
 
 	if (!isset($_POST['username']))
 		$_POST['username'] = '';
@@ -1497,7 +1555,7 @@ function AdminAccount()
 		}
 		if (!file_exists($sourcedir . '/Subs.php'))
 		{
-			$incontext['error'] = $txt['error_subs_missing'];
+			$incontext['error'] = sprintf($txt['error_sourcefile_missing'], 'Subs.php');
 			return false;
 		}
 
@@ -1553,7 +1611,10 @@ function AdminAccount()
 		}
 		elseif ($_POST['username'] != '')
 		{
-			$incontext['member_salt'] = substr(md5($smcFunc['random_int']()), 0, 4);
+			if (!is_callable('random_int'))
+				require_once('Sources/random_compat/random.php');
+
+			$incontext['member_salt'] = substr(md5(random_int(0, PHP_INT_MAX)), 0, 4);
 
 			// Format the username properly.
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
@@ -1597,7 +1658,7 @@ function AdminAccount()
 function DeleteInstall()
 {
 	global $smcFunc, $db_character_set, $context, $txt, $incontext;
-	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $db_type, $boardurl;
+	global $databases, $sourcedir, $modSettings, $user_info, $db_type, $boardurl;
 
 	$incontext['page_title'] = $txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';
@@ -1696,7 +1757,8 @@ function DeleteInstall()
 
 	// This function is needed to do the updateStats('subject') call.
 	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
-		function($string){
+		function($string)
+		{
 			global $sourcedir;
 			if (function_exists('mb_strtolower'))
 				return mb_strtolower($string, 'UTF-8');
@@ -1724,19 +1786,18 @@ function DeleteInstall()
 	// Sanity check that they loaded earlier!
 	if (isset($modSettings['recycle_board']))
 	{
-		$forum_version = $current_smf_version; // The variable is usually defined in index.php so lets just use our variable to do it for us.
 		scheduled_fetchSMfiles(); // Now go get those files!
 
 		// We've just installed!
 		$user_info['ip'] = $_SERVER['REMOTE_ADDR'];
 		$user_info['id'] = isset($incontext['member_id']) ? $incontext['member_id'] : 0;
-		logAction('install', array('version' => $forum_version), 'admin');
+		logAction('install', array('version' => SMF_FULL_VERSION), 'admin');
 	}
 
-	// Check if we need some stupid MySQL fix.
-	$server_version = $smcFunc['db_server_info']();
-	if (($db_type == 'mysql' || $db_type == 'mysqli') && in_array(substr($server_version, 0, 6), array('5.0.50', '5.0.51')))
-		updateSettings(array('db_mysql_group_by_fix' => '1'));
+	// Disable the legacy BBC by default for new installs
+	updateSettings(array(
+		'disabledBBC' => implode(',', $context['legacy_bbc']),
+	));
 
 	// Some final context for the template.
 	$incontext['dir_still_writable'] = is_writable(dirname(__FILE__)) && substr(__FILE__, 1, 2) != ':\\';
@@ -1762,10 +1823,10 @@ function updateSettingsFile($vars)
 	for ($i = 0, $n = count($settingsArray); $i < $n; $i++)
 	{
 		// Remove the redirect...
-		if (trim($settingsArray[$i]) == 'if (file_exists(dirname(__FILE__) . \'/install.php\'))' && trim($settingsArray[$i + 1]) == '{' && trim($settingsArray[$i + 9]) == '}')
+		if (trim($settingsArray[$i]) == 'if (file_exists(dirname(__FILE__) . \'/install.php\'))' && trim($settingsArray[$i + 1]) == '{' && trim($settingsArray[$i + 10]) == '}')
 		{
 			// Set the ten lines to nothing.
-			for ($j=0; $j < 10; $j++)
+			for ($j = 0; $j < 11; $j++)
 				$settingsArray[$i++] = '';
 
 			continue;
@@ -1900,9 +1961,9 @@ function template_install_above()
 	<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
 	<meta name="robots" content="noindex">
 	<title>', $txt['smf_installer'], '</title>
-	<link rel="stylesheet" href="Themes/default/css/index.css?alp21">
-	<link rel="stylesheet" href="Themes/default/css/install.css?alp21">
-	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '', '
+	<link rel="stylesheet" href="Themes/default/css/index.css">
+	<link rel="stylesheet" href="Themes/default/css/install.css">
+	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css">' : '', '
 
 	<script src="Themes/default/scripts/jquery-3.2.1.min.js"></script>
 	<script src="Themes/default/scripts/script.js"></script>
@@ -2001,7 +2062,7 @@ function template_install_below()
 	</div><!-- #footerfix -->
 	<div id="footer">
 		<ul>
-			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2018, Simple Machines</a></li>
+			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">' . SMF_FULL_VERSION . ' &copy; ' . SMF_SOFTWARE_YEAR . ', Simple Machines</a></li>
 		</ul>
 	</div>
 </body>
@@ -2014,12 +2075,12 @@ function template_welcome_message()
 	global $incontext, $txt;
 
 	echo '
-	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . $GLOBALS['current_smf_version'] . '"></script>
+	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . urlencode(SMF_VERSION) . '"></script>
 	<form action="', $incontext['form_url'], '" method="post">
-		<p>', sprintf($txt['install_welcome_desc'], $GLOBALS['current_smf_version']), '</p>
+		<p>', sprintf($txt['install_welcome_desc'], SMF_VERSION), '</p>
 		<div id="version_warning" class="noticebox hidden">
 			<h3>', $txt['error_warning_notice'], '</h3>
-			', sprintf($txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . $GLOBALS['current_smf_version'] . '</em>'), '
+			', sprintf($txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . SMF_VERSION . '</em>'), '
 		</div>';
 
 	// Show the warnings, or not.
@@ -2179,11 +2240,11 @@ function template_database_settings()
 			<dd>
 				<select name="db_type" id="db_type_input" onchange="toggleDBInput();">';
 
-	foreach ($incontext['supported_databases'] as $key => $db)
+		foreach ($incontext['supported_databases'] as $key => $db)
 			echo '
 					<option value="', $key, '"', isset($_POST['db_type']) && $_POST['db_type'] == $key ? ' selected' : '', '>', $db['name'], '</option>';
 
-	echo '
+		echo '
 				</select>
 				<div class="smalltext">', $txt['db_settings_type_info'], '</div>
 			</dd>';

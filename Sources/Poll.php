@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -53,6 +53,7 @@ function Vote()
 	);
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('poll_error', false);
+
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
@@ -329,6 +330,7 @@ function EditPoll()
 	// Assume the the topic exists, right?
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('no_board');
+
 	// Get the poll information.
 	$pollinfo = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
@@ -901,7 +903,7 @@ function EditPoll2()
 	else
 	{
 		// Something else
-		logAction('editpoll', array('topic' => $topic));
+		logAction('edit_poll', array('topic' => $topic));
 	}
 
 	// Off we go.

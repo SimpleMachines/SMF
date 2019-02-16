@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -54,9 +54,9 @@ function automanage_attachments_check_directory()
 
 	if (!empty($modSettings['attachment_basedirectories']) && !empty($modSettings['use_subdirectories_for_attachments']))
 	{
-			if (!is_array($modSettings['attachment_basedirectories']))
-				$modSettings['attachment_basedirectories'] = $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true);
-			$base_dir = array_search($modSettings['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']);
+		if (!is_array($modSettings['attachment_basedirectories']))
+			$modSettings['attachment_basedirectories'] = $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true);
+		$base_dir = array_search($modSettings['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']);
 	}
 	else
 		$base_dir = 0;
@@ -282,9 +282,9 @@ function attachments_init_dir(&$tree, &$count)
 	// If on Windows servers the first part of the path is the drive (e.g. "C:")
 	if (DIRECTORY_SEPARATOR === '\\')
 	{
-		 //Better be sure that the first part of the path is actually a drive letter...
-		 //...even if, I should check this in the admin page...isn't it?
-		 //...NHAAA Let's leave space for users' complains! :P
+		//Better be sure that the first part of the path is actually a drive letter...
+		//...even if, I should check this in the admin page...isn't it?
+		//...NHAAA Let's leave space for users' complains! :P
 		if (preg_match('/^[a-z]:$/i', $tree[0]))
 			$directory = array_shift($tree);
 		else
@@ -939,7 +939,7 @@ function parseAttachBBC($attachID = 0)
 		// Fix the url to point out to showAvatar().
 		$attachContext['href'] = $scripturl . '?action=dlattach;attach=' . $attachID . ';type=preview';
 
-		$attachContext['link'] = '<a href="' . $scripturl . '?action=dlattach;attach=' . $attachID . ';type=preview' . (empty($attachContext['is_image']) ? ';file' : '') . '">' . $smcFunc['htmlspecialchars']($attachContext['name']) . '</a>';
+		$attachContext['link'] = '<a href="' . $scripturl . '?action=dlattach;attach=' . $attachID . ';type=preview' . (empty($attachContext['is_image']) ? ';file' : '') . '" class="bbc_link">' . $smcFunc['htmlspecialchars']($attachContext['name']) . '</a>';
 
 		// Fix the thumbnail too, if the image has one.
 		if (!empty($attachContext['thumbnail']) && !empty($attachContext['thumbnail']['has_thumb']))
@@ -1019,9 +1019,9 @@ function getRawAttachInfo($attachIDs)
 
 	$request = $smcFunc['db_query']('', '
 		SELECT a.id_attach, a.id_msg, a.id_member, a.size, a.mime_type, a.id_folder, a.filename' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
-				COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
+			COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
 		FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
-				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
+			LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
 		WHERE a.id_attach IN ({array_int:attach_ids})
 		LIMIT 1',
 		array(
@@ -1090,7 +1090,7 @@ function getAttachMsgInfo($attachID)
  */
 function getAttachsByMsg($msgID = 0)
 {
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $user_info;
 	static $attached = array();
 
 	if (!isset($attached[$msgID]))
@@ -1104,7 +1104,7 @@ function getAttachsByMsg($msgID = 0)
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 			WHERE a.attachment_type = {int:attachment_type}
-				'. (!empty($msgID) ? 'AND a.id_msg = {int:message_id}' : '') . '',
+				' . (!empty($msgID) ? 'AND a.id_msg = {int:message_id}' : '') . '',
 			array(
 				'message_id' => $msgID,
 				'attachment_type' => 0,
@@ -1142,7 +1142,7 @@ function getAttachsByMsg($msgID = 0)
  */
 function loadAttachmentContext($id_msg, $attachments)
 {
-	global $modSettings, $txt, $scripturl, $sourcedir, $smcFunc;
+	global $modSettings, $txt, $scripturl, $sourcedir, $smcFunc, $context;
 
 	if (empty($attachments) || empty($attachments[$id_msg]))
 		return array();
@@ -1161,7 +1161,7 @@ function loadAttachmentContext($id_msg, $attachments)
 				'size' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . $txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . $txt['megabyte'],
 				'byte_size' => $attachment['filesize'],
 				'href' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
-				'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'] . '">' . $smcFunc['htmlspecialchars']($attachment['filename']) . '</a>',
+				'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars']($attachment['filename']) . '</a>',
 				'is_image' => !empty($attachment['width']) && !empty($attachment['height']) && !empty($modSettings['attachmentShowImages']),
 				'is_approved' => $attachment['approved'],
 				'topic' => $attachment['topic'],

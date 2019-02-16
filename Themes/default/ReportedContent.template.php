@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -33,11 +33,11 @@ function template_reported_posts()
 		</div>';
 
 	// Make the buttons.
-	$close_button = create_button('close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close');
+	$close_button = create_button($context['view_closed'] ? 'folder' : 'close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close');
 	$details_button = create_button('details', 'mc_reportedp_details', 'mc_reportedp_details');
 	$ignore_button = create_button('ignore', 'mc_reportedp_ignore', 'mc_reportedp_ignore');
 	$unignore_button = create_button('ignore', 'mc_reportedp_unignore', 'mc_reportedp_unignore');
-	$ban_button = create_button('close', 'mc_reportedp_ban', 'mc_reportedp_ban');
+	$ban_button = create_button('error', 'mc_reportedp_ban', 'mc_reportedp_ban');
 	$delete_button = create_button('delete', 'mc_reportedp_delete', 'mc_reportedp_delete');
 
 	foreach ($context['reports'] as $report)
@@ -103,14 +103,13 @@ function template_reported_posts()
 
 	echo '
 			<div class="floatright">', !$context['view_closed'] ? '
-				<input type="hidden" name="'. $context['mod-report-close-all_token_var'] . '" value="' . $context['mod-report-close-all_token'] . '">
+				<input type="hidden" name="' . $context['mod-report-close-all_token_var'] . '" value="' . $context['mod-report-close-all_token'] . '">
 				<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button">' : '', '
 			</div>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 	</form>';
 }
-
 
 /**
  * A block to show the current top reported posts.
@@ -451,7 +450,7 @@ function template_reported_members()
 			echo '
 				<li><input type="checkbox" name="close[]" value="' . $report['id'] . '"></li>';
 
-			echo '
+		echo '
 			</ul>
 		</div><!-- .generic_list_wrapper -->';
 	}

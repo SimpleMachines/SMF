@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 /**
@@ -29,17 +29,17 @@ function template_admin()
 							<div id="live_news" class="floatleft">
 								<div class="cat_bar">
 									<h3 class="catbg">
-										<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ', $txt['live'], '
+										<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a> ', $txt['live'], '
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
-									<div id="smfAnnouncements">', $txt['lfyi'], '</div>
+									<div id="smfAnnouncements">', $txt['smf_news_cant_connect'], '</div>
 								</div>
 							</div>';
 
 	// Show the user version information from their server.
 	echo '
-							<div id="supportVersionsTable" class="floatright">
+							<div id="support_info" class="floatright">
 								<div class="cat_bar">
 									<h3 class="catbg">
 										<a href="', $scripturl, '?action=admin;area=credits">', $txt['support_title'], '</a>
@@ -68,7 +68,7 @@ function template_admin()
 	echo '
 									</div><!-- #version_details -->
 								</div><!-- .windowbg -->
-							</div><!-- #supportVersionsTable -->
+							</div><!-- #support_info -->
 						</div><!-- #admin_main_section -->';
 
 	foreach ($context[$context['admin_menu_name']]['sections'] as $area_id => $area)
@@ -740,6 +740,28 @@ function template_show_settings()
 		echo '
 							<div class="information">', $context['settings_message'], '</div>';
 
+	// Filter out any redundant separators before we start the loop
+	$context['config_vars'] = array_filter($context['config_vars'], function ($v) use ($context)
+		{
+			static $config_vars, $prev;
+
+			$at_start = is_null($config_vars);
+			$config_vars = $at_start ? $context['config_vars'] : $config_vars;
+
+			$next = next($config_vars);
+			$at_end = key($config_vars) === null;
+
+			if (!$at_start && !$at_end)
+			{
+				$div_types = array('title', 'desc');
+				$at_start = isset($prev['type']) && in_array($prev['type'], $div_types);
+				$at_end = isset($next['type']) && in_array($next['type'], $div_types);
+			}
+
+			$prev = $v;
+			return ($v === '' && ($at_start || $at_end || $v === $next)) ? false : true;
+		});
+
 	// Now actually loop through all the variables.
 	$is_open = false;
 	foreach ($context['config_vars'] as $config_var)
@@ -762,7 +784,7 @@ function template_show_settings()
 				echo '
 							<div class="cat_bar">
 								<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'catbg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
-									', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="' . $txt['help'] . '"></span></a>' : ''), '
+									', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . $txt['help'] . '"></span></a>' : ''), '
 									', $config_var['label'], '
 								</h3>
 							</div>';
@@ -824,7 +846,7 @@ function template_show_settings()
 				// Show the [?] button.
 				if ($config_var['help'])
 					echo '
-										<a id="setting_', $config_var['name'], '_help" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ';
+										<a id="setting_', $config_var['name'], '_help" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', $txt['help'], '"></span></a> ';
 
 				echo '
 										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label for="', $config_var['name'], '">', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
@@ -897,10 +919,10 @@ function template_show_settings()
 				{
 					echo '
 										<fieldset id="', $config_var['name'], '">
-											<legend>', $txt['bbcTagsToUse_select'], '</legend>
+											<legend>', $txt['enabled_bbc_select'], '</legend>
 											<ul>';
 
-					foreach ($context['bbc_columns'] as $bbcColumn)
+					foreach ($context['bbc_sections'][$config_var['name']]['columns'] as $bbcColumn)
 					{
 						foreach ($bbcColumn as $bbcTag)
 							echo '
@@ -909,7 +931,7 @@ function template_show_settings()
 												</li>';
 					}
 					echo '					</ul>
-											<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', $context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked' : '', '> <label for="bbc_', $config_var['name'], '_select_all"><em>', $txt['bbcTagsToUse_select_all'], '</em></label>
+											<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', $context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked' : '', '> <label for="bbc_', $config_var['name'], '_select_all"><em>', $txt['enabled_bbc_select_all'], '</em></label>
 										</fieldset>';
 				}
 				// A simple message?
@@ -939,7 +961,7 @@ function template_show_settings()
 				}
 
 				echo isset($config_var['postinput']) ? '
-											' . $config_var['postinput'] : '','
+											' . $config_var['postinput'] : '', '
 									</dd>';
 			}
 		}
@@ -953,9 +975,10 @@ function template_show_settings()
 								<dl class="settings">';
 			else
 				echo '
-									<dd>
+									<dt>
 										<strong>' . $config_var . '</strong>
-									</dd>';
+									</dt>
+									<dd></dd>';
 		}
 	}
 
@@ -970,7 +993,6 @@ function template_show_settings()
 	if ($is_open)
 		echo '
 							</div><!-- .windowbg -->';
-
 
 	// At least one token has to be used!
 	if (isset($context['admin-ssc_token']))
@@ -1097,7 +1119,7 @@ function template_edit_profile_field()
 											</select>
 										</dd>
 										<dt>
-											<a id="field_reg_require" href="', $scripturl, '?action=helpadmin;help=field_reg_require" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+											<a id="field_reg_require" href="', $scripturl, '?action=helpadmin;help=field_reg_require" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 											<strong><label for="reg">', $txt['custom_edit_registration'], ':</label></strong>
 										</dt>
 										<dd>
@@ -1133,7 +1155,7 @@ function template_edit_profile_field()
 											</select>
 										</dd>
 										<dt>
-											<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+											<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 											<strong><label for="enclose">', $txt['custom_edit_enclose'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_enclose_desc'], '</span>
 										</dt>
@@ -1179,7 +1201,7 @@ function template_edit_profile_field()
 											<input type="checkbox" name="bbc" id="bbc_dd"', $context['field']['bbc'] ? ' checked' : '', '>
 										</dd>
 										<dt id="options_dt">
-											<a href="', $scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+											<a href="', $scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 											<strong><label for="options_dd">', $txt['custom_edit_options'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_options_desc'], '</span>
 										</dt>
@@ -1205,7 +1227,7 @@ function template_edit_profile_field()
 									<legend>', $txt['custom_edit_advanced'], '</legend>
 									<dl class="settings">
 										<dt id="mask_dt">
-											<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+											<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 											<strong><label for="mask">', $txt['custom_edit_mask'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_mask_desc'], '</span>
 										</dt>
@@ -1284,7 +1306,7 @@ function template_admin_search_results()
 										<input type="hidden" name="search_type" value="', $context['search_type'], '">
 										<input type="submit" name="search_go" value="', $txt['admin_search_results_again'], '" class="button">
 									</span>
-									<span class="generic_icons filter"></span>
+									<span class="main_icons filter"></span>
 									<span id="quick_search_results">
 										', sprintf($txt['admin_search_results_desc'], $context['search_term']), '
 									</span>
@@ -1531,7 +1553,7 @@ function template_php_info()
 			{
 				if ($localmaster)
 				{
-					// heading row for the settings section of this categorys settings
+					// heading row for the settings section of this category's settings
 					echo '
 								<tr class="title_bar">
 									<td class="equal_table"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
@@ -1611,7 +1633,7 @@ function template_admin_quick_search()
 	if ($context['user']['is_admin'])
 		echo '
 								<span class="floatright admin_search">
-									<span class="generic_icons filter centericon"></span>
+									<span class="main_icons filter centericon"></span>
 									<input type="search" name="search_term" placeholder="', $txt['admin_search'], '">
 									<select name="search_type">
 										<option value="internal"', (empty($context['admin_preferences']['sb']) || $context['admin_preferences']['sb'] == 'internal' ? ' selected' : ''), '>', $txt['admin_search_type_internal'], '</option>

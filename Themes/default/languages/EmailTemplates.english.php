@@ -1,10 +1,10 @@
 <?php
-// Version: 2.1 Beta 4; EmailTemplates
+// Version: 2.1 RC1; EmailTemplates
 
 // Since all of these strings are being used in emails, numeric entities should be used.
 
 // Do not translate anything that is between {}, they are used as replacement variables and MUST remain exactly how they are.
-//   Additionally do not translate the @additioinal_parmas: line or the variable names in the lines that follow it. You may
+//   Additionally, do not translate the @additional_params: line or the variable names in the lines that follow it. You may
 //   translate the description of the variable. Do not translate @description:, however you may translate the rest of that line.
 
 // Do not use block comments in this file, they will have special meaning.
@@ -329,8 +329,7 @@ You can approve or reject this attachment from the link below which will take yo
 $txt['alert_unapproved_post_subject'] = 'New Unapproved Post: {SUBJECT}';
 $txt['alert_unapproved_post_body'] = 'A new post has been made which needs to be approved: \'{SUBJECT}\'
 
-You can approve or reject this post by clicking the link below:
-
+You can approve or reject this post by using the link below:
 {LINK}
 
 {REGARDS}';
@@ -344,15 +343,14 @@ You can approve or reject this post by clicking the link below:
 $txt['alert_unapproved_topic_subject'] = 'New Unapproved Topic: {SUBJECT}';
 $txt['alert_unapproved_topic_body'] = 'A new topic has been made which needs to be approved: \'{SUBJECT}\'
 
-You can approve or reject this topic by clicking the link below:
-
+You can approve or reject this topic by using the link below:
 {LINK}
 
 {REGARDS}';
 
 /**
 	@additional_params: request_membership
-		RECPNAME: The name of the person recieving the email
+		RECPNAME: The name of the person receiving the email
 		APPYNAME: The name of the person applying for group membership
 		GROUPNAME: The name of the group being applied to.
 		REASON: The reason given by the applicant for wanting to join the group.
@@ -366,7 +364,7 @@ $txt['request_membership_body'] = '{RECPNAME},
 
 {REASON}
 
-You can approve or reject this application by clicking the link below:
+You can approve or reject this application by using the link below:
 
 {MODLINK}
 
@@ -891,7 +889,9 @@ IMPORTANT: Remember, this is just a notification. Please do not reply to this em
 
 Read this Personal Message here: {READLINK}
 
-Reply to this Personal Message here: {REPLYLINK}';
+Reply to this Personal Message here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: new_pm_body
@@ -910,7 +910,9 @@ The message they sent you was:
 
 {MESSAGE}
 
-Reply to this Personal Message here: {REPLYLINK}';
+Reply to this Personal Message here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: new_pm_tolist
@@ -928,7 +930,9 @@ IMPORTANT: Remember, this is just a notification. Please do not reply to this em
 
 Read this Personal Message here: {READLINK}
 
-Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
+Reply to this Personal Message (to the sender only) here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: new_pm_body_tolist
@@ -948,7 +952,9 @@ The message they sent you was:
 
 {MESSAGE}
 
-Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
+Reply to this Personal Message (to the sender only) here: {REPLYLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: msg_quote

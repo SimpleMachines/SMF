@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -134,52 +134,30 @@ function html_to_bbc($text)
 	$text = preg_replace('~\\<\\!\\[CDATA\\[.*?\\]\\]\\>~i', '', $text);
 
 	// Do the smileys ultra first!
-	preg_match_all('~<img\s+[^<>]*?id="*smiley_\d+_([^<>]+?)[\s"/>]\s*[^<>]*?/*>(?:\s)?~i', $text, $matches);
+	preg_match_all('~<img\b[^>]+alt="([^"]+)"[^>]+class="smiley"[^>]*>(?:\s)?~i', $text, $matches);
 	if (!empty($matches[0]))
 	{
-		// Easy if it's not custom.
-		if (empty($modSettings['smiley_enable']))
+		// Get all our actual smiley codes
+		$request = $smcFunc['db_query']('', '
+			SELECT code
+			FROM {db_prefix}smileys
+			WHERE code IN ({array_string:smiley_codes})
+			ORDER BY LENGTH(code) DESC',
+			array(
+				'smiley_codes' => $smiley_codes,
+			)
+		);
+		$smiley_codes = $smcFunc['db_fetch_all']($request);
+		$smcFunc['db_free_result']($request);
+
+		foreach ($matches[1] as $k => $possible_code)
 		{
-			$smileysfrom = array('>:D', ':D', '::)', '>:(', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', '0:)');
-			$smileysto = array('evil.png', 'cheesy.png', 'rolleyes.png', 'angry.png', 'smiley.png', 'wink.png', 'grin.png', 'sad.png', 'shocked.png', 'cool.png', 'tongue.png', 'huh.png', 'embarrassed.png', 'lipsrsealed.png', 'kiss.png', 'cry.png', 'undecided.png', 'azn.png', 'afro.png', 'police.png', 'angel.png');
+			$possible_code = un_htmlspecialchars($possible_code);
 
-			foreach ($matches[1] as $k => $file)
-			{
-				$found = array_search($file, $smileysto);
-				// Note the weirdness here is to stop double spaces between smileys.
-				if ($found)
-					$matches[1][$k] = '-[]-smf_smily_start#|#' . $smcFunc['htmlspecialchars']($smileysfrom[$found]) . '-[]-smf_smily_end#|#';
-				else
-					$matches[1][$k] = '';
-			}
-		}
-		else
-		{
-			// Load all the smileys.
-			$names = array();
-			foreach ($matches[1] as $file)
-				$names[] = $file;
-			$names = array_unique($names);
-
-			if (!empty($names))
-			{
-				$request = $smcFunc['db_query']('', '
-					SELECT code, filename
-					FROM {db_prefix}smileys
-					WHERE filename IN ({array_string:smiley_filenames})',
-					array(
-						'smiley_filenames' => $names,
-					)
-				);
-				$mappings = array();
-				while ($row = $smcFunc['db_fetch_assoc']($request))
-					$mappings[$row['filename']] = $smcFunc['htmlspecialchars']($row['code']);
-				$smcFunc['db_free_result']($request);
-
-				foreach ($matches[1] as $k => $file)
-					if (isset($mappings[$file]))
-						$matches[1][$k] = '-[]-smf_smily_start#|#' . $mappings[$file] . '-[]-smf_smily_end#|#';
-			}
+			if (in_array($possible_code, $smiley_codes))
+				$matches[1][$k] = '-[]-smf_smily_start#|#' . $possible_code . '-[]-smf_smily_end#|#';
+			else
+				$matches[1][$k] = $matches[0][$k];
 		}
 
 		// Replace the tags!
@@ -236,7 +214,7 @@ function html_to_bbc($text)
 								$curCloseTags .= '[/b]';
 								$replacement .= '[b]';
 							}
-						break;
+							break;
 
 						case 'text-decoration':
 							if ($style_value == 'underline')
@@ -249,7 +227,7 @@ function html_to_bbc($text)
 								$curCloseTags .= '[/s]';
 								$replacement .= '[s]';
 							}
-						break;
+							break;
 
 						case 'text-align':
 							if ($style_value == 'left')
@@ -267,7 +245,7 @@ function html_to_bbc($text)
 								$curCloseTags .= '[/right]';
 								$replacement .= '[right]';
 							}
-						break;
+							break;
 
 						case 'font-style':
 							if ($style_value == 'italic')
@@ -275,12 +253,12 @@ function html_to_bbc($text)
 								$curCloseTags .= '[/i]';
 								$replacement .= '[i]';
 							}
-						break;
+							break;
 
 						case 'color':
 							$curCloseTags .= '[/color]';
 							$replacement .= '[color=' . $style_value . ']';
-						break;
+							break;
 
 						case 'font-size':
 							// Sometimes people put decimals where decimals should not be.
@@ -289,7 +267,7 @@ function html_to_bbc($text)
 
 							$curCloseTags .= '[/size]';
 							$replacement .= '[size=' . $style_value . ']';
-						break;
+							break;
 
 						case 'font-family':
 							// Only get the first freaking font if there's a list!
@@ -298,19 +276,19 @@ function html_to_bbc($text)
 
 							$curCloseTags .= '[/font]';
 							$replacement .= '[font=' . strtr($style_value, array("'" => '')) . ']';
-						break;
+							break;
 
 						// This is a hack for images with dimensions embedded.
 						case 'width':
 						case 'height':
 							if (preg_match('~[1-9]\d*~i', $style_value, $dimension) === 1)
 								$extra_attr .= ' ' . $style_type . '="' . $dimension[0] . '"';
-						break;
+							break;
 
 						case 'list-style-type':
 							if (preg_match('~none|disc|circle|square|decimal|decimal-leading-zero|lower-roman|upper-roman|lower-alpha|upper-alpha|lower-greek|lower-latin|upper-latin|hebrew|armenian|georgian|cjk-ideographic|hiragana|katakana|hiragana-iroha|katakana-iroha~i', $style_value, $listType) === 1)
 								$extra_attr .= ' listtype="' . $listType[0] . '"';
-						break;
+							break;
 					}
 				}
 
@@ -534,7 +512,7 @@ function html_to_bbc($text)
 							$parts[$i + 2] = '[list' . ($listType === null ? '' : ' type=' . $listType) . ']' . "\n";
 							$parts[$i + 3] = '';
 						}
-					break;
+						break;
 
 					case 'li':
 
@@ -569,7 +547,7 @@ function html_to_bbc($text)
 							}
 						}
 
-					break;
+						break;
 				}
 			}
 
@@ -620,7 +598,7 @@ function html_to_bbc($text)
 								$parts[$i + 3] = '';
 							}
 						}
-					break;
+						break;
 
 					case 'li':
 
@@ -644,7 +622,7 @@ function html_to_bbc($text)
 							$inList = true;
 						}
 
-					break;
+						break;
 				}
 			}
 
@@ -868,7 +846,7 @@ function html_to_bbc($text)
 		{
 			return "[hr]";
 		},
-		'~<blockquote(\s(.)*?)*?' . '>~i' =>  function()
+		'~<blockquote(\s(.)*?)*?' . '>~i' => function()
 		{
 			return "&lt;blockquote&gt;";
 		},
@@ -1112,7 +1090,8 @@ function legalise_bbc($text)
 		$lastlen = strlen($text = preg_replace($backToBackPattern, '', $text));
 
 	// Need to sort the tags by name length.
-	uksort($valid_tags, function ($a, $b) {
+	uksort($valid_tags, function($a, $b)
+	{
 		return strlen($a) < strlen($b) ? 1 : -1;
 	});
 
@@ -1524,6 +1503,7 @@ function getMessageIcons($board_id)
 
 /**
  * Creates a box that can be used for richedit stuff like BBC, Smileys etc.
+ *
  * @param array $editorOptions Various options for the editor
  */
 function create_control_richedit($editorOptions)
@@ -1615,137 +1595,133 @@ function create_control_richedit($editorOptions)
 		$context['bbc_tags'][] = array(
 			array(
 				'code' => 'bold',
-				'description' => $editortxt['Bold'],
+				'description' => $editortxt['bold'],
 			),
 			array(
 				'code' => 'italic',
-				'description' => $editortxt['Italic'],
+				'description' => $editortxt['italic'],
 			),
 			array(
 				'code' => 'underline',
-				'description' => $editortxt['Underline']
+				'description' => $editortxt['underline']
 			),
 			array(
 				'code' => 'strike',
-				'description' => $editortxt['Strikethrough']
+				'description' => $editortxt['strikethrough']
 			),
 			array(
 				'code' => 'superscript',
-				'description' => $editortxt['Superscript']
+				'description' => $editortxt['superscript']
 			),
 			array(
 				'code' => 'subscript',
-				'description' => $editortxt['Subscript']
+				'description' => $editortxt['subscript']
 			),
 			array(),
 			array(
 				'code' => 'pre',
-				'description' => $editortxt['Preformatted Text']
+				'description' => $editortxt['preformatted_text']
 			),
 			array(
 				'code' => 'left',
-				'description' => $editortxt['Align left']
+				'description' => $editortxt['align_left']
 			),
 			array(
 				'code' => 'center',
-				'description' => $editortxt['Center']
+				'description' => $editortxt['center']
 			),
 			array(
 				'code' => 'right',
-				'description' => $editortxt['Align right']
+				'description' => $editortxt['align_right']
 			),
 			array(
 				'code' => 'justify',
-				'description' => $editortxt['Justify']
+				'description' => $editortxt['justify']
 			),
 			array(),
 			array(
 				'code' => 'font',
-				'description' => $editortxt['Font Name']
+				'description' => $editortxt['font_name']
 			),
 			array(
 				'code' => 'size',
-				'description' => $editortxt['Font Size']
+				'description' => $editortxt['font_size']
 			),
 			array(
 				'code' => 'color',
-				'description' => $editortxt['Font Color']
+				'description' => $editortxt['font_color']
 			),
 		);
 		if (empty($modSettings['disable_wysiwyg']))
 		{
 			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
 				'code' => 'removeformat',
-				'description' => $editortxt['Remove Formatting'],
+				'description' => $editortxt['remove_formatting'],
 			);
 		}
 		$context['bbc_tags'][] = array(
 			array(
 				'code' => 'floatleft',
-				'description' => $editortxt['Float left']
+				'description' => $editortxt['float_left']
 			),
 			array(
 				'code' => 'floatright',
-				'description' => $editortxt['Float right']
+				'description' => $editortxt['float_right']
 			),
 			array(),
 			array(
-				'code' => 'flash',
-				'description' => $editortxt['Flash']
-			),
-			array(
 				'code' => 'youtube',
-				'description' => $editortxt['Insert a YouTube video']
+				'description' => $editortxt['insert_youtube_video']
 			),
 			array(
 				'code' => 'image',
-				'description' => $editortxt['Insert an image']
+				'description' => $editortxt['insert_image']
 			),
 			array(
 				'code' => 'link',
-				'description' => $editortxt['Insert a link']
+				'description' => $editortxt['insert_link']
 			),
 			array(
 				'code' => 'email',
-				'description' => $editortxt['Insert an email']
+				'description' => $editortxt['insert_email']
 			),
 			array(),
 			array(
 				'code' => 'table',
-				'description' => $editortxt['Insert a table']
+				'description' => $editortxt['insert_table']
 			),
 			array(
 				'code' => 'code',
-				'description' => $editortxt['Code']
+				'description' => $editortxt['code']
 			),
 			array(
 				'code' => 'quote',
-				'description' => $editortxt['Insert a Quote']
+				'description' => $editortxt['insert_quote']
 			),
 			array(),
 			array(
 				'code' => 'bulletlist',
-				'description' => $editortxt['Bullet list']
+				'description' => $editortxt['bullet_list']
 			),
 			array(
 				'code' => 'orderedlist',
-				'description' => $editortxt['Numbered list']
+				'description' => $editortxt['numbered_list']
 			),
 			array(
 				'code' => 'horizontalrule',
-				'description' => $editortxt['Insert a horizontal rule']
+				'description' => $editortxt['insert_horizontal_rule']
 			),
 			array(),
 			array(
 				'code' => 'maximize',
-				'description' => $editortxt['Maximize']
+				'description' => $editortxt['maximize']
 			),
 		);
 		if (empty($modSettings['disable_wysiwyg']))
 		{
 			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
 				'code' => 'source',
-				'description' => $editortxt['View source'],
+				'description' => $editortxt['view_source'],
 			);
 		}
 
@@ -1854,110 +1830,29 @@ function create_control_richedit($editorOptions)
 			'popup' => array(),
 		);
 
-		// Load smileys - don't bother to run a query if we're not using the database's ones anyhow.
-		if (empty($modSettings['smiley_enable']) && $user_info['smiley_set'] != 'none')
-			$context['smileys']['postform'][] = array(
-				'smileys' => array(
-					array(
-						'code' => ':)',
-						'filename' => 'smiley',
-						'description' => $txt['icon_smiley'],
-					),
-					array(
-						'code' => ';)',
-						'filename' => 'wink',
-						'description' => $txt['icon_wink'],
-					),
-					array(
-						'code' => ':D',
-						'filename' => 'cheesy',
-						'description' => $txt['icon_cheesy'],
-					),
-					array(
-						'code' => ';D',
-						'filename' => 'grin',
-						'description' => $txt['icon_grin']
-					),
-					array(
-						'code' => '>:(',
-						'filename' => 'angry',
-						'description' => $txt['icon_angry'],
-					),
-					array(
-						'code' => ':(',
-						'filename' => 'sad',
-						'description' => $txt['icon_sad'],
-					),
-					array(
-						'code' => ':o',
-						'filename' => 'shocked',
-						'description' => $txt['icon_shocked'],
-					),
-					array(
-						'code' => '8)',
-						'filename' => 'cool',
-						'description' => $txt['icon_cool'],
-					),
-					array(
-						'code' => '???',
-						'filename' => 'huh',
-						'description' => $txt['icon_huh'],
-					),
-					array(
-						'code' => '::)',
-						'filename' => 'rolleyes',
-						'description' => $txt['icon_rolleyes'],
-					),
-					array(
-						'code' => ':P',
-						'filename' => 'tongue',
-						'description' => $txt['icon_tongue'],
-					),
-					array(
-						'code' => ':-[',
-						'filename' => 'embarrassed',
-						'description' => $txt['icon_embarrassed'],
-					),
-					array(
-						'code' => ':-X',
-						'filename' => 'lipsrsealed',
-						'description' => $txt['icon_lips'],
-					),
-					array(
-						'code' => ':-\\',
-						'filename' => 'undecided',
-						'description' => $txt['icon_undecided'],
-					),
-					array(
-						'code' => ':-*',
-						'filename' => 'kiss',
-						'description' => $txt['icon_kiss'],
-					),
-					array(
-						'code' => ':\'(',
-						'filename' => 'cry',
-						'description' => $txt['icon_cry'],
-						'isLast' => true,
-					),
-				),
-				'isLast' => true,
-			);
-		elseif ($user_info['smiley_set'] != 'none')
+		if ($user_info['smiley_set'] != 'none')
 		{
-			if (($temp = cache_get_data('posting_smileys', 480)) == null)
+			// Cache for longer when customized smiley codes aren't enabled
+			$cache_time = empty($modSettings['smiley_enable']) ? 7200 : 480;
+
+			if (($temp = cache_get_data('posting_smileys_' . $user_info['smiley_set'], $cache_time)) == null)
 			{
 				$request = $smcFunc['db_query']('', '
-					SELECT code, filename, description, smiley_row, hidden
-					FROM {db_prefix}smileys
-					WHERE hidden IN (0, 2)
-					ORDER BY smiley_row, smiley_order',
+					SELECT s.code, f.filename, s.description, s.smiley_row, s.hidden
+					FROM {db_prefix}smileys AS s
+						JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
+					WHERE s.hidden IN (0, 2)
+						AND f.smiley_set = {string:smiley_set}' . (empty($modSettings['smiley_enable']) ? '
+						AND s.code IN ({array_string:default_codes})' : '') . '
+					ORDER BY s.smiley_row, s.smiley_order',
 					array(
+						'default_codes' => array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)'),
+						'smiley_set' => $user_info['smiley_set'],
 					)
 				);
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 				{
-					$row['filename'] = $smcFunc['htmlspecialchars']($row['filename']);
-					$row['description'] = $smcFunc['htmlspecialchars']($row['description']);
+					$row['description'] = !empty($txt['icon_' . strtolower($row['description'])]) ? $smcFunc['htmlspecialchars']($txt['icon_' . strtolower($row['description'])]) : $smcFunc['htmlspecialchars']($row['description']);
 
 					$context['smileys'][empty($row['hidden']) ? 'postform' : 'popup'][$row['smiley_row']]['smileys'][] = $row;
 				}
@@ -1972,25 +1867,11 @@ function create_control_richedit($editorOptions)
 						$context['smileys'][$section][count($smileyRows) - 1]['isLast'] = true;
 				}
 
-				cache_put_data('posting_smileys', $context['smileys'], 480);
+				cache_put_data('posting_smileys_' . $user_info['smiley_set'], $context['smileys'], $cache_time);
 			}
 			else
 				$context['smileys'] = $temp;
 		}
-
-		// Set proper extensions; do this post caching so cache doesn't become extension-specific
-		array_walk_recursive($context['smileys'], function (&$filename, $key)
-			{
-				global $context, $user_info, $modSettings;
-				if ($key == 'filename')
-					// Need to use the default if user selection is disabled
-					if (empty($modSettings['smiley_sets_enable']))
-						$filename .= $context['user']['smiley_set_default_ext'];
-					else
-						$filename .= $user_info['smiley_set_ext'];
-
-			}
-		);
 	}
 
 	// Set a flag so the sub template knows what to do...
@@ -2073,6 +1954,7 @@ function create_control_richedit($editorOptions)
 
 /**
  * Create a anti-bot verification control?
+ *
  * @param array &$verificationOptions Options for the verification control
  * @param bool $do_test Whether to check to see if the user entered the code correctly
  * @return bool|array False if there's nothing to show, true if everything went well or an array containing error indicators if the test failed
@@ -2300,8 +2182,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			$possible_langs = array();
 			if (isset($_SESSION['language']))
 				$possible_langs[] = strtr($_SESSION['language'], array('-utf8' => ''));
-			if (!empty($user_info['language']));
-			$possible_langs[] = $user_info['language'];
+			if (!empty($user_info['language']))
+				$possible_langs[] = $user_info['language'];
+
 			$possible_langs[] = $language;
 
 			$questionIDs = array();
@@ -2368,6 +2251,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 
 /**
  * This keeps track of all registered handling functions for auto suggest functionality and passes execution to them.
+ *
  * @param bool $checkRegistered If set to something other than null, checks whether the callback function is registered
  * @return void|bool Returns whether the callback function is registered if $checkRegistered isn't null
  */
@@ -2470,8 +2354,7 @@ function AutoSuggest_Search_MemberGroups()
 		WHERE {raw:group_name} LIKE {string:search}
 			AND min_posts = {int:min_posts}
 			AND id_group NOT IN ({array_int:invalid_groups})
-			AND hidden != {int:hidden}
-		',
+			AND hidden != {int:hidden}',
 		array(
 			'group_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(group_name}' : 'group_name',
 			'min_posts' => -1,

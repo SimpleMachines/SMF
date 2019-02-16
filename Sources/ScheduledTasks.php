@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC1
  */
 
 if (!defined('SMF'))
@@ -241,7 +241,8 @@ function scheduled_daily_maintenance()
 		WHERE time < {int:oldLogins}',
 		array(
 			'oldLogins' => time() - (!empty($modSettings['loginHistoryDays']) ? 60 * 60 * 24 * $modSettings['loginHistoryDays'] : 2592000),
-	));
+		)
+	);
 
 	// Run Imageproxy housekeeping
 	if (!empty($image_proxy_enabled))
@@ -771,7 +772,8 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 				array(
 					'next_mail_send' => time() + 60,
 					'last_send' => $modSettings['mail_next_send'],
-			));
+				)
+			);
 
 		// Add our email back to the queue, manually.
 		$smcFunc['db_insert']('insert',
@@ -792,7 +794,8 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 			array(
 				'zero' => '0',
 				'mail_failed_attempts' => 'mail_failed_attempts',
-		));
+			)
+		);
 
 	// Had something to send...
 	return true;
@@ -1003,7 +1006,7 @@ function loadEssentialThemeData()
  */
 function scheduled_fetchSMfiles()
 {
-	global $sourcedir, $txt, $language, $forum_version, $modSettings, $smcFunc, $context;
+	global $sourcedir, $txt, $language, $modSettings, $smcFunc, $context;
 
 	// What files do we want to get
 	$request = $smcFunc['db_query']('', '
@@ -1020,7 +1023,7 @@ function scheduled_fetchSMfiles()
 		$js_files[$row['id_file']] = array(
 			'filename' => $row['filename'],
 			'path' => $row['path'],
-			'parameters' => sprintf($row['parameters'], $language, urlencode($modSettings['time_format']), urlencode($forum_version)),
+			'parameters' => sprintf($row['parameters'], $language, urlencode($modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
 		);
 	}
 
