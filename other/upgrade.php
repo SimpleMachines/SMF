@@ -3435,19 +3435,22 @@ function serialize_to_json()
 								if ($temp === false)
 									$temp = @safe_unserialize(fix_serialized_data($row[$col]));
 
-								if ($temp === false && $command_line)
+								if ($temp === false)
 								{
-									echo "\nFailed to unserialize " . $row[$col] . "... Skipping\n";
-								}
-								// If unserialize failed, it's better to leave the data alone than to overwrite it with an empty JSON value
-								elseif ($temp !== false)
-								{
-									$row[$col] = json_encode($temp);
+									if ($command_line)
+										echo "\nFailed to unserialize " . $row[$col] . "... Skipping\n";
 
-									// Build our SET string and variables array
-									$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
-									$vars[$col] = $row[$col];
+									$temp2 = @json_decode($row[$col], true);
+									if (!empty($temp2))
+										$temp = array();
+									elseif ($command_line)
+										echo "... Skipping";
 								}
+								$row[$col] = json_encode($temp);
+
+								// Build our SET string and variables array
+								$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
+								$vars[$col] = $row[$col];
 							}
 						}
 
