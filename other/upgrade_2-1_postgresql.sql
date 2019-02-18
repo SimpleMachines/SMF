@@ -654,7 +654,7 @@ elseif (empty($modSettings['json_done']))
 ALTER TABLE {$db_prefix}log_group_requests
 ADD COLUMN status smallint NOT NULL default '0',
 ADD COLUMN id_member_acted int NOT NULL default '0',
-ADD COLUMN member_name_acted varchar(255) NOT NULL default '',
+ADD COLUMN member_name_acted text NOT NULL default '',
 ADD COLUMN time_acted int NOT NULL default '0',
 ADD COLUMN act_reason text NOT NULL;
 ---#
@@ -799,8 +799,8 @@ CREATE SEQUENCE {$db_prefix}background_tasks_seq;
 ---# Adding the table
 CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
 	id_task bigint DEFAULT nextval('{$db_prefix}background_tasks_seq'),
-	task_file varchar(255) NOT NULL DEFAULT '',
-	task_class varchar(255) NOT NULL DEFAULT '',
+	task_file text NOT NULL DEFAULT '',
+	task_class text NOT NULL DEFAULT '',
 	task_data text NOT NULL,
 	claimed_time int NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_task)
@@ -812,7 +812,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
 /******************************************************************************/
 ---# Adding new columns to boards...
 ALTER TABLE {$db_prefix}boards
-ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
+ADD COLUMN deny_member_groups text NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
@@ -916,10 +916,10 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
 	alert_time bigint NOT NULL DEFAULT '0',
 	id_member int NOT NULL DEFAULT '0',
 	id_member_started bigint NOT NULL DEFAULT '0',
-	member_name varchar(255) NOT NULL DEFAULT '',
-	content_type varchar(255) NOT NULL DEFAULT '',
+	member_name text NOT NULL DEFAULT '',
+	content_type text NOT NULL DEFAULT '',
 	content_id bigint NOT NULL DEFAULT '0',
-	content_action varchar(255) NOT NULL DEFAULT '',
+	content_action text NOT NULL DEFAULT '',
 	is_read bigint NOT NULL DEFAULT '0',
 	extra text NOT NULL,
 	PRIMARY KEY (id_alert)
@@ -1380,13 +1380,13 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	type smallint NOT NULL DEFAULT '0',
 	poster_time int NOT NULL DEFAULT '0',
 	id_member int NOT NULL DEFAULT '0',
-	subject varchar(255) NOT NULL DEFAULT '',
+	subject text NOT NULL DEFAULT '',
 	smileys_enabled smallint NOT NULL DEFAULT '1',
 	body text NOT NULL,
 	icon varchar(16) NOT NULL DEFAULT 'xx',
 	locked smallint NOT NULL DEFAULT '0',
 	is_sticky smallint NOT NULL DEFAULT '0',
-	to_list varchar(255) NOT NULL DEFAULT '',
+	to_list text NOT NULL DEFAULT '',
 	PRIMARY KEY (id_draft)
 );
 CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
@@ -1679,8 +1679,8 @@ CREATE SEQUENCE {$db_prefix}qanda_seq;
 
 CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 	id_question smallint DEFAULT nextval('{$db_prefix}qanda_seq'),
-	lngfile varchar(255) NOT NULL DEFAULT '',
-	question varchar(255) NOT NULL DEFAULT '',
+	lngfile text NOT NULL DEFAULT '',
+	question text NOT NULL DEFAULT '',
 	answers text NOT NULL,
 	PRIMARY KEY (id_question)
 );
@@ -2017,7 +2017,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 /******************************************************************************/
 ---# Adding "modified_reason" column to messages
 ALTER TABLE {$db_prefix}messages
-ADD COLUMN modified_reason varchar(255) NOT NULL default '';
+ADD COLUMN modified_reason text NOT NULL default '';
 ---#
 
 /******************************************************************************/
@@ -2573,7 +2573,7 @@ ADD COLUMN timezone VARCHAR(80);
 /******************************************************************************/
 ---# Add location column to calendar table
 ALTER TABLE {$db_prefix}calendar
-ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
+ADD COLUMN location text NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
