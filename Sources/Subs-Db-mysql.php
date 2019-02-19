@@ -100,7 +100,12 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	if (empty($db_options['dont_select_db']) && !@mysqli_select_db($connection, $db_name) && empty($db_options['non_fatal']))
 		display_db_error();
 
-	mysqli_query($connection, 'SET SESSION sql_mode = \'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,NO_BACKSLASH_ESCAPES\'');
+	// Set the mysql default mode
+	$sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+	// Disable backlash escape, only '' is than a valid one
+	$sql_mode .= 'NO_BACKSLASH_ESCAPES';
+
+	mysqli_query($connection, 'SET SESSION sql_mode = ' . $sql_mode);
 
 	if (!empty($db_options['db_mb4']))
 		$smcFunc['db_mb4'] = (bool) $db_options['db_mb4'];
@@ -414,17 +419,17 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$old_pos = 0;
 		$pos = -1;
 		// Remove the string escape for better runtime
-		$db_string_1 = str_replace('\'\'','',$db_string);
+		$db_string_1 = str_replace("''",'',$db_string);
 		while (true)
 		{
-			$pos = strpos($db_string_1, '\'', $pos + 1);
+			$pos = strpos($db_string_1, "'", $pos + 1);
 			if ($pos === false)
 				break;
 			$clean .= substr($db_string_1, $old_pos, $pos - $old_pos);
 
 			while (true)
 			{
-				$pos1 = strpos($db_string_1, '\'', $pos + 1);
+				$pos1 = strpos($db_string_1, "'", $pos + 1);
 				$pos2 = strpos($db_string_1, '\\', $pos + 1);
 				if ($pos1 === false)
 					break;
