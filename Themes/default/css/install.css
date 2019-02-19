@@ -21,6 +21,13 @@ h1.forumtitle {
 	display: flex;
 	flex-wrap: wrap;
 }
+/* Add the gradient here if there is no upper_section */
+#main_content_section:first-child {
+	margin: 2px;
+	padding-top: 1em;
+	border-radius: 6px;
+	background: linear-gradient(to bottom, #e2e9f3 0%, #fff 90px);
+}
 #main_steps {
 	order: 0;
 	width: 49%;
@@ -32,26 +39,25 @@ h1.forumtitle {
 	margin: 0 1em 0.5em 0;
 	color: #d05800;
 }
-#main_steps ul {
+ul.steps_list {
 	line-height: 1.8em;
+	color: #c2c2c2;
 }
-#main_steps ul li.stepdone {
-	color: #aaa;
-}
-#main_steps ul li.stepcurrent {
+ul.steps_list li.stepcurrent {
 	color: #222;
 	font-weight: bold;
 }
-#main_steps ul li.stepwaiting {
+ul.steps_list .stepcurrent ~ li {
 	color: #666;
 }
 #install_progress {
 	order: -1;
-	margin-right: 2%;
+	margin: 0.32em 2% 0 0;
 	width: 49%;
 }
 .progress_bar {
 	line-height: 2em;
+	max-width: 500px;
 }
 .progress_bar + h3, .progress_bar + .progress_bar {
 	margin-top: 1.5em;
@@ -71,11 +77,11 @@ h1.forumtitle {
 	background-color: #eebaf4;
 }
 .time_elapsed {
-	margin-top: 3em;
+	margin-top: 1em;
 }
 #main_screen {
 	width: 100%;
-	padding: 1em 1em 0.5em 1em;
+	margin-top: 2em;
 }
 #main_screen h2 {
 	font-size: 1.2em;
@@ -90,7 +96,7 @@ h1.forumtitle {
 .panel p, .panel h3, .panel ul {
 	margin: 0 0 1em 0;
 }
-.error_message {
+.error {
 	padding: 0.5em 0;
 }
 .panel .button {
@@ -107,8 +113,14 @@ h1.forumtitle {
 .upgrade_settings li + li {
 	margin-top: 0.5em;
 }
-#commess {
+.buttons {
+	margin-top: 1em;
+}
+#commess, #indexmsg {
 	font-weight: bold;
+}
+#indexmsg {
+	font-style: italic;
 }
 .error_content {
 	margin: 2.5ex;
@@ -140,16 +152,32 @@ dl.settings.adminlogin dd {
 	display: none;
 }
 /* End [WIP] */
-#time_elapsed {
-	clear: both;
-	padding: 1em 1em 0 1em;
-	border: 1px solid green;
-	/* [WIP] */
-	background: /*#f0f4f7*/ #fcfcfc;
-	margin: 1em 0.9em 0 0.9em;
-	padding: 6px 8px 8px 8px;
-	border: 1px solid #ddd;
-	border-radius: 5px;
-	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.1);
-	/* End [WIP] */
+
+
+/* Now make the installer and upgrader adaptive */
+
+@media screen and (max-width: 950px) {
+
+	.progress_bar span {
+		float: right;
+	}
+}
+
+@media screen and (max-width: 700px) {
+
+	#install_progress, #main_steps {
+		width: 100%;
+		margin-right: 0;
+	}
+	#install_progress {
+		order: 0;
+		margin-top: 2em;
+	}
+	dl.settings dd {
+		-ms-grid-column: 1;
+		grid-column: 1;
+	}
+	dl.settings dt {
+		margin: 10px 0 0;
+	}
 }

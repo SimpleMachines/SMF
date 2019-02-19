@@ -3600,7 +3600,7 @@ function template_chmod()
 
 	if (!empty($upcontext['chmod']['ftp_error']))
 		echo '
-			<div class="error_message red">
+			<div class="error">
 				<p>', $txt['upgrade_ftp_error'], '<p>
 				<code>', $upcontext['chmod']['ftp_error'], '</code>
 			</div>';
@@ -3703,21 +3703,17 @@ function template_upgrade_above()
 		<img id="smflogo" src="', $settings['default_theme_url'], '/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
 	</div>
 	<div id="wrapper">
-		<div id="upper_section">
-			<div id="inner_section">
-				<div id="inner_wrap">
-				</div>
-			</div>
-		</div>
 		<div id="content_section">
 			<div id="main_content_section">
 				<div id="main_steps">
 					<h2>', $txt['upgrade_progress'], '</h2>
-					<ul>';
+					<ul class="steps_list">';
 
 	foreach ($upcontext['steps'] as $num => $step)
 		echo '
-						<li class="', $num < $upcontext['current_step'] ? 'stepdone' : ($num == $upcontext['current_step'] ? 'stepcurrent' : 'stepwaiting'), '">', $txt['upgrade_step'], ' ', $step[0], ': ', $txt[$step[1]], '</li>';
+						<li', $num == $upcontext['current_step'] ? ' class="stepcurrent"' : '', '>
+							', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '
+						</li>';
 
 	echo '
 					</ul>
@@ -3756,11 +3752,9 @@ function template_upgrade_above()
 					</div>';
 	echo '
 				</div><!-- #install_progress -->
-			</div><!-- #main_content_section -->
-		</div><!-- #content_section -->
-		<div id="main_screen" class="clear">
-			<h2>', $upcontext['page_title'], '</h2>
-			<div class="panel">';
+				<div id="main_screen" class="clear">
+					<h2>', $upcontext['page_title'], '</h2>
+					<div class="panel">';
 }
 
 function template_upgrade_below()
@@ -3769,35 +3763,37 @@ function template_upgrade_below()
 
 	if (!empty($upcontext['pause']))
 		echo '
-					<em>', $txt['upgrade_incomplete'], '.</em><br>
+							<em>', $txt['upgrade_incomplete'], '.</em><br>
 
-					<h2 style="margin-top: 2ex;">', $txt['upgrade_not_quite_done'], '</h2>
-					<h3>
-						', $txt['upgrade_paused_overload'], '
-					</h3>';
+							<h2 style="margin-top: 2ex;">', $txt['upgrade_not_quite_done'], '</h2>
+							<h3>
+								', $txt['upgrade_paused_overload'], '
+							</h3>';
 
 	if (!empty($upcontext['custom_warning']))
 		echo '
-					<div class="errorbox">
-						<h3>', $txt['upgrade_note'], '</h3>
-						', $upcontext['custom_warning'], '
-					</div>';
+							<div class="errorbox">
+								<h3>', $txt['upgrade_note'], '</h3>
+								', $upcontext['custom_warning'], '
+							</div>';
 
 	echo '
-					<div class="righttext" style="margin: 1ex;">';
+							<div class="righttext buttons">';
 
 	if (!empty($upcontext['continue']))
 		echo '
-						<input type="submit" id="contbutt" name="contbutt" value="', $txt['upgrade_continue'], '"', $upcontext['continue'] == 2 ? ' disabled' : '', ' class="button">';
+								<input type="submit" id="contbutt" name="contbutt" value="', $txt['upgrade_continue'], '"', $upcontext['continue'] == 2 ? ' disabled' : '', ' class="button">';
 	if (!empty($upcontext['skip']))
 		echo '
-						<input type="submit" id="skip" name="skip" value="', $txt['upgrade_skip'], '" onclick="dontSubmit = true; document.getElementById(\'contbutt\').disabled = \'disabled\'; return true;" class="button">';
+								<input type="submit" id="skip" name="skip" value="', $txt['upgrade_skip'], '" onclick="dontSubmit = true; document.getElementById(\'contbutt\').disabled = \'disabled\'; return true;" class="button">';
 
 	echo '
-					</div>
-				</form>
-			</div><!-- .panel -->
-		</div><!-- #main_screen -->
+							</div>
+						</form>
+					</div><!-- .panel -->
+				</div><!-- #main_screen -->
+			</div><!-- #main_content_section -->
+		</div><!-- #content_section -->
 	</div><!-- #wrapper -->
 	</div><!-- #footerfix -->
 	<div id="footer">
@@ -3859,7 +3855,7 @@ function template_error_message()
 	global $upcontext;
 
 	echo '
-	<div class="error_message red">
+	<div class="error">
 		', $upcontext['error_msg'], '
 		<br>
 		<a href="', $_SERVER['PHP_SELF'], '">Click here to try again.</a>
@@ -4619,7 +4615,7 @@ function template_convert_utf8()
 	// If we dropped their index, let's let them know
 	if ($upcontext['dropping_index'])
 		echo '
-					<p id="indexmsg" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', ' style="font-weight: bold; font-style: italic">', $txt['upgrade_fulltext'], '</p>';
+					<p id="indexmsg" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '>', $txt['upgrade_fulltext'], '</p>';
 
 	// Completion notification
 	echo '
