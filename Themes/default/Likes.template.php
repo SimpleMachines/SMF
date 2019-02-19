@@ -63,7 +63,7 @@ function template_like()
 
 	if (!empty($context['data']['can_like']))
 		echo '
-		<li id="', $context['data']['type'], '_', $context['data']['id_content'], '_likes"', '>
+		<li class="smflikebutton" id="', $context['data']['type'], '_', $context['data']['id_content'], '_likes"', '>
 			<a href="', $scripturl, '?action=likes;ltype=', $context['data']['type'], ';sa=like;like=', $context['data']['id_content'], ';', $context['session_var'], '=', $context['session_id'], '" class="', $context['data']['type'], '_like"><span class="main_icons ', $context['data']['already_liked'] ? 'unlike' : 'like', '"></span> ', $context['data']['already_liked'] ? $txt['unlike'] : $txt['like'], '</a>
 		</li>';
 
