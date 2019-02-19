@@ -1726,6 +1726,29 @@ function template_profile_theme_settings()
 		// Just spit out separators and move on
 		if (empty($setting) || !is_array($setting))
 		{
+			// Avoid double separators and empty titled sections
+			$empty_section = true;
+			for ($j=$i+1; $j <= count($context['theme_options']); $j++)
+			{
+				// Found another separator, so we're done
+				if (!is_array($context['theme_options'][$j]))
+					break;
+
+				// Once we know there's something to show in this section, we can stop
+				if (!isset($context['theme_options'][$j]['enabled']) || !empty($context['theme_options'][$j]['enabled']))
+				{
+					$empty_section = false;
+					break;
+				}
+			}
+			if ($empty_section)
+			{
+				if ($i === $first_option_key)
+					$first_option_key = array_shift($skeys);
+
+				continue;
+			}
+
 			// Insert a separator (unless this is the first item in the list)
 			if ($i !== $first_option_key)
 				echo '
@@ -1749,7 +1772,12 @@ function template_profile_theme_settings()
 
 		// Is this disabled?
 		if (isset($setting['enabled']) && $setting['enabled'] === false)
+		{
+			if ($i === $first_option_key)
+				$first_option_key = array_shift($skeys);
+
 			continue;
+		}
 
 		// Some of these may not be set...  Set to defaults here
 		$opts = array('calendar_start_day', 'topics_per_page', 'messages_per_page', 'display_quick_mod');
