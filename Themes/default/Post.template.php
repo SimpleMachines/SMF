@@ -740,25 +740,15 @@ function template_main()
 		echo '
 			function insertQuoteFast(messageid)
 			{
-				if (window.XMLHttpRequest)
-					getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';xml;pb=', $context['post_box_name'], ';mode=0\', onDocReceived);
-				else
-					reqWin(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';pb=', $context['post_box_name'], ';mode=0\', 240, 90);
+				var e = document.getElementById("', $context['post_box_name'], '");
+				sceditor.instance(e).insertQuoteFast(messageid);
 
 				return true;
 			}
-			function onDocReceived(XMLDoc)
-			{
-				var text = \'\';
-				var e = $("#', $context['post_box_name'], '").get(0);
-
-				for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
-					text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
-				sceditor.instance(e).InsertText(text);
-			}
 			function onReceiveOpener(text)
 			{
-				sceditor.instance(e).InsertText(text);
+				var e = document.getElementById("', $context['post_box_name'], '");
+				sceditor.instance(e).insertText(text);
 			}
 		</script>';
 	}

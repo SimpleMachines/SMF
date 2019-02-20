@@ -1081,20 +1081,10 @@ function template_quickreply()
 						<script>
 							function insertQuoteFast(messageid)
 							{
-								if (window.XMLHttpRequest)
-									getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';xml;pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), onDocReceived);
-								else
-									reqWin(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), 240, 90);
-								return false;
-							}
-							function onDocReceived(XMLDoc)
-							{
-								var text = \'\';
-								for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
-									text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
-								sceditor.instance($("#', $context['post_box_name'], '").get(0)).InsertText(text);
+								var e = document.getElementById("', $context['post_box_name'], '");
+								sceditor.instance(e).insertQuoteFast(messageid);
 
-								ajax_indicator(false);
+								return false;
 							}
 						</script>';
 

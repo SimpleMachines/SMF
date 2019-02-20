@@ -11,19 +11,26 @@
 
 (function ($) {
 	var extensionMethods = {
+		insertQuoteFast: function (messageid)
+		{
+			var self = this;
+			getXMLDocument(
+				smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + messageid + ';xml',
+				function(XMLDoc)
+				{
+					var text = '';
+
+					for (var i = 0, n = XMLDoc.getElementsByTagName('quote')[0].childNodes.length; i < n; i++)
+						text += XMLDoc.getElementsByTagName('quote')[0].childNodes[i].nodeValue;
+					self.insert(text);
+				}
+			);
+		},
 		InsertText: function (text, bClear) {
-			var bIsSource = this.inSourceMode();
+			if (bClear)
+				this.val('');
 
-			// @TODO make it put the quote close to the current selection
-
-			if (!bIsSource)
-				this.toggleSourceMode();
-
-			var current_value = bClear ? text : this.getSourceEditorValue(false) + text;
-			this.setSourceEditorValue(current_value);
-
-			if (!bIsSource)
-				this.toggleSourceMode();
+			this.insert(text);
 		},
 		getText: function (filter) {
 			var current_value = '';
