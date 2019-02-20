@@ -441,6 +441,14 @@ dl.right dt {
 	padding-right: 10px;
 }
 
+/* Styles for the manage membergroups section. */
+.denyboards_layout .board:hover {
+	background: #e3e9ec;
+}
+.all_boards_in_cat {
+	margin-left: 2.5em;
+}
+
 /* Styles for the question and answers */
 fieldset.qa_fieldset {
 	clear: both;
