@@ -2406,7 +2406,7 @@ MODIFY COLUMN new_pm TINYINT UNSIGNED NOT NULL DEFAULT '0';
 
 ---# Updating members pm_ignore_list
 ALTER TABLE {$db_prefix}members
-MODIFY COLUMN pm_ignore_list VARCHAR(255) NOT NULL DEFAULT '';
+MODIFY COLUMN pm_ignore_list TEXT NULL;
 ---#
 
 ---# Updating member_logins id_member

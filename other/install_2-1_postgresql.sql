@@ -1062,7 +1062,7 @@ CREATE TABLE {$db_prefix}members (
 	new_pm smallint NOT NULL DEFAULT '0',
 	alerts bigint NOT NULL DEFAULT '0',
 	buddy_list text NOT NULL,
-	pm_ignore_list varchar(255) NOT NULL DEFAULT '',
+	pm_ignore_list TEXT NULL,
 	pm_prefs int NOT NULL DEFAULT '0',
 	mod_prefs varchar(20) NOT NULL DEFAULT '',
 	passwd varchar(64) NOT NULL DEFAULT '',

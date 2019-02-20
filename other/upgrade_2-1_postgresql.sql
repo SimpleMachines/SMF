@@ -2878,6 +2878,11 @@ ALTER TABLE {$db_prefix}members
 ALTER pm_ignore_list SET DEFAULT '';
 
 ALTER TABLE {$db_prefix}members
+ALTER pm_ignore_list TYPE TEXT,
+ALTER pm_ignore_list NOT NULL,
+ALTER pm_ignore_list DROP DEFAULT;
+
+ALTER TABLE {$db_prefix}members
 ALTER email_address SET DEFAULT '';
 
 ALTER TABLE {$db_prefix}members
