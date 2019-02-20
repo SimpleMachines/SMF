@@ -748,7 +748,7 @@ function template_main()
 			function onReceiveOpener(text)
 			{
 				var e = document.getElementById("', $context['post_box_name'], '");
-				sceditor.instance(e).insertText(text);
+				sceditor.instance(e).insert(text);
 			}
 		</script>';
 	}
