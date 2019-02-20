@@ -1460,20 +1460,27 @@ while ($_GET['m'] < $totalActions)
 		preg_match('~<br />(%1\$s: )?([\w\. \\\\/\-_:]+)<br />(%2\$s: )?([\d]+)~', $row['message'], $matches);
 		if (!empty($matches[2]) && !empty($matches[4]) && empty($row['file']) && empty($row['line']))
 		{
-			$row['file'] = addslashes(str_replace('\\', '/', $matches[2]));
+			$row['file'] = str_replace('\\', '/', $matches[2]);
 			$row['line'] = (int) $matches[4];
-			$row['message'] = addslashes(preg_replace('~<br />(%1\$s: )?([\w\. \\\\/\-_:]+)<br />(%2\$s: )?([\d]+)~', '', $row['message']));
+			$row['message'] = preg_replace('~<br />(%1\$s: )?([\w\. \\\\/\-_:]+)<br />(%2\$s: )?([\d]+)~', '', $row['message']);
 		}
 		else
 			continue;
 
-		upgrade_query("
-			UPDATE {$db_prefix}log_errors
-			SET file = SUBSTRING('$row[file]', 1, 255),
-				line = $row[line],
-				message = SUBSTRING('$row[message]', 1, 65535)
-			WHERE id_error = $row[id_error]
-			LIMIT 1");
+		$smcFunc['db_query']('',
+			'UPDATE {db_prefix}log_errors
+			SET file = SUBSTRING({string:file}, 1, 255),
+				line = {int:line},
+				message = SUBSTRING({string:message}, 1, 65535)
+			WHERE id_error = {int:id_error}
+			LIMIT 1',
+			array(
+				'file' => $row[file],
+				'line' => $row[line],
+				'message' => $row[message],
+				'id_error' => $row[id_error],
+			)
+		);
 	}
 
 	$_GET['m'] += 500;
@@ -1708,18 +1715,18 @@ if ($profileCount == 0)
 	$board_updates = array();
 	while ($row = smf_mysql_fetch_assoc($request))
 	{
-		$row['name'] = addslashes($row['name']);
-
 		// Is it a truely local permission board? If so this is a new profile!
 		if ($row['permission_mode'] == 1)
 		{
 			// I know we could cache this, but I think we need to be practical - this is slow but guaranteed to work.
-			upgrade_query("
-				INSERT INTO {$db_prefix}permission_profiles
-					(profile_name)
-				VALUES
-					('$row[name]')");
-			$board_updates[smf_mysql_insert_id()][] = $row['id_board'];
+			$insert_id = $smcFunc['db_insert']('',
+				'{db_prefix}permission_profiles',
+				array('profile_name' => 'string'),
+				array($row['name']),
+				array('id_profile'),
+				1
+			);
+			$board_updates[$insert_id][] = $row['id_board'];
 		}
 		// Otherwise, dear god, this is an old school "simple" permission...
 		elseif ($row['permission_mode'] > 1 && $row['permission_mode'] < 5)
@@ -2030,8 +2037,22 @@ while ($_GET['m'] < $totalActions)
 		}
 		else
 			$msg_id = '0';
-		$row['extra'] = addslashes(serialize($row['extra']));
-		upgrade_query("UPDATE {$db_prefix}log_actions SET id_board=$board_id, id_topic=$topic_id, id_msg=$msg_id, extra='$row[extra]' WHERE id_action=$row[id_action]");
+		$row['extra'] = serialize($row['extra']);
+		$smcFunc['db_query']('','
+			UPDATE {db_prefix}log_actions
+			SET id_board = {int:board_id}, 
+				id_topic = {int:topic_id}, 
+				id_msg = {int:msg_id}, 
+				extra =  {string:extra}
+			WHERE id_action = {int:id_action}',
+			array(
+				'board_id' => $board_id,
+				'topic_id' => $topic_id,
+				'msg_id'   => $msg_id,
+				'extra'    => $row[extra],
+				'id_action' => $row[id_action],
+			)
+		);
 	}
 	$_GET['m'] += 500;
 	$step_progress['current'] = $_GET['m'];

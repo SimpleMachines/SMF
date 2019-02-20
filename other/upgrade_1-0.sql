@@ -539,7 +539,7 @@ if ($do_moderators)
 		$moderators = array_unique(explode(',', $row['moderators']));
 		foreach ($moderators as $k => $dummy)
 		{
-			$moderators[$k] = addslashes(trim($moderators[$k]));
+			$moderators[$k] = $smcFunc['db_escape_string'](trim($moderators[$k]));
 			if ($moderators[$k] == '')
 				unset($moderators[$k]);
 		}
@@ -824,7 +824,7 @@ while ($do_it)
 		$request2 = upgrade_query("
 			SELECT ID_MEMBER
 			FROM {$db_prefix}members
-			WHERE FIND_IN_SET(memberName, '" . addslashes($row['im_ignore_list']) . "')");
+			WHERE FIND_IN_SET(memberName, '" . $smcFunc['db_escape_string']($row['im_ignore_list']) . "')");
 		$im_ignore_list = '';
 		while ($row2 = smf_mysql_fetch_assoc($request2))
 			$im_ignore_list .= ',' . $row2['ID_MEMBER'];
@@ -905,10 +905,15 @@ $member_groups = getMemberGroups();
 
 foreach ($member_groups as $name => $id)
 {
-	upgrade_query("
-		UPDATE IGNORE {$db_prefix}members
-		SET ID_GROUP = $id
-		WHERE memberGroup = '" . addslashes($name) . "'");
+	$smcFunc['db_query']('','
+	UPDATE IGNORE {db_prefix}members
+		SET ID_GROUP = {int:id}
+		WHERE memberGroup = {string:name} ',
+		array(
+			'id' => $id
+			'name' => $name,
+		)
+	);
 
 	nextSubstep($substep);
 }
@@ -1417,15 +1422,19 @@ if (!isset($modSettings['censor_vulgar']) || !isset($modSettings['censor_proper'
 	}
 	smf_mysql_free_result($request);
 
-	$modSettings['censor_vulgar'] = addslashes(implode("\n", $censor_vulgar));
-	$modSettings['censor_proper'] = addslashes(implode("\n", $censor_proper));
+	$modSettings['censor_vulgar'] = implode("\n", $censor_vulgar);
+	$modSettings['censor_proper'] = implode("\n", $censor_proper);
 
-	upgrade_query("
-		INSERT IGNORE INTO {$db_prefix}settings
-			(variable, value)
-		VALUES
-			('censor_vulgar', '$modSettings[censor_vulgar]'),
-			('censor_proper', '$modSettings[censor_proper]')");
+	$insertVal = array();
+	$insertVal[] = array('censor_vulgar', $modSettings['censor_vulgar']);
+	$insertVal[] = array('censor_proper', $modSettings['censor_proper']);
+
+	$smcFunc['db_insert']('IGNORE',
+				'{db_prefix}settings',
+				array('variable' => 'string', 'value' => 'string'),
+				array(insertVal),
+				array('variable')
+	);
 
 	upgrade_query("
 		DROP TABLE IF EXISTS {$db_prefix}censor");
