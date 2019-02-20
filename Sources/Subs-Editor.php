@@ -1874,9 +1874,6 @@ function create_control_richedit($editorOptions)
 		}
 	}
 
-	// Set a flag so the sub template knows what to do...
-	$context['show_bbc'] = !empty($modSettings['enableBBC']);
-
 	// Set up the SCEditor options
 	$sce_options = array(
 		'style' => $settings['default_theme_url'] . '/css/jquery.sceditor.default.css',
@@ -1932,7 +1929,7 @@ function create_control_richedit($editorOptions)
 	}
 
 	$sce_options['toolbar'] = '';
-	if ($context['show_bbc'])
+	if (!empty($modSettings['enableBBC']))
 	{
 		$count_tags = count($context['bbc_tags']);
 		foreach ($context['bbc_toolbar'] as $i => $buttonRow)

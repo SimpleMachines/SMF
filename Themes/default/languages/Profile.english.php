@@ -341,7 +341,6 @@ $txt['topics_per_page'] = 'Topics to display per page:';
 $txt['messages_per_page'] = 'Messages to display per page:';
 $txt['per_page_default'] = 'forum default';
 $txt['calendar_start_day'] = 'First day of the week on the calendar';
-$txt['use_editor_quick_reply'] = 'Use full editor toolbar in Quick Reply';
 $txt['display_quick_mod'] = 'Show quick-moderation as';
 $txt['display_quick_mod_none'] = 'don\'t show';
 $txt['display_quick_mod_check'] = 'checkboxes';

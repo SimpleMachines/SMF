@@ -1366,7 +1366,6 @@ function Display()
 	$editorOptions = array(
 		'id' => 'quickReply',
 		'value' => '',
-		'disable_smiley_box' => empty($options['use_editor_quick_reply']),
 		'labels' => array(
 			'post_button' => $txt['post'],
 		),
@@ -1383,9 +1382,6 @@ function Display()
 	// Store the ID.
 	$context['post_box_name'] = $editorOptions['id'];
 
-	// Set a flag so the sub template knows what to do...
-	$context['show_bbc'] = !empty($options['use_editor_quick_reply']);
-	$modSettings['disable_wysiwyg'] = !empty($options['use_editor_quick_reply']);
 	$context['attached'] = '';
 	$context['make_poll'] = isset($_REQUEST['poll']);
 
