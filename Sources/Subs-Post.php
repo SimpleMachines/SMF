@@ -1728,7 +1728,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	if (!empty($modSettings['enable_mentions']))
 	{
-	    // Get any members who were possibly mentioned
+		// Get any members who were possibly mentioned
 		$msgOptions['mentioned_members'] = Mentions::getMentionedMembers($msgOptions['body']);
 		if (!empty($msgOptions['mentioned_members']))
 		{
@@ -1738,7 +1738,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			// Remove any members who weren't actually mentioned, to prevent bogus notifications
 			foreach ($msgOptions['mentioned_members'] as $m)
 			{
-				if (preg_match('~\[member=' . $m['id'] . '\]@' . $m['real_name'] . '\[/member\]~u', $msgOptions['body']) === 0)
+				if (strpos('[member=' . $m['id'] . ']' . $m['real_name'] . '[/member]', $msgOptions['body']) === false)
 					unset($msgOptions['mentioned_members'][$m['id']]);
 			}
 		}
