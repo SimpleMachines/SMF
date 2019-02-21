@@ -2298,7 +2298,7 @@ DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
 ---# upgrade check
 ---{
 $table_columns = $smcFunc['db_list_columns']('{db_prefix}ban_items');
-$upcontext['skip_db_substeps'] = !in_array('ip_low', $table_columns);
+$upcontext['skip_db_substeps'] = in_array('ip_low', $table_columns);
 ---}
 ---#
 
@@ -2879,7 +2879,7 @@ ALTER pm_ignore_list SET DEFAULT '';
 
 ALTER TABLE {$db_prefix}members
 ALTER pm_ignore_list TYPE TEXT,
-ALTER pm_ignore_list NOT NULL,
+ALTER pm_ignore_list DROP NOT NULL,
 ALTER pm_ignore_list DROP DEFAULT;
 
 ALTER TABLE {$db_prefix}members
