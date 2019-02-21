@@ -1369,9 +1369,11 @@ function getBoardModeratorGroups(array $boards)
  *  $boardList	a list of boards grouped by category ID.
  *  $cat_tree	properties of each category.
  */
-function getBoardTree()
+function getBoardTree($managing = false)
 {
-	global $cat_tree, $boards, $boardList, $smcFunc;
+	global $cat_tree, $boards, $boardList, $smcFunc, $user_info;
+
+	$managing = !empty($managing) ? allowedTo('manage_boards') : false;
 
 	$boardColumns = array(
 		'COALESCE(b.id_board, 0) AS id_board', 'b.id_parent', 'b.name AS board_name',
@@ -1395,7 +1397,7 @@ function getBoardTree()
 			' . implode(', ', $boardColumns) . '
 		FROM {db_prefix}categories AS c
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
-		WHERE {query_see_board}
+		WHERE ' . ($managing ? '1=1' : '{query_see_board}') . '
 		ORDER BY c.cat_order, b.child_level, b.board_order',
 		$boardParameters
 	);
@@ -1421,6 +1423,10 @@ function getBoardTree()
 			$prevBoard = 0;
 			$curLevel = 0;
 		}
+
+		// If $managing is true, we may have retrieved some boards this user can't actually see
+		if ($managing && !$user_info['is_admin'] && (empty(array_intersect($user_info['groups'], explode(',', $row['member_groups']))) || !empty(array_intersect($user_info['groups'], explode(',', $row['deny_member_groups'])))))
+			continue;
 
 		if (!empty($row['id_board']))
 		{

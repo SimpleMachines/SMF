@@ -107,7 +107,7 @@ function ManageBoardsMain()
 		modifyBoard((int) $_REQUEST['src_board'], $boardOptions);
 	}
 
-	getBoardTree();
+	getBoardTree(true);
 
 	$context['move_board'] = !empty($_REQUEST['move']) && isset($boards[(int) $_REQUEST['move']]) ? (int) $_REQUEST['move'] : 0;
 
@@ -223,7 +223,7 @@ function EditCategory()
 	loadTemplate('ManageBoards');
 	require_once($sourcedir . '/Subs-Boards.php');
 	require_once($sourcedir . '/Subs-Editor.php');
-	getBoardTree();
+	getBoardTree(true);
 
 	// id_cat must be a number.... if it exists.
 	$_REQUEST['cat'] = isset($_REQUEST['cat']) ? (int) $_REQUEST['cat'] : 0;
