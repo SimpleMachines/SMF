@@ -338,11 +338,7 @@ function template_edit_group()
 					</dt>
 					<dd>';
 
-		if (!empty($context['can_manage_boards']))
-			echo $txt['membergroups_can_manage_access'];
-
-		else
-			template_add_edit_group_boards_list();
+		template_add_edit_group_boards_list();
 
 		echo '
 					</dd>';

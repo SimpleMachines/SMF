@@ -380,7 +380,7 @@ function template_modify_board()
 		if (empty($modSettings['deny_boards_access']))
 			echo '
 						<label for="groups_', $group['id'], '">
-							<input type="checkbox" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '"', in_array($group['id'], $context['board_managers']) ? ' checked disabled' : ($group['allow'] ? ' checked' : ''), '>
+							<input type="checkbox" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '"', $group['allow'] ? ' checked' : '', '>
 							<span', $group['is_post_group'] ? ' class="post_group" title="' . $txt['mboards_groups_post_group'] . '"' : ($group['id'] == 0 ? ' class="regular_members" title="' . $txt['mboards_groups_regular_members'] . '"' : ''), '>
 								', $group['name'], '
 							</span>
@@ -396,13 +396,13 @@ function template_modify_board()
 									</label>
 								</td>
 								<td>
-									<input type="radio" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '_a"', in_array($group['id'], $context['board_managers']) ? ' checked disabled' : ($group['allow'] ? ' checked' : ''), '>
+									<input type="radio" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '_a"', $group['allow'] ? ' checked' : '', '>
 								</td>
 								<td>
-									<input type="radio" name="groups[', $group['id'], ']" value="ignore" id="groups_', $group['id'], '_x"', in_array($group['id'], $context['board_managers']) ? ' disabled' : (!$group['allow'] && !$group['deny'] ? ' checked' : ''), '>
+									<input type="radio" name="groups[', $group['id'], ']" value="ignore" id="groups_', $group['id'], '_x"', !$group['allow'] && !$group['deny'] ? ' checked' : '', '>
 								</td>
 								<td>
-									<input type="radio" name="groups[', $group['id'], ']" value="deny" id="groups_', $group['id'], '_d"', in_array($group['id'], $context['board_managers']) ? ' disabled' : ($group['deny'] ? ' checked' : ''), '>
+									<input type="radio" name="groups[', $group['id'], ']" value="deny" id="groups_', $group['id'], '_d"', $group['deny'] ? ' checked' : '', '>
 								</td>
 								<td></td>
 							</tr>';
