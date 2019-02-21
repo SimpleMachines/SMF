@@ -1382,23 +1382,30 @@ function getBoardTree($managing = false)
 		'b.num_topics', 'b.deny_member_groups', 'c.id_cat', 'c.name AS cat_name',
 		'c.description AS cat_desc', 'c.cat_order', 'c.can_collapse',
 	);
+	$boardParameters = array();
+	$boardJoins = array();
+	$boardWhere = array();
+	$boardOrder = array('c.cat_order', 'b.child_level', 'b.board_order');
 
-	// Let mods add extra columns and parameters to the SELECT query
-	$extraBoardColumns = array();
-	$extraBoardParameters = array();
-	call_integration_hook('integrate_pre_boardtree', array(&$extraBoardColumns, &$extraBoardParameters));
+	// Let mods add extra columns, parameters, etc., to the SELECT query
+	call_integration_hook('integrate_pre_boardtree', array(&$boardColumns, &$boardParameters, &$boardJoins, &$boardWhere, &$boardOrder));
 
-	$boardColumns = array_unique(array_merge($boardColumns, $extraBoardColumns));
-	$boardParameters = array_unique($extraBoardParameters);
+	$boardColumns = array_unique($boardColumns);
+	$boardParameters = array_unique($boardParameters);
+	$boardJoins = array_unique($boardJoins);
+	$boardWhere = array_unique($boardWhere);
+	$boardOrder = array_unique($boardOrder);
 
 	// Getting all the board and category information you'd ever wanted.
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			' . implode(', ', $boardColumns) . '
 		FROM {db_prefix}categories AS c
-			LEFT JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
-		WHERE ' . ($managing ? '1=1' : '{query_see_board}') . '
-		ORDER BY c.cat_order, b.child_level, b.board_order',
+			LEFT JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)' . implode('
+			', $boardJoins) . '
+		WHERE ' . ($managing ? '1=1' : '{query_see_board}') . (empty($boardWhere) ? '' : '
+			AND (' . implode(') AND (', $boardWhere) . ')') . '
+		ORDER BY ' . implode(', ', $boardOrder),
 		$boardParameters
 	);
 	$cat_tree = array();
