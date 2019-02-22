@@ -328,27 +328,6 @@ function template_folder()
 						</li>';
 				}
 
-				// Show the IP to this user for this post - because you can moderate?
-				if (!empty($context['can_moderate_forum']) && !empty($message['member']['ip']))
-					echo '
-						<li class="poster_ip">
-							<a href="', $scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '">', $message['member']['ip'], '</a> <a href="', $scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
-						</li>';
-
-				// Or, should we show it because this is you?
-				elseif ($message['can_see_ip'])
-					echo '
-						<li class="poster_ip">
-							<a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $message['member']['ip'], '</a>
-						</li>';
-
-				// Okay, you are logged in, then we can show something about why IPs are logged...
-				else
-					echo '
-						<li class="poster_ip">
-							<a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $txt['logged'], '</a>
-						</li>';
-
 				// Show the profile, website, email address, and personal message buttons.
 				if ($message['member']['show_profile_buttons'])
 				{
@@ -356,29 +335,24 @@ function template_folder()
 						<li class="profile">
 							<ol class="profile_icons">';
 
-					// Show the profile button
-					if ($message['member']['can_view_profile'])
-						echo '
-								<li><a href="', $message['member']['href'], '">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="' . $txt['view_profile'] . '" title="' . $txt['view_profile'] . '">' : $txt['view_profile']), '</a></li>';
-
 					// Don't show an icon if they haven't specified a website.
 					if ($message['member']['website']['url'] != '' && !isset($context['disabled_fields']['website']))
 						echo '
 								<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', ($settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
-
-					// Don't show the email address if they want it hidden.
-					if ($message['member']['show_email'])
-						echo '
-								<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
 
 					// Since we know this person isn't a guest, you *can* message them.
 					if ($context['can_send_pm'])
 						echo '
 								<li><a href="', $scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']), '</a></li>';
 
+					// Don't show the email address if they want it hidden.
+					if ($message['member']['show_email'])
+						echo '
+								<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
+
 					echo '
 							</ol>
-						</li>';
+						</li><!-- .profile -->';
 				}
 
 				// Any custom fields for standard placement?
@@ -398,6 +372,31 @@ function template_folder()
 						echo '
 						<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 			}
+			// Otherwise, show the guest's email.
+			elseif (!empty($message['member']['email']) && $message['member']['show_email'])
+				echo '
+						<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
+
+			// Show the IP to this user for this post - because you can moderate?
+			if (!empty($context['can_moderate_forum']) && !empty($message['member']['ip']))
+				echo '
+					<li class="poster_ip">
+						<a href="', $scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '">', $message['member']['ip'], '</a> <a href="', $scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
+					</li>';
+
+			// Or, should we show it because this is you?
+			elseif ($message['can_see_ip'])
+				echo '
+					<li class="poster_ip">
+						<a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $message['member']['ip'], '</a>
+					</li>';
+
+			// Okay, you are logged in, then we can show something about why IPs are logged...
+			else
+				echo '
+					<li class="poster_ip">
+						<a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $txt['logged'], '</a>
+					</li>';
 
 			// Done with the information about the poster... on to the post itself.
 			echo '
