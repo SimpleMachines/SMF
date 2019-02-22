@@ -447,10 +447,6 @@ function template_folder()
 				echo '
 						<div class="under_message">';
 
-			if ($message['can_report'])
-				echo '
-							<a href="' . $scripturl . '?action=pm;sa=report;l=' . $context['current_label_id'] . ';pmsg=' . $message['id'] . '" class="floatright">' . $txt['pm_report_to_admin'] . '</a>';
-
 			echo '
 							<ul class="quickbuttons">';
 
@@ -469,6 +465,10 @@ function template_folder()
 								<li><a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';u=', $message['member']['id'], '"><span class="main_icons reply_button"></span>', $txt['reply'], '</a></li>
 								<li><a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';quote', $context['folder'] == 'sent' ? '' : ';u=' . $message['member']['id'], '"><span class="main_icons quote"></span>', $txt['quote_action'], '</a></li>';
 				}
+				// Can personal messages be reported to admins ?
+				if ($message['can_report'])
+					echo '
+								<li><a href="' . $scripturl . '?action=pm;sa=report;l=' . $context['current_label_id'] . ';pmsg=' . $message['id'] . '"><span class="main_icons error"></span>' . $txt['pm_report_to_admin'] . '</a>';
 				// This is for "forwarding" - even if the member is gone.
 				else
 					echo '
