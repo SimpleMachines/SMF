@@ -711,7 +711,7 @@ function template_single_post($message)
 	// Ignoring this user? Hide the post.
 	if ($ignoring)
 		echo '
-							<div id="msg_', $message['id'], '_ignored_prompt">
+							<div id="msg_', $message['id'], '_ignored_prompt" class="noticebox">
 								', $txt['ignoring_user'], '
 								<a href="#" id="msg_', $message['id'], '_ignored_link" style="display: none;">', $txt['show_ignore_user_post'], '</a>
 							</div>';
@@ -722,7 +722,7 @@ function template_single_post($message)
 
 	if (!$message['approved'] && $message['member']['id'] != 0 && $message['member']['id'] == $context['user']['id'])
 		echo '
-								<div class="approve_post">
+								<div class="approve_post noticebox">
 									', $txt['post_awaiting_approval'], '
 								</div>';
 	echo '
