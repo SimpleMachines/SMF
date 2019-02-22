@@ -406,7 +406,14 @@ function template_folder()
 					<div class="flow_hidden">
 						<div class="keyinfo">
 							<h5 id="subject_', $message['id'], '">
-								', $message['subject'], '
+								<span class="message_subject">', $message['subject'], '</span>';
+
+			if (!empty($message['is_replied_to']))
+				echo '
+								<span class="message_replied_to smalltext floatright">&#171; ', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' &#187;</span>';
+
+
+			echo '
 							</h5>';
 
 			// Show who the message was sent to.
@@ -429,10 +436,6 @@ function template_folder()
 			if (!empty($message['recipients']['bcc']))
 				echo '<br>
 							<span class="smalltext">&#171; <strong> ', $txt['pm_bcc'], ':</strong> ', implode(', ', $message['recipients']['bcc']), ' &#187;</span>';
-
-			if (!empty($message['is_replied_to']))
-				echo '<br>
-							<span class="smalltext">&#171; ', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' &#187;</span>';
 
 			echo '
 						</div><!-- .keyinfo -->
