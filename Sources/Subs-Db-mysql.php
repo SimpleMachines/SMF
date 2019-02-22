@@ -106,7 +106,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	// Disable backlash escape, only '' is than a valid one
 	$sql_mode .= (empyt($sql_mode) ? '' : ',') . 'NO_BACKSLASH_ESCAPES';
 
-	mysqli_query($connection, 'SET SESSION sql_mode = ' . $sql_mode);
+	mysqli_query($connection, "SET SESSION sql_mode = '" . $sql_mode . "'");
 
 	if (!empty($db_options['db_mb4']))
 		$smcFunc['db_mb4'] = (bool) $db_options['db_mb4'];
