@@ -482,51 +482,11 @@ function template_folder()
 			echo '
 							</ul>';
 
-
-			// Are there any custom profile fields for above the signature?
-			if (!empty($message['custom_fields']['above_signature']))
-			{
-				echo '
-						<div class="custom_fields_above_signature">
-							<ul class="nolist">';
-
-				foreach ($message['custom_fields']['above_signature'] as $custom)
-					echo '
-								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
-
-				echo '
-							</ul>
-						</div>';
-			}
-
-			// Show the member's signature?
-			if (!empty($message['member']['signature']) && empty($options['show_no_signatures']) && $context['signature_enabled'])
-				echo '
-						<div class="signature">
-							', $message['member']['signature'], '
-						</div>';
-
-			// Are there any custom profile fields for below the signature?
-			if (!empty($message['custom_fields']['below_signature']))
-			{
-				echo '
-						<div class="custom_fields_below_signature">
-							<ul class="nolist">';
-
-				foreach ($message['custom_fields']['below_signature'] as $custom)
-					echo '
-								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
-
-				echo '
-							</ul>
-						</div>';
-			}
-
 			// Add an extra line at the bottom if we have labels enabled.
 			if ($context['folder'] != 'sent' && !empty($context['currently_using_labels']) && $context['display_mode'] != 2)
 			{
 				echo '
-						<div class="labels righttext flow_auto">';
+						<div class="labels floatleft">';
 
 				// Add the label drop down box.
 				if (!empty($context['currently_using_labels']))
@@ -570,6 +530,46 @@ function template_folder()
 
 			echo '
 						</div><!-- .under_message -->';
+
+			// Are there any custom profile fields for above the signature?
+			if (!empty($message['custom_fields']['above_signature']))
+			{
+				echo '
+						<div class="custom_fields_above_signature">
+							<ul class="nolist">';
+
+				foreach ($message['custom_fields']['above_signature'] as $custom)
+					echo '
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+
+				echo '
+							</ul>
+						</div>';
+			}
+
+			// Show the member's signature?
+			if (!empty($message['member']['signature']) && empty($options['show_no_signatures']) && $context['signature_enabled'])
+				echo '
+						<div class="signature">
+							', $message['member']['signature'], '
+						</div>';
+
+			// Are there any custom profile fields for below the signature?
+			if (!empty($message['custom_fields']['below_signature']))
+			{
+				echo '
+						<div class="custom_fields_below_signature">
+							<ul class="nolist">';
+
+				foreach ($message['custom_fields']['below_signature'] as $custom)
+					echo '
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+
+				echo '
+							</ul>
+						</div>';
+			}
+
 			echo '
 					</div><!-- .post -->
 				</div><!-- .postarea -->
