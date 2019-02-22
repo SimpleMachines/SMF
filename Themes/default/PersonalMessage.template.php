@@ -443,8 +443,7 @@ function template_folder()
 							', $message['body'], '
 						</div>';
 
-			if ($message['can_report'] || $context['can_send_pm'])
-				echo '
+			echo '
 						<div class="under_message">';
 
 			echo '
@@ -484,9 +483,6 @@ function template_folder()
 			echo '
 							</ul>';
 
-			if ($message['can_report'] || $context['can_send_pm'])
-				echo '
-						</div><!-- .under_message -->';
 
 			// Are there any custom profile fields for above the signature?
 			if (!empty($message['custom_fields']['above_signature']))
@@ -573,6 +569,8 @@ function template_folder()
 						</div><!-- .labels -->';
 			}
 
+			echo '
+						</div><!-- .under_message -->';
 			echo '
 					</div><!-- .post -->
 				</div><!-- .postarea -->
