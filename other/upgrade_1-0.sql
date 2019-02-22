@@ -906,7 +906,7 @@ $member_groups = getMemberGroups();
 foreach ($member_groups as $name => $id)
 {
 	$smcFunc['db_query']('','
-	UPDATE IGNORE {db_prefix}members
+		UPDATE IGNORE {db_prefix}members
 		SET ID_GROUP = {int:id}
 		WHERE memberGroup = {string:name} ',
 		array(
@@ -1432,7 +1432,7 @@ if (!isset($modSettings['censor_vulgar']) || !isset($modSettings['censor_proper'
 	$smcFunc['db_insert']('IGNORE',
 				'{db_prefix}settings',
 				array('variable' => 'string', 'value' => 'string'),
-				array(insertVal),
+				insertVal,
 				array('variable')
 	);
 
