@@ -3539,6 +3539,9 @@ h3.catbg .main_icons::before, h3.catbg .icon {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
+.windowbg + .cat_bar {
+	margin-top: 6px;
+}
 /* Roundframe */
 .roundframe {
 	margin: 10px 0 0 0;
