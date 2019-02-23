@@ -3491,7 +3491,7 @@ function cache_put_data($key, $value, $ttl = 120)
  *
  * @param string $key The key for the value to retrieve
  * @param int $ttl The maximum age of the cached data
- * @return string The cached data or null if nothing was loaded
+ * @return string|null The cached data or null if nothing was loaded
  */
 function cache_get_data($key, $ttl = 120)
 {
