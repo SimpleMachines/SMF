@@ -50,10 +50,9 @@ function template_main()
 			</div>';
 				
 			// Show the last post if there is one.
-			if(!empty($board['last_post']['id']))
-				echo '
-			<div class="lastpost lpr_border">
-				', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
+			echo '
+			<div class="lastpost lpr_border', empty($board['last_post']['id']) ? ' hide_720' : '', '">
+				', (empty($board['last_post']['id']) ? '' : (function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board))), '
 			</div>';
 
 			// Won't somebody think of the children!
