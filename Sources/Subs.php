@@ -4171,7 +4171,7 @@ function deleteAllMinified()
  *
  * @param string $filename The name of the file
  * @param int $attachment_id The ID of the attachment
- * @param string $dir Which directory it should be in (null to use current one)
+ * @param string|null $dir Which directory it should be in (null to use current one)
  * @param bool $new Whether this is a new attachment
  * @param string $file_hash The file hash
  * @return string The path to the file
