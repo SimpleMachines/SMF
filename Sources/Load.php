@@ -3636,7 +3636,7 @@ function set_avatar_data($data = array())
 	if (!empty($image))
 		return array(
 			'name' => !empty($data['avatar']) ? $data['avatar'] : '',
-			'image' => '<img class="avatar" src="' . $image . '" />',
+			'image' => '<img class="avatar" src="' . $image . '" alt=""/>',
 			'href' => $image,
 			'url' => $image,
 		);
