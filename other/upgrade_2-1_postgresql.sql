@@ -826,60 +826,59 @@ VALUES
 ---#
 
 /******************************************************************************/
---- Updating board access rules
+--- Removing manage_boards permission from anyone who shouldn't have it
 /******************************************************************************/
----# Updating board access rules
+---# Removing manage_boards permission
 ---{
-$member_groups = array(
-	'allowed' => array(),
-	'denied' => array(),
-);
-
-$request = $smcFunc['db_query']('', '
-	SELECT id_group, add_deny
-	FROM {db_prefix}permissions
-	WHERE permission = {string:permission}',
-	array(
-		'permission' => 'manage_boards',
-	)
-);
-while ($row = $smcFunc['db_fetch_assoc']($request))
-	$member_groups[$row['add_deny'] === '1' ? 'allowed' : 'denied'][] = $row['id_group'];
-$smcFunc['db_free_result']($request);
-
-$member_groups = array_diff($member_groups['allowed'], $member_groups['denied']);
-
-if (!empty($member_groups))
+if (version_compare(@$modSettings['smfVersion'], '2.1', '<'))
 {
-	$count = count($member_groups);
-	$changes = array();
+	$board_managers = array();
 
 	$request = $smcFunc['db_query']('', '
-		SELECT id_board, member_groups
-		FROM {db_prefix}boards');
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+		SELECT id_group
+		FROM {db_prefix}permissions
+		WHERE permission = {string:permission}',
+		array(
+			'permission' => 'manage_boards',
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) != 0)
 	{
-		$current_groups = explode(',', $row['member_groups']);
-		if (count(array_intersect($current_groups, $member_groups)) != $count)
-		{
-			$new_groups = array_unique(array_merge($current_groups, $member_groups));
-			$changes[$row['id_board']] = implode(',', $new_groups);
-		}
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$board_managers[$row['id_group']] = 0;
 	}
 	$smcFunc['db_free_result']($request);
 
-	if (!empty($changes))
+	$request = $smcFunc['db_query']('', '
+		SELECT member_groups
+		FROM {db_prefix}boards',
+		array()
+	);
+	$num_boards = $smcFunc['db_num_rows']($request);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		foreach ($changes as $id_board => $member_groups)
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}boards
-				SET member_groups = {string:member_groups}
-				WHERE id_board = {int:id_board}',
-				array(
-					'member_groups' => $member_groups,
-					'id_board' => $id_board,
-				)
-			);
+		$groups = explode($row['member_groups']);
+		foreach ($groups as $group)
+			++$board_managers[$group];
+	}
+	$smcFunc['db_free_result']($request);
+
+	$ex_board_managers = array();
+	foreach ($board_managers as $id_group => $board_count)
+		if ($board_count < $num_boards)
+			$ex_board_managers[] = $id_group;
+
+	if (!empty($ex_board_managers))
+	{
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}permissions
+			WHERE permission = {string:permission}
+				AND id_group IN ({array_int:ex_board_managers})',
+			array(
+				'permission' => 'manage_boards',
+				'ex_board_managers' => $ex_board_managers,
+			)
+		);
 	}
 }
 ---}
