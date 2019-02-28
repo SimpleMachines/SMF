@@ -1455,20 +1455,6 @@ function cleanFileInput(idElement)
 	}
 }
 
-function applyWindowClasses(oList)
-{
-	var bAlternate = false;
-	oListItems = oList.getElementsByTagName("LI");
-	for (i = 0; i < oListItems.length; i++)
-	{
-		// Skip dummies.
-		if (oListItems[i].id == "")
-			continue;
-		oListItems[i].className = "windowbg" + (bAlternate ? "2" : "");
-		bAlternate = !bAlternate;
-	}
-}
-
 function reActivate()
 {
 	document.forms.postmodify.message.readOnly = false;

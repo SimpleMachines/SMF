@@ -1515,6 +1515,9 @@ ul.split_messages li a.split_icon {
 ul.split_messages li a.split_icon:hover {
 	opacity: 1;
 }
+.split_messages, .message_header {
+	margin-bottom: 8px;
+}
 /* Styles for the merge topic section. */
 ul.merge_topics li {
 	list-style-type: none;
