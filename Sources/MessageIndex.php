@@ -88,8 +88,35 @@ function MessageIndex()
 		$context['unapproved_posts_message'] = sprintf($txt['there_are_unapproved_topics'], $untopics, $unposts, $scripturl . '?action=moderate;area=postmod;sa=' . ($board_info['unapproved_topics'] ? 'topics' : 'posts') . ';brd=' . $board);
 	}
 
+	// Default sort methods.
+	$sort_methods = array(
+		'subject' => 'mf.subject',
+		'starter' => 'COALESCE(memf.real_name, mf.poster_name)',
+		'last_poster' => 'COALESCE(meml.real_name, ml.poster_name)',
+		'replies' => 't.num_replies',
+		'views' => 't.num_views',
+		'first_post' => 't.id_topic',
+		'last_post' => 't.id_last_msg'
+	);
+
+	// Default sort methods tables.
+	$sort_methods_table = array(
+		'subject' => 'JOIN {db_prefix}messages mf ON (mf.id_msg = t.id_first_msg)',
+		'starter' => 'JOIN {db_prefix}messages mf ON (mf.id_msg = t.id_first_msg)
+			LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)',
+		'last_poster' => 'JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
+			LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)',
+		'replies' => '',
+		'views' => '',
+		'first_post' => '',
+		'last_post' => ''
+	);
+
+	// Bring in any changes we want to make before the query.
+	call_integration_hook('integrate_pre_messageindex', array(&$sort_methods, &$sort_methods_table));
+
 	// We only know these.
-	if (isset($_REQUEST['sort']) && !in_array($_REQUEST['sort'], array('subject', 'starter', 'last_poster', 'replies', 'views', 'first_post', 'last_post')))
+	if (isset($_REQUEST['sort']) && !in_array($_REQUEST['sort'], array_keys($sort_methods)))
 		$_REQUEST['sort'] = 'last_post';
 
 	// Make sure the starting place makes sense and construct the page index.
@@ -228,30 +255,6 @@ function MessageIndex()
 		krsort($context['view_members']);
 	}
 
-	// Default sort methods.
-	$sort_methods = array(
-		'subject' => 'mf.subject',
-		'starter' => 'COALESCE(memf.real_name, mf.poster_name)',
-		'last_poster' => 'COALESCE(meml.real_name, ml.poster_name)',
-		'replies' => 't.num_replies',
-		'views' => 't.num_views',
-		'first_post' => 't.id_topic',
-		'last_post' => 't.id_last_msg'
-	);
-
-	// Default sort methods tables.
-	$sort_methods_table = array(
-		'subject' => 'JOIN {db_prefix}messages mf ON (mf.id_msg = t.id_first_msg)',
-		'starter' => 'JOIN {db_prefix}messages mf ON (mf.id_msg = t.id_first_msg)
-			LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)',
-		'last_poster' => 'JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
-			LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)',
-		'replies' => '',
-		'views' => '',
-		'first_post' => '',
-		'last_post' => ''
-	);
-
 	// They didn't pick one, default to by last post descending.
 	if (!isset($_REQUEST['sort']) || !isset($sort_methods[$_REQUEST['sort']]))
 	{
@@ -269,9 +272,6 @@ function MessageIndex()
 
 	$context['sort_direction'] = $ascending ? 'up' : 'down';
 	$txt['starter'] = $txt['started_by'];
-
-	// Bring in any changes we want to make before the query.
-	call_integration_hook('integrate_pre_messageindex', array(&$sort_methods));
 
 	foreach ($sort_methods as $key => $val)
 		$context['topics_headers'][$key] = '<a href="' . $scripturl . '?board=' . $context['current_board'] . '.' . $context['start'] . ';sort=' . $key . ($context['sort_by'] == $key && $context['sort_direction'] == 'up' ? ';desc' : '') . '">' . $txt[$key] . ($context['sort_by'] == $key ? '<span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '') . '</a>';
@@ -309,9 +309,11 @@ function MessageIndex()
 		'start' => $start,
 		'maxindex' => $context['maxindex'],
 	);
+
 	$message_index_selects = array();
 	$message_index_tables = array();
 	$message_index_wheres = array();
+
 	call_integration_hook('integrate_message_index', array(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids));
 
 	if (!empty($modSettings['enableParticipation']) && !$user_info['is_guest'])
@@ -326,7 +328,6 @@ function MessageIndex()
 		WHERE t.id_board = {int:current_board} '
 			. (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
 			AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
-		ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') . '
 		LIMIT {int:maxindex}
 			OFFSET {int:start} ';
 
