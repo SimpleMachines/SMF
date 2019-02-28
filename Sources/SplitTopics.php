@@ -143,10 +143,7 @@ function SplitExecute()
 
 	// Redirect to the selector if they chose selective.
 	if ($_POST['step2'] == 'selective')
-	{
-		$_REQUEST['subname'] = $_POST['subname'];
-		return SplitSelectTopics();
-	}
+		redirectexit ('action=splittopics;sa=selectTopics;subname=' . $_POST['subname'] . ';topic=' . $topic . '.0;start2=0');
 
 	$_POST['at'] = (int) $_POST['at'];
 	$messagesToBeSplit = array();
