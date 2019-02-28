@@ -677,7 +677,6 @@ img.sort, .sort {
 	display: inline-block;
 	margin: 0 2px 0 1px;
 	font-size: 0.9em;
-	line-height: 1.9em;
 }
 /* Disable default focus outlines */
 .dropmenu a {
@@ -704,7 +703,7 @@ img.sort, .sort {
 }
 
 .dropmenu li a, #top_info > li > a {
-	padding: 0 7px 0 7px;
+	padding: 2px 7px;
 	display: block;
 	border: 1px solid transparent;
 	border-radius: 4px;
@@ -840,10 +839,9 @@ img.sort, .sort {
 /* Necessary to allow highlighting of 1st level while hovering over submenu. */
 .dropmenu li:hover li a, .dropmenu li li a {
 	background: none;
-	padding: 0 9px;
+	padding: 2px 7px;
 	color: #346;
 	border: none;
-	line-height: 2.2em;
 }
 
 .dropmenu li li a > img {
