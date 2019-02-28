@@ -100,13 +100,20 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	if (empty($db_options['dont_select_db']) && !@mysqli_select_db($connection, $db_name) && empty($db_options['non_fatal']))
 		display_db_error();
 
-	$sql_mode = '';
-	// Set the mysql default mode
-	$sql_mode .= (empyt($sql_mode) ? '' : ',') . 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
-	// Disable backlash escape, only '' is than a valid one
-	$sql_mode .= (empyt($sql_mode) ? '' : ',') . 'NO_BACKSLASH_ESCAPES';
+	$sql_mode = array(
+		// mysql default mode
+		'ONLY_FULL_GROUP_BY',
+		'STRICT_TRANS_TABLES',
+		'NO_ZERO_IN_DATE',
+		'NO_ZERO_DATE',
+		'ERROR_FOR_DIVISION_BY_ZERO',
+		'NO_AUTO_CREATE_USER',
+		'NO_ENGINE_SUBSTITUTION',
+		// Disable backlash escape, only '' is than a valid one
+		'NO_BACKSLASH_ESCAPES',
+	);
 
-	mysqli_query($connection, "SET SESSION sql_mode = '" . $sql_mode . "'");
+	mysqli_query($connection, "SET SESSION sql_mode = '" . implode(',', $sql_mode) . "'");
 
 	if (!empty($db_options['db_mb4']))
 		$smcFunc['db_mb4'] = (bool) $db_options['db_mb4'];
