@@ -322,12 +322,14 @@ function MessageIndex()
 		$enableParticipation = false;
 
 	$sort_table = '
-		SELECT t.id_topic, t.id_first_msg, t.id_last_msg
+		SELECT t.id_topic, t.id_first_msg, t.id_last_msg' . (!empty($message_index_selects) ? (', ' . implode(', ', $message_index_selects)) : '') . '
 		FROM {db_prefix}topics t
 		' . (empty($sort_methods_table[$context['sort_by']]) ? '' : $sort_methods_table[$context['sort_by']]) . '
+		' . (!empty($message_index_tables) ? implode("\n\t\t\t\t", $message_index_tables) : '') . '
 		WHERE t.id_board = {int:current_board} '
 			. (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
 			AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
+		ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') . '
 		LIMIT {int:maxindex}
 			OFFSET {int:start} ';
 
