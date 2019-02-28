@@ -3432,22 +3432,29 @@ function serialize_to_json()
 							if ($col !== true && $row[$col] != '')
 							{
 								$temp = @safe_unserialize($row[$col]);
+
+								// Maybe we can fix the data?
 								if ($temp === false)
 									$temp = @safe_unserialize(fix_serialized_data($row[$col]));
 
-								if ($temp === false && $command_line)
-								{
-									echo "\nFailed to unserialize " . $row[$col] . "... Skipping\n";
-								}
-								// If unserialize failed, it's better to leave the data alone than to overwrite it with an empty JSON value
-								elseif ($temp !== false)
-								{
-									$row[$col] = json_encode($temp);
+								// Maybe the data is already JSON?
+								if ($temp === false)
+									$temp = smf_json_decode($row[$col], true, false);
 
-									// Build our SET string and variables array
-									$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
-									$vars[$col] = $row[$col];
+								// Oh well...
+								if ($temp === null)
+								{
+									$temp = array();
+
+									if ($command_line)
+										echo "\nFailed to unserialize " . $row[$col] . ". Setting to empty value.\n";
 								}
+
+								$row[$col] = json_encode($temp);
+
+								// Build our SET string and variables array
+								$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
+								$vars[$col] = $row[$col];
 							}
 						}
 
