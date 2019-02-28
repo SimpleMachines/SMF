@@ -3712,7 +3712,7 @@ function template_upgrade_above()
 	foreach ($upcontext['steps'] as $num => $step)
 		echo '
 						<li', $num == $upcontext['current_step'] ? ' class="stepcurrent"' : '', '>
-							', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '
+							', $txt['upgrade_step'], ' ', $step[0], ': ', $txt[$step[1]], '
 						</li>';
 
 	echo '
