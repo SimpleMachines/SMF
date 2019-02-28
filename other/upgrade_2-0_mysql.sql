@@ -1475,10 +1475,10 @@ while ($_GET['m'] < $totalActions)
 			WHERE id_error = {int:id_error}
 			LIMIT 1',
 			array(
-				'file' => $row[file],
-				'line' => $row[line],
-				'message' => $row[message],
-				'id_error' => $row[id_error],
+				'file' => $row['file'],
+				'line' => $row['line'],
+				'message' => $row['message'],
+				'id_error' => $row['id_error'],
 			)
 		);
 	}
@@ -2049,8 +2049,8 @@ while ($_GET['m'] < $totalActions)
 				'board_id' => $board_id,
 				'topic_id' => $topic_id,
 				'msg_id'   => $msg_id,
-				'extra'    => $row[extra],
-				'id_action' => $row[id_action],
+				'extra'    => $row['extra'],
+				'id_action' => $row['id_action'],
 			)
 		);
 	}
