@@ -624,8 +624,7 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 
 	// You cannot split off the first message of a topic.
 	if ($split1_first_msg > $split2_first_msg)
-		redirectexit ('action=splittopics;sa=selectTopics;subname=' . $new_subject . ';topic=' . $split1_ID_TOPIC . '.0;start2=0');
-		//fatal_lang_error('split_first_post', false);
+		fatal_lang_error('split_first_post', false);
 
 	// We're off to insert the new topic!  Use 0 for now to avoid UNIQUE errors.
 	$split2_ID_TOPIC = $smcFunc['db_insert']('',
