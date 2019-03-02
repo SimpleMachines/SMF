@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -431,6 +431,7 @@ function SetQuickGroups()
 
 	loadIllegalPermissions();
 	loadIllegalGuestPermissions();
+	loadIllegalBBCHtmlGroups();
 
 	// Make sure only one of the quick options was selected.
 	if ((!empty($_POST['predefined']) && ((isset($_POST['copy_from']) && $_POST['copy_from'] != 'empty') || !empty($_POST['permissions']))) || (!empty($_POST['copy_from']) && $_POST['copy_from'] != 'empty' && !empty($_POST['permissions'])))
@@ -459,7 +460,7 @@ function SetQuickGroups()
 	// Clear out any cached authority.
 	updateSettings(array('settings_updated' => time()));
 
-	// No groups where selected.
+	// No groups were selected.
 	if (empty($_POST['group']))
 		redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
 
@@ -515,7 +516,7 @@ function SetQuickGroups()
 					// No dodgy permissions please!
 					if (!empty($context['illegal_permissions']) && in_array($perm, $context['illegal_permissions']))
 						continue;
-					if ($group_id == -1 && in_array($perm, $context['non_guest_permissions']))
+					if (isset($context['permissions_excluded'][$perm]) && in_array($group_id, $context['permissions_excluded'][$perm]))
 						continue;
 
 					if ($group_id != 1 && $group_id != 3)
@@ -613,6 +614,7 @@ function SetQuickGroups()
 		if ($_POST['add_remove'] == 'clear')
 		{
 			if ($permissionType == 'membergroup')
+			{
 				$smcFunc['db_query']('', '
 					DELETE FROM {db_prefix}permissions
 					WHERE id_group IN ({array_int:current_group_list})
@@ -624,6 +626,11 @@ function SetQuickGroups()
 						'illegal_permissions' => !empty($context['illegal_permissions']) ? $context['illegal_permissions'] : array(),
 					)
 				);
+
+				// Did these changes make anyone lose eligibility for the bbc_html permission?
+				if (!empty(array_diff($_POST['group'], $context['permissions_excluded']['bbc_html'])))
+					removeIllegalBBCHtmlPermission(true);
+			}
 			else
 				$smcFunc['db_query']('', '
 					DELETE FROM {db_prefix}board_permissions
@@ -644,7 +651,7 @@ function SetQuickGroups()
 			$permChange = array();
 			foreach ($_POST['group'] as $groupID)
 			{
-				if ($groupID == -1 && in_array($permission, $context['non_guest_permissions']))
+				if (isset($context['permissions_excluded'][$permission]) && in_array($groupID, $context['permissions_excluded'][$permission]))
 					continue;
 
 				if ($permissionType == 'membergroup' && $groupID != 1 && $groupID != 3 && (empty($context['illegal_permissions']) || !in_array($permission, $context['illegal_permissions'])))
@@ -960,6 +967,8 @@ function ModifyMembergroup2()
 	// Update any inherited permissions as required.
 	updateChildPermissions($_GET['group'], $_GET['pid']);
 
+	removeIllegalBBCHtmlPermission();
+
 	// Clear cached privs.
 	updateSettings(array('settings_updated' => time()));
 
@@ -999,9 +1008,7 @@ function GeneralPermissionSettings($return_config = false)
 	// Needed for the inline permission functions, and the settings template.
 	require_once($sourcedir . '/ManageServer.php');
 
-	// Don't let guests have these permissions.
 	$context['post_url'] = $scripturl . '?action=admin;area=permissions;save;sa=settings';
-	$context['permissions_excluded'] = array(-1);
 
 	// Saving the settings?
 	if (isset($_GET['save']))
@@ -1097,6 +1104,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 
 	loadIllegalPermissions();
 	loadIllegalGuestPermissions();
+	loadIllegalBBCHtmlGroups();
 
 	// Levels by group... restrict, standard, moderator, maintenance.
 	$groupLevels = array(
@@ -1187,6 +1195,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'manage_membergroups',
 		'manage_bans',
 		'admin_forum',
+		'bbc_html',
 		'manage_permissions',
 		'edit_news',
 		'calendar_edit_any',
@@ -1255,13 +1264,12 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		if (!empty($context['illegal_permissions']) && in_array($permission, $context['illegal_permissions']))
 			unset($groupLevels['global'][$level][$k]);
 
-		if ($group == -1 && in_array($permission, $context['non_guest_permissions']))
+		if (isset($context['permissions_excluded'][$permission]) && in_array($group, $context['permissions_excluded'][$permission]))
 			unset($groupLevels['global'][$level][$k]);
 	}
-	if ($group == -1)
-		foreach ($groupLevels['board'][$level] as $k => $permission)
-			if (in_array($permission, $context['non_guest_permissions']))
-				unset($groupLevels['board'][$level][$k]);
+	foreach ($groupLevels['board'][$level] as $k => $permission)
+		if (isset($context['permissions_excluded'][$permission]) && in_array($group, $context['permissions_excluded'][$permission]))
+			unset($groupLevels['board'][$level][$k]);
 
 	// Reset all cached permissions.
 	updateSettings(array('settings_updated' => time()));
@@ -1314,6 +1322,8 @@ function setPermissionLevel($level, $group, $profile = 'null')
 			$boardInserts,
 			array('id_profile', 'id_group')
 		);
+
+		removeIllegalBBCHtmlPermission();
 	}
 	// Setting profile permissions for a specific group.
 	elseif ($profile !== 'null' && $group !== 'null' && ($profile == 1 || $profile > 4))
@@ -1430,6 +1440,7 @@ function loadAllPermissions()
 			'profile',
 			'likes',
 			'mentions',
+			'bbc',
 		),
 		'board' => array(
 			'general_board',
@@ -1525,6 +1536,17 @@ function loadAllPermissions()
 		),
 	);
 
+	// In case a mod screwed things up...
+	if (!in_array('html', $context['restricted_bbc']))
+		$context['restricted_bbc'][] = 'html';
+
+	// Add the permissions for the restricted BBCodes
+	foreach ($context['restricted_bbc'] as $bbc)
+	{
+		$permissionList['membergroup']['bbc_' . $bbc] = array(false, 'bbc');
+		$txt['permissionname_bbc_' . $bbc] = sprintf($txt['permissionname_bbc'], $bbc);
+	}
+
 	// All permission groups that will be shown in the left column on classic view.
 	$leftPermissionGroups = array(
 		'general',
@@ -1537,6 +1559,9 @@ function loadAllPermissions()
 
 	// We need to know what permissions we can't give to guests.
 	loadIllegalGuestPermissions();
+
+	// We also need to know which groups can't be given the bbc_html permission.
+	loadIllegalBBCHtmlGroups();
 
 	// Some permissions are hidden if features are off.
 	$hiddenPermissions = array();
@@ -1596,6 +1621,10 @@ function loadAllPermissions()
 	// Provide a practical way to modify permissions.
 	call_integration_hook('integrate_load_permissions', array(&$permissionGroups, &$permissionList, &$leftPermissionGroups, &$hiddenPermissions, &$relabelPermissions));
 
+	$permissionList['membergroup']['bbc_cowsay'] = array(false, 'bbc');
+	$hiddenPermissions[] = 'bbc_cowsay';
+	$txt['permissionname_bbc_cowsay'] = sprintf($txt['permissionname_bbc'], 'cowsay');
+
 	$context['permissions'] = array();
 	$context['hidden_permissions'] = array();
 	foreach ($permissionList as $permissionType => $permissionList)
@@ -1606,8 +1635,8 @@ function loadAllPermissions()
 		);
 		foreach ($permissionList as $permission => $permissionArray)
 		{
-			// If this is a guest permission we don't do it if it's the guest group.
-			if (isset($context['group']['id']) && $context['group']['id'] == -1 && in_array($permission, $context['non_guest_permissions']))
+			// If this permission shouldn't be given to certain groups (e.g. guests), don't.
+			if (isset($context['group']['id']) && isset($context['permissions_excluded'][$permission]) && in_array($context['group']['id'], $context['permissions_excluded'][$permission]))
 				continue;
 
 			// What groups will this permission be in?
@@ -1686,8 +1715,14 @@ function loadAllPermissions()
 
 /**
  * Initialize a form with inline permissions settings.
- * It loads a context variables for each permission.
+ * It loads a context variable for each permission.
  * This function is used by several settings screens to set specific permissions.
+ *
+ * To exclude groups from the form for a given permission, add the group IDs as
+ * an array to $context['excluded_permissions'][$permission]. For backwards
+ * compatibility, it is also possible to pass group IDs in via the
+ * $excluded_groups parameter, which will exclude the groups from the forms for
+ * all of the permissions passed in via $permissions.
  *
  * @internal
  *
@@ -1776,22 +1811,46 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 	// Make sure we honor the "illegal guest permissions"
 	loadIllegalGuestPermissions();
 
-	// Some permissions cannot be given to certain groups. Remove the groups.
-	foreach ($excluded_groups as $group)
-	{
-		foreach ($permissions as $permission)
-		{
-			if (isset($context[$permission][$group]))
-				unset($context[$permission][$group]);
-		}
-	}
+	// Only special people can have this permission
+	if (in_array('bbc_html', $permissions))
+		loadIllegalBBCHtmlGroups();
 
 	// Are any of these permissions that guests can't have?
 	$non_guest_perms = array_intersect(str_replace(array('_any', '_own'), '', $permissions), $context['non_guest_permissions']);
 	foreach ($non_guest_perms as $permission)
 	{
-		if (isset($context[$permission][-1]))
-			unset($context[$permission][-1]);
+		if (!isset($context['permissions_excluded'][$permission]) || !in_array(-1, $context['permissions_excluded'][$permission]))
+			$context['permissions_excluded'][$permission][] = -1;
+	}
+
+	// Any explicitly excluded groups for this call?
+	if (!empty($excluded_groups))
+	{
+		// Make sure this is an array of integers
+		$excluded_groups = array_filter((array) $excluded_groups, function ($v)
+			{
+				return is_int($v) || is_string($v) && (string) intval($v) === $v;
+			});
+
+		foreach ($permissions as $permission)
+			$context['permissions_excluded'][$permission] = array_unique(array_merge($context['permissions_excluded'][$permission], $excluded_groups));
+	}
+
+	// Some permissions cannot be given to certain groups. Remove the groups.
+	foreach ($permissions as $permission)
+	{
+		if (!isset($context['permissions_excluded'][$permission]))
+			continue;
+
+		foreach ($context['permissions_excluded'][$permission] as $group)
+		{
+			if (isset($context[$permission][$group]))
+				unset($context[$permission][$group]);
+		}
+
+		// There's no point showing a form with nobody in it
+		if (empty($context[$permission]))
+			unset($context['config_vars'][$permission], $context[$permission]);
 	}
 
 	// Create the token for the separate inline permission verification.
@@ -1836,6 +1895,8 @@ function save_inline_permissions($permissions)
 
 	// Check they can't do certain things.
 	loadIllegalPermissions();
+	if (in_array('bbc_html', $permissions))
+		loadIllegalBBCHtmlGroups();
 
 	$insertRows = array();
 	foreach ($permissions as $permission)
@@ -1845,6 +1906,9 @@ function save_inline_permissions($permissions)
 
 		foreach ($_POST[$permission] as $id_group => $value)
 		{
+			if ($value == 'on' && !empty($context['excluded_permissions'][$permission]) && in_array($id_group, $context['excluded_permissions'][$permission]))
+				continue;
+
 			if (in_array($value, array('on', 'deny')) && (empty($context['illegal_permissions']) || !in_array($permission, $context['illegal_permissions'])))
 				$insertRows[] = array((int) $id_group, $permission, $value == 'on' ? 1 : 0);
 		}
@@ -2199,7 +2263,10 @@ function loadIllegalPermissions()
 
 	$context['illegal_permissions'] = array();
 	if (!allowedTo('admin_forum'))
+	{
 		$context['illegal_permissions'][] = 'admin_forum';
+		$context['illegal_permissions'][] = 'bbc_html';
+	}
 	if (!allowedTo('manage_membergroups'))
 		$context['illegal_permissions'][] = 'manage_membergroups';
 	if (!allowedTo('manage_permissions'))
@@ -2211,6 +2278,7 @@ function loadIllegalPermissions()
 /**
  * Loads the permissions that can not be given to guests.
  * Stores the permissions in $context['non_guest_permissions'].
+ * Also populates $context['permissions_excluded'] with the info.
  */
 function loadIllegalGuestPermissions()
 {
@@ -2221,6 +2289,7 @@ function loadIllegalGuestPermissions()
 		'admin_forum',
 		'announce_topic',
 		'approve_posts',
+		'bbc_html',
 		'calendar_edit',
 		'delete',
 		'delete_replies',
@@ -2273,6 +2342,69 @@ function loadIllegalGuestPermissions()
 	);
 
 	call_integration_hook('integrate_load_illegal_guest_permissions');
+
+	// Also add this info to $context['permissions_excluded'] to make life easier for everyone
+	foreach ($context['non_guest_permissions'] as $permission)
+	{
+		if (empty($context['permissions_excluded'][$permission]) || !in_array($permission, $context['permissions_excluded'][$permission]))
+			$context['permissions_excluded'][$permission][] = -1;
+	}
+}
+
+/**
+ * Loads a list of membergroups who cannot be granted the bbc_html permission.
+ * Stores the groups in $context['permissions_excluded']['bbc_html'].
+ */
+function loadIllegalBBCHtmlGroups()
+{
+	global $context, $smcFunc;
+
+	$context['permissions_excluded']['bbc_html'] = array(-1, 0);
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_group
+		FROM {db_prefix}membergroups
+		WHERE id_group != 1 AND id_group NOT IN (
+			SELECT DISTINCT id_group
+			FROM {db_prefix}permissions
+			WHERE permission IN ({array_string:permissions})
+				AND add_deny = {int:add}
+		)',
+		array(
+			'permissions' => array('admin_forum', 'manage_membergroups', 'manage_permissions'),
+			'add' => 1,
+		)
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$context['permissions_excluded']['bbc_html'][] = $row['id_group'];
+	$smcFunc['db_free_result']($request);
+
+	$context['permissions_excluded']['bbc_html'] = array_unique($context['permissions_excluded']['bbc_html']);
+}
+
+/**
+ * Removes the bbc_html permission from anyone who shouldn't have it
+ *
+ * @param bool $reload Before acting, refresh the list of membergroups who cannot be granted the bbc_html permission
+ */
+function removeIllegalBBCHtmlPermission($reload = false)
+{
+	global $context, $smcFunc;
+
+	if (empty($context['permissions_excluded']['bbc_html']) || $reload)
+		loadIllegalBBCHtmlGroups();
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}permissions
+		WHERE id_group IN ({array_int:current_group_list})
+			AND permission = {string:current_permission}
+			AND add_deny = {int:add}',
+		array(
+			'current_group_list' => $context['permissions_excluded']['bbc_html'],
+			'current_permission' => 'bbc_html',
+			'add' => 1,
+		)
+	);
 }
 
 /**

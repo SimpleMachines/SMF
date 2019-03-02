@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -1048,7 +1048,7 @@ function Post($post_errors = array())
 					$context['files_in_session_warning'] = $txt['attached_files_in_session'];
 
 				$context['current_attachments'][$attachID] = array(
-					'name' => '<u>' . $smcFunc['htmlspecialchars']($attachment['name']) . '</u>',
+					'name' => $smcFunc['htmlspecialchars']($attachment['name']),
 					'size' => $attachment['size'],
 					'attachID' => $attachID,
 					'unchecked' => false,
@@ -1889,7 +1889,7 @@ function Post2()
 		preparsecode($_POST['message']);
 
 		// Let's see if there's still some content left without the tags.
-		if ($smcFunc['htmltrim'](strip_tags(parse_bbc($_POST['message'], false), implode('', $context['allowed_html_tags']))) === '' && (!allowedTo('admin_forum') || strpos($_POST['message'], '[html]') === false))
+		if ($smcFunc['htmltrim'](strip_tags(parse_bbc($_POST['message'], false), implode('', $context['allowed_html_tags']))) === '' && (!allowedTo('bbc_html') || strpos($_POST['message'], '[html]') === false))
 			$post_errors[] = 'no_message';
 
 	}
@@ -2746,8 +2746,6 @@ function QuoteFast()
 
 		// Censor the message!
 		censorText($row['body']);
-
-		$row['body'] = preg_replace('~<br ?/?' . '>~i', "\n", $row['body']);
 
 		// Want to modify a single message by double clicking it?
 		if (isset($_REQUEST['modify']))

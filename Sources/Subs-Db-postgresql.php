@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -41,11 +41,11 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_quote'                  => 'smf_db_quote',
 			'db_insert'                 => 'smf_db_insert',
 			'db_insert_id'              => 'smf_db_insert_id',
-			'db_fetch_assoc'            => 'smf_db_fetch_assoc',
-			'db_fetch_row'              => 'smf_db_fetch_row',
+			'db_fetch_assoc'            => 'pg_fetch_assoc',
+			'db_fetch_row'              => 'pg_fetch_row',
 			'db_free_result'            => 'pg_free_result',
 			'db_num_rows'               => 'pg_num_rows',
-			'db_data_seek'              => 'smf_db_data_seek',
+			'db_data_seek'              => 'pg_result_seek',
 			'db_num_fields'             => 'pg_num_fields',
 			'db_escape_string'          => 'smf_db_escape_string',
 			'db_unescape_string'        => 'stripslashes',
@@ -619,66 +619,6 @@ function smf_db_error($db_string, $connection = null)
 }
 
 /**
- * A PostgreSQL specific function for tracking the current row...
- *
- * @param resource $request A PostgreSQL result resource
- * @param bool|int $counter The row number in the result to fetch (false to fetch the next one)
- * @return array The contents of the row that was fetched
- */
-function smf_db_fetch_row($request, $counter = false)
-{
-	global $db_row_count;
-
-	if ($counter !== false)
-		return pg_fetch_row($request, $counter);
-
-	// Reset the row counter...
-	if (!isset($db_row_count[(int) $request]))
-		$db_row_count[(int) $request] = 0;
-
-	// Return the right row.
-	return @pg_fetch_row($request, $db_row_count[(int) $request]++);
-}
-
-/**
- * Get an associative array
- *
- * @param resource $request A PostgreSQL result resource
- * @param int|bool $counter The row to get. If false, returns the next row.
- * @return array An associative array of row contents
- */
-function smf_db_fetch_assoc($request, $counter = false)
-{
-	global $db_row_count;
-
-	if ($counter !== false)
-		return pg_fetch_assoc($request, $counter);
-
-	// Reset the row counter...
-	if (!isset($db_row_count[(int) $request]))
-		$db_row_count[(int) $request] = 0;
-
-	// Return the right row.
-	return @pg_fetch_assoc($request, $db_row_count[(int) $request]++);
-}
-
-/**
- * Reset the pointer...
- *
- * @param resource $request A PostgreSQL result resource
- * @param int $counter The counter
- * @return bool Always returns true
- */
-function smf_db_data_seek($request, $counter)
-{
-	global $db_row_count;
-
-	$db_row_count[(int) $request] = $counter;
-
-	return true;
-}
-
-/**
  * Inserts data into a table
  *
  * @param string $method The insert method - can be 'replace', 'ignore' or 'insert'
@@ -957,7 +897,8 @@ function smf_db_escape_wildcard_string($string, $translate_human_wildcards = fal
 function smf_db_fetch_all($request)
 {
 	// Return the right row.
-	return @pg_fetch_all($request);
+	$return = @pg_fetch_all($request);
+	return !empty($return) ? $return : array();
 }
 
 /**

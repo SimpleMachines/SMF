@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -33,7 +33,7 @@ function template_admin()
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
-									<div id="smf_news">', $txt['smf_news_cant_connect'], '</div>
+									<div id="smfAnnouncements">', $txt['smf_news_cant_connect'], '</div>
 								</div>
 							</div>';
 
@@ -121,7 +121,7 @@ function template_admin()
 									%message%
 								</dd>
 							'), ',
-							sAnnouncementContainerId: \'smf_news\',
+							sAnnouncementContainerId: \'smfAnnouncements\',
 
 							bLoadVersions: true,
 							sSmfVersionContainerId: \'smfVersion\',
@@ -740,6 +740,28 @@ function template_show_settings()
 		echo '
 							<div class="information">', $context['settings_message'], '</div>';
 
+	// Filter out any redundant separators before we start the loop
+	$context['config_vars'] = array_filter($context['config_vars'], function ($v) use ($context)
+		{
+			static $config_vars, $prev;
+
+			$at_start = is_null($config_vars);
+			$config_vars = $at_start ? $context['config_vars'] : $config_vars;
+
+			$next = next($config_vars);
+			$at_end = key($config_vars) === null;
+
+			if (!$at_start && !$at_end)
+			{
+				$div_types = array('title', 'desc');
+				$at_start = isset($prev['type']) && in_array($prev['type'], $div_types);
+				$at_end = isset($next['type']) && in_array($next['type'], $div_types);
+			}
+
+			$prev = $v;
+			return ($v === '' && ($at_start || $at_end || $v === $next)) ? false : true;
+		});
+
 	// Now actually loop through all the variables.
 	$is_open = false;
 	foreach ($context['config_vars'] as $config_var)
@@ -900,7 +922,7 @@ function template_show_settings()
 											<legend>', $txt['enabled_bbc_select'], '</legend>
 											<ul>';
 
-					foreach ($context['bbc_columns'] as $bbcColumn)
+					foreach ($context['bbc_sections'][$config_var['name']]['columns'] as $bbcColumn)
 					{
 						foreach ($bbcColumn as $bbcTag)
 							echo '
@@ -953,9 +975,10 @@ function template_show_settings()
 								<dl class="settings">';
 			else
 				echo '
-									<dd>
+									<dt>
 										<strong>' . $config_var . '</strong>
-									</dd>';
+									</dt>
+									<dd></dd>';
 		}
 	}
 

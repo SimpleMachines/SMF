@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -1407,7 +1407,7 @@ function template_statPanel()
 			echo '
 					<dt>', $activity['link'], '</dt>
 					<dd>
-						<div class="profile_pie" style="background-position: -', ((int) ($activity['percent'] / 5) * 20), 'px 0;" title="', sprintf($txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '">
+						<div class="profile_pie" style="background-position: -', ((int) ($activity['posts_percent'] / 5) * 20), 'px 0;" title="', sprintf($txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '">
 							', sprintf($txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '
 						</div>
 						', $activity['percent'], '%
@@ -1439,7 +1439,7 @@ function template_edit_options()
 
 	echo '
 		<form action="', $url, '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data"', ($context['menu_item_selected'] == 'account' ? ' autocomplete="off"' : ''), '>
-			<div style="position:absolute; left:-3000px;">
+			<div style="height:0;overflow:hidden;">
 				<input type="text" id="autocompleteFakeName">
 				<input type="password" id="autocompleteFakePassword">
 			</div>
@@ -1726,6 +1726,29 @@ function template_profile_theme_settings()
 		// Just spit out separators and move on
 		if (empty($setting) || !is_array($setting))
 		{
+			// Avoid double separators and empty titled sections
+			$empty_section = true;
+			for ($j=$i+1; $j <= count($context['theme_options']); $j++)
+			{
+				// Found another separator, so we're done
+				if (!is_array($context['theme_options'][$j]))
+					break;
+
+				// Once we know there's something to show in this section, we can stop
+				if (!isset($context['theme_options'][$j]['enabled']) || !empty($context['theme_options'][$j]['enabled']))
+				{
+					$empty_section = false;
+					break;
+				}
+			}
+			if ($empty_section)
+			{
+				if ($i === $first_option_key)
+					$first_option_key = array_shift($skeys);
+
+				continue;
+			}
+
 			// Insert a separator (unless this is the first item in the list)
 			if ($i !== $first_option_key)
 				echo '
@@ -1749,7 +1772,12 @@ function template_profile_theme_settings()
 
 		// Is this disabled?
 		if (isset($setting['enabled']) && $setting['enabled'] === false)
+		{
+			if ($i === $first_option_key)
+				$first_option_key = array_shift($skeys);
+
 			continue;
+		}
 
 		// Some of these may not be set...  Set to defaults here
 		$opts = array('calendar_start_day', 'topics_per_page', 'messages_per_page', 'display_quick_mod');
@@ -2892,8 +2920,8 @@ function template_profile_avatar_select()
 									<div>
 										<select name="file" id="file" size="10" style="display: none;" onchange="showAvatar()" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'server_stored\');" disabled><option></option></select>
 									</div>
-									<div>
-										<img id="avatar" src="', !empty($context['member']['avatar']['allow_external']) && $context['member']['avatar']['choice'] == 'external' ? $context['member']['avatar']['external'] : $modSettings['avatar_url'] . '/blank.png', '" alt="Do Nothing">
+									<div class="edit_avatar_img">
+										<img id="avatar" src="', $context['member']['avatar']['choice'] == 'server_stored' ? $context['member']['avatar']['href'] : $modSettings['avatar_url'] . '/blank.png', '" alt="">
 									</div>
 									<script>
 										var files = ["' . implode('", "', $context['avatar_list']) . '"];
@@ -2919,6 +2947,7 @@ function template_profile_avatar_select()
 	if (!empty($context['member']['avatar']['allow_external']))
 		echo '
 								<div id="avatar_external">
+									', $context['member']['avatar']['choice'] == 'external' ? '<div class="edit_avatar_img"><img src="' . $context['member']['avatar']['href'] . '" alt=""></div>' : '', '
 									<div class="smalltext">', $txt['avatar_by_url'], '</div>', !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
 									<input type="text" name="userpicpersonal" size="45" value="', ((stristr($context['member']['avatar']['external'], 'http://') || stristr($context['member']['avatar']['external'], 'https://')) ? $context['member']['avatar']['external'] : 'http://'), '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);">
 								</div>';
@@ -2927,6 +2956,7 @@ function template_profile_avatar_select()
 	if (!empty($context['member']['avatar']['allow_upload']))
 		echo '
 								<div id="avatar_upload">
+									', $context['member']['avatar']['choice'] == 'upload' ? '<div class="edit_avatar_img"><img src="' . $context['member']['avatar']['href'] . '" alt=""></div>' : '', '
 									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onchange="readfromUpload(this)"  onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" accept="image/gif, image/jpeg, image/jpg, image/png">', template_max_size('upload'), '
 									', (!empty($context['member']['avatar']['id_attach']) ? '<br><img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt="" id="attached_image"><input type="hidden" name="id_attach" value="' . $context['member']['avatar']['id_attach'] . '">' : ''), '
 								</div>';
@@ -2936,7 +2966,7 @@ function template_profile_avatar_select()
 	{
 		echo '
 								<div id="avatar_gravatar">
-									<img src="' . $context['member']['avatar']['href'] . '" alt="">';
+									', $context['member']['avatar']['choice'] == 'gravatar' ? '<div class="edit_avatar_img"><img src="' . $context['member']['avatar']['href'] . '" alt=""></div>' : '';
 
 		if (empty($modSettings['gravatarAllowExtraEmail']))
 			echo '
@@ -3087,11 +3117,11 @@ function template_profile_smiley_pick()
 
 	foreach ($context['smiley_sets'] as $set)
 		echo '
-									<option value="', $set['id'], '"', $set['selected'] ? ' selected' : '', '>', $set['name'], '</option>';
+									<option data-preview="', $set['preview'], '" value="', $set['id'], '"', $set['selected'] ? ' selected' : '', '>', $set['name'], '</option>';
 
 	echo '
 								</select>
-								<img id="smileypr" class="centericon" src="', $context['member']['smiley_set']['id'] != 'none' ? $modSettings['smileys_url'] . '/' . ($context['member']['smiley_set']['id'] != '' ? $context['member']['smiley_set']['id'] . '/smiley' . $context['user']['smiley_set_ext'] : (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default']) . '/smiley' . $context['user']['smiley_set_default_ext']) : $settings['images_url'] . '/blank.png', '" alt=":)">
+								<img id="smileypr" class="centericon" src="', $context['member']['smiley_set']['preview'], '" alt=":)">
 							</dd>';
 }
 

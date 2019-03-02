@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -658,6 +658,15 @@ function modifyBoard($board_id, &$boardOptions)
 			))
 		);
 
+	// Before we add new access_groups or deny_groups, remove all of the old entries
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}board_permissions_view
+		WHERE id_board = {int:selected_board}',
+		array(
+			'selected_board' => $board_id,
+		)
+	);
+
 	// Do permission sync
 	if (!empty($boardUpdateParameters['deny_groups']))
 	{
@@ -665,13 +674,6 @@ function modifyBoard($board_id, &$boardOptions)
 		foreach ($boardOptions['deny_groups'] as $value)
 			$insert[] = array($value, $board_id, 1);
 
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}board_permissions_view
-			WHERE id_board = {int:selected_board} AND deny = 1',
-			array(
-				'selected_board' => $board_id,
-			)
-		);
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}board_permissions_view',
 			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
@@ -686,13 +688,6 @@ function modifyBoard($board_id, &$boardOptions)
 		foreach ($boardOptions['access_groups'] as $value)
 			$insert[] = array($value, $board_id, 0);
 
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}board_permissions_view
-			WHERE id_board = {int:selected_board} AND deny = 0',
-			array(
-				'selected_board' => $board_id,
-			)
-		);
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}board_permissions_view',
 			array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
@@ -1228,7 +1223,8 @@ function getTreeOrder()
 		ORDER BY b.board_order',
 		array()
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+
+	foreach ($smcFunc['db_fetch_all']($request) as $row)
 	{
 		if (!in_array($row['id_cat'], $tree_order['cats']))
 			$tree_order['cats'][] = $row['id_cat'];

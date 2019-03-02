@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -26,7 +26,7 @@ if (!defined('SMF'))
 function loadProfileFields($force_reload = false)
 {
 	global $context, $profile_fields, $txt, $scripturl, $modSettings, $user_info, $smcFunc, $cur_profile, $language;
-	global $sourcedir, $profile_vars;
+	global $sourcedir, $profile_vars, $settings;
 
 	// Don't load this twice!
 	if (!empty($profile_fields) && !$force_reload)
@@ -458,11 +458,52 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'smiley_pick',
 			'enabled' => !empty($modSettings['smiley_sets_enable']),
 			'permission' => 'profile_extra',
-			'preload' => function() use ($modSettings, &$context, $txt, $cur_profile, $smcFunc)
+			'preload' => function() use ($modSettings, &$context, &$txt, $cur_profile, $smcFunc, $settings, $language)
 			{
 				$context['member']['smiley_set']['id'] = empty($cur_profile['smiley_set']) ? '' : $cur_profile['smiley_set'];
 				$context['smiley_sets'] = explode(',', 'none,,' . $modSettings['smiley_sets_known']);
 				$set_names = explode("\n", $txt['smileys_none'] . "\n" . $txt['smileys_forum_board_default'] . "\n" . $modSettings['smiley_sets_names']);
+
+				$filenames = array();
+				$result = $smcFunc['db_query']('', '
+					SELECT f.filename, f.smiley_set
+					FROM {db_prefix}smiley_files AS f
+						JOIN {db_prefix}smileys AS s ON (s.id_smiley = f.id_smiley)
+					WHERE s.code = {string:smiley}',
+					array(
+						'smiley' => ':)',
+					)
+				);
+				while ($row = $smcFunc['db_fetch_assoc']($result))
+					$filenames[$row['smiley_set']] = $row['filename'];
+				$smcFunc['db_free_result']($result);
+
+				// In case any sets don't contain a ':)' smiley
+				$no_smiley_sets = array_diff(explode(',', $modSettings['smiley_sets_known']), array_keys($filenames));
+				foreach ($no_smiley_sets as $set)
+				{
+					$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
+					$images = glob(implode('/', array($modSettings['smileys_dir'], $set, '*.{' . (implode(',', $allowedTypes) . '}'))), GLOB_BRACE);
+
+					// Just use some image or other
+					if (!empty($images))
+					{
+						$image = array_pop($images);
+						$filenames[$set] = pathinfo($image, PATHINFO_BASENAME);
+					}
+					// No images at all? That's no good. Let the admin know, and quietly skip for this user.
+					else
+					{
+						loadLanguage('Errors', $language);
+						log_error(sprintf($txt['smiley_set_dir_not_found'], $set_names[array_search($set, $context['smiley_sets'])]));
+
+						$context['smiley_sets'] = array_filter($context['smiley_sets'], function($v) use ($set)
+							{
+								return $v != $set;
+							});
+					}
+				}
+
 				foreach ($context['smiley_sets'] as $i => $set)
 				{
 					$context['smiley_sets'][$i] = array(
@@ -471,9 +512,25 @@ function loadProfileFields($force_reload = false)
 						'selected' => $set == $context['member']['smiley_set']['id']
 					);
 
+					if ($set === 'none')
+						$context['smiley_sets'][$i]['preview'] = $settings['images_url'] . '/blank.png';
+					elseif ($set === '')
+					{
+						$default_set = !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'];
+						$context['smiley_sets'][$i]['preview'] = implode('/', array($modSettings['smileys_url'], $default_set, $filenames[$default_set]));
+					}
+					else
+						$context['smiley_sets'][$i]['preview'] = implode('/', array($modSettings['smileys_url'], $set, $filenames[$set]));
+
 					if ($context['smiley_sets'][$i]['selected'])
+					{
 						$context['member']['smiley_set']['name'] = $set_names[$i];
+						$context['member']['smiley_set']['preview'] = $context['smiley_sets'][$i]['preview'];
+					}
+
+					$context['smiley_sets'][$i]['preview'] = $smcFunc['htmlspecialchars']($context['smiley_sets'][$i]['preview']);
 				}
+
 				return true;
 			},
 			'input_validate' => function(&$value)
@@ -1355,7 +1412,7 @@ function editBuddyIgnoreLists($memID)
  */
 function editBuddies($memID)
 {
-	global $txt, $scripturl, $settings;
+	global $txt, $scripturl, $settings, $modSettings;
 	global $context, $user_profile, $memberContext, $smcFunc;
 
 	// For making changes!
@@ -2271,7 +2328,7 @@ function alert_count($memID, $unread = false)
 
 	// We have to do this the slow way as to iterate over all possible boards the user can see.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_alert, extra
+		SELECT id_alert, content_id, content_type, extra
 		FROM {db_prefix}user_alerts
 		WHERE id_member = {int:id_member}
 			' . ($unread ? '
@@ -2284,12 +2341,23 @@ function alert_count($memID, $unread = false)
 	// First we dump alerts and possible boards information out.
 	$alerts = array();
 	$boards = array();
+	$topics = array();
+	$msgs = array();
 	$possible_boards = array();
+	$possible_topics = array();
+	$possible_msgs = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$alerts[$row['id_alert']] = !empty($row['extra']) ? $smcFunc['json_decode']($row['extra'], true) : array();
 
-		if (!empty($alerts[$row['id_alert']]['board']))
+		if ($row['content_type'] == 'msg')
+		{
+			$possible_msgs[] = $row['content_id'];
+			$alerts[$row['id_alert']]['msg'] = $row['content_id'];
+		}
+		elseif (isset($alerts[$row['id_alert']]['topic']))
+			$possible_topics[] = $alerts[$row['id_alert']]['topic'];
+		elseif (isset($alerts[$row['id_alert']]['board']))
 			$possible_boards[] = $alerts[$row['id_alert']]['board'];
 	}
 	$smcFunc['db_free_result']($request);
@@ -2297,7 +2365,7 @@ function alert_count($memID, $unread = false)
 	$possible_boards = array_unique($possible_boards);
 
 	// If this isn't the current user, get their boards.
-	if (!isset($user_info) || $user_info['id'] != $memID)
+	if (!isset($user_info['id']) || $user_info['id'] != $memID)
 	{
 		$query_see_board = build_query_board($memID);
 		$query_see_board = $query_see_board['query_see_board'];
@@ -2305,7 +2373,48 @@ function alert_count($memID, $unread = false)
 	else
 		$query_see_board = '{query_see_board}';
 
-	// Find only the boards they can see.
+	// We want only the stuff they can see.
+	if (!empty($possible_msgs))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT m.id_msg, m.id_topic, b.id_board
+			FROM {db_prefix}messages AS m
+				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
+			WHERE ' . $query_see_board . '
+				AND m.id_msg IN ({array_int:msgs})',
+			array(
+				'msgs' => $possible_msgs,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$msgs[] = $row['id_msg'];
+			$topics[] = $row['id_topic'];
+			$boards[] = $row['id_board'];
+		}
+
+		$smcFunc['db_free_result']($request);
+	}
+	if (!empty($possible_topics))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT t.id_topic, b.id_board
+			FROM {db_prefix}topics AS t
+				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
+			WHERE ' . $query_see_board . '
+				AND t.id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $possible_topics,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$topics[] = $row['id_topic'];
+			$boards[] = $row['id_board'];
+		}
+
+		$smcFunc['db_free_result']($request);
+	}
 	if (!empty($possible_boards))
 	{
 		$request = $smcFunc['db_query']('', '
@@ -2318,14 +2427,22 @@ function alert_count($memID, $unread = false)
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$boards[$row['id_board']] = $row['id_board'];
+			$boards[] = $row['id_board'];
+
+		$smcFunc['db_free_result']($request);
 	}
-	unset($possible_boards);
+	unset($possible_msgs, $possible_topics, $possible_boards);
 
 	// Now check alerts again and remove any they can't see.
 	foreach ($alerts as $id_alert => $extra)
-		if (isset($extra['board']) && !isset($boards[$extra['board']]))
+	{
+		if (isset($extra['msg']) && !in_array($extra['msg'], $msgs))
 			unset($alerts[$id_alert]);
+		elseif (isset($extra['topic']) && !in_array($extra['topic'], $topics))
+			unset($alerts[$id_alert]);
+		elseif (isset($extra['board']) && !in_array($extra['board'], $boards))
+			unset($alerts[$id_alert]);
+	}
 
 	return count($alerts);
 }
@@ -4111,7 +4228,7 @@ function tfasetup($memID)
 	{
 		// Check to ensure we're forcing SSL for authentication
 		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
-			fatal_lang_error('login_ssl_required');
+			fatal_lang_error('login_ssl_required', false);
 
 		// In some cases (forced 2FA or backup code) they would be forced to be redirected here,
 		// we do not want too much AJAX to confuse them.

@@ -38,8 +38,20 @@ input, button, select, textarea {
 	border: 1px solid #bbb;
 	vertical-align: middle;
 	border-radius: 3px;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) inset;
+	box-shadow: 1px 2px 1px rgba(160, 187, 221, 0.2) inset;
 	padding: 0.3em 0.4em;
+}
+input:hover, textarea:hover, button:hover, select:hover {
+	outline: none;
+	border-color: #82a2bc;
+}
+textarea:hover {
+	background: #fbfbfb;
+}
+input:focus, textarea:focus, button:focus, select:focus {
+	outline: none;
+	border-color: #7fb0d8;
+	background: #fff;
 }
 input, button, select {
 	padding: 0 0.4em;
@@ -62,7 +74,7 @@ input[type="submit"]::-moz-focus-inner, button::-moz-focus-inner {
 	border: 0;
 }
 /* Prevent inputs and images overflowing */
-img, input, select {
+img, input, select, textarea {
 	max-width: 100%;
 }
 /* This is a specific issue on Ubuntu - Chrome */
@@ -72,6 +84,11 @@ img, input, select {
 /* The following is necessary */
 textarea {
 	font-size: 1em;
+}
+
+/* Use a consistent monospace font everywhere */
+.monospace, .bbc_code, .phpcode, pre, #error_log span.error_message {
+	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
 }
 
 .sceditor-container textarea, .sceditor-container textarea:focus {
@@ -87,20 +104,25 @@ dd textarea {
 input, button, select {
 	font-size: 0.9em;
 }
+/* Number inputs don't support size nor width, so add some common ones here and set a default... */
+input[type="number"] {
+	padding-right: 0; /* Removes weird white space after arrows in some browsers */
+	width: calc(4ch + 15px + 0.8em);
+}
+input[type="number"][size="2"], input[type="number"][size="1"] {
+	width: calc(2ch + 15px + 0.8em);
+}
+input[type="number"][size="3"] {
+	width: calc(3ch + 15px + 0.8em);
+}
+input[type="number"][size="5"] {
+	width: calc(5ch + 15px + 0.8em);
+}
+input[type="number"][size="6"] {
+	width: calc(6ch + 15px + 0.8em);
+}
 select option {
 	padding: 0 4px;
-}
-input:hover, textarea:hover, button:hover, select:hover {
-	outline: none;
-	border: 1px solid #999;
-}
-textarea:hover {
-	background: #fbfbfb;
-}
-input:focus, textarea:focus, button:focus, select:focus {
-	outline: none;
-	border: 1px solid #999;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) inset;
 }
 /* Fieldsets are used to group elements */
 fieldset {
@@ -139,16 +161,19 @@ input[type="checkbox"], input[type="radio"] {
 	border: none;
 	background: none;
 	vertical-align: middle;
+	box-shadow: none;
 	margin: 0 3px;
 }
 .moderationbuttons_mobile_check {
 	display: none;
 }
 /* Give disabled input elements a different style */
-input[disabled], textarea[disabled], select[disabled] {
+input[disabled], textarea[disabled], select[disabled], .button.disabled, .button[disabled]:hover {
 	background: #eee;
 	color: #999;
+	border-color: #b6b6b6;
 	opacity: 0.8;
+	cursor: default;
 }
 /* Standard horizontal rule.. ([hr], etc.) */
 hr {
@@ -176,20 +201,25 @@ body#help_popup {
 
 #likes li {
 	clear: both;
+	padding: 1px 0;
 }
 #likes .avatar {
-	max-height: 90px;
-	max-width: 90px;
+	max-height: 45px;
+	max-width: 45px;
 	padding: 0 10px 0 0;
 }
-#likes span {
+#likes .avatar, #likes li .like_profile {
+	vertical-align: middle;
 	display: inline-block;
-	vertical-align: top;
+}
+#likes li .like_time {
+	padding: 4px 0;
 }
 #likes .description {
 	font-style: italic;
 	opacity: 0.4;
 	font-size: 0.9em;
+	display: block;
 }
 
 /* The "new" button */
@@ -325,8 +355,7 @@ blockquote cite::before {
 /* A code block - maybe PHP ;). */
 .bbc_code {
 	display: block;
-	font-family: "DejaVu Sans Mono", Monaco, Consolas, monospace;
-	font-size: 0.75em;
+	font-size: 0.85em;
 	background: #f3f3f3;
 	border: 1px solid #dfdfdf;
 	border-top: 2px solid #bbb;
@@ -336,7 +365,7 @@ blockquote cite::before {
 	padding: 3px 12px;
 	overflow: auto;
 	white-space: nowrap;
-	resize: vertical;
+	max-height: 25em;
 }
 /* The "Quote:" and "Code:" header parts... */
 .codeheader, .quoteheader {
@@ -347,6 +376,10 @@ blockquote cite::before {
 /* For links to change the code stuff... */
 .codeoperation {
 	font-weight: normal;
+}
+/* Expand code bbc */
+.expand_code {
+	max-height: none;
 }
 /* Let's get a bit more flexibility in font sizes for quotes and code. */
 /* We just need to stop em compounding when elements are nested. */
@@ -396,7 +429,7 @@ blockquote cite::before {
 	margin-left: 1em;
 	clear: right;
 }
-.postarea .bbc_img:hover {
+.postarea .bbc_img.resized:hover {
 	cursor: pointer;
 }
 .bbc_img.original_size {
@@ -526,8 +559,9 @@ strong[id^='child_list_']::after {
 }
 
 a.moderation_link, a.moderation_link:visited {
-	color: red;
 	font-weight: bold;
+	padding: 0px 8px;
+	background: #f59e00;
 }
 /* AJAX notification bar
 ------------------------------------------------------- */
@@ -1043,6 +1077,8 @@ img.sort, .sort {
 #header {
 	padding: 2px 2px 12px 2px;
 	width: 90%;
+	display: flex;
+	align-items: flex-end;
 }
 #header::after {
 	content: "";
@@ -1054,8 +1090,8 @@ h1.forumtitle {
 	font-size: 1.8em;
 	font-family: "Tahoma", sans-serif;
 	padding: 22px 12px 6px 10px;
-	float: left;
 	font-weight: normal;
+	flex: 1 1 auto;
 }
 h1.forumtitle a {
 	color: #a85400;
@@ -1064,9 +1100,7 @@ h1.forumtitle a {
 /* Float these items to the right */
 #siteslogan, img#smflogo {
 	padding-right: 2px;
-	float: right;
-	line-height: 50px;
-	font-size: 1.8em;
+	font-size: 1.4em;
 }
 /* Tweak the SMF logo */
 img#smflogo {
@@ -1603,7 +1637,7 @@ dl.register_form dd {
 	vertical-align: middle;
 }
 
-tr.windowbg td, .table_grid tr td {
+tr.windowbg td, tr.bg td, .table_grid tr td {
 	padding: 4px 8px;
 }
 #credits p {
@@ -2225,6 +2259,9 @@ dl {
 #smileypr {
 	margin-left: 10px;
 }
+.edit_avatar_img {
+	margin: 0 0 1em;
+}
 
 /* Activity by time */
 #activitytime {
@@ -2580,6 +2617,9 @@ dl.addrules dt.floatleft {
 	margin: 0 0 0 6px;
 	text-align: left;
 }
+#search_results {
+	margin-bottom: 5px;
+}
 
 /* Styles for the help section.
 ------------------------------------------------- */
@@ -2677,7 +2717,7 @@ dl.addrules dt.floatleft {
 	position: relative;
 	background: none;
 	margin: 0;
-	height: auto !important; /* In case anything fishy happens in the situations where this used make sure it stays still */
+	height: auto; /* In case anything fishy happens in the situations where this used make sure it stays still */
 }
 #main_menu .popup_window, #genericmenu .popup_window {
 	position: relative;
@@ -2709,10 +2749,10 @@ dl.addrules dt.floatleft {
 	overflow: auto;
 }
 /* Here comes the glory... */
-.windowbg:nth-of-type(even) {
+.windowbg:nth-of-type(even), .bg.even {
 	background: #f0f4f7;
 }
-.windowbg:nth-of-type(odd) {
+.windowbg:nth-of-type(odd), .bg.odd {
 	background: #fdfdfd;
 }
 
@@ -2851,6 +2891,9 @@ h3 .collapse {
 	border-left: 1px solid #ddd;
 	border-right: 1px solid #ddd;
 }
+.boardindex_table .board_stats:last-child p {
+	border-right: none;
+}
 .info {
 	overflow: hidden;
 	overflow-wrap: break-word;
@@ -2981,7 +3024,7 @@ span.postby {
 	border-bottom: none;
 	box-shadow: none;
 }
-#description_board h3, #description_board p {
+#description_board h3, #description_board div {
 	display: inline-block;
 }
 #description_board h3::after {
@@ -3817,6 +3860,8 @@ h3.profile_hd {
 }
 #attachment_previews .attach-ui {
 	min-height: 36px;
+	padding: 10px 0;
+	float: right;
 }
 input[name="attachBBC"] {
 	width: 100%;

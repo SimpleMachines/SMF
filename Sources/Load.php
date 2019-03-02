@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -22,7 +22,7 @@ if (!defined('SMF'))
 function reloadSettings()
 {
 	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set;
-	global $cache_enable, $sourcedir, $context;
+	global $cache_enable, $sourcedir, $context, $forum_version, $boardurl;
 
 	// Most database systems have not set UTF-8 as their default input charset.
 	if (!empty($db_character_set))
@@ -48,8 +48,8 @@ function reloadSettings()
 		$modSettings = array();
 		if (!$request)
 			display_db_error();
-		while ($row = $smcFunc['db_fetch_row']($request))
-			$modSettings[$row[0]] = $row[1];
+		foreach ($smcFunc['db_fetch_all']($request) as $row)
+			$modSettings[$row['variable']] = $row['value'];
 		$smcFunc['db_free_result']($request);
 
 		// Do a few things to protect against missing settings or settings with invalid values...
@@ -64,13 +64,33 @@ function reloadSettings()
 
 		// We explicitly do not use $smcFunc['json_decode'] here yet, as $smcFunc is not fully loaded.
 		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = smf_json_decode($modSettings['attachmentUploadDir'], true);
+		{
+			$attachmentUploadDir = smf_json_decode($modSettings['attachmentUploadDir'], true);
+			$modSettings['attachmentUploadDir'] = !empty($attachmentUploadDir) ? $attachmentUploadDir : $modSettings['attachmentUploadDir'];
+		}
 
 		if (!empty($cache_enable))
 			cache_put_data('modSettings', $modSettings, 90);
 	}
 
+	// Going anything further when the files don't match the database can make nasty messes (unless we're actively installing or upgrading)
+	if (!defined('SMF_INSTALLING') && (!isset($_REQUEST['action']) || $_REQUEST['action'] !== 'admin' || !isset($_REQUEST['area']) || $_REQUEST['area'] !== 'packages') && !empty($modSettings['smfVersion']) && version_compare(strtolower(strtr($modSettings['smfVersion'], array(' ' => '.'))), strtolower(strtr(SMF_VERSION, array(' ' => '.'))), '!='))
+	{
+		// Wipe the cached $modSettings values so they don't interfere with anything later
+		cache_put_data('modSettings', null);
+
+		// Redirect to the upgrader if we can
+		if (file_exists($boarddir . '/upgrade.php'))
+			header('location: ' . $boardurl . '/upgrade.php');
+
+		die('SMF file version (' . SMF_VERSION . ') does not match SMF database version (' . $modSettings['smfVersion'] . ').<br>Run the SMF upgrader to fix this.<br><a href="https://wiki.simplemachines.org/smf/Upgrading">More information</a>.');
+	}
+
 	$modSettings['cache_enable'] = $cache_enable;
+
+	// Used to force browsers to download fresh CSS and JavaScript when necessary
+	$modSettings['browser_cache'] = !empty($modSettings['browser_cache']) ? (int) $modSettings['browser_cache'] : 0;
+	$context['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower(SMF_FULL_VERSION)) . '_' . $modSettings['browser_cache'];
 
 	// UTF-8 ?
 	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
@@ -352,38 +372,36 @@ function reloadSettings()
 		'<div>',
 	);
 
-	// These are the only valid image types for SMF, by default anyway.
+	// These are the only valid image types for SMF attachments, by default anyway.
+	// Note: The values are for image mime types, not file extensions.
 	$context['valid_image_types'] = array(
-		1 => 'gif',
-		2 => 'jpeg',
-		3 => 'png',
-		5 => 'psd',
-		6 => 'bmp',
-		7 => 'tiff',
-		8 => 'tiff',
-		9 => 'jpeg',
-		14 => 'iff'
+		IMAGETYPE_GIF => 'gif',
+		IMAGETYPE_JPEG => 'jpeg',
+		IMAGETYPE_PNG => 'png',
+		IMAGETYPE_PSD => 'psd',
+		IMAGETYPE_BMP => 'bmp',
+		IMAGETYPE_TIFF_II => 'tiff',
+		IMAGETYPE_TIFF_MM => 'tiff',
+		IMAGETYPE_IFF => 'iff'
 	);
 
 	// Define a list of allowed tags for descriptions.
-	$context['description_allowed_tags'] = array('abbr', 'anchor', 'b', 'center', 'color', 'font', 'hr', 'i', 'img', 'iurl', 'left', 'li', 'list', 'ltr', 'pre', 'right', 's', 'sub', 'sup', 'table', 'td', 'tr', 'u', 'url',);
+	$context['description_allowed_tags'] = array(
+		'abbr', 'anchor', 'b', 'center', 'color', 'font', 'hr', 'i', 'img',
+		'iurl', 'left', 'li', 'list', 'ltr', 'pre', 'right', 's', 'sub',
+		'sup', 'table', 'td', 'tr', 'u', 'url',
+	);
 
-	// Define a list of old BBC tags no longer parsed
+	// Define a list of deprecated BBC tags
+	// Even when enabled, they'll only work in old posts and not new ones
 	$context['legacy_bbc'] = array(
-		'br',
-		'tt',
-		'flash',
-		'bdo',
-		'black',
-		'white',
-		'red',
-		'green',
-		'blue',
-		'acronym',
-		'ftp',
-		'glow',
-		'move',
-		'shadow',
+		'acronym', 'bdo', 'black', 'blue', 'flash', 'ftp', 'glow',
+		'green', 'move', 'red', 'shadow', 'tt', 'white',
+	);
+
+	// Define a list of BBC tags that require permissions to use
+	$context['restricted_bbc'] = array(
+		'html',
 	);
 
 	// Call pre load integration functions.
@@ -705,7 +723,7 @@ function loadUserSettings()
 		else
 		{
 			$ci_user_agent = strtolower($_SERVER['HTTP_USER_AGENT']);
-			$user_info['possibly_robot'] = (strpos($_SERVER['HTTP_USER_AGENT'], 'Mozilla') === false && strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') === false) || strpos($ci_user_agent, 'googlebot') !== false || strpos($ci_user_agent, 'slurp') !== false || strpos($ci_user_agent, 'crawl') !== false || strpos($ci_user_agent, 'msnbot') !== false;
+			$user_info['possibly_robot'] = (strpos($_SERVER['HTTP_USER_AGENT'], 'Mozilla') === false && strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') === false) || strpos($ci_user_agent, 'googlebot') !== false || strpos($ci_user_agent, 'slurp') !== false || strpos($ci_user_agent, 'crawl') !== false || strpos($ci_user_agent, 'bingbot') !== false || strpos($ci_user_agent, 'bingpreview') !== false || strpos($ci_user_agent, 'adidxbot') !== false || strpos($ci_user_agent, 'msnbot') !== false;
 		}
 
 		// We don't know the offset...
@@ -1552,7 +1570,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		if (!empty($image))
 			$memberContext[$user]['avatar'] = array(
 				'name' => $profile['avatar'],
-				'image' => '<img class="avatar" src="' . $image . '" alt="avatar_' . $profile['member_name'] . '">',
+				'image' => '<img class="avatar" src="' . $image . '" alt="">',
 				'href' => $image,
 				'url' => $image,
 			);
@@ -1818,7 +1836,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 				)
 			);
 			// Pick between $settings and $options depending on whose data it is.
-			while ($row = $smcFunc['db_fetch_assoc']($result))
+			foreach ($smcFunc['db_fetch_all']($result) as $row)
 			{
 				// There are just things we shouldn't be able to change as members.
 				if ($row['id_member'] != 0 && in_array($row['variable'], array('actual_theme_url', 'actual_images_url', 'base_theme_dir', 'base_theme_url', 'default_images_url', 'default_theme_dir', 'default_theme_url', 'default_template', 'images_url', 'number_recent_posts', 'smiley_sets_default', 'theme_dir', 'theme_id', 'theme_layers', 'theme_templates', 'theme_url')))
@@ -1880,7 +1898,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		if (isset($_GET['sslRedirect']))
 		{
 			loadLanguage('Errors');
-			fatal_lang_error($txt['login_ssl_required']);
+			fatal_lang_error('login_ssl_required', false);
 		}
 
 		redirectexit(strtr($_SERVER['REQUEST_URL'], array('http://' => 'https://')) . (strpos($_SERVER['REQUEST_URL'], '?') > 0 ? ';' : '?') . 'sslRedirect');
@@ -1992,14 +2010,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$smiley_sets_known = explode(',', $modSettings['smiley_sets_known']);
 		$user_info['smiley_set'] = (!in_array($user_info['smiley_set'], $smiley_sets_known) && $user_info['smiley_set'] != 'none') || empty($modSettings['smiley_sets_enable']) ? (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default']) : $user_info['smiley_set'];
 		$context['user']['smiley_set'] = $user_info['smiley_set'];
-
-		// Determine current smiley set extension
-		$smiley_sets_exts = explode(',', $modSettings['smiley_sets_exts']);
-		$user_info['smiley_set_ext'] = $smiley_sets_exts[array_search($user_info['smiley_set'], $smiley_sets_known)];
-		$context['user']['smiley_set_ext'] = $user_info['smiley_set_ext'];
-
-		// Determine global default smiley set extension
-		$context['user']['smiley_set_default_ext'] = $smiley_sets_exts[array_search($modSettings['smiley_sets_default'], $smiley_sets_known)];
 	}
 	else
 	{
@@ -2195,7 +2205,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true, 'order_pos' => 9000), 'smf_responsive');
 
 	if ($context['right_to_left'])
-		loadCSSFile('rtl.css', array('order_pos' => 200), 'smf_rtl');
+		loadCSSFile('rtl.css', array('order_pos' => 4000), 'smf_rtl');
 
 	// We allow theme variants, because we're cool.
 	$context['theme_variant'] = '';
@@ -2220,7 +2230,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		{
 			loadCSSFile('index' . $context['theme_variant'] . '.css', array('order_pos' => 300), 'smf_index' . $context['theme_variant']);
 			if ($context['right_to_left'])
-				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array('order_pos' => 400), 'smf_rtl' . $context['theme_variant']);
+				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array('order_pos' => 4200), 'smf_rtl' . $context['theme_variant']);
 		}
 	}
 
@@ -2240,9 +2250,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'smf_default_theme_url' => '"' . $settings['default_theme_url'] . '"',
 		'smf_images_url' => '"' . $settings['images_url'] . '"',
 		'smf_smileys_url' => '"' . $modSettings['smileys_url'] . '"',
+		'smf_smiley_sets' => '"' . $modSettings['smiley_sets_known'] . '"',
 		'smf_smiley_sets_default' => '"' . $modSettings['smiley_sets_default'] . '"',
-		'smf_smiley_sets_exts' => '"' . $modSettings['smiley_sets_exts'] . '"',
-		'smf_smiley_sets_default_ext' => '"' . $context['user']['smiley_set_default_ext'] . '"',
 		'smf_scripturl' => '"' . $scripturl . '"',
 		'smf_iso_case_folding' => $context['server']['iso_case_folding'] ? 'true' : 'false',
 		'smf_charset' => '"' . $context['character_set'] . '"',
@@ -2492,7 +2501,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	if (empty($context['css_files_order']))
 		$context['css_files_order'] = array();
 
-	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
+	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $context) ? $context['browser_cache'] : '') : (is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : true;
@@ -2505,20 +2514,20 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 		$params['minimize'] = false;
 
 	// Account for shorthand like admin.css?alp21 filenames
-	$has_seed = strpos($fileName, '.css?');
-	$id = empty($id) ? strtr(basename(str_replace('.css', '', $fileName)), '?', '_') : $id;
+	$id = empty($id) ? strtr(str_replace('.css', '', basename($fileName)), '?', '_') : $id;
+	$fileName = str_replace(pathinfo($fileName, PATHINFO_EXTENSION), strtok(pathinfo($fileName, PATHINFO_EXTENSION), '?'), $fileName);
 
 	// Is this a local file?
 	if (empty($params['external']))
 	{
 		// Are we validating the the file exists?
-		if (!empty($params['validate']) && !file_exists($settings[$themeRef . '_dir'] . '/css/' . $fileName))
+		if (!empty($params['validate']) && ($mtime = @filemtime($settings[$themeRef . '_dir'] . '/css/' . $fileName)) === false)
 		{
 			// Maybe the default theme has it?
-			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/css/' . $fileName))
+			if ($themeRef === 'theme' && !$params['force_current'] && ($mtime = @filemtime($settings['default_theme_dir'] . '/css/' . $fileName) !== false))
 			{
-				$fileUrl = $settings['default_theme_url'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
-				$filePath = $settings['default_theme_dir'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
+				$fileUrl = $settings['default_theme_url'] . '/css/' . $fileName;
+				$filePath = $settings['default_theme_dir'] . '/css/' . $fileName;
 			}
 
 			else
@@ -2530,8 +2539,9 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 
 		else
 		{
-			$fileUrl = $settings[$themeRef . '_url'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
-			$filePath = $settings[$themeRef . '_dir'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
+			$fileUrl = $settings[$themeRef . '_url'] . '/css/' . $fileName;
+			$filePath = $settings[$themeRef . '_dir'] . '/css/' . $fileName;
+			$mtime = @filemtime($filePath);
 		}
 	}
 
@@ -2542,6 +2552,8 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 		$filePath = $fileName;
 	}
 
+	$mtime = empty($mtime) ? 0 : $mtime;
+
 	// Add it to the array for use in the template
 	if (!empty($fileName))
 	{
@@ -2550,11 +2562,14 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 			$params['order_pos']++;
 		$context['css_files_order'][$params['order_pos']] = $id;
 
-		$context['css_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params);
+		$context['css_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params, 'mtime' => $mtime);
 	}
 
 	if (!empty($context['right_to_left']) && !empty($params['rtl']))
 		loadCSSFile($params['rtl'], array_diff_key($params, array('rtl' => 0)));
+
+	if ($mtime > $modSettings['browser_cache'])
+		updateSettings(array('browser_cache' => $mtime));
 }
 
 /**
@@ -2600,7 +2615,7 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
-	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
+	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $context) ? $context['browser_cache'] : '') : (is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['async'] = isset($params['async']) ? $params['async'] : false;
@@ -2613,20 +2628,20 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 		$params['minimize'] = false;
 
 	// Account for shorthand like admin.js?alp21 filenames
-	$has_seed = strpos($fileName, '.js?');
-	$id = empty($id) ? strtr(basename(str_replace('.js', '', $fileName)), '?', '_') : $id;
+	$id = empty($id) ? strtr(str_replace('.js', '', basename($fileName)), '?', '_') : $id;
+	$fileName = str_replace(pathinfo($fileName, PATHINFO_EXTENSION), strtok(pathinfo($fileName, PATHINFO_EXTENSION), '?'), $fileName);
 
 	// Is this a local file?
 	if (empty($params['external']))
 	{
 		// Are we validating it exists on disk?
-		if (!empty($params['validate']) && !file_exists($settings[$themeRef . '_dir'] . '/scripts/' . $fileName))
+		if (!empty($params['validate']) && ($mtime = @filemtime($settings[$themeRef . '_dir'] . '/scripts/' . $fileName)) === false)
 		{
 			// Can't find it in this theme, how about the default?
-			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/scripts/' . $fileName))
+			if ($themeRef === 'theme' && !$params['force_current'] && ($mtime = @filemtime($settings['default_theme_dir'] . '/scripts/' . $fileName)) !== false)
 			{
-				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
-				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
+				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName;
+				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName;
 			}
 
 			else
@@ -2638,8 +2653,9 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 
 		else
 		{
-			$fileUrl = $settings[$themeRef . '_url'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
-			$filePath = $settings[$themeRef . '_dir'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
+			$fileUrl = $settings[$themeRef . '_url'] . '/scripts/' . $fileName;
+			$filePath = $settings[$themeRef . '_dir'] . '/scripts/' . $fileName;
+			$mtime = @filemtime($filePath);
 		}
 	}
 
@@ -2650,9 +2666,14 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 		$filePath = $fileName;
 	}
 
+	$mtime = empty($mtime) ? 0 : $mtime;
+
 	// Add it to the array for use in the template
 	if (!empty($fileName))
-		$context['javascript_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params);
+		$context['javascript_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params, 'mtime' => $mtime);
+
+	if ($mtime > $modSettings['browser_cache'])
+		updateSettings(array('browser_cache' => $mtime));
 }
 
 /**
@@ -3470,7 +3491,7 @@ function cache_put_data($key, $value, $ttl = 120)
  *
  * @param string $key The key for the value to retrieve
  * @param int $ttl The maximum age of the cached data
- * @return string The cached data or null if nothing was loaded
+ * @return string|null The cached data or null if nothing was loaded
  */
 function cache_get_data($key, $ttl = 120)
 {
@@ -3615,7 +3636,7 @@ function set_avatar_data($data = array())
 	if (!empty($image))
 		return array(
 			'name' => !empty($data['avatar']) ? $data['avatar'] : '',
-			'image' => '<img class="avatar" src="' . $image . '" />',
+			'image' => '<img class="avatar" src="' . $image . '" alt="">',
 			'href' => $image,
 			'url' => $image,
 		);

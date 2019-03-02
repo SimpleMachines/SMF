@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -754,7 +754,7 @@ function getDailyStats($condition_string, $condition_parameters = array())
  */
 function SMStats()
 {
-	global $modSettings, $user_info, $forum_version, $sourcedir;
+	global $modSettings, $user_info, $sourcedir;
 
 	// First, is it disabled?
 	if (empty($modSettings['enable_sm_stats']) || empty($modSettings['sm_stats_key']))
@@ -787,7 +787,7 @@ function SMStats()
 		'php_version' => $serverVersions['php']['version'],
 		'database_type' => strtolower($serverVersions['db_engine']['version']),
 		'database_version' => $serverVersions['db_server']['version'],
-		'smf_version' => $forum_version,
+		'smf_version' => SMF_FULL_VERSION,
 		'smfd_version' => $modSettings['smfVersion'],
 	);
 

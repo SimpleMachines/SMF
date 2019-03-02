@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -273,20 +273,42 @@ function determineActions($urls, $preferred_prefix = false)
 		'ban' => array('manage_bans'),
 		'boardrecount' => array('admin_forum'),
 		'calendar' => array('calendar_view'),
+		'corefeatures' => array('admin_forum'),
 		'editnews' => array('edit_news'),
+		'featuresettings' => array('admin_forum'),
+		'languages' => array('admin_forum'),
+		'logs' => array('admin_forum'),
 		'mailing' => array('send_mail'),
+		'mailqueue' => array('admin_forum'),
 		'maintain' => array('admin_forum'),
 		'manageattachments' => array('manage_attachments'),
 		'manageboards' => array('manage_boards'),
+		'managecalendar' => array('admin_forum'),
+		'managesearch' => array('admin_forum'),
+		'managesmileys' => array('manage_smileys'),
+		'membergroups' => array('manage_membergroups'),
 		'mlist' => array('view_mlist'),
 		'moderate' => array('access_mod_center', 'moderate_forum', 'manage_membergroups'),
+		'modsettings' => array('admin_forum'),
+		'news' => array('edit_news', 'send_mail', 'admin_forum'),
 		'optimizetables' => array('admin_forum'),
+		'packages' => array('admin_forum'),
+		'paidsubscribe' => array('admin_forum'),
+		'permissions' => array('manage_permissions'),
+		'postsettings' => array('admin_forum'),
+		'regcenter' => array('admin_forum', 'moderate_forum'),
 		'repairboards' => array('admin_forum'),
+		'reports' => array('admin_forum'),
+		'scheduledtasks' => array('admin_forum'),
 		'search' => array('search_posts'),
 		'search2' => array('search_posts'),
+		'securitysettings' => array('admin_forum'),
+		'sengines' => array('admin_forum'),
+		'serversettings' => array('admin_forum'),
 		'setcensor' => array('moderate_forum'),
 		'setreserve' => array('moderate_forum'),
 		'stats' => array('view_stats'),
+		'theme' => array('admin_forum'),
 		'viewerrorlog' => array('admin_forum'),
 		'viewmembers' => array('moderate_forum'),
 	);
@@ -543,7 +565,7 @@ function determineActions($urls, $preferred_prefix = false)
  */
 function Credits($in_admin = false)
 {
-	global $context, $smcFunc, $forum_copyright, $forum_version, $software_year, $txt, $user_info;
+	global $context, $smcFunc, $forum_copyright, $txt, $user_info;
 
 	// Don't blink. Don't even blink. Blink and you're dead.
 	loadLanguage('Who');
@@ -843,7 +865,7 @@ function Credits($in_admin = false)
 	$context['credits_modifications'] = $mods;
 
 	$context['copyrights'] = array(
-		'smf' => sprintf($forum_copyright, $forum_version, $software_year),
+		'smf' => sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR),
 		/* Modification Authors:  You may add a copyright statement to this array for your mods.
 			Copyright statements should be in the form of a value only without a array key.  I.E.:
 				'Some Mod by Thantos © 2010',

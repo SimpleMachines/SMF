@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -198,7 +198,7 @@ function PackageServers()
  */
 function PackageGBrowse()
 {
-	global $txt, $context, $scripturl, $sourcedir, $forum_version, $smcFunc;
+	global $txt, $context, $scripturl, $sourcedir, $smcFunc;
 
 	if (isset($_GET['server']))
 	{
@@ -318,7 +318,7 @@ function PackageGBrowse()
 			$default_title = $smcFunc['htmlspecialchars']($listing->fetch('default-website/@title'));
 	}
 
-	$the_version = strtr($forum_version, array('SMF ' => ''));
+	$the_version = SMF_VERSION;
 	if (!empty($_SESSION['version_emulate']))
 		$the_version = $_SESSION['version_emulate'];
 

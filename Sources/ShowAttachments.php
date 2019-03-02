@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -87,14 +87,13 @@ function showAttachment()
 		call_integration_hook('integrate_download_request', array(&$attachRequest));
 		if (!is_null($attachRequest) && $smcFunc['db_is_resource']($attachRequest))
 			$request = $attachRequest;
-
 		else
 		{
 			// Make sure this attachment is on this board and load its info while we are at it.
 			$request = $smcFunc['db_query']('', '
 				SELECT id_folder, filename, file_hash, fileext, id_attach, id_thumb, attachment_type, mime_type, approved, id_msg
 				FROM {db_prefix}attachments
-				WHERE id_attach = {int:attach}
+				WHERE id_attach = {int:attach} AND id_msg != 0
 				LIMIT 1',
 				array(
 					'attach' => $attachId,

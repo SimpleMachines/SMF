@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -157,7 +157,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
  * It logs the error message if $log is specified.
  *
  * @param string $error The error message
- * @param string $log = 'general' What type of error to log this as (false to not log it))
+ * @param string|bool $log = 'general' What type of error to log this as (false to not log it))
  * @param int $status The HTTP status code associated with this error
  */
 function fatal_error($error, $log = 'general', $status = 500)
@@ -228,7 +228,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
 	}
 
-	log_error_online($error, true, $sprintf);
+	log_error_online($error, $sprintf);
 	setup_fatal_error_context($error_message, $error);
 }
 

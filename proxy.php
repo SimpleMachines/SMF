@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -15,6 +15,15 @@
 
 if (!defined('SMF'))
 	define('SMF', 'proxy');
+
+if (!defined('SMF_VERSION'))
+	define('SMF_VERSION', '2.1 RC1');
+
+if (!defined('SMF_FULL_VERSION'))
+	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
+
+if (!defined('SMF_SOFTWARE_YEAR'))
+	define('SMF_SOFTWARE_YEAR', '2019');
 
 global $proxyhousekeeping;
 
@@ -197,7 +206,7 @@ class ProxyServer
 
 		// Looks like nobody was home
 		if (empty($image))
-			return -1;
+			return 0;
 
 		// What kind of file did they give us?
 		$finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -209,7 +218,7 @@ class ProxyServer
 
 		// Make sure the url is returning an image
 		if (strpos($mime_type, 'image/') !== 0)
-			return -1;
+			return 0;
 
 		// Validate the filesize
 		$size = strlen($image);
@@ -234,7 +243,7 @@ class ProxyServer
 	 */
 	static public function redirectexit($request)
 	{
-		header('Location: ' . $request, false, 301);
+		header('Location: ' . un_htmlspecialchars($request), false, 301);
 		exit;
 	}
 

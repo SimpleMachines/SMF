@@ -140,16 +140,16 @@ body#chrome #quick_search form input {
 	height: 12em;
 	overflow: auto;
 }
-#smf_news dt {
+#smfAnnouncements dt {
 	padding: 4px 6px 2px 6px;
 	border-top: 1px solid #bf6900;
 }
-#smf_news dt a {
+#smfAnnouncements dt a {
 	color: #bf6900;
 	font-weight: bold;
 	display: block;
 }
-#smf_news dd {
+#smfAnnouncements dd {
 	margin: 0;
 	padding: 6px 12px;
 	border-top: double #ddd;
@@ -303,8 +303,7 @@ fieldset.admin_group .inactive {
 	padding: 6px 0;
 }
 
-/* Styles for the package manager.
-/* Haven't got here yet. :P */
+/* Styles for the package manager. */
 #package_list .tborder {
 	margin: .25em 0 .25em 26px;
 }
@@ -329,21 +328,13 @@ pre.file_content {
 	width: 100%;
 	padding-bottom: 1em;
 }
-.operation {
-	padding: 0 1em;
+#view_package table {
+	border-collapse: collapse;
 }
-tr[id^="operation_"] tr.windowbg {
-	border: 0;
-	border-radius: 0;
-}
-tr[id^="operation_"] .windowbg {
+#view_package td[colspan="5"] {
+	border: none;
+	font-size: 0.9em;
 	padding: 0;
-	background: none !important;
-}
-tr[id^="operation_"] .table_grid {
-	width: 95%;
-	float: right;
-	margin: 0;
 }
 
 /* Styles for the file permissions section. */
@@ -448,6 +439,14 @@ tr[id^="operation_"] .table_grid {
 }
 dl.right dt {
 	padding-right: 10px;
+}
+
+/* Styles for the manage membergroups section. */
+.denyboards_layout .board:hover {
+	background: #e3e9ec;
+}
+.all_boards_in_cat {
+	margin-left: 2.5em;
 }
 
 /* Styles for the question and answers */
@@ -624,6 +623,7 @@ h3.grid_header {
 #error_log span.error_message {
 	overflow: hidden; /* This changes how the text wraps around the float */
 	display: block;
+	white-space: pre-wrap;
 }
 
 /* Styles for the Report generation */

@@ -10,7 +10,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
@@ -68,7 +68,7 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 
 	// This function sorta needs gzinflate!
 	if (!function_exists('gzinflate'))
-		fatal_lang_error('package_no_zlib', 'critical');
+		fatal_lang_error('package_no_lib', 'critical', array('package_no_zlib', 'package_no_package_manager'));
 
 	if (substr($gzfilename, 0, 7) == 'http://' || substr($gzfilename, 0, 8) == 'https://')
 	{
@@ -241,6 +241,10 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 
 function read_zip_file($file, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
+	// This function sorta needs phar!
+	if (!class_exists('PharData'))
+		fatal_lang_error('package_no_lib', 'critical', array('package_no_phar', 'package_no_package_manager'));
+
 	try
 	{
 		// This may not always be defined...
@@ -261,6 +265,7 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 			}
 			if (strpos($errstr, 'PharData::__construct(): open_basedir') === false)
 				log_error($errstr, 'general', $errfile, $errline);
+			return true;
 		}
 		);
 		$archive = new PharData($file, RecursiveIteratorIterator::SELF_FIRST, null, Phar::ZIP);
@@ -1140,7 +1145,7 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
  */
 function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install', $previous_version = '')
 {
-	global $packagesdir, $forum_version, $context, $temp_path, $language, $smcFunc;
+	global $packagesdir, $context, $temp_path, $language, $smcFunc;
 
 	// Mayday!  That action doesn't exist!!
 	if (empty($packageXML) || !$packageXML->exists($method))
@@ -1148,7 +1153,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 
 	// We haven't found the package script yet...
 	$script = false;
-	$the_version = strtr($forum_version, array('SMF ' => ''));
+	$the_version = SMF_VERSION;
 
 	// Emulation support...
 	if (!empty($_SESSION['version_emulate']))
@@ -3077,9 +3082,23 @@ function package_create_backup($id = 'backup')
 		if (function_exists('apache_reset_timeout'))
 			@apache_reset_timeout();
 
+		// Phar doesn't handle open_basedir restrictions very well and throws a PHP Warning. Ignore that.
+		set_error_handler(function($errno, $errstr, $errfile, $errline)
+		{
+			// error was suppressed with the @-operator
+			if (0 === error_reporting())
+			{
+				return false;
+			}
+			if (strpos($errstr, 'PharData::__construct(): open_basedir') === false && strpos($errstr, 'PharData::compress(): open_basedir') === false)
+				log_error($errstr, 'general', $errfile, $errline);
+			return true;
+		}
+		);
 		$a = new PharData($output_file);
 		$a->buildFromIterator($iterator);
 		$a->compress(Phar::GZ);
+		restore_error_handler();
 
 		/*
 		 * Destroying the local var tells PharData to close its internal

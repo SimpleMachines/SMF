@@ -5,14 +5,17 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC1
  */
 
-$GLOBALS['current_smf_version'] = '2.1 RC1';
-$GLOBALS['db_script_version'] = '2-1';
+define('SMF_VERSION', '2.1 RC1');
+define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
+define('SMF_SOFTWARE_YEAR', '2019');
+define('DB_SCRIPT_VERSION', '2-1');
+define('SMF_INSTALLING', 1);
 
 $GLOBALS['required_php_version'] = '5.4.0';
 
@@ -213,7 +216,7 @@ function initialize_inputs()
 			foreach ($databases as $key => $dummy)
 			{
 				$type = ($key == 'mysqli') ? 'mysql' : $key;
-				$ftp->unlink('install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql');
+				$ftp->unlink('install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
 			}
 
 			$ftp->close();
@@ -227,7 +230,7 @@ function initialize_inputs()
 			foreach ($databases as $key => $dummy)
 			{
 				$type = ($key == 'mysqli') ? 'mysql' : $key;
-				@unlink(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql');
+				@unlink(dirname(__FILE__) . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
 			}
 		}
 
@@ -458,11 +461,11 @@ function Welcome()
 		if ($db['supported'])
 		{
 			$type = ($key == 'mysqli') ? 'mysql' : $key;
-			if (!file_exists(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql'))
+			if (!file_exists(dirname(__FILE__) . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql'))
 			{
 				$databases[$key]['supported'] = false;
 				$notFoundSQLFile = true;
-				$txt['error_db_script_missing'] = sprintf($txt['error_db_script_missing'], 'install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql');
+				$txt['error_db_script_missing'] = sprintf($txt['error_db_script_missing'], 'install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql');
 			}
 			else
 				$incontext['supported_databases'][] = $db;
@@ -1080,7 +1083,7 @@ function DatabasePopulation()
 		$smcFunc['db_free_result']($result);
 
 		// Do they match?  If so, this is just a refresh so charge on!
-		if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] != $GLOBALS['current_smf_version'])
+		if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] != SMF_VERSION)
 		{
 			$incontext['error'] = $txt['error_versions_do_not_match'];
 			return false;
@@ -1111,7 +1114,7 @@ function DatabasePopulation()
 		'{$boardurl}' => $boardurl,
 		'{$enableCompressedOutput}' => isset($_POST['compress']) ? '1' : '0',
 		'{$databaseSession_enable}' => isset($_POST['dbsession']) ? '1' : '0',
-		'{$smf_version}' => $GLOBALS['current_smf_version'],
+		'{$smf_version}' => SMF_VERSION,
 		'{$current_time}' => time(),
 		'{$sched_task_offset}' => 82800 + mt_rand(0, 86399),
 		'{$registration_method}' => isset($_POST['reg_mode']) ? $_POST['reg_mode'] : 0,
@@ -1168,7 +1171,7 @@ function DatabasePopulation()
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
 	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
-	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql')), $replaces));
+	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . DB_SCRIPT_VERSION . '_' . $type . '.sql')), $replaces));
 
 	// Execute the SQL.
 	$current_statement = '';
@@ -1371,6 +1374,54 @@ function DatabasePopulation()
 		);
 	}
 
+	// Populate the smiley_files table.
+	// Can't just dump this data in the SQL file because we need to know the id for each smiley.
+	$smiley_filenames = array(
+		':)' => 'smiley',
+		';)' => 'wink',
+		':D' => 'cheesy',
+		';D' => 'grin',
+		'>:(' => 'angry',
+		':(' => 'sad',
+		':o' => 'shocked',
+		'8)' => 'cool',
+		'???' => 'huh',
+		'::)' => 'rolleyes',
+		':P' => 'tongue',
+		':-[' => 'embarrassed',
+		':-X' => 'lipsrsealed',
+		':-\\' => 'undecided',
+		':-*' => 'kiss',
+		':\'(' => 'cry',
+		'>:D' => 'evil',
+		'^-^' => 'azn',
+		'O0' => 'afro',
+		':))' => 'laugh',
+		'C:-)' => 'police',
+		'O:-)' => 'angel'
+	);
+	$smiley_set_extensions = array('fugue' => '.png', 'alienine' => '.png');
+
+	$smiley_inserts = array();
+	$request = $smcFunc['db_query']('', '
+		SELECT id_smiley, code
+		FROM {db_prefix}smileys',
+		array()
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		foreach ($smiley_set_extensions as $set => $ext)
+			$smiley_inserts[] = array($row['id_smiley'], $set, $smiley_filenames[$row['code']] . $ext);
+	}
+	$smcFunc['db_free_result']($request);
+
+	$smcFunc['db_insert']('ignore',
+		'{db_prefix}smiley_files',
+		array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
+		$smiley_inserts,
+		array('id_smiley', 'smiley_set')
+	);
+
 	// Let's optimize those new tables, but not on InnoDB, ok?
 	if (!$has_innodb)
 	{
@@ -1504,7 +1555,7 @@ function AdminAccount()
 		}
 		if (!file_exists($sourcedir . '/Subs.php'))
 		{
-			$incontext['error'] = $txt['error_subs_missing'];
+			$incontext['error'] = sprintf($txt['error_sourcefile_missing'], 'Subs.php');
 			return false;
 		}
 
@@ -1607,7 +1658,7 @@ function AdminAccount()
 function DeleteInstall()
 {
 	global $smcFunc, $db_character_set, $context, $txt, $incontext;
-	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $db_type, $boardurl;
+	global $databases, $sourcedir, $modSettings, $user_info, $db_type, $boardurl;
 
 	$incontext['page_title'] = $txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';
@@ -1735,19 +1786,18 @@ function DeleteInstall()
 	// Sanity check that they loaded earlier!
 	if (isset($modSettings['recycle_board']))
 	{
-		$forum_version = $current_smf_version; // The variable is usually defined in index.php so lets just use our variable to do it for us.
 		scheduled_fetchSMfiles(); // Now go get those files!
 
 		// We've just installed!
 		$user_info['ip'] = $_SERVER['REMOTE_ADDR'];
 		$user_info['id'] = isset($incontext['member_id']) ? $incontext['member_id'] : 0;
-		logAction('install', array('version' => $forum_version), 'admin');
+		logAction('install', array('version' => SMF_FULL_VERSION), 'admin');
 	}
 
-	// Check if we need some stupid MySQL fix.
-	$server_version = $smcFunc['db_server_info']();
-	if (($db_type == 'mysql' || $db_type == 'mysqli') && in_array(substr($server_version, 0, 6), array('5.0.50', '5.0.51')))
-		updateSettings(array('db_mysql_group_by_fix' => '1'));
+	// Disable the legacy BBC by default for new installs
+	updateSettings(array(
+		'disabledBBC' => implode(',', $context['legacy_bbc']),
+	));
 
 	// Some final context for the template.
 	$incontext['dir_still_writable'] = is_writable(dirname(__FILE__)) && substr(__FILE__, 1, 2) != ':\\';
@@ -1911,9 +1961,9 @@ function template_install_above()
 	<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
 	<meta name="robots" content="noindex">
 	<title>', $txt['smf_installer'], '</title>
-	<link rel="stylesheet" href="Themes/default/css/index.css?alp21">
-	<link rel="stylesheet" href="Themes/default/css/install.css?alp21">
-	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '', '
+	<link rel="stylesheet" href="Themes/default/css/index.css">
+	<link rel="stylesheet" href="Themes/default/css/install.css">
+	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css">' : '', '
 
 	<script src="Themes/default/scripts/jquery-3.2.1.min.js"></script>
 	<script src="Themes/default/scripts/script.js"></script>
@@ -1924,15 +1974,15 @@ function template_install_above()
 		<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
 		<img id="smflogo" src="Themes/default/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
 	</div>
-	<div id="wrapper">
-		<div id="upper_section">
-			<div id="inner_section">
-				<div id="inner_wrap">';
+	<div id="wrapper">';
 
 	// Have we got a language drop down - if so do it on the first step only.
 	if (!empty($incontext['detected_languages']) && count($incontext['detected_languages']) > 1 && $incontext['current_step'] == 0)
 	{
 		echo '
+		<div id="upper_section">
+			<div id="inner_section">
+				<div id="inner_wrap">
 					<div class="news">
 						<form action="', $installurl, '" method="get">
 							<label for="installer_language">', $txt['installer_language'], ':</label>
@@ -1947,22 +1997,24 @@ function template_install_above()
 							<noscript><input type="submit" value="', $txt['installer_language_set'], '" class="button"></noscript>
 						</form>
 					</div><!-- .news -->
-					<hr class="clear">';
+					<hr class="clear">
+				</div><!-- #inner_wrap -->
+			</div><!-- #inner_section -->
+		</div><!-- #upper_section -->';
 	}
 
 	echo '
-				</div><!-- #inner_wrap -->
-			</div><!-- #inner_section -->
-		</div><!-- #upper_section -->
 		<div id="content_section">
 			<div id="main_content_section">
 				<div id="main_steps">
 					<h2>', $txt['upgrade_progress'], '</h2>
-					<ul>';
+					<ul class="steps_list">';
 
 	foreach ($incontext['steps'] as $num => $step)
 		echo '
-						<li class="', $num < $incontext['current_step'] ? 'stepdone' : ($num == $incontext['current_step'] ? 'stepcurrent' : 'stepwaiting'), '">', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '</li>';
+						<li', $num == $upcontext['current_step'] ? ' class="stepcurrent"' : '', '>
+							', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '
+						</li>';
 
 	echo '
 					</ul>
@@ -2012,7 +2064,7 @@ function template_install_below()
 	</div><!-- #footerfix -->
 	<div id="footer">
 		<ul>
-			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">SMF &copy; 2018, Simple Machines</a></li>
+			<li class="copyright"><a href="https://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" rel="noopener">' . SMF_FULL_VERSION . ' &copy; ' . SMF_SOFTWARE_YEAR . ', Simple Machines</a></li>
 		</ul>
 	</div>
 </body>
@@ -2025,12 +2077,12 @@ function template_welcome_message()
 	global $incontext, $txt;
 
 	echo '
-	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . $GLOBALS['current_smf_version'] . '"></script>
+	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . urlencode(SMF_VERSION) . '"></script>
 	<form action="', $incontext['form_url'], '" method="post">
-		<p>', sprintf($txt['install_welcome_desc'], $GLOBALS['current_smf_version']), '</p>
+		<p>', sprintf($txt['install_welcome_desc'], SMF_VERSION), '</p>
 		<div id="version_warning" class="noticebox hidden">
 			<h3>', $txt['error_warning_notice'], '</h3>
-			', sprintf($txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . $GLOBALS['current_smf_version'] . '</em>'), '
+			', sprintf($txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . SMF_VERSION . '</em>'), '
 		</div>';
 
 	// Show the warnings, or not.
