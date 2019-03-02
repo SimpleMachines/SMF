@@ -1570,7 +1570,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		if (!empty($image))
 			$memberContext[$user]['avatar'] = array(
 				'name' => $profile['avatar'],
-				'image' => '<img class="avatar" src="' . $image . '" alt="avatar_' . $profile['member_name'] . '">',
+				'image' => '<img class="avatar" src="' . $image . '" alt="">',
 				'href' => $image,
 				'url' => $image,
 			);
@@ -3636,7 +3636,7 @@ function set_avatar_data($data = array())
 	if (!empty($image))
 		return array(
 			'name' => !empty($data['avatar']) ? $data['avatar'] : '',
-			'image' => '<img class="avatar" src="' . $image . '" />',
+			'image' => '<img class="avatar" src="' . $image . '" alt="">',
 			'href' => $image,
 			'url' => $image,
 		);
