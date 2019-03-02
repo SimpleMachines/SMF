@@ -982,7 +982,7 @@ function Display()
 			$ascending = !$ascending;
 			$limit = $context['total_visible_posts'] <= $start + $limit ? $context['total_visible_posts'] - $start : $limit;
 			$start = $context['total_visible_posts'] <= $start + $limit ? 0 : $context['total_visible_posts'] - $start - $limit;
-			$firstIndex = $limit - 1;
+			$firstIndex = empty($options['view_newest_first']) ? $start - 1 : $limit - 1;
 		}
 
 		// Get each post and poster in this topic.
