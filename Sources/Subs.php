@@ -1009,7 +1009,10 @@ function permute($array)
  * - uses the cache_id as a unique identifier to facilitate any caching it may do.
  * - returns the modified message.
  *
- * @param string $message The message
+ * @param string|bool $message The message.
+ *		When a empty string, nothing is done.
+ *		When false we provide a list of BBC codes available.
+ *		When a string, the message is parsed and bbc handled.
  * @param bool $smileys Whether to parse smileys as well
  * @param string $cache_id The cache ID
  * @param array $parse_tags If set, only parses these tags rather than all of them
@@ -4168,7 +4171,7 @@ function deleteAllMinified()
  *
  * @param string $filename The name of the file
  * @param int $attachment_id The ID of the attachment
- * @param string $dir Which directory it should be in (null to use current one)
+ * @param string|null $dir Which directory it should be in (null to use current one)
  * @param bool $new Whether this is a new attachment
  * @param string $file_hash The file hash
  * @return string The path to the file
