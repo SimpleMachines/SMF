@@ -1572,15 +1572,11 @@ function Post2()
 
 		// Do the permissions and approval stuff...
 		$becomesApproved = true;
-		$topicAndMessageBothUnapproved = false;
 
 		// If the topic is unapproved the message automatically becomes unapproved too.
 		if (empty($topic_info['approved']))
 		{
 			$becomesApproved = false;
-
-			// camelCase fan much? :P
-			$topicAndMessageBothUnapproved = true;
 
 			// Set a nice session var...
 			$_SESSION['becomesUnapproved'] = true;
