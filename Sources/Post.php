@@ -166,7 +166,7 @@ function Post($post_errors = array())
 		$context['can_move'] = allowedTo('move_any');
 		// You can only announce topics that will get approved...
 		$context['can_announce'] = allowedTo('announce_topic') && $context['becomes_approved'];
-		$context['show_approval'] = !allowedTo('approve_posts') ? 0 : ($context['becomes_approved'] && !empty($topic_approved) ? 2 : 1);
+		$context['show_approval'] = !allowedTo('approve_posts') ? 0 : ($context['becomes_approved'] ? 2 : 1);
 
 		// We don't always want the request vars to override what's in the db...
 		$context['already_locked'] = $locked;
@@ -781,9 +781,9 @@ function Post($post_errors = array())
 		$context['use_smileys'] = !empty($row['smileys_enabled']);
 		$context['icon'] = $row['icon'];
 
-		// Show an "approve" box if the user can approve it, and the message isn't approved.
-		if (!$row['approved'] && !$context['show_approval'])
-			$context['show_approval'] = allowedTo('approve_posts');
+		// Leave the approval checkbox unchecked by default for unapproved messages.
+		if (!$row['approved'] && !empty($context['show_approval']))
+			$context['show_approval'] = 1;
 
 		// Sort the attachments so they are in the order saved
 		$temp = array();
@@ -1824,8 +1824,7 @@ function Post2()
 	// In case we have approval permissions and want to override.
 	if (allowedTo('approve_posts') && $modSettings['postmod_active'])
 	{
-		// If 'approve' wasn't specified, assume true for these users
-		$becomesApproved = !isset($_REQUEST['approve']) || !empty($_REQUEST['approve']) ? 1 : 0;
+		$becomesApproved = isset($_POST['quickReply']) || !empty($_REQUEST['approve']) ? 1 : 0;
 		$approve_has_changed = isset($row['approved']) ? $row['approved'] != $becomesApproved : false;
 	}
 
