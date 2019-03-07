@@ -971,7 +971,7 @@ function PickTheme()
 			redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
 		}
 		// Change a specific member's theme.
-		else
+		elseif (!empty($modSettings['theme_allow']) || allowedTo('admin_forum'))
 		{
 			// An identifier of zero means that the user wants the forum default theme.
 			updateMemberData((int) $_REQUEST['u'], array('id_theme' => (int) $_GET['th']));
