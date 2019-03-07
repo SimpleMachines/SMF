@@ -995,7 +995,7 @@ function PickTheme()
 		{
 			updateMemberData((int) $_REQUEST['u'], array('id_theme' => (int) $_GET['th']));
 
-			if (!empty($_GET['vrt']) && $_GET['th'] != 0)
+			if (!empty($_GET['vrt']))
 			{
 				$smcFunc['db_insert']('replace',
 					'{db_prefix}themes',
@@ -1007,20 +1007,6 @@ function PickTheme()
 
 				if ($user_info['id'] == $_REQUEST['u'])
 					$_SESSION['id_variant'] = 0;
-			}
-			elseif ($_GET['th'] == 0)
-			{
-				// Remove any custom variants.
-				$smcFunc['db_query']('', '
-					DELETE FROM {db_prefix}themes
-					WHERE
-						variable = {string:theme_variant}
-						AND id_member = {int:id_member}',
-					array(
-						'theme_variant' => 'theme_variant',
-						'id_member' => (int) $_REQUEST['u'],
-					)
-				);
 			}
 
 			redirectexit('action=profile;u=' . (int) $_REQUEST['u'] . ';area=theme');
