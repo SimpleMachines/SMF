@@ -907,6 +907,8 @@ function PickTheme()
 
 	if (isset($_GET['id']))
 		$_GET['th'] = $_GET['id'];
+	if (!isset($_REQUEST['u']))
+		$_REQUEST['u'] = $user_info['id'];
 
 	// Saving a variant cause JS doesn't work - pretend it did ;)
 	if (isset($_POST['save']))
@@ -925,28 +927,6 @@ function PickTheme()
 		checkSession('get');
 
 		$_GET['th'] = (int) $_GET['th'];
-
-		// Save for this user.
-		if (!isset($_REQUEST['u']) || !allowedTo('admin_forum') || (!empty($_REQUEST['u']) && $_REQUEST['u'] == $user_info['id']))
-		{
-			updateMemberData($user_info['id'], array('id_theme' => (int) $_GET['th']));
-
-			// A variants to save for the user?
-			if (!empty($_GET['vrt']))
-			{
-				$smcFunc['db_insert']('replace',
-					'{db_prefix}themes',
-					array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
-					array($_GET['th'], $user_info['id'], 'theme_variant', $_GET['vrt']),
-					array('id_theme', 'id_member', 'variable')
-				);
-				cache_put_data('theme_settings-' . $_GET['th'] . ':' . $user_info['id'], null, 90);
-
-				$_SESSION['id_variant'] = 0;
-			}
-
-			redirectexit('action=profile;area=theme');
-		}
 
 		// If changing members or guests - and there's a variant - assume changing default variant.
 		if (!empty($_GET['vrt']) && ($_REQUEST['u'] == '0' || $_REQUEST['u'] == '-1'))
