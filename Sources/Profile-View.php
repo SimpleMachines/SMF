@@ -1820,7 +1820,7 @@ function list_getUserErrorCount($where, $where_vars = array())
 	global $smcFunc;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*) AS error_count
+		SELECT COUNT(id_error)
 		FROM {db_prefix}log_errors
 		WHERE ' . $where,
 		$where_vars
@@ -1886,14 +1886,15 @@ function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars 
  */
 function list_getIPMessageCount($where, $where_vars = array())
 {
-	global $smcFunc;
+	global $smcFunc, $user_info;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*) AS message_count
+		SELECT COUNT(id_msg)
 		FROM {db_prefix}messages AS m
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-		WHERE {query_see_board} AND ' . $where,
-		$where_vars
+		WHERE {raw:query_see_board} AND ' . $where,
+		array_merge($where_vars, array(
+			'query_see_board' => str_replace('b.', 'm.', $user_info['query_see_board']),
+		))
 	);
 	list ($count) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
@@ -1913,24 +1914,23 @@ function list_getIPMessageCount($where, $where_vars = array())
  */
 function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars = array())
 {
-	global $smcFunc, $scripturl;
+	global $smcFunc, $scripturl, $user_info;
 
 	// Get all the messages fitting this where clause.
-	// @todo SLOW This query is using a filesort.
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			m.id_msg, m.poster_ip, COALESCE(mem.real_name, m.poster_name) AS display_name, mem.id_member,
 			m.subject, m.poster_time, m.id_topic, m.id_board
 		FROM {db_prefix}messages AS m
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-		WHERE {query_see_board} AND ' . $where . '
+		WHERE {raw:query_see_board} AND ' . $where . '
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:max}',
 		array_merge($where_vars, array(
 			'sort' => $sort,
 			'start' => $start,
 			'max' => $items_per_page,
+			'query_see_board' => str_replace('b.', 'm.', $user_info['query_see_board']),
 		))
 	);
 	$messages = array();
