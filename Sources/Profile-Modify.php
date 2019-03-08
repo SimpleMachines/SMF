@@ -2737,11 +2737,10 @@ function list_getTopicNotificationCount($memID)
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_notify AS ln' . (!$modSettings['postmod_active'] && $user_info['query_see_board'] === '1=1' ? '' : '
-			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)') . ($user_info['query_see_board'] === '1=1' ? '' : '
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)') . '
+			INNER JOIN {db_prefix}topics AS b ON (b.id_topic = ln.id_topic)') . '
 		WHERE ln.id_member = {int:selected_member}' . ($user_info['query_see_board'] === '1=1' ? '' : '
 			AND {query_see_board}') . ($modSettings['postmod_active'] ? '
-			AND t.approved = {int:is_approved}' : ''),
+			AND b.approved = {int:is_approved}' : ''),
 		array(
 			'selected_member' => $memID,
 			'is_approved' => 1,

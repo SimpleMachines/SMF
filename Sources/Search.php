@@ -213,10 +213,9 @@ function PlushSearch1()
 		$request = $smcFunc['db_query']('', '
 			SELECT ms.subject
 			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
 			WHERE t.id_topic = {int:search_topic_id}
-				AND {query_see_board}' . ($modSettings['postmod_active'] ? '
+				AND {query_see_message} ' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved_true}' : '') . '
 			LIMIT 1',
 			array(
@@ -508,11 +507,10 @@ function PlushSearch2()
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT b.id_board
-			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
-			WHERE t.id_topic = {int:search_topic_id}
+			FROM {db_prefix}topics AS b
+			WHERE b.id_topic = {int:search_topic_id}
 				AND {query_see_board}' . ($modSettings['postmod_active'] ? '
-				AND t.approved = {int:is_approved_true}' : '') . '
+				AND b.approved = {int:is_approved_true}' : '') . '
 			LIMIT 1',
 			array(
 				'search_topic_id' => $search_params['topic'],
