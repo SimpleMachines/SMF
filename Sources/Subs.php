@@ -6578,7 +6578,7 @@ function build_query_board($userid)
 	}
 
 	// Just build this here, it makes it easier to change/use - administrators can see all boards.
-	if ($is_admin)
+	if ($is_admin || allowedTo('manage_boards'))
 		$query_part['query_see_board'] = '1=1';
 	// Otherwise just the groups in $user_info['groups'].
 	else
