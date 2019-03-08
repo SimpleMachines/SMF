@@ -1459,11 +1459,8 @@ function Display()
 		$context['mod_buttons']['restore_topic'] = array('text' => 'restore_topic', 'image' => '', 'url' => $scripturl . '?action=restoretopic;topics=' . $context['current_topic'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	// Show a message in case a recently posted message became unapproved.
-	$context['becomesUnapproved'] = !empty($_SESSION['becomesUnapproved']) ? true : false;
-
-	// Don't want to show this forever...
-	if ($context['becomesUnapproved'])
-		unset($_SESSION['becomesUnapproved']);
+	$context['becomesUnapproved'] = !empty($_SESSION['becomesUnapproved']);
+	unset($_SESSION['becomesUnapproved']);
 
 	// Allow adding new mod buttons easily.
 	// Note: $context['normal_buttons'] and $context['mod_buttons'] are added for backward compatibility with 2.0, but are deprecated and should not be used
