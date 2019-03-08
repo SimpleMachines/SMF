@@ -722,7 +722,7 @@ function template_single_post($message)
 
 	if (!$message['approved'] && $message['member']['id'] != 0 && $message['member']['id'] == $context['user']['id'])
 		echo '
-								<div class="approve_post">
+								<div class="noticebox">
 									', $txt['post_awaiting_approval'], '
 								</div>';
 	echo '

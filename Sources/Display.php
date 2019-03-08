@@ -199,8 +199,7 @@ function Display()
 		redirectexit('topic=' . $context['topicinfo']['id_redirect_topic'] . '.0', false, true);
 	}
 
-	// Short-cut to know if this user can see unapproved messages.
-	$approve_posts = (allowedTo('approve_posts') || $context['topicinfo']['id_member_started'] == $user_info['id']);
+	$can_approve_posts = allowedTo('approve_posts');
 
 	$context['real_num_replies'] = $context['num_replies'] = $context['topicinfo']['num_replies'];
 	$context['topic_started_time'] = timeformat($context['topicinfo']['topic_started_time']);
@@ -211,11 +210,11 @@ function Display()
 	$context['topic_unwatched'] = isset($context['topicinfo']['unwatched']) ? $context['topicinfo']['unwatched'] : 0;
 
 	// Add up unapproved replies to get real number of replies...
-	if ($modSettings['postmod_active'] && $approve_posts)
+	if ($modSettings['postmod_active'] && $can_approve_posts)
 		$context['real_num_replies'] += $context['topicinfo']['unapproved_posts'] - ($context['topicinfo']['approved'] ? 0 : 1);
 
 	// If this topic has unapproved posts, we need to work out how many posts the user can see, for page indexing.
-	if ($modSettings['postmod_active'] && $context['topicinfo']['unapproved_posts'] && !$user_info['is_guest'] && !$approve_posts)
+	if ($modSettings['postmod_active'] && $context['topicinfo']['unapproved_posts'] && !$user_info['is_guest'] && !$can_approve_posts)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(id_member) AS my_unapproved_posts
@@ -922,7 +921,7 @@ function Display()
 			SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:current_topic}
-				AND id_msg ' . $page_operator . ' {int:page_id}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
+				AND id_msg ' . $page_operator . ' {int:page_id}' . (!$modSettings['postmod_active'] || $can_approve_posts ? '' : '
 				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 			ORDER BY id_msg ' . ($ascending_seek ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:limit}'),
@@ -989,7 +988,7 @@ function Display()
 		$request = $smcFunc['db_query']('', '
 			SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
-			WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
+			WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $can_approve_posts ? '' : '
 				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 			ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:start}, {int:max}'),
@@ -1460,11 +1459,8 @@ function Display()
 		$context['mod_buttons']['restore_topic'] = array('text' => 'restore_topic', 'image' => '', 'url' => $scripturl . '?action=restoretopic;topics=' . $context['current_topic'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	// Show a message in case a recently posted message became unapproved.
-	$context['becomesUnapproved'] = !empty($_SESSION['becomesUnapproved']) ? true : false;
-
-	// Don't want to show this forever...
-	if ($context['becomesUnapproved'])
-		unset($_SESSION['becomesUnapproved']);
+	$context['becomesUnapproved'] = !empty($_SESSION['becomesUnapproved']);
+	unset($_SESSION['becomesUnapproved']);
 
 	// Allow adding new mod buttons easily.
 	// Note: $context['normal_buttons'] and $context['mod_buttons'] are added for backward compatibility with 2.0, but are deprecated and should not be used
