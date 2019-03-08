@@ -928,47 +928,50 @@ function PickTheme()
 
 		$_GET['th'] = (int) $_GET['th'];
 
-		// If changing members or guests - and there's a variant - assume changing default variant.
-		if (!empty($_GET['vrt']) && ($_REQUEST['u'] == '0' || $_REQUEST['u'] == '-1'))
+		if (allowedTo('admin_forum') && ($_REQUEST['u'] == '0' || $_REQUEST['u'] == '-1'))
 		{
-			$smcFunc['db_insert']('replace',
-				'{db_prefix}themes',
-				array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
-				array($_GET['th'], 0, 'default_variant', $_GET['vrt']),
-				array('id_theme', 'id_member', 'variable')
-			);
-
-			// Make it obvious that it's changed
-			cache_put_data('theme_settings-' . $_GET['th'], null, 90);
-		}
-
-		// For everyone.
-		if ($_REQUEST['u'] == '0')
-		{
-			updateMemberData(null, array('id_theme' => (int) $_GET['th']));
-
-			// Remove any custom variants.
+			// If changing members or guests - and there's a variant - assume changing default variant.
 			if (!empty($_GET['vrt']))
 			{
-				$smcFunc['db_query']('', '
-					DELETE FROM {db_prefix}themes
-					WHERE id_theme = {int:current_theme}
-						AND variable = {string:theme_variant}',
-					array(
-						'current_theme' => (int) $_GET['th'],
-						'theme_variant' => 'theme_variant',
-					)
+				$smcFunc['db_insert']('replace',
+					'{db_prefix}themes',
+					array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
+					array($_GET['th'], 0, 'default_variant', $_GET['vrt']),
+					array('id_theme', 'id_member', 'variable')
 				);
+
+				// Make it obvious that it's changed
+				cache_put_data('theme_settings-' . $_GET['th'], null, 90);
 			}
 
-			redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
-		}
-		// Change the default/guest theme.
-		elseif ($_REQUEST['u'] == '-1')
-		{
-			updateSettings(array('theme_guests' => (int) $_GET['th']));
+			// For everyone.
+			if ($_REQUEST['u'] == '0')
+			{
+				updateMemberData(null, array('id_theme' => (int) $_GET['th']));
 
-			redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
+				// Remove any custom variants.
+				if (!empty($_GET['vrt']))
+				{
+					$smcFunc['db_query']('', '
+						DELETE FROM {db_prefix}themes
+						WHERE id_theme = {int:current_theme}
+							AND variable = {string:theme_variant}',
+						array(
+							'current_theme' => (int) $_GET['th'],
+							'theme_variant' => 'theme_variant',
+						)
+					);
+				}
+
+				redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
+			}
+			// Change the default/guest theme.
+			elseif ($_REQUEST['u'] == '-1')
+			{
+				updateSettings(array('theme_guests' => (int) $_GET['th']));
+
+				redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
+			}
 		}
 		// Change a specific member's theme.
 		elseif (!empty($modSettings['theme_allow']) || allowedTo('admin_forum'))
