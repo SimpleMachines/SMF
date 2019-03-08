@@ -1547,6 +1547,8 @@ function Post2()
 		$post_errors[] = array('cannot_post_attachment', array($board_info['name']));
 	}
 
+	$can_approve = allowedTo('approve_posts');
+
 	// If this isn't a new topic load the topic info that we need.
 	if (!empty($topic))
 	{
@@ -1573,8 +1575,8 @@ function Post2()
 		// Do the permissions and approval stuff...
 		$becomesApproved = true;
 
-		// If the topic is unapproved the message automatically becomes unapproved too.
-		if (empty($topic_info['approved']))
+		// Replies to unapproved topics are unapproved by default (but not for moderators)
+		if (empty($topic_info['approved']) && !$can_approve)
 		{
 			$becomesApproved = false;
 
@@ -1802,7 +1804,6 @@ function Post2()
 		$posterIsGuest = empty($row['id_member']);
 
 		// Can they approve it?
-		$can_approve = allowedTo('approve_posts');
 		$approve_checked = (!empty($REQUEST['approve']) ? 1 : 0);
 		$becomesApproved = $modSettings['postmod_active'] ? ($can_approve && !$row['approved'] ? $approve_checked : $row['approved']) : 1;
 		$approve_has_changed = $row['approved'] != $becomesApproved;
@@ -1822,7 +1823,7 @@ function Post2()
 	}
 
 	// In case we have approval permissions and want to override.
-	if (allowedTo('approve_posts') && $modSettings['postmod_active'])
+	if ($can_approve && $modSettings['postmod_active'])
 	{
 		$becomesApproved = isset($_POST['quickReply']) || !empty($_REQUEST['approve']) ? 1 : 0;
 		$approve_has_changed = isset($row['approved']) ? $row['approved'] != $becomesApproved : false;
