@@ -880,6 +880,23 @@ function EnableTheme()
 }
 
 /**
+ * Determines if a user can change their theme.
+ *
+ * @param int $id_member
+ * @param int $id_theme
+ *
+ * @return bool
+ */
+function canPickTheme($id_member, $id_theme)
+{
+	global $modSettings, $user_info;
+
+	return
+		allowedTo($user_info['id'] == $id_member ? 'profile_extra_own' : 'profile_extra_any')
+		&& (!empty($modSettings['theme_allow']) || allowedTo('admin_forum'));
+}
+
+/**
  * Choose a theme from a list.
  * allows an user or administrator to pick a new theme with an interface.
  * - can edit everyone's (u = 0), guests' (u = -1), or a specific user's.
@@ -974,7 +991,7 @@ function PickTheme()
 			}
 		}
 		// Change a specific member's theme.
-		elseif (!empty($modSettings['theme_allow']) || allowedTo('admin_forum'))
+		elseif (canPickTheme((int) $_REQUEST['u'], (int) $_GET['th']))
 		{
 			// An identifier of zero means that the user wants the forum default theme.
 			updateMemberData((int) $_REQUEST['u'], array('id_theme' => (int) $_GET['th']));
