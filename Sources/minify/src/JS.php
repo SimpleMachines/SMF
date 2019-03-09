@@ -131,7 +131,7 @@ class JS extends Minify
      * Minify the data.
      * Perform JS optimizations.
      *
-     * @param string[optional] $path Path to write the data to
+     * @param string $path Path to write the data to
      *
      * @return string The minified data
      */

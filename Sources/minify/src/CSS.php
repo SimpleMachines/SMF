@@ -290,7 +290,7 @@ class CSS extends Minify
      * Minify the data.
      * Perform CSS optimizations.
      *
-     * @param string[optional] $path    Path to write the data to
+     * @param string $path    Path to write the data to
      * @param string[]         $parents Parent paths, for circular reference checks
      *
      * @return string The minified data
