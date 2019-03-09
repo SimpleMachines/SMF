@@ -926,7 +926,7 @@ function allowedTo($permission, $boards = null, $any = false)
 	elseif (!is_array($boards))
 		$boards = array($boards);
 
-	if (!empty($prem_cache[hash('md5', $user_info['id'].implode($permission).implode($boards).$any)]))
+	if (isset($prem_cache[hash('md5', $user_info['id'].implode($permission).implode($boards).$any)]))
 			return $prem_cache[hash('md5', $user_info['id'].implode($permission).implode($boards).$any)];
 
 	$request = $smcFunc['db_query']('', '
@@ -964,10 +964,10 @@ function allowedTo($permission, $boards = null, $any = false)
 	}
 
 	// Make sure they can do it on all of the boards.
-	if ($smcFunc['db_num_rows']($request) != count($boards) && empty($return))
+	if ($smcFunc['db_num_rows']($request) != count($boards) && !isset($return))
 		$return = false;
 
-	if (empty($return))
+	if (!isset($return))
 	{
 		$result = true;
 		while ($row = $smcFunc['db_fetch_assoc']($request))
