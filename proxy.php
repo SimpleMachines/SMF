@@ -206,7 +206,7 @@ class ProxyServer
 
 		// Looks like nobody was home
 		if (empty($image))
-			return -1;
+			return 0;
 
 		// What kind of file did they give us?
 		$finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -218,7 +218,7 @@ class ProxyServer
 
 		// Make sure the url is returning an image
 		if (strpos($mime_type, 'image/') !== 0)
-			return -1;
+			return 0;
 
 		// Validate the filesize
 		$size = strlen($image);
@@ -243,7 +243,7 @@ class ProxyServer
 	 */
 	static public function redirectexit($request)
 	{
-		header('Location: ' . $request, false, 301);
+		header('Location: ' . un_htmlspecialchars($request), false, 301);
 		exit;
 	}
 

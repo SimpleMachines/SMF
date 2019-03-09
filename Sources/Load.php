@@ -1570,7 +1570,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		if (!empty($image))
 			$memberContext[$user]['avatar'] = array(
 				'name' => $profile['avatar'],
-				'image' => '<img class="avatar" src="' . $image . '" alt="avatar_' . $profile['member_name'] . '">',
+				'image' => '<img class="avatar" src="' . $image . '" alt="">',
 				'href' => $image,
 				'url' => $image,
 			);
@@ -3491,7 +3491,7 @@ function cache_put_data($key, $value, $ttl = 120)
  *
  * @param string $key The key for the value to retrieve
  * @param int $ttl The maximum age of the cached data
- * @return string The cached data or null if nothing was loaded
+ * @return string|null The cached data or null if nothing was loaded
  */
 function cache_get_data($key, $ttl = 120)
 {
@@ -3636,7 +3636,7 @@ function set_avatar_data($data = array())
 	if (!empty($image))
 		return array(
 			'name' => !empty($data['avatar']) ? $data['avatar'] : '',
-			'image' => '<img class="avatar" src="' . $image . '" />',
+			'image' => '<img class="avatar" src="' . $image . '" alt="">',
 			'href' => $image,
 			'url' => $image,
 		);

@@ -45,12 +45,19 @@ function template_browse()
 
 function template_mailtest()
 {
-	global $context, $txt;
+	global $context, $txt, $scripturl;
 
 	// The results.
 	if (!empty($context['result']))
+	{
+		if ($context['result'] == 'failure')
+			$result_txt = sprintf($txt['mailtest_result_failure'], $scripturl . '?action=admin;area=logs;sa=errorlog;desc');
+		else
+			$result_txt = $txt['mailtest_result_true'];
+
 		echo '
-					<div class="', $context['result'] == 'success' ? 'infobox' : 'errorbox', '">', $txt['mailtest_result_' . $context['result']], '</div>';
+					<div class="', $context['result'] == 'success' ? 'infobox' : 'errorbox', '">', $result_txt, '</div>';
+	}
 
 	echo '
 	<form id="admin_form_wrapper" action="', $context['post_url'], '" method="post">

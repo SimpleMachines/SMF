@@ -1623,6 +1623,7 @@ function loadAllPermissions()
 
 	$permissionList['membergroup']['bbc_cowsay'] = array(false, 'bbc');
 	$hiddenPermissions[] = 'bbc_cowsay';
+	$txt['permissionname_bbc_cowsay'] = sprintf($txt['permissionname_bbc'], 'cowsay');
 
 	$context['permissions'] = array();
 	$context['hidden_permissions'] = array();

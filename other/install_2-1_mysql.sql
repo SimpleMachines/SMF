@@ -702,7 +702,7 @@ CREATE TABLE {$db_prefix}members (
 	new_pm TINYINT UNSIGNED NOT NULL DEFAULT '0',
 	alerts INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	buddy_list TEXT NOT NULL,
-	pm_ignore_list VARCHAR(255) NOT NULL DEFAULT '',
+	pm_ignore_list TEXT NULL,
 	pm_prefs MEDIUMINT NOT NULL DEFAULT '0',
 	mod_prefs VARCHAR(20) NOT NULL DEFAULT '',
 	passwd VARCHAR(64) NOT NULL DEFAULT '',

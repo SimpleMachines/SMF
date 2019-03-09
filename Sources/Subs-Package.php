@@ -68,7 +68,7 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 
 	// This function sorta needs gzinflate!
 	if (!function_exists('gzinflate'))
-		fatal_lang_error('package_no_zlib', 'critical');
+		fatal_lang_error('package_no_lib', 'critical', array('package_no_zlib', 'package_no_package_manager'));
 
 	if (substr($gzfilename, 0, 7) == 'http://' || substr($gzfilename, 0, 8) == 'https://')
 	{
@@ -243,7 +243,7 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 {
 	// This function sorta needs phar!
 	if (!class_exists('PharData'))
-		fatal_lang_error('package_no_phar', 'critical');
+		fatal_lang_error('package_no_lib', 'critical', array('package_no_phar', 'package_no_package_manager'));
 
 	try
 	{

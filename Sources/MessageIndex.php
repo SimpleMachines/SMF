@@ -690,11 +690,8 @@ function MessageIndex()
 	$context['no_topic_listing'] = !empty($context['boards']) && empty($context['topics']) && !$context['can_post_new'];
 
 	// Show a message in case a recently posted message became unapproved.
-	$context['becomesUnapproved'] = !empty($_SESSION['becomesUnapproved']) ? true : false;
-
-	// Don't want to show this forever...
-	if ($context['becomesUnapproved'])
-		unset($_SESSION['becomesUnapproved']);
+	$context['becomesUnapproved'] = !empty($_SESSION['becomesUnapproved']);
+	unset($_SESSION['becomesUnapproved']);
 
 	// Build the message index button array.
 	$context['normal_buttons'] = array();

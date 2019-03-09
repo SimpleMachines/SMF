@@ -38,8 +38,20 @@ input, button, select, textarea {
 	border: 1px solid #bbb;
 	vertical-align: middle;
 	border-radius: 3px;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) inset;
+	box-shadow: 1px 2px 1px rgba(160, 187, 221, 0.2) inset;
 	padding: 0.3em 0.4em;
+}
+input:hover, textarea:hover, button:hover, select:hover {
+	outline: none;
+	border-color: #82a2bc;
+}
+textarea:hover {
+	background: #fbfbfb;
+}
+input:focus, textarea:focus, button:focus, select:focus {
+	outline: none;
+	border-color: #7fb0d8;
+	background: #fff;
 }
 input, button, select {
 	padding: 0 0.4em;
@@ -62,7 +74,7 @@ input[type="submit"]::-moz-focus-inner, button::-moz-focus-inner {
 	border: 0;
 }
 /* Prevent inputs and images overflowing */
-img, input, select {
+img, input, select, textarea {
 	max-width: 100%;
 }
 /* This is a specific issue on Ubuntu - Chrome */
@@ -92,20 +104,25 @@ dd textarea {
 input, button, select {
 	font-size: 0.9em;
 }
+/* Number inputs don't support size nor width, so add some common ones here and set a default... */
+input[type="number"] {
+	padding-right: 0; /* Removes weird white space after arrows in some browsers */
+	width: calc(4ch + 15px + 0.8em);
+}
+input[type="number"][size="2"], input[type="number"][size="1"] {
+	width: calc(2ch + 15px + 0.8em);
+}
+input[type="number"][size="3"] {
+	width: calc(3ch + 15px + 0.8em);
+}
+input[type="number"][size="5"] {
+	width: calc(5ch + 15px + 0.8em);
+}
+input[type="number"][size="6"] {
+	width: calc(6ch + 15px + 0.8em);
+}
 select option {
 	padding: 0 4px;
-}
-input:hover, textarea:hover, button:hover, select:hover {
-	outline: none;
-	border: 1px solid #999;
-}
-textarea:hover {
-	background: #fbfbfb;
-}
-input:focus, textarea:focus, button:focus, select:focus {
-	outline: none;
-	border: 1px solid #999;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) inset;
 }
 /* Fieldsets are used to group elements */
 fieldset {
@@ -144,16 +161,19 @@ input[type="checkbox"], input[type="radio"] {
 	border: none;
 	background: none;
 	vertical-align: middle;
+	box-shadow: none;
 	margin: 0 3px;
 }
 .moderationbuttons_mobile_check {
 	display: none;
 }
 /* Give disabled input elements a different style */
-input[disabled], textarea[disabled], select[disabled] {
+input[disabled], textarea[disabled], select[disabled], .button.disabled, .button[disabled]:hover {
 	background: #eee;
 	color: #999;
+	border-color: #b6b6b6;
 	opacity: 0.8;
+	cursor: default;
 }
 /* Standard horizontal rule.. ([hr], etc.) */
 hr {
@@ -2697,7 +2717,7 @@ dl.addrules dt.floatleft {
 	position: relative;
 	background: none;
 	margin: 0;
-	height: auto !important; /* In case anything fishy happens in the situations where this used make sure it stays still */
+	height: auto; /* In case anything fishy happens in the situations where this used make sure it stays still */
 }
 #main_menu .popup_window, #genericmenu .popup_window {
 	position: relative;
@@ -2719,7 +2739,7 @@ dl.addrules dt.floatleft {
 	margin: -4px 4px 0 0;
 }
 
-.generic_list_wrapper, .windowbg, #forumposts .approvebg, #forumposts .approvebg2 {
+.generic_list_wrapper, .windowbg, .approvebg, .approvebg2 {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 12px 16px;
@@ -2794,11 +2814,11 @@ tr.windowbg {
 }
 
 /* Colors for background of posts requiring approval */
-#forumposts .approvebg {
+.approvebg {
 	color: #222;
 	background: #ffeaea;
 }
-#forumposts .approvebg2 {
+.approvebg2 {
 	color: #222;
 	background: #fff2f2;
 }

@@ -474,6 +474,7 @@ function AddMembergroup()
 		{
 			// Only do this if they have special access requirements.
 			if (!empty($changed_boards[$board_action]))
+			{
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}boards
 					SET {raw:column} = CASE WHEN {raw:column} = {string:blank_string} THEN {string:group_id_string} ELSE CONCAT({raw:column}, {string:comma_group}) END
@@ -486,6 +487,31 @@ function AddMembergroup()
 						'column' => $board_action == 'allow' ? 'member_groups' : 'deny_member_groups',
 					)
 				);
+
+				$smcFunc['db_query']('', '
+					DELETE FROM {db_prefix}board_permissions_view
+					WHERE id_board IN ({array_int:board_list})
+						AND id_group = {int:group_id}
+						AND deny = {int:deny}',
+					array(
+						'board_list' => $changed_boards[$board_action],
+						'group_id' => $id_group,
+						'deny' => $board_action == 'allow' ? 0 : 1,
+					)
+				);
+
+				$insert = array();
+				foreach ( $changed_boards[$board_action] as $board_id)
+					$insert[] = array($id_group, $board_id, $board_action == 'allow' ? 0 : 1);
+
+				$smcFunc['db_insert']('insert',
+					'{db_prefix}board_permissions_view',
+					array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+					$insert,
+					array('id_group', 'id_board', 'deny')
+				);
+			}
+
 		}
 
 		// If this is joinable then set it to show group membership in people's profiles.
@@ -751,25 +777,19 @@ function EditMembergroup()
 		{
 			$accesses = empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? array() : $_POST['boardaccess'];
 
-			// If they can manage boards, the rules are a bit different. They can see everything.
-			if ($context['can_manage_boards'])
-			{
-				$accesses = array();
-				$request = $smcFunc['db_query']('', '
-					SELECT id_board
-					FROM {db_prefix}boards'
-				);
-				while ($row = $smcFunc['db_fetch_assoc']($request))
-					$accesses[(int) $row['id_board']] = 'allow';
-
-				$smcFunc['db_free_result']($request);
-			}
-
 			$changed_boards['allow'] = array();
 			$changed_boards['deny'] = array();
 			$changed_boards['ignore'] = array();
 			foreach ($accesses as $group_id => $action)
 				$changed_boards[$action][] = (int) $group_id;
+
+			$smcFunc['db_query']('', '
+				DELETE FROM {db_prefix}board_permissions_view
+				WHERE id_group = {int:group_id}',
+				array(
+					'group_id' => (int) $_REQUEST['group'],
+				)
+			);
 
 			foreach (array('allow', 'deny') as $board_action)
 			{
@@ -800,6 +820,7 @@ function EditMembergroup()
 
 				// Add the membergroup to all boards that hadn't been set yet.
 				if (!empty($changed_boards[$board_action]))
+				{
 					$smcFunc['db_query']('', '
 						UPDATE {db_prefix}boards
 						SET {raw:column} = CASE WHEN {raw:column} = {string:blank_string} THEN {string:group_id_string} ELSE CONCAT({raw:column}, {string:comma_group}) END
@@ -814,6 +835,18 @@ function EditMembergroup()
 							'column' => $board_action == 'allow' ? 'member_groups' : 'deny_member_groups',
 						)
 					);
+
+					$insert = array();
+					foreach ( $changed_boards[$board_action] as $board_id)
+						$insert[] = array((int) $_REQUEST['group'], $board_id, $board_action == 'allow' ? 0 : 1);
+
+					$smcFunc['db_insert']('insert',
+						'{db_prefix}board_permissions_view',
+						array('id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'),
+						$insert,
+						array('id_group', 'id_board', 'deny')
+					);
+				}
 			}
 		}
 

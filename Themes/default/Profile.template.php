@@ -505,22 +505,24 @@ function template_showPosts()
 					<strong><a href="', $scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong>
 				</h5>
 				<span class="smalltext">', $post['time'], '</span>
-			</div>
-			<div class="list_posts">';
+			</div>';
 
 			if (!$post['approved'])
 				echo '
-				<div class="approve_post">
-					<em>', $txt['post_awaiting_approval'], '</em>
-				</div>';
+			<div class="noticebox">
+				', $txt['post_awaiting_approval'], '
+			</div>';
 
 			echo '
-				', $post['body'], '
-			</div>';
+			<div class="post">
+				<div class="inner">
+					', $post['body'], '
+				</div>
+			</div><!-- .post -->';
 
 			if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
 				echo '
-			<div class="floatright">
+			<div class="under_message">
 				<ul class="quickbuttons">';
 
 			// If they *can* reply?
@@ -541,10 +543,10 @@ function template_showPosts()
 			if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
 				echo '
 				</ul>
-			</div><!-- .floatright -->';
+			</div><!-- .under_message -->';
 
 			echo '
-		</div><!-- $post[css_class] -->';
+		</div><!-- .', $post['css_class'], ' -->';
 		}
 	}
 	else
@@ -1407,7 +1409,7 @@ function template_statPanel()
 			echo '
 					<dt>', $activity['link'], '</dt>
 					<dd>
-						<div class="profile_pie" style="background-position: -', ((int) ($activity['percent'] / 5) * 20), 'px 0;" title="', sprintf($txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '">
+						<div class="profile_pie" style="background-position: -', ((int) ($activity['posts_percent'] / 5) * 20), 'px 0;" title="', sprintf($txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '">
 							', sprintf($txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '
 						</div>
 						', $activity['percent'], '%
@@ -1726,6 +1728,29 @@ function template_profile_theme_settings()
 		// Just spit out separators and move on
 		if (empty($setting) || !is_array($setting))
 		{
+			// Avoid double separators and empty titled sections
+			$empty_section = true;
+			for ($j=$i+1; $j <= count($context['theme_options']); $j++)
+			{
+				// Found another separator, so we're done
+				if (!is_array($context['theme_options'][$j]))
+					break;
+
+				// Once we know there's something to show in this section, we can stop
+				if (!isset($context['theme_options'][$j]['enabled']) || !empty($context['theme_options'][$j]['enabled']))
+				{
+					$empty_section = false;
+					break;
+				}
+			}
+			if ($empty_section)
+			{
+				if ($i === $first_option_key)
+					$first_option_key = array_shift($skeys);
+
+				continue;
+			}
+
 			// Insert a separator (unless this is the first item in the list)
 			if ($i !== $first_option_key)
 				echo '
@@ -1749,7 +1774,12 @@ function template_profile_theme_settings()
 
 		// Is this disabled?
 		if (isset($setting['enabled']) && $setting['enabled'] === false)
+		{
+			if ($i === $first_option_key)
+				$first_option_key = array_shift($skeys);
+
 			continue;
+		}
 
 		// Some of these may not be set...  Set to defaults here
 		$opts = array('calendar_start_day', 'topics_per_page', 'messages_per_page', 'display_quick_mod');

@@ -157,7 +157,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
  * It logs the error message if $log is specified.
  *
  * @param string $error The error message
- * @param string $log = 'general' What type of error to log this as (false to not log it))
+ * @param string|bool $log = 'general' What type of error to log this as (false to not log it))
  * @param int $status The HTTP status code associated with this error
  */
 function fatal_error($error, $log = 'general', $status = 500)

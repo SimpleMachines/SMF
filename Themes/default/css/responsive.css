@@ -1,11 +1,392 @@
-/* iPhone Tests */
-@media (max-width: 320px) {
+/* Some very big stuff? Dunno... */
+@media (min-width: 856px) and (max-width: 1024px) {
+	.lastpost {
+		width: 20%;
+		margin: 3px 0 0 5px;
+	}
+}
 
+/* Still not enough data or people to test this... */
+/* This needs more data and this range is probably for iPad Air (alike) tablets... */
+@media (min-width: 721px) and (max-width: 855px) {
+	.lastpost {
+		margin: 0 0 0 20px;
+	}
+	.board_stats {
+		display: none;
+	}
+}
+
+@media (min-width: 720px) and (max-width: 799px) {
+	/* Calendar */
+	#event_time_options {
+		width: 44%;
+	}
+	#event_title {
+		padding: 0;
+	}
+	#evtitle {
+		width: 98%;
+	}
+	.event_options_left, .event_options_right {
+		display: block;
+		max-width: unset;
+		width: unset;
+	}
+	#event_title input[type="text"] {
+		width: 100%;
+	}
+	#post_event #event_board select {
+		width: calc(100% - 90px);
+		max-width: unset;
+	}
+}
+
+/* We have shared things... */
+@media screen and (max-width: 720px) {
+  /* Generic Classes for Customizations */
+	.hide_720 {
+		display: none;
+	}
+	.block_720 {
+		display: block;
+	}
+	.inlineblock_720 {
+		display: inline-block;
+	}
+	/* New Mobile Action/Mod Pop (Test) */
+	.moderationbuttons_check {
+		display: none;
+	}
+	.moderationbuttons_mobile_check {
+		display: inline-block;
+	}
+	#mobile_action .button, #mobile_moderation .button, #mobile_action .top_menu {
+		width: 100%;
+		margin: 0;
+		border-radius: 0;
+		border-left: 0;
+		border-right: 0;
+		text-indent: 5px;
+	}
+	#mobile_action .button, #mobile_moderation .button {
+		line-height: 2.8em;
+		height: auto;
+	}
+	#mobile_action .notify_dropdown {
+		top: 0 !important;
+		left: 0 !important;
+		position: relative;
+	}
+	#mobile_action .top_menu {
+		padding: 0;
+		margin: 0 auto;
+	}
+	#mobile_action .notify_dropdown a {
+		border-bottom: 1px solid #999;
+	}
+	#mobile_action .notify_dropdown a:last-of-type {
+		border-bottom: none;
+	}
+	#mobile_action .notify_dropdown span {
+		display: none;
+	}
+	.mobile_buttons {
+		margin: 5px 0;
+	}
+	.mobile_buttons .button {
+		margin: 0;
+	}
+	.pagesection .buttonlist, #moderationbuttons {
+		display: none;
+	}
+	.mobile_buttons {
+		display: block;
+	}
+
+	/* Stuff */
+	.infolinks {
+		display: inline-block;
+		margin: 5px 7px 0 0;
+	}
+	#registration .field_icons {
+		float: left;
+		margin: 5px 0 0 3px;
+	}
+	dl.register_form dt span {
+		display: inline;
+	}
+	.button.qaction {
+		width: 10%;
+		margin: 0;
+	}
+	.qaction {
+		width: 40%;
+		margin: 0 5px 0 0;
+	}
+
+	/* Menu */
+	.quickbuttons li:hover ul {
+		display: none;
+	}
+
+	/* General */
+	.action_home {
+		width: 100% !important;
+	}
+	#wrapper {
+		width: 100%;
+		border-left: 0;
+		border-right: 0;
+		border-radius: 0;
+	}
+	#top_section {
+		padding-left: 0;
+		padding-right: 0;
+	}
+	#footer {
+		padding: 10px;
+	}
+	#header {
+		margin-left: 0;
+		margin-right: 0;
+	}
+	#upper_section, #inner_section, #content_section {
+		border-radius: 0;
+	}
+	#boardindex_table .stats {
+		display: none;
+	}
+	.login {
+		width: 100%;
+	}
+	.navigate_section .unread_links {
+		width: 95%;
+		float: left;
+	}
+	.navigate_section .unread_links a {
+		padding: 5px 0 5px 0;
+		margin-right: 3px;
+	}
+
+	/* BoardIndex */
+	.board_stats {
+		display: none;
+	}
+	.info {
+		width: calc(100% - 65px);
+	}
+	.lastpost {
+		width: 100%;
+		padding: 0;
+		display: block;
+		min-height: 2em;
+	}
+	.lpr_border {
+		border-top: 1px solid #ddd;
+	}
+	.lastpost p {
+		margin: 5px;
+	}
+	span.postby {
+		display: inline-block;
+	}
+	/* Stats Center */
+	#ic_recentposts {
+		margin: 0;
+		width: 100%;
+	}
+	#upshrink_stats p.inline, #upshrink_stats p.last {
+		padding: 5px;
+	}
+
+	/* MessageIndex */
+	#messageindex .board_icon, #messageindex .lastpost {
+		display: none;
+	}
+	#messageindex .info {
+		padding: 0 5px 0 5px;
+	}
+	.info_block {
+		display: block;
+		width: 95%;
+	}
+	.moderation a {
+		padding: 3px;
+	}
+	#topic_container .moderation .main_icons {
+		display: none;
+	}
+	/* Unread */
+	#unread .board_icon, #unread .lastpost {
+		display: none;
+	}
+
+	/* Display (Topics) */
+	.poster {
+		float: none;
+	}
+	.postarea {
+		margin: 0;
+	}
+	.moderatorbar {
+		margin: 0;
+	}
+	.keyinfo h5 .modified {
+		float: none;
+	}
+	.bbc_img.resized {
+		max-width: 250px;
+		max-height: 300px;
+	}
+	img.icon, #forumposts .catbg img {
+		display: none;
+	}
+	.user_info li {
+		display: inline-block;
+	}
+	.user_info li.avatar, .user_info li.poster_ip {
+		display: none;
+	}
+	.button.button_strip_mark_unread {
+		display: none;
+	}
+	.button.mobile {
+		margin: 0 0 5px 0;
+	}
+
+	/* Profile */
+	#admin_content .content {
+		padding: 0;
+	}
+	#creator dt {
+		width: 33%;
+	}
+	#creator dd {
+		width: 65%;
+	}
+	#basicinfo, #detailedinfo {
+		width: 100%;
+	}
+	#basicinfo {
+		margin: 0 0 5px 0; /* For UX */
+	}
+	/* Buddies & Ignore List */
+	#edit_buddies .buddy_custom_fields {
+		display: none;
+	}
+	/* PersonalMessages */
+	#personal_messages .pm_time, #personal_messages .pm_from_to {
+		display: none;
+	}
+	#personal_messages .pm_inline_time {
+		display: block;
+	}
+	/* Alerts Page */
+	#alerts .alert_inline_time {
+		display: block;
+	}
+	#alerts .alert_time {
+		display: none;
+	}
+	/* Post Screen */
+	form#postmodify .roundframe, #post_event .roundframe {
+		padding: 5px;
+	}
+	#post_header input {
+		width: 100%;
+	}
+	#post_confirm_buttons .smalltext {
+		display: none;
+	}
+	ul.post_options {
+		padding: 0;
+		margin: 0;
+	}
+	ul.post_options li {
+		margin: 2px 5px 0 0;
+		width: 48%;
+	}
+	/* Search */
+	#searchform .roundframe {
+		padding: 5px;
+	}
+	#advanced_search dt {
+		text-align: left;
+		width: 100%;
+		float: left;
+	}
+	#advanced_search dd {
+		width: auto;
+	}
+	#advanced_search dl#search_options {
+		width: 100%;
+	}
+	input#searchfor, input#userspec {
+		width: 75%;
+	}
+	/* Hide me */
+	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
+	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
+	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
+	#member_list .ip, #member_list .last_active, #member_list .user_name,
+	#approve_list .ip, #approve_list .date_registered, #group_members .date_registered,
+	#main_content_section .navigate_section, .pagesection.top, .time,
+	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
+	#header_custom_profile_fields_placement, #custom_profile_fields .active, #custom_profile_fields .field_type, #custom_profile_fields .placement {
+		display: none !important;
+	}
+	/* Generic Lists */
+	#topic_notification_list .last_post, #topic_notification_list .started_by,
+	#request_list .time_applied, #file_list .date, #ban_list .notes, #ban_list .reason, #ban_log .email,
+	#mail_queue .priority, #attachments .posted {
+		display: none;
+	}
+
+	/* Admin */
+	.table_grid.half_content {
+		width: 100%;
+		margin: 0;
+		padding: 0;
+	}
+	#private, #enclose {
+		width: 95%;
+	}
+}
+
+/* Tricky menu */
+@media (min-width: 481px) {
+	#mobile_user_menu.popup_container {
+		display: block !important;
+	}
+	div[id^="mobile_generic_menu_"].popup_container {
+		display: block !important;
+	}
+	.boardslist {
+		columns: 2;
+	}
+
+	.boardslist ul {
+		page-break-inside: avoid;
+	}
+}
+
+@media (min-width: 480px) and (max-width: 560px) {
+	/* Calendar */
+	#event_time_options {
+		width: 40%;
+	}
+	#event_title, #event_board {
+		width: 100%;
+	}
+	#evtitle {
+		width: 98%;
+	}
 }
 
 /* Entry level phones */
 @media (max-width: 480px) {
-	/* Generic Classes for Customizations */
+  /* Generic Classes for Customizations */
 	.hide_480 {
 		display: none;
 	}
@@ -51,15 +432,12 @@
 		margin: 0 auto;
 	}
 	h1.forumtitle a, h1.forumtitle {
-		padding: 5px 0 0 4px !important;
+		padding: 5px 0 0 4px;
 		max-width: 300px;
 		margin: 10px 0;
 	}
-	span.board_moderators {
-		display: none !important;
-	}
-	#top_info {
-		width: 100%;
+	.board_moderators {
+		display: none;
 	}
 	#pm_menu, #alerts_menu, #profile_menu {
 		left: 0;
@@ -74,7 +452,7 @@
 	#pm_menu, #alerts_menu {
 		padding-right: 9px;
 	}
-	.generic_menu, #topic_container .moderation .main_icons {
+	.generic_menu {
 		display: none;
 	}
 	#mobile_user_menu .dropmenu,
@@ -90,7 +468,7 @@
 	.dropmenu li, .dropmenu li:hover,
 	.dropmenu li a, .dropmenu li a:hover,
 	.dropmenu li a.active, .dropmenu li a.active:hover, .dropmenu li:hover a.active,
-	.dropmenu li ul {
+	.dropmenu li ul, .dropmenu li li, .dropmenu li li a {
 		width: 100%;
 		padding: 0;
 		margin: 0;
@@ -125,6 +503,11 @@
 		width: 100%;
 		float: none;
 	}
+	#footer li {
+		display: block;
+		float: none;
+		text-align: center;
+	}
 	/* MessageIndex */
 	#main_content_section .pagelinks {
 		display: block;
@@ -141,12 +524,6 @@
 	.mobile_subject {
 		position: relative;
 	}
-	.mobile_subject .board_description {
-		display: block;
-		font-weight: normal;
-		font-size: 0.9em;
-		color: #222;
-	}
 	fieldset {
 		max-width: 100%;
 		min-width: unset;
@@ -155,18 +532,14 @@
 	#registration .button {
 		font-size: 0.67em;
 	}
-	dl.register_form {
-		float: none !important;
-		width: 100% !important;
-	}
-	dl.register_form dt, dl.register_form dd {
-		float: none !important;
-		width: 100% !important;
+	dl.register_form, dl.register_form dt, dl.register_form dd {
+		float: none;
+		width: 100%;
 	}
 	/* Login Page */
 	.login dt, .login dd {
-		float: none !important;
-		width: 100% !important;
+		float: none;
+		width: 100%;
 		text-align: left;
 	}
 	.login #ajax_loginuser, .login #ajax_loginpass, .login #loginuser, .login #loginpass, select {
@@ -174,25 +547,6 @@
 	}
 
 	/* Display (Topic View) */
-	.poster {
-		float: none !important;
-	}
-	.postarea {
-		margin: 0 !important;
-	}
-	.moderatorbar {
-		margin: 0 !important;
-	}
-	img.bbc_img.resized {
-		max-width: 250px;
-		max-height: 300px;
-	}
-	img.icon, #forumposts .catbg img {
-		display: none;
-	}
-	.keyinfo h5 .modified {
-		float: none !important;
-	}
 	.subject_title input {
 		width: 90%;
 	}
@@ -202,10 +556,10 @@
 
 	/* Post Section */
 	#post_header dd {
-		width: 55% !important;
+		width: 55%;
 	}
 	#post_header dt {
-		width: 35% !important;
+		width: 35%;
 	}
 	img#icons {
 		margin: 0 0 0 5px;
@@ -260,13 +614,6 @@
 		margin: 0;
 		padding: 0;
 	}
-	#ic_recentposts {
-		margin: 0 !important;
-		width: 100% !important;
-	}
-	#upshrink_stats p.inline, #upshrink_stats p.last {
-		padding: 5px !important;
-	}
 	th.recentboard, th.recenttime,
 	td.recentboard, td.recenttime {
 		display: none;
@@ -275,20 +622,6 @@
 		min-height: 375px;
 	}
 
-	/* Search */
-	#searchform .roundframe {
-		padding: 5px;
-	}
-	#advanced_search dt {
-		text-align: left;
-		float: left;
-	}
-	#advanced_search dl#search_options {
-		width: 100%;
-	}
-	input#searchfor, input#userspec {
-		width: 75%;
-	}
 	/* Memberlist */
 	th.website_url,
 	td.website_url, td.reg_group, td.reg_date, td.post_num {
@@ -321,7 +654,7 @@
 	}
 	/* Moderation */
 	.post_note input {
-		width: 75% !important;
+		width: 75%;
 	}
 	.modbox .floatleft {
 		float: none;
@@ -332,8 +665,8 @@
 	}
 	/* Admin */
 	#live_news, #support_info {
-		width: 100% !important;
-		padding: 0 !important;
+		width: 100%;
+		padding: 0;
 		margin: 0 0 5px 0;
 	}
 	.admin_search {
@@ -342,8 +675,8 @@
 		width: 100%;
 		margin-bottom: 10px;
 	}
-	.admin_group a {
-		width: 50% !important;
+	fieldset.admin_group a {
+		width: 50%;
 		float: left;
 		margin: 0 0 5px 0;
 	}
@@ -422,375 +755,7 @@
 	}
 }
 
-@media (min-width: 481px) and (max-width: 720px) {
-	/* Display (Topic View) */
-	.poster {
-		float: none !important;
-	}
-	.postarea {
-		margin: 0 !important;
-	}
-	.moderatorbar {
-		margin: 0 !important;
-	}
-	img.bbc_img.resized {
-		max-width: 250px;
-		max-height: 300px;
-	}
-	img.icon, #forumposts .catbg img,
-	#topic_container .moderation .main_icons {
-		display: none;
-	}
-	.keyinfo h5 .modified {
-		float: none !important;
-	}
+/* iPhone Tests */
+@media (max-width: 320px) {
 
-	/* Stats Center */
-	#ic_recentposts {
-		margin: 0 !important;
-		width: 100% !important;
-	}
-	#upshrink_stats p.inline, #upshrink_stats p.last {
-		padding: 5px !important;
-	}
-
-	/* Search */
-	#advanced_search dt {
-		text-align: left;
-		width: 100%;
-		float: left;
-	}
-	#advanced_search dd {
-		width: auto;
-	}
-	#advanced_search dl#search_options {
-		width: 100%;
-	}
-	input#searchfor, input#userspec {
-		width: 75%;
-	}
-}
-/* We have shared things... */
-@media screen and (max-width: 720px) {
-	/* Generic Classes for Customizations */
-	.hide_720 {
-		display: none;
-	}
-	.block_720 {
-		display: block;
-	}
-	.inlineblock_720 {
-		display: inline-block;
-	}
-	/* New Mobile Action/Mod Pop (Test) */
-	.moderationbuttons_check {
-		display: none;
-	}
-	.moderationbuttons_mobile_check {
-		display: inline-block;
-	}
-	#mobile_action .button, #mobile_moderation .button, #mobile_action .top_menu {
-		width: 100% !important;
-		margin: 0;
-		border-radius: 0;
-		border-left: 0;
-		border-right: 0;
-		text-indent: 5px;
-	}
-	#mobile_action .notify_dropdown {
-		top: 0 !important;
-		left: 0 !important;
-		position: relative;
-	}
-	#mobile_action .top_menu {
-		width: 95%;
-		padding: 0;
-		margin: 0 auto;
-	}
-	#mobile_action .notify_dropdown a {
-		border-bottom: 1px solid #999;
-	}
-	#mobile_action .notify_dropdown a:last-of-type {
-		border-bottom: none;
-	}
-	#mobile_action .notify_dropdown span {
-		display: none;
-	}
-	.mobile_buttons {
-		margin: 5px 0;
-	}
-	.mobile_buttons .button {
-		margin: 0;
-	}
-	.pagesection .buttonlist, #moderationbuttons {
-		display: none;
-	}
-	.mobile_buttons {
-		display: block;
-	}
-
-	/* Stuff */
-	.infolinks {
-		display: inline-block;
-		margin: 5px 7px 0 0;
-	}
-	#registration .field_icons {
-		float: left;
-		margin: 5px 0 0 3px;
-	}
-	dl.register_form dt span {
-		display: inline;
-	}
-	.button.qaction {
-		width: 10%;
-		margin: 0;
-	}
-	.qaction {
-		width: 40%;
-		margin: 0 5px 0 0;
-	}
-
-	/* Menu */
-	.quickbuttons li:hover ul {
-		display: none;
-	}
-
-	/* General */
-	.action_home {
-		width: 100% !important;
-	}
-	#wrapper {
-		width: 100% !important;
-		border-left: 0;
-		border-right: 0;
-		border-radius: 0;
-	}
-	#top_section, #footer {
-		padding-left: 0;
-		padding-right: 0;
-	}
-	#header {
-		margin-left: 0;
-		margin-right: 0;
-	}
-	#upper_section, #inner_section, #content_section {
-		border-radius: 0;
-	}
-	#boardindex_table .stats {
-		display: none;
-	}
-	.login {
-		width: 100%;
-	}
-	.unread_links {
-		width: 95%;
-		float: left !important;
-	}
-	.unread_links a {
-		padding: 5px 0 5px 0 !important;
-		margin-right: 3px;
-	}
-
-	/* BoardIndex */
-	.board_stats {
-		display: none;
-	}
-	.info {
-		width: calc(100% - 65px);
-	}
-	div.lastpost {
-		width: 100%;
-		padding: 0;
-		display: block;
-		min-height: 2em !important;
-	}
-	.lpr_border {
-		border-top: 1px solid #ddd;
-	}
-	div.lastpost p {
-		margin: 5px;
-	}
-	span.postby {
-		display: inline-block;
-	}
-
-	/* MessageIndex */
-	#messageindex .board_icon, #messageindex .lastpost {
-		display: none;
-	}
-	#messageindex .info {
-		padding: 0 5px 0 5px;
-	}
-	.info_block {
-		display: block;
-		width: 95%;
-	}
-	.moderation a {
-		padding: 3px;
-	}
-	/* Unread */
-	#unread .board_icon, #unread .lastpost {
-		display: none;
-	}
-
-	/* Display (Topics) */
-	.user_info li {
-		display: inline-block;
-	}
-	.user_info li.avatar, .user_info li.poster_ip {
-		display: none;
-	}
-	#moderationbuttons_strip a {
-		float: left;
-		width: 40%;
-		max-width: 90px;
-		margin: 0 5px 7px 0 !important; /* Extra margin for fat fingers like Kindred */
-	}
-	.button.button_strip_mark_unread {
-		display: none;
-	}
-	.button.mobile {
-		margin: 0 0 5px 0;
-	}
-
-	/* Profile */
-	#admin_content .content {
-		padding: 0;
-	}
-	#creator dt {
-		width: 33%;
-	}
-	#creator dd {
-		width: 65%;
-	}
-	#basicinfo, #detailedinfo {
-		width: 100%;
-	}
-	#basicinfo {
-		margin: 0 0 5px 0; /* For UX */
-	}
-	/* Buddies & Ignore List */
-	#edit_buddies .buddy_custom_fields {
-		display: none;
-	}
-	/* PersonalMessages */
-	#personal_messages .pm_time, #personal_messages .pm_from_to {
-		display: none;
-	}
-	#personal_messages .pm_inline_time {
-		display: block;
-	}
-	/* Alerts Page */
-	#alerts .alert_inline_time {
-		display: block;
-	}
-	#alerts .alert_time {
-		display: none;
-	}
-	/* Post Screen */
-	form#postmodify .roundframe, #post_event .roundframe {
-		padding: 5px !important;
-	}
-	#post_header input {
-		width: 100%;
-	}
-	#post_confirm_buttons .smalltext {
-		display: none;
-	}
-	ul.post_options {
-		padding: 0;
-		margin: 0;
-	}
-	ul.post_options li {
-		margin: 2px 5px 0 0;
-		width: 48%;
-	}
-	/* Hide me */
-	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
-	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
-	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
-	#member_list .ip, #member_list .last_active, #member_list .user_name,
-	#approve_list .ip, #approve_list .date_registered, #group_members .date_registered,
-	#main_content_section .navigate_section, .pagesection.top, .time,
-	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
-	#header_custom_profile_fields_placement, #custom_profile_fields .active, #custom_profile_fields .field_type, #custom_profile_fields .placement {
-		display: none !important;
-	}
-	/* Generic Lists */
-	#topic_notification_list .last_post, #topic_notification_list .started_by,
-	#request_list .time_applied, #file_list .date, #ban_list .notes, #ban_list .reason, #ban_log .email,
-	#mail_queue .priority, #attachments .posted {
-		display: none;
-	}
-
-	/* Admin */
-	.table_grid.half_content {
-		width: 100%;
-		margin: 0;
-		padding: 0;
-	}
-	#private, #enclose {
-		width: 95%;
-	}
-}
-
-@media (min-width: 480px) and (max-width: 560px) {
-	/* Calendar */
-	#event_time_options {
-		width: 40%;
-	}
-	#event_title, #event_board {
-		width: 100%;
-	}
-	#evtitle {
-		width: 98%;
-	}
-}
-
-@media (min-width: 720px) and (max-width: 799px) {
-	/* Calendar */
-	#event_time_options {
-		width: 44%;
-	}
-	#event_title, #event_board {
-		width: 100%;
-	}
-	#evtitle {
-		width: 98%;
-	}
-}
-
-/* Still not enough data or people to test this... */
-/* This needs more data and this range is probably for iPad Air (alike) tablets... */
-@media (min-width: 721px) and (max-width: 855px) {
-	div.lastpost {
-		margin: 0 0 0 20px !important;
-	}
-	.board_stats {
-		display: none;
-	}
-}
-
-/* Some very big stuff? Dunno... */
-@media (min-width: 856px) and (max-width: 1024px) {
-	div.lastpost {
-		width: 20% !important;
-		margin: 3px 0 0 5px;
-	}
-}
-/* Tricky menu */
-@media (min-width: 481px) {
-	#mobile_user_menu.popup_container {
-		display: block !important;
-	}
-	div[id^="mobile_generic_menu_"].popup_container {
-		display: block !important;
-	}
-	.boardslist {
-		columns: 2;
-	}
-
-	.boardslist ul {
-		page-break-inside: avoid;
-	}
 }

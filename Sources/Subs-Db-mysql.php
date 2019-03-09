@@ -817,7 +817,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 		$ai = 0;
 		for ($i = 0; $i < $count; $i++)
 		{
-			$old_id = $smcFunc['db_insert_id']();
+			$old_id = $smcFunc['db_insert_id']($table);
 
 			$smcFunc['db_query']('', '
 				' . $queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
@@ -829,7 +829,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 				),
 				$connection
 			);
-			$new_id = $smcFunc['db_insert_id']();
+			$new_id = $smcFunc['db_insert_id']($table);
 
 			// the inserted value was new
 			if ($old_id != $new_id)
@@ -840,10 +840,11 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 			else
 			{
 				$where_string = '';
-				$count2 = count($indexed_columns);
+				$count2 = count($keys);
 				for ($x = 0; $x < $count2; $x++)
 				{
-					$where_string .= key($indexed_columns[$x]) . ' = ' . $insertRows[$i][$x];
+					$keyPos = array_search($keys[$x], array_keys($columns));
+					$where_string .= $keys[$x] . ' = ' . $data[$i][$keyPos];
 					if (($x + 1) < $count2)
 						$where_string .= ' AND ';
 				}
