@@ -3097,7 +3097,7 @@ function template_profile_theme_pick()
 								<strong>', $txt['current_theme'], ':</strong>
 							</dt>
 							<dd>
-								', $context['member']['theme']['name'], ' [<a href="', $scripturl, '?action=theme;sa=pick;u=', $context['id_member'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['change'], '</a>]
+								', $context['member']['theme']['name'], ' <a class="button" href="', $scripturl, '?action=theme;sa=pick;u=', $context['id_member'], '">', $txt['change'], '</a>
 							</dd>';
 }
 

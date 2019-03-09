@@ -920,62 +920,49 @@ function PickTheme()
 		'name' => $txt['theme_pick'],
 	);
 	$context['default_theme_id'] = $modSettings['theme_default'];
-
 	$_SESSION['id_theme'] = 0;
-
-	if (isset($_GET['id']))
-		$_GET['th'] = $_GET['id'];
 	if (!isset($_REQUEST['u']))
 		$_REQUEST['u'] = $user_info['id'];
 
-	// Saving a variant cause JS doesn't work - pretend it did ;)
+	// Have we made a decision, or are we just browsing?
 	if (isset($_POST['save']))
 	{
-		// Which theme?
-		foreach ($_POST['save'] as $k => $v)
-			$_GET['th'] = (int) $k;
+		checkSession();
 
+		$id_theme = (int) key($_POST['save']);
 		if (isset($_POST['vrt'][$k]))
-			$_GET['vrt'] = $_POST['vrt'][$k];
-	}
-
-	// Have we made a decision, or are we just browsing?
-	if (isset($_GET['th']))
-	{
-		checkSession('get');
-
-		$_GET['th'] = (int) $_GET['th'];
+			$variant = $_POST['vrt'][$k];
 
 		if (allowedTo('admin_forum') && ($_REQUEST['u'] == '0' || $_REQUEST['u'] == '-1'))
 		{
 			// If changing members or guests - and there's a variant - assume changing default variant.
-			if (!empty($_GET['vrt']))
+			if (!empty($variant))
 			{
 				$smcFunc['db_insert']('replace',
 					'{db_prefix}themes',
 					array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
-					array($_GET['th'], 0, 'default_variant', $_GET['vrt']),
+					array($id_theme, 0, 'default_variant', $variant),
 					array('id_theme', 'id_member', 'variable')
 				);
 
 				// Make it obvious that it's changed
-				cache_put_data('theme_settings-' . $_GET['th'], null, 90);
+				cache_put_data('theme_settings-' . $id_theme, null, 90);
 			}
 
 			// For everyone.
 			if ($_REQUEST['u'] == '0')
 			{
-				updateMemberData(null, array('id_theme' => (int) $_GET['th']));
+				updateMemberData(null, array('id_theme' => $id_theme));
 
 				// Remove any custom variants.
-				if (!empty($_GET['vrt']))
+				if (!empty($variant))
 				{
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}themes
 						WHERE id_theme = {int:current_theme}
 							AND variable = {string:theme_variant}',
 						array(
-							'current_theme' => (int) $_GET['th'],
+							'current_theme' => $id_theme,
 							'theme_variant' => 'theme_variant',
 						)
 					);
@@ -986,30 +973,30 @@ function PickTheme()
 			// Change the default/guest theme.
 			elseif ($_REQUEST['u'] == '-1')
 			{
-				updateSettings(array('theme_guests' => (int) $_GET['th']));
+				updateSettings(array('theme_guests' => $id_theme));
 
 				redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
 			}
 		}
 		// Change a specific member's theme.
-		elseif (canPickTheme((int) $_REQUEST['u'], (int) $_GET['th']))
+		elseif (canPickTheme((int) $_REQUEST['u'], $id_theme))
 		{
 			// An identifier of zero means that the user wants the forum default theme.
-			updateMemberData((int) $_REQUEST['u'], array('id_theme' => (int) $_GET['th']));
+			updateMemberData((int) $_REQUEST['u'], array('id_theme' => $id_theme));
 
-			if (!empty($_GET['vrt']))
+			if (!empty($variant))
 			{
 				// Set the identifier to the forum default.
-				if (isset($_GET['th']) && $_GET['th'] == 0)
-					$_GET['th'] = $modSettings['theme_guests'];
+				if (isset($id_theme) && $id_theme == 0)
+					$id_theme = $modSettings['theme_guests'];
 
 				$smcFunc['db_insert']('replace',
 					'{db_prefix}themes',
 					array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
-					array($_GET['th'], (int) $_REQUEST['u'], 'theme_variant', $_GET['vrt']),
+					array($id_theme, (int) $_REQUEST['u'], 'theme_variant', $variant),
 					array('id_theme', 'id_member', 'variable')
 				);
-				cache_put_data('theme_settings-' . $_GET['th'] . ':' . (int) $_REQUEST['u'], null, 90);
+				cache_put_data('theme_settings-' . $id_theme . ':' . (int) $_REQUEST['u'], null, 90);
 
 				if ($user_info['id'] == $_REQUEST['u'])
 					$_SESSION['id_variant'] = 0;

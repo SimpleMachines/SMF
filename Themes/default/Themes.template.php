@@ -700,7 +700,7 @@ function template_pick()
 
 	echo '
 	<div id="pick_theme">
-		<form action="', $scripturl, '?action=theme;sa=pick;u=', $context['current_member'], ';', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">';
+		<form action="', $scripturl, '?action=theme;sa=pick" method="post" accept-charset="', $context['character_set'], '">';
 
 	// Just go through each theme and show its information - thumbnail, etc.
 	foreach ($context['available_themes'] as $theme)
@@ -708,7 +708,7 @@ function template_pick()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=theme;sa=pick;u=', $context['current_member'], ';th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], !empty($theme['variants']) ? ';vrt=' . $theme['selected_variant'] : '', '">', $theme['name'], '</a>
+					', $theme['name'], '
 				</h3>
 			</div>
 			<div class="windowbg', $theme['selected'] ? ' selected' : '', '">
@@ -731,10 +731,7 @@ function template_pick()
 						<option value="', $key, '"', $theme['selected_variant'] == $key ? ' selected' : '', '>', $variant['label'], '</option>';
 
 			echo '
-					</select>
-					<noscript>
-						<input type="submit" name="save[', $theme['id'], ']" value="', $txt['save'], '" class="button">
-					</noscript>';
+					</select>';
 		}
 
 		echo '
@@ -744,11 +741,11 @@ function template_pick()
 					</p>
 					<br>
 					<ul>
-						<li>
-							<a href="', $scripturl, '?action=theme;sa=pick;u=', $context['current_member'], ';th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], !empty($theme['variants']) ? ';vrt=' . $theme['selected_variant'] : '', '" id="theme_use_', $theme['id'], '">[', $txt['theme_set'], ']</a>
+						<li class="lower_padding">
+							<input type="submit" name="save[', $theme['id'], ']" value="', $txt['theme_set'], '" class="button">
 						</li>
 						<li>
-							<a href="', $scripturl, '?action=theme;sa=pick;u=', $context['current_member'], ';theme=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '" id="theme_preview_', $theme['id'], '">[', $txt['theme_preview'], ']</a>
+							<a class="button" href="', $scripturl, '?action=theme;sa=pick;theme=', $theme['id'], '" id="theme_preview_', $theme['id'], '">', $txt['theme_preview'], '</a>
 						</li>
 					</ul>
 				</div>
@@ -756,6 +753,8 @@ function template_pick()
 		}
 
 		echo '
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			<input type="hidden" name="u" value="', $context['current_member'], '">
 		</form>
 	</div><!-- #pick_theme -->';
 }
