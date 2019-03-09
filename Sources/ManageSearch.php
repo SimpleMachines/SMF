@@ -24,8 +24,8 @@ if (!defined('SMF'))
  * Called by ?action=admin;area=managesearch.
  * Requires the admin_forum permission.
  *
- * @uses ManageSearch template.
- * @uses Search language file.
+ * Uses ManageSearch template.
+ * Uses Search language file.
  */
 function ManageSearch()
 {
@@ -84,7 +84,7 @@ function ManageSearch()
  *
  * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
  * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
- * @uses ManageSearch template, 'modify_settings' sub-template.
+ * Uses ManageSearch template, 'modify_settings' sub-template.
  */
 function EditSearchSettings($return_config = false)
 {
@@ -149,7 +149,7 @@ function EditSearchSettings($return_config = false)
  * Called by ?action=admin;area=managesearch;sa=weights.
  * Requires the admin_forum permission.
  *
- * @uses ManageSearch template, 'modify_weights' sub-template.
+ * Uses ManageSearch template, 'modify_weights' sub-template.
  */
 function EditWeights()
 {
@@ -201,7 +201,7 @@ function EditWeights()
  * Called by ?action=admin;area=managesearch;sa=method.
  * Requires the admin_forum permission.
  *
- * @uses ManageSearch template, 'select_search_method' sub-template.
+ * Uses ManageSearch template, 'select_search_method' sub-template.
  */
 function EditSearchMethod()
 {
@@ -482,7 +482,7 @@ function EditSearchMethod()
  * Requires the admin_forum permission.
  * Depending on the size of the message table, the process is divided in steps.
  *
- * @uses ManageSearch template, 'create_index', 'create_index_progress', and 'create_index_done'
+ * Uses ManageSearch template, 'create_index', 'create_index_progress', and 'create_index_done'
  *  sub-templates.
  */
 function CreateMessageIndex()

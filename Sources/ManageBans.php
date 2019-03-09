@@ -26,7 +26,7 @@ if (!defined('SMF'))
  * It requires the ban_members permission.
  * It initializes the admin tabs.
  *
- * @uses ManageBans template.
+ * Uses ManageBans template.
  */
 function Ban()
 {
@@ -94,7 +94,7 @@ function Ban()
  * It allows sorting on different criteria.
  * It also handles removal of selected ban items.
  *
- * @uses the main ManageBans template.
+ * Uses the main ManageBans template.
  */
 function BanList()
 {
@@ -1710,7 +1710,7 @@ function BanEditTrigger()
  * It is accessed by ?action=admin;area=ban;sa=browse
  * It uses sub-tabs for browsing by IP, hostname, email or username.
  *
- * @uses ManageBans template, browse_triggers sub template.
+ * Uses ManageBans template, browse_triggers sub template.
  */
 function BanBrowseTriggers()
 {

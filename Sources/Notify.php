@@ -24,7 +24,7 @@ if (!defined('SMF'))
  * Redirects the user back to the board after it is done.
  * Accessed via ?action=notifyboard.
  *
- * @uses Notify template, notify_board sub-template.
+ * Uses Notify template, notify_board sub-template.
  */
 function BoardNotify()
 {

@@ -24,7 +24,7 @@ if (!defined('SMF'))
  * Requires the admin_forum permission.
  * Accessed via ?action=moderate;area=modlog.
  *
- * @uses Modlog template, main sub-template.
+ * Uses Modlog template, main sub-template.
  */
 function ViewModlog()
 {

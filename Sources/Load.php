@@ -2372,7 +2372,7 @@ function loadTheme($id_theme = 0, $initialize = true)
  *  - loads a template file with the name template_name from the current, default, or base theme.
  *  - detects a wrong default theme directory and tries to work around it.
  *
- * @uses the template_include() function to include the file.
+ * Uses the template_include() function to include the file.
  * @param string $template_name The name of the template to load
  * @param array|string $style_sheets The name of a single stylesheet or an array of names of stylesheets to load
  * @param bool $fatal If true, dies with an error message if the template cannot be found

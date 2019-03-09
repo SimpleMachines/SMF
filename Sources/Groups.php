@@ -189,7 +189,7 @@ function GroupList()
  * It allows sorting on several columns.
  * It redirects to itself.
  *
- * @uses ManageMembergroups template, group_members sub template.
+ * Uses ManageMembergroups template, group_members sub template.
  * @todo: use createList
  */
 function MembergroupMembers()

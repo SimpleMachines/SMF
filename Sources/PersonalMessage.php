@@ -3411,10 +3411,10 @@ function ManageLabels()
 /**
  * Allows to edit Personal Message Settings.
  *
- * @uses Profile.php
- * @uses Profile-Modify.php
- * @uses Profile template.
- * @uses Profile language file.
+ * Uses Profile.php
+ * Uses Profile-Modify.php
+ * Uses Profile template.
+ * Uses Profile language file.
  */
 function MessageSettings()
 {
@@ -3485,7 +3485,7 @@ function MessageSettings()
  * - It allows the user to report to either a particular administrator - or the whole admin team.
  * - It will forward on a copy of the original message without allowing the reporter to make changes.
  *
- * @uses report_message sub-template.
+ * Uses report_message sub-template.
  */
 function ReportMessage()
 {

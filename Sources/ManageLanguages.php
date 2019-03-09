@@ -23,7 +23,7 @@ if (!defined('SMF'))
  *
  * @todo lazy loading.
  *
- * @uses ManageSettings language file
+ * Uses ManageSettings language file
  */
 function ManageLanguages()
 {
@@ -62,7 +62,7 @@ function ManageLanguages()
 /**
  * Interface for adding a new language
  *
- * @uses ManageLanguages template, add_language sub-template.
+ * Uses ManageLanguages template, add_language sub-template.
  */
 function AddLanguage()
 {
@@ -189,8 +189,8 @@ function list_getLanguagesList()
  * Attempts to chmod things as needed.
  * Uses a standard list to display information about all the files and where they'll be put.
  *
- * @uses ManageLanguages template, download_language sub-template.
- * @uses Admin template, show_list sub-template.
+ * Uses ManageLanguages template, download_language sub-template.
+ * Uses Admin template, show_list sub-template.
  */
 function DownloadLanguage()
 {

@@ -23,8 +23,8 @@ if (!defined('SMF'))
  * Accessed by ?action=admin;area=regcenter.
  * Requires either the moderate_forum or the admin_forum permission.
  *
- * @uses Login language file
- * @uses Register template.
+ * Uses Login language file
+ * Uses Register template.
  */
 function RegCenter()
 {
@@ -84,7 +84,7 @@ function RegCenter()
  * Accessed by ?action=admin;area=regcenter;sa=register
  * Requires the moderate_forum permission.
  *
- * @uses Register template, admin_register sub-template.
+ * Uses Register template, admin_register sub-template.
  */
 function AdminRegister()
 {
@@ -181,7 +181,7 @@ function AdminRegister()
  * Accessed by ?action=admin;area=regcenter;sa=agreement.
  * Requires the admin_forum permission.
  *
- * @uses Admin template and the edit_agreement sub template.
+ * Uses Admin template and the edit_agreement sub template.
  */
 function EditAgreement()
 {
@@ -242,7 +242,7 @@ function EditAgreement()
  * Accessed by ?action=admin;area=regcenter;sa=reservednames.
  * Requires the admin_forum permission.
  *
- * @uses Register template, reserved_words sub-template.
+ * Uses Register template, reserved_words sub-template.
  */
 function SetReserved()
 {

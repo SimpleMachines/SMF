@@ -81,7 +81,7 @@ function ManageNews()
  * Requires the edit_news permission.
  * Can be accessed with ?action=admin;sa=editnews.
  *
- * @uses ManageNews template, edit_news sub template.
+ * Uses ManageNews template, edit_news sub template.
  */
 function EditNews()
 {
@@ -307,7 +307,7 @@ function list_getNews()
  * Requires the send_mail permission.
  * Form is submitted to ?action=admin;area=news;mailingcompose.
  *
- * @uses the ManageNews template and email_members sub template.
+ * Uses the ManageNews template and email_members sub template.
  */
 function SelectMailingMembers()
 {
@@ -493,7 +493,7 @@ function prepareMailingForPreview()
  * Requires the send_mail permission.
  * Form is submitted to ?action=admin;area=news;sa=mailingsend.
  *
- * @uses ManageNews template, email_members_compose sub-template.
+ * Uses ManageNews template, email_members_compose sub-template.
  */
 function ComposeMailing()
 {
@@ -692,7 +692,7 @@ function ComposeMailing()
  * Redirects to ?action=admin;area=news;sa=mailingmembers after everything has been sent.
  *
  * @param bool $clean_only If set, it will only clean the variables, put them in context, then return.
- * @uses the ManageNews template and email_members_send sub template.
+ * Uses the ManageNews template and email_members_send sub template.
  */
 function SendMailing($clean_only = false)
 {
@@ -1056,7 +1056,7 @@ function SendMailing($clean_only = false)
  * Called by ?action=admin;area=news;sa=settings.
  * Requires the forum_admin permission.
  *
- * @uses ManageNews template, news_settings sub-template.
+ * Uses ManageNews template, news_settings sub-template.
  * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
  * @return void|array Returns nothing or returns the config_vars array if $return_config is true
  */

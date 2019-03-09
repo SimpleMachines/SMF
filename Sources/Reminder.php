@@ -18,7 +18,7 @@ if (!defined('SMF'))
 /**
  * This is the controlling delegator
  *
- * @uses Profile language files and Reminder template
+ * Uses Profile language files and Reminder template
  */
 function RemindMe()
 {

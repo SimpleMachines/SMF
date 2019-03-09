@@ -21,7 +21,7 @@ if (!defined('SMF'))
  * Handles showing the post screen, loading the post to be modified, and loading any post quoted.
  *
  * - additionally handles previews of posts.
- * - @uses the Post template and language file, main sub template.
+ * - Uses the Post template and language file, main sub template.
  * - requires different permissions depending on the actions, but most notably post_new, post_reply_own, and post_reply_any.
  * - shows options for the editing and posting of calendar events and attachments, as well as the posting of polls.
  * - accessed from ?action=post.

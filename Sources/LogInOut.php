@@ -23,7 +23,7 @@ if (!defined('SMF'))
  *  It caches the referring URL in $_SESSION['login_url'].
  *  It is accessed from ?action=login.
  *
- * @uses Login template and language file with the login sub-template.
+ * Uses Login template and language file with the login sub-template.
  */
 function Login()
 {

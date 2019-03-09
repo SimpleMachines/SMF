@@ -21,8 +21,8 @@ if (!defined('SMF'))
  * to the appropriate function based on the sub-action.
  * Everything here requires admin_forum permission.
  *
- * @uses ManageScheduledTasks template file
- * @uses ManageScheduledTasks language file
+ * Uses ManageScheduledTasks template file
+ * Uses ManageScheduledTasks language file
  */
 function ManageScheduledTasks()
 {
@@ -73,7 +73,7 @@ function ManageScheduledTasks()
 /**
  * List all the scheduled task in place on the forum.
  *
- * @uses ManageScheduledTasks template, view_scheduled_tasks sub-template
+ * Uses ManageScheduledTasks template, view_scheduled_tasks sub-template
  */
 function ScheduledTasks()
 {
@@ -361,7 +361,7 @@ function list_getScheduledTasks($start, $items_per_page, $sort)
 /**
  * Function for editing a task.
  *
- * @uses ManageScheduledTasks template, edit_scheduled_tasks sub-template
+ * Uses ManageScheduledTasks template, edit_scheduled_tasks sub-template
  */
 function EditTask()
 {
@@ -469,7 +469,7 @@ function EditTask()
 /**
  * Show the log of all tasks that have taken place.
  *
- * @uses ManageScheduledTasks language file
+ * Uses ManageScheduledTasks language file
  */
 function TaskLog()
 {

@@ -69,7 +69,7 @@ if (!defined('SMF'))
  * Requires the admin_forum permission.
  * Redirects to the appropriate function based on the sub-action.
  *
- * @uses edit_settings adminIndex.
+ * Uses edit_settings adminIndex.
  */
 function ModifySettings()
 {

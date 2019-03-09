@@ -1592,7 +1592,7 @@ function SpellCheck()
  * @param string $type Can be any of reply, sticky, lock, unlock, remove, move, merge, and split.  An appropriate message will be sent for each.
  * @param array $exclude Members in the exclude array will not be processed for the topic with the same key.
  * @param array $members_only Are the only ones that will be sent the notification if they have it on.
- * @uses Post language file
+ * Uses Post language file
  */
 function sendNotifications($topics, $type, $exclude = array(), $members_only = array())
 {
@@ -2717,7 +2717,7 @@ function updateLastMessages($setboards, $id_msg = 0)
  * @param string $type The type. Types supported are 'approval', 'activation', and 'standard'.
  * @param int $memberID The ID of the member
  * @param string $member_name The name of the member (if null, it is pulled from the database)
- * @uses the Login language file.
+ * Uses the Login language file.
  */
 function adminNotify($type, $memberID, $member_name = null)
 {

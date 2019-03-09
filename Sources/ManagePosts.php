@@ -78,7 +78,7 @@ function ManagePostSettings()
  * Requires the admin_forum permission.
  * Accessed from ?action=admin;area=postsettings;sa=censor.
  *
- * @uses the Admin template and the edit_censored sub template.
+ * Uses the Admin template and the edit_censored sub template.
  */
 function SetCensor()
 {
@@ -179,7 +179,7 @@ function SetCensor()
  *
  * @param bool $return_config Whether or not to return the $config_vars array (used for admin search)
  * @return void|array Returns nothing or returns the config_vars array if $return_config is true
- * @uses Admin template, edit_post_settings sub-template.
+ * Uses Admin template, edit_post_settings sub-template.
  */
 function ModifyPostSettings($return_config = false)
 {
@@ -279,7 +279,7 @@ function ModifyPostSettings($return_config = false)
  *
  * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
  * @return void|array Returns nothing or returns $config_vars if $return_config is true
- * @uses Admin template, edit_topic_settings sub-template.
+ * Uses Admin template, edit_topic_settings sub-template.
  */
 function ModifyTopicSettings($return_config = false)
 {
@@ -356,7 +356,7 @@ function ModifyTopicSettings($return_config = false)
  *
  * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
  * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
- * @uses Admin template, edit_topic_settings sub-template.
+ * Uses Admin template, edit_topic_settings sub-template.
  */
 function ModifyDraftSettings($return_config = false)
 {

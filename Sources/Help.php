@@ -21,7 +21,7 @@ if (!defined('SMF'))
  * It loads information needed for the help section.
  * It is accessed by ?action=help.
  *
- * @uses Help template and Manual language file.
+ * Uses Help template and Manual language file.
  */
 function ShowHelp()
 {
@@ -123,8 +123,8 @@ function HelpRules()
  * the string from. ($helptxt or $txt?)
  * It is accessed via ?action=helpadmin;help=?.
  *
- * @uses ManagePermissions language file, if the help starts with permissionhelp.
- * @uses Help template, popup sub template, no layers.
+ * Uses ManagePermissions language file, if the help starts with permissionhelp.
+ * Uses Help template, popup sub template, no layers.
  */
 function ShowAdminHelp()
 {

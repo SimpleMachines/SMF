@@ -20,7 +20,7 @@ if (!defined('SMF'))
  * The main controlling function doesn't have much to do... yet.
  * Just check permissions and delegate to the rest.
  *
- * @uses ManageCalendar language file.
+ * Uses ManageCalendar language file.
  */
 function ManageCalendar()
 {

@@ -21,7 +21,7 @@ if (!defined('SMF'))
  * Checks the permissions, based on the sub-action.
  * Called by ?action=managepermissions.
  *
- * @uses ManagePermissions language file.
+ * Uses ManagePermissions language file.
  */
 
 function ModifyPermissions()
@@ -81,9 +81,9 @@ function ModifyPermissions()
  * Called by ?action=managepermissions
  * Creates an array of all the groups with the number of members and permissions.
  *
- * @uses ManagePermissions language file.
- * @uses ManagePermissions template file.
- * @uses ManageBoards template, permission_index sub-template.
+ * Uses ManagePermissions language file.
+ * Uses ManagePermissions template file.
+ * Uses ManageBoards template, permission_index sub-template.
  */
 function PermissionIndex()
 {
@@ -1729,8 +1729,8 @@ function loadAllPermissions()
  * @param array $permissions The permissions to display inline
  * @param array $excluded_groups The IDs of one or more groups to exclude
  *
- * @uses ManagePermissions language
- * @uses ManagePermissions template.
+ * Uses ManagePermissions language
+ * Uses ManagePermissions template.
  */
 function init_inline_permissions($permissions, $excluded_groups = array())
 {

@@ -23,8 +23,8 @@ if (!defined('SMF'))
  * Called by ?action=admin;area=membergroups.
  * Requires the manage_membergroups or the admin_forum permission.
  *
- * @uses ManageMembergroups template.
- * @uses ManageMembers language file.
+ * Uses ManageMembergroups template.
+ * Uses ManageMembers language file.
  */
 function ModifyMembergroups()
 {
@@ -73,7 +73,7 @@ function ModifyMembergroups()
  * Splits the membergroups in regular ones and post count based groups.
  * It also counts the number of members part of each membergroup.
  *
- * @uses ManageMembergroups template, main.
+ * Uses ManageMembergroups template, main.
  */
 function MembergroupIndex()
 {
@@ -294,7 +294,7 @@ function MembergroupIndex()
  * Allows to use a predefined permission profile or copy one from another group.
  * Redirects to action=admin;area=membergroups;sa=edit;group=x.
  *
- * @uses the new_group sub template of ManageMembergroups.
+ * Uses the new_group sub template of ManageMembergroups.
  */
 function AddMembergroup()
 {
@@ -643,7 +643,7 @@ function DeleteMembergroup()
  * Also handles the delete button of the edit form.
  * Redirects to ?action=admin;area=membergroups.
  *
- * @uses the edit_group sub template of ManageMembergroups.
+ * Uses the edit_group sub template of ManageMembergroups.
  */
 function EditMembergroup()
 {
@@ -1228,7 +1228,7 @@ function EditMembergroup()
  * Requires the admin_forum permission (and manage_permissions for changing permissions)
  * Redirects to itself.
  *
- * @uses membergroup_settings sub template of ManageMembergroups.
+ * Uses membergroup_settings sub template of ManageMembergroups.
  */
 function ModifyMembergroupsettings()
 {

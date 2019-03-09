@@ -23,7 +23,7 @@ if (!defined('SMF'))
  * It requires the maintain_forum permission.
  * It is accessed from ?action=admin;area=logs;sa=errorlog.
  *
- * @uses the Errors template and error_log sub template.
+ * Uses the Errors template and error_log sub template.
  */
 function ViewErrorLog()
 {

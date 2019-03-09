@@ -22,8 +22,8 @@ if (!defined('SMF'))
  * Called by ?action=admin;area=viewmembers.
  * Requires the moderate_forum permission.
  *
- * @uses ManageMembers template
- * @uses ManageMembers language file.
+ * Uses ManageMembers template
+ * Uses ManageMembers language file.
  */
 function ViewMembers()
 {
@@ -126,7 +126,7 @@ function ViewMembers()
  * Called by ?action=admin;area=viewmembers;sa=all or ?action=admin;area=viewmembers;sa=query.
  * Requires the moderate_forum permission.
  *
- * @uses the view_members sub template of the ManageMembers template.
+ * Uses the view_members sub template of the ManageMembers template.
  */
 function ViewMemberlist()
 {
@@ -620,7 +620,7 @@ function ViewMemberlist()
  * Requires the moderate_forum permission.
  * form is submitted to action=admin;area=viewmembers;sa=query.
  *
- * @uses the search_members sub template of the ManageMembers template.
+ * Uses the search_members sub template of the ManageMembers template.
  */
 function SearchMembers()
 {
@@ -674,7 +674,7 @@ function SearchMembers()
  * The form submits to ?action=admin;area=viewmembers;sa=approve.
  * Requires the moderate_forum permission.
  *
- * @uses the admin_browse sub template of the ManageMembers template.
+ * Uses the admin_browse sub template of the ManageMembers template.
  */
 function MembersAwaitingActivation()
 {

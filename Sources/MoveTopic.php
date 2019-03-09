@@ -26,7 +26,7 @@ if (!defined('SMF'))
  * otherwise the move_any permission.
  * Accessed via ?action=movetopic.
  *
- * @uses the MoveTopic template, main sub-template.
+ * Uses the MoveTopic template, main sub-template.
  */
 function MoveTopic()
 {
@@ -131,7 +131,7 @@ function MoveTopic()
  * Upon successful completion redirects to message index.
  * Accessed via ?action=movetopic2.
  *
- * @uses Subs-Post.php.
+ * Uses Subs-Post.php.
  */
 function MoveTopic2()
 {
