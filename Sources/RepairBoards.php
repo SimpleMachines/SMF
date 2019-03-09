@@ -1530,7 +1530,7 @@ function loadForumTests()
  * won't have to recheck everything.
  *
  * @param bool $do_fix Whether to actually fix the errors or just return the info
- * @return array, the errors found.
+ * @return array the errors found.
  */
 function findForumErrors($do_fix = false)
 {
