@@ -1533,7 +1533,7 @@ function PackageBrowse()
  * @param int $start The item to start with (not used here)
  * @param int $items_per_page The number of items to show per page (not used here)
  * @param string $sort A string indicating how to sort the results
- * @param string? $params A key for the $packages array
+ * @param string $params A key for the $packages array
  * @return array An array of information about the packages
  */
 function list_getPackages($start, $items_per_page, $sort, $params)
