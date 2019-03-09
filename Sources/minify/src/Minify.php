@@ -112,7 +112,7 @@ abstract class Minify
      * Minify & gzip the data & (optionally) saves it to a file.
      *
      * @param string $path  Path to write the data to
-     * @param int[optional]    $level Compression level, from 0 to 9
+     * @param int    $level Compression level, from 0 to 9
      *
      * @return string The minified & gzipped data
      */
