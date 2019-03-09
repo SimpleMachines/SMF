@@ -1559,7 +1559,7 @@ function loadCacheAPIs()
  * purposely does not use updateSettings.php as it will be called shortly after
  * this process completes by the saveSettings() function.
  *
- * @see Stats.php SMStats() for more information.
+ * @see SMStats() for more information.
  * @link https://www.simplemachines.org/about/stats.php for more info.
  *
  */

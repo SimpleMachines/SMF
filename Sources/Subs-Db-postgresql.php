@@ -20,7 +20,7 @@ if (!defined('SMF'))
  * Maps the implementations in this file (smf_db_function_name)
  * to the $smcFunc['db_function_name'] variable.
  *
- * @see Subs-Db-mysql.php#smf_db_initiate
+ * See Subs-Db-mysql.php#smf_db_initiate
  *
  * @param string $db_server The database server
  * @param string $db_name The name of the database
