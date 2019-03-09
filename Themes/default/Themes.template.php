@@ -724,7 +724,7 @@ function template_pick()
 		{
 			echo '
 					<label for="variant', $theme['id'], '"><strong>', $theme['pick_label'], '</strong></label>:
-					<select id="variant', $theme['id'], '" name="vrt[', $theme['id'], ']" onchange="changeVariant', $theme['id'], '(this.value);">';
+					<select id="variant', $theme['id'], '" name="vrt[', $theme['id'], ']" onchange="changeVariant(', $theme['id'], ', this);">';
 
 			foreach ($theme['variants'] as $key => $variant)
 				echo '
@@ -753,39 +753,9 @@ function template_pick()
 					</ul>
 				</div>
 			</div>';
-
-		if (!empty($theme['variants']))
-		{
-			echo '
-			<script>
-			var sBaseUseUrl', $theme['id'], ' = smf_prepareScriptUrl(smf_scripturl) + \'action=theme;sa=pick;u=', $context['current_member'], ';th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '\';
-			var sBasePreviewUrl', $theme['id'], ' = smf_prepareScriptUrl(smf_scripturl) + \'action=theme;sa=pick;u=', $context['current_member'], ';theme=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '\';
-			var oThumbnails', $theme['id'], ' = {';
-
-			// All the variant thumbnails.
-			$count = 1;
-			foreach ($theme['variants'] as $key => $variant)
-			{
-				echo '
-				\'', $key, '\': \'', $variant['thumbnail'], '\'', (count($theme['variants']) == $count ? '' : ',');
-				$count++;
-			}
-
-			echo '
-			}
-
-			function changeVariant', $theme['id'], '(sVariant)
-			{
-				document.getElementById(\'theme_thumb_', $theme['id'], '\').src = oThumbnails', $theme['id'], '[sVariant];
-				document.getElementById(\'theme_use_', $theme['id'], '\').href = sBaseUseUrl', $theme['id'] == 0 ? $context['default_theme_id'] : $theme['id'], ' + \';vrt=\' + sVariant;
-				document.getElementById(\'theme_thumb_preview_', $theme['id'], '\').href = sBasePreviewUrl', $theme['id'], ' + \';vrt=\' + sVariant + \';variant=\' + sVariant;
-				document.getElementById(\'theme_preview_', $theme['id'], '\').href = sBasePreviewUrl', $theme['id'], ' + \';vrt=\' + sVariant + \';variant=\' + sVariant;
-			}
-			</script>';
 		}
-	}
 
-	echo '
+		echo '
 		</form>
 	</div><!-- #pick_theme -->';
 }

@@ -1173,6 +1173,7 @@ function PickTheme()
 		$context['available_themes'][$id_theme]['description'] = $txt['theme_description'];
 
 		// Are there any variants?
+		$context['available_themes'][$id_theme]['variants'] = array();
 		if (file_exists($theme_data['theme_dir'] . '/index.template.php') && (empty($theme_data['disable_user_variant']) || allowedTo('admin_forum')))
 		{
 			$file_contents = implode('', file($theme_data['theme_dir'] . '/index.template.php'));
@@ -1187,7 +1188,6 @@ function PickTheme()
 				{
 					loadLanguage('Settings');
 
-					$context['available_themes'][$id_theme]['variants'] = array();
 					foreach ($settings['theme_variants'] as $variant)
 						$context['available_themes'][$id_theme]['variants'][$variant] = array(
 							'label' => isset($txt['variant_' . $variant]) ? $txt['variant_' . $variant] : $variant,
@@ -1206,6 +1206,14 @@ function PickTheme()
 		}
 	}
 	// Then return it.
+	addJavaScriptVar(
+		'oThemeVariants',
+		json_encode(array_map(function ($theme)
+		{
+			return $theme['variants'];
+		}, $context['available_themes']
+	)));
+	loadJavaScriptFile('profile.js', array('defer' => false, 'minimize' => true), 'smf_profile');
 	$settings['images_url'] = $current_images_url;
 	$settings['theme_variants'] = $current_theme_variants;
 
