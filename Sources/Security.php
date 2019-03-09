@@ -960,7 +960,6 @@ function allowedTo($permission, $boards = null, $any = false)
 		}
 		$smcFunc['db_free_result']($request);
 		$return = $result;
-		return $result;
 	}
 
 	// Make sure they can do it on all of the boards.
