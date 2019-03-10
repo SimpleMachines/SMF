@@ -1075,8 +1075,8 @@ function list_getNumAttachments($boardsAllowed, $memID)
 		SELECT COUNT(*)
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-		WHERE {query_see_message_board}
-			AND a.attachment_type = {int:attachment_type}
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
+		WHERE a.attachment_type = {int:attachment_type}
 			AND a.id_msg != {int:no_message}
 			AND m.id_member = {int:current_member}' . (!empty($board) ? '
 			AND b.id_board = {int:board}' : '') . (!in_array(0, $boardsAllowed) ? '
@@ -1239,10 +1239,9 @@ function list_getUnwatched($start, $items_per_page, $sort, $memID)
 			LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
 			LEFT JOIN {db_prefix}messages as m ON (t.id_first_msg = m.id_msg)' . (in_array($sort, array('mem.real_name', 'mem.real_name DESC', 'mem.poster_time', 'mem.poster_time DESC')) ? '
 			LEFT JOIN {db_prefix}members as mem ON (m.id_member = mem.id_member)' : '') . '
-		WHERE {query_see_message_board}
-			AND lt.id_member = {int:current_member}
+		WHERE lt.id_member = {int:current_member}
 			AND unwatched = 1
-			AND {query_see_board}
+			AND {query_see_message_board}
 		ORDER BY {raw:sort}
 		LIMIT {int:offset}, {int:limit}',
 		array(
