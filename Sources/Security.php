@@ -926,10 +926,10 @@ function allowedTo($permission, $boards = null, $any = false)
 	elseif (!is_array($boards))
 		$boards = array($boards);
 
-	$cache_key = $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . $any;
+	$cache_key = hash('md5', $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . $any);
 
-	if (isset($perm_cache[hash('md5', $cache_key)]))
-			return $perm_cache[hash('md5', $cache_key)];
+	if (isset($perm_cache[$cache_key]))
+			return $perm_cache[$cache_key];
 
 	$request = $smcFunc['db_query']('', '
 		SELECT MIN(bp.add_deny) AS add_deny
@@ -977,7 +977,7 @@ function allowedTo($permission, $boards = null, $any = false)
 		$return = $result;
 	}
 
-	$perm_cache[hash('md5', $cache_key)] = $result;
+	$perm_cache[$cache_key] = $result;
 
 	// If the query returned 1, they can do it... otherwise, they can't.
 	return $result;
