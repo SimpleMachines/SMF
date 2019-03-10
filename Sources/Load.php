@@ -801,7 +801,7 @@ function loadUserSettings()
 	$temp = build_query_board($user_info['id']);
 	$user_info['query_see_board'] = $temp['query_see_board'];
 	$user_info['query_wanna_see_board'] = $temp['query_wanna_see_board'];
-	$user_info['query_see_message'] = $temp['query_see_message'];
+	$user_info['query_see_message_board'] = $temp['query_see_message_board'];
 
 	call_integration_hook('integrate_user_info');
 }

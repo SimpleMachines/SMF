@@ -373,7 +373,7 @@ function issueWarning($memID)
 			SELECT m.subject
 			FROM {db_prefix}messages AS m
 			WHERE m.id_msg = {int:message}
-				AND {query_see_message}
+				AND {query_see_message_board}
 			LIMIT 1',
 			array(
 				'message' => (int) $_REQUEST['msg'],

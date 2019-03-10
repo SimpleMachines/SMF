@@ -637,7 +637,7 @@ function showPosts($memID)
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}messages AS m
-			WHERE {query_see_message} AND m.id_member = {int:current_member}' . (!empty($board) ? '
+			WHERE {query_see_message_board} AND m.id_member = {int:current_member}' . (!empty($board) ? '
 				AND m.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
 				AND m.approved = {int:is_approved}'),
 			array(
@@ -1075,7 +1075,7 @@ function list_getNumAttachments($boardsAllowed, $memID)
 		SELECT COUNT(*)
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-		WHERE {query_see_message}
+		WHERE {query_see_message_board}
 			AND a.attachment_type = {int:attachment_type}
 			AND a.id_msg != {int:no_message}
 			AND m.id_member = {int:current_member}' . (!empty($board) ? '
@@ -1239,7 +1239,7 @@ function list_getUnwatched($start, $items_per_page, $sort, $memID)
 			LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
 			LEFT JOIN {db_prefix}messages as m ON (t.id_first_msg = m.id_msg)' . (in_array($sort, array('mem.real_name', 'mem.real_name DESC', 'mem.poster_time', 'mem.poster_time DESC')) ? '
 			LEFT JOIN {db_prefix}members as mem ON (m.id_member = mem.id_member)' : '') . '
-		WHERE {query_see_message}
+		WHERE {query_see_message_board}
 			AND lt.id_member = {int:current_member}
 			AND unwatched = 1
 			AND {query_see_board}
@@ -1888,7 +1888,7 @@ function list_getIPMessageCount($where, $where_vars = array())
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*) AS message_count
 		FROM {db_prefix}messages AS m
-		WHERE {query_see_message} AND ' . $where,
+		WHERE {query_see_message_board} AND ' . $where,
 		$where_vars
 	);
 	list ($count) = $smcFunc['db_fetch_row']($request);
@@ -1919,7 +1919,7 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 			m.subject, m.poster_time, m.id_topic, m.id_board
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-		WHERE {query_see_message} AND ' . $where . '
+		WHERE {query_see_message_board} AND ' . $where . '
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:max}',
 		array_merge($where_vars, array(

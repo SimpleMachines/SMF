@@ -123,7 +123,7 @@ function UnapprovedPosts()
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 			WHERE m.id_msg IN ({array_int:message_list})
 				AND m.approved = {int:not_approved}
-				AND {query_see_message}',
+				AND {query_see_message_board}',
 			array(
 				'message_list' => $toAction,
 				'not_approved' => 0,
@@ -205,7 +205,7 @@ function UnapprovedPosts()
 		SELECT COUNT(m.id_topic)
 		FROM {db_prefix}topics AS m
 		WHERE m.approved = {int:not_approved}
-			AND {query_see_message}
+			AND {query_see_message_board}
 			' . $approve_query,
 		array(
 			'not_approved' => 0,
@@ -360,7 +360,7 @@ function UnapprovedAttachments()
 			WHERE a.id_attach IN ({array_int:attachments})
 				AND a.approved = {int:not_approved}
 				AND a.attachment_type = {int:attachment_type}
-				AND {query_see_message}
+				AND {query_see_message_board}
 				' . $approve_query,
 			array(
 				'attachments' => $attachments,
@@ -630,7 +630,7 @@ function list_getNumUnapprovedAttachments($approve_query)
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 		WHERE a.approved = {int:not_approved}
 			AND a.attachment_type = {int:attachment_type}
-			AND {query_see_message}
+			AND {query_see_message_board}
 			' . $approve_query,
 		array(
 			'not_approved' => 0,

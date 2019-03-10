@@ -201,7 +201,7 @@ class Likes
 			$request = $smcFunc['db_query']('', '
 				SELECT m.id_topic, m.id_member
 				FROM {db_prefix}messages AS m
-				WHERE {query_see_message}
+				WHERE {query_see_message_board}
 					AND m.id_msg = {int:msg}',
 				array(
 					'msg' => $this->_content,
