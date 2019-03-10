@@ -1965,9 +1965,14 @@ function prepareSearchContext($reset = false)
 			// Re-fix the international characters.
 			$message['body'] = preg_replace_callback('~(&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', $message['body']);
 		}
+		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
+		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
 	}
 	else
 	{
+		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
+		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
+
 		// Run BBC interpreter on the message.
 		$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
 	}
@@ -2073,9 +2078,6 @@ function prepareSearchContext($reset = false)
 		)
 	));
 
-	$body_highlighted = $message['body'];
-	$subject_highlighted = $message['subject'];
-
 	if (!empty($options['display_quick_mod']))
 	{
 		$started = $output['first_post']['member']['id'] == $user_info['id'];
@@ -2100,24 +2102,6 @@ function prepareSearchContext($reset = false)
 		call_integration_hook('integrate_quick_mod_actions_search');
 	}
 
-	foreach ($context['key_words'] as $query)
-	{
-		// Fix the international characters in the keyword too.
-		$query = un_htmlspecialchars($query);
-		$query = trim($query, "\*+");
-		$query = strtr($smcFunc['htmlspecialchars']($query), array('\\\'' => '\''));
-
-		// Highlighting empty strings would make a terrible mess...
-		if (strlen($query) == 0)
-			continue;
-
-		$body_highlighted = preg_replace_callback('/((<[^>]*)|' . preg_quote(strtr($query, array('\'' => '&#039;')), '/') . ')/i' . ($context['utf8'] ? 'u' : ''), function($m)
-		{
-			return isset($m[2]) && "$m[2]" == "$m[1]" ? stripslashes("$m[1]") : "<strong class=\"highlight\">$m[1]</strong>";
-		}, $body_highlighted);
-		$subject_highlighted = preg_replace('/(' . preg_quote($query, '/') . ')/i' . ($context['utf8'] ? 'u' : ''), '<strong class="highlight">$1</strong>', $subject_highlighted);
-	}
-
 	$output['matches'][] = array(
 		'id' => $message['id_msg'],
 		'attachment' => array(),
@@ -2125,7 +2109,7 @@ function prepareSearchContext($reset = false)
 		'icon' => $message['icon'],
 		'icon_url' => $settings[$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',
 		'subject' => $message['subject'],
-		'subject_highlighted' => $subject_highlighted,
+		'subject_highlighted' => $message['subject_highlighted'],
 		'time' => timeformat($message['poster_time']),
 		'timestamp' => forum_time(true, $message['poster_time']),
 		'counter' => $counter,
@@ -2135,7 +2119,7 @@ function prepareSearchContext($reset = false)
 			'name' => $message['modified_name']
 		),
 		'body' => $message['body'],
-		'body_highlighted' => $body_highlighted,
+		'body_highlighted' => $message['body_highlighted'],
 		'start' => 'msg' . $message['id_msg']
 	);
 	$counter++;
@@ -2199,6 +2183,25 @@ function searchSort($a, $b)
 	global $searchAPI;
 
 	return $searchAPI->searchSort($a, $b);
+}
+
+/**
+ * Highlighting matching string
+ *
+ * @param string $text Text to search through
+ * @param array $words List of keywords to search
+ *
+ * @return string Text with highlighted keywords
+ */
+function highlight($text, array $words)
+{
+	$words = implode('|', array_map('preg_quote', $words));
+	$highlighted = preg_filter('/' . $words . '/i', '<span class="highlight">$0</span>', $text);
+
+	if (!empty($highlighted))
+		$text = $highlighted;
+
+	return $text;
 }
 
 ?>
