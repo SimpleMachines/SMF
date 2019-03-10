@@ -1239,7 +1239,8 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 		$request = $smcFunc['db_query']('', '
 			SELECT m.id_member, MAX(m.id_msg) AS last_post_id
 			FROM {db_prefix}messages AS m
-			WHERE {query_see_message_board} and m.id_member IN ({array_int:member_list})' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+			WHERE {query_see_message_board}
+				AND m.id_member IN ({array_int:member_list})' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				AND m.approved = {int:is_approved}') . '
 			GROUP BY m.id_member',
 			array(
@@ -1274,7 +1275,8 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 		$request = $smcFunc['db_query']('', '
 			SELECT MAX(m.poster_time) AS last_post, MAX(m.id_msg) AS last_post_id, m.id_member
 			FROM {db_prefix}messages AS m
-			WHERE {query_see_message_board} and m.id_member IN ({array_int:member_list})' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+			WHERE {query_see_message_board}
+				AND m.id_member IN ({array_int:member_list})' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				AND m.approved = {int:is_approved}') . '
 			GROUP BY m.id_member',
 			array(

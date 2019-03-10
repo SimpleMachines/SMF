@@ -506,11 +506,11 @@ function PlushSearch2()
 	if (!empty($search_params['topic']))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT b.id_board
-			FROM {db_prefix}topics AS b
-			WHERE b.id_topic = {int:search_topic_id}
-				AND {query_see_board}' . ($modSettings['postmod_active'] ? '
-				AND b.approved = {int:is_approved_true}' : '') . '
+			SELECT t.id_board
+			FROM {db_prefix}topics AS t
+			WHERE t.id_topic = {int:search_topic_id}
+				AND {query_see_topic_board}' . ($modSettings['postmod_active'] ? '
+				AND t.approved = {int:is_approved_true}' : '') . '
 			LIMIT 1',
 			array(
 				'search_topic_id' => $search_params['topic'],

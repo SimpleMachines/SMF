@@ -623,10 +623,11 @@ function showPosts($memID)
 	if ($context['is_topics'])
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
-			FROM {db_prefix}topics AS b' . '
-			WHERE {query_see_board} AND b.id_member_started = {int:current_member}' . (!empty($board) ? '
-				AND b.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
-				AND b.approved = {int:is_approved}'),
+			FROM {db_prefix}topics AS t' . '
+			WHERE {query_see_topic_board}
+				AND t.id_member_started = {int:current_member}' . (!empty($board) ? '
+				AND t.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
+				AND t.approved = {int:is_approved}'),
 			array(
 				'current_member' => $memID,
 				'is_approved' => 1,
@@ -1296,10 +1297,10 @@ function list_getNumUnwatched($memID)
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_topics as lt
-		LEFT JOIN {db_prefix}topics as b ON (lt.id_topic = b.id_topic)
-		WHERE id_member = {int:current_member}
-			AND unwatched = 1
-			AND {query_see_board}',
+		LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
+		WHERE lt.id_member = {int:current_member}
+			AND lt.unwatched = 1
+			AND {query_see_topic_board}',
 		array(
 			'current_member' => $memID,
 		)
