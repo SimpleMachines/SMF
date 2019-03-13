@@ -137,15 +137,12 @@ function html_to_bbc($text)
 	preg_match_all('~<img\b[^>]+alt="([^"]+)"[^>]+class="smiley"[^>]*>(?:\s)?~i', $text, $matches);
 	if (!empty($matches[0]))
 	{
-		// Get all our actual smiley codes
+		// Get all our smiley codes
 		$request = $smcFunc['db_query']('', '
 			SELECT code
 			FROM {db_prefix}smileys
-			WHERE code IN ({array_string:smiley_codes})
 			ORDER BY LENGTH(code) DESC',
-			array(
-				'smiley_codes' => $smiley_codes,
-			)
+			array()
 		);
 		$smiley_codes = $smcFunc['db_fetch_all']($request);
 		$smcFunc['db_free_result']($request);
