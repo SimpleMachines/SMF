@@ -628,7 +628,8 @@ function SetQuickGroups()
 				);
 
 				// Did these changes make anyone lose eligibility for the bbc_html permission?
-				if (!empty(array_diff($_POST['group'], $context['permissions_excluded']['bbc_html'])))
+				$lost_bbc_html_perm = array_diff($_POST['group'], $context['permissions_excluded']['bbc_html']);
+				if (!empty($lost_bbc_html_perm))
 					removeIllegalBBCHtmlPermission(true);
 			}
 			else
