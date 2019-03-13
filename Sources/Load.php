@@ -1059,7 +1059,7 @@ function loadBoard()
 
 	// No posting in redirection boards!
 	if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'post' && !empty($board_info['redirect']))
-		$board_info['error'] == 'post_in_redirect';
+		$board_info['error'] = 'post_in_redirect';
 
 	// Hacker... you can't see this topic, I'll tell you that. (but moderators can!)
 	if (!empty($board_info['error']) && (!empty($modSettings['deny_boards_access']) || $board_info['error'] != 'access' || !$user_info['is_mod']))
