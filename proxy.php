@@ -47,6 +47,18 @@ class ProxyServer
 	/** @var int $maxDays until entries get deleted */
 	protected $maxDays;
 
+	/** @var int $cachedtime time object cached */
+	protected $cachedtime;
+
+	/** @var string $cachedtype type of object cached */
+	protected $cachedtype;
+
+	/** @var int $cachedsize size of object cached */
+	protected $cachedsize;
+
+	/** @var string $cachedbody body of object cached */
+	protected $cachedbody;
+
 	/**
 	 * Constructor, loads up the Settings for the proxy
 	 *
@@ -67,6 +79,10 @@ class ProxyServer
 		$this->secret = (string) $image_proxy_secret;
 		$this->cache = $cachedir . '/images';
 		$this->maxDays = 5;
+		$this->cachedtime = null;
+		$this->cachedtype = null;
+		$this->cachedsize = null;
+		$this->cachedbody = null;
 	}
 
 	/**
@@ -117,9 +133,6 @@ class ProxyServer
 	public function serve()
 	{
 		$request = $_GET['request'];
-		$cached_file = $this->getCachedPath($request);
-		$cached = json_decode(file_get_contents($cached_file), true);
-
 		// Did we get an error when trying to fetch the image
 		$response = $this->checkRequest();
 		if ($response === -1)
@@ -134,10 +147,23 @@ class ProxyServer
 			$this::redirectexit($request);
 		}
 
+		// We should have a cached image at this point
+		$cached_file = $this->getCachedPath($request);
+
+		// Read from cache if you need to...
+		if ($this->cachedbody === null)
+		{
+			$cached = json_decode(file_get_contents($cached_file), true);
+			$this->cachedtime = $cached['time'];
+			$this->cachedtype = $cached['content_type'];
+			$this->cachedsize = $cached['size'];
+			$this->cachedbody = $cached['body'];
+		}
+
 		$time = time();
 
 		// Is the cache expired?
-		if (!$cached || $time - $cached['time'] > ($this->maxDays * 86400))
+		if ($time - $this->cachedtime > ($this->maxDays * 86400))
 		{
 			@unlink($cached_file);
 			if ($this->checkRequest())
@@ -145,7 +171,7 @@ class ProxyServer
 			$this::redirectexit($request);
 		}
 
-		$eTag = '"' . substr(sha1($request) . $cached['time'], 0, 64) . '"';
+		$eTag = '"' . substr(sha1($request) . $this->cachedtime, 0, 64) . '"';
 		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
 		{
 			send_http_status(304);
@@ -153,17 +179,17 @@ class ProxyServer
 		}
 
 		// Make sure we're serving an image
-		$contentParts = explode('/', !empty($cached['content_type']) ? $cached['content_type'] : '');
+		$contentParts = explode('/', !empty($this->cachedtype) ? $this->cachedtype : '');
 		if ($contentParts[0] != 'image')
 			exit;
 
-		$max_age = $time - $cached['time'] + (5 * 86400);
-		header('content-type: ' . $cached['content_type']);
-		header('content-length: ' . $cached['size']);
+		$max_age = $time - $this->cachedtime + (5 * 86400);
+		header('content-type: ' . $this->cachedtype);
+		header('content-length: ' . $this->cachedsize);
 		header('cache-control: public, max-age=' . $max_age);
-		header('last-modified: ' . gmdate('D, d M Y H:i:s', $cached['time']) . ' GMT');
+		header('last-modified: ' . gmdate('D, d M Y H:i:s', $this->cachedtime) . ' GMT');
 		header('etag: ' . $eTag);
-		echo base64_decode($cached['body']);
+		echo base64_decode($this->cachedbody);
 	}
 
 	/**
@@ -225,12 +251,18 @@ class ProxyServer
 		if ($size > ($this->maxSize * 1024))
 			return 0;
 
+		// Populate object for current serve execution (so you don't have to read it again...)
+		$this->cachedtime = time();
+		$this->cachedtype = $mime_type;
+		$this->cachedsize = $size;
+		$this->cachedbody = base64_encode($image);
+		
 		// Cache it for later
 		return file_put_contents($dest, json_encode(array(
-			'content_type' => $mime_type,
-			'size' => $size,
-			'time' => time(),
-			'body' => base64_encode($image),
+			'content_type' => $this->cachedtype,
+			'size' => $this->cachedsize,
+			'time' => $this->cachedtime,
+			'body' => $this->cachedbody,
 		))) === false ? -1 : 1;
 	}
 

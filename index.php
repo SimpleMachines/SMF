@@ -236,7 +236,7 @@ function smf_main()
 			}
 		}
 		else
-			$should_log = !empty($no_stat_actions[$_REQUEST['action']]);
+			$should_log = empty($no_stat_actions[$_REQUEST['action']]);
 	}
 	if ($should_log)
 	{
