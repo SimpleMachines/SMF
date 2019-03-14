@@ -3533,6 +3533,10 @@ div.cat_bar {
 	font-weight: normal;
 	margin: -8px 0 4px 8px;
 }
+.cat_bar .desc a {
+	color: #fff;
+	font-weight: 600;
+}
 h3.catbg {
 	overflow: hidden;
 	font-size: 1.1em;
