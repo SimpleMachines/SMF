@@ -773,6 +773,7 @@ function loadUserSettings()
 		'permissions' => array(),
 	);
 	$user_info['groups'] = array_unique($user_info['groups']);
+	$user_info['can_manage_boards'] = !empty($user_info['is_admin']) || count(array_intersect($user_info['groups'], explode(',', $modSettings['board_manager_groups']))) > 0;
 
 	// Make sure that the last item in the ignore boards array is valid. If the list was too long it could have an ending comma that could cause problems.
 	if (!empty($user_info['ignoreboards']) && empty($user_info['ignoreboards'][$tmp = count($user_info['ignoreboards']) - 1]))
@@ -951,8 +952,8 @@ function loadBoard()
 			);
 
 			// Load the membergroups allowed, and check permissions.
-			$board_info['groups'] = $row['member_groups'] == '' ? array() : explode(',', $row['member_groups']);
-			$board_info['deny_groups'] = $row['deny_member_groups'] == '' ? array() : explode(',', $row['deny_member_groups']);
+			$board_info['groups'] = array_unique(array_merge($row['member_groups'] == '' ? array() : explode(',', $row['member_groups']), explode(',', $modSettings['board_manager_groups'])));
+			$board_info['deny_groups'] = array_diff($row['deny_member_groups'] == '' ? array() : explode(',', $row['deny_member_groups']), explode(',', $modSettings['board_manager_groups']));
 
 			do
 			{

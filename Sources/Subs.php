@@ -6505,7 +6505,7 @@ function build_query_board($userid)
 	if (isset($user_info['id']) && $user_info['id'] == $userid)
 	{
 		$groups = $user_info['groups'];
-		$is_admin = $user_info['is_admin'] || allowedTo('manage_boards');
+		$can_see_all_boards = $user_info['is_admin'] || $user_info['can_manage_boards'];
 		$ignoreboards = !empty($user_info['ignoreboards']) ? $user_info['ignoreboards'] : null;
 	}
 	else
@@ -6534,13 +6534,13 @@ function build_query_board($userid)
 		foreach ($groups as $k => $v)
 			$groups[$k] = (int) $v;
 
-		$is_admin = in_array(1, $groups);
+		$can_see_all_boards = in_array(1, $groups);
 
 		$ignoreboards = !empty($row['ignore_boards']) && !empty($modSettings['allow_ignore_boards']) ? explode(',', $row['ignore_boards']) : array();
 	}
 
 	// Just build this here, it makes it easier to change/use - administrators can see all boards.
-	if ($is_admin)
+	if ($can_see_all_boards)
 		$query_part['query_see_board'] = '1=1';
 	// Otherwise just the groups in $user_info['groups'].
 	else
