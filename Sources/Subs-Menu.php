@@ -66,10 +66,10 @@ function createMenu($menuData, $menuOptions = array())
 
 	/* Allow extending *any* menu with a single hook.
 		For the sake of people searching for specific hooks, here are some common examples:
-			integrate_admin_menu
-			integrate_moderate_menu
-			integrate_pm_menu
-			integrate_profile_menu
+			integrate_admin_areas
+			integrate_moderate_areas
+			integrate_pm_areas
+			integrate_profile_areas
 	*/
 	if (!empty($menu_context['current_action']))
 		call_integration_hook('integrate_' . $menu_context['current_action'] . '_areas', array(&$menuData));
