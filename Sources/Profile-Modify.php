@@ -1314,7 +1314,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			);
 			if (empty($value))
 			{
-				$deletes = array('id_theme' => 1, 'variable' => $row['col_name'], 'id_member' => $memID);
+				$deletes[] = array('id_theme' => 1, 'variable' => $row['col_name'], 'id_member' => $memID);
 				unset($user_profile[$memID]['options'][$row['col_name']]);
 			}
 			else
@@ -1342,13 +1342,14 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				array('id_theme', 'variable', 'id_member')
 			);
 		if (!empty($deletes))
-			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}themes
-				WHERE id_theme = {int:id_theme} AND
-					variable = {string:variable} AND
-					id_member = {int:id_member}',
-				$deletes
-			);
+			foreach($deletes as $delete)
+				$smcFunc['db_query']('', '
+					DELETE FROM {db_prefix}themes
+					WHERE id_theme = {int:id_theme} AND
+						variable = {string:variable} AND
+						id_member = {int:id_member}',
+					$delete
+				);
 		if (!empty($log_changes) && !empty($modSettings['modlog_enabled']))
 		{
 			require_once($sourcedir . '/Logging.php');
