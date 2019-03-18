@@ -466,10 +466,6 @@ function template_folder()
 								<li><a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';u=', $message['member']['id'], '"><span class="main_icons reply_button"></span>', $txt['reply'], '</a></li>
 								<li><a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';quote', $context['folder'] == 'sent' ? '' : ';u=' . $message['member']['id'], '"><span class="main_icons quote"></span>', $txt['quote_action'], '</a></li>';
 				}
-				// Can personal messages be reported to admins ?
-				if ($message['can_report'])
-					echo '
-								<li><a href="' . $scripturl . '?action=pm;sa=report;l=' . $context['current_label_id'] . ';pmsg=' . $message['id'] . '"><span class="main_icons error"></span>' . $txt['pm_report_to_admin'] . '</a>';
 				// This is for "forwarding" - even if the member is gone.
 				else
 					echo '
@@ -477,6 +473,14 @@ function template_folder()
 			}
 			echo '
 								<li><a href="', $scripturl, '?action=pm;sa=pmactions;pm_actions%5b', $message['id'], '%5D=delete;f=', $context['folder'], ';start=', $context['start'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', addslashes($txt['remove_message_question']), '" class="you_sure"><span class="main_icons remove_button"></span>', $txt['delete'], '</a></li>';
+
+			// Can personal messages be reported to admins ?
+			if ($message['can_report'])
+				echo '			<li class="post_options">', $txt['post_options'], '
+									<ul>
+										<li><a href="' . $scripturl . '?action=pm;sa=report;l=' . $context['current_label_id'] . ';pmsg=' . $message['id'] . '"><span class="main_icons error"></span>' . $txt['pm_report_to_admin'] . '</a>
+									</ul>
+								</li>';
 
 			if (empty($context['display_mode']))
 				echo '
