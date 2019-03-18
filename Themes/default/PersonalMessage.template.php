@@ -443,12 +443,8 @@ function template_folder()
 					<div class="post">
 						<div class="inner" id="msg_', $message['id'], '"', '>
 							', $message['body'], '
-						</div>';
-
-			echo '
-						<div class="under_message">';
-
-			echo '
+						</div>
+						<div class="under_message">
 							<ul class="quickbuttons">';
 
 			// Show reply buttons if you have the permission to send PMs.
