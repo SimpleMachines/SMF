@@ -1993,7 +1993,7 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 .main_icons.merge::before {
 	background-position: -83px -239px;
 }
-.main_icons.folder::before {
+.main_icons.folder::before, .main_icons.label::before {
 	background-position: -109px -239px;
 }
 .main_icons.restore_button::before {
