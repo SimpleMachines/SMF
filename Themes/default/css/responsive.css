@@ -141,9 +141,8 @@
 	}
 	#footer {
 		padding: 10px;
-		text-align: center;
 	}
-	#top_section .inner_wrap, #wrapper, #header {
+	#top_section .inner_wrap, #wrapper, #header, #footer .inner_wrap {
 		width: 100%;
 	}
 	#upper_section, #inner_section, #content_section {
@@ -493,6 +492,9 @@
 		position: relative;
 		border-radius: 0;
 		left: 0;
+	}
+	#footer {
+		text-align: center;
 	}
 	#footer ul {
 		width: 100%;

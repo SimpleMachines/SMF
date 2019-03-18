@@ -1035,8 +1035,6 @@ img.sort, .sort {
 #top_section .inner_wrap, #wrapper, #header, #footer .inner_wrap {
 	max-width: 1200px;
 	margin: 0 auto;
-}
-#top_section .inner_wrap, #wrapper, #header {
 	width: 90%;
 }
 
@@ -1231,7 +1229,7 @@ ul li.greeting {
 /* The footer with copyright links etc. */
 #footer {
 	margin: 4em 0 0 0;
-	padding: 10px 5%;
+	padding: 10px 0;
 	background: #3e5a78;
 	border-top: 3px solid #b2b6bd;
 	flex: none;
