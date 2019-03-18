@@ -135,21 +135,16 @@
 		width: 100% !important;
 	}
 	#wrapper {
-		width: 100%;
 		border-left: 0;
 		border-right: 0;
 		border-radius: 0;
 	}
-	#top_section {
-		padding-left: 0;
-		padding-right: 0;
-	}
 	#footer {
 		padding: 10px;
+		text-align: center;
 	}
-	#header {
-		margin-left: 0;
-		margin-right: 0;
+	#top_section .inner_wrap, #wrapper, #header {
+		width: 100%;
 	}
 	#upper_section, #inner_section, #content_section {
 		border-radius: 0;
@@ -506,7 +501,6 @@
 	#footer li {
 		display: block;
 		float: none;
-		text-align: center;
 	}
 	/* MessageIndex */
 	#main_content_section .pagelinks {
