@@ -6534,7 +6534,7 @@ function build_query_board($userid)
 		foreach ($groups as $k => $v)
 			$groups[$k] = (int) $v;
 
-		$can_see_all_boards = in_array(1, $groups);
+		$can_see_all_boards = in_array(1, $groups) || count(array_intersect($groups, explode(',', $modSettings['board_manager_groups']))) > 0;
 
 		$ignoreboards = !empty($row['ignore_boards']) && !empty($modSettings['allow_ignore_boards']) ? explode(',', $row['ignore_boards']) : array();
 	}
