@@ -4893,7 +4893,9 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 		$request = $smcFunc['db_query']('', '
 			SELECT DISTINCT {raw:old_col}
 			FROM {db_prefix}{raw:table_name}
-			WHERE {raw:new_col} IS NULL AND {raw:old_col} != {string:unknown}
+			WHERE {raw:new_col} IS NULL AND
+				{raw:old_col} != {string:unknown} AND
+				{raw:old_col} != {string:empty}
 			LIMIT {int:limit}',
 			array(
 				'old_col' => $oldCol,
