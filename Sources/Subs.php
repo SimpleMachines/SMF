@@ -6500,17 +6500,12 @@ function build_query_board($userid)
 	global $user_info, $modSettings, $smcFunc, $db_prefix;
 
 	$query_part = array();
-	$groups = array();
-	$is_admin = false;
-	$mod_cache;
-	$ignoreboards;
 
 	// If we come from cron, we can't have a $user_info.
 	if (isset($user_info['id']) && $user_info['id'] == $userid)
 	{
 		$groups = $user_info['groups'];
-		$is_admin = $user_info['is_admin'];
-		$mod_cache = !empty($user_info['mod_cache']) ? $user_info['mod_cache'] : null;
+		$can_see_all_boards = $user_info['is_admin'] || $user_info['can_manage_boards'];
 		$ignoreboards = !empty($user_info['ignoreboards']) ? $user_info['ignoreboards'] : null;
 	}
 	else
@@ -6539,46 +6534,13 @@ function build_query_board($userid)
 		foreach ($groups as $k => $v)
 			$groups[$k] = (int) $v;
 
-		$is_admin = in_array(1, $groups);
+		$can_see_all_boards = in_array(1, $groups) || count(array_intersect($groups, explode(',', $modSettings['board_manager_groups']))) > 0;
 
 		$ignoreboards = !empty($row['ignore_boards']) && !empty($modSettings['allow_ignore_boards']) ? explode(',', $row['ignore_boards']) : array();
-
-		// What boards are they the moderator of?
-		$boards_mod = array();
-
-		$request = $smcFunc['db_query']('', '
-			SELECT id_board
-			FROM {db_prefix}moderators
-			WHERE id_member = {int:current_member}',
-			array(
-				'current_member' => $userid,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$boards_mod[] = $row['id_board'];
-		$smcFunc['db_free_result']($request);
-
-		// Can any of the groups they're in moderate any of the boards?
-		$request = $smcFunc['db_query']('', '
-			SELECT id_board
-			FROM {db_prefix}moderator_groups
-			WHERE id_group IN({array_int:groups})',
-			array(
-				'groups' => $groups,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$boards_mod[] = $row['id_board'];
-		$smcFunc['db_free_result']($request);
-
-		// Just in case we've got duplicates here...
-		$boards_mod = array_unique($boards_mod);
-
-		$mod_cache['mq'] = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';
 	}
 
 	// Just build this here, it makes it easier to change/use - administrators can see all boards.
-	if ($is_admin || allowedTo('manage_boards'))
+	if ($can_see_all_boards)
 		$query_part['query_see_board'] = '1=1';
 	// Otherwise just the groups in $user_info['groups'].
 	else
