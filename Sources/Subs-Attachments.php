@@ -969,7 +969,22 @@ function parseAttachBBC($attachID = 0)
 		return 'attachments_not_allowed_to_see';
 
 	$allAttachments = getAttachsByMsg($attachInfo['msg']);
-	$attachContext = $allAttachments[$attachInfo['msg']][$attachID];
+
+	if (isset($allAttachments[$attachInfo['msg']][$attachID]))
+		$attachContext = $allAttachments[$attachInfo['msg']][$attachID];
+
+	// In case the user manually typed the thumbnail's ID into the BBC
+	elseif (!empty($allAttachments[$attachInfo['msg']]))
+	{
+		foreach ($allAttachments[$attachInfo['msg']] as $foundAttachID => $foundAttach)
+		{
+			if ($foundAttach['id_thumb'] == $attachID)
+			{
+				$attachContext = $allAttachments[$attachInfo['msg']][$foundAttachID];
+				break;
+			}
+		}
+	}
 
 	// No point in keep going further.
 	if (!allowedTo('view_attachments', $attachContext['board']))
