@@ -1342,12 +1342,12 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				array('id_theme', 'variable', 'id_member')
 			);
 		if (!empty($deletes))
-			foreach($deletes as $delete)
+			foreach ($deletes as $delete)
 				$smcFunc['db_query']('', '
 					DELETE FROM {db_prefix}themes
-					WHERE id_theme = {int:id_theme} AND
-						variable = {string:variable} AND
-						id_member = {int:id_member}',
+					WHERE id_theme = {int:id_theme}
+						AND variable = {string:variable}
+						AND id_member = {int:id_member}',
 					$delete
 				);
 		if (!empty($log_changes) && !empty($modSettings['modlog_enabled']))
