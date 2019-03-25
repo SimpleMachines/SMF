@@ -1003,6 +1003,8 @@ function template_announcement_send()
  * 1. Change specific values in the $context['posting_fields'] array.
  * 2. Add an 'html' element to the 'label' and/or 'input' elements of the field they want to
  *    change. This should contain the literal HTML string to be printed.
+ *
+ * See the documentation in Post.php for more info on the $context['posting_fields'] array.
  */
 function template_post_header()
 {
