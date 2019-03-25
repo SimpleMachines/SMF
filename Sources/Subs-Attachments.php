@@ -981,6 +981,7 @@ function parseAttachBBC($attachID = 0)
 			if ($foundAttach['id_thumb'] == $attachID)
 			{
 				$attachContext = $allAttachments[$attachInfo['msg']][$foundAttachID];
+				$attachID = $foundAttachID;
 				break;
 			}
 		}
