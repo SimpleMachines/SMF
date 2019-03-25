@@ -1421,7 +1421,7 @@ function Post($post_errors = array())
 	);
 	foreach ($context['icons'] as $icon)
 	{
-		$context['posting_fields']['icon']['input']['options'][$icon['name']]['attributes'] = array(
+		$context['posting_fields']['icon']['input']['options'][$icon['name']] = array(
 			'value' => $icon['value'],
 			'selected' => $icon['value'] == $context['icon'],
 		);

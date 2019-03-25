@@ -1042,7 +1042,7 @@ function template_post_header()
 			echo $pf['label']['html'];
 		else
 			echo '
-							<label for="', !empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid, '" id="caption_', $pfid, '"', !empty($pf['label']['class']) ? ' class="' . $pf['label']['class'] . '"' : '', '>', $pf['label']['text'], '</label>';
+							<label', ($pf['input']['type'] === 'radio_select' ? '' : ' for="' . (!empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid) . '"'), ' id="caption_', $pfid, '"', !empty($pf['label']['class']) ? ' class="' . $pf['label']['class'] . '"' : '', '>', $pf['label']['text'], '</label>';
 
 		// Any trailing HTML after the label
 		if (!empty($pf['label']['after']))
@@ -1144,28 +1144,30 @@ function template_post_header()
 					echo '
 								<optgroup';
 
-					if (empty($option['attributes']['label']))
+					if (empty($option['label']))
 						echo ' label="', $optlabel, '"';
 
-					if (!empty($option['attributes']) && is_array($option['attributes']))
+					if (!empty($option) && is_array($option))
 					{
-						foreach ($option['attributes'] as $attribute => $value)
+						foreach ($option as $attribute => $value)
 						{
-							if (is_bool($value))
+							if ($attribute === 'options')
+								continue;
+							elseif (is_bool($value))
 								echo $value ? ' ' . $attribute : '';
 							else
 								echo ' ', $attribute, '="', $value, '"';
 						}
 					}
 
-					echo '">';
+					echo '>';
 
 					foreach ($option['options'] as $grouped_optlabel => $grouped_option)
 					{
 						echo '
 									<option';
 
-						foreach ($grouped_option['attributes'] as $attribute => $value)
+						foreach ($grouped_option as $attribute => $value)
 						{
 							if (is_bool($value))
 								echo $value ? ' ' . $attribute : '';
@@ -1186,7 +1188,7 @@ function template_post_header()
 					echo '
 								<option';
 
-					foreach ($option['attributes'] as $attribute => $value)
+					foreach ($option as $attribute => $value)
 					{
 						if (is_bool($value))
 							echo $value ? ' ' . $attribute : '';
@@ -1226,17 +1228,19 @@ function template_post_header()
 			foreach ($pf['input']['options'] as $optlabel => $option)
 			{
 				echo '
-							<input type="radio" name="', !empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid, '"';
+							<label style="margin-right:2ch"><input type="radio" name="', !empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid, '"';
 
-				foreach ($option['attributes'] as $attribute => $value)
+				foreach ($option as $attribute => $value)
 				{
-					if (is_bool($value))
-						echo $value ? ' ' . $attribute : '';
+					if ($attribute === 'label')
+						continue;
+					elseif (is_bool($value))
+						echo $value ? ' ' . ($attribute === 'selected' ? 'checked' : $attribute) : '';
 					else
 						echo ' ', $attribute, '="', $value, '"';
 				}
 
-				echo ' tabindex="', $context['tabindex']++, '">', $optlabel, '</input>';
+				echo ' tabindex="', $context['tabindex']++, '"> ', isset($option['label']) ? $option['label'] : $optlabel, '</label>';
 			}
 
 			echo '
