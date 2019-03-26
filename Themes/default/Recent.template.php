@@ -41,30 +41,8 @@ function template_recent()
 			</div>
 			<div class="list_posts">', $post['message'], '</div>';
 
-		$quickbuttons = array(
-			'reply' => array(
-				'label' => $txt['reply'],
-				'href' => $scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'],
-				'icon' => 'reply_button',
-				'show' => $post['can_reply']
-			),
-			'quote' => array(
-				'label' => $txt['quote_action'],
-				'href' => $scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'].';quote='.$post['id'],
-				'icon' => 'quote',
-				'show' => $post['can_quote']
-			),
-			'delete' => array(
-				'label' => $txt['remove'],
-				'href' => $scripturl.'?action=deletemsg;msg='.$post['id'].';topic='.$post['topic'].';recent;'.$context['session_var'].'='.$context['session_id'],
-				'javascript' => 'data-confirm="'.$txt['remove_message'].'" class="you_sure"',
-				'icon' => 'remove_button',
-				'show' => $post['can_delete']
-			),
-		);
-
 		// Post options
-		template_quickbuttons($quickbuttons, 'recent');
+		template_quickbuttons($post['quickbuttons'], 'recent');
 
 		echo '
 		</div><!-- $post[css_class] -->';
