@@ -566,7 +566,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 				$value['id'] = $key;
 
 			$button = '
-				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>' . $txt[$value['text']] . '</a>';
+				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>'.(!empty($value['icon']) ? '<span class="main_icons '.$value['icon'].'"></span>' : '').'' . $txt[$value['text']] . '</a>';
 
 			if (!empty($value['sub_buttons']))
 			{
@@ -603,6 +603,93 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 		<div class="buttonlist', !empty($direction) ? ' float' . $direction : '', '"', (empty($buttons) ? ' style="display: none;"' : ''), (!empty($strip_options['id']) ? ' id="' . $strip_options['id'] . '"' : ''), '>
 			', implode('', $buttons), '
 		</div>';
+}
+
+/**
+ * Generate a list of quickbuttons.
+ *
+ * @param array $list_items An array with info for displaying the strip
+ * @param string $list_id unique list id, used for integration hooks
+ */
+function template_quickbuttons($list_items, $list_id = null)
+{
+	global $txt;
+
+	// Enable manipulation with hooks
+	if(!empty($list_id))
+		call_integration_hook('integrate_' . $list_id . '_quickbuttons', array(&$list_items));
+
+	// Make sure the list has at least one shown item
+	foreach ($list_items as $key => $li)
+	{
+		// Is there a sublist, and does it have any shown items
+		if ($key == 'more')
+		{
+			foreach ($li as $subkey => $subli)
+				if (isset($subli['show']) && !$subli['show'])
+					unset($list_items[$key][$subkey]);
+
+			if (empty($list_items[$key]))
+				unset($list_items[$key]);
+		}
+		// A normal list item
+		else
+		{
+			if (isset($li['show']) && !$li['show'])
+				unset($list_items[$key]);
+
+			if (empty($li['sublist']))
+				continue;
+		}
+	}
+
+	// Now check if there are any items left
+	if (empty($list_items))
+		return;
+
+	// Print the quickbuttons
+	echo '
+		<ul', !empty($list_id) ? ' id="quickbuttons_'.$list_id.'"' : '', ' class="quickbuttons">';
+
+	$list_item_format = function($li) {
+		echo '
+			<li', !empty($li['class']) ? ' class="'.$li['class'].'"' : '', '', !empty($li['id']) ? ' id="'.$li['id'].'"' : '', '', !empty($li['custom']) ? $li['custom'] : '', '>';
+
+		if(isset($li['content']))
+			echo $li['content'];
+		else
+			echo '
+				<a', !empty($li['href']) ? ' href="'.$li['href'].'"' : '', '', !empty($li['javascript']) ? $li['javascript'] : '', '>
+					', !empty($li['icon']) ? '<span class="main_icons '.$li['icon'].'"></span>' : '', '', !empty($li['label']) ? $li['label'] : '', '
+				</a>';
+
+		echo '
+			</li>';
+	};
+
+	foreach ($list_items as $key => $li)
+	{
+		// Handle the sublist
+		if($key == 'more')
+		{
+			echo '
+			<li class="post_options">', $txt['post_options'], '
+				<ul>';
+
+			foreach ($li as $subli)
+				$list_item_format($subli);
+
+			echo '
+				</ul>
+			</li>';
+		}
+		// Ordinary list item
+		else
+			$list_item_format($li);
+	}
+
+	echo '
+		</ul><!-- .quickbuttons -->';
 }
 
 /**

@@ -441,51 +441,13 @@ function template_folder()
 					<div class="post">
 						<div class="inner" id="msg_', $message['id'], '"', '>
 							', $message['body'], '
-						</div>';
-
-			if ($message['can_report'] || $context['can_send_pm'])
-				echo '
+						</div>
 						<div class="under_message">';
 
-			if ($message['can_report'])
-				echo '
-							<a href="' . $scripturl . '?action=pm;sa=report;l=' . $context['current_label_id'] . ';pmsg=' . $message['id'] . '" class="floatright">' . $txt['pm_report_to_admin'] . '</a>';
+			// Message options
+			template_quickbuttons($message['quickbuttons'], 'pm');
 
 			echo '
-							<ul class="quickbuttons">';
-
-			// Show reply buttons if you have the permission to send PMs.
-			if ($context['can_send_pm'])
-			{
-				// You can't really reply if the member is gone.
-				if (!$message['member']['is_guest'])
-				{
-					// Is there than more than one recipient you can reply to?
-					if ($message['number_recipients'] > 1)
-						echo '
-								<li><a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';quote;u=all"><span class="main_icons reply_all_button"></span>', $txt['reply_to_all'], '</a></li>';
-
-					echo '
-								<li><a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';u=', $message['member']['id'], '"><span class="main_icons reply_button"></span>', $txt['reply'], '</a></li>
-								<li><a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';quote', $context['folder'] == 'sent' ? '' : ';u=' . $message['member']['id'], '"><span class="main_icons quote"></span>', $txt['quote_action'], '</a></li>';
-				}
-				// This is for "forwarding" - even if the member is gone.
-				else
-					echo '
-								<li><a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';quote"><span class="main_icons quote"></span>', $txt['reply_quote'], '</a></li>';
-			}
-			echo '
-								<li><a href="', $scripturl, '?action=pm;sa=pmactions;pm_actions%5b', $message['id'], '%5D=delete;f=', $context['folder'], ';start=', $context['start'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', addslashes($txt['remove_message_question']), '" class="you_sure"><span class="main_icons remove_button"></span>', $txt['delete'], '</a></li>';
-
-			if (empty($context['display_mode']))
-				echo '
-								<li><input type="checkbox" name="pms[]" id="deletedisplay', $message['id'], '" value="', $message['id'], '" onclick="document.getElementById(\'deletelisting', $message['id'], '\').checked = this.checked;"></li>';
-
-			echo '
-							</ul>';
-
-			if ($message['can_report'] || $context['can_send_pm'])
-				echo '
 						</div><!-- .under_message -->';
 
 			// Are there any custom profile fields for above the signature?
@@ -1980,20 +1942,28 @@ function template_showPMDrafts()
 		<div class="windowbg">
 			<div class="counter">', $draft['counter'], '</div>
 			<div class="topic_details">
+				<div class="floatright smalltext righttext">
+					<div class="recipient_to">&#171;&nbsp;<strong>', $txt['to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '&nbsp;&#187;</div>';
+
+			if(!empty($draft['recipients']['bcc']))
+				echo'
+					<div class="pm_bbc">&#171;&nbsp;<strong>', $txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '&nbsp;&#187;</div>';
+
+			echo '
+				</div>
 				<h5>
 					<strong>', $draft['subject'], '</strong>
 				</h5>
 				<span class="smalltext">&#171;&nbsp;<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '&#187;</span><br>
-				<span class="smalltext">&#171;&nbsp;<strong>', $txt['to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '&nbsp;&#187;</span><br>
-				<span class="smalltext">&#171;&nbsp;<strong>', $txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '&nbsp;&#187;</span>
 			</div>
 			<div class="list_posts">
 				', $draft['body'], '
-			</div>
-			<ul class="quickbuttons">
-				<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;id_draft=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="main_icons modifybutton"></span>', $txt['draft_edit'], '</a></li>
-				<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['draft_remove'], '?" class="you_sure"><span class="main_icons remove_button"></span>', $txt['draft_delete'], '</a></li>
-			</ul>
+			</div>';
+
+			// Draft buttons
+			template_quickbuttons($draft['quickbuttons'], 'pm_drafts');
+
+			echo '
 		</div><!-- .windowbg -->';
 		}
 	}

@@ -1101,6 +1101,51 @@ function prepareMessageContext($type = 'subject', $reset = false)
 
 	call_integration_hook('integrate_prepare_pm_context', array(&$output, &$message, $counter));
 
+	$output['quickbuttons'] = array(
+		'reply_to_all' => array(
+			'label' => $txt['reply_to_all'],
+			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';quote;u=all',
+			'icon' => 'reply_all_button',
+			'show' => $context['can_send_pm'] && !$output['member']['is_guest'] && $output['number_recipients'] > 1
+		),
+		'reply' => array(
+			'label' => $txt['reply'],
+			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';u='.$output['member']['id'],
+			'icon' => 'reply_button',
+			'show' => $context['can_send_pm'] && !$output['member']['is_guest']
+		),
+		'quote' => array(
+			'label' => $txt['quote_action'],
+			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';quote'.($context['folder'] == 'sent' ? '' : ';u=' .$output['member']['id']),
+			'icon' => 'quote',
+			'show' => $context['can_send_pm'] && !$output['member']['is_guest']
+		),
+		'reply_quote' => array(
+			'label' => $txt['reply_quote'],
+			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';quote',
+			'icon' => 'quote',
+			'show' => $context['can_send_pm'] && $output['member']['is_guest']
+		),
+		'delete' => array(
+			'label' => $txt['delete'],
+			'href' => $scripturl.'?action=pm;sa=pmactions;pm_actions%5b'.$output['id'].'%5D=delete;f='.$context['folder'].';start='.$context['start'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';'.$context['session_var'].'='.$context['session_id'],
+			'javascript' => 'data-confirm="'.addslashes($txt['remove_message_question']).'" class="you_sure"',
+			'icon' => 'remove_button',
+		),
+		'more' => array(
+			'report' => array(
+				'label' => $txt['pm_report_to_admin'],
+				'href' => $scripturl .'?action=pm;sa=report;l=' .$context['current_label_id'] .';pmsg=' .$output['id'],
+				'icon' => 'error',
+				'show' => $output['can_report']
+			),
+		),
+		'quickmod' => array(
+			'content' => '<input type="checkbox" name="pms[]" id="deletedisplay'.$output['id'].'" value="'.$output['id'].'" onclick="document.getElementById(\'deletelisting'.$output['id'].'\').checked = this.checked;">',
+			'show' => empty($context['display_mode'])
+		)
+	);
+
 	return $output;
 }
 

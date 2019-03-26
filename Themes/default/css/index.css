@@ -1018,6 +1018,11 @@ img.sort, .sort {
 	border-right: none;
 	box-shadow: -1px 0 0 rgba(255, 255, 255, 0.7);
 }
+/* in a titlebg, the buttonlist is of small height */
+.titlebg .buttonlist {
+	margin: 0;
+	padding: 0;
+}
 
 /* Styles for the general looks of the theme.
 ------------------------------------------------------- */
@@ -1681,7 +1686,7 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 }
 
 /* Small fix for topics */
-.quickbuttons span.main_icons {
+.quickbuttons span.main_icons, .button span.main_icons {
 	margin: -3px 3px 0 1px;
 }
 .quickbuttons span.main_icons.quote,
@@ -2320,7 +2325,6 @@ dl {
 	float: left;
 }
 .topic_details {
-	width: 94%;
 	padding: 0 4px 4px 4px;
 }
 .list_posts {
@@ -3537,6 +3541,9 @@ h3.catbg .main_icons::before, h3.catbg .icon {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
+.cat_bar + .title_bar {
+	margin-top: 0;
+}
 /* Roundframe */
 .roundframe {
 	margin: 10px 0 0 0;
@@ -3577,6 +3584,11 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	background: none;
 	color: #555;
 	text-decoration: none;
+}
+.title_bar + .windowbg, .title_bar + .roundframe {
+	margin-top: -1px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 
 /* Other */
@@ -3784,9 +3796,6 @@ h3.profile_hd {
 #reported_posts .quickbuttons li a,
 #reported_members .quickbuttons li a {
 	background: none;
-}
-#modcenter .main_icons {
-	margin: -3px -3px 0 0;
 }
 
 /* Some colors for generic usage */
