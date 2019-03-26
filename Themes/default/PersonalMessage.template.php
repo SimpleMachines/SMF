@@ -891,9 +891,7 @@ function template_search_results()
 					<span class="floatright">', $txt['search_on'], ': ', $message['time'], '</span>
 					<span class="floatleft">', $message['counter'], '&nbsp;&nbsp;<a href="', $message['href'], '">', $message['subject'], '</a></span>
 				</h3>
-			</div>
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['from'], ': ', $message['member']['link'], ', ', $txt['to'], ': ';
+				<div class="desc">', $txt['from'], ': ', $message['member']['link'], ', ', $txt['to'], ': ';
 
 			// Show the recipients.
 			// @todo This doesn't deal with the sent item searching quite right for bcc.
@@ -905,6 +903,7 @@ function template_search_results()
 				echo '(', $txt['pm_undisclosed_recipients'], ')';
 
 			echo '
+					</div>
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -913,19 +912,28 @@ function template_search_results()
 
 			if ($context['can_send_pm'])
 			{
-				$quote_button = create_button('quote.png', 'reply_quote', 'reply_quote', 'class="centericon"');
-				$reply_button = create_button('im_reply.png', 'reply', 'reply', 'class="centericon"');
-
-				// You can only reply if they are not a guest...
-				if (!$message['member']['is_guest'])
-					echo '
-					<a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';quote;u=', $context['folder'] == 'sent' ? '' : $message['member']['id'], '">', $quote_button, '</a>', $context['menu_separator'], '
-					<a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';u=', $message['member']['id'], '">', $reply_button, '</a> ', $context['menu_separator'];
-
-				// This is for "forwarding" - even if the member is gone.
-				else
-					echo '
-					<a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';quote">', $quote_button, '</a>', $context['menu_separator'];
+				$quickbuttons = array(
+					'quote' => array(
+						'label' => $txt['reply_quote'],
+						'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '').';pmsg='.$message['id'].';quote;u='.($context['folder'] == 'sent' ? '' : $message['member']['id']),
+						'icon' => 'quote',
+						'show' => !$message['member']['is_guest']
+					),
+					'reply' => array(
+						'label' => $txt['reply'],
+						'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '').';pmsg='.$message['id'].';u='.$message['member']['id'],
+						'icon' => 'reply_button',
+						'show' => !$message['member']['is_guest']
+					),
+					'reply_quote' => array(
+						'label' => $txt['reply_quote'],
+						'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '').';pmsg='.$message['id'].';quote',
+						'icon' => 'quote',
+						'show' => $message['member']['is_guest']
+					)
+				);
+				// Show the quickbuttons
+				template_quickbuttons($quickbuttons, 'pm_search_results');
 			}
 
 			echo '

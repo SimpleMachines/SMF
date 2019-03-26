@@ -4408,32 +4408,6 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 }
 
 /**
- * Creates an image/text button
- *
- * @param string $name The name of the button (should be a main_icons class or the name of an image)
- * @param string $alt The alt text
- * @param string $label The $txt string to use as the label
- * @param string $custom Custom text/html to add to the img tag (only when using an actual image)
- * @param boolean $force_use Whether to force use of this when template_create_button is available
- * @return string The HTML to display the button
- */
-function create_button($name, $alt, $label = '', $custom = '', $force_use = false)
-{
-	global $settings, $txt;
-
-	// Does the current loaded theme have this and we are not forcing the usage of this function?
-	if (function_exists('template_create_button') && !$force_use)
-		return template_create_button($name, $alt, $label = '', $custom = '');
-
-	if (!$settings['use_image_buttons'])
-		return $txt[$alt];
-	elseif (!empty($settings['use_buttons']))
-		return '<span class="main_icons ' . $name . '" alt="' . $txt[$alt] . '"></span>' . ($label != '' ? '&nbsp;<strong>' . $txt[$label] . '</strong>' : '');
-	else
-		return '<img src="' . $settings['lang_images_url'] . '/' . $name . '" alt="' . $txt[$alt] . '" ' . $custom . '>';
-}
-
-/**
  * Sets up all of the top menu buttons
  * Saves them in the cache if it is available and on
  * Places the results in $context

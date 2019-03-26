@@ -611,7 +611,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
  * @param array $list_items An array with info for displaying the strip
  * @param string $list_id unique list id, used for integration hooks
  */
-function template_quickbuttons($list_items, $list_id = null)
+function template_quickbuttons($list_items, $list_id = null, $output_method = 'echo')
 {
 	global $txt;
 
@@ -633,14 +633,8 @@ function template_quickbuttons($list_items, $list_id = null)
 				unset($list_items[$key]);
 		}
 		// A normal list item
-		else
-		{
-			if (isset($li['show']) && !$li['show'])
-				unset($list_items[$key]);
-
-			if (empty($li['sublist']))
-				continue;
-		}
+		elseif (isset($li['show']) && !$li['show'])
+			unset($list_items[$key]);
 	}
 
 	// Now check if there are any items left
@@ -648,23 +642,27 @@ function template_quickbuttons($list_items, $list_id = null)
 		return;
 
 	// Print the quickbuttons
-	echo '
-		<ul', !empty($list_id) ? ' id="quickbuttons_'.$list_id.'"' : '', ' class="quickbuttons">';
+	$output = '
+		<ul' . (!empty($list_id) ? ' id="quickbuttons_'.$list_id.'"' : '') . ' class="quickbuttons">';
 
-	$list_item_format = function($li) {
-		echo '
-			<li', !empty($li['class']) ? ' class="'.$li['class'].'"' : '', '', !empty($li['id']) ? ' id="'.$li['id'].'"' : '', '', !empty($li['custom']) ? $li['custom'] : '', '>';
+	// This is used for a list item or a sublist item
+	$list_item_format = function($li)
+	{
+		$html = '
+			<li' . (!empty($li['class']) ? ' class="'.$li['class'].'"' : '') . (!empty($li['id']) ? ' id="'.$li['id'].'"' : '') . (!empty($li['custom']) ? $li['custom'] : '') . '>';
 
 		if(isset($li['content']))
-			echo $li['content'];
+			$html .= $li['content'];
 		else
-			echo '
-				<a', !empty($li['href']) ? ' href="'.$li['href'].'"' : '', '', !empty($li['javascript']) ? $li['javascript'] : '', '>
-					', !empty($li['icon']) ? '<span class="main_icons '.$li['icon'].'"></span>' : '', '', !empty($li['label']) ? $li['label'] : '', '
+			$html .= '
+				<a' . (!empty($li['href']) ? ' href="'.$li['href'].'"' : '') . (!empty($li['javascript']) ? $li['javascript'] : '') . '>
+					' . (!empty($li['icon']) ? '<span class="main_icons '.$li['icon'].'"></span>' : '') . (!empty($li['label']) ? $li['label'] : '') . '
 				</a>';
 
-		echo '
+		$html .= '
 			</li>';
+
+		return $html;
 	};
 
 	foreach ($list_items as $key => $li)
@@ -672,24 +670,30 @@ function template_quickbuttons($list_items, $list_id = null)
 		// Handle the sublist
 		if($key == 'more')
 		{
-			echo '
-			<li class="post_options">', $txt['post_options'], '
+			$output .= '
+			<li class="post_options">' . $txt['post_options'] . '
 				<ul>';
 
 			foreach ($li as $subli)
-				$list_item_format($subli);
+				$output .= $list_item_format($subli);
 
-			echo '
+			$output .= '
 				</ul>
 			</li>';
 		}
 		// Ordinary list item
 		else
-			$list_item_format($li);
+			$output .= $list_item_format($li);
 	}
 
-	echo '
+	$output .= '
 		</ul><!-- .quickbuttons -->';
+
+	// There are a few spots where the result needs to be returned
+	if($output_method == 'echo')
+		echo $output;
+	else
+		return $output;
 }
 
 /**
