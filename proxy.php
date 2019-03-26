@@ -10,14 +10,14 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
 	define('SMF', 'proxy');
 
 if (!defined('SMF_VERSION'))
-	define('SMF_VERSION', '2.1 RC1');
+	define('SMF_VERSION', '2.1 RC2');
 
 if (!defined('SMF_FULL_VERSION'))
 	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
@@ -256,7 +256,7 @@ class ProxyServer
 		$this->cachedtype = $mime_type;
 		$this->cachedsize = $size;
 		$this->cachedbody = base64_encode($image);
-		
+
 		// Cache it for later
 		return file_put_contents($dest, json_encode(array(
 			'content_type' => $this->cachedtype,
