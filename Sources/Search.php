@@ -1704,7 +1704,7 @@ function PlushSearch2()
 		$request = $smcFunc['db_search_query']('', '
 			SELECT ' . (empty($search_params['topic']) ? 'lsr.id_topic' : $search_params['topic'] . ' AS id_topic') . ', lsr.id_msg, lsr.relevance, lsr.num_matches
 			FROM {db_prefix}log_search_results AS lsr' . ($join_topic ? '
-				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '	
+				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '
 			WHERE lsr.id_search = {int:id_search}
 			' . ($only_approved ? ' AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY {raw:sort} {raw:sort_dir}
