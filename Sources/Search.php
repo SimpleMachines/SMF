@@ -1699,11 +1699,14 @@ function PlushSearch2()
 
 		// *** Retrieve the results to be shown on the page
 		$participants = array();
+		$only_approved = $modSettings['postmod_active'] && !allowedTo('approve_posts') && !allowedTo('manage_boards');
+		$join_topic = $only_approved || $search_params['sort'] == 'num_replies';
 		$request = $smcFunc['db_search_query']('', '
 			SELECT ' . (empty($search_params['topic']) ? 'lsr.id_topic' : $search_params['topic'] . ' AS id_topic') . ', lsr.id_msg, lsr.relevance, lsr.num_matches
-			FROM {db_prefix}log_search_results AS lsr' . ($search_params['sort'] == 'num_replies' ? '
-				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '
+			FROM {db_prefix}log_search_results AS lsr' . ($join_topic ? '
+				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '	
 			WHERE lsr.id_search = {int:id_search}
+			' . ($only_approved ? ' AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY {raw:sort} {raw:sort_dir}
 			LIMIT {int:start}, {int:max}',
 			array(
@@ -1712,6 +1715,7 @@ function PlushSearch2()
 				'sort_dir' => $search_params['sort_dir'],
 				'start' => $_REQUEST['start'],
 				'max' => $modSettings['search_results_per_page'],
+				'is_approved' => 1,
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
