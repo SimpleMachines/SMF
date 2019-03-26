@@ -2766,7 +2766,7 @@ tr.windowbg:hover {
 }
 
 /* Special treatment for #forumposts area */
-#forumposts .windowbg, #forumposts .approvebg, #forumposts .approvebg2 {
+#forumposts .windowbg, #forumposts .approvebg, #forumposts .approvebg2, #pmFolder .windowbg {
 	overflow: visible;
 }
 /* Nobody wants locked topics to stand out much. */
