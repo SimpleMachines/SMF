@@ -322,6 +322,7 @@ function RecentPosts()
 		return;
 	}
 
+	$only_approved = $modSettings['postmod_active'] && !allowedTo('approve_posts') && !allowedTo('manage_boards');
 	// Get all the most recent posts.
 	$request = $smcFunc['db_query']('', '
 		SELECT
@@ -336,12 +337,14 @@ function RecentPosts()
 			INNER JOIN {db_prefix}messages AS m2 ON (m2.id_msg = t.id_first_msg)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			LEFT JOIN {db_prefix}members AS mem2 ON (mem2.id_member = m2.id_member)
-		WHERE m.id_msg IN ({array_int:message_list})
+		WHERE m.id_msg IN ({array_int:message_list}) ' . ($only_approved ? '
+			AND t.approved = {int:is_approved}' : '') . '
 		ORDER BY m.id_msg DESC
 		LIMIT {int:limit}',
 		array(
 			'message_list' => $messages,
 			'limit' => count($messages),
+			'is_approved' => 1,
 		)
 	);
 	$counter = $_REQUEST['start'] + 1;
