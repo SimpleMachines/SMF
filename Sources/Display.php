@@ -1691,7 +1691,7 @@ function prepareDisplayContext($reset = false)
 			),
 			'remove_topic' => array(
 				'label' => $txt['remove_topic'],
-				'href' => $scripturl.'?action=removetopic2;topic='.$context['current_topic'].'.'.$context['start'].';'.$context['session_var'], '='.$context['session_id'],
+				'href' => $scripturl.'?action=removetopic2;topic='.$context['current_topic'].'.'.$context['start'].';'.$context['session_var'].'='.$context['session_id'],
 				'javascript' => 'data-confirm="'.$txt['are_sure_remove_topic'].'" class="you_sure"',
 				'icon' => 'remove_button',
 				'show' => $context['can_delete'] && ($context['topic_first_message'] == $output['id'])
@@ -1717,7 +1717,7 @@ function prepareDisplayContext($reset = false)
 			),
 			'warn' => array(
 				'label' => $txt['issue_warning'],
-				'href' => $scripturl, '?action=profile;area=issuewarning;u=', $output['member']['id'], ';msg='.$output['id'],
+				'href' => $scripturl, '?action=profile;area=issuewarning;u='.$output['member']['id'].';msg='.$output['id'],
 				'icon' => 'warn_button',
 				'show' => $context['can_issue_warning'] && !$output['is_message_author'] && !$output['member']['is_guest']
 			),
@@ -1729,13 +1729,13 @@ function prepareDisplayContext($reset = false)
 			),
 			'approve' => array(
 				'label' => $txt['approve'],
-				'href' => $scripturl.'?action=moderate;area=postmod;sa=approve;topic='.$context['current_topic'], '.'.$context['start'], ';msg='.$output['id'], ';'.$context['session_var'], '='.$context['session_id'],
+				'href' => $scripturl.'?action=moderate;area=postmod;sa=approve;topic='.$context['current_topic'].'.'.$context['start'].';msg='.$output['id'].';'.$context['session_var'].'='.$context['session_id'],
 				'icon' => 'approve_button',
 				'show' => $output['can_approve']
 			),
 			'unapprove' => array(
 				'label' => $txt['unapprove'],
-				'href' => $scripturl.'?action=moderate;area=postmod;sa=approve;topic='.$context['current_topic'].'.'.$context['start'].';msg='.$output['id'].';'.$context['session_var'], '='.$context['session_id'],
+				'href' => $scripturl.'?action=moderate;area=postmod;sa=approve;topic='.$context['current_topic'].'.'.$context['start'].';msg='.$output['id'].';'.$context['session_var'].'='.$context['session_id'],
 				'icon' => 'unapprove_button',
 				'show' => $output['can_unapprove']
 			),
