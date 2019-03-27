@@ -454,9 +454,6 @@ function RecentPosts()
 		$context['posts'][$counter]['can_quote'] = $context['posts'][$counter]['can_reply'] && $quote_enabled;
 	}
 
-	// Allow last minute changes.
-	call_integration_hook('integrate_recent_RecentPosts');
-
 	// Last but not least, the quickbuttons
 	foreach ($context['posts'] as $key => $post)
 	{
@@ -482,6 +479,9 @@ function RecentPosts()
 			),
 		);
 	}
+
+	// Allow last minute changes.
+	call_integration_hook('integrate_recent_RecentPosts');
 }
 
 /**
