@@ -838,13 +838,16 @@ function showPosts($memID)
 			)
 		);
 
+	// Create an array for the permissions.
+	$boards_can = boardsAllowedTo(array('post_reply_own', 'post_reply_any', 'delete_own', 'delete_any'), true, false);
+
 	// For every permission in the own/any lists...
 	foreach ($permissions as $type => $list)
 	{
 		foreach ($list as $permission => $allowed)
 		{
 			// Get the boards they can do this on...
-			$boards = boardsAllowedTo($permission);
+			$boards = $boards_can[$permission];
 
 			// Hmm, they can do it on all boards, can they?
 			if (!empty($boards) && $boards[0] == 0)
