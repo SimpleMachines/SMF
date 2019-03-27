@@ -77,17 +77,18 @@ function UnapprovedPosts()
 		$approve_query = ' AND 1=0';
 
 	// We also need to know where we can delete topics and/or replies to.
+	$boards_can = boardsAllowedTo(array('remove_any', 'remove_own', 'delete_own', 'delete_any', 'delete_own_replies'), true, false);
 	if ($context['current_view'] == 'topics')
 	{
-		$delete_own_boards = boardsAllowedTo('remove_own');
-		$delete_any_boards = boardsAllowedTo('remove_any');
+		$delete_own_boards = $boards_can['remove_own'];
+		$delete_any_boards = $boards_can['remove_any'];
 		$delete_own_replies = array();
 	}
 	else
 	{
-		$delete_own_boards = boardsAllowedTo('delete_own');
-		$delete_any_boards = boardsAllowedTo('delete_any');
-		$delete_own_replies = boardsAllowedTo('delete_own_replies');
+		$delete_own_boards = $boards_can['delete_own'];
+		$delete_any_boards = $boards_can['delete_any'];
+		$delete_own_replies = $boards_can['delete_own_replies'];
 	}
 
 	$toAction = array();
