@@ -636,7 +636,7 @@ function showPosts($memID)
 		);
 	else
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
+			SELECT COUNT(id_msg)
 			FROM {db_prefix}messages AS m' . ($user_info['query_see_board'] == '1=1' ? '' : '
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})') . '
 			WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
@@ -1891,10 +1891,8 @@ function list_getIPMessageCount($where, $where_vars = array())
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(id_msg)
 		FROM {db_prefix}messages AS m
-		WHERE {raw:query_see_board} AND ' . $where,
-		array_merge($where_vars, array(
-			'query_see_board' => str_replace('b.', 'm.', $user_info['query_see_board']),
-		))
+		WHERE {query_see_message_board} AND ' . $where,
+		$where_vars
 	);
 	list ($count) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
@@ -1923,14 +1921,13 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 			m.subject, m.poster_time, m.id_topic, m.id_board
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-		WHERE {raw:query_see_board} AND ' . $where . '
+		WHERE {query_see_message_board} AND ' . $where . '
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:max}',
 		array_merge($where_vars, array(
 			'sort' => $sort,
 			'start' => $start,
 			'max' => $items_per_page,
-			'query_see_board' => str_replace('b.', 'm.', $user_info['query_see_board']),
 		))
 	);
 	$messages = array();
