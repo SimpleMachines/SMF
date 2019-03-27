@@ -197,8 +197,8 @@ function template_viewmodreport()
 		)
 	);
 
-					// Report buttons 
-					template_button_strip($report_buttons, 'right');
+	// Report buttons 
+	template_button_strip($report_buttons, 'right');
 
 	echo '
 				</h3>
@@ -477,8 +477,9 @@ function template_viewmemberreport()
 		)
 	);
 
-					// Report buttons
-					template_button_strip($report_buttons, 'right');
+	// Report buttons
+	template_button_strip($report_buttons, 'right');
+
 	echo '
 				</h3>
 			</div>
