@@ -905,6 +905,10 @@ function assignAttachments($attachIDs = array(), $msgID = 0)
 function parseAttachBBC($attachID = 0)
 {
 	global $board, $modSettings, $context, $scripturl, $smcFunc;
+	static $view_attachment_boards;
+
+	if (!isset($view_attachment_boards))
+		$view_attachment_boards = boardsAllowedTo('view_attachments');
 
 	// Meh...
 	if (empty($attachID))
@@ -920,7 +924,7 @@ function parseAttachBBC($attachID = 0)
 	if (!empty($externalParse) && (is_string($externalParse) || is_array($externalParse)))
 		return $externalParse;
 
-	//Are attachments enable?
+	// Are attachments enabled?
 	if (empty($modSettings['attachmentEnable']))
 		return 'attachments_not_enable';
 
@@ -954,7 +958,7 @@ function parseAttachBBC($attachID = 0)
 		return $context['current_attachments'][$attachID];
 
 	// If we are lucky enough to be in $board's scope then check it!
-	if (!empty($board) && !allowedTo('view_attachments', $board))
+	if (!empty($board) && $view_attachment_boards !== array(0) && !in_array($board, $view_attachment_boards))
 		return 'attachments_not_allowed_to_see';
 
 	// Get the message info associated with this particular attach ID.
@@ -965,7 +969,7 @@ function parseAttachBBC($attachID = 0)
 		return 'attachments_no_msg_associated';
 
 	// Hold it! got the info now check if you can see this attachment.
-	if (!allowedTo('view_attachments', $attachInfo['board']))
+	if ($view_attachment_boards !== array(0) && !in_array($attachInfo['board'], $view_attachment_boards))
 		return 'attachments_not_allowed_to_see';
 
 	$allAttachments = getAttachsByMsg($attachInfo['msg']);
