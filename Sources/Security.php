@@ -929,7 +929,7 @@ function allowedTo($permission, $boards = null, $any = false)
 	$cache_key = hash('md5', $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . $any);
 
 	if (isset($perm_cache[$cache_key]))
-			return $perm_cache[$cache_key];
+		return $perm_cache[$cache_key];
 
 	$request = $smcFunc['db_query']('', '
 		SELECT MIN(bp.add_deny) AS add_deny
