@@ -145,12 +145,12 @@ abstract class search_api implements search_api_interface
 	/**
 	 * @var string The last version of SMF that this was tested on. Helps protect against API changes.
 	 */
-	public $version_compatible = 'SMF 2.1 RC1';
+	public $version_compatible = 'SMF 2.1 RC2';
 
 	/**
 	 * @var string The minimum SMF version that this will work with
 	 */
-	public $min_smf_version = 'SMF 2.1 RC1';
+	public $min_smf_version = 'SMF 2.1 RC2';
 
 	/**
 	 * @var bool Whether or not it's supported
