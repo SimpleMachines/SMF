@@ -897,6 +897,7 @@ function checkSubmitOnce($action, $is_fatal = true)
 function allowedTo($permission, $boards = null, $any = false)
 {
 	global $user_info, $smcFunc;
+	static $perm_cache = array();
 
 	// You're always allowed to do nothing. (unless you're a working man, MR. LAZY :P!)
 	if (empty($permission))
@@ -924,6 +925,11 @@ function allowedTo($permission, $boards = null, $any = false)
 	}
 	elseif (!is_array($boards))
 		$boards = array($boards);
+
+	$cache_key = hash('md5', $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . $any);
+
+	if (isset($perm_cache[$cache_key]))
+		return $perm_cache[$cache_key];
 
 	$request = $smcFunc['db_query']('', '
 		SELECT MIN(bp.add_deny) AS add_deny
@@ -955,17 +961,23 @@ function allowedTo($permission, $boards = null, $any = false)
 				break;
 		}
 		$smcFunc['db_free_result']($request);
-		return $result;
+		$return = $result;
 	}
 
 	// Make sure they can do it on all of the boards.
-	if ($smcFunc['db_num_rows']($request) != count($boards))
-		return false;
+	elseif ($smcFunc['db_num_rows']($request) != count($boards))
+		$return = false;
 
-	$result = true;
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$result &= !empty($row['add_deny']);
-	$smcFunc['db_free_result']($request);
+	else
+	{
+		$result = true;
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$result &= !empty($row['add_deny']);
+		$smcFunc['db_free_result']($request);
+		$return = $result;
+	}
+
+	$perm_cache[$cache_key] = $result;
 
 	// If the query returned 1, they can do it... otherwise, they can't.
 	return $result;
