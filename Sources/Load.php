@@ -2999,7 +2999,7 @@ function getLanguages($use_cache = true)
 					$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
 
 					// Get the line we need.
-					$fp = @fopen($language_dir . '/' . $entry);
+					$fp = @fopen($language_dir . '/' . $entry, 'r');
 
 					// Yay!
 					if ($fp)
