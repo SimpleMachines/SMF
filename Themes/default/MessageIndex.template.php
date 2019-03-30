@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -48,7 +48,7 @@ function template_main()
 			<div class="board_stats">
 				', function_exists('template_bi_' . $board['type'] . '_stats') ? call_user_func('template_bi_' . $board['type'] . '_stats', $board) : template_bi_board_stats($board), '
 			</div>';
-				
+
 			// Show the last post if there is one.
 			if(!empty($board['last_post']['id']))
 				echo '
