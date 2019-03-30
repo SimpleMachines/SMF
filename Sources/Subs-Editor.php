@@ -2092,7 +2092,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 				$resp = $reCaptcha->verify($_POST['g-recaptcha-response'], $user_info['ip']);
 
 				if (!$resp->isSuccess())
-					$verification_errors[] = 'wrong_verification_code';
+					$verification_errors[] = 'wrong_verification_recaptcha';
 			}
 			else
 				$verification_errors[] = 'wrong_verification_code';
