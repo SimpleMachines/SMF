@@ -1505,6 +1505,22 @@ function loadMemberContext($user, $display_custom_fields = false)
 		if (empty($loadedLanguages))
 			$loadedLanguages = getLanguages();
 
+		// Figure out the new time offset.
+		if (!empty($profile['timezone']))
+		{
+			// Get the offsets from UTC for the server, then for the user.
+			$tz_system = new DateTimeZone(@date_default_timezone_get());
+			$tz_user = new DateTimeZone($profile['timezone']);
+			$time_system = new DateTime('now', $tz_system);
+			$time_user = new DateTime('now', $tz_user);
+			$profile['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
+		}
+		else
+		{
+			// !!! Compatibility.
+			$profile['time_offset'] = empty($profile['time_offset']) ? 0 : $profile['time_offset'];
+		}
+
 		$memberContext[$user] += array(
 			'username_color' => '<span ' . (!empty($profile['member_group_color']) ? 'style="color:' . $profile['member_group_color'] . ';"' : '') . '>' . $profile['member_name'] . '</span>',
 			'name_color' => '<span ' . (!empty($profile['member_group_color']) ? 'style="color:' . $profile['member_group_color'] . ';"' : '') . '>' . $profile['real_name'] . '</span>',
