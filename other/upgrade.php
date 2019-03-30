@@ -3968,8 +3968,7 @@ function template_welcome_message()
 							<label for="passwrd"', $disable_security ? ' disabled' : '', '>', $txt['upgrade_password'], '</label>
 						</dt>
 						<dd>
-							<input type="password" name="passwrd" value=""', $disable_security ? ' disabled' : '', '>
-							<input type="hidden" name="hash_passwrd" value="">';
+							<input type="password" name="passwrd" value=""', $disable_security ? ' disabled' : '', '>';
 
 	if (!empty($upcontext['password_failed']))
 		echo '
