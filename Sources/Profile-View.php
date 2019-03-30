@@ -636,7 +636,7 @@ function showPosts($memID)
 		);
 	else
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
+			SELECT COUNT(id_msg)
 			FROM {db_prefix}messages AS m
 			WHERE {query_see_message_board} AND m.id_member = {int:current_member}' . (!empty($board) ? '
 				AND m.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
@@ -1817,7 +1817,7 @@ function list_getUserErrorCount($where, $where_vars = array())
 	global $smcFunc;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*) AS error_count
+		SELECT COUNT(id_error)
 		FROM {db_prefix}log_errors
 		WHERE ' . $where,
 		$where_vars
@@ -1883,10 +1883,10 @@ function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars 
  */
 function list_getIPMessageCount($where, $where_vars = array())
 {
-	global $smcFunc;
+	global $smcFunc, $user_info;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*) AS message_count
+		SELECT COUNT(id_msg)
 		FROM {db_prefix}messages AS m
 		WHERE {query_see_message_board} AND ' . $where,
 		$where_vars
@@ -1909,10 +1909,9 @@ function list_getIPMessageCount($where, $where_vars = array())
  */
 function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars = array())
 {
-	global $smcFunc, $scripturl;
+	global $smcFunc, $scripturl, $user_info;
 
 	// Get all the messages fitting this where clause.
-	// @todo SLOW This query is using a filesort.
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			m.id_msg, m.poster_ip, COALESCE(mem.real_name, m.poster_name) AS display_name, mem.id_member,
