@@ -1463,6 +1463,29 @@ function showimage()
 	document.images.icons.src = icon_urls[document.forms.postmodify.icon.options[document.forms.postmodify.icon.selectedIndex].value];
 }
 
+function expandThumb(thumbID)
+{
+	var img = document.getElementById('thumb_' + thumbID);
+	var link = document.getElementById('link_' + thumbID);
+
+	// save the currently displayed image attributes
+	var tmp_src = img.src;
+	var tmp_height = img.style.height;
+	var tmp_width = img.style.width;
+
+	// set the displayed image attributes to the link attributes, this will expand in place
+	img.src = link.href;
+	img.style.width = link.style.width;
+	img.style.height = link.style.height;
+
+	// place the image attributes back
+	link.href = tmp_src;
+	link.style.width = tmp_width;
+	link.style.height = tmp_height;
+
+	return false;
+}
+
 function pollOptions()
 {
 	var expire_time = document.getElementById('poll_expire');

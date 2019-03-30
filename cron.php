@@ -79,6 +79,7 @@ if (!FROM_CLI)
 // Load the most important includes. In general, a background should be loading its own dependencies.
 require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
+require_once($sourcedir . '/Security.php');
 require_once($sourcedir . '/Subs.php');
 
 // Create a variable to store some SMF specific functions in.
