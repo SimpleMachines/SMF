@@ -1322,7 +1322,128 @@ function Post($post_errors = array())
 	addInlineJavaScript('
 	var current_board = ' . (empty($context['current_board']) ? 'null' : $context['current_board']) . ';', false);
 
-	// Now let's set up the fields for the posting form header...
+	/* Now let's set up the fields for the posting form header...
+
+		Each item in $context['posting_fields'] is an array similar to one of
+		the following:
+
+		$context['posting_fields']['foo'] = array(
+			'label' => array(
+				'text' => $txt['foo'], // required
+				'class' => 'foo', // optional
+			),
+			'input' => array(
+				'type' => 'text', // required
+				'attributes' => array(
+					'name' => 'foo', // optional, defaults to posting field's key
+					'value' => $foo,
+					'size' => 80,
+				),
+			),
+		);
+
+		$context['posting_fields']['bar'] = array(
+			'label' => array(
+				'text' => $txt['bar'], // required
+				'class' => 'bar', // optional
+			),
+			'input' => array(
+				'type' => 'select', // required
+				'attributes' => array(
+					'name' => 'bar', // optional, defaults to posting field's key
+				),
+				'options' => array(
+					'option_1' => array(
+						'label' => $txt['option_1'],
+						'value' => '1',
+						'selected' => true,
+					),
+					'option_2' => array(
+						'label' => $txt['option_2'],
+						'value' => '2',
+						'selected' => false,
+					),
+					'opt_group_1' => array(
+						'label' => $txt['opt_group_1'],
+						'options' => array(
+							'option_3' => array(
+								'label' => $txt['option_3'],
+								'value' => '3',
+								'selected' => false,
+							),
+							'option_4' => array(
+								'label' => $txt['option_4'],
+								'value' => '4',
+								'selected' => false,
+							),
+						),
+					),
+				),
+			),
+		);
+
+		$context['posting_fields']['baz'] = array(
+			'label' => array(
+				'text' => $txt['baz'], // required
+				'class' => 'baz', // optional
+			),
+			'input' => array(
+				'type' => 'radio_select', // required
+				'attributes' => array(
+					'name' => 'baz', // optional, defaults to posting field's key
+				),
+				'options' => array(
+					'option_1' => array(
+						'label' => $txt['option_1'],
+						'value' => '1',
+						'selected' => true,
+					),
+					'option_2' => array(
+						'label' => $txt['option_2'],
+						'value' => '2',
+						'selected' => false,
+					),
+				),
+			),
+		);
+
+		The label and input elements are required. The label text and input
+		type are also required. Other elements may be required or optional
+		depending on the situation.
+
+		The input type can be one of the following:
+
+		- text, password, color, date, datetime-local, email, month, number,
+		  range, tel, time, url, or week
+		- textarea
+		- checkbox
+		- select
+		- radio_select
+
+		When the input type is text (etc.), textarea, or checkbox, the
+		'attributes' element is used to specify the initial value and any
+		other HTML attributes that might be necessary for the input field.
+
+		When the input type is select or radio_select, the options element
+		is required in order to list the options that the user can select.
+		For the select type, these will be used to generate a typical select
+		menu. For the radio_select type, they will be used to make a div with
+		some radio buttons in it.
+
+		Each option in the options array is itself an array of attributes. If
+		an option contains a sub-array of more options, then it will be
+		turned into an optgroup in the generated select menu. Note that the
+		radio_select type only supports simple options, not grouped ones.
+
+		Both the label and the input can have a 'before' and/or 'after'
+		element. If used, these define literal HTML strings to be inserted
+		before or after the rest of the content of the label or input.
+
+		Finally, it is possible to define an 'html' element for the label
+		and/or the input. If used, this will override the HTML that would
+		normally be generated in the template file using the other
+		information in the array. This should be avoided if at all possible.
+	*/
 	$context['posting_fields'] = array();
 
 	// Guests must supply their name and email.
@@ -1421,7 +1542,7 @@ function Post($post_errors = array())
 	);
 	foreach ($context['icons'] as $icon)
 	{
-		$context['posting_fields']['icon']['input']['options'][$icon['name']]['attributes'] = array(
+		$context['posting_fields']['icon']['input']['options'][$icon['name']] = array(
 			'value' => $icon['value'],
 			'selected' => $icon['value'] == $context['icon'],
 		);
