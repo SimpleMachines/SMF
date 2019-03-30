@@ -121,10 +121,9 @@ function UnapprovedPosts()
 			SELECT m.id_msg, m.id_member, m.id_board, m.subject, t.id_topic, t.id_first_msg, t.id_member_started
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
-			LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
 			WHERE m.id_msg IN ({array_int:message_list})
 				AND m.approved = {int:not_approved}
-				AND {query_see_board}',
+				AND {query_see_message_board}',
 			array(
 				'message_list' => $toAction,
 				'not_approved' => 0,
@@ -205,9 +204,8 @@ function UnapprovedPosts()
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(m.id_topic)
 		FROM {db_prefix}topics AS m
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 		WHERE m.approved = {int:not_approved}
-			AND {query_see_board}
+			AND {query_see_message_board}
 			' . $approve_query,
 		array(
 			'not_approved' => 0,
@@ -359,11 +357,10 @@ function UnapprovedAttachments()
 			SELECT a.id_attach
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-				LEFT JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
 			WHERE a.id_attach IN ({array_int:attachments})
 				AND a.approved = {int:not_approved}
 				AND a.attachment_type = {int:attachment_type}
-				AND {query_see_board}
+				AND {query_see_message_board}
 				' . $approve_query,
 			array(
 				'attachments' => $attachments,
@@ -631,10 +628,9 @@ function list_getNumUnapprovedAttachments($approve_query)
 		SELECT COUNT(*)
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 		WHERE a.approved = {int:not_approved}
 			AND a.attachment_type = {int:attachment_type}
-			AND {query_see_board}
+			AND {query_see_message_board}
 			' . $approve_query,
 		array(
 			'not_approved' => 0,
