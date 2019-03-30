@@ -930,8 +930,8 @@ function PickTheme()
 		checkSession();
 
 		$id_theme = (int) key($_POST['save']);
-		if (isset($_POST['vrt'][$k]))
-			$variant = $_POST['vrt'][$k];
+		if (isset($_POST['vrt'][$id_theme]))
+			$variant = $_POST['vrt'][$id_theme];
 
 		if (allowedTo('admin_forum') && ($_REQUEST['u'] == '0' || $_REQUEST['u'] == '-1'))
 		{
