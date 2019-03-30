@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; Admin
+// Version: 2.1 RC2; Admin
 
 global $settings, $scripturl;
 
