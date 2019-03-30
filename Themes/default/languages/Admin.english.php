@@ -659,7 +659,6 @@ $txt['custom_profile_shorttitle'] = 'Profile Fields';
 $txt['pruning_title'] = 'Log Pruning';
 $txt['pruning_desc'] = 'The following options are useful for keeping your logs from growing too big, because most of the time older entries are not really of that much use.';
 $txt['log_settings'] = 'Log Settings';
-$txt['log_ban_hits'] = 'Log ban hits in the error log?';
 
 $txt['boards_edit'] = 'Modify Boards';
 $txt['mboards_new_cat'] = 'Create new category';
