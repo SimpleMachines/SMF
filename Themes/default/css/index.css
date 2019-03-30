@@ -1515,6 +1515,9 @@ ul.split_messages li a.split_icon {
 ul.split_messages li a.split_icon:hover {
 	opacity: 1;
 }
+.split_messages, .message_header {
+	margin-bottom: 8px;
+}
 /* Styles for the merge topic section. */
 ul.merge_topics li {
 	list-style-type: none;
@@ -2739,7 +2742,7 @@ dl.addrules dt.floatleft {
 	margin: -4px 4px 0 0;
 }
 
-.generic_list_wrapper, .windowbg, #forumposts .approvebg, #forumposts .approvebg2 {
+.generic_list_wrapper, .windowbg, .approvebg, .approvebg2 {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 12px 16px;
@@ -2814,11 +2817,11 @@ tr.windowbg {
 }
 
 /* Colors for background of posts requiring approval */
-#forumposts .approvebg {
+.approvebg {
 	color: #222;
 	background: #ffeaea;
 }
-#forumposts .approvebg2 {
+.approvebg2 {
 	color: #222;
 	background: #fff2f2;
 }

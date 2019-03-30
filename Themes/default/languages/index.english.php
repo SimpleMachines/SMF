@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; index
+// Version: 2.1 RC2; index
 
 global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 
@@ -168,7 +168,7 @@ $txt['approve_all'] = 'approve all';
 $txt['issue_warning'] = 'Issue Warning';
 $txt['awaiting_approval'] = 'Awaiting approval';
 $txt['attach_awaiting_approve'] = 'Attachments awaiting approval';
-$txt['post_awaiting_approval'] = 'Note: This message is awaiting approval by a moderator.';
+$txt['post_awaiting_approval'] = 'This message is awaiting approval by a moderator.';
 $txt['there_are_unapproved_topics'] = 'There are %1$s topics and %2$s posts awaiting approval in this board. Click <a href="%3$s">here</a> to view them all.';
 $txt['send_message'] = 'Send message';
 
@@ -299,7 +299,7 @@ $txt['redirect_board'] = 'Redirect Board';
 
 $txt['sendtopic_send'] = 'Send';
 $txt['report_sent'] = 'Your report has been sent successfully.';
-$txt['post_becomes_unapproved'] = 'Your message became unapproved because it was posted on an unapproved topic, once the topic gets approved your message will be approved too.';
+$txt['post_becomes_unapproved'] = 'Your message was not approved because it was posted in an unapproved topic. Once the topic is approved your message will be approved too.';
 
 $txt['time_offset'] = 'Time Offset';
 $txt['or'] = 'or';

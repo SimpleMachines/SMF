@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -505,22 +505,24 @@ function template_showPosts()
 					<strong><a href="', $scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong>
 				</h5>
 				<span class="smalltext">', $post['time'], '</span>
-			</div>
-			<div class="list_posts">';
+			</div>';
 
 			if (!$post['approved'])
 				echo '
-				<div class="approve_post">
-					<em>', $txt['post_awaiting_approval'], '</em>
-				</div>';
+			<div class="noticebox">
+				', $txt['post_awaiting_approval'], '
+			</div>';
 
 			echo '
-				', $post['body'], '
-			</div>';
+			<div class="post">
+				<div class="inner">
+					', $post['body'], '
+				</div>
+			</div><!-- .post -->';
 
 			if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
 				echo '
-			<div class="floatright">
+			<div class="under_message">
 				<ul class="quickbuttons">';
 
 			// If they *can* reply?
@@ -541,10 +543,10 @@ function template_showPosts()
 			if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
 				echo '
 				</ul>
-			</div><!-- .floatright -->';
+			</div><!-- .under_message -->';
 
 			echo '
-		</div><!-- $post[css_class] -->';
+		</div><!-- .', $post['css_class'], ' -->';
 		}
 	}
 	else

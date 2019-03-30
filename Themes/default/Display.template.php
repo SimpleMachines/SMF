@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -722,7 +722,7 @@ function template_single_post($message)
 
 	if (!$message['approved'] && $message['member']['id'] != 0 && $message['member']['id'] == $context['user']['id'])
 		echo '
-								<div class="approve_post">
+								<div class="noticebox">
 									', $txt['post_awaiting_approval'], '
 								</div>';
 	echo '

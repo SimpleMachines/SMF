@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -490,8 +490,8 @@ function AddMembergroup()
 
 				$smcFunc['db_query']('', '
 					DELETE FROM {db_prefix}board_permissions_view
-					WHERE id_board in({array_int:board_list}) 
-						AND id_group = {int:group_id} 
+					WHERE id_board IN ({array_int:board_list})
+						AND id_group = {int:group_id}
 						AND deny = {int:deny}',
 					array(
 						'board_list' => $changed_boards[$board_action],
@@ -776,20 +776,6 @@ function EditMembergroup()
 		if ($_REQUEST['group'] == 2 || $_REQUEST['group'] > 3)
 		{
 			$accesses = empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? array() : $_POST['boardaccess'];
-
-			// If they can manage boards, the rules are a bit different. They can see everything.
-			if ($context['can_manage_boards'])
-			{
-				$accesses = array();
-				$request = $smcFunc['db_query']('', '
-					SELECT id_board
-					FROM {db_prefix}boards'
-				);
-				while ($row = $smcFunc['db_fetch_assoc']($request))
-					$accesses[(int) $row['id_board']] = 'allow';
-
-				$smcFunc['db_free_result']($request);
-			}
 
 			$changed_boards['allow'] = array();
 			$changed_boards['deny'] = array();

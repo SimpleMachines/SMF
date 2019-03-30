@@ -11,7 +11,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -166,7 +166,7 @@ function Post($post_errors = array())
 		$context['can_move'] = allowedTo('move_any');
 		// You can only announce topics that will get approved...
 		$context['can_announce'] = allowedTo('announce_topic') && $context['becomes_approved'];
-		$context['show_approval'] = !allowedTo('approve_posts') ? 0 : ($context['becomes_approved'] && !empty($topic_approved) ? 2 : 1);
+		$context['show_approval'] = !allowedTo('approve_posts') ? 0 : ($context['becomes_approved'] ? 2 : 1);
 
 		// We don't always want the request vars to override what's in the db...
 		$context['already_locked'] = $locked;
@@ -781,9 +781,9 @@ function Post($post_errors = array())
 		$context['use_smileys'] = !empty($row['smileys_enabled']);
 		$context['icon'] = $row['icon'];
 
-		// Show an "approve" box if the user can approve it, and the message isn't approved.
-		if (!$row['approved'] && !$context['show_approval'])
-			$context['show_approval'] = allowedTo('approve_posts');
+		// Leave the approval checkbox unchecked by default for unapproved messages.
+		if (!$row['approved'] && !empty($context['show_approval']))
+			$context['show_approval'] = 1;
 
 		// Sort the attachments so they are in the order saved
 		$temp = array();
@@ -841,9 +841,9 @@ function Post($post_errors = array())
 			$request = $smcFunc['db_query']('', '
 				SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body
 				FROM {db_prefix}messages AS m
-					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-				WHERE m.id_msg = {int:id_msg}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+				WHERE {query_see_message_board}
+					AND m.id_msg = {int:id_msg}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 					AND m.approved = {int:is_approved}') . '
 				LIMIT 1',
 				array(
@@ -1322,7 +1322,128 @@ function Post($post_errors = array())
 	addInlineJavaScript('
 	var current_board = ' . (empty($context['current_board']) ? 'null' : $context['current_board']) . ';', false);
 
-	// Now let's set up the fields for the posting form header...
+	/* Now let's set up the fields for the posting form header...
+
+		Each item in $context['posting_fields'] is an array similar to one of
+		the following:
+
+		$context['posting_fields']['foo'] = array(
+			'label' => array(
+				'text' => $txt['foo'], // required
+				'class' => 'foo', // optional
+			),
+			'input' => array(
+				'type' => 'text', // required
+				'attributes' => array(
+					'name' => 'foo', // optional, defaults to posting field's key
+					'value' => $foo,
+					'size' => 80,
+				),
+			),
+		);
+
+		$context['posting_fields']['bar'] = array(
+			'label' => array(
+				'text' => $txt['bar'], // required
+				'class' => 'bar', // optional
+			),
+			'input' => array(
+				'type' => 'select', // required
+				'attributes' => array(
+					'name' => 'bar', // optional, defaults to posting field's key
+				),
+				'options' => array(
+					'option_1' => array(
+						'label' => $txt['option_1'],
+						'value' => '1',
+						'selected' => true,
+					),
+					'option_2' => array(
+						'label' => $txt['option_2'],
+						'value' => '2',
+						'selected' => false,
+					),
+					'opt_group_1' => array(
+						'label' => $txt['opt_group_1'],
+						'options' => array(
+							'option_3' => array(
+								'label' => $txt['option_3'],
+								'value' => '3',
+								'selected' => false,
+							),
+							'option_4' => array(
+								'label' => $txt['option_4'],
+								'value' => '4',
+								'selected' => false,
+							),
+						),
+					),
+				),
+			),
+		);
+
+		$context['posting_fields']['baz'] = array(
+			'label' => array(
+				'text' => $txt['baz'], // required
+				'class' => 'baz', // optional
+			),
+			'input' => array(
+				'type' => 'radio_select', // required
+				'attributes' => array(
+					'name' => 'baz', // optional, defaults to posting field's key
+				),
+				'options' => array(
+					'option_1' => array(
+						'label' => $txt['option_1'],
+						'value' => '1',
+						'selected' => true,
+					),
+					'option_2' => array(
+						'label' => $txt['option_2'],
+						'value' => '2',
+						'selected' => false,
+					),
+				),
+			),
+		);
+
+		The label and input elements are required. The label text and input
+		type are also required. Other elements may be required or optional
+		depending on the situation.
+
+		The input type can be one of the following:
+
+		- text, password, color, date, datetime-local, email, month, number,
+		  range, tel, time, url, or week
+		- textarea
+		- checkbox
+		- select
+		- radio_select
+
+		When the input type is text (etc.), textarea, or checkbox, the
+		'attributes' element is used to specify the initial value and any
+		other HTML attributes that might be necessary for the input field.
+
+		When the input type is select or radio_select, the options element
+		is required in order to list the options that the user can select.
+		For the select type, these will be used to generate a typical select
+		menu. For the radio_select type, they will be used to make a div with
+		some radio buttons in it.
+
+		Each option in the options array is itself an array of attributes. If
+		an option contains a sub-array of more options, then it will be
+		turned into an optgroup in the generated select menu. Note that the
+		radio_select type only supports simple options, not grouped ones.
+
+		Both the label and the input can have a 'before' and/or 'after'
+		element. If used, these define literal HTML strings to be inserted
+		before or after the rest of the content of the label or input.
+
+		Finally, it is possible to define an 'html' element for the label
+		and/or the input. If used, this will override the HTML that would
+		normally be generated in the template file using the other
+		information in the array. This should be avoided if at all possible.
+	*/
 	$context['posting_fields'] = array();
 
 	// Guests must supply their name and email.
@@ -1421,7 +1542,7 @@ function Post($post_errors = array())
 	);
 	foreach ($context['icons'] as $icon)
 	{
-		$context['posting_fields']['icon']['input']['options'][$icon['name']]['attributes'] = array(
+		$context['posting_fields']['icon']['input']['options'][$icon['name']] = array(
 			'value' => $icon['value'],
 			'selected' => $icon['value'] == $context['icon'],
 		);
@@ -1547,6 +1668,8 @@ function Post2()
 		$post_errors[] = array('cannot_post_attachment', array($board_info['name']));
 	}
 
+	$can_approve = allowedTo('approve_posts');
+
 	// If this isn't a new topic load the topic info that we need.
 	if (!empty($topic))
 	{
@@ -1572,15 +1695,11 @@ function Post2()
 
 		// Do the permissions and approval stuff...
 		$becomesApproved = true;
-		$topicAndMessageBothUnapproved = false;
 
-		// If the topic is unapproved the message automatically becomes unapproved too.
-		if (empty($topic_info['approved']))
+		// Replies to unapproved topics are unapproved by default (but not for moderators)
+		if (empty($topic_info['approved']) && !$can_approve)
 		{
 			$becomesApproved = false;
-
-			// camelCase fan much? :P
-			$topicAndMessageBothUnapproved = true;
 
 			// Set a nice session var...
 			$_SESSION['becomesUnapproved'] = true;
@@ -1806,7 +1925,6 @@ function Post2()
 		$posterIsGuest = empty($row['id_member']);
 
 		// Can they approve it?
-		$can_approve = allowedTo('approve_posts');
 		$approve_checked = (!empty($REQUEST['approve']) ? 1 : 0);
 		$becomesApproved = $modSettings['postmod_active'] ? ($can_approve && !$row['approved'] ? $approve_checked : $row['approved']) : 1;
 		$approve_has_changed = $row['approved'] != $becomesApproved;
@@ -1826,10 +1944,9 @@ function Post2()
 	}
 
 	// In case we have approval permissions and want to override.
-	if (allowedTo('approve_posts') && $modSettings['postmod_active'])
+	if ($can_approve && $modSettings['postmod_active'])
 	{
-		// If 'approve' wasn't specified, assume true for these users
-		$becomesApproved = !isset($_REQUEST['approve']) || !empty($_REQUEST['approve']) ? 1 : 0;
+		$becomesApproved = isset($_POST['quickReply']) || !empty($_REQUEST['approve']) ? 1 : 0;
 		$approve_has_changed = isset($row['approved']) ? $row['approved'] != $becomesApproved : false;
 	}
 
@@ -2719,9 +2836,9 @@ function QuoteFast()
 			m.id_board, m.id_member, m.approved, m.modified_time, m.modified_name, m.modified_reason
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-		WHERE m.id_msg = {int:id_msg}' . (isset($_REQUEST['modify']) || (!empty($moderate_boards) && $moderate_boards[0] == 0) ? '' : '
+		WHERE {query_see_message_board}
+			AND m.id_msg = {int:id_msg}' . (isset($_REQUEST['modify']) || (!empty($moderate_boards) && $moderate_boards[0] == 0) ? '' : '
 			AND (t.locked = {int:not_locked}' . (empty($moderate_boards) ? '' : ' OR b.id_board IN ({array_int:moderation_board_list})') . ')') . '
 		LIMIT 1',
 		array(

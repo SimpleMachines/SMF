@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -773,6 +773,7 @@ function loadUserSettings()
 		'permissions' => array(),
 	);
 	$user_info['groups'] = array_unique($user_info['groups']);
+	$user_info['can_manage_boards'] = !empty($user_info['is_admin']) || (!empty($modSettings['board_manager_groups']) && count(array_intersect($user_info['groups'], explode(',', $modSettings['board_manager_groups']))) > 0);
 
 	// Make sure that the last item in the ignore boards array is valid. If the list was too long it could have an ending comma that could cause problems.
 	if (!empty($user_info['ignoreboards']) && empty($user_info['ignoreboards'][$tmp = count($user_info['ignoreboards']) - 1]))
@@ -801,6 +802,8 @@ function loadUserSettings()
 	$temp = build_query_board($user_info['id']);
 	$user_info['query_see_board'] = $temp['query_see_board'];
 	$user_info['query_wanna_see_board'] = $temp['query_wanna_see_board'];
+	$user_info['query_see_message_board'] = $temp['query_see_message_board'];
+	$user_info['query_see_topic_board'] = $temp['query_see_topic_board'];
 
 	call_integration_hook('integrate_user_info');
 }
@@ -954,6 +957,12 @@ function loadBoard()
 			$board_info['groups'] = $row['member_groups'] == '' ? array() : explode(',', $row['member_groups']);
 			$board_info['deny_groups'] = $row['deny_member_groups'] == '' ? array() : explode(',', $row['deny_member_groups']);
 
+			if (!empty($modSettings['board_manager_groups']))
+			{
+				$board_info['groups'] = array_unique(array_merge($board_info['groups'], explode(',', $modSettings['board_manager_groups'])));
+				$board_info['deny_groups'] = array_diff($board_info['deny_groups'], explode(',', $modSettings['board_manager_groups']));
+			}
+
 			do
 			{
 				if (!empty($row['id_moderator']))
@@ -1059,7 +1068,7 @@ function loadBoard()
 
 	// No posting in redirection boards!
 	if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'post' && !empty($board_info['redirect']))
-		$board_info['error'] == 'post_in_redirect';
+		$board_info['error'] = 'post_in_redirect';
 
 	// Hacker... you can't see this topic, I'll tell you that. (but moderators can!)
 	if (!empty($board_info['error']) && (!empty($modSettings['deny_boards_access']) || $board_info['error'] != 'access' || !$user_info['is_mod']))
@@ -1495,6 +1504,22 @@ function loadMemberContext($user, $display_custom_fields = false)
 		// Go the extra mile and load the user's native language name.
 		if (empty($loadedLanguages))
 			$loadedLanguages = getLanguages();
+
+		// Figure out the new time offset.
+		if (!empty($profile['timezone']))
+		{
+			// Get the offsets from UTC for the server, then for the user.
+			$tz_system = new DateTimeZone(@date_default_timezone_get());
+			$tz_user = new DateTimeZone($profile['timezone']);
+			$time_system = new DateTime('now', $tz_system);
+			$time_user = new DateTime('now', $tz_user);
+			$profile['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
+		}
+		else
+		{
+			// !!! Compatibility.
+			$profile['time_offset'] = empty($profile['time_offset']) ? 0 : $profile['time_offset'];
+		}
 
 		$memberContext[$user] += array(
 			'username_color' => '<span ' . (!empty($profile['member_group_color']) ? 'style="color:' . $profile['member_group_color'] . ';"' : '') . '>' . $profile['member_name'] . '</span>',
@@ -2992,7 +3017,7 @@ function getLanguages($use_cache = true)
 					$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
 
 					// Get the line we need.
-					$fp = @fopen($language_dir . '/' . $entry);
+					$fp = @fopen($language_dir . '/' . $entry, 'r');
 
 					// Yay!
 					if ($fp)
