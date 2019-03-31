@@ -839,7 +839,9 @@ function showPosts($memID)
 		);
 
 	// Create an array for the permissions.
-	$boards_can = boardsAllowedTo(array('post_reply_own', 'post_reply_any', 'delete_own', 'delete_any'), true, false);
+	$boards_can = boardsAllowedTo(array_keys(iterator_to_array(
+		new RecursiveIteratorIterator(new RecursiveArrayIterator($permissions)))
+	), true, false);
 
 	// For every permission in the own/any lists...
 	foreach ($permissions as $type => $list)

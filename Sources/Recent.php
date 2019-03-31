@@ -418,7 +418,9 @@ function RecentPosts()
 	);
 
 	// Create an array for the permissions.
-	$boards_can = boardsAllowedTo(array('post_reply_own', 'post_reply_any', 'delete_own', 'delete_any'), true, false);
+	$boards_can = boardsAllowedTo(array_keys(iterator_to_array(
+		new RecursiveIteratorIterator(new RecursiveArrayIterator($permissions)))
+	), true, false);
 
 	// Now go through all the permissions, looking for boards they can do it on.
 	foreach ($permissions as $type => $list)
