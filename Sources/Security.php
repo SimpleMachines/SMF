@@ -977,10 +977,10 @@ function allowedTo($permission, $boards = null, $any = false)
 		$return = $result;
 	}
 
-	$perm_cache[$cache_key] = $result;
+	$perm_cache[$cache_key] = $return;
 
 	// If the query returned 1, they can do it... otherwise, they can't.
-	return $result;
+	return $return;
 }
 
 /**
