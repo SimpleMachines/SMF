@@ -417,13 +417,18 @@ function RecentPosts()
 		)
 	);
 
+	// Create an array for the permissions.
+	$boards_can = boardsAllowedTo(array_keys(iterator_to_array(
+		new RecursiveIteratorIterator(new RecursiveArrayIterator($permissions)))
+	), true, false);
+
 	// Now go through all the permissions, looking for boards they can do it on.
 	foreach ($permissions as $type => $list)
 	{
 		foreach ($list as $permission => $allowed)
 		{
 			// They can do it on these boards...
-			$boards = boardsAllowedTo($permission);
+			$boards = $boards_can[$permission];
 
 			// If 0 is the only thing in the array, they can do it everywhere!
 			if (!empty($boards) && $boards[0] == 0)
