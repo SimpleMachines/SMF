@@ -95,8 +95,9 @@ function get_single_theme($id)
  *
  * Stores all themes on $context['themes'] for easier use.
  *
- * @param bool $enable_only false by default for getting all themes. If true the function will return all themes that are currently enable.
- * @return array With the theme's IDs as key.
+ * $modSettings['knownThemes'] stores themes that the user is able to select.
+ *
+ * @param bool $enable_only Whether to fetch only enabled themes. Default is false.
  */
 function get_all_themes($enable_only = false)
 {
