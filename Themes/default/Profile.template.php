@@ -106,12 +106,12 @@ function template_alerts_popup()
 	{
 		foreach ($context['unread_alerts'] as $id_alert => $details)
 			echo '
-			<div class="unread">
+			<', !$details['show_links'] ? 'a href="' . $scripturl . '?action=profile;area=showalerts;alert=' . $id_alert . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="alert_container unread">
 				', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '
 				<div class="details">
 					', !empty($details['icon']) ? $details['icon'] : '', '<span>', $details['text'], '</span> - ', $details['time'], '
 				</div>
-			</div>';
+			</', !$details['show_links'] ? 'a' : 'div', '>';
 	}
 
 	echo '
