@@ -156,7 +156,7 @@ function ThemeAdmin()
 	isAllowedTo('admin_forum');
 	loadTemplate('Themes');
 
-	// List all installed and enabled themes.
+	// List all enabled themes.
 	get_all_themes(true);
 
 	// Can we create a new theme?
@@ -198,7 +198,7 @@ function ThemeList()
 		validateToken('admin-tl');
 
 		// Calling the almighty power of global vars!
-		get_all_themes(true);
+		get_installed_themes();
 
 		$setValues = array();
 		foreach ($context['themes'] as $id => $theme)
@@ -236,7 +236,7 @@ function ThemeList()
 	loadTemplate('Themes');
 
 	// Get all installed themes.
-	get_all_themes(true);
+	get_installed_themes();
 
 	$context['reset_dir'] = realpath($boarddir . '/Themes');
 	$context['reset_url'] = $boardurl . '/Themes';
@@ -1610,7 +1610,7 @@ function EditTheme()
 
 	if (empty($_GET['th']))
 	{
-		get_all_themes(true);
+		get_installed_themes();
 
 		foreach ($context['themes'] as $key => $theme)
 		{
