@@ -465,7 +465,7 @@ function showAlerts($memID)
 		$smcFunc['db_free_result']($request);
 
 		// Can the user see this alert ?
-		if($context['user']['id'] != $alert['id_member'])
+		if($memID != $alert['id_member'])
 			redirectexit();
 
 		if(!empty($alert['extra']))
@@ -492,7 +492,7 @@ function showAlerts($memID)
 		call_integration_hook('integrate_show_alert', array(&$alert, &$link));
 
 		// Mark the alert as read while we're at it.
-		alert_mark($context['user']['id'], $alert_id, 1);
+		alert_mark($memID, $alert_id, 1);
 
 		// Take the user to the content
 		if (!empty($link))
