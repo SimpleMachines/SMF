@@ -893,7 +893,7 @@ function canPickTheme($id_member, $id_theme)
 
 	return
 		allowedTo($user_info['id'] == $id_member ? 'profile_extra_own' : 'profile_extra_any')
-		&& (allowedTo('admin_forum') || $id_theme == 0 || in_array($id_theme, explode(',', $modSettings['knownThemes'])))
+		&& (allowedTo('admin_forum') || $id_theme == 0 || in_array($id_theme, explode(',', $modSettings['knownThemes'])) && in_array($id_theme, explode(',', $modSettings['enableThemes'])))
 		&& (!empty($modSettings['theme_allow']) || allowedTo('admin_forum'));
 }
 
