@@ -899,13 +899,9 @@ function canPickTheme($id_member, $id_theme)
 
 /**
  * Choose a theme from a list.
- * allows an user or administrator to pick a new theme with an interface.
- * - can edit everyone's (u = 0), guests' (u = -1), or a specific user's.
+ * allows a user to pick a new theme with an interface.
  * - uses the Themes template. (pick sub template.)
- * - accessed with ?action=admin;area=theme;sa=pick.
- *
- * @todo thought so... Might be better to split this file in ManageThemes and Themes,
- * with centralized admin permissions on ManageThemes.
+ * - accessed with ?action=theme;sa=pick.
  */
 function PickTheme()
 {
@@ -933,53 +929,7 @@ function PickTheme()
 		if (isset($_POST['vrt'][$id_theme]))
 			$variant = $_POST['vrt'][$id_theme];
 
-		if (allowedTo('admin_forum') && ($_REQUEST['u'] == '0' || $_REQUEST['u'] == '-1'))
-		{
-			// If changing members or guests - and there's a variant - assume changing default variant.
-			if (!empty($variant))
-			{
-				$smcFunc['db_insert']('replace',
-					'{db_prefix}themes',
-					array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
-					array($id_theme, 0, 'default_variant', $variant),
-					array('id_theme', 'id_member', 'variable')
-				);
-
-				// Make it obvious that it's changed
-				cache_put_data('theme_settings-' . $id_theme, null, 90);
-			}
-
-			// For everyone.
-			if ($_REQUEST['u'] == '0')
-			{
-				updateMemberData(null, array('id_theme' => $id_theme));
-
-				// Remove any custom variants.
-				if (!empty($variant))
-				{
-					$smcFunc['db_query']('', '
-						DELETE FROM {db_prefix}themes
-						WHERE id_theme = {int:current_theme}
-							AND variable = {string:theme_variant}',
-						array(
-							'current_theme' => $id_theme,
-							'theme_variant' => 'theme_variant',
-						)
-					);
-				}
-
-				redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
-			}
-			// Change the default/guest theme.
-			elseif ($_REQUEST['u'] == '-1')
-			{
-				updateSettings(array('theme_guests' => $id_theme));
-
-				redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
-			}
-		}
-		// Change a specific member's theme.
-		elseif (canPickTheme((int) $_REQUEST['u'], $id_theme))
+		if (canPickTheme((int) $_REQUEST['u'], $id_theme))
 		{
 			// An identifier of zero means that the user wants the forum default theme.
 			updateMemberData((int) $_REQUEST['u'], array('id_theme' => $id_theme));
@@ -1012,19 +962,6 @@ function PickTheme()
 		$context['current_member'] = $user_info['id'];
 		$context['current_theme'] = $user_info['theme'];
 	}
-	// Everyone can't chose just one.
-	elseif ($_REQUEST['u'] == '0')
-	{
-		$context['current_member'] = 0;
-		$context['current_theme'] = 0;
-	}
-	// Guests and such...
-	elseif ($_REQUEST['u'] == '-1')
-	{
-		$context['current_member'] = -1;
-		$context['current_theme'] = $modSettings['theme_guests'];
-	}
-	// Someones else :P.
 	else
 	{
 		$context['current_member'] = (int) $_REQUEST['u'];
