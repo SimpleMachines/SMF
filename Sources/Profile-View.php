@@ -476,7 +476,7 @@ function showAlerts($memID)
 		// Priority goes to explicitly specified links
 		if (isset($alert['extra']['content_link']))
 			$link = $alert['extra']['content_link'];
-		elseif (isset($alert['content_action'], $alert['extra']['report_link']))
+		elseif (isset($alert['extra']['report_link']))
 			$link = $scripturl . $alert['extra']['report_link'];
 		elseif (isset($alert['content_action']) && $alert['content_action'] === 'register_approval')
 			$link = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
