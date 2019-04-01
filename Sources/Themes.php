@@ -198,7 +198,7 @@ function ThemeList()
 		validateToken('admin-tl');
 
 		// Calling the almighty power of global vars!
-		get_all_themes(false);
+		get_all_themes(true);
 
 		$setValues = array();
 		foreach ($context['themes'] as $id => $theme)
@@ -236,7 +236,7 @@ function ThemeList()
 	loadTemplate('Themes');
 
 	// Get all installed themes.
-	get_all_themes(false);
+	get_all_themes(true);
 
 	$context['reset_dir'] = realpath($boarddir . '/Themes');
 	$context['reset_url'] = $boardurl . '/Themes';
