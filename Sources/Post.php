@@ -2839,7 +2839,7 @@ function QuoteFast()
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 		WHERE {query_see_message_board}
 			AND m.id_msg = {int:id_msg}' . (isset($_REQUEST['modify']) || (!empty($moderate_boards) && $moderate_boards[0] == 0) ? '' : '
-			AND (t.locked = {int:not_locked}' . (empty($moderate_boards) ? '' : ' OR b.id_board IN ({array_int:moderation_board_list})') . ')') . '
+			AND (t.locked = {int:not_locked}' . (empty($moderate_boards) ? '' : ' OR m.id_board IN ({array_int:moderation_board_list})') . ')') . '
 		LIMIT 1',
 		array(
 			'current_member' => $user_info['id'],
