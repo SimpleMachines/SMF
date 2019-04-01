@@ -1671,7 +1671,7 @@ function EditTheme()
 
 	if (empty($_GET['th']))
 	{
-		get_all_themes();
+		get_all_themes(true);
 
 		foreach ($context['themes'] as $key => $theme)
 		{
