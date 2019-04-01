@@ -449,6 +449,55 @@ function showAlerts($memID)
 
 	require_once($sourcedir . '/Profile-Modify.php');
 
+	// Are we opening a specific alert ?
+	if (!empty($_REQUEST['alert']))
+	{
+		$alert_id = (int)$_REQUEST['alert'];
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member, id_member_started, content_type, content_action, content_id, is_read, extra
+			FROM {db_prefix}user_alerts
+			WHERE id_alert = {int:alert}',
+			array(
+				'alert' => $alert_id
+			)
+		);
+		$alert = $smcFunc['db_fetch_assoc']($request);
+		$smcFunc['db_free_result']($request);
+
+		if(!empty($alert['extra']))
+			$alert['extra'] = $smcFunc['json_decode']($alert['extra'], true);
+
+		// Determine where the alert takes
+		$link = '';
+		// Priority goes to explicitly specified links
+		if (isset($alert['extra']['content_link']))
+			$link = $alert['extra']['content_link'];
+		elseif (isset($alert['content_action'], $alert['extra']['report_link']))
+			$link = $scripturl . $alert['extra']['report_link'];
+		elseif (isset($alert['content_action']) && $alert['content_action'] === 'register_approval')
+			$link = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
+		elseif (isset($alert['content_action'], $alert['id_member_started']) && $alert['content_action'] === 'buddy_request')
+			$link = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
+		elseif (isset($alert['content_action']) && $alert['content_action'] === 'group_request')
+			$link = $scripturl . '?action=moderate;area=groups;sa=requests';
+		elseif (isset($alert['content_type'], $alert['extra']['event_id']) && $alert['content_type'] === 'event')
+			$link = $scripturl . '?action=calendar;event=' . $alert['extra']['event_id'];
+		elseif (isset($alert['content_action'], $alert['content_id']) && $alert['content_action'] === 'like')
+			$link = $scripturl . '?msg=' . $alert['content_id'];
+
+		call_integration_hook('integrate_show_alert', array(&$alert, &$link));
+
+		// Mark the alert as read while we're at it.
+		alert_mark($context['user']['id'], $alert_id, 1);
+
+		// Take the user to the content
+		if (!empty($link))
+			redirectexit($link);
+		// Incase it failed to determine this alert's link
+		else
+			redirectexit('action=profile;area=showalerts');
+	}
+
 	// Prepare the pagination vars.
 	$maxIndex = 10;
 	$start = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
