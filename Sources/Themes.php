@@ -924,6 +924,7 @@ function PickTheme()
 	if (isset($_POST['save']))
 	{
 		checkSession();
+		validateToken('pick-th');
 
 		$id_theme = (int) key($_POST['save']);
 		if (isset($_POST['vrt'][$id_theme]))
@@ -1155,6 +1156,7 @@ function PickTheme()
 
 	$context['page_title'] = $txt['theme_pick'];
 	$context['sub_template'] = 'pick';
+	createToken('pick-th');
 }
 
 /**

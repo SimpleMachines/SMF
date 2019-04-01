@@ -754,6 +754,7 @@ function template_pick()
 
 		echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			<input type="hidden" name="', $context['pick-th_token_var'], '" value="', $context['pick-th_token'], '">
 			<input type="hidden" name="u" value="', $context['current_member'], '">
 		</form>
 	</div><!-- #pick_theme -->';
