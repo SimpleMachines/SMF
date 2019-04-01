@@ -211,9 +211,9 @@ function PlushSearch1()
 		);
 
 		$request = $smcFunc['db_query']('', '
-			SELECT ms.subject
+			SELECT subject
 			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
+				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 			WHERE t.id_topic = {int:search_topic_id}
 				AND {query_see_message_board} ' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved_true}' : '') . '
