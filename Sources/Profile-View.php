@@ -464,6 +464,10 @@ function showAlerts($memID)
 		$alert = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
 
+		// Can the user see this alert ?
+		if($context['user']['id'] != $alert['id_member'])
+			redirectexit();
+
 		if(!empty($alert['extra']))
 			$alert['extra'] = $smcFunc['json_decode']($alert['extra'], true);
 
