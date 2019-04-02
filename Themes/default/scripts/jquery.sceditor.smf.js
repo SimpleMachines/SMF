@@ -538,7 +538,8 @@ sceditor.formats.bbcode.set(
 				attach_type,
 				style = function (name) {
 					return element.style ? element.style[name] : null;
-				};
+				},
+				index;
 
 			attribs += " id=" + element.attr('data-attachment');
 			if (element.attr('width') || style('width'))
@@ -548,13 +549,13 @@ sceditor.formats.bbcode.set(
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
 
-			var index;
-			for (index = 0; index < current_attachments.length; ++index) {
-				if (current_attachments[index]['attachID'] == id) {
-					attach_type = current_attachments[index]['type'];
-					break;
+			if (typeof current_attachments !== "undefined")
+				for (index = 0; index < current_attachments.length; ++index) {
+					if (current_attachments[index]['attachID'] == id) {
+						attach_type = current_attachments[index]['type'];
+						break;
+					}
 				}
-			}
 
 			if (element.attr('title') && attach_type.indexOf("image") === 0)
 				content = element.attr('title');
@@ -564,7 +565,8 @@ sceditor.formats.bbcode.set(
 		html: function (token, attrs, content) {
 			var parts,
 				attribs = '',
-				attach_type;
+				attach_type,
+				index;
 
 			// Handles SMF 2.1 final format
 			if (typeof attrs.id !== "undefined")
@@ -576,13 +578,13 @@ sceditor.formats.bbcode.set(
 					content = attrs.name;
 			}
 
-			var index;
-			for (index = 0; index < current_attachments.length; ++index) {
-				if (current_attachments[index]['attachID'] == id) {
-					attach_type = current_attachments[index]['type'];
-					break;
+			if (typeof current_attachments !== "undefined")
+				for (index = 0; index < current_attachments.length; ++index) {
+					if (current_attachments[index]['attachID'] == id) {
+						attach_type = current_attachments[index]['type'];
+						break;
+					}
 				}
-			}
 
 			// If id is not an integer, bail out
 			if (!$.isNumeric(id) || Math.floor(id) != +id || +id <= 0) {
