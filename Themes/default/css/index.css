@@ -845,6 +845,7 @@ img.sort, .sort {
 .unread_notify .details {
 	display: inline-block;
 	vertical-align: top;
+	max-width: calc(100% - 44px);
 }
 #pm_menu .subject {
 	font-weight: bold;

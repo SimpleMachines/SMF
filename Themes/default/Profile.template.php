@@ -109,7 +109,7 @@ function template_alerts_popup()
 			<', !$details['show_links'] ? 'a href="' . $scripturl . '?action=profile;area=showalerts;alert=' . $id_alert . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="unread_notify">
 				', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '
 				<div class="details">
-					', !empty($details['icon']) ? $details['icon'] : '', '<span>', $details['text'], '</span> - ', $details['time'], '
+					', !empty($details['icon']) ? $details['icon'] : '', '<span class="alert_text">', $details['text'], '</span> - <span class="alert_time">', $details['time'], '</span>
 				</div>
 			</', !$details['show_links'] ? 'a' : 'div', '>';
 	}
@@ -568,7 +568,7 @@ function template_showPosts()
 }
 
 /**
- * Template for showing alerts within the alerts popup
+ * Template for showing all alerts
  */
 function template_showAlerts()
 {
@@ -609,6 +609,7 @@ function template_showAlerts()
 			echo '
 				<tr class="windowbg">
 					<td class="alert_text">
+						<a href="', $scripturl, '?action=profile;area=showalerts;alert=', $id, '"><span class="main_icons move"></span></a>
 						', $alert['text'], '
 						<span class="alert_inline_time"><span class="main_icons time_online"></span> ', $alert['time'], '</span>
 					</td>
