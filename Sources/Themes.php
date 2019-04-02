@@ -1133,7 +1133,7 @@ function PickTheme()
 	// Then return it.
 	addJavaScriptVar(
 		'oThemeVariants',
-		json_encode(array_map(function ($theme)
+		json_encode(array_map(function($theme)
 		{
 			return $theme['variants'];
 		}, $context['available_themes']
