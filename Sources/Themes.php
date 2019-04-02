@@ -988,10 +988,10 @@ function PickTheme()
 			SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE variable IN ({string:name}, {string:theme_url}, {string:theme_dir}, {string:images_url}, {string:disable_user_variant})' . (!allowedTo('admin_forum') ? '
-				AND id_theme IN ({array_string:known_themes})' : '') . '
+				AND id_theme IN ({array_int:known_themes})' : '') . '
 				AND id_theme != {int:default_theme}
 				AND id_member = {int:no_member}
-				AND id_theme IN ({array_string:enable_themes})',
+				AND id_theme IN ({array_int:enable_themes})',
 			array(
 				'default_theme' => 0,
 				'name' => 'name',
