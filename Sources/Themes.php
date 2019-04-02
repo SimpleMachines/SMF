@@ -987,19 +987,14 @@ function PickTheme()
 		$request = $smcFunc['db_query']('', '
 			SELECT id_theme, variable, value
 			FROM {db_prefix}themes
-			WHERE variable IN ({string:name}, {string:theme_url}, {string:theme_dir}, {string:images_url}, {string:disable_user_variant})' . (!allowedTo('admin_forum') ? '
+			WHERE variable IN ({literal:name}, {literal:theme_url}, {literal:theme_dir}, {literal:images_url}, {literal:disable_user_variant})' . (!allowedTo('admin_forum') ? '
 				AND id_theme IN ({array_int:known_themes})' : '') . '
 				AND id_theme != {int:default_theme}
 				AND id_member = {int:no_member}
 				AND id_theme IN ({array_int:enable_themes})',
 			array(
 				'default_theme' => 0,
-				'name' => 'name',
 				'no_member' => 0,
-				'theme_url' => 'theme_url',
-				'theme_dir' => 'theme_dir',
-				'images_url' => 'images_url',
-				'disable_user_variant' => 'disable_user_variant',
 				'known_themes' => explode(',', $modSettings['knownThemes']),
 				'enable_themes' => explode(',', $modSettings['enableThemes']),
 			)
