@@ -1763,18 +1763,21 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	if (empty($id_theme))
 	{
-		// The theme was specified by REQUEST.
-		if (!empty($_REQUEST['theme']) && (!empty($modSettings['theme_allow']) || allowedTo('admin_forum')))
+		if (!empty($modSettings['theme_allow']) || allowedTo('admin_forum'))
 		{
-			$id_theme = (int) $_REQUEST['theme'];
-			$_SESSION['id_theme'] = $id_theme;
+			// The theme was specified by REQUEST.
+			if (!empty($_REQUEST['theme']) && (allowedTo('admin_forum') || in_array($_REQUEST['theme'], explode(',', $modSettings['knownThemes']))))
+			{
+				$id_theme = (int) $_REQUEST['theme'];
+				$_SESSION['id_theme'] = $id_theme;
+			}
+			// The theme was specified by REQUEST... previously.
+			elseif (!empty($_SESSION['id_theme']))
+				$id_theme = (int) $_SESSION['id_theme'];
+			// The theme is just the user's choice. (might use ?board=1;theme=0 to force board theme.)
+			elseif (!empty($user_info['theme']))
+				$id_theme = $user_info['theme'];
 		}
-		// The theme was specified by REQUEST... previously.
-		elseif (!empty($_SESSION['id_theme']) && (!empty($modSettings['theme_allow']) || allowedTo('admin_forum')))
-			$id_theme = (int) $_SESSION['id_theme'];
-		// The theme is just the user's choice. (might use ?board=1;theme=0 to force board theme.)
-		elseif (!empty($user_info['theme']) && !isset($_REQUEST['theme']) && (!empty($modSettings['theme_allow']) || allowedTo('admin_forum')))
-			$id_theme = $user_info['theme'];
 		// The theme was specified by the board.
 		elseif (!empty($board_info['theme']))
 			$id_theme = $board_info['theme'];
