@@ -209,15 +209,14 @@ function template_list_themes()
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="floatleft">
-						', (!empty($theme['enable']) || $theme['id'] == 1 ? '<a href="' . $scripturl . '?action=admin;area=theme;th=' . $theme['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=list">' . $theme['name'] . '</a>' : $theme['name']), '', (!empty($theme['version']) ? ' <em>(' . $theme['version'] . ')</em>' : ''), '
-					</span>';
+						', $theme['name'] . (!empty($theme['version']) ? ' <em>(' . $theme['version'] . ')</em>' : ''), '
+					</span>
+					<span class="floatright">
+						', (!empty($theme['enable']) || $theme['id'] == 1 ? '<a href="' . $scripturl . '?action=admin;area=theme;th=' . $theme['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=list"><span class="main_icons settings"></span></a>' : ''), '';
 
 		// You *cannot* disable/enable/delete the default theme. It's important!
 		if ($theme['id'] != 1)
 		{
-			echo '
-					<span class="floatright">';
-
 			// Enable/Disable.
 			echo '
 						<a href="', $scripturl, '?action=admin;area=theme;sa=enable;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tre_token_var'], '=', $context['admin-tre_token'], '', (!empty($theme['enable']) ? ';disabled' : ''), '" data-confirm="', $txt['theme_' . (!empty($theme['enable']) ? 'disable' : 'enable') . '_confirm'], '" class="you_sure"><span class="main_icons ', !empty($theme['enable']) ? 'disable' : 'enable', '" title="', $txt['theme_' . (!empty($theme['enable']) ? 'disable' : 'enable')], '"></span></a>';
@@ -225,12 +224,10 @@ function template_list_themes()
 			// Deleting.
 			echo '
 						<a href="', $scripturl, '?action=admin;area=theme;sa=remove;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tr_token_var'], '=', $context['admin-tr_token'], '" data-confirm="', $txt['theme_remove_confirm'], '" class="you_sure"><span class="main_icons delete" title="', $txt['theme_remove'], '"></span></a>';
-
-			echo '
-					</span>';
 		}
 
 		echo '
+					</span>
 				</h3>
 			</div><!-- .cat_bar -->
 			<div class="windowbg">
