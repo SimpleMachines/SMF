@@ -3800,8 +3800,9 @@ function template_footer()
 	$context['load_time'] = round(microtime(true) - $time_start, 3);
 	$context['load_queries'] = $db_count;
 
-	foreach (array_reverse($context['template_layers']) as $layer)
-		loadSubTemplate($layer . '_below', true);
+	if (!empty($context['template_layers']) && is_array($context['template_layers']))
+		foreach (array_reverse($context['template_layers']) as $layer)
+			loadSubTemplate($layer . '_below', true);
 }
 
 /**
