@@ -109,7 +109,7 @@ function template_alerts_popup()
 			<', !$details['show_links'] ? 'a href="' . $scripturl . '?action=profile;area=showalerts;alert=' . $id_alert . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="unread_notify">
 				', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '
 				<div class="details">
-					', !empty($details['icon']) ? $details['icon'] : '', '<span class="alert_text">', $details['text'], '</span> - <span class="alert_time">', $details['time'], '</span>
+					<span class="alert_text">', $details['text'], '</span> - <span class="alert_time">', $details['time'], '</span>
 				</div>
 			</', !$details['show_links'] ? 'a' : 'div', '>';
 	}
