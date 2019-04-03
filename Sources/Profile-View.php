@@ -223,7 +223,7 @@ function summary($memID)
  * @param bool $withSender With $memberContext from sender
  * @return array An array of information about the fetched alerts
  */
-function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = true)
+function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = true, $show_links = false)
 {
 	global $smcFunc, $txt, $scripturl, $memberContext, $user_info, $user_profile;
 
@@ -296,6 +296,9 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			$possible_topics[] = $alert['extra']['topic'];
 		elseif (isset($alert['extra']['board']))
 			$possible_boards[] = $alert['extra']['board'];
+
+		// Are we showing multiple links or one big main link ?
+		$alerts[$id_alert]['show_links'] = $show_links || (isset($alert['extra']['show_links']) && $alert['extra']['show_links']);
 	}
 
 	if (!empty($possible_msgs))
@@ -313,9 +316,9 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$msg_msgs[$row['id_msg']] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>';
-			$topic_msgs[$row['id_topic']] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>';
-			$board_msgs[$row['id_board']] = '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>';
+			$msg_msgs[$row['id_msg']] = array('link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>', 'text' => '<strong>' . $row['subject'] . '</strong>');
+			$topic_msgs[$row['id_topic']] = array('link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>', 'text' => '<strong>' . $row['subject'] . '</strong>');
+			$board_msgs[$row['id_board']] = array('link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>', 'text' => '<strong>' . $row['name'] . '</strong>');
 		}
 
 		$smcFunc['db_free_result']($request);
@@ -335,8 +338,8 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$topic_msgs[$row['id_topic']] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>';
-			$board_msgs[$row['id_board']] = '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>';
+			$topic_msgs[$row['id_topic']] = array('link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.new#new">' . $row['subject'] . '</a>', 'text' => '<strong>' . $row['subject'] . '</strong>');
+			$board_msgs[$row['id_board']] = array('link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>', 'text' => '<strong>' . $row['name'] . '</strong>');
 		}
 
 		$smcFunc['db_free_result']($request);
@@ -353,7 +356,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$board_msgs[$row['id_board']] = '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>';
+			$board_msgs[$row['id_board']] = array('link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>', 'text' => '<strong>' . $row['name'] . '</strong>');
 
 		$smcFunc['db_free_result']($request);
 	}
@@ -373,9 +376,9 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			}
 			else
 			{
-				$alerts[$id_alert]['extra']['msg_msg'] = $msg_msgs[$alert['content_id']];
-				$alerts[$id_alert]['extra']['topic_msg'] = isset($alert['extra']['topic']) ? $topic_msgs[$alert['extra']['topic']] : $txt['topic_na'];
-				$alerts[$id_alert]['extra']['board_msg'] = isset($alert['extra']['board']) ? $board_msgs[$alert['extra']['board']] : $txt['board_na'];
+				$alerts[$id_alert]['extra']['msg_msg'] = $msg_msgs[$alert['content_id']][$alert['show_links'] ? 'link' : 'text'];
+				$alerts[$id_alert]['extra']['topic_msg'] = isset($alert['extra']['topic']) ? $topic_msgs[$alert['extra']['topic']][$alert['show_links'] ? 'link' : 'text'] : $txt['topic_na'];
+				$alerts[$id_alert]['extra']['board_msg'] = isset($alert['extra']['board']) ? $board_msgs[$alert['extra']['board']][$alert['show_links'] ? 'link' : 'text'] : $txt['board_na'];
 			}
 		}
 		elseif (isset($alert['extra']['topic']))
@@ -388,8 +391,8 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			else
 			{
 				$alerts[$id_alert]['extra']['msg_msg'] = $txt['topic_na'];
-				$alerts[$id_alert]['extra']['topic_msg'] = $topic_msgs[$alert['extra']['topic']];
-				$alerts[$id_alert]['extra']['board_msg'] = isset($alert['extra']['board']) ? $board_msgs[$alert['extra']['board']] : $txt['board_na'];
+				$alerts[$id_alert]['extra']['topic_msg'] = $topic_msgs[$alert['extra']['topic']][$alert['show_links'] ? 'link' : 'text'];
+				$alerts[$id_alert]['extra']['board_msg'] = isset($alert['extra']['board']) ? $board_msgs[$alert['extra']['board']][$alert['show_links'] ? 'link' : 'text'] : $txt['board_na'];
 			}
 		}
 		elseif (isset($alert['extra']['board']))
@@ -403,12 +406,12 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			{
 				$alerts[$id_alert]['extra']['msg_msg'] = $txt['topic_na'];
 				$alerts[$id_alert]['extra']['topic_msg'] = $txt['topic_na'];
-				$alerts[$id_alert]['extra']['board_msg'] = $board_msgs[$alert['extra']['board']];
+				$alerts[$id_alert]['extra']['board_msg'] = $board_msgs[$alert['extra']['board']][$alert['show_links'] ? 'link' : 'text'];
 			}
 		}
 
 		if ($alert['content_type'] == 'profile')
-			$alerts[$id_alert]['extra']['profile_msg'] = '<a href="' . $scripturl . '?action=profile;u=' . $alerts[$id_alert]['content_id'] . '">' . $alerts[$id_alert]['extra']['user_name'] . '</a>';
+			$alerts[$id_alert]['extra']['profile_msg'] = $alert['show_links'] ? '<a href="' . $scripturl . '?action=profile;u=' . $alerts[$id_alert]['content_id'] . '">' . $alerts[$id_alert]['extra']['user_name'] . '</a>' : '<strong>' . $alerts[$id_alert]['extra']['user_name'] . '</strong>';
 
 		if (!empty($memberContext[$alert['sender_id']]))
 			$alerts[$id_alert]['sender'] = &$memberContext[$alert['sender_id']];
@@ -418,7 +421,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		{
 			$extra = $alerts[$id_alert]['extra'];
 			$search = array('{member_link}', '{scripturl}');
-			$repl = array(!empty($alert['sender_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $alert['sender_id'] . '">' . $alert['sender_name'] . '</a>' : $alert['sender_name'], $scripturl);
+			$repl = array(!empty($alert['sender_id']) && $alert['show_links'] ? '<a href="' . $scripturl . '?action=profile;u=' . $alert['sender_id'] . '">' . $alert['sender_name'] . '</a>' : '<strong>'.$alert['sender_name'].'</strong>', $scripturl);
 
 			if (is_array($extra))
 			{
@@ -446,13 +449,66 @@ function showAlerts($memID)
 
 	require_once($sourcedir . '/Profile-Modify.php');
 
+	// Are we opening a specific alert ?
+	if (!empty($_REQUEST['alert']))
+	{
+		$alert_id = (int)$_REQUEST['alert'];
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member, id_member_started, content_type, content_action, content_id, is_read, extra
+			FROM {db_prefix}user_alerts
+			WHERE id_alert = {int:alert}',
+			array(
+				'alert' => $alert_id
+			)
+		);
+		$alert = $smcFunc['db_fetch_assoc']($request);
+		$smcFunc['db_free_result']($request);
+
+		// Can the user see this alert ?
+		if($memID != $alert['id_member'])
+			redirectexit();
+
+		if(!empty($alert['extra']))
+			$alert['extra'] = $smcFunc['json_decode']($alert['extra'], true);
+
+		// Determine where the alert takes
+		$link = '';
+		// Priority goes to explicitly specified links
+		if (isset($alert['extra']['content_link']))
+			$link = $alert['extra']['content_link'];
+		elseif (isset($alert['extra']['report_link']))
+			$link = $scripturl . $alert['extra']['report_link'];
+		elseif (isset($alert['content_action']) && $alert['content_action'] === 'register_approval')
+			$link = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
+		elseif (isset($alert['content_action'], $alert['id_member_started']) && $alert['content_action'] === 'buddy_request')
+			$link = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
+		elseif (isset($alert['content_action']) && $alert['content_action'] === 'group_request')
+			$link = $scripturl . '?action=moderate;area=groups;sa=requests';
+		elseif (isset($alert['content_type'], $alert['extra']['event_id']) && $alert['content_type'] === 'event')
+			$link = $scripturl . '?action=calendar;event=' . $alert['extra']['event_id'];
+		elseif (isset($alert['content_action'], $alert['content_id']) && $alert['content_action'] === 'like')
+			$link = $scripturl . '?msg=' . $alert['content_id'];
+
+		call_integration_hook('integrate_show_alert', array(&$alert, &$link));
+
+		// Mark the alert as read while we're at it.
+		alert_mark($memID, $alert_id, 1);
+
+		// Take the user to the content
+		if (!empty($link))
+			redirectexit($link);
+		// Incase it failed to determine this alert's link
+		else
+			redirectexit('action=profile;area=showalerts');
+	}
+
 	// Prepare the pagination vars.
 	$maxIndex = 10;
 	$start = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
 	$count = alert_count($memID);
 
 	// Get the alerts.
-	$context['alerts'] = fetch_alerts($memID, true, false, array('start' => $start, 'maxIndex' => $maxIndex));
+	$context['alerts'] = fetch_alerts($memID, true, false, array('start' => $start, 'maxIndex' => $maxIndex), true, true);
 	$toMark = false;
 	$action = '';
 
