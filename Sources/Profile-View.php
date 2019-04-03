@@ -338,7 +338,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$topic_msgs[$row['id_topic']] = array('link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>', 'text' => '<strong>' . $row['subject'] . '</strong>');
+			$topic_msgs[$row['id_topic']] = array('link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.new#new">' . $row['subject'] . '</a>', 'text' => '<strong>' . $row['subject'] . '</strong>');
 			$board_msgs[$row['id_board']] = array('link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>', 'text' => '<strong>' . $row['name'] . '</strong>');
 		}
 
