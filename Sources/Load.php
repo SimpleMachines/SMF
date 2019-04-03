@@ -1784,44 +1784,44 @@ function loadTheme($id_theme = 0, $initialize = true)
 {
 	global $user_info, $user_settings, $board_info, $boarddir, $maintenance;
 	global $txt, $boardurl, $scripturl, $mbname, $modSettings;
-	global $context, $settings, $options, $sourcedir, $ssi_theme, $smcFunc, $language, $board, $image_proxy_enabled;
+	global $context, $settings, $options, $sourcedir, $smcFunc, $language, $board, $image_proxy_enabled;
 
-	// The theme was specified by parameter.
-	if (!empty($id_theme))
-		$id_theme = (int) $id_theme;
-	// The theme was specified by REQUEST.
-	elseif (!empty($_REQUEST['theme']) && (!empty($modSettings['theme_allow']) || allowedTo('admin_forum')))
+	if (empty($id_theme))
 	{
-		$id_theme = (int) $_REQUEST['theme'];
-		$_SESSION['id_theme'] = $id_theme;
-	}
-	// The theme was specified by REQUEST... previously.
-	elseif (!empty($_SESSION['id_theme']) && (!empty($modSettings['theme_allow']) || allowedTo('admin_forum')))
-		$id_theme = (int) $_SESSION['id_theme'];
-	// The theme is just the user's choice. (might use ?board=1;theme=0 to force board theme.)
-	elseif (!empty($user_info['theme']) && !isset($_REQUEST['theme']))
-		$id_theme = $user_info['theme'];
-	// The theme was specified by the board.
-	elseif (!empty($board_info['theme']))
-		$id_theme = $board_info['theme'];
-	// The theme is the forum's default.
-	else
-		$id_theme = $modSettings['theme_guests'];
-
-	// Verify the id_theme... no foul play.
-	// Always allow the board specific theme, if they are overriding.
-	if (!empty($board_info['theme']) && $board_info['override_theme'])
-		$id_theme = $board_info['theme'];
-	// If they have specified a particular theme to use with SSI allow it to be used.
-	elseif (!empty($ssi_theme) && $id_theme == $ssi_theme)
-		$id_theme = (int) $id_theme;
-	elseif (!empty($modSettings['enableThemes']) && !allowedTo('admin_forum'))
-	{
-		$themes = explode(',', $modSettings['enableThemes']);
-		if (!in_array($id_theme, $themes))
-			$id_theme = $modSettings['theme_guests'];
+		if (!empty($modSettings['theme_allow']) || allowedTo('admin_forum'))
+		{
+			// The theme was specified by REQUEST.
+			if (!empty($_REQUEST['theme']) && (allowedTo('admin_forum') || in_array($_REQUEST['theme'], explode(',', $modSettings['knownThemes']))))
+			{
+				$id_theme = (int) $_REQUEST['theme'];
+				$_SESSION['id_theme'] = $id_theme;
+			}
+			// The theme was specified by REQUEST... previously.
+			elseif (!empty($_SESSION['id_theme']))
+				$id_theme = (int) $_SESSION['id_theme'];
+			// The theme is just the user's choice. (might use ?board=1;theme=0 to force board theme.)
+			elseif (!empty($user_info['theme']))
+				$id_theme = $user_info['theme'];
+		}
+		// The theme was specified by the board.
+		elseif (!empty($board_info['theme']))
+			$id_theme = $board_info['theme'];
+		// The theme is the forum's default.
 		else
-			$id_theme = (int) $id_theme;
+			$id_theme = $modSettings['theme_guests'];
+
+		// Verify the id_theme... no foul play.
+		// Always allow the board specific theme, if they are overriding.
+		if (!empty($board_info['theme']) && $board_info['override_theme'])
+			$id_theme = $board_info['theme'];
+		elseif (!empty($modSettings['enableThemes']))
+		{
+			$themes = explode(',', $modSettings['enableThemes']);
+			if (!in_array($id_theme, $themes))
+				$id_theme = $modSettings['theme_guests'];
+			else
+				$id_theme = (int) $id_theme;
+		}
 	}
 
 	// Allow mod authors the option to override the theme id for custom page themes

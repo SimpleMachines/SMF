@@ -580,9 +580,10 @@ function EditBoard()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme AS id, value AS name
 		FROM {db_prefix}themes
-		WHERE variable = {string:name}',
+		WHERE variable = {literal:name}
+			AND id_theme IN ({array_int:enable_themes})',
 		array(
-			'name' => 'name',
+			'enable_themes' => explode(',', $modSettings['enableThemes']),
 		)
 	);
 	$context['themes'] = array();
