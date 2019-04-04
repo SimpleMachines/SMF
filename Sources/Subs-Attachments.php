@@ -1105,7 +1105,7 @@ function getAttachsByMsg($msgID)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board,
+				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board, m.id_member,
 				a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
 				COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
 			FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
@@ -1121,7 +1121,7 @@ function getAttachsByMsg($msgID)
 		$temp = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			if (!$row['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts') && (!isset($all_posters[$row['id_msg']]) || $all_posters[$row['id_msg']] != $user_info['id']))
+			if (!$row['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts') && $row['id_member'] != $user_info['id'])
 				continue;
 
 			$temp[$row['id_attach']] = $row;
