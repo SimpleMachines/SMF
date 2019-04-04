@@ -8,14 +8,14 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 // Version information...
-define('SMF_VERSION', '2.1 RC1');
+define('SMF_VERSION', '2.1 RC2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2019');
-define('SMF_LANG_VERSION', '2.1 RC1');
+define('SMF_LANG_VERSION', '2.1 RC2');
 define('SMF_INSTALLING', 1);
 
 /**
@@ -4893,7 +4893,9 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 		$request = $smcFunc['db_query']('', '
 			SELECT DISTINCT {raw:old_col}
 			FROM {db_prefix}{raw:table_name}
-			WHERE {raw:new_col} IS NULL AND {raw:old_col} != {string:unknown}
+			WHERE {raw:new_col} IS NULL AND
+				{raw:old_col} != {string:unknown} AND
+				{raw:old_col} != {string:empty}
 			LIMIT {int:limit}',
 			array(
 				'old_col' => $oldCol,

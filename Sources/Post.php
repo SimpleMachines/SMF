@@ -11,7 +11,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -841,9 +841,9 @@ function Post($post_errors = array())
 			$request = $smcFunc['db_query']('', '
 				SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body
 				FROM {db_prefix}messages AS m
-					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-				WHERE m.id_msg = {int:id_msg}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+				WHERE {query_see_message_board}
+					AND m.id_msg = {int:id_msg}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 					AND m.approved = {int:is_approved}') . '
 				LIMIT 1',
 				array(
@@ -1261,12 +1261,12 @@ function Post($post_errors = array())
 	// quotedText.js
 	loadJavaScriptFile('quotedText.js', array('defer' => true, 'minimize' => true), 'smf_quotedText');
 
-	// Mock files to show already attached files.
-	addInlineJavaScript('
-	var current_attachments = [];');
-
 	if (!empty($context['current_attachments']))
 	{
+		// Mock files to show already attached files.
+		addInlineJavaScript('
+	var current_attachments = [];');
+
 		foreach ($context['current_attachments'] as $key => $mock)
 			addInlineJavaScript('
 	current_attachments.push({
@@ -1282,7 +1282,7 @@ function Post($post_errors = array())
 	// File Upload.
 	if ($context['can_post_attachment'])
 	{
-		$acceptedFiles = implode(',', array_map(function($val) use ($smcFunc)
+		$acceptedFiles = implode(',', array_map(function ($val) use ($smcFunc)
 		{
 			return '.' . $smcFunc['htmltrim']($val);
 		}, explode(',', $context['allowed_extensions'])));
@@ -1322,7 +1322,128 @@ function Post($post_errors = array())
 	addInlineJavaScript('
 	var current_board = ' . (empty($context['current_board']) ? 'null' : $context['current_board']) . ';', false);
 
-	// Now let's set up the fields for the posting form header...
+	/* Now let's set up the fields for the posting form header...
+
+		Each item in $context['posting_fields'] is an array similar to one of
+		the following:
+
+		$context['posting_fields']['foo'] = array(
+			'label' => array(
+				'text' => $txt['foo'], // required
+				'class' => 'foo', // optional
+			),
+			'input' => array(
+				'type' => 'text', // required
+				'attributes' => array(
+					'name' => 'foo', // optional, defaults to posting field's key
+					'value' => $foo,
+					'size' => 80,
+				),
+			),
+		);
+
+		$context['posting_fields']['bar'] = array(
+			'label' => array(
+				'text' => $txt['bar'], // required
+				'class' => 'bar', // optional
+			),
+			'input' => array(
+				'type' => 'select', // required
+				'attributes' => array(
+					'name' => 'bar', // optional, defaults to posting field's key
+				),
+				'options' => array(
+					'option_1' => array(
+						'label' => $txt['option_1'],
+						'value' => '1',
+						'selected' => true,
+					),
+					'option_2' => array(
+						'label' => $txt['option_2'],
+						'value' => '2',
+						'selected' => false,
+					),
+					'opt_group_1' => array(
+						'label' => $txt['opt_group_1'],
+						'options' => array(
+							'option_3' => array(
+								'label' => $txt['option_3'],
+								'value' => '3',
+								'selected' => false,
+							),
+							'option_4' => array(
+								'label' => $txt['option_4'],
+								'value' => '4',
+								'selected' => false,
+							),
+						),
+					),
+				),
+			),
+		);
+
+		$context['posting_fields']['baz'] = array(
+			'label' => array(
+				'text' => $txt['baz'], // required
+				'class' => 'baz', // optional
+			),
+			'input' => array(
+				'type' => 'radio_select', // required
+				'attributes' => array(
+					'name' => 'baz', // optional, defaults to posting field's key
+				),
+				'options' => array(
+					'option_1' => array(
+						'label' => $txt['option_1'],
+						'value' => '1',
+						'selected' => true,
+					),
+					'option_2' => array(
+						'label' => $txt['option_2'],
+						'value' => '2',
+						'selected' => false,
+					),
+				),
+			),
+		);
+
+		The label and input elements are required. The label text and input
+		type are also required. Other elements may be required or optional
+		depending on the situation.
+
+		The input type can be one of the following:
+
+		- text, password, color, date, datetime-local, email, month, number,
+		  range, tel, time, url, or week
+		- textarea
+		- checkbox
+		- select
+		- radio_select
+
+		When the input type is text (etc.), textarea, or checkbox, the
+		'attributes' element is used to specify the initial value and any
+		other HTML attributes that might be necessary for the input field.
+
+		When the input type is select or radio_select, the options element
+		is required in order to list the options that the user can select.
+		For the select type, these will be used to generate a typical select
+		menu. For the radio_select type, they will be used to make a div with
+		some radio buttons in it.
+
+		Each option in the options array is itself an array of attributes. If
+		an option contains a sub-array of more options, then it will be
+		turned into an optgroup in the generated select menu. Note that the
+		radio_select type only supports simple options, not grouped ones.
+
+		Both the label and the input can have a 'before' and/or 'after'
+		element. If used, these define literal HTML strings to be inserted
+		before or after the rest of the content of the label or input.
+
+		Finally, it is possible to define an 'html' element for the label
+		and/or the input. If used, this will override the HTML that would
+		normally be generated in the template file using the other
+		information in the array. This should be avoided if at all possible.
+	*/
 	$context['posting_fields'] = array();
 
 	// Guests must supply their name and email.
@@ -1421,7 +1542,7 @@ function Post($post_errors = array())
 	);
 	foreach ($context['icons'] as $icon)
 	{
-		$context['posting_fields']['icon']['input']['options'][$icon['name']]['attributes'] = array(
+		$context['posting_fields']['icon']['input']['options'][$icon['name']] = array(
 			'value' => $icon['value'],
 			'selected' => $icon['value'] == $context['icon'],
 		);
@@ -2715,10 +2836,10 @@ function QuoteFast()
 			m.id_board, m.id_member, m.approved, m.modified_time, m.modified_name, m.modified_reason
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-		WHERE m.id_msg = {int:id_msg}' . (isset($_REQUEST['modify']) || (!empty($moderate_boards) && $moderate_boards[0] == 0) ? '' : '
-			AND (t.locked = {int:not_locked}' . (empty($moderate_boards) ? '' : ' OR b.id_board IN ({array_int:moderation_board_list})') . ')') . '
+		WHERE {query_see_message_board}
+			AND m.id_msg = {int:id_msg}' . (isset($_REQUEST['modify']) || (!empty($moderate_boards) && $moderate_boards[0] == 0) ? '' : '
+			AND (t.locked = {int:not_locked}' . (empty($moderate_boards) ? '' : ' OR m.id_board IN ({array_int:moderation_board_list})') . ')') . '
 		LIMIT 1',
 		array(
 			'current_member' => $user_info['id'],

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; index
+// Version: 2.1 RC2; index
 
 global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 
@@ -400,12 +400,6 @@ $txt['new_poll'] = 'New poll';
 $txt['poll_question'] = 'Question';
 $txt['poll_vote'] = 'Submit Vote';
 $txt['poll_total_voters'] = 'Total Members Voted';
-$txt['shortcuts'] = 'Shortcuts: alt+s save/post, alt+p preview';
-$txt['shortcuts_firefox'] = 'Shortcuts: shift+alt+s save/post, shift+alt+p preview';
-$txt['shortcuts_mac'] = 'Shortcuts: ⌃⌥S save/post, ⌃⌥P preview';
-$txt['shortcuts_drafts'] = ', alt+d save draft';
-$txt['shortcuts_drafts_firefox'] = ', shift+alt+d save draft';
-$txt['shortcuts_drafts_mac'] = ', ⌃⌥D save draft';
 $txt['poll_results'] = 'View results';
 $txt['poll_lock'] = 'Lock Voting';
 $txt['poll_unlock'] = 'Unlock Voting';

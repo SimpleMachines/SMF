@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -370,11 +370,10 @@ function issueWarning($memID)
 	if (isset($_REQUEST['msg']) && 0 < (int) $_REQUEST['msg'])
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT subject
+			SELECT m.subject
 			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-			WHERE id_msg = {int:message}
-				AND {query_see_board}
+			WHERE m.id_msg = {int:message}
+				AND {query_see_message_board}
 			LIMIT 1',
 			array(
 				'message' => (int) $_REQUEST['msg'],

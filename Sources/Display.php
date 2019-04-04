@@ -11,7 +11,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -981,7 +981,7 @@ function Display()
 			$ascending = !$ascending;
 			$limit = $context['total_visible_posts'] <= $start + $limit ? $context['total_visible_posts'] - $start : $limit;
 			$start = $context['total_visible_posts'] <= $start + $limit ? 0 : $context['total_visible_posts'] - $start - $limit;
-			$firstIndex = $limit - 1;
+			$firstIndex = empty($options['view_newest_first']) ? $start - 1 : $limit - 1;
 		}
 
 		// Get each post and poster in this topic.

@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -75,7 +75,7 @@ function template_pm_popup()
 	{
 		foreach ($context['unread_pms'] as $id_pm => $pm_details)
 			echo '
-			<div class="unread">
+			<div class="unread_notify">
 				', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '
 				<div class="details">
 					<div class="subject">', $pm_details['pm_link'], '</div>

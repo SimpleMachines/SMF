@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; ManageMembers
+// Version: 2.1 RC2; ManageMembers
 
 global $context;
 

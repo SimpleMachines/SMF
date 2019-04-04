@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -773,6 +773,7 @@ function loadUserSettings()
 		'permissions' => array(),
 	);
 	$user_info['groups'] = array_unique($user_info['groups']);
+	$user_info['can_manage_boards'] = !empty($user_info['is_admin']) || (!empty($modSettings['board_manager_groups']) && count(array_intersect($user_info['groups'], explode(',', $modSettings['board_manager_groups']))) > 0);
 
 	// Make sure that the last item in the ignore boards array is valid. If the list was too long it could have an ending comma that could cause problems.
 	if (!empty($user_info['ignoreboards']) && empty($user_info['ignoreboards'][$tmp = count($user_info['ignoreboards']) - 1]))
@@ -801,6 +802,8 @@ function loadUserSettings()
 	$temp = build_query_board($user_info['id']);
 	$user_info['query_see_board'] = $temp['query_see_board'];
 	$user_info['query_wanna_see_board'] = $temp['query_wanna_see_board'];
+	$user_info['query_see_message_board'] = $temp['query_see_message_board'];
+	$user_info['query_see_topic_board'] = $temp['query_see_topic_board'];
 
 	call_integration_hook('integrate_user_info');
 }
@@ -954,6 +957,12 @@ function loadBoard()
 			$board_info['groups'] = $row['member_groups'] == '' ? array() : explode(',', $row['member_groups']);
 			$board_info['deny_groups'] = $row['deny_member_groups'] == '' ? array() : explode(',', $row['deny_member_groups']);
 
+			if (!empty($modSettings['board_manager_groups']))
+			{
+				$board_info['groups'] = array_unique(array_merge($board_info['groups'], explode(',', $modSettings['board_manager_groups'])));
+				$board_info['deny_groups'] = array_diff($board_info['deny_groups'], explode(',', $modSettings['board_manager_groups']));
+			}
+
 			do
 			{
 				if (!empty($row['id_moderator']))
@@ -1059,7 +1068,7 @@ function loadBoard()
 
 	// No posting in redirection boards!
 	if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'post' && !empty($board_info['redirect']))
-		$board_info['error'] == 'post_in_redirect';
+		$board_info['error'] = 'post_in_redirect';
 
 	// Hacker... you can't see this topic, I'll tell you that. (but moderators can!)
 	if (!empty($board_info['error']) && (!empty($modSettings['deny_boards_access']) || $board_info['error'] != 'access' || !$user_info['is_mod']))
@@ -1496,6 +1505,22 @@ function loadMemberContext($user, $display_custom_fields = false)
 		if (empty($loadedLanguages))
 			$loadedLanguages = getLanguages();
 
+		// Figure out the new time offset.
+		if (!empty($profile['timezone']))
+		{
+			// Get the offsets from UTC for the server, then for the user.
+			$tz_system = new DateTimeZone(@date_default_timezone_get());
+			$tz_user = new DateTimeZone($profile['timezone']);
+			$time_system = new DateTime('now', $tz_system);
+			$time_user = new DateTime('now', $tz_user);
+			$profile['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
+		}
+		else
+		{
+			// !!! Compatibility.
+			$profile['time_offset'] = empty($profile['time_offset']) ? 0 : $profile['time_offset'];
+		}
+
 		$memberContext[$user] += array(
 			'username_color' => '<span ' . (!empty($profile['member_group_color']) ? 'style="color:' . $profile['member_group_color'] . ';"' : '') . '>' . $profile['member_name'] . '</span>',
 			'name_color' => '<span ' . (!empty($profile['member_group_color']) ? 'style="color:' . $profile['member_group_color'] . ';"' : '') . '>' . $profile['real_name'] . '</span>',
@@ -1759,44 +1784,44 @@ function loadTheme($id_theme = 0, $initialize = true)
 {
 	global $user_info, $user_settings, $board_info, $boarddir, $maintenance;
 	global $txt, $boardurl, $scripturl, $mbname, $modSettings;
-	global $context, $settings, $options, $sourcedir, $ssi_theme, $smcFunc, $language, $board, $image_proxy_enabled;
+	global $context, $settings, $options, $sourcedir, $smcFunc, $language, $board, $image_proxy_enabled;
 
-	// The theme was specified by parameter.
-	if (!empty($id_theme))
-		$id_theme = (int) $id_theme;
-	// The theme was specified by REQUEST.
-	elseif (!empty($_REQUEST['theme']) && (!empty($modSettings['theme_allow']) || allowedTo('admin_forum')))
+	if (empty($id_theme))
 	{
-		$id_theme = (int) $_REQUEST['theme'];
-		$_SESSION['id_theme'] = $id_theme;
-	}
-	// The theme was specified by REQUEST... previously.
-	elseif (!empty($_SESSION['id_theme']) && (!empty($modSettings['theme_allow']) || allowedTo('admin_forum')))
-		$id_theme = (int) $_SESSION['id_theme'];
-	// The theme is just the user's choice. (might use ?board=1;theme=0 to force board theme.)
-	elseif (!empty($user_info['theme']) && !isset($_REQUEST['theme']))
-		$id_theme = $user_info['theme'];
-	// The theme was specified by the board.
-	elseif (!empty($board_info['theme']))
-		$id_theme = $board_info['theme'];
-	// The theme is the forum's default.
-	else
-		$id_theme = $modSettings['theme_guests'];
-
-	// Verify the id_theme... no foul play.
-	// Always allow the board specific theme, if they are overriding.
-	if (!empty($board_info['theme']) && $board_info['override_theme'])
-		$id_theme = $board_info['theme'];
-	// If they have specified a particular theme to use with SSI allow it to be used.
-	elseif (!empty($ssi_theme) && $id_theme == $ssi_theme)
-		$id_theme = (int) $id_theme;
-	elseif (!empty($modSettings['enableThemes']) && !allowedTo('admin_forum'))
-	{
-		$themes = explode(',', $modSettings['enableThemes']);
-		if (!in_array($id_theme, $themes))
-			$id_theme = $modSettings['theme_guests'];
+		if (!empty($modSettings['theme_allow']) || allowedTo('admin_forum'))
+		{
+			// The theme was specified by REQUEST.
+			if (!empty($_REQUEST['theme']) && (allowedTo('admin_forum') || in_array($_REQUEST['theme'], explode(',', $modSettings['knownThemes']))))
+			{
+				$id_theme = (int) $_REQUEST['theme'];
+				$_SESSION['id_theme'] = $id_theme;
+			}
+			// The theme was specified by REQUEST... previously.
+			elseif (!empty($_SESSION['id_theme']))
+				$id_theme = (int) $_SESSION['id_theme'];
+			// The theme is just the user's choice. (might use ?board=1;theme=0 to force board theme.)
+			elseif (!empty($user_info['theme']))
+				$id_theme = $user_info['theme'];
+		}
+		// The theme was specified by the board.
+		elseif (!empty($board_info['theme']))
+			$id_theme = $board_info['theme'];
+		// The theme is the forum's default.
 		else
-			$id_theme = (int) $id_theme;
+			$id_theme = $modSettings['theme_guests'];
+
+		// Verify the id_theme... no foul play.
+		// Always allow the board specific theme, if they are overriding.
+		if (!empty($board_info['theme']) && $board_info['override_theme'])
+			$id_theme = $board_info['theme'];
+		elseif (!empty($modSettings['enableThemes']))
+		{
+			$themes = explode(',', $modSettings['enableThemes']);
+			if (!in_array($id_theme, $themes))
+				$id_theme = $modSettings['theme_guests'];
+			else
+				$id_theme = (int) $id_theme;
+		}
 	}
 
 	// Allow mod authors the option to override the theme id for custom page themes
@@ -2992,7 +3017,7 @@ function getLanguages($use_cache = true)
 					$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
 
 					// Get the line we need.
-					$fp = @fopen($language_dir . '/' . $entry);
+					$fp = @fopen($language_dir . '/' . $entry, 'r');
 
 					// Yay!
 					if ($fp)
