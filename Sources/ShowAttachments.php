@@ -77,7 +77,7 @@ function showAttachment()
 
 	// Use cache when possible.
 	if (($cache = cache_get_data('attachment_lookup_id-' . $attachId)) != null)
-		list($file, $thumbFile) = $cache;
+		list ($file, $thumbFile) = $cache;
 
 	// Get the info from the DB.
 	if (empty($file) || empty($thumbFile) && !empty($file['id_thumb']))
@@ -91,9 +91,12 @@ function showAttachment()
 		{
 			// Make sure this attachment is on this board and load its info while we are at it.
 			$request = $smcFunc['db_query']('', '
-				SELECT id_folder, filename, file_hash, fileext, id_attach, id_thumb, attachment_type, mime_type, approved, id_msg
+				SELECT
+					id_folder, filename, file_hash, fileext, id_attach,
+					id_thumb, attachment_type, mime_type, approved, id_msg
 				FROM {db_prefix}attachments
-				WHERE id_attach = {int:attach} AND id_msg != 0
+				WHERE id_attach = {int:attach}' . (!empty($context['preview_message']) ? '
+					AND a.id_msg != 0' : '') . '
 				LIMIT 1',
 				array(
 					'attach' => $attachId,
