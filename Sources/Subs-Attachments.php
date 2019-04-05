@@ -1307,7 +1307,7 @@ function loadAttachmentContext($id_msg, $attachments)
 
 	// Do we need to instigate a sort?
 	if ($have_unapproved)
-		uksort($attachmentData, function($a, $b)
+		uasort($attachmentData, function($a, $b)
 		{
 			if ($a['is_approved'] == $b['is_approved'])
 				return 0;
