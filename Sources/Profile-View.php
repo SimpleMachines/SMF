@@ -221,6 +221,7 @@ function summary($memID)
  * @param int $counter How many alerts to display (0 if displaying all or using pagination)
  * @param array $pagination An array containing info for handling pagination. Should have 'start' and 'maxIndex'
  * @param bool $withSender With $memberContext from sender
+ * @param bool $show_links if set to true alerts will show links if any instead of plain text
  * @return array An array of information about the fetched alerts
  */
 function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = true, $show_links = false)
