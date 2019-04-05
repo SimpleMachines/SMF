@@ -481,10 +481,10 @@ function showAlerts($memID)
 			$link = $scripturl . $alert['extra']['report_link'];
 		elseif (isset($alert['content_action']) && $alert['content_action'] === 'register_approval')
 			$link = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
-		elseif (isset($alert['content_action'], $alert['id_member_started']) && ($alert['content_type'] === 'member' || $alert['content_action'] === 'buddy_request'))
-			$link = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
 		elseif (isset($alert['content_action']) && $alert['content_action'] === 'group_request')
 			$link = $scripturl . '?action=moderate;area=groups;sa=requests';
+		elseif (isset($alert['content_action'], $alert['id_member_started']) && ($alert['content_type'] === 'member' || $alert['content_action'] === 'buddy_request'))
+			$link = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
 		elseif (isset($alert['content_type'], $alert['extra']['event_id']) && $alert['content_type'] === 'event')
 			$link = $scripturl . '?action=calendar;event=' . $alert['extra']['event_id'];
 		elseif (isset($alert['content_action'], $alert['content_id']) && $alert['content_type'] === 'msg')
