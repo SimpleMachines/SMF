@@ -1021,7 +1021,7 @@ function permute($array)
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
 	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
-	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
+	static $bbc_lang_locales = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled, $alltags_regex = '', $param_regexes = array();
 
 	// Don't waste cycles
@@ -1052,6 +1052,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 		return $message;
 	}
+
+	// If we already have a version of the BBCodes for the current language, use that. Otherwise, make one.
+	if (!empty($bbc_lang_locales[$txt['lang_locale']]))
+		$bbc_codes = $bbc_lang_locales[$txt['lang_locale']];
+	else
+		$bbc_codes = array();
 
 	// If we are not doing every tag then we don't cache this run.
 	if (!empty($parse_tags) && !empty($bbc_codes))
@@ -2987,6 +2993,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			unset($real_alltags_regex);
 		}
 	}
+	else
+		$bbc_lang_locales[$txt['lang_locale']] = $bbc_codes;
 
 	return $message;
 }

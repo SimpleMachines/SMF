@@ -40,11 +40,12 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings;
+		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings, $user_info;
 
 		require_once($sourcedir . '/Subs-Post.php');
 		require_once($sourcedir . '/Mentions.php');
 		require_once($sourcedir . '/Subs-Notify.php');
+		require_once($sourcedir . '/Subs.php');
 
 		$msgOptions = $this->_details['msgOptions'];
 		$topicOptions = $this->_details['topicOptions'];
@@ -135,6 +136,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		foreach ($done_members as $done_member)
 			unset($watched[$done_member]);
 
+		$parsed_message = array();
+
 		// Handle rest of the notifications for watched topics and boards
 		foreach ($watched as $member => $data)
 		{
@@ -194,18 +197,38 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			else
 				continue;
 
+			$receiver_lang = empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile'];
+
+			// Censor and parse BBC in the receiver's language. Only do each language once.
+			if (empty($parsed_message[$receiver_lang]))
+			{
+				if ($receiver_lang != $user_info['language'])
+					loadLanguage('index', $receiver_lang, false);
+
+				$parsed_message[$receiver_lang]['subject'] = $msgOptions['subject'];
+				$parsed_message[$receiver_lang]['body'] = $msgOptions['body'];
+
+				censorText($parsed_message[$receiver_lang]['subject']);
+				censorText($parsed_message[$receiver_lang]['body']);
+				$parsed_message[$receiver_lang]['subject'] = un_htmlspecialchars($parsed_message[$receiver_lang]['subject']);
+				$parsed_message[$receiver_lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($parsed_message[$receiver_lang]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+
+				if ($receiver_lang != $user_info['language'])
+					loadLanguage('index', $user_info['language'], false);
+			}
+
 			// Bitwise check: Receiving a email notification?
 			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				$replacements = array(
-					'TOPICSUBJECT' => $msgOptions['subject'],
+					'TOPICSUBJECT' => $parsed_message[$receiver_lang]['subject'],
 					'POSTERNAME' => un_htmlspecialchars($posterOptions['name']),
 					'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
-					'MESSAGE' => trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc(un_preparsecode($msgOptions['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\''))))),
+					'MESSAGE' => trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc(un_preparsecode($parsed_message[$receiver_lang]['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\''))))),
 					'UNSUBSCRIBELINK' => $scripturl . '?action=notifyboard;board=' . $topicOptions['board'] . '.0',
 				);
 
-				$emaildata = loadEmailTemplate($message_type, $replacements, empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile']);
+				$emaildata = loadEmailTemplate($message_type, $replacements, $receiver_lang);
 				$mail_result = sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
 
 				// We failed, don't trigger a alert as we don't have a way to attempt to resend just the email currently.
@@ -229,7 +252,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'extra' => $smcFunc['json_encode'](array(
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
-						'content_subject' => $msgOptions['subject'],
+						'content_subject' => $parsed_message[$receiver_lang]['subject'],
 						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
 					)),
 				);
