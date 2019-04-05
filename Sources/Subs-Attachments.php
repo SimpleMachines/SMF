@@ -1112,7 +1112,7 @@ function getAttachsByMsg($msgID)
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 			WHERE a.attachment_type = {int:attachment_type}
-				AND a.id_msg ' . (!empty($context['preview_message']) ? 'IN (0, {int:message_id})' : 'AND a.id_msg = {int:message_id}') . '',
+				AND a.id_msg ' . (!empty($context['preview_message']) ? 'IN (0, {int:message_id})' : 'AND a.id_msg = {int:message_id}'),
 			array(
 				'message_id' => $msgID,
 				'attachment_type' => 0,
