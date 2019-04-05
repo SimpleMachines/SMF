@@ -318,7 +318,7 @@ function reloadSettings()
 	{
 		$integration_settings = $smcFunc['json_decode'](SMF_INTEGRATION_SETTINGS, true);
 		foreach ($integration_settings as $hook => $function)
-			add_integration_function($hook, $function, '', false);
+			add_integration_function($hook, $function, false);
 	}
 
 	// Any files to pre include?

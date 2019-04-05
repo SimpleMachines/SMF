@@ -25,7 +25,7 @@ if (!defined('SMF'))
  *  die(log_error($msg));
  *
  * @param string $error_message The message to log
- * @param string $error_type The type of error
+ * @param string|bool $error_type The type of error
  * @param string $file The name of the file where this error occurred
  * @param int $line The line where the error occurred
  * @return string The message that was logged
@@ -64,7 +64,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	if ($file == null)
 		$file = '';
 	else
-		// Window style slashes don't play well, lets convert them to the unix style.
+		// Windows style slashes don't play well, lets convert them to the unix style.
 		$file = str_replace('\\', '/', $file);
 
 	if ($line == null)
@@ -172,7 +172,7 @@ function fatal_error($error, $log = 'general', $status = 500)
 	if (empty($txt))
 		die($error);
 
-	log_error_online($error, false);
+	log_error_online($error);
 	setup_fatal_error_context($log ? log_error($error, $log) : $error);
 }
 
