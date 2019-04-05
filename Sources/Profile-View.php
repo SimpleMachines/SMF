@@ -487,7 +487,7 @@ function showAlerts($memID)
 			$link = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
 		elseif (isset($alert['content_type'], $alert['extra']['event_id']) && $alert['content_type'] === 'event')
 			$link = $scripturl . '?action=calendar;event=' . $alert['extra']['event_id'];
-		elseif (isset($alert['content_action'], $alert['content_id']) && $alert['content_type'] === 'msg')
+		elseif (isset($alert['content_type'], $alert['content_id']) && $alert['content_type'] === 'msg')
 			$link = $scripturl . '?msg=' . $alert['content_id'];
 
 		call_integration_hook('integrate_show_alert', array(&$alert, &$link));
