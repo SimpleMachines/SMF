@@ -263,8 +263,7 @@ class ProxyServer
 	 * A helper function to redirect a request
 	 *
 	 * @access private
-	 * @param type $request
-	 * @return void
+	 * @param string $request
 	 */
 	private function redirectexit($request)
 	{
@@ -276,7 +275,6 @@ class ProxyServer
 	 * Delete all old entries
 	 *
 	 * @access public
-	 * @return void
 	 */
 	public function housekeeping()
 	{
