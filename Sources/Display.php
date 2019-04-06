@@ -1681,21 +1681,6 @@ function Download()
 }
 
 /**
- * A sort function for putting unapproved attachments first.
- *
- * @param array $a An array of info about one attachment
- * @param array $b An array of info about a second attachment
- * @return int -1 if $a is approved but $b isn't, 0 if both are approved/unapproved, 1 if $b is approved but a isn't
- */
-function approved_attach_sort($a, $b)
-{
-	if ($a['is_approved'] == $b['is_approved'])
-		return 0;
-
-	return $a['is_approved'] > $b['is_approved'] ? -1 : 1;
-}
-
-/**
  * In-topic quick moderation.
  */
 function QuickInTopicModeration()

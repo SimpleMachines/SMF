@@ -586,7 +586,7 @@ function showAlerts($memID)
  */
 function showPosts($memID)
 {
-	global $txt, $user_info, $scripturl, $modSettings;
+	global $txt, $user_info, $scripturl, $modSettings, $options;
 	global $context, $user_profile, $sourcedir, $smcFunc, $board;
 
 	// Some initial context.
@@ -1166,7 +1166,7 @@ function list_getNumAttachments($boardsAllowed, $memID)
  */
 function showUnwatched($memID)
 {
-	global $txt, $user_info, $scripturl, $modSettings, $context, $sourcedir;
+	global $txt, $user_info, $scripturl, $modSettings, $context, $options, $sourcedir;
 
 	// Only the owner can see the list (if the function is enabled of course)
 	if ($user_info['id'] != $memID)
@@ -2016,7 +2016,7 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 function TrackIP($memID = 0)
 {
 	global $user_profile, $scripturl, $txt, $user_info, $modSettings, $sourcedir;
-	global $context, $smcFunc;
+	global $context, $options, $smcFunc;
 
 	// Can the user do this?
 	isAllowedTo('moderate_forum');
