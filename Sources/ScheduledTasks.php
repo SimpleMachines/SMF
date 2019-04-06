@@ -247,14 +247,9 @@ function scheduled_daily_maintenance()
 	// Run Imageproxy housekeeping
 	if (!empty($image_proxy_enabled))
 	{
-		global $proxyhousekeeping;
-		$proxyhousekeeping = true;
-
 		require_once($boarddir . '/proxy.php');
 		$proxy = new ProxyServer();
 		$proxy->housekeeping();
-
-		unset($proxyhousekeeping);
 	}
 
 	// Log we've done it...

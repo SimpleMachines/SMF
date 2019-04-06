@@ -25,8 +25,6 @@ if (!defined('SMF_FULL_VERSION'))
 if (!defined('SMF_SOFTWARE_YEAR'))
 	define('SMF_SOFTWARE_YEAR', '2019');
 
-global $proxyhousekeeping;
-
 /**
  * Class ProxyServer
  */
@@ -305,7 +303,7 @@ class ProxyServer
 	}
 }
 
-if (empty($proxyhousekeeping))
+if (SMF == 'PROXY')
 {
 	$proxy = new ProxyServer();
 	$proxy->serve();
