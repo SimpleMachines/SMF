@@ -55,7 +55,10 @@ function getNotifyPrefs($members, $prefs = '', $process_default = false)
 	if ($process_default && isset($result[0]))
 	{
 		foreach ($members as $member)
-			$result[$member] += $result[0];
+			if (isset($result[$member]))
+				$result[$member] += $result[0];
+			else
+				$result[$member] = $result[0];
 
 		unset ($result[0]);
 	}
