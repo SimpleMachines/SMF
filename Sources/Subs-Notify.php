@@ -49,15 +49,15 @@ function getNotifyPrefs($members, $prefs = '', $process_default = false)
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
 		$result[$row['id_member']][$row['alert_pref']] = $row['alert_value'];
-	}
 
 	// We may want to keep the default values separate from a given user's. Or we might not.
 	if ($process_default && isset($result[0]))
 	{
 		foreach ($members as $member)
-			if (!isset($result[$member]))
+			if (isset($result[$member]))
+				$result[$member] += $result[0];
+			else
 				$result[$member] = $result[0];
 
 		unset ($result[0]);
