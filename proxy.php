@@ -14,7 +14,7 @@
  */
 
 if (!defined('SMF'))
-	define('SMF', 'proxy');
+	define('SMF', 'PROXY');
 
 if (!defined('SMF_VERSION'))
 	define('SMF_VERSION', '2.1 RC2');
