@@ -77,10 +77,6 @@ class ProxyServer
 		$this->secret = (string) $image_proxy_secret;
 		$this->cache = $cachedir . '/images';
 		$this->maxDays = 5;
-		$this->cachedtime = null;
-		$this->cachedtype = null;
-		$this->cachedsize = null;
-		$this->cachedbody = null;
 	}
 
 	/**
