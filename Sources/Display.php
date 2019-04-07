@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -25,6 +25,7 @@ if (!defined('SMF'))
  * It jumps to the correct post depending on a number/time/IS_MSG passed.
  * It depends on the messages_per_page, defaultMaxMessages and enableAllMessages settings.
  * It is accessed by ?topic=id_topic.START.
+ *
  * @return void
  */
 function Display()
@@ -169,7 +170,7 @@ function Display()
 			' . (!empty($topic_tables) ? implode("\n\t", $topic_tables) : '') . '
 		WHERE t.id_topic = {int:current_topic}
 		LIMIT 1',
-			$topic_parameters
+		$topic_parameters
 	);
 
 	if ($smcFunc['db_num_rows']($request) == 0)
@@ -198,8 +199,7 @@ function Display()
 		redirectexit('topic=' . $context['topicinfo']['id_redirect_topic'] . '.0', false, true);
 	}
 
-	// Short-cut to know if this user can see unapproved messages.
-	$approve_posts = (allowedTo('approve_posts') || $context['topicinfo']['id_member_started'] == $user_info['id']);
+	$can_approve_posts = allowedTo('approve_posts');
 
 	$context['real_num_replies'] = $context['num_replies'] = $context['topicinfo']['num_replies'];
 	$context['topic_started_time'] = timeformat($context['topicinfo']['topic_started_time']);
@@ -210,11 +210,11 @@ function Display()
 	$context['topic_unwatched'] = isset($context['topicinfo']['unwatched']) ? $context['topicinfo']['unwatched'] : 0;
 
 	// Add up unapproved replies to get real number of replies...
-	if ($modSettings['postmod_active'] && $approve_posts)
+	if ($modSettings['postmod_active'] && $can_approve_posts)
 		$context['real_num_replies'] += $context['topicinfo']['unapproved_posts'] - ($context['topicinfo']['approved'] ? 0 : 1);
 
 	// If this topic has unapproved posts, we need to work out how many posts the user can see, for page indexing.
-	if ($modSettings['postmod_active'] && $context['topicinfo']['unapproved_posts'] && !$user_info['is_guest'] && !$approve_posts)
+	if ($modSettings['postmod_active'] && $context['topicinfo']['unapproved_posts'] && !$user_info['is_guest'] && !$can_approve_posts)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(id_member) AS my_unapproved_posts
@@ -750,7 +750,7 @@ function Display()
 			'lock' => allowedTo('poll_lock_any') || ($context['user']['started'] && allowedTo('poll_lock_own')),
 			'edit' => allowedTo('poll_edit_any') || ($context['user']['started'] && allowedTo('poll_edit_own')),
 			'remove' => allowedTo('poll_remove_any') || ($context['user']['started'] && allowedTo('poll_remove_own')),
-			'allowed_warning' => $pollinfo['max_votes'] > 1 ? sprintf($txt['poll_options6'], min(count($pollOptions), $pollinfo['max_votes'])) : '',
+			'allowed_warning' => $pollinfo['max_votes'] > 1 ? sprintf($txt['poll_options_limit'], min(count($pollOptions), $pollinfo['max_votes'])) : '',
 			'is_expired' => !empty($pollinfo['expire_time']) && $pollinfo['expire_time'] < time(),
 			'expire_time' => !empty($pollinfo['expire_time']) ? timeformat($pollinfo['expire_time']) : 0,
 			'has_voted' => !empty($pollinfo['has_voted']),
@@ -915,14 +915,14 @@ function Display()
 		if ($start_char === 'C')
 			$limit_seek = $limit;
 		else
-			$limit_seek  = $limit + 1;
+			$limit_seek = $limit + 1;
 
 		$request = $smcFunc['db_query']('', '
 			SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:current_topic}
-			AND id_msg '. $page_operator . ' {int:page_id}'. (!$modSettings['postmod_active'] || $approve_posts ? '' : '
-			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
+				AND id_msg ' . $page_operator . ' {int:page_id}' . (!$modSettings['postmod_active'] || $can_approve_posts ? '' : '
+				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 			ORDER BY id_msg ' . ($ascending_seek ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:limit}'),
 			array(
@@ -981,15 +981,15 @@ function Display()
 			$ascending = !$ascending;
 			$limit = $context['total_visible_posts'] <= $start + $limit ? $context['total_visible_posts'] - $start : $limit;
 			$start = $context['total_visible_posts'] <= $start + $limit ? 0 : $context['total_visible_posts'] - $start - $limit;
-			$firstIndex = $limit - 1;
+			$firstIndex = empty($options['view_newest_first']) ? $start - 1 : $limit - 1;
 		}
 
 		// Get each post and poster in this topic.
 		$request = $smcFunc['db_query']('', '
 			SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
-			WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
-			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
+			WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $can_approve_posts ? '' : '
+				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 			ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:start}, {int:max}'),
 			array(
@@ -1459,11 +1459,8 @@ function Display()
 		$context['mod_buttons']['restore_topic'] = array('text' => 'restore_topic', 'image' => '', 'url' => $scripturl . '?action=restoretopic;topics=' . $context['current_topic'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	// Show a message in case a recently posted message became unapproved.
-	$context['becomesUnapproved'] = !empty($_SESSION['becomesUnapproved']) ? true : false;
-
-	// Don't want to show this forever...
-	if ($context['becomesUnapproved'])
-		unset($_SESSION['becomesUnapproved']);
+	$context['becomesUnapproved'] = !empty($_SESSION['becomesUnapproved']);
+	unset($_SESSION['becomesUnapproved']);
 
 	// Allow adding new mod buttons easily.
 	// Note: $context['normal_buttons'] and $context['mod_buttons'] are added for backward compatibility with 2.0, but are deprecated and should not be used
@@ -1575,7 +1572,7 @@ function prepareDisplayContext($reset = false)
 	else
 	{
 		// Define this here to make things a bit more readable
-		$can_view_warning = $context['user']['can_mod'] || allowedTo('view_warning_any') || ($message['id_member'] == $user_info['id'] && allowedTo('view_warning_own'));
+		$can_view_warning = allowedTo('moderate_forum') || allowedTo('view_warning_any') || ($message['id_member'] == $user_info['id'] && allowedTo('view_warning_own'));
 
 		$memberContext[$message['id_member']]['can_view_profile'] = allowedTo('profile_view') || ($message['id_member'] == $user_info['id'] && !$user_info['is_guest']);
 		$memberContext[$message['id_member']]['is_topic_starter'] = $message['id_member'] == $context['topic_starter_id'];
@@ -1681,20 +1678,6 @@ function Download()
 	global $sourcedir;
 	require_once($sourcedir . '/ShowAttachments.php');
 	showAttachment();
-}
-
-/**
- * A sort function for putting unapproved attachments first.
- * @param array $a An array of info about one attachment
- * @param array $b An array of info about a second attachment
- * @return int -1 if $a is approved but $b isn't, 0 if both are approved/unapproved, 1 if $b is approved but a isn't
- */
-function approved_attach_sort($a, $b)
-{
-	if ($a['is_approved'] == $b['is_approved'])
-		return 0;
-
-	return $a['is_approved'] > $b['is_approved'] ? -1 : 1;
 }
 
 /**

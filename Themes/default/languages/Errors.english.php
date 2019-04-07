@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; Errors
+// Version: 2.1 RC2; Errors
 
 global $scripturl, $modSettings;
 
@@ -252,6 +252,7 @@ $txt['error_poll_few'] = 'You must have at least two choices!';
 $txt['error_poll_many'] = 'You must have no more than 256 choices.';
 $txt['error_need_qr_verification'] = 'Please complete the verification section below to complete your post.';
 $txt['error_wrong_verification_code'] = 'The letters you typed don\'t match the letters that were shown in the picture.';
+$txt['error_wrong_verification_recaptcha'] = 'Verification failed, invalid captcha value.';
 $txt['error_wrong_verification_answer'] = 'You did not answer the verification questions correctly.';
 $txt['error_need_verification_code'] = 'Please enter the verification code below to continue to the results.';
 $txt['error_bad_file'] = 'Sorry but the file specified could not be opened: %1$s';
@@ -425,12 +426,12 @@ $txt['search_api_not_compatible'] = 'The selected search API the forum is using 
 $txt['hook_fail_loading_file'] = 'Hook call: The file at path: %s could not be loaded.';
 $txt['hook_fail_call_to'] = 'Hook call: function "%1$s" in file %2$s could not be called.';
 
-$txt['file_not_created'] = 'The file at "%1$s" could not be created. Please make sure the parent directory has the appropiate permissions.';
+$txt['file_not_created'] = 'The file at "%1$s" could not be created. Please make sure the parent directory has the appropriate permissions.';
 $txt['file_minimize_fail'] = 'The file "%1$s" could not be located on the current or the default theme and therefore it wasn\'t included in the minified file.';
-$txt['unlink_minimized_fail'] = 'The following files could not be deleted. Please check the file permissions of the files themselves and the parent dirctory.<br>%1$s';
+$txt['unlink_minimized_fail'] = 'The following files could not be deleted. Please check the file permissions of the files themselves and the parent directory.<br>%1$s';
 
 // SubActions failed attempt.
-$txt['subAction_fail'] = 'The callable %s could not be called.';
+$txt['sub_action_fail'] = 'The callable %s could not be called.';
 
 // Restore topic/posts
 $txt['cannot_restore_first_post'] = 'You cannot restore the first post in a topic.';

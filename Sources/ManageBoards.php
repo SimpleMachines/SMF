@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -22,7 +22,7 @@ if (!defined('SMF'))
  * Called by ?action=admin;area=manageboards.
  * It checks the permissions, based on the sub-action, and calls a function based on the sub-action.
  *
- *  @uses ManageBoards language file.
+ * @uses ManageBoards language file.
  */
 function ManageBoards()
 {
@@ -156,20 +156,20 @@ function ManageBoardsMain()
 					);
 
 				if (!$context['categories'][$catid]['boards'][$boardid]['move'])
-				$context['categories'][$catid]['boards'][$boardid]['move_links'] = array(
-					array(
-						'child_level' => $boards[$boardid]['level'],
-						'label' => $txt['mboards_order_after'] . '\'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
-						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $security,
-						'class' => $boards[$boardid]['level'] > 0 ? 'above' : 'below',
-					),
-					array(
-						'child_level' => $boards[$boardid]['level'] + 1,
-						'label' => $txt['mboards_order_child_of'] . ' \'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
-						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $security,
-						'class' => 'here',
-					),
-				);
+					$context['categories'][$catid]['boards'][$boardid]['move_links'] = array(
+						array(
+							'child_level' => $boards[$boardid]['level'],
+							'label' => $txt['mboards_order_after'] . '\'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
+							'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $security,
+							'class' => $boards[$boardid]['level'] > 0 ? 'above' : 'below',
+						),
+						array(
+							'child_level' => $boards[$boardid]['level'] + 1,
+							'label' => $txt['mboards_order_child_of'] . ' \'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
+							'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $security,
+							'class' => 'here',
+						),
+					);
 
 				$difference = $boards[$boardid]['level'] - $prev_child_level;
 				if ($difference == 1)
@@ -287,7 +287,7 @@ function EditCategory()
 	if (!isset($_REQUEST['delete']))
 	{
 		$context['sub_template'] = 'modify_category';
-		$context['page_title'] = $_REQUEST['sa'] == 'newcat' ? $txt['mboards_new_cat_name'] : $txt['catEdit'];
+		$context['page_title'] = $_REQUEST['sa'] == 'newcat' ? $txt['mboards_new_cat_name'] : $txt['cat_edit'];
 	}
 	else
 	{
@@ -580,9 +580,10 @@ function EditBoard()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme AS id, value AS name
 		FROM {db_prefix}themes
-		WHERE variable = {string:name}',
+		WHERE variable = {literal:name}
+			AND id_theme IN ({array_int:enable_themes})',
 		array(
-			'name' => 'name',
+			'enable_themes' => explode(',', $modSettings['enableThemes']),
 		)
 	);
 	$context['themes'] = array();
@@ -593,7 +594,7 @@ function EditBoard()
 	if (!isset($_REQUEST['delete']))
 	{
 		$context['sub_template'] = 'modify_board';
-		$context['page_title'] = $txt['boardsEdit'];
+		$context['page_title'] = $txt['boards_edit'];
 		loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
 	}
 	else
@@ -662,15 +663,6 @@ function EditBoard2()
 				elseif ($action == 'deny')
 					$boardOptions['deny_groups'][] = (int) $group;
 			}
-
-		// People with manage-boards are special.
-		require_once($sourcedir . '/Subs-Members.php');
-		$board_managers = groupsAllowedTo('manage_boards', null);
-		$board_managers = array_diff($board_managers['allowed'], array(1)); // We don't need to list admins anywhere.
-		// Firstly, we can't ever deny them.
-		$boardOptions['deny_groups'] = array_diff($boardOptions['deny_groups'], $board_managers);
-		// Secondly, make sure those with super cow powers (like apt-get, or in this case manage boards) are upgraded.
-		$boardOptions['access_groups'] = array_unique(array_merge($boardOptions['access_groups'], $board_managers));
 
 		if (strlen(implode(',', $boardOptions['access_groups'])) > 255 || strlen(implode(',', $boardOptions['deny_groups'])) > 255)
 			fatal_lang_error('too_many_groups', false);
@@ -854,16 +846,17 @@ function EditBoardSettings($return_config = false)
 	// Here and the board settings...
 	$config_vars = array(
 		array('title', 'settings'),
-			// Inline permissions.
-			array('permissions', 'manage_boards'),
+		// Inline permissions.
+		array('permissions', 'manage_boards'),
 		'',
-			// Other board settings.
-			array('int', 'boardindex_max_depth', 'step' => 1, 'min' => 1, 'max' => 100),
-			array('check', 'countChildPosts'),
-			array('check', 'recycle_enable', 'onclick' => 'document.getElementById(\'recycle_board\').disabled = !this.checked;'),
-			array('select', 'recycle_board', $recycle_boards),
-			array('check', 'allow_ignore_boards'),
-			array('check', 'deny_boards_access'),
+
+		// Other board settings.
+		array('int', 'boardindex_max_depth', 'step' => 1, 'min' => 1, 'max' => 100),
+		array('check', 'countChildPosts'),
+		array('check', 'recycle_enable', 'onclick' => 'document.getElementById(\'recycle_board\').disabled = !this.checked;'),
+		array('select', 'recycle_board', $recycle_boards),
+		array('check', 'allow_ignore_boards'),
+		array('check', 'deny_boards_access'),
 	);
 
 	call_integration_hook('integrate_modify_board_settings', array(&$config_vars));

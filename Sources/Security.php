@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -341,7 +341,7 @@ function is_not_banned($forceCheck = false)
 		Logout(true, false);
 
 		// You banned, sucka!
-		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']), !empty($modSettings['log_ban_hits']) ? 'ban' : false);
+		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']), false);
 
 		// If we get here, something's gone wrong.... but let's try anyway.
 		trigger_error('Hacking attempt...', E_USER_ERROR);
@@ -387,7 +387,7 @@ function is_not_banned($forceCheck = false)
 		require_once($sourcedir . '/LogInOut.php');
 		Logout(true, false);
 
-		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']) . '<br>' . $txt['ban_continue_browse'], !empty($modSettings['log_ban_hits']) ? 'ban' : false);
+		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']) . '<br>' . $txt['ban_continue_browse'], false);
 	}
 
 	// Fix up the banning permissions.
@@ -897,6 +897,7 @@ function checkSubmitOnce($action, $is_fatal = true)
 function allowedTo($permission, $boards = null, $any = false)
 {
 	global $user_info, $smcFunc;
+	static $perm_cache = array();
 
 	// You're always allowed to do nothing. (unless you're a working man, MR. LAZY :P!)
 	if (empty($permission))
@@ -924,6 +925,11 @@ function allowedTo($permission, $boards = null, $any = false)
 	}
 	elseif (!is_array($boards))
 		$boards = array($boards);
+
+	$cache_key = hash('md5', $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . $any);
+
+	if (isset($perm_cache[$cache_key]))
+		return $perm_cache[$cache_key];
 
 	$request = $smcFunc['db_query']('', '
 		SELECT MIN(bp.add_deny) AS add_deny
@@ -955,20 +961,26 @@ function allowedTo($permission, $boards = null, $any = false)
 				break;
 		}
 		$smcFunc['db_free_result']($request);
-		return $result;
+		$return = $result;
 	}
 
 	// Make sure they can do it on all of the boards.
-	if ($smcFunc['db_num_rows']($request) != count($boards))
-		return false;
+	elseif ($smcFunc['db_num_rows']($request) != count($boards))
+		$return = false;
 
-	$result = true;
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$result &= !empty($row['add_deny']);
-	$smcFunc['db_free_result']($request);
+	else
+	{
+		$result = true;
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$result &= !empty($row['add_deny']);
+		$smcFunc['db_free_result']($request);
+		$return = $result;
+	}
+
+	$perm_cache[$cache_key] = $return;
 
 	// If the query returned 1, they can do it... otherwise, they can't.
-	return $result;
+	return $return;
 }
 
 /**
@@ -1160,14 +1172,13 @@ function spamProtection($error_type, $only_return_result = false)
 		'search' => !empty($modSettings['search_floodcontrol_time']) ? $modSettings['search_floodcontrol_time'] : 1,
 	);
 
+	call_integration_hook('integrate_spam_protection', array(&$timeOverrides));
 
 	// Moderators are free...
 	if (!allowedTo('moderate_board'))
 		$timeLimit = isset($timeOverrides[$error_type]) ? $timeOverrides[$error_type] : $modSettings['spamWaitTime'];
 	else
 		$timeLimit = 2;
-
-	call_integration_hook('integrate_spam_protection', array(&$timeOverrides, &$timeLimit));
 
 	// Delete old entries...
 	$smcFunc['db_query']('', '
@@ -1266,7 +1277,7 @@ if (file_exists(dirname(dirname(__FILE__)) . \'/Settings.php\'))
 else
 	exit;
 
-?'. '>');
+?' . '>');
 			fclose($fh);
 		}
 		$errors[] = 'index-php_cannot_create_file';
@@ -1279,11 +1290,11 @@ else
 }
 
 /**
-* This sets the X-Frame-Options header.
-*
-* @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
-* @since 2.1
-*/
+ * This sets the X-Frame-Options header.
+ *
+ * @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
+ * @since 2.1
+ */
 function frameOptionsHeader($override = null)
 {
 	global $modSettings;

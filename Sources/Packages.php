@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -213,7 +213,7 @@ function PackageInstallTest()
 		ORDER BY time_installed DESC
 		LIMIT 1',
 		array(
-			'not_installed'	=> 0,
+			'not_installed' => 0,
 			'current_package' => $packageInfo['id'],
 		)
 	);
@@ -228,8 +228,8 @@ function PackageInstallTest()
 
 	$context['database_changes'] = array();
 	if (isset($packageInfo['uninstall']['database']))
-		$context['database_changes'][] = $txt['execute_database_changes'] . ' - ' . $packageInfo['uninstall']['database'];
-	elseif (!empty($db_changes))
+		$context['database_changes'][] = sprintf($txt['package_db_code'], $packageInfo['uninstall']['database']);
+	if (!empty($db_changes))
 	{
 		foreach ($db_changes as $change)
 		{
@@ -425,8 +425,8 @@ function PackageInstallTest()
 						}
 						else
 						{
-								$context['actions'][$actual_filename]['failed'] |= $failed;
-								$context['actions'][$actual_filename]['description'] = $context['actions'][$actual_filename]['failed'] ? $txt['package_action_failure'] : $txt['package_action_success'];
+							$context['actions'][$actual_filename]['failed'] |= $failed;
+							$context['actions'][$actual_filename]['description'] = $context['actions'][$actual_filename]['failed'] ? $txt['package_action_failure'] : $txt['package_action_success'];
 						}
 					}
 					elseif ($mod_action['type'] == 'skipping')
@@ -507,7 +507,7 @@ function PackageInstallTest()
 				'action' => $smcFunc['htmlspecialchars']($action['filename']),
 			);
 		}
-		elseif ($action['type'] == 'database')
+		elseif ($action['type'] == 'database' && !$context['uninstalling'])
 		{
 			$thisAction = array(
 				'type' => $txt['execute_database_changes'],
@@ -559,7 +559,7 @@ function PackageInstallTest()
 					ORDER BY time_installed DESC
 					LIMIT 1',
 					array(
-						'not_installed'	=> 0,
+						'not_installed' => 0,
 						'current_package' => $action['id'],
 					)
 				);
@@ -856,8 +856,10 @@ function PackageInstall()
 	);
 	$theme_paths = array();
 	$themes_installed = array(1);
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$theme_paths[$row['id_theme']][$row['variable']] = $row['value'];
+
 	$smcFunc['db_free_result']($request);
 
 	// Are there any theme copying that we want to take place?
@@ -911,7 +913,7 @@ function PackageInstall()
 		ORDER BY time_installed DESC
 		LIMIT 1',
 		array(
-			'not_installed'	=> 0,
+			'not_installed' => 0,
 			'current_package' => $packageInfo['id'],
 		)
 	);
@@ -1005,7 +1007,7 @@ function PackageInstall()
 			elseif ($action['type'] == 'code' && !empty($action['filename']))
 			{
 				// This is just here as reference for what is available.
-				global $txt, $boarddir, $sourcedir, $modSettings, $context, $settings, $forum_version, $smcFunc;
+				global $txt, $boarddir, $sourcedir, $modSettings, $context, $settings, $smcFunc;
 
 				// Now include the file and be done with it ;).
 				if (file_exists($packagesdir . '/temp/' . $context['base_path'] . $action['filename']))
@@ -1024,6 +1026,10 @@ function PackageInstall()
 			}
 			elseif ($action['type'] == 'hook' && isset($action['hook'], $action['function']))
 			{
+				// Set the system to ignore hooks, but only if it wasn't changed before.
+				if (!isset($context['ignore_hook_errors']))
+					$context['ignore_hook_errors'] = true;
+
 				if ($action['reverse'])
 					remove_integration_function($action['hook'], $action['function'], true, $action['include_file'], $action['object']);
 				else
@@ -1033,7 +1039,7 @@ function PackageInstall()
 			elseif ($action['type'] == 'database' && !empty($action['filename']) && (!$context['uninstalling'] || !empty($_POST['do_db_changes'])))
 			{
 				// These can also be there for database changes.
-				global $txt, $boarddir, $sourcedir, $modSettings, $context, $settings, $forum_version, $smcFunc;
+				global $txt, $boarddir, $sourcedir, $modSettings, $context, $settings, $smcFunc;
 				global $db_package_log;
 
 				// We'll likely want the package specific database functionality!
@@ -1048,7 +1054,7 @@ function PackageInstall()
 			{
 				$context['redirect_url'] = $action['redirect_url'];
 				$context['redirect_text'] = !empty($action['filename']) && file_exists($packagesdir . '/temp/' . $context['base_path'] . $action['filename']) ? $smcFunc['htmlspecialchars'](file_get_contents($packagesdir . '/temp/' . $context['base_path'] . $action['filename'])) : ($context['uninstalling'] ? $txt['package_uninstall_done'] : $txt['package_installed_done']);
-				$context['redirect_timeout'] = $action['redirect_timeout'];
+				$context['redirect_timeout'] = empty($action['redirect_timeout']) ? 5 : (int) ceil($action['redirect_timeout'] / 1000);
 				if (!empty($action['parse_bbc']))
 				{
 					require_once($sourcedir . '/Subs-Post.php');
@@ -1144,6 +1150,7 @@ function PackageInstall()
 						return 0;
 					return $a[0] == 'remove_table' ? -1 : 1;
 				}
+
 				usort($db_package_log, 'sort_table_first');
 				foreach ($db_package_log as $k => $log)
 				{
@@ -1351,11 +1358,15 @@ function PackageRemove()
  */
 function PackageBrowse()
 {
-	global $txt, $scripturl, $context, $forum_version, $sourcedir, $smcFunc;
+	global $txt, $scripturl, $context, $sourcedir, $smcFunc;
 
 	$context['page_title'] .= ' - ' . $txt['browse_packages'];
 
-	$context['forum_version'] = $forum_version;
+	$context['forum_version'] = SMF_FULL_VERSION;
+	$context['available_modification'] = array();
+	$context['available_avatar'] = array();
+	$context['available_language'] = array();
+	$context['available_unknown'] = array();
 	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
 
 	call_integration_hook('integrate_modification_types');
@@ -1489,13 +1500,6 @@ function PackageBrowse()
 	$context['sub_template'] = 'browse';
 	$context['default_list'] = 'packages_lists';
 
-	// Empty lists for now.
-	$context['available_mods'] = array();
-	$context['available_avatars'] = array();
-	$context['available_languages'] = array();
-	$context['available_other'] = array();
-	$context['available_all'] = array();
-
 	$get_versions = $smcFunc['db_query']('', '
 		SELECT data FROM {db_prefix}admin_info_files WHERE filename={string:versionsfile} AND path={string:smf}',
 		array(
@@ -1513,7 +1517,9 @@ function PackageBrowse()
 	$context['emulation_versions'] = preg_replace('~^SMF ~', '', $items);
 
 	// Current SMF version, which is selected by default
-	$context['default_version'] = preg_replace('~^SMF ~', '', $forum_version);
+	$context['default_version'] = SMF_VERSION;
+
+	$context['emulation_versions'][] = $context['default_version'];
 
 	// Version we're currently emulating, if any
 	$context['selected_version'] = preg_replace('~^SMF ~', '', $context['forum_version']);
@@ -1532,7 +1538,7 @@ function PackageBrowse()
  */
 function list_getPackages($start, $items_per_page, $sort, $params)
 {
-	global $scripturl, $packagesdir, $context, $forum_version;
+	global $scripturl, $packagesdir, $context;
 	static $packages, $installed_mods;
 
 	// Start things up
@@ -1543,7 +1549,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 	if (!@is_writable($packagesdir))
 		create_chmod_control(array($packagesdir), array('destination_url' => $scripturl . '?action=admin;area=packages', 'crash_on_error' => true));
 
-	$the_version = strtr($forum_version, array('SMF ' => ''));
+	$the_version = SMF_VERSION;
 
 	// Here we have a little code to help those who class themselves as something of gods, version emulation ;)
 	if (isset($_GET['version_emulate']) && strtr($_GET['version_emulate'], array('SMF ' => '')) == $the_version)
@@ -1552,7 +1558,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 	}
 	elseif (isset($_GET['version_emulate']))
 	{
-		if (($_GET['version_emulate'] === 0 || $_GET['version_emulate'] === $forum_version) && isset($_SESSION['version_emulate']))
+		if (($_GET['version_emulate'] === 0 || $_GET['version_emulate'] === SMF_FULL_VERSION) && isset($_SESSION['version_emulate']))
 			unset($_SESSION['version_emulate']);
 		elseif ($_GET['version_emulate'] !== 0)
 			$_SESSION['version_emulate'] = strtr($_GET['version_emulate'], array('-' => ' ', '+' => ' ', 'SMF ' => ''));
@@ -1581,15 +1587,10 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 		$context['installed_mods'] = array_keys($installed_mods);
 	}
 
-	if (empty($packages))
-		foreach ($context['modification_types'] as $type)
-			$packages[$type] = array();
-
 	if ($dir = @opendir($packagesdir))
 	{
 		$dirs = array();
 		$sort_id = array(
-			'mod' => 1,
 			'modification' => 1,
 			'avatar' => 1,
 			'language' => 1,
@@ -1600,14 +1601,6 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 		while ($package = readdir($dir))
 		{
 			if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir($packagesdir . '/' . $package) && file_exists($packagesdir . '/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip'))
-				continue;
-
-			$skip = false;
-			foreach ($context['modification_types'] as $type)
-				if (isset($context['available_' . $type][md5($package)]))
-					$skip = true;
-
-			if ($skip)
 				continue;
 
 			// Skip directories or files that are named the same.
@@ -1728,40 +1721,20 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 					}
 				}
 
-				// Modification.
-				if ($packageInfo['type'] == 'modification' || $packageInfo['type'] == 'mod')
-				{
-					$sort_id['modification']++;
-					$sort_id['mod']++;
-					$packages['modification'][strtolower($packageInfo[$sort]) . '_' . $sort_id['mod']] = md5($package);
-					$context['available_modification'][md5($package)] = $packageInfo;
-				}
-				// Avatar package.
-				elseif ($packageInfo['type'] == 'avatar')
+				// Save some memory by not passing the xmlArray object into context.
+				unset($packageInfo['xml']);
+
+				if (isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]) && $params == $packageInfo['type'])
 				{
 					$sort_id[$packageInfo['type']]++;
-					$packages['avatar'][strtolower($packageInfo[$sort])] = md5($package);
-					$context['available_avatar'][md5($package)] = $packageInfo;
-				}
-				// Language package.
-				elseif ($packageInfo['type'] == 'language')
-				{
-					$sort_id[$packageInfo['type']]++;
-					$packages['language'][strtolower($packageInfo[$sort])] = md5($package);
-					$context['available_language'][md5($package)] = $packageInfo;
-				}
-				// This might be a 3rd party section.
-				elseif (isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]))
-				{
-					$sort_id[$packageInfo['type']]++;
-					$packages[$packageInfo['type']][strtolower($packageInfo[$sort])] = md5($package);
+					$packages[$packageInfo['type']][strtolower($packageInfo[$sort]) . '_' . $sort_id[$packageInfo['type']]] = md5($package);
 					$context['available_' . $packageInfo['type']][md5($package)] = $packageInfo;
 				}
-				// Other stuff.
-				else
+				elseif (!isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]) && $params == 'unknown')
 				{
+					$packageInfo['sort_id'] = $sort_id['unknown'];
 					$sort_id['unknown']++;
-					$packages['unknown'][strtolower($packageInfo[$sort])] = md5($package);
+					$packages['unknown'][strtolower($packageInfo[$sort]) . '_' . $sort_id['unknown']] = md5($package);
 					$context['available_unknown'][md5($package)] = $packageInfo;
 				}
 			}
@@ -2099,9 +2072,9 @@ function PackagePermissions()
 		// @todo Should we suggest non-current directories be read only?
 		foreach ($modSettings['attachmentUploadDir'] as $dir)
 			$context['file_tree'][strtr($dir, array('\\' => '/'))] = array(
-			'type' => 'dir',
-			'writable_on' => 'restrictive',
-		);
+				'type' => 'dir',
+				'writable_on' => 'restrictive',
+			);
 	}
 	elseif (substr($modSettings['attachmentUploadDir'], 0, strlen($boarddir)) != $boarddir)
 	{

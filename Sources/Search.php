@@ -7,22 +7,14 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
-
-// This defines two version types for checking the API's are compatible with this version of SMF.
-$GLOBALS['search_versions'] = array(
-	// This is the forum version but is repeated due to some people rewriting $forum_version.
-	'forum_version' => 'SMF 2.1 Beta 4',
-	// This is the minimum version of SMF that an API could have been written for to work. (strtr to stop accidentally updating version on release)
-	'search_version' => strtr('SMF 2+1=Alpha=1', array('+' => '.', '=' => ' ')),
-);
 
 /**
  * Ask the user what they want to search for.
@@ -211,12 +203,11 @@ function PlushSearch1()
 		);
 
 		$request = $smcFunc['db_query']('', '
-			SELECT ms.subject
+			SELECT subject
 			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
-				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
+				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 			WHERE t.id_topic = {int:search_topic_id}
-				AND {query_see_board}' . ($modSettings['postmod_active'] ? '
+				AND {query_see_message_board} ' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved_true}' : '') . '
 			LIMIT 1',
 			array(
@@ -507,11 +498,10 @@ function PlushSearch2()
 	if (!empty($search_params['topic']))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT b.id_board
+			SELECT t.id_board
 			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 			WHERE t.id_topic = {int:search_topic_id}
-				AND {query_see_board}' . ($modSettings['postmod_active'] ? '
+				AND {query_see_topic_board}' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved_true}' : '') . '
 			LIMIT 1',
 			array(
@@ -659,7 +649,7 @@ function PlushSearch2()
 
 	// Remove the phrase parts and extract the words.
 	$wordArray = preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
-	$wordArray = explode(' ',  $smcFunc['htmlspecialchars'](un_htmlspecialchars($wordArray), ENT_QUOTES));
+	$wordArray = explode(' ', $smcFunc['htmlspecialchars'](un_htmlspecialchars($wordArray), ENT_QUOTES));
 
 	// A minus sign in front of a word excludes the word.... so...
 	$excludedWords = array();
@@ -905,26 +895,20 @@ function PlushSearch2()
 	// Do we have captcha enabled?
 	if ($user_info['is_guest'] && !empty($modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']) && (empty($_SESSION['last_ss']) || $_SESSION['last_ss'] != $search_params['search']))
 	{
-		// If we come from another search box tone down the error...
-		if (!isset($_REQUEST['search_vv']))
-			$context['search_errors']['need_verification_code'] = true;
-		else
-		{
-			require_once($sourcedir . '/Subs-Editor.php');
-			$verificationOptions = array(
-				'id' => 'search',
-			);
-			$context['require_verification'] = create_control_verification($verificationOptions, true);
+		require_once($sourcedir . '/Subs-Editor.php');
+		$verificationOptions = array(
+			'id' => 'search',
+		);
+		$context['require_verification'] = create_control_verification($verificationOptions, true);
 
-			if (is_array($context['require_verification']))
-			{
-				foreach ($context['require_verification'] as $error)
-					$context['search_errors'][$error] = true;
-			}
-			// Don't keep asking for it - they've proven themselves worthy.
-			else
-				$_SESSION['ss_vv_passed'] = true;
+		if (is_array($context['require_verification']))
+		{
+			foreach ($context['require_verification'] as $error)
+				$context['search_errors'][$error] = true;
 		}
+		// Don't keep asking for it - they've proven themselves worthy.
+		else
+			$_SESSION['ss_vv_passed'] = true;
 	}
 
 	// *** Encode all search params
@@ -997,8 +981,8 @@ function PlushSearch2()
 		// Are the result fresh?
 		if (!$update_cache && !empty($_SESSION['search_cache']['id_search']))
 		{
-			$request = $smcFunc['db_query']('','
-				SELECT id_search 
+			$request = $smcFunc['db_query']('', '
+				SELECT id_search
 				FROM {db_prefix}log_search_results
 				WHERE id_search = {int:search_id}
 				LIMIT 1',
@@ -1008,7 +992,7 @@ function PlushSearch2()
 			);
 
 			if ($smcFunc['db_num_rows']($request) === 0)
-				$update_cache = true;	
+				$update_cache = true;
 		}
 
 		if ($update_cache)
@@ -1119,7 +1103,7 @@ function PlushSearch2()
 						SELECT
 							{int:id_search},
 							t.id_topic,
-							' . $relevance. ',
+							' . $relevance . ',
 							' . (empty($userQuery) ? 't.id_first_msg' : 'm.id_msg') . ',
 							1
 						FROM ' . $subject_query['from'] . (empty($subject_query['inner_join']) ? '' : '
@@ -1352,7 +1336,7 @@ function PlushSearch2()
 						if (empty($subject_query['where']))
 							continue;
 
-						$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_topics', ($smcFunc['db_support_ignore'] ? ( '
+						$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_topics', ($smcFunc['db_support_ignore'] ? ('
 							INSERT IGNORE INTO {db_prefix}' . ($createTemporary ? 'tmp_' : '') . 'log_search_topics
 								(' . ($createTemporary ? '' : 'id_search, ') . 'id_topic)') : '') . '
 							SELECT ' . ($createTemporary ? '' : $_SESSION['search_cache']['id_search'] . ', ') . 't.id_topic
@@ -1579,7 +1563,7 @@ function PlushSearch2()
 					}
 					$main_query['select']['relevance'] = substr($relevance, 0, -3) . ') / ' . $new_weight_total . ' AS relevance';
 
-					$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_results_no_index', ($smcFunc['db_support_ignore'] ? ( '
+					$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_results_no_index', ($smcFunc['db_support_ignore'] ? ('
 						INSERT IGNORE INTO ' . '{db_prefix}log_search_results
 							(' . implode(', ', array_keys($main_query['select'])) . ')') : '') . '
 						SELECT
@@ -1647,7 +1631,7 @@ function PlushSearch2()
 					$relevance = substr($relevance, 0, -3) . ') / ' . $weight_total . ' AS relevance';
 
 					$usedIDs = array_flip(empty($inserts) ? array() : array_keys($inserts));
-					$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_results_sub_only', ($smcFunc['db_support_ignore'] ? ( '
+					$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_results_sub_only', ($smcFunc['db_support_ignore'] ? ('
 						INSERT IGNORE INTO {db_prefix}log_search_results
 							(id_search, id_topic, relevance, id_msg, num_matches)') : '') . '
 						SELECT
@@ -1830,6 +1814,7 @@ function PlushSearch2()
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($result))
 				$participants[$row['id_topic']] = true;
+
 			$smcFunc['db_free_result']($result);
 		}
 	}
@@ -1970,9 +1955,14 @@ function prepareSearchContext($reset = false)
 			// Re-fix the international characters.
 			$message['body'] = preg_replace_callback('~(&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', $message['body']);
 		}
+		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
+		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
 	}
 	else
 	{
+		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
+		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
+
 		// Run BBC interpreter on the message.
 		$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
 	}
@@ -2078,9 +2068,6 @@ function prepareSearchContext($reset = false)
 		)
 	));
 
-	$body_highlighted = $message['body'];
-	$subject_highlighted = $message['subject'];
-
 	if (!empty($options['display_quick_mod']))
 	{
 		$started = $output['first_post']['member']['id'] == $user_info['id'];
@@ -2105,24 +2092,6 @@ function prepareSearchContext($reset = false)
 		call_integration_hook('integrate_quick_mod_actions_search');
 	}
 
-	foreach ($context['key_words'] as $query)
-	{
-		// Fix the international characters in the keyword too.
-		$query = un_htmlspecialchars($query);
-		$query = trim($query, "\*+");
-		$query = strtr($smcFunc['htmlspecialchars']($query), array('\\\'' => '\''));
-
-		// Highlighting empty strings would make a terrible mess...
-		if (strlen($query) == 0)
-			continue;
-
-		$body_highlighted = preg_replace_callback('/((<[^>]*)|' . preg_quote(strtr($query, array('\'' => '&#039;')), '/') . ')/i' . ($context['utf8'] ? 'u' : ''), function ($m)
-		{
-			return isset($m[2]) && "$m[2]" == "$m[1]" ? stripslashes("$m[1]") : "<strong class=\"highlight\">$m[1]</strong>";
-		}, $body_highlighted);
-		$subject_highlighted = preg_replace('/(' . preg_quote($query, '/') . ')/i' . ($context['utf8'] ? 'u' : ''), '<strong class="highlight">$1</strong>', $subject_highlighted);
-	}
-
 	$output['matches'][] = array(
 		'id' => $message['id_msg'],
 		'attachment' => array(),
@@ -2130,7 +2099,7 @@ function prepareSearchContext($reset = false)
 		'icon' => $message['icon'],
 		'icon_url' => $settings[$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',
 		'subject' => $message['subject'],
-		'subject_highlighted' => $subject_highlighted,
+		'subject_highlighted' => $message['subject_highlighted'],
 		'time' => timeformat($message['poster_time']),
 		'timestamp' => forum_time(true, $message['poster_time']),
 		'counter' => $counter,
@@ -2140,7 +2109,7 @@ function prepareSearchContext($reset = false)
 			'name' => $message['modified_name']
 		),
 		'body' => $message['body'],
-		'body_highlighted' => $body_highlighted,
+		'body_highlighted' => $message['body_highlighted'],
 		'start' => 'msg' . $message['id_msg']
 	);
 	$counter++;
@@ -2157,7 +2126,7 @@ function prepareSearchContext($reset = false)
  */
 function findSearchAPI()
 {
-	global $sourcedir, $modSettings, $search_versions, $searchAPI, $txt;
+	global $sourcedir, $modSettings, $searchAPI, $txt;
 
 	require_once($sourcedir . '/Subs-Package.php');
 	require_once($sourcedir . '/Class-SearchAPI.php');
@@ -2176,7 +2145,7 @@ function findSearchAPI()
 	$searchAPI = new $search_class_name();
 
 	// An invalid Search API.
-	if (!$searchAPI || !($searchAPI instanceof search_api_interface) || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion($search_versions['forum_version'], $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
+	if (!$searchAPI || !($searchAPI instanceof search_api_interface) || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion(SMF_VERSION, $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
 	{
 		// Log the error.
 		loadLanguage('Errors');
@@ -2204,6 +2173,25 @@ function searchSort($a, $b)
 	global $searchAPI;
 
 	return $searchAPI->searchSort($a, $b);
+}
+
+/**
+ * Highlighting matching string
+ *
+ * @param string $text Text to search through
+ * @param array $words List of keywords to search
+ *
+ * @return string Text with highlighted keywords
+ */
+function highlight($text, array $words)
+{
+	$words = implode('|', array_map('preg_quote', $words));
+	$highlighted = preg_filter('/' . $words . '/i', '<span class="highlight">$0</span>', $text);
+
+	if (!empty($highlighted))
+		$text = $highlighted;
+
+	return $text;
 }
 
 ?>

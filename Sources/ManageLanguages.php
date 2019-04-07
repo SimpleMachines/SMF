@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -20,6 +20,7 @@ if (!defined('SMF'))
  * This is the main function for the languages area.
  * It dispatches the requests.
  * Loads the ManageLanguages template. (sub-actions will use it)
+ *
  * @todo lazy loading.
  *
  * @uses ManageSettings language file
@@ -140,10 +141,10 @@ function AddLanguage()
  */
 function list_getLanguagesList()
 {
-	global $forum_version, $context, $sourcedir, $smcFunc, $txt, $scripturl;
+	global $context, $sourcedir, $smcFunc, $txt, $scripturl;
 
 	// We're going to use this URL.
-	$url = 'https://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => '')));
+	$url = 'https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION);
 
 	// Load the class file and stick it into an array.
 	require_once($sourcedir . '/Class-Package.php');
@@ -193,7 +194,7 @@ function list_getLanguagesList()
  */
 function DownloadLanguage()
 {
-	global $context, $sourcedir, $forum_version, $boarddir, $txt, $scripturl, $modSettings;
+	global $context, $sourcedir, $boarddir, $txt, $scripturl, $modSettings;
 
 	loadLanguage('ManageSettings');
 	require_once($sourcedir . '/Subs-Package.php');
@@ -237,7 +238,7 @@ function DownloadLanguage()
 		// Otherwise, go go go!
 		elseif (!empty($install_files))
 		{
-			read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => ''))) . ';fetch=' . urlencode($_GET['did']), $boarddir, false, true, $install_files);
+			read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), $boarddir, false, true, $install_files);
 
 			// Make sure the files aren't stuck in the cache.
 			package_flush_cache();
@@ -249,7 +250,7 @@ function DownloadLanguage()
 
 	// Open up the old china.
 	if (!isset($archive_content))
-		$archive_content = read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => ''))) . ';fetch=' . urlencode($_GET['did']), null);
+		$archive_content = read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), null);
 
 	if (empty($archive_content))
 		fatal_error($txt['add_language_error_no_response']);
@@ -592,7 +593,8 @@ function ModifyLanguages()
 			'editlang' => array(
 				'header' => array(
 					'value' => '',
-				),'data' => array(
+				),
+				'data' => array(
 					'function' => function($rowData) use ($scripturl, $txt)
 					{
 						return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s" class="button">%3$s</a>', $scripturl, $rowData['id'], $txt['edit']);
@@ -626,10 +628,10 @@ function ModifyLanguages()
 	// Display a warning if we cannot edit the default setting.
 	if (!is_writable($boarddir . '/Settings.php'))
 		$listOptions['additional_rows'][] = array(
-				'position' => 'after_title',
-				'value' => $txt['language_settings_writable'],
-				'class' => 'smalltext alert',
-			);
+			'position' => 'after_title',
+			'value' => $txt['language_settings_writable'],
+			'class' => 'smalltext alert',
+		);
 
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);
@@ -641,6 +643,7 @@ function ModifyLanguages()
 /**
  * How many languages?
  * Callback for the list in ManageLanguageSettings().
+ *
  * @return int The number of available languages
  */
 function list_getNumLanguages()
@@ -653,6 +656,7 @@ function list_getNumLanguages()
  * Callback for $listOptions['get_items']['function'] in ManageLanguageSettings.
  * Determines which languages are available by looking for the "index.{language}.php" file.
  * Also figures out how many users are using a particular language.
+ *
  * @return array An array of information about currenty installed languages
  */
 function list_getLanguages()
@@ -833,7 +837,7 @@ function ModifyLanguage()
 	$lang_dirs = array();
 
 	// There are different kinds of strings
-	$string_types = array('txt', 'helptxt', 'editortxt', 'tztxt');
+	$string_types = array('txt', 'helptxt', 'editortxt', 'tztxt', 'txtBirthdayEmails');
 	$additional_string_types = array();
 
 	// Some files allow the admin to add and/or remove certain types of strings
@@ -1079,6 +1083,7 @@ function ModifyLanguage()
 		// Do we want to override the helptxt for certain types of text variables?
 		$special_groups = array(
 			'Timezones' => array('txt' => 'txt_for_timezones'),
+			'EmailTemplates' => array('txt' => 'txt_for_email_templates', 'txtBirthdayEmails' => 'txt_for_email_templates'),
 		);
 		call_integration_hook('integrate_language_edit_helptext', array(&$special_groups));
 
@@ -1093,9 +1098,10 @@ function ModifyLanguage()
 			}
 		}
 
+		// Read in the file's contents and process it into entries.
+		// Also, remove any lines for uneditable variables like $forum_copyright from the working data.
 		$entries = array();
-		// We can't just require it I'm afraid - otherwise we pass in all kinds of variables!
-		foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . ($context['utf8'] ? 'u' : ''), file_get_contents($current_file)) as $blob)
+		foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . ($context['utf8'] ? 'u' : ''), preg_replace('~\s*\n(\$(?!(?:' . implode('|', $string_types) . '))[^\n]*)~', '', file_get_contents($current_file))) as $blob)
 		{
 			// Comment lines at the end of the blob can make terrible messes
 			$blob = preg_replace('~(\n[ \t]*//[^\n]*)*$~' . ($context['utf8'] ? 'u' : ''), '', $blob);
@@ -1120,7 +1126,7 @@ function ModifyLanguage()
 			}
 		}
 
-		// These are the entries we can definitely save.
+		// These will be the entries we can definitely save.
 		$final_saves = array();
 
 		$context['file_entries'] = array();
@@ -1246,7 +1252,6 @@ function ModifyLanguage()
 						unset($add_strings[$entryKey]);
 				}
 
-
 				// Do we need to save?
 				if ($save_cache['enabled'])
 				{
@@ -1269,7 +1274,7 @@ function ModifyLanguage()
 					// Now create the string!
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = array(' . implode(', ', $items) . ');' . $entryValue['cruft'],
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n"))) . "\n" . '$' . $entryValue['type'] . '[\'' . $entryKey . '\'] = array(' . implode(', ', $items) . ');' . $entryValue['cruft'],
 					);
 				}
 			}
@@ -1291,7 +1296,7 @@ function ModifyLanguage()
 					// And save it
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'][' . $subKey . '] = ' . $save_strings[$entryValue['key']][$entryValue['subkey']] . ';' . $entryValue['cruft'],
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n"))) . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'][' . $subKey . '] = ' . $save_strings[$entryValue['key']][$entryValue['subkey']] . ';' . $entryValue['cruft'],
 					);
 				}
 
@@ -1301,7 +1306,7 @@ function ModifyLanguage()
 					$entryValue['entry'] = '\'\'';
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n",
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n"))) . "\n",
 					);
 				}
 
@@ -1329,7 +1334,7 @@ function ModifyLanguage()
 					// And we know what to save now!
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'] = ' . $save_strings[$entryValue['key']] . ';' . $entryValue['cruft'],
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n"))) . "\n" . '$' . $entryValue['type'] . '[\'' . $entryValue['key'] . '\'] = ' . $save_strings[$entryValue['key']] . ';' . $entryValue['cruft'],
 					);
 				}
 				// Remove this entry only if it is allowed
@@ -1338,7 +1343,7 @@ function ModifyLanguage()
 					$entryValue['entry'] = '\'\'';
 					$final_saves[$entryKey] = array(
 						'find' => $entryValue['full'],
-						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n")))  . "\n",
+						'replace' => '// ' . implode("\n// ", explode("\n", rtrim($entryValue['full'], "\n"))) . "\n",
 					);
 				}
 
@@ -1369,8 +1374,8 @@ function ModifyLanguage()
 						continue;
 
 					$final_saves[$string_key] = array(
-						'find' => "\s*\?".'>$',
-						'replace' => "\n\$" . $type . '[\'' . $string_key . '\'] = ' . $string_val['string'] . ';' . "\n\n?".'>',
+						'find' => "\s*\?" . '>$',
+						'replace' => "\n\$" . $type . '[\'' . $string_key . '\'] = ' . $string_val['string'] . ';' . "\n\n?" . '>',
 						'is_regex' => true,
 					);
 				}
@@ -1387,8 +1392,8 @@ function ModifyLanguage()
 						$subKey = ctype_digit(trim($substring_key, '\'')) ? trim($substring_key, '\'') : '\'' . $substring_key . '\'';
 
 						$final_saves[$string_key . '[' . $substring_key . ']'] = array(
-							'find' => "\s*\?".'>$',
-							'replace' => "\n\$" . $type . '[\'' . $string_key . '\'][' . $subKey . '] = ' . $substring_val['string'] . ';' . "\n\n?".'>',
+							'find' => "\s*\?" . '>$',
+							'replace' => "\n\$" . $type . '[\'' . $string_key . '\'][' . $subKey . '] = ' . $substring_val['string'] . ';' . "\n\n?" . '>',
 							'is_regex' => true,
 						);
 					}
@@ -1401,8 +1406,10 @@ function ModifyLanguage()
 		{
 			checkSession();
 
+			// Get a fresh copy of the file's current content.
 			$file_contents = file_get_contents($current_file);
 
+			// Apply our changes.
 			foreach ($final_saves as $save)
 			{
 				if (!empty($save['is_regex']))
@@ -1411,7 +1418,7 @@ function ModifyLanguage()
 					$file_contents = str_replace($save['find'], $save['replace'], $file_contents);
 			}
 
-			// Save the actual changes.
+			// Save the result back to the file.
 			file_put_contents($current_file, $file_contents);
 
 			$madeSave = true;
@@ -1420,7 +1427,7 @@ function ModifyLanguage()
 		// Another restore.
 		$txt = $old_txt;
 
-		// If they can add new language entries, make sure the UI is set up for that
+		// If they can add new language entries, make sure the UI is set up for that.
 		if (!empty($context['can_add_lang_entry']))
 		{
 			// Make sure the Add button has a place to show up.
@@ -1460,7 +1467,8 @@ function ModifyLanguage()
 				$(".add_lang_entry_button").show();', true);
 		}
 
-		// Warn them if they try to submit more changes than the server can accept in a single request and make it obvious that they cannot submit changes to both the primary settings and the entries at the same time
+		// Warn them if they try to submit more changes than the server can accept in a single request.
+		// Also make it obvious that they cannot submit changes to both the primary settings and the entries at the same time.
 		if (!empty($context['file_entries']))
 		{
 			addInlineJavaScript('
@@ -1527,6 +1535,7 @@ function ModifyLanguage()
 
 /**
  * This function cleans language entries to/from display.
+ *
  * @todo This function could be two functions?
  *
  * @param string $string The language string

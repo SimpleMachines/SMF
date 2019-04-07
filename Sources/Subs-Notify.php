@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -49,15 +49,15 @@ function getNotifyPrefs($members, $prefs = '', $process_default = false)
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
 		$result[$row['id_member']][$row['alert_pref']] = $row['alert_value'];
-	}
 
 	// We may want to keep the default values separate from a given user's. Or we might not.
 	if ($process_default && isset($result[0]))
 	{
 		foreach ($members as $member)
-			if (!isset($result[$member]))
+			if (isset($result[$member]))
+				$result[$member] += $result[0];
+			else
 				$result[$member] = $result[0];
 
 		unset ($result[0]);

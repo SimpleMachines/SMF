@@ -7,14 +7,23 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
 	define('SMF', 'proxy');
+
+if (!defined('SMF_VERSION'))
+	define('SMF_VERSION', '2.1 RC2');
+
+if (!defined('SMF_FULL_VERSION'))
+	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
+
+if (!defined('SMF_SOFTWARE_YEAR'))
+	define('SMF_SOFTWARE_YEAR', '2019');
 
 global $proxyhousekeeping;
 
@@ -35,8 +44,20 @@ class ProxyServer
 	/** @var string The cache directory */
 	protected $cache;
 
-	/** @var int $maxDays until enties get deleted */
+	/** @var int $maxDays until entries get deleted */
 	protected $maxDays;
+
+	/** @var int $cachedtime time object cached */
+	protected $cachedtime;
+
+	/** @var string $cachedtype type of object cached */
+	protected $cachedtype;
+
+	/** @var int $cachedsize size of object cached */
+	protected $cachedsize;
+
+	/** @var string $cachedbody body of object cached */
+	protected $cachedbody;
 
 	/**
 	 * Constructor, loads up the Settings for the proxy
@@ -58,6 +79,10 @@ class ProxyServer
 		$this->secret = (string) $image_proxy_secret;
 		$this->cache = $cachedir . '/images';
 		$this->maxDays = 5;
+		$this->cachedtime = null;
+		$this->cachedtype = null;
+		$this->cachedsize = null;
+		$this->cachedbody = null;
 	}
 
 	/**
@@ -108,9 +133,6 @@ class ProxyServer
 	public function serve()
 	{
 		$request = $_GET['request'];
-		$cached_file = $this->getCachedPath($request);
-		$cached = json_decode(file_get_contents($cached_file), true);
-
 		// Did we get an error when trying to fetch the image
 		$response = $this->checkRequest();
 		if ($response === -1)
@@ -125,10 +147,23 @@ class ProxyServer
 			$this::redirectexit($request);
 		}
 
+		// We should have a cached image at this point
+		$cached_file = $this->getCachedPath($request);
+
+		// Read from cache if you need to...
+		if ($this->cachedbody === null)
+		{
+			$cached = json_decode(file_get_contents($cached_file), true);
+			$this->cachedtime = $cached['time'];
+			$this->cachedtype = $cached['content_type'];
+			$this->cachedsize = $cached['size'];
+			$this->cachedbody = $cached['body'];
+		}
+
 		$time = time();
 
 		// Is the cache expired?
-		if (!$cached || $time - $cached['time'] > ($this->maxDays * 86400))
+		if ($time - $this->cachedtime > ($this->maxDays * 86400))
 		{
 			@unlink($cached_file);
 			if ($this->checkRequest())
@@ -136,7 +171,7 @@ class ProxyServer
 			$this::redirectexit($request);
 		}
 
-		$eTag = '"' . substr(sha1($request) . $cached['time'], 0, 64) . '"';
+		$eTag = '"' . substr(sha1($request) . $this->cachedtime, 0, 64) . '"';
 		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
 		{
 			send_http_status(304);
@@ -144,17 +179,17 @@ class ProxyServer
 		}
 
 		// Make sure we're serving an image
-		$contentParts = explode('/', !empty($cached['content_type']) ? $cached['content_type'] : '');
+		$contentParts = explode('/', !empty($this->cachedtype) ? $this->cachedtype : '');
 		if ($contentParts[0] != 'image')
 			exit;
 
-		$max_age = $time - $cached['time'] + (5 * 86400);
-		header('content-type: ' . $cached['content_type']);
-		header('content-length: ' . $cached['size']);
-		header('cache-control: public, max-age=' . $max_age );
-		header('last-modified: ' . gmdate('D, d M Y H:i:s', $cached['time']) . ' GMT');
+		$max_age = $time - $this->cachedtime + (5 * 86400);
+		header('content-type: ' . $this->cachedtype);
+		header('content-length: ' . $this->cachedsize);
+		header('cache-control: public, max-age=' . $max_age);
+		header('last-modified: ' . gmdate('D, d M Y H:i:s', $this->cachedtime) . ' GMT');
 		header('etag: ' . $eTag);
-		echo base64_decode($cached['body']);
+		echo base64_decode($this->cachedbody);
 	}
 
 	/**
@@ -197,7 +232,7 @@ class ProxyServer
 
 		// Looks like nobody was home
 		if (empty($image))
-			return -1;
+			return 0;
 
 		// What kind of file did they give us?
 		$finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -209,19 +244,25 @@ class ProxyServer
 
 		// Make sure the url is returning an image
 		if (strpos($mime_type, 'image/') !== 0)
-			return -1;
+			return 0;
 
 		// Validate the filesize
 		$size = strlen($image);
 		if ($size > ($this->maxSize * 1024))
 			return 0;
 
+		// Populate object for current serve execution (so you don't have to read it again...)
+		$this->cachedtime = time();
+		$this->cachedtype = $mime_type;
+		$this->cachedsize = $size;
+		$this->cachedbody = base64_encode($image);
+
 		// Cache it for later
 		return file_put_contents($dest, json_encode(array(
-			'content_type' => $mime_type,
-			'size' => $size,
-			'time' => time(),
-			'body' => base64_encode($image),
+			'content_type' => $this->cachedtype,
+			'size' => $this->cachedsize,
+			'time' => $this->cachedtime,
+			'body' => $this->cachedbody,
 		))) === false ? -1 : 1;
 	}
 
@@ -234,7 +275,7 @@ class ProxyServer
 	 */
 	static public function redirectexit($request)
 	{
-		header('Location: ' . $request, false, 301);
+		header('Location: ' . un_htmlspecialchars($request), false, 301);
 		exit;
 	}
 
@@ -255,7 +296,7 @@ class ProxyServer
 
 				if ((time() - $filelastmodified) > ($this->maxDays * 86400))
 				{
-				   unlink($path . $file);
+					unlink($path . $file);
 				}
 			}
 

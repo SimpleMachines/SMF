@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -16,6 +16,7 @@ if (!defined('SMF'))
 
 /**
  * View a summary.
+ *
  * @param int $memID The ID of the member
  */
 function summary($memID)
@@ -213,7 +214,7 @@ function summary($memID)
 }
 
 /**
- * Fetch the alerts a user currently has.
+ * Fetch the alerts a member currently has.
  *
  * @param int $memID The ID of the member
  * @param bool $all Whether to fetch all alerts or just unread ones
@@ -222,12 +223,18 @@ function summary($memID)
  * @param bool $withSender With $memberContext from sender
  * @return array An array of information about the fetched alerts
  */
-function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = true)
+function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = true, $show_links = false)
 {
 	global $smcFunc, $txt, $scripturl, $memberContext, $user_info, $user_profile;
 
-	$query_see_board = build_query_board($memID);
-	$query_see_board = $query_see_board['query_see_board'];
+	// If this isn't the current user, get their boards.
+	if (!isset($user_info) || $user_info['id'] != $memID)
+	{
+		$query_see_board = build_query_board($memID);
+		$query_see_board = $query_see_board['query_see_board'];
+	}
+	else
+		$query_see_board = '{query_see_board}';
 
 	$alerts = array();
 	$request = $smcFunc['db_query']('', '
@@ -275,21 +282,69 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	call_integration_hook('integrate_fetch_alerts', array(&$alerts));
 
 	// For anything that wants us to check board or topic access, let's do that.
-	$boards = array();
-	$topics = array();
-	$msgs = array();
+	$board_msgs = array();
+	$topic_msgs = array();
+	$msg_msgs = array();
+	$possible_boards = array();
+	$possible_topics = array();
+	$possible_msgs = array();
 	foreach ($alerts as $id_alert => $alert)
 	{
-		if (isset($alert['extra']['board']))
-			$boards[$alert['extra']['board']] = $txt['board_na'];
-		if (isset($alert['extra']['topic']))
-			$topics[$alert['extra']['topic']] = $txt['topic_na'];
 		if ($alert['content_type'] == 'msg')
-			$msgs[$alert['content_id']] = $txt['topic_na'];
+			$possible_msgs[] = $alert['content_id'];
+		elseif (isset($alert['extra']['topic']))
+			$possible_topics[] = $alert['extra']['topic'];
+		elseif (isset($alert['extra']['board']))
+			$possible_boards[] = $alert['extra']['board'];
+
+		// Are we showing multiple links or one big main link ?
+		$alerts[$id_alert]['show_links'] = $show_links || (isset($alert['extra']['show_links']) && $alert['extra']['show_links']);
 	}
 
-	// Having figured out what boards etc. there are, let's now get the names of them if we can see them. If not, there's already a fallback set up.
-	if (!empty($boards))
+	if (!empty($possible_msgs))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT m.id_msg, t.id_topic, m.subject, b.id_board, b.name
+			FROM {db_prefix}messages AS m
+				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
+				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
+			WHERE ' . $query_see_board . '
+				AND m.id_msg IN ({array_int:msgs})',
+			array(
+				'msgs' => $possible_msgs,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$msg_msgs[$row['id_msg']] = array('link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>', 'text' => '<strong>' . $row['subject'] . '</strong>');
+			$topic_msgs[$row['id_topic']] = array('link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>', 'text' => '<strong>' . $row['subject'] . '</strong>');
+			$board_msgs[$row['id_board']] = array('link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>', 'text' => '<strong>' . $row['name'] . '</strong>');
+		}
+
+		$smcFunc['db_free_result']($request);
+	}
+	if (!empty($possible_topics))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT t.id_topic, m.subject, b.id_board, b.name
+			FROM {db_prefix}topics AS t
+				INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
+				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
+			WHERE ' . $query_see_board . '
+				AND t.id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $possible_topics,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$topic_msgs[$row['id_topic']] = array('link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.new#new">' . $row['subject'] . '</a>', 'text' => '<strong>' . $row['subject'] . '</strong>');
+			$board_msgs[$row['id_board']] = array('link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>', 'text' => '<strong>' . $row['name'] . '</strong>');
+		}
+
+		$smcFunc['db_free_result']($request);
+	}
+	if (!empty($possible_boards))
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT id_board, name
@@ -297,43 +352,13 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			WHERE ' . $query_see_board . '
 				AND id_board IN ({array_int:boards})',
 			array(
-				'boards' => array_keys($boards),
+				'boards' => $possible_boards,
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$boards[$row['id_board']] = '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>';
-	}
-	if (!empty($topics))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT t.id_topic, m.subject
-			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
-				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
-			WHERE ' . $query_see_board . '
-				AND t.id_topic IN ({array_int:topics})',
-			array(
-				'topics' => array_keys($topics),
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$topics[$row['id_topic']] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>';
-	}
-	if (!empty($msgs))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT m.id_msg, t.id_topic, m.subject
-			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
-				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
-			WHERE ' . $query_see_board . '
-				AND m.id_msg IN ({array_int:msgs})',
-			array(
-				'msgs' => array_keys($msgs),
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$msgs[$row['id_msg']] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>';
+			$board_msgs[$row['id_board']] = array('link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>', 'text' => '<strong>' . $row['name'] . '</strong>');
+
+		$smcFunc['db_free_result']($request);
 	}
 
 	// Now to go back through the alerts, reattach this extra information and then try to build the string out of it (if a hook didn't already)
@@ -341,32 +366,52 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	{
 		if (!empty($alert['text']))
 			continue;
-		if (isset($alert['extra']['board']))
-			if ($boards[$alert['extra']['board']] == $txt['board_na'])
-			{
-				unset($alerts[$id_alert]);
-				continue;
-			}
-			else
-				$alerts[$id_alert]['extra']['board_msg'] = $boards[$alert['extra']['board']];
-		if (isset($alert['extra']['topic']))
-			if ($alert['extra']['topic'] == $txt['topic_na'])
-			{
-				unset($alerts[$id_alert]);
-				continue;
-			}
-			else
-				$alerts[$id_alert]['extra']['topic_msg'] = $topics[$alert['extra']['topic']];
+
 		if ($alert['content_type'] == 'msg')
-			if ($msgs[$alert['content_id']] == $txt['topic_na'])
+		{
+			if (empty($msg_msgs[$alert['content_id']]))
 			{
 				unset($alerts[$id_alert]);
 				continue;
 			}
 			else
-				$alerts[$id_alert]['extra']['msg_msg'] = $msgs[$alert['content_id']];
+			{
+				$alerts[$id_alert]['extra']['msg_msg'] = $msg_msgs[$alert['content_id']][$alert['show_links'] ? 'link' : 'text'];
+				$alerts[$id_alert]['extra']['topic_msg'] = isset($alert['extra']['topic']) ? $topic_msgs[$alert['extra']['topic']][$alert['show_links'] ? 'link' : 'text'] : $txt['topic_na'];
+				$alerts[$id_alert]['extra']['board_msg'] = isset($alert['extra']['board']) ? $board_msgs[$alert['extra']['board']][$alert['show_links'] ? 'link' : 'text'] : $txt['board_na'];
+			}
+		}
+		elseif (isset($alert['extra']['topic']))
+		{
+			if (empty($topic_msgs[$alert['extra']['topic']]))
+			{
+				unset($alerts[$id_alert]);
+				continue;
+			}
+			else
+			{
+				$alerts[$id_alert]['extra']['msg_msg'] = $txt['topic_na'];
+				$alerts[$id_alert]['extra']['topic_msg'] = $topic_msgs[$alert['extra']['topic']][$alert['show_links'] ? 'link' : 'text'];
+				$alerts[$id_alert]['extra']['board_msg'] = isset($alert['extra']['board']) ? $board_msgs[$alert['extra']['board']][$alert['show_links'] ? 'link' : 'text'] : $txt['board_na'];
+			}
+		}
+		elseif (isset($alert['extra']['board']))
+		{
+			if (empty($board_msgs[$alert['extra']['board']]))
+			{
+				unset($alerts[$id_alert]);
+				continue;
+			}
+			else
+			{
+				$alerts[$id_alert]['extra']['msg_msg'] = $txt['topic_na'];
+				$alerts[$id_alert]['extra']['topic_msg'] = $txt['topic_na'];
+				$alerts[$id_alert]['extra']['board_msg'] = $board_msgs[$alert['extra']['board']][$alert['show_links'] ? 'link' : 'text'];
+			}
+		}
+
 		if ($alert['content_type'] == 'profile')
-			$alerts[$id_alert]['extra']['profile_msg'] = '<a href="' . $scripturl . '?action=profile;u=' . $alerts[$id_alert]['content_id'] . '">' . $alerts[$id_alert]['extra']['user_name'] . '</a>';
+			$alerts[$id_alert]['extra']['profile_msg'] = $alert['show_links'] ? '<a href="' . $scripturl . '?action=profile;u=' . $alerts[$id_alert]['content_id'] . '">' . $alerts[$id_alert]['extra']['user_name'] . '</a>' : '<strong>' . $alerts[$id_alert]['extra']['user_name'] . '</strong>';
 
 		if (!empty($memberContext[$alert['sender_id']]))
 			$alerts[$id_alert]['sender'] = &$memberContext[$alert['sender_id']];
@@ -376,7 +421,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		{
 			$extra = $alerts[$id_alert]['extra'];
 			$search = array('{member_link}', '{scripturl}');
-			$repl = array(!empty($alert['sender_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $alert['sender_id'] . '">' . $alert['sender_name'] . '</a>' : $alert['sender_name'], $scripturl);
+			$repl = array(!empty($alert['sender_id']) && $alert['show_links'] ? '<a href="' . $scripturl . '?action=profile;u=' . $alert['sender_id'] . '">' . $alert['sender_name'] . '</a>' : '<strong>'.$alert['sender_name'].'</strong>', $scripturl);
 
 			if (is_array($extra))
 			{
@@ -394,7 +439,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 }
 
 /**
- * Shows all alerts for this user
+ * Shows all alerts for a member
  *
  * @param int $memID The ID of the member
  */
@@ -404,13 +449,66 @@ function showAlerts($memID)
 
 	require_once($sourcedir . '/Profile-Modify.php');
 
+	// Are we opening a specific alert ?
+	if (!empty($_REQUEST['alert']))
+	{
+		$alert_id = (int)$_REQUEST['alert'];
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member, id_member_started, content_type, content_action, content_id, is_read, extra
+			FROM {db_prefix}user_alerts
+			WHERE id_alert = {int:alert}',
+			array(
+				'alert' => $alert_id
+			)
+		);
+		$alert = $smcFunc['db_fetch_assoc']($request);
+		$smcFunc['db_free_result']($request);
+
+		// Can the user see this alert ?
+		if($memID != $alert['id_member'])
+			redirectexit();
+
+		if(!empty($alert['extra']))
+			$alert['extra'] = $smcFunc['json_decode']($alert['extra'], true);
+
+		// Determine where the alert takes
+		$link = '';
+		// Priority goes to explicitly specified links
+		if (isset($alert['extra']['content_link']))
+			$link = $alert['extra']['content_link'];
+		elseif (isset($alert['extra']['report_link']))
+			$link = $scripturl . $alert['extra']['report_link'];
+		elseif (isset($alert['content_action']) && $alert['content_action'] === 'register_approval')
+			$link = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
+		elseif (isset($alert['content_action'], $alert['id_member_started']) && $alert['content_action'] === 'buddy_request')
+			$link = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
+		elseif (isset($alert['content_action']) && $alert['content_action'] === 'group_request')
+			$link = $scripturl . '?action=moderate;area=groups;sa=requests';
+		elseif (isset($alert['content_type'], $alert['extra']['event_id']) && $alert['content_type'] === 'event')
+			$link = $scripturl . '?action=calendar;event=' . $alert['extra']['event_id'];
+		elseif (isset($alert['content_action'], $alert['content_id']) && $alert['content_action'] === 'like')
+			$link = $scripturl . '?msg=' . $alert['content_id'];
+
+		call_integration_hook('integrate_show_alert', array(&$alert, &$link));
+
+		// Mark the alert as read while we're at it.
+		alert_mark($memID, $alert_id, 1);
+
+		// Take the user to the content
+		if (!empty($link))
+			redirectexit($link);
+		// Incase it failed to determine this alert's link
+		else
+			redirectexit('action=profile;area=showalerts');
+	}
+
 	// Prepare the pagination vars.
 	$maxIndex = 10;
 	$start = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
 	$count = alert_count($memID);
 
 	// Get the alerts.
-	$context['alerts'] = fetch_alerts($memID, true, false, array('start' => $start, 'maxIndex' => $maxIndex));
+	$context['alerts'] = fetch_alerts($memID, true, false, array('start' => $start, 'maxIndex' => $maxIndex), true, true);
 	$toMark = false;
 	$action = '';
 
@@ -480,14 +578,15 @@ function showAlerts($memID)
 }
 
 /**
- * Show all posts by the current user
+ * Show all posts by a member
+ *
  * @todo This function needs to be split up properly.
  *
  * @param int $memID The ID of the member
  */
 function showPosts($memID)
 {
-	global $txt, $user_info, $scripturl, $modSettings;
+	global $txt, $user_info, $scripturl, $modSettings, $options;
 	global $context, $user_profile, $sourcedir, $smcFunc, $board;
 
 	// Some initial context.
@@ -580,9 +679,9 @@ function showPosts($memID)
 	if ($context['is_topics'])
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
-			FROM {db_prefix}topics AS t' . ($user_info['query_see_board'] == '1=1' ? '' : '
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board AND {query_see_board})') . '
-			WHERE t.id_member_started = {int:current_member}' . (!empty($board) ? '
+			FROM {db_prefix}topics AS t' . '
+			WHERE {query_see_topic_board}
+				AND t.id_member_started = {int:current_member}' . (!empty($board) ? '
 				AND t.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
 				AND t.approved = {int:is_approved}'),
 			array(
@@ -593,10 +692,9 @@ function showPosts($memID)
 		);
 	else
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}messages AS m' . ($user_info['query_see_board'] == '1=1' ? '' : '
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})') . '
-			WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
+			SELECT COUNT(id_msg)
+			FROM {db_prefix}messages AS m
+			WHERE {query_see_message_board} AND m.id_member = {int:current_member}' . (!empty($board) ? '
 				AND m.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
 				AND m.approved = {int:is_approved}'),
 			array(
@@ -795,13 +893,18 @@ function showPosts($memID)
 			)
 		);
 
+	// Create an array for the permissions.
+	$boards_can = boardsAllowedTo(array_keys(iterator_to_array(
+		new RecursiveIteratorIterator(new RecursiveArrayIterator($permissions)))
+	), true, false);
+
 	// For every permission in the own/any lists...
 	foreach ($permissions as $type => $list)
 	{
 		foreach ($list as $permission => $allowed)
 		{
 			// Get the boards they can do this on...
-			$boards = boardsAllowedTo($permission);
+			$boards = $boards_can[$permission];
 
 			// Hmm, they can do it on all boards, can they?
 			if (!empty($boards) && $boards[0] == 0)
@@ -834,7 +937,7 @@ function showPosts($memID)
 }
 
 /**
- * Show all the attachments of a user.
+ * Show all the attachments belonging to a member.
  *
  * @param int $memID The ID of the member
  */
@@ -958,7 +1061,7 @@ function showAttachments($memID)
 }
 
 /**
- * Get a list of attachments for this user. Callback for the list in showAttachments()
+ * Get a list of attachments for a member. Callback for the list in showAttachments()
  *
  * @param int $start Which item to start with (for pagination purposes)
  * @param int $items_per_page How many items to show on each page
@@ -1019,7 +1122,7 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 }
 
 /**
- * Gets the total number of attachments for the user
+ * Gets the total number of attachments for a member
  *
  * @param array $boardsAllowed An array of the IDs of the boards they can see
  * @param int $memID The ID of the member
@@ -1063,7 +1166,7 @@ function list_getNumAttachments($boardsAllowed, $memID)
  */
 function showUnwatched($memID)
 {
-	global $txt, $user_info, $scripturl, $modSettings, $context, $sourcedir;
+	global $txt, $user_info, $scripturl, $modSettings, $context, $options, $sourcedir;
 
 	// Only the owner can see the list (if the function is enabled of course)
 	if ($user_info['id'] != $memID)
@@ -1196,12 +1299,11 @@ function list_getUnwatched($start, $items_per_page, $sort, $memID)
 		SELECT lt.id_topic
 		FROM {db_prefix}log_topics as lt
 			LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
-			LEFT JOIN {db_prefix}boards as b ON (t.id_board = b.id_board)
 			LEFT JOIN {db_prefix}messages as m ON (t.id_first_msg = m.id_msg)' . (in_array($sort, array('mem.real_name', 'mem.real_name DESC', 'mem.poster_time', 'mem.poster_time DESC')) ? '
 			LEFT JOIN {db_prefix}members as mem ON (m.id_member = mem.id_member)' : '') . '
 		WHERE lt.id_member = {int:current_member}
 			AND unwatched = 1
-			AND {query_see_board}
+			AND {query_see_message_board}
 		ORDER BY {raw:sort}
 		LIMIT {int:offset}, {int:limit}',
 		array(
@@ -1257,10 +1359,9 @@ function list_getNumUnwatched($memID)
 		SELECT COUNT(*)
 		FROM {db_prefix}log_topics as lt
 		LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
-		LEFT JOIN {db_prefix}boards as b ON (t.id_board = b.id_board)
-		WHERE id_member = {int:current_member}
-			AND unwatched = 1
-			AND {query_see_board}',
+		WHERE lt.id_member = {int:current_member}
+			AND lt.unwatched = 1
+			AND {query_see_topic_board}',
 		array(
 			'current_member' => $memID,
 		)
@@ -1289,7 +1390,7 @@ function statPanel($memID)
 	// General user statistics.
 	$timeDays = floor($user_profile[$memID]['total_time_logged_in'] / 86400);
 	$timeHours = floor(($user_profile[$memID]['total_time_logged_in'] % 86400) / 3600);
-	$context['time_logged_in'] = ($timeDays > 0 ? $timeDays . $txt['totalTimeLogged2'] : '') . ($timeHours > 0 ? $timeHours . $txt['totalTimeLogged3'] : '') . floor(($user_profile[$memID]['total_time_logged_in'] % 3600) / 60) . $txt['totalTimeLogged4'];
+	$context['time_logged_in'] = ($timeDays > 0 ? $timeDays . $txt['total_time_logged_days'] : '') . ($timeHours > 0 ? $timeHours . $txt['total_time_logged_hours'] : '') . floor(($user_profile[$memID]['total_time_logged_in'] % 3600) / 60) . $txt['total_time_logged_minutes'];
 	$context['num_posts'] = comma_format($user_profile[$memID]['posts']);
 	// Menu tab
 	$context[$context['profile_menu_name']]['tab_data'] = array(
@@ -1480,7 +1581,7 @@ function statPanel($memID)
 	);
 
 	// Custom stats (just add a template_layer to add it to the template!)
- 	call_integration_hook('integrate_profile_stats', array($memID, &$context['text_stats']));
+	call_integration_hook('integrate_profile_stats', array($memID, &$context['text_stats']));
 }
 
 /**
@@ -1777,7 +1878,7 @@ function list_getUserErrorCount($where, $where_vars = array())
 	global $smcFunc;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*) AS error_count
+		SELECT COUNT(id_error)
 		FROM {db_prefix}log_errors
 		WHERE ' . $where,
 		$where_vars
@@ -1843,13 +1944,12 @@ function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars 
  */
 function list_getIPMessageCount($where, $where_vars = array())
 {
-	global $smcFunc;
+	global $smcFunc, $user_info;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*) AS message_count
+		SELECT COUNT(id_msg)
 		FROM {db_prefix}messages AS m
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-		WHERE {query_see_board} AND ' . $where,
+		WHERE {query_see_message_board} AND ' . $where,
 		$where_vars
 	);
 	list ($count) = $smcFunc['db_fetch_row']($request);
@@ -1870,18 +1970,16 @@ function list_getIPMessageCount($where, $where_vars = array())
  */
 function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars = array())
 {
-	global $smcFunc, $scripturl;
+	global $smcFunc, $scripturl, $user_info;
 
 	// Get all the messages fitting this where clause.
-	// @todo SLOW This query is using a filesort.
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			m.id_msg, m.poster_ip, COALESCE(mem.real_name, m.poster_name) AS display_name, mem.id_member,
 			m.subject, m.poster_time, m.id_topic, m.id_board
 		FROM {db_prefix}messages AS m
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-		WHERE {query_see_board} AND ' . $where . '
+		WHERE {query_see_message_board} AND ' . $where . '
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:max}',
 		array_merge($where_vars, array(
@@ -1918,7 +2016,7 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 function TrackIP($memID = 0)
 {
 	global $user_profile, $scripturl, $txt, $user_info, $modSettings, $sourcedir;
-	global $context, $smcFunc;
+	global $context, $options, $smcFunc;
 
 	// Can the user do this?
 	isAllowedTo('moderate_forum');
@@ -1945,15 +2043,15 @@ function TrackIP($memID = 0)
 	if (count($context['ip']) !== 2)
 		fatal_lang_error('invalid_tracking_ip', false);
 
-	$ip_string = array('{inet:ip_address_low}','{inet:ip_address_high}');
+	$ip_string = array('{inet:ip_address_low}', '{inet:ip_address_high}');
 	$fields = array(
-			'ip_address_low' => $context['ip']['low'],
-			'ip_address_high' => $context['ip']['high'],
-		);
+		'ip_address_low' => $context['ip']['low'],
+		'ip_address_high' => $context['ip']['high'],
+	);
 
 	$ip_var = $context['ip'];
 
-	if ($context['ip']['low'] !==  $context['ip']['high'])
+	if ($context['ip']['low'] !== $context['ip']['high'])
 		$context['ip'] = $context['ip']['low'] . ' - ' . $context['ip']['high'];
 	else
 		$context['ip'] = $context['ip']['low'];

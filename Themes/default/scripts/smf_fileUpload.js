@@ -12,7 +12,7 @@ function smf_fileUpload(oOptions) {
 		filesizeBase: 1024,
 		paramName: 'attachment',
 		uploadMultiple: true,
-		previewsContainer: '#au-previews',
+		previewsContainer: '#attachment_previews',
 		previewTemplate: previewTemplate,
 		acceptedFiles: '.doc,.gif,.jpg,.pdf,.png,.txt,.zip',
 		thumbnailWidth: 100,
@@ -27,11 +27,9 @@ function smf_fileUpload(oOptions) {
 				bbcOptionalParams = {
 					width: mime_type.indexOf('image') == 0 && + w > 0 ? (' width=' + w) : '',
 					height: mime_type.indexOf('image') == 0 && + h > 0 ? (' height=' + h) : '',
-					name: typeof file.name !== "undefined" ? (' name=' + file.name) : '',
-					type: ' type=' + mime_type,
 				};
 
-			return '[attach' + bbcOptionalParams.width + bbcOptionalParams.height + decodeURIComponent(bbcOptionalParams.name) + bbcOptionalParams.type + ']' + file.attachID + '[/attach]';
+			return '[attach id=' + file.attachID + bbcOptionalParams.width + bbcOptionalParams.height + ']' + (typeof file.name !== "undefined" ? decodeURIComponent(file.name.replace(/\+/g,' ')) : '') + '[/attach]';
 		},
 		createMaxSizeBar: function () {
 
@@ -50,16 +48,16 @@ function smf_fileUpload(oOptions) {
 			else
 				percentage_class = 'red';
 
-			$('#maxFiles_progress').removeClass().addClass('progress_bar progress_' + percentage_class).show();
-			$('#maxFiles_progress_text').show();
-			$('#maxFiles_progress .bar').width(usedPercentage + '%');
+			$('#max_files_progress').removeClass().addClass('progress_bar progress_' + percentage_class).show();
+			$('#max_files_progress_text').show();
+			$('#max_files_progress .bar').width(usedPercentage + '%');
 
 			// Show or update the text.
-			$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', maxSize).replace('{currentRemain}', currentSize));
+			$('#max_files_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', maxSize).replace('{currentRemain}', currentSize));
 
 			if (maxSize == 0) {
-				$('#maxFiles_progress').hide();
-				$('#maxFiles_progress_text').hide();
+				$('#max_files_progress').hide();
+				$('#max_files_progress_text').hide();
 			}
 		},
 		accept: function (file, done) {
@@ -81,7 +79,7 @@ function smf_fileUpload(oOptions) {
 				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', totalKB).replace('{currentRemain}', currentlyUsedKB));
 
 				// Remove the file size from the total
-				myDropzone.options.currentUsedSize - file.size;
+				myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize - file.size;
 
 				// File is cancel.
 				file.status = Dropzone.CANCELED;
@@ -117,7 +115,7 @@ function smf_fileUpload(oOptions) {
 
 	$.extend(true, dOptions, oOptions);
 
-	var myDropzone = new Dropzone('div#attachUpload', dOptions);
+	var myDropzone = new Dropzone('div#attachment_upload', dOptions);
 
 	myDropzone.on('addedfile', function (file) {
 
@@ -139,7 +137,7 @@ function smf_fileUpload(oOptions) {
 		_thisElement.find('.attach-ui').fadeIn();
 
 		// Show the progress bar
-		$('#maxFiles_progress').show();
+		$('#max_files_progress').show();
 
 		// Create a function to insert the BBC attach tag.
 		file.insertAttachment = function (_innerElement, response) {
@@ -199,7 +197,7 @@ function smf_fileUpload(oOptions) {
 
 							// Remove the text field and show a nice confirmation message.
 							_innerElement.find('.attached_BBC').text(data.text);
-							_thisElement.find('.attach-info a.insertBBC').fadeOut();
+							_thisElement.find('.attachment_info a.insertBBC').fadeOut();
 
 							// Do stuff only if the file was actually accepted and it doesn't have an error status.
 							if (file.accepted && file.status != Dropzone.ERROR) {
@@ -229,6 +227,17 @@ function smf_fileUpload(oOptions) {
 				$('.attach_remaining').html(myDropzone.getAcceptedFiles().length);
 		};
 
+		// The editor needs this to know how to handle embedded attachements
+		file.addToCurrentAttachmentsList = function (file, response) {
+			current_attachments.push({
+				name: file.name,
+				size: file.size,
+				attachID: response.attachID,
+				type: file.type,
+				thumbID: (response.thumbID > 0 ? response.thumbID : response.attachID)
+			});
+		}
+
 		// Hookup the upload button.
 		_thisElement.find('.upload').on('click', function () {
 			myDropzone.enqueueFile(file);
@@ -239,7 +248,7 @@ function smf_fileUpload(oOptions) {
 
 		// Show the upload and cancel all buttons only if there is something to cancel/upload.
 		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 1) {
-			$('div#attachUpload').find('#attach-cancelAll, #attach-uploadAll').fadeIn('slow', function() {
+			$('div#attachment_upload').find('#attach_cancel_all, #attach_upload_all').fadeIn('slow', function() {
 					$(this).css('display', 'inline-block');
 			});
 		}
@@ -259,8 +268,8 @@ function smf_fileUpload(oOptions) {
 
 		// Hide the cancel and upload all buttons if there is nothing to cancel/upload anymore.
 		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 0) {
-			$('div#attachUpload').find('#attach-cancelAll, #attach-uploadAll').fadeOut();
-			$('#maxFiles_progress').fadeOut();
+			$('div#attachment_upload').find('#attach_cancel_all, #attach_upload_all').fadeOut();
+			$('#max_files_progress').fadeOut();
 		}
 	});
 
@@ -289,7 +298,7 @@ function smf_fileUpload(oOptions) {
 
 	// Update the total progress bar.
 	myDropzone.on('totaluploadprogress', function (progress) {
-		$('#total-progress span').width(progress + '%');
+		$('#total_progress span').width(progress + '%');
 	});
 
 	myDropzone.on('error', function (file, errorMessage, xhr) {
@@ -325,11 +334,11 @@ function smf_fileUpload(oOptions) {
 		response = responseText.files[0];
 
 		// Show the input field and insert button.
-		_thisElement.find('.attach-info div.attached_BBC').fadeIn();
-		_thisElement.find('.attach-info a.insertBBC').fadeIn();
+		_thisElement.find('.attachment_info div.attached_BBC').fadeIn();
+		_thisElement.find('.attachment_info a.insertBBC').fadeIn();
 
 		if (typeof response.mime_type == "undefined" || response.mime_type.indexOf('image') != 0) {
-			_thisElement.find('.attach-info .attached_BBC_width_height').hide();
+			_thisElement.find('.attachment_info .attached_BBC_width_height').hide();
 		}
 
 		// The request was complete but the server returned an error.
@@ -345,6 +354,12 @@ function smf_fileUpload(oOptions) {
 		// If there wasn't any error, change the current cover.
 		_thisElement.addClass('infobox').removeClass('descbox');
 
+		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
+		_thisElement.find('a.cancel').fadeOutAndRemove('slow');
+
+		// Fire up the delete button.
+		file.deleteAttachment(_thisElement, response.attachID, file);
+
 		// Append the BBC.
 		w = _thisElement.find('input[name="attached_BBC_width"]').val();
 		h = _thisElement.find('input[name="attached_BBC_height"]').val();
@@ -352,11 +367,8 @@ function smf_fileUpload(oOptions) {
 
 		file.insertAttachment(_thisElement, response);
 
-		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
-		_thisElement.find('a.cancel').fadeOutAndRemove('slow');
-
-		// Fire up the delete button.
-		file.deleteAttachment(_thisElement, response.attachID, file);
+		// Let the editor know about this attachment so it can handle the BBC correctly
+		file.addToCurrentAttachmentsList(file, response);
 	});
 
 	myDropzone.on('uploadprogress', function (file, progress, bytesSent) {
@@ -377,11 +389,11 @@ function smf_fileUpload(oOptions) {
 		// Finishing up mocking!
 		if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined") {
 			// Show the input field.
-			_thisElement.find('.attach-info div.attached_BBC').fadeIn();
-			_thisElement.find('.attach-info a.insertBBC').fadeIn();
+			_thisElement.find('.attachment_info div.attached_BBC').fadeIn();
+			_thisElement.find('.attachment_info a.insertBBC').fadeIn();
 
 			if (typeof file.type == "undefined" || file.type.indexOf('image') != 0) {
-				_thisElement.find('.attach-info .attached_BBC_width_height').hide();
+				_thisElement.find('.attachment_info .attached_BBC_width_height').hide();
 			}
 
 			// If there wasn't any error, change the current cover.
@@ -390,18 +402,18 @@ function smf_fileUpload(oOptions) {
 			// Remove the 'upload' button.
 			_thisElement.find('.upload').fadeOutAndRemove('slow');
 
+			// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
+			_thisElement.find('a.cancel').fadeOutAndRemove('slow');
+
+			// Fire up the delete button.
+			file.deleteAttachment(_thisElement, file.attachID, file);
+
 			// Append the BBC.
 			w = _thisElement.find('input[name="attached_BBC_width"]').val();
 			h = _thisElement.find('input[name="attached_BBC_height"]').val();
 			_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(file, w, h));
 
 			file.insertAttachment(_thisElement, file);
-
-			// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
-			_thisElement.find('a.cancel').fadeOutAndRemove('slow');
-
-			// Fire up the delete button.
-			file.deleteAttachment(_thisElement, file.attachID, file);
 
 			// Need to count this towards the max limit.
 			myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize + file.size;
@@ -420,21 +432,21 @@ function smf_fileUpload(oOptions) {
 		_thisElement.find('.progress_bar').fadeIn();
 
 		// Show the total progress bar when upload starts.
-		$("#total-progress").fadeIn();
+		$("#total_progress").fadeIn();
 	});
 
 	// Update the total progress bar.
 	myDropzone.on("totaluploadprogress", function (progress) {
-		$("#total-progress span").width(progress + '%');
+		$("#total_progress span").width(progress + '%');
 	});
 
 	// Hide the total progress bar when nothing's uploading anymore.
 	myDropzone.on("queuecomplete", function (progress) {
-		$("#total-progress").fadeOut();
+		$("#total_progress").fadeOut();
 	});
 
 	// Add an event for uploading and cancelling all files.
-	$('a#attach-cancelAll').on('click', function () {
+	$('a#attach_cancel_all').on('click', function () {
 
 		if (!confirm(smf_you_sure))
 			return;
@@ -448,7 +460,7 @@ function smf_fileUpload(oOptions) {
 
 	});
 
-	$('a#attach-uploadAll').on('click', function () {
+	$('a#attach_upload_all').on('click', function () {
 
 		if (!confirm(smf_you_sure)) {
 			return;

@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -246,23 +246,28 @@ function ModifyProfile($post_errors = array())
 					),
 				),
 				'tfasetup' => array(
+					'label' => $txt['account'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'tfasetup',
 					'token' => 'profile-tfa%u',
 					'enabled' => !empty($modSettings['tfa_mode']),
+					'hidden' => true,
+					'select' => 'account',
 					'permission' => array(
 						'own' => array('profile_password_own'),
 						'any' => array('profile_password_any'),
 					),
 				),
 				'tfadisable' => array(
+					'label' => $txt['account'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'tfadisable',
 					'token' => 'profile-tfa%u',
 					'sc' => 'post',
 					'password' => true,
 					'enabled' => !empty($modSettings['tfa_mode']),
-					'hidden' => isset($_REQUEST['area']) && $_REQUEST['area'] != 'tfadisable',
+					'hidden' => true,
+					'select' => 'account',
 					'permission' => array(
 						'own' => array('profile_password_own'),
 						'any' => array('profile_password_any'),
@@ -612,20 +617,22 @@ function ModifyProfile($post_errors = array())
 		{
 			// Check to ensure we're forcing SSL for authentication
 			if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
-				fatal_lang_error('login_ssl_required');
+				fatal_lang_error('login_ssl_required', false);
+
+			$password = isset($_POST['oldpasswrd']) ? $_POST['oldpasswrd'] :  '';
 
 			// You didn't even enter a password!
-			if (trim($_POST['oldpasswrd']) == '')
+			if (trim($password) == '')
 				$post_errors[] = 'no_password';
 
 			// Since the password got modified due to all the $_POST cleaning, lets undo it so we can get the correct password
-			$_POST['oldpasswrd'] = un_htmlspecialchars($_POST['oldpasswrd']);
+			$password = un_htmlspecialchars($_POST['oldpasswrd']);
 
 			// Does the integration want to check passwords?
-			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $_POST['oldpasswrd'], false)), true);
+			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $password, false)), true);
 
 			// Bad password!!!
-			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], un_htmlspecialchars(stripslashes($_POST['oldpasswrd'])), $user_info['passwd']))
+			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], un_htmlspecialchars(stripslashes($password)), $user_info['passwd']))
 				$post_errors[] = 'bad_password';
 
 			// Warn other elements not to jump the gun and do custom changes!
@@ -749,7 +756,6 @@ function ModifyProfile($post_errors = array())
 	elseif (!empty($force_redirect))
 		redirectexit('action=profile' . ($context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=' . $current_area);
 
-
 	// Get the right callable.
 	$call = call_helper($profile_include_data['function'], true);
 
@@ -859,12 +865,20 @@ function alerts_popup($memID)
 	// We only want to output our little layer here.
 	$context['template_layers'] = array();
 
+	// No funny business allowed
+	$fetch_all = !isset($_REQUEST['counter']);
+	$_REQUEST['counter'] = isset($_REQUEST['counter']) ? max(0, (int) $_REQUEST['counter']) : 0;
+
 	$context['unread_alerts'] = array();
-	if (empty($_REQUEST['counter']) || (int) $_REQUEST['counter'] < $cur_profile['alerts'])
+	if ($fetch_all || $_REQUEST['counter'] < $cur_profile['alerts'])
 	{
 		// Now fetch me my unread alerts, pronto!
 		require_once($sourcedir . '/Profile-View.php');
-		$context['unread_alerts'] = fetch_alerts($memID, false, $cur_profile['alerts'] - (!empty($_REQUEST['counter']) ? (int) $_REQUEST['counter'] : 0));
+		$context['unread_alerts'] = fetch_alerts($memID, false, $fetch_all ? null : $cur_profile['alerts'] - $_REQUEST['counter']);
+
+		// This shouldn't happen, but just in case...
+		if ($fetch_all && $cur_profile['alerts'] != count($context['unread_alerts']))
+			updateMemberData($memID, array('alerts' => count($context['unread_alerts'])));
 	}
 }
 
@@ -930,7 +944,7 @@ function loadCustomFields($memID, $area = 'summary')
 		{
 			$value = $smcFunc['htmlspecialchars']($_POST['customfield'][$row['col_name']]);
 			if (in_array($row['field_type'], array('select', 'radio')))
-					$value = ($options = explode(',', $row['field_options'])) && isset($options[$value]) ? $options[$value] : '';
+				$value = ($options = explode(',', $row['field_options'])) && isset($options[$value]) ? $options[$value] : '';
 		}
 
 		// Don't show the "disabled" option for the "gender" field if we are on the "summary" area.
