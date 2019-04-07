@@ -786,7 +786,6 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 		if (count(array_intersect_key($columns, array_flip($keys))) !== count($keys))
 			smf_db_error_backtrace('Primary Key field missing in insert call',
 				'Change the method of db insert to insert or add the pk field to the columns array', E_USER_ERROR, __FILE__, __LINE__);
-
 	}
 
 	if (!$with_returning || $method != 'ignore')
