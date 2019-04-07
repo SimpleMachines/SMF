@@ -651,7 +651,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	if ($method == 'replace')
 	{
 		if (empty($keys))
-		smf_db_error_backtrace('When using the replace mode, the key column is a required entry.',
+			smf_db_error_backtrace('When using the replace mode, the key column is a required entry.',
 				'Change the method of db insert to insert or add the pk field to the key array', E_USER_ERROR, __FILE__, __LINE__);
 		if (count(array_intersect_key($columns, array_flip($keys))) !== count($keys))
 			smf_db_error_backtrace('Primary Key field missing in insert call',
