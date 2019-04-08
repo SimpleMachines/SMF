@@ -2173,100 +2173,118 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					// Parse any URLs
 					if (!isset($disabled['url']) && strpos($data, '[url') === false)
 					{
-						$url_regex = '
-						(?:
-							# IRIs with a scheme (or at least an opening "//")
-							(?:
-								# URI scheme (or lack thereof for schemeless URLs)
-								(?:
-									# URL scheme and colon
-									\b[a-z][\w\-]+:
-									| # or
-									# A boundary followed by two slashes for schemeless URLs
-									(?<=^|\W)(?=//)
-								)
+						// For efficiency, first define the TLD regex in a PCRE subroutine
+						$url_regex = '(?(DEFINE)(?<tlds>' . $modSettings['tld_regex'] . '))';
 
-								# IRI "authority" chunk
-								(?:
-									# 2 slashes for IRIs with an "authority"
-									//
-									# then a domain name
-									(?:
-										# Either the reserved "localhost" domain name
-										localhost
-										| # or
-										# a run of Unicode domain name characters and a dot
-										[\p{L}\p{M}\p{N}\-.:@]+\.
-										# and then a TLD valid in the DNS or the reserved "local" TLD
-										(?:' . $modSettings['tld_regex'] . '|local)
-									)
-									# followed by a non-domain character or end of line
-									(?=[^\p{L}\p{N}\-.]|$)
+						// Now build the rest of the regex
+						$url_regex .=
+						// 1. IRI scheme and domain components
+						'(?:' .
+							// 1a. IRIs with a scheme, or at least an opening "//"
+							'(?:' .
 
-									| # Or, if there is no "authority" per se (e.g. mailto: URLs) ...
+								// URI scheme (or lack thereof for schemeless URLs)
+								'(?:' .
+									// URL scheme and colon
+									'\b[a-z][\w\-]+:' .
+									// or
+									'|' .
+									// A boundary followed by two slashes for schemeless URLs
+									'(?<=^|\W)(?=//)' .
+								')' .
 
-									# a run of IRI characters
-									[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.:@]+[\p{L}\p{M}\p{N}]
-									# and then a dot and a closing IRI label
-									\.[\p{L}\p{M}\p{N}\-]+
-								)
-							)
+								// IRI "authority" chunk
+								'(?:' .
+									// 2 slashes for IRIs with an "authority"
+									'//' .
+									// then a domain name
+									'(?:' .
+										// Either the reserved "localhost" domain name
+										'localhost' .
+										// or
+										'|' .
+										// a run of Unicode domain name characters and a dot
+										'[\p{L}\p{M}\p{N}\-.:@]+\.' .
+										// and then a TLD
+										'(?:' .
+											// Either a TLD valid in the DNS
+											'(?P>tlds)' .
+											// or
+											'|' .
+											// the reserved "local" TLD
+											'local' .
+										')' .
+									')' .
+									// followed by a non-domain character or end of line
+									'(?=[^\p{L}\p{N}\-.]|$)' .
 
-							| # or
+									// or, if no "authority" per se (e.g. "mailto:" URLs)...
+									'|' .
 
-							# Naked domains (e.g. "example.com" in "Go to example.com for an example.")
-							(?:
-								# Preceded by start of line or a non-domain character
-								(?<=^|[^\p{L}\p{M}\p{N}\-:@])
+									// a run of IRI characters
+									'[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.:@]+[\p{L}\p{M}\p{N}]' .
+									// and then a dot and a closing IRI label
+									'\.[\p{L}\p{M}\p{N}\-]+' .
+								')' .
+							')' .
 
-								# A run of Unicode domain name characters (excluding [:@])
-								[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.]+[\p{L}\p{M}\p{N}]
-								# and then a dot and a valid TLD
-								\.' . $modSettings['tld_regex'] . '
+							// Or
+							'|' .
 
-								# Followed by either:
-								(?=
-									# end of line or a non-domain character (excluding [.:@])
-									$|[^\p{L}\p{N}\-]
-									| # or
-									# a dot followed by end of line or a non-domain character (excluding [.:@])
-									\.(?=$|[^\p{L}\p{N}\-])
-								)
-							)
-						)
+							// 1b. Naked domains (e.g. "example.com" in "Go to example.com for an example.")
+							'(?:' .
+								// Preceded by start of line or a non-domain character
+								'(?<=^|[^\p{L}\p{M}\p{N}\-:@])' .
+								// A run of Unicode domain name characters (excluding [:@])
+								'[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.]+[\p{L}\p{M}\p{N}]' .
+								// and then a dot and a valid TLD
+								'\.(?P>tlds)' .
+								// Followed by either:
+								'(?=' .
+									// end of line or a non-domain character (excluding [.:@])
+									'$|[^\p{L}\p{N}\-]' .
+									// or
+									'|' .
+									// a dot followed by end of line or a non-domain character (excluding [.:@])
+									'\.(?=$|[^\p{L}\p{N}\-])' .
+								')' .
+							')' .
+						')' .
 
-						# IRI path, query, and fragment (if present)
-						(?:
-							# If any of these parts exist, must start with a single /
-							/
+						// 2. IRI path, query, and fragment components (if present)
+						'(?:' .
 
-							# And then optionally:
-							(?:
-								# One or more of:
-								(?:
-									# a run of non-space, non-()<>
-									[^\s()<>]+
-									| # or
-									# balanced parens, up to 2 levels
-									\(([^\s()<>]+|(\([^\s()<>]+\)))*\)
-								)+
+							// If any of these parts exist, must start with a single "/"
+							'/' .
 
-								# End with:
-								(?:
-									# balanced parens, up to 2 levels
-									\(([^\s()<>]+|(\([^\s()<>]+\)))*\)
-									| # or
-									# not a space or one of these punct char
-									[^\s`!()\[\]{};:\'".,<>?«»“”‘’/]
-									| # or
-									# a trailing slash (but not two in a row)
-									(?<!/)/
-								)
-							)?
-						)?
-						';
+							// And then optionally:
+							'(?:' .
+								// One or more of:
+								'(?:' .
+									// a run of non-space, non-()<>
+									'[^\s()<>]+' .
+									// or
+									'|' .
+									// balanced parentheses, up to 2 levels
+									'\(([^\s()<>]+|(\([^\s()<>]+\)))*\)' .
+								')+' .
+								// Ending with:
+								'(?:' .
+									// balanced parentheses, up to 2 levels
+									'\(([^\s()<>]+|(\([^\s()<>]+\)))*\)' .
+									// or
+									'|' .
+									// not a space or one of these punctuation characters
+									'[^\s`!()\[\]{};:\'".,<>?«»“”‘’/]' .
+									// or
+									'|' .
+									// a trailing slash (but not two in a row)
+									'(?<!/)/' .
+								')' .
+							')?' .
+						')?';
 
-						$data = preg_replace_callback('~' . $url_regex . '~xi' . ($context['utf8'] ? 'u' : ''), function($matches)
+						$data = preg_replace_callback('~' . $url_regex . '~i' . ($context['utf8'] ? 'u' : ''), function($matches)
 						{
 							$url = array_shift($matches);
 
