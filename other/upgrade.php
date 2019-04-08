@@ -5043,6 +5043,7 @@ function migrateSettingsFile($changes)
 		'webmaster_email' => 'string',
 		'cookiename' => 'string',
 		'db_type' => 'string',
+		'db_port' => 'int',
 		'db_server' => 'string_fatal',
 		'db_name' => 'string_fatal',
 		'db_user' => 'string_fatal',
@@ -5078,7 +5079,7 @@ function migrateSettingsFile($changes)
 		' *',
 		' * @package SMF',
 		' * @author Simple Machines http://www.simplemachines.org',
-		' * @copyright ' . date('Y', time()) . ' Simple Machines and individual contributors',
+		' * @copyright ' . SMF_SOFTWARE_YEAR . ' Simple Machines and individual contributors',
 		' * @license http://www.simplemachines.org/about/smf/license.php BSD',
 		' *',
 		' * @version ' . SMF_VERSION,
@@ -5140,6 +5141,12 @@ function migrateSettingsFile($changes)
 		' * @var string',
 		' */',
 		'$db_type = \'mysql\';',
+		'/**',
+		' * The database port',
+		' * Default options: 3306 for mysql, 5432 for postgresql',
+		' * @var int',
+		' */',
+		'$db_port = 3306;',
 		'/**',
 		' * The server to connect to (or a Unix socket)',
 		' * @var string',
@@ -5296,7 +5303,7 @@ function migrateSettingsFile($changes)
 
 		// Find the setting.
 		if ($setType == 'string' || $setType == 'string_fatal')
-			$original[$setVar] = isset($$setVar) ? '\'' . addslashes($$setVar) . '\'' : (strpos('fatal', $setType) ? null : '\'\'');
+			$original[$setVar] = isset($$setVar) ? '\'' . addslashes($)addcslashes($$setVar, '\'\\') . '\'' : (strpos('fatal', $setType) ? null : '\'\'');
 		elseif ($setType == 'int' || $setType == 'int_fatal')
 			$original[$setVar] = isset($$setVar) ? (int) $$setVar : (strpos('fatal', $setType) ? null : 0);
 		elseif ($setType == 'bool' || $setType == 'bool_fatal')
@@ -5327,7 +5334,7 @@ function migrateSettingsFile($changes)
 	// When was Settings.php last changed?
 	$last_settings_change = filemtime($boarddir . '/Settings.php');
 
-	// remove any /r's that made there way in here
+	// remove any \r's that made their way in here
 	foreach ($settingsArray as $k => $dummy)
 		$settingsArray[$k] = strtr($dummy, array("\r" => '')) . "\n";
 
@@ -5445,7 +5452,6 @@ function migrateSettingsFile($changes)
  *
  * @return void We either successfully update the Settings file, or throw a error here.
  */
-
 function detectSettingsFileMigrationNeeded()
 {
 	global $boarddir, $packagesdir, $tasksdir, $db_server, $db_type, $image_proxy_enabled, $db_show_debug;
