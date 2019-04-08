@@ -1885,7 +1885,7 @@ function template_alert_configuration()
 				<dl class="settings">';
 
 	// Allow notification on announcements to be disabled?
-	if (!empty($modSettings['allow_disableAnnounce']))
+	if ($context['can_disable_announce'])
 		echo '
 					<dt>
 						<label for="notify_announcements">', $txt['notify_important_email'], '</label>

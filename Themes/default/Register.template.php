@@ -133,7 +133,11 @@ function template_registration_form()
 								<span id="smf_autov_pwverify_img" class="main_icons valid"></span>
 							</span>
 						</dd>
-					</dl>
+					</dl>';
+
+	// Allow notification on announcements to be disabled?
+	if (!empty($modSettings['allow_disableAnnounce']))
+		echo '
 					<dl class="register_form" id="notify_announcements">
 						<dt>
 							<strong><label for="notify_announcements">', $txt['notify_announcements'], ':</label></strong>

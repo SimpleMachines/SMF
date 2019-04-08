@@ -2704,6 +2704,7 @@ function AnnouncementSend()
 
 	foreach ($rows as $row)
 	{
+		$context['start'] = $row['id_member'];
 		// Force them to have it?
 		if (empty($prefs[$row['id_member']]['announcements']))
 			continue;
@@ -2730,7 +2731,6 @@ function AnnouncementSend()
 		}
 
 		$announcements[$cur_language]['recipients'][$row['id_member']] = $row['email_address'];
-		$context['start'] = $row['id_member'];
 	}
 
 	// For each language send a different mail - low priority...

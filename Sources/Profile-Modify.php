@@ -1976,6 +1976,7 @@ function alert_configuration($memID)
 		'alert_timeout' => isset($context['alert_prefs']['alert_timeout']) ? $context['alert_prefs']['alert_timeout'] : 10,
 		'notify_announcements' => isset($context['alert_prefs']['announcements']) ? $context['alert_prefs']['announcements'] : 0,
 	);
+	$context['can_disable_announce'] = $memID == 0 || !empty($modSettings['allow_disableAnnounce']);
 
 	// Now for the exciting stuff.
 	// We have groups of items, each item has both an alert and an email key as well as an optional help string.
