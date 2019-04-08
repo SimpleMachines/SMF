@@ -221,6 +221,7 @@ function summary($memID)
  * @param int $counter How many alerts to display (0 if displaying all or using pagination)
  * @param array $pagination An array containing info for handling pagination. Should have 'start' and 'maxIndex'
  * @param bool $withSender With $memberContext from sender
+ * @param bool $show_links if set to true alerts will show links if any instead of plain text
  * @return array An array of information about the fetched alerts
  */
 function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = true, $show_links = false)
@@ -480,13 +481,13 @@ function showAlerts($memID)
 			$link = $scripturl . $alert['extra']['report_link'];
 		elseif (isset($alert['content_action']) && $alert['content_action'] === 'register_approval')
 			$link = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
-		elseif (isset($alert['content_action'], $alert['id_member_started']) && $alert['content_action'] === 'buddy_request')
-			$link = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
 		elseif (isset($alert['content_action']) && $alert['content_action'] === 'group_request')
 			$link = $scripturl . '?action=moderate;area=groups;sa=requests';
+		elseif (isset($alert['content_action'], $alert['id_member_started']) && ($alert['content_type'] === 'member' || $alert['content_action'] === 'buddy_request'))
+			$link = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
 		elseif (isset($alert['content_type'], $alert['extra']['event_id']) && $alert['content_type'] === 'event')
 			$link = $scripturl . '?action=calendar;event=' . $alert['extra']['event_id'];
-		elseif (isset($alert['content_action'], $alert['content_id']) && $alert['content_action'] === 'like')
+		elseif (isset($alert['content_type'], $alert['content_id']) && $alert['content_type'] === 'msg')
 			$link = $scripturl . '?msg=' . $alert['content_id'];
 
 		call_integration_hook('integrate_show_alert', array(&$alert, &$link));
