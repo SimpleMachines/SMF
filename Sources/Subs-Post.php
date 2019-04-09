@@ -1149,11 +1149,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		if (empty($notification_texts[$lang]))
 		{
 			if ($lang != $user_info['language'])
-			{
-				$user_txt = $txt;
-				$txt = array();
-				loadLanguage('index', $lang, false, true);
-			}
+				loadLanguage('index+Modifications', $lang, false);
 
 			$notification_texts[$lang]['subject'] = $subject;
 			censorText($notification_texts[$lang]['subject']);
@@ -1171,7 +1167,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 
 			if ($lang != $user_info['language'])
-				$txt = $user_txt;
+				loadLanguage('index+Modifications', $user_info['language'], false);
 		}
 
 		$replacements['SUBJECT'] = $notification_texts[$lang]['subject'];
