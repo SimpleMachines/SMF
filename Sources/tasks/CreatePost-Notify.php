@@ -204,7 +204,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			// Censor and parse BBC in the receiver's language. Only do each language once.
 			if (empty($parsed_message[$receiver_lang]))
 			{
-				loadLanguage('index', $receiver_lang, false);
+				loadLanguage('index+Modifications', $receiver_lang, false);
 
 				$parsed_message[$receiver_lang]['subject'] = $msgOptions['subject'];
 				$parsed_message[$receiver_lang]['body'] = $msgOptions['body'];
