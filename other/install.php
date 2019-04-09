@@ -1594,7 +1594,7 @@ function AdminAccount()
 			$incontext['error'] = $txt['error_invalid_characters_username'];
 			return false;
 		}
-		elseif (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['email'])  > 255)
+		elseif (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['email']) > 255)
 		{
 			// One step back, this time fill out a proper admin email address.
 			$incontext['error'] = sprintf($txt['error_valid_admin_email_needed'], $_POST['username']);
@@ -1783,8 +1783,7 @@ function DeleteInstall()
 	updateStats('topic');
 
 	// This function is needed to do the updateStats('subject') call.
-	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
-		function($string)
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' : function($string)
 		{
 			global $sourcedir;
 			if (function_exists('mb_strtolower'))
