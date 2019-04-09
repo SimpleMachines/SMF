@@ -197,12 +197,6 @@ function initialize_inputs()
 		exit;
 	}
 
-	// Add slashes, as long as they aren't already being added.
-	if (!function_exists('get_magic_quotes_gpc') || @get_magic_quotes_gpc() == 0)
-		foreach ($_POST as $k => $v)
-			if (strpos($k, 'password') === false && strpos($k, 'db_passwd') === false)
-				$_POST[$k] = addslashes($v);
-
 	// This is really quite simple; if ?delete is on the URL, delete the installer...
 	if (isset($_GET['delete']))
 	{
@@ -790,12 +784,12 @@ function DatabaseSettings()
 
 		// Take care of these variables...
 		$vars = array(
-			'db_type' => $db_type,
-			'db_name' => $_POST['db_name'],
-			'db_user' => $_POST['db_user'],
-			'db_passwd' => isset($_POST['db_passwd']) ? $_POST['db_passwd'] : '',
-			'db_server' => $_POST['db_server'],
-			'db_prefix' => $db_prefix,
+			'db_type' => addcslashes($db_type, '\'\\'),
+			'db_name' => addcslashes($_POST['db_name'], '\'\\'),
+			'db_user' => addcslashes($_POST['db_user'], '\'\\'),
+			'db_passwd' => isset($_POST['db_passwd']) ? addcslashes($_POST['db_passwd'], '\'\\') : '',
+			'db_server' => addcslashes($_POST['db_server'], '\'\\'),
+			'db_prefix' => addcslashes($db_prefix, '\'\\'),
 			// The cookiename is special; we want it to be the same if it ever needs to be reinstalled with the same info.
 			'cookiename' => 'SMFCookie' . abs(crc32($_POST['db_name'] . preg_replace('~[^A-Za-z0-9_$]~', '', $_POST['db_prefix'])) % 1000),
 		);
@@ -862,7 +856,7 @@ function DatabaseSettings()
 			if ($db_connection != null)
 			{
 				$db_user = $_POST['db_prefix'] . $db_user;
-				updateSettingsFile(array('db_user' => $db_user));
+				updateSettingsFile(array('db_user' => addcslashes($db_user, '\'\\')));
 			}
 		}
 
@@ -908,7 +902,7 @@ function DatabaseSettings()
 				if ($smcFunc['db_select_db']($_POST['db_prefix'] . $db_name, $db_connection))
 				{
 					$db_name = $_POST['db_prefix'] . $db_name;
-					updateSettingsFile(array('db_name' => $db_name));
+					updateSettingsFile(array('db_name' => addcslashes($db_name, '\'\\')));
 				}
 			}
 
@@ -993,21 +987,24 @@ function ForumSettings()
 		if (substr($_POST['boardurl'], 0, 7) != 'http://' && substr($_POST['boardurl'], 0, 7) != 'file://' && substr($_POST['boardurl'], 0, 8) != 'https://')
 			$_POST['boardurl'] = 'http://' . $_POST['boardurl'];
 
-		//Make sure boardurl is aligned with ssl setting
+		// Make sure boardurl is aligned with ssl setting
 		if (empty($_POST['force_ssl']))
 			$_POST['boardurl'] = strtr($_POST['boardurl'], array('https://' => 'http://'));
 		else
 			$_POST['boardurl'] = strtr($_POST['boardurl'], array('http://' => 'https://'));
 
+		// Deal with different operating systems' directory structure...
+		$path = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', __DIR__), '/');
+
 		// Save these variables.
 		$vars = array(
-			'boardurl' => $_POST['boardurl'],
-			'boarddir' => addslashes(dirname(__FILE__)),
-			'sourcedir' => addslashes(dirname(__FILE__)) . '/Sources',
-			'cachedir' => addslashes(dirname(__FILE__)) . '/cache',
-			'packagesdir' => addslashes(dirname(__FILE__)) . '/Packages',
-			'tasksdir' => addslashes(dirname(__FILE__)) . '/Sources/tasks',
-			'mbname' => strtr($_POST['mbname'], array('\"' => '"')),
+			'boardurl' => addcslashes($_POST['boardurl'], '\'\\'),
+			'boarddir' => addcslashes($path, '\'\\'),
+			'sourcedir' => addcslashes($path, '\'\\') . '/Sources',
+			'cachedir' => addcslashes($path, '\'\\') . '/cache',
+			'packagesdir' => addcslashes($path, '\'\\') . '/Packages',
+			'tasksdir' => addcslashes($path, '\'\\') . '/Sources/tasks',
+			'mbname' => strtr(addcslashes($_POST['mbname'], '\'\\'), array('\"' => '"')),
 			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),
 			'image_proxy_secret' => substr(sha1(mt_rand()), 0, 20),
 			'image_proxy_enabled' => !empty($_POST['force_ssl']),
@@ -1511,9 +1508,9 @@ function AdminAccount()
 	if (!isset($_POST['server_email']))
 		$_POST['server_email'] = '';
 
-	$incontext['username'] = htmlspecialchars(stripslashes($_POST['username']));
-	$incontext['email'] = htmlspecialchars(stripslashes($_POST['email']));
-	$incontext['server_email'] = htmlspecialchars(stripslashes($_POST['server_email']));
+	$incontext['username'] = htmlspecialchars($_POST['username']);
+	$incontext['email'] = htmlspecialchars($_POST['email']);
+	$incontext['server_email'] = htmlspecialchars($_POST['server_email']);
 
 	$incontext['require_db_confirm'] = empty($db_type);
 
@@ -1561,7 +1558,7 @@ function AdminAccount()
 
 		// Update the webmaster's email?
 		if (!empty($_POST['server_email']) && (empty($webmaster_email) || $webmaster_email == 'noreply@myserver.com'))
-			updateSettingsFile(array('webmaster_email' => $_POST['server_email']));
+			updateSettingsFile(array('webmaster_email' => addcslashes($_POST['server_email'], '\'\\')));
 
 		// Work out whether we're going to have dodgy characters and remove them.
 		$invalid_characters = preg_match('~[<>&"\'=\\\]~', $_POST['username']) != 0;
@@ -1573,8 +1570,8 @@ function AdminAccount()
 			WHERE member_name = {string:username} OR email_address = {string:email}
 			LIMIT 1',
 			array(
-				'username' => stripslashes($_POST['username']),
-				'email' => stripslashes($_POST['email']),
+				'username' => $_POST['username'],
+				'email' => $_POST['email'],
 				'db_error_skip' => true,
 			)
 		);
@@ -1597,13 +1594,13 @@ function AdminAccount()
 			$incontext['error'] = $txt['error_invalid_characters_username'];
 			return false;
 		}
-		elseif (empty($_POST['email']) || !filter_var(stripslashes($_POST['email']), FILTER_VALIDATE_EMAIL) || strlen(stripslashes($_POST['email'])) > 255)
+		elseif (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['email']) > 255)
 		{
 			// One step back, this time fill out a proper admin email address.
 			$incontext['error'] = sprintf($txt['error_valid_admin_email_needed'], $_POST['username']);
 			return false;
 		}
-		elseif (empty($_POST['server_email']) || !filter_var(stripslashes($_POST['server_email']), FILTER_VALIDATE_EMAIL) || strlen(stripslashes($_POST['server_email'])) > 255)
+		elseif (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['server_email']) > 255)
 		{
 			// One step back, this time fill out a proper admin email address.
 			$incontext['error'] = $txt['error_valid_server_email_needed'];
@@ -1620,27 +1617,57 @@ function AdminAccount()
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
 			$ip = isset($_SERVER['REMOTE_ADDR']) ? substr($_SERVER['REMOTE_ADDR'], 0, 255) : '';
 
-			$_POST['password1'] = hash_password(stripslashes($_POST['username']), stripslashes($_POST['password1']));
+			$_POST['password1'] = hash_password($_POST['username'], $_POST['password1']);
 
 			$incontext['member_id'] = $smcFunc['db_insert']('',
 				$db_prefix . 'members',
 				array(
-					'member_name' => 'string-25', 'real_name' => 'string-25', 'passwd' => 'string', 'email_address' => 'string',
-					'id_group' => 'int', 'posts' => 'int', 'date_registered' => 'int',
-					'password_salt' => 'string', 'lngfile' => 'string', 'personal_text' => 'string', 'avatar' => 'string',
-					'member_ip' => 'inet', 'member_ip2' => 'inet', 'buddy_list' => 'string', 'pm_ignore_list' => 'string',
-					'website_title' => 'string', 'website_url' => 'string',
-					'signature' => 'string', 'usertitle' => 'string', 'secret_question' => 'string',
-					'additional_groups' => 'string', 'ignore_boards' => 'string',
+					'member_name' => 'string-25',
+					'real_name' => 'string-25',
+					'passwd' => 'string',
+					'email_address' => 'string',
+					'id_group' => 'int',
+					'posts' => 'int',
+					'date_registered' => 'int',
+					'password_salt' => 'string',
+					'lngfile' => 'string',
+					'personal_text' => 'string',
+					'avatar' => 'string',
+					'member_ip' => 'inet',
+					'member_ip2' => 'inet',
+					'buddy_list' => 'string',
+					'pm_ignore_list' => 'string',
+					'website_title' => 'string',
+					'website_url' => 'string',
+					'signature' => 'string',
+					'usertitle' => 'string',
+					'secret_question' => 'string',
+					'additional_groups' => 'string',
+					'ignore_boards' => 'string',
 				),
 				array(
-					stripslashes($_POST['username']), stripslashes($_POST['username']), $_POST['password1'], stripslashes($_POST['email']),
-					1, 0, time(),
-					$incontext['member_salt'], '', '', '',
-					$ip, $ip, '', '',
-					'', '',
-					'', '', '',
-					'', '',
+					$_POST['username'],
+					$_POST['username'],
+					$_POST['password1'],
+					$_POST['email'],
+					1,
+					0,
+					time(),
+					$incontext['member_salt'],
+					'',
+					'',
+					'',
+					$ip,
+					$ip,
+					'',
+					'',
+					'',
+					'',
+					'',
+					'',
+					'',
+					'',
+					'',
 				),
 				array('id_member'),
 				1
@@ -1756,15 +1783,14 @@ function DeleteInstall()
 	updateStats('topic');
 
 	// This function is needed to do the updateStats('subject') call.
-	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
-		function($string)
-		{
-			global $sourcedir;
-			if (function_exists('mb_strtolower'))
-				return mb_strtolower($string, 'UTF-8');
-			require_once($sourcedir . '/Subs-Charset.php');
-			return utf8_strtolower($string);
-		};
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' : function($string)
+	{
+		global $sourcedir;
+		if (function_exists('mb_strtolower'))
+			return mb_strtolower($string, 'UTF-8');
+		require_once($sourcedir . '/Subs-Charset.php');
+		return utf8_strtolower($string);
+	};
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_msg

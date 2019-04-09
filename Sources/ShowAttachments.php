@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function showAttachment()
 {
-	global $smcFunc, $modSettings, $maintenance, $context;
+	global $smcFunc, $modSettings, $maintenance, $context, $txt;
 
 	// Some defaults that we need.
 	$context['character_set'] = empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set'];

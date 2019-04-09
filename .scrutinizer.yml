@@ -34,7 +34,7 @@ checks:
         no_short_method_names:
             minimum: '3'
         no_goto: true
-        no_error_suppression: true
+        no_error_suppression: false
         no_debug_code: true
         more_specific_types_in_doc_comments: true
         missing_arguments: true

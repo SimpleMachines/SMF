@@ -342,7 +342,7 @@ function upgradeExit($fallThrough = false)
 		$upgradeData = base64_encode(json_encode($upcontext['user']));
 		require_once($sourcedir . '/Subs-Admin.php');
 		updateSettingsFile(array('upgradeData' => '"' . $upgradeData . '"'));
-		updateDbLastError(0);
+		updateDbLastError();
 	}
 
 	// Handle the progress of the step, if any.
@@ -420,7 +420,6 @@ function upgradeExit($fallThrough = false)
 		$minutes = intval(($active / 60) % 60);
 		$seconds = intval($active % 60);
 
-		$totalTime = '';
 		if ($hours > 0)
 			echo "\n" . '', sprintf($txt['upgrade_completed_time_hms'], $hours, $minutes, $seconds), '' . "\n";
 		elseif ($minutes > 0)
@@ -436,7 +435,7 @@ function upgradeExit($fallThrough = false)
 // Load the list of language files, and the current language file.
 function load_lang_file()
 {
-	global $txt, $upcontext, $language;
+	global $txt, $upcontext, $language, $modSettings;
 
 	static $lang_dir = '', $detected_languages = array(), $loaded_langfile = '';
 
@@ -945,7 +944,7 @@ function WelcomeLogin()
 function checkLogin()
 {
 	global $modSettings, $upcontext, $disable_security;
-	global $smcFunc, $db_type, $support_js, $sourcedir;
+	global $smcFunc, $db_type, $support_js, $sourcedir, $txt;
 
 	// Don't bother if the security is disabled.
 	if ($disable_security)
@@ -1127,7 +1126,7 @@ function checkLogin()
 // Step 1: Do the maintenance and backup.
 function UpgradeOptions()
 {
-	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir, $tasksdir, $language, $txt;
+	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir, $tasksdir, $language, $txt, $db_port;
 	global $boarddir, $boardurl, $sourcedir, $maintenance, $cachedir, $upcontext, $db_type, $db_server, $image_proxy_enabled;
 
 	$upcontext['sub_template'] = 'upgrade_options';
@@ -1143,7 +1142,7 @@ function UpgradeOptions()
 	unset($member_columns);
 
 	// If these options are missing, we may need to migrate to a new Settings.php
-	$upcontext['migrateSettingsNeeded'] = detectSettingsFileMigrationNeeded() ? 1 : 0;
+	$upcontext['migrateSettingsNeeded'] = detectSettingsFileMigrationNeeded();
 
 	// If we've not submitted then we're done.
 	if (empty($_POST['upcont']))
@@ -2243,7 +2242,7 @@ function protected_alter($change, $substep, $is_test = false)
 			// Found it?
 			if ($column['name'] === $change['name'])
 			{
-				$found |= 1;
+				$found |= true;
 				// Do some checks on the data if we have it set.
 				if (isset($change['col_type']))
 					$found &= $change['col_type'] === $column['type'];
@@ -2547,7 +2546,7 @@ function cmdStep0()
 	$start_time = time();
 
 	ob_end_clean();
-	ob_implicit_flush(true);
+	ob_implicit_flush(1);
 	@set_time_limit(600);
 
 	if (!isset($_SERVER['argv']))
@@ -4879,15 +4878,13 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 	}
 	$smcFunc['db_free_result']($request);
 
-	//mysql default max length is 1mb https://dev.mysql.com/doc/refman/5.1/en/packet-too-large.html
-	$arIp = array();
-
 	$is_done = false;
 	while (!$is_done)
 	{
 		// Keep looping at the current step.
 		nextSubstep($current_substep);
 
+		// mysql default max length is 1mb https://dev.mysql.com/doc/refman/5.1/en/packet-too-large.html
 		$arIp = array();
 
 		$request = $smcFunc['db_query']('', '
@@ -5030,7 +5027,7 @@ function upgradeGetColumnInfo($targetTable, $column)
  */
 function migrateSettingsFile($changes)
 {
-	global $boarddir, $cachedir;
+	global $boarddir, $cachedir, $txt;
 
 	// Try to find all of these settings.
 	$settingsVars = array(
@@ -5043,6 +5040,7 @@ function migrateSettingsFile($changes)
 		'webmaster_email' => 'string',
 		'cookiename' => 'string',
 		'db_type' => 'string',
+		'db_port' => 'int',
 		'db_server' => 'string_fatal',
 		'db_name' => 'string_fatal',
 		'db_user' => 'string_fatal',
@@ -5078,7 +5076,7 @@ function migrateSettingsFile($changes)
 		' *',
 		' * @package SMF',
 		' * @author Simple Machines http://www.simplemachines.org',
-		' * @copyright ' . date('Y', time()) . ' Simple Machines and individual contributors',
+		' * @copyright ' . SMF_SOFTWARE_YEAR . ' Simple Machines and individual contributors',
 		' * @license http://www.simplemachines.org/about/smf/license.php BSD',
 		' *',
 		' * @version ' . SMF_VERSION,
@@ -5140,6 +5138,12 @@ function migrateSettingsFile($changes)
 		' * @var string',
 		' */',
 		'$db_type = \'mysql\';',
+		'/**',
+		' * The database port',
+		' * Default options: 3306 for mysql, 5432 for postgresql',
+		' * @var int',
+		' */',
+		'$db_port = 3306;',
 		'/**',
 		' * The server to connect to (or a Unix socket)',
 		' * @var string',
@@ -5296,7 +5300,7 @@ function migrateSettingsFile($changes)
 
 		// Find the setting.
 		if ($setType == 'string' || $setType == 'string_fatal')
-			$original[$setVar] = isset($$setVar) ? '\'' . addslashes($$setVar) . '\'' : (strpos('fatal', $setType) ? null : '\'\'');
+			$original[$setVar] = isset($$setVar) ? '\'' . addcslashes($$setVar, '\'\\') . '\'' : (strpos('fatal', $setType) ? null : '\'\'');
 		elseif ($setType == 'int' || $setType == 'int_fatal')
 			$original[$setVar] = isset($$setVar) ? (int) $$setVar : (strpos('fatal', $setType) ? null : 0);
 		elseif ($setType == 'bool' || $setType == 'bool_fatal')
@@ -5327,7 +5331,7 @@ function migrateSettingsFile($changes)
 	// When was Settings.php last changed?
 	$last_settings_change = filemtime($boarddir . '/Settings.php');
 
-	// remove any /r's that made there way in here
+	// remove any \r's that made their way in here
 	foreach ($settingsArray as $k => $dummy)
 		$settingsArray[$k] = strtr($dummy, array("\r" => '')) . "\n";
 
@@ -5396,7 +5400,7 @@ function migrateSettingsFile($changes)
 		$cachedir = $boarddir . '/cache';
 
 	$test_fp = @fopen($cachedir . '/settings_update.tmp', "w+");
-	if ($test_fp)
+	if ($test_fp !== false)
 	{
 		fclose($test_fp);
 		$written_bytes = file_put_contents($cachedir . '/settings_update.tmp', 'test', LOCK_EX);
@@ -5443,9 +5447,8 @@ function migrateSettingsFile($changes)
  *
  * @param array $config_vars An array of one or more variables to update
  *
- * @return void We either successfully update the Settings file, or throw a error here.
+ * @return bool We either successfully update the Settings file, or throw a error here.
  */
-
 function detectSettingsFileMigrationNeeded()
 {
 	global $boarddir, $packagesdir, $tasksdir, $db_server, $db_type, $image_proxy_enabled, $db_show_debug;
