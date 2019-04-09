@@ -1060,11 +1060,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		$bbc_codes = array();
 
 	// If we are not doing every tag then we don't cache this run.
-	if (!empty($parse_tags) && !empty($bbc_codes))
-	{
-		$temp_bbc = $bbc_codes;
+	if (!empty($parse_tags))
 		$bbc_codes = array();
-	}
 
 	// Ensure $modSettings['tld_regex'] contains a valid regex for the autolinker
 	if (!empty($modSettings['autoLinkUrls']))
@@ -1932,8 +1929,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		// This is mainly for the bbc manager, so it's easy to add tags above.  Custom BBC should be added above this line.
 		if ($message === false)
 		{
-			if (isset($temp_bbc))
-				$bbc_codes = $temp_bbc;
 			usort($codes, function($a, $b)
 			{
 				return strcmp($a['tag'], $b['tag']);
@@ -2977,23 +2972,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	// If this was a force parse revert if needed.
 	if (!empty($parse_tags))
 	{
-		if (empty($temp_bbc))
-			$bbc_codes = array();
-		else
-		{
-			$bbc_codes = $temp_bbc;
-			unset($temp_bbc);
-		}
-
-		if (empty($real_alltags_regex))
-			$alltags_regex = '';
-		else
-		{
-			$alltags_regex = $real_alltags_regex;
-			unset($real_alltags_regex);
-		}
+		$alltags_regex = empty($real_alltags_regex) ? '' : $real_alltags_regex;
+		unset($real_alltags_regex);
 	}
-	else
+	elseif (!empty($bbc_codes))
 		$bbc_lang_locales[$txt['lang_locale']] = $bbc_codes;
 
 	return $message;
