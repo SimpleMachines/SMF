@@ -211,8 +211,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 				censorText($parsed_message[$receiver_lang]['subject']);
 				censorText($parsed_message[$receiver_lang]['body']);
+
 				$parsed_message[$receiver_lang]['subject'] = un_htmlspecialchars($parsed_message[$receiver_lang]['subject']);
-				$parsed_message[$receiver_lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($parsed_message[$receiver_lang]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+				$parsed_message[$receiver_lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($parsed_message[$receiver_lang]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\'')))));
 			}
 
 			// Bitwise check: Receiving a email notification?
@@ -222,7 +223,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'TOPICSUBJECT' => $parsed_message[$receiver_lang]['subject'],
 					'POSTERNAME' => un_htmlspecialchars($posterOptions['name']),
 					'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
-					'MESSAGE' => trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc(un_preparsecode($parsed_message[$receiver_lang]['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\''))))),
+					'MESSAGE' => $parsed_message[$receiver_lang]['body'],
 					'UNSUBSCRIBELINK' => $scripturl . '?action=notifyboard;board=' . $topicOptions['board'] . '.0',
 				);
 
