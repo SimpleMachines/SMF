@@ -40,12 +40,14 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings, $user_info;
+		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings;
 
 		require_once($sourcedir . '/Subs-Post.php');
 		require_once($sourcedir . '/Mentions.php');
 		require_once($sourcedir . '/Subs-Notify.php');
 		require_once($sourcedir . '/Subs.php');
+		require_once($sourcedir . '/ScheduledTasks.php');
+		loadEssentialThemeData();
 
 		$msgOptions = $this->_details['msgOptions'];
 		$topicOptions = $this->_details['topicOptions'];
@@ -202,8 +204,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			// Censor and parse BBC in the receiver's language. Only do each language once.
 			if (empty($parsed_message[$receiver_lang]))
 			{
-				if ($receiver_lang != $user_info['language'])
-					loadLanguage('index', $receiver_lang, false);
+				loadLanguage('index', $receiver_lang, false);
 
 				$parsed_message[$receiver_lang]['subject'] = $msgOptions['subject'];
 				$parsed_message[$receiver_lang]['body'] = $msgOptions['body'];
@@ -212,9 +213,6 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				censorText($parsed_message[$receiver_lang]['body']);
 				$parsed_message[$receiver_lang]['subject'] = un_htmlspecialchars($parsed_message[$receiver_lang]['subject']);
 				$parsed_message[$receiver_lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($parsed_message[$receiver_lang]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
-
-				if ($receiver_lang != $user_info['language'])
-					loadLanguage('index', $user_info['language'], false);
 			}
 
 			// Bitwise check: Receiving a email notification?
