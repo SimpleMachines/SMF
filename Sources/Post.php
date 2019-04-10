@@ -1500,7 +1500,7 @@ function Post($post_errors = array())
 			$context['posting_fields']['board']['input']['options'][$category['name']] = array('options' => array());
 
 			foreach ($category['boards'] as $brd)
-				$context['posting_fields']['board']['input']['options'][$category['name']]['options'][$brd['name']]['attributes'] = array(
+				$context['posting_fields']['board']['input']['options'][$category['name']]['options'][$brd['name']] = array(
 					'value' => $brd['id'],
 					'selected' => (bool) $brd['selected'],
 					'label' => ($brd['child_level'] > 0 ? str_repeat('==', $brd['child_level'] - 1) . '=&gt;' : '') . ' ' . $brd['name'],
