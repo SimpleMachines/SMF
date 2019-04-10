@@ -520,30 +520,8 @@ function template_showPosts()
 				</div>
 			</div><!-- .post -->';
 
-			if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
-				echo '
-			<div class="under_message">
-				<ul class="quickbuttons">';
-
-			// If they *can* reply?
-			if ($post['can_reply'])
-				echo '
-					<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], '"><span class="main_icons reply_button"></span>', $txt['reply'], '</a></li>';
-
-			// If they *can* quote?
-			if ($post['can_quote'])
-				echo '
-					<li><a href="', $scripturl . '?action=post;topic=', $post['topic'], '.', $post['start'], ';quote=', $post['id'], '"><span class="main_icons quote"></span>', $txt['quote_action'], '</a></li>';
-
-			// How about... even... remove it entirely?!
-			if ($post['can_delete'])
-				echo '
-					<li><a href="', $scripturl, '?action=deletemsg;msg=', $post['id'], ';topic=', $post['topic'], ';profile;u=', $context['member']['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message'], '" class="you_sure"><span class="main_icons remove_button"></span>', $txt['remove'], '</a></li>';
-
-			if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
-				echo '
-				</ul>
-			</div><!-- .under_message -->';
+			// Post options
+			template_quickbuttons($post['quickbuttons'], 'profile_showposts');
 
 			echo '
 		</div><!-- .', $post['css_class'], ' -->';
@@ -614,17 +592,12 @@ function template_showAlerts()
 						<span class="alert_inline_time"><span class="main_icons time_online"></span> ', $alert['time'], '</span>
 					</td>
 					<td class="alert_time">', $alert['time'], '</td>
-					<td class="alert_buttons">
-						<ul class="quickbuttons">
-							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid=', $id, ';', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons remove_button"></span>', $txt['delete'], '</a></li>
-							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read'), ';aid=', $id, ';', $context['session_var'], '=', $context['session_id'], '"><span class="main_icons ', $alert['is_read'] != 0 ? 'unread_button' : 'read_button', '"></span>', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']), '</a></li>';
+					<td class="alert_buttons">';
 
-			if ($context['showCheckboxes'])
-				echo '
-							<li><input type="checkbox" name="mark[', $id, ']" value="', $id, '"></li>';
+			// Alert options
+			template_quickbuttons($alert['quickbuttons'], 'profile_alerts');
 
 			echo '
-						</ul>
 					</td>
 				</tr>';
 		}
@@ -708,11 +681,12 @@ function template_showDrafts()
 			<div class="list_posts">
 				', $draft['body'], '
 			</div>
-			<div class="floatright">
-				<ul class="quickbuttons">
-						<li><a href="', $scripturl, '?action=post;', (empty($draft['topic']['id']) ? 'board=' . $draft['board']['id'] : 'topic=' . $draft['topic']['id']), '.0;id_draft=', $draft['id_draft'], '"><span class="main_icons reply_button"></span>', $txt['draft_edit'], '</a></li>
-						<li><a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=showdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['draft_remove'], '" class="you_sure"><span class="main_icons remove_button"></span>', $txt['draft_delete'], '</a></li>
-				</ul>
+			<div class="floatright">';
+
+			// Draft buttons
+			template_quickbuttons($draft['quickbuttons'], 'profile_drafts');
+
+			echo '
 			</div><!-- .floatright -->
 		</div><!-- .windowbg -->';
 		}

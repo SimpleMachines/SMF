@@ -534,6 +534,28 @@ function showAlerts($memID)
 			});
 		});', true);
 
+	// The quickbuttons
+	foreach ($context['alerts'] as $id => $alert)
+	{
+		$context['alerts'][$id]['quickbuttons'] = array(
+			'delete' => array(
+				'label' => $txt['delete'],
+				'href' => $scripturl.'?action=profile;u='.$context['id_member'].';area=showalerts;do=remove;aid='.$id.';'.$context['session_var'].'='.$context['session_id'],
+				'javascript' => 'class="you_sure"',
+				'icon' => 'remove_button'
+			),
+			'mark' => array(
+				'label' => $alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short'],
+				'href' => $scripturl.'?action=profile;u='.$context['id_member'].';area=showalerts;do='.($alert['is_read'] != 0 ? 'unread' : 'read').';aid='.$id.';'.$context['session_var'].'='.$context['session_id'],
+				'icon' => $alert['is_read'] != 0 ? 'unread_button' : 'read_button',
+			),
+			'quickmod' => array(
+				'content' => '<input type="checkbox" name="mark['.$id.']" value="'.$id.'">',
+				'show' => $context['showCheckboxes']
+			)
+		);
+	}
+
 	// Set a nice message.
 	if (!empty($_SESSION['update_message']))
 	{
@@ -935,6 +957,31 @@ function showPosts($memID)
 
 	// Allow last minute changes.
 	call_integration_hook('integrate_profile_showPosts');
+
+	foreach ($context['posts'] as $key => $post)
+	{
+		$context['posts'][$key]['quickbuttons'] = array(
+			'reply' => array(
+				'label' => $txt['reply'],
+				'href' => $scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'],
+				'icon' => 'reply_button',
+				'show' => $post['can_reply']
+			),
+			'quote' => array(
+				'label' => $txt['quote_action'],
+				'href' => $scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'].';quote='.$post['id'],
+				'icon' => 'quote',
+				'show' => $post['can_quote']
+			),
+			'remove' => array(
+				'label' => $txt['remove'],
+				'href' => $scripturl.'?action=deletemsg;msg='.$post['id'].';topic='.$post['topic'].';profile;u='.$context['member']['id'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'],
+				'javascript' => 'data-confirm="'.$txt['remove_message'].'" class="you_sure"',
+				'icon' => 'remove_button',
+				'show' => $post['can_delete']
+			)
+		);
+	}
 }
 
 /**

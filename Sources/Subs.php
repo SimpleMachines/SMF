@@ -4412,6 +4412,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 /**
  * Creates an image/text button
  *
+ * @deprecated since 2.1
  * @param string $name The name of the button (should be a main_icons class or the name of an image)
  * @param string $alt The alt text
  * @param string $label The $txt string to use as the label
