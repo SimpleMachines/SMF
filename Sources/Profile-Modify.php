@@ -1976,6 +1976,7 @@ function alert_configuration($memID)
 		'alert_timeout' => isset($context['alert_prefs']['alert_timeout']) ? $context['alert_prefs']['alert_timeout'] : 10,
 		'notify_announcements' => isset($context['alert_prefs']['announcements']) ? $context['alert_prefs']['announcements'] : 0,
 	);
+	$context['can_disable_announce'] = $memID == 0 || !empty($modSettings['allow_disableAnnounce']);
 
 	// Now for the exciting stuff.
 	// We have groups of items, each item has both an alert and an email key as well as an optional help string.
@@ -4244,10 +4245,9 @@ function tfasetup($memID)
 			$code = $_POST['tfa_code'];
 			$totp = new \TOTP\Auth($_SESSION['tfa_secret']);
 			$totp->setRange(1);
-			$valid_password = hash_verify_password($user_settings['member_name'], trim($_POST['passwd']), $user_settings['passwd']);
 			$valid_code = strlen($code) == $totp->getCodeLength() && $totp->validateCode($code);
 
-			if ($valid_password && $valid_code)
+			if (empty($context['password_auth_failed']) && $valid_code)
 			{
 				$backup = substr(sha1($smcFunc['random_int']()), 0, 16);
 				$backup_encrypted = hash_password($user_settings['member_name'], $backup);
@@ -4270,7 +4270,6 @@ function tfasetup($memID)
 			{
 				$context['tfa_secret'] = $_SESSION['tfa_secret'];
 				$context['tfa_error'] = !$valid_code;
-				$context['tfa_pass_error'] = !$valid_password;
 				$context['tfa_pass_value'] = $_POST['passwd'];
 				$context['tfa_value'] = $_POST['tfa_code'];
 			}

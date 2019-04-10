@@ -619,18 +619,20 @@ function ModifyProfile($post_errors = array())
 			if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 				fatal_lang_error('login_ssl_required', false);
 
+			$password = isset($_POST['oldpasswrd']) ? $_POST['oldpasswrd'] :  '';
+
 			// You didn't even enter a password!
-			if (trim($_POST['oldpasswrd']) == '')
+			if (trim($password) == '')
 				$post_errors[] = 'no_password';
 
 			// Since the password got modified due to all the $_POST cleaning, lets undo it so we can get the correct password
-			$_POST['oldpasswrd'] = un_htmlspecialchars($_POST['oldpasswrd']);
+			$password = un_htmlspecialchars($_POST['oldpasswrd']);
 
 			// Does the integration want to check passwords?
-			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $_POST['oldpasswrd'], false)), true);
+			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $password, false)), true);
 
 			// Bad password!!!
-			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], un_htmlspecialchars(stripslashes($_POST['oldpasswrd'])), $user_info['passwd']))
+			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], un_htmlspecialchars(stripslashes($password)), $user_info['passwd']))
 				$post_errors[] = 'bad_password';
 
 			// Warn other elements not to jump the gun and do custom changes!

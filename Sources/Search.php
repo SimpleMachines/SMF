@@ -16,14 +16,6 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-// This defines two version types for checking the API's are compatible with this version of SMF.
-$GLOBALS['search_versions'] = array(
-	// @todo Probably unnecessary now that we use a constant instead of global $forum_version
-	'forum_version' => SMF_FULL_VERSION,
-	// This is the minimum version of SMF that an API could have been written for to work. (strtr to stop accidentally updating version on release)
-	'search_version' => strtr('SMF 2+1=Alpha=1', array('+' => '.', '=' => ' ')),
-);
-
 /**
  * Ask the user what they want to search for.
  * What it does:
@@ -2134,7 +2126,7 @@ function prepareSearchContext($reset = false)
  */
 function findSearchAPI()
 {
-	global $sourcedir, $modSettings, $search_versions, $searchAPI, $txt;
+	global $sourcedir, $modSettings, $searchAPI, $txt;
 
 	require_once($sourcedir . '/Subs-Package.php');
 	require_once($sourcedir . '/Class-SearchAPI.php');
@@ -2153,7 +2145,7 @@ function findSearchAPI()
 	$searchAPI = new $search_class_name();
 
 	// An invalid Search API.
-	if (!$searchAPI || !($searchAPI instanceof search_api_interface) || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion($search_versions['forum_version'], $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
+	if (!$searchAPI || !($searchAPI instanceof search_api_interface) || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion(SMF_VERSION, $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
 	{
 		// Log the error.
 		loadLanguage('Errors');

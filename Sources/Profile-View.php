@@ -221,6 +221,7 @@ function summary($memID)
  * @param int $counter How many alerts to display (0 if displaying all or using pagination)
  * @param array $pagination An array containing info for handling pagination. Should have 'start' and 'maxIndex'
  * @param bool $withSender With $memberContext from sender
+ * @param bool $show_links if set to true alerts will show links if any instead of plain text
  * @return array An array of information about the fetched alerts
  */
 function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = true, $show_links = false)
@@ -480,13 +481,13 @@ function showAlerts($memID)
 			$link = $scripturl . $alert['extra']['report_link'];
 		elseif (isset($alert['content_action']) && $alert['content_action'] === 'register_approval')
 			$link = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
-		elseif (isset($alert['content_action'], $alert['id_member_started']) && $alert['content_action'] === 'buddy_request')
-			$link = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
 		elseif (isset($alert['content_action']) && $alert['content_action'] === 'group_request')
 			$link = $scripturl . '?action=moderate;area=groups;sa=requests';
+		elseif (isset($alert['content_action'], $alert['id_member_started']) && ($alert['content_type'] === 'member' || $alert['content_action'] === 'buddy_request'))
+			$link = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
 		elseif (isset($alert['content_type'], $alert['extra']['event_id']) && $alert['content_type'] === 'event')
 			$link = $scripturl . '?action=calendar;event=' . $alert['extra']['event_id'];
-		elseif (isset($alert['content_action'], $alert['content_id']) && $alert['content_action'] === 'like')
+		elseif (isset($alert['content_type'], $alert['content_id']) && $alert['content_type'] === 'msg')
 			$link = $scripturl . '?msg=' . $alert['content_id'];
 
 		call_integration_hook('integrate_show_alert', array(&$alert, &$link));
@@ -532,6 +533,28 @@ function showAlerts($memID)
 				}
 			});
 		});', true);
+
+	// The quickbuttons
+	foreach ($context['alerts'] as $id => $alert)
+	{
+		$context['alerts'][$id]['quickbuttons'] = array(
+			'delete' => array(
+				'label' => $txt['delete'],
+				'href' => $scripturl.'?action=profile;u='.$context['id_member'].';area=showalerts;do=remove;aid='.$id.';'.$context['session_var'].'='.$context['session_id'],
+				'javascript' => 'class="you_sure"',
+				'icon' => 'remove_button'
+			),
+			'mark' => array(
+				'label' => $alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short'],
+				'href' => $scripturl.'?action=profile;u='.$context['id_member'].';area=showalerts;do='.($alert['is_read'] != 0 ? 'unread' : 'read').';aid='.$id.';'.$context['session_var'].'='.$context['session_id'],
+				'icon' => $alert['is_read'] != 0 ? 'unread_button' : 'read_button',
+			),
+			'quickmod' => array(
+				'content' => '<input type="checkbox" name="mark['.$id.']" value="'.$id.'">',
+				'show' => $context['showCheckboxes']
+			)
+		);
+	}
 
 	// Set a nice message.
 	if (!empty($_SESSION['update_message']))
@@ -586,7 +609,7 @@ function showAlerts($memID)
  */
 function showPosts($memID)
 {
-	global $txt, $user_info, $scripturl, $modSettings;
+	global $txt, $user_info, $scripturl, $modSettings, $options;
 	global $context, $user_profile, $sourcedir, $smcFunc, $board;
 
 	// Some initial context.
@@ -934,6 +957,31 @@ function showPosts($memID)
 
 	// Allow last minute changes.
 	call_integration_hook('integrate_profile_showPosts');
+
+	foreach ($context['posts'] as $key => $post)
+	{
+		$context['posts'][$key]['quickbuttons'] = array(
+			'reply' => array(
+				'label' => $txt['reply'],
+				'href' => $scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'],
+				'icon' => 'reply_button',
+				'show' => $post['can_reply']
+			),
+			'quote' => array(
+				'label' => $txt['quote_action'],
+				'href' => $scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'].';quote='.$post['id'],
+				'icon' => 'quote',
+				'show' => $post['can_quote']
+			),
+			'remove' => array(
+				'label' => $txt['remove'],
+				'href' => $scripturl.'?action=deletemsg;msg='.$post['id'].';topic='.$post['topic'].';profile;u='.$context['member']['id'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'],
+				'javascript' => 'data-confirm="'.$txt['remove_message'].'" class="you_sure"',
+				'icon' => 'remove_button',
+				'show' => $post['can_delete']
+			)
+		);
+	}
 }
 
 /**
@@ -1166,7 +1214,7 @@ function list_getNumAttachments($boardsAllowed, $memID)
  */
 function showUnwatched($memID)
 {
-	global $txt, $user_info, $scripturl, $modSettings, $context, $sourcedir;
+	global $txt, $user_info, $scripturl, $modSettings, $context, $options, $sourcedir;
 
 	// Only the owner can see the list (if the function is enabled of course)
 	if ($user_info['id'] != $memID)
@@ -2016,7 +2064,7 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 function TrackIP($memID = 0)
 {
 	global $user_profile, $scripturl, $txt, $user_info, $modSettings, $sourcedir;
-	global $context, $smcFunc;
+	global $context, $options, $smcFunc;
 
 	// Can the user do this?
 	isAllowedTo('moderate_forum');

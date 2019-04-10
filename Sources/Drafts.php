@@ -642,6 +642,19 @@ function showProfileDrafts($memID, $draft_type = 0)
 			'id_draft' => $row['id_draft'],
 			'locked' => $row['locked'],
 			'sticky' => $row['is_sticky'],
+			'quickbuttons' => array(
+				'edit' => array(
+					'label' => $txt['draft_edit'],
+					'href' => $scripturl.'?action=post;'.(empty($row['id_topic']) ? 'board='.$row['id_board'] : 'topic='.$row['id_topic']).'.0;id_draft='.$row['id_draft'],
+					'icon' => 'modify_button'
+				),
+				'delete' => array(
+					'label' => $txt['draft_delete'],
+					'href' => $scripturl.'?action=profile;u='.$context['member']['id'].';area=showdrafts;delete='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
+					'javascript' => 'data-confirm="'.$txt['draft_remove'].'" class="you_sure"',
+					'icon' => 'remove_button'
+				),
+			),
 		);
 	}
 	$smcFunc['db_free_result']($request);
@@ -821,6 +834,19 @@ function showPMDrafts($memID = -1)
 			'recipients' => $recipients,
 			'age' => floor((time() - $row['poster_time']) / 86400),
 			'remaining' => (!empty($modSettings['drafts_keep_days']) ? floor($modSettings['drafts_keep_days'] - ((time() - $row['poster_time']) / 86400)) : 0),
+			'quickbuttons' => array(
+				'edit' => array(
+					'label' => $txt['draft_edit'],
+					'href' => $scripturl.'?action=pm;sa=showpmdrafts;id_draft='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
+					'icon' => 'modify_button'
+				),
+				'delete' => array(
+					'label' => $txt['draft_delete'],
+					'href' => $scripturl.'?action=pm;sa=showpmdrafts;delete='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
+					'javascript' => 'data-confirm="'.$txt['draft_remove'].'?" class="you_sure"',
+					'icon' => 'remove_button'
+				),
+			),
 		);
 	}
 	$smcFunc['db_free_result']($request);
