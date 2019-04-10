@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; Stats
+// Version: 2.1 RC2; Stats
 
 global $context;
 

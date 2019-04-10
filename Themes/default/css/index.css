@@ -806,31 +806,46 @@ img.sort, .sort {
 	margin-top: 5px;
 	border-top: 1px solid #ddd;
 }
-.top_menu.scrollable .unread {
+.unread_notify {
 	border-bottom: 1px solid #ddd;
 }
-.top_menu.scrollable .no_unread {
+.no_unread {
 	margin-top: 5px;
 	text-align: center;
 }
-.top_menu.scrollable .unread:hover {
+.unread_notify:hover {
 	background: #eee;
+	text-decoration: none;
 }
-.top_menu.scrollable .unread:last-of-type {
+.unread_notify:last-child {
 	border-bottom: none;
 }
-.top_menu.scrollable .avatar {
+.unread_notify {
+	display: flex;
+	align-items: center;
+	padding: 6px 5px;
+	line-height: 20px;
+}
+.unread_notify.alert_read {
+	opacity: 0.5;
+	outline: none;
+	filter: grayscale(1);
+}
+.unread_notify strong {
+	font-weight: 600;
+}
+.unread_notify .avatar {
 	width: 40px;
 	height: 40px;
 	object-fit: scale-down;
-	margin: 4px;
+	margin-right: 4px;
 	display: inline-block;
 	color: transparent; /* For broken images */
 }
-.top_menu.scrollable .details {
-	max-width: 80%;
+.unread_notify .details {
 	display: inline-block;
 	vertical-align: top;
+	max-width: calc(100% - 44px);
 }
 #pm_menu .subject {
 	font-weight: bold;
@@ -1514,6 +1529,9 @@ ul.split_messages li a.split_icon {
 }
 ul.split_messages li a.split_icon:hover {
 	opacity: 1;
+}
+.split_messages, .message_header {
+	margin-bottom: 8px;
 }
 /* Styles for the merge topic section. */
 ul.merge_topics li {

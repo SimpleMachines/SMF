@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; ManageSettings
+// Version: 2.1 RC2; ManageSettings
 
 global $scripturl;
 
@@ -393,6 +393,7 @@ $txt['languages_helptxt'] = 'Help text';
 $txt['languages_editortxt'] = 'User interface for the editor';
 $txt['languages_tztxt'] = 'Time zone descriptions';
 $txt['languages_txt_for_timezones'] = 'Custom location names';
+$txt['languages_txt_for_email_templates'] = 'Email message templates';
 $txt['languages_enter_key'] = 'Enter a variable name for this text string';
 $txt['languages_invalid_key'] = 'Sorry, but this variable name is invalid: ';
 

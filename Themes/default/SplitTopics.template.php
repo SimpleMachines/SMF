@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -84,7 +84,7 @@ function template_main()
  */
 function template_select()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt, $scripturl, $options;
 
 	echo '
 	<div id="split_topics">
@@ -106,14 +106,13 @@ function template_select()
 					<li class="windowbg" id="not_selected_', $message['id'], '">
 						<div class="message_header">
 							<a class="split_icon floatright" href="', $scripturl, '?action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=down;msg=', $message['id'], '" onclick="return select(\'down\', ', $message['id'], ');"><span class="main_icons split_sel" title="-&gt;"></span></a>
-							', sprintf($txt['post_by_member'], $message['subject'], $message['poster']), '<br>
+							', sprintf($txt['post_by_member'], $message['subject'], $message['poster']), '
 							<em>', $message['time'], '</em>
 						</div>
 						<div class="post">', $message['body'], '</div>
 					</li>';
 
 	echo '
-					<li class="dummy">
 				</ul>
 			</div><!-- #not_selected -->
 			<div id="selected" class="floatright">
@@ -136,14 +135,13 @@ function template_select()
 					<li class="windowbg" id="selected_', $message['id'], '">
 						<div class="message_header">
 							<a class="split_icon floatleft" href="', $scripturl, '?action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=up;msg=', $message['id'], '" onclick="return select(\'up\', ', $message['id'], ');"><span class="main_icons split_desel" title="&lt;-"></span></a>
-							', sprintf($txt['post_by_member'], $message['subject'], $message['poster']), '<br>
+							', sprintf($txt['post_by_member'], $message['subject'], $message['poster']), '
 							<em>', $message['time'], '</em>
 						</div>
 						<div class="post">', $message['body'], '</div>
 					</li>';
 
 	echo '
-					<li class="dummy">
 				</ul>
 			</div><!-- #selected -->
 			<br class="clear">
@@ -162,8 +160,8 @@ function template_select()
 
 		function select(direction, msg_id)
 		{
-				getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + "action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '." + start[0] + ";start2=" + start[1] + ";move=" + direction + ";msg=" + msg_id + ";xml;splitjs", onDocReceived);
-				return false;
+			getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + "action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '." + start[0] + ";start2=" + start[1] + ";move=" + direction + ";msg=" + msg_id + ";xml;splitjs", onDocReceived);
+			return false;
 		}
 		function onDocReceived(XMLDoc)
 		{
@@ -194,7 +192,7 @@ function template_select()
 					oListItems = curList.getElementsByTagName("LI");
 					for (j = 0; j < oListItems.length; j++)
 					{
-						if (parseInt(oListItems[j].id.substr(curSection.length + 1)) < curId)
+						if (parseInt(oListItems[j].id.substr(curSection.length + 1)) ' . (empty($options['view_newest_first']) ? '>' : '<') . ' curId)
 						{
 							// This would be a nice place to insert the row.
 							sInsertBeforeId = oListItems[j].id;
@@ -207,7 +205,7 @@ function template_select()
 					newItem = document.createElement("LI");
 					newItem.className = "windowbg";
 					newItem.id = curSection + "_" + curId;
-					newItem.innerHTML = "<div class=\\"message_header\\"><a class=\\"split_icon float" + (curSection == "selected" ? "left" : "right") + "\\" href=\\"" + smf_prepareScriptUrl(smf_scripturl) + "action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=" + (curSection == "selected" ? "up" : "down") + ";msg=" + curId + "\\" onclick=\\"return select(\'" + (curSection == "selected" ? "up" : "down") + "\', " + curId + ");\\"><span class=\\"main_icons split_" + (curSection == "selected" ? "de" : "") + "sel\\" title=\\"" + (curSection == "selected" ? "&lt;-" : "-&gt;") + "\\"></span></a><strong>" + curChange.getElementsByTagName("subject")[0].firstChild.nodeValue + "</strong> ', $txt['by'], ' <strong>" + curChange.getElementsByTagName("poster")[0].firstChild.nodeValue + "</strong><br><em>" + curChange.getElementsByTagName("time")[0].firstChild.nodeValue + "</em><div class=\\"post\\">" + curChange.getElementsByTagName("body")[0].firstChild.nodeValue + "</div></div>";
+					newItem.innerHTML = "<div class=\\"message_header\\"><a class=\\"split_icon float" + (curSection == "selected" ? "left" : "right") + "\\" href=\\"" + smf_prepareScriptUrl(smf_scripturl) + "action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=" + (curSection == "selected" ? "up" : "down") + ";msg=" + curId + "\\" onclick=\\"return select(\'" + (curSection == "selected" ? "up" : "down") + "\', " + curId + ");\\"><span class=\\"main_icons split_" + (curSection == "selected" ? "de" : "") + "sel\\" title=\\"" + (curSection == "selected" ? "&lt;-" : "-&gt;") + "\\"></span></a><strong>" + curChange.getElementsByTagName("subject")[0].firstChild.nodeValue + "</strong> ', $txt['by'], ' <strong>" + curChange.getElementsByTagName("poster")[0].firstChild.nodeValue + "</strong><br><em>" + curChange.getElementsByTagName("time")[0].firstChild.nodeValue + "</em></div><div class=\\"post\\">" + curChange.getElementsByTagName("body")[0].firstChild.nodeValue + "</div>";
 
 					// So, where do we insert it?
 					if (typeof sInsertBeforeId == "string")
@@ -216,9 +214,6 @@ function template_select()
 						curList.appendChild(newItem);
 				}
 			}
-			// After all changes, make sure the window backgrounds are still correct for both lists.
-			applyWindowClasses(document.getElementById("messages_selected"));
-			applyWindowClasses(document.getElementById("messages_not_selected"));
 		}
 	</script>';
 }

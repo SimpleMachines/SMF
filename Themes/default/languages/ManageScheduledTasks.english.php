@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; ManageScheduledTasks
+// Version: 2.1 RC2; ManageScheduledTasks
 
 $txt['scheduled_tasks_title'] = 'Scheduled Tasks';
 $txt['scheduled_tasks_header'] = 'All Scheduled Tasks';

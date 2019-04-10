@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -207,7 +207,6 @@ function EditSearchMethod()
 {
 	global $txt, $context, $modSettings, $smcFunc, $db_type, $db_prefix;
 
-	$context[$context['admin_menu_name']]['current_subsection'] = 'method';
 	$context['page_title'] = $txt['search_method_title'];
 	$context['sub_template'] = 'select_search_method';
 	$context['supports_fulltext'] = $smcFunc['db_search_support']('fulltext');
@@ -261,6 +260,7 @@ function EditSearchMethod()
 				)
 			);
 		}
+		redirectexit('action=admin;area=managesearch;sa=method');
 	}
 	elseif (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'removefulltext' && !empty($context['fulltext_index']))
 	{
@@ -276,13 +276,12 @@ function EditSearchMethod()
 			)
 		);
 
-		$context['fulltext_index'] = array();
-
 		// Go back to the default search method.
 		if (!empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext')
 			updateSettings(array(
 				'search_index' => '',
 			));
+		redirectexit('action=admin;area=managesearch;sa=method');
 	}
 	elseif (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'removecustom')
 	{
@@ -310,6 +309,7 @@ function EditSearchMethod()
 			updateSettings(array(
 				'search_index' => '',
 			));
+		redirectexit('action=admin;area=managesearch;sa=method');
 	}
 	elseif (isset($_POST['save']))
 	{
@@ -321,6 +321,7 @@ function EditSearchMethod()
 			'search_force_index' => isset($_POST['search_force_index']) ? '1' : '0',
 			'search_match_words' => isset($_POST['search_match_words']) ? '1' : '0',
 		));
+		redirectexit('action=admin;area=managesearch;sa=method');
 	}
 
 	$context['table_info'] = array(

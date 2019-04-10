@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -837,7 +837,7 @@ function ModifyLanguage()
 	$lang_dirs = array();
 
 	// There are different kinds of strings
-	$string_types = array('txt', 'helptxt', 'editortxt', 'tztxt');
+	$string_types = array('txt', 'helptxt', 'editortxt', 'tztxt', 'txtBirthdayEmails');
 	$additional_string_types = array();
 
 	// Some files allow the admin to add and/or remove certain types of strings
@@ -1083,6 +1083,7 @@ function ModifyLanguage()
 		// Do we want to override the helptxt for certain types of text variables?
 		$special_groups = array(
 			'Timezones' => array('txt' => 'txt_for_timezones'),
+			'EmailTemplates' => array('txt' => 'txt_for_email_templates', 'txtBirthdayEmails' => 'txt_for_email_templates'),
 		);
 		call_integration_hook('integrate_language_edit_helptext', array(&$special_groups));
 
@@ -1097,9 +1098,10 @@ function ModifyLanguage()
 			}
 		}
 
+		// Read in the file's contents and process it into entries.
+		// Also, remove any lines for uneditable variables like $forum_copyright from the working data.
 		$entries = array();
-		// We can't just require it I'm afraid - otherwise we pass in all kinds of variables!
-		foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . ($context['utf8'] ? 'u' : ''), file_get_contents($current_file)) as $blob)
+		foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . ($context['utf8'] ? 'u' : ''), preg_replace('~\s*\n(\$(?!(?:' . implode('|', $string_types) . '))[^\n]*)~', '', file_get_contents($current_file))) as $blob)
 		{
 			// Comment lines at the end of the blob can make terrible messes
 			$blob = preg_replace('~(\n[ \t]*//[^\n]*)*$~' . ($context['utf8'] ? 'u' : ''), '', $blob);
@@ -1124,7 +1126,7 @@ function ModifyLanguage()
 			}
 		}
 
-		// These are the entries we can definitely save.
+		// These will be the entries we can definitely save.
 		$final_saves = array();
 
 		$context['file_entries'] = array();
@@ -1404,8 +1406,10 @@ function ModifyLanguage()
 		{
 			checkSession();
 
+			// Get a fresh copy of the file's current content.
 			$file_contents = file_get_contents($current_file);
 
+			// Apply our changes.
 			foreach ($final_saves as $save)
 			{
 				if (!empty($save['is_regex']))
@@ -1414,7 +1418,7 @@ function ModifyLanguage()
 					$file_contents = str_replace($save['find'], $save['replace'], $file_contents);
 			}
 
-			// Save the actual changes.
+			// Save the result back to the file.
 			file_put_contents($current_file, $file_contents);
 
 			$madeSave = true;
@@ -1423,7 +1427,7 @@ function ModifyLanguage()
 		// Another restore.
 		$txt = $old_txt;
 
-		// If they can add new language entries, make sure the UI is set up for that
+		// If they can add new language entries, make sure the UI is set up for that.
 		if (!empty($context['can_add_lang_entry']))
 		{
 			// Make sure the Add button has a place to show up.
@@ -1463,7 +1467,8 @@ function ModifyLanguage()
 				$(".add_lang_entry_button").show();', true);
 		}
 
-		// Warn them if they try to submit more changes than the server can accept in a single request and make it obvious that they cannot submit changes to both the primary settings and the entries at the same time
+		// Warn them if they try to submit more changes than the server can accept in a single request.
+		// Also make it obvious that they cannot submit changes to both the primary settings and the entries at the same time.
 		if (!empty($context['file_entries']))
 		{
 			addInlineJavaScript('

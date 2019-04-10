@@ -17,11 +17,11 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 define('SMF', 'BACKGROUND');
-define('SMF_VERSION', '2.1 RC1');
+define('SMF_VERSION', '2.1 RC2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2019');
 define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
@@ -79,6 +79,7 @@ if (!FROM_CLI)
 // Load the most important includes. In general, a background should be loading its own dependencies.
 require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
+require_once($sourcedir . '/Security.php');
 require_once($sourcedir . '/Subs.php');
 
 // Create a variable to store some SMF specific functions in.

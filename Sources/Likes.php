@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -201,8 +201,7 @@ class Likes
 			$request = $smcFunc['db_query']('', '
 				SELECT m.id_topic, m.id_member
 				FROM {db_prefix}messages AS m
-					INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
-				WHERE {query_see_board}
+				WHERE {query_see_message_board}
 					AND m.id_msg = {int:msg}',
 				array(
 					'msg' => $this->_content,

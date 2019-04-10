@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -106,12 +106,12 @@ function template_alerts_popup()
 	{
 		foreach ($context['unread_alerts'] as $id_alert => $details)
 			echo '
-			<div class="unread">
+			<', !$details['show_links'] ? 'a href="' . $scripturl . '?action=profile;area=showalerts;alert=' . $id_alert . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="unread_notify">
 				', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '
 				<div class="details">
-					', !empty($details['icon']) ? $details['icon'] : '', '<span>', $details['text'], '</span> - ', $details['time'], '
+					<span class="alert_text">', $details['text'], '</span> - <span class="alert_time">', $details['time'], '</span>
 				</div>
-			</div>';
+			</', !$details['show_links'] ? 'a' : 'div', '>';
 	}
 
 	echo '
@@ -568,7 +568,7 @@ function template_showPosts()
 }
 
 /**
- * Template for showing alerts within the alerts popup
+ * Template for showing all alerts
  */
 function template_showAlerts()
 {
@@ -609,6 +609,7 @@ function template_showAlerts()
 			echo '
 				<tr class="windowbg">
 					<td class="alert_text">
+						<a href="', $scripturl, '?action=profile;area=showalerts;alert=', $id, '"><span class="main_icons move"></span></a>
 						', $alert['text'], '
 						<span class="alert_inline_time"><span class="main_icons time_online"></span> ', $alert['time'], '</span>
 					</td>
@@ -3099,7 +3100,7 @@ function template_profile_theme_pick()
 								<strong>', $txt['current_theme'], ':</strong>
 							</dt>
 							<dd>
-								', $context['member']['theme']['name'], ' [<a href="', $scripturl, '?action=theme;sa=pick;u=', $context['id_member'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['change'], '</a>]
+								', $context['member']['theme']['name'], ' <a class="button" href="', $scripturl, '?action=theme;sa=pick;u=', $context['id_member'], '">', $txt['change'], '</a>
 							</dd>';
 }
 

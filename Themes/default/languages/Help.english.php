@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; Help
+// Version: 2.1 RC2; Help
 
 global $helptxt, $scripturl;
 
@@ -261,7 +261,6 @@ $helptxt['cache_sqlite_cachedir'] = 'This setting is only for the SQLite databas
 $helptxt['xcache_adminuser'] = 'This setting is only for the xcache based cache system. It specifies a username and password required to issue a clear command. If this is not set, clearing the cache will fail and the caching system will still force it to invalidate all cached data.<br>The username and password are in cleartext. The password is a unsalted MD5. It is recommended the username and password are set to random values.<br><br>The Cache API will attempt to set these values, however it is <a href="https://xcache.lighttpd.net/wiki/InstallAdministration">recommended these be set in your php.ini</a>';
 $helptxt['enableErrorLogging'] = 'This will log any errors, like a failed login, so you can see what went wrong.';
 $helptxt['enableErrorQueryLogging'] = 'This will include the full query sent to the database in the error log. It requires error logging to be turned on.<br><br><strong>Note:  This will affect the ability to filter the error log by the error message.</strong>';
-$helptxt['log_ban_hits'] = 'If enabled, every time a banned user tries to access the site, this will be logged in the error log. If you do not care whether, or how often, banned users attempt to access the site, you can turn this off for a performance boost.';
 $helptxt['allow_disableAnnounce'] = 'This will allow users to opt out of notification of topics you announce by checking the &quot;announce topic&quot; checkbox when posting.';
 $helptxt['disallow_sendBody'] = 'This setting removes the option to receive the text of replies, posts, and personal messages in notification emails.<br><br>Often, members will reply to the notification email, which in most cases means the webmaster receives the reply.';
 $helptxt['enable_ajax_alerts'] = 'This option allows your members to receive AJAX notifications. This means that members don\'t need to refresh the page to get new notifications.<br><strong>DO NOTE:</strong> This option might cause a severe load at your server with many users online.';
@@ -626,6 +625,7 @@ $helptxt['languages_helptxt'] = 'These language entries are used to show floatin
 $helptxt['languages_editortxt'] = 'These language entries are used for user interface elements in the post editor.';
 $helptxt['languages_tztxt'] = 'These language entries define custom descriptions for entire time zones.<br><br>Each of these language entries uses a specific location, such as <code>Africa/Khartoum</code> or <code>America/New_York</code>, to represent all locations that share its time zone, and then defines a custom description to use for that time zone.<br><br>If no description is set for a given time zone, SMF will generate one using a list of locations within that time zone. If a location is set for a given time zone, but the description is empty, SMF will generate a description in the same way, but will make sure to put the defined location first in the list.';
 $helptxt['languages_txt_for_timezones'] = 'These language entries allow you to define custom names for individual locations anywhere they might be used in a context related to time zones.<br><br>For example, you can tell SMF to show "Greenland" for the location "America/Godthab" instead of "Godthab".';
+$helptxt['languages_txt_for_email_templates'] = 'These language entries are used to create the email messages that SMF sends to your members.';
 $helptxt['languages_native_name'] = 'The language\'s name for itself, represented in its own script.';
 $helptxt['languages_character_set'] = 'The character encoding used for this language. As of SMF 2.1, this should always be "UTF-8".';
 $helptxt['languages_locale'] = 'The locale code is used to determine various formatting conventions, etc.<br><br>The locale code typically takes the form of a two character language code, optionally followed by an underscore and a two character country code. For example, <code>en</code> would identify generic English, while <code>en_AU</code> would identify Australian English in particular.';

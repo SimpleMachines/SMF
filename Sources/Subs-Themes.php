@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -95,8 +95,9 @@ function get_single_theme($id)
  *
  * Stores all themes on $context['themes'] for easier use.
  *
- * @param bool $enable_only false by default for getting all themes. If true the function will return all themes that are currently enable.
- * @return array With the theme's IDs as key.
+ * $modSettings['knownThemes'] stores themes that the user is able to select.
+ *
+ * @param bool $enable_only Whether to fetch only enabled themes. Default is false.
  */
 function get_all_themes($enable_only = false)
 {
@@ -134,6 +135,70 @@ function get_all_themes($enable_only = false)
 			AND id_member = {int:no_member}',
 		array(
 			'query_where' => $query_where,
+			'theme_values' => $themeValues,
+			'no_member' => 0,
+		)
+	);
+
+	$context['themes'] = array();
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$context['themes'][$row['id_theme']]['id'] = (int) $row['id_theme'];
+
+		// Fix the path and tell if its a valid one.
+		if ($row['variable'] == 'theme_dir')
+		{
+			$context['themes'][$row['id_theme']][$row['variable']] = realpath($row['value']);
+			$context['themes'][$row['id_theme']]['valid_path'] = file_exists(realpath($row['value'])) && is_dir(realpath($row['value']));
+		}
+
+		$context['themes'][$row['id_theme']]['known'] = in_array($row['id_theme'], $knownThemes);
+		$context['themes'][$row['id_theme']]['enable'] = in_array($row['id_theme'], $enableThemes);
+		$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
+	}
+
+	$smcFunc['db_free_result']($request);
+}
+
+/**
+ * Loads and returns all installed themes.
+ *
+ * Stores all themes on $context['themes'] for easier use.
+ *
+ * $modSettings['knownThemes'] stores themes that the user is able to select.
+ */
+function get_installed_themes()
+{
+	global $modSettings, $context, $smcFunc;
+
+	// Make our known/enable themes a little easier to work with.
+	$knownThemes = !empty($modSettings['knownThemes']) ? explode(',', $modSettings['knownThemes']) : array();
+	$enableThemes = !empty($modSettings['enableThemes']) ? explode(',', $modSettings['enableThemes']) : array();
+
+	// List of all possible themes values.
+	$themeValues = array(
+		'theme_dir',
+		'images_url',
+		'theme_url',
+		'name',
+		'theme_layers',
+		'theme_templates',
+		'version',
+		'install_for',
+		'based_on',
+	);
+
+	// Make changes if you really want it.
+	call_integration_hook('integrate_get_installed_themes', array(&$themeValues));
+
+	// Perform the query as requested.
+	$request = $smcFunc['db_query']('', '
+		SELECT id_theme, variable, value
+		FROM {db_prefix}themes
+		WHERE variable IN ({array_string:theme_values})
+			AND id_member = {int:no_member}',
+		array(
 			'theme_values' => $themeValues,
 			'no_member' => 0,
 		)

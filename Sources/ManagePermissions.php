@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -685,6 +685,8 @@ function SetQuickGroups()
 		updateChildPermissions($_POST['group'], $_REQUEST['pid']);
 	}
 
+	updateBoardManagers();
+
 	redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
 }
 
@@ -969,6 +971,10 @@ function ModifyMembergroup2()
 	updateChildPermissions($_GET['group'], $_GET['pid']);
 
 	removeIllegalBBCHtmlPermission();
+
+	// Make sure $modSettings['board_manager_groups'] is up to date.
+	if (!in_array('manage_boards', $context['illegal_permissions']))
+		updateBoardManagers();
 
 	// Clear cached privs.
 	updateSettings(array('settings_updated' => time()));
@@ -1418,6 +1424,10 @@ function setPermissionLevel($level, $group, $profile = 'null')
 	// $profile and $group are both null!
 	else
 		fatal_lang_error('no_access', false);
+
+	// Make sure $modSettings['board_manager_groups'] is up to date.
+	if (!in_array('manage_boards', $context['illegal_permissions']))
+		updateBoardManagers();
 }
 
 /**
@@ -1938,7 +1948,10 @@ function save_inline_permissions($permissions)
 	// Do a full child update.
 	updateChildPermissions(array(), -1);
 
-	// Just in case we cached this.
+	// Make sure $modSettings['board_manager_groups'] is up to date.
+	if (!in_array('manage_boards', $context['illegal_permissions']))
+		updateBoardManagers();
+
 	updateSettings(array('settings_updated' => time()));
 }
 
@@ -2406,6 +2419,20 @@ function removeIllegalBBCHtmlPermission($reload = false)
 			'add' => 1,
 		)
 	);
+}
+
+/**
+ * Makes sure $modSettings['board_manager_groups'] is up to date.
+ */
+function updateBoardManagers()
+{
+	global $sourcedir;
+
+	require_once($sourcedir . '/Subs-Members.php');
+	$board_managers = groupsAllowedTo('manage_boards', null);
+	$board_managers = implode(',', $board_managers['allowed']);
+
+	updateSettings(array('board_manager_groups' => $board_managers), true);
 }
 
 /**
