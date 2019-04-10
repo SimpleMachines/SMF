@@ -696,8 +696,39 @@ function createAttachment(&$attachmentOptions)
 			$attachmentOptions['fileext'] = '';
 	}
 
+	// This defines the columns for the insert query.
+	// Mods using the hook can add columns and even change the properties of existing columns,
+	// but if they delete one of these columns, it will be reset to the default defined here.
+	$attachmentStandardColumns = $attachmentColumns = array(
+		'id_folder' => 'int',
+		'id_msg' => 'int',
+		'filename' => 'string-255',
+		'file_hash' => 'string-40',
+		'fileext' => 'string-8',
+		'size' => 'int',
+		'width' => 'int',
+		'height' => 'int',
+		'mime_type' => 'string-20',
+		'approved' => 'int',
+	);
+
+	// This specifies which attachment option to use for each column
+	$attachmentStandardOptions = $attachmentOptionsToInsert = array(
+		// Format: 'column' => 'option'
+		'id_folder' => 'id_folder',
+		'id_msg' => 'post',
+		'filename' => 'name',
+		'file_hash' => 'file_hash',
+		'fileext' => 'fileext',
+		'size' => 'size',
+		'width' => 'width',
+		'height' => 'height',
+		'mime_type' => 'mime_type',
+		'approved' => 'approved',
+	);
+
 	// Last chance to change stuff!
-	call_integration_hook('integrate_createAttachment', array(&$attachmentOptions));
+	call_integration_hook('integrate_createAttachment', array(&$attachmentOptions, &$attachmentColumns, &$attachmentOptionsToInsert));
 
 	// Make sure the folder is valid...
 	$tmp = is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'] : $smcFunc['json_decode']($modSettings['attachmentUploadDir'], true);
@@ -705,18 +736,39 @@ function createAttachment(&$attachmentOptions)
 	if (empty($attachmentOptions['id_folder']) || !in_array($attachmentOptions['id_folder'], $folders))
 		$attachmentOptions['id_folder'] = $modSettings['currentAttachmentUploadDir'];
 
+	// Make sure all required columns are present and in order, in case a mod screwed up.
+	foreach ($attachmentStandardColumns as $column => $properties)
+		if (!isset($attachmentColumns[$column]))
+			$attachmentColumns[$column] = $properties;
+
+	$attachmentColumnsOrder = array_merge(array_keys($attachmentStandardColumns), array_diff(array_keys($attachmentColumns), array_keys($attachmentStandardColumns)));
+
+	uksort($attachmentColumns, function($a, $b) use ($attachmentColumnsOrder)
+	{
+		if (in_array($a, $attachmentColumnsOrder) && in_array($b, $attachmentColumnsOrder))
+			return array_search($a, $attachmentColumnsOrder) - array_search($b, $attachmentColumnsOrder);
+	});
+
+	// Make sure all required options are present, in case a mod screwed up.
+	foreach ($attachmentStandardOptions as $column_key => $option_key)
+		if (!isset($attachmentOptionsToInsert[$column_key]))
+			$attachmentOptionsToInsert[$column_key] = $option_key;
+
+	// Figure out the values to insert, in the correct order.
+	$attachmentValues = array();
+	foreach ($attachmentColumns as $column_key => $type)
+	{
+		if (!empty($type) && $type == 'int')
+			$attachmentValues[] = (int) $attachmentOptions[$attachmentOptionsToInsert[$column_key]];
+		else
+			$attachmentValues[] = $attachmentOptions[$attachmentOptionsToInsert[$column_key]];
+	}
+
+	// Create the attachment in the database.
 	$attachmentOptions['id'] = $smcFunc['db_insert']('',
 		'{db_prefix}attachments',
-		array(
-			'id_folder' => 'int', 'id_msg' => 'int', 'filename' => 'string-255', 'file_hash' => 'string-40', 'fileext' => 'string-8',
-			'size' => 'int', 'width' => 'int', 'height' => 'int',
-			'mime_type' => 'string-20', 'approved' => 'int',
-		),
-		array(
-			(int) $attachmentOptions['id_folder'], (int) $attachmentOptions['post'], $attachmentOptions['name'], $attachmentOptions['file_hash'], $attachmentOptions['fileext'],
-			(int) $attachmentOptions['size'], (empty($attachmentOptions['width']) ? 0 : (int) $attachmentOptions['width']), (empty($attachmentOptions['height']) ? '0' : (int) $attachmentOptions['height']),
-			(!empty($attachmentOptions['mime_type']) ? $attachmentOptions['mime_type'] : ''), (int) $attachmentOptions['approved'],
-		),
+		$attachmentColumns,
+		$attachmentValues,
 		array('id_attach'),
 		1
 	);
