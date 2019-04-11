@@ -356,17 +356,18 @@ function fixTags(&$message)
 			'embeddedUrl' => true,
 			'hasEqualSign' => true,
 		),
+		// The rest of these are deprecated.
 		// [ftp]ftp://...[/ftp]
 		array(
 			'tag' => 'ftp',
-			'protocols' => array('ftp', 'ftps'),
+			'protocols' => array('ftp', 'ftps', 'sftp'),
 			'embeddedUrl' => false,
 			'hasEqualSign' => false,
 		),
 		// [ftp=ftp://...]name[/ftp]
 		array(
 			'tag' => 'ftp',
-			'protocols' => array('ftp', 'ftps'),
+			'protocols' => array('ftp', 'ftps', 'sftp'),
 			'embeddedUrl' => true,
 			'hasEqualSign' => true,
 		),
@@ -441,22 +442,25 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 
 		if (!$found && $protocols[0] == 'http')
 		{
+			// A path
 			if (substr($replace, 0, 1) == '/' && substr($replace, 0, 2) != '//')
 				$replace = $domain_url . $replace;
+			// A query
 			elseif (substr($replace, 0, 1) == '?')
 				$replace = $scripturl . $replace;
+			// A fragment
 			elseif (substr($replace, 0, 1) == '#' && $embeddedUrl)
 			{
 				$replace = '#' . preg_replace('~[^A-Za-z0-9_\-#]~', '', substr($replace, 1));
 				$this_tag = 'iurl';
 				$this_close = 'iurl';
 			}
-			elseif (substr($replace, 0, 2) != '//')
+			elseif (substr($replace, 0, 2) != '//' && empty(parse_url($replace, PHP_URL_SCHEME)))
 				$replace = $protocols[0] . '://' . $replace;
 		}
 		elseif (!$found && $protocols[0] == 'ftp')
 			$replace = $protocols[0] . '://' . preg_replace('~^(?!ftps?)[^:]+://~', '', $replace);
-		elseif (!$found)
+		elseif (!$found && empty(parse_url($replace, PHP_URL_SCHEME)))
 			$replace = $protocols[0] . '://' . $replace;
 
 		if ($hasEqualSign && $embeddedUrl)
