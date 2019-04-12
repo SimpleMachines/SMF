@@ -342,7 +342,7 @@ function upgradeExit($fallThrough = false)
 		$upgradeData = base64_encode(json_encode($upcontext['user']));
 		require_once($sourcedir . '/Subs-Admin.php');
 		updateSettingsFile(array('upgradeData' => '"' . $upgradeData . '"'));
-		updateDbLastError();
+		updateDbLastError(0);
 	}
 
 	// Handle the progress of the step, if any.
