@@ -863,7 +863,7 @@ function Display()
 	$ascending = empty($options['view_newest_first']);
 
 	// Check if we can use the seek method to speed things up
-	if (isset($_SESSION['page_topic']) && $_SESSION['page_topic'] == $topic)
+	if (isset($_SESSION['page_topic']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_ascending'] == $ascending)
 	{
 		// User moved to the next page
 		if (isset($_SESSION['page_next_start']) && $_SESSION['page_next_start'] == $start)
@@ -1021,6 +1021,7 @@ function Display()
 	$_SESSION['page_next_start'] = $_REQUEST['start'] + $limit;
 	$_SESSION['page_current_start'] = $_REQUEST['start'];
 	$_SESSION['page_topic'] = $topic;
+	$_SESSION['page_ascending'] = $ascending;
 
 	$smcFunc['db_free_result']($request);
 	$posters = array_unique($all_posters);
