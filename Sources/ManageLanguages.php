@@ -357,8 +357,14 @@ function DownloadLanguage()
 			// Add the context data to the main set.
 			$context['files']['lang'][] = $context_data;
 		}
-		elseif ($extension == '.txt' && stripos($filename, 'agreement') !== false)
+		elseif ($extension == 'txt' && stripos($filename, 'agreement') !== false)
 		{
+			$context_data += array(
+				'version' => '??',
+				'cur_version' => false,
+				'version_compare' => 'newer',
+			);
+
 			// Registration agreement is a primary file
 			$context['files']['lang'][] = $context_data;
 		}
@@ -383,18 +389,10 @@ function DownloadLanguage()
 		// Mark those which are now writable as such.
 		foreach ($context['files'] as $type => $data)
 		{
-			if ($type == 'lang')
+			foreach ($data as $k => $file)
 			{
-				foreach ($data as $k => $file)
-					if (!$file['writable'] && !in_array($file['destination'], $context['still_not_writable']))
-						$context['files'][$type][$k]['writable'] = true;
-			}
-			else
-			{
-				foreach ($data as $theme => $files)
-					foreach ($files as $k => $file)
-						if (!$file['writable'] && !in_array($file['destination'], $context['still_not_writable']))
-							$context['files'][$type][$theme][$k]['writable'] = true;
+				if (!$file['writable'] && !in_array($file['destination'], $context['still_not_writable']))
+					$context['files'][$type][$k]['writable'] = true;
 			}
 		}
 
