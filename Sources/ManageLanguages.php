@@ -263,9 +263,10 @@ function DownloadLanguage()
 	$context['make_writable'] = array();
 	foreach ($archive_content as $file)
 	{
-		$dirname = dirname($file['filename']);
-		$filename = basename($file['filename']);
-		$extension = substr($filename, strrpos($filename, '.') + 1);
+		$pathinfo = pathinfo($file['filename']);
+		$dirname = $pathinfo['dirname'];
+		$basename = $pathinfo['basename'];
+		$extension = $pathinfo['extension'];
 
 		// Don't do anything with files we don't understand.
 		if (!in_array($extension, array('php', 'jpg', 'gif', 'jpeg', 'png', 'txt')))
@@ -273,7 +274,7 @@ function DownloadLanguage()
 
 		// Basic data.
 		$context_data = array(
-			'name' => $filename,
+			'name' => $basename,
 			'destination' => $boarddir . '/' . $file['filename'],
 			'generaldest' => $file['filename'],
 			'size' => $file['size'],
@@ -315,7 +316,7 @@ function DownloadLanguage()
 		}
 
 		// I love PHP files, that's why I'm a developer and not an artistic type spending my time drinking absinth and living a life of sin...
-		if ($extension == 'php' && preg_match('~\w+\.\w+(?:-utf8)?\.php~', $filename))
+		if ($extension == 'php' && preg_match('~\w+\.\w+(?:-utf8)?\.php~', $basename))
 		{
 			$context_data += array(
 				'version' => '??',
@@ -323,7 +324,7 @@ function DownloadLanguage()
 				'version_compare' => 'newer',
 			);
 
-			list ($name, $language) = explode('.', $filename);
+			list ($name, $language) = explode('.', $basename);
 
 			// Let's get the new version, I like versions, they tell me that I'm up to date.
 			if (preg_match('~\s*Version:\s+(.+?);\s*' . preg_quote($name, '~') . '~i', $file['preview'], $match) == 1)
@@ -357,7 +358,7 @@ function DownloadLanguage()
 			// Add the context data to the main set.
 			$context['files']['lang'][] = $context_data;
 		}
-		elseif ($extension == 'txt' && stripos($filename, 'agreement') !== false)
+		elseif ($extension == 'txt' && stripos($basename, 'agreement') !== false)
 		{
 			$context_data += array(
 				'version' => '??',
