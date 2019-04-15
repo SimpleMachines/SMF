@@ -696,8 +696,25 @@ function createAttachment(&$attachmentOptions)
 			$attachmentOptions['fileext'] = '';
 	}
 
+	// This defines which options to use for which columns in the insert query.
+	// Mods using the hook can add columns and even change the properties of existing columns,
+	// but if they delete one of these columns, it will be reset to the default defined here.
+	$attachmentStandardInserts = $attachmentInserts = array(
+		// Format: 'column' => array('type', 'option')
+		'id_folder' => array('int', 'id_folder'),
+		'id_msg' => array('int', 'post'),
+		'filename' => array('string-255', 'name'),
+		'file_hash' => array('string-40', 'file_hash'),
+		'fileext' => array('string-8', 'fileext'),
+		'size' => array('int', 'size'),
+		'width' => array('int', 'width'),
+		'height' => array('int', 'height'),
+		'mime_type' => array('string-20', 'mime_type'),
+		'approved' => array('int', 'approved'),
+	);
+
 	// Last chance to change stuff!
-	call_integration_hook('integrate_createAttachment', array(&$attachmentOptions));
+	call_integration_hook('integrate_createAttachment', array(&$attachmentOptions, &$attachmentInserts));
 
 	// Make sure the folder is valid...
 	$tmp = is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'] : $smcFunc['json_decode']($modSettings['attachmentUploadDir'], true);
@@ -705,18 +722,29 @@ function createAttachment(&$attachmentOptions)
 	if (empty($attachmentOptions['id_folder']) || !in_array($attachmentOptions['id_folder'], $folders))
 		$attachmentOptions['id_folder'] = $modSettings['currentAttachmentUploadDir'];
 
+	// Make sure all required columns are present, in case a mod screwed up.
+	foreach ($attachmentStandardInserts as $column => $insert_info)
+		if (!isset($attachmentInserts[$column]))
+			$attachmentInserts[$column] = $insert_info;
+
+	// Set up the columns and values to insert, in the correct order.
+	$attachmentColumns = array();
+	$attachmentValues = array();
+	foreach ($attachmentInserts as $column => $insert_info)
+	{
+		$attachmentColumns[$column] = $insert_info[0];
+
+		if (!empty($insert_info[0]) && $insert_info[0] == 'int')
+			$attachmentValues[] = (int) $attachmentOptions[$insert_info[1]];
+		else
+			$attachmentValues[] = $attachmentOptions[$insert_info[1]];
+	}
+
+	// Create the attachment in the database.
 	$attachmentOptions['id'] = $smcFunc['db_insert']('',
 		'{db_prefix}attachments',
-		array(
-			'id_folder' => 'int', 'id_msg' => 'int', 'filename' => 'string-255', 'file_hash' => 'string-40', 'fileext' => 'string-8',
-			'size' => 'int', 'width' => 'int', 'height' => 'int',
-			'mime_type' => 'string-20', 'approved' => 'int',
-		),
-		array(
-			(int) $attachmentOptions['id_folder'], (int) $attachmentOptions['post'], $attachmentOptions['name'], $attachmentOptions['file_hash'], $attachmentOptions['fileext'],
-			(int) $attachmentOptions['size'], (empty($attachmentOptions['width']) ? 0 : (int) $attachmentOptions['width']), (empty($attachmentOptions['height']) ? '0' : (int) $attachmentOptions['height']),
-			(!empty($attachmentOptions['mime_type']) ? $attachmentOptions['mime_type'] : ''), (int) $attachmentOptions['approved'],
-		),
+		$attachmentColumns,
+		$attachmentValues,
 		array('id_attach'),
 		1
 	);
