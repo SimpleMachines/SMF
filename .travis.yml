@@ -12,11 +12,6 @@ php:
   - 7.2
   - 7.3
 
-matrix:
-  include:
-    - php: hhvm
-      dist: trusty
-
 script:
   - sudo add-apt-repository ppa:git-core/ppa -y
   - sudo apt-get update
