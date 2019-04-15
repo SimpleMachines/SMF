@@ -1876,7 +1876,7 @@ function create_control_richedit($editorOptions)
 
 	// Set up the SCEditor options
 	$sce_options = array(
-		'style' => $settings['default_theme_url'] . '/css/jquery.sceditor.default.css',
+		'style' => $settings[file_exists($settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css',
 		'emoticonsCompat' => true,
 		'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
 		'format' => 'bbcode',
