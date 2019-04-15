@@ -14,7 +14,7 @@
  */
 
 if (!defined('SMF'))
-	define('SMF', 'proxy');
+	define('SMF', 'PROXY');
 
 if (!defined('SMF_VERSION'))
 	define('SMF_VERSION', '2.1 RC2');
@@ -24,8 +24,6 @@ if (!defined('SMF_FULL_VERSION'))
 
 if (!defined('SMF_SOFTWARE_YEAR'))
 	define('SMF_SOFTWARE_YEAR', '2019');
-
-global $proxyhousekeeping;
 
 /**
  * Class ProxyServer
@@ -79,10 +77,6 @@ class ProxyServer
 		$this->secret = (string) $image_proxy_secret;
 		$this->cache = $cachedir . '/images';
 		$this->maxDays = 5;
-		$this->cachedtime = null;
-		$this->cachedtype = null;
-		$this->cachedsize = null;
-		$this->cachedbody = null;
 	}
 
 	/**
@@ -121,30 +115,24 @@ class ProxyServer
 		if (!$this->isCached($request))
 			return $this->cacheImage($request);
 
-		return true;
+		return false;
 	}
 
 	/**
 	 * Serves the request
 	 *
 	 * @access public
-	 * @return void
 	 */
 	public function serve()
 	{
 		$request = $_GET['request'];
 		// Did we get an error when trying to fetch the image
 		$response = $this->checkRequest();
-		if ($response === -1)
+		if (!$response)
 		{
 			// Throw a 404
 			send_http_status(404);
 			exit;
-		}
-		// Right, image not cached? Simply redirect, then.
-		if ($response === 0)
-		{
-			$this::redirectexit($request);
 		}
 
 		// We should have a cached image at this point
@@ -162,13 +150,13 @@ class ProxyServer
 
 		$time = time();
 
-		// Is the cache expired?
+		// Is the cache expired? Delete and reload.
 		if ($time - $this->cachedtime > ($this->maxDays * 86400))
 		{
 			@unlink($cached_file);
 			if ($this->checkRequest())
 				$this->serve();
-			$this::redirectexit($request);
+			$this->redirectexit($request);
 		}
 
 		$eTag = '"' . substr(sha1($request) . $this->cachedtime, 0, 64) . '"';
@@ -219,9 +207,14 @@ class ProxyServer
 	/**
 	 * Attempts to cache the image while validating it
 	 *
+	 * Redirects to the origin if
+	 *    - the image couldn't be fetched
+	 *    - the MIME type doesn't indicate an image
+	 *    - the image is too large
+	 *
 	 * @access protected
 	 * @param string $request The image to cache/validate
-	 * @return int -1 error, 0 too big, 1 valid image
+	 * @return bool Whether the specified image was cached
 	 */
 	protected function cacheImage($request)
 	{
@@ -232,7 +225,7 @@ class ProxyServer
 
 		// Looks like nobody was home
 		if (empty($image))
-			return 0;
+			$this->redirectexit($request);
 
 		// What kind of file did they give us?
 		$finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -244,12 +237,12 @@ class ProxyServer
 
 		// Make sure the url is returning an image
 		if (strpos($mime_type, 'image/') !== 0)
-			return 0;
+			$this->redirectexit($request);
 
 		// Validate the filesize
 		$size = strlen($image);
 		if ($size > ($this->maxSize * 1024))
-			return 0;
+			$this->redirectexit($request);
 
 		// Populate object for current serve execution (so you don't have to read it again...)
 		$this->cachedtime = time();
@@ -263,17 +256,16 @@ class ProxyServer
 			'size' => $this->cachedsize,
 			'time' => $this->cachedtime,
 			'body' => $this->cachedbody,
-		))) === false ? -1 : 1;
+		))) !== false;
 	}
 
 	/**
-	 * Static helper function to redirect a request
+	 * A helper function to redirect a request
 	 *
-	 * @access public
-	 * @param type $request
-	 * @return void
+	 * @access private
+	 * @param string $request
 	 */
-	static public function redirectexit($request)
+	private function redirectexit($request)
 	{
 		header('Location: ' . un_htmlspecialchars($request), false, 301);
 		exit;
@@ -283,7 +275,6 @@ class ProxyServer
 	 * Delete all old entries
 	 *
 	 * @access public
-	 * @return void
 	 */
 	public function housekeeping()
 	{
@@ -305,7 +296,7 @@ class ProxyServer
 	}
 }
 
-if (empty($proxyhousekeeping))
+if (SMF == 'PROXY')
 {
 	$proxy = new ProxyServer();
 	$proxy->serve();
