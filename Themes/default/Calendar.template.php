@@ -267,7 +267,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 
 		// Arguably the most exciting part, the title!
 		echo '
-					<a href="', $scripturl, '?action=calendar;', $context['calendar_view'], ';year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], '">', $txt['months_titles'][$calendar_data['current_month']], ' ', $calendar_data['current_year'], '</a>
+					<a href="', $scripturl, '?action=calendar;', $context['calendar_view'], ';year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $calendar_data['current_day'], '">', $txt['months_titles'][$calendar_data['current_month']], ' ', $calendar_data['current_year'], '</a>
 				</h3>
 			</div><!-- .cat_bar -->';
 	}
@@ -561,7 +561,7 @@ function template_show_week_grid($grid_name)
 							<a href="', $calendar_data['next_week']['href'], '">&#187;</a>
 						</span>';
 
-			// The Month Title + Week Number...
+			// "Week beginning <date>"
 			if (!empty($calendar_data['week_title']))
 				echo $calendar_data['week_title'];
 

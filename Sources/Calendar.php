@@ -199,20 +199,20 @@ function CalendarMain()
 	if ($context['calendar_view'] == 'viewlist')
 		$context['calendar_grid_main'] = getCalendarList($curPage['start_date'], $curPage['end_date'], $calendarOptions);
 	elseif ($context['calendar_view'] == 'viewweek')
-		$context['calendar_grid_main'] = getCalendarWeek($curPage['month'], $curPage['year'], $curPage['day'], $calendarOptions);
+		$context['calendar_grid_main'] = getCalendarWeek($curPage['start_date'], $calendarOptions);
 	else
-		$context['calendar_grid_main'] = getCalendarGrid($curPage['month'], $curPage['year'], $calendarOptions);
+		$context['calendar_grid_main'] = getCalendarGrid($curPage['start_date'], $calendarOptions);
 
 	// Load up the previous and next months.
-	$context['calendar_grid_current'] = getCalendarGrid($curPage['month'], $curPage['year'], $calendarOptions);
+	$context['calendar_grid_current'] = getCalendarGrid($curPage['start_date'], $calendarOptions);
 
 	// Only show previous month if it isn't pre-January of the min-year
 	if ($context['calendar_grid_current']['previous_calendar']['year'] > $modSettings['cal_minyear'] || $curPage['month'] != 1)
-		$context['calendar_grid_prev'] = getCalendarGrid($context['calendar_grid_current']['previous_calendar']['month'], $context['calendar_grid_current']['previous_calendar']['year'], $calendarOptions, true);
+		$context['calendar_grid_prev'] = getCalendarGrid($context['calendar_grid_current']['previous_calendar']['start_date'], $calendarOptions, true);
 
 	// Only show next month if it isn't post-December of the max-year
 	if ($context['calendar_grid_current']['next_calendar']['year'] < $modSettings['cal_maxyear'] || $curPage['month'] != 12)
-		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['month'], $context['calendar_grid_current']['next_calendar']['year'], $calendarOptions);
+		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions);
 
 	// Basic template stuff.
 	$context['allow_calendar_event'] = allowedTo('calendar_post');
