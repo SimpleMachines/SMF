@@ -1,4 +1,15 @@
 var pingTime = 10000;
+var notificationIcon = '/favicon.ico';
+
+$(function ()
+{
+	if ($('meta[property="og:image"]').length != 0)
+		notificationIcon = $('meta[property="og:image"]').attr('content');
+
+	$.get(notificationIcon).fail(function() { 
+		notificationIcon = smf_images_url + '/blank.png';
+	})
+});
 
 var updateAlerts = function ()
 {
@@ -52,7 +63,7 @@ var updateAlerts = function ()
 		{
 			var notification = notify.createNotification(new_alert_title, {
 				body: $(item).find('div.details:first span.alert_text').text(),
-				icon: smf_images_url + '/blank.png'
+				icon: notificationIcon
 			});
 
 			notification.click(function()
