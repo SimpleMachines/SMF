@@ -3900,7 +3900,12 @@ function template_javascript($do_deferred = false)
 
 				if (!empty($js_file['options']['attributes']))
 					foreach ($js_file['options']['attributes'] as $key => $value)
-						echo ' ', $key, '="', $value, '"';
+					{
+						if (is_bool($value))
+							echo !empty($value) ? ' ' . $key : '';
+						else
+							echo ' ', $key, '="', $value, '"';
+					}
 
 				echo '></script>';
 			}
@@ -4014,7 +4019,12 @@ function template_css()
 
 			if (!empty($nf['attributes']))
 				foreach ($nf['attributes'] as $key => $value)
-					echo ' ', $key, '="', $value, '"';
+				{
+					if (is_bool($value))
+						echo !empty($value) ? ' ' . $key : '';
+					else
+						echo ' ', $key, '="', $value, '"';
+				}
 
 			echo '>';
 		}
