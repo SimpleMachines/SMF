@@ -3896,7 +3896,7 @@ function template_javascript($do_deferred = false)
 			else
 			{
 				echo '
-	<script src="', $js_file['fileUrl'], isset($file['options']['seed']) ? $file['options']['seed'] : '', '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '';
+	<script src="', $js_file['fileUrl'], isset($js_file['options']['seed']) ? $js_file['options']['seed'] : '', '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '';
 
 				if (!empty($js_file['options']['attributes']))
 					foreach ($js_file['options']['attributes'] as $key => $value)
