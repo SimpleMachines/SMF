@@ -81,6 +81,11 @@ function template_show_upcoming_list($grid_name)
 	// Give the user some controls to work with
 	template_calendar_top($calendar_data);
 
+	// Output something just so people know it's not broken
+	if (empty($calendar_data['events']) && empty($calendar_data['birthdays']) && empty($calendar_data['holidays']))
+		echo '
+			<div class="descbox">', $txt['calendar_empty'], '</div>';
+
 	// First, list any events
 	if (!empty($calendar_data['events']))
 	{
