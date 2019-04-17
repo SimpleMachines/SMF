@@ -2517,6 +2517,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
  *  - ['minimize'] boolean to add your file to the main minimized file. Useful when you have a file thats loaded everywhere and for everyone.
  *  - ['order_pos'] int define the load order, when not define it's loaded in the middle, before index.css = -500, after index.css = 500, middle = 3000, end (i.e. after responsive.css) = 10000
+ *  - ['attributes'] array extra attributes to add to the element
  * @param string $id An ID to stick on the end of the filename for caching purposes
  */
 function loadCSSFile($fileName, $params = array(), $id = '')
@@ -2633,6 +2634,7 @@ function addInlineCss($css)
  *  - ['validate'] (true/false): if true script will validate the local file exists
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
  *  - ['minimize'] boolean to add your file to the main minimized file. Useful when you have a file thats loaded everywhere and for everyone.
+ *  - ['attributes'] array extra attributes to add to the element
  *
  * @param string $id An ID to stick on the end of the filename
  */
