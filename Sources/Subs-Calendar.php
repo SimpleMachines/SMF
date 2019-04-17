@@ -706,10 +706,25 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 		}
 	}
 
+	loadDatePicker('#calendar_range .date_input');
+	loadDatePair('#calendar_range', 'date_input', '');
+
+	return $calendarGrid;
+}
+
+/**
+ * Loads the necessary JavaScript and CSS to create a datepicker.
+ *
+ * @param string $selector A CSS selector for the input field(s) that the datepicker should be attached to.
+ */
+function loadDatePicker($selector = 'input.date_input')
+{
+	global $modSettings, $txt, $context;
+
 	loadCSSFile('jquery-ui.datepicker.css', array(), 'smf_datepicker');
 	loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
 	addInlineJavaScript('
-	$("#calendar_range .date_input").datepicker({
+	$("' . $selector . '").datepicker({
 		dateFormat: "yy-mm-dd",
 		autoSize: true,
 		isRTL: ' . ($context['right_to_left'] ? 'true' : 'false') . ',
@@ -727,11 +742,113 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 		dayNamesMin: ["' . implode('", "', $txt['days_short']) . '"],
 		prevText: "' . $txt['prev_month'] . '",
 		nextText: "' . $txt['next_month'] . '",
-	});
-	var date_entry = document.getElementById("calendar_range");
-	', true);
+	});', true);
+}
 
-	return $calendarGrid;
+/**
+ * Loads the necessary JavaScript and CSS to create a timepicker.
+ *
+ * @param string $selector A CSS selector for the input field(s) that the timepicker should be attached to.
+ * @param string $time_string A time format in strftime format
+ */
+function loadTimePicker($selector = 'input.time_input', $time_string = '%k:%M')
+{
+	global $modSettings, $txt, $context;
+
+	// Format used for timepicker
+	$time_string = strtr($time_string, array(
+		'%H' => 'H',
+		'%k' => 'G',
+		'%I' => 'h',
+		'%l' => 'g',
+		'%M' => 'i',
+		'%p' => 'A',
+		'%P' => 'a',
+		'%r' => 'h:i:s A',
+		'%R' => 'H:i',
+		'%S' => 's',
+		'%T' => 'H:i:s',
+		'%X' => 'H:i:s',
+	));
+
+	loadCSSFile('jquery.timepicker.css', array(), 'smf_timepicker');
+	loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
+	addInlineJavaScript('
+	$("' . $selector . '").timepicker({
+		timeFormat: "' . $time_string . '",
+		showDuration: true,
+		maxTime: "23:59:59",
+	});', true);
+}
+
+/**
+ * Loads the necessary JavaScript for Datepair.js.
+ *
+ * Datepair.js helps to keep date ranges sane in the UI.
+ *
+ * @param string $container CSS selector for the containing element of the date/time inputs to be paired.
+ * @param string $date_class The CSS class of the date inputs to be paired.
+ * @param string $time_class The CSS class of the time inputs to be paired.
+ */
+function loadDatePair($container, $date_class = '', $time_class = '')
+{
+	global $modSettings, $txt, $context;
+
+	$container = (string) $container;
+	$date_class = (string) $date_class;
+	$time_class = (string) $time_class;
+
+	if ($container == '')
+		return;
+
+	loadJavaScriptFile('jquery.datepair.min.js', array('defer' => true), 'smf_datepair');
+
+	$datepair_options = '';
+
+	// If we're not using a date input, we might as well disable these.
+	if ($date_class == '')
+	{
+		$datepair_options .= '
+		parseDate: function (el) {},
+		updateDate: function (el, v) {},';
+	}
+	else
+	{
+		$datepair_options .= '
+		dateClass: "' . $date_class . '",';
+
+		// Customize Datepair to work with jQuery UI's datepicker.
+		$datepair_options .= '
+		parseDate: function (el) {
+			var val = $(el).datepicker("getDate");
+			if (!val) {
+				return null;
+			}
+			var utc = new Date(val);
+			return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
+		},
+		updateDate: function (el, v) {
+			$(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
+		},';
+	}
+
+	// If not using a time input, disable time functions.
+	if ($time_class == '')
+	{
+		$datepair_options .= '
+		parseTime: function(input){},
+		updateTime: function(input, dateObj){},
+		setMinTime: function(input, dateObj){},';
+	}
+	else
+	{
+		$datepair_options .= '
+		timeClass: "' . $time_class . '",';
+	}
+
+	addInlineJavaScript('
+	$("' . $container . '").datepair({' . $datepair_options . "\n\t});", true);
+
 }
 
 /**
@@ -1577,7 +1694,14 @@ function buildEventDatetimes($row)
 		if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
 			$time_format = '%k:%M';
 		else
-			$time_format = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
+			$time_format = strtr($matches[0], array(
+				'%I' => '%l',
+				'%H' => '%k',
+				'%S' => '',
+				'%r' => '%l:%M %p',
+				'%R' => '%k:%M',
+				'%T' => '%l:%M',
+			));
 	}
 
 	// Should this be an all day event?
