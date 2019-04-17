@@ -31,7 +31,7 @@ var updateAlerts = function ()
 
 	$.get(smf_scripturl + '?action=profile;area=alerts_popup;counter=' + unreadAlerts + ';u=' + smf_member_id, function (data)
 	{
-		var alerts = $(data).find('.unread');
+		var alerts = $(data).find('.unread_notify');
 		if (alerts.length == 0)
 			return true;
 
@@ -51,7 +51,7 @@ var updateAlerts = function ()
 		$.each(alerts, function(index, item)
 		{
 			var notification = notify.createNotification(new_alert_title, {
-				body: $(item).find('div.details:first > span').text(),
+				body: $(item).find('div.details:first span.alert_text').text(),
 				icon: smf_images_url + '/blank.png'
 			});
 
@@ -68,6 +68,9 @@ var updateAlerts = function ()
 					notification.close();
 				}, alert_timeout);
 		});
+
+		var user_menus = new smc_PopupMenu();
+		user_menus.add("alerts", smf_scripturl + "?action=profile;area=alerts_popup;u=" + smf_member_id);
 	});
 
 	setTimeout(updateAlerts, pingTime);
