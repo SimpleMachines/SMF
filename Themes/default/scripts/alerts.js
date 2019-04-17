@@ -71,6 +71,8 @@ var updateAlerts = function ()
 				window.focus();
 				if (!$('#alerts_menu').is(':visible'))
 					$('#alerts_menu_top').click();
+
+				this.close();
 			});
 
 			if (alert_timeout > 0)
