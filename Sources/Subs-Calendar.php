@@ -542,6 +542,9 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false)
 	$calendarGrid['previous_calendar']['href'] = $scripturl . '?action=calendar;viewmonth;year=' . $calendarGrid['previous_calendar']['year'] . ';month=' . $calendarGrid['previous_calendar']['month'] . ';day=' . $calendarGrid['previous_calendar']['day'];
 	$calendarGrid['next_calendar']['href'] = $scripturl . '?action=calendar;viewmonth;year=' . $calendarGrid['next_calendar']['year'] . ';month=' . $calendarGrid['next_calendar']['month'] . ';day=' . $calendarGrid['previous_calendar']['day'];
 
+	loadDatePicker('#calendar_navigation .date_input');
+	loadDatePair('#calendar_navigation', 'date_input', '');
+
 	return $calendarGrid;
 }
 
@@ -648,6 +651,9 @@ function getCalendarWeek($selected_date, $calendarOptions)
 	// Set the previous and the next week's links.
 	$calendarGrid['previous_week']['href'] = $scripturl . '?action=calendar;viewweek;year=' . $calendarGrid['previous_week']['year'] . ';month=' . $calendarGrid['previous_week']['month'] . ';day=' . $calendarGrid['previous_week']['day'];
 	$calendarGrid['next_week']['href'] = $scripturl . '?action=calendar;viewweek;year=' . $calendarGrid['next_week']['year'] . ';month=' . $calendarGrid['next_week']['month'] . ';day=' . $calendarGrid['next_week']['day'];
+
+	loadDatePicker('#calendar_navigation .date_input');
+	loadDatePair('#calendar_navigation', 'date_input', '');
 
 	return $calendarGrid;
 }

@@ -745,43 +745,18 @@ function template_calendar_top($calendar_data)
 			</div>
 			', template_button_strip($context['calendar_buttons'], 'right');
 
-	if ($context['calendar_view'] == 'viewlist')
-	{
+	echo '
+			<form action="', $scripturl, '?action=calendar;', $context['calendar_view'], '" id="', !empty($calendar_data['end_date']) ? 'calendar_range' : 'calendar_navigation', '" method="post" accept-charset="', $context['character_set'], '">
+				<input type="text" name="start_date" id="start_date" maxlength="10" value="', $calendar_data['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">';
+
+	if (!empty($calendar_data['end_date']))
 		echo '
-			<form action="', $scripturl, '?action=calendar;viewlist" id="calendar_range" method="post" accept-charset="', $context['character_set'], '">
-				<input type="text" name="start_date" id="start_date" maxlength="10" value="', $calendar_data['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
 				<span>', strtolower($txt['to']), '</span>
-				<input type="text" name="end_date" id="end_date" maxlength="10" value="', $calendar_data['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date">
-				<input type="submit" class="button" style="float:none" id="view_button" value="', $txt['view'], '">
-			</form>';
-	}
-	else
-	{
-		echo '
-			<form action="', $scripturl, '?action=calendar" id="calendar_navigation" method="post" accept-charset="', $context['character_set'], '">
-				<select name="month" id="input_month">';
-
-		// Show a select box with all the months.
-		foreach ($txt['months_short'] as $number => $month)
-			echo '
-					<option value="', $number, '"', $number == $context['current_month'] ? ' selected' : '', '>', $month, '</option>';
-
-		echo '
-				</select>
-				<select name="year">';
-
-		// Show a link for every year...
-		for ($year = $context['calendar_resources']['min_year']; $year <= $context['calendar_resources']['max_year']; $year++)
-			echo '
-					<option value="', $year, '"', $year == $context['current_year'] ? ' selected' : '', '>', $year, '</option>';
-
-		echo '
-				</select>
-				<input type="submit" class="button" id="view_button" value="', $txt['view'], '">
-			</form>';
-	}
+				<input type="text" name="end_date" id="end_date" maxlength="10" value="', $calendar_data['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date">';
 
 	echo '
+				<input type="submit" class="button" style="float:none" id="view_button" value="', $txt['view'], '">
+			</form>
 		</div><!-- .calendar_top -->';
 }
 
