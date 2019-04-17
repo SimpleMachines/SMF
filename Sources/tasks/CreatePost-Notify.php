@@ -55,6 +55,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$quotedMembers = array();
 		$done_members = array();
 		$alert_rows = array();
+		$receiving_members = array();
 
 		if ($type == 'reply' || $type == 'topic')
 		{
@@ -133,7 +134,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		// Save ourselves a bit of work in the big loop below
 		foreach ($done_members as $done_member)
+		{
+			$receiving_members[] = $done_member;
 			unset($watched[$done_member]);
+		}
 
 		// Handle rest of the notifications for watched topics and boards
 		foreach ($watched as $member => $data)
@@ -233,7 +237,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
 					)),
 				);
-				updateMemberData($member, array('alerts' => '+'));
+
+				$receiving_members[] = $member;
 			}
 
 			$smcFunc['db_query']('', '
@@ -269,6 +274,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				$alert_rows,
 				array()
 			);
+
+		updateMemberData($receiving_members, array('alerts' => '+'));
 
 		return true;
 	}
@@ -315,8 +322,6 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
 					)),
 				);
-
-				updateMemberData($member['id_member'], array('alerts' => '+'));
 			}
 		}
 	}
@@ -427,8 +432,6 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
 					)),
 				);
-
-				updateMemberData($member['id'], array('alerts' => '+'));
 			}
 		}
 	}
