@@ -216,6 +216,7 @@ function EditHoliday()
 	if (isset($_POST[$context['session_var']]) && (isset($_REQUEST['delete']) || $_REQUEST['title'] != ''))
 	{
 		checkSession();
+		validateToken('admin-eh');
 
 		// Not too long good sir?
 		$_REQUEST['title'] = $smcFunc['substr']($_REQUEST['title'], 0, 60);
@@ -263,6 +264,8 @@ function EditHoliday()
 
 		redirectexit('action=admin;area=managecalendar;sa=holidays');
 	}
+
+	createToken('admin-eh');
 
 	// Default states...
 	if ($context['is_new'])
