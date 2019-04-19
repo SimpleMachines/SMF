@@ -1799,7 +1799,7 @@ function template_profile_theme_settings()
 
 			foreach ($setting['options'] as $value => $label)
 				echo '
-							<option value="', $value, '"', $value == $context['member']['options'][$setting['id']] ? ' selected' : '', '>', $label, '</option>';
+							<option value="', $value, '"', isset($context['member']['options'][$setting['id']]) && $value == $context['member']['options'][$setting['id']] ? ' selected' : '', '>', $label, '</option>';
 
 			echo '
 						</select>';

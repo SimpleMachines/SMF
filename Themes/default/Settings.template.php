@@ -18,18 +18,6 @@ function template_options()
 	global $context, $txt, $modSettings;
 
 	$context['theme_options'] = array(
-		$txt['theme_opt_calendar'],
-		array(
-			'id' => 'calendar_start_day',
-			'label' => $txt['calendar_start_day'],
-			'options' => array(
-				0 => $txt['days'][0],
-				1 => $txt['days'][1],
-				6 => $txt['days'][6],
-			),
-			'default' => true,
-			'enabled' => !empty($modSettings['cal_enabled']),
-		),
 		$txt['theme_opt_display'],
 		array(
 			'id' => 'show_children',
@@ -143,6 +131,29 @@ function template_options()
 			'id' => 'pm_remove_inbox_label',
 			'label' => $txt['pm_remove_inbox_label'],
 			'default' => true,
+		),
+		$txt['theme_opt_calendar'],
+		array(
+			'id' => 'calendar_default_view',
+			'label' => $txt['calendar_default_view'],
+			'options' => array(
+				'viewlist' => $txt['calendar_viewlist'],
+				'viewmonth' => $txt['calendar_viewmonth'],
+				'viewweek' => $txt['calendar_viewweek']
+			),
+			'default' => true,
+			'enabled' => !empty($modSettings['cal_enabled']),
+		),
+		array(
+			'id' => 'calendar_start_day',
+			'label' => $txt['calendar_start_day'],
+			'options' => array(
+				0 => $txt['days'][0],
+				1 => $txt['days'][1],
+				6 => $txt['days'][6],
+			),
+			'default' => true,
+			'enabled' => !empty($modSettings['cal_enabled']),
 		),
 	);
 }

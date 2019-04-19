@@ -89,8 +89,8 @@ function CalendarMain()
 	$context['page_title'] = $txt['calendar'];
 
 	// Ensure a default view is defined
-	if (empty($modSettings['calendar_default_view']))
-		$modSettings['calendar_default_view'] = 'viewlist';
+	if (empty($options['calendar_default_view']))
+		$options['calendar_default_view'] = 'viewlist';
 
 	// What view do we want?
 	if (isset($_GET['viewweek']))
@@ -100,10 +100,10 @@ function CalendarMain()
 	elseif (isset($_GET['viewlist']))
 		$context['calendar_view'] = 'viewlist';
 	else
-		$context['calendar_view'] = $modSettings['calendar_default_view'];
+		$context['calendar_view'] = $options['calendar_default_view'];
 
 	// Don't let search engines index the non-default calendar pages
-	if ($context['calendar_view'] !== $modSettings['calendar_default_view'])
+	if ($context['calendar_view'] !== $options['calendar_default_view'])
 		$context['robot_no_index'] = true;
 
 	// Get the current day of month...

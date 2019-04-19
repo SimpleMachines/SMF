@@ -343,7 +343,6 @@ function ModifyCalendarSettings($return_config = false)
 			'',
 
 			// How many days to show on board index, and where to display events etc?
-			array('select', 'calendar_default_view', array('viewlist' => $txt['setting_cal_viewlist'], 'viewmonth' => $txt['setting_cal_viewmonth'], 'viewweek' => $txt['setting_cal_viewweek'])),
 			array('int', 'cal_days_for_index', 'help' => 'cal_maxdays_advance', 6, 'postinput' => $txt['days_word']),
 			array('select', 'cal_showholidays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
 			array('select', 'cal_showbdays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),

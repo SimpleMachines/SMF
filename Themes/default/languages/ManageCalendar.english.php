@@ -27,10 +27,6 @@ $txt['setting_cal_minyear'] = 'Minimum year';
 $txt['setting_cal_maxyear'] = 'Maximum year';
 $txt['setting_cal_maxspan'] = 'Max number of days an event can span';
 $txt['setting_cal_showInTopic'] = 'Show linked events in topic display';
-$txt['setting_calendar_default_view'] = 'Default view on calendar page';
-$txt['setting_cal_viewlist'] = 'List view';
-$txt['setting_cal_viewmonth'] = 'Month view';
-$txt['setting_cal_viewweek'] = 'Week view';
 
 $txt['setting_cal_display_type'] = 'Cell Display type';
 $txt['setting_cal_display_comfortable'] = 'Comfortable';
