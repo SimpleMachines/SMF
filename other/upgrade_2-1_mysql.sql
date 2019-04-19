@@ -887,12 +887,6 @@ UPDATE {$db_prefix}members
 SET id_theme = 0;
 ---#
 
----# Update the max year for the calendar
-UPDATE {$db_prefix}settings
-SET value = '2030'
-WHERE variable = 'cal_maxyear';
----#
-
 /******************************************************************************/
 --- Membergroup icons changes
 /******************************************************************************/
@@ -2347,6 +2341,27 @@ ADD COLUMN timezone VARCHAR(80);
 ---# Add location column to calendar table
 ALTER TABLE {$db_prefix}calendar
 ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
+---#
+
+/******************************************************************************/
+--- Updating various calendar settings
+/******************************************************************************/
+---# Update the max year for the calendar
+UPDATE {$db_prefix}settings
+SET value = '2030'
+WHERE variable = 'cal_maxyear';
+---#
+
+---# Adding various calendar settings
+INSERT INTO {$db_prefix}settings
+	(variable, value)
+VALUES
+	('cal_disable_prev_next', '0'),
+	('cal_week_links', '2'),
+	('cal_prev_next_links', '1'),
+	('cal_short_days', '0'),
+	('cal_short_months', '0'),
+	('cal_week_numbers', '0'),
 ---#
 
 /******************************************************************************/
