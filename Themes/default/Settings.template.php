@@ -179,6 +179,13 @@ function template_settings()
 			'type' => 'text',
 		),
 		array(
+			'id' => 'og_image',
+			'label' => $txt['og_image'],
+			'description' => $txt['og_image_desc'],
+			'type' => 'url',
+		),
+		'',
+		array(
 			'id' => 'smiley_sets_default',
 			'label' => $txt['smileys_default_set_for_theme'],
 			'options' => $context['smiley_sets'],
@@ -189,7 +196,6 @@ function template_settings()
 			'id' => 'enable_news',
 			'label' => $txt['enable_random_news'],
 		),
-		'',
 		array(
 			'id' => 'show_newsfader',
 			'label' => $txt['news_fader'],
@@ -199,6 +205,7 @@ function template_settings()
 			'label' => $txt['admin_fader_delay'],
 			'type' => 'number',
 		),
+		'',
 		array(
 			'id' => 'number_recent_posts',
 			'label' => $txt['number_recent_posts'],
@@ -225,14 +232,7 @@ function template_settings()
 				1 => $txt['who_display_viewing_numbers'],
 				2 => $txt['who_display_viewing_names'],
 			),
-			'type' => 'number',
-		),
-		'',
-		array(
-			'id' => 'og_image',
-			'label' => $txt['og_image'],
-			'description' => $txt['og_image_desc'],
-			'type' => 'url',
+			'type' => 'list',
 		),
 	);
 }
