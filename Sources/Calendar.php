@@ -183,11 +183,6 @@ function CalendarMain()
 		'show_birthdays' => in_array($modSettings['cal_showbdays'], array(1, 2)),
 		'show_events' => in_array($modSettings['cal_showevents'], array(1, 2)),
 		'show_holidays' => in_array($modSettings['cal_showholidays'], array(1, 2)),
-		'highlight' => array(
-			'events' => isset($modSettings['cal_highlight_events']) ? $modSettings['cal_highlight_events'] : 0,
-			'holidays' => isset($modSettings['cal_highlight_holidays']) ? $modSettings['cal_highlight_holidays'] : 0,
-			'birthdays' => isset($modSettings['cal_highlight_birthdays']) ? $modSettings['cal_highlight_birthdays'] : 0,
-		),
 		'show_week_num' => true,
 		'short_day_titles' => !empty($modSettings['cal_short_days']),
 		'short_month_titles' => !empty($modSettings['cal_short_months']),

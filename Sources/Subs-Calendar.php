@@ -417,11 +417,6 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false)
 		'weeks' => array(),
 		'short_day_titles' => !empty($calendarOptions['short_day_titles']),
 		'short_month_titles' => !empty($calendarOptions['short_month_titles']),
-		'highlight' => array(
-			'events' => !empty($calendarOptions['highlight']['events']) && !empty($calendarOptions['show_events']) ? $calendarOptions['highlight']['events'] : 0,
-			'holidays' => !empty($calendarOptions['highlight']['holidays']) && !empty($calendarOptions['show_holidays']) ? $calendarOptions['highlight']['holidays'] : 0,
-			'birthdays' => !empty($calendarOptions['highlight']['birthdays']) && !empty($calendarOptions['show_birthdays']) ? $calendarOptions['highlight']['birthdays'] : 0,
-		),
 		'current_month' => date_format($selected_object, 'n'),
 		'current_year' => date_format($selected_object, 'Y'),
 		'current_day' => date_format($selected_object, 'd'),
@@ -441,7 +436,6 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false)
 			'start_date' => date_format($next_object, 'Y-m-d'),
 			'disabled' => $modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
 		),
-		'size' => empty($modSettings['cal_display_type']) ? 'large' : 'small',
 		'start_date' => $selected_date,
 	);
 
@@ -608,7 +602,6 @@ function getCalendarWeek($selected_date, $calendarOptions)
 			'start_date' => date_format($next_object, 'Y-m-d'),
 			'disabled' => $modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
 		),
-		'size' => empty($modSettings['cal_display_type']) ? 'large' : 'small',
 		'start_date' => $selected_date,
 	);
 

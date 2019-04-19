@@ -330,37 +330,15 @@ function template_show_month_grid($grid_name, $is_mini = false)
 			$classes = array('days');
 			if (!empty($day['day']))
 			{
-				// Default Classes (either compact or comfortable and either calendar_today or windowbg).
-				$classes[] = !empty($calendar_data['size']) && $calendar_data['size'] == 'small' ? 'compact' : 'comfortable';
 				$classes[] = !empty($day['is_today']) ? 'calendar_today' : 'windowbg';
 
 				// Additional classes are given for events, holidays, and birthdays.
-				if (!empty($day['events']) && !empty($calendar_data['highlight']['events']))
-				{
-					if ($is_mini === true && in_array($calendar_data['highlight']['events'], array(1, 3)))
-						$classes[] = 'events';
-					elseif ($is_mini === false && in_array($calendar_data['highlight']['events'], array(2, 3)))
-						$classes[] = 'events';
-				}
-				if (!empty($day['holidays']) && !empty($calendar_data['highlight']['holidays']))
-				{
-					if ($is_mini === true && in_array($calendar_data['highlight']['holidays'], array(1, 3)))
-						$classes[] = 'holidays';
-					elseif ($is_mini === false && in_array($calendar_data['highlight']['holidays'], array(2, 3)))
-						$classes[] = 'holidays';
-				}
-				if (!empty($day['birthdays']) && !empty($calendar_data['highlight']['birthdays']))
-				{
-					if ($is_mini === true && in_array($calendar_data['highlight']['birthdays'], array(1, 3)))
-						$classes[] = 'birthdays';
-					elseif ($is_mini === false && in_array($calendar_data['highlight']['birthdays'], array(2, 3)))
-						$classes[] = 'birthdays';
-				}
+				foreach (array('events', 'holidays', 'birthdays') as $event_type)
+					if (!empty($day[$event_type]))
+						$classes[] = $event_type;
 			}
 			else
 			{
-				// Default Classes (either compact or comfortable and disabled).
-				$classes[] = !empty($calendar_data['size']) && $calendar_data['size'] == 'small' ? 'compact' : 'comfortable';
 				$classes[] = 'disabled';
 			}
 
@@ -601,7 +579,6 @@ function template_show_week_grid($grid_name)
 		{
 			// How should we be highlighted or otherwise not...?
 			$classes = array('days');
-			$classes[] = !empty($calendar_data['size']) && $calendar_data['size'] == 'small' ? 'compact' : 'comfortable';
 			$classes[] = !empty($day['is_today']) ? 'calendar_today' : 'windowbg';
 
 			echo '
