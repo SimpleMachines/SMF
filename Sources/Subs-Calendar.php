@@ -436,7 +436,7 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false)
 			'start_date' => date_format($next_object, 'Y-m-d'),
 			'disabled' => $modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
 		),
-		'start_date' => $selected_date,
+		'start_date' => timeformat(date_format($selected_object, 'U'), get_date_or_time_format('date')),
 	);
 
 	// Get today's date.
@@ -537,7 +537,7 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false)
 	$calendarGrid['next_calendar']['href'] = $scripturl . '?action=calendar;viewmonth;year=' . $calendarGrid['next_calendar']['year'] . ';month=' . $calendarGrid['next_calendar']['month'] . ';day=' . $calendarGrid['previous_calendar']['day'];
 
 	loadDatePicker('#calendar_navigation .date_input');
-	loadDatePair('#calendar_navigation', 'date_input', '');
+	loadDatePair('#calendar_navigation', 'date_input');
 
 	return $calendarGrid;
 }
@@ -602,7 +602,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 			'start_date' => date_format($next_object, 'Y-m-d'),
 			'disabled' => $modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
 		),
-		'start_date' => $selected_date,
+		'start_date' => timeformat(date_format($selected_object, 'U'), get_date_or_time_format('date')),
 	);
 
 	// Fetch the arrays for birthdays, posted events, and holidays.
@@ -669,11 +669,11 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 	$end_object = date_create($end_date);
 
 	$calendarGrid = array(
-		'start_date' => $start_date,
+		'start_date' => timeformat(date_format($start_object, 'U'), get_date_or_time_format('date')),
 		'start_year' => date_format($start_object, 'Y'),
 		'start_month' => date_format($start_object, 'm'),
 		'start_day' => date_format($start_object, 'd'),
-		'end_date' => $end_date,
+		'end_date' => timeformat(date_format($end_object, 'U'), get_date_or_time_format('date')),
 		'end_year' => date_format($end_object, 'Y'),
 		'end_month' => date_format($end_object, 'm'),
 		'end_day' => date_format($end_object, 'd'),
@@ -719,23 +719,44 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
  * Loads the necessary JavaScript and CSS to create a datepicker.
  *
  * @param string $selector A CSS selector for the input field(s) that the datepicker should be attached to.
+ * @param string $date_format The date format to use, in strftime() format.
  */
-function loadDatePicker($selector = 'input.date_input')
+function loadDatePicker($selector = 'input.date_input', $date_format = '')
 {
-	global $modSettings, $txt, $context;
+	global $modSettings, $txt, $context, $user_info;
+
+	if (empty($date_format))
+		$date_format = get_date_or_time_format('date');
+
+	// Convert to format used by datepicker
+	$date_format = strtr($date_format, array(
+		// Day
+		'%a' => 'D', '%A' => 'DD', '%e' => 'd', '%d' => 'dd', '%j' => 'oo', '%u' => '', '%w' => '',
+		// Week
+		'%U' => '', '%V' => '', '%W' => '',
+		// Month
+		'%b' => 'M', '%B' => 'MM', '%h' => 'M', '%m' => 'mm',
+		// Year
+		'%C' => '', '%g' => 'y', '%G' => 'yy', '%y' => 'y', '%Y' => 'yy',
+		// Time (we remove all of these)
+		'%H' => '', '%k' => '', '%I' => '', '%l' => '', '%M' => '', '%p' => '', '%P' => '',
+		'%r' => '', '%R' => '', '%S' => '', '%T' => '', '%X' => '', '%z' => '', '%Z' => '',
+		// Time and Date Stamps
+		'%c' => 'D, d M yy', '%D' => 'mm/dd/y', '%F' => 'yy-mm-dd', '%s' => '@', '%x' => 'D, d M yy',
+		// Miscellaneous
+		'%n' => ' ', '%t' => ' ', '%%' => '%',
+	));
 
 	loadCSSFile('jquery-ui.datepicker.css', array(), 'smf_datepicker');
 	loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
 	addInlineJavaScript('
 	$("' . $selector . '").datepicker({
-		dateFormat: "yy-mm-dd",
+		dateFormat: "' . $date_format . '",
 		autoSize: true,
 		isRTL: ' . ($context['right_to_left'] ? 'true' : 'false') . ',
 		constrainInput: true,
 		showAnim: "",
 		showButtonPanel: false,
-		minDate: "' . $modSettings['cal_minyear'] . '-01-01",
-		maxDate: "' . $modSettings['cal_maxyear'] . '-12-31",
 		yearRange: "' . $modSettings['cal_minyear'] . ':' . $modSettings['cal_maxyear'] . '",
 		hideIfNoPrevNext: true,
 		monthNames: ["' . implode('", "', $txt['months_titles']) . '"],
@@ -752,14 +773,17 @@ function loadDatePicker($selector = 'input.date_input')
  * Loads the necessary JavaScript and CSS to create a timepicker.
  *
  * @param string $selector A CSS selector for the input field(s) that the timepicker should be attached to.
- * @param string $time_string A time format in strftime format
+ * @param string $time_format A time format in strftime format
  */
-function loadTimePicker($selector = 'input.time_input', $time_string = '%k:%M')
+function loadTimePicker($selector = 'input.time_input', $time_format = '')
 {
 	global $modSettings, $txt, $context;
 
+	if (empty($time_format))
+		$time_format = get_date_or_time_format('time');
+
 	// Format used for timepicker
-	$time_string = strtr($time_string, array(
+	$time_format = strtr($time_format, array(
 		'%H' => 'H',
 		'%k' => 'G',
 		'%I' => 'h',
@@ -778,7 +802,7 @@ function loadTimePicker($selector = 'input.time_input', $time_string = '%k:%M')
 	loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
 	addInlineJavaScript('
 	$("' . $selector . '").timepicker({
-		timeFormat: "' . $time_string . '",
+		timeFormat: "' . $time_format . '",
 		showDuration: true,
 		maxTime: "23:59:59",
 	});', true);
