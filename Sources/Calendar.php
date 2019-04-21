@@ -284,17 +284,14 @@ function CalendarPost()
 		$_REQUEST['eventid'] = (int) $_REQUEST['eventid'];
 
 	// We want a fairly compact version of the time, but as close as possible to the user's settings.
-	if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-		$time_string = '%k:%M';
-	else
-		$time_string = strtr($matches[0], array(
-			'%I' => '%l',
-			'%H' => '%k',
-			'%S' => '',
-			'%r' => '%l:%M %p',
-			'%R' => '%k:%M',
-			'%T' => '%l:%M',
-		));
+	$time_string = strtr(get_date_or_time_format('time'), array(
+		'%I' => '%l',
+		'%H' => '%k',
+		'%S' => '',
+		'%r' => '%l:%M %p',
+		'%R' => '%k:%M',
+		'%T' => '%l:%M',
+	));
 
 	// Submitting?
 	if (isset($_POST[$context['session_var']], $_REQUEST['eventid']))

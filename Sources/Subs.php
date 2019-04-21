@@ -768,14 +768,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 		$now = (!empty($now) ? $now : @getdate(forum_time()));
 
 		// Try to make something of a time format string...
-		$s = strpos($user_info['time_format'], '%S') === false ? '' : ':%S';
-		if (strpos($user_info['time_format'], '%H') === false && strpos($user_info['time_format'], '%T') === false)
-		{
-			$h = strpos($user_info['time_format'], '%l') === false ? '%I' : '%l';
-			$today_fmt = $h . ':%M' . $s . ' %p';
-		}
-		else
-			$today_fmt = '%H:%M' . $s;
+		$today_fmt = get_date_or_time_format('time');
 
 		// Same day of the year, same year.... Today!
 		if ($then['yday'] == $now['yday'] && $then['year'] == $now['year'])
@@ -889,6 +882,126 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 
 	// Format the time and then restore any literal percent characters
 	return str_replace('&#37;', '%', strftime($str, $time));
+}
+
+/**
+ * Gets a version of a strftime() format that only shows the date or time components
+ *
+ * @param string $type Either 'date' or 'time'.
+ * @param string $format A strftime() format to process. Defaults to $user_info['time_format'].
+ * @return string A strftime() format string
+ */
+function get_date_or_time_format($type = '', $format = '')
+{
+	global $user_info, $modSettings;
+	static $formats;
+
+	// If the format is invalid, fall back to defaults.
+	if (strpos($format, '%') === false)
+		$format = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %k:%M');
+
+	$orig_format = $format;
+
+	// Have we already done this?
+	if (isset($formats[$orig_format][$type]))
+		return $formats[$orig_format][$type];
+
+	if ($type === 'date')
+	{
+		$specifications = array(
+			// Day
+			'%a' => '%a', '%A' => '%A', '%e' => '%e', '%d' => '%d', '%j' => '%j', '%u' => '%u', '%w' => '%w',
+			// Week
+			'%U' => '%U', '%V' => '%V', '%W' => '%W',
+			// Month
+			'%b' => '%b', '%B' => '%B', '%h' => '%h', '%m' => '%m',
+			// Year
+			'%C' => '%C', '%g' => '%g', '%G' => '%G', '%y' => '%y', '%Y' => '%Y',
+			// Time
+			'%H' => '', '%k' => '', '%I' => '', '%l' => '', '%M' => '', '%p' => '', '%P' => '',
+			'%r' => '', '%R' => '', '%S' => '', '%T' => '', '%X' => '', '%z' => '', '%Z' => '',
+			// Time and Date Stamps
+			'%c' => '%x', '%D' => '%D', '%F' => '%F', '%s' => '%s', '%x' => '%x',
+			// Miscellaneous
+			'%n' => '', '%t' => '', '%%' => '%%',
+		);
+
+		$default_format = '%F';
+	}
+	elseif ($type === 'time')
+	{
+		$specifications = array(
+			// Day
+			'%a' => '', '%A' => '', '%e' => '', '%d' => '', '%j' => '', '%u' => '', '%w' => '',
+			// Week
+			'%U' => '', '%V' => '', '%W' => '',
+			// Month
+			'%b' => '', '%B' => '', '%h' => '', '%m' => '',
+			// Year
+			'%C' => '', '%g' => '', '%G' => '', '%y' => '', '%Y' => '',
+			// Time
+			'%H' => '%H', '%k' => '%k', '%I' => '%I', '%l' => '%l', '%M' => '%M', '%p' => '%p', '%P' => '%P',
+			'%r' => '%r', '%R' => '%R', '%S' => '%S', '%T' => '%T', '%X' => '%X', '%z' => '%z', '%Z' => '%Z',
+			// Time and Date Stamps
+			'%c' => '%X', '%D' => '', '%F' => '', '%s' => '%s', '%x' => '',
+			// Miscellaneous
+			'%n' => '', '%t' => '', '%%' => '%%',
+		);
+
+		$default_format = '%k:%M';
+	}
+	// Invalid type requests just get the full format string.
+	else
+		return $format;
+
+	// Separate the specifications we want from the ones we don't.
+	$wanted = array_filter($specifications);
+	$unwanted = array_diff(array_keys($specifications), $wanted);
+
+	// First, make any necessary substitutions in the format.
+	$format = strtr($format, $wanted);
+
+	// Next, strip out any specifications and literal text that we don't want.
+	$format_parts = preg_split('~%[' . (strtr(implode('', $unwanted), array('%' => ''))) . ']~u', $format);
+
+	foreach ($format_parts as $p => $f)
+	{
+		if (strpos($f, '%') === false)
+			unset($format_parts[$p]);
+	}
+
+	$format = implode('', $format_parts);
+
+	// Finally, strip out any unwanted leftovers.
+	// For info on the charcter classes used here, see https://www.php.net/manual/en/regexp.reference.unicode.php and https://www.regular-expressions.info/unicode.html
+	$format = preg_replace(
+		array(
+			// Anything that isn't a specification, punctuation mark, or whitespace.
+			'~(?<!%)\p{L}|[^\p{L}\p{P}\s]~u',
+			// A series of punctuation marks (except %), possibly separated by whitespace.
+			'~([^%\P{P}])(\s*)(?'.'>(\1|[^%\P{Po}])\s*(?!$))*~u',
+			// Unwanted trailing punctuation and whitespace.
+			'~(?'.'>([\p{Pd}\p{Ps}\p{Pi}\p{Pc}]|[^%\P{Po}])\s*)*$~u',
+			// Unwanted opening punctuation and whitespace.
+			'~^\s*(?'.'>([\p{Pd}\p{Pe}\p{Pf}\p{Pc}]|[^%\P{Po}])\s*)*~u',
+		),
+		array(
+			'',
+			'$1$2',
+			'',
+			'',
+		),
+		$format
+	);
+
+	// Gotta have something...
+	if (empty($format))
+		$format = $default_format;
+
+	// Remember what we've done.
+	$formats[$orig_format][$type] = trim($format);
+
+	return $formats[$orig_format][$type];
 }
 
 /**

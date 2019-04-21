@@ -287,17 +287,14 @@ function Post($post_errors = array())
 		require_once($sourcedir . '/Subs-Calendar.php');
 
 		// We want a fairly compact version of the time, but as close as possible to the user's settings.
-		if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-			$time_string = '%k:%M';
-		else
-			$time_string = strtr($matches[0], array(
-				'%I' => '%l',
-				'%H' => '%k',
-				'%S' => '',
-				'%r' => '%l:%M %p',
-				'%R' => '%k:%M',
-				'%T' => '%l:%M',
-			));
+		$time_string = strtr(get_date_or_time_format('time'), array(
+			'%I' => '%l',
+			'%H' => '%k',
+			'%S' => '',
+			'%r' => '%l:%M %p',
+			'%R' => '%k:%M',
+			'%T' => '%l:%M',
+		));
 
 		// Editing an event?  (but NOT previewing!?)
 		if (empty($context['event']['new']) && !isset($_REQUEST['subject']))
