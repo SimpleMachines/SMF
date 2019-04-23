@@ -857,7 +857,7 @@ if (version_compare(@$modSettings['smfVersion'], '2.1', '<'))
 	$num_boards = $smcFunc['db_num_rows']($request);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$groups = explode($row['member_groups']);
+		$groups = explode(',', $row['member_groups']);
 		foreach ($groups as $group)
 			++$board_managers[$group];
 	}
