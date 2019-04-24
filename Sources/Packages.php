@@ -1100,8 +1100,8 @@ function PackageInstall()
 			{
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}log_packages
-					SET install_state = {int:not_installed}, member_removed = {string:member_name}, id_member_removed = {int:current_member},
-						time_removed = {int:current_time}
+					SET install_state = {int:not_installed}, member_removed = {string:member_name},
+						id_member_removed = {int:current_member}, time_removed = {int:current_time}
 					WHERE package_id = {string:package_id}
 						AND id_install = {int:install_id}',
 					array(
@@ -1123,8 +1123,8 @@ function PackageInstall()
 				// Mark the old version as uninstalled
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}log_packages
-					SET install_state = {int:not_installed}, member_removed = {string:member_name}, id_member_removed = {int:current_member},
-						time_removed = {int:current_time}
+					SET install_state = {int:not_installed}, member_removed = {string:member_name},
+						id_member_removed = {int:current_member}, time_removed = {int:current_time}
 					WHERE package_id = {string:package_id}
 						AND version = {string:old_version}',
 					array(
