@@ -1146,24 +1146,8 @@ function getAttachsByMsg($msgID)
 	if (!isset($attached[$msgID]))
 	{
 		if (empty($cacheMsgID[$msgID]))
-			prepareAttachsByMsg ([$msgID]);
-/*
-		$request = $smcFunc['db_query']('', '
-			SELECT
-				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board, m.id_member,
-				a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
-				COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
-			FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
-				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
-				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-			WHERE a.attachment_type = {int:attachment_type}
-				AND a.id_msg ' . (!empty($context['preview_message']) ? 'IN (0, {int:message_id})' : '= {int:message_id}'),
-			array(
-				'message_id' => $msgID,
-				'attachment_type' => 0,
-			)
-		);
- */
+			prepareAttachsByMsg (array($msgID));
+
 		$temp = array();
 		$rows = $cacheMsgID[$msgID];
 		foreach ($rows as $row)
@@ -1375,7 +1359,7 @@ function prepareAttachsByMsg($msgIDs)
 {
 	global $context, $modSettings, $smcFunc, $user_info, $cacheMsgID;
 	if(!isset($cacheMsgID))
-		$cacheMsgID = [];
+		$cacheMsgID = array();
 
 	// remove all $msgIDs which we already cached
 	$msgIDs = array_flip(array_diff_key(array_flip($msgIDs), $cacheMsgID)) ;
