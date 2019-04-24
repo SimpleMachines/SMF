@@ -51,9 +51,9 @@ function getLastPosts($latestPostOptions)
 			'is_approved' => 1,
 		)
 	);
-	
+
 	$rows = $smcFunc['db_fetch_all']($request);
-	
+
 	// BBC and the entire attachments feature is enabled
 	$disabled = array();
 
@@ -68,10 +68,10 @@ function getLastPosts($latestPostOptions)
 		foreach ($rows as $key => $value) {
 			$msgIDs[] = $value['id_msg'];
 		}
-		
+
 		prepareAttachsByMsg($msgIDs);
 	}
-		
+
 	$posts = array();
 	foreach ($rows as $key => $row)
 	{

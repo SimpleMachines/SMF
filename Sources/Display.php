@@ -1040,10 +1040,10 @@ function Display()
 		foreach ($messages as $key => $value) {
 			$msgIDs[] = $value;
 		}
-		
+
 		prepareAttachsByMsg($msgIDs);
 	}
-	
+
 	call_integration_hook('integrate_display_message_list', array(&$messages, &$posters));
 
 	// Guests can't mark topics read or for notifications, just can't sorry.

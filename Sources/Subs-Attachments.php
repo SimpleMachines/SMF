@@ -1101,16 +1101,15 @@ function getAttachMsgInfo($attachID)
 	{
 		if (empty($msgRows[$attachID]))
 			continue;
-		
+
 		$row = array(
 			'msg' => $msgRows[$attachID]['id_msg'],
 			'topic' => $msgRows[$attachID]['topic'],
 			'board' => $msgRows[$attachID]['board'],
 			);
-		
+
 		return $row;
 	}
-	
 
 	$request = $smcFunc['db_query']('', '
 		SELECT a.id_msg AS msg, m.id_topic AS topic, m.id_board AS board
@@ -1366,18 +1365,18 @@ function loadAttachmentContext($id_msg, $attachments)
 }
 
 /**
- * Gets attachment info associated with a message ID
+ * prepare the Attachment api for all messages
  *
- * @param int $msgID the message ID to load info from.
+ * @param int array $msgIDs the message ID to load info from.
  *
- * @return array.
+ * @return void.
  */
 function prepareAttachsByMsg($msgIDs)
 {
 	global $context, $modSettings, $smcFunc, $user_info, $cacheMsgID;
 	if(!isset($cacheMsgID))
 		$cacheMsgID = [];
-	
+
 	// remove all $msgIDs which we already cached
 	$msgIDs = array_flip(array_diff_key(array_flip($msgIDs), $cacheMsgID)) ;
 
@@ -1401,7 +1400,7 @@ function prepareAttachsByMsg($msgIDs)
 		$temp = array();
 		$rows = $smcFunc['db_fetch_all']($request);
 		$smcFunc['db_free_result']($request);
-		
+
 		foreach ($rows as $value)
 		{
 			if(empty($cacheMsgID[$value['id_msg']]))
