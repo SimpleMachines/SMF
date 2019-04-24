@@ -151,7 +151,7 @@ $txt['themeadmin_selectable'] = 'Themes that the user is able to select';
 $txt['themeadmin_themelist_link'] = 'Show the list of themes';
 
 // Open Graph
-$txt['og_image'] = 'Open Graph image';
-$txt['og_image_desc'] = 'Link to your <a href="http://ogp.me/">Open Graph</a> optimized image<br><span class="smalltext">Suggested size: 175x175px</span>';
+$txt['og_image'] = '<a href="http://ogp.me/" target="_blank" class="bbc_link">Open Graph</a> image';
+$txt['og_image_desc'] = 'Used for social media sharing. Suggested size: 175x175px.';
 
 ?>
