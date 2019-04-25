@@ -859,7 +859,8 @@ if (version_compare(@$modSettings['smfVersion'], '2.1', '<'))
 	{
 		$groups = explode(',', $row['member_groups']);
 		foreach ($groups as $group)
-			++$board_managers[$group];
+			if (array_key_exists($group, $board_managers))
+				++$board_managers[$group];
 	}
 	$smcFunc['db_free_result']($request);
 
