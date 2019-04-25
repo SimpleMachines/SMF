@@ -442,6 +442,8 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 
 		if (!$found && $protocols[0] == 'http')
 		{
+			$parse_url_replace = parse_url($replace, PHP_URL_SCHEME);
+
 			// A path
 			if (substr($replace, 0, 1) == '/' && substr($replace, 0, 2) != '//')
 				$replace = $domain_url . $replace;
@@ -455,12 +457,12 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 				$this_tag = 'iurl';
 				$this_close = 'iurl';
 			}
-			elseif (substr($replace, 0, 2) != '//' && empty(parse_url($replace, PHP_URL_SCHEME)))
+			elseif (substr($replace, 0, 2) != '//' && empty($parse_url_replace))
 				$replace = $protocols[0] . '://' . $replace;
 		}
 		elseif (!$found && $protocols[0] == 'ftp')
 			$replace = $protocols[0] . '://' . preg_replace('~^(?!ftps?)[^:]+://~', '', $replace);
-		elseif (!$found && empty(parse_url($replace, PHP_URL_SCHEME)))
+		elseif (!$found && empty($parse_url_replace))
 			$replace = $protocols[0] . '://' . $replace;
 
 		if ($hasEqualSign && $embeddedUrl)
