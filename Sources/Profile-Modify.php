@@ -1299,11 +1299,11 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			}
 		}
 
-		if ($user_profile[$memID]['options'][$row['col_name']] === null)
+		if (!isset($user_profile[$memID]['options'][$row['col_name']]))
 			$user_profile[$memID]['options'][$row['col_name']] = '';
 
 		// Did it change?
-		if (!isset($user_profile[$memID]['options'][$row['col_name']]) || $user_profile[$memID]['options'][$row['col_name']] != $value)
+		if ($user_profile[$memID]['options'][$row['col_name']] != $value)
 		{
 			$log_changes[] = array(
 				'action' => 'customfield_' . $row['col_name'],
