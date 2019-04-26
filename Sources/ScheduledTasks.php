@@ -252,6 +252,9 @@ function scheduled_daily_maintenance()
 		$proxy->housekeeping();
 	}
 
+	// Anyone else have something to do?
+	call_integration_hook('integrate_daily_maintenance');
+
 	// Log we've done it...
 	return true;
 }
@@ -1274,6 +1277,9 @@ function scheduled_weekly_maintenance()
 
 	// Prevent stale minimized CSS and JavaScript from cluttering up the theme directories
 	deleteAllMinified();
+
+	// Maybe there's more to do.
+	call_integration_hook('integrate_weekly_maintenance');
 
 	return true;
 }
