@@ -51,29 +51,21 @@ function getLastPosts($latestPostOptions)
 			'is_approved' => 1,
 		)
 	);
-
 	$rows = $smcFunc['db_fetch_all']($request);
 
-	// BBC and the entire attachments feature is enabled
-	$disabled = array();
-
-	$temp = !empty($modSettings['disabledBBC']) ? explode(',', strtolower($modSettings['disabledBBC'])) : array();
-
-	foreach ($temp as $tag)
-		$disabled[trim($tag)] = true;
-	if (!empty($modSettings['attachmentEnable']) && empty($disabled['attach']))
+	// If the ability to embed attachments in posts is enabled, load the attachments now for efficiency
+	if (!empty($modSettings['attachmentEnable']) && (empty($modSettings['disabledBBC']) || !in_array('attach', explode(',', strtolower($modSettings['disabledBBC']))))
 	{
-		require_once($sourcedir . '/Subs-Attachments.php');
 		$msgIDs = array();
-		foreach ($rows as $key => $value) {
-			$msgIDs[] = $value['id_msg'];
-		}
+		foreach ($rows as $row)
+			$msgIDs[] = $row['id_msg'];
 
+		require_once($sourcedir . '/Subs-Attachments.php');
 		prepareAttachsByMsg($msgIDs);
 	}
 
 	$posts = array();
-	foreach ($rows as $key => $row)
+	foreach ($rows as $row)
 	{
 		// Censor the subject and post for the preview ;).
 		censorText($row['subject']);

@@ -976,19 +976,20 @@ function parseAttachBBC($attachID = 0)
 	if ($view_attachment_boards !== array(0) && !in_array($attachInfo['board'], $view_attachment_boards))
 		return 'attachments_not_allowed_to_see';
 
-	$allAttachments = getAttachsByMsg($attachInfo['msg']);
+	if (empty($context['loaded_attachments'][$attachInfo['msg']]))
+		prepareAttachsByMsg(array($attachInfo['msg']));
 
-	if (isset($allAttachments[$attachInfo['msg']][$attachID]))
-		$attachContext = $allAttachments[$attachInfo['msg']][$attachID];
+	if (isset($context['loaded_attachments'][$attachInfo['msg']][$attachID]))
+		$attachContext = $context['loaded_attachments'][$attachInfo['msg']][$attachID];
 
 	// In case the user manually typed the thumbnail's ID into the BBC
-	elseif (!empty($allAttachments[$attachInfo['msg']]))
+	elseif (!empty($context['loaded_attachments'][$attachInfo['msg']]))
 	{
-		foreach ($allAttachments[$attachInfo['msg']] as $foundAttachID => $foundAttach)
+		foreach ($context['loaded_attachments'][$attachInfo['msg']] as $foundAttachID => $foundAttach)
 		{
 			if ($foundAttach['id_thumb'] == $attachID)
 			{
-				$attachContext = $allAttachments[$attachInfo['msg']][$foundAttachID];
+				$attachContext = $context['loaded_attachments'][$attachInfo['msg']][$foundAttachID];
 				$attachID = $foundAttachID;
 				break;
 			}
@@ -997,7 +998,7 @@ function parseAttachBBC($attachID = 0)
 
 	// Load this particular attach's context.
 	if (!empty($attachContext))
-		$attachLoaded = loadAttachmentContext($attachContext['id_msg'], $allAttachments);
+		$attachLoaded = loadAttachmentContext($attachContext['id_msg'], $context['loaded_attachments']);
 
 	// One last check, you know, gotta be paranoid...
 	else
@@ -1092,12 +1093,12 @@ function getRawAttachInfo($attachIDs)
  */
 function getAttachMsgInfo($attachID)
 {
-	global $smcFunc, $cacheMsgID;
+	global $smcFunc, $context;
 
 	if (empty($attachID))
 		return array();
 
-	foreach ($cacheMsgID as $msgRows)
+	foreach ($context['loaded_attachments'] as $msgRows)
 	{
 		if (empty($msgRows[$attachID]))
 			continue;
@@ -1129,42 +1130,6 @@ function getAttachMsgInfo($attachID)
 	$smcFunc['db_free_result']($request);
 
 	return $row;
-}
-
-/**
- * Gets attachment info associated with a message ID
- *
- * @param int $msgID the message ID to load info from.
- *
- * @return array.
- */
-function getAttachsByMsg($msgID)
-{
-	global $context, $modSettings, $smcFunc, $user_info, $cacheMsgID;
-	static $attached = array();
-
-	if (!isset($attached[$msgID]))
-	{
-		if (empty($cacheMsgID[$msgID]))
-			prepareAttachsByMsg(array($msgID));
-
-		$temp = array();
-		$rows = $cacheMsgID[$msgID];
-		foreach ($rows as $row)
-		{
-			if (!$row['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts') && $row['id_member'] != $user_info['id'])
-				continue;
-
-			$temp[$row['id_attach']] = $row;
-		}
-
-		// This is better than sorting it with the query...
-		ksort($temp);
-
-		$attached[$msgID] = $temp;
-	}
-
-	return $attached;
 }
 
 /**
@@ -1357,13 +1322,13 @@ function loadAttachmentContext($id_msg, $attachments)
  */
 function prepareAttachsByMsg($msgIDs)
 {
-	global $context, $modSettings, $smcFunc, $user_info, $cacheMsgID;
+	global $context, $modSettings, $smcFunc, $user_info;
 
-	if(!isset($cacheMsgID))
-		$cacheMsgID = array();
-
-	// remove all $msgIDs which we already cached
-	$msgIDs = array_flip(array_diff_key(array_flip($msgIDs), $cacheMsgID)) ;
+	if (empty($context['loaded_attachments']))
+		$context['loaded_attachments'] = array();
+	// Remove all $msgIDs that we already processed
+	else
+		$msgIDs = array_diff($msgIDs, array_keys($context['loaded_attachments']), array(0));
 
 	if (!empty($msgIDs))
 	{
@@ -1382,15 +1347,22 @@ function prepareAttachsByMsg($msgIDs)
 				'attachment_type' => 0,
 			)
 		);
-		$temp = array();
 		$rows = $smcFunc['db_fetch_all']($request);
 		$smcFunc['db_free_result']($request);
 
-		foreach ($rows as $value)
+		foreach ($rows as $row)
 		{
-			if(empty($cacheMsgID[$value['id_msg']]))
-				$cacheMsgID[$value['id_msg']] = array();
-			$cacheMsgID[$value['id_msg']][$value['id_attach']] = $value;
+			// Skip unapproved ones, unless they belong to the user or the user can approve them.
+			if (!$row['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts') && $row['id_member'] != $user_info['id'])
+				continue;
+
+			if (empty($context['loaded_attachments'][$row['id_msg']]))
+				$context['loaded_attachments'][$row['id_msg']] = array();
+
+			$context['loaded_attachments'][$row['id_msg']][$row['id_attach']] = $row;
+
+			// This is better than sorting it with the query...
+			ksort($context['loaded_attachments'][$row['id_msg']]);
 		}
 	}
 }
