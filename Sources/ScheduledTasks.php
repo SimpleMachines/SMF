@@ -421,6 +421,8 @@ function scheduled_daily_digest()
 			'split' => $txt['digest_mod_act_split'],
 			'bye' => $txt['regards_team'],
 		);
+
+		call_integration_hook('integrate_daily_digest_lang', array(&$langtxt, $lang));
 	}
 
 	// The preferred way...
@@ -509,6 +511,9 @@ function scheduled_daily_digest()
 						}
 			}
 		}
+
+		call_integration_hook('integrate_daily_digest_email', array(&$email, $types, $notify_types, $langtxt));
+
 		if ($titled)
 			$email['body'] .= "\n";
 
