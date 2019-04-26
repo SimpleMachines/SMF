@@ -2974,8 +2974,7 @@ function spell_check($dict, $word)
  *
  * Returns an array of suggested replacements for the specified word
  *
- * @param resource $dict An enchant or pspell dictionary
- * resource
+ * @param resource $dict An enchant or pspell dictionary resource
  * @param string $word A misspelled word
  * @return array An array of suggested replacements for the misspelled word
  */
