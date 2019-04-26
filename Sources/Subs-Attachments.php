@@ -1328,7 +1328,7 @@ function prepareAttachsByMsg($msgIDs)
 		$context['loaded_attachments'] = array();
 	// Remove all $msgIDs that we already processed
 	else
-		$msgIDs = array_diff($msgIDs, array_keys($context['loaded_attachments']), array(0));
+		$msgIDs = array_diff($msgIDs, array_keys($context['loaded_attachments']));
 
 	if (!empty($msgIDs))
 	{

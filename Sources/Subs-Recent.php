@@ -54,7 +54,7 @@ function getLastPosts($latestPostOptions)
 	$rows = $smcFunc['db_fetch_all']($request);
 
 	// If the ability to embed attachments in posts is enabled, load the attachments now for efficiency
-	if (!empty($modSettings['attachmentEnable']) && (empty($modSettings['disabledBBC']) || !in_array('attach', explode(',', strtolower($modSettings['disabledBBC']))))
+	if (!empty($modSettings['attachmentEnable']) && (empty($modSettings['disabledBBC']) || !in_array('attach', explode(',', strtolower($modSettings['disabledBBC'])))))
 	{
 		$msgIDs = array();
 		foreach ($rows as $row)
