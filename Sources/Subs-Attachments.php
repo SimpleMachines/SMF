@@ -1106,7 +1106,7 @@ function getAttachMsgInfo($attachID)
 			'msg' => $msgRows[$attachID]['id_msg'],
 			'topic' => $msgRows[$attachID]['topic'],
 			'board' => $msgRows[$attachID]['board'],
-			);
+		);
 
 		return $row;
 	}
@@ -1146,7 +1146,7 @@ function getAttachsByMsg($msgID)
 	if (!isset($attached[$msgID]))
 	{
 		if (empty($cacheMsgID[$msgID]))
-			prepareAttachsByMsg (array($msgID));
+			prepareAttachsByMsg(array($msgID));
 
 		$temp = array();
 		$rows = $cacheMsgID[$msgID];
@@ -1358,6 +1358,7 @@ function loadAttachmentContext($id_msg, $attachments)
 function prepareAttachsByMsg($msgIDs)
 {
 	global $context, $modSettings, $smcFunc, $user_info, $cacheMsgID;
+
 	if(!isset($cacheMsgID))
 		$cacheMsgID = array();
 
@@ -1388,7 +1389,7 @@ function prepareAttachsByMsg($msgIDs)
 		foreach ($rows as $value)
 		{
 			if(empty($cacheMsgID[$value['id_msg']]))
-				$cacheMsgID[$value['id_msg']] = [];
+				$cacheMsgID[$value['id_msg']] = array();
 			$cacheMsgID[$value['id_msg']][$value['id_attach']] = $value;
 		}
 	}

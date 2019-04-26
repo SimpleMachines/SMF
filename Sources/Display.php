@@ -1029,7 +1029,7 @@ function Display()
 	// BBC and the entire attachments feature is enabled
 	$disabled = array();
 
-	$temp = !empty($modSettings['disabledBBC']) ? explode(',', strtolower($modSettings['disabledBBC'])) : [];
+	$temp = !empty($modSettings['disabledBBC']) ? explode(',', strtolower($modSettings['disabledBBC'])) : array();
 
 	foreach ($temp as $tag)
 		$disabled[trim($tag)] = true;
