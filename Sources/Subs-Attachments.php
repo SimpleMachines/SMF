@@ -1092,10 +1092,24 @@ function getRawAttachInfo($attachIDs)
  */
 function getAttachMsgInfo($attachID)
 {
-	global $smcFunc;
+	global $smcFunc, $cacheMsgID;
 
 	if (empty($attachID))
 		return array();
+
+	foreach ($cacheMsgID as $msgRows)
+	{
+		if (empty($msgRows[$attachID]))
+			continue;
+
+		$row = array(
+			'msg' => $msgRows[$attachID]['id_msg'],
+			'topic' => $msgRows[$attachID]['topic'],
+			'board' => $msgRows[$attachID]['board'],
+		);
+
+		return $row;
+	}
 
 	$request = $smcFunc['db_query']('', '
 		SELECT a.id_msg AS msg, m.id_topic AS topic, m.id_board AS board
@@ -1126,35 +1140,23 @@ function getAttachMsgInfo($attachID)
  */
 function getAttachsByMsg($msgID)
 {
-	global $context, $modSettings, $smcFunc, $user_info;
+	global $context, $modSettings, $smcFunc, $user_info, $cacheMsgID;
 	static $attached = array();
 
 	if (!isset($attached[$msgID]))
 	{
-		$request = $smcFunc['db_query']('', '
-			SELECT
-				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board, m.id_member,
-				a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
-				COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
-			FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
-				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
-				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-			WHERE a.attachment_type = {int:attachment_type}
-				AND a.id_msg ' . (!empty($context['preview_message']) ? 'IN (0, {int:message_id})' : '= {int:message_id}'),
-			array(
-				'message_id' => $msgID,
-				'attachment_type' => 0,
-			)
-		);
+		if (empty($cacheMsgID[$msgID]))
+			prepareAttachsByMsg(array($msgID));
+
 		$temp = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		$rows = $cacheMsgID[$msgID];
+		foreach ($rows as $row)
 		{
 			if (!$row['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts') && $row['id_member'] != $user_info['id'])
 				continue;
 
 			$temp[$row['id_attach']] = $row;
 		}
-		$smcFunc['db_free_result']($request);
 
 		// This is better than sorting it with the query...
 		ksort($temp);
@@ -1344,6 +1346,53 @@ function loadAttachmentContext($id_msg, $attachments)
 		});
 
 	return $attachmentData;
+}
+
+/**
+ * prepare the Attachment api for all messages
+ *
+ * @param int array $msgIDs the message ID to load info from.
+ *
+ * @return void.
+ */
+function prepareAttachsByMsg($msgIDs)
+{
+	global $context, $modSettings, $smcFunc, $user_info, $cacheMsgID;
+
+	if(!isset($cacheMsgID))
+		$cacheMsgID = array();
+
+	// remove all $msgIDs which we already cached
+	$msgIDs = array_flip(array_diff_key(array_flip($msgIDs), $cacheMsgID)) ;
+
+	if (!empty($msgIDs))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT
+				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board, m.id_member,
+				a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
+				COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
+			FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
+				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
+				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+			WHERE a.attachment_type = {int:attachment_type}
+				AND a.id_msg ' . (!empty($context['preview_message']) ? 'IN (0, {array_int:message_id})' : 'IN ({array_int:message_id})'),
+			array(
+				'message_id' => $msgIDs,
+				'attachment_type' => 0,
+			)
+		);
+		$temp = array();
+		$rows = $smcFunc['db_fetch_all']($request);
+		$smcFunc['db_free_result']($request);
+
+		foreach ($rows as $value)
+		{
+			if(empty($cacheMsgID[$value['id_msg']]))
+				$cacheMsgID[$value['id_msg']] = array();
+			$cacheMsgID[$value['id_msg']][$value['id_attach']] = $value;
+		}
+	}
 }
 
 ?>

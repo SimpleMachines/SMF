@@ -1026,6 +1026,24 @@ function Display()
 	$smcFunc['db_free_result']($request);
 	$posters = array_unique($all_posters);
 
+	// BBC and the entire attachments feature is enabled
+	$disabled = array();
+
+	$temp = !empty($modSettings['disabledBBC']) ? explode(',', strtolower($modSettings['disabledBBC'])) : array();
+
+	foreach ($temp as $tag)
+		$disabled[trim($tag)] = true;
+	if (!empty($modSettings['attachmentEnable']) && empty($disabled['attach']))
+	{
+		require_once($sourcedir . '/Subs-Attachments.php');
+		$msgIDs = array();
+		foreach ($messages as $key => $value) {
+			$msgIDs[] = $value;
+		}
+
+		prepareAttachsByMsg($msgIDs);
+	}
+
 	call_integration_hook('integrate_display_message_list', array(&$messages, &$posters));
 
 	// Guests can't mark topics read or for notifications, just can't sorry.

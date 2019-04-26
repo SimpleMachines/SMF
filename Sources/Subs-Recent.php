@@ -24,7 +24,7 @@ if (!defined('SMF'))
  */
 function getLastPosts($latestPostOptions)
 {
-	global $scripturl, $modSettings, $smcFunc;
+	global $scripturl, $modSettings, $smcFunc, $sourcedir;
 
 	// Find all the posts.  Newer ones will have higher IDs.  (assuming the last 20 * number are accessible...)
 	// @todo SLOW This query is now slow, NEEDS to be fixed.  Maybe break into two?
@@ -51,8 +51,29 @@ function getLastPosts($latestPostOptions)
 			'is_approved' => 1,
 		)
 	);
+
+	$rows = $smcFunc['db_fetch_all']($request);
+
+	// BBC and the entire attachments feature is enabled
+	$disabled = array();
+
+	$temp = !empty($modSettings['disabledBBC']) ? explode(',', strtolower($modSettings['disabledBBC'])) : array();
+
+	foreach ($temp as $tag)
+		$disabled[trim($tag)] = true;
+	if (!empty($modSettings['attachmentEnable']) && empty($disabled['attach']))
+	{
+		require_once($sourcedir . '/Subs-Attachments.php');
+		$msgIDs = array();
+		foreach ($rows as $key => $value) {
+			$msgIDs[] = $value['id_msg'];
+		}
+
+		prepareAttachsByMsg($msgIDs);
+	}
+
 	$posts = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	foreach ($rows as $key => $row)
 	{
 		// Censor the subject and post for the preview ;).
 		censorText($row['subject']);
