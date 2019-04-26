@@ -1261,12 +1261,12 @@ function Post($post_errors = array())
 	// quotedText.js
 	loadJavaScriptFile('quotedText.js', array('defer' => true, 'minimize' => true), 'smf_quotedText');
 
+	addInlineJavaScript('
+	var current_attachments = [];');
+
 	if (!empty($context['current_attachments']))
 	{
 		// Mock files to show already attached files.
-		addInlineJavaScript('
-	var current_attachments = [];');
-
 		foreach ($context['current_attachments'] as $key => $mock)
 			addInlineJavaScript('
 	current_attachments.push({

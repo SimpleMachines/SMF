@@ -1098,6 +1098,9 @@ function getAttachMsgInfo($attachID)
 	if (empty($attachID))
 		return array();
 
+	if (!isset($context['loaded_attachments']))
+		$context['loaded_attachments'] = array();
+
 	foreach ($context['loaded_attachments'] as $msgRows)
 	{
 		if (empty($msgRows[$attachID]))
@@ -1328,7 +1331,10 @@ function prepareAttachsByMsg($msgIDs)
 		$context['loaded_attachments'] = array();
 	// Remove all $msgIDs that we already processed
 	else
-		$msgIDs = array_diff($msgIDs, array_keys($context['loaded_attachments']));
+		$msgIDs = array_diff($msgIDs, array_keys($context['loaded_attachments']), array(0));
+
+	if (!empty($context['preview_message']))
+		$msgIDs[] = 0;
 
 	if (!empty($msgIDs))
 	{
@@ -1341,7 +1347,7 @@ function prepareAttachsByMsg($msgIDs)
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 			WHERE a.attachment_type = {int:attachment_type}
-				AND a.id_msg ' . (!empty($context['preview_message']) ? 'IN (0, {array_int:message_id})' : 'IN ({array_int:message_id})'),
+				AND a.id_msg IN ({array_int:message_id})',
 			array(
 				'message_id' => $msgIDs,
 				'attachment_type' => 0,
