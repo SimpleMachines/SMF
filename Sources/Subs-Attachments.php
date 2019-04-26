@@ -976,19 +976,20 @@ function parseAttachBBC($attachID = 0)
 	if ($view_attachment_boards !== array(0) && !in_array($attachInfo['board'], $view_attachment_boards))
 		return 'attachments_not_allowed_to_see';
 
-	$allAttachments = getAttachsByMsg($attachInfo['msg']);
+	if (empty($context['loaded_attachments'][$attachInfo['msg']]))
+		prepareAttachsByMsg(array($attachInfo['msg']));
 
-	if (isset($allAttachments[$attachInfo['msg']][$attachID]))
-		$attachContext = $allAttachments[$attachInfo['msg']][$attachID];
+	if (isset($context['loaded_attachments'][$attachInfo['msg']][$attachID]))
+		$attachContext = $context['loaded_attachments'][$attachInfo['msg']][$attachID];
 
 	// In case the user manually typed the thumbnail's ID into the BBC
-	elseif (!empty($allAttachments[$attachInfo['msg']]))
+	elseif (!empty($context['loaded_attachments'][$attachInfo['msg']]))
 	{
-		foreach ($allAttachments[$attachInfo['msg']] as $foundAttachID => $foundAttach)
+		foreach ($context['loaded_attachments'][$attachInfo['msg']] as $foundAttachID => $foundAttach)
 		{
 			if ($foundAttach['id_thumb'] == $attachID)
 			{
-				$attachContext = $allAttachments[$attachInfo['msg']][$foundAttachID];
+				$attachContext = $context['loaded_attachments'][$attachInfo['msg']][$foundAttachID];
 				$attachID = $foundAttachID;
 				break;
 			}
@@ -997,7 +998,7 @@ function parseAttachBBC($attachID = 0)
 
 	// Load this particular attach's context.
 	if (!empty($attachContext))
-		$attachLoaded = loadAttachmentContext($attachContext['id_msg'], $allAttachments);
+		$attachLoaded = loadAttachmentContext($attachContext['id_msg'], $context['loaded_attachments']);
 
 	// One last check, you know, gotta be paranoid...
 	else
@@ -1092,10 +1093,24 @@ function getRawAttachInfo($attachIDs)
  */
 function getAttachMsgInfo($attachID)
 {
-	global $smcFunc;
+	global $smcFunc, $context;
 
 	if (empty($attachID))
 		return array();
+
+	foreach ($context['loaded_attachments'] as $msgRows)
+	{
+		if (empty($msgRows[$attachID]))
+			continue;
+
+		$row = array(
+			'msg' => $msgRows[$attachID]['id_msg'],
+			'topic' => $msgRows[$attachID]['topic'],
+			'board' => $msgRows[$attachID]['board'],
+		);
+
+		return $row;
+	}
 
 	$request = $smcFunc['db_query']('', '
 		SELECT a.id_msg AS msg, m.id_topic AS topic, m.id_board AS board
@@ -1115,54 +1130,6 @@ function getAttachMsgInfo($attachID)
 	$smcFunc['db_free_result']($request);
 
 	return $row;
-}
-
-/**
- * Gets attachment info associated with a message ID
- *
- * @param int $msgID the message ID to load info from.
- *
- * @return array.
- */
-function getAttachsByMsg($msgID)
-{
-	global $context, $modSettings, $smcFunc, $user_info;
-	static $attached = array();
-
-	if (!isset($attached[$msgID]))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT
-				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board, m.id_member,
-				a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
-				COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
-			FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
-				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
-				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-			WHERE a.attachment_type = {int:attachment_type}
-				AND a.id_msg ' . (!empty($context['preview_message']) ? 'IN (0, {int:message_id})' : '= {int:message_id}'),
-			array(
-				'message_id' => $msgID,
-				'attachment_type' => 0,
-			)
-		);
-		$temp = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-		{
-			if (!$row['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts') && $row['id_member'] != $user_info['id'])
-				continue;
-
-			$temp[$row['id_attach']] = $row;
-		}
-		$smcFunc['db_free_result']($request);
-
-		// This is better than sorting it with the query...
-		ksort($temp);
-
-		$attached[$msgID] = $temp;
-	}
-
-	return $attached;
 }
 
 /**
@@ -1344,6 +1311,60 @@ function loadAttachmentContext($id_msg, $attachments)
 		});
 
 	return $attachmentData;
+}
+
+/**
+ * prepare the Attachment api for all messages
+ *
+ * @param int array $msgIDs the message ID to load info from.
+ *
+ * @return void.
+ */
+function prepareAttachsByMsg($msgIDs)
+{
+	global $context, $modSettings, $smcFunc, $user_info;
+
+	if (empty($context['loaded_attachments']))
+		$context['loaded_attachments'] = array();
+	// Remove all $msgIDs that we already processed
+	else
+		$msgIDs = array_diff($msgIDs, array_keys($context['loaded_attachments']), array(0));
+
+	if (!empty($msgIDs))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT
+				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board, m.id_member,
+				a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
+				COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
+			FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
+				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
+				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+			WHERE a.attachment_type = {int:attachment_type}
+				AND a.id_msg ' . (!empty($context['preview_message']) ? 'IN (0, {array_int:message_id})' : 'IN ({array_int:message_id})'),
+			array(
+				'message_id' => $msgIDs,
+				'attachment_type' => 0,
+			)
+		);
+		$rows = $smcFunc['db_fetch_all']($request);
+		$smcFunc['db_free_result']($request);
+
+		foreach ($rows as $row)
+		{
+			// Skip unapproved ones, unless they belong to the user or the user can approve them.
+			if (!$row['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts') && $row['id_member'] != $user_info['id'])
+				continue;
+
+			if (empty($context['loaded_attachments'][$row['id_msg']]))
+				$context['loaded_attachments'][$row['id_msg']] = array();
+
+			$context['loaded_attachments'][$row['id_msg']][$row['id_attach']] = $row;
+
+			// This is better than sorting it with the query...
+			ksort($context['loaded_attachments'][$row['id_msg']]);
+		}
+	}
 }
 
 ?>

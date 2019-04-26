@@ -1159,41 +1159,8 @@ function Display()
 		// Fetch attachments.
 		if (!empty($modSettings['attachmentEnable']) && allowedTo('view_attachments'))
 		{
-			$request = $smcFunc['db_query']('', '
-				SELECT
-					a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved,
-					a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
-					COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
-				FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
-					LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
-				WHERE a.id_msg IN ({array_int:message_list})
-					AND a.attachment_type = {int:attachment_type}',
-				array(
-					'message_list' => $messages,
-					'attachment_type' => 0,
-					'is_approved' => 1,
-				)
-			);
-			$temp = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-			{
-				if (!$row['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts') && (!isset($all_posters[$row['id_msg']]) || $all_posters[$row['id_msg']] != $user_info['id']))
-					continue;
-
-				$temp[$row['id_attach']] = $row;
-				$temp[$row['id_attach']]['topic'] = $topic;
-				$temp[$row['id_attach']]['board'] = $board;
-
-				if (!isset($context['loaded_attachments'][$row['id_msg']]))
-					$context['loaded_attachments'][$row['id_msg']] = array();
-			}
-			$smcFunc['db_free_result']($request);
-
-			// This is better than sorting it with the query...
-			ksort($temp);
-
-			foreach ($temp as $row)
-				$context['loaded_attachments'][$row['id_msg']][] = $row;
+			require_once($sourcedir . '/Subs-Attachments.php');
+			prepareAttachsByMsg($messages);
 		}
 
 		$msg_parameters = array(
