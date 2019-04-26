@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -237,12 +237,10 @@ function template_merge()
 				<div class="windowbg">
 					<ul class="merge_topics">';
 
-		$merge_button = create_button('merge', 'merge', '');
-
 		foreach ($context['topics'] as $topic)
 			echo '
 						<li>
-							<a href="', $scripturl, '?action=mergetopics;sa=options;board=', $context['current_board'], '.0;from=', $context['origin_topic'], ';to=', $topic['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $merge_button, '</a>
+							<a href="', $scripturl, '?action=mergetopics;sa=options;board=', $context['current_board'], '.0;from=', $context['origin_topic'], ';to=', $topic['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="main_icons merge"></span></a>
 							<a href="', $scripturl, '?topic=', $topic['id'], '.0" target="_blank" rel="noopener">', $topic['subject'], '</a> ', $txt['started_by'], ' ', $topic['poster']['link'], '
 						</li>';
 

@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -373,10 +373,6 @@ function template_unapproved_posts()
 				<h3 class="catbg">', $txt['mc_unapproved_posts'], '</h3>
 			</div>';
 
-	// Make up some buttons
-	$approve_button = create_button('approve', 'approve', 'approve');
-	$remove_button = create_button('delete', 'remove_message', 'remove');
-
 	// No posts?
 	if (empty($context['unapproved_items']))
 		echo '
@@ -393,6 +389,24 @@ function template_unapproved_posts()
 
 	foreach ($context['unapproved_items'] as $item)
 	{
+		// The buttons
+		$quickbuttons = array(
+			'approve' => array(
+				'label' => $txt['approve'],
+				'href' => $scripturl.'?action=moderate;area=postmod;sa='.$context['current_view'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'].';approve='.$item['id'],
+				'icon' => 'approve',
+			),
+			'delete' => array(
+				'label' => $txt['remove'],
+				'href' => $scripturl.'?action=moderate;area=postmod;sa='.$context['current_view'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'].';delete='.$item['id'],
+				'icon' => 'remove_button',
+				'show' => $item['can_delete']
+			),
+			'quickmod' => array(
+				'content' => '<input type="checkbox" name="item[]" value="'.$item['id'].'" checked>',
+				'show' => !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1
+			),
+		);
 		echo '
 			<div class="windowbg clear">
 				<div class="counter">', $item['counter'], '</div>
@@ -405,20 +419,7 @@ function template_unapproved_posts()
 				<div class="list_posts">
 					<div class="post">', $item['body'], '</div>
 				</div>
-				<span class="floatright">
-					<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';approve=', $item['id'], '">', $approve_button, '</a>';
-
-		if ($item['can_delete'])
-			echo '
-					', $context['menu_separator'], '
-					<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';delete=', $item['id'], '">', $remove_button, '</a>';
-
-		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
-			echo '
-					<input type="checkbox" name="item[]" value="', $item['id'], '" checked> ';
-
-		echo '
-				</span>
+				', template_quickbuttons($quickbuttons, 'unapproved_posts'), '
 			</div><!-- .windowbg -->';
 	}
 
@@ -462,10 +463,21 @@ function template_user_watch_post_callback($post)
 {
 	global $scripturl, $context, $txt, $delete_button;
 
-	// We'll have a delete please bob.
+	// We'll have a delete and a checkbox please bob.
 	// @todo Discuss this with the team and rewrite if required.
-	if (empty($delete_button))
-		$delete_button = create_button('delete', 'remove_message', 'remove', 'class="centericon"');
+	$quickbuttons = array(
+		'delete' => array(
+			'label' => $txt['remove_message'],
+			'href' => $scripturl.'?action=moderate;area=userwatch;sa=post;delete='.$post['id'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'],
+			'javascript' => 'data-confirm="' . $txt['mc_watched_users_delete_post'] . '" class="you_sure"',
+			'icon' => 'remove_button',
+			'show' => $post['can_delete']
+		),
+		'quickmod' => array(
+			'content' => '<input type="checkbox" name="delete[]" value="' . $post['id'] . '">',
+			'show' => $post['can_delete']
+		)
+	);
 
 	$output_html = '
 					<div>
@@ -474,10 +486,7 @@ function template_user_watch_post_callback($post)
 						</div>
 						<div class="floatright">';
 
-	if ($post['can_delete'])
-		$output_html .= '
-							<a href="' . $scripturl . '?action=moderate;area=userwatch;sa=post;delete=' . $post['id'] . ';start=' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['mc_watched_users_delete_post'] . '" class="you_sure">' . $delete_button . '</a>
-							<input type="checkbox" name="delete[]" value="' . $post['id'] . '">';
+	$output_html .= template_quickbuttons($quickbuttons, 'user_watch_post', 'return');
 
 	$output_html .= '
 						</div>

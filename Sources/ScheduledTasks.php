@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -247,14 +247,9 @@ function scheduled_daily_maintenance()
 	// Run Imageproxy housekeeping
 	if (!empty($image_proxy_enabled))
 	{
-		global $proxyhousekeeping;
-		$proxyhousekeeping = true;
-
 		require_once($boarddir . '/proxy.php');
 		$proxy = new ProxyServer();
 		$proxy->housekeeping();
-
-		unset($proxyhousekeeping);
 	}
 
 	// Log we've done it...

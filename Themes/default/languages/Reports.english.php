@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; Reports
+// Version: 2.1 RC2; Reports
 
 $txt['generate_reports_desc'] = 'From this section you can generate a variety of reports to assist in the administration of your forum. Simply follow the steps below to select the option of your choice.';
 $txt['generate_reports_continue'] = 'Continue';
@@ -129,14 +129,26 @@ $txt['group_perms_name_search_posts'] = 'Search for posts';
 $txt['group_perms_name_send_email_to_members'] = 'Send a forum email to members';
 $txt['group_perms_name_view_mlist'] = 'View the memberlist';
 $txt['group_perms_name_view_stats'] = 'View forum stats';
+$txt['group_perms_name_view_warning_any'] = 'View anyone\'s warning status';
+$txt['group_perms_name_view_warning_own'] = 'View own warning status';
 $txt['group_perms_name_who_view'] = 'See who\'s online';
+$txt['group_perms_name_profile_blurb_any'] = 'Edit anyone\'s personal text';
 $txt['group_perms_name_profile_blurb_own'] = 'Edit own personal text';
+$txt['group_perms_name_profile_displayed_name_any'] = 'Edit anyone\'s displayed name';
 $txt['group_perms_name_profile_displayed_name_own'] = 'Edit own displayed name';
+$txt['group_perms_name_profile_forum_any'] = 'Edit anyone\'s forum profile';
 $txt['group_perms_name_profile_forum_own'] = 'Allow Forum own Profile edits';
+$txt['group_perms_name_profile_password_any'] = 'Change anyone\'s password and secret question';
 $txt['group_perms_name_profile_password_own'] = 'Change own password';
+$txt['group_perms_name_profile_signature_any'] = 'Edit anyone\'s signature';
 $txt['group_perms_name_profile_signature_own'] = 'Edit own signature';
+$txt['group_perms_name_profile_website_any'] = 'Edit anyone\'s website field';
 $txt['group_perms_name_profile_website_own'] = 'Edit own website';
 $txt['group_perms_name_bbc'] = 'Use the [%1$s] BBCode';
+$txt['group_perms_name_likes_like'] = 'Like any content';
+$txt['group_perms_name_mention'] = 'Mention others via @name';
+$txt['group_perms_name_report_user'] = 'Report users';
+$txt['group_perms_name_send_mail'] = 'Send a forum email to members';
 
 $txt['report_error_too_many_staff'] = 'You have too many staff members. The report will not work with more than 300 staff members.';
 $txt['report_staff_position'] = 'Position';

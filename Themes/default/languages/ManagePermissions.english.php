@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; ManagePermissions
+// Version: 2.1 RC2; ManagePermissions
 
 $txt['permissions_title'] = 'Manage Permissions';
 $txt['permissions_modify'] = 'Modify';
@@ -121,7 +121,7 @@ $txt['permissiongroup_maintenance'] = 'Forum administration';
 $txt['permissionname_admin_forum'] = 'Administrate forum and database';
 $txt['permissionhelp_admin_forum'] = 'This permission allows a user to:<ul class="normallist"><li>change forum, database and theme settings</li><li>manage packages</li><li>use the forum and database maintenance tools</li><li>view the error and mod logs</li></ul> Use this permission with caution, as it is very powerful.';
 $txt['permissionname_manage_boards'] = 'Manage boards and categories';
-$txt['permissionhelp_manage_boards'] = 'This permission allows creation, editing and removal of boards and categories.';
+$txt['permissionhelp_manage_boards'] = 'This permission allows creation, editing, and removal of boards and categories.<br><br>Users with this permission can see all boards.';
 $txt['permissionname_manage_attachments'] = 'Manage attachments and avatars';
 $txt['permissionhelp_manage_attachments'] = 'This permission allows access to the attachment center, where all forum attachments and avatars are listed and can be removed.';
 $txt['permissionname_manage_smileys'] = 'Manage smileys and message icons';

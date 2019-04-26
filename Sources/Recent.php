@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -417,13 +417,18 @@ function RecentPosts()
 		)
 	);
 
+	// Create an array for the permissions.
+	$boards_can = boardsAllowedTo(array_keys(iterator_to_array(
+		new RecursiveIteratorIterator(new RecursiveArrayIterator($permissions)))
+	), true, false);
+
 	// Now go through all the permissions, looking for boards they can do it on.
 	foreach ($permissions as $type => $list)
 	{
 		foreach ($list as $permission => $allowed)
 		{
 			// They can do it on these boards...
-			$boards = boardsAllowedTo($permission);
+			$boards = $boards_can[$permission];
 
 			// If 0 is the only thing in the array, they can do it everywhere!
 			if (!empty($boards) && $boards[0] == 0)
@@ -452,6 +457,32 @@ function RecentPosts()
 
 		// And some cannot be quoted...
 		$context['posts'][$counter]['can_quote'] = $context['posts'][$counter]['can_reply'] && $quote_enabled;
+	}
+
+	// Last but not least, the quickbuttons
+	foreach ($context['posts'] as $key => $post)
+	{
+		$context['posts'][$key]['quickbuttons'] = array(
+			'reply' => array(
+				'label' => $txt['reply'],
+				'href' => $scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'],
+				'icon' => 'reply_button',
+				'show' => $post['can_reply']
+			),
+			'quote' => array(
+				'label' => $txt['quote_action'],
+				'href' => $scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'].';quote='.$post['id'],
+				'icon' => 'quote',
+				'show' => $post['can_quote']
+			),
+			'delete' => array(
+				'label' => $txt['remove'],
+				'href' => $scripturl.'?action=deletemsg;msg='.$post['id'].';topic='.$post['topic'].';recent;'.$context['session_var'].'='.$context['session_id'],
+				'javascript' => 'data-confirm="'.$txt['remove_message'].'" class="you_sure"',
+				'icon' => 'remove_button',
+				'show' => $post['can_delete']
+			),
+		);
 	}
 
 	// Allow last minute changes.

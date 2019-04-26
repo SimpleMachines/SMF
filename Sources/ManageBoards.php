@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -580,9 +580,10 @@ function EditBoard()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme AS id, value AS name
 		FROM {db_prefix}themes
-		WHERE variable = {string:name}',
+		WHERE variable = {literal:name}
+			AND id_theme IN ({array_int:enable_themes})',
 		array(
-			'name' => 'name',
+			'enable_themes' => explode(',', $modSettings['enableThemes']),
 		)
 	);
 	$context['themes'] = array();
@@ -662,15 +663,6 @@ function EditBoard2()
 				elseif ($action == 'deny')
 					$boardOptions['deny_groups'][] = (int) $group;
 			}
-
-		// People with manage-boards are special.
-		require_once($sourcedir . '/Subs-Members.php');
-		$board_managers = groupsAllowedTo('manage_boards', null);
-		$board_managers = array_diff($board_managers['allowed'], array(1)); // We don't need to list admins anywhere.
-		// Firstly, we can't ever deny them.
-		$boardOptions['deny_groups'] = array_diff($boardOptions['deny_groups'], $board_managers);
-		// Secondly, make sure those with super cow powers (like apt-get, or in this case manage boards) are upgraded.
-		$boardOptions['access_groups'] = array_unique(array_merge($boardOptions['access_groups'], $board_managers));
 
 		if (strlen(implode(',', $boardOptions['access_groups'])) > 255 || strlen(implode(',', $boardOptions['deny_groups'])) > 255)
 			fatal_lang_error('too_many_groups', false);

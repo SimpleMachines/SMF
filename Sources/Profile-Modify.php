@@ -12,7 +12,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -1314,7 +1314,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			);
 			if (empty($value))
 			{
-				$deletes = array('id_theme' => 1, 'variable' => $row['col_name'], 'id_member' => $memID);
+				$deletes[] = array('id_theme' => 1, 'variable' => $row['col_name'], 'id_member' => $memID);
 				unset($user_profile[$memID]['options'][$row['col_name']]);
 			}
 			else
@@ -1342,13 +1342,14 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				array('id_theme', 'variable', 'id_member')
 			);
 		if (!empty($deletes))
-			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}themes
-				WHERE id_theme = {int:id_theme} AND
-					variable = {string:variable} AND
-					id_member = {int:id_member}',
-				$deletes
-			);
+			foreach ($deletes as $delete)
+				$smcFunc['db_query']('', '
+					DELETE FROM {db_prefix}themes
+					WHERE id_theme = {int:id_theme}
+						AND variable = {string:variable}
+						AND id_member = {int:id_member}',
+					$delete
+				);
 		if (!empty($log_changes) && !empty($modSettings['modlog_enabled']))
 		{
 			require_once($sourcedir . '/Logging.php');
@@ -1975,6 +1976,7 @@ function alert_configuration($memID)
 		'alert_timeout' => isset($context['alert_prefs']['alert_timeout']) ? $context['alert_prefs']['alert_timeout'] : 10,
 		'notify_announcements' => isset($context['alert_prefs']['announcements']) ? $context['alert_prefs']['announcements'] : 0,
 	);
+	$context['can_disable_announce'] = $memID == 0 || !empty($modSettings['allow_disableAnnounce']);
 
 	// Now for the exciting stuff.
 	// We have groups of items, each item has both an alert and an email key as well as an optional help string.
@@ -2737,10 +2739,9 @@ function list_getTopicNotificationCount($memID)
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_notify AS ln' . (!$modSettings['postmod_active'] && $user_info['query_see_board'] === '1=1' ? '' : '
-			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)') . ($user_info['query_see_board'] === '1=1' ? '' : '
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)') . '
-		WHERE ln.id_member = {int:selected_member}' . ($user_info['query_see_board'] === '1=1' ? '' : '
-			AND {query_see_board}') . ($modSettings['postmod_active'] ? '
+			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)') . '
+		WHERE ln.id_member = {int:selected_member}' . ($user_info['query_see_topic_board'] === '1=1' ? '' : '
+			AND {query_see_topic_board}') . ($modSettings['postmod_active'] ? '
 			AND t.approved = {int:is_approved}' : ''),
 		array(
 			'selected_member' => $memID,
@@ -4244,10 +4245,9 @@ function tfasetup($memID)
 			$code = $_POST['tfa_code'];
 			$totp = new \TOTP\Auth($_SESSION['tfa_secret']);
 			$totp->setRange(1);
-			$valid_password = hash_verify_password($user_settings['member_name'], trim($_POST['passwd']), $user_settings['passwd']);
 			$valid_code = strlen($code) == $totp->getCodeLength() && $totp->validateCode($code);
 
-			if ($valid_password && $valid_code)
+			if (empty($context['password_auth_failed']) && $valid_code)
 			{
 				$backup = substr(sha1($smcFunc['random_int']()), 0, 16);
 				$backup_encrypted = hash_password($user_settings['member_name'], $backup);
@@ -4270,7 +4270,6 @@ function tfasetup($memID)
 			{
 				$context['tfa_secret'] = $_SESSION['tfa_secret'];
 				$context['tfa_error'] = !$valid_code;
-				$context['tfa_pass_error'] = !$valid_password;
 				$context['tfa_pass_value'] = $_POST['passwd'];
 				$context['tfa_value'] = $_POST['tfa_code'];
 			}

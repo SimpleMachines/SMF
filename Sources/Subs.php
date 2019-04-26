@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -1021,7 +1021,7 @@ function permute($array)
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
 	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
-	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
+	static $bbc_lang_locales = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled, $alltags_regex = '', $param_regexes = array();
 
 	// Don't waste cycles
@@ -1053,12 +1053,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		return $message;
 	}
 
-	// If we are not doing every tag then we don't cache this run.
-	if (!empty($parse_tags) && !empty($bbc_codes))
-	{
-		$temp_bbc = $bbc_codes;
+	// If we already have a version of the BBCodes for the current language, use that. Otherwise, make one.
+	if (!empty($bbc_lang_locales[$txt['lang_locale']]))
+		$bbc_codes = $bbc_lang_locales[$txt['lang_locale']];
+	else
 		$bbc_codes = array();
-	}
+
+	// If we are not doing every tag then we don't cache this run.
+	if (!empty($parse_tags))
+		$bbc_codes = array();
 
 	// Ensure $modSettings['tld_regex'] contains a valid regex for the autolinker
 	if (!empty($modSettings['autoLinkUrls']))
@@ -1926,8 +1929,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		// This is mainly for the bbc manager, so it's easy to add tags above.  Custom BBC should be added above this line.
 		if ($message === false)
 		{
-			if (isset($temp_bbc))
-				$bbc_codes = $temp_bbc;
 			usort($codes, function($a, $b)
 			{
 				return strcmp($a['tag'], $b['tag']);
@@ -2173,100 +2174,118 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					// Parse any URLs
 					if (!isset($disabled['url']) && strpos($data, '[url') === false)
 					{
-						$url_regex = '
-						(?:
-							# IRIs with a scheme (or at least an opening "//")
-							(?:
-								# URI scheme (or lack thereof for schemeless URLs)
-								(?:
-									# URL scheme and colon
-									\b[a-z][\w\-]+:
-									| # or
-									# A boundary followed by two slashes for schemeless URLs
-									(?<=^|\W)(?=//)
-								)
+						// For efficiency, first define the TLD regex in a PCRE subroutine
+						$url_regex = '(?(DEFINE)(?<tlds>' . $modSettings['tld_regex'] . '))';
 
-								# IRI "authority" chunk
-								(?:
-									# 2 slashes for IRIs with an "authority"
-									//
-									# then a domain name
-									(?:
-										# Either the reserved "localhost" domain name
-										localhost
-										| # or
-										# a run of Unicode domain name characters and a dot
-										[\p{L}\p{M}\p{N}\-.:@]+\.
-										# and then a TLD valid in the DNS or the reserved "local" TLD
-										(?:' . $modSettings['tld_regex'] . '|local)
-									)
-									# followed by a non-domain character or end of line
-									(?=[^\p{L}\p{N}\-.]|$)
+						// Now build the rest of the regex
+						$url_regex .=
+						// 1. IRI scheme and domain components
+						'(?:' .
+							// 1a. IRIs with a scheme, or at least an opening "//"
+							'(?:' .
 
-									| # Or, if there is no "authority" per se (e.g. mailto: URLs) ...
+								// URI scheme (or lack thereof for schemeless URLs)
+								'(?:' .
+									// URL scheme and colon
+									'\b[a-z][\w\-]+:' .
+									// or
+									'|' .
+									// A boundary followed by two slashes for schemeless URLs
+									'(?<=^|\W)(?=//)' .
+								')' .
 
-									# a run of IRI characters
-									[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.:@]+[\p{L}\p{M}\p{N}]
-									# and then a dot and a closing IRI label
-									\.[\p{L}\p{M}\p{N}\-]+
-								)
-							)
+								// IRI "authority" chunk
+								'(?:' .
+									// 2 slashes for IRIs with an "authority"
+									'//' .
+									// then a domain name
+									'(?:' .
+										// Either the reserved "localhost" domain name
+										'localhost' .
+										// or
+										'|' .
+										// a run of Unicode domain name characters and a dot
+										'[\p{L}\p{M}\p{N}\-.:@]+\.' .
+										// and then a TLD
+										'(?:' .
+											// Either a TLD valid in the DNS
+											'(?P>tlds)' .
+											// or
+											'|' .
+											// the reserved "local" TLD
+											'local' .
+										')' .
+									')' .
+									// followed by a non-domain character or end of line
+									'(?=[^\p{L}\p{N}\-.]|$)' .
 
-							| # or
+									// or, if no "authority" per se (e.g. "mailto:" URLs)...
+									'|' .
 
-							# Naked domains (e.g. "example.com" in "Go to example.com for an example.")
-							(?:
-								# Preceded by start of line or a non-domain character
-								(?<=^|[^\p{L}\p{M}\p{N}\-:@])
+									// a run of IRI characters
+									'[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.:@]+[\p{L}\p{M}\p{N}]' .
+									// and then a dot and a closing IRI label
+									'\.[\p{L}\p{M}\p{N}\-]+' .
+								')' .
+							')' .
 
-								# A run of Unicode domain name characters (excluding [:@])
-								[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.]+[\p{L}\p{M}\p{N}]
-								# and then a dot and a valid TLD
-								\.' . $modSettings['tld_regex'] . '
+							// Or
+							'|' .
 
-								# Followed by either:
-								(?=
-									# end of line or a non-domain character (excluding [.:@])
-									$|[^\p{L}\p{N}\-]
-									| # or
-									# a dot followed by end of line or a non-domain character (excluding [.:@])
-									\.(?=$|[^\p{L}\p{N}\-])
-								)
-							)
-						)
+							// 1b. Naked domains (e.g. "example.com" in "Go to example.com for an example.")
+							'(?:' .
+								// Preceded by start of line or a non-domain character
+								'(?<=^|[^\p{L}\p{M}\p{N}\-:@])' .
+								// A run of Unicode domain name characters (excluding [:@])
+								'[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.]+[\p{L}\p{M}\p{N}]' .
+								// and then a dot and a valid TLD
+								'\.(?P>tlds)' .
+								// Followed by either:
+								'(?=' .
+									// end of line or a non-domain character (excluding [.:@])
+									'$|[^\p{L}\p{N}\-]' .
+									// or
+									'|' .
+									// a dot followed by end of line or a non-domain character (excluding [.:@])
+									'\.(?=$|[^\p{L}\p{N}\-])' .
+								')' .
+							')' .
+						')' .
 
-						# IRI path, query, and fragment (if present)
-						(?:
-							# If any of these parts exist, must start with a single /
-							/
+						// 2. IRI path, query, and fragment components (if present)
+						'(?:' .
 
-							# And then optionally:
-							(?:
-								# One or more of:
-								(?:
-									# a run of non-space, non-()<>
-									[^\s()<>]+
-									| # or
-									# balanced parens, up to 2 levels
-									\(([^\s()<>]+|(\([^\s()<>]+\)))*\)
-								)+
+							// If any of these parts exist, must start with a single "/"
+							'/' .
 
-								# End with:
-								(?:
-									# balanced parens, up to 2 levels
-									\(([^\s()<>]+|(\([^\s()<>]+\)))*\)
-									| # or
-									# not a space or one of these punct char
-									[^\s`!()\[\]{};:\'".,<>?«»“”‘’/]
-									| # or
-									# a trailing slash (but not two in a row)
-									(?<!/)/
-								)
-							)?
-						)?
-						';
+							// And then optionally:
+							'(?:' .
+								// One or more of:
+								'(?:' .
+									// a run of non-space, non-()<>
+									'[^\s()<>]+' .
+									// or
+									'|' .
+									// balanced parentheses, up to 2 levels
+									'\(([^\s()<>]+|(\([^\s()<>]+\)))*\)' .
+								')+' .
+								// Ending with:
+								'(?:' .
+									// balanced parentheses, up to 2 levels
+									'\(([^\s()<>]+|(\([^\s()<>]+\)))*\)' .
+									// or
+									'|' .
+									// not a space or one of these punctuation characters
+									'[^\s`!()\[\]{};:\'".,<>?«»“”‘’/]' .
+									// or
+									'|' .
+									// a trailing slash (but not two in a row)
+									'(?<!/)/' .
+								')' .
+							')?' .
+						')?';
 
-						$data = preg_replace_callback('~' . $url_regex . '~xi' . ($context['utf8'] ? 'u' : ''), function($matches)
+						$data = preg_replace_callback('~' . $url_regex . '~i' . ($context['utf8'] ? 'u' : ''), function($matches)
 						{
 							$url = array_shift($matches);
 
@@ -2971,22 +2990,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	// If this was a force parse revert if needed.
 	if (!empty($parse_tags))
 	{
-		if (empty($temp_bbc))
-			$bbc_codes = array();
-		else
-		{
-			$bbc_codes = $temp_bbc;
-			unset($temp_bbc);
-		}
-
-		if (empty($real_alltags_regex))
-			$alltags_regex = '';
-		else
-		{
-			$alltags_regex = $real_alltags_regex;
-			unset($real_alltags_regex);
-		}
+		$alltags_regex = empty($real_alltags_regex) ? '' : $real_alltags_regex;
+		unset($real_alltags_regex);
 	}
+	elseif (!empty($bbc_codes))
+		$bbc_lang_locales[$txt['lang_locale']] = $bbc_codes;
 
 	return $message;
 }
@@ -3218,7 +3226,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
  */
 function obExit($header = null, $do_footer = null, $from_index = false, $from_fatal_error = false)
 {
-	global $context, $settings, $modSettings, $txt, $smcFunc;
+	global $context, $settings, $modSettings, $txt, $smcFunc, $should_log;
 	static $header_done = false, $footer_done = false, $level = 0, $has_fatal_error = false;
 
 	// Attempt to prevent a recursive loop.
@@ -3295,7 +3303,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	}
 
 	// Remember this URL in case someone doesn't like sending HTTP_REFERER.
-	if (strpos($_SERVER['REQUEST_URL'], 'action=dlattach') === false && strpos($_SERVER['REQUEST_URL'], 'action=viewsmfile') === false)
+	if ($should_log)
 		$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];
 
 	// For session check verification.... don't switch browsers...
@@ -3800,8 +3808,9 @@ function template_footer()
 	$context['load_time'] = round(microtime(true) - $time_start, 3);
 	$context['load_queries'] = $db_count;
 
-	foreach (array_reverse($context['template_layers']) as $layer)
-		loadSubTemplate($layer . '_below', true);
+	if (!empty($context['template_layers']) && is_array($context['template_layers']))
+		foreach (array_reverse($context['template_layers']) as $layer)
+			loadSubTemplate($layer . '_below', true);
 }
 
 /**
@@ -3938,9 +3947,10 @@ function template_css()
 	$toMinify = array();
 	$normal = array();
 
-	ksort($context['css_files_order']);
-	$context['css_files'] = array_merge(array_flip($context['css_files_order']), $context['css_files']);
-
+	usort($context['css_files'], function ($a, $b)
+	{
+		return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
+	});
 	foreach ($context['css_files'] as $id => $file)
 	{
 		// Last minute call! allow theme authors to disable single files.
@@ -4410,6 +4420,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 /**
  * Creates an image/text button
  *
+ * @deprecated since 2.1
  * @param string $name The name of the button (should be a main_icons class or the name of an image)
  * @param string $alt The alt text
  * @param string $label The $txt string to use as the label
@@ -6500,17 +6511,12 @@ function build_query_board($userid)
 	global $user_info, $modSettings, $smcFunc, $db_prefix;
 
 	$query_part = array();
-	$groups = array();
-	$is_admin = false;
-	$mod_cache;
-	$ignoreboards;
 
 	// If we come from cron, we can't have a $user_info.
 	if (isset($user_info['id']) && $user_info['id'] == $userid)
 	{
 		$groups = $user_info['groups'];
-		$is_admin = $user_info['is_admin'];
-		$mod_cache = !empty($user_info['mod_cache']) ? $user_info['mod_cache'] : null;
+		$can_see_all_boards = $user_info['is_admin'] || $user_info['can_manage_boards'];
 		$ignoreboards = !empty($user_info['ignoreboards']) ? $user_info['ignoreboards'] : null;
 	}
 	else
@@ -6539,46 +6545,13 @@ function build_query_board($userid)
 		foreach ($groups as $k => $v)
 			$groups[$k] = (int) $v;
 
-		$is_admin = in_array(1, $groups);
+		$can_see_all_boards = in_array(1, $groups) || (!empty($modSettings['board_manager_groups']) && count(array_intersect($groups, explode(',', $modSettings['board_manager_groups']))) > 0);
 
 		$ignoreboards = !empty($row['ignore_boards']) && !empty($modSettings['allow_ignore_boards']) ? explode(',', $row['ignore_boards']) : array();
-
-		// What boards are they the moderator of?
-		$boards_mod = array();
-
-		$request = $smcFunc['db_query']('', '
-			SELECT id_board
-			FROM {db_prefix}moderators
-			WHERE id_member = {int:current_member}',
-			array(
-				'current_member' => $userid,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$boards_mod[] = $row['id_board'];
-		$smcFunc['db_free_result']($request);
-
-		// Can any of the groups they're in moderate any of the boards?
-		$request = $smcFunc['db_query']('', '
-			SELECT id_board
-			FROM {db_prefix}moderator_groups
-			WHERE id_group IN({array_int:groups})',
-			array(
-				'groups' => $groups,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$boards_mod[] = $row['id_board'];
-		$smcFunc['db_free_result']($request);
-
-		// Just in case we've got duplicates here...
-		$boards_mod = array_unique($boards_mod);
-
-		$mod_cache['mq'] = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';
 	}
 
 	// Just build this here, it makes it easier to change/use - administrators can see all boards.
-	if ($is_admin)
+	if ($can_see_all_boards)
 		$query_part['query_see_board'] = '1=1';
 	// Otherwise just the groups in $user_info['groups'].
 	else
@@ -6612,6 +6585,9 @@ function build_query_board($userid)
 	// Ok I guess they don't want to see all the boards
 	else
 		$query_part['query_wanna_see_board'] = '(' . $query_part['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
+
+	$query_part['query_see_message_board'] = str_replace('b.', 'm.', $query_part['query_see_board']);
+	$query_part['query_see_topic_board'] = str_replace('b.', 't.', $query_part['query_see_board']);
 
 	return $query_part;
 }

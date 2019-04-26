@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; Post
+// Version: 2.1 RC2; Post
 
 global $context;
 
@@ -32,12 +32,12 @@ $txt['notifyUnsubscribe'] = 'Unsubscribe to this topic by clicking here';
 $txt['lock_after_post'] = 'Lock after Post';
 $txt['notify_replies'] = 'Notify me of replies';
 $txt['lock_topic'] = 'Lock this topic';
-$txt['shortcuts'] = 'Shortcuts: ALT+S save/post or ALT+P preview';
-$txt['shortcuts_drafts'] = 'Shortcuts: ALT+S save/post, ALT+P preview, ALT+D save draft';
-$txt['shortcuts_firefox'] = 'Shortcuts: SHIFT+ALT+S save/post, SHIFT+ALT+P preview';
-$txt['shortcuts_drafts_firefox'] = 'Shortcuts: SHIFT+ALT+S save/post, SHIFT+ALT+P preview, SHIFT+ALT+D save draft';
-$txt['shortcuts_mac'] = 'Shortcuts: ⌃⌥S save/post or ⌃⌥P preview';
-$txt['shortcuts_drafts_mac'] = 'Shortcuts: ⌃⌥S save/post, ⌃⌥P preview, ⌃⌥D save draft';
+$txt['shortcuts'] = 'Shortcuts: ALT+S post or ALT+P preview';
+$txt['shortcuts_drafts'] = 'Shortcuts: ALT+S post, ALT+P preview, ALT+D save draft';
+$txt['shortcuts_firefox'] = 'Shortcuts: SHIFT+ALT+S post, SHIFT+ALT+P preview';
+$txt['shortcuts_drafts_firefox'] = 'Shortcuts: SHIFT+ALT+S post, SHIFT+ALT+P preview, SHIFT+ALT+D save draft';
+$txt['shortcuts_mac'] = 'Shortcuts: ⌃⌥S post or ⌃⌥P preview';
+$txt['shortcuts_drafts_mac'] = 'Shortcuts: ⌃⌥S post, ⌃⌥P preview, ⌃⌥D save draft';
 $txt['option'] = 'Option';
 $txt['reset_votes'] = 'Reset vote count';
 $txt['reset_votes_check'] = 'Check this if you want to reset all vote counts to 0.';

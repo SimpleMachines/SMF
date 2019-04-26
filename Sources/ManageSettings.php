@@ -11,7 +11,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -2227,7 +2227,6 @@ function ModifyLogSettings($return_config = false)
 		array('desc', 'error_log_desc'),
 		array('check', 'enableErrorLogging'),
 		array('check', 'enableErrorQueryLogging'),
-		array('check', 'log_ban_hits'),
 		// Even do the pruning?
 		array('title', 'pruning_title'),
 		array('desc', 'pruning_desc'),
@@ -2283,7 +2282,6 @@ function ModifyLogSettings($return_config = false)
 			array('check', 'userlog_enabled'),
 			array('check', 'enableErrorLogging'),
 			array('check', 'enableErrorQueryLogging'),
-			array('check', 'log_ban_hits'),
 			array('text', 'pruningOptions')
 		);
 

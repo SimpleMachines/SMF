@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -41,28 +41,8 @@ function template_recent()
 			</div>
 			<div class="list_posts">', $post['message'], '</div>';
 
-		if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
-			echo '
-			<ul class="quickbuttons">';
-
-		// If they *can* reply?
-		if ($post['can_reply'])
-			echo '
-				<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], '"><span class="main_icons reply_button"></span>', $txt['reply'], '</a></li>';
-
-		// If they *can* quote?
-		if ($post['can_quote'])
-			echo '
-				<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], ';quote=', $post['id'], '"><span class="main_icons quote"></span>', $txt['quote_action'], '</a></li>';
-
-		// How about... even... remove it entirely?!
-		if ($post['can_delete'])
-			echo '
-				<li><a href="', $scripturl, '?action=deletemsg;msg=', $post['id'], ';topic=', $post['topic'], ';recent;', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message'], '" class="you_sure"><span class="main_icons remove_button"></span>', $txt['remove'], '</a></li>';
-
-		if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
-			echo '
-			</ul>';
+		// Post options
+		template_quickbuttons($post['quickbuttons'], 'recent');
 
 		echo '
 		</div><!-- $post[css_class] -->';

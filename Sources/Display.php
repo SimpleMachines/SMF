@@ -11,7 +11,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -199,8 +199,7 @@ function Display()
 		redirectexit('topic=' . $context['topicinfo']['id_redirect_topic'] . '.0', false, true);
 	}
 
-	// Short-cut to know if this user can see unapproved messages.
-	$approve_posts = (allowedTo('approve_posts') || $context['topicinfo']['id_member_started'] == $user_info['id']);
+	$can_approve_posts = allowedTo('approve_posts');
 
 	$context['real_num_replies'] = $context['num_replies'] = $context['topicinfo']['num_replies'];
 	$context['topic_started_time'] = timeformat($context['topicinfo']['topic_started_time']);
@@ -211,11 +210,11 @@ function Display()
 	$context['topic_unwatched'] = isset($context['topicinfo']['unwatched']) ? $context['topicinfo']['unwatched'] : 0;
 
 	// Add up unapproved replies to get real number of replies...
-	if ($modSettings['postmod_active'] && $approve_posts)
+	if ($modSettings['postmod_active'] && $can_approve_posts)
 		$context['real_num_replies'] += $context['topicinfo']['unapproved_posts'] - ($context['topicinfo']['approved'] ? 0 : 1);
 
 	// If this topic has unapproved posts, we need to work out how many posts the user can see, for page indexing.
-	if ($modSettings['postmod_active'] && $context['topicinfo']['unapproved_posts'] && !$user_info['is_guest'] && !$approve_posts)
+	if ($modSettings['postmod_active'] && $context['topicinfo']['unapproved_posts'] && !$user_info['is_guest'] && !$can_approve_posts)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(id_member) AS my_unapproved_posts
@@ -864,7 +863,7 @@ function Display()
 	$ascending = empty($options['view_newest_first']);
 
 	// Check if we can use the seek method to speed things up
-	if (isset($_SESSION['page_topic']) && $_SESSION['page_topic'] == $topic)
+	if (isset($_SESSION['page_topic']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_ascending'] == $ascending)
 	{
 		// User moved to the next page
 		if (isset($_SESSION['page_next_start']) && $_SESSION['page_next_start'] == $start)
@@ -922,7 +921,7 @@ function Display()
 			SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:current_topic}
-				AND id_msg ' . $page_operator . ' {int:page_id}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
+				AND id_msg ' . $page_operator . ' {int:page_id}' . (!$modSettings['postmod_active'] || $can_approve_posts ? '' : '
 				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 			ORDER BY id_msg ' . ($ascending_seek ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:limit}'),
@@ -982,14 +981,14 @@ function Display()
 			$ascending = !$ascending;
 			$limit = $context['total_visible_posts'] <= $start + $limit ? $context['total_visible_posts'] - $start : $limit;
 			$start = $context['total_visible_posts'] <= $start + $limit ? 0 : $context['total_visible_posts'] - $start - $limit;
-			$firstIndex = $limit - 1;
+			$firstIndex = empty($options['view_newest_first']) ? $start - 1 : $limit - 1;
 		}
 
 		// Get each post and poster in this topic.
 		$request = $smcFunc['db_query']('', '
 			SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
-			WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
+			WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $can_approve_posts ? '' : '
 				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 			ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:start}, {int:max}'),
@@ -1022,6 +1021,7 @@ function Display()
 	$_SESSION['page_next_start'] = $_REQUEST['start'] + $limit;
 	$_SESSION['page_current_start'] = $_REQUEST['start'];
 	$_SESSION['page_topic'] = $topic;
+	$_SESSION['page_ascending'] = $ascending;
 
 	$smcFunc['db_free_result']($request);
 	$posters = array_unique($all_posters);
@@ -1399,16 +1399,16 @@ function Display()
 	$context['normal_buttons'] = array();
 
 	if ($context['can_reply'])
-		$context['normal_buttons']['reply'] = array('text' => 'reply', 'image' => 'reply.png', 'url' => $scripturl . '?action=post;topic=' . $context['current_topic'] . '.' . $context['start'] . ';last_msg=' . $context['topic_last_message'], 'active' => true);
+		$context['normal_buttons']['reply'] = array('text' => 'reply', 'url' => $scripturl . '?action=post;topic=' . $context['current_topic'] . '.' . $context['start'] . ';last_msg=' . $context['topic_last_message'], 'active' => true);
 
 	if ($context['can_add_poll'])
-		$context['normal_buttons']['add_poll'] = array('text' => 'add_poll', 'image' => 'add_poll.png', 'url' => $scripturl . '?action=editpoll;add;topic=' . $context['current_topic'] . '.' . $context['start']);
+		$context['normal_buttons']['add_poll'] = array('text' => 'add_poll', 'url' => $scripturl . '?action=editpoll;add;topic=' . $context['current_topic'] . '.' . $context['start']);
 
 	if ($context['can_mark_unread'])
-		$context['normal_buttons']['mark_unread'] = array('text' => 'mark_unread', 'image' => 'markunread.png', 'url' => $scripturl . '?action=markasread;sa=topic;t=' . $context['mark_unread_time'] . ';topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']);
+		$context['normal_buttons']['mark_unread'] = array('text' => 'mark_unread', 'url' => $scripturl . '?action=markasread;sa=topic;t=' . $context['mark_unread_time'] . ';topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	if ($context['can_print'])
-		$context['normal_buttons']['print'] = array('text' => 'print', 'image' => 'print.png', 'custom' => 'rel="nofollow"', 'url' => $scripturl . '?action=printpage;topic=' . $context['current_topic'] . '.0');
+		$context['normal_buttons']['print'] = array('text' => 'print', 'custom' => 'rel="nofollow"', 'url' => $scripturl . '?action=printpage;topic=' . $context['current_topic'] . '.0');
 
 	if ($context['can_set_notify'])
 		$context['normal_buttons']['notify'] = array(
@@ -1438,33 +1438,30 @@ function Display()
 	$context['mod_buttons'] = array();
 
 	if ($context['can_move'])
-		$context['mod_buttons']['move'] = array('text' => 'move_topic', 'image' => 'admin_move.png', 'url' => $scripturl . '?action=movetopic;current_board=' . $context['current_board'] . ';topic=' . $context['current_topic'] . '.0');
+		$context['mod_buttons']['move'] = array('text' => 'move_topic', 'url' => $scripturl . '?action=movetopic;current_board=' . $context['current_board'] . ';topic=' . $context['current_topic'] . '.0');
 
 	if ($context['can_delete'])
-		$context['mod_buttons']['delete'] = array('text' => 'remove_topic', 'image' => 'admin_rem.png', 'custom' => 'data-confirm="' . $txt['are_sure_remove_topic'] . '"', 'class' => 'you_sure', 'url' => $scripturl . '?action=removetopic2;topic=' . $context['current_topic'] . '.0;' . $context['session_var'] . '=' . $context['session_id']);
+		$context['mod_buttons']['delete'] = array('text' => 'remove_topic', 'custom' => 'data-confirm="' . $txt['are_sure_remove_topic'] . '"', 'class' => 'you_sure', 'url' => $scripturl . '?action=removetopic2;topic=' . $context['current_topic'] . '.0;' . $context['session_var'] . '=' . $context['session_id']);
 
 	if ($context['can_lock'])
-		$context['mod_buttons']['lock'] = array('text' => empty($context['is_locked']) ? 'set_lock' : 'set_unlock', 'image' => 'admin_lock.png', 'url' => $scripturl . '?action=lock;topic=' . $context['current_topic'] . '.' . $context['start'] . ';sa=' . ($context['is_locked'] ? 'unlock' : 'lock') . ';' . $context['session_var'] . '=' . $context['session_id']);
+		$context['mod_buttons']['lock'] = array('text' => empty($context['is_locked']) ? 'set_lock' : 'set_unlock', 'url' => $scripturl . '?action=lock;topic=' . $context['current_topic'] . '.' . $context['start'] . ';sa=' . ($context['is_locked'] ? 'unlock' : 'lock') . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	if ($context['can_sticky'])
-		$context['mod_buttons']['sticky'] = array('text' => empty($context['is_sticky']) ? 'set_sticky' : 'set_nonsticky', 'image' => 'admin_sticky.png', 'url' => $scripturl . '?action=sticky;topic=' . $context['current_topic'] . '.' . $context['start'] . ';sa=' . ($context['is_sticky'] ? 'nonsticky' : 'sticky') . ';' . $context['session_var'] . '=' . $context['session_id']);
+		$context['mod_buttons']['sticky'] = array('text' => empty($context['is_sticky']) ? 'set_sticky' : 'set_nonsticky', 'url' => $scripturl . '?action=sticky;topic=' . $context['current_topic'] . '.' . $context['start'] . ';sa=' . ($context['is_sticky'] ? 'nonsticky' : 'sticky') . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	if ($context['can_merge'])
-		$context['mod_buttons']['merge'] = array('text' => 'merge', 'image' => 'merge.png', 'url' => $scripturl . '?action=mergetopics;board=' . $context['current_board'] . '.0;from=' . $context['current_topic']);
+		$context['mod_buttons']['merge'] = array('text' => 'merge', 'url' => $scripturl . '?action=mergetopics;board=' . $context['current_board'] . '.0;from=' . $context['current_topic']);
 
 	if ($context['calendar_post'])
-		$context['mod_buttons']['calendar'] = array('text' => 'calendar_link', 'image' => 'linktocal.png', 'url' => $scripturl . '?action=post;calendar;msg=' . $context['topic_first_message'] . ';topic=' . $context['current_topic'] . '.0');
+		$context['mod_buttons']['calendar'] = array('text' => 'calendar_link', 'url' => $scripturl . '?action=post;calendar;msg=' . $context['topic_first_message'] . ';topic=' . $context['current_topic'] . '.0');
 
 	// Restore topic. eh?  No monkey business.
 	if ($context['can_restore_topic'])
-		$context['mod_buttons']['restore_topic'] = array('text' => 'restore_topic', 'image' => '', 'url' => $scripturl . '?action=restoretopic;topics=' . $context['current_topic'] . ';' . $context['session_var'] . '=' . $context['session_id']);
+		$context['mod_buttons']['restore_topic'] = array('text' => 'restore_topic', 'url' => $scripturl . '?action=restoretopic;topics=' . $context['current_topic'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	// Show a message in case a recently posted message became unapproved.
-	$context['becomesUnapproved'] = !empty($_SESSION['becomesUnapproved']) ? true : false;
-
-	// Don't want to show this forever...
-	if ($context['becomesUnapproved'])
-		unset($_SESSION['becomesUnapproved']);
+	$context['becomesUnapproved'] = !empty($_SESSION['becomesUnapproved']);
+	unset($_SESSION['becomesUnapproved']);
 
 	// Allow adding new mod buttons easily.
 	// Note: $context['normal_buttons'] and $context['mod_buttons'] are added for backward compatibility with 2.0, but are deprecated and should not be used
@@ -1662,6 +1659,96 @@ function prepareDisplayContext($reset = false)
 		foreach ($memberContext[$message['id_member']]['custom_fields'] as $custom)
 			$output['custom_fields'][$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 
+	$output['quickbuttons'] = array(
+		'quote' => array(
+			'label' => $txt['quote_action'],
+			'href' => $scripturl.'?action=post;quote='.$output['id'].';topic='.$context['current_topic'], '.'.$context['start'].';last_msg='.$context['topic_last_message'],
+			'javascript' => 'onclick="return oQuickReply.quote('.$output['id'].');"',
+			'icon' => 'quote',
+			'show' => $context['can_quote']
+		),
+		'quote_selected' => array(
+			'label' => $txt['quote_selected_action'],
+			'id' => 'quoteSelected_'. $output['id'],
+			'href' => 'javascript:void(0)',
+			'custom' => 'style="display:none"',
+			'icon' => 'quote_selected',
+			'show' => $context['can_quote']
+		),
+		'quick_edit' => array(
+			'label' => $txt['quick_edit'],
+			'class' => 'quick_edit',
+			'id' =>' modify_button_'. $output['id'],
+			'custom' => 'onclick="oQuickModify.modifyMsg(\''.$output['id'].'\', \''.!empty($modSettings['toggle_subject']).'\')"',
+			'icon' => 'quick_edit_button',
+			'show' => $output['can_modify']
+		),
+		'more' => array(
+			'modify' => array(
+				'label' => $txt['modify'],
+				'href' => $scripturl.'?action=post;msg='.$output['id'].';topic='.$context['current_topic'].'.'.$context['start'],
+				'icon' => 'modify_button',
+				'show' => $output['can_modify']
+			),
+			'remove_topic' => array(
+				'label' => $txt['remove_topic'],
+				'href' => $scripturl.'?action=removetopic2;topic='.$context['current_topic'].'.'.$context['start'].';'.$context['session_var'].'='.$context['session_id'],
+				'javascript' => 'data-confirm="'.$txt['are_sure_remove_topic'].'" class="you_sure"',
+				'icon' => 'remove_button',
+				'show' => $context['can_delete'] && ($context['topic_first_message'] == $output['id'])
+			),
+			'remove' => array(
+				'label' => $txt['remove'],
+				'href' => $scripturl.'?action=deletemsg;topic='.$context['current_topic'].'.'.$context['start'].';msg='.$output['id'].';'.$context['session_var'].'='.$context['session_id'],
+				'javascript' => 'data-confirm="'.$txt['remove_message_question'].'" class="you_sure"',
+				'icon' => 'remove_button',
+				'show' => $output['can_remove'] && ($context['topic_first_message'] != $output['id'])
+			),
+			'split' => array(
+				'label' => $txt['split'],
+				'href' => $scripturl.'?action=splittopics;topic='.$context['current_topic'].'.0;at='.$output['id'],
+				'icon' => 'split_button',
+				'show' => $context['can_split'] && !empty($context['real_num_replies'])
+			),
+			'report' => array(
+				'label' => $txt['report_to_mod'],
+				'href' => $scripturl.'?action=reporttm;topic='.$context['current_topic'].'.'.$output['counter'].';msg='.$output['id'],
+				'icon' => 'error',
+				'show' => $context['can_report_moderator']
+			),
+			'warn' => array(
+				'label' => $txt['issue_warning'],
+				'href' => $scripturl, '?action=profile;area=issuewarning;u='.$output['member']['id'].';msg='.$output['id'],
+				'icon' => 'warn_button',
+				'show' => $context['can_issue_warning'] && !$output['is_message_author'] && !$output['member']['is_guest']
+			),
+			'restore' => array(
+				'label' => $txt['restore_message'],
+				'href' => $scripturl.'?action=restoretopic;msgs='.$output['id'].';'.$context['session_var'].'='.$context['session_id'],
+				'icon' => 'restore_button',
+				'show' => $context['can_restore_msg']
+			),
+			'approve' => array(
+				'label' => $txt['approve'],
+				'href' => $scripturl.'?action=moderate;area=postmod;sa=approve;topic='.$context['current_topic'].'.'.$context['start'].';msg='.$output['id'].';'.$context['session_var'].'='.$context['session_id'],
+				'icon' => 'approve_button',
+				'show' => $output['can_approve']
+			),
+			'unapprove' => array(
+				'label' => $txt['unapprove'],
+				'href' => $scripturl.'?action=moderate;area=postmod;sa=approve;topic='.$context['current_topic'].'.'.$context['start'].';msg='.$output['id'].';'.$context['session_var'].'='.$context['session_id'],
+				'icon' => 'unapprove_button',
+				'show' => $output['can_unapprove']
+			),
+		),
+		'quickmod' => array(
+			'id' => 'in_topic_mod_check_'. $output['id'],
+			'custom' => 'style="display: none;"',
+			'content' => '',
+			'show' => !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $output['can_remove'],
+		)
+	);
+
 	if (empty($options['view_newest_first']))
 		$counter++;
 
@@ -1682,21 +1769,6 @@ function Download()
 	global $sourcedir;
 	require_once($sourcedir . '/ShowAttachments.php');
 	showAttachment();
-}
-
-/**
- * A sort function for putting unapproved attachments first.
- *
- * @param array $a An array of info about one attachment
- * @param array $b An array of info about a second attachment
- * @return int -1 if $a is approved but $b isn't, 0 if both are approved/unapproved, 1 if $b is approved but a isn't
- */
-function approved_attach_sort($a, $b)
-{
-	if ($a['is_approved'] == $b['is_approved'])
-		return 0;
-
-	return $a['is_approved'] > $b['is_approved'] ? -1 : 1;
 }
 
 /**

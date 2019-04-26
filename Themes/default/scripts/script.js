@@ -1167,9 +1167,6 @@ var aIconLists = new Array();
 // *** IconList object.
 function IconList(oOptions)
 {
-	if (!window.XMLHttpRequest)
-		return;
-
 	this.opt = oOptions;
 	this.bListLoaded = false;
 	this.oContainerDiv = null;
@@ -1455,20 +1452,6 @@ function cleanFileInput(idElement)
 	}
 }
 
-function applyWindowClasses(oList)
-{
-	var bAlternate = false;
-	oListItems = oList.getElementsByTagName("LI");
-	for (i = 0; i < oListItems.length; i++)
-	{
-		// Skip dummies.
-		if (oListItems[i].id == "")
-			continue;
-		oListItems[i].className = "windowbg" + (bAlternate ? "2" : "");
-		bAlternate = !bAlternate;
-	}
-}
-
 function reActivate()
 {
 	document.forms.postmodify.message.readOnly = false;
@@ -1478,6 +1461,29 @@ function reActivate()
 function showimage()
 {
 	document.images.icons.src = icon_urls[document.forms.postmodify.icon.options[document.forms.postmodify.icon.selectedIndex].value];
+}
+
+function expandThumb(thumbID)
+{
+	var img = document.getElementById('thumb_' + thumbID);
+	var link = document.getElementById('link_' + thumbID);
+
+	// save the currently displayed image attributes
+	var tmp_src = img.src;
+	var tmp_height = img.style.height;
+	var tmp_width = img.style.width;
+
+	// set the displayed image attributes to the link attributes, this will expand in place
+	img.src = link.href;
+	img.style.width = link.style.width;
+	img.style.height = link.style.height;
+
+	// place the image attributes back
+	link.href = tmp_src;
+	link.style.width = tmp_width;
+	link.style.height = tmp_height;
+
+	return false;
 }
 
 function pollOptions()
@@ -1731,14 +1737,6 @@ function smc_preview_post(oOptions)
 
 smc_preview_post.prototype.init = function ()
 {
-	// Opera didn't support setRequestHeader() before 8.01.
-	if ('opera' in window)
-	{
-		var test = new XMLHttpRequest();
-		if (!('setRequestHeader' in test))
-			this.previewXMLSupported = false;
-	}
-
 	if (this.opts.sPreviewLinkContainerID)
 		$('#' + this.opts.sPreviewLinkContainerID).on('click', this.doPreviewPost.bind(this));
 	else
@@ -1755,14 +1753,6 @@ smc_preview_post.prototype.doPreviewPost = function (event)
 	var new_replies = new Array();
 	if (window.XMLHttpRequest)
 	{
-		// Opera didn't support setRequestHeader() before 8.01.
-		if ('opera' in window)
-		{
-			var test = new XMLHttpRequest();
-			if (!('setRequestHeader' in test))
-				return submitThisOnce(document.forms.postmodify);
-		}
-
 		// @todo Currently not sending poll options and option checkboxes.
 		var x = new Array();
 		var textFields = ['subject', this.opts.sPostBoxContainerID, this.opts.sSessionVar, 'icon', 'guestname', 'email', 'evtitle', 'question', 'topic'];

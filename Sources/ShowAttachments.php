@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function showAttachment()
 {
-	global $smcFunc, $modSettings, $maintenance, $context;
+	global $smcFunc, $modSettings, $maintenance, $context, $txt;
 
 	// Some defaults that we need.
 	$context['character_set'] = empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set'];
@@ -77,7 +77,7 @@ function showAttachment()
 
 	// Use cache when possible.
 	if (($cache = cache_get_data('attachment_lookup_id-' . $attachId)) != null)
-		list($file, $thumbFile) = $cache;
+		list ($file, $thumbFile) = $cache;
 
 	// Get the info from the DB.
 	if (empty($file) || empty($thumbFile) && !empty($file['id_thumb']))
@@ -91,9 +91,12 @@ function showAttachment()
 		{
 			// Make sure this attachment is on this board and load its info while we are at it.
 			$request = $smcFunc['db_query']('', '
-				SELECT id_folder, filename, file_hash, fileext, id_attach, id_thumb, attachment_type, mime_type, approved, id_msg
+				SELECT
+					id_folder, filename, file_hash, fileext, id_attach,
+					id_thumb, attachment_type, mime_type, approved, id_msg
 				FROM {db_prefix}attachments
-				WHERE id_attach = {int:attach} AND id_msg != 0
+				WHERE id_attach = {int:attach}' . (!empty($context['preview_message']) ? '
+					AND a.id_msg != 0' : '') . '
 				LIMIT 1',
 				array(
 					'attach' => $attachId,
@@ -125,8 +128,8 @@ function showAttachment()
 				SELECT a.id_msg
 				FROM {db_prefix}attachments AS a
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
-					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
-				WHERE a.id_attach = {int:attach}
+				WHERE {query_see_message_board}
+					AND a.id_attach = {int:attach}
 				LIMIT 1',
 				array(
 					'attach' => $attachId,

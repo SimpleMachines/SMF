@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -27,7 +27,7 @@ if (!defined('SMF'))
 function ReportedContent()
 {
 	global $txt, $context, $user_info, $smcFunc;
-	global $sourcedir;
+	global $sourcedir, $scripturl;
 
 	// First order of business - what are these reports about?
 	// area=reported{type}
@@ -78,6 +78,62 @@ function ReportedContent()
 
 	// Hi Ho Silver Away!
 	call_helper($subActions[$context['sub_action']]);
+
+	// If we're showing a list of reports
+	if ($context['sub_action'] == 'show' || $context['sub_action'] == 'closed')
+	{
+		// Quickbuttons for each report
+		foreach ($context['reports'] as $key => $report)
+		{
+			$context['reports'][$key]['quickbuttons'] = array(
+				'details' => array(
+					'label' => $txt['mc_reportedp_details'],
+					'href' => $report['report_href'],
+					'icon' => 'details',
+				),
+				'ignore' => array(
+					'label' => $report['ignore'] ? $txt['mc_reportedp_unignore'] : $txt['mc_reportedp_ignore'],
+					'href' => $scripturl.'?action=moderate;area=reported'.$context['report_type'].';sa=handle;ignore='.(int)!$report['ignore'].';rid='.$report['id'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'].';'.$context['mod-report-ignore_token_var'].'='.$context['mod-report-ignore_token'],
+					'javascript' => !$report['ignore'] ? ' class="you_sure" data-confirm="' . $txt['mc_reportedp_ignore_confirm'] . '"' : '',
+					'icon' => 'ignore'
+				),
+				'close' => array(
+					'label' => $context['view_closed'] ? $txt['mc_reportedp_open'] : $txt['mc_reportedp_close'],
+					'href' => $scripturl.'?action=moderate;area=reported'.$context['report_type'].';sa=handle;closed='.(int)!$report['closed'].';rid='.$report['id'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'].';'.$context['mod-report-closed_token_var'].'='.$context['mod-report-closed_token'],
+					'icon' => $context['view_closed'] ? 'folder' : 'close',
+				),
+			);
+
+			// Only reported posts can be deleted
+			if ($context['report_type'] == 'posts')
+				$context['reports'][$key]['quickbuttons']['delete'] = array(
+					'label' => $txt['mc_reportedp_delete'],
+					'href' => $scripturl.'?action=deletemsg;topic='.$report['topic']['id'].'.0;msg='.$report['topic']['id_msg'].';modcenter;'.$context['session_var'].'='.$context['session_id'],
+					'javascript' => 'data-confirm="'.$txt['mc_reportedp_delete_confirm'].'" class="you_sure"',
+					'icon' => 'delete',
+					'show' => !$report['closed'] && (is_array($context['report_remove_any_boards']) && in_array($report['topic']['id_board'], $context['report_remove_any_boards']))
+				);
+
+			// Ban reported member/post author link
+			if ($context['report_type'] == 'members')
+				$ban_link = $scripturl.'?action=admin;area=ban;sa=add;u='.$report['user']['id'].';'.$context['session_var'].'='.$context['session_id'];
+			else
+				$ban_link = $scripturl.'?action=admin;area=ban;sa=add'.(!empty($report['author']['id']) ? ';u='.$report['author']['id'] : ';msg='.$report['topic']['id_msg']).';'.$context['session_var'].'='.$context['session_id'];
+
+			$context['reports'][$key]['quickbuttons'] += array(
+				'ban' => array(
+					'label' => $txt['mc_reportedp_ban'],
+					'href' => $ban_link,
+					'icon' => 'error',
+					'show' => !$report['closed'] && !empty($context['report_manage_bans']) && ($context['report_type'] == 'posts' || $context['report_type'] == 'members' && !empty($report['user']['id']))
+				),
+				'quickmod' => array(
+					'content' => '<input type="checkbox" name="close[]" value="'.$report['id'].'">',
+					'show' => !$context['view_closed']
+				)
+			);
+		}
+	}
 }
 
 /**

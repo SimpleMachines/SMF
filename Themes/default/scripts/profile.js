@@ -287,3 +287,10 @@ function readfromUpload(input) {
 $(document).on('change', '#smiley_set', function () {
 	$("#smileypr").attr("src", $('#smiley_set option:selected').data('preview'));
 });
+
+function changeVariant(iThemeId, el)
+{
+	document.getElementById('theme_thumb_' + iThemeId).src = oThemeVariants[iThemeId][el.value]['thumbnail'];
+	document.getElementById('theme_thumb_preview_' + iThemeId).href = el.form.action + ';theme=' + iThemeId + ';variant=' + el.value;
+	document.getElementById('theme_preview_' + iThemeId).href = el.form.action + ';theme=' + iThemeId + ';variant=' + el.value;
+}

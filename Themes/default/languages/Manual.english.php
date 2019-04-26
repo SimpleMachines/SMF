@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; Manual
+// Version: 2.1 RC2; Manual
 
 /* Everything in this file is for the Simple Machines help manual
    If you are looking at translating the manual into another language

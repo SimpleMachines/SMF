@@ -17,12 +17,12 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 // Get everything started up...
 define('SMF', 1);
-define('SMF_VERSION', '2.1 RC1');
+define('SMF_VERSION', '2.1 RC2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2019');
 
@@ -162,7 +162,7 @@ obExit(null, null, true);
 function smf_main()
 {
 	global $modSettings, $settings, $user_info, $board, $topic;
-	global $board_info, $maintenance, $sourcedir;
+	global $board_info, $maintenance, $sourcedir, $should_log;
 
 	// Special case: session keep-alive, output a transparent pixel.
 	if (isset($_GET['action']) && $_GET['action'] == 'keepalive')
@@ -236,7 +236,7 @@ function smf_main()
 			}
 		}
 		else
-			$should_log = !empty($no_stat_actions[$_REQUEST['action']]);
+			$should_log = empty($no_stat_actions[$_REQUEST['action']]);
 	}
 	if ($should_log)
 	{
