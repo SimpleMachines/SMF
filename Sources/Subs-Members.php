@@ -947,7 +947,12 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 	}
 
 	// Okay, they passed.
-	return false;
+	$is_reserved = false;
+
+	// Maybe a mod wants to perform further checks?
+	call_integration_hook('integrate_check_name', array($checkName, &$is_reserved));
+
+	return $is_reserved;
 }
 
 // Get a list of groups that have a given permission (on a given board).

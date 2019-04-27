@@ -252,6 +252,9 @@ function scheduled_daily_maintenance()
 		$proxy->housekeeping();
 	}
 
+	// Anyone else have something to do?
+	call_integration_hook('integrate_daily_maintenance');
+
 	// Log we've done it...
 	return true;
 }
@@ -418,6 +421,8 @@ function scheduled_daily_digest()
 			'split' => $txt['digest_mod_act_split'],
 			'bye' => $txt['regards_team'],
 		);
+
+		call_integration_hook('integrate_daily_digest_lang', array(&$langtxt, $lang));
 	}
 
 	// The preferred way...
@@ -506,6 +511,9 @@ function scheduled_daily_digest()
 						}
 			}
 		}
+
+		call_integration_hook('integrate_daily_digest_email', array(&$email, $types, $notify_types, $langtxt));
+
 		if ($titled)
 			$email['body'] .= "\n";
 
@@ -1274,6 +1282,9 @@ function scheduled_weekly_maintenance()
 
 	// Prevent stale minimized CSS and JavaScript from cluttering up the theme directories
 	deleteAllMinified();
+
+	// Maybe there's more to do.
+	call_integration_hook('integrate_weekly_maintenance');
 
 	return true;
 }
