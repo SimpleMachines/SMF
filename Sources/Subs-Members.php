@@ -950,7 +950,7 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 	$is_reserved = false;
 
 	// Maybe a mod wants to perform further checks?
-	call_integration_hook('integrate_check_name', array($checkName, &$is_reserved));
+	call_integration_hook('integrate_check_name', array($checkName, &$is_reserved, $current_ID_MEMBER, $is_name));
 
 	return $is_reserved;
 }
