@@ -529,10 +529,10 @@ $helptxt['posts_and_topics'] = '
 			<strong>Bulletin Board Code</strong><br>
 			Enable the code that shows forum messages in the right layout. Also adjust which codes are allowed and which aren\'t.
 		</li><li>
-			<strong>Censored Words</strong>
+			<strong>Censored Words</strong><br>
 			In order to keep the language on your forum under control, you can censor certain words. This function allows you to convert forbidden words into innocent versions.
 		</li><li>
-			<strong>Topic Settings</strong>
+			<strong>Topic Settings</strong><br>
 			Modify the settings related to topics. The number of topics per page, whether the print-page view is enabled, etc.
 		</li>
 	</ul>';
