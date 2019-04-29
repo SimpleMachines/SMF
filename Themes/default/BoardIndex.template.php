@@ -487,49 +487,52 @@ function template_ic_block_online()
 {
 	global $context, $scripturl, $txt, $modSettings, $settings;
 	// "Users online" - in order of activity.
-	echo '
-			<div class="sub_bar">
-				<h4 class="subbg">
-					', $context['show_who'] ? '<a href="' . $scripturl . '?action=who">' : '', '<span class="main_icons people"></span> ', $txt['online_users'], '', $context['show_who'] ? '</a>' : '', '
-				</h4>
-			</div>
-			<p class="inline">
-				', $context['show_who'] ? '<a href="' . $scripturl . '?action=who">' : '', '<strong>', $txt['online'], ': </strong>', comma_format($context['num_guests']), ' ', $context['num_guests'] == 1 ? $txt['guest'] : $txt['guests'], ', ', comma_format($context['num_users_online']), ' ', $context['num_users_online'] == 1 ? $txt['user'] : $txt['users'];
-
-	// Handle hidden users and buddies.
-	$bracketList = array();
-
-	if ($context['show_buddies'])
-		$bracketList[] = comma_format($context['num_buddies']) . ' ' . ($context['num_buddies'] == 1 ? $txt['buddy'] : $txt['buddies']);
-
-	if (!empty($context['num_spiders']))
-		$bracketList[] = comma_format($context['num_spiders']) . ' ' . ($context['num_spiders'] == 1 ? $txt['spider'] : $txt['spiders']);
-
-	if (!empty($context['num_users_hidden']))
-		$bracketList[] = comma_format($context['num_users_hidden']) . ' ' . ($context['num_spiders'] == 1 ? $txt['hidden'] : $txt['hidden_s']);
-
-	if (!empty($bracketList))
-		echo ' (' . implode(', ', $bracketList) . ')';
-
-	echo $context['show_who'] ? '</a>' : '', '
-
-				&nbsp;-&nbsp;', $txt['most_online_today'], ': <strong>', comma_format($modSettings['mostOnlineToday']), '</strong>&nbsp;-&nbsp;
-				', $txt['most_online_ever'], ': ', comma_format($modSettings['mostOnline']), ' (', timeformat($modSettings['mostDate']), ')<br>';
-
-	// Assuming there ARE users online... each user in users_online has an id, username, name, group, href, and link.
-	if (!empty($context['users_online']))
+	if ($context['show_who'])
 	{
 		echo '
-				', sprintf($txt['users_active'], $modSettings['lastActive']), ': ', implode(', ', $context['list_users_online']);
+				<div class="sub_bar">
+					<h4 class="subbg">
+						<a href="' . $scripturl . '?action=who"><span class="main_icons people"></span> ', $txt['online_users'], '</a>', '
+					</h4>
+				</div>
+				<p class="inline">
+					'<a href="' . $scripturl . '?action=who"><strong>', $txt['online'], ': </strong>', comma_format($context['num_guests']), ' ', $context['num_guests'] == 1 ? $txt['guest'] : $txt['guests'], ', ', comma_format($context['num_users_online']), ' ', $context['num_users_online'] == 1 ? $txt['user'] : $txt['users'];
 
-		// Showing membergroups?
-		if (!empty($settings['show_group_key']) && !empty($context['membergroups']))
+		// Handle hidden users and buddies.
+		$bracketList = array();
+
+		if ($context['show_buddies'])
+			$bracketList[] = comma_format($context['num_buddies']) . ' ' . ($context['num_buddies'] == 1 ? $txt['buddy'] : $txt['buddies']);
+
+		if (!empty($context['num_spiders']))
+			$bracketList[] = comma_format($context['num_spiders']) . ' ' . ($context['num_spiders'] == 1 ? $txt['spider'] : $txt['spiders']);
+
+		if (!empty($context['num_users_hidden']))
+			$bracketList[] = comma_format($context['num_users_hidden']) . ' ' . ($context['num_spiders'] == 1 ? $txt['hidden'] : $txt['hidden_s']);
+
+		if (!empty($bracketList))
+			echo ' (' . implode(', ', $bracketList) . ')';
+
+		echo '</a>', '
+
+					&nbsp;-&nbsp;', $txt['most_online_today'], ': <strong>', comma_format($modSettings['mostOnlineToday']), '</strong>&nbsp;-&nbsp;
+					', $txt['most_online_ever'], ': ', comma_format($modSettings['mostOnline']), ' (', timeformat($modSettings['mostDate']), ')<br>';
+
+		// Assuming there ARE users online... each user in users_online has an id, username, name, group, href, and link.
+		if (!empty($context['users_online']))
+		{
 			echo '
-				<span class="membergroups">' . implode(', ', $context['membergroups']) . '</span>';
-	}
+					', sprintf($txt['users_active'], $modSettings['lastActive']), ': ', implode(', ', $context['list_users_online']);
 
-	echo '
-			</p>';
+			// Showing membergroups?
+			if (!empty($settings['show_group_key']) && !empty($context['membergroups']))
+				echo '
+					<span class="membergroups">' . implode(', ', $context['membergroups']) . '</span>';
+		}
+
+		echo '
+				</p>';
+	}
 }
 
 ?>
