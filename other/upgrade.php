@@ -1309,6 +1309,15 @@ function UpgradeOptions()
 	if (empty($cachedir) || substr($cachedir, 0, 1) == '.')
 		$changes['cachedir'] = '\'' . fixRelativePath($boarddir) . '/cache\'';
 
+	// Migrate cache settings.
+	// Accelerator setting didn't exist previously; use 'smf' file based caching as default if caching had been enabled.
+	if (!isset($GLOBALS['cache_enable']))
+		$changes += array(
+			'cache_accelerator' => !empty($modSettings['cache_enable']) ? '\'smf\'' : '\'\'',
+			'cache_enable' => !empty($modSettings['cache_enable']) ? $modSettings['cache_enable'] : 0,
+			'cache_memcached' => !empty($modSettings['cache_memcached']) ? '\'' . $modSettings['cache_memcached'] . '\'' : '\'\'',
+		);
+
 	// If they have a "host:port" setup for the host, split that into separate values
 	// You should never have a : in the hostname if you're not on MySQL, but better safe than sorry
 	if (strpos($db_server, ':') !== false && $db_type == 'mysql')
