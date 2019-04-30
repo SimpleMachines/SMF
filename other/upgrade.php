@@ -1321,17 +1321,6 @@ function UpgradeOptions()
 		if ($db_port != ini_get('mysqli.default_port'))
 			$changes['db_port'] = (int) $db_port;
 	}
-	elseif (!empty($db_port))
-	{
-		// If db_port is set and is the same as the default, set it to ''
-		if ($db_type == 'mysql')
-		{
-			if ($db_port == ini_get('mysqli.default_port'))
-				$changes['db_port'] = '\'\'';
-			elseif ($db_type == 'postgresql' && $db_port == 5432)
-				$changes['db_port'] = '\'\'';
-		}
-	}
 
 	// Maybe we haven't had this option yet?
 	if (empty($packagesdir))
@@ -5138,12 +5127,6 @@ function migrateSettingsFile($changes)
 		' * @var string',
 		' */',
 		'$db_type = \'mysql\';',
-		'/**',
-		' * The database port',
-		' * Default options: 3306 for mysql, 5432 for postgresql',
-		' * @var int',
-		' */',
-		'$db_port = 3306;',
 		'/**',
 		' * The server to connect to (or a Unix socket)',
 		' * @var string',
