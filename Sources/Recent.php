@@ -322,7 +322,7 @@ function RecentPosts()
 		return;
 	}
 
-	$only_approved = $modSettings['postmod_active'] && !allowedTo('approve_posts') && !allowedTo('manage_boards');
+	$only_approved = $modSettings['postmod_active'] && !allowedTo('approve_posts');
 	// Get all the most recent posts.
 	$request = $smcFunc['db_query']('', '
 		SELECT

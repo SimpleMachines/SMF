@@ -1699,7 +1699,7 @@ function PlushSearch2()
 
 		// *** Retrieve the results to be shown on the page
 		$participants = array();
-		$only_approved = $modSettings['postmod_active'] && !allowedTo('approve_posts') && !allowedTo('manage_boards');
+		$only_approved = $modSettings['postmod_active'] && !allowedTo('approve_posts');
 		$join_topic = $only_approved || $search_params['sort'] == 'num_replies';
 		$request = $smcFunc['db_search_query']('', '
 			SELECT ' . (empty($search_params['topic']) ? 'lsr.id_topic' : $search_params['topic'] . ' AS id_topic') . ', lsr.id_msg, lsr.relevance, lsr.num_matches
