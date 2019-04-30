@@ -869,19 +869,19 @@ function Display()
 		if (isset($_SESSION['page_next_start']) && $_SESSION['page_next_start'] == $start)
 		{
 			$start_char = 'M';
-			$page_id = $ascending ? $_SESSION['page_last_id'] : $_SESSION['page_first_id'];
+			$page_id = $_SESSION['page_last_id'];
 		}
 		// User moved to the previous page
 		elseif (isset($_SESSION['page_before_start']) && $_SESSION['page_before_start'] == $start)
 		{
 			$start_char = 'L';
-			$page_id = $ascending ? $_SESSION['page_first_id'] : $_SESSION['page_last_id'];
+			$page_id = $_SESSION['page_first_id'];
 		}
 		// User refreshed the current page
 		elseif (isset($_SESSION['page_current_start']) && $_SESSION['page_current_start'] == $start)
 		{
 			$start_char = 'C';
-			$page_id = $ascending ? $_SESSION['page_first_id'] : $context['topicinfo']['id_last_msg'];
+			$page_id = $_SESSION['page_first_id'];
 		}
 	}
 	// Special case start page
@@ -903,12 +903,12 @@ function Display()
 	{
 		if ($start_char === 'M' || $start_char === 'C')
 		{
-			$ascending_seek = true;
+			$DBascending = $ascending;
 			$page_operator = $ascending ? '>=' : '<=';
 		}
 		else
 		{
-			$ascending_seek = false;
+			$DBascending = !$ascending;
 			$page_operator = $ascending ? '<=' : '>=';
 		}
 
@@ -923,7 +923,7 @@ function Display()
 			WHERE id_topic = {int:current_topic}
 				AND id_msg ' . $page_operator . ' {int:page_id}' . (!$modSettings['postmod_active'] || $can_approve_posts ? '' : '
 				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
-			ORDER BY id_msg ' . ($ascending_seek ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
+			ORDER BY id_msg ' . ($DBascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:limit}'),
 			array(
 				'current_member' => $user_info['id'],
@@ -978,11 +978,13 @@ function Display()
 		// Calculate the fastest way to get the messages!
 		if ($start >= $context['total_visible_posts'] / 2 && $context['messages_per_page'] != -1)
 		{
-			$ascending = !$ascending;
+			$DBascending = !$ascending;
 			$limit = $context['total_visible_posts'] <= $start + $limit ? $context['total_visible_posts'] - $start : $limit;
 			$start = $context['total_visible_posts'] <= $start + $limit ? 0 : $context['total_visible_posts'] - $start - $limit;
 			$firstIndex = empty($options['view_newest_first']) ? $start - 1 : $limit - 1;
 		}
+		else
+			$DBascending = $ascending;
 
 		// Get each post and poster in this topic.
 		$request = $smcFunc['db_query']('', '
@@ -990,7 +992,7 @@ function Display()
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $can_approve_posts ? '' : '
 				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
-			ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
+			ORDER BY id_msg ' . ($DBascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 			LIMIT {int:start}, {int:max}'),
 			array(
 				'current_member' => $user_info['id'],
@@ -1010,14 +1012,14 @@ function Display()
 		}
 
 		// Sort the messages into the correct display order
-		if (!$ascending)
+		if (!$DBascending)
 			sort($messages);
 	}
 
 	// Remember the paging data for next time
-	$_SESSION['page_first_id'] = array_values($messages)[0];
+	$_SESSION['page_first_id'] = $ascending ? array_values($messages)[0] : end($messages);
 	$_SESSION['page_before_start'] = $_REQUEST['start'] - $limit;
-	$_SESSION['page_last_id'] = end($messages);
+	$_SESSION['page_last_id'] = $ascending ? end($messages) : array_values($messages)[0];
 	$_SESSION['page_next_start'] = $_REQUEST['start'] + $limit;
 	$_SESSION['page_current_start'] = $_REQUEST['start'];
 	$_SESSION['page_topic'] = $topic;
