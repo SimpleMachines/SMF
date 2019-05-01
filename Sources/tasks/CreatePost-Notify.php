@@ -128,6 +128,15 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$members = array_unique($members);
 		$prefs = getNotifyPrefs($members, '', true);
 
+		// May as well disable these, since they'll be stripped out anyway.
+		$disable = array('attach', 'img', 'iurl', 'url', 'youtube');
+		if (!empty($modSettings['disabledBBC']))
+		{
+			$disabledBBC = $modSettings['disabledBBC'];
+			$disable = implode(',', array_unique(array_merge($disable, explode(',', $modSettings['disabledBBC']))));
+		}
+		$modSettings['disabledBBC'] = $disable;
+
 		// Do we have anyone to notify via mention? Handle them first and cross them off the list
 		if (!empty($msgOptions['mentioned_members']))
 		{
@@ -247,7 +256,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				censorText($parsed_message[$receiver_lang]['body']);
 
 				$parsed_message[$receiver_lang]['subject'] = un_htmlspecialchars($parsed_message[$receiver_lang]['subject']);
-				$parsed_message[$receiver_lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($parsed_message[$receiver_lang]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\'')))));
+				$parsed_message[$receiver_lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($parsed_message[$receiver_lang]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\'', '</tr>' => "\n" '</td>' => "\t", '<hr>' => "\n---------------------------------------------------------------\n")))));
 
 				// Put $user_info back the way we found it.
 				if (isset($real_user_info))
@@ -314,6 +323,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				)
 			);
 		}
+
+		// Put this back the way we found it.
+		if (!empty($disabledBBC))
+			$modSettings['disabledBBC'] = $disabledBBC;
 
 		// Insert it into the digest for daily/weekly notifications
 		$smcFunc['db_insert']('',
