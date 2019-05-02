@@ -278,7 +278,6 @@ $txt['censor_whole_words'] = 'Check only whole words';
 $txt['admin_confirm_password'] = '(confirm)';
 $txt['admin_incorrect_password'] = 'Incorrect Password';
 
-$txt['date_format'] = '(YYYY-MM-DD)';
 $txt['age'] = 'User age';
 $txt['activation_status'] = 'Activation Status';
 $txt['activated'] = 'Activated';
