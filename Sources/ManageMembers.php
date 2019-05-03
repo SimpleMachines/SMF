@@ -338,7 +338,7 @@ function ViewMemberlist()
 					{
 						$query_parts[] = $param_info['db_fields'][0] . ' >= ' . un_forum_time(true, $search_params[$param_name]) . ' AND ' . $param_info['db_fields'][0] . ' < ' . (un_forum_time(true, $search_params[$param_name]) + 86400);
 					}
-					elseif ($search_params['types'][$param_name] == '<=')
+					elseif ($search_params['types'][$param_name] == '-')
 					{
 						$query_parts[] = $param_info['db_fields'][0] . ' < ' . un_forum_time(true, $search_params[$param_name]) + 86400;
 					}
