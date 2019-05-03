@@ -115,4 +115,32 @@ function deleteNotifyPrefs($memID, array $prefs)
 	);
 }
 
+/**
+ * Deletes notification preference
+ *
+ * @param int $memID The user whose preference you're setting
+ * @param array $prefs The preferences to delete
+ */
+function unsubscribeMail($memID)
+{
+	global $smcFunc;
+
+	if (empty($memID))
+		return;
+	
+	$skipPref = array('alert_timeout');
+
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}user_alerts_prefs
+		SET alert_value - 2
+		WHERE id_member = {int:member}
+			AND alert_pref NOT IN ({array_string:skipPref})
+			AND (2 & alert_value) = 2',
+		array(
+			'member' => $memID,
+			'skipPref' => $skipPref,
+		)
+	);
+}
+
 ?>

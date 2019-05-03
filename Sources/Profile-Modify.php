@@ -1932,6 +1932,7 @@ function notification($memID)
 		'markread' => 'alert_markread',
 		'topics' => 'alert_notifications_topics',
 		'boards' => 'alert_notifications_boards',
+		'unsubscribe' => 'alert_unsubscribe',
 	);
 
 	$subAction = !empty($_GET['sa']) && isset($sa[$_GET['sa']]) ? $_GET['sa'] : 'alerts';
@@ -2451,6 +2452,180 @@ function alert_count($memID, $unread = false)
 
 	return count($alerts);
 }
+
+/**
+ * Can be called from guests so we don't care about the memID
+ *
+ * @param int $memID The ID of the member
+ */
+function alert_unsubscribe($memID)
+{
+	global $txt, $context, $smcFunc, $sourcedir, $scripturl, $modSettings;
+	
+	if (empty($_GET['token']))
+		return;
+	
+	$token = $_GET['token'];
+	
+	$memID = null;
+	
+	$request = $smcFunc['db_query']('','
+		SELECT id_member
+		FROM {db_prefix}themes
+		WHERE variable = {string:token_name}
+			AND value = {string:token}',
+		array(
+			'token_name' => 'unsubscribe_token',
+			'token' => $token,
+		)
+	);
+	
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+			$memID = $row['id_member'];
+	
+	if (empty($memID))
+		return;
+
+	// Now set up for the token check.
+	$context['token_check'] = str_replace('%u', $memID, 'profile-nt%u');
+	createToken($context['token_check'], 'post');
+
+	// Gonna want this for the list.
+	require_once($sourcedir . '/Subs-List.php');
+
+	// Do the topic notifications.
+	$listOptions = array(
+		'id' => 'topic_unsubscribe_list',
+		'width' => '100%',
+		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'no_items_label' => $txt['notifications_topics_none'] . '<br><br>' . $txt['notifications_topics_howto'],
+		'no_items_align' => 'left',
+		'base_href' => $scripturl . '?action=profile;u=' . $memID . ';area=notification;sa=unsubscribe',
+		'default_sort_col' => 'last_post',
+		'get_items' => array(
+			'function' => 'list_getTopicNotifications',
+			'params' => array(
+				$memID,
+			),
+		),
+		'get_count' => array(
+			'function' => 'list_getTopicNotificationCount',
+			'params' => array(
+				$memID,
+			),
+		),
+		'columns' => array(
+			'subject' => array(
+				'header' => array(
+					'value' => $txt['notifications_topics'],
+					'class' => 'lefttext',
+				),
+				'data' => array(
+					'function' => function($topic) use ($txt)
+					{
+						$link = $topic['link'];
+
+						if ($topic['new'])
+							$link .= ' <a href="' . $topic['new_href'] . '" class="new_posts">' . $txt['new'] . '</a>';
+
+						$link .= '<br><span class="smalltext"><em>' . $txt['in'] . ' ' . $topic['board_link'] . '</em></span>';
+
+						return $link;
+					},
+				),
+				'sort' => array(
+					'default' => 'ms.subject',
+					'reverse' => 'ms.subject DESC',
+				),
+			),
+			'started_by' => array(
+				'header' => array(
+					'value' => $txt['started_by'],
+					'class' => 'lefttext',
+				),
+				'data' => array(
+					'db' => 'poster_link',
+				),
+				'sort' => array(
+					'default' => 'real_name_col',
+					'reverse' => 'real_name_col DESC',
+				),
+			),
+			'last_post' => array(
+				'header' => array(
+					'value' => $txt['last_post'],
+					'class' => 'lefttext',
+				),
+				'data' => array(
+					'sprintf' => array(
+						'format' => '<span class="smalltext">%1$s<br>' . $txt['by'] . ' %2$s</span>',
+						'params' => array(
+							'updated' => false,
+							'poster_updated_link' => false,
+						),
+					),
+				),
+				'sort' => array(
+					'default' => 'ml.id_msg DESC',
+					'reverse' => 'ml.id_msg',
+				),
+			),
+			'alert' => array(
+				'header' => array(
+					'value' => $txt['notify_what_how'],
+					'class' => 'lefttext',
+				),
+				'data' => array(
+					'function' => function($topic) use ($txt)
+					{
+						$pref = $topic['notify_pref'];
+						$mode = !empty($topic['unwatched']) ? 0 : ($pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1));
+						return $txt['notify_topic_' . $mode];
+					},
+				),
+			),
+			'delete' => array(
+				'header' => array(
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
+					'style' => 'width: 4%;',
+					'class' => 'centercol',
+				),
+				'data' => array(
+					'sprintf' => array(
+						'format' => '<input type="checkbox" name="notify_topics[]" value="%1$d">',
+						'params' => array(
+							'id' => false,
+						),
+					),
+					'class' => 'centercol',
+				),
+			),
+		),
+		'form' => array(
+			'href' => $scripturl . '?action=profile;area=notification;sa=topics',
+			'include_sort' => true,
+			'include_start' => true,
+			'hidden_fields' => array(
+				'u' => $memID,
+				'sa' => $context['menu_item_selected'],
+				$context['session_var'] => $context['session_id'],
+			),
+			'token' => $context['token_check'],
+		),
+		'additional_rows' => array(
+			array(
+				'position' => 'bottom_of_list',
+				'value' => '<input type="submit" name="edit_notify_topics" value="' . $txt['notifications_update'] . '" class="button" />
+							<input type="submit" name="remove_notify_topics" value="' . $txt['notification_remove_pref'] . '" class="button" />',
+				'class' => 'floatright',
+			),
+		),
+	);
+
+	// Create the notification list.
+	createList($listOptions);
+}
+
 
 /**
  * Handles alerts related to topics and posts
