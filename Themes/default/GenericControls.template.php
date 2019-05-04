@@ -100,23 +100,47 @@ function template_control_richedit_buttons($editor_id)
 	$tempTab++;
 	$context['tabindex'] = $tempTab;
 
-	if (!empty($context['drafts_pm_save']))
-		echo '
-		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', --$tempTab, '" onclick="submitThisOnce(this);" accesskey="d" class="button">
-		<input type="hidden" id="id_pm_draft" name="id_pm_draft" value="', empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'], '">';
+	$richedit_buttons = array(
+		'save_draft' => array(
+			'type' => 'submit',
+			'value' => $txt['draft_save'],
+			'onclick' => !empty($context['drafts_pm_save']) ? 'submitThisOnce(this);' : (!empty($context['drafts_save']) ? 'return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
+			'accessKey' => 'd',
+			'show' => !empty($context['drafts_pm_save']) || !empty($context['drafts_save'])
+		),
+		'id_pm_draft' => array(
+			'type' => 'hidden',
+			'value' => empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'],
+			'show' => !empty($context['drafts_pm_save'])
+		),
+		'id_draft' => array(
+			'type' => 'hidden',
+			'value' => empty($context['id_draft']) ? 0 : $context['id_draft'],
+			'show' => !empty($context['drafts_save'])
+		),
+		'spell_check' => array(
+			'type' => 'submit',
+			'value' => $txt['spell_check'],
+			'onclick' => 'oEditorHandle_' . $editor_id . '.spellCheckStart();',
+			'show' => $context['show_spellchecking']
+		),
+		'preview' => array(
+			'type' => 'submit',
+			'value' => isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $txt['preview'],
+			'onclick' => $editor_context['preview_type'] == 2 ? '' : 'return submitThisOnce(this);',
+			'accessKey' => 'p',
+			'show' => $editor_context['preview_type']
+		)
+	);
 
-	if (!empty($context['drafts_save']))
-		echo '
-		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', --$tempTab, '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" class="button">
-		<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '">';
+	call_integration_hook('integrate_mod_richedit_buttons', array(&$richedit_buttons));
 
-	if ($context['show_spellchecking'])
-		echo '
-		<input type="button" value="', $txt['spell_check'], '" tabindex="', --$tempTab, '" onclick="oEditorHandle_', $editor_id, '.spellCheckStart();" class="button">';
-
-	if ($editor_context['preview_type'])
-		echo '
-		<input type="submit" name="preview" value="', isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $txt['preview'], '" tabindex="', --$tempTab, '" onclick="', $editor_context['preview_type'] == 2 ? '' : 'return submitThisOnce(this);', '" accesskey="p" class="button">';
+	foreach ($richedit_buttons as $name => $button) {
+		if ($button['show']) {
+			echo '
+		<input type="', $button['type'], '"', $button['type'] == 'hidden' ? ' id="' . $name . '"' : '', ' name="', $name, '" value="', $button['value'], '"', $button['type'] != 'hidden' ? ' tabindex="' . --$tempTab . '"' : '', !empty($button['onclick']) ? ' onclick="' . $button['onclick'] . '"' : '', !empty($button['accessKey']) ? ' accesskey="' . $button['accessKey'] . '"' : '', $button['type'] != 'hidden' ? ' class="button"' : '', '>';
+		}
+	}
 
 	echo '
 		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : $txt['post'], '" name="post" tabindex="', --$tempTab, '" onclick="return submitThisOnce(this);" accesskey="s" class="button">';
