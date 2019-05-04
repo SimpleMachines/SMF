@@ -393,7 +393,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			{
 				$alerts[$id_alert]['extra']['msg_msg'] = $txt['topic_na'];
 				$alerts[$id_alert]['extra']['topic_msg'] = $topic_msgs[$alert['extra']['topic']][$alert['show_links'] ? 'link' : 'text'];
-				$alerts[$id_alert]['extra']['board_msg'] = isset($alert['extra']['board']) ? $board_msgs[$alert['extra']['board']][$alert['show_links'] ? 'link' : 'text'] : $txt['board_na'];
+				$alerts[$id_alert]['extra']['board_msg'] = isset($alert['extra']['board']) && isset($board_msgs[$alert['extra']['board']]) ? $board_msgs[$alert['extra']['board']][$alert['show_links'] ? 'link' : 'text'] : $txt['board_na'];
 			}
 		}
 		elseif (isset($alert['extra']['board']))
