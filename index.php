@@ -380,6 +380,7 @@ function smf_main()
 		'about:unknown' => array('Likes.php', 'BookOfUnknown'),
 		'unread' => array('Recent.php', 'UnreadTopics'),
 		'unreadreplies' => array('Recent.php', 'UnreadTopics'),
+		'unsubscribe' => array('Unsubscribe.php', 'DialogUnsubscribe'),
 		'uploadAttach' => array('Attachments.php', 'Attachments::call#'),
 		'verificationcode' => array('Register.php', 'VerificationCode'),
 		'viewprofile' => array('Profile.php', 'ModifyProfile'),
