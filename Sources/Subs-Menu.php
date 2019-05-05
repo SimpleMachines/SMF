@@ -224,13 +224,13 @@ function createMenu($menuData, $menuOptions = array())
 									// Let's assume this is the last, for now.
 									$last_sa = $sa;
 								}
-								// Mark it as disabled...
+								// Remove it...
 								else
-									$menu_context['sections'][$section_id]['areas'][$area_id]['subsections'][$sa]['disabled'] = true;
+									unset($menu_context['sections'][$section_id]['areas'][$area_id]['subsections'][$sa]);
 							}
 
 							// Set which one is first, last and selected in the group.
-							if (!empty($menu_context['sections'][$section_id]['areas'][$area_id]['subsections']))
+							if (!empty($menu_context['sections'][$section_id]['areas'][$area_id]['subsections']) && !empty($first_sa) && !empty($last_sa))
 							{
 								$menu_context['sections'][$section_id]['areas'][$area_id]['subsections'][$context['right_to_left'] ? $last_sa : $first_sa]['is_first'] = true;
 								$menu_context['sections'][$section_id]['areas'][$area_id]['subsections'][$context['right_to_left'] ? $first_sa : $last_sa]['is_last'] = true;

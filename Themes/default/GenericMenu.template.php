@@ -102,9 +102,6 @@ function template_generic_menu(&$menu_context)
 
 				foreach ($area['subsections'] as $sa => $sub)
 				{
-					if (!empty($sub['disabled']))
-						continue;
-
 					$url = isset($sub['url']) ? $sub['url'] : (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i) . ';sa=' . $sa;
 
 					echo '
