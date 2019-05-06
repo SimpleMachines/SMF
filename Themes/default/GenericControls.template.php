@@ -100,42 +100,17 @@ function template_control_richedit_buttons($editor_id)
 	$tempTab++;
 	$context['tabindex'] = $tempTab;
 
-	$richedit_buttons = array(
-		'save_draft' => array(
-			'type' => 'submit',
-			'value' => $txt['draft_save'],
-			'onclick' => !empty($context['drafts_pm_save']) ? 'submitThisOnce(this);' : (!empty($context['drafts_save']) ? 'return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
-			'accessKey' => 'd',
-			'show' => !empty($context['drafts_pm_save']) || !empty($context['drafts_save'])
-		),
-		'id_pm_draft' => array(
-			'type' => 'hidden',
-			'value' => empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'],
-			'show' => !empty($context['drafts_pm_save'])
-		),
-		'id_draft' => array(
-			'type' => 'hidden',
-			'value' => empty($context['id_draft']) ? 0 : $context['id_draft'],
-			'show' => !empty($context['drafts_save'])
-		),
-		'spell_check' => array(
-			'type' => 'submit',
-			'value' => $txt['spell_check'],
-			'onclick' => 'oEditorHandle_' . $editor_id . '.spellCheckStart();',
-			'show' => $context['show_spellchecking']
-		),
-		'preview' => array(
-			'type' => 'submit',
-			'value' => isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $txt['preview'],
-			'onclick' => $editor_context['preview_type'] == 2 ? '' : 'return submitThisOnce(this);',
-			'accessKey' => 'p',
-			'show' => $editor_context['preview_type']
-		)
-	);
+	foreach ($context['richedit_buttons'] as $name => $button) {
+		if ($name == 'spell_check') {
+			$button['onclick'] = 'oEditorHandle_' . $editor_id . '.spellCheckStart();';
+		}
 
-	call_integration_hook('integrate_mod_richedit_buttons', array(&$richedit_buttons));
+		if ($name == 'preview') {
+			$button['value'] = isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $button['value'];
+			$button['onclick'] = $editor_context['preview_type'] == 2 ? '' : 'return submitThisOnce(this);';
+			$button['show'] = $editor_context['preview_type'];
+		}
 
-	foreach ($richedit_buttons as $name => $button) {
 		if ($button['show']) {
 			echo '
 		<input type="', $button['type'], '"', $button['type'] == 'hidden' ? ' id="' . $name . '"' : '', ' name="', $name, '" value="', $button['value'], '"', $button['type'] != 'hidden' ? ' tabindex="' . --$tempTab . '"' : '', !empty($button['onclick']) ? ' onclick="' . $button['onclick'] . '"' : '', !empty($button['accessKey']) ? ' accesskey="' . $button['accessKey'] . '"' : '', $button['type'] != 'hidden' ? ' class="button"' : '', '>';

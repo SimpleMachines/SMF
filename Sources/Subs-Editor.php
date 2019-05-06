@@ -1512,6 +1512,36 @@ function create_control_richedit($editorOptions)
 	loadLanguage('Post');
 	loadLanguage('Editor');
 
+	$context['richedit_buttons'] = array(
+		'save_draft' => array(
+			'type' => 'submit',
+			'value' => $txt['draft_save'],
+			'onclick' => !empty($context['drafts_pm_save']) ? 'submitThisOnce(this);' : (!empty($context['drafts_save']) ? 'return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
+			'accessKey' => 'd',
+			'show' => !empty($context['drafts_pm_save']) || !empty($context['drafts_save'])
+		),
+		'id_pm_draft' => array(
+			'type' => 'hidden',
+			'value' => empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'],
+			'show' => !empty($context['drafts_pm_save'])
+		),
+		'id_draft' => array(
+			'type' => 'hidden',
+			'value' => empty($context['id_draft']) ? 0 : $context['id_draft'],
+			'show' => !empty($context['drafts_save'])
+		),
+		'spell_check' => array(
+			'type' => 'submit',
+			'value' => $txt['spell_check'],
+			'show' => !empty($context['show_spellchecking'])
+		),
+		'preview' => array(
+			'type' => 'submit',
+			'value' => $txt['preview'],
+			'accessKey' => 'p'
+		)
+	);
+
 	// Every control must have a ID!
 	assert(isset($editorOptions['id']));
 	assert(isset($editorOptions['value']));
