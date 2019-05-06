@@ -1144,8 +1144,6 @@ function forum_time($use_user_offset = true, $timestamp = null)
  * The reverse of forum_time - given forum time, returns the server time.
  * This is needed, for example, when users enter date parameters (in that user's forum time) that need to be compared to DB values.
  *
- * - always applies the offset in the time_offset setting.
- *
  * @param bool $use_user_offset Whether to apply the user's offset as well
  * @param int $timestamp A timestamp (null to use current time)
  * @return int Seconds since the unix epoch, with forum time offset and (optionally) user time offset applied
@@ -1159,7 +1157,27 @@ function un_forum_time($use_user_offset = true, $timestamp = null)
 	elseif ($timestamp == 0)
 		return 0;
 
-	return $timestamp - ($modSettings['time_offset'] + ($use_user_offset ? $user_info['time_offset'] : 0)) * 3600;
+	$user_offset = 0;
+
+	if ($use_user_offset)
+	{
+		// Fall back on current user offset setting if you must
+		$user_offset = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
+
+		// But finding the user offset for the time in question is better
+		if (!empty($user_settings['timezone']))
+		{
+			$tz_user = new DateTimeZone($user_settings['timezone']);
+			if ($tz_user !== false)
+			{
+				$temp_offset = $tz_user->getOffset($timestamp);
+				if ($temp_offset !== false)
+					$user_offset = $temp_offset;
+			}
+		}
+	}
+
+	return $timestamp - ($modSettings['time_offset'] + $user_offset) * 3600;
 }
 
 /**
