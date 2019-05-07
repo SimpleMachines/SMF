@@ -1150,7 +1150,7 @@ function forum_time($use_user_offset = true, $timestamp = null)
  */
 function un_forum_time($use_user_offset = true, $timestamp = null)
 {
-	global $user_info, $modSettings;
+	global $user_info, $modSettings, $user_settings;
 
 	if ($timestamp === null)
 		$timestamp = time();
@@ -1167,10 +1167,11 @@ function un_forum_time($use_user_offset = true, $timestamp = null)
 		// But finding the user offset for the time in question is better
 		if (!empty($user_settings['timezone']))
 		{
-			$tz_user = new DateTimeZone($user_settings['timezone']);
-			if ($tz_user !== false)
+			$dtz_user = new DateTimeZone($user_settings['timezone']);
+			if ($dtz_user !== false)
 			{
-				$temp_offset = $tz_user->getOffset($timestamp);
+				$dt_user = new DateTime('@' . $timestamp);
+				$temp_offset = $dtz_user->getOffset($dt_user)/3600;
 				if ($temp_offset !== false)
 					$user_offset = $temp_offset;
 			}
