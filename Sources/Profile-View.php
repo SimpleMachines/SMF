@@ -293,9 +293,11 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	{
 		if ($alert['content_type'] == 'msg')
 			$possible_msgs[] = $alert['content_id'];
-		elseif (isset($alert['extra']['topic']))
+
+		if (isset($alert['extra']['topic']))
 			$possible_topics[] = $alert['extra']['topic'];
-		elseif (isset($alert['extra']['board']))
+
+		if (isset($alert['extra']['board']))
 			$possible_boards[] = $alert['extra']['board'];
 
 		// Are we showing multiple links or one big main link ?
