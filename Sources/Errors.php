@@ -46,10 +46,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 
 	// are we in a loop?
 	if ($error_call > 2)
-	{
-		var_dump($backtrace);
 		die('Error loop.');
-	}
 
 	// Check if error logging is actually on.
 	if (empty($modSettings['enableErrorLogging']))
