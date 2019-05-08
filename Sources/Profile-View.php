@@ -370,6 +370,12 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		if (!empty($alert['text']))
 			continue;
 
+		// Check that there's a valid board
+		if (isset($alert['extra']['board']))
+			$alert_board_msg = $board_msgs[$alert['extra']['board']][$alert['show_links'] ? 'link' : 'text'];
+		else
+			$alert_board_msg = $txt['board_na'];
+
 		if ($alert['content_type'] == 'msg')
 		{
 			if (empty($msg_msgs[$alert['content_id']]))
@@ -381,7 +387,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			{
 				$alerts[$id_alert]['extra']['msg_msg'] = $msg_msgs[$alert['content_id']][$alert['show_links'] ? 'link' : 'text'];
 				$alerts[$id_alert]['extra']['topic_msg'] = isset($alert['extra']['topic']) ? $topic_msgs[$alert['extra']['topic']][$alert['show_links'] ? 'link' : 'text'] : $txt['topic_na'];
-				$alerts[$id_alert]['extra']['board_msg'] = isset($alert['extra']['board']) ? $board_msgs[$alert['extra']['board']][$alert['show_links'] ? 'link' : 'text'] : $txt['board_na'];
+				$alerts[$id_alert]['extra']['board_msg'] = $alert_board_msg;
 			}
 		}
 		elseif (isset($alert['extra']['topic']))
@@ -395,7 +401,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			{
 				$alerts[$id_alert]['extra']['msg_msg'] = $txt['topic_na'];
 				$alerts[$id_alert]['extra']['topic_msg'] = $topic_msgs[$alert['extra']['topic']][$alert['show_links'] ? 'link' : 'text'];
-				$alerts[$id_alert]['extra']['board_msg'] = isset($alert['extra']['board']) && isset($board_msgs[$alert['extra']['board']]) ? $board_msgs[$alert['extra']['board']][$alert['show_links'] ? 'link' : 'text'] : $txt['board_na'];
+				$alerts[$id_alert]['extra']['board_msg'] = $alert_board_msg;
 			}
 		}
 		elseif (isset($alert['extra']['board']))
@@ -409,7 +415,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			{
 				$alerts[$id_alert]['extra']['msg_msg'] = $txt['topic_na'];
 				$alerts[$id_alert]['extra']['topic_msg'] = $txt['topic_na'];
-				$alerts[$id_alert]['extra']['board_msg'] = $board_msgs[$alert['extra']['board']][$alert['show_links'] ? 'link' : 'text'];
+				$alerts[$id_alert]['extra']['board_msg'] = $alert_board_msg;
 			}
 		}
 
