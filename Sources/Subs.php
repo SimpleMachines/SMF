@@ -1126,29 +1126,10 @@ function shorten_subject($subject, $len)
  *
  * @param bool $use_user_offset Whether to apply the user's offset as well
  * @param int $timestamp A timestamp (null to use current time)
+ * @param bool $local_to_server sometimes you need to go the other way - from user prompt to server time
  * @return int Seconds since the unix epoch, with forum time offset and (optionally) user time offset applied
  */
-function forum_time($use_user_offset = true, $timestamp = null)
-{
-	global $user_info, $modSettings;
-
-	if ($timestamp === null)
-		$timestamp = time();
-	elseif ($timestamp == 0)
-		return 0;
-
-	return $timestamp + ($modSettings['time_offset'] + ($use_user_offset ? $user_info['time_offset'] : 0)) * 3600;
-}
-
-/**
- * The reverse of forum_time - given forum time, returns the server time.
- * This is needed, for example, when users enter date parameters (in that user's forum time) that need to be compared to DB values.
- *
- * @param bool $use_user_offset Whether to apply the user's offset as well
- * @param int $timestamp A timestamp (null to use current time)
- * @return int Seconds since the unix epoch, with forum time offset and (optionally) user time offset applied
- */
-function un_forum_time($use_user_offset = true, $timestamp = null)
+function forum_time($use_user_offset = true, $timestamp = null, $local_to_server = false)
 {
 	global $user_info, $modSettings, $user_settings;
 
@@ -1178,7 +1159,10 @@ function un_forum_time($use_user_offset = true, $timestamp = null)
 		}
 	}
 
-	return $timestamp - ($modSettings['time_offset'] + $user_offset) * 3600;
+	if ($local_to_server)
+		return $timestamp - ($modSettings['time_offset'] + $user_offset) * 3600;
+	else
+		return $timestamp + ($modSettings['time_offset'] + $user_offset) * 3600;
 }
 
 /**
