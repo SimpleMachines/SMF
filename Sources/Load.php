@@ -251,6 +251,18 @@ function reloadSettings()
 
 			return random_int($min, $max);
 		},
+		'random_bytes' => function($length = 8)
+		{
+			global $sourcedir;
+
+			if (!is_callable('random_bytes'))
+				require_once($sourcedir . '/random_compat/random.php');
+
+			// Make sure length is valid
+			$length = max(1, (int) $length);
+
+			return random_bytes($length);
+		},
 	);
 
 	// Setting the timezone is a requirement for some functions.
