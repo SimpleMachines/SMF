@@ -2825,7 +2825,7 @@ function MessageKillAll()
 {
 	global $context;
 
-	checkSession('get');
+	checkSession();
 
 	// If all then delete all messages the user has.
 	if ($_REQUEST['f'] == 'all')
