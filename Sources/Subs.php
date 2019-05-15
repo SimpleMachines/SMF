@@ -738,7 +738,7 @@ function comma_format($number, $override_decimal_count = false)
 function timeformat($log_time, $show_today = true, $offset_type = false, $process_safe = false)
 {
 	global $context, $user_info, $txt, $modSettings;
-	static $non_twelve_hour, $locale_cache, $now;
+	static $non_twelve_hour, $locale, $now;
 	static $unsupportedFormats, $finalizedFormats;
 
 	$unsupportedFormatsWindows = array('z', 'Z');
@@ -750,33 +750,37 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 
 	// Offset the time.
 	if (!$offset_type)
-		$time = $log_time + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
+		$log_time = $log_time + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
 	// Just the forum offset?
 	elseif ($offset_type == 'forum')
-		$time = $log_time + $modSettings['time_offset'] * 3600;
-	else
-		$time = $log_time;
+		$log_time = $log_time + $modSettings['time_offset'] * 3600;
 
 	// We can't have a negative date (on Windows, at least.)
 	if ($log_time < 0)
 		$log_time = 0;
 
 	// Today and Yesterday?
+	$prefix = '';
 	if ($modSettings['todayMod'] >= 1 && $show_today === true)
 	{
-		$then = @getdate($time);
-		$now = (!empty($now) ? $now : @getdate(forum_time()));
+		$now_time = forum_time();
 
-		// Try to make something of a time format string...
-		$today_fmt = get_date_or_time_format('time');
+		if ($now_time - $log_time < (86400 * $modSettings['todayMod']))
+		{
+			$then = @getdate($log_time);
+			$now = (!empty($now) ? $now : @getdate($now_time));
 
-		// Same day of the year, same year.... Today!
-		if ($then['yday'] == $now['yday'] && $then['year'] == $now['year'])
-			return $txt['today'] . timeformat($log_time, $today_fmt, $offset_type);
-
-		// Day-of-year is one less and same year, or it's the first of the year and that's the last of the year...
-		if ($modSettings['todayMod'] == '2' && (($then['yday'] == $now['yday'] - 1 && $then['year'] == $now['year']) || ($now['yday'] == 0 && $then['year'] == $now['year'] - 1) && $then['mon'] == 12 && $then['mday'] == 31))
-			return $txt['yesterday'] . timeformat($log_time, $today_fmt, $offset_type);
+			// Same day of the year, same year.... Today!
+			if ($then['yday'] == $now['yday'] && $then['year'] == $now['year'])
+			{
+				$prefix = $txt['today'];
+			}
+			// Day-of-year is one less and same year, or it's the first of the year and that's the last of the year...
+			elseif ($modSettings['todayMod'] == '2' && (($then['yday'] == $now['yday'] - 1 && $then['year'] == $now['year']) || ($now['yday'] == 0 && $then['year'] == $now['year'] - 1) && $then['mon'] == 12 && $then['mday'] == 31))
+			{
+				$prefix = $txt['yesterday'];
+			}
+		}
 	}
 
 	$str = !is_bool($show_today) ? $show_today : $user_info['time_format'];
@@ -786,24 +790,25 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 		$finalizedFormats = (array) cache_get_data('timeformatstrings', 86400);
 
 	// Make a supported version for this format if we don't already have one
-	if (empty($finalizedFormats[$str]))
+	$format_type = !empty($prefix) ? 'time_only' : 'normal';
+	if (empty($finalizedFormats[$str][$format_type]))
 	{
-		$timeformat = $str;
+		$timeformat = $format_type == 'time_only' ? get_date_or_time_format('time', $str) : $str;
 
 		// Not all systems support all formats, and Windows fails altogether if unsupported ones are
 		// used, so let's prevent that. Some substitutions go to the nearest reasonable fallback, some
-		// turn into static strings, some (i.e. %a, %A, $b, %B, %p) have special handling below.
+		// turn into static strings, some (i.e. %a, %A, %b, %B, %p) have special handling below.
 		$strftimeFormatSubstitutions = array(
 			// Day
-			'a' => '%a', 'A' => '%A', 'e' => '%d', 'd' => '&#37;d', 'j' => '&#37;j', 'u' => '%w', 'w' => '&#37;w',
+			'a' => '#txt_days_short_%w#', 'A' => '#txt_days_%w#', 'e' => '%d', 'd' => '&#37;d', 'j' => '&#37;j', 'u' => '%w', 'w' => '&#37;w',
 			// Week
 			'U' => '&#37;U', 'V' => '%U', 'W' => '%U',
 			// Month
-			'b' => '%b', 'B' => '%B', 'h' => '%b', 'm' => '%b',
+			'b' => '#txt_months_short_%m#', 'B' => '#txt_months_%m#', 'h' => '%b', 'm' => '&#37;m',
 			// Year
 			'C' => '&#37;C', 'g' => '%y', 'G' => '%Y', 'y' => '&#37;y', 'Y' => '&#37;Y',
 			// Time
-			'H' => '&#37;H', 'k' => '%H', 'I' => '%H', 'l' => '%I', 'M' => '&#37;M', 'p' => '%p', 'P' => '%p',
+			'H' => '&#37;H', 'k' => '%H', 'I' => '%H', 'l' => '%I', 'M' => '&#37;M', 'p' => '&#37;p', 'P' => '%p',
 			'r' => '%I:%M:%S %p', 'R' => '%H:%M', 'S' => '&#37;S', 'T' => '%H:%M:%S', 'X' => '%T', 'z' => '&#37;z', 'Z' => '&#37;Z',
 			// Time and Date Stamps
 			'c' => '%F %T', 'D' => '%m/%d/%y', 'F' => '%Y-%m-%d', 's' => '&#37;s', 'x' => '%F',
@@ -845,43 +850,107 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 				$timeformat = str_replace($matches[0], $strftimeFormatSubstitutions[$matches[1]], $timeformat);
 
 		// Remember this so we don't need to do it again
-		$finalizedFormats[$str] = $timeformat;
+		$finalizedFormats[$str][$format_type] = $timeformat;
 		cache_put_data('timeformatstrings', $finalizedFormats, 86400);
 	}
 
-	$str = $finalizedFormats[$str];
+	$timeformat = $finalizedFormats[$str][$format_type];
 
-	if (!isset($locale_cache))
-		$locale_cache = setlocale(LC_TIME, $txt['lang_locale'] . !empty($modSettings['global_character_set']) ? '.' . $modSettings['global_character_set'] : '');
+	// Make sure we are using the correct locale.
+	if (!isset($locale) || ($process_safe === true && setlocale(LC_TIME, '0') != $locale))
+		$locale = setlocale(LC_TIME, array($txt['lang_locale'] . '.' . $modSettings['global_character_set'], $txt['lang_locale'] . '.' . $txt['lang_character_set'], $txt['lang_locale']));
 
-	if ($locale_cache !== false)
+	// If the current locale is unsupported, we'll have to localize the hard way.
+	if ($locale === false)
 	{
-		// Check if another process changed the locale
-		if ($process_safe === true && setlocale(LC_TIME, '0') != $locale_cache)
-			setlocale(LC_TIME, $txt['lang_locale'] . !empty($modSettings['global_character_set']) ? '.' . $modSettings['global_character_set'] : '');
-
-		if (!isset($non_twelve_hour))
-			$non_twelve_hour = trim(strftime('%p')) === '';
-		if ($non_twelve_hour && strpos($str, '%p') !== false)
-			$str = str_replace('%p', (strftime('%H', $time) < 12 ? $txt['time_am'] : $txt['time_pm']), $str);
-
-		foreach (array('%a', '%A', '%b', '%B') as $token)
-			if (strpos($str, $token) !== false)
-				$str = str_replace($token, strftime($token, $time), $str);
+		$timeformat = strtr($timeformat, array(
+			'%a' => '#txt_days_short_%w#',
+			'%A' => '#txt_days_%w#',
+			'%b' => '#txt_months_short_%m#',
+			'%B' => '#txt_months_%m#',
+			'%p' => '&#37;p',
+			'%P' => '&#37;p'
+		));
 	}
+	// Just in case the locale doesn't support '%p' properly.
+	// @todo Is this even necessary?
 	else
 	{
-		// Do-it-yourself time localization.  Fun.
-		foreach (array('%a' => 'days_short', '%A' => 'days', '%b' => 'months_short', '%B' => 'months') as $token => $text_label)
-			if (strpos($str, $token) !== false)
-				$str = str_replace($token, $txt[$text_label][(int) strftime($token === '%a' || $token === '%A' ? '%w' : '%m', $time)], $str);
+		if (!isset($non_twelve_hour) && strpos($timeformat, '%p') !== false)
+			$non_twelve_hour = trim(strftime('%p')) === '';
 
-		if (strpos($str, '%p') !== false)
-			$str = str_replace('%p', (strftime('%H', $time) < 12 ? $txt['time_am'] : $txt['time_pm']), $str);
+		if (!empty($non_twelve_hour))
+			$timeformat = strtr($timeformat, array(
+				'%p' => '&#37;p',
+				'%P' => '&#37;p'
+			));
 	}
 
-	// Format the time and then restore any literal percent characters
-	return str_replace('&#37;', '%', strftime($str, $time));
+	// And now, the moment we've all be waiting for...
+	$timestring = strftime($timeformat, $log_time);
+
+	// Do-it-yourself time localization.  Fun.
+	if (strpos($timestring, '&#37;p') !== false)
+		$timestring = str_replace('&#37;p', (strftime('%H', $log_time) < 12 ? $txt['time_am'] : $txt['time_pm']), $timestring);
+	if (strpos($timestring, '#txt_') !== false)
+	{
+		if (strpos($timestring, '#txt_days_short_') !== false)
+			$timestring = strtr($timestring, array(
+				'#txt_days_short_0#' => $txt['days_short'][0],
+				'#txt_days_short_1#' => $txt['days_short'][1],
+				'#txt_days_short_2#' => $txt['days_short'][2],
+				'#txt_days_short_3#' => $txt['days_short'][3],
+				'#txt_days_short_4#' => $txt['days_short'][4],
+				'#txt_days_short_5#' => $txt['days_short'][5],
+				'#txt_days_short_6#' => $txt['days_short'][6],
+			));
+
+		if (strpos($timestring, '#txt_days_') !== false)
+			$timestring = strtr($timestring, array(
+				'#txt_days_0#' => $txt['days'][0],
+				'#txt_days_1#' => $txt['days'][1],
+				'#txt_days_2#' => $txt['days'][2],
+				'#txt_days_3#' => $txt['days'][3],
+				'#txt_days_4#' => $txt['days'][4],
+				'#txt_days_5#' => $txt['days'][5],
+				'#txt_days_6#' => $txt['days'][6],
+			));
+
+		if (strpos($timestring, '#txt_months_short_') !== false)
+			$timestring = strtr($timestring, array(
+				'#txt_months_short_01#' => $txt['months_short'][1],
+				'#txt_months_short_02#' => $txt['months_short'][2],
+				'#txt_months_short_03#' => $txt['months_short'][3],
+				'#txt_months_short_04#' => $txt['months_short'][4],
+				'#txt_months_short_05#' => $txt['months_short'][5],
+				'#txt_months_short_06#' => $txt['months_short'][6],
+				'#txt_months_short_07#' => $txt['months_short'][7],
+				'#txt_months_short_08#' => $txt['months_short'][8],
+				'#txt_months_short_09#' => $txt['months_short'][9],
+				'#txt_months_short_10#' => $txt['months_short'][10],
+				'#txt_months_short_11#' => $txt['months_short'][11],
+				'#txt_months_short_12#' => $txt['months_short'][12],
+			));
+
+		if (strpos($timestring, '#txt_months_') !== false)
+			$timestring = strtr($timestring, array(
+				'#txt_months_01#' => $txt['months'][1],
+				'#txt_months_02#' => $txt['months'][2],
+				'#txt_months_03#' => $txt['months'][3],
+				'#txt_months_04#' => $txt['months'][4],
+				'#txt_months_05#' => $txt['months'][5],
+				'#txt_months_06#' => $txt['months'][6],
+				'#txt_months_07#' => $txt['months'][7],
+				'#txt_months_08#' => $txt['months'][8],
+				'#txt_months_09#' => $txt['months'][9],
+				'#txt_months_10#' => $txt['months'][10],
+				'#txt_months_11#' => $txt['months'][11],
+				'#txt_months_12#' => $txt['months'][12],
+			));
+	}
+
+	// Restore any literal percent characters, add the prefix, and we're done.
+	return $prefix . str_replace('&#37;', '%', $timestring);
 }
 
 /**
