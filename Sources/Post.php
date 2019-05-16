@@ -284,17 +284,17 @@ function Post($post_errors = array())
 		// Permissions check!
 		isAllowedTo('calendar_post');
 
-		// We want a fairly compact version of the time, but as close as possible to the user's settings.
-		if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-			$time_string = '%k:%M';
-		else
-			$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
+		require_once($sourcedir . '/Subs-Calendar.php');
 
-		$js_time_string = str_replace(
-			array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r', '%R', '%S', '%T', '%X'),
-			array('H', 'G', 'h', 'g', 'i', 'A', 'a', 'h:i:s A', 'H:i', 's', 'H:i:s', 'H:i:s'),
-			$time_string
-		);
+		// We want a fairly compact version of the time, but as close as possible to the user's settings.
+		$time_string = strtr(get_date_or_time_format('time'), array(
+			'%I' => '%l',
+			'%H' => '%k',
+			'%S' => '',
+			'%r' => '%l:%M %p',
+			'%R' => '%k:%M',
+			'%T' => '%l:%M',
+		));
 
 		// Editing an event?  (but NOT previewing!?)
 		if (empty($context['event']['new']) && !isset($_REQUEST['subject']))
@@ -307,14 +307,12 @@ function Post($post_errors = array())
 			}
 
 			// Get the current event information.
-			require_once($sourcedir . '/Subs-Calendar.php');
 			$eventProperties = getEventProperties($context['event']['id']);
 			$context['event'] = array_merge($context['event'], $eventProperties);
 		}
 		else
 		{
 			// Get the current event information.
-			require_once($sourcedir . '/Subs-Calendar.php');
 			$eventProperties = getNewEventDatetimes();
 			$context['event'] = array_merge($context['event'], $eventProperties);
 
@@ -355,54 +353,15 @@ function Post($post_errors = array())
 			$context['all_timezones'] = array($context['event']['tz'] => '[UTC' . date_format($d, 'P') . '] - ' . $context['event']['tz']) + $context['all_timezones'];
 		}
 
-		loadCSSFile('jquery-ui.datepicker.css', array(), 'smf_datepicker');
-		loadCSSFile('jquery.timepicker.css', array(), 'smf_timepicker');
-		loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
-		loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
-		loadJavaScriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');
+		loadDatePicker('#event_time_input .date_input');
+		loadTimePicker('#event_time_input .date_input', $time_string);
+		loadDatePair('#event_time_input', 'date_input', 'time_input');
 		addInlineJavaScript('
 	$("#allday").click(function(){
 		$("#start_time").attr("disabled", this.checked);
 		$("#end_time").attr("disabled", this.checked);
 		$("#tz").attr("disabled", this.checked);
-	});
-	$("#event_time_input .date_input").datepicker({
-		dateFormat: "yy-mm-dd",
-		autoSize: true,
-		isRTL: ' . ($context['right_to_left'] ? 'true' : 'false') . ',
-		constrainInput: true,
-		showAnim: "",
-		showButtonPanel: false,
-		minDate: "' . $modSettings['cal_minyear'] . '-01-01",
-		maxDate: "' . $modSettings['cal_maxyear'] . '-12-31",
-		yearRange: "' . $modSettings['cal_minyear'] . ':' . $modSettings['cal_maxyear'] . '",
-		hideIfNoPrevNext: true,
-		monthNames: ["' . implode('", "', $txt['months_titles']) . '"],
-		monthNamesShort: ["' . implode('", "', $txt['months_short']) . '"],
-		dayNames: ["' . implode('", "', $txt['days']) . '"],
-		dayNamesShort: ["' . implode('", "', $txt['days_short']) . '"],
-		dayNamesMin: ["' . implode('", "', $txt['days_short']) . '"],
-		prevText: "' . $txt['prev_month'] . '",
-		nextText: "' . $txt['next_month'] . '",
-	});
-	$(".time_input").timepicker({
-		timeFormat: "' . $js_time_string . '",
-		showDuration: true,
-		maxTime: "23:59:59",
-	});
-	var date_entry = document.getElementById("event_time_input");
-	var date_entry_pair = new Datepair(date_entry, {
-		timeClass: "time_input",
-		dateClass: "date_input",
-		parseDate: function (el) {
-			var utc = new Date($(el).datepicker("getDate"));
-			return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
-		},
-		updateDate: function (el, v) {
-			$(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
-		}
-	});
-	', true);
+	});	', true);
 
 		$context['event']['board'] = !empty($board) ? $board : $modSettings['cal_defaultboard'];
 		$context['event']['topic'] = !empty($topic) ? $topic : 0;
