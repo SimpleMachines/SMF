@@ -424,7 +424,7 @@ function determineActions($urls, $preferred_prefix = false)
 			// Viewable by permission level.
 			elseif (isset($allowedActions[$actions['action']]))
 			{
-				if (allowedTo($allowedActions[$actions['action']]))
+				if (allowedTo($allowedActions[$actions['action']]) && !empty($txt['whoallow_' . $actions['action']]))
 					$data[$k] = $txt['whoallow_' . $actions['action']];
 				elseif (in_array('moderate_forum', $allowedActions[$actions['action']]))
 					$data[$k] = $txt['who_moderate'];
