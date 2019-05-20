@@ -2777,7 +2777,7 @@ function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
 	// All the topics with notification on...
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			COALESCE(lt.id_msg, COALESCE(lmr.id_msg, -1)) + 1 AS new_from, b.id_board, b.name,
+			COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from, b.id_board, b.name,
 			t.id_topic, ms.subject, ms.id_member, COALESCE(mem.real_name, ms.poster_name) AS real_name_col,
 			ml.id_msg_modified, ml.poster_time, ml.id_member AS id_member_updated,
 			COALESCE(mem2.real_name, ml.poster_name) AS last_real_name,
