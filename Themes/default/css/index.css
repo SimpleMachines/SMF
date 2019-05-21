@@ -3894,7 +3894,7 @@ input[name="attachBBC"] {
 	width: 100%;
 	margin-top: 10px;
 }
-.attachment_info .progress_bar, .attachment_info .attached_BBC, a#attach_cancel_all, a#attach_upload_all {
+.attachment_info .progress_bar, .attachment_info .attached_BBC, a#attach_cancel_all, a#attach_upload_all, .attach-ui {
 	display: none;
 }
 .attachment_info .progress_bar {
@@ -3913,6 +3913,9 @@ input[name="attachBBC"] {
 }
 #attachment_upload {
 	min-height: 50px;
+}
+#drop_zone_ui {
+	display: none;
 }
 #total_progress {
 	width: 50%;

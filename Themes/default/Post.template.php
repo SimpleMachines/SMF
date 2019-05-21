@@ -419,10 +419,12 @@ function template_main()
 							</dt>
 							<dd class="smalltext fallback">
 								<div id="attachment_upload" class="descbox">
-									<h5>', $txt['attach_drop_zone'], '</h5>
-									<a class="button" id="attach_cancel_all">', $txt['attached_cancel_all'], '</a>
-									<a class="button" id="attach_upload_all">', $txt['attached_upload_all'], '</a>
-									<a class="button fileinput-button">', $txt['attach_add'], '</a>
+									<div id="drop_zone_ui">
+										<p><strong>', $txt['attach_drop_zone'], '</strong></p>
+										<a class="button" id="attach_cancel_all">', $txt['attached_cancel_all'], '</a>
+										<a class="button" id="attach_upload_all">', $txt['attached_upload_all'], '</a>
+										<a class="button fileinput-button">', $txt['attach_add'], '</a>
+									</div>
 									<div id="total_progress" class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
 										<div class="bar"></div>
 									</div>

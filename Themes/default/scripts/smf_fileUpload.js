@@ -485,7 +485,10 @@ function smf_fileUpload(oOptions) {
 	});
 
 	// Hide the default way to show already attached files.
-	$('#postAttachment').fadeOutAndRemove('slow');
+	$('#postAttachment').remove();
+
+	// Show the drag-and-drop instructions and buttons
+	$('#drop_zone_ui').show();
 
 	// Show any attachments already uploaded.
 	if (typeof current_attachments !== "undefined") {
