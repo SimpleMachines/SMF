@@ -1512,6 +1512,36 @@ function create_control_richedit($editorOptions)
 	loadLanguage('Post');
 	loadLanguage('Editor');
 
+	$context['richedit_buttons'] = array(
+		'save_draft' => array(
+			'type' => 'submit',
+			'value' => $txt['draft_save'],
+			'onclick' => !empty($context['drafts_pm_save']) ? 'submitThisOnce(this);' : (!empty($context['drafts_save']) ? 'return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
+			'accessKey' => 'd',
+			'show' => !empty($context['drafts_pm_save']) || !empty($context['drafts_save'])
+		),
+		'id_pm_draft' => array(
+			'type' => 'hidden',
+			'value' => empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'],
+			'show' => !empty($context['drafts_pm_save'])
+		),
+		'id_draft' => array(
+			'type' => 'hidden',
+			'value' => empty($context['id_draft']) ? 0 : $context['id_draft'],
+			'show' => !empty($context['drafts_save'])
+		),
+		'spell_check' => array(
+			'type' => 'submit',
+			'value' => $txt['spell_check'],
+			'show' => !empty($context['show_spellchecking'])
+		),
+		'preview' => array(
+			'type' => 'submit',
+			'value' => $txt['preview'],
+			'accessKey' => 'p'
+		)
+	);
+
 	// Every control must have a ID!
 	assert(isset($editorOptions['id']));
 	assert(isset($editorOptions['value']));
@@ -1537,9 +1567,6 @@ function create_control_richedit($editorOptions)
 		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
 		var bbc_quote = \'' . addcslashes($txt['quote'], "'") . '\';
 		var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';');
-		// editor language file
-		if (!empty($txt['lang_locale']) && $txt['lang_locale'] != 'en_US')
-			loadJavaScriptFile($scripturl . '?action=loadeditorlocale', array('external' => true), 'sceditor_language');
 
 		$context['shortcuts_text'] = $txt['shortcuts' . (!empty($context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (isBrowser('is_firefox') ? '_firefox' : ''))];
 		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv'))));
