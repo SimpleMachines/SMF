@@ -373,6 +373,9 @@ function template_main()
 		// Print dropzone UI.
 		echo '
 						<div class="files" id="attachment_previews">
+							<div>
+								<strong>', $txt['attached'], ':</strong>
+							</div>
 							<div id="au-template">
 								<div class="attach-preview">
 									<img data-dz-thumbnail />
@@ -417,13 +420,17 @@ function template_main()
 							<dt>
 								', $txt['attach'], ':
 							</dt>
-							<dd class="smalltext fallback">
+							<dd class="fallback">
 								<div id="attachment_upload" class="descbox">
 									<div id="drop_zone_ui">
-										<p><strong>', $txt['attach_drop_zone'], '</strong></p>
-										<a class="button" id="attach_cancel_all">', $txt['attached_cancel_all'], '</a>
-										<a class="button" id="attach_upload_all">', $txt['attached_upload_all'], '</a>
-										<a class="button fileinput-button">', $txt['attach_add'], '</a>
+										<div>
+											<strong>', $txt['attach_drop_zone'], '</strong>
+										</div>
+										<div class="righttext">
+											<a class="button" id="attach_cancel_all">', $txt['attached_cancel_all'], '</a>
+											<a class="button" id="attach_upload_all">', $txt['attached_upload_all'], '</a>
+											<a class="button fileinput-button">', $txt['attach_add'], '</a>
+										</div>
 									</div>
 									<div id="total_progress" class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
 										<div class="bar"></div>

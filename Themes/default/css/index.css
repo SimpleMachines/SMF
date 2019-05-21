@@ -3415,16 +3415,13 @@ ul.post_options li {
 #post_additional_options .progress_bar {
 	height: 22px;
 }
-#post_settings, #postAttachment, #postAttachment2 {
+#post_settings, #postAttachment, #postAttachment2, #attachment_previews {
 	border-top: 1px solid #ddd;
 	margin: -1px 0 0 0;
 	padding: 10px;
 }
-#postAttachment dd {
-	margin: 2px 12px;
-}
-#postAttachment2 dd {
-	margin: 4px 12px;
+#postAttachment dd, #postAttachment2 dd {
+	margin: 4px 0;
 }
 #postAttachment dd {
 	width: 45%;
@@ -3871,6 +3868,7 @@ h3.profile_hd {
 	flex-flow: row wrap;
 	justify-content: space-between;
 	align-items: center;
+	margin-top: 12px;
 }
 #attachment_previews div.descbox > div,
 #attachment_previews div.errorbox > div,

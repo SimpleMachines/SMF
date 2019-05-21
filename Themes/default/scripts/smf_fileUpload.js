@@ -2,7 +2,9 @@ function smf_fileUpload(oOptions) {
 
 	var previewNode = document.querySelector('#au-template');
 		previewNode.id = '';
-		previewTemplate = previewNode.parentNode.innerHTML;
+	var tmp = document.createElement('div');
+		tmp.appendChild(previewNode.cloneNode(true));
+		previewTemplate = tmp.innerHTML;
 		previewNode.parentNode.removeChild(previewNode);
 
 	// Default values in case oOptions isn't defined.
