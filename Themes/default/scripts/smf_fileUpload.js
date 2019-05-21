@@ -190,7 +190,7 @@ function smf_fileUpload(oOptions) {
 							ajax_indicator(false);
 
 							// Delete the button.
-							$this.fadeOutAndRemove('slow');
+							$this.fadeOutAndRemove();
 						},
 						success: function (data, textStatus, xhr) {
 
@@ -250,9 +250,7 @@ function smf_fileUpload(oOptions) {
 
 		// Show the upload and cancel all buttons only if there is something to cancel/upload.
 		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 1) {
-			$('div#attachment_upload').find('#attach_cancel_all, #attach_upload_all').fadeIn('slow', function() {
-					$(this).css('display', 'inline-block');
-			});
+			$('div#attachment_upload').find('#attach_cancel_all, #attach_upload_all').css('display', 'inline-block');
 		}
 	});
 
@@ -270,8 +268,8 @@ function smf_fileUpload(oOptions) {
 
 		// Hide the cancel and upload all buttons if there is nothing to cancel/upload anymore.
 		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 0) {
-			$('div#attachment_upload').find('#attach_cancel_all, #attach_upload_all').fadeOut();
-			$('#max_files_progress').fadeOut();
+			$('div#attachment_upload').find('#attach_cancel_all, #attach_upload_all').hide();
+			$('#max_files_progress').hide();
 		}
 	});
 
@@ -308,7 +306,7 @@ function smf_fileUpload(oOptions) {
 		_thisElement = $(file.previewElement);
 
 		// Remove the 'upload' button.
-		_thisElement.find('.upload').fadeOutAndRemove('slow');
+		_thisElement.find('.upload').fadeOutAndRemove();
 
 		// Set a nice css class to make it more obvious there is an error.
 		_thisElement.addClass('errorbox').removeClass('descbox');
@@ -319,7 +317,7 @@ function smf_fileUpload(oOptions) {
 		_thisElement = $(file.previewElement);
 
 		// Remove the 'upload' button.
-		_thisElement.find('.upload').fadeOutAndRemove('slow');
+		_thisElement.find('.upload').fadeOutAndRemove();
 
 		// Don't do anything if there is no response from server.
 		if (!responseText) {
@@ -357,7 +355,7 @@ function smf_fileUpload(oOptions) {
 		_thisElement.addClass('infobox').removeClass('descbox');
 
 		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
-		_thisElement.find('a.cancel').fadeOutAndRemove('slow');
+		_thisElement.find('a.cancel').fadeOutAndRemove();
 
 		// Fire up the delete button.
 		file.deleteAttachment(_thisElement, response.attachID, file);
@@ -402,10 +400,10 @@ function smf_fileUpload(oOptions) {
 			_thisElement.addClass('infobox').removeClass('descbox');
 
 			// Remove the 'upload' button.
-			_thisElement.find('.upload').fadeOutAndRemove('slow');
+			_thisElement.find('.upload').fadeOutAndRemove();
 
 			// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
-			_thisElement.find('a.cancel').fadeOutAndRemove('slow');
+			_thisElement.find('a.cancel').fadeOutAndRemove();
 
 			// Fire up the delete button.
 			file.deleteAttachment(_thisElement, file.attachID, file);
