@@ -138,9 +138,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		if (!empty($modSettings['disabledBBC']))
 		{
 			$disabledBBC = $modSettings['disabledBBC'];
-			$disable = implode(',', array_unique(array_merge($disable, explode(',', $modSettings['disabledBBC']))));
+			$disable = array_unique(array_merge($disable, explode(',', $modSettings['disabledBBC'])));
 		}
-		$modSettings['disabledBBC'] = $disable;
+		$modSettings['disabledBBC'] = implode(',', $disable);
 
 		// Do we have anyone to notify via mention? Handle them first and cross them off the list
 		if (!empty($msgOptions['mentioned_members']))
