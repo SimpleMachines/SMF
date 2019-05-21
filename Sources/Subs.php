@@ -789,6 +789,9 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	if (is_null($finalizedFormats))
 		$finalizedFormats = (array) cache_get_data('timeformatstrings', 86400);
 
+	if (!isset($finalizedFormats[$str]) || !is_array($finalizedFormats[$str]))
+		$finalizedFormats[$str] = array();
+
 	// Make a supported version for this format if we don't already have one
 	$format_type = !empty($prefix) ? 'time_only' : 'normal';
 	if (empty($finalizedFormats[$str][$format_type]))
