@@ -273,10 +273,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				$replacements = array(
-					'TOPICSUBJECT' => $parsed_message[$receiver_lang]['subject'],
+					'TOPICSUBJECT' => $parsed_message[$localization]['subject'],
 					'POSTERNAME' => un_htmlspecialchars($posterOptions['name']),
 					'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
-					'MESSAGE' => $parsed_message[$receiver_lang]['body'],
+					'MESSAGE' => $parsed_message[$localization]['body'],
 					'UNSUBSCRIBELINK' => $scripturl . '?action=notifyboard;board=' . $topicOptions['board'] . '.0',
 				);
 
@@ -304,7 +304,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'extra' => $smcFunc['json_encode'](array(
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
-						'content_subject' => $parsed_message[$receiver_lang]['subject'],
+						'content_subject' => $parsed_message[$localization]['subject'],
 						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
 					)),
 				);
