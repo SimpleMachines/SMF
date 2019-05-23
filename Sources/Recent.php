@@ -33,10 +33,12 @@ function getLastPost()
 		SELECT ml.poster_time, ml.subject, ml.id_topic, ml.poster_name, SUBSTRING(ml.body, 1, 385) AS body,
 			ml.smileys_enabled
 		FROM {db_prefix}boards AS b
-			INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = b.id_last_msg)
+			INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = b.id_last_msg)' . (!empty($modSettings['postmod_active']) ? '
+			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
 		WHERE {query_wanna_see_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-			AND b.id_board != {int:recycle_board}' : '') . '
+			AND b.id_board != {int:recycle_board}' : '') . (!empty($modSettings['postmod_active']) ? '
 			AND ml.approved = {int:is_approved}
+			AND t.approved = {int:is_approved}' : '') . '
 		ORDER BY b.id_msg_updated DESC
 		LIMIT 1',
 		array(
@@ -285,9 +287,11 @@ function RecentPosts()
 			$request = $smcFunc['db_query']('', '
 				SELECT m.id_msg
 				FROM {db_prefix}messages AS m
-					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-				WHERE ' . $query_this_board . '
+					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)' . (!empty($modSettings['postmod_active']) ? '
+					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
+				WHERE ' . $query_this_board . (!empty($modSettings['postmod_active']) ? '
 					AND m.approved = {int:is_approved}
+					AND t.approved = {int:is_approved}' : '') . '
 				ORDER BY m.id_msg DESC
 				LIMIT {int:offset}, {int:limit}',
 				array_merge($query_parameters, array(
