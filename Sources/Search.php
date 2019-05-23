@@ -971,7 +971,7 @@ function PlushSearch2()
 		$participants = array();
 		$searchArray = array();
 
-		$num_results = $searchAPI->searchQuery($query_params, $searchWords, $excludedIndexWords, $participants, $searchArray);
+		$searchAPI->searchQuery($query_params, $searchWords, $excludedIndexWords, $participants, $searchArray);
 	}
 
 	// Update the cache if the current search term is not yet cached.
@@ -1715,8 +1715,6 @@ function PlushSearch2()
 			$participants[$row['id_topic']] = false;
 		}
 		$smcFunc['db_free_result']($request);
-
-		$num_results = $_SESSION['search_cache']['num_results'];
 	}
 
 	if (!empty($context['topics']))
@@ -1792,8 +1790,11 @@ function PlushSearch2()
 			)
 		);
 
+		// How many results will the user be able to see?
+		$num_results = $smcFunc['db_num_rows']($messages_request);
+
 		// If there are no results that means the things in the cache got deleted, so pretend we have no topics anymore.
-		if ($smcFunc['db_num_rows']($messages_request) == 0)
+		if ($num_results == 0)
 			$context['topics'] = array();
 
 		// If we want to know who participated in what then load this now.
