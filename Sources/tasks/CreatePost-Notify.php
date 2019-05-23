@@ -58,6 +58,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$quotedMembers = array();
 		$done_members = array();
 		$alert_rows = array();
+		$receiving_members = array();
 
 		if ($type == 'reply' || $type == 'topic')
 		{
@@ -136,7 +137,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		// Save ourselves a bit of work in the big loop below
 		foreach ($done_members as $done_member)
+		{
+			$receiving_members[] = $done_member;
 			unset($watched[$done_member]);
+		}
 
 		$parsed_message = array();
 
@@ -162,7 +166,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			if (in_array($frequency, array(self::FREQUENCY_NOTHING, self::FREQUENCY_DAILY_DIGEST, self::FREQUENCY_WEEKLY_DIGEST)))
 				continue;
 			// ... or if we already sent one and they don't want more...
-			elseif ($frequency === self::FREQUENCY_FIRST_UNREAD_MSG && $data['sent'])
+			elseif ($frequency == self::FREQUENCY_FIRST_UNREAD_MSG && $data['sent'])
 				continue;
 			// ... or if they aren't on the bouncer's list.
 			elseif (!empty($this->_details['members_only']) && !in_array($member, $this->_details['members_only']))
@@ -255,7 +259,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
 					)),
 				);
-				updateMemberData($member, array('alerts' => '+'));
+
+				$receiving_members[] = $member;
 			}
 
 			$smcFunc['db_query']('', '
@@ -291,6 +296,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				$alert_rows,
 				array()
 			);
+
+		updateMemberData($receiving_members, array('alerts' => '+'));
 
 		return true;
 	}
@@ -337,8 +344,6 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
 					)),
 				);
-
-				updateMemberData($member['id_member'], array('alerts' => '+'));
 			}
 		}
 	}
@@ -449,8 +454,6 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
 					)),
 				);
-
-				updateMemberData($member['id'], array('alerts' => '+'));
 			}
 		}
 	}

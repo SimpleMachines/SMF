@@ -92,12 +92,12 @@ class ApproveReply_Notify_Background extends SMF_BackgroundTask
 						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
 					)),
 				);
-				updateMemberData($member, array('alerts' => '+'));
 			}
 		}
 
 		// Insert the alerts if any
 		if (!empty($alert_rows))
+		{
 			$smcFunc['db_insert']('',
 				'{db_prefix}user_alerts',
 				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
@@ -105,6 +105,9 @@ class ApproveReply_Notify_Background extends SMF_BackgroundTask
 				$alert_rows,
 				array()
 			);
+
+			updateMemberData(array_keys($watched), array('alerts' => '+'));
+		}
 
 		return true;
 	}

@@ -125,6 +125,8 @@ function template_alerts_popup()
 						ajax_indicator(false);
 						$("#alerts_menu_top span.amt").remove();
 						$("#alerts_menu div.alerts_unread").html(data);
+						if (typeof localStorage != "undefined")
+							localStorage.setItem("alertsCounter", 0);
 					}
 				);
 				return false;

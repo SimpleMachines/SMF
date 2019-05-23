@@ -129,12 +129,12 @@ class CreateAttachment_Notify_Background extends SMF_BackgroundTask
 						)
 					),
 				);
-				updateMemberData($member, array('alerts' => '+'));
 			}
 		}
 
 		// Insert the alerts if any
 		if (!empty($alert_rows))
+		{
 			$smcFunc['db_insert'](
 				'insert',
 				'{db_prefix}user_alerts',
@@ -152,6 +152,9 @@ class CreateAttachment_Notify_Background extends SMF_BackgroundTask
 				$alert_rows,
 				array()
 			);
+
+			updateMemberData(array_keys($watched), array('alerts' => '+'));
+		}
 
 		return true;
 	}
