@@ -1017,9 +1017,9 @@ function Display()
 	}
 
 	// Remember the paging data for next time
-	$_SESSION['page_first_id'] = $ascending ? array_values($messages)[0] : end($messages);
+	$_SESSION['page_first_id'] = $ascending ? reset($messages) : end($messages);
 	$_SESSION['page_before_start'] = $_REQUEST['start'] - $limit;
-	$_SESSION['page_last_id'] = $ascending ? end($messages) : array_values($messages)[0];
+	$_SESSION['page_last_id'] = $ascending ? end($messages) : reset($messages);
 	$_SESSION['page_next_start'] = $_REQUEST['start'] + $limit;
 	$_SESSION['page_current_start'] = $_REQUEST['start'];
 	$_SESSION['page_topic'] = $topic;
