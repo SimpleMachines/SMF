@@ -2160,7 +2160,7 @@ if (stripos($column_info['type'], 'varbinary') !== false)
 	$doChange = false;
 
 if ($doChange)
-	upgrade_query("ALTER TABLE {$db_prefix}messages CHANGE poster_ip poster_ip_old varchar(200);");
+	upgrade_query("ALTER TABLE {$db_prefix}messages CHANGE poster_ip poster_ip_old varchar(255);");
 ---}
 ---#
 
