@@ -4069,8 +4069,21 @@ function template_javascript($do_deferred = false)
 			}
 
 			else
+			{
 				echo '
-	<script src="', $js_file['fileUrl'], isset($file['options']['seed']) ? $file['options']['seed'] : '', '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '', '></script>';
+	<script src="', $js_file['fileUrl'], isset($js_file['options']['seed']) ? $js_file['options']['seed'] : '', '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '';
+
+				if (!empty($js_file['options']['attributes']))
+					foreach ($js_file['options']['attributes'] as $key => $value)
+					{
+						if (is_bool($value))
+							echo !empty($value) ? ' ' . $key : '';
+						else
+							echo ' ', $key, '="', $value, '"';
+					}
+
+				echo '></script>';
+			}
 		}
 
 		foreach ($toMinify as $js_files)
@@ -4155,7 +4168,10 @@ function template_css()
 				$minSeed = $file['options']['seed'];
 		}
 		else
-			$normal[] = $file['fileUrl'] . (isset($file['options']['seed']) ? $file['options']['seed'] : '');
+			$normal[] = array(
+				'url' => $file['fileUrl'] . (isset($file['options']['seed']) ? $file['options']['seed'] : ''),
+				'attributes' => !empty($file['options']['attributes']) ? $file['options']['attributes'] : array()
+			);
 	}
 
 	if (!empty($toMinify))
@@ -4172,8 +4188,21 @@ function template_css()
 	// Print the rest after the minified files.
 	if (!empty($normal))
 		foreach ($normal as $nf)
+		{
 			echo '
-	<link rel="stylesheet" href="', $nf, '">';
+	<link rel="stylesheet" href="', $nf['url'], '"';
+
+			if (!empty($nf['attributes']))
+				foreach ($nf['attributes'] as $key => $value)
+				{
+					if (is_bool($value))
+						echo !empty($value) ? ' ' . $key : '';
+					else
+						echo ' ', $key, '="', $value, '"';
+				}
+
+			echo '>';
+		}
 
 	if ($db_show_debug === true)
 	{
