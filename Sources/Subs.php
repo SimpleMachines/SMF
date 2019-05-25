@@ -7040,4 +7040,78 @@ function sentence_list($list)
 	return strtr($format, $replacements);
 }
 
+/**
+ * Truncate an array to a specified length
+ *
+ * @param array $array The array to truncate
+ * @param int $max_length The upperbound on the length
+ * @param int $deep How levels in an multidimensional array should the function take into account.
+ * @return array The truncated array
+ */
+function truncate_array($array, $max_length = 1900, $deep = 3)
+{
+    $array = (array) $array;
+
+    $curr_length = 0;
+    $curr_length = array_length($array);
+
+    if ($curr_length <= $max_length)
+        return $array;
+
+    else
+    {
+        // Truncate each element's value to a reasonable length
+        $param_max = floor($max_length / count($array));
+
+        $currentDeep = $deep - 1;
+
+        foreach ($array as $key => &$value)
+        {
+            if (is_array($value))
+            {
+                if ($currentDeep > 0)
+                    $value = truncate_array($value, $currentDeep);
+            }
+
+            else
+                $value = substr($value, 0, $param_max - strlen($key) - 5);
+        }
+
+        return $array;
+    }
+}
+
+/**
+ * array_length Recursive
+ * @param $array
+ * @param int $deep How many levels should the function
+ * @return int
+ */
+function array_length($array, $deep = 3)
+{
+    // Work with arrays
+    $array = (array) $array;
+    $length = 0;
+
+    $deepCount = $deep - 1;
+
+    foreach ($array as $value)
+    {
+        // Recursive?
+        if (is_array($value))
+        {
+            // No can't do
+            if ($deepCount <= 0)
+                continue;
+
+            $length += array_length($value, $deepCount);
+        }
+
+        else
+            $length += strlen($value);
+    }
+
+    return $length;
+}
+
 ?>
