@@ -87,7 +87,7 @@ function template_generic_menu(&$menu_context)
 				continue;
 
 			echo '
-								<li', !empty($area['subsections']) ? ' class="subsections"' : '', '>
+								<li', !empty($area['subsections']) && empty($area['hide_subsections']) ? ' class="subsections"' : '', '>
 									<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], !empty($area['amt']) ? ' <span class="amt">' . $area['amt'] . '</span>' : '', '</a>';
 
 			// Is this the current area, or just some area?
@@ -97,6 +97,9 @@ function template_generic_menu(&$menu_context)
 			// Are there any subsections?
 			if (!empty($area['subsections']))
 			{
+				if (!empty($area['hide_subsections']))
+					continue;
+
 				echo '
 									<ul>';
 

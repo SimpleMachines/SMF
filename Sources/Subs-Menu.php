@@ -266,6 +266,18 @@ function createMenu($menuData, $menuOptions = array())
 		}
 	}
 
+	foreach ($menu_context['sections'] as $section_id => $section)
+		if (!empty($section['areas']))
+			foreach ($section['areas'] as $area_id => $area)
+				if (!empty($area['subsections']))
+					foreach ($area['subsections'] as $sa => $sub)
+					{
+						if (empty($sub['disabled']))
+							break;
+
+						$menu_context['sections'][$section_id]['areas'][$area_id]['hide_subsections'] = true;
+					}
+
 	// Should we use a custom base url, or use the default?
 	$menu_context['base_url'] = isset($menuOptions['base_url']) ? $menuOptions['base_url'] : $scripturl . '?action=' . $menu_context['current_action'];
 
