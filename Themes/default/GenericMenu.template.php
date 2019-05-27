@@ -95,11 +95,8 @@ function template_generic_menu(&$menu_context)
 				$context['tabs'] = isset($area['subsections']) ? $area['subsections'] : array();
 
 			// Are there any subsections?
-			if (!empty($area['subsections']))
+			if (!empty($area['subsections']) && empty($area['hide_subsections']))
 			{
-				if (!empty($area['hide_subsections']))
-					continue;
-
 				echo '
 									<ul>';
 
