@@ -2374,8 +2374,8 @@ function alert_count($memID, $unread = false)
 	}
 	$smcFunc['db_free_result']($request);
 
-	// If this isn't the current user, get their boards.
-	if ($memID != $user_info['id'])
+	// If we need to check board access, use the correct board access filter for the member in question.
+	if ((!isset($user_info) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics) || !empty($possible_attachments)))
 		$qb = build_query_board($memID);
 	else
 	{
@@ -2466,7 +2466,6 @@ function alert_count($memID, $unread = false)
 		}
 		$smcFunc['db_free_result']($request);
 	}
-	unset($possible_msgs, $possible_topics, $possible_boards);
 
 	// Now check alerts again and remove any they can't see.
 	foreach ($alerts as $id_alert => $alert)

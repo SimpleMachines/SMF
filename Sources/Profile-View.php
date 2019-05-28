@@ -229,15 +229,6 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 {
 	global $smcFunc, $txt, $scripturl, $memberContext, $user_info, $user_profile;
 
-	// If this isn't the current user, get their boards.
-	if (!isset($user_info) || $user_info['id'] != $memID)
-	{
-		$query_see_board = build_query_board($memID);
-		$query_see_board = $query_see_board['query_see_board'];
-	}
-	else
-		$query_see_board = '{query_see_board}';
-
 	$alerts = array();
 	$senders = array();
 	$members = array();
@@ -348,6 +339,12 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	foreach ($formats as &$format_type)
 		$format_type = str_replace('{scripturl}', $scripturl, $format_type);
 
+	// If we need to check board access, use the correct board access filter for the member in question.
+	if ((!isset($user_info) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics) || !empty($possible_attachments)))
+		$qb = build_query_board($memID);
+	else
+		$qb['query_see_board'] = '{query_see_board}';
+
 	// For anything that needs more info and/or wants us to check board or topic access, let's do that.
 	if (!empty($possible_msgs))
 	{
@@ -364,7 +361,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			SELECT m.id_msg, m.id_topic, m.subject, b.id_board, b.name AS board_name
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
-			WHERE ' . $query_see_board . '
+			WHERE ' . $qb['query_see_board'] . '
 				AND m.id_msg IN ({array_int:msgs})
 			ORDER BY m.id_msg',
 			array(
@@ -397,7 +394,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
 				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
-			WHERE ' . $query_see_board . '
+			WHERE ' . $qb['query_see_board'] . '
 				AND t.id_topic IN ({array_int:topics})',
 			array(
 				'topics' => $possible_topics,
@@ -429,7 +426,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			FROM {db_prefix}attachments AS f
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = f.id_msg)
 				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
-			WHERE ' . $query_see_board . '
+			WHERE ' . $qb['query_see_board'] . '
 				AND f.id_attach IN ({array_int:attachments})',
 			array(
 				'attachments' => $possible_attachments,
