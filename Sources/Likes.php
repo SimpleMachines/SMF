@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -208,7 +207,7 @@ class Likes
 				)
 			);
 			if ($smcFunc['db_num_rows']($request) == 1)
-				list ($this->_idTopic, $topicOwner) = $smcFunc['db_fetch_row']($request);
+				list($this->_idTopic, $topicOwner) = $smcFunc['db_fetch_row']($request);
 
 			$smcFunc['db_free_result']($request);
 			if (empty($this->_idTopic))
@@ -353,7 +352,7 @@ class Likes
 				'like_type' => $this->_type,
 			)
 		);
-		list ($this->_numLikes) = $smcFunc['db_fetch_row']($request);
+		list($this->_numLikes) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// If you want to call this directly, fill out _data property too.
@@ -494,7 +493,7 @@ class Likes
 		{
 			$members = array_diff($members, $loaded);
 			foreach ($members as $not_loaded)
-				unset ($context['likers'][$not_loaded]);
+				unset($context['likers'][$not_loaded]);
 		}
 
 		foreach ($context['likers'] as $liker => $dummy)
@@ -502,7 +501,7 @@ class Likes
 			$loaded = loadMemberContext($liker);
 			if (!$loaded)
 			{
-				unset ($context['likers'][$liker]);
+				unset($context['likers'][$liker]);
 				continue;
 			}
 

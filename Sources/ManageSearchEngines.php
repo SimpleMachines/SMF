@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -369,7 +368,7 @@ function list_getNumSpiders()
 		array(
 		)
 	);
-	list ($numSpiders) = $smcFunc['db_fetch_row']($request);
+	list($numSpiders) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $numSpiders;
@@ -859,7 +858,7 @@ function list_getNumSpiderLogs()
 		array(
 		)
 	);
-	list ($numLogs) = $smcFunc['db_fetch_row']($request);
+	list($numLogs) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $numLogs;
@@ -905,7 +904,7 @@ function SpiderStats()
 		)
 	);
 
-	list ($min_date, $max_date) = $smcFunc['db_fetch_row']($request);
+	list($min_date, $max_date) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	$min_year = (int) substr($min_date, 0, 4);
@@ -962,7 +961,7 @@ function SpiderStats()
 				'date_being_viewed' => $date_query,
 			)
 		);
-		list ($_REQUEST['start']) = $smcFunc['db_fetch_row']($request);
+		list($_REQUEST['start']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 
@@ -1088,7 +1087,7 @@ function list_getNumSpiderStats()
 		array(
 		)
 	);
-	list ($numStats) = $smcFunc['db_fetch_row']($request);
+	list($numStats) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $numStats;

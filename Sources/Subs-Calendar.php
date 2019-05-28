@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -1147,7 +1146,7 @@ function getEventPoster($event_id)
 		return false;
 
 	// Grab the results and return.
-	list ($poster) = $smcFunc['db_fetch_row']($request);
+	list($poster) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 	return (int) $poster;
 }

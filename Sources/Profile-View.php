@@ -10,7 +10,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -49,7 +48,7 @@ function summary($memID)
 	);
 
 	// See if they have broken any warning levels...
-	list ($modSettings['warning_enable'], $modSettings['user_limit']) = explode(',', $modSettings['warning_settings']);
+	list($modSettings['warning_enable'], $modSettings['user_limit']) = explode(',', $modSettings['warning_settings']);
 	if (!empty($modSettings['warning_mute']) && $modSettings['warning_mute'] <= $context['member']['warning'])
 		$context['warning_status'] = $txt['profile_warning_is_muted'];
 	elseif (!empty($modSettings['warning_moderate']) && $modSettings['warning_moderate'] <= $context['member']['warning'])
@@ -74,7 +73,7 @@ function summary($memID)
 	}
 	else
 	{
-		list ($birth_year, $birth_month, $birth_day) = sscanf($context['member']['birth_date'], '%d-%d-%d');
+		list($birth_year, $birth_month, $birth_day) = sscanf($context['member']['birth_date'], '%d-%d-%d');
 		$datearray = getdate(forum_time());
 		$context['member'] += array(
 			'age' => $birth_year <= 1004 ? $txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
@@ -132,7 +131,7 @@ function summary($memID)
 	// Prevent signature images from going outside the box.
 	if ($context['signature_enabled'])
 	{
-		list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
+		list($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
 		$sig_limits = explode(',', $sig_limits);
 
 		if (!empty($sig_limits[5]) || !empty($sig_limits[6]))
@@ -451,7 +450,7 @@ function showAlerts($memID)
 	// Are we opening a specific alert ?
 	if (!empty($_REQUEST['alert']))
 	{
-		$alert_id = (int)$_REQUEST['alert'];
+		$alert_id = (int) $_REQUEST['alert'];
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, id_member_started, content_type, content_action, content_id, is_read, extra
 			FROM {db_prefix}user_alerts
@@ -724,7 +723,7 @@ function showPosts($memID)
 				'board' => $board,
 			)
 		);
-	list ($msgCount) = $smcFunc['db_fetch_row']($request);
+	list($msgCount) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	$request = $smcFunc['db_query']('', '
@@ -739,7 +738,7 @@ function showPosts($memID)
 			'board' => $board,
 		)
 	);
-	list ($min_msg_member, $max_msg_member) = $smcFunc['db_fetch_row']($request);
+	list($min_msg_member, $max_msg_member) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	$range_limit = '';
@@ -1199,7 +1198,7 @@ function list_getNumAttachments($boardsAllowed, $memID)
 			'board' => $board,
 		)
 	);
-	list ($attachCount) = $smcFunc['db_fetch_row']($request);
+	list($attachCount) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $attachCount;
@@ -1412,7 +1411,7 @@ function list_getNumUnwatched($memID)
 			'current_member' => $memID,
 		)
 	);
-	list ($unwatchedCount) = $smcFunc['db_fetch_row']($request);
+	list($unwatchedCount) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $unwatchedCount;
@@ -1456,7 +1455,7 @@ function statPanel($memID)
 			'no_poll' => 0,
 		)
 	);
-	list ($context['num_topics'], $context['num_polls']) = $smcFunc['db_fetch_row']($result);
+	list($context['num_topics'], $context['num_polls']) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	// Number polls voted in.
@@ -1468,7 +1467,7 @@ function statPanel($memID)
 			'current_member' => $memID,
 		)
 	);
-	list ($context['num_votes']) = $smcFunc['db_fetch_row']($result);
+	list($context['num_votes']) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	// Format the numbers...
@@ -1802,7 +1801,7 @@ function trackActivity($memID)
 				'current_member' => $memID,
 			)
 		);
-		list ($max_msg_member) = $smcFunc['db_fetch_row']($request);
+		list($max_msg_member) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// There's no point worrying ourselves with messages made yonks ago, just get recent ones!
@@ -1929,7 +1928,7 @@ function list_getUserErrorCount($where, $where_vars = array())
 		WHERE ' . $where,
 		$where_vars
 	);
-	list ($count) = $smcFunc['db_fetch_row']($request);
+	list($count) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return (int) $count;
@@ -1998,7 +1997,7 @@ function list_getIPMessageCount($where, $where_vars = array())
 		WHERE {query_see_message_board} AND ' . $where,
 		$where_vars
 	);
-	list ($count) = $smcFunc['db_fetch_row']($request);
+	list($count) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return (int) $count;
@@ -2426,7 +2425,7 @@ function list_getLoginCount($where, $where_vars = array())
 			'id_member' => $where_vars['current_member'],
 		)
 	);
-	list ($count) = $smcFunc['db_fetch_row']($request);
+	list($count) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return (int) $count;
@@ -2588,7 +2587,7 @@ function list_getProfileEditCount($memID)
 			'owner' => $memID,
 		)
 	);
-	list ($edit_count) = $smcFunc['db_fetch_row']($request);
+	list($edit_count) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return (int) $edit_count;
@@ -2783,7 +2782,7 @@ function list_getGroupRequestsCount($memID)
 			'memID' => $memID,
 		)
 	);
-	list ($report_count) = $smcFunc['db_fetch_row']($request);
+	list($report_count) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return (int) $report_count;

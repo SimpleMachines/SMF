@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -42,7 +41,7 @@ function getServerVersions($checkFor)
 	{
 		if (class_exists('Imagick'))
 		{
-			$temp = New Imagick;
+			$temp = new Imagick();
 			$temp2 = $temp->getVersion();
 			$im_version = $temp2['versionString'];
 			$extension_version = 'Imagick ' . phpversion('Imagick');
@@ -240,7 +239,7 @@ function getFileVersions(&$versionOptions)
 			fclose($fp);
 
 			// Split the file name off into useful bits.
-			list ($name, $language) = explode('.', $entry);
+			list($name, $language) = explode('.', $entry);
 
 			// Look for the version comment in the file header.
 			if (preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*' . preg_quote($name, '~') . '(?:[\s]{2}|\*/)~i', $header, $match) == 1)

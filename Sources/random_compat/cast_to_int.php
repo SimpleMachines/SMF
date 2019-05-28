@@ -25,7 +25,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 if (!is_callable('RandomCompat_intval')) {
 
     /**
@@ -54,7 +53,6 @@ if (!is_callable('RandomCompat_intval')) {
             $number += 0;
         }
         /** @var int|float $number */
-
         if (
             is_float($number)
                 &&

@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -141,7 +140,7 @@ function AutoTask()
 		if ($smcFunc['db_num_rows']($request) === 0)
 			$nextEvent = time() + 86400;
 		else
-			list ($nextEvent) = $smcFunc['db_fetch_row']($request);
+			list($nextEvent) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		updateSettings(array('next_task_time' => $nextEvent));
@@ -169,7 +168,7 @@ function scheduled_daily_maintenance()
 	clean_cache();
 
 	// If warning decrement is enabled and we have people who have not had a new warning in 24 hours, lower their warning level.
-	list (, , $modSettings['warning_decrement']) = explode(',', $modSettings['warning_settings']);
+	list(, , $modSettings['warning_decrement']) = explode(',', $modSettings['warning_settings']);
 	if ($modSettings['warning_decrement'])
 	{
 		// Find every member who has a warning level...
@@ -644,7 +643,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 	// If we're not overriding how many are we allow to send?
 	if (!$override_limit && !empty($modSettings['mail_limit']))
 	{
-		list ($mt, $mn) = @explode('|', $modSettings['mail_recent']);
+		list($mt, $mn) = @explode('|', $modSettings['mail_recent']);
 
 		// Nothing worth noting...
 		if (empty($mn) || $mt < time() - 60)
@@ -1125,7 +1124,7 @@ function scheduled_weekly_maintenance()
 	if (!empty($modSettings['pruningOptions']))
 	{
 		if (!empty($modSettings['pruningOptions']) && strpos($modSettings['pruningOptions'], ',') !== false)
-			list ($modSettings['pruneErrorLog'], $modSettings['pruneModLog'], $modSettings['pruneBanLog'], $modSettings['pruneReportLog'], $modSettings['pruneScheduledTaskLog'], $modSettings['pruneSpiderHitLog']) = explode(',', $modSettings['pruningOptions']);
+			list($modSettings['pruneErrorLog'], $modSettings['pruneModLog'], $modSettings['pruneBanLog'], $modSettings['pruneReportLog'], $modSettings['pruneScheduledTaskLog'], $modSettings['pruneSpiderHitLog']) = explode(',', $modSettings['pruningOptions']);
 
 		if (!empty($modSettings['pruneErrorLog']))
 		{

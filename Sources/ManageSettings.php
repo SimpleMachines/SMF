@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -538,7 +537,7 @@ function ModifyWarningSettings($return_config = false)
 	loadLanguage('ManageSettings');
 
 	// We need the existing ones for this
-	list ($currently_enabled, $modSettings['user_limit'], $modSettings['warning_decrement']) = explode(',', $modSettings['warning_settings']);
+	list($currently_enabled, $modSettings['user_limit'], $modSettings['warning_decrement']) = explode(',', $modSettings['warning_settings']);
 
 	$config_vars = array(
 		// Warning system?
@@ -644,7 +643,7 @@ function ModifyWarningSettings($return_config = false)
 	}
 
 	// We actually store lots of these together - for efficiency.
-	list ($modSettings['warning_enable'], $modSettings['user_limit'], $modSettings['warning_decrement']) = explode(',', $modSettings['warning_settings']);
+	list($modSettings['warning_enable'], $modSettings['user_limit'], $modSettings['warning_decrement']) = explode(',', $modSettings['warning_settings']);
 
 	$context['sub_template'] = 'show_settings';
 	$context['post_url'] = $scripturl . '?action=admin;area=warnings;save';
@@ -975,7 +974,7 @@ function ModifyAntispamSettings($return_config = false)
 		$config_vars['vv']['postinput'] = '<br><span class="smalltext">' . $txt['setting_image_verification_nogd'] . '</span>';
 
 	// Hack for PM spam settings.
-	list ($modSettings['max_pm_recipients'], $modSettings['pm_posts_verification'], $modSettings['pm_posts_per_hour']) = explode(',', $modSettings['pm_spam_settings']);
+	list($modSettings['max_pm_recipients'], $modSettings['pm_posts_verification'], $modSettings['pm_posts_per_hour']) = explode(',', $modSettings['pm_spam_settings']);
 
 	// Hack for guests requiring verification.
 	$modSettings['guests_require_captcha'] = !empty($modSettings['posts_require_captcha']);
@@ -1045,7 +1044,7 @@ function ModifySignatureSettings($return_config = false)
 	$context['settings_post_javascript'] = 'document.getElementById(\'signature_max_smileys\').disabled = !document.getElementById(\'signature_allow_smileys\').checked;';
 
 	// Load all the signature settings.
-	list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
+	list($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
 	$sig_limits = explode(',', $sig_limits);
 	$disabledTags = !empty($sig_bbc) ? explode(',', $sig_bbc) : array();
 
@@ -1066,7 +1065,7 @@ function ModifySignatureSettings($return_config = false)
 			array(
 			)
 		);
-		list ($context['max_member']) = $smcFunc['db_fetch_row']($request);
+		list($context['max_member']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		while (!$done)
@@ -1646,7 +1645,7 @@ function ShowCustomProfiles()
 	if (isset($_SESSION['adm-save']))
 	{
 		$context['saved_successful'] = true;
-		unset ($_SESSION['adm-save']);
+		unset($_SESSION['adm-save']);
 	}
 }
 
@@ -1719,7 +1718,7 @@ function list_getProfileFieldSize()
 		)
 	);
 
-	list ($numProfileFields) = $smcFunc['db_fetch_row']($request);
+	list($numProfileFields) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $numProfileFields;
@@ -1764,7 +1763,7 @@ function EditCustomProfiles()
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			if ($row['field_type'] == 'textarea')
-				@list ($rows, $cols) = @explode(',', $row['default_value']);
+				@list($rows, $cols) = @explode(',', $row['default_value']);
 			else
 			{
 				$rows = 3;
@@ -2197,7 +2196,7 @@ function custFieldsMaxOrder()
 		array()
 	);
 
-	list ($order_count) = $smcFunc['db_fetch_row']($result);
+	list($order_count) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	return (int) $order_count;
@@ -2313,7 +2312,7 @@ function ModifyLogSettings($return_config = false)
 
 	// Get the actual values
 	if (!empty($modSettings['pruningOptions']))
-		@list ($modSettings['pruneErrorLog'], $modSettings['pruneModLog'], $modSettings['pruneBanLog'], $modSettings['pruneReportLog'], $modSettings['pruneScheduledTaskLog'], $modSettings['pruneSpiderHitLog']) = explode(',', $modSettings['pruningOptions']);
+		@list($modSettings['pruneErrorLog'], $modSettings['pruneModLog'], $modSettings['pruneBanLog'], $modSettings['pruneReportLog'], $modSettings['pruneScheduledTaskLog'], $modSettings['pruneSpiderHitLog']) = explode(',', $modSettings['pruningOptions']);
 	else
 		$modSettings['pruneErrorLog'] = $modSettings['pruneModLog'] = $modSettings['pruneBanLog'] = $modSettings['pruneReportLog'] = $modSettings['pruneScheduledTaskLog'] = $modSettings['pruneSpiderHitLog'] = 0;
 

@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -77,7 +76,7 @@ function PlushSearch1()
 		$context['search_params'] = array();
 		foreach ($temp_params as $i => $data)
 		{
-			@list ($k, $v) = explode('|\'|', $data);
+			@list($k, $v) = explode('|\'|', $data);
 			$context['search_params'][$k] = $v;
 		}
 		if (isset($context['search_params']['brd']))
@@ -219,7 +218,7 @@ function PlushSearch1()
 		if ($smcFunc['db_num_rows']($request) == 0)
 			fatal_lang_error('topic_gone', false);
 
-		list ($context['search_topic']['subject']) = $smcFunc['db_fetch_row']($request);
+		list($context['search_topic']['subject']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		$context['search_topic']['link'] = '<a href="' . $context['search_topic']['href'] . '">' . $context['search_topic']['subject'] . '</a>';
@@ -398,7 +397,7 @@ function PlushSearch2()
 				'is_approved_true' => 1,
 			)
 		);
-		list ($minMsgID, $maxMsgID) = $smcFunc['db_fetch_row']($request);
+		list($minMsgID, $maxMsgID) = $smcFunc['db_fetch_row']($request);
 		if ($minMsgID < 0 || $maxMsgID < 0)
 			$context['search_errors']['no_messages_in_time_frame'] = true;
 		$smcFunc['db_free_result']($request);
@@ -514,7 +513,7 @@ function PlushSearch2()
 			fatal_lang_error('topic_gone', false);
 
 		$search_params['brd'] = array();
-		list ($search_params['brd'][0]) = $smcFunc['db_fetch_row']($request);
+		list($search_params['brd'][0]) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 	// Select all boards you've selected AND are allowed to see.
@@ -561,7 +560,7 @@ function PlushSearch2()
 				'empty_string' => '',
 			)
 		);
-		list ($num_boards) = $smcFunc['db_fetch_row']($request);
+		list($num_boards) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		if (count($search_params['brd']) == $num_boards)
@@ -587,7 +586,7 @@ function PlushSearch2()
 	);
 	call_integration_hook('integrate_search_sort_columns', array(&$sort_columns));
 	if (empty($search_params['sort']) && !empty($_REQUEST['sort']))
-		list ($search_params['sort'], $search_params['sort_dir']) = array_pad(explode('|', $_REQUEST['sort']), 2, '');
+		list($search_params['sort'], $search_params['sort_dir']) = array_pad(explode('|', $_REQUEST['sort']), 2, '');
 	$search_params['sort'] = !empty($search_params['sort']) && in_array($search_params['sort'], $sort_columns) ? $search_params['sort'] : 'relevance';
 	if (!empty($search_params['topic']) && $search_params['sort'] === 'num_replies')
 		$search_params['sort'] = 'id_msg';

@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -52,7 +51,7 @@ function RemoveTopic2()
 			'current_topic' => $topic,
 		)
 	);
-	list ($starter, $subject, $approved, $locked) = $smcFunc['db_fetch_row']($request);
+	list($starter, $subject, $approved, $locked) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	if ($starter == $user_info['id'] && !allowedTo('remove_any'))
@@ -112,7 +111,7 @@ function DeleteMessage()
 			'id_msg' => $_REQUEST['msg'],
 		)
 	);
-	list ($starter, $poster, $subject, $post_time, $approved) = $smcFunc['db_fetch_row']($request);
+	list($starter, $poster, $subject, $post_time, $approved) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Verify they can see this!
@@ -790,7 +789,7 @@ function removeMessage($message, $decreasePostCount = true)
 		);
 		if ($smcFunc['db_num_rows']($request) == 0)
 			fatal_lang_error('recycle_no_valid_board');
-		list ($isRead, $last_board_msg) = $smcFunc['db_fetch_row']($request);
+		list($isRead, $last_board_msg) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// Is there an existing topic in the recycle board to group this post with?
@@ -804,7 +803,7 @@ function removeMessage($message, $decreasePostCount = true)
 				'recycle_board' => $modSettings['recycle_board'],
 			)
 		);
-		list ($id_recycle_topic, $first_topic_msg, $last_topic_msg) = $smcFunc['db_fetch_row']($request);
+		list($id_recycle_topic, $first_topic_msg, $last_topic_msg) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// Insert a new topic in the recycle board if $id_recycle_topic is empty.
@@ -1197,7 +1196,7 @@ function RestoreTopic()
 					'board' => $row['id_previous_board'],
 				)
 			);
-			list ($count_posts) = $smcFunc['db_fetch_row']($request2);
+			list($count_posts) = $smcFunc['db_fetch_row']($request2);
 			$smcFunc['db_free_result']($request2);
 
 			if (empty($count_posts))
@@ -1265,7 +1264,7 @@ function mergePosts($msgs, $from_topic, $target_topic)
 			'from_topic' => $from_topic,
 		)
 	);
-	list ($from_board, $from_first_msg, $from_replies, $from_unapproved_posts) = $smcFunc['db_fetch_row']($request);
+	list($from_board, $from_first_msg, $from_replies, $from_unapproved_posts) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Get some target topic and board stats.
@@ -1278,7 +1277,7 @@ function mergePosts($msgs, $from_topic, $target_topic)
 			'target_topic' => $target_topic,
 		)
 	);
-	list ($target_board, $target_first_msg, $target_replies, $target_unapproved_posts, $count_posts) = $smcFunc['db_fetch_row']($request);
+	list($target_board, $target_first_msg, $target_replies, $target_unapproved_posts, $count_posts) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Lets see if the board that we are returning to has post count enabled.

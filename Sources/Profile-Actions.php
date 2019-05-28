@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -70,7 +69,7 @@ function issueWarning($memID)
 	global $context, $cur_profile, $smcFunc, $sourcedir;
 
 	// Get all the actual settings.
-	list ($modSettings['warning_enable'], $modSettings['user_limit']) = explode(',', $modSettings['warning_settings']);
+	list($modSettings['warning_enable'], $modSettings['user_limit']) = explode(',', $modSettings['warning_settings']);
 
 	// This stores any legitimate errors.
 	$issueErrors = array();
@@ -112,7 +111,7 @@ function issueWarning($memID)
 				'warning' => 'warning',
 			)
 		);
-		list ($current_applied) = $smcFunc['db_fetch_row']($request);
+		list($current_applied) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		$context['min_allowed'] = max(0, $cur_profile['warning'] - $current_applied - $context['warning_limit']);
@@ -382,7 +381,7 @@ function issueWarning($memID)
 		if ($smcFunc['db_num_rows']($request) != 0)
 		{
 			$context['warning_for_message'] = (int) $_REQUEST['msg'];
-			list ($context['warned_message_subject']) = $smcFunc['db_fetch_row']($request);
+			list($context['warned_message_subject']) = $smcFunc['db_fetch_row']($request);
 		}
 		$smcFunc['db_free_result']($request);
 	}
@@ -451,7 +450,7 @@ function list_getUserWarningCount($memID)
 			'selected_member' => $memID,
 		)
 	);
-	list ($total_warnings) = $smcFunc['db_fetch_row']($request);
+	list($total_warnings) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $total_warnings;
@@ -570,7 +569,7 @@ function deleteAccount2($memID)
 				'selected_member' => $memID,
 			)
 		);
-		list ($another) = $smcFunc['db_fetch_row']($request);
+		list($another) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		if (empty($another))

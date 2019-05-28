@@ -18,7 +18,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -333,7 +332,7 @@ class gif_file_header
 		if (($this->m_lpVer != 'GIF87a') && ($this->m_lpVer != 'GIF89a'))
 			return false;
 
-		list ($this->m_nWidth, $this->m_nHeight) = array_values(unpack('v2', substr($lpData, 6, 4)));
+		list($this->m_nWidth, $this->m_nHeight) = array_values(unpack('v2', substr($lpData, 6, 4)));
 
 		if (!$this->m_nWidth || !$this->m_nHeight)
 			return false;
@@ -376,7 +375,7 @@ class gif_image_header
 		$hdrLen = 0;
 
 		// Get the width/height/etc. from the header.
-		list ($this->m_nLeft, $this->m_nTop, $this->m_nWidth, $this->m_nHeight) = array_values(unpack('v4', substr($lpData, 0, 8)));
+		list($this->m_nLeft, $this->m_nTop, $this->m_nWidth, $this->m_nHeight) = array_values(unpack('v4', substr($lpData, 0, 8)));
 
 		if (!$this->m_nWidth || !$this->m_nHeight)
 			return false;
@@ -480,7 +479,7 @@ class gif_image
 				$this->m_disp = ($b & 0x1C) >> 2;
 				$this->m_bUser = ($b & 0x02) ? true : false;
 				$this->m_bTrans = ($b & 0x01) ? true : false;
-				list ($this->m_nDelay) = array_values(unpack('v', substr($data, 2, 2)));
+				list($this->m_nDelay) = array_values(unpack('v', substr($data, 2, 2)));
 				$this->m_nTrans = ord($data[4]);
 				break;
 

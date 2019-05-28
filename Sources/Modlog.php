@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -343,7 +342,7 @@ function list_getModLogEntryCount($query_string = '', $query_params = array(), $
 			'modlog_query' => $modlog_query,
 		))
 	);
-	list ($entry_count) = $smcFunc['db_fetch_row']($result);
+	list($entry_count) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	return $entry_count;

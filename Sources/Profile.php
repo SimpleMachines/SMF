@@ -14,7 +14,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -54,7 +53,7 @@ function ModifyProfile($post_errors = array())
 		fatal_lang_error('not_a_user', false, 404);
 
 	// If all went well, we have a valid member ID!
-	list ($memID) = $memberResult;
+	list($memID) = $memberResult;
 	$memID = (int) $memID;
 	$context['id_member'] = $memID;
 	$cur_profile = $user_profile[$memID];
@@ -84,7 +83,7 @@ function ModifyProfile($post_errors = array())
 			)
 		);
 
-		list ($num_subs) = $smcFunc['db_fetch_row']($get_active_subs);
+		list($num_subs) = $smcFunc['db_fetch_row']($get_active_subs);
 
 		$context['subs_available'] = ($num_subs > 0);
 
@@ -619,7 +618,7 @@ function ModifyProfile($post_errors = array())
 			if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 				fatal_lang_error('login_ssl_required', false);
 
-			$password = isset($_POST['oldpasswrd']) ? $_POST['oldpasswrd'] :  '';
+			$password = isset($_POST['oldpasswrd']) ? $_POST['oldpasswrd'] : '';
 
 			// You didn't even enter a password!
 			if (trim($password) == '')
@@ -992,7 +991,7 @@ function loadCustomFields($memID, $area = 'summary')
 		}
 		else
 		{
-			@list ($rows, $cols) = @explode(',', $row['default_value']);
+			@list($rows, $cols) = @explode(',', $row['default_value']);
 			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($row['show_reg'] == 2 ? ' required' : '') . '>' . un_htmlspecialchars($value) . '</textarea>';
 		}
 

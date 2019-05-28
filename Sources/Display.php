@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -115,7 +114,7 @@ function Display()
 			}
 
 			// Now you can be sure $topic is the id_topic to view.
-			list ($topic) = $smcFunc['db_fetch_row']($request);
+			list($topic) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
 			$context['current_topic'] = $topic;
@@ -227,7 +226,7 @@ function Display()
 				'current_member' => $user_info['id'],
 			)
 		);
-		list ($myUnapprovedPosts) = $smcFunc['db_fetch_row']($request);
+		list($myUnapprovedPosts) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		$context['total_visible_posts'] = $context['num_replies'] + $myUnapprovedPosts + ($context['topicinfo']['approved'] ? 1 : 0);
@@ -265,7 +264,7 @@ function Display()
 						'current_topic' => $topic,
 					)
 				);
-				list ($new_from) = $smcFunc['db_fetch_row']($request);
+				list($new_from) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 
 				// Fall through to the next if statement.
@@ -295,7 +294,7 @@ function Display()
 						'timestamp' => $timestamp,
 					)
 				);
-				list ($context['start_from']) = $smcFunc['db_fetch_row']($request);
+				list($context['start_from']) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 
 				// Handle view_newest_first options, and get the correct start value.
@@ -328,7 +327,7 @@ function Display()
 						'no_member' => 0,
 					)
 				);
-				list ($context['start_from']) = $smcFunc['db_fetch_row']($request);
+				list($context['start_from']) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 			}
 
@@ -362,7 +361,7 @@ function Display()
 	// Prevent signature images from going outside the box.
 	if ($context['signature_enabled'])
 	{
-		list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
+		list($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
 		$sig_limits = explode(',', $sig_limits);
 
 		if (!empty($sig_limits[5]) || !empty($sig_limits[6]))
@@ -665,7 +664,7 @@ function Display()
 				'not_guest' => 0,
 			)
 		);
-		list ($pollinfo['total']) = $smcFunc['db_fetch_row']($request);
+		list($pollinfo['total']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// Total voters needs to include guest voters
@@ -1111,7 +1110,7 @@ function Display()
 					'id_msg_last_visit' => (int) $_SESSION['id_msg_last_visit'],
 				)
 			);
-			list ($numNewTopics) = $smcFunc['db_fetch_row']($request);
+			list($numNewTopics) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
 			// If there're no real new topics in this board, mark the board as seen.
@@ -1315,7 +1314,7 @@ function Display()
 			)
 		);
 
-		list ($lastPostTime) = $smcFunc['db_fetch_row']($request);
+		list($lastPostTime) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		$context['oldTopicError'] = $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time();
@@ -1647,7 +1646,7 @@ function prepareDisplayContext($reset = false)
 		'quick_edit' => array(
 			'label' => $txt['quick_edit'],
 			'class' => 'quick_edit',
-			'id' =>' modify_button_'. $output['id'],
+			'id' => ' modify_button_'. $output['id'],
 			'custom' => 'onclick="oQuickModify.modifyMsg(\''.$output['id'].'\', \''.!empty($modSettings['toggle_subject']).'\')"',
 			'icon' => 'quick_edit_button',
 			'show' => $output['can_modify']
@@ -1794,7 +1793,7 @@ function QuickInTopicModeration()
 				'current_topic' => $topic,
 			)
 		);
-		list ($starter) = $smcFunc['db_fetch_row']($request);
+		list($starter) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		$allowed_all = $starter == $user_info['id'];
@@ -1841,7 +1840,7 @@ function QuickInTopicModeration()
 			'current_topic' => $topic,
 		)
 	);
-	list ($first_message, $last_message) = $smcFunc['db_fetch_row']($request);
+	list($first_message, $last_message) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Delete all the messages we know they can delete. ($messages)

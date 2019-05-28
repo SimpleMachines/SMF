@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -458,7 +457,7 @@ function theme_install($to_install = array())
 		array(
 		)
 	);
-	list ($id_theme) = $smcFunc['db_fetch_row']($result);
+	list($id_theme) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	// This will be theme number...

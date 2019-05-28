@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -359,7 +358,7 @@ function AddMembergroup()
 						'limit' => 1,
 					)
 				);
-				list ($copy_type) = $smcFunc['db_fetch_row']($request);
+				list($copy_type) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 
 				// Protected groups are... well, protected!
@@ -669,7 +668,7 @@ function EditMembergroup()
 				'limit' => 1,
 			)
 		);
-		list ($_REQUEST['group']) = $smcFunc['db_fetch_row']($request);
+		list($_REQUEST['group']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 
@@ -731,7 +730,7 @@ function EditMembergroup()
 					'limit' => 1,
 				)
 			);
-			list ($inherit_type) = $smcFunc['db_fetch_row']($request);
+			list($inherit_type) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 		}
 
@@ -942,7 +941,7 @@ function EditMembergroup()
 					'non_joinable' => 1,
 				)
 			);
-			list ($have_joinable) = $smcFunc['db_fetch_row']($request);
+			list($have_joinable) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
 			// Do we need to update the setting?
@@ -1114,7 +1113,7 @@ function EditMembergroup()
 	$context['group']['moderator_list'] = empty($context['group']['moderators']) ? '' : '&quot;' . implode('&quot;, &quot;', $context['group']['moderators']) . '&quot;';
 
 	if (!empty($context['group']['moderators']))
-		list ($context['group']['last_moderator_id']) = array_slice(array_keys($context['group']['moderators']), -1);
+		list($context['group']['last_moderator_id']) = array_slice(array_keys($context['group']['moderators']), -1);
 
 	// Get a list of boards this membergroup is allowed to see.
 	$context['boards'] = array();

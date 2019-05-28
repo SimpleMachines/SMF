@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -565,7 +564,7 @@ function PackageInstallTest()
 				);
 				$installed = ($smcFunc['db_num_rows']($request) !== 0);
 				if ($installed)
-					list ($version) = $smcFunc['db_fetch_row']($request);
+					list($version) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 
 				// do a version level check (if requested) in the most basic way
@@ -1793,7 +1792,7 @@ function PackageOptions()
 	if (!empty($_SESSION['adm-save']))
 	{
 		$context['saved_successful'] = true;
-		unset ($_SESSION['adm-save']);
+		unset($_SESSION['adm-save']);
 	}
 }
 
@@ -1880,7 +1879,7 @@ function ViewOperations()
 
 			if ($smcFunc['db_num_rows']($request) == 1)
 			{
-				list ($old_themes) = $smcFunc['db_fetch_row']($request);
+				list($old_themes) = $smcFunc['db_fetch_row']($request);
 				$old_themes = explode(',', $old_themes);
 
 				foreach ($theme_paths as $id => $data)
@@ -1942,7 +1941,7 @@ function PackagePermissions()
 	{
 		require_once($sourcedir . '/Class-Package.php');
 		$ftp = new ftp_connection(null);
-		list ($username, $detect_path, $found_path) = $ftp->detect_path($boarddir);
+		list($username, $detect_path, $found_path) = $ftp->detect_path($boarddir);
 
 		$context['package_ftp'] = array(
 			'server' => isset($modSettings['package_server']) ? $modSettings['package_server'] : 'localhost',

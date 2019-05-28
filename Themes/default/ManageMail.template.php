@@ -42,7 +42,6 @@ function template_browse()
 /**
  * Template for testing mail send.
  */
-
 function template_mailtest()
 {
 	global $context, $txt, $scripturl;

@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -198,7 +197,7 @@ function UnapprovedPosts()
 			'not_approved' => 0,
 		)
 	);
-	list ($context['total_unapproved_posts']) = $smcFunc['db_fetch_row']($request);
+	list($context['total_unapproved_posts']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// What about topics?  Normally we'd use the table alias t for topics but lets use m so we don't have to redo our approve query.
@@ -212,7 +211,7 @@ function UnapprovedPosts()
 			'not_approved' => 0,
 		)
 	);
-	list ($context['total_unapproved_topics']) = $smcFunc['db_fetch_row']($request);
+	list($context['total_unapproved_topics']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Limit to how many? (obey the user setting)
@@ -638,7 +637,7 @@ function list_getNumUnapprovedAttachments($approve_query)
 			'attachment_type' => 0,
 		)
 	);
-	list ($total_unapproved_attachments) = $smcFunc['db_fetch_row']($request);
+	list($total_unapproved_attachments) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $total_unapproved_attachments;
@@ -671,7 +670,7 @@ function ApproveMessage()
 			'id_msg' => $_REQUEST['msg'],
 		)
 	);
-	list ($starter, $first_msg, $poster, $subject, $approved) = $smcFunc['db_fetch_row']($request);
+	list($starter, $first_msg, $poster, $subject, $approved) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// If it's the first in a topic then the whole topic gets approved!

@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -239,7 +238,7 @@ function smf_db_table_sql($tableName)
 						'table' => $tableName,
 					)
 				);
-				list ($max_ind) = $smcFunc['db_fetch_row']($count_req);
+				list($max_ind) = $smcFunc['db_fetch_row']($count_req);
 				$smcFunc['db_free_result']($count_req);
 				// Get the right bloody start!
 				$seq_create .= 'CREATE SEQUENCE ' . $matches[1] . ' START WITH ' . ($max_ind + 1) . ';' . $crlf . $crlf;

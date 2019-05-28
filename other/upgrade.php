@@ -558,11 +558,11 @@ function load_lang_file()
 	if (!isset($_SESSION['upgrader_langfile']) || preg_match('~[^\w.-]~', $_SESSION['upgrader_langfile']) === 1 || !file_exists($lang_dir . '/' . $_SESSION['upgrader_langfile']))
 	{
 		// Use the first one...
-		list ($_SESSION['upgrader_langfile']) = array_keys($detected_languages);
+		list($_SESSION['upgrader_langfile']) = array_keys($detected_languages);
 
 		// If we have English and some other language, use the other language.
 		if ($_SESSION['upgrader_langfile'] == 'Install.english.php' && count($detected_languages) > 1)
-			list (, $_SESSION['upgrader_langfile']) = array_keys($detected_languages);
+			list(, $_SESSION['upgrader_langfile']) = array_keys($detected_languages);
 	}
 
 	// For backup we load English at first, then the second language will overwrite it.
@@ -1001,7 +1001,7 @@ function checkLogin()
 				);
 			if ($smcFunc['db_num_rows']($request) != 0)
 			{
-				list ($id_member, $name, $password, $id_group, $addGroups, $user_language) = $smcFunc['db_fetch_row']($request);
+				list($id_member, $name, $password, $id_group, $addGroups, $user_language) = $smcFunc['db_fetch_row']($request);
 
 				$groups = explode(',', $addGroups);
 				$groups[] = $id_group;
@@ -1313,7 +1313,7 @@ function UpgradeOptions()
 	// You should never have a : in the hostname if you're not on MySQL, but better safe than sorry
 	if (strpos($db_server, ':') !== false && $db_type == 'mysql')
 	{
-		list ($db_server, $db_port) = explode(':', $db_server);
+		list($db_server, $db_port) = explode(':', $db_server);
 
 		$changes['db_server'] = '\'' . $db_server . '\'';
 
@@ -2443,7 +2443,7 @@ function checkChange(&$change)
 		if ($smcFunc['db_num_rows'] != 1)
 			return;
 
-		list (, $current_type) = $smcFunc['db_fetch_assoc']($request);
+		list(, $current_type) = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
 	}
 	else
@@ -3204,7 +3204,7 @@ function fix_serialized_data($string)
 		return $string;
 
 	// This bit fixes incorrect string lengths, which can happen if the character encoding was changed (e.g. conversion to UTF-8)
-	$new_string = preg_replace_callback('~\bs:(\d+):"(.*?)";(?=$|[bidsa]:|[{}]|N;)~s', function ($matches) {return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";';}, $string);
+	$new_string = preg_replace_callback('~\bs:(\d+):"(.*?)";(?=$|[bidsa]:|[{}]|N;)~s', function($matches) {return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";';}, $string);
 
 	// @todo Add more possible fixes here. For example, fix incorrect array lengths, try to handle truncated strings gracefully, etc.
 

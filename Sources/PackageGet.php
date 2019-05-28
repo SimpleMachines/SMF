@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -145,7 +144,7 @@ function PackageServers()
 			elseif ($ftp->error !== false && !isset($ftp_error))
 				$ftp_error = $ftp->last_message === null ? '' : $ftp->last_message;
 
-			list ($username, $detect_path, $found_path) = $ftp->detect_path($packagesdir);
+			list($username, $detect_path, $found_path) = $ftp->detect_path($packagesdir);
 
 			if ($found_path || !isset($_POST['ftp_path']))
 				$_POST['ftp_path'] = $detect_path;
@@ -217,7 +216,7 @@ function PackageGBrowse()
 				'current_server' => $server,
 			)
 		);
-		list ($name, $url) = $smcFunc['db_fetch_row']($request);
+		list($name, $url) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// If the server does not exist, dump out.
@@ -555,7 +554,7 @@ function PackageDownload()
 				'current_server' => $server,
 			)
 		);
-		list ($name, $url) = $smcFunc['db_fetch_row']($request);
+		list($name, $url) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// If server does not exist then dump out.

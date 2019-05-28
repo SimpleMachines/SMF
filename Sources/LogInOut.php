@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -100,19 +99,19 @@ function Login2()
 	{
 		// First check for 2.1 json-format cookie in $_COOKIE
 		if (isset($_COOKIE[$cookiename]) && preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+~', $_COOKIE[$cookiename]) === 1)
-			list (,, $timeout) = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
+			list(, , $timeout) = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
 
 		// Try checking for 2.1 json-format cookie in $_SESSION
 		elseif (isset($_SESSION['login_' . $cookiename]) && preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+~', $_SESSION['login_' . $cookiename]) === 1)
-			list (,, $timeout) = $smcFunc['json_decode']($_SESSION['login_' . $cookiename]);
+			list(, , $timeout) = $smcFunc['json_decode']($_SESSION['login_' . $cookiename]);
 
 		// Next, try checking for 2.0 serialized string cookie in $_COOKIE
 		elseif (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d+;~', $_COOKIE[$cookiename]) === 1)
-			list (,, $timeout) = safe_unserialize($_COOKIE[$cookiename]);
+			list(, , $timeout) = safe_unserialize($_COOKIE[$cookiename]);
 
 		// Last, see if you need to fall back on checking for 2.0 serialized string cookie in $_SESSION
 		elseif (isset($_SESSION['login_' . $cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d+;~', $_SESSION['login_' . $cookiename]) === 1)
-			list (,, $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
+			list(, , $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
 
 		else
 			trigger_error('Login2(): Cannot be logged in without a session or cookie', E_USER_ERROR);
@@ -123,7 +122,7 @@ function Login2()
 		// Preserve the 2FA cookie?
 		if (!empty($modSettings['tfa_mode']) && !empty($_COOKIE[$cookiename . '_tfa']))
 		{
-			list (,, $exp) = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
+			list(, , $exp) = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
 			setTFACookie((int) $exp - time(), $user_info['password_salt'], hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']));
 		}
 
@@ -145,7 +144,7 @@ function Login2()
 			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
 		elseif (!empty($_SESSION['login_url']) && (strpos($_SESSION['login_url'], 'http://') === false && strpos($_SESSION['login_url'], 'https://') === false))
 		{
-			unset ($_SESSION['login_url']);
+			unset($_SESSION['login_url']);
 			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
 		}
 		elseif (!empty($user_settings['tfa_secret']))
@@ -685,7 +684,7 @@ function Logout($internal = false, $redirect = true)
 
 	if (!empty($modSettings['tfa_mode']) && !empty($user_info['id']) && !empty($_COOKIE[$cookiename . '_tfa']))
 	{
-		list (,, $exp) = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
+		list(, , $exp) = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
 		setTFACookie((int) $exp - time(), $salt, hash_salt($user_settings['tfa_backup'], $salt));
 	}
 
@@ -698,7 +697,7 @@ function Logout($internal = false, $redirect = true)
 			redirectexit('', $context['server']['needs_login_fix']);
 		elseif (!empty($_SESSION['logout_url']) && (strpos($_SESSION['logout_url'], 'http://') === false && strpos($_SESSION['logout_url'], 'https://') === false))
 		{
-			unset ($_SESSION['logout_url']);
+			unset($_SESSION['logout_url']);
 			redirectexit();
 		}
 		else
@@ -818,7 +817,7 @@ function validatePasswordFlood($id_member, $member_name, $password_flood_value =
 
 	// Right, have we got a flood value?
 	if ($password_flood_value !== false)
-		@list ($time_stamp, $number_tries) = explode('|', $password_flood_value);
+		@list($time_stamp, $number_tries) = explode('|', $password_flood_value);
 
 	// Timestamp or number of tries invalid?
 	if (empty($number_tries) || empty($time_stamp))
@@ -842,7 +841,7 @@ function validatePasswordFlood($id_member, $member_name, $password_flood_value =
 
 	// Broken the law?
 	if ($number_tries > 5)
-		fatal_lang_error('login_threshold_brute_fail', 'login', [$member_name]);
+		fatal_lang_error('login_threshold_brute_fail', 'login', array($member_name));
 
 	// Otherwise set the members data. If they correct on their first attempt then we actually clear it, otherwise we set it!
 	updateMemberData($id_member, array('passwd_flood' => $was_correct && $number_tries == 1 ? '' : $time_stamp . '|' . $number_tries));

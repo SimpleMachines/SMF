@@ -388,7 +388,7 @@ function template_edit_group()
 	<script>
 		function swapPostGroup(isChecked)
 		{
-			var is_moderator_group = ', (int)$context['is_moderator_group'], ';
+			var is_moderator_group = ', (int) $context['is_moderator_group'], ';
 			var group_type = ', $context['group']['type'], ';
 			var min_posts_text = document.getElementById(\'min_posts_text\');
 			var group_desc_text = document.getElementById(\'group_desc_text\');

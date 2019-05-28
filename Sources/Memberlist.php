@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -207,7 +206,7 @@ function MLAll()
 				list($memberlist_cache['index'][$i]) = $smcFunc['db_fetch_row']($request);
 			}
 			$smcFunc['db_data_seek']($request, $memberlist_cache['num_members'] - 1);
-			list ($memberlist_cache['index'][$i]) = $smcFunc['db_fetch_row']($request);
+			list($memberlist_cache['index'][$i]) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
 			// Now we've got the cache...store it.
@@ -228,7 +227,7 @@ function MLAll()
 				'is_activated' => 1,
 			)
 		);
-		list ($context['num_members']) = $smcFunc['db_fetch_row']($request);
+		list($context['num_members']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 
@@ -253,7 +252,7 @@ function MLAll()
 				'first_letter' => $_REQUEST['start'],
 			)
 		);
-		list ($_REQUEST['start']) = $smcFunc['db_fetch_row']($request);
+		list($_REQUEST['start']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 
@@ -517,7 +516,7 @@ function MLSearch()
 				AND mem.is_activated = {int:is_activated}',
 			$query_parameters
 		);
-		list ($numResults) = $smcFunc['db_fetch_row']($request);
+		list($numResults) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		$context['page_index'] = constructPageIndex($scripturl . '?action=mlist;sa=search;search=' . $_POST['search'] . ';fields=' . implode(',', $_POST['fields']), $_REQUEST['start'], $numResults, $modSettings['defaultMaxMembers']);
@@ -602,7 +601,7 @@ function printMemberListRows($request)
 		array(
 		)
 	);
-	list ($most_posts) = $smcFunc['db_fetch_row']($result);
+	list($most_posts) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	// Avoid division by zero...

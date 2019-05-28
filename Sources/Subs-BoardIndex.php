@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -29,7 +28,6 @@ if (!defined('SMF'))
  * @param array $boardIndexOptions An array of boardindex options
  * @return array An array of information for displaying the boardindex
  */
-
 function getBoardIndex($boardIndexOptions)
 {
 	global $smcFunc, $scripturl, $user_info, $modSettings, $txt;

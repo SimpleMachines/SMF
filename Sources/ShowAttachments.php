@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -77,7 +76,7 @@ function showAttachment()
 
 	// Use cache when possible.
 	if (($cache = cache_get_data('attachment_lookup_id-' . $attachId)) != null)
-		list ($file, $thumbFile) = $cache;
+		list($file, $thumbFile) = $cache;
 
 	// Get the info from the DB.
 	if (empty($file) || empty($thumbFile) && !empty($file['id_thumb']))

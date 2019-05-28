@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -93,13 +92,13 @@ function ReportedContent()
 				),
 				'ignore' => array(
 					'label' => $report['ignore'] ? $txt['mc_reportedp_unignore'] : $txt['mc_reportedp_ignore'],
-					'href' => $scripturl.'?action=moderate;area=reported'.$context['report_type'].';sa=handle;ignore='.(int)!$report['ignore'].';rid='.$report['id'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'].';'.$context['mod-report-ignore_token_var'].'='.$context['mod-report-ignore_token'],
+					'href' => $scripturl.'?action=moderate;area=reported'.$context['report_type'].';sa=handle;ignore='.(int) !$report['ignore'].';rid='.$report['id'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'].';'.$context['mod-report-ignore_token_var'].'='.$context['mod-report-ignore_token'],
 					'javascript' => !$report['ignore'] ? ' class="you_sure" data-confirm="' . $txt['mc_reportedp_ignore_confirm'] . '"' : '',
 					'icon' => 'ignore'
 				),
 				'close' => array(
 					'label' => $context['view_closed'] ? $txt['mc_reportedp_open'] : $txt['mc_reportedp_close'],
-					'href' => $scripturl.'?action=moderate;area=reported'.$context['report_type'].';sa=handle;closed='.(int)!$report['closed'].';rid='.$report['id'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'].';'.$context['mod-report-closed_token_var'].'='.$context['mod-report-closed_token'],
+					'href' => $scripturl.'?action=moderate;area=reported'.$context['report_type'].';sa=handle;closed='.(int) !$report['closed'].';rid='.$report['id'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'].';'.$context['mod-report-closed_token_var'].'='.$context['mod-report-closed_token'],
 					'icon' => $context['view_closed'] ? 'folder' : 'close',
 				),
 			);

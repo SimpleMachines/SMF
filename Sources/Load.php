@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -541,7 +540,7 @@ function loadUserSettings()
 				{
 					$tfa_data = $smcFunc['json_decode']($_COOKIE[$tfacookie], true);
 
-					list ($tfamember, $tfasecret) = array_pad((array) $tfa_data, 2, '');
+					list($tfamember, $tfasecret) = array_pad((array) $tfa_data, 2, '');
 
 					if (!isset($tfamember, $tfasecret) || (int) $tfamember != $id_member)
 						$tfasecret = null;
@@ -623,7 +622,7 @@ function loadUserSettings()
 					'id_msg' => $user_settings['id_msg_last_visit'],
 				)
 			);
-			list ($visitTime) = $smcFunc['db_fetch_row']($result);
+			list($visitTime) = $smcFunc['db_fetch_row']($result);
 			$smcFunc['db_free_result']($result);
 
 			$_SESSION['id_msg_last_visit'] = $user_settings['id_msg_last_visit'];
@@ -696,7 +695,7 @@ function loadUserSettings()
 		{
 			$tfa_data = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
 
-			list (,, $exp) = array_pad((array) $tfa_data, 3, 0);
+			list(, , $exp) = array_pad((array) $tfa_data, 3, 0);
 
 			if (time() > $exp)
 			{
@@ -709,7 +708,7 @@ function loadUserSettings()
 		if (!isset($_SESSION['token']['post-login']))
 			createToken('login');
 		else
-			list ($context['login_token_var'],,, $context['login_token']) = $_SESSION['token']['post-login'];
+			list($context['login_token_var'], , , $context['login_token']) = $_SESSION['token']['post-login'];
 
 		// Do we perhaps think this is a search robot? Check every five minutes just in case...
 		if ((!empty($modSettings['spider_mode']) || !empty($modSettings['spider_group'])) && (!isset($_SESSION['robot_check']) || $_SESSION['robot_check'] < time() - 300))
@@ -853,7 +852,7 @@ function loadBoard()
 			// So did it find anything?
 			if ($smcFunc['db_num_rows']($request))
 			{
-				list ($topic) = $smcFunc['db_fetch_row']($request);
+				list($topic) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 				// Save save save.
 				cache_put_data('msg_topic-' . $_REQUEST['msg'], $topic, 120);
@@ -1005,7 +1004,7 @@ function loadBoard()
 					)
 				);
 
-				list ($board_info['unapproved_user_topics']) = $smcFunc['db_fetch_row']($request);
+				list($board_info['unapproved_user_topics']) = $smcFunc['db_fetch_row']($request);
 			}
 
 			if (!empty($modSettings['cache_enable']) && (empty($topic) || $modSettings['cache_enable'] >= 3))
@@ -1137,13 +1136,13 @@ function loadPermissions()
 
 		if ($modSettings['cache_enable'] >= 2 && !empty($board) && ($temp = cache_get_data('permissions:' . $cache_groups . ':' . $board, 240)) != null && time() - 240 > $modSettings['settings_updated'])
 		{
-			list ($user_info['permissions']) = $temp;
+			list($user_info['permissions']) = $temp;
 			banPermissions();
 
 			return;
 		}
 		elseif (($temp = cache_get_data('permissions:' . $cache_groups, 240)) != null && time() - 240 > $modSettings['settings_updated'])
-			list ($user_info['permissions'], $removals) = $temp;
+			list($user_info['permissions'], $removals) = $temp;
 	}
 
 	// If it is detected as a robot, and we are restricting permissions as a special group - then implement this.
@@ -1751,7 +1750,7 @@ function loadMemberCustomFields($users, $params)
 function detectBrowser()
 {
 	// Load the current user's browser of choice
-	$detector = new browser_detector;
+	$detector = new browser_detector();
 	$detector->detectBrowser();
 }
 

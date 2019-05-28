@@ -14,7 +14,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -89,7 +88,7 @@ function loadProfileFields($force_reload = false)
 			'preload' => function() use ($cur_profile, &$context)
 			{
 				// Split up the birthdate....
-				list ($uyear, $umonth, $uday) = explode('-', empty($cur_profile['birthdate']) || $cur_profile['birthdate'] === '1004-01-01' ? '--' : $cur_profile['birthdate']);
+				list($uyear, $umonth, $uday) = explode('-', empty($cur_profile['birthdate']) || $cur_profile['birthdate'] === '1004-01-01' ? '--' : $cur_profile['birthdate']);
 				$context['member']['birth_date'] = array(
 					'year' => $uyear,
 					'month' => $umonth,
@@ -221,7 +220,7 @@ function loadProfileFields($force_reload = false)
 						'variable' => 'name',
 					)
 				);
-				list ($name) = $smcFunc['db_fetch_row']($request);
+				list($name) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 
 				$context['member']['theme'] = array(
@@ -2093,7 +2092,7 @@ function alert_configuration($memID)
 			)
 		);
 
-		list ($can_mod) = $smcFunc['db_fetch_row']($request);
+		list($can_mod) = $smcFunc['db_fetch_row']($request);
 
 		if (!isset($perms_cache['manage_membergroups']))
 		{
@@ -2118,11 +2117,11 @@ function alert_configuration($memID)
 				}
 
 				if (!$perms_cache[$alert_value['permission']['name']])
-					unset ($alert_types[$group][$alert_key]);
+					unset($alert_types[$group][$alert_key]);
 			}
 
 			if (empty($alert_types[$group]))
-				unset ($alert_types[$group]);
+				unset($alert_types[$group]);
 		}
 	}
 
@@ -2751,7 +2750,7 @@ function list_getTopicNotificationCount($memID)
 			'is_approved' => 1,
 		)
 	);
-	list ($totalNotifications) = $smcFunc['db_fetch_row']($request);
+	list($totalNotifications) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return (int) $totalNotifications;
@@ -3106,7 +3105,7 @@ function profileLoadSignatureData()
 	global $modSettings, $context, $txt, $cur_profile, $memberContext;
 
 	// Signature limits.
-	list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
+	list($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
 	$sig_limits = explode(',', $sig_limits);
 
 	$context['signature_enabled'] = isset($sig_limits[0]) ? $sig_limits[0] : 0;
@@ -3314,7 +3313,7 @@ function profileSaveGroups(&$value)
 					'selected_member' => $context['id_member'],
 				)
 			);
-			list ($another) = $smcFunc['db_fetch_row']($request);
+			list($another) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
 			if (empty($another))
@@ -3550,7 +3549,7 @@ function profileSaveAvatarData(&$value)
 				$extension = isset($extensions[$sizes[2]]) ? $extensions[$sizes[2]] : 'bmp';
 				$mime_type = 'image/' . ($extension === 'jpg' ? 'jpeg' : ($extension === 'bmp' ? 'x-ms-bmp' : $extension));
 				$destName = 'avatar_' . $memID . '_' . time() . '.' . $extension;
-				list ($width, $height) = getimagesize($_FILES['attachment']['tmp_name']);
+				list($width, $height) = getimagesize($_FILES['attachment']['tmp_name']);
 				$file_hash = '';
 
 				// Remove previous attachments this member might have had.
@@ -3621,7 +3620,7 @@ function profileValidateSignature(&$value)
 	if (!allowedTo('admin_forum'))
 	{
 		// Load all the signature limits.
-		list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
+		list($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
 		$sig_limits = explode(',', $sig_limits);
 		$disabledTags = !empty($sig_bbc) ? explode(',', $sig_bbc) : array();
 
@@ -4036,7 +4035,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 				'limit' => 1,
 			)
 		);
-		list ($is_protected) = $smcFunc['db_fetch_row']($request);
+		list($is_protected) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		if ($is_protected == 1)
@@ -4108,7 +4107,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 				'admin_forum' => 'admin_forum',
 			)
 		);
-		list ($disallow) = $smcFunc['db_fetch_row']($request);
+		list($disallow) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		if ($disallow)

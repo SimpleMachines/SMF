@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -50,7 +49,7 @@ function LockTopic()
 			'current_topic' => $topic,
 		)
 	);
-	list ($starter, $locked) = $smcFunc['db_fetch_row']($request);
+	list($starter, $locked) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Can you lock topics here, mister?
@@ -136,7 +135,7 @@ function Sticky()
 			'current_topic' => $topic,
 		)
 	);
-	list ($is_sticky) = $smcFunc['db_fetch_row']($request);
+	list($is_sticky) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Another moderator got the job done first?

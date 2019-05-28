@@ -14,7 +14,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -745,7 +744,7 @@ function CoppaForm()
 	);
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('no_access', false);
-	list ($username) = $smcFunc['db_fetch_row']($request);
+	list($username) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	if (isset($_GET['form']))

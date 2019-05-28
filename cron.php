@@ -19,7 +19,6 @@
  *
  * @version 2.1 RC2
  */
-
 define('SMF', 'BACKGROUND');
 define('SMF_VERSION', '2.1 RC2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
@@ -90,7 +89,7 @@ require_once($sourcedir . '/Subs.php');
 $smcFunc = array();
 
 // This is our general bootstrap, a la SSI.php but with a few differences.
-unset ($db_show_debug);
+unset($db_show_debug);
 loadDatabase();
 reloadSettings();
 

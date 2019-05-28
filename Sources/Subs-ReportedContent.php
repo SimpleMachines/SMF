@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -166,7 +165,7 @@ function countReports($closed = 0)
 			'view_closed' => (int) $closed,
 		)
 	);
-	list ($total_reports) = $smcFunc['db_fetch_row']($request);
+	list($total_reports) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $total_reports;
@@ -369,7 +368,7 @@ function recountOpenReports($type)
 			'not_a_reported_post' => 0,
 		)
 	);
-	list ($open_reports) = $smcFunc['db_fetch_row']($request);
+	list($open_reports) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	$arr = ($type == 'members' ? 'member_reports' : 'reports');

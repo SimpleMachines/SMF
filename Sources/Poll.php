@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -248,7 +247,7 @@ function LockVoting()
 			'current_topic' => $topic,
 		)
 	);
-	list ($memberID, $pollID, $voting_locked) = $smcFunc['db_fetch_row']($request);
+	list($memberID, $pollID, $voting_locked) = $smcFunc['db_fetch_row']($request);
 
 	// If the user _can_ modify the poll....
 	if (!allowedTo('poll_lock_any'))
@@ -944,7 +943,7 @@ function RemovePoll()
 		);
 		if ($smcFunc['db_num_rows']($request) == 0)
 			fatal_lang_error('no_access', false);
-		list ($topicStarter, $pollStarter) = $smcFunc['db_fetch_row']($request);
+		list($topicStarter, $pollStarter) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		isAllowedTo('poll_remove_' . ($topicStarter == $user_info['id'] || ($pollStarter != 0 && $user_info['id'] == $pollStarter) ? 'own' : 'any'));
@@ -960,7 +959,7 @@ function RemovePoll()
 			'current_topic' => $topic,
 		)
 	);
-	list ($pollID) = $smcFunc['db_fetch_row']($request);
+	list($pollID) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Remove all user logs for this poll.

@@ -12,7 +12,6 @@
  *
  * This file contains helper functions for upgrade.php
  */
-
 if (!defined('SMF_VERSION'))
 	die('No direct access!');
 
@@ -207,7 +206,7 @@ function makeFilesWritable(&$files)
 			elseif ($ftp->error !== false && !isset($upcontext['chmod']['ftp_error']))
 				$upcontext['chmod']['ftp_error'] = $ftp->last_message === null ? '' : $ftp->last_message;
 
-			list ($username, $detect_path, $found_path) = $ftp->detect_path(dirname(__FILE__));
+			list($username, $detect_path, $found_path) = $ftp->detect_path(dirname(__FILE__));
 
 			if ($found_path || !isset($upcontext['chmod']['path']))
 				$upcontext['chmod']['path'] = $detect_path;

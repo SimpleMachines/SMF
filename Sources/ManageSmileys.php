@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -831,7 +830,7 @@ function AddSmiley()
 					'first_row' => 0,
 				)
 			);
-			list ($smiley_order) = $smcFunc['db_fetch_row']($request);
+			list($smiley_order) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
 			if (empty($smiley_order))
@@ -1496,7 +1495,7 @@ function EditSmileyOrder()
 			);
 			if ($smcFunc['db_num_rows']($request) != 1)
 				fatal_lang_error('smiley_not_found');
-			list ($smiley_row, $smiley_order, $smileyLocation) = $smcFunc['db_fetch_row']($request);
+			list($smiley_row, $smiley_order, $smileyLocation) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 		}
 		else
@@ -1997,7 +1996,7 @@ function ImportSmileys($smileyPath, $create = false)
 	// Remove anything that isn't actually new from our list of files
 	foreach ($to_unset as $key => $ids)
 	{
-		if (array_reduce($ids, function ($carry, $item) { return $carry * $item; }, true) == true)
+		if (array_reduce($ids, function($carry, $item) { return $carry * $item; }, true) == true)
 			unset($smiley_files[$key]);
 	}
 
@@ -2016,7 +2015,7 @@ function ImportSmileys($smileyPath, $create = false)
 			'first_row' => 0,
 		)
 	);
-	list ($smiley_order) = $smcFunc['db_fetch_row']($request);
+	list($smiley_order) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// This part handles brand new smileys that don't exist in any set

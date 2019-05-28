@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -99,7 +98,7 @@ function SetCensor()
 			$_POST['censortext'] = explode("\n", strtr($_POST['censortext'], array("\r" => '')));
 
 			foreach ($_POST['censortext'] as $c)
-				list ($censored_vulgar[], $censored_proper[]) = array_pad(explode('=', trim($c)), 2, '');
+				list($censored_vulgar[], $censored_proper[]) = array_pad(explode('=', trim($c)), 2, '');
 		}
 		elseif (isset($_POST['censor_vulgar'], $_POST['censor_proper']))
 		{

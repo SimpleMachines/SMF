@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -555,7 +554,7 @@ function EditBoard()
 	$context['board']['moderator_list'] = empty($context['board']['moderators']) ? '' : '&quot;' . implode('&quot;, &quot;', $context['board']['moderators']) . '&quot;';
 
 	if (!empty($context['board']['moderators']))
-		list ($context['board']['last_moderator_id']) = array_slice(array_keys($context['board']['moderators']), -1);
+		list($context['board']['last_moderator_id']) = array_slice(array_keys($context['board']['moderators']), -1);
 
 	// Get all the groups assigned as moderators
 	$request = $smcFunc['db_query']('', '
@@ -574,7 +573,7 @@ function EditBoard()
 	$context['board']['moderator_groups_list'] = empty($context['board']['moderator_groups']) ? '' : '&quot;' . implode('&quot;, &qout;', $context['board']['moderator_groups']) . '&quot;';
 
 	if (!empty($context['board']['moderator_groups']))
-		list ($context['board']['last_moderator_group_id']) = array_slice(array_keys($context['board']['moderator_groups']), -1);
+		list($context['board']['last_moderator_group_id']) = array_slice(array_keys($context['board']['moderator_groups']), -1);
 
 	// Get all the themes...
 	$request = $smcFunc['db_query']('', '
@@ -709,7 +708,7 @@ function EditBoard2()
 					'current_board' => $_POST['boardid'],
 				)
 			);
-			list ($oldRedirect, $numPosts) = $smcFunc['db_fetch_row']($request);
+			list($oldRedirect, $numPosts) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
 			// If we're turning redirection on check the board doesn't have posts in it - if it does don't make it a redirection board.
@@ -793,7 +792,7 @@ function ModifyCat()
 			'subact' => $allowed_sa[2] . 'e, ',
 		)
 	);
-	list ($cat) = $smcFunc['db_fetch_row']($request);
+	list($cat) = $smcFunc['db_fetch_row']($request);
 
 	// Free resources.
 	$smcFunc['db_free_result']($request);

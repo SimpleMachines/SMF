@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -28,7 +27,6 @@ if (!defined('SMF'))
  * - sets up $board, $topic, and $scripturl and $_REQUEST['start'].
  * - determines, or rather tries to determine, the client's IP.
  */
-
 function cleanRequest()
 {
 	global $board, $topic, $boardurl, $scripturl, $modSettings, $smcFunc;
@@ -101,7 +99,7 @@ function cleanRequest()
 
 				for ($i = 1, $n = count($temp); $i < $n; $i++)
 				{
-					@list ($key, $val) = @explode('=', $temp[$i], 2);
+					@list($key, $val) = @explode('=', $temp[$i], 2);
 					if (!isset($_GET[$key]))
 						$_GET[$key] = $val;
 				}
@@ -161,10 +159,10 @@ function cleanRequest()
 
 		// If there's a slash in it, we've got a start value! (old, compatible links.)
 		if (strpos($_REQUEST['board'], '/') !== false)
-			list ($_REQUEST['board'], $_REQUEST['start']) = explode('/', $_REQUEST['board']);
+			list($_REQUEST['board'], $_REQUEST['start']) = explode('/', $_REQUEST['board']);
 		// Same idea, but dots.  This is the currently used format - ?board=1.0...
 		elseif (strpos($_REQUEST['board'], '.') !== false)
-			list ($_REQUEST['board'], $_REQUEST['start']) = explode('.', $_REQUEST['board']);
+			list($_REQUEST['board'], $_REQUEST['start']) = explode('.', $_REQUEST['board']);
 		// Now make absolutely sure it's a number.
 		$board = (int) $_REQUEST['board'];
 		$_REQUEST['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
@@ -188,10 +186,10 @@ function cleanRequest()
 
 		// Slash means old, beta style, formatting.  That's okay though, the link should still work.
 		if (strpos($_REQUEST['topic'], '/') !== false)
-			list ($_REQUEST['topic'], $_REQUEST['start']) = explode('/', $_REQUEST['topic']);
+			list($_REQUEST['topic'], $_REQUEST['start']) = explode('/', $_REQUEST['topic']);
 		// Dots are useful and fun ;).  This is ?topic=1.15.
 		elseif (strpos($_REQUEST['topic'], '.') !== false)
-			list ($_REQUEST['topic'], $_REQUEST['start']) = explode('.', $_REQUEST['topic']);
+			list($_REQUEST['topic'], $_REQUEST['start']) = explode('.', $_REQUEST['topic']);
 
 		// Topic should always be an integer
 		$topic = $_GET['topic'] = $_REQUEST['topic'] = (int) $_REQUEST['topic'];
@@ -428,7 +426,7 @@ function expandIPv6($addr, $strict_check = true)
  */
 function matchIPtoCIDR($ip_address, $cidr_address)
 {
-	list ($cidr_network, $cidr_subnetmask) = preg_split('/', $cidr_address);
+	list($cidr_network, $cidr_subnetmask) = preg_split('/', $cidr_address);
 
 	//v6?
 	if ((strpos($cidr_network, ':') !== false))

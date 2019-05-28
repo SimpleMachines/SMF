@@ -14,7 +14,6 @@
  *
  * Original module by Mach8 - We'll never forget you.
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -92,7 +91,7 @@ function SplitIndex()
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('cant_find_messages');
 
-	list ($_REQUEST['subname'], $num_replies, $unapproved_posts, $id_first_msg, $approved) = $smcFunc['db_fetch_row']($request);
+	list($_REQUEST['subname'], $num_replies, $unapproved_posts, $id_first_msg, $approved) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// If not approved validate they can see it.
@@ -143,7 +142,7 @@ function SplitExecute()
 
 	// Redirect to the selector if they chose selective.
 	if ($_POST['step2'] == 'selective')
-		redirectexit ('action=splittopics;sa=selectTopics;subname=' . $_POST['subname'] . ';topic=' . $topic . '.0;start2=0');
+		redirectexit('action=splittopics;sa=selectTopics;subname=' . $_POST['subname'] . ';topic=' . $topic . '.0;start2=0');
 
 	$_POST['at'] = (int) $_POST['at'];
 	$messagesToBeSplit = array();
@@ -515,7 +514,7 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 			'id_topic' => $split1_ID_TOPIC,
 		)
 	);
-	list ($id_board, $split1_approved) = $smcFunc['db_fetch_row']($request);
+	list($id_board, $split1_approved) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Find the new first and last not in the list. (old topic)
@@ -882,7 +881,7 @@ function MergeIndex()
 			'is_approved' => 1,
 		)
 	);
-	list ($topiccount) = $smcFunc['db_fetch_row']($request);
+	list($topiccount) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Make the page list.
@@ -905,7 +904,7 @@ function MergeIndex()
 	);
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('no_board');
-	list ($subject) = $smcFunc['db_fetch_row']($request);
+	list($subject) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Tell the template a few things..
@@ -1343,8 +1342,8 @@ function MergeExecute($topics = array())
 			'last_msg' => $last_msg,
 		)
 	);
-	list ($member_started) = $smcFunc['db_fetch_row']($request);
-	list ($member_updated) = $smcFunc['db_fetch_row']($request);
+	list($member_started) = $smcFunc['db_fetch_row']($request);
+	list($member_updated) = $smcFunc['db_fetch_row']($request);
 
 	// First and last message are the same, so only row was returned.
 	if ($member_updated === null)

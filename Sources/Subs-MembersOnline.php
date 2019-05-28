@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -237,7 +236,7 @@ function trackStatsUsersOnline($total_users_online)
 		// There's an entry in log_activity on today...
 		else
 		{
-			list ($modSettings['mostOnlineToday']) = $smcFunc['db_fetch_row']($request);
+			list($modSettings['mostOnlineToday']) = $smcFunc['db_fetch_row']($request);
 
 			if ($total_users_online > $modSettings['mostOnlineToday'])
 				trackStats(array('most_on' => $total_users_online));

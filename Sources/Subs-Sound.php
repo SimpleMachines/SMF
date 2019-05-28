@@ -14,7 +14,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -26,7 +25,6 @@ if (!defined('SMF'))
  * @param string $word
  * @return boolean false on failure
  */
-
 function createWaveFile($word)
 {
 	global $settings, $user_info;

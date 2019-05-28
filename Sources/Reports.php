@@ -20,7 +20,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -270,7 +269,7 @@ function BoardReport()
 		}
 
 		if (empty($row['redirect']))
-			unset ($boardData['redirect']);
+			unset($boardData['redirect']);
 
 		// Next add the main data.
 		addData($boardData);

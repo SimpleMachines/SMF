@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -410,7 +409,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	if (!isset($column_info['unsigned']) || !in_array($column_info['type'], array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')))
 		$column_info['unsigned'] = '';
 
-	list ($type, $size) = $smcFunc['db_calculate_type']($column_info['type'], $column_info['size']);
+	list($type, $size) = $smcFunc['db_calculate_type']($column_info['type'], $column_info['size']);
 
 	// Allow for unsigned integers (mysql only)
 	$unsigned = in_array($type, array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')) && !empty($column_info['unsigned']) ? 'unsigned ' : '';
@@ -791,7 +790,7 @@ function smf_db_create_query_column($column)
 
 	// Sort out the size... and stuff...
 	$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-	list ($type, $size) = $smcFunc['db_calculate_type']($column['type'], $column['size']);
+	list($type, $size) = $smcFunc['db_calculate_type']($column['type'], $column['size']);
 
 	// Allow unsigned integers (mysql only)
 	$unsigned = in_array($type, array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')) && !empty($column['unsigned']) ? 'unsigned ' : '';

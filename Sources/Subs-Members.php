@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -56,7 +55,7 @@ function deleteMembers($users, $check_not_admin = false)
 		return;
 	elseif (count($users) == 1)
 	{
-		list ($user) = $users;
+		list($user) = $users;
 
 		if ($user == $user_info['id'])
 			isAllowedTo('profile_remove_own');
@@ -1011,7 +1010,7 @@ function groupsAllowedTo($permission, $board_id = null)
 			);
 			if ($smcFunc['db_num_rows']($request) == 0)
 				fatal_lang_error('no_board');
-			list ($profile_id) = $smcFunc['db_fetch_row']($request);
+			list($profile_id) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 		}
 		else
@@ -1164,7 +1163,7 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 				'memID' => $memID,
 			)
 		);
-		list ($email, $membername) = $smcFunc['db_fetch_row']($request);
+		list($email, $membername) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 
@@ -1190,7 +1189,7 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 				'recycled_board' => $recycle_board,
 			)
 		);
-		list ($messageCount) = $smcFunc['db_fetch_row']($request);
+		list($messageCount) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		updateMemberData($memID, array('posts' => 'posts + ' . $messageCount));
@@ -1378,7 +1377,7 @@ function list_getNumMembers($where, $where_params = array())
 			array_merge($where_params, array(
 			))
 		);
-		list ($num_members) = $smcFunc['db_fetch_row']($request);
+		list($num_members) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 
@@ -1525,7 +1524,7 @@ function generateValidationCode()
 		)
 	);
 
-	list ($dbRand) = $smcFunc['db_fetch_row']($request);
+	list($dbRand) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return substr(preg_replace('/\W/', '', sha1(microtime() . $smcFunc['random_int']() . $dbRand . $modSettings['rand_seed'])), 0, 10);

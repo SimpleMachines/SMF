@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -180,7 +179,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 
 		// Sort out the size...
 		$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-		list ($type, $size) = $smcFunc['db_calculate_type']($column['type'], $column['size']);
+		list($type, $size) = $smcFunc['db_calculate_type']($column['type'], $column['size']);
 		if ($size !== null)
 			$type = $type . '(' . $size . ')';
 
@@ -359,7 +358,7 @@ function smf_db_add_column($table_name, $column_info, $parameters = array(), $if
 
 	// Get the specifics...
 	$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
-	list ($type, $size) = $smcFunc['db_calculate_type']($column_info['type'], $column_info['size']);
+	list($type, $size) = $smcFunc['db_calculate_type']($column_info['type'], $column_info['size']);
 	if ($size !== null)
 		$type = $type . '(' . $size . ')';
 
@@ -505,7 +504,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	if (isset($column_info['type']) && ($column_info['type'] != $old_info['type'] || (isset($column_info['size']) && $column_info['size'] != $old_info['size'])))
 	{
 		$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
-		list ($type, $size) = $smcFunc['db_calculate_type']($column_info['type'], $column_info['size']);
+		list($type, $size) = $smcFunc['db_calculate_type']($column_info['type'], $column_info['size']);
 		if ($size !== null)
 			$type = $type . '(' . $size . ')';
 
@@ -841,7 +840,7 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 				$default = null;
 
 			// Make the type generic.
-			list ($type, $size) = $smcFunc['db_calculate_type']($row['data_type'], $row['character_maximum_length'], true);
+			list($type, $size) = $smcFunc['db_calculate_type']($row['data_type'], $row['character_maximum_length'], true);
 
 			$columns[$row['column_name']] = array(
 				'name' => $row['column_name'],

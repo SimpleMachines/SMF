@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -605,7 +604,7 @@ function DisplayAdminFile()
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('admin_file_not_found', true, array($_REQUEST['filename']), 404);
 
-	list ($file_data, $filetype) = $smcFunc['db_fetch_row']($request);
+	list($file_data, $filetype) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// @todo Temp

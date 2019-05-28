@@ -10,7 +10,6 @@
  *
  * @version 2.1 RC2
  */
-
 define('SMF_VERSION', '2.1 RC2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2019');
@@ -67,7 +66,7 @@ $databases = array(
 		{
 			$request = pg_query('SHOW SERVER_ENCODING');
 
-			list ($charcode) = pg_fetch_row($request);
+			list($charcode) = pg_fetch_row($request);
 
 			if ($charcode == 'UTF8')
 				return true;
@@ -335,11 +334,11 @@ function load_lang_file()
 	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(dirname(__FILE__) . '/Themes/default/languages/' . $_SESSION['installer_temp_lang']))
 	{
 		// Use the first one...
-		list ($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
+		list($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 
 		// If we have english and some other language, use the other language.  We Americans hate english :P.
 		if ($_SESSION['installer_temp_lang'] == 'Install.english.php' && count($incontext['detected_languages']) > 1)
-			list (, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
+			list(, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 	}
 
 	// And now include the actual language file itself.
@@ -640,7 +639,7 @@ function CheckFilesWritable()
 			elseif ($ftp->error !== false && empty($incontext['ftp_errors']) && !empty($ftp->last_message))
 				$incontext['ftp_errors'][] = $ftp->last_message;
 
-			list ($username, $detect_path, $found_path) = $ftp->detect_path(dirname(__FILE__));
+			list($username, $detect_path, $found_path) = $ftp->detect_path(dirname(__FILE__));
 
 			if (empty($_POST['ftp_path']) && $found_path)
 				$_POST['ftp_path'] = $detect_path;
@@ -1577,7 +1576,7 @@ function AdminAccount()
 		);
 		if ($smcFunc['db_num_rows']($result) != 0)
 		{
-			list ($incontext['member_id'], $incontext['member_salt']) = $smcFunc['db_fetch_row']($result);
+			list($incontext['member_id'], $incontext['member_salt']) = $smcFunc['db_fetch_row']($result);
 			$smcFunc['db_free_result']($result);
 
 			$incontext['account_existed'] = $txt['error_user_settings_taken'];
@@ -1757,7 +1756,7 @@ function DeleteInstall()
 		)
 	);
 	if ($smcFunc['db_num_rows']($result) != 0)
-		list ($db_sessions) = $smcFunc['db_fetch_row']($result);
+		list($db_sessions) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	if (empty($db_sessions))

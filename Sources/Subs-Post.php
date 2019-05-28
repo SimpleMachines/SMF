@@ -14,7 +14,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -569,8 +568,8 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 		$message = preg_replace('~(' . preg_quote($scripturl, '~') . '(?:[?/][\w\-_%\.,\?&;=#]+)?)~', '<a href="$1">$1</a>', $message);
 	}
 
-	list (, $from_name) = mimespecialchars(addcslashes($from !== null ? $from : $context['forum_name'], '<>()\'\\"'), true, $hotmail_fix, $line_break);
-	list (, $subject) = mimespecialchars($subject, true, $hotmail_fix, $line_break);
+	list(, $from_name) = mimespecialchars(addcslashes($from !== null ? $from : $context['forum_name'], '<>()\'\\"'), true, $hotmail_fix, $line_break);
+	list(, $subject) = mimespecialchars($subject, true, $hotmail_fix, $line_break);
 
 	// Construct the mail headers...
 	$headers = 'From: ' . $from_name . ' <' . (empty($modSettings['mail_from']) ? $webmaster_email : $modSettings['mail_from']) . '>' . $line_break;
@@ -626,7 +625,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 		$message = $plain_message . $line_break . '--' . $mime_boundary . $line_break;
 
 		// Now add an encoded message using the forum's character set.
-		list ($charset, $encoded_message, $encoding) = mimespecialchars($orig_message, false, false, $line_break);
+		list($charset, $encoded_message, $encoding) = mimespecialchars($orig_message, false, false, $line_break);
 		$message .= 'content-type: text/plain; charset=' . $charset . $line_break;
 		$message .= 'content-transfer-encoding: ' . $encoding . $line_break . $line_break;
 		$message .= $encoded_message . $line_break . '--' . $mime_boundary . '--';
@@ -639,7 +638,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	// If it's a priority mail, send it now - note though that this should NOT be used for sending many at once.
 	elseif (!empty($modSettings['mail_limit']))
 	{
-		list ($last_mail_time, $mails_this_minute) = @explode('|', $modSettings['mail_recent']);
+		list($last_mail_time, $mails_this_minute) = @explode('|', $modSettings['mail_recent']);
 		if (empty($mails_this_minute) || time() > $last_mail_time + 60)
 			$new_queue_stat = time() . '|' . 1;
 		else
@@ -1730,7 +1729,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'id_topic' => $topicOptions['id'],
 			)
 		);
-		list ($topicOptions['is_approved']) = $smcFunc['db_fetch_row']($request);
+		list($topicOptions['is_approved']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 
@@ -1763,7 +1762,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				$posterOptions['email'] = '';
 			}
 			else
-				list ($posterOptions['name'], $posterOptions['email']) = $smcFunc['db_fetch_row']($request);
+				list($posterOptions['name'], $posterOptions['email']) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 		}
 		else
@@ -2126,7 +2125,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 					'id_msg' => $msgOptions['id'],
 				)
 			);
-			list ($msgOptions['old_body']) = $smcFunc['db_fetch_row']($request);
+			list($msgOptions['old_body']) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 		}
 	}
@@ -2756,7 +2755,7 @@ function adminNotify($type, $memberID, $member_name = null)
 				'id_member' => $memberID,
 			)
 		);
-		list ($member_name) = $smcFunc['db_fetch_row']($request);
+		list($member_name) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 

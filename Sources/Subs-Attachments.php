@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -335,7 +334,7 @@ function processAttachments()
 					'attachment_type' => 0,
 				)
 			);
-			list ($context['attachments']['quantity'], $context['attachments']['total_size']) = $smcFunc['db_fetch_row']($request);
+			list($context['attachments']['quantity'], $context['attachments']['total_size']) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 		}
 		else
@@ -553,7 +552,7 @@ function attachmentChecks($attachID)
 					'type' => 1,
 				)
 			);
-			list ($context['dir_files'], $context['dir_size']) = $smcFunc['db_fetch_row']($request);
+			list($context['dir_files'], $context['dir_size']) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 		}
 		$context['dir_size'] += $_SESSION['temp_attachments'][$attachID]['size'];
@@ -662,7 +661,7 @@ function createAttachment(&$attachmentOptions)
 
 	// If this is an image we need to set a few additional parameters.
 	$size = @getimagesize($attachmentOptions['tmp_name']);
-	list ($attachmentOptions['width'], $attachmentOptions['height']) = $size;
+	list($attachmentOptions['width'], $attachmentOptions['height']) = $size;
 
 	// If it's an image get the mime type right.
 	if (empty($attachmentOptions['mime_type']) && $attachmentOptions['width'])
@@ -811,7 +810,7 @@ function createAttachment(&$attachmentOptions)
 		{
 			// Figure out how big we actually made it.
 			$size = @getimagesize($attachmentOptions['destination'] . '_thumb');
-			list ($thumb_width, $thumb_height) = $size;
+			list($thumb_width, $thumb_height) = $size;
 
 			if (!empty($size['mime']))
 				$thumb_mime = $size['mime'];
@@ -1210,7 +1209,7 @@ function loadAttachmentContext($id_msg, $attachments)
 
 						// Calculate the size of the created thumbnail.
 						$size = @getimagesize($filename . '_thumb');
-						list ($attachment['thumb_width'], $attachment['thumb_height']) = $size;
+						list($attachment['thumb_width'], $attachment['thumb_height']) = $size;
 						$thumb_size = filesize($filename . '_thumb');
 
 						// What about the extension?

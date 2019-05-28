@@ -116,7 +116,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		if ($type == 'edit')
 		{
 			// Filter out members who have already been notified about this post's topic
-			$unnotified = array_filter($watched, function ($member)
+			$unnotified = array_filter($watched, function($member)
 			{
 				return empty($member['sent']);
 			});

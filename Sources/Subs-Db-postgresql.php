@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -37,35 +36,35 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 	// Map some database specific functions, only do this once.
 	if (!isset($smcFunc['db_fetch_assoc']))
 		$smcFunc += array(
-			'db_query'                  => 'smf_db_query',
-			'db_quote'                  => 'smf_db_quote',
-			'db_insert'                 => 'smf_db_insert',
-			'db_insert_id'              => 'smf_db_insert_id',
-			'db_fetch_assoc'            => 'pg_fetch_assoc',
-			'db_fetch_row'              => 'pg_fetch_row',
-			'db_free_result'            => 'pg_free_result',
-			'db_num_rows'               => 'pg_num_rows',
-			'db_data_seek'              => 'pg_result_seek',
-			'db_num_fields'             => 'pg_num_fields',
-			'db_escape_string'          => 'smf_db_escape_string',
-			'db_unescape_string'        => 'stripslashes',
-			'db_server_info'            => 'smf_db_version',
-			'db_affected_rows'          => 'smf_db_affected_rows',
-			'db_transaction'            => 'smf_db_transaction',
-			'db_error'                  => 'pg_last_error',
-			'db_select_db'              => 'smf_db_select_db',
-			'db_title'                  => 'PostgreSQL',
-			'db_sybase'                 => true,
-			'db_case_sensitive'         => true,
+			'db_query' => 'smf_db_query',
+			'db_quote' => 'smf_db_quote',
+			'db_insert' => 'smf_db_insert',
+			'db_insert_id' => 'smf_db_insert_id',
+			'db_fetch_assoc' => 'pg_fetch_assoc',
+			'db_fetch_row' => 'pg_fetch_row',
+			'db_free_result' => 'pg_free_result',
+			'db_num_rows' => 'pg_num_rows',
+			'db_data_seek' => 'pg_result_seek',
+			'db_num_fields' => 'pg_num_fields',
+			'db_escape_string' => 'smf_db_escape_string',
+			'db_unescape_string' => 'stripslashes',
+			'db_server_info' => 'smf_db_version',
+			'db_affected_rows' => 'smf_db_affected_rows',
+			'db_transaction' => 'smf_db_transaction',
+			'db_error' => 'pg_last_error',
+			'db_select_db' => 'smf_db_select_db',
+			'db_title' => 'PostgreSQL',
+			'db_sybase' => true,
+			'db_case_sensitive' => true,
 			'db_escape_wildcard_string' => 'smf_db_escape_wildcard_string',
-			'db_is_resource'            => 'is_resource',
-			'db_mb4'                    => true,
-			'db_ping'                   => 'pg_ping',
-			'db_fetch_all'              => 'smf_db_fetch_all',
-			'db_error_insert'           => 'smf_db_error_insert',
-			'db_custom_order'           => 'smf_db_custom_order',
-			'db_native_replace'         => 'smf_db_native_replace',
-			'db_cte_support'            => 'smf_db_cte_support',
+			'db_is_resource' => 'is_resource',
+			'db_mb4' => true,
+			'db_ping' => 'pg_ping',
+			'db_fetch_all' => 'smf_db_fetch_all',
+			'db_error_insert' => 'smf_db_error_insert',
+			'db_custom_order' => 'smf_db_custom_order',
+			'db_native_replace' => 'smf_db_native_replace',
+			'db_cte_support' => 'smf_db_cte_support',
 		);
 
 	// We are not going to make it very far without these.
@@ -136,7 +135,7 @@ function smf_db_replacement__callback($matches)
 {
 	global $db_callback, $user_info, $db_prefix, $smcFunc;
 
-	list ($values, $connection) = $db_callback;
+	list($values, $connection) = $db_callback;
 
 	if ($matches[1] === 'db_prefix')
 		return $db_prefix;
@@ -469,7 +468,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	if (isset($db_show_debug) && $db_show_debug === true)
 	{
 		// Get the file and line number this function was called.
-		list ($file, $line) = smf_db_error_backtrace('', '', 'return', __FILE__, __LINE__);
+		list($file, $line) = smf_db_error_backtrace('', '', 'return', __FILE__, __LINE__);
 
 		// Initialize $db_cache if not already initialized.
 		if (!isset($db_cache))
@@ -542,7 +541,7 @@ function smf_db_insert_id($table, $field = null, $connection = null)
 	);
 	if (!$request)
 		return false;
-	list ($lastID) = $smcFunc['db_fetch_row']($request);
+	list($lastID) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $lastID;
@@ -586,7 +585,7 @@ function smf_db_error($db_string, $connection = null)
 	global $db_show_debug;
 
 	// We'll try recovering the file and line number the original db query was called from.
-	list ($file, $line) = smf_db_error_backtrace('', '', 'return', __FILE__, __LINE__);
+	list($file, $line) = smf_db_error_backtrace('', '', 'return', __FILE__, __LINE__);
 
 	// Decide which connection to use
 	$connection = $connection === null ? $db_connection : $connection;
@@ -669,12 +668,12 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 		$where = '';
 		$count_pk = 0;
 
-		If ($replace_support)
+		if ($replace_support)
 		{
 			foreach ($columns as $columnName => $type)
 			{
 				//check pk fiel
-				IF (in_array($columnName, $keys))
+				if (in_array($columnName, $keys))
 				{
 					$key_str .= ($count_pk > 0 ? ',' : '');
 					$key_str .= $columnName;

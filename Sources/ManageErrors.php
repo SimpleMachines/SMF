@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -112,7 +111,7 @@ function ViewErrorLog()
 			'filter' => isset($filter) ? $filter['value']['sql'] : '',
 		)
 	);
-	list ($num_errors) = $smcFunc['db_fetch_row']($result);
+	list($num_errors) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	// If this filter is empty...

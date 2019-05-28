@@ -43,7 +43,7 @@ class CreateAttachment_Notify_Background extends SMF_BackgroundTask
 		// Return true if either not found or invalid so that the cron runner deletes this task.
 		if ($smcFunc['db_num_rows']($request) == 0)
 			return true;
-		list ($id_attach, $id_board, $id_msg, $id_topic, $id_member, $subject) = $smcFunc['db_fetch_row']($request);
+		list($id_attach, $id_board, $id_msg, $id_topic, $id_member, $subject) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// We need to know who can approve this attachment.

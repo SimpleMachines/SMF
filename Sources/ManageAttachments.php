@@ -14,7 +14,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -85,7 +84,6 @@ function ManageAttachments()
  * @return void|array If $return_config is true, simply returns the config_vars array, otherwise returns nothing
  * @uses 'attachments' sub template.
  */
-
 function ManageAttachmentSettings($return_config = false)
 {
 	global $smcFunc, $txt, $modSettings, $scripturl, $context, $sourcedir, $boarddir;
@@ -702,7 +700,7 @@ function list_getNumFiles($browse_type)
 			)
 		);
 
-	list ($num_files) = $smcFunc['db_fetch_row']($request);
+	list($num_files) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $num_files;
@@ -735,7 +733,7 @@ function MaintainFiles()
 			'guest_id_member' => 0,
 		)
 	);
-	list ($context['num_attachments']) = $smcFunc['db_fetch_row']($request);
+	list($context['num_attachments']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 	$context['num_attachments'] = comma_format($context['num_attachments'], 0);
 
@@ -748,7 +746,7 @@ function MaintainFiles()
 			'guest_id_member' => 0,
 		)
 	);
-	list ($context['num_avatars']) = $smcFunc['db_fetch_row']($request);
+	list($context['num_avatars']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 	$context['num_avatars'] = comma_format($context['num_avatars'], 0);
 
@@ -761,7 +759,7 @@ function MaintainFiles()
 			'type' => 1,
 		)
 	);
-	list ($attachmentDirSize) = $smcFunc['db_fetch_row']($request);
+	list($attachmentDirSize) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Divide it into kilobytes.
@@ -778,7 +776,7 @@ function MaintainFiles()
 			'type' => 1,
 		)
 	);
-	list ($current_dir_files, $current_dir_size) = $smcFunc['db_fetch_row']($request);
+	list($current_dir_files, $current_dir_size) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 	$current_dir_size /= 1024;
 
@@ -1188,7 +1186,7 @@ function RepairAttachments()
 				'thumbnail' => 3,
 			)
 		);
-		list ($thumbnails) = $smcFunc['db_fetch_row']($result);
+		list($thumbnails) = $smcFunc['db_fetch_row']($result);
 		$smcFunc['db_free_result']($result);
 
 		for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500)
@@ -1258,7 +1256,7 @@ function RepairAttachments()
 				'no_thumb' => 0,
 			)
 		);
-		list ($thumbnails) = $smcFunc['db_fetch_row']($result);
+		list($thumbnails) = $smcFunc['db_fetch_row']($result);
 		$smcFunc['db_free_result']($result);
 
 		for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500)
@@ -1315,7 +1313,7 @@ function RepairAttachments()
 			array(
 			)
 		);
-		list ($thumbnails) = $smcFunc['db_fetch_row']($result);
+		list($thumbnails) = $smcFunc['db_fetch_row']($result);
 		$smcFunc['db_free_result']($result);
 
 		for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 250)
@@ -1456,7 +1454,7 @@ function RepairAttachments()
 			array(
 			)
 		);
-		list ($thumbnails) = $smcFunc['db_fetch_row']($result);
+		list($thumbnails) = $smcFunc['db_fetch_row']($result);
 		$smcFunc['db_free_result']($result);
 
 		for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500)
@@ -1527,7 +1525,7 @@ function RepairAttachments()
 			array(
 			)
 		);
-		list ($thumbnails) = $smcFunc['db_fetch_row']($result);
+		list($thumbnails) = $smcFunc['db_fetch_row']($result);
 		$smcFunc['db_free_result']($result);
 
 		for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500)
@@ -2022,7 +2020,7 @@ function ManageAttachmentPaths()
 						)
 					);
 
-					list ($num_attach) = $smcFunc['db_fetch_row']($request);
+					list($num_attach) = $smcFunc['db_fetch_row']($request);
 					$smcFunc['db_free_result']($request);
 
 					// A check to see if it's a used base dir.
@@ -2473,7 +2471,7 @@ function list_getAttachDirs()
 			$expected_files[$id] = 0;
 
 		// Check if the directory is doing okay.
-		list ($status, $error, $files) = attachDirStatus($dir, $expected_files[$id]);
+		list($status, $error, $files) = attachDirStatus($dir, $expected_files[$id]);
 
 		// If it is one, let's show that it's a base directory.
 		$sub_dirs = 0;
@@ -2652,7 +2650,7 @@ function TransferAttachments()
 				'attachment_type' => 1,
 			)
 		);
-		list ($total_progress) = $smcFunc['db_fetch_row']($request);
+		list($total_progress) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 		$total_progress -= $start;
 
@@ -2699,7 +2697,7 @@ function TransferAttachments()
 						'attachment_type' => 1,
 					)
 				);
-				list ($dir_files, $dir_size) = $smcFunc['db_fetch_row']($request);
+				list($dir_files, $dir_size) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 			}
 

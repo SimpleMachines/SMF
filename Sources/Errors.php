@@ -14,7 +14,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -546,7 +545,7 @@ function log_error_online($error, $sprintf = array())
 			$smcFunc['json_encode'] = 'json_encode';
 		}
 
-		list ($url) = $smcFunc['db_fetch_row']($request);
+		list($url) = $smcFunc['db_fetch_row']($request);
 		$url = $smcFunc['json_decode']($url, true);
 		$url['error'] = $error;
 		// Url field got a max length of 1024 in db

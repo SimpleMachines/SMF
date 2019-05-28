@@ -15,7 +15,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -238,7 +237,6 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
  * @uses {@link PharData}
  * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
  */
-
 function read_zip_file($file, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
 	// This function sorta needs phar!
@@ -894,7 +892,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 			elseif ($ftp->error !== false && !isset($ftp_error))
 				$ftp_error = $ftp->last_message === null ? '' : $ftp->last_message;
 
-			list ($username, $detect_path, $found_path) = $ftp->detect_path($boarddir);
+			list($username, $detect_path, $found_path) = $ftp->detect_path($boarddir);
 
 			if ($found_path)
 				$_POST['ftp_path'] = $detect_path;
@@ -1072,7 +1070,7 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 		elseif ($ftp->error !== false && !isset($ftp_error))
 			$ftp_error = $ftp->last_message === null ? '' : $ftp->last_message;
 
-		list ($username, $detect_path, $found_path) = $ftp->detect_path($boarddir);
+		list($username, $detect_path, $found_path) = $ftp->detect_path($boarddir);
 
 		if ($found_path)
 			$_POST['ftp_path'] = $detect_path;
@@ -1609,7 +1607,7 @@ function matchHighestPackageVersion($versions, $reset = false, $the_version)
 
 		// If we have a range, grab the lower value, done this way so it looks normal-er to the user e.g. 2.0 vs 2.0.99
 		if (strpos($for, '-') !== false)
-			list ($for, $higher) = explode('-', $for);
+			list($for, $higher) = explode('-', $for);
 
 		// Do the compare, if the for is greater, than what we have but not greater than what we are running .....
 		if (compareVersions($near_version, $for) === -1 && compareVersions($for, $the_version) !== 1)
@@ -1649,7 +1647,7 @@ function matchPackageVersion($version, $versions)
 		// Do we have a range?
 		if (strpos($for, '-') !== false)
 		{
-			list ($lower, $upper) = explode('-', $for);
+			list($lower, $upper) = explode('-', $for);
 
 			// Compare the version against lower and upper bounds.
 			if (compareVersions($version, $lower) > -1 && compareVersions($version, $upper) < 1)

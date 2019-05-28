@@ -25,7 +25,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 if (!is_callable('random_bytes')) {
     /**
      * Powered by ext/mcrypt (and thankfully NOT libmcrypt)

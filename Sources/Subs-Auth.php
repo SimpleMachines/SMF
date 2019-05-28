@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -48,12 +47,12 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	{
 		// First check for 2.1 json-format cookie
 		if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":"[^"]+","4":"[^"]+"~', $_COOKIE[$cookiename]) === 1)
-			list(,,, $old_domain, $old_path) = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
+			list(, , , $old_domain, $old_path) = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
 
 		// Legacy format (for recent 2.0 --> 2.1 upgrades)
 		elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[$cookiename]) === 1)
 		{
-			list(,,, $old_state) = safe_unserialize($_COOKIE[$cookiename]);
+			list(, , , $old_state) = safe_unserialize($_COOKIE[$cookiename]);
 
 			$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
 
@@ -608,7 +607,7 @@ function resetPassword($memID, $username = null)
 			'id_member' => $memID,
 		)
 	);
-	list ($user, $email, $lngfile) = $smcFunc['db_fetch_row']($request);
+	list($user, $email, $lngfile) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	if ($username !== null)

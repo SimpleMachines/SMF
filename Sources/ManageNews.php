@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -422,7 +421,7 @@ function SelectMailingMembers()
 		array(
 		)
 	);
-	list ($context['groups'][3]['member_count']) = $smcFunc['db_fetch_row']($request);
+	list($context['groups'][3]['member_count']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	$context['can_send_pm'] = allowedTo('pm_send');
@@ -676,7 +675,7 @@ function ComposeMailing()
 		array(
 		)
 	);
-	list ($context['total_members']) = $smcFunc['db_fetch_row']($request);
+	list($context['total_members']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Clean up the arrays.
@@ -732,7 +731,7 @@ function SendMailing($clean_only = false)
 			array(
 			)
 		);
-		list ($context['total_members']) = $smcFunc['db_fetch_row']($request);
+		list($context['total_members']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 	else

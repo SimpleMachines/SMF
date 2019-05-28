@@ -14,7 +14,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -348,7 +347,7 @@ function list_getNumBans()
 		array(
 		)
 	);
-	list ($numBans) = $smcFunc['db_fetch_row']($request);
+	list($numBans) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $numBans;
@@ -560,7 +559,7 @@ function BanEdit()
 				);
 				if ($smcFunc['db_num_rows']($request) > 0)
 				{
-					list ($context['ban_suggestions']['member']['id'], $context['ban_suggestions']['member']['name'], $context['ban_suggestions']['main_ip'], $context['ban_suggestions']['email']) = $smcFunc['db_fetch_row']($request);
+					list($context['ban_suggestions']['member']['id'], $context['ban_suggestions']['member']['name'], $context['ban_suggestions']['main_ip'], $context['ban_suggestions']['email']) = $smcFunc['db_fetch_row']($request);
 					$context['ban_suggestions']['main_ip'] = inet_dtop($context['ban_suggestions']['main_ip']);
 				}
 				$smcFunc['db_free_result']($request);
@@ -597,7 +596,7 @@ function BanEdit()
 				);
 				if ($smcFunc['db_num_rows']($request) > 0)
 				{
-					list ($context['ban_suggestions']['member']['name'], $context['ban_suggestions']['main_ip'], $context['ban_suggestions']['email']) = $smcFunc['db_fetch_row']($request);
+					list($context['ban_suggestions']['member']['name'], $context['ban_suggestions']['main_ip'], $context['ban_suggestions']['email']) = $smcFunc['db_fetch_row']($request);
 					$context['ban_suggestions']['main_ip'] = inet_dtop($context['ban_suggestions']['main_ip']);
 				}
 				$smcFunc['db_free_result']($request);
@@ -1239,7 +1238,7 @@ function validateTriggers(&$triggers)
 				);
 				if ($smcFunc['db_num_rows']($request) == 0)
 					$context['ban_erros'][] = 'invalid_username';
-				list ($value, $isAdmin) = $smcFunc['db_fetch_row']($request);
+				list($value, $isAdmin) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 
 				if ($isAdmin && strtolower($isAdmin) != 'f')
@@ -1828,8 +1827,7 @@ function BanBrowseTriggers()
 			'function' => function($rowData)
 			{
 				return range2ip(
-					$rowData['ip_low']
-					,
+					$rowData['ip_low'],
 					$rowData['ip_high']
 				);
 			},
@@ -1961,7 +1959,7 @@ function list_getNumBanTriggers($trigger_type)
 			'blank_string' => '',
 		)
 	);
-	list ($num_triggers) = $smcFunc['db_fetch_row']($request);
+	list($num_triggers) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $num_triggers;
@@ -2175,7 +2173,7 @@ function list_getNumBanLogEntries()
 		array(
 		)
 	);
-	list ($num_entries) = $smcFunc['db_fetch_row']($request);
+	list($num_entries) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $num_entries;
@@ -2233,7 +2231,7 @@ function checkExistingTriggerIP($ip_array, $fullip = '')
 	);
 	if ($smcFunc['db_num_rows']($request) != 0)
 	{
-		list ($error_id_ban, $error_ban_name) = $smcFunc['db_fetch_row']($request);
+		list($error_id_ban, $error_ban_name) = $smcFunc['db_fetch_row']($request);
 		fatal_lang_error('ban_trigger_already_exists', false, array(
 			$fullip,
 			'<a href="' . $scripturl . '?action=admin;area=ban;sa=edit;bg=' . $error_id_ban . '">' . $error_ban_name . '</a>',
@@ -2399,7 +2397,7 @@ function getMemberData($id)
 	);
 	if ($smcFunc['db_num_rows']($request) > 0)
 	{
-		list ($suggestions['member']['id'], $suggestions['member']['name'], $suggestions['main_ip'], $suggestions['email']) = $smcFunc['db_fetch_row']($request);
+		list($suggestions['member']['id'], $suggestions['member']['name'], $suggestions['main_ip'], $suggestions['email']) = $smcFunc['db_fetch_row']($request);
 		$suggestions['main_ip'] = inet_dtop($suggestions['main_ip']);
 	}
 	$smcFunc['db_free_result']($request);

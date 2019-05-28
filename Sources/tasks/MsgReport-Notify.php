@@ -159,7 +159,7 @@ class MsgReport_Notify_Background extends SMF_BackgroundTask
 					'report' => $this->_details['report_id'],
 				)
 			);
-			list ($subject, $poster_name, $comment) = $smcFunc['db_fetch_row']($request);
+			list($subject, $poster_name, $comment) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
 			// Third, iterate through each language, load the relevant templates and set up sending.

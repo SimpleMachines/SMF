@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -836,7 +835,7 @@ function AdminBoardRecount()
 		array(
 		)
 	);
-	list ($max_topics) = $smcFunc['db_fetch_row']($request);
+	list($max_topics) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	$increment = min(max(50, ceil($max_topics / 4)), 2000);
@@ -1608,7 +1607,7 @@ function MaintainMassMoveTopics()
 			$conditions,
 			$params
 		);
-		list ($total_topics) = $smcFunc['db_fetch_row']($request);
+		list($total_topics) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 	else
@@ -1732,7 +1731,7 @@ function MaintainRecountPosts()
 		);
 
 		// save it so we don't do this again for this task
-		list ($_SESSION['total_members']) = $smcFunc['db_fetch_row']($request);
+		list($_SESSION['total_members']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 	else
@@ -2260,7 +2259,7 @@ function get_hook_info_from_raw($rawData)
 	// Any files?
 	if (strpos($modFunc, '|') !== false)
 	{
-		list ($hookData['hookFile'], $modFunc) = explode('|', $modFunc);
+		list($hookData['hookFile'], $modFunc) = explode('|', $modFunc);
 
 		// Does the file exists? who knows!
 		if (empty($settings['theme_dir']))
@@ -2290,7 +2289,7 @@ function get_hook_info_from_raw($rawData)
 	// Handling methods?
 	if (strpos($modFunc, '::') !== false)
 	{
-		list ($hookData['class'], $hookData['method']) = explode('::', $modFunc);
+		list($hookData['class'], $hookData['method']) = explode('::', $modFunc);
 		$hookData['pureFunc'] = $hookData['method'];
 	}
 

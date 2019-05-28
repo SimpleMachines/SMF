@@ -58,7 +58,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -516,7 +515,7 @@ function ModifyCookieSettings($return_config = false)
 
 		// Local and global do not play nicely together.
 		if (!empty($_POST['localCookies']) && empty($_POST['globalCookies']))
-			unset ($_POST['globalCookies']);
+			unset($_POST['globalCookies']);
 
 		if (empty($modSettings['localCookies']) != empty($_POST['localCookies']) || empty($modSettings['globalCookies']) != empty($_POST['globalCookies']))
 			$scope_changed = true;

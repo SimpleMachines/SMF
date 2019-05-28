@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -45,7 +44,7 @@ function MoveTopic()
 			'current_topic' => $topic,
 		)
 	);
-	list ($id_member_started, $context['subject'], $context['is_approved']) = $smcFunc['db_fetch_row']($request);
+	list($id_member_started, $context['subject'], $context['is_approved']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Can they see it - if not approved?
@@ -159,7 +158,7 @@ function MoveTopic2()
 			'current_topic' => $topic,
 		)
 	);
-	list ($id_member_started, $id_first_msg, $context['is_approved']) = $smcFunc['db_fetch_row']($request);
+	list($id_member_started, $id_first_msg, $context['is_approved']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Can they see it?
@@ -200,7 +199,7 @@ function MoveTopic2()
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('no_board');
 
-	list ($pcounter, $board_name, $subject) = $smcFunc['db_fetch_row']($request);
+	list($pcounter, $board_name, $subject) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Remember this for later.
@@ -311,7 +310,7 @@ function MoveTopic2()
 			'current_board' => $board,
 		)
 	);
-	list ($pcounter_from) = $smcFunc['db_fetch_row']($request);
+	list($pcounter_from) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	if ($pcounter_from != $pcounter)
@@ -665,7 +664,7 @@ function moveTopics($topics, $toBoard)
 			'id_board' => $toBoard,
 		)
 	);
-	list ($isSeen) = $smcFunc['db_fetch_row']($request);
+	list($isSeen) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($isSeen) && !$user_info['is_guest'])

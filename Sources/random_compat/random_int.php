@@ -49,7 +49,6 @@ if (!is_callable('random_int')) {
          * lose precision, so the <= and => operators might accidentally let a float
          * through.
          */
-
         try {
             /** @var int $min */
             $min = RandomCompat_intval($min);

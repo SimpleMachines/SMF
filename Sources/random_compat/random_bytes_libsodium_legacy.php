@@ -25,7 +25,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 if (!is_callable('random_bytes')) {
     /**
      * If the libsodium PHP extension is loaded, we'll use it above any other

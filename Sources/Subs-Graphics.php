@@ -17,7 +17,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -89,7 +88,7 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 		// Remove the .tmp extension from the attachment.
 		if (rename($destName . '.tmp', $destName))
 		{
-			list ($width, $height) = getimagesize($destName);
+			list($width, $height) = getimagesize($destName);
 			$mime_type = 'image/' . $ext;
 
 			// Write filesize in the database.
@@ -419,7 +418,7 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 
 		if (checkImagick())
 		{
-			$imagick = New Imagick($destName);
+			$imagick = new Imagick($destName);
 			$src_width = empty($src_width) ? $imagick->getImageWidth() : $src_width;
 			$src_height = empty($src_height) ? $imagick->getImageHeight() : $src_height;
 			$dest_width = empty($max_width) ? $src_width : $max_width;

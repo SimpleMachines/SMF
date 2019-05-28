@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -23,7 +22,6 @@ if (!defined('SMF'))
  *
  * @uses ManagePermissions language file.
  */
-
 function ModifyPermissions()
 {
 	global $txt, $context;
@@ -109,7 +107,7 @@ function PermissionIndex()
 			'regular_group' => 0,
 		)
 	);
-	list ($num_members) = $smcFunc['db_fetch_row']($request);
+	list($num_members) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Fill the context variable with 'Guests' and 'Regular Members'.
@@ -605,7 +603,7 @@ function SetQuickGroups()
 	elseif (!empty($_POST['permissions']))
 	{
 		// Unpack two variables that were transported.
-		list ($permissionType, $permission) = explode('/', $_POST['permissions']);
+		list($permissionType, $permission) = explode('/', $_POST['permissions']);
 
 		// Check whether our input is within expected range.
 		if (!in_array($_POST['add_remove'], array('add', 'clear', 'deny')) || !in_array($permissionType, array('membergroup', 'board')))
@@ -721,7 +719,7 @@ function ModifyMembergroup()
 				'current_group' => $context['group']['id'],
 			)
 		);
-		list ($context['group']['name'], $parent) = $smcFunc['db_fetch_row']($result);
+		list($context['group']['name'], $parent) = $smcFunc['db_fetch_row']($result);
 		$smcFunc['db_free_result']($result);
 
 		// Cannot edit an inherited group!
@@ -883,7 +881,7 @@ function ModifyMembergroup2()
 				'current_group' => $_GET['group'],
 			)
 		);
-		list ($parent) = $smcFunc['db_fetch_row']($result);
+		list($parent) = $smcFunc['db_fetch_row']($result);
 		$smcFunc['db_free_result']($result);
 	}
 
@@ -1838,7 +1836,7 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 	if (!empty($excluded_groups))
 	{
 		// Make sure this is an array of integers
-		$excluded_groups = array_filter((array) $excluded_groups, function ($v)
+		$excluded_groups = array_filter((array) $excluded_groups, function($v)
 			{
 				return is_int($v) || is_string($v) && (string) intval($v) === $v;
 			});

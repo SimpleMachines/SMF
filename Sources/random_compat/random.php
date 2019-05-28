@@ -28,7 +28,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 if (!defined('PHP_VERSION_ID')) {
     // This constant was introduced in PHP 5.2.7
     $RandomCompatversion = array_map('intval', explode('.', PHP_VERSION));

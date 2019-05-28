@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -77,7 +76,7 @@ function ShowXmlFeed()
 					'current_category' => (int) $_REQUEST['c'][0],
 				)
 			);
-			list ($feed_meta['title']) = $smcFunc['db_fetch_row']($request);
+			list($feed_meta['title']) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
 			$feed_meta['title'] = ' - ' . strip_tags($feed_meta['title']);
@@ -161,7 +160,7 @@ function ShowXmlFeed()
 				'current_board' => $board,
 			)
 		);
-		list ($total_posts) = $smcFunc['db_fetch_row']($request);
+		list($total_posts) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		$feed_meta['title'] = ' - ' . strip_tags($board_info['name']);
@@ -1842,7 +1841,7 @@ function getXmlProfile($xml_format)
 
 		if (!empty($profile['birth_date']) && substr($profile['birth_date'], 0, 4) != '0000')
 		{
-			list ($birth_year, $birth_month, $birth_day) = sscanf($profile['birth_date'], '%d-%d-%d');
+			list($birth_year, $birth_month, $birth_day) = sscanf($profile['birth_date'], '%d-%d-%d');
 			$datearray = getdate(forum_time());
 			$age = $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1);
 

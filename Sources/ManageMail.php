@@ -15,7 +15,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -91,7 +90,7 @@ function BrowseMailQueue()
 		array(
 		)
 	);
-	list ($mailQueueSize, $mailOldest) = $smcFunc['db_fetch_row']($request);
+	list($mailQueueSize, $mailOldest) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	$context['oldest_mail'] = empty($mailOldest) ? $txt['mailqueue_oldest_not_available'] : time_since(time() - $mailOldest);
@@ -274,7 +273,7 @@ function list_getMailQueueSize()
 		array(
 		)
 	);
-	list ($mailQueueSize) = $smcFunc['db_fetch_row']($request);
+	list($mailQueueSize) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $mailQueueSize;
@@ -401,7 +400,7 @@ function ClearMailQueue()
 			array(
 			)
 		);
-		list ($_GET['te']) = $smcFunc['db_fetch_row']($request);
+		list($_GET['te']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 	else

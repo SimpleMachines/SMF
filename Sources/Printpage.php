@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -25,7 +24,6 @@ if (!defined('SMF'))
  * @uses Printpage template, main sub-template.
  * @uses print_above/print_below later without the main layer.
  */
-
 function PrintTopic()
 {
 	global $topic, $txt, $scripturl, $context, $user_info;
@@ -93,7 +91,7 @@ function PrintTopic()
 				'not_guest' => 0,
 			)
 		);
-		list ($pollinfo['total']) = $smcFunc['db_fetch_row']($request);
+		list($pollinfo['total']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// Total voters needs to include guest voters

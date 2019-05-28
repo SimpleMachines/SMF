@@ -29,7 +29,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -976,7 +975,7 @@ function PickTheme()
 				'current_member' => $context['current_member'],
 			)
 		);
-		list ($context['current_theme']) = $smcFunc['db_fetch_row']($request);
+		list($context['current_theme']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 

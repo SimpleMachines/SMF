@@ -46,7 +46,6 @@
  * in a topic, etc. It does not tell SMF anything in particular about where or
  * how it should use the 'America/Adak' location.
  */
-
 global $tztxt;
 
 // Descriptions for entire time zones to use instead of a list of locations

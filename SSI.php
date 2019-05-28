@@ -1189,7 +1189,7 @@ function ssi_boardStats($output_method = 'echo')
 		array(
 		)
 	);
-	list ($totals['boards']) = $smcFunc['db_fetch_row']($result);
+	list($totals['boards']) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	$result = $smcFunc['db_query']('', '
@@ -1198,7 +1198,7 @@ function ssi_boardStats($output_method = 'echo')
 		array(
 		)
 	);
-	list ($totals['categories']) = $smcFunc['db_fetch_row']($result);
+	list($totals['categories']) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	// If mods want to do somthing with the board stats, let them do that now.
@@ -1403,7 +1403,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 			'current_poll' => $row['id_poll'],
 		)
 	);
-	list ($total) = $smcFunc['db_fetch_row']($request);
+	list($total) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	$request = $smcFunc['db_query']('', '
@@ -1574,7 +1574,7 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 			'current_poll' => $row['id_poll'],
 		)
 	);
-	list ($total) = $smcFunc['db_fetch_row']($request);
+	list($total) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	$request = $smcFunc['db_query']('', '
@@ -2040,7 +2040,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 		else
 			return array();
 	}
-	list ($board) = $smcFunc['db_fetch_row']($request);
+	list($board) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	$icon_sources = array();
@@ -2350,7 +2350,7 @@ function ssi_checkPassword($id = null, $password = null, $is_username = false)
 			'id' => $id,
 		)
 	);
-	list ($pass, $user, $active) = $smcFunc['db_fetch_row']($request);
+	list($pass, $user, $active) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return hash_verify_password($user, $password, $pass) && $active == 1;

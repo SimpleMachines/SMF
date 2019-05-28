@@ -14,7 +14,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -55,7 +54,7 @@ function MessageMain()
 				'users_groups' => $user_info['groups'],
 			)
 		);
-		list ($maxMessage, $minMessage) = $smcFunc['db_fetch_row']($request);
+		list($maxMessage, $minMessage) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		$context['message_limit'] = $minMessage == 0 ? 0 : $maxMessage;
@@ -485,7 +484,7 @@ function MessageFolder()
 	// Prevent signature images from going outside the box.
 	if ($context['signature_enabled'])
 	{
-		list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
+		list($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
 		$sig_limits = explode(',', $sig_limits);
 
 		if (!empty($sig_limits[5]) || !empty($sig_limits[6]))
@@ -582,7 +581,7 @@ function MessageFolder()
 				'not_deleted' => 0,
 			)
 		);
-	list ($max_messages) = $smcFunc['db_fetch_row']($request);
+	list($max_messages) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Only show the button if there are messages to delete.
@@ -640,7 +639,7 @@ function MessageFolder()
 					)
 				);
 
-			list ($_GET['start']) = $smcFunc['db_fetch_row']($request);
+			list($_GET['start']) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
 			// To stop the page index's being abnormal, start the page on the page the message would normally be located on...
@@ -1162,7 +1161,7 @@ function MessageSearch()
 		$context['search_params'] = array();
 		foreach ($temp_params as $i => $data)
 		{
-			@list ($k, $v) = explode('|\'|', $data);
+			@list($k, $v) = explode('|\'|', $data);
 			$context['search_params'][$k] = $v;
 		}
 	}
@@ -1253,7 +1252,7 @@ function MessageSearch2()
 		$temp_params = explode('|"|', base64_decode(strtr($_REQUEST['params'], array(' ' => '+'))));
 		foreach ($temp_params as $i => $data)
 		{
-			@list ($k, $v) = explode('|\'|', $data);
+			@list($k, $v) = explode('|\'|', $data);
 			$search_params[$k] = $v;
 		}
 	}
@@ -1358,7 +1357,7 @@ function MessageSearch2()
 		'pm.id_pm',
 	);
 	if (empty($search_params['sort']) && !empty($_REQUEST['sort']))
-		list ($search_params['sort'], $search_params['sort_dir']) = array_pad(explode('|', $_REQUEST['sort']), 2, '');
+		list($search_params['sort'], $search_params['sort_dir']) = array_pad(explode('|', $_REQUEST['sort']), 2, '');
 	$search_params['sort'] = !empty($search_params['sort']) && in_array($search_params['sort'], $sort_columns) ? $search_params['sort'] : 'pm.id_pm';
 	$search_params['sort_dir'] = !empty($search_params['sort_dir']) && $search_params['sort_dir'] == 'asc' ? 'asc' : 'desc';
 
@@ -1551,7 +1550,7 @@ function MessageSearch2()
 			'not_deleted' => 0,
 		))
 	);
-	list ($numResults) = $smcFunc['db_fetch_row']($request);
+	list($numResults) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Get all the matching messages... using standard search only (No caching and the like!)
@@ -1770,7 +1769,7 @@ function MessagePost()
 	$context['sub_template'] = 'send';
 
 	// Extract out the spam settings - cause it's neat.
-	list ($modSettings['max_pm_recipients'], $modSettings['pm_posts_verification'], $modSettings['pm_posts_per_hour']) = explode(',', $modSettings['pm_spam_settings']);
+	list($modSettings['max_pm_recipients'], $modSettings['pm_posts_verification'], $modSettings['pm_posts_per_hour']) = explode(',', $modSettings['pm_spam_settings']);
 
 	// Set the title...
 	$context['page_title'] = $txt['send_message'];
@@ -1792,7 +1791,7 @@ function MessagePost()
 				'msgtime' => time() - 3600,
 			)
 		);
-		list ($postCount) = $smcFunc['db_fetch_row']($request);
+		list($postCount) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		if (!empty($postCount) && $postCount >= $modSettings['pm_posts_per_hour'])
@@ -2054,7 +2053,7 @@ function MessageDrafts()
 	$memberResult = loadMemberData($user_info['id'], false);
 	if (!$memberResult)
 		fatal_lang_error('not_a_user', false);
-	list ($memID) = $memberResult;
+	list($memID) = $memberResult;
 
 	// drafts is where the functions reside
 	require_once($sourcedir . '/Drafts.php');
@@ -2264,7 +2263,7 @@ function MessagePost2()
 	loadLanguage('PersonalMessage', '', false);
 
 	// Extract out the spam settings - it saves database space!
-	list ($modSettings['max_pm_recipients'], $modSettings['pm_posts_verification'], $modSettings['pm_posts_per_hour']) = explode(',', $modSettings['pm_spam_settings']);
+	list($modSettings['max_pm_recipients'], $modSettings['pm_posts_verification'], $modSettings['pm_posts_per_hour']) = explode(',', $modSettings['pm_spam_settings']);
 
 	// Initialize the errors we're about to make.
 	$post_errors = array();
@@ -2284,7 +2283,7 @@ function MessagePost2()
 				'msgtime' => time() - 3600,
 			)
 		);
-		list ($postCount) = $smcFunc['db_fetch_row']($request);
+		list($postCount) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		if (!empty($postCount) && $postCount >= $modSettings['pm_posts_per_hour'])
@@ -2712,7 +2711,7 @@ function MessageActionsApply()
 				);
 
 				// How many labels do you have?
-				list ($num_labels) = $smcFunc['db_fetch_assoc']($request2);
+				list($num_labels) = $smcFunc['db_fetch_assoc']($request2);
 
 				if ($num_labels > 0)
 					$context['can_remove_inbox'] = true;
@@ -3267,7 +3266,7 @@ function ManageLabels()
 		// Deleting an existing label?
 		elseif (isset($_POST['delete'], $_POST['delete_label']))
 		{
-			foreach ($_POST['delete_label'] AS $label => $dummy)
+			foreach ($_POST['delete_label'] as $label => $dummy)
 			{
 				unset($the_labels[$label]);
 				$labels_to_remove[] = $label;
@@ -3308,7 +3307,7 @@ function ManageLabels()
 		if (!empty($labels_to_add))
 		{
 			$inserts = array();
-			foreach ($labels_to_add AS $label)
+			foreach ($labels_to_add as $label)
 				$inserts[] = array($user_info['id'], $label);
 
 			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());
@@ -3317,7 +3316,7 @@ function ManageLabels()
 		// Update existing labels as needed
 		if (!empty($label_upates))
 		{
-			foreach ($label_updates AS $id => $name)
+			foreach ($label_updates as $id => $name)
 			{
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}labels
@@ -3598,7 +3597,7 @@ function ReportMessage()
 		// Can only be a hacker here!
 		if ($smcFunc['db_num_rows']($request) == 0)
 			fatal_lang_error('no_access', false);
-		list ($subject, $body, $time, $memberFromID, $memberFromName) = $smcFunc['db_fetch_row']($request);
+		list($subject, $body, $time, $memberFromID, $memberFromName) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// Remove the line breaks...
@@ -3835,7 +3834,7 @@ function ManageRules()
 					loadLanguage('Errors');
 					fatal_lang_error('invalid_username', false);
 				}
-				list ($memID) = $smcFunc['db_fetch_row']($request);
+				list($memID) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 
 				$criteria[] = array('t' => 'mid', 'v' => $memID);

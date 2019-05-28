@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -73,7 +72,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 						'is_activated' => 1,
 					)
 				);
-				list ($changes['totalMembers'], $changes['latestMember']) = $smcFunc['db_fetch_row']($result);
+				list($changes['totalMembers'], $changes['latestMember']) = $smcFunc['db_fetch_row']($result);
 				$smcFunc['db_free_result']($result);
 
 				// Get the latest activated member's display name.
@@ -86,7 +85,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 						'id_member' => (int) $changes['latestMember'],
 					)
 				);
-				list ($changes['latestRealName']) = $smcFunc['db_fetch_row']($result);
+				list($changes['latestRealName']) = $smcFunc['db_fetch_row']($result);
 				$smcFunc['db_free_result']($result);
 
 				if (!empty($modSettings['registration_method']))
@@ -103,7 +102,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 								'activation_status' => array(3, 4),
 							)
 						);
-						list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
+						list($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
 						$smcFunc['db_free_result']($result);
 					}
 
@@ -118,7 +117,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 								'coppa_approval' => 5,
 							)
 						);
-						list ($coppa_approvals) = $smcFunc['db_fetch_row']($result);
+						list($coppa_approvals) = $smcFunc['db_fetch_row']($result);
 						$smcFunc['db_free_result']($result);
 
 						// Add this to the number of unapproved members
@@ -1595,7 +1594,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_commas_content',
 				'test' => '\d+,\d+\]',
 				'content' => '<a href="$1" target="_blank" rel="noopener">$1</a>',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$scheme = parse_url($data[0], PHP_URL_SCHEME);
 					if (empty($scheme))
@@ -2155,7 +2154,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		$codes[] = array(
 			'tag' => 'cowsay',
 			'parameters' => array(
-				'e' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => 'oo', 'validate' => function ($eyes) use ($smcFunc)
+				'e' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => 'oo', 'validate' => function($eyes) use ($smcFunc)
 					{
 						static $css_added;
 
@@ -2172,7 +2171,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						return $smcFunc['substr']($eyes . 'oo', 0, 2);
 					},
 				),
-				't' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => '  ', 'validate' => function ($tongue) use ($smcFunc)
+				't' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => '  ', 'validate' => function($tongue) use ($smcFunc)
 					{
 						return $smcFunc['substr']($tongue . '  ', 0, 2);
 					},
@@ -3242,7 +3241,7 @@ function parsesmileys(&$message)
 			cache_put_data('parsing_smileys_' . $user_info['smiley_set'], array($smileysfrom, $smileysto, $smileysdescs), $cache_time);
 		}
 		else
-			list ($smileysfrom, $smileysto, $smileysdescs) = $temp;
+			list($smileysfrom, $smileysto, $smileysdescs) = $temp;
 
 		// The non-breaking-space is a complex thing...
 		$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
@@ -4145,7 +4144,7 @@ function template_css()
 	$toMinify = array();
 	$normal = array();
 
-	usort($context['css_files'], function ($a, $b)
+	usort($context['css_files'], function($a, $b)
 	{
 		return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
 	});
@@ -4427,7 +4426,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 		if ($smcFunc['db_num_rows']($request) === 0)
 			return false;
 
-		list ($file_hash) = $smcFunc['db_fetch_row']($request);
+		list($file_hash) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 	}
 
@@ -5068,7 +5067,7 @@ function call_integration_hook($hook, $parameters = array())
 			// Get a full path to show on error.
 			if (strpos($function, '|') !== false)
 			{
-				list ($file, $string) = explode('|', $function);
+				list($file, $string) = explode('|', $function);
 				$absPath = empty($settings['theme_dir']) ? (strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir))) : (strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
 				log_error(sprintf($txt['hook_fail_call_to'], $string, $absPath), 'general');
 			}
@@ -5117,7 +5116,7 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 				'variable' => $hook,
 			)
 		);
-		list ($current_functions) = $smcFunc['db_fetch_row']($request);
+		list($current_functions) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		if (!empty($current_functions))
@@ -5181,7 +5180,7 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
 			'variable' => $hook,
 		)
 	);
-	list ($current_functions) = $smcFunc['db_fetch_row']($request);
+	list($current_functions) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($current_functions))
@@ -5243,7 +5242,7 @@ function call_helper($string, $return = false)
 	// Found a method.
 	if (strpos($string, '::') !== false)
 	{
-		list ($class, $method) = explode('::', $string);
+		list($class, $method) = explode('::', $string);
 
 		// Check if a new object will be created.
 		if (strpos($method, '#') !== false)
@@ -5254,7 +5253,7 @@ function call_helper($string, $return = false)
 			// Don't need to create a new instance for every method.
 			if (empty($context['instances'][$class]) || !($context['instances'][$class] instanceof $class))
 			{
-				$context['instances'][$class] = new $class;
+				$context['instances'][$class] = new $class();
 
 				// Add another one to the list.
 				if ($db_show_debug === true)
@@ -5327,7 +5326,7 @@ function load_file($string)
 
 	if (strpos($string, '|') !== false)
 	{
-		list ($file, $string) = explode('|', $string);
+		list($file, $string) = explode('|', $string);
 
 		// Match the wildcards to their regular vars.
 		if (empty($settings['theme_dir']))

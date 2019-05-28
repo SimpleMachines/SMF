@@ -10,7 +10,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -60,7 +59,7 @@ function getNotifyPrefs($members, $prefs = '', $process_default = false)
 			else
 				$result[$member] = $result[0];
 
-		unset ($result[0]);
+		unset($result[0]);
 	}
 
 	return $result;

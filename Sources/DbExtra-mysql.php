@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -89,7 +88,7 @@ function smf_db_backup_table($table, $backup_table)
 			'table' => $table,
 		)
 	);
-	list (, $create) = $smcFunc['db_fetch_row']($result);
+	list(, $create) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	$create = preg_split('/[\n\r]/', $create);
@@ -382,7 +381,7 @@ function smf_db_get_version()
 		array(
 		)
 	);
-	list ($ver) = $smcFunc['db_fetch_row']($request);
+	list($ver) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $ver;
@@ -402,7 +401,7 @@ function smf_db_get_vendor()
 		return $db_type;
 
 	$request = $smcFunc['db_query']('', 'SELECT @@version_comment');
-	list ($comment) = $smcFunc['db_fetch_row']($request);
+	list($comment) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Skip these if we don't have a comment.

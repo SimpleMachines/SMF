@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -82,7 +81,7 @@ function CalendarMain()
 			}
 			$smcFunc['db_free_result']($request);
 		}
-		unset ($_GET['event']);
+		unset($_GET['event']);
 	}
 
 	// Set the page title to mention the calendar ;).

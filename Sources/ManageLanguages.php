@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -324,7 +323,7 @@ function DownloadLanguage()
 				'version_compare' => 'newer',
 			);
 
-			list ($name, $language) = explode('.', $basename);
+			list($name, $language) = explode('.', $basename);
 
 			// Let's get the new version, I like versions, they tell me that I'm up to date.
 			if (preg_match('~\s*Version:\s+(.+?);\s*' . preg_quote($name, '~') . '~i', $file['preview'], $match) == 1)

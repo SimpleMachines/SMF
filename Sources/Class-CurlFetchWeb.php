@@ -9,7 +9,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -45,17 +44,17 @@ class curl_fetch_web_data
 	 * @var array $default_options
 	 */
 	private $default_options = array(
-		CURLOPT_RETURNTRANSFER	=> 1, // Get returned value as a string (don't output it)
-		CURLOPT_HEADER			=> 1, // We need the headers to do our own redirect
-		CURLOPT_FOLLOWLOCATION	=> 0, // Don't follow, we will do it ourselves so safe mode and open_basedir will dig it
-		CURLOPT_USERAGENT		=> 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:11.0) Gecko Firefox/11.0', // set a normal looking useragent
-		CURLOPT_CONNECTTIMEOUT	=> 15, // Don't wait forever on a connection
-		CURLOPT_TIMEOUT			=> 90, // A page should load in this amount of time
-		CURLOPT_MAXREDIRS		=> 5, // stop after this many redirects
-		CURLOPT_ENCODING		=> 'gzip,deflate', // accept gzip and decode it
-		CURLOPT_SSL_VERIFYPEER	=> 0, // stop cURL from verifying the peer's certificate
-		CURLOPT_SSL_VERIFYHOST	=> 0, // stop cURL from verifying the peer's host
-		CURLOPT_POST			=> 0, // no post data unless its passed
+		CURLOPT_RETURNTRANSFER => 1, // Get returned value as a string (don't output it)
+		CURLOPT_HEADER => 1, // We need the headers to do our own redirect
+		CURLOPT_FOLLOWLOCATION => 0, // Don't follow, we will do it ourselves so safe mode and open_basedir will dig it
+		CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:11.0) Gecko Firefox/11.0', // set a normal looking useragent
+		CURLOPT_CONNECTTIMEOUT => 15, // Don't wait forever on a connection
+		CURLOPT_TIMEOUT => 90, // A page should load in this amount of time
+		CURLOPT_MAXREDIRS => 5, // stop after this many redirects
+		CURLOPT_ENCODING => 'gzip,deflate', // accept gzip and decode it
+		CURLOPT_SSL_VERIFYPEER => 0, // stop cURL from verifying the peer's certificate
+		CURLOPT_SSL_VERIFYHOST => 0, // stop cURL from verifying the peer's host
+		CURLOPT_POST => 0, // no post data unless its passed
 	);
 
 	/**

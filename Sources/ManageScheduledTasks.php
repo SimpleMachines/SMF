@@ -12,7 +12,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -210,7 +209,7 @@ function ScheduledTasks()
 	if (isset($_SESSION['st_error']))
 	{
 		$context['scheduled_errors'] = $_SESSION['st_error'];
-		unset ($_SESSION['st_error']);
+		unset($_SESSION['st_error']);
 	}
 
 	$listOptions = array(
@@ -629,7 +628,7 @@ function list_getNumTaskLogEntries()
 		array(
 		)
 	);
-	list ($num_entries) = $smcFunc['db_fetch_row']($request);
+	list($num_entries) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $num_entries;

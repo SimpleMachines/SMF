@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -96,7 +95,7 @@ function markBoardsRead($boards, $unread = false)
 			'current_member' => $user_info['id'],
 		)
 	);
-	list ($lowest_topic) = $smcFunc['db_fetch_row']($result);
+	list($lowest_topic) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	if (empty($lowest_topic))
@@ -250,7 +249,7 @@ function MarkRead()
 						'id_first_msg' => $topicinfo['id_first_msg'],
 					)
 				);
-				list ($earlyMsg) = $smcFunc['db_fetch_row']($result);
+				list($earlyMsg) = $smcFunc['db_fetch_row']($result);
 				$smcFunc['db_free_result']($result);
 			}
 		}
@@ -270,7 +269,7 @@ function MarkRead()
 					'start' => (int) $_REQUEST['start'],
 				)
 			);
-			list ($earlyMsg) = $smcFunc['db_fetch_row']($result);
+			list($earlyMsg) = $smcFunc['db_fetch_row']($result);
 			$smcFunc['db_free_result']($result);
 
 			$earlyMsg--;
@@ -434,7 +433,7 @@ function getMsgMemberID($messageID)
 		)
 	);
 	if ($smcFunc['db_num_rows']($result) > 0)
-		list ($memberID) = $smcFunc['db_fetch_row']($result);
+		list($memberID) = $smcFunc['db_fetch_row']($result);
 	// The message doesn't even exist.
 	else
 		$memberID = 0;
@@ -931,7 +930,7 @@ function createBoard($boardOptions)
 					'board_parent' => (int) $boards[$board_id]['parent'],
 				)
 			);
-			list ($boardOptions['profile']) = $smcFunc['db_fetch_row']($request);
+			list($boardOptions['profile']) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
 			$smcFunc['db_query']('', '

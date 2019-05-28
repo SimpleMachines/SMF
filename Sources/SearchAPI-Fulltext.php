@@ -10,7 +10,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -104,7 +103,7 @@ class fulltext_search extends search_api
 		);
 		if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
 		{
-			list (, $min_word_length) = $smcFunc['db_fetch_row']($request);
+			list(, $min_word_length) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 		}
 		// 4 is the MySQL default...
@@ -242,7 +241,7 @@ class fulltext_search extends search_api
 				$row = 0;
 				foreach ($words['indexed_words'] as $fulltextWord)
 				{
-					$query_params['boolean_match'] .= ($row <> 0 ? '&' : '');
+					$query_params['boolean_match'] .= ($row != 0 ? '&' : '');
 					$query_params['boolean_match'] .= (in_array($fulltextWord, $query_params['excluded_index_words']) ? '!' : '') . $fulltextWord . ' ';
 					$row++;
 				}

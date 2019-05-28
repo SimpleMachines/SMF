@@ -15,7 +15,6 @@
  *
  * @version 2.1 RC2
  */
-
 namespace
 {
 

@@ -741,7 +741,7 @@ function template_show_settings()
 							<div class="information">', $context['settings_message'], '</div>';
 
 	// Filter out any redundant separators before we start the loop
-	$context['config_vars'] = array_filter($context['config_vars'], function ($v) use ($context)
+	$context['config_vars'] = array_filter($context['config_vars'], function($v) use ($context)
 		{
 			static $config_vars, $prev;
 
@@ -1595,9 +1595,7 @@ function template_php_info()
 					</div><!-- #admin_form_wrapper -->';
 }
 
-/**
- *
- */
+
 function template_clean_cache_button_above()
 {
 }

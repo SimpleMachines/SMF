@@ -13,7 +13,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -199,7 +198,7 @@ function html_to_bbc($text)
 						continue;
 
 					// Capture the elements of a single style item (e.g. 'font-weight' and 'bold').
-					list ($style_type, $style_value) = explode(':', $type_value_pair);
+					list($style_type, $style_value) = explode(':', $type_value_pair);
 
 					$style_value = trim($style_value);
 
@@ -2064,7 +2063,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
 				$id_question = $row['id_question'];
-				unset ($row['id_question']);
+				unset($row['id_question']);
 				// Make them all lowercase. We can't directly use $smcFunc['strtolower'] with array_walk, so do it manually, eh?
 				$row['answers'] = $smcFunc['json_decode']($row['answers'], true);
 				foreach ($row['answers'] as $k => $v)

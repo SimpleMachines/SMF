@@ -16,7 +16,6 @@
  *
  * @version 2.1 RC2
  */
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -138,7 +137,7 @@ function sessionRead($session_id)
 			'session_id' => $session_id,
 		)
 	);
-	list ($sess_data) = $smcFunc['db_fetch_row']($result);
+	list($sess_data) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
 	return $sess_data != null ? $sess_data : '';

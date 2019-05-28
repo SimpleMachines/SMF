@@ -214,7 +214,7 @@ class JS extends Minify
     {
         // PHP only supports $this inside anonymous functions since 5.4
         $minifier = $this;
-        $callback = function ($match) use ($minifier) {
+        $callback = function($match) use ($minifier) {
             $count = count($minifier->extracted);
             $placeholder = '/'.$count.'/';
             $minifier->extracted[$placeholder] = $match[0];
@@ -402,7 +402,7 @@ class JS extends Minify
         $escaped = array_map('preg_quote', $keywords, $delimiter);
 
         // add word boundaries
-        array_walk($keywords, function ($value) {
+        array_walk($keywords, function($value) {
             return '\b'.$value.'\b';
         });
 
@@ -423,7 +423,7 @@ class JS extends Minify
         // PHP only supports $this inside anonymous functions since 5.4
         $minifier = $this;
         $keywords = $this->keywordsReserved;
-        $callback = function ($match) use ($minifier, $keywords) {
+        $callback = function($match) use ($minifier, $keywords) {
             $property = trim($minifier->extracted[$match[1]], '\'"');
 
             /*

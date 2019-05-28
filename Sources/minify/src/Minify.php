@@ -328,7 +328,7 @@ abstract class Minify
     {
         // PHP only supports $this inside anonymous functions since 5.4
         $minifier = $this;
-        $callback = function ($match) use ($minifier) {
+        $callback = function($match) use ($minifier) {
             // check the second index here, because the first always contains a quote
             if ($match[2] === '') {
                 /*
