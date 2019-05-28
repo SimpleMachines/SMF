@@ -2333,7 +2333,7 @@ function alert_count($memID, $unread = false)
 
 	// We have to do this the slow way as to iterate over all possible boards the user can see.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_alert, content_id, content_type, extra
+		SELECT id_alert, content_id, content_type, content_action
 		FROM {db_prefix}user_alerts
 		WHERE id_member = {int:id_member}
 			' . ($unread ? '
@@ -2345,47 +2345,60 @@ function alert_count($memID, $unread = false)
 
 	// First we dump alerts and possible boards information out.
 	$alerts = array();
-	$boards = array();
-	$topics = array();
-	$msgs = array();
-	$possible_boards = array();
 	$possible_topics = array();
 	$possible_msgs = array();
+	$possible_attachments = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$alerts[$row['id_alert']] = !empty($row['extra']) ? $smcFunc['json_decode']($row['extra'], true) : array();
+		$alerts[$row['id_alert']] = $row;
 
+		// For these types, we need to check whether they can actually see the content.
 		if ($row['content_type'] == 'msg')
 		{
-			$possible_msgs[] = $row['content_id'];
-			$alerts[$row['id_alert']]['msg'] = $row['content_id'];
+			$alerts[$row['id_alert']]['visible'] = false;
+			$possible_msgs[$row['id_alert']] = $row['content_id'];
 		}
-		elseif (isset($alerts[$row['id_alert']]['topic']))
-			$possible_topics[] = $alerts[$row['id_alert']]['topic'];
-		elseif (isset($alerts[$row['id_alert']]['board']))
-			$possible_boards[] = $alerts[$row['id_alert']]['board'];
+		elseif (in_array($row['content_type'], array('topic', 'board')) || ($row['content_type'] == 'unapproved' && $row['content_action'] == 'post'))
+		{
+			$alerts[$row['id_alert']]['visible'] = false;
+			$possible_topics[$row['id_alert']] = $row['content_id'];
+		}
+		elseif ($row['content_type'] == 'unapproved' && $row['content_action'] == 'attachment')
+		{
+			$alerts[$row['id_alert']]['visible'] = false;
+			$possible_attachments[$row['id_alert']] = $row['content_id'];
+		}
+		// For the rest, they can always see it.
+		else
+			$alerts[$row['id_alert']]['visible'] = true;
 	}
 	$smcFunc['db_free_result']($request);
 
-	$possible_boards = array_unique($possible_boards);
-
 	// If this isn't the current user, get their boards.
-	if (!isset($user_info['id']) || $user_info['id'] != $memID)
-	{
-		$query_see_board = build_query_board($memID);
-		$query_see_board = $query_see_board['query_see_board'];
-	}
+	if ($memID != $user_info['id'])
+		$qb = build_query_board($memID);
 	else
-		$query_see_board = '{query_see_board}';
+	{
+		$qb['query_see_topic_board'] = '{query_see_topic_board}';
+		$qb['query_see_message_board'] = '{query_see_message_board}';
+	}
 
 	// We want only the stuff they can see.
 	if (!empty($possible_msgs))
 	{
+		$flipped_msgs = array();
+		foreach ($possible_msgs as $id_alert => $id_msg)
+		{
+			if (!isset($flipped_msgs[$id_msg]))
+				$flipped_msgs[$id_msg] = array();
+
+			$flipped_msgs[$id_msg][] = $id_alert;
+		}
+
 		$request = $smcFunc['db_query']('', '
-			SELECT m.id_msg, m.id_topic, b.id_board
+			SELECT m.id_msg
 			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
-			WHERE ' . $query_see_board . '
+			WHERE ' . $qb['query_see_message_board'] . '
 				AND m.id_msg IN ({array_int:msgs})',
 			array(
 				'msgs' => $possible_msgs,
@@ -2393,20 +2406,26 @@ function alert_count($memID, $unread = false)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$msgs[] = $row['id_msg'];
-			$topics[] = $row['id_topic'];
-			$boards[] = $row['id_board'];
+			foreach ($flipped_msgs[$row['id_msg']] as $id_alert)
+				$alerts[$id_alert]['visible'] = true;
 		}
-
 		$smcFunc['db_free_result']($request);
 	}
 	if (!empty($possible_topics))
 	{
+		$flipped_topics = array();
+		foreach ($possible_topics as $id_alert => $id_topic)
+		{
+			if (!isset($flipped_topics[$id_topic]))
+				$flipped_topics[$id_topic] = array();
+
+			$flipped_topics[$id_topic][] = $id_alert;
+		}
+
 		$request = $smcFunc['db_query']('', '
-			SELECT t.id_topic, b.id_board
+			SELECT t.id_topic
 			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
-			WHERE ' . $query_see_board . '
+			WHERE ' . $qb['query_see_topic_board'] . '
 				AND t.id_topic IN ({array_int:topics})',
 			array(
 				'topics' => $possible_topics,
@@ -2414,38 +2433,45 @@ function alert_count($memID, $unread = false)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$topics[] = $row['id_topic'];
-			$boards[] = $row['id_board'];
+			foreach ($flipped_topics[$row['id_topic']] as $id_alert)
+				$alerts[$id_alert]['visible'] = true;
 		}
-
 		$smcFunc['db_free_result']($request);
 	}
-	if (!empty($possible_boards))
+	if (!empty($possible_attachments))
 	{
+		$flipped_attachments = array();
+		foreach ($possible_attachments as $id_alert => $id_attachment)
+		{
+			if (!isset($flipped_attachments[$id_attachment]))
+				$flipped_attachments[$id_attachment] = array();
+
+			$flipped_attachments[$id_attachment][] = $id_alert;
+		}
+
 		$request = $smcFunc['db_query']('', '
-			SELECT id_board
-			FROM {db_prefix}boards AS b
-			WHERE ' . $query_see_board . '
-				AND id_board IN ({array_int:boards})',
+			SELECT f.id_attach
+			FROM {db_prefix}attachments AS f
+				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = f.id_msg)
+			WHERE ' . $qb['query_see_message_board'] . '
+				AND f.id_attach IN ({array_int:attachments})',
 			array(
-				'boards' => $possible_boards,
+				'attachments' => $possible_attachments,
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$boards[] = $row['id_board'];
-
+		{
+			foreach ($flipped_attachments[$row['id_attach']] as $id_alert)
+				$alerts[$id_alert]['visible'] = true;
+		}
 		$smcFunc['db_free_result']($request);
 	}
 	unset($possible_msgs, $possible_topics, $possible_boards);
 
 	// Now check alerts again and remove any they can't see.
-	foreach ($alerts as $id_alert => $extra)
+	foreach ($alerts as $id_alert => $alert)
 	{
-		if (isset($extra['msg']) && !in_array($extra['msg'], $msgs))
-			unset($alerts[$id_alert]);
-		elseif (isset($extra['topic']) && !in_array($extra['topic'], $topics))
-			unset($alerts[$id_alert]);
-		elseif (isset($extra['board']) && !in_array($extra['board'], $boards))
+		if (!$alert['visible'])
 			unset($alerts[$id_alert]);
 	}
 

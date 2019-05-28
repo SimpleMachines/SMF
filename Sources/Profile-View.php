@@ -225,7 +225,7 @@ function summary($memID)
  * @param bool $show_links if set to true alerts will show links if any instead of plain text
  * @return array An array of information about the fetched alerts
  */
-function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = true, $show_links = false)
+function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = false, $show_links = false)
 {
 	global $smcFunc, $txt, $scripturl, $memberContext, $user_info, $user_profile;
 
@@ -258,6 +258,10 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	);
 
 	$senders = array();
+	$profile_alerts = array();
+	$possible_msgs = array();
+	$possible_topics = array();
+	$possible_attachments = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$id_alert = array_shift($row);
@@ -267,70 +271,128 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 
 		if (!empty($row['sender_id']))
 			$senders[] = $row['sender_id'];
+
+		if ($row['content_type'] == 'profile')
+		{
+			$members[] = $row['content_id'];
+			$profile_alerts[] = $id_alert;
+		}
+
+		// For these types, we need to check whether they can actually see the content.
+		if ($row['content_type'] == 'msg')
+		{
+			$alerts[$id_alert]['visible'] = false;
+			$possible_msgs[$id_alert] = $row['content_id'];
+		}
+		elseif (in_array($row['content_type'], array('topic', 'board')) || ($row['content_type'] == 'unapproved' && $row['content_action'] == 'post'))
+		{
+			$alerts[$id_alert]['visible'] = false;
+			$possible_topics[$id_alert] = $row['content_id'];
+		}
+		elseif ($row['content_type'] == 'unapproved' && $row['content_action'] == 'attachment')
+		{
+			$alerts[$id_alert]['visible'] = false;
+			$possible_attachments[$id_alert] = $row['content_id'];
+		}
+		// For the rest, they can always see it.
+		else
+			$alerts[$id_alert]['visible'] = true;
+
+		// Are we showing multiple links or one big main link ?
+		$alerts[$id_alert]['show_links'] = $show_links || (isset($row['extra']['show_links']) && $row['extra']['show_links']);
 	}
 	$smcFunc['db_free_result']($request);
 
+	// Look up member info of anyone we need it for.
 	if ($withSender)
+		$members = array_merge($members, $senders);
+	if (!empty($members))
 	{
-		$senders = loadMemberData($senders);
-		foreach ($senders as $member)
+		$members = loadMemberData($members);
+		foreach ($members as $member)
 			loadMemberContext($member);
 	}
 
 	// Now go through and actually make with the text.
 	loadLanguage('Alerts');
 
+	// Some strings for generating links.
+	// 'required' is an array of keys in $alert['extra'] that should be used to generate the message.
+	// 'link' and 'text' are the string formats that will be used when $alert['show_links'] is true or false, respectively.
+	$formats['msg_msg'] = array(
+		'required' => array('content_subject', 'topic', 'msg'),
+		'link' => '<a href="{scripturl}?topic=%2$d.msg%3$d#msg%3$d">%1$s</a>',
+		'text' => '<strong>%1$s</strong>',
+	);
+	$formats['topic_msg'] = array(
+		'required' => array('content_subject', 'topic', 'topic_suffix'),
+		'link' => '<a href="{scripturl}?topic=%2$d.%3$s">%1$s</a>',
+		'text' => '<strong>%1$s</strong>',
+	);
+	$formats['board_msg'] = array(
+		'required' => array('board_name', 'board'),
+		'link' => '<a href="{scripturl}?board=%2$d.0">%1$s</a>',
+		'text' => '<strong>%1$s</strong>',
+	);
+	$formats['profile_msg'] = array(
+		'required' => array('user_name', 'user_id'),
+		'link' => '<a href="{scripturl}?action=profile;u=%2$d">%1$s</a>',
+		'text' => '<strong>%1$s</strong>',
+	);
+
 	// Hooks might want to do something snazzy around their own content types - including enforcing permissions if appropriate.
-	call_integration_hook('integrate_fetch_alerts', array(&$alerts));
+	call_integration_hook('integrate_fetch_alerts', array(&$alerts, &$formats));
 
-	// For anything that wants us to check board or topic access, let's do that.
-	$board_msgs = array();
-	$topic_msgs = array();
-	$msg_msgs = array();
-	$possible_boards = array();
-	$possible_topics = array();
-	$possible_msgs = array();
-	foreach ($alerts as $id_alert => $alert)
-	{
-		if ($alert['content_type'] == 'msg')
-			$possible_msgs[] = $alert['content_id'];
+	// Substitute $scripturl into the link formats. (Done here to make life easier for hooked mods.)
+	foreach ($formats as &$format_type)
+		$format_type = str_replace('{scripturl}', $scripturl, $format_type);
 
-		if (isset($alert['extra']['topic']))
-			$possible_topics[] = $alert['extra']['topic'];
-
-		if (isset($alert['extra']['board']))
-			$possible_boards[] = $alert['extra']['board'];
-
-		// Are we showing multiple links or one big main link ?
-		$alerts[$id_alert]['show_links'] = $show_links || (isset($alert['extra']['show_links']) && $alert['extra']['show_links']);
-	}
-
+	// For anything that needs more info and/or wants us to check board or topic access, let's do that.
 	if (!empty($possible_msgs))
 	{
+		$flipped_msgs = array();
+		foreach ($possible_msgs as $id_alert => $id_msg)
+		{
+			if (!isset($flipped_msgs[$id_msg]))
+				$flipped_msgs[$id_msg] = array();
+
+			$flipped_msgs[$id_msg][] = $id_alert;
+		}
+
 		$request = $smcFunc['db_query']('', '
-			SELECT m.id_msg, t.id_topic, m.subject, b.id_board, b.name
+			SELECT m.id_msg, m.id_topic, m.subject, b.id_board, b.name AS board_name
 			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
 			WHERE ' . $query_see_board . '
-				AND m.id_msg IN ({array_int:msgs})',
+				AND m.id_msg IN ({array_int:msgs})
+			ORDER BY m.id_msg',
 			array(
 				'msgs' => $possible_msgs,
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$msg_msgs[$row['id_msg']] = array('link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>', 'text' => '<strong>' . $row['subject'] . '</strong>');
-			$topic_msgs[$row['id_topic']] = array('link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>', 'text' => '<strong>' . $row['subject'] . '</strong>');
-			$board_msgs[$row['id_board']] = array('link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>', 'text' => '<strong>' . $row['name'] . '</strong>');
+			foreach ($flipped_msgs[$row['id_msg']] as $id_alert)
+			{
+				$alerts[$id_alert]['content_data'] = $row;
+				$alerts[$id_alert]['visible'] = true;
+			}
 		}
-
 		$smcFunc['db_free_result']($request);
 	}
 	if (!empty($possible_topics))
 	{
+		$flipped_topics = array();
+		foreach ($possible_topics as $id_alert => $id_topic)
+		{
+			if (!isset($flipped_topics[$id_topic]))
+				$flipped_topics[$id_topic] = array();
+
+			$flipped_topics[$id_topic][] = $id_alert;
+		}
+
 		$request = $smcFunc['db_query']('', '
-			SELECT t.id_topic, m.subject, b.id_board, b.name
+			SELECT m.id_msg, t.id_topic, m.subject, b.id_board, b.name AS board_name
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
 				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
@@ -342,96 +404,163 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$topic_msgs[$row['id_topic']] = array('link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.new#new">' . $row['subject'] . '</a>', 'text' => '<strong>' . $row['subject'] . '</strong>');
-			$board_msgs[$row['id_board']] = array('link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>', 'text' => '<strong>' . $row['name'] . '</strong>');
+			foreach ($flipped_topics[$row['id_topic']] as $id_alert)
+			{
+				$alerts[$id_alert]['content_data'] = $row;
+				$alerts[$id_alert]['visible'] = true;
+			}
 		}
-
 		$smcFunc['db_free_result']($request);
 	}
-	if (!empty($possible_boards))
+	if (!empty($possible_attachments))
 	{
+		$flipped_attachments = array();
+		foreach ($possible_attachments as $id_alert => $id_attachment)
+		{
+			if (!isset($flipped_attachments[$id_attachment]))
+				$flipped_attachments[$id_attachment] = array();
+
+			$flipped_attachments[$id_attachment][] = $id_alert;
+		}
+
 		$request = $smcFunc['db_query']('', '
-			SELECT id_board, name
-			FROM {db_prefix}boards AS b
+			SELECT m.id_msg, m.id_topic, m.subject, b.id_board, b.name AS board_name, f.id_attach
+			FROM {db_prefix}attachments AS f
+				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = f.id_msg)
+				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
 			WHERE ' . $query_see_board . '
-				AND id_board IN ({array_int:boards})',
+				AND f.id_attach IN ({array_int:attachments})',
 			array(
-				'boards' => $possible_boards,
+				'attachments' => $possible_attachments,
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$board_msgs[$row['id_board']] = array('link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>', 'text' => '<strong>' . $row['name'] . '</strong>');
-
+		{
+			foreach ($flipped_attachments[$row['id_attach']] as $id_alert)
+			{
+				$alerts[$id_alert]['content_data'] = $row;
+				$alerts[$id_alert]['visible'] = true;
+			}
+		}
 		$smcFunc['db_free_result']($request);
 	}
 
 	// Now to go back through the alerts, reattach this extra information and then try to build the string out of it (if a hook didn't already)
-	foreach ($alerts as $id_alert => $alert)
+	foreach ($alerts as $id_alert => $dummy)
 	{
-		if (!empty($alert['text']))
+		// Did a mod already take care of this one?
+		if (!empty($alerts[$id_alert]['text']))
+		{
+			unset($alerts[$id_alert]['visible']);
 			continue;
+		}
 
-		// Check that there's a valid msg
-		if ($alert['content_type'] == 'msg' && !empty($msg_msgs[$alert['content_id']]))
-			$alert_msg_msg = $msg_msgs[$alert['content_id']][$alert['show_links'] ? 'link' : 'text'];
-		elseif ($alert['content_type'] == 'msg')
+		// There's no point showing alerts for inaccessible content.
+		if (!$alerts[$id_alert]['visible'])
 		{
 			unset($alerts[$id_alert]);
 			continue;
 		}
 		else
-			$alert_msg_msg = $txt['topic_na'];
+			unset($alerts[$id_alert]['visible']);
 
-		// Check that there's a valid topic
-		if (isset($alert['extra']['topic']) && !empty($topic_msgs[$alert['extra']['topic']]))
-			$alert_topic_msg = $topic_msgs[$alert['extra']['topic']][$alert['show_links'] ? 'link' : 'text'];
+		// For developer convenience.
+		$alert = &$alerts[$id_alert];
+
+		// The info in extra might outdated if the topic was moved, the message's subject was changed, etc.
+		if (!empty($alert['content_data']))
+		{
+			$data = $alert['content_data'];
+
+			// Make sure msg, topic, and board info are correct.
+			$patterns = array();
+			$replacements = array();
+			foreach (array('msg', 'topic', 'board') as $item)
+			{
+				if (isset($data['id_' . $item]))
+				{
+					$separator = $item == 'msg' ? '' : '=';
+
+					if (isset($alert['extra']['content_link']) && strpos($alert['extra']['content_link'], $item . $separator) !== false && strpos($alert['extra']['content_link'], $item . $separator . $data['id_' . $item]) === false)
+					{
+						$patterns[] = '/\b' . $item . $separator . '\d+/';
+						$replacements[] = $item . $separator . $data['id_' . $item];
+					}
+
+					$alert['extra'][$item] = $data['id_' . $item];
+				}
+			}
+			if (!empty($patterns))
+				$alert['extra']['content_link'] = preg_replace($patterns, $replacements, $alert['extra']['content_link']);
+
+			// Make sure the subject is correct.
+			if (isset($alert['extra']['content_subject'], $data['subject']))
+				$alert['extra']['content_subject'] = $data['subject'];
+
+			// Keep track of this so we can use it below.
+			if (isset($data['board_name']))
+				$alert['extra']['board_name'] = $data['board_name'];
+
+			unset($alert['content_data']);
+		}
+
+		// Do we want to link to the topic in general or the new messages specifically?
+		if (isset($possible_topics[$id_alert]))
+			$alert['extra']['topic_suffix'] = 'new#new';
 		elseif (isset($alert['extra']['topic']))
+			$alert['extra']['topic_suffix'] = '0';
+
+		// Make sure profile alerts have what they need.
+		if (in_array($id_alert, $profile_alerts))
 		{
-			unset($alerts[$id_alert]);
-			continue;
-		}
-		else
-			$alert_topic_msg = $txt['topic_na'];
+			$alert['extra']['user_id'] = $alert['content_id'];
 
-		// Check that there's a valid board
-		if (isset($alert['extra']['board']) && !empty($board_msgs[$alert['extra']['board']]))
-			$alert_board_msg = $board_msgs[$alert['extra']['board']][$alert['show_links'] ? 'link' : 'text'];
-		elseif (isset($alert['extra']['board']))
+			if (isset($memberContext[$alert['content_id']]))
+				$alert['extra']['user_name'] = $memberContext[$alert['content_id']]['name'];
+		}
+
+		// Next, build the message strings.
+		foreach ($formats as $msg_type => $format_info)
 		{
-			unset($alerts[$id_alert]);
-			continue;
+			// Get the values to use in the formatted string.
+			$msg_values = array_replace(array_combine($format_info['required'], array_fill(0, count($format_info['required']), '')), $alert['extra']);
+
+			// Assuming all required values are present, build the message.
+			if (!in_array('', $msg_values))
+				$alert['extra'][$msg_type] = vsprintf($formats[$msg_type][$alert['show_links'] ? 'link' : 'text'], $msg_values);
+
+			// Oops...
+			elseif (in_array($msg_type, array('msg_msg', 'topic_msg', 'board_msg')))
+				$alert['extra'][$msg_type] = $txt[$msg_type == 'board_msg' ? 'board_na' : 'topic_na'];
 		}
-		else
-			$alert_board_msg = $txt['board_na'];
 
-		// Set the texts
-		$alerts[$id_alert]['extra']['msg_msg'] = $alert_msg_msg;
-		$alerts[$id_alert]['extra']['topic_msg'] = $alert_topic_msg;
-		$alerts[$id_alert]['extra']['board_msg'] = $alert_board_msg;
+		// If requested, include the sender's full member data.
+		if ($withSender && !empty($memberContext[$alert['sender_id']]))
+			$alert['sender'] = &$memberContext[$alert['sender_id']];
 
-		if ($alert['content_type'] == 'profile')
-			$alerts[$id_alert]['extra']['profile_msg'] = $alert['show_links'] ? '<a href="' . $scripturl . '?action=profile;u=' . $alerts[$id_alert]['content_id'] . '">' . $alerts[$id_alert]['extra']['user_name'] . '</a>' : '<strong>' . $alerts[$id_alert]['extra']['user_name'] . '</strong>';
-
-		if (!empty($memberContext[$alert['sender_id']]))
-			$alerts[$id_alert]['sender'] = &$memberContext[$alert['sender_id']];
-
+		// Finally, set this alert's text string.
 		$string = 'alert_' . $alert['content_type'] . '_' . $alert['content_action'];
 		if (isset($txt[$string]))
 		{
-			$extra = $alerts[$id_alert]['extra'];
-			$search = array('{member_link}', '{scripturl}');
-			$repl = array(!empty($alert['sender_id']) && $alert['show_links'] ? '<a href="' . $scripturl . '?action=profile;u=' . $alert['sender_id'] . '">' . $alert['sender_name'] . '</a>' : '<strong>'.$alert['sender_name'].'</strong>', $scripturl);
+			$substitutions = array(
+				'{scripturl}' => $scripturl,
+				'{member_link}' => !empty($alert['sender_id']) && $alert['show_links'] ? '<a href="' . $scripturl . '?action=profile;u=' . $alert['sender_id'] . '">' . $alert['sender_name'] . '</a>' : '<strong>' . $alert['sender_name'] . '</strong>',
+			);
 
-			if (is_array($extra))
+			if (is_array($alert['extra']))
 			{
-				foreach ($extra as $k => $v)
-				{
-					$search[] = '{' . $k . '}';
-					$repl[] = $v;
-				}
+				foreach ($alert['extra'] as $k => $v)
+					$substitutions['{' . $k . '}'] = $v;
 			}
-			$alerts[$id_alert]['text'] = str_replace($search, $repl, $txt[$string]);
+
+			$alert['text'] = strtr($txt[$string], $substitutions);
 		}
+
+		// Temp for testing.
+		ksort($alert);
+
+		// Unset the reference variable to avoid any surprises in subsequent loops.
+		unset($alert);
 	}
 
 	return $alerts;
