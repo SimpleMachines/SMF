@@ -17,39 +17,6 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Truncate the GET array to a specified length
- *
- * @param array $arr The array to truncate
- * @param int $max_length The upperbound on the length
- *
- * @return array The truncated array
- */
-function truncateArray($arr, $max_length = 1900)
-{
-	$curr_length = 0;
-	foreach ($arr as $key => $value)
-		if (is_array($value))
-			foreach ($value as $key2 => $value2)
-				$curr_length += strlen($value2);
-		else
-			$curr_length += strlen($value);
-	if ($curr_length <= $max_length)
-		return $arr;
-	else
-	{
-		// Truncate each element's value to a reasonable length
-		$param_max = floor($max_length / count($arr));
-		foreach ($arr as $key => &$value)
-			if (is_array($value))
-				foreach ($value as $key2 => &$value2)
-					$value2 = substr($value2, 0, $param_max - strlen($key) - 5);
-			else
-				$value = substr($value, 0, $param_max - strlen($key) - 5);
-		return $arr;
-	}
-}
-
-/**
  * Put this user in the online log.
  *
  * @param bool $force Whether to force logging the data
@@ -85,7 +52,7 @@ function writeLog($force = false)
 
 	if (!empty($modSettings['who_enabled']))
 	{
-		$encoded_get = truncateArray($_GET) + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
+		$encoded_get = truncate_array($_GET) + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
 
 		// In the case of a dlattach action, session_var may not be set.
 		if (!isset($context['session_var']))
