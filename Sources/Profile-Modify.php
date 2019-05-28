@@ -2331,6 +2331,11 @@ function alert_count($memID, $unread = false)
 	if (empty($memID))
 		return false;
 
+	$alerts = array();
+	$possible_topics = array();
+	$possible_msgs = array();
+	$possible_attachments = array();
+
 	// We have to do this the slow way as to iterate over all possible boards the user can see.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_alert, content_id, content_type, content_action
@@ -2342,12 +2347,7 @@ function alert_count($memID, $unread = false)
 			'id_member' => $memID,
 		)
 	);
-
 	// First we dump alerts and possible boards information out.
-	$alerts = array();
-	$possible_topics = array();
-	$possible_msgs = array();
-	$possible_attachments = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$alerts[$row['id_alert']] = $row;

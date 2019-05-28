@@ -239,6 +239,13 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		$query_see_board = '{query_see_board}';
 
 	$alerts = array();
+	$senders = array();
+	$members = array();
+	$profile_alerts = array();
+	$possible_msgs = array();
+	$possible_topics = array();
+	$possible_attachments = array();
+
 	$request = $smcFunc['db_query']('', '
 		SELECT id_alert, alert_time, mem.id_member AS sender_id, COALESCE(mem.real_name, ua.member_name) AS sender_name,
 			content_type, content_id, content_action, is_read, extra
@@ -256,12 +263,6 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			'maxIndex' => !empty($pagination['maxIndex']) ? $pagination['maxIndex'] : 0,
 		)
 	);
-
-	$senders = array();
-	$profile_alerts = array();
-	$possible_msgs = array();
-	$possible_topics = array();
-	$possible_attachments = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$id_alert = array_shift($row);
