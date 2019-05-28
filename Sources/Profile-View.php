@@ -522,15 +522,18 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			if (empty($alert['extra']['user_id']))
 				$alert['extra']['user_id'] = $alert['content_id'];
 
-			if (!empty($alert['extra']['user_id']) && isset($user_profile[$alert['extra']['user_id']]))
+			if (isset($user_profile[$alert['extra']['user_id']]))
 				$alert['extra']['user_name'] = $user_profile[$alert['extra']['user_id']]['real_name'];
 		}
 
 		// Next, build the message strings.
 		foreach ($formats as $msg_type => $format_info)
 		{
-			// Get the values to use in the formatted string.
-			$msg_values = array_replace(array_combine($format_info['required'], array_fill(0, count($format_info['required']), '')), $alert['extra']);
+			// Get the values to use in the formatted string, in the right order.
+			$msg_values = array_replace(
+				array_fill_keys($format_info['required'], ''),
+				array_intersect_key($alert['extra'], array_flip($format_info['required']))
+			);
 
 			// Assuming all required values are present, build the message.
 			if (!in_array('', $msg_values))
@@ -538,6 +541,8 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 
 			elseif (in_array($msg_type, array('msg_msg', 'topic_msg', 'board_msg')))
 				$alert['extra'][$msg_type] = $txt[$msg_type == 'board_msg' ? 'board_na' : 'topic_na'];
+			else
+				$alert['extra'][$msg_type] = '(' . $txt['not_applicable'] . ')';
 		}
 
 		// If we loaded the sender's profile, we may as well use it.
