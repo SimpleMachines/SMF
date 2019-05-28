@@ -529,7 +529,6 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 			if (!in_array('', $msg_values))
 				$alert['extra'][$msg_type] = vsprintf($formats[$msg_type][$alert['show_links'] ? 'link' : 'text'], $msg_values);
 
-			// Oops...
 			elseif (in_array($msg_type, array('msg_msg', 'topic_msg', 'board_msg')))
 				$alert['extra'][$msg_type] = $txt[$msg_type == 'board_msg' ? 'board_na' : 'topic_na'];
 		}
@@ -555,9 +554,6 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 
 			$alert['text'] = strtr($txt[$string], $substitutions);
 		}
-
-		// Temp for testing.
-		ksort($alert);
 
 		// Unset the reference variable to avoid any surprises in subsequent loops.
 		unset($alert);
