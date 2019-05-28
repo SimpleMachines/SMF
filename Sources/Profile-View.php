@@ -217,13 +217,13 @@ function summary($memID)
 /**
  * Fetch the alerts a member currently has.
  *
- * @param int $memID The ID of the member
- * @param bool $all Whether to fetch all alerts or just unread ones
- * @param int $counter How many alerts to display (0 if displaying all or using pagination)
- * @param array $pagination An array containing info for handling pagination. Should have 'start' and 'maxIndex'
- * @param bool $withSender With $memberContext from sender
- * @param bool $show_links if set to true alerts will show links if any instead of plain text
- * @return array An array of information about the fetched alerts
+ * @param int $memID The ID of the member.
+ * @param bool $all Whether to fetch all alerts or just unread ones.
+ * @param int $counter How many alerts to display (0 if displaying all or using pagination).
+ * @param array $pagination An array containing info for handling pagination. Should have 'start' and 'maxIndex'.
+ * @param bool $withSender Whether to include $memberContext for the sender.
+ * @param bool $show_links if set to true alerts will show links if any instead of plain text.
+ * @return array An array of information about the fetched alerts.
  */
 function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = false, $show_links = false)
 {
@@ -231,18 +231,21 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 
 	$alerts = array();
 	$senders = array();
-	$members = array();
+	$profiles = array();
 	$profile_alerts = array();
 	$possible_msgs = array();
 	$possible_topics = array();
 	$possible_attachments = array();
 
+	// Get the basic alert info.
+	// Don't bother joining the members table if we are going to call loadMemberContext() for the senders anyway.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_alert, alert_time, mem.id_member AS sender_id, COALESCE(mem.real_name, ua.member_name) AS sender_name,
-			content_type, content_id, content_action, is_read, extra
-		FROM {db_prefix}user_alerts AS ua
-			LEFT JOIN {db_prefix}members AS mem ON (ua.id_member_started = mem.id_member)
-		WHERE ua.id_member = {int:id_member}' . (!$all ? '
+		SELECT a.id_alert, a.alert_time, a.is_read, a.content_type, a.content_id, a.content_action, a.extra, ' . ($withSender ? '
+			a.id_member_started AS sender_id, a.member_name AS sender_name' : '
+			mem.id_member AS sender_id, COALESCE(mem.real_name, a.member_name) AS sender_name') . '
+		FROM {db_prefix}user_alerts AS a' . ($withSender ? '' : '
+			LEFT JOIN {db_prefix}members AS mem ON (a.id_member_started = mem.id_member)') . '
+		WHERE a.id_member = {int:id_member}' . (!$all ? '
 			AND is_read = 0' : '') . '
 		ORDER BY id_alert DESC' . (!empty($counter) && empty($pagination) ? '
 		LIMIT {int:counter}' : '') . (!empty($pagination) && empty($counter) ? '
@@ -266,7 +269,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 
 		if ($row['content_type'] == 'profile')
 		{
-			$members[] = $row['content_id'];
+			$profiles[] = $row['content_id'];
 			$profile_alerts[] = $id_alert;
 		}
 
@@ -295,22 +298,27 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	}
 	$smcFunc['db_free_result']($request);
 
-	// Look up member info of anyone we need it for.
+	// Apparently someone wants us to get a big pile of mostly unused member data. :/
 	if ($withSender)
-		$members = array_merge($members, $senders);
-	if (!empty($members))
 	{
-		$members = loadMemberData($members);
-		foreach ($members as $member)
-			loadMemberContext($member);
+		$members = array_merge($profiles, $senders);
+		if (!empty($members))
+		{
+			$members = loadMemberData($members);
+			foreach ($members as $member)
+				loadMemberContext($member);
+		}
 	}
+	// In most cases we only need to look up member info for profile alerts.
+	elseif (!empty($profiles))
+		loadMemberData($profiles, 'minimal');
 
 	// Now go through and actually make with the text.
 	loadLanguage('Alerts');
 
-	// Some strings for generating links.
-	// 'required' is an array of keys in $alert['extra'] that should be used to generate the message.
-	// 'link' and 'text' are the string formats that will be used when $alert['show_links'] is true or false, respectively.
+	// Some sprintf formats for generating links/strings.
+	// 'required' is an array of keys in $alert['extra'] that should be used to generate the message, ordered to match the sprintf formats.
+	// 'link' and 'text' are the sprintf formats that will be used when $alert['show_links'] is true or false, respectively.
 	$formats['msg_msg'] = array(
 		'required' => array('content_subject', 'topic', 'msg'),
 		'link' => '<a href="{scripturl}?topic=%2$d.msg%3$d#msg%3$d">%1$s</a>',
@@ -511,10 +519,11 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		// Make sure profile alerts have what they need.
 		if (in_array($id_alert, $profile_alerts))
 		{
-			$alert['extra']['user_id'] = $alert['content_id'];
+			if (empty($alert['extra']['user_id']))
+				$alert['extra']['user_id'] = $alert['content_id'];
 
-			if (isset($memberContext[$alert['content_id']]))
-				$alert['extra']['user_name'] = $memberContext[$alert['content_id']]['name'];
+			if (!empty($alert['extra']['user_id']) && isset($user_profile[$alert['extra']['user_id']]))
+				$alert['extra']['user_name'] = $user_profile[$alert['extra']['user_id']]['real_name'];
 		}
 
 		// Next, build the message strings.
@@ -531,9 +540,14 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 				$alert['extra'][$msg_type] = $txt[$msg_type == 'board_msg' ? 'board_na' : 'topic_na'];
 		}
 
+		// If we loaded the sender's profile, we may as well use it.
+		$sender_id = !empty($alert['sender_id']) ? $alert['sender_id'] : 0;
+		if (isset($user_profile[$sender_id]))
+			$alert['sender_name'] = $user_profile[$sender_id]['real_name'];
+
 		// If requested, include the sender's full member data.
-		if ($withSender && !empty($memberContext[$alert['sender_id']]))
-			$alert['sender'] = &$memberContext[$alert['sender_id']];
+		if ($withSender && !empty($memberContext[$sender_id]))
+			$alert['sender'] = &$memberContext[$sender_id];
 
 		// Finally, set this alert's text string.
 		$string = 'alert_' . $alert['content_type'] . '_' . $alert['content_action'];
@@ -541,7 +555,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		{
 			$substitutions = array(
 				'{scripturl}' => $scripturl,
-				'{member_link}' => !empty($alert['sender_id']) && $alert['show_links'] ? '<a href="' . $scripturl . '?action=profile;u=' . $alert['sender_id'] . '">' . $alert['sender_name'] . '</a>' : '<strong>' . $alert['sender_name'] . '</strong>',
+				'{member_link}' => !empty($sender_id) && $alert['show_links'] ? '<a href="' . $scripturl . '?action=profile;u=' . $sender_id . '">' . $alert['sender_name'] . '</a>' : '<strong>' . $alert['sender_name'] . '</strong>',
 			);
 
 			if (is_array($alert['extra']))
