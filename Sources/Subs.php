@@ -6790,18 +6790,26 @@ function build_query_board($userid)
 			)';
 	}
 
+	$query_part['query_see_message_board'] = str_replace('b.', 'm.', $query_part['query_see_board']);
+	$query_part['query_see_topic_board'] = str_replace('b.', 't.', $query_part['query_see_board']);
+
 	// Build the list of boards they WANT to see.
 	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
 
 	// If they aren't ignoring any boards then they want to see all the boards they can see
 	if (empty($ignoreboards))
+	{
 		$query_part['query_wanna_see_board'] = $query_part['query_see_board'];
+		$query_part['query_wanna_see_message_board'] = $query_part['query_see_message_board'];
+		$query_part['query_wanna_see_topic_board'] = $query_part['query_see_topic_board'];
+	}
 	// Ok I guess they don't want to see all the boards
 	else
+	{
 		$query_part['query_wanna_see_board'] = '(' . $query_part['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
-
-	$query_part['query_see_message_board'] = str_replace('b.', 'm.', $query_part['query_see_board']);
-	$query_part['query_see_topic_board'] = str_replace('b.', 't.', $query_part['query_see_board']);
+		$query_part['query_wanna_see_message_board'] = '(' . $query_part['query_see_message_board'] . ' AND m.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
+		$query_part['query_wanna_see_topic_board'] = '(' . $query_part['query_see_topic_board'] . ' AND t.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
+	}
 
 	return $query_part;
 }

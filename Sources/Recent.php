@@ -30,14 +30,15 @@ function getLastPost()
 
 	// Find it by the board - better to order by board than sort the entire messages table.
 	$request = $smcFunc['db_query']('substring', '
-		SELECT ml.poster_time, ml.subject, ml.id_topic, ml.poster_name, SUBSTRING(ml.body, 1, 385) AS body,
-			ml.smileys_enabled
-		FROM {db_prefix}boards AS b
-			INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = b.id_last_msg)
-		WHERE {query_wanna_see_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-			AND b.id_board != {int:recycle_board}' : '') . '
-			AND ml.approved = {int:is_approved}
-		ORDER BY b.id_msg_updated DESC
+		SELECT m.poster_time, m.subject, m.id_topic, m.poster_name, SUBSTRING(m.body, 1, 385) AS body,
+			m.smileys_enabled
+		FROM {db_prefix}messages AS m' . (!empty($modSettings['postmod_active']) ? '
+			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
+		WHERE {query_wanna_see_message_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+			AND m.id_board != {int:recycle_board}' : '') . (!empty($modSettings['postmod_active']) ? '
+			AND m.approved = {int:is_approved}
+			AND t.approved = {int:is_approved}' : '') . '
+		ORDER BY m.id_msg DESC
 		LIMIT 1',
 		array(
 			'recycle_board' => $modSettings['recycle_board'],
@@ -145,7 +146,7 @@ function RecentPosts()
 		if (empty($boards))
 			fatal_lang_error('error_no_boards_selected');
 
-		$query_this_board = 'b.id_board IN ({array_int:boards})';
+		$query_this_board = 'm.id_board IN ({array_int:boards})';
 		$query_parameters['boards'] = $boards;
 
 		// If this category has a significant number of posts in it...
@@ -189,7 +190,7 @@ function RecentPosts()
 		if (empty($boards))
 			fatal_lang_error('error_no_boards_selected');
 
-		$query_this_board = 'b.id_board IN ({array_int:boards})';
+		$query_this_board = 'm.id_board IN ({array_int:boards})';
 		$query_parameters['boards'] = $boards;
 
 		// If these boards have a significant number of posts in them...
@@ -223,7 +224,7 @@ function RecentPosts()
 			$context['is_redirect'] = true;
 		}
 
-		$query_this_board = 'b.id_board = {int:board}';
+		$query_this_board = 'm.id_board = {int:board}';
 		$query_parameters['board'] = $board;
 
 		// If this board has a significant number of posts in it...
@@ -238,14 +239,14 @@ function RecentPosts()
 	}
 	else
 	{
-		$query_this_board = '{query_wanna_see_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-					AND b.id_board != {int:recycle_board}' : '') . '
+		$query_this_board = '{query_wanna_see_message_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+					AND m.id_board != {int:recycle_board}' : '') . '
 					AND m.id_msg >= {int:max_id_msg}';
 		$query_parameters['max_id_msg'] = max(0, $modSettings['maxMsgID'] - 100 - $_REQUEST['start'] * 6);
 		$query_parameters['recycle_board'] = $modSettings['recycle_board'];
 
-		// "Borrow" some data from above...
-		$query_these_boards = str_replace('AND m.id_msg >= {int:max_id_msg}', '', $query_this_board);
+		$query_these_boards = '{query_wanna_see_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+					AND b.id_board != {int:recycle_board}' : '');
 		$query_these_boards_params = $query_parameters;
 		unset($query_these_boards_params['max_id_msg']);
 
@@ -284,10 +285,11 @@ function RecentPosts()
 			// @todo SLOW This query is really slow still, probably?
 			$request = $smcFunc['db_query']('', '
 				SELECT m.id_msg
-				FROM {db_prefix}messages AS m
-					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-				WHERE ' . $query_this_board . '
+				FROM {db_prefix}messages AS m ' . (!empty($modSettings['postmod_active']) ? '
+					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
+				WHERE ' . $query_this_board . (!empty($modSettings['postmod_active']) ? '
 					AND m.approved = {int:is_approved}
+					AND t.approved = {int:is_approved}' : '') . '
 				ORDER BY m.id_msg DESC
 				LIMIT {int:offset}, {int:limit}',
 				array_merge($query_parameters, array(
