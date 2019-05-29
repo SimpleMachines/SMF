@@ -1,0 +1,688 @@
+Index: Sources/Subs-Post.php
+===================================================================
+--- Sources/Subs-Post.php	(revision 11195)
++++ Sources/Subs-Post.php	(revision 11201)
+@@ -1604,6 +1604,7 @@
+ 	$members = $smcFunc['db_query']('', '
+ 		SELECT
+ 			mem.id_member, mem.email_address, mem.notify_regularity, mem.notify_types, mem.notify_send_body, mem.lngfile,
++			' . (!empty($modSettings['notify_tokens']) ? 'mem.password_salt,' : '') . '
+ 			ln.sent, mem.id_group, mem.additional_groups, b.member_groups, mem.id_post_group, t.id_member_started,
+ 			ln.id_topic
+ 		FROM {db_prefix}log_notify AS ln
+@@ -1660,6 +1661,21 @@
+ 			'UNSUBSCRIBELINK' => $scripturl . '?action=notify;topic=' . $row['id_topic'] . '.0',
+ 		);
+ 
++		// Make a token for the unsubscribe link
++		if (!empty($modSettings['notify_tokens']) && isset($modSettings['token_secret']))
++		{
++			$hash_items = array(
++				$row['id_member'],
++				$row['email_address'],
++				$row['password_salt'],
++				$modSettings['token_secret'],
++				'topic:' . $row['id_topic'],
++			);
++			$token = sha1(implode(' ', $hash_items));
++
++			$replacements['UNSUBSCRIBELINK'] .= ';u=' . $row['id_member'] . ';token=' . $token;
++		}
++
+ 		if ($type == 'remove')
+ 			unset($replacements['TOPICLINK'], $replacements['UNSUBSCRIBELINK']);
+ 		// Do they want the body of the message sent too?
+Index: Sources/Notify.php
+===================================================================
+--- Sources/Notify.php	(revision 11195)
++++ Sources/Notify.php	(revision 11201)
+@@ -41,10 +41,22 @@
+ {
+ 	global $scripturl, $txt, $topic, $user_info, $context, $smcFunc;
+ 
+-	// Make sure they aren't a guest or something - guests can't really receive notifications!
+-	is_not_guest();
+-	isAllowedTo('mark_any_notify');
++	// Are they trying a token-based anonymous request?
++	if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
++	{
++		$member_info = getMemberWithToken();
++		$skipCheckSession = true;
++	}
++	// Otherwise, this is for the current user.
++	else
++	{
++		// Make sure they aren't a guest or something - guests can't really receive notifications!
++		is_not_guest();
++		isAllowedTo('mark_any_notify');
+ 
++		$member_info = $user_info;
++	}
++
+ 	// Make sure the topic has been specified.
+ 	if (empty($topic))
+ 		fatal_lang_error('not_a_topic', false);
+@@ -63,7 +75,7 @@
+ 				AND id_topic = {int:current_topic}
+ 			LIMIT 1',
+ 			array(
+-				'current_member' => $user_info['id'],
++				'current_member' => $member_info['id'],
+ 				'current_topic' => $topic,
+ 			)
+ 		);
+@@ -75,23 +87,31 @@
+ 		$context['start'] = $_REQUEST['start'];
+ 		$context['page_title'] = $txt['notification'];
+ 
++		if ($member_info['id'] !== $user_info['id'])
++			$context['notify_info'] = array(
++				'u' => $member_info['id'],
++				'token' => $_REQUEST['token'],
++			);
++
+ 		return;
+ 	}
+ 	elseif ($_GET['sa'] == 'on')
+ 	{
+-		checkSession('get');
++		if (empty($skipCheckSession))
++			checkSession('get');
+ 
+ 		// Attempt to turn notifications on.
+ 		$smcFunc['db_insert']('ignore',
+ 			'{db_prefix}log_notify',
+ 			array('id_member' => 'int', 'id_topic' => 'int'),
+-			array($user_info['id'], $topic),
++			array($member_info['id'], $topic),
+ 			array('id_member', 'id_topic')
+ 		);
+ 	}
+ 	else
+ 	{
+-		checkSession('get');
++		if (empty($skipCheckSession))
++			checkSession('get');
+ 
+ 		// Just turn notifications off.
+ 		$smcFunc['db_query']('', '
+@@ -99,12 +119,26 @@
+ 			WHERE id_member = {int:current_member}
+ 				AND id_topic = {int:current_topic}',
+ 			array(
+-				'current_member' => $user_info['id'],
++				'current_member' => $member_info['id'],
+ 				'current_topic' => $topic,
+ 			)
+ 		);
+ 	}
+ 
++	// If this request wasn't for the current user, just show a confirmation message.
++	if ($member_info['id'] !== $user_info['id'])
++	{
++		loadTemplate('Notify');
++		$context['page_title'] = $txt['notification'];
++		$context['sub_template'] = 'notify_pref_changed';
++		$context['notify_info'] = array(
++			'email' => $member_info['email'],
++			'type' => 'topic',
++			'success_msg' => $_GET['sa'] == 'on' ? $txt['subscribe_success'] : $txt['unsubscribe_success'],
++		);
++		return;
++	}
++
+ 	// Send them back to the topic.
+ 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
+ }
+@@ -113,10 +147,22 @@
+ {
+ 	global $scripturl, $txt, $board, $user_info, $context, $smcFunc;
+ 
+-	// Permissions are an important part of anything ;).
+-	is_not_guest();
+-	isAllowedTo('mark_notify');
++	// Unsubscribing with a token.
++	if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
++	{
++		$member_info = getMemberWithToken();
++		$skipCheckSession = true;
++	}
++	// No token, so try with the current user.
++	else
++	{
++		// Permissions are an important part of anything ;).
++		is_not_guest();
++		isAllowedTo('mark_notify');
+ 
++		$member_info = $user_info;
++	}
++
+ 	// You have to specify a board to turn notifications on!
+ 	if (empty($board))
+ 		fatal_lang_error('no_board', false);
+@@ -136,7 +182,7 @@
+ 			LIMIT 1',
+ 			array(
+ 				'current_board' => $board,
+-				'current_member' => $user_info['id'],
++				'current_member' => $member_info['id'],
+ 			)
+ 		);
+ 		$context['notification_set'] = $smcFunc['db_num_rows']($request) != 0;
+@@ -148,18 +194,25 @@
+ 		$context['page_title'] = $txt['notification'];
+ 		$context['sub_template'] = 'notify_board';
+ 
++		if ($member_info['id'] !== $user_info['id'])
++			$context['notify_info'] = array(
++				'u' => $member_info['id'],
++				'token' => $_REQUEST['token'],
++			);
++
+ 		return;
+ 	}
+ 	// Turn the board level notification on....
+ 	elseif ($_GET['sa'] == 'on')
+ 	{
+-		checkSession('get');
++		if (empty($skipCheckSession))
++			checkSession('get');
+ 
+ 		// Turn notification on.  (note this just blows smoke if it's already on.)
+ 		$smcFunc['db_insert']('ignore',
+ 			'{db_prefix}log_notify',
+ 			array('id_member' => 'int', 'id_board' => 'int'),
+-			array($user_info['id'], $board),
++			array($member_info['id'], $board),
+ 			array('id_member', 'id_board')
+ 		);
+ 	}
+@@ -166,7 +219,8 @@
+ 	// ...or off?
+ 	else
+ 	{
+-		checkSession('get');
++		if (empty($skipCheckSession))
++			checkSession('get');
+ 
+ 		// Turn notification off for this board.
+ 		$smcFunc['db_query']('', '
+@@ -175,13 +229,125 @@
+ 				AND id_board = {int:current_board}',
+ 			array(
+ 				'current_board' => $board,
+-				'current_member' => $user_info['id'],
++				'current_member' => $member_info['id'],
+ 			)
+ 		);
+ 	}
+ 
++	// Probably a guest, so just show a confirmation message.
++	if ($member_info['id'] !== $user_info['id'])
++	{
++		loadTemplate('Notify');
++		$context['page_title'] = $txt['notification'];
++		$context['sub_template'] = 'notify_pref_changed';
++		$context['notify_info'] = array(
++			'email' => $member_info['email'],
++			'type' => 'board',
++			'success_msg' => $_GET['sa'] == 'on' ? $txt['subscribe_success'] : $txt['unsubscribe_success'],
++		);
++		return;
++	}
++
+ 	// Back to the board!
+ 	redirectexit('board=' . $board . '.' . $_REQUEST['start']);
+ }
+ 
++function AnnouncementsNotify()
++{
++	global $scripturl, $txt, $board, $user_info, $context, $smcFunc;
++
++	if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
++		$member_info = getMemberWithToken();
++	else
++	{
++		is_not_guest();
++		$member_info = $user_info;
++	}
++
++	loadTemplate('Notify');
++	$context['page_title'] = $txt['notification'];
++
++	// Ask what they want to do.
++	if (empty($_GET['sa']))
++	{
++		$context['sub_template'] = 'notify_announcements';
++
++		$context['notify_info'] = array(
++			'email' => ($member_info['id'] !== $user_info['id'] ? $member_info['email'] : ''),
++			'type' => 'announcements',
++		);
++
++		if ($member_info['id'] !== $user_info['id'])
++			$context['notify_info'] += array(
++				'u' => $member_info['id'],
++				'token' => $_REQUEST['token'],
++			);
++
++		return;
++	}
++
++	// Subscribe them to announcements.
++	elseif ($_GET['sa'] == 'on')
++		updateMemberData($member_info['id'], array('notify_announcements' => '1'));
++
++	// Unsubscribe them from announcements.
++	else
++		updateMemberData($member_info['id'], array('notify_announcements' => '0'));
++
++
++	$context['sub_template'] = 'notify_pref_changed';
++	$context['notify_info'] = array(
++		'email' => $member_info['email'],
++		'type' => 'announcements',
++		'success_msg' => $_GET['sa'] == 'on' ? $txt['subscribe_success'] : $txt['unsubscribe_success'],
++	);
++}
++
++// Verifies the token, then returns some member info
++function getMemberWithToken()
++{
++	global $smcFunc, $board, $topic, $modSettings;
++
++	// Keep it sanitary, folks
++	$id_member = !empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0;
++
++	// We can't do anything without these
++	if (empty($id_member) || empty($_REQUEST['token']) || !isset($modSettings['token_secret']))
++		fatal_lang_error('unsubscribe_invalid', false);
++
++	// Get the user info we need
++	$request = $smcFunc['db_query']('', '
++		SELECT id_member AS id, email_address AS email, password_salt
++		FROM {db_prefix}members
++		WHERE id_member = {int:id_member}',
++		array(
++			'id_member' => $id_member,
++		)
++	);
++	$member_info = $smcFunc['db_fetch_assoc']($request);
++	$smcFunc['db_free_result']($request);
++
++	// What token are we expecting?
++	$hash_items = $member_info;
++	$hash_items[] = $modSettings['token_secret'];
++
++	if (isset($topic))
++		$hash_items[] = 'topic:' . $topic;
++	elseif (isset($board))
++		$hash_items[] = 'board:' . $board;
++
++	$expected_token = sha1(implode(' ', $hash_items));
++
++	// Don't do anything if the token they gave is wrong
++	if ($_REQUEST['token'] !== $expected_token)
++		fatal_lang_error('unsubscribe_invalid', false);
++
++	// At this point, we know we have a legitimate unsubscribe request
++
++	// There's no need for this info outside this function
++	unset($member_info['password_salt']);
++
++	return $member_info;
++}
++
+ ?>
+\ No newline at end of file
+Index: Sources/ManageSettings.php
+===================================================================
+--- Sources/ManageSettings.php	(revision 11195)
++++ Sources/ManageSettings.php	(revision 11201)
+@@ -361,6 +361,22 @@
+ 				'force_gdpr' => 1,
+ 				// DEVELOPERS: Add values to toggle here
+ 			),
++			'setting_callback' => create_function('$value', '
++				global $modSettings;
++
++				$returnSettings = array();
++
++				if ($value)
++				{
++					$returnSettings[\'allow_disableAnnounce\'] = 1;
++					$returnSettings[\'notify_tokens\'] = 1;
++
++					if (empty($modSettings[\'token_secret\']))
++						$returnSettings[\'token_secret\'] = (function_exists(\'openssl_random_pseudo_bytes\') ? bin2hex(openssl_random_pseudo_bytes(12)) : uniqid(\'\', true));
++				}
++
++				return $returnSettings;
++			'),
+ 		),
+ 	);
+ 
+@@ -490,7 +506,8 @@
+ 			array('check', 'hitStats'),
+ 		'',
+ 			// Option-ish things... miscellaneous sorta.
+-			array('check', 'allow_disableAnnounce'),
++			array('check', 'allow_disableAnnounce', 'disabled' => !empty($modSettings['force_gdpr'])),
++			array('check', 'notify_tokens', 'disabled' => !empty($modSettings['force_gdpr'])),
+ 			array('check', 'disallow_sendBody'),
+ 	);
+ 
+@@ -517,6 +534,20 @@
+ 		if (isset($_POST['lastActive']))
+ 			$_POST['lastActive'] = min((int) $_POST['lastActive'], 1440);
+ 
++		// GDPR requires these settings to always be true
++		if (!empty($modSettings['force_gdpr']))
++		{
++			$_POST['allow_disableAnnounce'] = 1;
++			$_POST['notify_tokens'] = 1;
++		}
++
++		// Tokens need a permanent secret value to use
++		if (isset($_POST['notify_tokens']) && empty($modSettings['token_secret']))
++		{
++			$config_vars[] = array('text', 'token_secret');
++			$_POST['token_secret'] = (function_exists('openssl_random_pseudo_bytes') ? bin2hex(openssl_random_pseudo_bytes(12)) : uniqid('', true));
++		}
++
+ 		saveDBSettings($config_vars);
+ 
+ 		writeLog();
+Index: Sources/Post.php
+===================================================================
+--- Sources/Post.php	(revision 11195)
++++ Sources/Post.php	(revision 11201)
+@@ -2256,7 +2256,7 @@
+ 
+ 	// Select the email addresses for this batch.
+ 	$request = $smcFunc['db_query']('', '
+-		SELECT mem.id_member, mem.email_address, mem.lngfile
++		SELECT mem.id_member, mem.email_address, mem.lngfile' . (!empty($modSettings['notify_tokens']) ? ', mem.password_salt' : '') . '
+ 		FROM {db_prefix}members AS mem
+ 		WHERE mem.id_member != {int:current_member}' . (!empty($modSettings['allow_disableAnnounce']) ? '
+ 			AND mem.notify_announcements = {int:notify_announcements}' : '') . '
+@@ -2298,8 +2298,23 @@
+ 				'TOPICSUBJECT' => $context['topic_subject'],
+ 				'MESSAGE' => $message,
+ 				'TOPICLINK' => $scripturl . '?topic=' . $topic . '.0',
++				'UNSUBSCRIBELINK' => $scripturl . '?action=notifyannouncements'
+ 			);
+ 
++			// Tokens allow people to unsubscribe without logging in
++			if (!empty($modSettings['notify_tokens']) && isset($modSettings['token_secret']))
++			{
++				$hash_items = array(
++					$row['id_member'],
++					$row['email_address'],
++					$row['password_salt'],
++					$modSettings['token_secret'],
++				);
++				$token = sha1(implode(' ', $hash_items));
++
++				$replacements['UNSUBSCRIBELINK'] .= ';u=' . $row['id_member'] . ';token=' . $token;
++			}
++
+ 			$emaildata = loadEmailTemplate('new_announcement', $replacements, $cur_language);
+ 
+ 			$announcements[$cur_language] = array(
+@@ -2385,6 +2400,7 @@
+ 	$members = $smcFunc['db_query']('', '
+ 		SELECT
+ 			mem.id_member, mem.email_address, mem.notify_regularity, mem.notify_send_body, mem.lngfile,
++			' . (!empty($modSettings['notify_tokens']) ? 'mem.password_salt,' : '') . '
+ 			ln.sent, ln.id_board, mem.id_group, mem.additional_groups, b.member_groups,
+ 			mem.id_post_group
+ 		FROM {db_prefix}log_notify AS ln
+@@ -2441,6 +2457,21 @@
+ 				'UNSUBSCRIBELINK' => $scripturl . '?action=notifyboard;board=' . $topicData[$key]['board'] . '.0',
+ 			);
+ 
++			// Make a token for the unsubscribe link
++			if (!empty($modSettings['notify_tokens']) && isset($modSettings['token_secret']))
++			{
++				$hash_items = array(
++					$rowmember['id_member'],
++					$rowmember['email_address'],
++					$rowmember['password_salt'],
++					$modSettings['token_secret'],
++					'board:' . $rowmember['id_board'],
++				);
++				$token = sha1(implode(' ', $hash_items));
++
++				$replacements['UNSUBSCRIBELINK'] .= ';u=' . $rowmember['id_member'] . ';token=' . $token;
++			}
++
+ 			if (!$send_body)
+ 				unset($replacements['MESSAGE']);
+ 
+Index: Sources/ManageNews.php
+===================================================================
+--- Sources/ManageNews.php	(revision 11195)
++++ Sources/ManageNews.php	(revision 11201)
+@@ -671,7 +671,7 @@
+ 		}
+ 
+ 		// Force them to have it?
+-		if (empty($context['email_force']))
++		if (empty($context['email_force']) || !empty($modSettings['force_gdpr']))
+ 			$sendQuery .= ' AND mem.notify_announcements = {int:notify_announcements}';
+ 
+ 		// Get the smelly people - note we respect the id_member range as it gives us a quicker query.
+Index: Themes/default/ManageNews.template.php
+===================================================================
+--- Themes/default/ManageNews.template.php	(revision 11195)
++++ Themes/default/ManageNews.template.php	(revision 11201)
+@@ -80,7 +80,7 @@
+ 
+ function template_email_members()
+ {
+-	global $context, $settings, $options, $txt, $scripturl;
++	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+ 
+ 	// This is some javascript for the simple/advanced toggling stuff.
+ 	echo '
+@@ -184,7 +184,10 @@
+ 							<input type="text" name="exclude_members" id="exclude_members" value="" size="30" class="input_text" />
+ 							<span id="exclude_members_container"></span>
+ 						</dd>
+-					</dl>
++					</dl>';
++
++	if (empty($modSettings['force_gdpr']))
++		echo '
+ 					<hr class="bordercolor" />
+ 					<dl class="settings">
+ 						<dt>
+@@ -194,7 +197,10 @@
+ 						<dd>
+ 							<input type="checkbox" name="email_force" id="email_force" value="1" class="input_check" />
+ 						</dd>
+-					</dl><br class="clear" />
++					</dl>';
++
++	echo '
++					<br class="clear" />
+ 				</div>
+ 				<span class="botslice"><span></span></span>
+ 			</div>
+Index: Themes/default/languages/Errors.english.php
+===================================================================
+--- Themes/default/languages/Errors.english.php	(revision 11195)
++++ Themes/default/languages/Errors.english.php	(revision 11201)
+@@ -404,4 +404,7 @@
+ $txt['error_invalid_dir'] = 'The directory you entered is invalid.';
+ 
+ $txt['error_sqlite_optimizing'] = 'Sqlite is optimizing the database, the forum can not be accessed until it has finished.  Please try refreshing this page momentarily.';
++
++// Unsubscribe
++$txt['unsubscribe_invalid'] = 'The unsubscribe link that brought you here does not appear to be valid.';
+ ?>
+\ No newline at end of file
+Index: Themes/default/languages/EmailTemplates.english.php
+===================================================================
+--- Themes/default/languages/EmailTemplates.english.php	(revision 11195)
++++ Themes/default/languages/EmailTemplates.english.php	(revision 11201)
+@@ -215,6 +215,7 @@
+ 				TOPICSUBJECT: The subject of the topic being announced.
+ 				MESSAGE: The message body of the first post of the announced topic.
+ 				TOPICLINK: A link to the topic being announced.
++				UNSUBSCRIBELINK: Link to unsubscribe from announcements.
+ 			@description:
+ 
+ 		*/
+@@ -221,11 +222,14 @@
+ 		'subject' => 'New announcement: {TOPICSUBJECT}',
+ 		'body' => '{MESSAGE}
+ 
+-To unsubscribe from these announcements, login to the forum and uncheck "Receive forum announcements and important notifications by email." in your profile.
+-
+ You can view the full announcement by following this link:
+ {TOPICLINK}
+ 
++To unsubscribe from these announcements, follow this link:
++{UNSUBSCRIBELINK}
++
++For more control over the email notifications you receive, login to the forum and go to the Notification area in your profile.
++
+ {REGARDS}',
+ 	),
+ 	'notify_boards_once_body' => array(
+Index: Themes/default/languages/index.english.php
+===================================================================
+--- Themes/default/languages/index.english.php	(revision 11195)
++++ Themes/default/languages/index.english.php	(revision 11201)
+@@ -620,6 +620,14 @@
+ $txt['notifyboard_turnon'] = 'Do you want a notification email when someone posts a new topic in this board?';
+ $txt['notifyboard_turnoff'] = 'Are you sure you do not want to receive new topic notifications for this board?';
+ 
++$txt['notifyannouncements_prompt'] = 'Do you want %1$s to receive forum newsletters, announcements and important notifications?';
++
++$txt['subscribe_success'] = '%1$s has been subscribed to %2$s.';
++$txt['unsubscribe_success'] = '%1$s has been unsubscribed from %2$s.';
++$txt['board_notifications'] = 'new topic notifications for this board';
++$txt['topic_notifications'] = 'new reply notifications for this topic';
++$txt['announcements_notifications'] = 'forum newsletters, announcements and important notifications by email';
++
+ $txt['activate_code'] = 'Your activation code is';
+ 
+ $txt['find_members'] = 'Find Members';
+Index: Themes/default/languages/ManageSettings.english.php
+===================================================================
+--- Themes/default/languages/ManageSettings.english.php	(revision 11195)
++++ Themes/default/languages/ManageSettings.english.php	(revision 11201)
+@@ -53,6 +53,7 @@
+ $txt['autoOptMaxOnline'] = 'Maximum users online when optimizing<div class="smalltext">(0 for no max.)</div>';
+ $txt['autoFixDatabase'] = 'Automatically fix broken tables';
+ $txt['allow_disableAnnounce'] = 'Allow users to disable announcements';
++$txt['notify_tokens'] = 'Use token-based unsubscribe links in notification emails<div class="smalltext">Allows users to unsubscribe without logging in.</div>';
+ $txt['disallow_sendBody'] = 'Don\'t allow post text in notifications';
+ $txt['queryless_urls'] = 'Search engine friendly URLs<div class="smalltext"><strong>Apache/Lighttpd only!</strong></div>';
+ $txt['max_image_width'] = 'Max width of posted pictures (0 = disable)';
+@@ -300,7 +301,7 @@
+ $txt['core_settings_item_w'] = 'Warning System';
+ $txt['core_settings_item_w_desc'] = 'This functionality allows administrators and moderators to issue warnings to users; it also includes advanced functionality for automatically removing user rights as their warning level increases. Note to take full advantage of this function &quot;Post Moderation&quot; should be enabled.';
+ $txt['core_settings_item_gdpr'] = 'GDPR compliance';
+-$txt['core_settings_item_gdpr_desc'] = 'Enabling this feature will configure a number of settings on your forum to make it compliant with the European Union\'s <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en">General Data Protection Regulation</a>.';
++$txt['core_settings_item_gdpr_desc'] = 'Enabling this feature will configure a number of settings on your forum to make it compliant with the European Union\'s <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" class="bbc_link">General Data Protection Regulation</a>.';
+ $txt['core_settings_switch_on'] = 'Click to Enable';
+ $txt['core_settings_switch_off'] = 'Click to Disable';
+ $txt['core_settings_enabled'] = 'Enabled';
+Index: Themes/default/languages/Help.english.php
+===================================================================
+--- Themes/default/languages/Help.english.php	(revision 11195)
++++ Themes/default/languages/Help.english.php	(revision 11201)
+@@ -281,7 +281,8 @@
+ $helptxt['databaseSession_lifetime'] = 'This is the number of seconds for sessions to last after they haven\'t been accessed.  If a session is not accessed for too long, it is said to have &quot;timed out&quot;.  Anything higher than 2400 is recommended.';
+ $helptxt['enableErrorLogging'] = 'This will log any errors, like a failed login, so you can see what went wrong.';
+ $helptxt['enableErrorQueryLogging'] = 'This will include the full query sent to the database in the error log.  Requires error logging to be turned on.<br /><br /><strong>Note:  This will affect the ability to filter the error log by the error message.</strong>';
+-$helptxt['allow_disableAnnounce'] = 'This will allow users to opt out of notification of topics you announce by checking the &quot;announce topic&quot; checkbox when posting.';
++$helptxt['allow_disableAnnounce'] = 'This will allow users to opt out of notification of topics you announce by checking the &quot;announce topic&quot; checkbox when posting.<br /><br />This setting must be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en">GDPR</a>.';
++$helptxt['notify_tokens'] = 'When this setting is enabled, the unsubscribe link included in every notification email includes a unique token to identify an unsubscribe request as legitimate. Without this, users must instead log into the forum to verify their identifies before being allowed to unsubscribe.<br /><br />This setting must be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en">GDPR</a>.';
+ $helptxt['disallow_sendBody'] = 'This option removes the option to receive the text of replies and posts in notification emails.<br /><br />Often, members will reply to the notification email, which in most cases means the webmaster receives the reply.';
+ $helptxt['compactTopicPagesEnable'] = 'This will just show a selection of the number of pages.<br /><em>Example:</em>
+ 		&quot;3&quot; to display: 1 ... 4 [5] 6 ... 9 <br />
+Index: Themes/default/Notify.template.php
+===================================================================
+--- Themes/default/Notify.template.php	(revision 11195)
++++ Themes/default/Notify.template.php	(revision 11201)
+@@ -24,7 +24,7 @@
+ 		<div class="roundframe centertext">
+ 			<p>', $context['notification_set'] ? $txt['notify_deactivate'] : $txt['notify_request'], '</p>
+ 			<p>
+-				<strong><a href="', $scripturl, '?action=notify;sa=', $context['notification_set'] ? 'off' : 'on', ';topic=', $context['current_topic'], '.', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['yes'], '</a> - <a href="', $context['topic_href'], '">', $txt['no'], '</a></strong>
++				<strong><a href="', $scripturl, '?action=notify;sa=', $context['notification_set'] ? 'off' : 'on', ';topic=', $context['current_topic'], '.', $context['start'], ';', (!empty($context['notify_info']['token']) ? 'u=' . $context['notify_info']['u'] . ';token=' . $context['notify_info']['token'] : $context['session_var'] . '=' . $context['session_id']), '">', $txt['yes'], '</a> - <a href="', $context['topic_href'], '">', $txt['no'], '</a></strong>
+ 			</p>
+ 		</div>
+ 		<span class="lowerframe"><span></span></span>';
+@@ -44,10 +44,52 @@
+ 		<div class="roundframe centertext">
+ 			<p>', $context['notification_set'] ? $txt['notifyboard_turnoff'] : $txt['notifyboard_turnon'], '</p>
+ 			<p>
+-				<strong><a href="', $scripturl, '?action=notifyboard;sa=', $context['notification_set'] ? 'off' : 'on', ';board=', $context['current_board'], '.', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['yes'], '</a> - <a href="', $context['board_href'], '">', $txt['no'], '</a></strong>
++				<strong><a href="', $scripturl, '?action=notifyboard;sa=', $context['notification_set'] ? 'off' : 'on', ';board=', $context['current_board'], '.', $context['start'], ';', (!empty($context['notify_info']['token']) ? 'u=' . $context['notify_info']['u'] . ';token=' . $context['notify_info']['token'] : $context['session_var'] . '=' . $context['session_id']), '">', $txt['yes'], '</a> - <a href="', $context['board_href'], '">', $txt['no'], '</a></strong>
+ 			</p>
+ 		</div>
+ 		<span class="lowerframe"><span></span></span>';
+ }
+ 
++function template_notify_announcements()
++{
++	global $context, $settings, $options, $txt, $scripturl;
++
++	echo '
++		<div class="cat_bar">
++			<h3 class="catbg">
++				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/email_sm.gif" alt="" class="icon" />', $txt['notify'], '</span>
++			</h3>
++		</div>
++		<span class="upperframe"><span></span></span>
++		<div class="roundframe centertext">
++			<p>', sprintf($txt['notifyannouncements_prompt'], $context['notify_info']['email']), '</p>
++			<p>
++				<strong><a href="', $scripturl, '?action=notifyannouncements;sa=on;', (!empty($context['notify_info']['token']) ? 'u=' . $context['notify_info']['u'] . ';token=' . $context['notify_info']['token'] : $context['session_var'] . '=' . $context['session_id']), '">', $txt['yes'], '</a> - <a href="', $scripturl, '?action=notifyannouncements;sa=off;', (!empty($context['notify_info']['token']) ? 'u=' . $context['notify_info']['u'] . ';token=' . $context['notify_info']['token'] : $context['session_var'] . '=' . $context['session_id']), '">', $txt['no'], '</a></strong>
++			</p>
++		</div>
++		<span class="lowerframe"><span></span></span>';
++}
++
++function template_notify_pref_changed()
++{
++	global $context, $settings, $options, $txt, $scripturl;
++
++	echo '
++		<div class="cat_bar">
++			<h3 class="catbg">
++				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/email_sm.gif" alt="" class="icon" />', $txt['notify'], '</span>
++			</h3>
++		</div>
++		<span class="upperframe"><span></span></span>
++		<div class="roundframe centertext">
++			<p>
++				';
++	echo sprintf($context['notify_info']['success_msg'], $context['notify_info']['email'], $txt[$context['notify_info']['type'] . '_notifications']);
++
++	echo '
++			</p>
++		</div>
++		<span class="lowerframe"><span></span></span>';
++}
++
+ ?>
+\ No newline at end of file
+Index: index.php
+===================================================================
+--- index.php	(revision 11195)
++++ index.php	(revision 11201)
+@@ -303,6 +303,7 @@
+ 		'movetopic2' => array('MoveTopic.php', 'MoveTopic2'),
+ 		'notify' => array('Notify.php', 'Notify'),
+ 		'notifyboard' => array('Notify.php', 'BoardNotify'),
++		'notifyannouncements' => array('Notify.php', 'AnnouncementsNotify'),
+ 		'openidreturn' => array('Subs-OpenID.php', 'smf_openID_return'),
+ 		'pm' => array('PersonalMessage.php', 'MessageMain'),
+ 		'post' => array('Post.php', 'Post'),
