@@ -2940,3 +2940,67 @@ VALUES ('Independence Day', '1004-07-04'),
 CREATE INDEX idx_id_thumb ON {$db_prefix}attachments (id_thumb);
 ---#
 
+/******************************************************************************/
+--- Fix mods columns
+/******************************************************************************/
+---# make members mod col nullable
+---{
+$request = upgrade_query("
+		SELECT COLUMN_NAME, COLUMN_TYPE
+		FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE TABLE_SCHEMA = '" . $db_name . "' AND  TABLE_NAME = '" . $db_prefix . "members' AND 
+			COLUMN_DEFAULT IS NULL AND COLUMN_KEY <> 'PRI' AND IS_NULLABLE = 'NO' AND
+			COLUMN_NAME NOT IN ('buddy_list', 'signature', 'ignore_boards')
+	");
+
+	
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+		upgrade_query("
+			ALTER TABLE {$db_prefix}members
+			MODIFY " . $row['COLUMN_NAME'] . " " . $row['COLUMN_TYPE'] . " NULL
+		");
+}
+---}
+---#
+
+---# make boards mod col nullable
+---{
+$request = upgrade_query("
+		SELECT COLUMN_NAME, COLUMN_TYPE
+		FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE TABLE_SCHEMA = '" . $db_name . "' AND  TABLE_NAME = '" . $db_prefix . "boards' AND 
+			COLUMN_DEFAULT IS NULL AND COLUMN_KEY <> 'PRI' AND IS_NULLABLE = 'NO' AND
+			COLUMN_NAME NOT IN ('description')
+	");
+
+	
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+		upgrade_query("
+			ALTER TABLE {$db_prefix}boards
+			MODIFY " . $row['COLUMN_NAME'] . " " . $row['COLUMN_TYPE'] . " NULL
+		");
+}
+---}
+---#
+
+---# make topics mod col nullable
+---{
+$request = upgrade_query("
+		SELECT COLUMN_NAME, COLUMN_TYPE
+		FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE TABLE_SCHEMA = '" . $db_name . "' AND  TABLE_NAME = '" . $db_prefix . "topics' AND 
+			COLUMN_DEFAULT IS NULL AND COLUMN_KEY <> 'PRI' AND IS_NULLABLE = 'NO'
+	");
+
+	
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+		upgrade_query("
+			ALTER TABLE {$db_prefix}topics
+			MODIFY " . $row['COLUMN_NAME'] . " " . $row['COLUMN_TYPE'] . " NULL
+		");
+}
+---}
+---#
