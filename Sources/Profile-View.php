@@ -218,19 +218,28 @@ function summary($memID)
  * Fetch the alerts a member currently has.
  *
  * @param int $memID The ID of the member.
- * @param bool $all Whether to fetch all alerts or just unread ones.
- * @param int $counter How many alerts to display (0 if displaying all or using pagination).
- * @param array $pagination An array containing info for handling pagination. Should have 'start' and 'maxIndex'.
- * @param bool $withSender Whether to include $memberContext for the sender.
- * @param bool $show_links if set to true alerts will show links if any instead of plain text.
+ * @param mixed $to_fetch Alerts to fetch: true/false for all/unread, or a list of one or more IDs.
+ * @param array $limit Maximum number of alerts to fetch (0 for no limit).
+ * @param array $offset Number of alerts to skip for pagination. Ignored if $to_fetch is a list of IDs.
+ * @param bool $show_links Whether to show links in the constituent parts of the alert meessage.
  * @return array An array of information about the fetched alerts.
  */
-function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = false, $show_links = false)
+function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $show_links = false)
 {
 	global $smcFunc, $txt, $scripturl, $memberContext, $user_info, $user_profile;
 
+	// Are we being asked for some specific alerts?
+	$alertIDs = is_bool($to_fetch) ? array() : array_filter(array_map('intval', (array) $to_fetch));
+
+	// Basic sanitation.
+	$memID = (int) $memID;
+	$unread = $to_fetch === false;
+	$limit = max(0, (int) $limit);
+	$offset = !empty($alertIDs) ? 0 : max(0, (int) $offset);
+	$show_links = !empty($show_links);
+
+	// Arrays we'll need.
 	$alerts = array();
-	$senders = array();
 	$profiles = array();
 	$profile_alerts = array();
 	$possible_msgs = array();
@@ -238,23 +247,22 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	$possible_attachments = array();
 
 	// Get the basic alert info.
-	// Don't bother joining the members table if we are going to call loadMemberContext() for the senders anyway.
 	$request = $smcFunc['db_query']('', '
-		SELECT a.id_alert, a.alert_time, a.is_read, a.content_type, a.content_id, a.content_action, a.extra, ' . ($withSender ? '
-			a.id_member_started AS sender_id, a.member_name AS sender_name' : '
-			mem.id_member AS sender_id, COALESCE(mem.real_name, a.member_name) AS sender_name') . '
-		FROM {db_prefix}user_alerts AS a' . ($withSender ? '' : '
-			LEFT JOIN {db_prefix}members AS mem ON (a.id_member_started = mem.id_member)') . '
-		WHERE a.id_member = {int:id_member}' . (!$all ? '
-			AND is_read = 0' : '') . '
-		ORDER BY id_alert DESC' . (!empty($counter) && empty($pagination) ? '
-		LIMIT {int:counter}' : '') . (!empty($pagination) && empty($counter) ? '
-		LIMIT {int:start}, {int:maxIndex}' : ''),
+		SELECT a.id_alert, a.alert_time, mem.id_member AS sender_id, COALESCE(mem.real_name, a.member_name) AS sender_name,
+			a.content_type, a.content_id, a.content_action, a.is_read, a.extra
+		FROM {db_prefix}user_alerts AS a
+			LEFT JOIN {db_prefix}members AS mem ON (a.id_member_started = mem.id_member)
+		WHERE a.id_member = {int:id_member}' . ($unread ? '
+			AND a.is_read = 0' : '') . (!empty($alertIDs) ? '
+			AND a.id_alert IN ({array_int:alertIDs})' : '') . '
+		ORDER BY id_alert DESC' . (!empty($limit) ? '
+		LIMIT {int:limit}' : '') . (!empty($offset) ?'
+		OFFSET {int:offset}' : ''),
 		array(
 			'id_member' => $memID,
-			'counter' => $counter,
-			'start' => !empty($pagination['start']) ? $pagination['start'] : 0,
-			'maxIndex' => !empty($pagination['maxIndex']) ? $pagination['maxIndex'] : 0,
+			'alertIDs' => $alertIDs,
+			'limit' => $limit,
+			'offset' => $offset,
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -263,9 +271,6 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		$row['time'] = timeformat($row['alert_time']);
 		$row['extra'] = !empty($row['extra']) ? $smcFunc['json_decode']($row['extra'], true) : array();
 		$alerts[$id_alert] = $row;
-
-		if (!empty($row['sender_id']))
-			$senders[] = $row['sender_id'];
 
 		if ($row['content_type'] == 'profile')
 		{
@@ -298,19 +303,8 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 	}
 	$smcFunc['db_free_result']($request);
 
-	// Apparently someone wants us to get a big pile of mostly unused member data. :/
-	if ($withSender)
-	{
-		$members = array_merge($profiles, $senders);
-		if (!empty($members))
-		{
-			$members = loadMemberData($members);
-			foreach ($members as $member)
-				loadMemberContext($member);
-		}
-	}
-	// In most cases we only need to look up member info for profile alerts.
-	elseif (!empty($profiles))
+	// Look up member info of anyone we need it for.
+	if (!empty($profiles))
 		loadMemberData($profiles, 'minimal');
 
 	// Now go through and actually make with the text.
@@ -550,10 +544,6 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		if (isset($user_profile[$sender_id]))
 			$alert['sender_name'] = $user_profile[$sender_id]['real_name'];
 
-		// If requested, include the sender's full member data.
-		if ($withSender && !empty($memberContext[$sender_id]))
-			$alert['sender'] = &$memberContext[$sender_id];
-
 		// Finally, set this alert's text string.
 		$string = 'alert_' . $alert['content_type'] . '_' . $alert['content_action'];
 		if (isset($txt[$string]))
@@ -593,24 +583,12 @@ function showAlerts($memID)
 	// Are we opening a specific alert ?
 	if (!empty($_REQUEST['alert']))
 	{
-		$alert_id = (int)$_REQUEST['alert'];
-		$request = $smcFunc['db_query']('', '
-			SELECT id_member, id_member_started, content_type, content_action, content_id, is_read, extra
-			FROM {db_prefix}user_alerts
-			WHERE id_alert = {int:alert}',
-			array(
-				'alert' => $alert_id
-			)
-		);
-		$alert = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
+		$alert_id = (int) $_REQUEST['alert'];
 
-		// Can the user see this alert ?
-		if($memID != $alert['id_member'])
-			redirectexit();
+		$alert = fetch_alerts($memID, $alert_id);
 
-		if(!empty($alert['extra']))
-			$alert['extra'] = $smcFunc['json_decode']($alert['extra'], true);
+		if (empty($alert))
+			redirectexit('action=profile;area=showalerts');
 
 		// Determine where the alert takes
 		$link = '';
@@ -638,7 +616,7 @@ function showAlerts($memID)
 		// Take the user to the content
 		if (!empty($link))
 			redirectexit($link);
-		// Incase it failed to determine this alert's link
+		// In case it failed to determine this alert's link
 		else
 			redirectexit('action=profile;area=showalerts');
 	}
@@ -649,7 +627,7 @@ function showAlerts($memID)
 	$count = alert_count($memID);
 
 	// Get the alerts.
-	$context['alerts'] = fetch_alerts($memID, true, false, array('start' => $start, 'maxIndex' => $maxIndex), true, true);
+	$context['alerts'] = fetch_alerts($memID, true, $maxIndex, $start, true);
 	$toMark = false;
 	$action = '';
 
