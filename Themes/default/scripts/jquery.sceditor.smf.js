@@ -249,7 +249,7 @@ sceditor.command.set(
 			{
 				var content = '';
 
-				each(selected.split(/\r?\n/), function () {
+				$.each(selected.split(/\r?\n/), function () {
 					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
 				});
 
@@ -268,7 +268,7 @@ sceditor.command.set(
 			{
 				var content = '';
 
-				each(selected.split(/\r?\n/), function () {
+				$.each(selected.split(/\r?\n/), function () {
 					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
 				});
 
