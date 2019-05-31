@@ -1153,9 +1153,9 @@ function forum_time($use_user_offset = true, $timestamp = null, $local_to_server
 			if ($dtz_user !== false)
 			{
 				$dt_user = new DateTime('@' . $timestamp);
-				$temp_offset = $dtz_user->getOffset($dt_user)/3600;
+				$temp_offset = $dtz_user->getOffset($dt_user);
 				if ($temp_offset !== false)
-					$user_offset = $temp_offset;
+					$user_offset = $temp_offset/3600;
 			}
 		}
 	}
