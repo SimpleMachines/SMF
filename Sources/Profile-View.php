@@ -224,7 +224,7 @@ function summary($memID)
  * @param bool $show_links Whether to show links in the constituent parts of the alert meessage.
  * @return array An array of information about the fetched alerts.
  */
-function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $show_links = false)
+function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_sender = true, $show_links = false)
 {
 	global $smcFunc, $txt, $scripturl, $memberContext, $user_info, $user_profile;
 
@@ -236,10 +236,12 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $show_
 	$unread = $to_fetch === false;
 	$limit = max(0, (int) $limit);
 	$offset = !empty($alertIDs) ? 0 : max(0, (int) $offset);
+	$with_sender = !empty($with_sender);
 	$show_links = !empty($show_links);
 
 	// Arrays we'll need.
 	$alerts = array();
+	$senders = array();
 	$profiles = array();
 	$profile_alerts = array();
 	$possible_msgs = array();
@@ -247,11 +249,14 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $show_
 	$possible_attachments = array();
 
 	// Get the basic alert info.
+	// Don't bother joining the members table if we are going to call loadMemberContext() for the senders anyway.
 	$request = $smcFunc['db_query']('', '
-		SELECT a.id_alert, a.alert_time, mem.id_member AS sender_id, COALESCE(mem.real_name, a.member_name) AS sender_name,
-			a.content_type, a.content_id, a.content_action, a.is_read, a.extra
-		FROM {db_prefix}user_alerts AS a
-			LEFT JOIN {db_prefix}members AS mem ON (a.id_member_started = mem.id_member)
+		SELECT a.id_alert, a.alert_time, a.is_read, a.extra,
+			a.content_type, a.content_id, a.content_action,' . ($with_sender ? '
+			a.id_member_started AS sender_id, a.member_name AS sender_name' : '
+			mem.id_member AS sender_id, COALESCE(mem.real_name, a.member_name) AS sender_name') . '
+		FROM {db_prefix}user_alerts AS a' . ($with_sender ? '' : '
+			LEFT JOIN {db_prefix}members AS mem ON (a.id_member_started = mem.id_member)') . '
 		WHERE a.id_member = {int:id_member}' . ($unread ? '
 			AND a.is_read = 0' : '') . (!empty($alertIDs) ? '
 			AND a.id_alert IN ({array_int:alertIDs})' : '') . '
@@ -271,6 +276,9 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $show_
 		$row['time'] = timeformat($row['alert_time']);
 		$row['extra'] = !empty($row['extra']) ? $smcFunc['json_decode']($row['extra'], true) : array();
 		$alerts[$id_alert] = $row;
+
+		if (!empty($row['sender_id']))
+			$senders[] = $row['sender_id'];
 
 		if ($row['content_type'] == 'profile')
 		{
@@ -304,7 +312,16 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $show_
 	$smcFunc['db_free_result']($request);
 
 	// Look up member info of anyone we need it for.
-	if (!empty($profiles))
+	if ($with_sender)
+	{
+		// We need $user_profile data for all of them.
+		$loaded = loadMemberData(array_merge($profiles, $senders));
+
+		// We only need the extended data (e.g. avatars) for the senders.
+		foreach (array_intersect($senders, $loaded) as $sender)
+			loadMemberContext($sender);
+	}
+	elseif (!empty($profiles))
 		loadMemberData($profiles, 'minimal');
 
 	// Now go through and actually make with the text.
@@ -520,6 +537,15 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $show_
 				$alert['extra']['user_name'] = $user_profile[$alert['extra']['user_id']]['real_name'];
 		}
 
+		// If we loaded the sender's profile, we may as well use it.
+		$sender_id = !empty($alert['sender_id']) ? $alert['sender_id'] : 0;
+		if (isset($user_profile[$sender_id]))
+			$alert['sender_name'] = $user_profile[$sender_id]['real_name'];
+
+		// If requested, include the sender's full member data.
+		if ($with_sender && !empty($memberContext[$sender_id]))
+			$alert['sender'] = &$memberContext[$sender_id];
+
 		// Next, build the message strings.
 		foreach ($formats as $msg_type => $format_info)
 		{
@@ -538,11 +564,6 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $show_
 			else
 				$alert['extra'][$msg_type] = '(' . $txt['not_applicable'] . ')';
 		}
-
-		// If we loaded the sender's profile, we may as well use it.
-		$sender_id = !empty($alert['sender_id']) ? $alert['sender_id'] : 0;
-		if (isset($user_profile[$sender_id]))
-			$alert['sender_name'] = $user_profile[$sender_id]['real_name'];
 
 		// Finally, set this alert's text string.
 		$string = 'alert_' . $alert['content_type'] . '_' . $alert['content_action'];
@@ -585,7 +606,7 @@ function showAlerts($memID)
 	{
 		$alert_id = (int) $_REQUEST['alert'];
 
-		$alert = fetch_alerts($memID, $alert_id);
+		$alert = fetch_alerts($memID, $alert_id, 0, 0, false, false);
 
 		if (empty($alert))
 			redirectexit('action=profile;area=showalerts');
@@ -627,7 +648,7 @@ function showAlerts($memID)
 	$count = alert_count($memID);
 
 	// Get the alerts.
-	$context['alerts'] = fetch_alerts($memID, true, $maxIndex, $start, true);
+	$context['alerts'] = fetch_alerts($memID, true, $maxIndex, $start, false, true);
 	$toMark = false;
 	$action = '';
 
