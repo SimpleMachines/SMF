@@ -221,6 +221,7 @@ function summary($memID)
  * @param mixed $to_fetch Alerts to fetch: true/false for all/unread, or a list of one or more IDs.
  * @param array $limit Maximum number of alerts to fetch (0 for no limit).
  * @param array $offset Number of alerts to skip for pagination. Ignored if $to_fetch is a list of IDs.
+ * @param bool $with_sender Whether to load $memberContext data (e.g. avatar) for the alert sender.
  * @param bool $show_links Whether to show links in the constituent parts of the alert meessage.
  * @return array An array of information about the fetched alerts.
  */
