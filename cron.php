@@ -70,6 +70,10 @@ if (file_exists($cachedir . '/cron.lock'))
 // Before we go any further, if this is not a CLI request, we need to do some checking.
 if (!FROM_CLI)
 {
+	// When using sub-domains with SSI and ssi_themes set, browsers will receive a "Access-Control-Allow-Origin" error.
+	// * is not ideal but the best method to preventing this from occurring.
+	header('Access-Control-Allow-Origin: *');
+
 	// We will clean up $_GET shortly. But we want to this ASAP.
 	$ts = isset($_GET['ts']) ? (int) $_GET['ts'] : 0;
 	if ($ts <= 0 || $ts % 15 != 0 || time() - $ts < 0 || time() - $ts > 20)

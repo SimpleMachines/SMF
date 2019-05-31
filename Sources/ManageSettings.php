@@ -2223,7 +2223,7 @@ function ModifyLogSettings($return_config = false)
 		array('check', 'adminlog_enabled', 'help' => 'adminlog'),
 		array('check', 'userlog_enabled', 'help' => 'userlog'),
 		// The error log is a wonderful thing.
-		array('title', 'errlog'),
+		array('title', 'errorlog'),
 		array('desc', 'error_log_desc'),
 		array('check', 'enableErrorLogging'),
 		array('check', 'enableErrorQueryLogging'),
