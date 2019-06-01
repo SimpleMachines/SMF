@@ -244,6 +244,7 @@ $txt['default_language'] = 'Default forum language';
 $txt['maintenance_subject'] = 'Subject for display';
 $txt['maintenance_message'] = 'Message for display';
 
+$txt['errorlog_title'] = 'Error Log Settings';
 $txt['errorlog_desc'] = 'The error log tracks every error encountered by your forum. To delete any errors from the database, mark the checkbox, and click the %1$s button at the bottom of the page.';
 $txt['errorlog_no_entries'] = 'There are currently no error log entries.';
 
