@@ -1034,6 +1034,37 @@ ALTER TABLE {$db_prefix}members
 	DROP notify_announcements;
 ---#
 
+---# Updating obsolete alerts from before RC3
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'member', content_id = id_member_started
+WHERE content_type = 'buddy';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'member'
+WHERE content_type = 'profile';
+
+UPDATE {$db_prefix}user_alerts
+SET content_id = id_member_started
+WHERE content_type = 'member' AND content_action LIKE 'register_%';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'topic', content_action = 'unapproved_topic'
+WHERE content_type = 'unapproved' AND content_action = 'topic';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'topic', content_action = 'unapproved_reply'
+WHERE content_type = 'unapproved' AND content_action = 'reply';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'topic', content_action = 'unapproved_post'
+WHERE content_type = 'unapproved' AND content_action = 'post';
+
+UPDATE {$db_prefix}user_alerts AS a
+SET a.content_type = 'msg', a.content_action = 'unapproved_attachment', a.content_id = f.id_msg
+FROM {$db_prefix}attachments AS f
+WHERE content_type = 'unapproved' AND content_action = 'attachment' AND f.id_attach = a.content_id;
+---#
+
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/

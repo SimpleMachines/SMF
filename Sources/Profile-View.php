@@ -293,15 +293,10 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 			$alerts[$id_alert]['visible'] = false;
 			$possible_msgs[$id_alert] = $row['content_id'];
 		}
-		elseif (in_array($row['content_type'], array('topic', 'board')) || ($row['content_type'] == 'unapproved' && $row['content_action'] == 'post'))
+		elseif (in_array($row['content_type'], array('topic', 'board')))
 		{
 			$alerts[$id_alert]['visible'] = false;
 			$possible_topics[$id_alert] = $row['content_id'];
-		}
-		elseif ($row['content_type'] == 'unapproved' && $row['content_action'] == 'attachment')
-		{
-			$alerts[$id_alert]['visible'] = false;
-			$possible_attachments[$id_alert] = $row['content_id'];
 		}
 		// For the rest, they can always see it.
 		else
@@ -360,7 +355,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		$format_type = str_replace('{scripturl}', $scripturl, $format_type);
 
 	// If we need to check board access, use the correct board access filter for the member in question.
-	if ((!isset($user_info) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics) || !empty($possible_attachments)))
+	if ((!isset($user_info) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
 		$qb = build_query_board($memID);
 	else
 		$qb['query_see_board'] = '{query_see_board}';
@@ -430,38 +425,6 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		}
 		$smcFunc['db_free_result']($request);
 	}
-	if (!empty($possible_attachments))
-	{
-		$flipped_attachments = array();
-		foreach ($possible_attachments as $id_alert => $id_attachment)
-		{
-			if (!isset($flipped_attachments[$id_attachment]))
-				$flipped_attachments[$id_attachment] = array();
-
-			$flipped_attachments[$id_attachment][] = $id_alert;
-		}
-
-		$request = $smcFunc['db_query']('', '
-			SELECT m.id_msg, m.id_topic, m.subject, b.id_board, b.name AS board_name, f.id_attach
-			FROM {db_prefix}attachments AS f
-				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = f.id_msg)
-				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
-			WHERE ' . $qb['query_see_board'] . '
-				AND f.id_attach IN ({array_int:attachments})',
-			array(
-				'attachments' => $possible_attachments,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-		{
-			foreach ($flipped_attachments[$row['id_attach']] as $id_alert)
-			{
-				$alerts[$id_alert]['content_data'] = $row;
-				$alerts[$id_alert]['visible'] = true;
-			}
-		}
-		$smcFunc['db_free_result']($request);
-	}
 
 	// Now to go back through the alerts, reattach this extra information and then try to build the string out of it (if a hook didn't already)
 	foreach ($alerts as $id_alert => $dummy)
@@ -497,7 +460,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 			{
 				if (isset($data['id_' . $item]))
 				{
-					$separator = $item == 'msg' ? '' : '=';
+					$separator = $item == 'msg' ? '=?' : '=';
 
 					if (isset($alert['extra']['content_link']) && strpos($alert['extra']['content_link'], $item . $separator) !== false && strpos($alert['extra']['content_link'], $item . $separator . $data['id_' . $item]) === false)
 					{
@@ -568,6 +531,21 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 
 		// Finally, set this alert's text string.
 		$string = 'alert_' . $alert['content_type'] . '_' . $alert['content_action'];
+
+		// This kludge exists because the alert content_types prior to 2.1 RC3 were a bit haphazard.
+		// This can be removed once all the translated language files have been updated.
+		if (!isset($txt[$string]))
+		{
+			if (strpos($alert['content_action'], 'unapproved_') === 0)
+				$string = 'alert_' . $alert['content_action'];
+
+			if ($alert['content_type'] === 'member' && in_array($alert['content_action'], array('report', 'report_reply')))
+				$string = 'alert_profile_' . $alert['content_action'];
+
+			if ($alert['content_type'] === 'member' && $alert['content_action'] === 'buddy_request')
+				$string = 'alert_buddy_' . $alert['content_action'];
+		}
+
 		if (isset($txt[$string]))
 		{
 			$substitutions = array(
@@ -607,7 +585,7 @@ function showAlerts($memID)
 	{
 		$alert_id = (int) $_REQUEST['alert'];
 
-		$alert = fetch_alerts($memID, $alert_id, 0, 0, false, false);
+		$alert = array_pop(fetch_alerts($memID, $alert_id));
 
 		if (empty($alert))
 			redirectexit('action=profile;area=showalerts');

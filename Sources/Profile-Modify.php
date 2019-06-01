@@ -2358,15 +2358,10 @@ function alert_count($memID, $unread = false)
 			$alerts[$row['id_alert']]['visible'] = false;
 			$possible_msgs[$row['id_alert']] = $row['content_id'];
 		}
-		elseif (in_array($row['content_type'], array('topic', 'board')) || ($row['content_type'] == 'unapproved' && $row['content_action'] == 'post'))
+		elseif (in_array($row['content_type'], array('topic', 'board')))
 		{
 			$alerts[$row['id_alert']]['visible'] = false;
 			$possible_topics[$row['id_alert']] = $row['content_id'];
-		}
-		elseif ($row['content_type'] == 'unapproved' && $row['content_action'] == 'attachment')
-		{
-			$alerts[$row['id_alert']]['visible'] = false;
-			$possible_attachments[$row['id_alert']] = $row['content_id'];
 		}
 		// For the rest, they can always see it.
 		else
@@ -2375,7 +2370,7 @@ function alert_count($memID, $unread = false)
 	$smcFunc['db_free_result']($request);
 
 	// If we need to check board access, use the correct board access filter for the member in question.
-	if ((!isset($user_info) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics) || !empty($possible_attachments)))
+	if ((!isset($user_info) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
 		$qb = build_query_board($memID);
 	else
 	{
@@ -2434,34 +2429,6 @@ function alert_count($memID, $unread = false)
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			foreach ($flipped_topics[$row['id_topic']] as $id_alert)
-				$alerts[$id_alert]['visible'] = true;
-		}
-		$smcFunc['db_free_result']($request);
-	}
-	if (!empty($possible_attachments))
-	{
-		$flipped_attachments = array();
-		foreach ($possible_attachments as $id_alert => $id_attachment)
-		{
-			if (!isset($flipped_attachments[$id_attachment]))
-				$flipped_attachments[$id_attachment] = array();
-
-			$flipped_attachments[$id_attachment][] = $id_alert;
-		}
-
-		$request = $smcFunc['db_query']('', '
-			SELECT f.id_attach
-			FROM {db_prefix}attachments AS f
-				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = f.id_msg)
-			WHERE ' . $qb['query_see_message_board'] . '
-				AND f.id_attach IN ({array_int:attachments})',
-			array(
-				'attachments' => $possible_attachments,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-		{
-			foreach ($flipped_attachments[$row['id_attach']] as $id_alert)
 				$alerts[$id_alert]['visible'] = true;
 		}
 		$smcFunc['db_free_result']($request);
