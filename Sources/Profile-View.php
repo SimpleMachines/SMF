@@ -632,11 +632,17 @@ function showAlerts($memID)
 
 	// Prepare the pagination vars.
 	$maxIndex = 10;
-	$start = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
+	$context['start'] = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
 	$count = alert_count($memID);
 
+	// Fix invalid 'start' offsets.
+	if ($context['start'] > $count)
+		$context['start'] = $count - ($count % $maxIndex);
+	else
+		$context['start'] = $context['start'] - ($context['start'] % $maxIndex);
+
 	// Get the alerts.
-	$context['alerts'] = fetch_alerts($memID, true, $maxIndex, $start, true, true);
+	$context['alerts'] = fetch_alerts($memID, true, $maxIndex, $context['start'], true, true);
 	$toMark = false;
 	$action = '';
 
@@ -644,7 +650,7 @@ function showAlerts($memID)
 	$context['showCheckboxes'] = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1;
 
 	// Create the pagination.
-	$context['pagination'] = constructPageIndex($scripturl . '?action=profile;area=showalerts;u=' . $memID, $start, $count, $maxIndex, false);
+	$context['pagination'] = constructPageIndex($scripturl . '?action=profile;area=showalerts;u=' . $memID, $context['start'], $count, $maxIndex, false);
 
 	// Set some JavaScript for checking all alerts at once.
 	if ($context['showCheckboxes'])
@@ -667,13 +673,13 @@ function showAlerts($memID)
 		$context['alerts'][$id]['quickbuttons'] = array(
 			'delete' => array(
 				'label' => $txt['delete'],
-				'href' => $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=showalerts;do=remove;aid=' . $id . ';' . $context['session_var'] . '=' . $context['session_id'],
+				'href' => $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=showalerts;do=remove;aid=' . $id . ';' . $context['session_var'] . '=' . $context['session_id'] . (!empty($context['start']) ? ';start=' . $context['start'] : ''),
 				'javascript' => 'class="you_sure"',
 				'icon' => 'remove_button'
 			),
 			'mark' => array(
 				'label' => $alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short'],
-				'href' => $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=showalerts;do=' . ($alert['is_read'] != 0 ? 'unread' : 'read') . ';aid=' . $id . ';' . $context['session_var'] . '=' . $context['session_id'],
+				'href' => $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=showalerts;do=' . ($alert['is_read'] != 0 ? 'unread' : 'read') . ';aid=' . $id . ';' . $context['session_var'] . '=' . $context['session_id'] . (!empty($context['start']) ? ';start=' . $context['start'] : ''),
 				'icon' => $alert['is_read'] != 0 ? 'unread_button' : 'read_button',
 			),
 			'view' => array(
@@ -699,7 +705,7 @@ function showAlerts($memID)
 	if (isset($_GET['save']) && !empty($_POST['mark']))
 	{
 		// Get the values.
-		$toMark = array_map('intval', $_POST['mark']);
+		$toMark = array_map('intval', (array) $_POST['mark']);
 
 		// Which action?
 		$action = !empty($_POST['mark_as']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_POST['mark_as'])) : '';
@@ -728,7 +734,7 @@ function showAlerts($memID)
 		$_SESSION['update_message'] = true;
 
 		// Redirect.
-		redirectexit('action=profile;area=showalerts;u=' . $memID);
+		redirectexit('action=profile;area=showalerts;u=' . $memID . (!empty($context['start']) ? ';start=' . $context['start'] : ''));
 	}
 }
 

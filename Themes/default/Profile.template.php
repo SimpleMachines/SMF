@@ -633,6 +633,7 @@ function template_showAlerts()
 						<option value="remove">', $txt['quick_mod_remove'], '</option>
 					</select>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="start" value="', $context['start'], '">
 					<input type="submit" name="req" value="', $txt['quick_mod_go'], '" class="button you_sure">
 				</div>';
 
