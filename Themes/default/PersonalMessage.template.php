@@ -76,7 +76,9 @@ function template_pm_popup()
 		foreach ($context['unread_pms'] as $id_pm => $pm_details)
 			echo '
 			<div class="unread_notify">
-				', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '
+				<div class="unread_notify_image">
+					', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '
+				</div>
 				<div class="details">
 					<div class="subject">', $pm_details['pm_link'], '</div>
 					<div class="sender">

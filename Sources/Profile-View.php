@@ -221,13 +221,13 @@ function summary($memID)
  * @param mixed $to_fetch Alerts to fetch: true/false for all/unread, or a list of one or more IDs.
  * @param array $limit Maximum number of alerts to fetch (0 for no limit).
  * @param array $offset Number of alerts to skip for pagination. Ignored if $to_fetch is a list of IDs.
- * @param bool $with_sender Whether to load $memberContext data (e.g. avatar) for the alert sender.
+ * @param bool $with_avatar Whether to load the avatar of the alert sender.
  * @param bool $show_links Whether to show links in the constituent parts of the alert meessage.
  * @return array An array of information about the fetched alerts.
  */
-function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_sender = true, $show_links = false)
+function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_avatar = false, $show_links = false)
 {
-	global $smcFunc, $txt, $scripturl, $memberContext, $user_info, $user_profile;
+	global $smcFunc, $txt, $scripturl, $user_info, $user_profile, $modSettings, $context;
 
 	// Are we being asked for some specific alerts?
 	$alertIDs = is_bool($to_fetch) ? array() : array_filter(array_map('intval', (array) $to_fetch));
@@ -237,7 +237,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	$unread = $to_fetch === false;
 	$limit = max(0, (int) $limit);
 	$offset = !empty($alertIDs) ? 0 : max(0, (int) $offset);
-	$with_sender = !empty($with_sender);
+	$with_avatar = !empty($with_avatar);
 	$show_links = !empty($show_links);
 
 	// Arrays we'll need.
@@ -250,14 +250,14 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	$possible_attachments = array();
 
 	// Get the basic alert info.
-	// Don't bother joining the members table if we are going to call loadMemberContext() for the senders anyway.
 	$request = $smcFunc['db_query']('', '
 		SELECT a.id_alert, a.alert_time, a.is_read, a.extra,
-			a.content_type, a.content_id, a.content_action,' . ($with_sender ? '
-			a.id_member_started AS sender_id, a.member_name AS sender_name' : '
-			mem.id_member AS sender_id, COALESCE(mem.real_name, a.member_name) AS sender_name') . '
-		FROM {db_prefix}user_alerts AS a' . ($with_sender ? '' : '
-			LEFT JOIN {db_prefix}members AS mem ON (a.id_member_started = mem.id_member)') . '
+			a.content_type, a.content_id, a.content_action,
+			mem.id_member AS sender_id, COALESCE(mem.real_name, a.member_name) AS sender_name' . ($with_avatar ? ',
+			mem.email_address AS sender_email, mem.avatar AS sender_avatar, f.filename AS sender_filename' : '') . '
+		FROM {db_prefix}user_alerts AS a
+			LEFT JOIN {db_prefix}members AS mem ON (a.id_member_started = mem.id_member)' . ($with_avatar ? '
+			LEFT JOIN {db_prefix}attachments AS f ON (mem.id_member = f.id_member)' : '') . '
 		WHERE a.id_member = {int:id_member}' . ($unread ? '
 			AND a.is_read = 0' : '') . (!empty($alertIDs) ? '
 			AND a.id_alert IN ({array_int:alertIDs})' : '') . '
@@ -279,7 +279,13 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		$alerts[$id_alert] = $row;
 
 		if (!empty($row['sender_id']))
-			$senders[] = $row['sender_id'];
+		{
+			$senders[$row['sender_id']] = array(
+				'email' => $row['sender_email'],
+				'avatar' => $row['sender_avatar'],
+				'filename' => $row['sender_filename'],
+			);
+		}
 
 		if ($row['content_type'] == 'profile')
 		{
@@ -308,17 +314,17 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	$smcFunc['db_free_result']($request);
 
 	// Look up member info of anyone we need it for.
-	if ($with_sender)
-	{
-		// We need $user_profile data for all of them.
-		$loaded = loadMemberData(array_merge($profiles, $senders));
-
-		// We only need the extended data (e.g. avatars) for the senders.
-		foreach (array_intersect($senders, $loaded) as $sender)
-			loadMemberContext($sender);
-	}
-	elseif (!empty($profiles))
+	if (!empty($profiles))
 		loadMemberData($profiles, 'minimal');
+
+	// Get the senders' avatars.
+	if ($with_avatar)
+	{
+		foreach ($senders as $sender_id => $sender)
+			$senders[$sender_id]['avatar'] = set_avatar_data($sender);
+
+		$context['avatar_url'] = $modSettings['avatar_url'];
+	}
 
 	// Now go through and actually make with the text.
 	loadLanguage('Alerts');
@@ -506,9 +512,12 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		if (isset($user_profile[$sender_id]))
 			$alert['sender_name'] = $user_profile[$sender_id]['real_name'];
 
-		// If requested, include the sender's full member data.
-		if ($with_sender && !empty($memberContext[$sender_id]))
-			$alert['sender'] = &$memberContext[$sender_id];
+		// If requested, include the sender's avatar data.
+		if ($with_avatar && !empty($senders[$sender_id]))
+			$alert['sender'] = $senders[$sender_id];
+
+		// Set an appropriate icon.
+		$alert['icon'] = set_alert_icon($alert);
 
 		// Next, build the message strings.
 		foreach ($formats as $msg_type => $format_info)
@@ -627,7 +636,7 @@ function showAlerts($memID)
 	$count = alert_count($memID);
 
 	// Get the alerts.
-	$context['alerts'] = fetch_alerts($memID, true, $maxIndex, $start, false, true);
+	$context['alerts'] = fetch_alerts($memID, true, $maxIndex, $start, true, true);
 	$toMark = false;
 	$action = '';
 
@@ -658,17 +667,22 @@ function showAlerts($memID)
 		$context['alerts'][$id]['quickbuttons'] = array(
 			'delete' => array(
 				'label' => $txt['delete'],
-				'href' => $scripturl.'?action=profile;u='.$context['id_member'].';area=showalerts;do=remove;aid='.$id.';'.$context['session_var'].'='.$context['session_id'],
+				'href' => $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=showalerts;do=remove;aid=' . $id . ';' . $context['session_var'] . '=' . $context['session_id'],
 				'javascript' => 'class="you_sure"',
 				'icon' => 'remove_button'
 			),
 			'mark' => array(
 				'label' => $alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short'],
-				'href' => $scripturl.'?action=profile;u='.$context['id_member'].';area=showalerts;do='.($alert['is_read'] != 0 ? 'unread' : 'read').';aid='.$id.';'.$context['session_var'].'='.$context['session_id'],
+				'href' => $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=showalerts;do=' . ($alert['is_read'] != 0 ? 'unread' : 'read') . ';aid=' . $id . ';' . $context['session_var'] . '=' . $context['session_id'],
 				'icon' => $alert['is_read'] != 0 ? 'unread_button' : 'read_button',
 			),
+			'view' => array(
+				'label' => $txt['view'],
+				'href' => $scripturl . '?action=profile;area=showalerts;alert=' . $id . ';',
+				'icon' => 'move',
+			),
 			'quickmod' => array(
-				'content' => '<input type="checkbox" name="mark['.$id.']" value="'.$id.'">',
+				'content' => '<input type="checkbox" name="mark[' . $id . ']" value="' . $id . '">',
 				'show' => $context['showCheckboxes']
 			)
 		);
@@ -3260,6 +3274,156 @@ function viewWarning($memID)
 	foreach ($context['level_effects'] as $limit => $dummy)
 		if ($context['member']['warning'] >= $limit)
 			$context['current_level'] = $limit;
+}
+
+/**
+ * Sets the icon for a fetched alert.
+ *
+ * @param array The alert that we want to set an icon for.
+ */
+function set_alert_icon(&$alert)
+{
+	global $settings;
+
+	switch ($alert['content_type'])
+	{
+		case 'topic':
+		case 'board':
+			{
+				switch ($alert['content_action'])
+				{
+					case 'reply':
+					case 'topic':
+						$class = 'main_icons posts';
+						break;
+
+					case 'move':
+						$src = $settings['images_url'] . '/post/moved.png';
+						break;
+
+					case 'remove':
+						$class = 'main_icons delete';
+						break;
+
+					case 'lock':
+					case 'unlock':
+						$class = 'main_icons lock';
+						break;
+
+					case 'sticky':
+					case 'unsticky':
+						$class = 'main_icons sticky';
+						break;
+
+					case 'split':
+						$class = 'main_icons split_button';
+						break;
+
+					case 'merge':
+						$class = 'main_icons merge';
+						break;
+
+					case 'unapproved_topic':
+					case 'unapproved_post':
+						$class = 'main_icons post_moderation_moderate';
+						break;
+
+					default:
+						$class = 'main_icons posts';
+						break;
+				}
+			}
+			break;
+
+		case 'msg':
+			{
+				switch ($alert['content_action'])
+				{
+					case 'like':
+						$class = 'main_icons like';
+						break;
+
+					case 'mention':
+						$class = 'main_icons im_on';
+						break;
+
+					case 'quote':
+						$class = 'main_icons quote';
+						break;
+
+					case 'unapproved_attachment':
+						$class = 'main_icons post_moderation_attach';
+						break;
+
+					case 'report':
+					case 'report_reply':
+						$class = 'main_icons post_moderation_moderate';
+						break;
+
+					default:
+						$class = 'main_icons posts';
+						break;
+				}
+			}
+			break;
+
+		case 'member':
+			{
+				switch ($alert['content_action'])
+				{
+					case 'register_standard':
+					case 'register_approval':
+					case 'register_activation':
+						$class = 'main_icons members';
+						break;
+
+					case 'report':
+					case 'report_reply':
+						$class = 'main_icons members_watched';
+						break;
+
+					case 'buddy_request':
+						$class = 'main_icons people';
+						break;
+
+					case 'group_request':
+						$class = 'main_icons members_request';
+						break;
+
+					default:
+						$class = 'main_icons members';
+						break;
+				}
+			}
+			break;
+
+		case 'groupr':
+			$class = 'main_icons members_request';
+			break;
+
+		case 'event':
+			$class = 'main_icons calendar';
+			break;
+
+		case 'paidsubs':
+			$class = 'main_icons paid';
+			break;
+
+		case 'birthday':
+			$src = $settings['images_url'] . '/cake.png';
+			break;
+
+		default:
+			$class = 'main_icons alerts';
+			break;
+	}
+
+	if (isset($class))
+		return '<span class="alert_icon ' . $class . '"></span>';
+	elseif (isset($src))
+		return '<img class="alert_icon" src="' . $src . '">';
+	else
+		return '';
 }
 
 ?>

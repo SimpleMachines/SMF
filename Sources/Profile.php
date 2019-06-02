@@ -873,7 +873,7 @@ function alerts_popup($memID)
 	{
 		// Now fetch me my unread alerts, pronto!
 		require_once($sourcedir . '/Profile-View.php');
-		$context['unread_alerts'] = fetch_alerts($memID, false, !empty($counter) ? $cur_profile['alerts'] - $counter : 0, 0, !isset($_REQUEST['counter']), false);
+		$context['unread_alerts'] = fetch_alerts($memID, false, !empty($counter) ? $cur_profile['alerts'] - $counter : 0, 0, !isset($_REQUEST['counter']));
 
 		// This shouldn't happen, but just in case...
 		if (empty($counter) && $cur_profile['alerts'] != count($context['unread_alerts']))

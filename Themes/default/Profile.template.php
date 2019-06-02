@@ -105,13 +105,18 @@ function template_alerts_popup()
 	else
 	{
 		foreach ($context['unread_alerts'] as $id_alert => $details)
+		{
 			echo '
 			<', !$details['show_links'] ? 'a href="' . $scripturl . '?action=profile;area=showalerts;alert=' . $id_alert . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="unread_notify">
-				', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '
+				<div class="unread_notify_image">
+					', empty($details['sender']['avatar']['image']) ? '' : $details['sender']['avatar']['image'] . '
+					', $details['icon'], '
+				</div>
 				<div class="details">
 					<span class="alert_text">', $details['text'], '</span> - <span class="alert_time">', $details['time'], '</span>
 				</div>
 			</', !$details['show_links'] ? 'a' : 'div', '>';
+		}
 	}
 
 	echo '
@@ -588,12 +593,19 @@ function template_showAlerts()
 		{
 			echo '
 				<tr class="windowbg">
-					<td class="alert_text">
-						<a href="', $scripturl, '?action=profile;area=showalerts;alert=', $id, '"><span class="main_icons move"></span></a>
-						', $alert['text'], '
-						<span class="alert_inline_time"><span class="main_icons time_online"></span> ', $alert['time'], '</span>
+					<td class="alert_image">
+						<div>
+							', empty($alert['sender']['avatar']['image']) ? '' : $alert['sender']['avatar']['image'] . '
+							', $alert['icon'], '
+						</div>
 					</td>
-					<td class="alert_time">', $alert['time'], '</td>
+					<td class="alert_text">
+						<div>', $alert['text'], '</div>
+						<time class="alert_inline_time" datetime="', $alert['alert_time'], '">', $alert['time'], '</time>
+					</td>
+					<td class="alert_time">
+						<time datetime="', $alert['alert_time'], '">', $alert['time'], '</time>
+					</td>
 					<td class="alert_buttons">';
 
 			// Alert options
