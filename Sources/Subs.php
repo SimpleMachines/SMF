@@ -3334,7 +3334,7 @@ function get_proxied_url($url)
 		return strtr($url, array('http://' => 'https://'));
 
 	// By default, use SMF's own image proxy script
-	$proxied_url = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($url) . '&hash=' . md5($url . $image_proxy_secret);
+	$proxied_url = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($url) . '&hash=' . hash_hmac('sha1', $url, $image_proxy_secret);
 
 	// Allow mods to easily implement an alternative proxy
 	// MOD AUTHORS: To add settings UI for your proxy, use the integrate_general_settings hook.
