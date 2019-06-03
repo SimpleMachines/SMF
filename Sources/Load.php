@@ -3010,7 +3010,7 @@ function getLanguages($use_cache = true)
 			while ($entry = $dir->read())
 			{
 				// Look for the index language file... For good measure skip any "index.language-utf8.php" files
-				if (!preg_match('~^index\.(.+[^-utf8])\.php$~', $entry, $matches))
+				if (!preg_match('~^index\.((?:.(?!-utf8))+)\.php$~', $entry, $matches))
 					continue;
 
 				if (!empty($langList) && !empty($langList[$matches[1]]))
@@ -3033,6 +3033,10 @@ function getLanguages($use_cache = true)
 							// Set the language's name.
 							if (!empty($matchNative) && !empty($matchNative[1]))
 							{
+								// Don't mislabel the language if the translator missed this one.
+								if ($langName !== 'English' && $matchNative[1] === 'English')
+									break;
+
 								$langName = un_htmlspecialchars($matchNative[1]);
 								break;
 							}
