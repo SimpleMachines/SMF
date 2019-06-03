@@ -440,6 +440,16 @@ function ModifyProfile($post_errors = array())
 						'any' => array('moderate_forum'),
 					),
 				),
+				// A logout link just for the popup menu.
+				'logout' => array(
+					'label' => $txt['logout'],
+					'custom_url' => $scripturl . '?action=logout;%1$s=%2$s',
+					'enabled' => !empty($_REQUEST['area']) && $_REQUEST['area'] === 'popup',
+					'permission' => array(
+						'own' => array('is_not_guest'),
+						'any' => array(),
+					),
+				),
 			),
 		),
 	);
@@ -481,6 +491,9 @@ function ModifyProfile($post_errors = array())
 			'u' => $context['id_member'],
 		),
 	);
+
+	// Logging out requires the session id in the url.
+	$profile_areas['profile_action']['areas']['logout']['custom_url'] = sprintf($profile_areas['profile_action']['areas']['logout']['custom_url'], $context['session_var'], $context['session_id']);
 
 	// Actually create the menu!
 	$profile_include_data = createMenu($profile_areas, $menuOptions);
@@ -830,6 +843,10 @@ function profile_popup($memID)
 		array(
 			'menu' => 'profile_action',
 			'area' => 'subscriptions',
+		),
+		array(
+			'menu' => 'profile_action',
+			'area' => 'logout',
 		),
 	);
 
