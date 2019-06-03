@@ -259,8 +259,8 @@ function EditCategory()
 		$context['category'] = array(
 			'id' => $_REQUEST['cat'],
 			'name' => $cat_tree[$_REQUEST['cat']]['node']['name'],
-			'editable_name' => html_to_bbc($cat_tree[$_REQUEST['cat']]['node']['name']),
-			'description' => html_to_bbc($cat_tree[$_REQUEST['cat']]['node']['description']),
+			'editable_name' => $cat_tree[$_REQUEST['cat']]['node']['name'],
+			'description' => $cat_tree[$_REQUEST['cat']]['node']['description'],
 			'can_collapse' => !empty($cat_tree[$_REQUEST['cat']]['node']['can_collapse']),
 			'children' => array(),
 			'is_empty' => empty($cat_tree[$_REQUEST['cat']]['children'])
