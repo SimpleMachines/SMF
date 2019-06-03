@@ -247,7 +247,6 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	$profile_alerts = array();
 	$possible_msgs = array();
 	$possible_topics = array();
-	$possible_attachments = array();
 
 	// Get the basic alert info.
 	$request = $smcFunc['db_query']('', '
@@ -310,6 +309,9 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 
 		// Are we showing multiple links or one big main link ?
 		$alerts[$id_alert]['show_links'] = $show_links || (isset($row['extra']['show_links']) && $row['extra']['show_links']);
+
+		// Set an appropriate icon.
+		$alerts[$id_alert]['icon'] = set_alert_icon($alerts[$id_alert]);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -435,13 +437,6 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	// Now to go back through the alerts, reattach this extra information and then try to build the string out of it (if a hook didn't already)
 	foreach ($alerts as $id_alert => $dummy)
 	{
-		// Did a mod already take care of this one?
-		if (!empty($alerts[$id_alert]['text']))
-		{
-			unset($alerts[$id_alert]['visible']);
-			continue;
-		}
-
 		// There's no point showing alerts for inaccessible content.
 		if (!$alerts[$id_alert]['visible'])
 		{
@@ -450,6 +445,10 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		}
 		else
 			unset($alerts[$id_alert]['visible']);
+
+		// Did a mod already take care of this one?
+		if (!empty($alerts[$id_alert]['text']))
+			continue;
 
 		// For developer convenience.
 		$alert = &$alerts[$id_alert];
@@ -515,9 +514,6 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		// If requested, include the sender's avatar data.
 		if ($with_avatar && !empty($senders[$sender_id]))
 			$alert['sender'] = $senders[$sender_id];
-
-		// Set an appropriate icon.
-		$alert['icon'] = set_alert_icon($alert);
 
 		// Next, build the message strings.
 		foreach ($formats as $msg_type => $format_info)
@@ -594,7 +590,7 @@ function showAlerts($memID)
 	{
 		$alert_id = (int) $_REQUEST['alert'];
 
-		$alert = array_pop(fetch_alerts($memID, $alert_id));
+		$alert = array_pop(($alerts = fetch_alerts($memID, $alert_id)));
 
 		if (empty($alert))
 			redirectexit('action=profile;area=showalerts');
@@ -3287,7 +3283,7 @@ function viewWarning($memID)
  *
  * @param array The alert that we want to set an icon for.
  */
-function set_alert_icon(&$alert)
+function set_alert_icon($alert)
 {
 	global $settings;
 
