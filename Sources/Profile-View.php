@@ -278,7 +278,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		$row['extra'] = !empty($row['extra']) ? $smcFunc['json_decode']($row['extra'], true) : array();
 		$alerts[$id_alert] = $row;
 
-		if (!empty($row['sender_id']))
+		if (!empty($row['sender_email']))
 		{
 			$senders[$row['sender_id']] = array(
 				'email' => $row['sender_email'],
