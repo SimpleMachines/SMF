@@ -310,32 +310,38 @@ if (@$modSettings['smfVersion'] < '2.1')
 ---{
 if (@$modSettings['smfVersion'] < '2.1')
 {
-	$request = $smcFunc['db_query']('', '
-		SELECT name, description, id
-		FROM {db_prefix}boards');
+    $request = $smcFunc['db_query']('', '
+        SELECT name, description, id_board
+        FROM {db_prefix}boards');
 
-	$inserts = array();
-        while ($row = $smcFunc['db_fetch_assoc']($request))
-		$inserts[] = array(
-		    'name' => strip_tags(html_to_bbc($row['name'])),
+    $inserts = array();
+
+    $smcFunc['db_free_result']($request);
+
+    while ($row = $smcFunc['db_fetch_assoc']($request))
+    {
+        $inserts[] = array(
+            'name' => strip_tags(html_to_bbc($row['name'])),
             'description' => strip_tags(html_to_bbc($row['description'])),
             'id' => $row['id'],
         );
+    }
 
-	$smcFunc['db_free_result']($request);
-
-	if (!empty($inserts))
-		foreach ($inserts as $insert)
+    if (!empty($inserts))
+    {
+        foreach ($inserts as $insert)
+        {
             $smcFunc['db_query']('', '
                 UPDATE {db_prefix}boards
                 SET name = {string:name}, description = {string:description}
                 WHERE id = {int:id}',
                 $insert
             );
+        }
+    }
 }
 ---}
 ---#
-
 
 ---# Dropping "collapsed_categories"
 DROP TABLE IF EXISTS {$db_prefix}collapsed_categories;
