@@ -321,8 +321,8 @@ if (@$modSettings['smfVersion'] < '2.1')
     while ($row = $smcFunc['db_fetch_assoc']($request))
     {
         $inserts[] = array(
-            'name' => strip_tags(html_to_bbc($row['name'])),
-            'description' => strip_tags(html_to_bbc($row['description'])),
+            'name' => $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['name']))),
+            'description' => $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['description']))),
             'id' => $row['id'],
         );
     }
