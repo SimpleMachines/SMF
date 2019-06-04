@@ -317,7 +317,8 @@ class Attachments
 		global $txt, $user_info, $modSettings;
 
 		// Create an empty session var to keep track of all the files we attached.
-		$_SESSION['already_attached'] = array();
+		if (!isset($_SESSION['already_attached']))
+			$_SESSION['already_attached'] = array();
 
 		foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 		{

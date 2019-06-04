@@ -80,11 +80,11 @@ $cookiename = 'SMFCookie11';
 $db_type = 'mysql';
 /**
  * The database port
- * Default options: 3306 for mysql, 5432 for postgresql
+ * 0 to use default port for the database type
  *
  * @var int
  */
-$db_port = 3306;
+$db_port = 0;
 /**
  * The server to connect to (or a Unix socket)
  *

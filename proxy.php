@@ -104,7 +104,7 @@ class ProxyServer
 		$hash = $_GET['hash'];
 		$request = $_GET['request'];
 
-		if (md5($request . $this->secret) != $hash)
+		if (hash_hmac('sha1', $request, $this->secret) != $hash)
 			return false;
 
 		// Ensure any non-ASCII characters in the URL are encoded correctly

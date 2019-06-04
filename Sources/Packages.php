@@ -1099,8 +1099,8 @@ function PackageInstall()
 			{
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}log_packages
-					SET install_state = {int:not_installed}, member_removed = {string:member_name}, id_member_removed = {int:current_member},
-						time_removed = {int:current_time}
+					SET install_state = {int:not_installed}, member_removed = {string:member_name},
+						id_member_removed = {int:current_member}, time_removed = {int:current_time}
 					WHERE package_id = {string:package_id}
 						AND id_install = {int:install_id}',
 					array(
@@ -1118,6 +1118,23 @@ function PackageInstall()
 			{
 				$is_upgrade = true;
 				$old_db_changes = empty($row['db_changes']) ? array() : $smcFunc['json_decode']($row['db_changes'], true);
+
+				// Mark the old version as uninstalled
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}log_packages
+					SET install_state = {int:not_installed}, member_removed = {string:member_name},
+						id_member_removed = {int:current_member}, time_removed = {int:current_time}
+					WHERE package_id = {string:package_id}
+						AND version = {string:old_version}',
+					array(
+						'current_member' => $user_info['id'],
+						'not_installed' => 0,
+						'current_time' => time(),
+						'package_id' => $row['package_id'],
+						'member_name' => $user_info['name'],
+						'old_version' => $old_version,
+					)
+				);
 			}
 		}
 
@@ -1136,21 +1153,14 @@ function PackageInstall()
 			{
 				// We're really just checking for entries which are create table AND add columns (etc).
 				$tables = array();
-				/**
-				 * Table sorting function used in usort
-				 *
-				 * @param array $a
-				 * @param array $b
-				 * @return int
-				 */
-				function sort_table_first($a, $b)
+
+				usort($db_package_log, function ($a, $b)
 				{
 					if ($a[0] == $b[0])
 						return 0;
 					return $a[0] == 'remove_table' ? -1 : 1;
-				}
+				});
 
-				usort($db_package_log, 'sort_table_first');
 				foreach ($db_package_log as $k => $log)
 				{
 					if ($log[0] == 'remove_table')

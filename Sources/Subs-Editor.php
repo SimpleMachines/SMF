@@ -1510,6 +1510,7 @@ function create_control_richedit($editorOptions)
 	// Load the Post language file... for the moment at least.
 	loadLanguage('Post');
 	loadLanguage('Editor');
+	loadLanguage('Drafts');
 
 	$context['richedit_buttons'] = array(
 		'save_draft' => array(
