@@ -48,7 +48,7 @@ class curl_fetch_web_data
 		CURLOPT_RETURNTRANSFER	=> 1, // Get returned value as a string (don't output it)
 		CURLOPT_HEADER			=> 1, // We need the headers to do our own redirect
 		CURLOPT_FOLLOWLOCATION	=> 0, // Don't follow, we will do it ourselves so safe mode and open_basedir will dig it
-		CURLOPT_USERAGENT		=> 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:11.0) Gecko Firefox/11.0', // set a normal looking useragent
+		CURLOPT_USERAGENT		=> SMF_USER_AGENT, // set a normal looking useragent
 		CURLOPT_CONNECTTIMEOUT	=> 15, // Don't wait forever on a connection
 		CURLOPT_TIMEOUT			=> 90, // A page should load in this amount of time
 		CURLOPT_MAXREDIRS		=> 5, // stop after this many redirects
