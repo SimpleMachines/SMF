@@ -2389,17 +2389,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 										'localhost' .
 										// or
 										'|' .
-										// a run of Unicode domain name characters and a dot
-										'[\p{L}\p{M}\p{N}\-.:@]+\.' .
-										// and then a TLD
-										'(?:' .
-											// Either a TLD valid in the DNS
-											'(?P>tlds)' .
-											// or
-											'|' .
-											// the reserved "local" TLD
-											'local' .
-										')' .
+										// a run of IRI characters, a dot, and a TLD
+										'[\p{L}\p{M}\p{N}\-.:@]+\.(?P>tlds)' .
 									')' .
 									// followed by a non-domain character or end of line
 									'(?=[^\p{L}\p{N}\-.]|$)' .
@@ -6384,12 +6375,14 @@ function smf_serverResponse($data = '', $type = 'content-type: application/json'
  *
  * The optimized regex is stored in $modSettings['tld_regex'].
  *
- * To update the stored version of the regex to use the latest list of valid TLDs from iana.org, set
- * the $update parameter to true. Updating can take some time, based on network connectivity, so it
- * should normally only be done by calling this function from a background or scheduled task.
+ * To update the stored version of the regex to use the latest list of valid
+ * TLDs from iana.org, set the $update parameter to true. Updating can take some
+ * time, based on network connectivity, so it should normally only be done by
+ * calling this function from a background or scheduled task.
  *
- * If $update is not true, but the regex is missing or invalid, the regex will be regenerated from a
- * hard-coded list of TLDs. This regenerated regex will be overwritten on the next scheduled update.
+ * If $update is not true, but the regex is missing or invalid, the regex will
+ * be regenerated from a hard-coded list of TLDs. This regenerated regex will be
+ * overwritten on the next scheduled update.
  *
  * @param bool $update If true, fetch and process the latest official list of TLDs from iana.org.
  */
@@ -6486,6 +6479,10 @@ function set_tld_regex($update = false)
 			);
 		}
 	}
+
+	// Tack on some "special use domain names" that aren't in DNS but may possibly resolve.
+	// See https://www.iana.org/assignments/special-use-domain-names/ for more info.
+	$tlds = array_merge($tlds, array('local', 'onion', 'test'));
 
 	// Get an optimized regex to match all the TLDs
 	$tld_regex = build_regex($tlds);
