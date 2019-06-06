@@ -1380,7 +1380,7 @@ function scheduled_paid_subscriptions()
 				'is_read' => 0,
 				'extra' => $smcFunc['json_encode'](array(
 					'subscription_name' => $row['name'],
-					'end_time' => strip_tags(timeformat($row['end_time'])),
+					'end_time' => $row['end_time'],
 				)),
 			);
 			updateMemberData($row['id_member'], array('alerts' => '+'));
