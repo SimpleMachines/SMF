@@ -534,6 +534,10 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 				$alert['extra'][$msg_type] = '(' . $txt['not_applicable'] . ')';
 		}
 
+		// If the subscription already expired, say so.
+		if ($alert['content_type'] == 'paidsubs' && isset($alert['extra']['end_time']) && strtotime($alert['extra']['end_time']) < forum_time())
+			$alert['content_action'] = 'expired';
+
 		// Finally, set this alert's text string.
 		$string = 'alert_' . $alert['content_type'] . '_' . $alert['content_action'];
 
