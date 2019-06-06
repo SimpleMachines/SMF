@@ -6497,18 +6497,22 @@ function set_tld_regex($update = false)
 /**
  * Creates optimized regular expressions from an array of strings.
  *
- * An optimized regex built using this function will be much faster than a simple regex built using
- * `implode('|', $strings)` --- anywhere from several times to several orders of magnitude faster.
+ * An optimized regex built using this function will be much faster than a
+ * simple regex built using `implode('|', $strings)` --- anywhere from several
+ * times to several orders of magnitude faster.
  *
- * However, the time required to build the optimized regex is approximately equal to the time it
- * takes to execute the simple regex. Therefore, it is only worth calling this function if the
- * resulting regex will be used more than once.
+ * However, the time required to build the optimized regex is approximately
+ * equal to the time it takes to execute the simple regex. Therefore, it is only
+ * worth calling this function if the resulting regex will be used more than
+ * once.
  *
- * Because PHP places an upper limit on the allowed length of a regex, very large arrays of $strings
- * may not fit in a single regex. Normally, the excess strings will simply be dropped. However, if
- * the $returnArray parameter is set to true, this function will build as many regexes as necessary
- * to accommodate everything in $strings and return them in an array. You will need to iterate
- * through all elements of the returned array in order to test all possible matches.
+ * Because PHP places an upper limit on the allowed length of a regex, very
+ * large arrays of $strings may not fit in a single regex. Normally, the excess
+ * strings will simply be dropped. However, if the $returnArray parameter is set
+ * to true, this function will build as many regexes as necessary to accommodate
+ * everything in $strings and return them in an array. You will need to iterate
+ * through all elements of the returned array in order to test all possible
+ * matches.
  *
  * @param array $strings An array of strings to make a regex for.
  * @param string $delim An optional delimiter character to pass to preg_quote().
@@ -6518,6 +6522,10 @@ function set_tld_regex($update = false)
 function build_regex($strings, $delim = null, $returnArray = false)
 {
 	global $smcFunc;
+
+	// If it's not an array, there's not much to do. ;)
+	if (!is_array($strings))
+		return preg_quote(@strval($strings), $delim);
 
 	// The mb_* functions are faster than the $smcFunc ones, but may not be available
 	if (function_exists('mb_internal_encoding') && function_exists('mb_detect_encoding') && function_exists('mb_strlen') && function_exists('mb_substr'))
@@ -6543,7 +6551,21 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		static $depth = 0;
 		$depth++;
 
-		$first = $substr($string, 0, 1);
+		$first = @$substr($string, 0, 1);
+
+		// No first character? That's no good.
+		if (empty($first))
+		{
+			// A nested array? Really? Ugh. Fine.
+			if (is_array($string))
+			{
+				foreach ($string as $str)
+					$index = $add_string_to_index($str, $index);
+			}
+
+			$depth--;
+			return $index;
+		}
 
 		if (empty($index[$first]))
 			$index[$first] = array();
