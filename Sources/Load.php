@@ -2994,12 +2994,6 @@ function getLanguages($use_cache = true)
 		// Remove any duplicates.
 		$language_directories = array_unique($language_directories);
 
-		// Get a list of languages.
-		$langList = !empty($modSettings['langList']) ? $smcFunc['json_decode']($modSettings['langList'], true) : array();
-		$langList = is_array($langList) ? $langList : false;
-
-		$catchLang = array();
-
 		foreach ($language_directories as $language_dir)
 		{
 			// Can't look in here... doesn't exist!
@@ -3013,40 +3007,31 @@ function getLanguages($use_cache = true)
 				if (!preg_match('~^index\.((?:.(?!-utf8))+)\.php$~', $entry, $matches))
 					continue;
 
-				if (!empty($langList) && !empty($langList[$matches[1]]))
-					$langName = $langList[$matches[1]];
+				$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
 
-				else
+				// Get the line we need.
+				$fp = @fopen($language_dir . '/' . $entry, 'r');
+
+				// Yay!
+				if ($fp)
 				{
-					$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
-
-					// Get the line we need.
-					$fp = @fopen($language_dir . '/' . $entry, 'r');
-
-					// Yay!
-					if ($fp)
+					while (($line = fgets($fp)) !== false)
 					{
-						while (($line = fgets($fp)) !== false)
+						preg_match('~\$txt\[\'native_name\'\] = \'(.+)\'\;~', $line, $matchNative);
+
+						// Set the language's name.
+						if (!empty($matchNative) && !empty($matchNative[1]))
 						{
-							preg_match('~\$txt\[\'native_name\'\] = \'(.+)\'\;~', $line, $matchNative);
-
-							// Set the language's name.
-							if (!empty($matchNative) && !empty($matchNative[1]))
-							{
-								// Don't mislabel the language if the translator missed this one.
-								if ($langName !== 'English' && $matchNative[1] === 'English')
-									break;
-
-								$langName = un_htmlspecialchars($matchNative[1]);
+							// Don't mislabel the language if the translator missed this one.
+							if ($langName !== 'English' && $matchNative[1] === 'English')
 								break;
-							}
-						}
 
-						fclose($fp);
+							$langName = un_htmlspecialchars($matchNative[1]);
+							break;
+						}
 					}
 
-					// Catch the language name.
-					$catchLang[$matches[1]] = $langName;
+					fclose($fp);
 				}
 
 				// Build this language entry.
@@ -3059,10 +3044,6 @@ function getLanguages($use_cache = true)
 			}
 			$dir->close();
 		}
-
-		// Do we need to store the lang list?
-		if (empty($langList))
-			updateSettings(array('langList' => $smcFunc['json_encode']($catchLang)));
 
 		// Let's cash in on this deal.
 		if (!empty($modSettings['cache_enable']))
