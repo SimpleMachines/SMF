@@ -480,7 +480,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 				$alert['extra']['content_link'] = preg_replace($patterns, $replacements, $alert['extra']['content_link']);
 
 			// Make sure the subject is correct.
-			if (isset($alert['extra']['content_subject'], $data['subject']))
+			if (isset($data['subject']))
 				$alert['extra']['content_subject'] = $data['subject'];
 
 			// Keep track of this so we can use it below.
