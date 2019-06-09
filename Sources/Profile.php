@@ -866,18 +866,17 @@ function alerts_popup($memID)
 	$context['template_layers'] = array();
 
 	// No funny business allowed
-	$fetch_all = !isset($_REQUEST['counter']);
-	$_REQUEST['counter'] = isset($_REQUEST['counter']) ? max(0, (int) $_REQUEST['counter']) : 0;
+	$counter = isset($_REQUEST['counter']) ? max(0, (int) $_REQUEST['counter']) : 0;
 
 	$context['unread_alerts'] = array();
-	if ($fetch_all || $_REQUEST['counter'] < $cur_profile['alerts'])
+	if ($counter < $cur_profile['alerts'])
 	{
 		// Now fetch me my unread alerts, pronto!
 		require_once($sourcedir . '/Profile-View.php');
-		$context['unread_alerts'] = fetch_alerts($memID, false, $fetch_all ? null : $cur_profile['alerts'] - $_REQUEST['counter']);
+		$context['unread_alerts'] = fetch_alerts($memID, false, !empty($counter) ? $cur_profile['alerts'] - $counter : 0, 0, !isset($_REQUEST['counter']));
 
 		// This shouldn't happen, but just in case...
-		if ($fetch_all && $cur_profile['alerts'] != count($context['unread_alerts']))
+		if (empty($counter) && $cur_profile['alerts'] != count($context['unread_alerts']))
 			updateMemberData($memID, array('alerts' => count($context['unread_alerts'])));
 	}
 }

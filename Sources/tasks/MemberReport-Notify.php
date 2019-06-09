@@ -63,7 +63,7 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 					'id_member' => $member,
 					'id_member_started' => $this->_details['sender_id'],
 					'member_name' => $this->_details['sender_name'],
-					'content_type' => 'profile',
+					'content_type' => 'member',
 					'content_id' => $this->_details['user_id'],
 					'content_action' => 'report',
 					'is_read' => 0,
