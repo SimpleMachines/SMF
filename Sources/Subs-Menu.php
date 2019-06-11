@@ -89,6 +89,7 @@ function createMenu($menuData, $menuOptions = array())
 		$menu_context['extra_parameters'] .= ';' . $context['session_var'] . '=' . $context['session_id'];
 
 	$include_data = array();
+	$menu_context['sections'] = array();
 
 	// Now setup the context correctly.
 	foreach ($menuData as $section_id => $section)
