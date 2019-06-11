@@ -288,12 +288,16 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
  *
  * if the member's post number is updated, updates their post groups.
  *
- * @param mixed $members An array of member IDs, null to update this for all members or the ID of a single member
+ * @param mixed $members An array of member IDs, the ID of a single member, or null to update this for all members
  * @param array $data The info to update for the members
  */
 function updateMemberData($members, $data)
 {
 	global $modSettings, $user_info, $smcFunc, $sourcedir;
+
+	// An empty array means there's nobody to update.
+	if ($members === array())
+		return;
 
 	$parameters = array();
 	if (is_array($members))

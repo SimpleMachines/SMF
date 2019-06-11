@@ -61,7 +61,7 @@ class Register_Notify_Background extends SMF_BackgroundTask
 					'id_member_started' => $this->_details['new_member_id'],
 					'member_name' => $this->_details['new_member_name'],
 					'content_type' => 'member',
-					'content_id' => 0,
+					'content_id' => $this->_details['new_member_id'],
 					'content_action' => 'register_' . $this->_details['notify_type'],
 					'is_read' => 0,
 					'extra' => '',

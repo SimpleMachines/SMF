@@ -838,14 +838,31 @@ img.sort, .sort {
 	width: 40px;
 	height: 40px;
 	object-fit: scale-down;
-	margin-right: 4px;
+	margin: 4px 4px 4px 0;
 	display: inline-block;
 	color: transparent; /* For broken images */
+	vertical-align: bottom;
+}
+.unread_notify_image {
+	position: relative;
+	width: 44px;
+	margin-right: 4px;
+	text-align: center;
+}
+.unread_notify_image span.alert_icon {
+	display: block;
+	line-height: 1em;
+}
+.unread_notify_image .avatar + .alert_icon {
+	width: auto;
+	position: absolute;
+	right: 0;
+	top: 0;
 }
 .unread_notify .details {
 	display: inline-block;
 	vertical-align: top;
-	max-width: calc(100% - 44px);
+	max-width: calc(100% - 48px);
 }
 #pm_menu .subject {
 	font-weight: bold;
@@ -2572,6 +2589,39 @@ dl.addrules dt.floatleft {
 #alerts .alert_inline_time {
 	display: none;
 }
+#alerts .quickbuttons {
+	display: flex;
+	margin: 4px 0;
+}
+#alerts .quickbuttons li, #alerts .alert_time {
+	white-space: nowrap;
+}
+#alerts .alert_image {
+	width: 65px;
+	padding: 6px 0;
+	text-align: center;
+	vertical-align: middle;
+}
+#alerts .alert_image > div {
+	position: relative;
+}
+#alerts .alert_image .avatar {
+	max-width: 80%;
+	max-height: 80%;
+	margin-top: 4px;
+	vertical-align: bottom;
+}
+#alerts .alert_image span.alert_icon {
+	display: block;
+	width: 100%;
+	line-height: 1em;
+}
+#alerts .alert_image .avatar + .alert_icon {
+	width: auto;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
 
 /* Styles for the memberlist section.
 ------------------------------------------------- */
@@ -3854,10 +3904,6 @@ h3.profile_hd {
 }
 .alternative2 {
 	background-color: #e8edf0;
-}
-
-#alerts tr.windowbg td {
-	border-right: 1px solid #ddd;
 }
 
 .centerbox {

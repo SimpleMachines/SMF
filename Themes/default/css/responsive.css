@@ -4,6 +4,12 @@
 		width: 20%;
 		margin: 3px 0 0 5px;
 	}
+	#alerts .alert_time {
+		display: none;
+	}
+	#alerts .alert_inline_time {
+		display: block;
+	}
 }
 
 /* Still not enough data or people to test this... */
@@ -14,6 +20,12 @@
 	}
 	.board_stats {
 		display: none;
+	}
+	#alerts .alert_time {
+		display: none;
+	}
+	#alerts .alert_inline_time {
+		display: block;
 	}
 }
 
@@ -283,11 +295,21 @@
 		display: block;
 	}
 	/* Alerts Page */
-	#alerts .alert_inline_time {
+	#alerts .alert_text, #alerts .alert_time, #alerts .alert_buttons {
 		display: block;
 	}
 	#alerts .alert_time {
-		display: none;
+		float: left;
+	}
+	#alerts .alert_text {
+		margin: 11px 0 0;
+	}
+	#alerts .alert_buttons .quickbuttons {
+		margin: 0 0 11px;
+		display: block;
+	}
+	#alerts .alert_image {
+		width: 60px;
 	}
 	/* Post Screen */
 	form#postmodify .roundframe, #post_event .roundframe {
@@ -600,9 +622,16 @@
 	#personal_messages div.labels {
 		clear: both;
 	}
-	/* Alerts Page */
-	#alerts .alert_buttons, #alerts .alert_text {
-		display: block;
+	/* Alerts page */
+	#alerts .alert_image {
+		width: 40px;
+		padding-left: 6px;
+	}
+	#alerts .alert_image .avatar {
+		display: none;
+	}
+	#alerts .alert_image .avatar + .alert_icon {
+		position: static;
 	}
 	/* Buddies & Ignore List */
 	#edit_buddies .buddy_email {

@@ -354,7 +354,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				array()
 			);
 
-		updateMemberData($receiving_members, array('alerts' => '+'));
+		if (!empty($receiving_members))
+			updateMemberData($receiving_members, array('alerts' => '+'));
 
 		return true;
 	}
