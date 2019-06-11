@@ -989,7 +989,7 @@ function SendMailing($clean_only = false)
 		foreach ($rows as $row)
 		{
 			// Force them to have it?
-			if (empty($context['email_force']) && empty($prefs[$row['id_member']]['announcements']))
+			if (empty($context['email_force']) && empty($prefs[$row['id_member']]['announcements']) && !empty($modSettings['allow_disableAnnounce']))
 				continue;
 
 			// What groups are we looking at here?

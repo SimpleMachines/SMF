@@ -2578,7 +2578,7 @@ function AnnouncementSelectMembergroup()
 function AnnouncementSend()
 {
 	global $topic, $board, $board_info, $context, $modSettings;
-	global $language, $scripturl, $sourcedir, $smcFunc;
+	global $language, $scripturl, $sourcedir, $smcFunc, $txt;
 
 	checkSession();
 
@@ -2665,7 +2665,7 @@ function AnnouncementSend()
 	{
 		$context['start'] = $row['id_member'];
 		// Force them to have it?
-		if (empty($prefs[$row['id_member']]['announcements']))
+		if (empty($prefs[$row['id_member']]['announcements']) && !empty($modSettings['allow_disableAnnounce']))
 			continue;
 
 		$cur_language = empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'];
@@ -2673,10 +2673,14 @@ function AnnouncementSend()
 		// If the language wasn't defined yet, load it and compose a notification message.
 		if (!isset($announcements[$cur_language]))
 		{
+			// Get the language for the unsub message
+			loadLanguage('EmailTemplates', $cur_language);
+
 			$replacements = array(
 				'TOPICSUBJECT' => $context['topic_subject'],
 				'MESSAGE' => $message,
 				'TOPICLINK' => $scripturl . '?topic=' . $topic . '.0',
+				'UNSUB' => empty($modSettings['allow_disableAnnounce']) ? '' : $txt['new_announcement_unsub'] . "\n\n",
 			);
 
 			$emaildata = loadEmailTemplate('new_announcement', $replacements, $cur_language);
