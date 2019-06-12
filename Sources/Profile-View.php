@@ -600,8 +600,8 @@ function showAlerts($memID)
 	if (!empty($_REQUEST['alert']))
 	{
 		$alert_id = (int) $_REQUEST['alert'];
-
-		$alert = array_pop(($alerts = fetch_alerts($memID, $alert_id)));
+		$alerts = fetch_alerts($memID, $alert_id);
+		$alert = array_pop($alerts);
 
 		if (empty($alert))
 			redirectexit('action=profile;area=showalerts');
