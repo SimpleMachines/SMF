@@ -600,7 +600,7 @@ function showAlerts($memID)
 	if (!empty($_REQUEST['alert']))
 	{
 		$alert_id = (int) $_REQUEST['alert'];
-		$alerts = $alerts = fetch_alerts($memID, $alert_id);
+		$alerts = fetch_alerts($memID, $alert_id);
 		$alert = array_pop($alerts);
 
 		if (empty($alert))
