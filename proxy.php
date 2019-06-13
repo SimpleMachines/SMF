@@ -27,7 +27,10 @@ if (!defined('SMF_SOFTWARE_YEAR'))
 
 if (!defined('JQUERY_VERSION'))
 	define('JQUERY_VERSION', '3.4.1');
-	
+
+if (!defined('SMF_USER_AGENT'))
+	define('SMF_USER_AGENT', 'user-agent: PHP/SMF');
+
 /**
  * Class ProxyServer
  */

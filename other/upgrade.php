@@ -18,6 +18,7 @@ define('SMF_SOFTWARE_YEAR', '2019');
 define('SMF_LANG_VERSION', '2.1 RC2');
 define('SMF_INSTALLING', 1);
 define('JQUERY_VERSION', '3.4.1');
+define('SMF_USER_AGENT', 'user-agent: PHP/SMF');
 
 /**
  * The minimum required PHP version.
