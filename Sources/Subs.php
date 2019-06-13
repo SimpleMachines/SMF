@@ -6557,7 +6557,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		if (empty($first))
 		{
 			// A nested array? Really? Ugh. Fine.
-			if (is_array($string))
+			if (is_array($string) && $depth < 20)
 			{
 				foreach ($string as $str)
 					$index = $add_string_to_index($str, $index);
