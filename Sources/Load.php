@@ -3009,6 +3009,9 @@ function getLanguages($use_cache = true)
 
 				$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
 
+				if (($spos = strpos($langName, ' ')) !== false)
+					$langName = substr($langName, 0, ++$spos) . '(' . substr($langName, $spos) . ')';
+
 				// Get the line we need.
 				$fp = @fopen($language_dir . '/' . $entry, 'r');
 
@@ -3047,6 +3050,11 @@ function getLanguages($use_cache = true)
 			}
 			$dir->close();
 		}
+
+		// Avoid confusion when we have more than one English variant installed.
+		// Honestly, our default English version should always have been called "English (US)"
+		if (substr_count(implode(' ', array_keys($context['languages'])), 'english') > 1)
+			$context['languages']['english']['name'] = 'English (US)';
 
 		// Let's cash in on this deal.
 		if (!empty($modSettings['cache_enable']))
