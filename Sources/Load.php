@@ -3053,7 +3053,7 @@ function getLanguages($use_cache = true)
 
 		// Avoid confusion when we have more than one English variant installed.
 		// Honestly, our default English version should always have been called "English (US)"
-		if (substr_count(implode(' ', array_keys($context['languages'])), 'english') > 1)
+		if (substr_count(implode(' ', array_keys($context['languages'])), 'english') > 1 && $context['languages']['english']['name'] === 'English')
 			$context['languages']['english']['name'] = 'English (US)';
 
 		// Let's cash in on this deal.
