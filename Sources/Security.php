@@ -1216,54 +1216,81 @@ function spamProtection($error_type, $only_return_result = false)
 /**
  * A generic function to create a pair of index.php and .htaccess files in a directory
  *
- * @param string $path The (absolute) directory path
+ * @param string|array $paths The (absolute) directory path
  * @param boolean $attachments Whether this is an attachment directory
- * @return bool|string True on success error or a string if anything fails
+ * @return bool|array True on success an array of errors if anything fails
  */
-function secureDirectory($path, $attachments = false)
+function secureDirectory($paths, $attachments = false)
 {
-	if (empty($path))
-		return 'empty_path';
-
-	if (!is_writable($path))
-		return 'path_not_writable';
-
-	$directoryname = basename($path);
-
 	$errors = array();
-	$close = empty($attachments) ? '
+
+	// Work with arrays
+	$paths = (array) $paths;
+
+	if (empty($path))
+		$errors[] = 'empty_path';
+
+	if (!empty($errors))
+		return $errors;
+
+	foreach ($paths as $path)
+	{
+		if (!is_writable($path))
+		{
+			$errors[] = 'path_not_writable';
+
+			continue;
+		}
+
+		$directory_name = basename($path);
+
+		$close = empty($attachments) ? '
 </Files>' : '
 	Allow from localhost
 </Files>
 
 RemoveHandler .php .php3 .phtml .cgi .fcgi .pl .fpl .shtml';
 
-	if (file_exists($path . '/.htaccess'))
-		$errors[] = 'htaccess_exists';
-	else
-	{
-		$fh = @fopen($path . '/.htaccess', 'w');
-		if ($fh)
+		if (file_exists($path . '/.htaccess'))
 		{
-			fwrite($fh, '<Files *>
+			$errors[] = 'htaccess_exists';
+
+			continue;
+		}
+
+		else
+		{
+			$fh = @fopen($path . '/.htaccess', 'w');
+
+			if ($fh)
+			{
+				fwrite($fh, '<Files *>
 	Order Deny,Allow
 	Deny from all' . $close);
-			fclose($fh);
-		}
-		$errors[] = 'htaccess_cannot_create_file';
-	}
+				fclose($fh);
+			}
 
-	if (file_exists($path . '/index.php'))
-		$errors[] = 'index-php_exists';
-	else
-	{
-		$fh = @fopen($path . '/index.php', 'w');
-		if ($fh)
+			else
+				$errors[] = 'htaccess_cannot_create_file';
+		}
+
+		if (file_exists($path . '/index.php'))
 		{
-			fwrite($fh, '<' . '?php
+			$errors[] = 'index-php_exists';
+
+			continue;
+		}
+
+		else
+		{
+			$fh = @fopen($path . '/index.php', 'w');
+
+			if ($fh)
+			{
+				fwrite($fh, '<' . '?php
 
 /**
- * This file is here solely to protect your ' . $directoryname . ' directory.
+ * This file is here solely to protect your ' . $directory_name . ' directory.
  */
 
 // Look for Settings.php....
@@ -1278,13 +1305,17 @@ else
 	exit;
 
 ?' . '>');
-			fclose($fh);
+				fclose($fh);
+			}
+
+			else
+				$errors[] = 'index-php_cannot_create_file';
 		}
-		$errors[] = 'index-php_cannot_create_file';
 	}
 
 	if (!empty($errors))
 		return $errors;
+
 	else
 		return true;
 }
