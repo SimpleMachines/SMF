@@ -3017,7 +3017,10 @@ function getLanguages($use_cache = true)
 				{
 					while (($line = fgets($fp)) !== false)
 					{
-						preg_match('~\$txt\[\'native_name\'\] = \'(.+)\'\;~', $line, $matchNative);
+						if (strpos($line, '$txt[\'native_name\']') === false)
+							continue;
+
+						preg_match('~\$txt\[\'native_name\'\]\s*=\s*\'([^\']+)\';~', $line, $matchNative);
 
 						// Set the language's name.
 						if (!empty($matchNative) && !empty($matchNative[1]))
