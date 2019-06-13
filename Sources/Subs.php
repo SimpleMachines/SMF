@@ -2393,17 +2393,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 										'localhost' .
 										// or
 										'|' .
-										// a run of Unicode domain name characters and a dot
-										'[\p{L}\p{M}\p{N}\-.:@]+\.' .
-										// and then a TLD
-										'(?:' .
-											// Either a TLD valid in the DNS
-											'(?P>tlds)' .
-											// or
-											'|' .
-											// the reserved "local" TLD
-											'local' .
-										')' .
+										// a run of IRI characters, a dot, and a TLD
+										'[\p{L}\p{M}\p{N}\-.:@]+\.(?P>tlds)' .
 									')' .
 									// followed by a non-domain character or end of line
 									'(?=[^\p{L}\p{N}\-.]|$)' .
@@ -6388,12 +6379,14 @@ function smf_serverResponse($data = '', $type = 'content-type: application/json'
  *
  * The optimized regex is stored in $modSettings['tld_regex'].
  *
- * To update the stored version of the regex to use the latest list of valid TLDs from iana.org, set
- * the $update parameter to true. Updating can take some time, based on network connectivity, so it
- * should normally only be done by calling this function from a background or scheduled task.
+ * To update the stored version of the regex to use the latest list of valid
+ * TLDs from iana.org, set the $update parameter to true. Updating can take some
+ * time, based on network connectivity, so it should normally only be done by
+ * calling this function from a background or scheduled task.
  *
- * If $update is not true, but the regex is missing or invalid, the regex will be regenerated from a
- * hard-coded list of TLDs. This regenerated regex will be overwritten on the next scheduled update.
+ * If $update is not true, but the regex is missing or invalid, the regex will
+ * be regenerated from a hard-coded list of TLDs. This regenerated regex will be
+ * overwritten on the next scheduled update.
  *
  * @param bool $update If true, fetch and process the latest official list of TLDs from iana.org.
  */
@@ -6410,14 +6403,21 @@ function set_tld_regex($update = false)
 	if ($update)
 	{
 		$tlds = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
+		$tlds_md5 = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt.md5');
 
-		// If the Internet Assigned Numbers Authority can't be reached, the Internet is GONE!
-		// We're probably running on a server hidden in a bunker deep underground to protect it from
-		// marauding bandits roaming on the surface. We don't want to waste precious electricity on
-		// pointlessly repeating background tasks, so we'll wait until the next regularly scheduled
-		// update to see if civilization has been restored.
-		if ($tlds === false)
+		/**
+		 * If the Internet Assigned Numbers Authority can't be reached, the Internet is GONE!
+		 * We're probably running on a server hidden in a bunker deep underground to protect
+		 * it from marauding bandits roaming on the surface. We don't want to waste precious
+		 * electricity on pointlessly repeating background tasks, so we'll wait until the next
+		 * regularly scheduled update to see if civilization has been restored.
+		 */
+		if ($tlds === false || $tlds_md5 === false)
 			$postapocalypticNightmare = true;
+
+		// Make sure nothing went horribly wrong along the way.
+		if (md5($tlds) != substr($tlds_md5, 0, 32))
+			$tlds = array();
 	}
 	// If we aren't updating and the regex is valid, we're done
 	elseif (!empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', null) !== false)
@@ -6433,7 +6433,7 @@ function set_tld_regex($update = false)
 		$tlds = array_filter(explode("\n", strtolower($tlds)), function($line)
 		{
 			$line = trim($line);
-			if (empty($line) || strpos($line, '#') !== false || strpos($line, ' ') !== false)
+			if (empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'))
 				return false;
 			else
 				return true;
@@ -6450,27 +6450,29 @@ function set_tld_regex($update = false)
 	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
 	else
 	{
-		$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz', 'cat',
-			'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post', 'pro', 'tel',
-			'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'an', 'ao', 'aq',
-			'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh',
-			'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc',
-			'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cs', 'cu', 'cv',
-			'cx', 'cy', 'cz', 'dd', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg', 'eh',
-			'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr', 'ga', 'gb', 'gd', 'ge',
-			'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw',
-			'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq',
-			'ir', 'is', 'it', 'ja', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn',
-			'kp', 'kr', 'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu',
-			'lv', 'ly', 'ma', 'mc', 'md', 'me', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp',
-			'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf',
-			'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph',
-			'pk', 'pl', 'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru',
-			'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn',
-			'so', 'sr', 'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th',
-			'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tp', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug',
-			'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'ye',
-			'yt', 'yu', 'za', 'zm', 'zw');
+		$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz',
+			'cat', 'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post',
+			'pro', 'tel', 'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al',
+			'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd',
+			'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv',
+			'bw', 'by', 'bz', 'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm',
+			'cn', 'co', 'cr', 'cu', 'cv', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do',
+			'dz', 'ec', 'ee', 'eg', 'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo',
+			'fr', 'ga', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp',
+			'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu',
+			'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'ir', 'is', 'it', 'je', 'jm', 'jo',
+			'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn', 'kp', 'kr', 'kw', 'ky', 'kz', 'la',
+			'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu', 'lv', 'ly', 'ma', 'mc', 'md',
+			'me', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt',
+			'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl',
+			'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl',
+			'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw',
+			'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn',
+			'so', 'sr', 'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg',
+			'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua',
+			'ug', 'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf',
+			'ws', 'ye', 'yt', 'za', 'zm', 'zw',
+		);
 
 		// Schedule a background update, unless civilization has collapsed and/or we are having connectivity issues.
 		if (empty($postapocalypticNightmare))
@@ -6481,6 +6483,10 @@ function set_tld_regex($update = false)
 			);
 		}
 	}
+
+	// Tack on some "special use domain names" that aren't in DNS but may possibly resolve.
+	// See https://www.iana.org/assignments/special-use-domain-names/ for more info.
+	$tlds = array_merge($tlds, array('local', 'onion', 'test'));
 
 	// Get an optimized regex to match all the TLDs
 	$tld_regex = build_regex($tlds);
@@ -6495,18 +6501,22 @@ function set_tld_regex($update = false)
 /**
  * Creates optimized regular expressions from an array of strings.
  *
- * An optimized regex built using this function will be much faster than a simple regex built using
- * `implode('|', $strings)` --- anywhere from several times to several orders of magnitude faster.
+ * An optimized regex built using this function will be much faster than a
+ * simple regex built using `implode('|', $strings)` --- anywhere from several
+ * times to several orders of magnitude faster.
  *
- * However, the time required to build the optimized regex is approximately equal to the time it
- * takes to execute the simple regex. Therefore, it is only worth calling this function if the
- * resulting regex will be used more than once.
+ * However, the time required to build the optimized regex is approximately
+ * equal to the time it takes to execute the simple regex. Therefore, it is only
+ * worth calling this function if the resulting regex will be used more than
+ * once.
  *
- * Because PHP places an upper limit on the allowed length of a regex, very large arrays of $strings
- * may not fit in a single regex. Normally, the excess strings will simply be dropped. However, if
- * the $returnArray parameter is set to true, this function will build as many regexes as necessary
- * to accommodate everything in $strings and return them in an array. You will need to iterate
- * through all elements of the returned array in order to test all possible matches.
+ * Because PHP places an upper limit on the allowed length of a regex, very
+ * large arrays of $strings may not fit in a single regex. Normally, the excess
+ * strings will simply be dropped. However, if the $returnArray parameter is set
+ * to true, this function will build as many regexes as necessary to accommodate
+ * everything in $strings and return them in an array. You will need to iterate
+ * through all elements of the returned array in order to test all possible
+ * matches.
  *
  * @param array $strings An array of strings to make a regex for.
  * @param string $delim An optional delimiter character to pass to preg_quote().
@@ -6516,6 +6526,10 @@ function set_tld_regex($update = false)
 function build_regex($strings, $delim = null, $returnArray = false)
 {
 	global $smcFunc;
+
+	// If it's not an array, there's not much to do. ;)
+	if (!is_array($strings))
+		return preg_quote(@strval($strings), $delim);
 
 	// The mb_* functions are faster than the $smcFunc ones, but may not be available
 	if (function_exists('mb_internal_encoding') && function_exists('mb_detect_encoding') && function_exists('mb_strlen') && function_exists('mb_substr'))
@@ -6541,7 +6555,21 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		static $depth = 0;
 		$depth++;
 
-		$first = $substr($string, 0, 1);
+		$first = @$substr($string, 0, 1);
+
+		// No first character? That's no good.
+		if (empty($first))
+		{
+			// A nested array? Really? Ugh. Fine.
+			if (is_array($string) && $depth < 20)
+			{
+				foreach ($string as $str)
+					$index = $add_string_to_index($str, $index);
+			}
+
+			$depth--;
+			return $index;
+		}
 
 		if (empty($index[$first]))
 			$index[$first] = array();
