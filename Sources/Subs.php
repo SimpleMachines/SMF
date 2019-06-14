@@ -294,7 +294,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
  */
 function updateMemberData($members, $data)
 {
-	global $modSettings, $user_info, $smcFunc, $sourcedir;
+	global $modSettings, $user_info, $smcFunc, $sourcedir, $cache_enable;
 
 	$parameters = array();
 	if (is_array($members))
@@ -429,14 +429,14 @@ function updateMemberData($members, $data)
 	updateStats('postgroups', $members, array_keys($data));
 
 	// Clear any caching?
-	if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2 && !empty($members))
+	if (!empty($cache_enable) && $cache_enable >= 2 && !empty($members))
 	{
 		if (!is_array($members))
 			$members = array($members);
 
 		foreach ($members as $member)
 		{
-			if ($modSettings['cache_enable'] >= 3)
+			if ($cache_enable >= 3)
 			{
 				cache_put_data('member_data-profile-' . $member, null, 120);
 				cache_put_data('member_data-normal-' . $member, null, 120);
@@ -1020,7 +1020,7 @@ function permute($array)
  */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
-	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
+	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir, $cache_enable;
 	static $bbc_lang_locales = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled, $alltags_regex = '', $param_regexes = array();
 
@@ -2012,7 +2012,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	}
 
 	// Shall we take the time to cache this?
-	if ($cache_id != '' && !empty($modSettings['cache_enable']) && (($modSettings['cache_enable'] >= 2 && isset($message[1000])) || isset($message[2400])) && empty($parse_tags))
+	if ($cache_id != '' && !empty($cache_enable) && (($cache_enable >= 2 && isset($message[1000])) || isset($message[2400])) && empty($parse_tags))
 	{
 		// It's likely this will change if the message is modified.
 		$cache_key = 'parse:' . $cache_id . '-' . md5(md5($message) . '-' . $smileys . (empty($disabled) ? '' : implode(',', array_keys($disabled))) . $smcFunc['json_encode']($context['browser']) . $txt['lang_locale'] . $user_info['time_offset'] . $user_info['time_format']);
@@ -3655,7 +3655,7 @@ function memoryReturnBytes($val)
  */
 function template_header()
 {
-	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir;
+	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir, $cache_enable;
 
 	setupThemeContext();
 
@@ -3725,7 +3725,7 @@ function template_header()
 			if ($modSettings['requireAgreement'])
 				$agreement = !file_exists($boarddir . '/agreement.txt');
 
-			if (!empty($securityFiles) || (!empty($modSettings['cache_enable']) && !is_writable($cachedir)) || !empty($agreement))
+			if (!empty($securityFiles) || (!empty($cache_enable) && !is_writable($cachedir)) || !empty($agreement))
 			{
 				echo '
 		<div class="errorbox">
@@ -3743,7 +3743,7 @@ function template_header()
 				', sprintf($txt['not_removed_extra'], $securityFile, substr($securityFile, 0, -1)), '<br>';
 				}
 
-				if (!empty($modSettings['cache_enable']) && !is_writable($cachedir))
+				if (!empty($cache_enable) && !is_writable($cachedir))
 					echo '
 				<strong>', $txt['cache_writable'], '</strong><br>';
 
@@ -4451,7 +4451,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  */
 function setupMenuContext()
 {
-	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc;
+	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc, $cache_enable;
 
 	// Set up the menu privileges.
 	$context['allow_search'] = !empty($modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
@@ -4694,7 +4694,7 @@ function setupMenuContext()
 				$menu_buttons[$act] = $button;
 			}
 
-		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+		if (!empty($cache_enable) && $cache_enable >= 2)
 			cache_put_data('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $menu_buttons, $cacheTime);
 	}
 

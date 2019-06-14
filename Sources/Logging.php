@@ -56,7 +56,7 @@ function truncateArray($arr, $max_length = 1900)
  */
 function writeLog($force = false)
 {
-	global $user_info, $user_settings, $context, $modSettings, $settings, $topic, $board, $smcFunc, $sourcedir;
+	global $user_info, $user_settings, $context, $modSettings, $settings, $topic, $board, $smcFunc, $sourcedir, $cache_enable;
 
 	// If we are showing who is viewing a topic, let's see if we are, and force an update if so - to make it accurate.
 	if (!empty($settings['display_who_viewing']) && ($topic || $board))
@@ -179,7 +179,7 @@ function writeLog($force = false)
 		$user_settings['total_time_logged_in'] += time() - $_SESSION['timeOnlineUpdated'];
 		updateMemberData($user_info['id'], array('last_login' => time(), 'member_ip' => $user_info['ip'], 'member_ip2' => $_SERVER['BAN_CHECK_IP'], 'total_time_logged_in' => $user_settings['total_time_logged_in']));
 
-		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+		if (!empty($cache_enable) && $cache_enable >= 2)
 			cache_put_data('user_settings-' . $user_info['id'], $user_settings, 60);
 
 		$user_info['total_time_logged_in'] += time() - $_SESSION['timeOnlineUpdated'];
@@ -235,7 +235,7 @@ function logLastDatabaseError()
 function displayDebug()
 {
 	global $context, $scripturl, $boarddir, $sourcedir, $cachedir, $settings, $modSettings;
-	global $db_cache, $db_count, $cache_misses, $cache_count_misses, $db_show_debug, $cache_count, $cache_hits, $smcFunc, $txt;
+	global $db_cache, $db_count, $cache_misses, $cache_count_misses, $db_show_debug, $cache_count, $cache_hits, $smcFunc, $txt, $cache_enable;
 
 	// Add to Settings.php if you want to show the debugging information.
 	if (!isset($db_show_debug) || $db_show_debug !== true || (isset($_GET['action']) && $_GET['action'] == 'viewquery'))
@@ -291,7 +291,7 @@ function displayDebug()
 	if (isset($_SESSION['token']))
 		echo $txt['debug_tokens'] . '<em>' . implode(',</em> <em>', array_keys($_SESSION['token'])), '</em>.<br>';
 
-	if (!empty($modSettings['cache_enable']) && !empty($cache_hits))
+	if (!empty($cache_enable) && !empty($cache_hits))
 	{
 		$missed_entries = array();
 		$entries = array();

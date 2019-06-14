@@ -244,7 +244,7 @@ function PlushSearch2()
 {
 	global $scripturl, $modSettings, $sourcedir, $txt;
 	global $user_info, $context, $options, $messages_request, $boards_can;
-	global $excludedWords, $participants, $smcFunc;
+	global $excludedWords, $participants, $smcFunc, $cache_enable;
 
 	// if comming from the quick search box, and we want to search on members, well we need to do that ;)
 	if (isset($_REQUEST['search_selection']) && $_REQUEST['search_selection'] === 'members')
@@ -1823,7 +1823,7 @@ function PlushSearch2()
 	$context['page_index'] = constructPageIndex($scripturl . '?action=search2;params=' . $context['params'], $_REQUEST['start'], $num_results, $modSettings['search_results_per_page'], false);
 
 	// Consider the search complete!
-	if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+	if (!empty($cache_enable) && $cache_enable >= 2)
 		cache_put_data('search_start:' . ($user_info['is_guest'] ? $user_info['ip'] : $user_info['id']), null, 90);
 
 	$context['key_words'] = &$searchArray;
