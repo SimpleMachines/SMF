@@ -34,7 +34,7 @@ if (!defined('SMF'))
  */
 function deleteMembers($users, $check_not_admin = false)
 {
-	global $sourcedir, $modSettings, $user_info, $smcFunc;
+	global $sourcedir, $modSettings, $user_info, $smcFunc, $cache_enable;
 
 	// Try give us a while to sort this out...
 	@set_time_limit(600);
@@ -124,7 +124,7 @@ function deleteMembers($users, $check_not_admin = false)
 		);
 
 		// Remove any cached data if enabled.
-		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+		if (!empty($cache_enable) && $cache_enable >= 2)
 			cache_put_data('user_settings-' . $user[0], null, 60);
 	}
 

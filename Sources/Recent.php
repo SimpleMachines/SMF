@@ -76,7 +76,7 @@ function getLastPost()
  */
 function RecentPosts()
 {
-	global $txt, $scripturl, $user_info, $context, $modSettings, $board, $smcFunc;
+	global $txt, $scripturl, $user_info, $context, $modSettings, $board, $smcFunc, $cache_enable;
 
 	loadTemplate('Recent');
 	$context['page_title'] = $txt['recent_posts'];
@@ -276,7 +276,7 @@ function RecentPosts()
 		$messages = 0;
 
 	$key = 'recent-' . $user_info['id'] . '-' . md5($smcFunc['json_encode'](array_diff_key($query_parameters, array('max_id_msg' => 0)))) . '-' . (int) $_REQUEST['start'];
-	if (!$context['is_redirect'] && (empty($modSettings['cache_enable']) || ($messages = cache_get_data($key, 120)) == null))
+	if (!$context['is_redirect'] && (empty($cache_enable) || ($messages = cache_get_data($key, 120)) == null))
 	{
 		$done = false;
 		while (!$done)
