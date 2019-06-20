@@ -461,6 +461,7 @@ function ViewBacktrace()
 	}
 	$smcFunc['db_free_result']($request);
 
+	loadCSSFile('admin.css', array(), 'smf_admin');
 	loadTemplate('Errors');
 	loadLanguage('ManageMaintenance');
 	$context['template_layers'] = array();
