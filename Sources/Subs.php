@@ -5612,8 +5612,6 @@ function sanitizeMSCutPaste($string)
 		"\xe2\x80\x99",	// right single curly quote
 		"\xe2\x80\x9c",	// left double curly quote
 		"\xe2\x80\x9d",	// right double curly quote
-		"\xe2\x80\x93",	// en dash
-		"\xe2\x80\x94",	// em dash
 	);
 
 	// windows 1252 / iso equivalents
@@ -5625,8 +5623,6 @@ function sanitizeMSCutPaste($string)
 		chr(146),
 		chr(147),
 		chr(148),
-		chr(150),
-		chr(151),
 	);
 
 	// safe replacements
@@ -5638,8 +5634,6 @@ function sanitizeMSCutPaste($string)
 		"'",	// &rsquo;
 		'"',	// &ldquo;
 		'"',	// &rdquo;
-		'-',	// &ndash;
-		'--',	// &mdash;
 	);
 
 	if ($context['utf8'])
