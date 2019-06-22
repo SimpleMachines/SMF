@@ -81,7 +81,7 @@ function db_packages_init()
  *  	'size' => Size of column (If applicable) - for example 255 for a large varchar, 10 for an int etc.
  *  		If not set SMF will pick a size.
  *  	- 'default' = Default value - do not set if no default required.
- *  	- 'null' => Can it be null (true or false) - if not set default will be false.
+ *  	- 'not_null' => Can it be null (true or false) - if not set default will be false.
  *  	- 'auto' => Set to true to make it an auto incrementing column. Set to a numerical value to set from what
  *  		 it should begin counting.
  *  - Adds indexes as specified within indexes parameter. Each index should be a member of $indexes. Values are:
@@ -394,13 +394,18 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	if ($old_info == null)
 		return false;
 
+	// backward compatibility
+	if (isset($column_info['null']))
+		$column_info['not_null'] != $column_info['null'];
+	if (isset($old_info['null']))
+		$old_info['not_null'] != $old_info['null'];
 	// Get the right bits.
 	if (!isset($column_info['name']))
 		$column_info['name'] = $old_column;
 	if (!isset($column_info['default']))
 		$column_info['default'] = $old_info['default'];
-	if (!isset($column_info['null']))
-		$column_info['null'] = $old_info['null'];
+	if (!isset($column_info['not_null']))
+		$column_info['not_null'] = $old_info['not_null'];
 	if (!isset($column_info['auto']))
 		$column_info['auto'] = $old_info['auto'];
 	if (!isset($column_info['type']))
@@ -420,7 +425,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 
 	$smcFunc['db_query']('', '
 		ALTER TABLE ' . $table_name . '
-		CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (empty($column_info['null']) ? 'NOT NULL' : '') . ' ' .
+		CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column_info['not_null']) ? 'NOT NULL' : '') . ' ' .
 			(!isset($column_info['default']) ? '' : 'default \'' . $smcFunc['db_escape_string']($column_info['default']) . '\'') . ' ' .
 			(empty($column_info['auto']) ? '' : 'auto_increment') . ' ',
 		array(
@@ -690,7 +695,8 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 
 			$columns[$row['Field']] = array(
 				'name' => $row['Field'],
-				'null' => $row['Null'] != 'YES' ? false : true,
+				'not_null' => $row['Null'] != 'YES',
+				'null' => $row['Null'] == 'YES',
 				'default' => isset($row['Default']) ? $row['Default'] : null,
 				'type' => $type,
 				'size' => $size,
@@ -800,7 +806,7 @@ function smf_db_create_query_column($column)
 		$type = $type . '(' . $size . ')';
 
 	// Now just put it together!
-	return '`' . $column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['null']) ? '' : 'NOT NULL') . ' ' . $default;
+	return '`' . $column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['not_null']) ? 'NOT NULL' : '') . ' ' . $default;
 }
 
 ?>

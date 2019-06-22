@@ -81,7 +81,7 @@ function db_packages_init()
  *  	'size' => Size of column (If applicable) - for example 255 for a large varchar, 10 for an int etc.
  *  		If not set SMF will pick a size.
  *  	- 'default' = Default value - do not set if no default required.
- *  	- 'null' => Can it be null (true or false) - if not set default will be false.
+ *  	- 'not_null' => Can it be null (true or false) - if not set default will be false.
  *  	- 'auto' => Set to true to make it an auto incrementing column. Set to a numerical value to set from what
  *  		 it should begin counting.
  *  - Adds indexes as specified within indexes parameter. Each index should be a member of $indexes. Values are:
@@ -184,8 +184,12 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 		if ($size !== null)
 			$type = $type . '(' . $size . ')';
 
+		// backward compatibility
+		if (isset($column['null']))
+			$column['not_null'] != $column['null'];
+
 		// Now just put it together!
-		$table_query .= "\n\t\"" . $column['name'] . '" ' . $type . ' ' . (!empty($column['null']) ? '' : 'NOT NULL') . ' ' . $default . ',';
+		$table_query .= "\n\t\"" . $column['name'] . '" ' . $type . ' ' . (!empty($column['not_null']) ? 'NOT NULL' : '') . ' ' . $default . ',';
 	}
 
 	// Loop through the indexes a sec...
@@ -439,6 +443,10 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	global $smcFunc, $db_prefix;
 
 	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	
+	// backward compatibility
+	if (isset($column_info['null']))
+		$column_info['not_null'] != $column_info['null'];
 
 	// Check it does exist!
 	$columns = $smcFunc['db_list_columns']($table_name, true);
@@ -475,11 +483,11 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 		);
 	}
 	// Is it null - or otherwise?
-	if (isset($column_info['null']) && $column_info['null'] != $old_info['null'])
+	if (isset($column_info['not_null']) && $column_info['not_null'] != $old_info['not_null'])
 	{
-		$action = $column_info['null'] ? 'DROP' : 'SET';
+		$action = $column_info['not_null'] ? 'SET' : 'DROP';
 		$smcFunc['db_transaction']('begin');
-		if (!$column_info['null'])
+		if ($column_info['not_null'])
 		{
 			// We have to set it to something if we are making it NOT NULL. And we must comply with the current column format.
 			$setTo = isset($column_info['default']) ? $column_info['default'] : (strpos($old_info['type'], 'int') !== false ? 0 : '');
@@ -845,6 +853,7 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 
 			$columns[$row['column_name']] = array(
 				'name' => $row['column_name'],
+				'not_null' => !($row['is_nullable'] ? true : false),
 				'null' => $row['is_nullable'] ? true : false,
 				'default' => $default,
 				'type' => $type,
