@@ -271,6 +271,10 @@ function MembergroupMembers()
 		checkSession();
 		validateToken('mod-mgm');
 
+		// Only proven admins can remove admins.
+		if ($context['group']['id'] == 1)
+			validateSession();
+
 		// Make sure we're dealing with integers only.
 		foreach ($_REQUEST['rem'] as $key => $group)
 			$_REQUEST['rem'][$key] = (int) $group;
@@ -283,6 +287,10 @@ function MembergroupMembers()
 	{
 		checkSession();
 		validateToken('mod-mgm');
+
+		// Demand an admin password before adding new admins -- every time, no matter what.
+		if ($context['group']['id'] == 1)
+			validateSession('admin', true);
 
 		$member_query = array();
 		$member_parameters = array();
