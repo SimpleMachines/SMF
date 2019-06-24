@@ -29,7 +29,7 @@ if (!defined('JQUERY_VERSION'))
 	define('JQUERY_VERSION', '3.4.1');
 
 if (!defined('SMF_USER_AGENT'))
-	define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko) PHP/' . PHP_VERSION . ' SMF/' . strtr(SMF_VERSION, ' ', '.'));
+	define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
 
 /**
  * Class ProxyServer
