@@ -2499,7 +2499,8 @@ VALUES
 	(10, 0, 120, 1, 'd', 1, 'paid_subscriptions', ''),
 	(11, 0, 120, 1, 'd', 0, 'remove_temp_attachments', ''),
 	(12, 0, 180, 1, 'd', 0, 'remove_topic_redirect', ''),
-	(13, 0, 240, 1, 'd', 0, 'remove_old_drafts', '');
+	(13, 0, 240, 1, 'd', 0, 'remove_old_drafts', ''),
+	(14, 0, 0, 1, 'w', 1, 'prune_log_topics', '');
 
 # --------------------------------------------------------
 
@@ -2662,6 +2663,9 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('warning_mute', '60'),
 	('last_mod_report_action', '0'),
 	('pruningOptions', '30,180,180,180,30,0'),
+	('mark_read_beyond', '90'),
+	('mark_read_delete_beyond', '365'),
+	('mark_read_max_users', '500'),
 	('modlog_enabled', '1'),
 	('adminlog_enabled', '1'),
 	('reg_verification', '1'),
