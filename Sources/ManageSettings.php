@@ -2266,6 +2266,12 @@ function ModifyLogSettings($return_config = false)
 		array('desc', 'error_log_desc'),
 		array('check', 'enableErrorLogging'),
 		array('check', 'enableErrorQueryLogging'),
+		// The 'mark read' log settings.
+		array('title', 'markread_title'),
+		array('desc', 'mark_read_desc'),
+		array('int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000),
+		array('int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000),
+		array('int', 'mark_read_max_users', 'step' => 1, 'min' => 0, 'max' => 5000, 'subtext' => $txt['zero_to_disable']),
 		// Even do the pruning?
 		array('title', 'pruning_title'),
 		array('desc', 'pruning_desc'),
@@ -2321,6 +2327,9 @@ function ModifyLogSettings($return_config = false)
 			array('check', 'userlog_enabled'),
 			array('check', 'enableErrorLogging'),
 			array('check', 'enableErrorQueryLogging'),
+			array('int', 'mark_read_beyond'),
+			array('int', 'mark_read_delete_beyond'),
+			array('int', 'mark_read_max_users'),
 			array('text', 'pruningOptions')
 		);
 
