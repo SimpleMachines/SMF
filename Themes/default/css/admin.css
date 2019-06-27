@@ -620,7 +620,7 @@ h3.grid_header {
 	float: left;
 	margin-right: 5px;
 }
-#error_log span.error_message {
+#error_log span.error_message, #backtrace span.error_message {
 	overflow: hidden; /* This changes how the text wraps around the float */
 	display: block;
 	white-space: pre-wrap;
