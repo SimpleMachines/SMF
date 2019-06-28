@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -100,23 +100,22 @@ function template_control_richedit_buttons($editor_id)
 	$tempTab++;
 	$context['tabindex'] = $tempTab;
 
-	if (!empty($context['drafts_pm_save']))
-		echo '
-		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', --$tempTab, '" onclick="submitThisOnce(this);" accesskey="d" class="button">
-		<input type="hidden" id="id_pm_draft" name="id_pm_draft" value="', empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'], '">';
+	foreach ($context['richedit_buttons'] as $name => $button) {
+		if ($name == 'spell_check') {
+			$button['onclick'] = 'oEditorHandle_' . $editor_id . '.spellCheckStart();';
+		}
 
-	if (!empty($context['drafts_save']))
-		echo '
-		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', --$tempTab, '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" class="button">
-		<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '">';
+		if ($name == 'preview') {
+			$button['value'] = isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $button['value'];
+			$button['onclick'] = $editor_context['preview_type'] == 2 ? '' : 'return submitThisOnce(this);';
+			$button['show'] = $editor_context['preview_type'];
+		}
 
-	if ($context['show_spellchecking'])
-		echo '
-		<input type="button" value="', $txt['spell_check'], '" tabindex="', --$tempTab, '" onclick="oEditorHandle_', $editor_id, '.spellCheckStart();" class="button">';
-
-	if ($editor_context['preview_type'])
-		echo '
-		<input type="submit" name="preview" value="', isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $txt['preview'], '" tabindex="', --$tempTab, '" onclick="', $editor_context['preview_type'] == 2 ? '' : 'return submitThisOnce(this);', '" accesskey="p" class="button">';
+		if ($button['show']) {
+			echo '
+		<input type="', $button['type'], '"', $button['type'] == 'hidden' ? ' id="' . $name . '"' : '', ' name="', $name, '" value="', $button['value'], '"', $button['type'] != 'hidden' ? ' tabindex="' . --$tempTab . '"' : '', !empty($button['onclick']) ? ' onclick="' . $button['onclick'] . '"' : '', !empty($button['accessKey']) ? ' accesskey="' . $button['accessKey'] . '"' : '', $button['type'] != 'hidden' ? ' class="button"' : '', '>';
+		}
+	}
 
 	echo '
 		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : $txt['post'], '" name="post" tabindex="', --$tempTab, '" onclick="return submitThisOnce(this);" accesskey="s" class="button">';

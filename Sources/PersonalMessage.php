@@ -12,7 +12,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -196,7 +196,6 @@ function MessageMain()
 		'manrules' => 'ManageRules',
 		'pmactions' => 'MessageActionsApply',
 		'prune' => 'MessagePrune',
-		'removeall' => 'MessageKillAllQuery',
 		'removeall2' => 'MessageKillAll',
 		'report' => 'ReportMessage',
 		'search' => 'MessageSearch',
@@ -1100,6 +1099,51 @@ function prepareMessageContext($type = 'subject', $reset = false)
 			$output['custom_fields'][$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 
 	call_integration_hook('integrate_prepare_pm_context', array(&$output, &$message, $counter));
+
+	$output['quickbuttons'] = array(
+		'reply_to_all' => array(
+			'label' => $txt['reply_to_all'],
+			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';quote;u=all',
+			'icon' => 'reply_all_button',
+			'show' => $context['can_send_pm'] && !$output['member']['is_guest'] && $output['number_recipients'] > 1
+		),
+		'reply' => array(
+			'label' => $txt['reply'],
+			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';u='.$output['member']['id'],
+			'icon' => 'reply_button',
+			'show' => $context['can_send_pm'] && !$output['member']['is_guest']
+		),
+		'quote' => array(
+			'label' => $txt['quote_action'],
+			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';quote'.($context['folder'] == 'sent' ? '' : ';u=' .$output['member']['id']),
+			'icon' => 'quote',
+			'show' => $context['can_send_pm'] && !$output['member']['is_guest']
+		),
+		'reply_quote' => array(
+			'label' => $txt['reply_quote'],
+			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';quote',
+			'icon' => 'quote',
+			'show' => $context['can_send_pm'] && $output['member']['is_guest']
+		),
+		'delete' => array(
+			'label' => $txt['delete'],
+			'href' => $scripturl.'?action=pm;sa=pmactions;pm_actions%5b'.$output['id'].'%5D=delete;f='.$context['folder'].';start='.$context['start'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';'.$context['session_var'].'='.$context['session_id'],
+			'javascript' => 'data-confirm="'.addslashes($txt['remove_message_question']).'" class="you_sure"',
+			'icon' => 'remove_button',
+		),
+		'more' => array(
+			'report' => array(
+				'label' => $txt['pm_report_to_admin'],
+				'href' => $scripturl .'?action=pm;sa=report;l=' .$context['current_label_id'] .';pmsg=' .$output['id'],
+				'icon' => 'error',
+				'show' => $output['can_report']
+			),
+		),
+		'quickmod' => array(
+			'content' => '<input type="checkbox" name="pms[]" id="deletedisplay'.$output['id'].'" value="'.$output['id'].'" onclick="document.getElementById(\'deletelisting'.$output['id'].'\').checked = this.checked;">',
+			'show' => empty($context['display_mode'])
+		)
+	);
 
 	return $output;
 }
@@ -2758,36 +2802,15 @@ function MessageActionsApply()
 }
 
 /**
- * Are you sure you want to PERMANENTLY (mostly) delete ALL your messages?
- */
-function MessageKillAllQuery()
-{
-	global $txt, $context;
-
-	// Only have to set up the template....
-	$context['sub_template'] = 'ask_delete';
-	$context['page_title'] = $txt['delete_all'];
-	$context['delete_all'] = $_REQUEST['f'] == 'all';
-
-	// And set the folder name...
-	$txt['delete_all'] = str_replace('PMBOX', $context['folder'] != 'sent' ? $txt['inbox'] : $txt['sent_items'], $txt['delete_all']);
-}
-
-/**
  * Delete ALL the messages!
  */
 function MessageKillAll()
 {
 	global $context;
 
-	checkSession('get');
+	checkSession();
 
-	// If all then delete all messages the user has.
-	if ($_REQUEST['f'] == 'all')
-		deleteMessages(null, null);
-	// Otherwise just the selected folder.
-	else
-		deleteMessages(null, $_REQUEST['f'] != 'sent' ? 'inbox' : 'sent');
+	deleteMessages(null, null);
 
 	// Done... all gone.
 	redirectexit($context['current_label_redirect']);

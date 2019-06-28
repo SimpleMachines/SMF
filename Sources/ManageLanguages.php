@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -194,7 +194,7 @@ function list_getLanguagesList()
  */
 function DownloadLanguage()
 {
-	global $context, $sourcedir, $boarddir, $txt, $scripturl, $modSettings;
+	global $context, $sourcedir, $boarddir, $txt, $scripturl, $modSettings, $cache_enable;
 
 	loadLanguage('ManageSettings');
 	require_once($sourcedir . '/Subs-Package.php');
@@ -263,9 +263,10 @@ function DownloadLanguage()
 	$context['make_writable'] = array();
 	foreach ($archive_content as $file)
 	{
-		$dirname = dirname($file['filename']);
-		$filename = basename($file['filename']);
-		$extension = substr($filename, strrpos($filename, '.') + 1);
+		$pathinfo = pathinfo($file['filename']);
+		$dirname = $pathinfo['dirname'];
+		$basename = $pathinfo['basename'];
+		$extension = $pathinfo['extension'];
 
 		// Don't do anything with files we don't understand.
 		if (!in_array($extension, array('php', 'jpg', 'gif', 'jpeg', 'png', 'txt')))
@@ -273,7 +274,7 @@ function DownloadLanguage()
 
 		// Basic data.
 		$context_data = array(
-			'name' => $filename,
+			'name' => $basename,
 			'destination' => $boarddir . '/' . $file['filename'],
 			'generaldest' => $file['filename'],
 			'size' => $file['size'],
@@ -315,7 +316,7 @@ function DownloadLanguage()
 		}
 
 		// I love PHP files, that's why I'm a developer and not an artistic type spending my time drinking absinth and living a life of sin...
-		if ($extension == 'php' && preg_match('~\w+\.\w+(?:-utf8)?\.php~', $filename))
+		if ($extension == 'php' && preg_match('~\w+\.\w+(?:-utf8)?\.php~', $basename))
 		{
 			$context_data += array(
 				'version' => '??',
@@ -323,7 +324,7 @@ function DownloadLanguage()
 				'version_compare' => 'newer',
 			);
 
-			list ($name, $language) = explode('.', $filename);
+			list ($name, $language) = explode('.', $basename);
 
 			// Let's get the new version, I like versions, they tell me that I'm up to date.
 			if (preg_match('~\s*Version:\s+(.+?);\s*' . preg_quote($name, '~') . '~i', $file['preview'], $match) == 1)
@@ -357,8 +358,14 @@ function DownloadLanguage()
 			// Add the context data to the main set.
 			$context['files']['lang'][] = $context_data;
 		}
-		elseif ($extension == '.txt' && stripos($filename, 'agreement') !== false)
+		elseif ($extension == 'txt' && stripos($basename, 'agreement') !== false)
 		{
+			$context_data += array(
+				'version' => '??',
+				'cur_version' => false,
+				'version_compare' => 'newer',
+			);
+
 			// Registration agreement is a primary file
 			$context['files']['lang'][] = $context_data;
 		}
@@ -383,18 +390,10 @@ function DownloadLanguage()
 		// Mark those which are now writable as such.
 		foreach ($context['files'] as $type => $data)
 		{
-			if ($type == 'lang')
+			foreach ($data as $k => $file)
 			{
-				foreach ($data as $k => $file)
-					if (!$file['writable'] && !in_array($file['destination'], $context['still_not_writable']))
-						$context['files'][$type][$k]['writable'] = true;
-			}
-			else
-			{
-				foreach ($data as $theme => $files)
-					foreach ($files as $k => $file)
-						if (!$file['writable'] && !in_array($file['destination'], $context['still_not_writable']))
-							$context['files'][$type][$theme][$k]['writable'] = true;
+				if (!$file['writable'] && !in_array($file['destination'], $context['still_not_writable']))
+					$context['files'][$type][$k]['writable'] = true;
 			}
 		}
 
@@ -476,10 +475,10 @@ function DownloadLanguage()
 	);
 
 	// Kill the cache, as it is now invalid..
-	if (!empty($modSettings['cache_enable']))
+	if (!empty($cache_enable))
 	{
-		cache_put_data('known_languages', null, !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600);
-		cache_put_data('known_languages_all', null, !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600);
+		cache_put_data('known_languages', null, !empty($cache_enable) && $cache_enable < 1 ? 86400 : 3600);
+		cache_put_data('known_languages_all', null, !empty($cache_enable) && $cache_enable < 1 ? 86400 : 3600);
 	}
 
 	require_once($sourcedir . '/Subs-List.php');
@@ -793,7 +792,7 @@ function ModifyLanguageSettings($return_config = false)
  */
 function ModifyLanguage()
 {
-	global $settings, $context, $smcFunc, $txt, $modSettings, $boarddir, $sourcedir, $language;
+	global $settings, $context, $smcFunc, $txt, $modSettings, $boarddir, $sourcedir, $language, $cache_enable;
 
 	loadLanguage('ManageSettings');
 
@@ -837,7 +836,7 @@ function ModifyLanguage()
 	$lang_dirs = array();
 
 	// There are different kinds of strings
-	$string_types = array('txt', 'helptxt', 'editortxt', 'tztxt');
+	$string_types = array('txt', 'helptxt', 'editortxt', 'tztxt', 'txtBirthdayEmails');
 	$additional_string_types = array();
 
 	// Some files allow the admin to add and/or remove certain types of strings
@@ -959,9 +958,9 @@ function ModifyLanguage()
 		);
 
 		// Fifth, update getLanguages() cache.
-		if (!empty($modSettings['cache_enable']))
+		if (!empty($cache_enable))
 		{
-			cache_put_data('known_languages', null, !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600);
+			cache_put_data('known_languages', null, !empty($cache_enable) && $cache_enable < 1 ? 86400 : 3600);
 		}
 
 		// Sixth, if we deleted the default language, set us back to english?
@@ -1083,6 +1082,7 @@ function ModifyLanguage()
 		// Do we want to override the helptxt for certain types of text variables?
 		$special_groups = array(
 			'Timezones' => array('txt' => 'txt_for_timezones'),
+			'EmailTemplates' => array('txt' => 'txt_for_email_templates', 'txtBirthdayEmails' => 'txt_for_email_templates'),
 		);
 		call_integration_hook('integrate_language_edit_helptext', array(&$special_groups));
 
@@ -1097,9 +1097,10 @@ function ModifyLanguage()
 			}
 		}
 
+		// Read in the file's contents and process it into entries.
+		// Also, remove any lines for uneditable variables like $forum_copyright from the working data.
 		$entries = array();
-		// We can't just require it I'm afraid - otherwise we pass in all kinds of variables!
-		foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . ($context['utf8'] ? 'u' : ''), file_get_contents($current_file)) as $blob)
+		foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . ($context['utf8'] ? 'u' : ''), preg_replace('~\s*\n(\$(?!(?:' . implode('|', $string_types) . '))[^\n]*)~', '', file_get_contents($current_file))) as $blob)
 		{
 			// Comment lines at the end of the blob can make terrible messes
 			$blob = preg_replace('~(\n[ \t]*//[^\n]*)*$~' . ($context['utf8'] ? 'u' : ''), '', $blob);
@@ -1124,7 +1125,7 @@ function ModifyLanguage()
 			}
 		}
 
-		// These are the entries we can definitely save.
+		// These will be the entries we can definitely save.
 		$final_saves = array();
 
 		$context['file_entries'] = array();
@@ -1404,8 +1405,10 @@ function ModifyLanguage()
 		{
 			checkSession();
 
+			// Get a fresh copy of the file's current content.
 			$file_contents = file_get_contents($current_file);
 
+			// Apply our changes.
 			foreach ($final_saves as $save)
 			{
 				if (!empty($save['is_regex']))
@@ -1414,7 +1417,7 @@ function ModifyLanguage()
 					$file_contents = str_replace($save['find'], $save['replace'], $file_contents);
 			}
 
-			// Save the actual changes.
+			// Save the result back to the file.
 			file_put_contents($current_file, $file_contents);
 
 			$madeSave = true;
@@ -1423,7 +1426,7 @@ function ModifyLanguage()
 		// Another restore.
 		$txt = $old_txt;
 
-		// If they can add new language entries, make sure the UI is set up for that
+		// If they can add new language entries, make sure the UI is set up for that.
 		if (!empty($context['can_add_lang_entry']))
 		{
 			// Make sure the Add button has a place to show up.
@@ -1463,7 +1466,8 @@ function ModifyLanguage()
 				$(".add_lang_entry_button").show();', true);
 		}
 
-		// Warn them if they try to submit more changes than the server can accept in a single request and make it obvious that they cannot submit changes to both the primary settings and the entries at the same time
+		// Warn them if they try to submit more changes than the server can accept in a single request.
+		// Also make it obvious that they cannot submit changes to both the primary settings and the entries at the same time.
 		if (!empty($context['file_entries']))
 		{
 			addInlineJavaScript('

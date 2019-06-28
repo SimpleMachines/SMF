@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -34,7 +34,7 @@ if (!defined('SMF'))
  */
 function deleteMembers($users, $check_not_admin = false)
 {
-	global $sourcedir, $modSettings, $user_info, $smcFunc;
+	global $sourcedir, $modSettings, $user_info, $smcFunc, $cache_enable;
 
 	// Try give us a while to sort this out...
 	@set_time_limit(600);
@@ -124,7 +124,7 @@ function deleteMembers($users, $check_not_admin = false)
 		);
 
 		// Remove any cached data if enabled.
-		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+		if (!empty($cache_enable) && $cache_enable >= 2)
 			cache_put_data('user_settings-' . $user[0], null, 60);
 	}
 
@@ -947,7 +947,12 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 	}
 
 	// Okay, they passed.
-	return false;
+	$is_reserved = false;
+
+	// Maybe a mod wants to perform further checks?
+	call_integration_hook('integrate_check_name', array($checkName, &$is_reserved, $current_ID_MEMBER, $is_name));
+
+	return $is_reserved;
 }
 
 // Get a list of groups that have a given permission (on a given board).

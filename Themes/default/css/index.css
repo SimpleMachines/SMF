@@ -87,7 +87,7 @@ textarea {
 }
 
 /* Use a consistent monospace font everywhere */
-.monospace, .bbc_code, .phpcode, pre, #error_log span.error_message {
+.monospace, .bbc_code, .phpcode, pre, #error_log span.error_message, #backtrace span.error_message {
 	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
 }
 
@@ -806,31 +806,63 @@ img.sort, .sort {
 	margin-top: 5px;
 	border-top: 1px solid #ddd;
 }
-.top_menu.scrollable .unread {
+.unread_notify {
 	border-bottom: 1px solid #ddd;
 }
-.top_menu.scrollable .no_unread {
+.no_unread {
 	margin-top: 5px;
 	text-align: center;
 }
-.top_menu.scrollable .unread:hover {
+.unread_notify:hover {
 	background: #eee;
+	text-decoration: none;
 }
-.top_menu.scrollable .unread:last-of-type {
+.unread_notify:last-child {
 	border-bottom: none;
 }
-.top_menu.scrollable .avatar {
+.unread_notify {
+	display: flex;
+	align-items: center;
+	padding: 6px 5px;
+	line-height: 20px;
+}
+.unread_notify.alert_read {
+	opacity: 0.5;
+	outline: none;
+	filter: grayscale(1);
+}
+.unread_notify strong {
+	font-weight: 600;
+}
+.unread_notify .avatar {
 	width: 40px;
 	height: 40px;
 	object-fit: scale-down;
-	margin: 4px;
+	margin: 4px 4px 4px 0;
 	display: inline-block;
 	color: transparent; /* For broken images */
+	vertical-align: bottom;
 }
-.top_menu.scrollable .details {
-	max-width: 80%;
+.unread_notify_image {
+	position: relative;
+	width: 44px;
+	margin-right: 4px;
+	text-align: center;
+}
+.unread_notify_image span.alert_icon {
+	display: block;
+	line-height: 1em;
+}
+.unread_notify_image .avatar + .alert_icon {
+	width: auto;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+.unread_notify .details {
 	display: inline-block;
 	vertical-align: top;
+	max-width: calc(100% - 48px);
 }
 #pm_menu .subject {
 	font-weight: bold;
@@ -1017,6 +1049,11 @@ img.sort, .sort {
 	border-bottom-right-radius: 0;
 	border-right: none;
 	box-shadow: -1px 0 0 rgba(255, 255, 255, 0.7);
+}
+/* in a titlebg, the buttonlist is of small height */
+.titlebg .buttonlist {
+	margin: 0;
+	padding: 0;
 }
 
 /* Styles for the general looks of the theme.
@@ -1515,6 +1552,9 @@ ul.split_messages li a.split_icon {
 ul.split_messages li a.split_icon:hover {
 	opacity: 1;
 }
+.split_messages, .message_header {
+	margin-bottom: 8px;
+}
 /* Styles for the merge topic section. */
 ul.merge_topics li {
 	list-style-type: none;
@@ -1681,7 +1721,7 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 }
 
 /* Small fix for topics */
-.quickbuttons span.main_icons {
+.quickbuttons span.main_icons, .button span.main_icons {
 	margin: -3px 3px 0 1px;
 }
 .quickbuttons span.main_icons.quote,
@@ -2320,7 +2360,6 @@ dl {
 	float: left;
 }
 .topic_details {
-	width: 94%;
 	padding: 0 4px 4px 4px;
 }
 .list_posts {
@@ -2550,6 +2589,39 @@ dl.addrules dt.floatleft {
 #alerts .alert_inline_time {
 	display: none;
 }
+#alerts .quickbuttons {
+	display: flex;
+	margin: 4px 0;
+}
+#alerts .quickbuttons li, #alerts .alert_time {
+	white-space: nowrap;
+}
+#alerts .alert_image {
+	width: 65px;
+	padding: 6px 0;
+	text-align: center;
+	vertical-align: middle;
+}
+#alerts .alert_image > div {
+	position: relative;
+}
+#alerts .alert_image .avatar {
+	max-width: 80%;
+	max-height: 80%;
+	margin-top: 4px;
+	vertical-align: bottom;
+}
+#alerts .alert_image span.alert_icon {
+	display: block;
+	width: 100%;
+	line-height: 1em;
+}
+#alerts .alert_image .avatar + .alert_icon {
+	width: auto;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
 
 /* Styles for the memberlist section.
 ------------------------------------------------- */
@@ -2762,7 +2834,7 @@ tr.windowbg:hover {
 }
 
 /* Special treatment for #forumposts area */
-#forumposts .windowbg, #forumposts .approvebg, #forumposts .approvebg2 {
+#forumposts .windowbg, #forumposts .approvebg, #forumposts .approvebg2, #pmFolder .windowbg {
 	overflow: visible;
 }
 /* Nobody wants locked topics to stand out much. */
@@ -3537,6 +3609,9 @@ h3.catbg .main_icons::before, h3.catbg .icon {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
+.cat_bar + .title_bar {
+	margin-top: 0;
+}
 /* Roundframe */
 .roundframe {
 	margin: 10px 0 0 0;
@@ -3577,6 +3652,11 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	background: none;
 	color: #555;
 	text-decoration: none;
+}
+.title_bar + .windowbg, .title_bar + .roundframe {
+	margin-top: -1px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 
 /* Other */
@@ -3785,9 +3865,6 @@ h3.profile_hd {
 #reported_members .quickbuttons li a {
 	background: none;
 }
-#modcenter .main_icons {
-	margin: -3px -3px 0 0;
-}
 
 /* Some colors for generic usage */
 /* Sometimes there will be an error when you post */
@@ -3827,10 +3904,6 @@ h3.profile_hd {
 }
 .alternative2 {
 	background-color: #e8edf0;
-}
-
-#alerts tr.windowbg td {
-	border-right: 1px solid #ddd;
 }
 
 .centerbox {

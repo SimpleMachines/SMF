@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -289,12 +289,16 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
  *
  * if the member's post number is updated, updates their post groups.
  *
- * @param mixed $members An array of member IDs, null to update this for all members or the ID of a single member
+ * @param mixed $members An array of member IDs, the ID of a single member, or null to update this for all members
  * @param array $data The info to update for the members
  */
 function updateMemberData($members, $data)
 {
-	global $modSettings, $user_info, $smcFunc, $sourcedir;
+	global $modSettings, $user_info, $smcFunc, $sourcedir, $cache_enable;
+
+	// An empty array means there's nobody to update.
+	if ($members === array())
+		return;
 
 	$parameters = array();
 	if (is_array($members))
@@ -429,14 +433,14 @@ function updateMemberData($members, $data)
 	updateStats('postgroups', $members, array_keys($data));
 
 	// Clear any caching?
-	if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2 && !empty($members))
+	if (!empty($cache_enable) && $cache_enable >= 2 && !empty($members))
 	{
 		if (!is_array($members))
 			$members = array($members);
 
 		foreach ($members as $member)
 		{
-			if ($modSettings['cache_enable'] >= 3)
+			if ($cache_enable >= 3)
 			{
 				cache_put_data('member_data-profile-' . $member, null, 120);
 				cache_put_data('member_data-normal-' . $member, null, 120);
@@ -738,7 +742,7 @@ function comma_format($number, $override_decimal_count = false)
 function timeformat($log_time, $show_today = true, $offset_type = false, $process_safe = false)
 {
 	global $context, $user_info, $txt, $modSettings;
-	static $non_twelve_hour, $locale_cache, $now;
+	static $non_twelve_hour, $locale, $now;
 	static $unsupportedFormats, $finalizedFormats;
 
 	$unsupportedFormatsWindows = array('z', 'Z');
@@ -750,40 +754,37 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 
 	// Offset the time.
 	if (!$offset_type)
-		$time = $log_time + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
+		$log_time = $log_time + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
 	// Just the forum offset?
 	elseif ($offset_type == 'forum')
-		$time = $log_time + $modSettings['time_offset'] * 3600;
-	else
-		$time = $log_time;
+		$log_time = $log_time + $modSettings['time_offset'] * 3600;
 
 	// We can't have a negative date (on Windows, at least.)
 	if ($log_time < 0)
 		$log_time = 0;
 
 	// Today and Yesterday?
+	$prefix = '';
 	if ($modSettings['todayMod'] >= 1 && $show_today === true)
 	{
-		$then = @getdate($time);
-		$now = (!empty($now) ? $now : @getdate(forum_time()));
+		$now_time = forum_time();
 
-		// Try to make something of a time format string...
-		$s = strpos($user_info['time_format'], '%S') === false ? '' : ':%S';
-		if (strpos($user_info['time_format'], '%H') === false && strpos($user_info['time_format'], '%T') === false)
+		if ($now_time - $log_time < (86400 * $modSettings['todayMod']))
 		{
-			$h = strpos($user_info['time_format'], '%l') === false ? '%I' : '%l';
-			$today_fmt = $h . ':%M' . $s . ' %p';
+			$then = @getdate($log_time);
+			$now = (!empty($now) ? $now : @getdate($now_time));
+
+			// Same day of the year, same year.... Today!
+			if ($then['yday'] == $now['yday'] && $then['year'] == $now['year'])
+			{
+				$prefix = $txt['today'];
+			}
+			// Day-of-year is one less and same year, or it's the first of the year and that's the last of the year...
+			elseif ($modSettings['todayMod'] == '2' && (($then['yday'] == $now['yday'] - 1 && $then['year'] == $now['year']) || ($now['yday'] == 0 && $then['year'] == $now['year'] - 1) && $then['mon'] == 12 && $then['mday'] == 31))
+			{
+				$prefix = $txt['yesterday'];
+			}
 		}
-		else
-			$today_fmt = '%H:%M' . $s;
-
-		// Same day of the year, same year.... Today!
-		if ($then['yday'] == $now['yday'] && $then['year'] == $now['year'])
-			return $txt['today'] . timeformat($log_time, $today_fmt, $offset_type);
-
-		// Day-of-year is one less and same year, or it's the first of the year and that's the last of the year...
-		if ($modSettings['todayMod'] == '2' && (($then['yday'] == $now['yday'] - 1 && $then['year'] == $now['year']) || ($now['yday'] == 0 && $then['year'] == $now['year'] - 1) && $then['mon'] == 12 && $then['mday'] == 31))
-			return $txt['yesterday'] . timeformat($log_time, $today_fmt, $offset_type);
 	}
 
 	$str = !is_bool($show_today) ? $show_today : $user_info['time_format'];
@@ -792,25 +793,29 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	if (is_null($finalizedFormats))
 		$finalizedFormats = (array) cache_get_data('timeformatstrings', 86400);
 
+	if (!isset($finalizedFormats[$str]) || !is_array($finalizedFormats[$str]))
+		$finalizedFormats[$str] = array();
+
 	// Make a supported version for this format if we don't already have one
-	if (empty($finalizedFormats[$str]))
+	$format_type = !empty($prefix) ? 'time_only' : 'normal';
+	if (empty($finalizedFormats[$str][$format_type]))
 	{
-		$timeformat = $str;
+		$timeformat = $format_type == 'time_only' ? get_date_or_time_format('time', $str) : $str;
 
 		// Not all systems support all formats, and Windows fails altogether if unsupported ones are
 		// used, so let's prevent that. Some substitutions go to the nearest reasonable fallback, some
-		// turn into static strings, some (i.e. %a, %A, $b, %B, %p) have special handling below.
+		// turn into static strings, some (i.e. %a, %A, %b, %B, %p) have special handling below.
 		$strftimeFormatSubstitutions = array(
 			// Day
-			'a' => '%a', 'A' => '%A', 'e' => '%d', 'd' => '&#37;d', 'j' => '&#37;j', 'u' => '%w', 'w' => '&#37;w',
+			'a' => '#txt_days_short_%w#', 'A' => '#txt_days_%w#', 'e' => '%d', 'd' => '&#37;d', 'j' => '&#37;j', 'u' => '%w', 'w' => '&#37;w',
 			// Week
 			'U' => '&#37;U', 'V' => '%U', 'W' => '%U',
 			// Month
-			'b' => '%b', 'B' => '%B', 'h' => '%b', 'm' => '%b',
+			'b' => '#txt_months_short_%m#', 'B' => '#txt_months_%m#', 'h' => '%b', 'm' => '&#37;m',
 			// Year
 			'C' => '&#37;C', 'g' => '%y', 'G' => '%Y', 'y' => '&#37;y', 'Y' => '&#37;Y',
 			// Time
-			'H' => '&#37;H', 'k' => '%H', 'I' => '%H', 'l' => '%I', 'M' => '&#37;M', 'p' => '%p', 'P' => '%p',
+			'H' => '&#37;H', 'k' => '%H', 'I' => '%H', 'l' => '%I', 'M' => '&#37;M', 'p' => '&#37;p', 'P' => '%p',
 			'r' => '%I:%M:%S %p', 'R' => '%H:%M', 'S' => '&#37;S', 'T' => '%H:%M:%S', 'X' => '%T', 'z' => '&#37;z', 'Z' => '&#37;Z',
 			// Time and Date Stamps
 			'c' => '%F %T', 'D' => '%m/%d/%y', 'F' => '%Y-%m-%d', 's' => '&#37;s', 'x' => '%F',
@@ -852,43 +857,227 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 				$timeformat = str_replace($matches[0], $strftimeFormatSubstitutions[$matches[1]], $timeformat);
 
 		// Remember this so we don't need to do it again
-		$finalizedFormats[$str] = $timeformat;
+		$finalizedFormats[$str][$format_type] = $timeformat;
 		cache_put_data('timeformatstrings', $finalizedFormats, 86400);
 	}
 
-	$str = $finalizedFormats[$str];
+	$timeformat = $finalizedFormats[$str][$format_type];
 
-	if (!isset($locale_cache))
-		$locale_cache = setlocale(LC_TIME, $txt['lang_locale'] . !empty($modSettings['global_character_set']) ? '.' . $modSettings['global_character_set'] : '');
+	// Make sure we are using the correct locale.
+	if (!isset($locale) || ($process_safe === true && setlocale(LC_TIME, '0') != $locale))
+		$locale = setlocale(LC_TIME, array($txt['lang_locale'] . '.' . $modSettings['global_character_set'], $txt['lang_locale'] . '.' . $txt['lang_character_set'], $txt['lang_locale']));
 
-	if ($locale_cache !== false)
+	// If the current locale is unsupported, we'll have to localize the hard way.
+	if ($locale === false)
 	{
-		// Check if another process changed the locale
-		if ($process_safe === true && setlocale(LC_TIME, '0') != $locale_cache)
-			setlocale(LC_TIME, $txt['lang_locale'] . !empty($modSettings['global_character_set']) ? '.' . $modSettings['global_character_set'] : '');
-
-		if (!isset($non_twelve_hour))
-			$non_twelve_hour = trim(strftime('%p')) === '';
-		if ($non_twelve_hour && strpos($str, '%p') !== false)
-			$str = str_replace('%p', (strftime('%H', $time) < 12 ? $txt['time_am'] : $txt['time_pm']), $str);
-
-		foreach (array('%a', '%A', '%b', '%B') as $token)
-			if (strpos($str, $token) !== false)
-				$str = str_replace($token, strftime($token, $time), $str);
+		$timeformat = strtr($timeformat, array(
+			'%a' => '#txt_days_short_%w#',
+			'%A' => '#txt_days_%w#',
+			'%b' => '#txt_months_short_%m#',
+			'%B' => '#txt_months_%m#',
+			'%p' => '&#37;p',
+			'%P' => '&#37;p'
+		));
 	}
+	// Just in case the locale doesn't support '%p' properly.
+	// @todo Is this even necessary?
 	else
 	{
-		// Do-it-yourself time localization.  Fun.
-		foreach (array('%a' => 'days_short', '%A' => 'days', '%b' => 'months_short', '%B' => 'months') as $token => $text_label)
-			if (strpos($str, $token) !== false)
-				$str = str_replace($token, $txt[$text_label][(int) strftime($token === '%a' || $token === '%A' ? '%w' : '%m', $time)], $str);
+		if (!isset($non_twelve_hour) && strpos($timeformat, '%p') !== false)
+			$non_twelve_hour = trim(strftime('%p')) === '';
 
-		if (strpos($str, '%p') !== false)
-			$str = str_replace('%p', (strftime('%H', $time) < 12 ? $txt['time_am'] : $txt['time_pm']), $str);
+		if (!empty($non_twelve_hour))
+			$timeformat = strtr($timeformat, array(
+				'%p' => '&#37;p',
+				'%P' => '&#37;p'
+			));
 	}
 
-	// Format the time and then restore any literal percent characters
-	return str_replace('&#37;', '%', strftime($str, $time));
+	// And now, the moment we've all be waiting for...
+	$timestring = strftime($timeformat, $log_time);
+
+	// Do-it-yourself time localization.  Fun.
+	if (strpos($timestring, '&#37;p') !== false)
+		$timestring = str_replace('&#37;p', (strftime('%H', $log_time) < 12 ? $txt['time_am'] : $txt['time_pm']), $timestring);
+	if (strpos($timestring, '#txt_') !== false)
+	{
+		if (strpos($timestring, '#txt_days_short_') !== false)
+			$timestring = strtr($timestring, array(
+				'#txt_days_short_0#' => $txt['days_short'][0],
+				'#txt_days_short_1#' => $txt['days_short'][1],
+				'#txt_days_short_2#' => $txt['days_short'][2],
+				'#txt_days_short_3#' => $txt['days_short'][3],
+				'#txt_days_short_4#' => $txt['days_short'][4],
+				'#txt_days_short_5#' => $txt['days_short'][5],
+				'#txt_days_short_6#' => $txt['days_short'][6],
+			));
+
+		if (strpos($timestring, '#txt_days_') !== false)
+			$timestring = strtr($timestring, array(
+				'#txt_days_0#' => $txt['days'][0],
+				'#txt_days_1#' => $txt['days'][1],
+				'#txt_days_2#' => $txt['days'][2],
+				'#txt_days_3#' => $txt['days'][3],
+				'#txt_days_4#' => $txt['days'][4],
+				'#txt_days_5#' => $txt['days'][5],
+				'#txt_days_6#' => $txt['days'][6],
+			));
+
+		if (strpos($timestring, '#txt_months_short_') !== false)
+			$timestring = strtr($timestring, array(
+				'#txt_months_short_01#' => $txt['months_short'][1],
+				'#txt_months_short_02#' => $txt['months_short'][2],
+				'#txt_months_short_03#' => $txt['months_short'][3],
+				'#txt_months_short_04#' => $txt['months_short'][4],
+				'#txt_months_short_05#' => $txt['months_short'][5],
+				'#txt_months_short_06#' => $txt['months_short'][6],
+				'#txt_months_short_07#' => $txt['months_short'][7],
+				'#txt_months_short_08#' => $txt['months_short'][8],
+				'#txt_months_short_09#' => $txt['months_short'][9],
+				'#txt_months_short_10#' => $txt['months_short'][10],
+				'#txt_months_short_11#' => $txt['months_short'][11],
+				'#txt_months_short_12#' => $txt['months_short'][12],
+			));
+
+		if (strpos($timestring, '#txt_months_') !== false)
+			$timestring = strtr($timestring, array(
+				'#txt_months_01#' => $txt['months'][1],
+				'#txt_months_02#' => $txt['months'][2],
+				'#txt_months_03#' => $txt['months'][3],
+				'#txt_months_04#' => $txt['months'][4],
+				'#txt_months_05#' => $txt['months'][5],
+				'#txt_months_06#' => $txt['months'][6],
+				'#txt_months_07#' => $txt['months'][7],
+				'#txt_months_08#' => $txt['months'][8],
+				'#txt_months_09#' => $txt['months'][9],
+				'#txt_months_10#' => $txt['months'][10],
+				'#txt_months_11#' => $txt['months'][11],
+				'#txt_months_12#' => $txt['months'][12],
+			));
+	}
+
+	// Restore any literal percent characters, add the prefix, and we're done.
+	return $prefix . str_replace('&#37;', '%', $timestring);
+}
+
+/**
+ * Gets a version of a strftime() format that only shows the date or time components
+ *
+ * @param string $type Either 'date' or 'time'.
+ * @param string $format A strftime() format to process. Defaults to $user_info['time_format'].
+ * @return string A strftime() format string
+ */
+function get_date_or_time_format($type = '', $format = '')
+{
+	global $user_info, $modSettings;
+	static $formats;
+
+	// If the format is invalid, fall back to defaults.
+	if (strpos($format, '%') === false)
+		$format = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %k:%M');
+
+	$orig_format = $format;
+
+	// Have we already done this?
+	if (isset($formats[$orig_format][$type]))
+		return $formats[$orig_format][$type];
+
+	if ($type === 'date')
+	{
+		$specifications = array(
+			// Day
+			'%a' => '%a', '%A' => '%A', '%e' => '%e', '%d' => '%d', '%j' => '%j', '%u' => '%u', '%w' => '%w',
+			// Week
+			'%U' => '%U', '%V' => '%V', '%W' => '%W',
+			// Month
+			'%b' => '%b', '%B' => '%B', '%h' => '%h', '%m' => '%m',
+			// Year
+			'%C' => '%C', '%g' => '%g', '%G' => '%G', '%y' => '%y', '%Y' => '%Y',
+			// Time
+			'%H' => '', '%k' => '', '%I' => '', '%l' => '', '%M' => '', '%p' => '', '%P' => '',
+			'%r' => '', '%R' => '', '%S' => '', '%T' => '', '%X' => '', '%z' => '', '%Z' => '',
+			// Time and Date Stamps
+			'%c' => '%x', '%D' => '%D', '%F' => '%F', '%s' => '%s', '%x' => '%x',
+			// Miscellaneous
+			'%n' => '', '%t' => '', '%%' => '%%',
+		);
+
+		$default_format = '%F';
+	}
+	elseif ($type === 'time')
+	{
+		$specifications = array(
+			// Day
+			'%a' => '', '%A' => '', '%e' => '', '%d' => '', '%j' => '', '%u' => '', '%w' => '',
+			// Week
+			'%U' => '', '%V' => '', '%W' => '',
+			// Month
+			'%b' => '', '%B' => '', '%h' => '', '%m' => '',
+			// Year
+			'%C' => '', '%g' => '', '%G' => '', '%y' => '', '%Y' => '',
+			// Time
+			'%H' => '%H', '%k' => '%k', '%I' => '%I', '%l' => '%l', '%M' => '%M', '%p' => '%p', '%P' => '%P',
+			'%r' => '%r', '%R' => '%R', '%S' => '%S', '%T' => '%T', '%X' => '%X', '%z' => '%z', '%Z' => '%Z',
+			// Time and Date Stamps
+			'%c' => '%X', '%D' => '', '%F' => '', '%s' => '%s', '%x' => '',
+			// Miscellaneous
+			'%n' => '', '%t' => '', '%%' => '%%',
+		);
+
+		$default_format = '%k:%M';
+	}
+	// Invalid type requests just get the full format string.
+	else
+		return $format;
+
+	// Separate the specifications we want from the ones we don't.
+	$wanted = array_filter($specifications);
+	$unwanted = array_diff(array_keys($specifications), $wanted);
+
+	// First, make any necessary substitutions in the format.
+	$format = strtr($format, $wanted);
+
+	// Next, strip out any specifications and literal text that we don't want.
+	$format_parts = preg_split('~%[' . (strtr(implode('', $unwanted), array('%' => ''))) . ']~u', $format);
+
+	foreach ($format_parts as $p => $f)
+	{
+		if (strpos($f, '%') === false)
+			unset($format_parts[$p]);
+	}
+
+	$format = implode('', $format_parts);
+
+	// Finally, strip out any unwanted leftovers.
+	// For info on the charcter classes used here, see https://www.php.net/manual/en/regexp.reference.unicode.php and https://www.regular-expressions.info/unicode.html
+	$format = preg_replace(
+		array(
+			// Anything that isn't a specification, punctuation mark, or whitespace.
+			'~(?<!%)\p{L}|[^\p{L}\p{P}\s]~u',
+			// A series of punctuation marks (except %), possibly separated by whitespace.
+			'~([^%\P{P}])(\s*)(?'.'>(\1|[^%\P{Po}])\s*(?!$))*~u',
+			// Unwanted trailing punctuation and whitespace.
+			'~(?'.'>([\p{Pd}\p{Ps}\p{Pi}\p{Pc}]|[^%\P{Po}])\s*)*$~u',
+			// Unwanted opening punctuation and whitespace.
+			'~^\s*(?'.'>([\p{Pd}\p{Pe}\p{Pf}\p{Pc}]|[^%\P{Po}])\s*)*~u',
+		),
+		array(
+			'',
+			'$1$2',
+			'',
+			'',
+		),
+		$format
+	);
+
+	// Gotta have something...
+	if (empty($format))
+		$format = $default_format;
+
+	// Remember what we've done.
+	$formats[$orig_format][$type] = trim($format);
+
+	return $formats[$orig_format][$type];
 }
 
 /**
@@ -1020,8 +1209,8 @@ function permute($array)
  */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
-	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
-	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
+	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir, $cache_enable;
+	static $bbc_lang_locales = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled, $alltags_regex = '', $param_regexes = array();
 
 	// Don't waste cycles
@@ -1053,12 +1242,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		return $message;
 	}
 
-	// If we are not doing every tag then we don't cache this run.
-	if (!empty($parse_tags) && !empty($bbc_codes))
-	{
-		$temp_bbc = $bbc_codes;
+	// If we already have a version of the BBCodes for the current language, use that. Otherwise, make one.
+	if (!empty($bbc_lang_locales[$txt['lang_locale']]))
+		$bbc_codes = $bbc_lang_locales[$txt['lang_locale']];
+	else
 		$bbc_codes = array();
-	}
+
+	// If we are not doing every tag then we don't cache this run.
+	if (!empty($parse_tags))
+		$bbc_codes = array();
 
 	// Ensure $modSettings['tld_regex'] contains a valid regex for the autolinker
 	if (!empty($modSettings['autoLinkUrls']))
@@ -1926,8 +2118,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		// This is mainly for the bbc manager, so it's easy to add tags above.  Custom BBC should be added above this line.
 		if ($message === false)
 		{
-			if (isset($temp_bbc))
-				$bbc_codes = $temp_bbc;
 			usort($codes, function($a, $b)
 			{
 				return strcmp($a['tag'], $b['tag']);
@@ -2011,7 +2201,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	}
 
 	// Shall we take the time to cache this?
-	if ($cache_id != '' && !empty($modSettings['cache_enable']) && (($modSettings['cache_enable'] >= 2 && isset($message[1000])) || isset($message[2400])) && empty($parse_tags))
+	if ($cache_id != '' && !empty($cache_enable) && (($cache_enable >= 2 && isset($message[1000])) || isset($message[2400])) && empty($parse_tags))
 	{
 		// It's likely this will change if the message is modified.
 		$cache_key = 'parse:' . $cache_id . '-' . md5(md5($message) . '-' . $smileys . (empty($disabled) ? '' : implode(',', array_keys($disabled))) . $smcFunc['json_encode']($context['browser']) . $txt['lang_locale'] . $user_info['time_offset'] . $user_info['time_format']);
@@ -2173,100 +2363,109 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					// Parse any URLs
 					if (!isset($disabled['url']) && strpos($data, '[url') === false)
 					{
-						$url_regex = '
-						(?:
-							# IRIs with a scheme (or at least an opening "//")
-							(?:
-								# URI scheme (or lack thereof for schemeless URLs)
-								(?:
-									# URL scheme and colon
-									\b[a-z][\w\-]+:
-									| # or
-									# A boundary followed by two slashes for schemeless URLs
-									(?<=^|\W)(?=//)
-								)
+						// For efficiency, first define the TLD regex in a PCRE subroutine
+						$url_regex = '(?(DEFINE)(?<tlds>' . $modSettings['tld_regex'] . '))';
 
-								# IRI "authority" chunk
-								(?:
-									# 2 slashes for IRIs with an "authority"
-									//
-									# then a domain name
-									(?:
-										# Either the reserved "localhost" domain name
-										localhost
-										| # or
-										# a run of Unicode domain name characters and a dot
-										[\p{L}\p{M}\p{N}\-.:@]+\.
-										# and then a TLD valid in the DNS or the reserved "local" TLD
-										(?:' . $modSettings['tld_regex'] . '|local)
-									)
-									# followed by a non-domain character or end of line
-									(?=[^\p{L}\p{N}\-.]|$)
+						// Now build the rest of the regex
+						$url_regex .=
+						// 1. IRI scheme and domain components
+						'(?:' .
+							// 1a. IRIs with a scheme, or at least an opening "//"
+							'(?:' .
 
-									| # Or, if there is no "authority" per se (e.g. mailto: URLs) ...
+								// URI scheme (or lack thereof for schemeless URLs)
+								'(?:' .
+									// URL scheme and colon
+									'\b[a-z][\w\-]+:' .
+									// or
+									'|' .
+									// A boundary followed by two slashes for schemeless URLs
+									'(?<=^|\W)(?=//)' .
+								')' .
 
-									# a run of IRI characters
-									[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.:@]+[\p{L}\p{M}\p{N}]
-									# and then a dot and a closing IRI label
-									\.[\p{L}\p{M}\p{N}\-]+
-								)
-							)
+								// IRI "authority" chunk
+								'(?:' .
+									// 2 slashes for IRIs with an "authority"
+									'//' .
+									// then a domain name
+									'(?:' .
+										// Either the reserved "localhost" domain name
+										'localhost' .
+										// or
+										'|' .
+										// a run of IRI characters, a dot, and a TLD
+										'[\p{L}\p{M}\p{N}\-.:@]+\.(?P>tlds)' .
+									')' .
+									// followed by a non-domain character or end of line
+									'(?=[^\p{L}\p{N}\-.]|$)' .
 
-							| # or
+									// or, if no "authority" per se (e.g. "mailto:" URLs)...
+									'|' .
 
-							# Naked domains (e.g. "example.com" in "Go to example.com for an example.")
-							(?:
-								# Preceded by start of line or a non-domain character
-								(?<=^|[^\p{L}\p{M}\p{N}\-:@])
+									// a run of IRI characters
+									'[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.:@]+[\p{L}\p{M}\p{N}]' .
+									// and then a dot and a closing IRI label
+									'\.[\p{L}\p{M}\p{N}\-]+' .
+								')' .
+							')' .
 
-								# A run of Unicode domain name characters (excluding [:@])
-								[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.]+[\p{L}\p{M}\p{N}]
-								# and then a dot and a valid TLD
-								\.' . $modSettings['tld_regex'] . '
+							// Or
+							'|' .
 
-								# Followed by either:
-								(?=
-									# end of line or a non-domain character (excluding [.:@])
-									$|[^\p{L}\p{N}\-]
-									| # or
-									# a dot followed by end of line or a non-domain character (excluding [.:@])
-									\.(?=$|[^\p{L}\p{N}\-])
-								)
-							)
-						)
+							// 1b. Naked domains (e.g. "example.com" in "Go to example.com for an example.")
+							'(?:' .
+								// Preceded by start of line or a non-domain character
+								'(?<=^|[^\p{L}\p{M}\p{N}\-:@])' .
+								// A run of Unicode domain name characters (excluding [:@])
+								'[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.]+[\p{L}\p{M}\p{N}]' .
+								// and then a dot and a valid TLD
+								'\.(?P>tlds)' .
+								// Followed by either:
+								'(?=' .
+									// end of line or a non-domain character (excluding [.:@])
+									'$|[^\p{L}\p{N}\-]' .
+									// or
+									'|' .
+									// a dot followed by end of line or a non-domain character (excluding [.:@])
+									'\.(?=$|[^\p{L}\p{N}\-])' .
+								')' .
+							')' .
+						')' .
 
-						# IRI path, query, and fragment (if present)
-						(?:
-							# If any of these parts exist, must start with a single /
-							/
+						// 2. IRI path, query, and fragment components (if present)
+						'(?:' .
 
-							# And then optionally:
-							(?:
-								# One or more of:
-								(?:
-									# a run of non-space, non-()<>
-									[^\s()<>]+
-									| # or
-									# balanced parens, up to 2 levels
-									\(([^\s()<>]+|(\([^\s()<>]+\)))*\)
-								)+
+							// If any of these parts exist, must start with a single "/"
+							'/' .
 
-								# End with:
-								(?:
-									# balanced parens, up to 2 levels
-									\(([^\s()<>]+|(\([^\s()<>]+\)))*\)
-									| # or
-									# not a space or one of these punct char
-									[^\s`!()\[\]{};:\'".,<>?«»“”‘’/]
-									| # or
-									# a trailing slash (but not two in a row)
-									(?<!/)/
-								)
-							)?
-						)?
-						';
+							// And then optionally:
+							'(?:' .
+								// One or more of:
+								'(?:' .
+									// a run of non-space, non-()<>
+									'[^\s()<>]+' .
+									// or
+									'|' .
+									// balanced parentheses, up to 2 levels
+									'\(([^\s()<>]+|(\([^\s()<>]+\)))*\)' .
+								')+' .
+								// Ending with:
+								'(?:' .
+									// balanced parentheses, up to 2 levels
+									'\(([^\s()<>]+|(\([^\s()<>]+\)))*\)' .
+									// or
+									'|' .
+									// not a space or one of these punctuation characters
+									'[^\s`!()\[\]{};:\'".,<>?«»“”‘’/]' .
+									// or
+									'|' .
+									// a trailing slash (but not two in a row)
+									'(?<!/)/' .
+								')' .
+							')?' .
+						')?';
 
-						$data = preg_replace_callback('~' . $url_regex . '~xi' . ($context['utf8'] ? 'u' : ''), function($matches)
+						$data = preg_replace_callback('~' . $url_regex . '~i' . ($context['utf8'] ? 'u' : ''), function($matches)
 						{
 							$url = array_shift($matches);
 
@@ -2971,22 +3170,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	// If this was a force parse revert if needed.
 	if (!empty($parse_tags))
 	{
-		if (empty($temp_bbc))
-			$bbc_codes = array();
-		else
-		{
-			$bbc_codes = $temp_bbc;
-			unset($temp_bbc);
-		}
-
-		if (empty($real_alltags_regex))
-			$alltags_regex = '';
-		else
-		{
-			$alltags_regex = $real_alltags_regex;
-			unset($real_alltags_regex);
-		}
+		$alltags_regex = empty($real_alltags_regex) ? '' : $real_alltags_regex;
+		unset($real_alltags_regex);
 	}
+	elseif (!empty($bbc_codes))
+		$bbc_lang_locales[$txt['lang_locale']] = $bbc_codes;
 
 	return $message;
 }
@@ -3141,7 +3329,7 @@ function get_proxied_url($url)
 		return strtr($url, array('http://' => 'https://'));
 
 	// By default, use SMF's own image proxy script
-	$proxied_url = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($url) . '&hash=' . md5($url . $image_proxy_secret);
+	$proxied_url = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($url) . '&hash=' . hash_hmac('sha1', $url, $image_proxy_secret);
 
 	// Allow mods to easily implement an alternative proxy
 	// MOD AUTHORS: To add settings UI for your proxy, use the integrate_general_settings hook.
@@ -3218,7 +3406,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
  */
 function obExit($header = null, $do_footer = null, $from_index = false, $from_fatal_error = false)
 {
-	global $context, $settings, $modSettings, $txt, $smcFunc;
+	global $context, $settings, $modSettings, $txt, $smcFunc, $should_log;
 	static $header_done = false, $footer_done = false, $level = 0, $has_fatal_error = false;
 
 	// Attempt to prevent a recursive loop.
@@ -3295,7 +3483,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	}
 
 	// Remember this URL in case someone doesn't like sending HTTP_REFERER.
-	if (strpos($_SERVER['REQUEST_URL'], 'action=dlattach') === false && strpos($_SERVER['REQUEST_URL'], 'action=viewsmfile') === false)
+	if ($should_log)
 		$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];
 
 	// For session check verification.... don't switch browsers...
@@ -3647,7 +3835,7 @@ function memoryReturnBytes($val)
  */
 function template_header()
 {
-	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir;
+	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir, $cache_enable;
 
 	setupThemeContext();
 
@@ -3717,7 +3905,7 @@ function template_header()
 			if ($modSettings['requireAgreement'])
 				$agreement = !file_exists($boarddir . '/agreement.txt');
 
-			if (!empty($securityFiles) || (!empty($modSettings['cache_enable']) && !is_writable($cachedir)) || !empty($agreement))
+			if (!empty($securityFiles) || (!empty($cache_enable) && !is_writable($cachedir)) || !empty($agreement))
 			{
 				echo '
 		<div class="errorbox">
@@ -3735,7 +3923,7 @@ function template_header()
 				', sprintf($txt['not_removed_extra'], $securityFile, substr($securityFile, 0, -1)), '<br>';
 				}
 
-				if (!empty($modSettings['cache_enable']) && !is_writable($cachedir))
+				if (!empty($cache_enable) && !is_writable($cachedir))
 					echo '
 				<strong>', $txt['cache_writable'], '</strong><br>';
 
@@ -3800,8 +3988,9 @@ function template_footer()
 	$context['load_time'] = round(microtime(true) - $time_start, 3);
 	$context['load_queries'] = $db_count;
 
-	foreach (array_reverse($context['template_layers']) as $layer)
-		loadSubTemplate($layer . '_below', true);
+	if (!empty($context['template_layers']) && is_array($context['template_layers']))
+		foreach (array_reverse($context['template_layers']) as $layer)
+			loadSubTemplate($layer . '_below', true);
 }
 
 /**
@@ -3875,8 +4064,21 @@ function template_javascript($do_deferred = false)
 			}
 
 			else
+			{
 				echo '
-	<script src="', $js_file['fileUrl'], isset($file['options']['seed']) ? $file['options']['seed'] : '', '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '', '></script>';
+	<script src="', $js_file['fileUrl'], isset($js_file['options']['seed']) ? $js_file['options']['seed'] : '', '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '';
+
+				if (!empty($js_file['options']['attributes']))
+					foreach ($js_file['options']['attributes'] as $key => $value)
+					{
+						if (is_bool($value))
+							echo !empty($value) ? ' ' . $key : '';
+						else
+							echo ' ', $key, '="', $value, '"';
+					}
+
+				echo '></script>';
+			}
 		}
 
 		foreach ($toMinify as $js_files)
@@ -3938,9 +4140,10 @@ function template_css()
 	$toMinify = array();
 	$normal = array();
 
-	ksort($context['css_files_order']);
-	$context['css_files'] = array_merge(array_flip($context['css_files_order']), $context['css_files']);
-
+	usort($context['css_files'], function ($a, $b)
+	{
+		return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
+	});
 	foreach ($context['css_files'] as $id => $file)
 	{
 		// Last minute call! allow theme authors to disable single files.
@@ -3960,7 +4163,10 @@ function template_css()
 				$minSeed = $file['options']['seed'];
 		}
 		else
-			$normal[] = $file['fileUrl'] . (isset($file['options']['seed']) ? $file['options']['seed'] : '');
+			$normal[] = array(
+				'url' => $file['fileUrl'] . (isset($file['options']['seed']) ? $file['options']['seed'] : ''),
+				'attributes' => !empty($file['options']['attributes']) ? $file['options']['attributes'] : array()
+			);
 	}
 
 	if (!empty($toMinify))
@@ -3977,8 +4183,21 @@ function template_css()
 	// Print the rest after the minified files.
 	if (!empty($normal))
 		foreach ($normal as $nf)
+		{
 			echo '
-	<link rel="stylesheet" href="', $nf, '">';
+	<link rel="stylesheet" href="', $nf['url'], '"';
+
+			if (!empty($nf['attributes']))
+				foreach ($nf['attributes'] as $key => $value)
+				{
+					if (is_bool($value))
+						echo !empty($value) ? ' ' . $key : '';
+					else
+						echo ' ', $key, '="', $value, '"';
+				}
+
+			echo '>';
+		}
 
 	if ($db_show_debug === true)
 	{
@@ -4410,6 +4629,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 /**
  * Creates an image/text button
  *
+ * @deprecated since 2.1
  * @param string $name The name of the button (should be a main_icons class or the name of an image)
  * @param string $alt The alt text
  * @param string $label The $txt string to use as the label
@@ -4440,7 +4660,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  */
 function setupMenuContext()
 {
-	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc;
+	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc, $cache_enable;
 
 	// Set up the menu privileges.
 	$context['allow_search'] = !empty($modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
@@ -4683,7 +4903,7 @@ function setupMenuContext()
 				$menu_buttons[$act] = $button;
 			}
 
-		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+		if (!empty($cache_enable) && $cache_enable >= 2)
 			cache_put_data('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $menu_buttons, $cacheTime);
 	}
 
@@ -5392,8 +5612,6 @@ function sanitizeMSCutPaste($string)
 		"\xe2\x80\x99",	// right single curly quote
 		"\xe2\x80\x9c",	// left double curly quote
 		"\xe2\x80\x9d",	// right double curly quote
-		"\xe2\x80\x93",	// en dash
-		"\xe2\x80\x94",	// em dash
 	);
 
 	// windows 1252 / iso equivalents
@@ -5405,8 +5623,6 @@ function sanitizeMSCutPaste($string)
 		chr(146),
 		chr(147),
 		chr(148),
-		chr(150),
-		chr(151),
 	);
 
 	// safe replacements
@@ -5418,8 +5634,6 @@ function sanitizeMSCutPaste($string)
 		"'",	// &rsquo;
 		'"',	// &ldquo;
 		'"',	// &rdquo;
-		'-',	// &ndash;
-		'--',	// &mdash;
 	);
 
 	if ($context['utf8'])
@@ -6159,12 +6373,14 @@ function smf_serverResponse($data = '', $type = 'content-type: application/json'
  *
  * The optimized regex is stored in $modSettings['tld_regex'].
  *
- * To update the stored version of the regex to use the latest list of valid TLDs from iana.org, set
- * the $update parameter to true. Updating can take some time, based on network connectivity, so it
- * should normally only be done by calling this function from a background or scheduled task.
+ * To update the stored version of the regex to use the latest list of valid
+ * TLDs from iana.org, set the $update parameter to true. Updating can take some
+ * time, based on network connectivity, so it should normally only be done by
+ * calling this function from a background or scheduled task.
  *
- * If $update is not true, but the regex is missing or invalid, the regex will be regenerated from a
- * hard-coded list of TLDs. This regenerated regex will be overwritten on the next scheduled update.
+ * If $update is not true, but the regex is missing or invalid, the regex will
+ * be regenerated from a hard-coded list of TLDs. This regenerated regex will be
+ * overwritten on the next scheduled update.
  *
  * @param bool $update If true, fetch and process the latest official list of TLDs from iana.org.
  */
@@ -6181,14 +6397,21 @@ function set_tld_regex($update = false)
 	if ($update)
 	{
 		$tlds = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
+		$tlds_md5 = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt.md5');
 
-		// If the Internet Assigned Numbers Authority can't be reached, the Internet is GONE!
-		// We're probably running on a server hidden in a bunker deep underground to protect it from
-		// marauding bandits roaming on the surface. We don't want to waste precious electricity on
-		// pointlessly repeating background tasks, so we'll wait until the next regularly scheduled
-		// update to see if civilization has been restored.
-		if ($tlds === false)
+		/**
+		 * If the Internet Assigned Numbers Authority can't be reached, the Internet is GONE!
+		 * We're probably running on a server hidden in a bunker deep underground to protect
+		 * it from marauding bandits roaming on the surface. We don't want to waste precious
+		 * electricity on pointlessly repeating background tasks, so we'll wait until the next
+		 * regularly scheduled update to see if civilization has been restored.
+		 */
+		if ($tlds === false || $tlds_md5 === false)
 			$postapocalypticNightmare = true;
+
+		// Make sure nothing went horribly wrong along the way.
+		if (md5($tlds) != substr($tlds_md5, 0, 32))
+			$tlds = array();
 	}
 	// If we aren't updating and the regex is valid, we're done
 	elseif (!empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', null) !== false)
@@ -6204,7 +6427,7 @@ function set_tld_regex($update = false)
 		$tlds = array_filter(explode("\n", strtolower($tlds)), function($line)
 		{
 			$line = trim($line);
-			if (empty($line) || strpos($line, '#') !== false || strpos($line, ' ') !== false)
+			if (empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'))
 				return false;
 			else
 				return true;
@@ -6221,27 +6444,29 @@ function set_tld_regex($update = false)
 	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
 	else
 	{
-		$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz', 'cat',
-			'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post', 'pro', 'tel',
-			'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'an', 'ao', 'aq',
-			'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh',
-			'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc',
-			'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cs', 'cu', 'cv',
-			'cx', 'cy', 'cz', 'dd', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg', 'eh',
-			'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr', 'ga', 'gb', 'gd', 'ge',
-			'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw',
-			'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq',
-			'ir', 'is', 'it', 'ja', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn',
-			'kp', 'kr', 'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu',
-			'lv', 'ly', 'ma', 'mc', 'md', 'me', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp',
-			'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf',
-			'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph',
-			'pk', 'pl', 'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru',
-			'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn',
-			'so', 'sr', 'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th',
-			'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tp', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug',
-			'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'ye',
-			'yt', 'yu', 'za', 'zm', 'zw');
+		$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz',
+			'cat', 'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post',
+			'pro', 'tel', 'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al',
+			'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd',
+			'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv',
+			'bw', 'by', 'bz', 'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm',
+			'cn', 'co', 'cr', 'cu', 'cv', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do',
+			'dz', 'ec', 'ee', 'eg', 'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo',
+			'fr', 'ga', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp',
+			'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu',
+			'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'ir', 'is', 'it', 'je', 'jm', 'jo',
+			'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn', 'kp', 'kr', 'kw', 'ky', 'kz', 'la',
+			'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu', 'lv', 'ly', 'ma', 'mc', 'md',
+			'me', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt',
+			'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl',
+			'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl',
+			'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw',
+			'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn',
+			'so', 'sr', 'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg',
+			'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua',
+			'ug', 'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf',
+			'ws', 'ye', 'yt', 'za', 'zm', 'zw',
+		);
 
 		// Schedule a background update, unless civilization has collapsed and/or we are having connectivity issues.
 		if (empty($postapocalypticNightmare))
@@ -6252,6 +6477,10 @@ function set_tld_regex($update = false)
 			);
 		}
 	}
+
+	// Tack on some "special use domain names" that aren't in DNS but may possibly resolve.
+	// See https://www.iana.org/assignments/special-use-domain-names/ for more info.
+	$tlds = array_merge($tlds, array('local', 'onion', 'test'));
 
 	// Get an optimized regex to match all the TLDs
 	$tld_regex = build_regex($tlds);
@@ -6266,18 +6495,22 @@ function set_tld_regex($update = false)
 /**
  * Creates optimized regular expressions from an array of strings.
  *
- * An optimized regex built using this function will be much faster than a simple regex built using
- * `implode('|', $strings)` --- anywhere from several times to several orders of magnitude faster.
+ * An optimized regex built using this function will be much faster than a
+ * simple regex built using `implode('|', $strings)` --- anywhere from several
+ * times to several orders of magnitude faster.
  *
- * However, the time required to build the optimized regex is approximately equal to the time it
- * takes to execute the simple regex. Therefore, it is only worth calling this function if the
- * resulting regex will be used more than once.
+ * However, the time required to build the optimized regex is approximately
+ * equal to the time it takes to execute the simple regex. Therefore, it is only
+ * worth calling this function if the resulting regex will be used more than
+ * once.
  *
- * Because PHP places an upper limit on the allowed length of a regex, very large arrays of $strings
- * may not fit in a single regex. Normally, the excess strings will simply be dropped. However, if
- * the $returnArray parameter is set to true, this function will build as many regexes as necessary
- * to accommodate everything in $strings and return them in an array. You will need to iterate
- * through all elements of the returned array in order to test all possible matches.
+ * Because PHP places an upper limit on the allowed length of a regex, very
+ * large arrays of $strings may not fit in a single regex. Normally, the excess
+ * strings will simply be dropped. However, if the $returnArray parameter is set
+ * to true, this function will build as many regexes as necessary to accommodate
+ * everything in $strings and return them in an array. You will need to iterate
+ * through all elements of the returned array in order to test all possible
+ * matches.
  *
  * @param array $strings An array of strings to make a regex for.
  * @param string $delim An optional delimiter character to pass to preg_quote().
@@ -6287,6 +6520,10 @@ function set_tld_regex($update = false)
 function build_regex($strings, $delim = null, $returnArray = false)
 {
 	global $smcFunc;
+
+	// If it's not an array, there's not much to do. ;)
+	if (!is_array($strings))
+		return preg_quote(@strval($strings), $delim);
 
 	// The mb_* functions are faster than the $smcFunc ones, but may not be available
 	if (function_exists('mb_internal_encoding') && function_exists('mb_detect_encoding') && function_exists('mb_strlen') && function_exists('mb_substr'))
@@ -6312,7 +6549,21 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		static $depth = 0;
 		$depth++;
 
-		$first = $substr($string, 0, 1);
+		$first = @$substr($string, 0, 1);
+
+		// No first character? That's no good.
+		if (empty($first))
+		{
+			// A nested array? Really? Ugh. Fine.
+			if (is_array($string) && $depth < 20)
+			{
+				foreach ($string as $str)
+					$index = $add_string_to_index($str, $index);
+			}
+
+			$depth--;
+			return $index;
+		}
 
 		if (empty($index[$first]))
 			$index[$first] = array();
@@ -6500,17 +6751,12 @@ function build_query_board($userid)
 	global $user_info, $modSettings, $smcFunc, $db_prefix;
 
 	$query_part = array();
-	$groups = array();
-	$is_admin = false;
-	$mod_cache;
-	$ignoreboards;
 
 	// If we come from cron, we can't have a $user_info.
 	if (isset($user_info['id']) && $user_info['id'] == $userid)
 	{
 		$groups = $user_info['groups'];
-		$is_admin = $user_info['is_admin'];
-		$mod_cache = !empty($user_info['mod_cache']) ? $user_info['mod_cache'] : null;
+		$can_see_all_boards = $user_info['is_admin'] || $user_info['can_manage_boards'];
 		$ignoreboards = !empty($user_info['ignoreboards']) ? $user_info['ignoreboards'] : null;
 	}
 	else
@@ -6539,46 +6785,13 @@ function build_query_board($userid)
 		foreach ($groups as $k => $v)
 			$groups[$k] = (int) $v;
 
-		$is_admin = in_array(1, $groups);
+		$can_see_all_boards = in_array(1, $groups) || (!empty($modSettings['board_manager_groups']) && count(array_intersect($groups, explode(',', $modSettings['board_manager_groups']))) > 0);
 
 		$ignoreboards = !empty($row['ignore_boards']) && !empty($modSettings['allow_ignore_boards']) ? explode(',', $row['ignore_boards']) : array();
-
-		// What boards are they the moderator of?
-		$boards_mod = array();
-
-		$request = $smcFunc['db_query']('', '
-			SELECT id_board
-			FROM {db_prefix}moderators
-			WHERE id_member = {int:current_member}',
-			array(
-				'current_member' => $userid,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$boards_mod[] = $row['id_board'];
-		$smcFunc['db_free_result']($request);
-
-		// Can any of the groups they're in moderate any of the boards?
-		$request = $smcFunc['db_query']('', '
-			SELECT id_board
-			FROM {db_prefix}moderator_groups
-			WHERE id_group IN({array_int:groups})',
-			array(
-				'groups' => $groups,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$boards_mod[] = $row['id_board'];
-		$smcFunc['db_free_result']($request);
-
-		// Just in case we've got duplicates here...
-		$boards_mod = array_unique($boards_mod);
-
-		$mod_cache['mq'] = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';
 	}
 
 	// Just build this here, it makes it easier to change/use - administrators can see all boards.
-	if ($is_admin || allowedTo('manage_boards'))
+	if ($can_see_all_boards)
 		$query_part['query_see_board'] = '1=1';
 	// Otherwise just the groups in $user_info['groups'].
 	else
@@ -6603,15 +6816,26 @@ function build_query_board($userid)
 			)';
 	}
 
+	$query_part['query_see_message_board'] = str_replace('b.', 'm.', $query_part['query_see_board']);
+	$query_part['query_see_topic_board'] = str_replace('b.', 't.', $query_part['query_see_board']);
+
 	// Build the list of boards they WANT to see.
 	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
 
 	// If they aren't ignoring any boards then they want to see all the boards they can see
 	if (empty($ignoreboards))
+	{
 		$query_part['query_wanna_see_board'] = $query_part['query_see_board'];
+		$query_part['query_wanna_see_message_board'] = $query_part['query_see_message_board'];
+		$query_part['query_wanna_see_topic_board'] = $query_part['query_see_topic_board'];
+	}
 	// Ok I guess they don't want to see all the boards
 	else
+	{
 		$query_part['query_wanna_see_board'] = '(' . $query_part['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
+		$query_part['query_wanna_see_message_board'] = '(' . $query_part['query_see_message_board'] . ' AND m.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
+		$query_part['query_wanna_see_topic_board'] = '(' . $query_part['query_see_topic_board'] . ' AND t.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
+	}
 
 	return $query_part;
 }
@@ -6880,6 +7104,77 @@ function sentence_list($list)
 
 	// Do the deed
 	return strtr($format, $replacements);
+}
+
+/**
+ * Truncate an array to a specified length
+ *
+ * @param array $array The array to truncate
+ * @param int $max_length The upperbound on the length
+ * @param int $deep How levels in an multidimensional array should the function take into account.
+ * @return array The truncated array
+ */
+function truncate_array($array, $max_length = 1900, $deep = 3)
+{
+    $array = (array) $array;
+
+    $curr_length = array_length($array, $deep);
+
+    if ($curr_length <= $max_length)
+        return $array;
+
+    else
+    {
+        // Truncate each element's value to a reasonable length
+        $param_max = floor($max_length / count($array));
+
+        $current_deep = $deep - 1;
+
+        foreach ($array as $key => &$value)
+        {
+            if (is_array($value))
+                if ($current_deep > 0)
+                    $value = truncate_array($value, $current_deep);
+
+            else
+                $value = substr($value, 0, $param_max - strlen($key) - 5);
+        }
+
+        return $array;
+    }
+}
+
+/**
+ * array_length Recursive
+ * @param $array
+ * @param int $deep How many levels should the function
+ * @return int
+ */
+function array_length($array, $deep = 3)
+{
+    // Work with arrays
+    $array = (array) $array;
+    $length = 0;
+
+    $deep_count = $deep - 1;
+
+    foreach ($array as $value)
+    {
+        // Recursive?
+        if (is_array($value))
+        {
+            // No can't do
+            if ($deep_count <= 0)
+                continue;
+
+            $length += array_length($value, $deep_count);
+        }
+
+        else
+            $length += strlen($value);
+    }
+
+    return $length;
 }
 
 ?>

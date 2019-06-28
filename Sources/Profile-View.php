@@ -8,7 +8,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -122,7 +122,8 @@ function summary($memID)
 		$context['token_check'] = 'profile-aa' . $memID;
 		createToken($context['token_check'], 'get');
 
-		$context['activate_link'] = $scripturl . '?action=profile;save;area=activateaccount;u=' . $context['id_member'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context[$context['token_check'] . '_token_var'] . '=' . $context[$context['token_check'] . '_token'];
+		// Puerile comment
+		$context['activate_link'] = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve;' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context[$context['token_check'] . '_token_var'] . '=' . $context[$context['token_check'] . '_token'];
 	}
 
 	// Is the signature even enabled on this forum?
@@ -216,46 +217,59 @@ function summary($memID)
 /**
  * Fetch the alerts a member currently has.
  *
- * @param int $memID The ID of the member
- * @param bool $all Whether to fetch all alerts or just unread ones
- * @param int $counter How many alerts to display (0 if displaying all or using pagination)
- * @param array $pagination An array containing info for handling pagination. Should have 'start' and 'maxIndex'
- * @param bool $withSender With $memberContext from sender
- * @return array An array of information about the fetched alerts
+ * @param int $memID The ID of the member.
+ * @param mixed $to_fetch Alerts to fetch: true/false for all/unread, or a list of one or more IDs.
+ * @param array $limit Maximum number of alerts to fetch (0 for no limit).
+ * @param array $offset Number of alerts to skip for pagination. Ignored if $to_fetch is a list of IDs.
+ * @param bool $with_avatar Whether to load the avatar of the alert sender.
+ * @param bool $show_links Whether to show links in the constituent parts of the alert meessage.
+ * @return array An array of information about the fetched alerts.
  */
-function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(), $withSender = true)
+function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_avatar = false, $show_links = false)
 {
-	global $smcFunc, $txt, $scripturl, $memberContext, $user_info, $user_profile;
+	global $smcFunc, $txt, $scripturl, $user_info, $user_profile, $modSettings, $context;
 
-	// If this isn't the current user, get their boards.
-	if (!isset($user_info) || $user_info['id'] != $memID)
-	{
-		$query_see_board = build_query_board($memID);
-		$query_see_board = $query_see_board['query_see_board'];
-	}
-	else
-		$query_see_board = '{query_see_board}';
+	// Are we being asked for some specific alerts?
+	$alertIDs = is_bool($to_fetch) ? array() : array_filter(array_map('intval', (array) $to_fetch));
 
+	// Basic sanitation.
+	$memID = (int) $memID;
+	$unread = $to_fetch === false;
+	$limit = max(0, (int) $limit);
+	$offset = !empty($alertIDs) ? 0 : max(0, (int) $offset);
+	$with_avatar = !empty($with_avatar);
+	$show_links = !empty($show_links);
+
+	// Arrays we'll need.
 	$alerts = array();
+	$senders = array();
+	$profiles = array();
+	$profile_alerts = array();
+	$possible_msgs = array();
+	$possible_topics = array();
+
+	// Get the basic alert info.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_alert, alert_time, mem.id_member AS sender_id, COALESCE(mem.real_name, ua.member_name) AS sender_name,
-			content_type, content_id, content_action, is_read, extra
-		FROM {db_prefix}user_alerts AS ua
-			LEFT JOIN {db_prefix}members AS mem ON (ua.id_member_started = mem.id_member)
-		WHERE ua.id_member = {int:id_member}' . (!$all ? '
-			AND is_read = 0' : '') . '
-		ORDER BY id_alert DESC' . (!empty($counter) && empty($pagination) ? '
-		LIMIT {int:counter}' : '') . (!empty($pagination) && empty($counter) ? '
-		LIMIT {int:start}, {int:maxIndex}' : ''),
+		SELECT a.id_alert, a.alert_time, a.is_read, a.extra,
+			a.content_type, a.content_id, a.content_action,
+			mem.id_member AS sender_id, COALESCE(mem.real_name, a.member_name) AS sender_name' . ($with_avatar ? ',
+			mem.email_address AS sender_email, mem.avatar AS sender_avatar, f.filename AS sender_filename' : '') . '
+		FROM {db_prefix}user_alerts AS a
+			LEFT JOIN {db_prefix}members AS mem ON (a.id_member_started = mem.id_member)' . ($with_avatar ? '
+			LEFT JOIN {db_prefix}attachments AS f ON (mem.id_member = f.id_member)' : '') . '
+		WHERE a.id_member = {int:id_member}' . ($unread ? '
+			AND a.is_read = 0' : '') . (!empty($alertIDs) ? '
+			AND a.id_alert IN ({array_int:alertIDs})' : '') . '
+		ORDER BY id_alert DESC' . (!empty($limit) ? '
+		LIMIT {int:limit}' : '') . (!empty($offset) ?'
+		OFFSET {int:offset}' : ''),
 		array(
 			'id_member' => $memID,
-			'counter' => $counter,
-			'start' => !empty($pagination['start']) ? $pagination['start'] : 0,
-			'maxIndex' => !empty($pagination['maxIndex']) ? $pagination['maxIndex'] : 0,
+			'alertIDs' => $alertIDs,
+			'limit' => $limit,
+			'offset' => $offset,
 		)
 	);
-
-	$senders = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$id_alert = array_shift($row);
@@ -263,71 +277,147 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		$row['extra'] = !empty($row['extra']) ? $smcFunc['json_decode']($row['extra'], true) : array();
 		$alerts[$id_alert] = $row;
 
-		if (!empty($row['sender_id']))
-			$senders[] = $row['sender_id'];
+		if (!empty($row['sender_email']))
+		{
+			$senders[$row['sender_id']] = array(
+				'email' => $row['sender_email'],
+				'avatar' => $row['sender_avatar'],
+				'filename' => $row['sender_filename'],
+			);
+		}
+
+		if ($row['content_type'] == 'profile')
+		{
+			$profiles[] = $row['content_id'];
+			$profile_alerts[] = $id_alert;
+		}
+
+		// For these types, we need to check whether they can actually see the content.
+		if ($row['content_type'] == 'msg')
+		{
+			$alerts[$id_alert]['visible'] = false;
+			$possible_msgs[$id_alert] = $row['content_id'];
+		}
+		elseif (in_array($row['content_type'], array('topic', 'board')))
+		{
+			$alerts[$id_alert]['visible'] = false;
+			$possible_topics[$id_alert] = $row['content_id'];
+		}
+		// For the rest, they can always see it.
+		else
+			$alerts[$id_alert]['visible'] = true;
+
+		// Are we showing multiple links or one big main link ?
+		$alerts[$id_alert]['show_links'] = $show_links || (isset($row['extra']['show_links']) && $row['extra']['show_links']);
+
+		// Set an appropriate icon.
+		$alerts[$id_alert]['icon'] = set_alert_icon($alerts[$id_alert]);
 	}
 	$smcFunc['db_free_result']($request);
 
-	if ($withSender)
+	// Look up member info of anyone we need it for.
+	if (!empty($profiles))
+		loadMemberData($profiles, 'minimal');
+
+	// Get the senders' avatars.
+	if ($with_avatar)
 	{
-		$senders = loadMemberData($senders);
-		foreach ($senders as $member)
-			loadMemberContext($member);
+		foreach ($senders as $sender_id => $sender)
+			$senders[$sender_id]['avatar'] = set_avatar_data($sender);
+
+		$context['avatar_url'] = $modSettings['avatar_url'];
 	}
 
 	// Now go through and actually make with the text.
 	loadLanguage('Alerts');
 
+	// Some sprintf formats for generating links/strings.
+	// 'required' is an array of keys in $alert['extra'] that should be used to generate the message, ordered to match the sprintf formats.
+	// 'link' and 'text' are the sprintf formats that will be used when $alert['show_links'] is true or false, respectively.
+	$formats['msg_msg'] = array(
+		'required' => array('content_subject', 'topic', 'msg'),
+		'link' => '<a href="{scripturl}?topic=%2$d.msg%3$d#msg%3$d">%1$s</a>',
+		'text' => '<strong>%1$s</strong>',
+	);
+	$formats['topic_msg'] = array(
+		'required' => array('content_subject', 'topic', 'topic_suffix'),
+		'link' => '<a href="{scripturl}?topic=%2$d.%3$s">%1$s</a>',
+		'text' => '<strong>%1$s</strong>',
+	);
+	$formats['board_msg'] = array(
+		'required' => array('board_name', 'board'),
+		'link' => '<a href="{scripturl}?board=%2$d.0">%1$s</a>',
+		'text' => '<strong>%1$s</strong>',
+	);
+	$formats['profile_msg'] = array(
+		'required' => array('user_name', 'user_id'),
+		'link' => '<a href="{scripturl}?action=profile;u=%2$d">%1$s</a>',
+		'text' => '<strong>%1$s</strong>',
+	);
+
 	// Hooks might want to do something snazzy around their own content types - including enforcing permissions if appropriate.
-	call_integration_hook('integrate_fetch_alerts', array(&$alerts));
+	call_integration_hook('integrate_fetch_alerts', array(&$alerts, &$formats));
 
-	// For anything that wants us to check board or topic access, let's do that.
-	$board_msgs = array();
-	$topic_msgs = array();
-	$msg_msgs = array();
-	$possible_boards = array();
-	$possible_topics = array();
-	$possible_msgs = array();
-	foreach ($alerts as $id_alert => $alert)
-	{
-		if ($alert['content_type'] == 'msg')
-			$possible_msgs[] = $alert['content_id'];
-		elseif (isset($alert['extra']['topic']))
-			$possible_topics[] = $alert['extra']['topic'];
-		elseif (isset($alert['extra']['board']))
-			$possible_boards[] = $alert['extra']['board'];
-	}
+	// Substitute $scripturl into the link formats. (Done here to make life easier for hooked mods.)
+	foreach ($formats as &$format_type)
+		$format_type = str_replace('{scripturl}', $scripturl, $format_type);
 
+	// If we need to check board access, use the correct board access filter for the member in question.
+	if ((!isset($user_info['id']) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
+		$qb = build_query_board($memID);
+	else
+		$qb['query_see_board'] = '{query_see_board}';
+
+	// For anything that needs more info and/or wants us to check board or topic access, let's do that.
 	if (!empty($possible_msgs))
 	{
+		$flipped_msgs = array();
+		foreach ($possible_msgs as $id_alert => $id_msg)
+		{
+			if (!isset($flipped_msgs[$id_msg]))
+				$flipped_msgs[$id_msg] = array();
+
+			$flipped_msgs[$id_msg][] = $id_alert;
+		}
+
 		$request = $smcFunc['db_query']('', '
-			SELECT m.id_msg, t.id_topic, m.subject, b.id_board, b.name
+			SELECT m.id_msg, m.id_topic, m.subject, b.id_board, b.name AS board_name
 			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
-			WHERE ' . $query_see_board . '
-				AND m.id_msg IN ({array_int:msgs})',
+			WHERE ' . $qb['query_see_board'] . '
+				AND m.id_msg IN ({array_int:msgs})
+			ORDER BY m.id_msg',
 			array(
 				'msgs' => $possible_msgs,
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$msg_msgs[$row['id_msg']] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>';
-			$topic_msgs[$row['id_topic']] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>';
-			$board_msgs[$row['id_board']] = '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>';
+			foreach ($flipped_msgs[$row['id_msg']] as $id_alert)
+			{
+				$alerts[$id_alert]['content_data'] = $row;
+				$alerts[$id_alert]['visible'] = true;
+			}
 		}
-
 		$smcFunc['db_free_result']($request);
 	}
 	if (!empty($possible_topics))
 	{
+		$flipped_topics = array();
+		foreach ($possible_topics as $id_alert => $id_topic)
+		{
+			if (!isset($flipped_topics[$id_topic]))
+				$flipped_topics[$id_topic] = array();
+
+			$flipped_topics[$id_topic][] = $id_alert;
+		}
+
 		$request = $smcFunc['db_query']('', '
-			SELECT t.id_topic, m.subject, b.id_board, b.name
+			SELECT m.id_msg, t.id_topic, m.subject, b.id_board, b.name AS board_name
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
 				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
-			WHERE ' . $query_see_board . '
+			WHERE ' . $qb['query_see_board'] . '
 				AND t.id_topic IN ({array_int:topics})',
 			array(
 				'topics' => $possible_topics,
@@ -335,101 +425,161 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array(),
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$topic_msgs[$row['id_topic']] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['subject'] . '</a>';
-			$board_msgs[$row['id_board']] = '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>';
+			foreach ($flipped_topics[$row['id_topic']] as $id_alert)
+			{
+				$alerts[$id_alert]['content_data'] = $row;
+				$alerts[$id_alert]['visible'] = true;
+			}
 		}
-
-		$smcFunc['db_free_result']($request);
-	}
-	if (!empty($possible_boards))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT id_board, name
-			FROM {db_prefix}boards AS b
-			WHERE ' . $query_see_board . '
-				AND id_board IN ({array_int:boards})',
-			array(
-				'boards' => $possible_boards,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$board_msgs[$row['id_board']] = '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>';
-
 		$smcFunc['db_free_result']($request);
 	}
 
 	// Now to go back through the alerts, reattach this extra information and then try to build the string out of it (if a hook didn't already)
-	foreach ($alerts as $id_alert => $alert)
+	foreach ($alerts as $id_alert => $dummy)
 	{
-		if (!empty($alert['text']))
+		// There's no point showing alerts for inaccessible content.
+		if (!$alerts[$id_alert]['visible'])
+		{
+			unset($alerts[$id_alert]);
+			continue;
+		}
+		else
+			unset($alerts[$id_alert]['visible']);
+
+		// Did a mod already take care of this one?
+		if (!empty($alerts[$id_alert]['text']))
 			continue;
 
-		if ($alert['content_type'] == 'msg')
-		{
-			if (empty($msg_msgs[$alert['content_id']]))
-			{
-				unset($alerts[$id_alert]);
-				continue;
-			}
-			else
-			{
-				$alerts[$id_alert]['extra']['msg_msg'] = $msg_msgs[$alert['content_id']];
-				$alerts[$id_alert]['extra']['topic_msg'] = isset($alert['extra']['topic']) ? $topic_msgs[$alert['extra']['topic']] : $txt['topic_na'];
-				$alerts[$id_alert]['extra']['board_msg'] = isset($alert['extra']['board']) ? $board_msgs[$alert['extra']['board']] : $txt['board_na'];
-			}
-		}
-		elseif (isset($alert['extra']['topic']))
-		{
-			if (empty($topic_msgs[$alert['extra']['topic']]))
-			{
-				unset($alerts[$id_alert]);
-				continue;
-			}
-			else
-			{
-				$alerts[$id_alert]['extra']['msg_msg'] = $txt['topic_na'];
-				$alerts[$id_alert]['extra']['topic_msg'] = $topic_msgs[$alert['extra']['topic']];
-				$alerts[$id_alert]['extra']['board_msg'] = isset($alert['extra']['board']) ? $board_msgs[$alert['extra']['board']] : $txt['board_na'];
-			}
-		}
-		elseif (isset($alert['extra']['board']))
-		{
-			if (empty($board_msgs[$alert['extra']['board']]))
-			{
-				unset($alerts[$id_alert]);
-				continue;
-			}
-			else
-			{
-				$alerts[$id_alert]['extra']['msg_msg'] = $txt['topic_na'];
-				$alerts[$id_alert]['extra']['topic_msg'] = $txt['topic_na'];
-				$alerts[$id_alert]['extra']['board_msg'] = $board_msgs[$alert['extra']['board']];
-			}
-		}
+		// For developer convenience.
+		$alert = &$alerts[$id_alert];
 
-		if ($alert['content_type'] == 'profile')
-			$alerts[$id_alert]['extra']['profile_msg'] = '<a href="' . $scripturl . '?action=profile;u=' . $alerts[$id_alert]['content_id'] . '">' . $alerts[$id_alert]['extra']['user_name'] . '</a>';
-
-		if (!empty($memberContext[$alert['sender_id']]))
-			$alerts[$id_alert]['sender'] = &$memberContext[$alert['sender_id']];
-
-		$string = 'alert_' . $alert['content_type'] . '_' . $alert['content_action'];
-		if (isset($txt[$string]))
+		// The info in extra might outdated if the topic was moved, the message's subject was changed, etc.
+		if (!empty($alert['content_data']))
 		{
-			$extra = $alerts[$id_alert]['extra'];
-			$search = array('{member_link}', '{scripturl}');
-			$repl = array(!empty($alert['sender_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $alert['sender_id'] . '">' . $alert['sender_name'] . '</a>' : $alert['sender_name'], $scripturl);
+			$data = $alert['content_data'];
 
-			if (is_array($extra))
+			// Make sure msg, topic, and board info are correct.
+			$patterns = array();
+			$replacements = array();
+			foreach (array('msg', 'topic', 'board') as $item)
 			{
-				foreach ($extra as $k => $v)
+				if (isset($data['id_' . $item]))
 				{
-					$search[] = '{' . $k . '}';
-					$repl[] = $v;
+					$separator = $item == 'msg' ? '=?' : '=';
+
+					if (isset($alert['extra']['content_link']) && strpos($alert['extra']['content_link'], $item . $separator) !== false && strpos($alert['extra']['content_link'], $item . $separator . $data['id_' . $item]) === false)
+					{
+						$patterns[] = '/\b' . $item . $separator . '\d+/';
+						$replacements[] = $item . $separator . $data['id_' . $item];
+					}
+
+					$alert['extra'][$item] = $data['id_' . $item];
 				}
 			}
-			$alerts[$id_alert]['text'] = str_replace($search, $repl, $txt[$string]);
+			if (!empty($patterns))
+				$alert['extra']['content_link'] = preg_replace($patterns, $replacements, $alert['extra']['content_link']);
+
+			// Make sure the subject is correct.
+			if (isset($data['subject']))
+				$alert['extra']['content_subject'] = $data['subject'];
+
+			// Keep track of this so we can use it below.
+			if (isset($data['board_name']))
+				$alert['extra']['board_name'] = $data['board_name'];
+
+			unset($alert['content_data']);
 		}
+
+		// Do we want to link to the topic in general or the new messages specifically?
+		if (isset($possible_topics[$id_alert]))
+			$alert['extra']['topic_suffix'] = 'new#new';
+		elseif (isset($alert['extra']['topic']))
+			$alert['extra']['topic_suffix'] = '0';
+
+		// Make sure profile alerts have what they need.
+		if (in_array($id_alert, $profile_alerts))
+		{
+			if (empty($alert['extra']['user_id']))
+				$alert['extra']['user_id'] = $alert['content_id'];
+
+			if (isset($user_profile[$alert['extra']['user_id']]))
+				$alert['extra']['user_name'] = $user_profile[$alert['extra']['user_id']]['real_name'];
+		}
+
+		// If we loaded the sender's profile, we may as well use it.
+		$sender_id = !empty($alert['sender_id']) ? $alert['sender_id'] : 0;
+		if (isset($user_profile[$sender_id]))
+			$alert['sender_name'] = $user_profile[$sender_id]['real_name'];
+
+		// If requested, include the sender's avatar data.
+		if ($with_avatar && !empty($senders[$sender_id]))
+			$alert['sender'] = $senders[$sender_id];
+
+		// Next, build the message strings.
+		foreach ($formats as $msg_type => $format_info)
+		{
+			// Get the values to use in the formatted string, in the right order.
+			$msg_values = array_replace(
+				array_fill_keys($format_info['required'], ''),
+				array_intersect_key($alert['extra'], array_flip($format_info['required']))
+			);
+
+			// Assuming all required values are present, build the message.
+			if (!in_array('', $msg_values))
+				$alert['extra'][$msg_type] = vsprintf($formats[$msg_type][$alert['show_links'] ? 'link' : 'text'], $msg_values);
+
+			elseif (in_array($msg_type, array('msg_msg', 'topic_msg', 'board_msg')))
+				$alert['extra'][$msg_type] = $txt[$msg_type == 'board_msg' ? 'board_na' : 'topic_na'];
+			else
+				$alert['extra'][$msg_type] = '(' . $txt['not_applicable'] . ')';
+		}
+
+		// Show the formatted time in alerts about subscriptions.
+		if ($alert['content_type'] == 'paidsubs' && isset($alert['extra']['end_time']))
+		{
+			// If the subscription already expired, say so.
+			if ($alert['extra']['end_time'] < time())
+				$alert['content_action'] = 'expired';
+
+			// Present a nicely formatted date.
+			$alert['extra']['end_time'] = timeformat($alert['extra']['end_time']);
+		}
+
+		// Finally, set this alert's text string.
+		$string = 'alert_' . $alert['content_type'] . '_' . $alert['content_action'];
+
+		// This kludge exists because the alert content_types prior to 2.1 RC3 were a bit haphazard.
+		// This can be removed once all the translated language files have been updated.
+		if (!isset($txt[$string]))
+		{
+			if (strpos($alert['content_action'], 'unapproved_') === 0)
+				$string = 'alert_' . $alert['content_action'];
+
+			if ($alert['content_type'] === 'member' && in_array($alert['content_action'], array('report', 'report_reply')))
+				$string = 'alert_profile_' . $alert['content_action'];
+
+			if ($alert['content_type'] === 'member' && $alert['content_action'] === 'buddy_request')
+				$string = 'alert_buddy_' . $alert['content_action'];
+		}
+
+		if (isset($txt[$string]))
+		{
+			$substitutions = array(
+				'{scripturl}' => $scripturl,
+				'{member_link}' => !empty($sender_id) && $alert['show_links'] ? '<a href="' . $scripturl . '?action=profile;u=' . $sender_id . '">' . $alert['sender_name'] . '</a>' : '<strong>' . $alert['sender_name'] . '</strong>',
+			);
+
+			if (is_array($alert['extra']))
+			{
+				foreach ($alert['extra'] as $k => $v)
+					$substitutions['{' . $k . '}'] = $v;
+			}
+
+			$alert['text'] = strtr($txt[$string], $substitutions);
+		}
+
+		// Unset the reference variable to avoid any surprises in subsequent loops.
+		unset($alert);
 	}
 
 	return $alerts;
@@ -446,13 +596,60 @@ function showAlerts($memID)
 
 	require_once($sourcedir . '/Profile-Modify.php');
 
+	// Are we opening a specific alert ?
+	if (!empty($_REQUEST['alert']))
+	{
+		$alert_id = (int) $_REQUEST['alert'];
+		$alerts = fetch_alerts($memID, $alert_id);
+		$alert = array_pop($alerts);
+
+		if (empty($alert))
+			redirectexit('action=profile;area=showalerts');
+
+		// Determine where the alert takes
+		$link = '';
+		// Priority goes to explicitly specified links
+		if (isset($alert['extra']['content_link']))
+			$link = $alert['extra']['content_link'];
+		elseif (isset($alert['extra']['report_link']))
+			$link = $scripturl . $alert['extra']['report_link'];
+		elseif (isset($alert['content_action']) && $alert['content_action'] === 'register_approval')
+			$link = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
+		elseif (isset($alert['content_action']) && $alert['content_action'] === 'group_request')
+			$link = $scripturl . '?action=moderate;area=groups;sa=requests';
+		elseif (isset($alert['content_action'], $alert['id_member_started']) && ($alert['content_type'] === 'member' || $alert['content_action'] === 'buddy_request'))
+			$link = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
+		elseif (isset($alert['content_type'], $alert['extra']['event_id']) && $alert['content_type'] === 'event')
+			$link = $scripturl . '?action=calendar;event=' . $alert['extra']['event_id'];
+		elseif (isset($alert['content_type'], $alert['content_id']) && $alert['content_type'] === 'msg')
+			$link = $scripturl . '?msg=' . $alert['content_id'];
+
+		call_integration_hook('integrate_show_alert', array(&$alert, &$link));
+
+		// Mark the alert as read while we're at it.
+		alert_mark($memID, $alert_id, 1);
+
+		// Take the user to the content
+		if (!empty($link))
+			redirectexit($link);
+		// In case it failed to determine this alert's link
+		else
+			redirectexit('action=profile;area=showalerts');
+	}
+
 	// Prepare the pagination vars.
 	$maxIndex = 10;
-	$start = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
+	$context['start'] = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
 	$count = alert_count($memID);
 
+	// Fix invalid 'start' offsets.
+	if ($context['start'] > $count)
+		$context['start'] = $count - ($count % $maxIndex);
+	else
+		$context['start'] = $context['start'] - ($context['start'] % $maxIndex);
+
 	// Get the alerts.
-	$context['alerts'] = fetch_alerts($memID, true, false, array('start' => $start, 'maxIndex' => $maxIndex));
+	$context['alerts'] = fetch_alerts($memID, true, $maxIndex, $context['start'], true, true);
 	$toMark = false;
 	$action = '';
 
@@ -460,7 +657,7 @@ function showAlerts($memID)
 	$context['showCheckboxes'] = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1;
 
 	// Create the pagination.
-	$context['pagination'] = constructPageIndex($scripturl . '?action=profile;area=showalerts;u=' . $memID, $start, $count, $maxIndex, false);
+	$context['pagination'] = constructPageIndex($scripturl . '?action=profile;area=showalerts;u=' . $memID, $context['start'], $count, $maxIndex, false);
 
 	// Set some JavaScript for checking all alerts at once.
 	if ($context['showCheckboxes'])
@@ -477,6 +674,33 @@ function showAlerts($memID)
 			});
 		});', true);
 
+	// The quickbuttons
+	foreach ($context['alerts'] as $id => $alert)
+	{
+		$context['alerts'][$id]['quickbuttons'] = array(
+			'delete' => array(
+				'label' => $txt['delete'],
+				'href' => $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=showalerts;do=remove;aid=' . $id . ';' . $context['session_var'] . '=' . $context['session_id'] . (!empty($context['start']) ? ';start=' . $context['start'] : ''),
+				'javascript' => 'class="you_sure"',
+				'icon' => 'remove_button'
+			),
+			'mark' => array(
+				'label' => $alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short'],
+				'href' => $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=showalerts;do=' . ($alert['is_read'] != 0 ? 'unread' : 'read') . ';aid=' . $id . ';' . $context['session_var'] . '=' . $context['session_id'] . (!empty($context['start']) ? ';start=' . $context['start'] : ''),
+				'icon' => $alert['is_read'] != 0 ? 'unread_button' : 'read_button',
+			),
+			'view' => array(
+				'label' => $txt['view'],
+				'href' => $scripturl . '?action=profile;area=showalerts;alert=' . $id . ';',
+				'icon' => 'move',
+			),
+			'quickmod' => array(
+				'content' => '<input type="checkbox" name="mark[' . $id . ']" value="' . $id . '">',
+				'show' => $context['showCheckboxes']
+			)
+		);
+	}
+
 	// Set a nice message.
 	if (!empty($_SESSION['update_message']))
 	{
@@ -488,7 +712,7 @@ function showAlerts($memID)
 	if (isset($_GET['save']) && !empty($_POST['mark']))
 	{
 		// Get the values.
-		$toMark = array_map('intval', $_POST['mark']);
+		$toMark = array_map('intval', (array) $_POST['mark']);
 
 		// Which action?
 		$action = !empty($_POST['mark_as']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_POST['mark_as'])) : '';
@@ -517,7 +741,7 @@ function showAlerts($memID)
 		$_SESSION['update_message'] = true;
 
 		// Redirect.
-		redirectexit('action=profile;area=showalerts;u=' . $memID);
+		redirectexit('action=profile;area=showalerts;u=' . $memID . (!empty($context['start']) ? ';start=' . $context['start'] : ''));
 	}
 }
 
@@ -530,7 +754,7 @@ function showAlerts($memID)
  */
 function showPosts($memID)
 {
-	global $txt, $user_info, $scripturl, $modSettings;
+	global $txt, $user_info, $scripturl, $modSettings, $options;
 	global $context, $user_profile, $sourcedir, $smcFunc, $board;
 
 	// Some initial context.
@@ -623,9 +847,9 @@ function showPosts($memID)
 	if ($context['is_topics'])
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
-			FROM {db_prefix}topics AS t' . ($user_info['query_see_board'] == '1=1' ? '' : '
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board AND {query_see_board})') . '
-			WHERE t.id_member_started = {int:current_member}' . (!empty($board) ? '
+			FROM {db_prefix}topics AS t' . '
+			WHERE {query_see_topic_board}
+				AND t.id_member_started = {int:current_member}' . (!empty($board) ? '
 				AND t.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
 				AND t.approved = {int:is_approved}'),
 			array(
@@ -636,10 +860,9 @@ function showPosts($memID)
 		);
 	else
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}messages AS m' . ($user_info['query_see_board'] == '1=1' ? '' : '
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})') . '
-			WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
+			SELECT COUNT(id_msg)
+			FROM {db_prefix}messages AS m
+			WHERE {query_see_message_board} AND m.id_member = {int:current_member}' . (!empty($board) ? '
 				AND m.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
 				AND m.approved = {int:is_approved}'),
 			array(
@@ -838,13 +1061,18 @@ function showPosts($memID)
 			)
 		);
 
+	// Create an array for the permissions.
+	$boards_can = boardsAllowedTo(array_keys(iterator_to_array(
+		new RecursiveIteratorIterator(new RecursiveArrayIterator($permissions)))
+	), true, false);
+
 	// For every permission in the own/any lists...
 	foreach ($permissions as $type => $list)
 	{
 		foreach ($list as $permission => $allowed)
 		{
 			// Get the boards they can do this on...
-			$boards = boardsAllowedTo($permission);
+			$boards = $boards_can[$permission];
 
 			// Hmm, they can do it on all boards, can they?
 			if (!empty($boards) && $boards[0] == 0)
@@ -874,6 +1102,31 @@ function showPosts($memID)
 
 	// Allow last minute changes.
 	call_integration_hook('integrate_profile_showPosts');
+
+	foreach ($context['posts'] as $key => $post)
+	{
+		$context['posts'][$key]['quickbuttons'] = array(
+			'reply' => array(
+				'label' => $txt['reply'],
+				'href' => $scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'],
+				'icon' => 'reply_button',
+				'show' => $post['can_reply']
+			),
+			'quote' => array(
+				'label' => $txt['quote_action'],
+				'href' => $scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'].';quote='.$post['id'],
+				'icon' => 'quote',
+				'show' => $post['can_quote']
+			),
+			'remove' => array(
+				'label' => $txt['remove'],
+				'href' => $scripturl.'?action=deletemsg;msg='.$post['id'].';topic='.$post['topic'].';profile;u='.$context['member']['id'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'],
+				'javascript' => 'data-confirm="'.$txt['remove_message'].'" class="you_sure"',
+				'icon' => 'remove_button',
+				'show' => $post['can_delete']
+			)
+		);
+	}
 }
 
 /**
@@ -1106,7 +1359,7 @@ function list_getNumAttachments($boardsAllowed, $memID)
  */
 function showUnwatched($memID)
 {
-	global $txt, $user_info, $scripturl, $modSettings, $context, $sourcedir;
+	global $txt, $user_info, $scripturl, $modSettings, $context, $options, $sourcedir;
 
 	// Only the owner can see the list (if the function is enabled of course)
 	if ($user_info['id'] != $memID)
@@ -1239,12 +1492,11 @@ function list_getUnwatched($start, $items_per_page, $sort, $memID)
 		SELECT lt.id_topic
 		FROM {db_prefix}log_topics as lt
 			LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
-			LEFT JOIN {db_prefix}boards as b ON (t.id_board = b.id_board)
 			LEFT JOIN {db_prefix}messages as m ON (t.id_first_msg = m.id_msg)' . (in_array($sort, array('mem.real_name', 'mem.real_name DESC', 'mem.poster_time', 'mem.poster_time DESC')) ? '
 			LEFT JOIN {db_prefix}members as mem ON (m.id_member = mem.id_member)' : '') . '
 		WHERE lt.id_member = {int:current_member}
 			AND unwatched = 1
-			AND {query_see_board}
+			AND {query_see_message_board}
 		ORDER BY {raw:sort}
 		LIMIT {int:offset}, {int:limit}',
 		array(
@@ -1300,10 +1552,9 @@ function list_getNumUnwatched($memID)
 		SELECT COUNT(*)
 		FROM {db_prefix}log_topics as lt
 		LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
-		LEFT JOIN {db_prefix}boards as b ON (t.id_board = b.id_board)
-		WHERE id_member = {int:current_member}
-			AND unwatched = 1
-			AND {query_see_board}',
+		WHERE lt.id_member = {int:current_member}
+			AND lt.unwatched = 1
+			AND {query_see_topic_board}',
 		array(
 			'current_member' => $memID,
 		)
@@ -1820,7 +2071,7 @@ function list_getUserErrorCount($where, $where_vars = array())
 	global $smcFunc;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*) AS error_count
+		SELECT COUNT(id_error)
 		FROM {db_prefix}log_errors
 		WHERE ' . $where,
 		$where_vars
@@ -1886,13 +2137,12 @@ function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars 
  */
 function list_getIPMessageCount($where, $where_vars = array())
 {
-	global $smcFunc;
+	global $smcFunc, $user_info;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*) AS message_count
+		SELECT COUNT(id_msg)
 		FROM {db_prefix}messages AS m
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-		WHERE {query_see_board} AND ' . $where,
+		WHERE {query_see_message_board} AND ' . $where,
 		$where_vars
 	);
 	list ($count) = $smcFunc['db_fetch_row']($request);
@@ -1913,18 +2163,16 @@ function list_getIPMessageCount($where, $where_vars = array())
  */
 function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars = array())
 {
-	global $smcFunc, $scripturl;
+	global $smcFunc, $scripturl, $user_info;
 
 	// Get all the messages fitting this where clause.
-	// @todo SLOW This query is using a filesort.
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			m.id_msg, m.poster_ip, COALESCE(mem.real_name, m.poster_name) AS display_name, mem.id_member,
 			m.subject, m.poster_time, m.id_topic, m.id_board
 		FROM {db_prefix}messages AS m
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-		WHERE {query_see_board} AND ' . $where . '
+		WHERE {query_see_message_board} AND ' . $where . '
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:max}',
 		array_merge($where_vars, array(
@@ -1961,7 +2209,7 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 function TrackIP($memID = 0)
 {
 	global $user_profile, $scripturl, $txt, $user_info, $modSettings, $sourcedir;
-	global $context, $smcFunc;
+	global $context, $options, $smcFunc;
 
 	// Can the user do this?
 	isAllowedTo('moderate_forum');
@@ -3039,6 +3287,156 @@ function viewWarning($memID)
 	foreach ($context['level_effects'] as $limit => $dummy)
 		if ($context['member']['warning'] >= $limit)
 			$context['current_level'] = $limit;
+}
+
+/**
+ * Sets the icon for a fetched alert.
+ *
+ * @param array The alert that we want to set an icon for.
+ */
+function set_alert_icon($alert)
+{
+	global $settings;
+
+	switch ($alert['content_type'])
+	{
+		case 'topic':
+		case 'board':
+			{
+				switch ($alert['content_action'])
+				{
+					case 'reply':
+					case 'topic':
+						$class = 'main_icons posts';
+						break;
+
+					case 'move':
+						$src = $settings['images_url'] . '/post/moved.png';
+						break;
+
+					case 'remove':
+						$class = 'main_icons delete';
+						break;
+
+					case 'lock':
+					case 'unlock':
+						$class = 'main_icons lock';
+						break;
+
+					case 'sticky':
+					case 'unsticky':
+						$class = 'main_icons sticky';
+						break;
+
+					case 'split':
+						$class = 'main_icons split_button';
+						break;
+
+					case 'merge':
+						$class = 'main_icons merge';
+						break;
+
+					case 'unapproved_topic':
+					case 'unapproved_post':
+						$class = 'main_icons post_moderation_moderate';
+						break;
+
+					default:
+						$class = 'main_icons posts';
+						break;
+				}
+			}
+			break;
+
+		case 'msg':
+			{
+				switch ($alert['content_action'])
+				{
+					case 'like':
+						$class = 'main_icons like';
+						break;
+
+					case 'mention':
+						$class = 'main_icons im_on';
+						break;
+
+					case 'quote':
+						$class = 'main_icons quote';
+						break;
+
+					case 'unapproved_attachment':
+						$class = 'main_icons post_moderation_attach';
+						break;
+
+					case 'report':
+					case 'report_reply':
+						$class = 'main_icons post_moderation_moderate';
+						break;
+
+					default:
+						$class = 'main_icons posts';
+						break;
+				}
+			}
+			break;
+
+		case 'member':
+			{
+				switch ($alert['content_action'])
+				{
+					case 'register_standard':
+					case 'register_approval':
+					case 'register_activation':
+						$class = 'main_icons members';
+						break;
+
+					case 'report':
+					case 'report_reply':
+						$class = 'main_icons members_watched';
+						break;
+
+					case 'buddy_request':
+						$class = 'main_icons people';
+						break;
+
+					case 'group_request':
+						$class = 'main_icons members_request';
+						break;
+
+					default:
+						$class = 'main_icons members';
+						break;
+				}
+			}
+			break;
+
+		case 'groupr':
+			$class = 'main_icons members_request';
+			break;
+
+		case 'event':
+			$class = 'main_icons calendar';
+			break;
+
+		case 'paidsubs':
+			$class = 'main_icons paid';
+			break;
+
+		case 'birthday':
+			$src = $settings['images_url'] . '/cake.png';
+			break;
+
+		default:
+			$class = 'main_icons alerts';
+			break;
+	}
+
+	if (isset($class))
+		return '<span class="alert_icon ' . $class . '"></span>';
+	elseif (isset($src))
+		return '<img class="alert_icon" src="' . $src . '">';
+	else
+		return '';
 }
 
 ?>

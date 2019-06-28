@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -30,14 +30,15 @@ function getLastPost()
 
 	// Find it by the board - better to order by board than sort the entire messages table.
 	$request = $smcFunc['db_query']('substring', '
-		SELECT ml.poster_time, ml.subject, ml.id_topic, ml.poster_name, SUBSTRING(ml.body, 1, 385) AS body,
-			ml.smileys_enabled
-		FROM {db_prefix}boards AS b
-			INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = b.id_last_msg)
-		WHERE {query_wanna_see_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-			AND b.id_board != {int:recycle_board}' : '') . '
-			AND ml.approved = {int:is_approved}
-		ORDER BY b.id_msg_updated DESC
+		SELECT m.poster_time, m.subject, m.id_topic, m.poster_name, SUBSTRING(m.body, 1, 385) AS body,
+			m.smileys_enabled
+		FROM {db_prefix}messages AS m' . (!empty($modSettings['postmod_active']) ? '
+			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
+		WHERE {query_wanna_see_message_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+			AND m.id_board != {int:recycle_board}' : '') . (!empty($modSettings['postmod_active']) ? '
+			AND m.approved = {int:is_approved}
+			AND t.approved = {int:is_approved}' : '') . '
+		ORDER BY m.id_msg DESC
 		LIMIT 1',
 		array(
 			'recycle_board' => $modSettings['recycle_board'],
@@ -75,7 +76,7 @@ function getLastPost()
  */
 function RecentPosts()
 {
-	global $txt, $scripturl, $user_info, $context, $modSettings, $board, $smcFunc;
+	global $txt, $scripturl, $user_info, $context, $modSettings, $board, $smcFunc, $cache_enable;
 
 	loadTemplate('Recent');
 	$context['page_title'] = $txt['recent_posts'];
@@ -145,7 +146,7 @@ function RecentPosts()
 		if (empty($boards))
 			fatal_lang_error('error_no_boards_selected');
 
-		$query_this_board = 'b.id_board IN ({array_int:boards})';
+		$query_this_board = 'm.id_board IN ({array_int:boards})';
 		$query_parameters['boards'] = $boards;
 
 		// If this category has a significant number of posts in it...
@@ -189,7 +190,7 @@ function RecentPosts()
 		if (empty($boards))
 			fatal_lang_error('error_no_boards_selected');
 
-		$query_this_board = 'b.id_board IN ({array_int:boards})';
+		$query_this_board = 'm.id_board IN ({array_int:boards})';
 		$query_parameters['boards'] = $boards;
 
 		// If these boards have a significant number of posts in them...
@@ -223,7 +224,7 @@ function RecentPosts()
 			$context['is_redirect'] = true;
 		}
 
-		$query_this_board = 'b.id_board = {int:board}';
+		$query_this_board = 'm.id_board = {int:board}';
 		$query_parameters['board'] = $board;
 
 		// If this board has a significant number of posts in it...
@@ -238,14 +239,14 @@ function RecentPosts()
 	}
 	else
 	{
-		$query_this_board = '{query_wanna_see_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-					AND b.id_board != {int:recycle_board}' : '') . '
+		$query_this_board = '{query_wanna_see_message_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+					AND m.id_board != {int:recycle_board}' : '') . '
 					AND m.id_msg >= {int:max_id_msg}';
 		$query_parameters['max_id_msg'] = max(0, $modSettings['maxMsgID'] - 100 - $_REQUEST['start'] * 6);
 		$query_parameters['recycle_board'] = $modSettings['recycle_board'];
 
-		// "Borrow" some data from above...
-		$query_these_boards = str_replace('AND m.id_msg >= {int:max_id_msg}', '', $query_this_board);
+		$query_these_boards = '{query_wanna_see_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+					AND b.id_board != {int:recycle_board}' : '');
 		$query_these_boards_params = $query_parameters;
 		unset($query_these_boards_params['max_id_msg']);
 
@@ -275,7 +276,7 @@ function RecentPosts()
 		$messages = 0;
 
 	$key = 'recent-' . $user_info['id'] . '-' . md5($smcFunc['json_encode'](array_diff_key($query_parameters, array('max_id_msg' => 0)))) . '-' . (int) $_REQUEST['start'];
-	if (!$context['is_redirect'] && (empty($modSettings['cache_enable']) || ($messages = cache_get_data($key, 120)) == null))
+	if (!$context['is_redirect'] && (empty($cache_enable) || ($messages = cache_get_data($key, 120)) == null))
 	{
 		$done = false;
 		while (!$done)
@@ -284,10 +285,11 @@ function RecentPosts()
 			// @todo SLOW This query is really slow still, probably?
 			$request = $smcFunc['db_query']('', '
 				SELECT m.id_msg
-				FROM {db_prefix}messages AS m
-					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-				WHERE ' . $query_this_board . '
+				FROM {db_prefix}messages AS m ' . (!empty($modSettings['postmod_active']) ? '
+					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
+				WHERE ' . $query_this_board . (!empty($modSettings['postmod_active']) ? '
 					AND m.approved = {int:is_approved}
+					AND t.approved = {int:is_approved}' : '') . '
 				ORDER BY m.id_msg DESC
 				LIMIT {int:offset}, {int:limit}',
 				array_merge($query_parameters, array(
@@ -417,13 +419,18 @@ function RecentPosts()
 		)
 	);
 
+	// Create an array for the permissions.
+	$boards_can = boardsAllowedTo(array_keys(iterator_to_array(
+		new RecursiveIteratorIterator(new RecursiveArrayIterator($permissions)))
+	), true, false);
+
 	// Now go through all the permissions, looking for boards they can do it on.
 	foreach ($permissions as $type => $list)
 	{
 		foreach ($list as $permission => $allowed)
 		{
 			// They can do it on these boards...
-			$boards = boardsAllowedTo($permission);
+			$boards = $boards_can[$permission];
 
 			// If 0 is the only thing in the array, they can do it everywhere!
 			if (!empty($boards) && $boards[0] == 0)
@@ -452,6 +459,32 @@ function RecentPosts()
 
 		// And some cannot be quoted...
 		$context['posts'][$counter]['can_quote'] = $context['posts'][$counter]['can_reply'] && $quote_enabled;
+	}
+
+	// Last but not least, the quickbuttons
+	foreach ($context['posts'] as $key => $post)
+	{
+		$context['posts'][$key]['quickbuttons'] = array(
+			'reply' => array(
+				'label' => $txt['reply'],
+				'href' => $scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'],
+				'icon' => 'reply_button',
+				'show' => $post['can_reply']
+			),
+			'quote' => array(
+				'label' => $txt['quote_action'],
+				'href' => $scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'].';quote='.$post['id'],
+				'icon' => 'quote',
+				'show' => $post['can_quote']
+			),
+			'delete' => array(
+				'label' => $txt['remove'],
+				'href' => $scripturl.'?action=deletemsg;msg='.$post['id'].';topic='.$post['topic'].';recent;'.$context['session_var'].'='.$context['session_id'],
+				'javascript' => 'data-confirm="'.$txt['remove_message'].'" class="you_sure"',
+				'icon' => 'remove_button',
+				'show' => $post['can_delete']
+			),
+		);
 	}
 
 	// Allow last minute changes.

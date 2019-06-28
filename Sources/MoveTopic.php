@@ -11,7 +11,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -376,7 +376,7 @@ function MoveTopic2()
  */
 function moveTopics($topics, $toBoard)
 {
-	global $sourcedir, $user_info, $modSettings, $smcFunc;
+	global $sourcedir, $user_info, $modSettings, $smcFunc, $cache_enable;
 
 	// Empty array?
 	if (empty($topics))
@@ -679,7 +679,7 @@ function moveTopics($topics, $toBoard)
 	}
 
 	// Update the cache?
-	if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 3)
+	if (!empty($cache_enable) && $cache_enable >= 3)
 		foreach ($topics as $topic_id)
 			cache_put_data('topic_board-' . $topic_id, null, 120);
 

@@ -11,7 +11,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -137,15 +137,12 @@ function html_to_bbc($text)
 	preg_match_all('~<img\b[^>]+alt="([^"]+)"[^>]+class="smiley"[^>]*>(?:\s)?~i', $text, $matches);
 	if (!empty($matches[0]))
 	{
-		// Get all our actual smiley codes
+		// Get all our smiley codes
 		$request = $smcFunc['db_query']('', '
 			SELECT code
 			FROM {db_prefix}smileys
-			WHERE code IN ({array_string:smiley_codes})
 			ORDER BY LENGTH(code) DESC',
-			array(
-				'smiley_codes' => $smiley_codes,
-			)
+			array()
 		);
 		$smiley_codes = $smcFunc['db_fetch_all']($request);
 		$smcFunc['db_free_result']($request);
@@ -1514,6 +1511,37 @@ function create_control_richedit($editorOptions)
 	// Load the Post language file... for the moment at least.
 	loadLanguage('Post');
 	loadLanguage('Editor');
+	loadLanguage('Drafts');
+
+	$context['richedit_buttons'] = array(
+		'save_draft' => array(
+			'type' => 'submit',
+			'value' => $txt['draft_save'],
+			'onclick' => !empty($context['drafts_pm_save']) ? 'submitThisOnce(this);' : (!empty($context['drafts_save']) ? 'return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
+			'accessKey' => 'd',
+			'show' => !empty($context['drafts_pm_save']) || !empty($context['drafts_save'])
+		),
+		'id_pm_draft' => array(
+			'type' => 'hidden',
+			'value' => empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'],
+			'show' => !empty($context['drafts_pm_save'])
+		),
+		'id_draft' => array(
+			'type' => 'hidden',
+			'value' => empty($context['id_draft']) ? 0 : $context['id_draft'],
+			'show' => !empty($context['drafts_save'])
+		),
+		'spell_check' => array(
+			'type' => 'submit',
+			'value' => $txt['spell_check'],
+			'show' => !empty($context['show_spellchecking'])
+		),
+		'preview' => array(
+			'type' => 'submit',
+			'value' => $txt['preview'],
+			'accessKey' => 'p'
+		)
+	);
 
 	// Every control must have a ID!
 	assert(isset($editorOptions['id']));
@@ -1540,9 +1568,6 @@ function create_control_richedit($editorOptions)
 		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
 		var bbc_quote = \'' . addcslashes($txt['quote'], "'") . '\';
 		var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';');
-		// editor language file
-		if (!empty($txt['lang_locale']) && $txt['lang_locale'] != 'en_US')
-			loadJavaScriptFile($scripturl . '?action=loadeditorlocale', array('external' => true), 'sceditor_language');
 
 		$context['shortcuts_text'] = $txt['shortcuts' . (!empty($context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (isBrowser('is_firefox') ? '_firefox' : ''))];
 		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv'))));
@@ -1879,7 +1904,7 @@ function create_control_richedit($editorOptions)
 
 	// Set up the SCEditor options
 	$sce_options = array(
-		'style' => $settings['default_theme_url'] . '/css/jquery.sceditor.default.css',
+		'style' => $settings[file_exists($settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css',
 		'emoticonsCompat' => true,
 		'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
 		'format' => 'bbcode',
@@ -2095,7 +2120,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 				$resp = $reCaptcha->verify($_POST['g-recaptcha-response'], $user_info['ip']);
 
 				if (!$resp->isSuccess())
-					$verification_errors[] = 'wrong_verification_code';
+					$verification_errors[] = 'wrong_verification_recaptcha';
 			}
 			else
 				$verification_errors[] = 'wrong_verification_code';

@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -18,18 +18,6 @@ function template_options()
 	global $context, $txt, $modSettings;
 
 	$context['theme_options'] = array(
-		$txt['theme_opt_calendar'],
-		array(
-			'id' => 'calendar_start_day',
-			'label' => $txt['calendar_start_day'],
-			'options' => array(
-				0 => $txt['days'][0],
-				1 => $txt['days'][1],
-				6 => $txt['days'][6],
-			),
-			'default' => true,
-			'enabled' => !empty($modSettings['cal_enabled']),
-		),
 		$txt['theme_opt_display'],
 		array(
 			'id' => 'show_children',
@@ -144,6 +132,29 @@ function template_options()
 			'label' => $txt['pm_remove_inbox_label'],
 			'default' => true,
 		),
+		$txt['theme_opt_calendar'],
+		array(
+			'id' => 'calendar_default_view',
+			'label' => $txt['calendar_default_view'],
+			'options' => array(
+				'viewlist' => $txt['calendar_viewlist'],
+				'viewmonth' => $txt['calendar_viewmonth'],
+				'viewweek' => $txt['calendar_viewweek']
+			),
+			'default' => true,
+			'enabled' => !empty($modSettings['cal_enabled']),
+		),
+		array(
+			'id' => 'calendar_start_day',
+			'label' => $txt['calendar_start_day'],
+			'options' => array(
+				0 => $txt['days'][0],
+				1 => $txt['days'][1],
+				6 => $txt['days'][6],
+			),
+			'default' => true,
+			'enabled' => !empty($modSettings['cal_enabled']),
+		),
 	);
 }
 
@@ -168,6 +179,13 @@ function template_settings()
 			'type' => 'text',
 		),
 		array(
+			'id' => 'og_image',
+			'label' => $txt['og_image'],
+			'description' => $txt['og_image_desc'],
+			'type' => 'url',
+		),
+		'',
+		array(
 			'id' => 'smiley_sets_default',
 			'label' => $txt['smileys_default_set_for_theme'],
 			'options' => $context['smiley_sets'],
@@ -178,7 +196,6 @@ function template_settings()
 			'id' => 'enable_news',
 			'label' => $txt['enable_random_news'],
 		),
-		'',
 		array(
 			'id' => 'show_newsfader',
 			'label' => $txt['news_fader'],
@@ -188,6 +205,7 @@ function template_settings()
 			'label' => $txt['admin_fader_delay'],
 			'type' => 'number',
 		),
+		'',
 		array(
 			'id' => 'number_recent_posts',
 			'label' => $txt['number_recent_posts'],
@@ -214,14 +232,7 @@ function template_settings()
 				1 => $txt['who_display_viewing_numbers'],
 				2 => $txt['who_display_viewing_names'],
 			),
-			'type' => 'number',
-		),
-		'',
-		array(
-			'id' => 'og_image',
-			'label' => $txt['og_image'],
-			'description' => $txt['og_image_desc'],
-			'type' => 'url',
+			'type' => 'list',
 		),
 	);
 }

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; Profile
+// Version: 2.1 RC2; Profile
 
 global $scripturl, $context;
 
@@ -341,6 +341,10 @@ $txt['topics_per_page'] = 'Topics to display per page:';
 $txt['messages_per_page'] = 'Messages to display per page:';
 $txt['per_page_default'] = 'forum default';
 $txt['calendar_start_day'] = 'First day of the week on the calendar';
+$txt['calendar_default_view'] = 'Default view on calendar page';
+$txt['calendar_viewlist'] = 'List view';
+$txt['calendar_viewmonth'] = 'Month view';
+$txt['calendar_viewweek'] = 'Week view';
 $txt['use_editor_quick_reply'] = 'Use full editor toolbar in Quick Reply';
 $txt['display_quick_mod'] = 'Show quick-moderation as';
 $txt['display_quick_mod_none'] = 'don\'t show';

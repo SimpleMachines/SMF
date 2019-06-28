@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -537,7 +537,12 @@ function DisplayStats()
 		$max_liked_message = 1;
 		$liked_messages = $smcFunc['db_query']('', '
 			SELECT m.id_msg, m.subject, m.likes, m.id_board, m.id_topic, t.approved
-			FROM {db_prefix}messages as m
+			FROM (
+				SELECT n.id_msg, n.subject, n.likes, n.id_board, n.id_topic
+				FROM {db_prefix}messages as n
+				ORDER BY n.likes DESC
+				LIMIT 1000
+			) AS m
 				INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
 					AND b.id_board != {int:recycle_board}' : '') . ')

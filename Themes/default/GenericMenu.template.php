@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -87,7 +87,7 @@ function template_generic_menu(&$menu_context)
 				continue;
 
 			echo '
-								<li', !empty($area['subsections']) ? ' class="subsections"' : '', '>
+								<li', !empty($area['subsections']) && empty($area['hide_subsections']) ? ' class="subsections"' : '', '>
 									<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], !empty($area['amt']) ? ' <span class="amt">' . $area['amt'] . '</span>' : '', '</a>';
 
 			// Is this the current area, or just some area?
@@ -95,7 +95,7 @@ function template_generic_menu(&$menu_context)
 				$context['tabs'] = isset($area['subsections']) ? $area['subsections'] : array();
 
 			// Are there any subsections?
-			if (!empty($area['subsections']))
+			if (!empty($area['subsections']) && empty($area['hide_subsections']))
 			{
 				echo '
 									<ul>';

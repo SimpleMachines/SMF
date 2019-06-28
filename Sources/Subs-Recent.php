@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -24,7 +24,7 @@ if (!defined('SMF'))
  */
 function getLastPosts($latestPostOptions)
 {
-	global $scripturl, $modSettings, $smcFunc;
+	global $scripturl, $modSettings, $smcFunc, $sourcedir;
 
 	// Find all the posts.  Newer ones will have higher IDs.  (assuming the last 20 * number are accessible...)
 	// @todo SLOW This query is now slow, NEEDS to be fixed.  Maybe break into two?
@@ -51,8 +51,21 @@ function getLastPosts($latestPostOptions)
 			'is_approved' => 1,
 		)
 	);
+	$rows = $smcFunc['db_fetch_all']($request);
+
+	// If the ability to embed attachments in posts is enabled, load the attachments now for efficiency
+	if (!empty($modSettings['attachmentEnable']) && (empty($modSettings['disabledBBC']) || !in_array('attach', explode(',', strtolower($modSettings['disabledBBC'])))))
+	{
+		$msgIDs = array();
+		foreach ($rows as $row)
+			$msgIDs[] = $row['id_msg'];
+
+		require_once($sourcedir . '/Subs-Attachments.php');
+		prepareAttachsByMsg($msgIDs);
+	}
+
 	$posts = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	foreach ($rows as $row)
 	{
 		// Censor the subject and post for the preview ;).
 		censorText($row['subject']);

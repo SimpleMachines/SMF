@@ -11,7 +11,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -90,7 +90,7 @@ class MemberReportReply_Notify_Background extends SMF_BackgroundTask
 					'id_member' => $member,
 					'id_member_started' => $this->_details['sender_id'],
 					'member_name' => $this->_details['sender_name'],
-					'content_type' => 'profile',
+					'content_type' => 'member',
 					'content_id' => $this->_details['user_id'],
 					'content_action' => 'report_reply',
 					'is_read' => 0,

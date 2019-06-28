@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -63,13 +63,13 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 					'id_member' => $member,
 					'id_member_started' => $this->_details['sender_id'],
 					'member_name' => $this->_details['sender_name'],
-					'content_type' => 'profile',
+					'content_type' => 'member',
 					'content_id' => $this->_details['user_id'],
 					'content_action' => 'report',
 					'is_read' => 0,
 					'extra' => $smcFunc['json_encode'](
 						array(
-							'report_link' => '?action=moderate;area=reportedmembers;report=' . $this->_details['report_id'], // We don't put $scripturl in these!
+							'report_link' => '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'], // We don't put $scripturl in these!
 							'user_name' => $this->_details['user_name'],
 						)
 					),

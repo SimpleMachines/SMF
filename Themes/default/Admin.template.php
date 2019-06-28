@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -738,7 +738,7 @@ function template_show_settings()
 	// Have we got a message to display?
 	if (!empty($context['settings_message']))
 		echo '
-							<div class="information">', $context['settings_message'], '</div>';
+							<div class="information noup">', $context['settings_message'], '</div>';
 
 	// Filter out any redundant separators before we start the loop
 	$context['config_vars'] = array_filter($context['config_vars'], function ($v) use ($context)

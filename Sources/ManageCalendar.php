@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -30,9 +30,6 @@ function ManageCalendar()
 
 	// Everything's gonna need this.
 	loadLanguage('ManageCalendar');
-
-	// Default text.
-	$context['explain_text'] = $txt['calendar_desc'];
 
 	// Little short on the ground of functions here... but things can and maybe will change...
 	if (!empty($modSettings['cal_enabled']))
@@ -216,6 +213,7 @@ function EditHoliday()
 	if (isset($_POST[$context['session_var']]) && (isset($_REQUEST['delete']) || $_REQUEST['title'] != ''))
 	{
 		checkSession();
+		validateToken('admin-eh');
 
 		// Not too long good sir?
 		$_REQUEST['title'] = $smcFunc['substr']($_REQUEST['title'], 0, 60);
@@ -263,6 +261,8 @@ function EditHoliday()
 
 		redirectexit('action=admin;area=managecalendar;sa=holidays');
 	}
+
+	createToken('admin-eh');
 
 	// Default states...
 	if ($context['is_new'])
@@ -340,7 +340,6 @@ function ModifyCalendarSettings($return_config = false)
 			'',
 
 			// How many days to show on board index, and where to display events etc?
-			array('select', 'calendar_default_view', array('viewlist' => $txt['setting_cal_viewlist'], 'viewmonth' => $txt['setting_cal_viewmonth'], 'viewweek' => $txt['setting_cal_viewweek'])),
 			array('int', 'cal_days_for_index', 'help' => 'cal_maxdays_advance', 6, 'postinput' => $txt['days_word']),
 			array('select', 'cal_showholidays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
 			array('select', 'cal_showbdays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
@@ -364,15 +363,8 @@ function ModifyCalendarSettings($return_config = false)
 			array('int', 'cal_maxspan', 6, 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_for_no_limit'], 'help' => 'cal_maxevent_span'),
 			'',
 
-			// A comment is like a dog marking its territory. ;)
-			array('select', 'cal_highlight_events', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
-			array('select', 'cal_highlight_holidays', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
-			array('select', 'cal_highlight_birthdays', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
-			'',
-
 			// Miscellaneous layout settings...
 			array('check', 'cal_disable_prev_next'),
-			array('select', 'cal_display_type', array(0 => $txt['setting_cal_display_comfortable'], 1 => $txt['setting_cal_display_compact'])),
 			array('select', 'cal_week_links', array(0 => $txt['setting_cal_week_links_none'], 1 => $txt['setting_cal_week_links_mini'], 2 => $txt['setting_cal_week_links_main'], 3 => $txt['setting_cal_week_links_both'])),
 			array('check', 'cal_prev_next_links'),
 			array('check', 'cal_short_days'),

@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -82,9 +82,9 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	if ($connection)
 	{
 		if (!empty($db_options['port']))
-			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, null, $db_options['port'], null, $flags);
+			$success = @mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, null, $db_options['port'], null, $flags);
 		else
-			$success = mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, null, 0, null, $flags);
+			$success = @mysqli_real_connect($connection, $db_server, $db_user, $db_passwd, null, 0, null, $flags);
 	}
 
 	// Something's wrong, show an error if its fatal (which we assume it is)
@@ -558,7 +558,7 @@ function smf_db_transaction($type = 'commit', $connection = null)
 function smf_db_error($db_string, $connection = null)
 {
 	global $txt, $context, $sourcedir, $webmaster_email, $modSettings;
-	global $db_connection, $db_last_error, $db_persist;
+	global $db_connection, $db_last_error, $db_persist, $cache_enable;
 	global $db_server, $db_user, $db_passwd, $db_name, $db_show_debug, $ssi_db_user, $ssi_db_passwd;
 	global $smcFunc;
 
@@ -588,8 +588,8 @@ function smf_db_error($db_string, $connection = null)
 	if (function_exists('cache_get_data') && (!isset($modSettings['autoFixDatabase']) || $modSettings['autoFixDatabase'] == '1'))
 	{
 		// Force caching on, just for the error checking.
-		$old_cache = @$modSettings['cache_enable'];
-		$modSettings['cache_enable'] = '1';
+		$old_cache = @$cache_enable;
+		$cache_enable = '1';
 
 		if (($temp = cache_get_data('db_last_error', 600)) !== null)
 			$db_last_error = max(@$db_last_error, $temp);
@@ -649,7 +649,7 @@ function smf_db_error($db_string, $connection = null)
 			// And send off an email!
 			sendmail($webmaster_email, $txt['database_error'], $txt['tried_to_repair'], null, 'dberror');
 
-			$modSettings['cache_enable'] = $old_cache;
+			$cache_enable = $old_cache;
 
 			// Try the query again...?
 			$ret = $smcFunc['db_query']('', $db_string, false, false);
@@ -657,7 +657,7 @@ function smf_db_error($db_string, $connection = null)
 				return $ret;
 		}
 		else
-			$modSettings['cache_enable'] = $old_cache;
+			$cache_enable = $old_cache;
 
 		// Check for the "lost connection" or "deadlock found" errors - and try it just one more time.
 		if (in_array($query_errno, array(1205, 1213)))
@@ -721,7 +721,7 @@ function smf_db_error($db_string, $connection = null)
  * @param string $table The table we're inserting the data into
  * @param array $columns An array of the columns we're inserting the data into. Should contain 'column' => 'datatype' pairs
  * @param array $data The data to insert
- * @param array $keys The keys for the table
+ * @param array $keys The keys for the table, needs to be not empty on replace mode
  * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array
  * @param object $connection The connection to use (if null, $db_connection is used)
  * @return mixed value of the first key, behavior based on returnmode. null if no data.
@@ -778,9 +778,15 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	$queryTitle = $method == 'replace' ? 'REPLACE' : ($method == 'ignore' ? 'INSERT IGNORE' : 'INSERT');
 
 	// Sanity check for replace is key part of the columns array
-	if ($method == 'replace' && count(array_intersect_key($columns, array_flip($keys))) !== count($keys))
-		smf_db_error_backtrace('Primary Key field missing in insert call',
-			'Change the method of db insert to insert or add the pk field to the columns array', E_USER_ERROR, __FILE__, __LINE__);
+	if ($method == 'replace')
+	{
+		if (empty($keys))
+			smf_db_error_backtrace('When using the replace mode, the key column is a required entry.',
+				'Change the method of db insert to insert or add the pk field to the key array', E_USER_ERROR, __FILE__, __LINE__);
+		if (count(array_intersect_key($columns, array_flip($keys))) !== count($keys))
+			smf_db_error_backtrace('Primary Key field missing in insert call',
+				'Change the method of db insert to insert or add the pk field to the columns array', E_USER_ERROR, __FILE__, __LINE__);
+	}
 
 	if (!$with_returning || $method != 'ignore')
 	{

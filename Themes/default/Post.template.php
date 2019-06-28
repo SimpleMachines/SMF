@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -740,25 +740,15 @@ function template_main()
 		echo '
 			function insertQuoteFast(messageid)
 			{
-				if (window.XMLHttpRequest)
-					getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';xml;pb=', $context['post_box_name'], ';mode=0\', onDocReceived);
-				else
-					reqWin(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';pb=', $context['post_box_name'], ';mode=0\', 240, 90);
+				var e = document.getElementById("', $context['post_box_name'], '");
+				sceditor.instance(e).insertQuoteFast(messageid);
 
 				return true;
 			}
-			function onDocReceived(XMLDoc)
-			{
-				var text = \'\';
-				var e = $("#', $context['post_box_name'], '").get(0);
-
-				for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
-					text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
-				sceditor.instance(e).InsertText(text);
-			}
 			function onReceiveOpener(text)
 			{
-				sceditor.instance(e).InsertText(text);
+				var e = document.getElementById("', $context['post_box_name'], '");
+				sceditor.instance(e).insert(text);
 			}
 		</script>';
 	}
@@ -1003,6 +993,8 @@ function template_announcement_send()
  * 1. Change specific values in the $context['posting_fields'] array.
  * 2. Add an 'html' element to the 'label' and/or 'input' elements of the field they want to
  *    change. This should contain the literal HTML string to be printed.
+ *
+ * See the documentation in Post.php for more info on the $context['posting_fields'] array.
  */
 function template_post_header()
 {
@@ -1042,7 +1034,7 @@ function template_post_header()
 			echo $pf['label']['html'];
 		else
 			echo '
-							<label for="', !empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid, '" id="caption_', $pfid, '"', !empty($pf['label']['class']) ? ' class="' . $pf['label']['class'] . '"' : '', '>', $pf['label']['text'], '</label>';
+							<label', ($pf['input']['type'] === 'radio_select' ? '' : ' for="' . (!empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid) . '"'), ' id="caption_', $pfid, '"', !empty($pf['label']['class']) ? ' class="' . $pf['label']['class'] . '"' : '', '>', $pf['label']['text'], '</label>';
 
 		// Any trailing HTML after the label
 		if (!empty($pf['label']['after']))
@@ -1144,28 +1136,30 @@ function template_post_header()
 					echo '
 								<optgroup';
 
-					if (empty($option['attributes']['label']))
+					if (empty($option['label']))
 						echo ' label="', $optlabel, '"';
 
-					if (!empty($option['attributes']) && is_array($option['attributes']))
+					if (!empty($option) && is_array($option))
 					{
-						foreach ($option['attributes'] as $attribute => $value)
+						foreach ($option as $attribute => $value)
 						{
-							if (is_bool($value))
+							if ($attribute === 'options')
+								continue;
+							elseif (is_bool($value))
 								echo $value ? ' ' . $attribute : '';
 							else
 								echo ' ', $attribute, '="', $value, '"';
 						}
 					}
 
-					echo '">';
+					echo '>';
 
 					foreach ($option['options'] as $grouped_optlabel => $grouped_option)
 					{
 						echo '
 									<option';
 
-						foreach ($grouped_option['attributes'] as $attribute => $value)
+						foreach ($grouped_option as $attribute => $value)
 						{
 							if (is_bool($value))
 								echo $value ? ' ' . $attribute : '';
@@ -1186,7 +1180,7 @@ function template_post_header()
 					echo '
 								<option';
 
-					foreach ($option['attributes'] as $attribute => $value)
+					foreach ($option as $attribute => $value)
 					{
 						if (is_bool($value))
 							echo $value ? ' ' . $attribute : '';
@@ -1226,17 +1220,19 @@ function template_post_header()
 			foreach ($pf['input']['options'] as $optlabel => $option)
 			{
 				echo '
-							<input type="radio" name="', !empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid, '"';
+							<label style="margin-right:2ch"><input type="radio" name="', !empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid, '"';
 
-				foreach ($option['attributes'] as $attribute => $value)
+				foreach ($option as $attribute => $value)
 				{
-					if (is_bool($value))
-						echo $value ? ' ' . $attribute : '';
+					if ($attribute === 'label')
+						continue;
+					elseif (is_bool($value))
+						echo $value ? ' ' . ($attribute === 'selected' ? 'checked' : $attribute) : '';
 					else
 						echo ' ', $attribute, '="', $value, '"';
 				}
 
-				echo ' tabindex="', $context['tabindex']++, '">', $optlabel, '</input>';
+				echo ' tabindex="', $context['tabindex']++, '"> ', isset($option['label']) ? $option['label'] : $optlabel, '</label>';
 			}
 
 			echo '

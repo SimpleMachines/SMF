@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -116,25 +116,25 @@ class CreateAttachment_Notify_Background extends SMF_BackgroundTask
 					'id_member' => $member,
 					'id_member_started' => $id_member,
 					'member_name' => $real_name,
-					'content_type' => 'unapproved',
-					'content_id' => $id_attach,
-					'content_action' => 'attachment',
+					'content_type' => 'msg',
+					'content_id' => $id_msg,
+					'content_action' => 'unapproved_attachment',
 					'is_read' => 0,
 					'extra' => $smcFunc['json_encode'](
 						array(
 							'topic' => $id_topic,
 							'board' => $id_board,
 							'content_subject' => $subject,
-							'content_link' => $scripturl . '?topic=' . $id_topic . '.msg' . $id_msg . '#msg' . $id_msg,
+							'content_link' => $scripturl . '?msg=' . $id_msg,
 						)
 					),
 				);
-				updateMemberData($member, array('alerts' => '+'));
 			}
 		}
 
 		// Insert the alerts if any
 		if (!empty($alert_rows))
+		{
 			$smcFunc['db_insert'](
 				'insert',
 				'{db_prefix}user_alerts',
@@ -152,6 +152,9 @@ class CreateAttachment_Notify_Background extends SMF_BackgroundTask
 				$alert_rows,
 				array()
 			);
+
+			updateMemberData(array_keys($watched), array('alerts' => '+'));
+		}
 
 		return true;
 	}

@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -37,8 +37,8 @@ class Buddy_Notify_Background extends SMF_BackgroundTask
 				'id_member' => $this->_details['receiver_id'],
 				'id_member_started' => $this->_details['id_member'],
 				'member_name' => $this->_details['member_name'],
-				'content_type' => 'buddy',
-				'content_id' => 0,
+				'content_type' => 'member',
+				'content_id' => $this->_details['id_member'],
 				'content_action' => 'buddy_request',
 				'is_read' => 0,
 				'extra' => '',

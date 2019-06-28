@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -88,23 +88,23 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 					'id_member' => $member,
 					'id_member_started' => $posterOptions['id'],
 					'member_name' => $posterOptions['name'],
-					'content_type' => 'unapproved',
+					'content_type' => 'topic',
 					'content_id' => $topicOptions['id'],
-					'content_action' => $type,
+					'content_action' => 'unapproved_' . $type,
 					'is_read' => 0,
 					'extra' => $smcFunc['json_encode'](array(
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
 						'content_subject' => $msgOptions['subject'],
-						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
+						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.msg' . $msgOptions['id'] . '#msg' . $msgOptions['id'],
 					)),
 				);
-				updateMemberData($member, array('alerts' => '+'));
 			}
 		}
 
 		// Insert the alerts if any
 		if (!empty($alert_rows))
+		{
 			$smcFunc['db_insert']('',
 				'{db_prefix}user_alerts',
 				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
@@ -112,6 +112,9 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 				$alert_rows,
 				array()
 			);
+
+			updateMemberData(array_keys($watched), array('alerts' => '+'));
+		}
 
 		return true;
 	}

@@ -11,7 +11,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -668,7 +668,7 @@ function modifyBoard($board_id, &$boardOptions)
 	);
 
 	// Do permission sync
-	if (!empty($boardUpdateParameters['deny_groups']))
+	if (!empty($boardOptions['deny_groups']))
 	{
 		$insert = array();
 		foreach ($boardOptions['deny_groups'] as $value)
@@ -682,7 +682,7 @@ function modifyBoard($board_id, &$boardOptions)
 		);
 	}
 
-	if (!empty($boardUpdateParameters['member_groups']))
+	if (!empty($boardOptions['access_groups']))
 	{
 		$insert = array();
 		foreach ($boardOptions['access_groups'] as $value)

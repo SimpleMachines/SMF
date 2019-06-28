@@ -10,19 +10,11 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
-
-// This defines two version types for checking the API's are compatible with this version of SMF.
-$GLOBALS['search_versions'] = array(
-	// @todo Probably unnecessary now that we use a constant instead of global $forum_version
-	'forum_version' => SMF_FULL_VERSION,
-	// This is the minimum version of SMF that an API could have been written for to work. (strtr to stop accidentally updating version on release)
-	'search_version' => strtr('SMF 2+1=Alpha=1', array('+' => '.', '=' => ' ')),
-);
 
 /**
  * Ask the user what they want to search for.
@@ -211,12 +203,11 @@ function PlushSearch1()
 		);
 
 		$request = $smcFunc['db_query']('', '
-			SELECT ms.subject
+			SELECT subject
 			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
-				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
+				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 			WHERE t.id_topic = {int:search_topic_id}
-				AND {query_see_board}' . ($modSettings['postmod_active'] ? '
+				AND {query_see_message_board} ' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved_true}' : '') . '
 			LIMIT 1',
 			array(
@@ -253,7 +244,7 @@ function PlushSearch2()
 {
 	global $scripturl, $modSettings, $sourcedir, $txt;
 	global $user_info, $context, $options, $messages_request, $boards_can;
-	global $excludedWords, $participants, $smcFunc;
+	global $excludedWords, $participants, $smcFunc, $cache_enable;
 
 	// if comming from the quick search box, and we want to search on members, well we need to do that ;)
 	if (isset($_REQUEST['search_selection']) && $_REQUEST['search_selection'] === 'members')
@@ -507,11 +498,10 @@ function PlushSearch2()
 	if (!empty($search_params['topic']))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT b.id_board
+			SELECT t.id_board
 			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 			WHERE t.id_topic = {int:search_topic_id}
-				AND {query_see_board}' . ($modSettings['postmod_active'] ? '
+				AND {query_see_topic_board}' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved_true}' : '') . '
 			LIMIT 1',
 			array(
@@ -981,7 +971,7 @@ function PlushSearch2()
 		$participants = array();
 		$searchArray = array();
 
-		$num_results = $searchAPI->searchQuery($query_params, $searchWords, $excludedIndexWords, $participants, $searchArray);
+		$searchAPI->searchQuery($query_params, $searchWords, $excludedIndexWords, $participants, $searchArray);
 	}
 
 	// Update the cache if the current search term is not yet cached.
@@ -1697,13 +1687,32 @@ function PlushSearch2()
 			}
 		}
 
+		if (!empty($modSettings['postmod_active']))
+		{
+			$approve_boards = boardsAllowedTo('approve_posts');
+
+			// Can approve everywhere, so search all topics.
+			if ($approve_boards === array(0))
+		 		$approve_query = '';
+
+		 	// Can't approve anywhere, so search ony their own topics and approved topics.
+		 	elseif (empty($approve_boards))
+		 		$approve_query = '
+				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})';
+
+		 	// Can approve in some boards, so search own, approved, and approvable topics.
+		 	else
+		 		$approve_query = '
+				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member} OR t.id_board IN ({array_int:approve_boards}))';
+		}
+
 		// *** Retrieve the results to be shown on the page
 		$participants = array();
 		$request = $smcFunc['db_search_query']('', '
 			SELECT ' . (empty($search_params['topic']) ? 'lsr.id_topic' : $search_params['topic'] . ' AS id_topic') . ', lsr.id_msg, lsr.relevance, lsr.num_matches
-			FROM {db_prefix}log_search_results AS lsr' . ($search_params['sort'] == 'num_replies' ? '
+			FROM {db_prefix}log_search_results AS lsr' . ($search_params['sort'] == 'num_replies' || !empty($approve_query) ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '
-			WHERE lsr.id_search = {int:id_search}
+			WHERE lsr.id_search = {int:id_search}' . $approve_query . '
 			ORDER BY {raw:sort} {raw:sort_dir}
 			LIMIT {int:start}, {int:max}',
 			array(
@@ -1712,6 +1721,9 @@ function PlushSearch2()
 				'sort_dir' => $search_params['sort_dir'],
 				'start' => $_REQUEST['start'],
 				'max' => $modSettings['search_results_per_page'],
+				'is_approved' => 1,
+				'current_member' => $user_info['id'],
+				'approve_boards' => !empty($approve_boards) ? $approve_boards : array(0),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -1725,25 +1737,46 @@ function PlushSearch2()
 			$participants[$row['id_topic']] = false;
 		}
 		$smcFunc['db_free_result']($request);
-
-		$num_results = $_SESSION['search_cache']['num_results'];
 	}
 
 	if (!empty($context['topics']))
 	{
 		// Create an array for the permissions.
-		$boards_can = boardsAllowedTo(array('post_reply_own', 'post_reply_any'), true, false);
+		$perms = array('post_reply_own', 'post_reply_any');
+
+		if (!empty($options['display_quick_mod']))
+			$perms = array_merge($perms, array('lock_any', 'lock_own', 'make_sticky', 'move_any', 'move_own', 'remove_any', 'remove_own', 'merge_any'));
+
+		if (!empty($modSettings['postmod_active']) && !isset($approve_boards))
+			$perms[] = 'approve_posts';
+
+		$boards_can = boardsAllowedTo($perms, true, false);
 
 		// How's about some quick moderation?
 		if (!empty($options['display_quick_mod']))
 		{
-			$boards_can = array_merge($boards_can, boardsAllowedTo(array('lock_any', 'lock_own', 'make_sticky', 'move_any', 'move_own', 'remove_any', 'remove_own', 'merge_any'), true, false));
-
 			$context['can_lock'] = in_array(0, $boards_can['lock_any']);
 			$context['can_sticky'] = in_array(0, $boards_can['make_sticky']);
 			$context['can_move'] = in_array(0, $boards_can['move_any']);
 			$context['can_remove'] = in_array(0, $boards_can['remove_any']);
 			$context['can_merge'] = in_array(0, $boards_can['merge_any']);
+		}
+
+		if (!empty($modSettings['postmod_active']))
+		{
+			if (!isset($approve_boards))
+				$approve_boards = $boards_can['approve_posts'];
+
+			if ($approve_boards === array(0))
+		 		$approve_query = '';
+
+		 	elseif (empty($approve_boards))
+		 		$approve_query = '
+				AND (m.approved = {int:is_approved} OR m.id_member = {int:current_member})';
+
+		 	else
+		 		$approve_query = '
+				AND (m.approved = {int:is_approved} OR m.id_member = {int:current_member} OR m.id_board IN ({array_int:approve_boards}))';
 		}
 
 		// What messages are we using?
@@ -1791,19 +1824,23 @@ function PlushSearch2()
 				INNER JOIN {db_prefix}messages AS last_m ON (last_m.id_msg = t.id_last_msg)
 				LEFT JOIN {db_prefix}members AS first_mem ON (first_mem.id_member = first_m.id_member)
 				LEFT JOIN {db_prefix}members AS last_mem ON (last_mem.id_member = first_m.id_member)
-			WHERE m.id_msg IN ({array_int:message_list})' . ($modSettings['postmod_active'] ? '
-				AND m.approved = {int:is_approved}' : '') . '
+			WHERE m.id_msg IN ({array_int:message_list})' . $approve_query . '
 			ORDER BY ' . $smcFunc['db_custom_order']('m.id_msg', $msg_list) . '
 			LIMIT {int:limit}',
 			array(
 				'message_list' => $msg_list,
 				'is_approved' => 1,
+				'current_member' => $user_info['id'],
+				'approve_boards' => !empty($approve_boards) ? $approve_boards : array(0),
 				'limit' => count($context['topics']),
 			)
 		);
 
+		// How many results will the user be able to see?
+		$num_results = $smcFunc['db_num_rows']($messages_request);
+
 		// If there are no results that means the things in the cache got deleted, so pretend we have no topics anymore.
-		if ($smcFunc['db_num_rows']($messages_request) == 0)
+		if ($num_results == 0)
 			$context['topics'] = array();
 
 		// If we want to know who participated in what then load this now.
@@ -1833,7 +1870,7 @@ function PlushSearch2()
 	$context['page_index'] = constructPageIndex($scripturl . '?action=search2;params=' . $context['params'], $_REQUEST['start'], $num_results, $modSettings['search_results_per_page'], false);
 
 	// Consider the search complete!
-	if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+	if (!empty($cache_enable) && $cache_enable >= 2)
 		cache_put_data('search_start:' . ($user_info['is_guest'] ? $user_info['ip'] : $user_info['id']), null, 90);
 
 	$context['key_words'] = &$searchArray;
@@ -1965,9 +2002,14 @@ function prepareSearchContext($reset = false)
 			// Re-fix the international characters.
 			$message['body'] = preg_replace_callback('~(&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', $message['body']);
 		}
+		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
+		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
 	}
 	else
 	{
+		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
+		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
+
 		// Run BBC interpreter on the message.
 		$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
 	}
@@ -2073,9 +2115,6 @@ function prepareSearchContext($reset = false)
 		)
 	));
 
-	$body_highlighted = $message['body'];
-	$subject_highlighted = $message['subject'];
-
 	if (!empty($options['display_quick_mod']))
 	{
 		$started = $output['first_post']['member']['id'] == $user_info['id'];
@@ -2100,24 +2139,6 @@ function prepareSearchContext($reset = false)
 		call_integration_hook('integrate_quick_mod_actions_search');
 	}
 
-	foreach ($context['key_words'] as $query)
-	{
-		// Fix the international characters in the keyword too.
-		$query = un_htmlspecialchars($query);
-		$query = trim($query, "\*+");
-		$query = strtr($smcFunc['htmlspecialchars']($query), array('\\\'' => '\''));
-
-		// Highlighting empty strings would make a terrible mess...
-		if (strlen($query) == 0)
-			continue;
-
-		$body_highlighted = preg_replace_callback('/((<[^>]*)|' . preg_quote(strtr($query, array('\'' => '&#039;')), '/') . ')/i' . ($context['utf8'] ? 'u' : ''), function($m)
-		{
-			return isset($m[2]) && "$m[2]" == "$m[1]" ? stripslashes("$m[1]") : "<strong class=\"highlight\">$m[1]</strong>";
-		}, $body_highlighted);
-		$subject_highlighted = preg_replace('/(' . preg_quote($query, '/') . ')/i' . ($context['utf8'] ? 'u' : ''), '<strong class="highlight">$1</strong>', $subject_highlighted);
-	}
-
 	$output['matches'][] = array(
 		'id' => $message['id_msg'],
 		'attachment' => array(),
@@ -2125,7 +2146,7 @@ function prepareSearchContext($reset = false)
 		'icon' => $message['icon'],
 		'icon_url' => $settings[$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',
 		'subject' => $message['subject'],
-		'subject_highlighted' => $subject_highlighted,
+		'subject_highlighted' => $message['subject_highlighted'],
 		'time' => timeformat($message['poster_time']),
 		'timestamp' => forum_time(true, $message['poster_time']),
 		'counter' => $counter,
@@ -2135,7 +2156,7 @@ function prepareSearchContext($reset = false)
 			'name' => $message['modified_name']
 		),
 		'body' => $message['body'],
-		'body_highlighted' => $body_highlighted,
+		'body_highlighted' => $message['body_highlighted'],
 		'start' => 'msg' . $message['id_msg']
 	);
 	$counter++;
@@ -2152,7 +2173,7 @@ function prepareSearchContext($reset = false)
  */
 function findSearchAPI()
 {
-	global $sourcedir, $modSettings, $search_versions, $searchAPI, $txt;
+	global $sourcedir, $modSettings, $searchAPI, $txt;
 
 	require_once($sourcedir . '/Subs-Package.php');
 	require_once($sourcedir . '/Class-SearchAPI.php');
@@ -2171,7 +2192,7 @@ function findSearchAPI()
 	$searchAPI = new $search_class_name();
 
 	// An invalid Search API.
-	if (!$searchAPI || !($searchAPI instanceof search_api_interface) || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion($search_versions['forum_version'], $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
+	if (!$searchAPI || !($searchAPI instanceof search_api_interface) || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion(SMF_VERSION, $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
 	{
 		// Log the error.
 		loadLanguage('Errors');
@@ -2199,6 +2220,25 @@ function searchSort($a, $b)
 	global $searchAPI;
 
 	return $searchAPI->searchSort($a, $b);
+}
+
+/**
+ * Highlighting matching string
+ *
+ * @param string $text Text to search through
+ * @param array $words List of keywords to search
+ *
+ * @return string Text with highlighted keywords
+ */
+function highlight($text, array $words)
+{
+	$words = implode('|', array_map('preg_quote', $words));
+	$highlighted = preg_filter('/' . $words . '/i', '<span class="highlight">$0</span>', $text);
+
+	if (!empty($highlighted))
+		$text = $highlighted;
+
+	return $text;
 }
 
 ?>

@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 ########## Maintenance ##########
@@ -78,6 +78,13 @@ $cookiename = 'SMFCookie11';
  * @var string
  */
 $db_type = 'mysql';
+/**
+ * The database port
+ * 0 to use default port for the database type
+ *
+ * @var int
+ */
+$db_port = 0;
 /**
  * The server to connect to (or a Unix socket)
  *

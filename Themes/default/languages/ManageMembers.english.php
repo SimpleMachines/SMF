@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; ManageMembers
+// Version: 2.1 RC2; ManageMembers
 
 global $context;
 
@@ -114,6 +114,7 @@ $txt['admin_browse_w_reject'] = 'Reject';
 $txt['admin_browse_w_remind'] = 'Remind';
 $txt['admin_browse_w_approve_deletion'] = 'Approve (Delete Accounts)';
 $txt['admin_browse_w_email'] = 'and send email';
+$txt['admin_browse_no_email'] = '(no email)';
 $txt['admin_browse_w_approve_require_activate'] = 'Approve and require activation';
 
 $txt['admin_browse_filter_by'] = 'Filter By';

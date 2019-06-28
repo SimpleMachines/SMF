@@ -11,7 +11,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -58,7 +58,7 @@ function SaveDraft(&$post_errors)
 	// prepare any data from the form
 	$topic_id = empty($_REQUEST['topic']) ? 0 : (int) $_REQUEST['topic'];
 	$draft['icon'] = empty($_POST['icon']) ? 'xx' : preg_replace('~[\./\\\\*:"\'<>]~', '', $_POST['icon']);
-	$draft['smileys_enabled'] = isset($_POST['ns']) ? (int) $_POST['ns'] : 0;
+	$draft['smileys_enabled'] = isset($_POST['ns']) ? (int) $_POST['ns'] : 1;
 	$draft['locked'] = isset($_POST['lock']) ? (int) $_POST['lock'] : 0;
 	$draft['sticky'] = isset($_POST['sticky']) ? (int) $_POST['sticky'] : 0;
 	$draft['subject'] = strtr($smcFunc['htmlspecialchars']($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
@@ -642,6 +642,19 @@ function showProfileDrafts($memID, $draft_type = 0)
 			'id_draft' => $row['id_draft'],
 			'locked' => $row['locked'],
 			'sticky' => $row['is_sticky'],
+			'quickbuttons' => array(
+				'edit' => array(
+					'label' => $txt['draft_edit'],
+					'href' => $scripturl.'?action=post;'.(empty($row['id_topic']) ? 'board='.$row['id_board'] : 'topic='.$row['id_topic']).'.0;id_draft='.$row['id_draft'],
+					'icon' => 'modify_button'
+				),
+				'delete' => array(
+					'label' => $txt['draft_delete'],
+					'href' => $scripturl.'?action=profile;u='.$context['member']['id'].';area=showdrafts;delete='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
+					'javascript' => 'data-confirm="'.$txt['draft_remove'].'" class="you_sure"',
+					'icon' => 'remove_button'
+				),
+			),
 		);
 	}
 	$smcFunc['db_free_result']($request);
@@ -821,6 +834,19 @@ function showPMDrafts($memID = -1)
 			'recipients' => $recipients,
 			'age' => floor((time() - $row['poster_time']) / 86400),
 			'remaining' => (!empty($modSettings['drafts_keep_days']) ? floor($modSettings['drafts_keep_days'] - ((time() - $row['poster_time']) / 86400)) : 0),
+			'quickbuttons' => array(
+				'edit' => array(
+					'label' => $txt['draft_edit'],
+					'href' => $scripturl.'?action=pm;sa=showpmdrafts;id_draft='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
+					'icon' => 'modify_button'
+				),
+				'delete' => array(
+					'label' => $txt['draft_delete'],
+					'href' => $scripturl.'?action=pm;sa=showpmdrafts;delete='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
+					'javascript' => 'data-confirm="'.$txt['draft_remove'].'?" class="you_sure"',
+					'icon' => 'remove_button'
+				),
+			),
 		);
 	}
 	$smcFunc['db_free_result']($request);

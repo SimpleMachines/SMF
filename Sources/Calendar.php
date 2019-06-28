@@ -11,7 +11,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -89,8 +89,8 @@ function CalendarMain()
 	$context['page_title'] = $txt['calendar'];
 
 	// Ensure a default view is defined
-	if (empty($modSettings['calendar_default_view']))
-		$modSettings['calendar_default_view'] = 'viewlist';
+	if (empty($options['calendar_default_view']))
+		$options['calendar_default_view'] = 'viewlist';
 
 	// What view do we want?
 	if (isset($_GET['viewweek']))
@@ -100,10 +100,10 @@ function CalendarMain()
 	elseif (isset($_GET['viewlist']))
 		$context['calendar_view'] = 'viewlist';
 	else
-		$context['calendar_view'] = $modSettings['calendar_default_view'];
+		$context['calendar_view'] = $options['calendar_default_view'];
 
 	// Don't let search engines index the non-default calendar pages
-	if ($context['calendar_view'] !== $modSettings['calendar_default_view'])
+	if ($context['calendar_view'] !== $options['calendar_default_view'])
 		$context['robot_no_index'] = true;
 
 	// Get the current day of month...
@@ -183,11 +183,6 @@ function CalendarMain()
 		'show_birthdays' => in_array($modSettings['cal_showbdays'], array(1, 2)),
 		'show_events' => in_array($modSettings['cal_showevents'], array(1, 2)),
 		'show_holidays' => in_array($modSettings['cal_showholidays'], array(1, 2)),
-		'highlight' => array(
-			'events' => isset($modSettings['cal_highlight_events']) ? $modSettings['cal_highlight_events'] : 0,
-			'holidays' => isset($modSettings['cal_highlight_holidays']) ? $modSettings['cal_highlight_holidays'] : 0,
-			'birthdays' => isset($modSettings['cal_highlight_birthdays']) ? $modSettings['cal_highlight_birthdays'] : 0,
-		),
 		'show_week_num' => true,
 		'short_day_titles' => !empty($modSettings['cal_short_days']),
 		'short_month_titles' => !empty($modSettings['cal_short_months']),
@@ -199,20 +194,20 @@ function CalendarMain()
 	if ($context['calendar_view'] == 'viewlist')
 		$context['calendar_grid_main'] = getCalendarList($curPage['start_date'], $curPage['end_date'], $calendarOptions);
 	elseif ($context['calendar_view'] == 'viewweek')
-		$context['calendar_grid_main'] = getCalendarWeek($curPage['month'], $curPage['year'], $curPage['day'], $calendarOptions);
+		$context['calendar_grid_main'] = getCalendarWeek($curPage['start_date'], $calendarOptions);
 	else
-		$context['calendar_grid_main'] = getCalendarGrid($curPage['month'], $curPage['year'], $calendarOptions);
+		$context['calendar_grid_main'] = getCalendarGrid($curPage['start_date'], $calendarOptions);
 
 	// Load up the previous and next months.
-	$context['calendar_grid_current'] = getCalendarGrid($curPage['month'], $curPage['year'], $calendarOptions);
+	$context['calendar_grid_current'] = getCalendarGrid($curPage['start_date'], $calendarOptions);
 
 	// Only show previous month if it isn't pre-January of the min-year
 	if ($context['calendar_grid_current']['previous_calendar']['year'] > $modSettings['cal_minyear'] || $curPage['month'] != 1)
-		$context['calendar_grid_prev'] = getCalendarGrid($context['calendar_grid_current']['previous_calendar']['month'], $context['calendar_grid_current']['previous_calendar']['year'], $calendarOptions, true);
+		$context['calendar_grid_prev'] = getCalendarGrid($context['calendar_grid_current']['previous_calendar']['start_date'], $calendarOptions, true);
 
 	// Only show next month if it isn't post-December of the max-year
 	if ($context['calendar_grid_current']['next_calendar']['year'] < $modSettings['cal_maxyear'] || $curPage['month'] != 12)
-		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['month'], $context['calendar_grid_current']['next_calendar']['year'], $calendarOptions);
+		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions);
 
 	// Basic template stuff.
 	$context['allow_calendar_event'] = allowedTo('calendar_post');
@@ -289,16 +284,14 @@ function CalendarPost()
 		$_REQUEST['eventid'] = (int) $_REQUEST['eventid'];
 
 	// We want a fairly compact version of the time, but as close as possible to the user's settings.
-	if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-		$time_string = '%k:%M';
-	else
-		$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
-
-	$js_time_string = str_replace(
-		array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r', '%R', '%S', '%T', '%X'),
-		array('H', 'G', 'h', 'g', 'i', 'A', 'a', 'h:i:s A', 'H:i', 's', 'H:i:s', 'H:i:s'),
-		$time_string
-	);
+	$time_string = strtr(get_date_or_time_format('time'), array(
+		'%I' => '%l',
+		'%H' => '%k',
+		'%S' => '',
+		'%r' => '%l:%M %p',
+		'%R' => '%k:%M',
+		'%T' => '%l:%M',
+	));
 
 	// Submitting?
 	if (isset($_POST[$context['session_var']], $_REQUEST['eventid']))
@@ -477,54 +470,15 @@ function CalendarPost()
 		'name' => $context['page_title'],
 	);
 
-	loadCSSFile('jquery-ui.datepicker.css', array(), 'smf_datepicker');
-	loadCSSFile('jquery.timepicker.css', array(), 'smf_timepicker');
-	loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
-	loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
-	loadJavaScriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');
+	loadDatePicker('#event_time_input .date_input');
+	loadTimePicker('#event_time_input .time_input', $time_string);
+	loadDatePair('#event_time_input', 'date_input', 'time_input');
 	addInlineJavaScript('
 	$("#allday").click(function(){
 		$("#start_time").attr("disabled", this.checked);
 		$("#end_time").attr("disabled", this.checked);
 		$("#tz").attr("disabled", this.checked);
-	});
-	$("#event_time_input .date_input").datepicker({
-		dateFormat: "yy-mm-dd",
-		autoSize: true,
-		isRTL: ' . ($context['right_to_left'] ? 'true' : 'false') . ',
-		constrainInput: true,
-		showAnim: "",
-		showButtonPanel: false,
-		minDate: "' . $modSettings['cal_minyear'] . '-01-01",
-		maxDate: "' . $modSettings['cal_maxyear'] . '-12-31",
-		yearRange: "' . $modSettings['cal_minyear'] . ':' . $modSettings['cal_maxyear'] . '",
-		hideIfNoPrevNext: true,
-		monthNames: ["' . implode('", "', $txt['months_titles']) . '"],
-		monthNamesShort: ["' . implode('", "', $txt['months_short']) . '"],
-		dayNames: ["' . implode('", "', $txt['days']) . '"],
-		dayNamesShort: ["' . implode('", "', $txt['days_short']) . '"],
-		dayNamesMin: ["' . implode('", "', $txt['days_short']) . '"],
-		prevText: "' . $txt['prev_month'] . '",
-		nextText: "' . $txt['next_month'] . '",
-	});
-	$(".time_input").timepicker({
-		timeFormat: "' . $js_time_string . '",
-		showDuration: true,
-		maxTime: "23:59:59",
-	});
-	var date_entry = document.getElementById("event_time_input");
-	var date_entry_pair = new Datepair(date_entry, {
-		timeClass: "time_input",
-		dateClass: "date_input",
-		parseDate: function (el) {
-			var utc = new Date($(el).datepicker("getDate"));
-			return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
-		},
-		updateDate: function (el, v) {
-			$(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
-		}
-	});
-	', true);
+	});', true);
 }
 
 /**

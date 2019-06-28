@@ -11,7 +11,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 /**
@@ -64,7 +64,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			}
 
 			// Build the required information array
-			$affected_users[] = array(
+			$affected_users[$row['id_member']] = array(
 				'rid' => $row['id_request'],
 				'member_id' => $row['id_member'],
 				'member_name' => $row['member_name'],
@@ -116,7 +116,6 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 						'is_read' => 0,
 						'extra' => $smcFunc['json_encode'](array('group_name' => $user['group_name'], 'reason' => !empty($custom_reason) ? '<br><br>' . $custom_reason : '')),
 					);
-					updateMemberData($user['member_id'], array('alerts' => '+'));
 				}
 
 				if ($pref & self::RECEIVE_NOTIFY_EMAIL)
@@ -142,6 +141,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 
 			// Insert the alerts if any
 			if (!empty($alert_rows))
+			{
 				$smcFunc['db_insert']('',
 					'{db_prefix}user_alerts',
 					array(
@@ -151,6 +151,9 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 					$alert_rows,
 					array()
 				);
+
+				updateMemberData(array_keys($affected_users), array('alerts' => '+'));
+			}
 		}
 
 		return true;

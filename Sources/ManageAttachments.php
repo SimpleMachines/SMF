@@ -12,7 +12,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -722,7 +722,7 @@ function MaintainFiles()
 
 	$context['sub_template'] = 'maintenance';
 
-	$attach_dirs = $smcFunc['json_decode']($modSettings['attachmentUploadDir'], true);
+	$attach_dirs = $modSettings['attachmentUploadDir'];
 
 	// Get the number of attachments....
 	$request = $smcFunc['db_query']('', '
@@ -2615,7 +2615,6 @@ function TransferAttachments()
 
 	checkSession();
 
-	$modSettings['attachmentUploadDir'] = $smcFunc['json_decode']($modSettings['attachmentUploadDir'], true);
 	if (!empty($modSettings['attachment_basedirectories']))
 		$modSettings['attachment_basedirectories'] = $smcFunc['json_decode']($modSettings['attachment_basedirectories'], true);
 	else

@@ -14,7 +14,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function loadSession()
 {
-	global $modSettings, $boardurl, $sc, $smcFunc;
+	global $modSettings, $boardurl, $sc, $smcFunc, $cache_enable;
 
 	// Attempt to change a few PHP settings.
 	@ini_set('session.use_cookies', true);
@@ -72,7 +72,7 @@ function loadSession()
 			@ini_set('session.gc_maxlifetime', max($modSettings['databaseSession_lifetime'], 60));
 
 		// Use cache setting sessions?
-		if (empty($modSettings['databaseSession_enable']) && !empty($modSettings['cache_enable']) && php_sapi_name() != 'cli')
+		if (empty($modSettings['databaseSession_enable']) && !empty($cache_enable) && php_sapi_name() != 'cli')
 			call_integration_hook('integrate_session_handlers');
 
 		session_start();

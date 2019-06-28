@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; EmailTemplates
+// Version: 2.1 RC2; EmailTemplates
 
 // Since all of these strings are being used in emails, numeric entities should be used.
 
@@ -43,7 +43,7 @@ $txt['resend_pending_message_body'] = 'Hello {REALNAME}, your registration reque
 
 The username you registered with was {USERNAME}.
 
-Before you can login and start using the forum, your request will be reviewed and approved. When this happens, you will receive another email from this address.
+Before you can login and start using the forum, your request will be reviewed and approved.
 
 {REGARDS}';
 
@@ -595,7 +595,7 @@ $txt['register_pending_body'] = 'Hello {REALNAME}, your registration request at 
 
 The username you registered with was {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}.
 
-Before you can login and start using the forum, your request will be reviewed and approved. When this happens, you will receive another email from this address.
+Before you can login and start using the forum, your request will be reviewed and approved.
 
 {REGARDS}';
 

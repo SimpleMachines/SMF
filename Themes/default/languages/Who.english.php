@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; Who
+// Version: 2.1 RC2; Who
 
 global $scripturl, $context;
 
@@ -104,6 +104,19 @@ $txt['whoallow_editnews'] = 'Editing the news.';
 $txt['whoallow_mailing'] = 'Sending a forum email.';
 $txt['whoallow_maintain'] = 'Performing routine forum maintenance.';
 $txt['whoallow_manageattachments'] = 'Managing the attachments.';
+$txt['whoallow_modsettings'] = 'Editing mod settings';
+$txt['whoallow_logs '] = 'Viewing the forum logs';
+$txt['whoallow_languages'] = 'Managing the languages';
+$txt['whoallow_sengines'] = 'Managing search engines';
+$txt['whoallow_managesearch'] = 'Editing the search settings';
+$txt['whoallow_managecalendar'] = 'Managing the calendar';
+$txt['whoallow_postsettings'] = 'Editing the post settings';
+$txt['whoallow_scheduledtasks'] = 'Managing the scheduled tasks';
+$txt['whoallow_mailqueue'] = 'Viewing the mail queue';
+$txt['whoallow_reports'] = 'Viewing administration reports';
+$txt['whoallow_membergroups'] = 'Managing membergroups';
+$txt['whoallow_regcenter'] = 'Viewing the registration center';
+$txt['whoallow_paidsubscribe'] = 'Managing paid subscriptions';
 $txt['whoallow_moderate'] = 'Viewing the <a href="' . $scripturl . '?action=moderate">Moderation Center</a>.';
 $txt['whoallow_mlist'] = 'Viewing the <a href="' . $scripturl . '?action=mlist">memberlist</a>.';
 $txt['whoallow_optimizetables'] = 'Optimizing the database tables.';

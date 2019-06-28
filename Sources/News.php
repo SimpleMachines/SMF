@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -34,7 +34,7 @@ if (!defined('SMF'))
 function ShowXmlFeed()
 {
 	global $board, $board_info, $context, $scripturl, $boardurl, $txt, $modSettings, $user_info;
-	global $query_this_board, $smcFunc, $settings;
+	global $query_this_board, $smcFunc, $settings, $cache_enable;
 
 	// If it's not enabled, die.
 	if (empty($modSettings['xmlnews_enable']))
@@ -208,7 +208,7 @@ function ShowXmlFeed()
 	$cache_t = microtime(true);
 
 	// Get the associative array representing the xml.
-	if (!empty($modSettings['cache_enable']) && (!$user_info['is_guest'] || $modSettings['cache_enable'] >= 3))
+	if (!empty($cache_enable) && (!$user_info['is_guest'] || $cache_enable >= 3))
 		$xml_data = cache_get_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, 240);
 	if (empty($xml_data))
 	{
@@ -217,7 +217,7 @@ function ShowXmlFeed()
 		if (!empty($call))
 			$xml_data = call_user_func($call, $xml_format);
 
-		if (!empty($modSettings['cache_enable']) && (($user_info['is_guest'] && $modSettings['cache_enable'] >= 3)
+		if (!empty($cache_enable) && (($user_info['is_guest'] && $cache_enable >= 3)
 		|| (!$user_info['is_guest'] && (microtime(true) - $cache_t > 0.2))))
 			cache_put_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, $xml_data, 240);
 	}

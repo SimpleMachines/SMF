@@ -11,7 +11,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -341,7 +341,7 @@ function is_not_banned($forceCheck = false)
 		Logout(true, false);
 
 		// You banned, sucka!
-		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']), !empty($modSettings['log_ban_hits']) ? 'ban' : false);
+		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']), false);
 
 		// If we get here, something's gone wrong.... but let's try anyway.
 		trigger_error('Hacking attempt...', E_USER_ERROR);
@@ -387,7 +387,7 @@ function is_not_banned($forceCheck = false)
 		require_once($sourcedir . '/LogInOut.php');
 		Logout(true, false);
 
-		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']) . '<br>' . $txt['ban_continue_browse'], !empty($modSettings['log_ban_hits']) ? 'ban' : false);
+		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']) . '<br>' . $txt['ban_continue_browse'], false);
 	}
 
 	// Fix up the banning permissions.
@@ -897,6 +897,7 @@ function checkSubmitOnce($action, $is_fatal = true)
 function allowedTo($permission, $boards = null, $any = false)
 {
 	global $user_info, $smcFunc;
+	static $perm_cache = array();
 
 	// You're always allowed to do nothing. (unless you're a working man, MR. LAZY :P!)
 	if (empty($permission))
@@ -924,6 +925,11 @@ function allowedTo($permission, $boards = null, $any = false)
 	}
 	elseif (!is_array($boards))
 		$boards = array($boards);
+
+	$cache_key = hash('md5', $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . $any);
+
+	if (isset($perm_cache[$cache_key]))
+		return $perm_cache[$cache_key];
 
 	$request = $smcFunc['db_query']('', '
 		SELECT MIN(bp.add_deny) AS add_deny
@@ -955,20 +961,26 @@ function allowedTo($permission, $boards = null, $any = false)
 				break;
 		}
 		$smcFunc['db_free_result']($request);
-		return $result;
+		$return = $result;
 	}
 
 	// Make sure they can do it on all of the boards.
-	if ($smcFunc['db_num_rows']($request) != count($boards))
-		return false;
+	elseif ($smcFunc['db_num_rows']($request) != count($boards))
+		$return = false;
 
-	$result = true;
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$result &= !empty($row['add_deny']);
-	$smcFunc['db_free_result']($request);
+	else
+	{
+		$result = true;
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$result &= !empty($row['add_deny']);
+		$smcFunc['db_free_result']($request);
+		$return = $result;
+	}
+
+	$perm_cache[$cache_key] = $return;
 
 	// If the query returned 1, they can do it... otherwise, they can't.
-	return $result;
+	return $return;
 }
 
 /**
@@ -1204,54 +1216,81 @@ function spamProtection($error_type, $only_return_result = false)
 /**
  * A generic function to create a pair of index.php and .htaccess files in a directory
  *
- * @param string $path The (absolute) directory path
+ * @param string|array $paths The (absolute) directory path
  * @param boolean $attachments Whether this is an attachment directory
- * @return bool|string True on success error or a string if anything fails
+ * @return bool|array True on success an array of errors if anything fails
  */
-function secureDirectory($path, $attachments = false)
+function secureDirectory($paths, $attachments = false)
 {
-	if (empty($path))
-		return 'empty_path';
-
-	if (!is_writable($path))
-		return 'path_not_writable';
-
-	$directoryname = basename($path);
-
 	$errors = array();
-	$close = empty($attachments) ? '
+
+	// Work with arrays
+	$paths = (array) $paths;
+
+	if (empty($path))
+		$errors[] = 'empty_path';
+
+	if (!empty($errors))
+		return $errors;
+
+	foreach ($paths as $path)
+	{
+		if (!is_writable($path))
+		{
+			$errors[] = 'path_not_writable';
+
+			continue;
+		}
+
+		$directory_name = basename($path);
+
+		$close = empty($attachments) ? '
 </Files>' : '
 	Allow from localhost
 </Files>
 
 RemoveHandler .php .php3 .phtml .cgi .fcgi .pl .fpl .shtml';
 
-	if (file_exists($path . '/.htaccess'))
-		$errors[] = 'htaccess_exists';
-	else
-	{
-		$fh = @fopen($path . '/.htaccess', 'w');
-		if ($fh)
+		if (file_exists($path . '/.htaccess'))
 		{
-			fwrite($fh, '<Files *>
+			$errors[] = 'htaccess_exists';
+
+			continue;
+		}
+
+		else
+		{
+			$fh = @fopen($path . '/.htaccess', 'w');
+
+			if ($fh)
+			{
+				fwrite($fh, '<Files *>
 	Order Deny,Allow
 	Deny from all' . $close);
-			fclose($fh);
-		}
-		$errors[] = 'htaccess_cannot_create_file';
-	}
+				fclose($fh);
+			}
 
-	if (file_exists($path . '/index.php'))
-		$errors[] = 'index-php_exists';
-	else
-	{
-		$fh = @fopen($path . '/index.php', 'w');
-		if ($fh)
+			else
+				$errors[] = 'htaccess_cannot_create_file';
+		}
+
+		if (file_exists($path . '/index.php'))
 		{
-			fwrite($fh, '<' . '?php
+			$errors[] = 'index-php_exists';
+
+			continue;
+		}
+
+		else
+		{
+			$fh = @fopen($path . '/index.php', 'w');
+
+			if ($fh)
+			{
+				fwrite($fh, '<' . '?php
 
 /**
- * This file is here solely to protect your ' . $directoryname . ' directory.
+ * This file is here solely to protect your ' . $directory_name . ' directory.
  */
 
 // Look for Settings.php....
@@ -1266,13 +1305,17 @@ else
 	exit;
 
 ?' . '>');
-			fclose($fh);
+				fclose($fh);
+			}
+
+			else
+				$errors[] = 'index-php_cannot_create_file';
 		}
-		$errors[] = 'index-php_cannot_create_file';
 	}
 
 	if (!empty($errors))
 		return $errors;
+
 	else
 		return true;
 }

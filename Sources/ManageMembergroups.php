@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -501,7 +501,7 @@ function AddMembergroup()
 				);
 
 				$insert = array();
-				foreach ( $changed_boards[$board_action] as $board_id)
+				foreach ($changed_boards[$board_action] as $board_id)
 					$insert[] = array($id_group, $board_id, $board_action == 'allow' ? 0 : 1);
 
 				$smcFunc['db_insert']('insert',
@@ -837,7 +837,7 @@ function EditMembergroup()
 					);
 
 					$insert = array();
-					foreach ( $changed_boards[$board_action] as $board_id)
+					foreach ($changed_boards[$board_action] as $board_id)
 						$insert[] = array((int) $_REQUEST['group'], $board_id, $board_action == 'allow' ? 0 : 1);
 
 					$smcFunc['db_insert']('insert',

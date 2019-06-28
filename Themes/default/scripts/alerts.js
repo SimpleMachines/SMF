@@ -1,4 +1,15 @@
 var pingTime = 10000;
+var notificationIcon = '/favicon.ico';
+
+$(function ()
+{
+	if ($('meta[property="og:image"]').length != 0)
+		notificationIcon = $('meta[property="og:image"]').attr('content');
+
+	$.get(notificationIcon).fail(function() { 
+		notificationIcon = smf_images_url + '/blank.png';
+	})
+});
 
 var updateAlerts = function ()
 {
@@ -31,7 +42,7 @@ var updateAlerts = function ()
 
 	$.get(smf_scripturl + '?action=profile;area=alerts_popup;counter=' + unreadAlerts + ';u=' + smf_member_id, function (data)
 	{
-		var alerts = $(data).find('.unread');
+		var alerts = $(data).find('.unread_notify');
 		if (alerts.length == 0)
 			return true;
 
@@ -51,8 +62,8 @@ var updateAlerts = function ()
 		$.each(alerts, function(index, item)
 		{
 			var notification = notify.createNotification(new_alert_title, {
-				body: $(item).find('div.details:first > span').text(),
-				icon: smf_images_url + '/blank.png'
+				body: $(item).find('div.details:first span.alert_text').text(),
+				icon: notificationIcon
 			});
 
 			notification.click(function()
@@ -60,6 +71,8 @@ var updateAlerts = function ()
 				window.focus();
 				if (!$('#alerts_menu').is(':visible'))
 					$('#alerts_menu_top').click();
+
+				this.close();
 			});
 
 			if (alert_timeout > 0)
@@ -68,6 +81,9 @@ var updateAlerts = function ()
 					notification.close();
 				}, alert_timeout);
 		});
+
+		var user_menus = new smc_PopupMenu();
+		user_menus.add("alerts", smf_scripturl + "?action=profile;area=alerts_popup;u=" + smf_member_id);
 	});
 
 	setTimeout(updateAlerts, pingTime);

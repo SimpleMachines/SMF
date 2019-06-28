@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -318,7 +318,8 @@ class Attachments
 		global $txt, $user_info, $modSettings;
 
 		// Create an empty session var to keep track of all the files we attached.
-		$SESSION['already_attached'] = array();
+		if (!isset($_SESSION['already_attached']))
+			$_SESSION['already_attached'] = array();
 
 		foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 		{

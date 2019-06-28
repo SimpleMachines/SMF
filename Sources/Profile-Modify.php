@@ -12,7 +12,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -1299,8 +1299,11 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			}
 		}
 
+		if (!isset($user_profile[$memID]['options'][$row['col_name']]))
+			$user_profile[$memID]['options'][$row['col_name']] = '';
+
 		// Did it change?
-		if (!isset($user_profile[$memID]['options'][$row['col_name']]) || $user_profile[$memID]['options'][$row['col_name']] !== $value)
+		if ($user_profile[$memID]['options'][$row['col_name']] != $value)
 		{
 			$log_changes[] = array(
 				'action' => 'customfield_' . $row['col_name'],
@@ -1314,7 +1317,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			);
 			if (empty($value))
 			{
-				$deletes = array('id_theme' => 1, 'variable' => $row['col_name'], 'id_member' => $memID);
+				$deletes[] = array('id_theme' => 1, 'variable' => $row['col_name'], 'id_member' => $memID);
 				unset($user_profile[$memID]['options'][$row['col_name']]);
 			}
 			else
@@ -1342,13 +1345,14 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				array('id_theme', 'variable', 'id_member')
 			);
 		if (!empty($deletes))
-			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}themes
-				WHERE id_theme = {int:id_theme} AND
-					variable = {string:variable} AND
-					id_member = {int:id_member}',
-				$deletes
-			);
+			foreach ($deletes as $delete)
+				$smcFunc['db_query']('', '
+					DELETE FROM {db_prefix}themes
+					WHERE id_theme = {int:id_theme}
+						AND variable = {string:variable}
+						AND id_member = {int:id_member}',
+					$delete
+				);
 		if (!empty($log_changes) && !empty($modSettings['modlog_enabled']))
 		{
 			require_once($sourcedir . '/Logging.php');
@@ -1975,6 +1979,7 @@ function alert_configuration($memID)
 		'alert_timeout' => isset($context['alert_prefs']['alert_timeout']) ? $context['alert_prefs']['alert_timeout'] : 10,
 		'notify_announcements' => isset($context['alert_prefs']['announcements']) ? $context['alert_prefs']['announcements'] : 0,
 	);
+	$context['can_disable_announce'] = $memID == 0 || !empty($modSettings['allow_disableAnnounce']);
 
 	// Now for the exciting stuff.
 	// We have groups of items, each item has both an alert and an email key as well as an optional help string.
@@ -2326,9 +2331,14 @@ function alert_count($memID, $unread = false)
 	if (empty($memID))
 		return false;
 
+	$alerts = array();
+	$possible_topics = array();
+	$possible_msgs = array();
+	$possible_attachments = array();
+
 	// We have to do this the slow way as to iterate over all possible boards the user can see.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_alert, content_id, content_type, extra
+		SELECT id_alert, content_id, content_type, content_action
 		FROM {db_prefix}user_alerts
 		WHERE id_member = {int:id_member}
 			' . ($unread ? '
@@ -2337,50 +2347,53 @@ function alert_count($memID, $unread = false)
 			'id_member' => $memID,
 		)
 	);
-
 	// First we dump alerts and possible boards information out.
-	$alerts = array();
-	$boards = array();
-	$topics = array();
-	$msgs = array();
-	$possible_boards = array();
-	$possible_topics = array();
-	$possible_msgs = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$alerts[$row['id_alert']] = !empty($row['extra']) ? $smcFunc['json_decode']($row['extra'], true) : array();
+		$alerts[$row['id_alert']] = $row;
 
+		// For these types, we need to check whether they can actually see the content.
 		if ($row['content_type'] == 'msg')
 		{
-			$possible_msgs[] = $row['content_id'];
-			$alerts[$row['id_alert']]['msg'] = $row['content_id'];
+			$alerts[$row['id_alert']]['visible'] = false;
+			$possible_msgs[$row['id_alert']] = $row['content_id'];
 		}
-		elseif (isset($alerts[$row['id_alert']]['topic']))
-			$possible_topics[] = $alerts[$row['id_alert']]['topic'];
-		elseif (isset($alerts[$row['id_alert']]['board']))
-			$possible_boards[] = $alerts[$row['id_alert']]['board'];
+		elseif (in_array($row['content_type'], array('topic', 'board')))
+		{
+			$alerts[$row['id_alert']]['visible'] = false;
+			$possible_topics[$row['id_alert']] = $row['content_id'];
+		}
+		// For the rest, they can always see it.
+		else
+			$alerts[$row['id_alert']]['visible'] = true;
 	}
 	$smcFunc['db_free_result']($request);
 
-	$possible_boards = array_unique($possible_boards);
-
-	// If this isn't the current user, get their boards.
-	if (!isset($user_info['id']) || $user_info['id'] != $memID)
-	{
-		$query_see_board = build_query_board($memID);
-		$query_see_board = $query_see_board['query_see_board'];
-	}
+	// If we need to check board access, use the correct board access filter for the member in question.
+	if ((!isset($user_info['id']) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
+		$qb = build_query_board($memID);
 	else
-		$query_see_board = '{query_see_board}';
+	{
+		$qb['query_see_topic_board'] = '{query_see_topic_board}';
+		$qb['query_see_message_board'] = '{query_see_message_board}';
+	}
 
 	// We want only the stuff they can see.
 	if (!empty($possible_msgs))
 	{
+		$flipped_msgs = array();
+		foreach ($possible_msgs as $id_alert => $id_msg)
+		{
+			if (!isset($flipped_msgs[$id_msg]))
+				$flipped_msgs[$id_msg] = array();
+
+			$flipped_msgs[$id_msg][] = $id_alert;
+		}
+
 		$request = $smcFunc['db_query']('', '
-			SELECT m.id_msg, m.id_topic, b.id_board
+			SELECT m.id_msg
 			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
-			WHERE ' . $query_see_board . '
+			WHERE ' . $qb['query_see_message_board'] . '
 				AND m.id_msg IN ({array_int:msgs})',
 			array(
 				'msgs' => $possible_msgs,
@@ -2388,20 +2401,26 @@ function alert_count($memID, $unread = false)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$msgs[] = $row['id_msg'];
-			$topics[] = $row['id_topic'];
-			$boards[] = $row['id_board'];
+			foreach ($flipped_msgs[$row['id_msg']] as $id_alert)
+				$alerts[$id_alert]['visible'] = true;
 		}
-
 		$smcFunc['db_free_result']($request);
 	}
 	if (!empty($possible_topics))
 	{
+		$flipped_topics = array();
+		foreach ($possible_topics as $id_alert => $id_topic)
+		{
+			if (!isset($flipped_topics[$id_topic]))
+				$flipped_topics[$id_topic] = array();
+
+			$flipped_topics[$id_topic][] = $id_alert;
+		}
+
 		$request = $smcFunc['db_query']('', '
-			SELECT t.id_topic, b.id_board
+			SELECT t.id_topic
 			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
-			WHERE ' . $query_see_board . '
+			WHERE ' . $qb['query_see_topic_board'] . '
 				AND t.id_topic IN ({array_int:topics})',
 			array(
 				'topics' => $possible_topics,
@@ -2409,38 +2428,16 @@ function alert_count($memID, $unread = false)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$topics[] = $row['id_topic'];
-			$boards[] = $row['id_board'];
+			foreach ($flipped_topics[$row['id_topic']] as $id_alert)
+				$alerts[$id_alert]['visible'] = true;
 		}
-
 		$smcFunc['db_free_result']($request);
 	}
-	if (!empty($possible_boards))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT id_board
-			FROM {db_prefix}boards AS b
-			WHERE ' . $query_see_board . '
-				AND id_board IN ({array_int:boards})',
-			array(
-				'boards' => $possible_boards,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$boards[] = $row['id_board'];
-
-		$smcFunc['db_free_result']($request);
-	}
-	unset($possible_msgs, $possible_topics, $possible_boards);
 
 	// Now check alerts again and remove any they can't see.
-	foreach ($alerts as $id_alert => $extra)
+	foreach ($alerts as $id_alert => $alert)
 	{
-		if (isset($extra['msg']) && !in_array($extra['msg'], $msgs))
-			unset($alerts[$id_alert]);
-		elseif (isset($extra['topic']) && !in_array($extra['topic'], $topics))
-			unset($alerts[$id_alert]);
-		elseif (isset($extra['board']) && !in_array($extra['board'], $boards))
+		if (!$alert['visible'])
 			unset($alerts[$id_alert]);
 	}
 
@@ -2737,10 +2734,9 @@ function list_getTopicNotificationCount($memID)
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_notify AS ln' . (!$modSettings['postmod_active'] && $user_info['query_see_board'] === '1=1' ? '' : '
-			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)') . ($user_info['query_see_board'] === '1=1' ? '' : '
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)') . '
-		WHERE ln.id_member = {int:selected_member}' . ($user_info['query_see_board'] === '1=1' ? '' : '
-			AND {query_see_board}') . ($modSettings['postmod_active'] ? '
+			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)') . '
+		WHERE ln.id_member = {int:selected_member}' . ($user_info['query_see_topic_board'] === '1=1' ? '' : '
+			AND {query_see_topic_board}') . ($modSettings['postmod_active'] ? '
 			AND t.approved = {int:is_approved}' : ''),
 		array(
 			'selected_member' => $memID,
@@ -2773,7 +2769,7 @@ function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
 	// All the topics with notification on...
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			COALESCE(lt.id_msg, COALESCE(lmr.id_msg, -1)) + 1 AS new_from, b.id_board, b.name,
+			COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from, b.id_board, b.name,
 			t.id_topic, ms.subject, ms.id_member, COALESCE(mem.real_name, ms.poster_name) AS real_name_col,
 			ml.id_msg_modified, ml.poster_time, ml.id_member AS id_member_updated,
 			COALESCE(mem2.real_name, ml.poster_name) AS last_real_name,
@@ -4244,10 +4240,9 @@ function tfasetup($memID)
 			$code = $_POST['tfa_code'];
 			$totp = new \TOTP\Auth($_SESSION['tfa_secret']);
 			$totp->setRange(1);
-			$valid_password = hash_verify_password($user_settings['member_name'], trim($_POST['passwd']), $user_settings['passwd']);
 			$valid_code = strlen($code) == $totp->getCodeLength() && $totp->validateCode($code);
 
-			if ($valid_password && $valid_code)
+			if (empty($context['password_auth_failed']) && $valid_code)
 			{
 				$backup = substr(sha1($smcFunc['random_int']()), 0, 16);
 				$backup_encrypted = hash_password($user_settings['member_name'], $backup);
@@ -4270,7 +4265,6 @@ function tfasetup($memID)
 			{
 				$context['tfa_secret'] = $_SESSION['tfa_secret'];
 				$context['tfa_error'] = !$valid_code;
-				$context['tfa_pass_error'] = !$valid_password;
 				$context['tfa_pass_value'] = $_POST['passwd'];
 				$context['tfa_value'] = $_POST['tfa_code'];
 			}

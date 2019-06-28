@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -61,10 +61,16 @@ function createMenu($menuData, $menuOptions = array())
 	$context['menu_data_' . $context['max_menu_id']] = array();
 	$menu_context = &$context['menu_data_' . $context['max_menu_id']];
 
-	// What is the general action of this menu (i.e. $scripturl?action=XXXX.
+	// What is the general action of this menu? (i.e. $scripturl?action=XXXX)
 	$menu_context['current_action'] = isset($menuOptions['action']) ? $menuOptions['action'] : $context['current_action'];
 
-	// Allow extend *any* menu with a single hook
+	/* Allow extending *any* menu with a single hook.
+		For the sake of people searching for specific hooks, here are some common examples:
+			integrate_admin_areas
+			integrate_moderate_areas
+			integrate_pm_areas
+			integrate_profile_areas
+	*/
 	if (!empty($menu_context['current_action']))
 		call_integration_hook('integrate_' . $menu_context['current_action'] . '_areas', array(&$menuData));
 
@@ -83,6 +89,7 @@ function createMenu($menuData, $menuOptions = array())
 		$menu_context['extra_parameters'] .= ';' . $context['session_var'] . '=' . $context['session_id'];
 
 	$include_data = array();
+	$menu_context['sections'] = array();
 
 	// Now setup the context correctly.
 	foreach ($menuData as $section_id => $section)
@@ -255,6 +262,26 @@ function createMenu($menuData, $menuOptions = array())
 					$menu_context['current_section'] = $section_id;
 					$backup_area = isset($area['select']) ? $area['select'] : $area_id;
 					$include_data = $area;
+				}
+			}
+		}
+	}
+
+	foreach ($menu_context['sections'] as $section_id => $section)
+	{
+		if (!empty($section['areas']))
+		{
+			foreach ($section['areas'] as $area_id => $area)
+			{
+				if (!empty($area['subsections']))
+				{
+					foreach ($area['subsections'] as $sa => $sub)
+					{
+						if (empty($sub['disabled']))
+							break;
+
+						$menu_context['sections'][$section_id]['areas'][$area_id]['hide_subsections'] = true;
+					}
 				}
 			}
 		}

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; ManageCalendar
+// Version: 2.1 RC2; ManageCalendar
 
 $txt['calendar_desc'] = 'From here you can modify all aspects of the calendar.';
 
@@ -27,26 +27,7 @@ $txt['setting_cal_minyear'] = 'Minimum year';
 $txt['setting_cal_maxyear'] = 'Maximum year';
 $txt['setting_cal_maxspan'] = 'Max number of days an event can span';
 $txt['setting_cal_showInTopic'] = 'Show linked events in topic display';
-$txt['setting_calendar_default_view'] = 'Default view on calendar page';
-$txt['setting_cal_viewlist'] = 'List view';
-$txt['setting_cal_viewmonth'] = 'Month view';
-$txt['setting_cal_viewweek'] = 'Week view';
-
-$txt['setting_cal_display_type'] = 'Cell Display type';
-$txt['setting_cal_display_comfortable'] = 'Comfortable';
-$txt['setting_cal_display_compact'] = 'Compact';
-
 $txt['setting_cal_disable_prev_next'] = 'Disable three Month Blocks';
-
-$txt['setting_cal_highlight_events'] = 'Highlight Events';
-$txt['setting_cal_highlight_holidays'] = 'Highlight Holidays';
-$txt['setting_cal_highlight_birthdays'] = 'Highlight Birthdays';
-
-$txt['setting_cal_highlight_none'] = 'Nowhere';
-$txt['setting_cal_highlight_mini'] = 'Mini Calendars only';
-$txt['setting_cal_highlight_main'] = 'Main Calendar only';
-$txt['setting_cal_highlight_both'] = 'Mini &amp; Main Calendars';
-
 $txt['setting_cal_week_links'] = 'Show Week links';
 $txt['setting_cal_week_links_none'] = 'Nowhere';
 $txt['setting_cal_week_links_mini'] = 'Mini Calendars only';

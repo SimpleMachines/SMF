@@ -7,7 +7,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 // @todo
@@ -272,8 +272,9 @@ function template_show_backtrace()
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="', $context['character_set'], '">
-		<title>Backtrace</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
+		<title>Backtrace</title>';
+	template_css();
+	echo '
 	</head>
 	<body class="padding">';
 
@@ -285,7 +286,7 @@ function template_show_backtrace()
 					', $txt['error'], '
 				</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg" id="backtrace">
 				<ul class="padding">';
 
 		if (!empty($context['error_info']['error_type']))
@@ -294,7 +295,7 @@ function template_show_backtrace()
 
 		if (!empty($context['error_info']['message']))
 			echo '
-					<li>', $txt['error_message'], ': ', $context['error_info']['message'], '</li>';
+					<li>', $txt['error_message'], ': <span class = "error_message">', $context['error_info']['message'], '</span></li>';
 
 		if (!empty($context['error_info']['file']))
 			echo '

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC1; Themes
+// Version: 2.1 RC2; Themes
 
 $txt['themeadmin_explain'] = 'Themes are the different looks and feels of your forum. These settings affect the selection of themes, and which themes guests and other members use.';
 
@@ -89,7 +89,7 @@ $txt['latest_members'] = 'Show latest member on board index';
 $txt['news_fader'] = 'Show news fader on board index';
 $txt['member_list_bar'] = 'Show members list bar on board index';
 $txt['header_logo_url'] = 'Logo image URL';
-$txt['header_logo_url_desc'] = '(leave blank to show forum name or default logo.)';
+$txt['header_logo_url_desc'] = 'Leave blank to show forum name or default logo.';
 $txt['number_recent_posts'] = 'Number of recent posts to display on board index';
 
 $txt['theme_adding_title'] = 'Obtaining Themes';
@@ -150,8 +150,8 @@ $txt['themeadmin_edit_preview'] = 'Preview';
 $txt['themeadmin_selectable'] = 'Themes that the user is able to select';
 $txt['themeadmin_themelist_link'] = 'Show the list of themes';
 
-/* Open Graph */
-$txt['og_image'] = 'OG Image';
-$txt['og_image_desc'] = 'Link to your Open Graph optimized image, suggested size 175x175px<br><span class="smalltext">You can read more about here <a href="http://ogp.me/">Open Graph</a></span>';
+// Open Graph
+$txt['og_image'] = 'Open Graph image';
+$txt['og_image_desc'] = 'Suggested size: 175x175px. <a href="http://ogp.me/" target="_blank" class="bbc_link">Open Graph</a> is used for social media sharing.';
 
 ?>

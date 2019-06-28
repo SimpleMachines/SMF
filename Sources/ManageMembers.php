@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -738,7 +738,7 @@ function MembersAwaitingActivation()
 			);
 		else
 			$context['allowed_actions'] = array(
-				'ok' => $txt['admin_browse_w_approve'],
+				'ok' => $txt['admin_browse_w_approve'] .' '. $txt['admin_browse_no_email'],
 				'okemail' => $txt['admin_browse_w_approve'] . ' ' . $txt['admin_browse_w_email'],
 				'require_activation' => $txt['admin_browse_w_approve_require_activate'],
 				'reject' => $txt['admin_browse_w_reject'],
@@ -778,6 +778,7 @@ function MembersAwaitingActivation()
 				message = "' . $txt['admin_browse_w_delete'] . '";
 			else
 				message = "' . $txt['admin_browse_w_reject'] . '";';
+
 	// Otherwise a nice standard message.
 	else
 		$javascript .= '
@@ -789,6 +790,7 @@ function MembersAwaitingActivation()
 				message = "' . $txt['admin_browse_w_remind'] . '";
 			else
 				message = "' . ($context['browse_type'] == 'approve' ? $txt['admin_browse_w_approve'] : $txt['admin_browse_w_activate']) . '";';
+
 	$javascript .= '
 			if (confirm(message + " ' . $txt['admin_browse_warn'] . '"))
 				document.forms.postForm.submit();
@@ -796,7 +798,6 @@ function MembersAwaitingActivation()
 
 	$listOptions = array(
 		'id' => 'approve_list',
-// 		'title' => $txt['members_approval_title'],
 		'items_per_page' => $modSettings['defaultMaxMembers'],
 		'base_href' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=' . $context['browse_type'] . (!empty($context['show_filter']) ? ';filter=' . $context['current_filter'] : ''),
 		'default_sort_col' => 'date_registered',

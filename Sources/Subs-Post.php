@@ -12,7 +12,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -356,17 +356,18 @@ function fixTags(&$message)
 			'embeddedUrl' => true,
 			'hasEqualSign' => true,
 		),
+		// The rest of these are deprecated.
 		// [ftp]ftp://...[/ftp]
 		array(
 			'tag' => 'ftp',
-			'protocols' => array('ftp', 'ftps'),
+			'protocols' => array('ftp', 'ftps', 'sftp'),
 			'embeddedUrl' => false,
 			'hasEqualSign' => false,
 		),
 		// [ftp=ftp://...]name[/ftp]
 		array(
 			'tag' => 'ftp',
-			'protocols' => array('ftp', 'ftps'),
+			'protocols' => array('ftp', 'ftps', 'sftp'),
 			'embeddedUrl' => true,
 			'hasEqualSign' => true,
 		),
@@ -441,22 +442,27 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 
 		if (!$found && $protocols[0] == 'http')
 		{
+			$parse_url_replace = parse_url($replace, PHP_URL_SCHEME);
+
+			// A path
 			if (substr($replace, 0, 1) == '/' && substr($replace, 0, 2) != '//')
 				$replace = $domain_url . $replace;
+			// A query
 			elseif (substr($replace, 0, 1) == '?')
 				$replace = $scripturl . $replace;
+			// A fragment
 			elseif (substr($replace, 0, 1) == '#' && $embeddedUrl)
 			{
 				$replace = '#' . preg_replace('~[^A-Za-z0-9_\-#]~', '', substr($replace, 1));
 				$this_tag = 'iurl';
 				$this_close = 'iurl';
 			}
-			elseif (substr($replace, 0, 2) != '//')
+			elseif (substr($replace, 0, 2) != '//' && empty($parse_url_replace))
 				$replace = $protocols[0] . '://' . $replace;
 		}
 		elseif (!$found && $protocols[0] == 'ftp')
 			$replace = $protocols[0] . '://' . preg_replace('~^(?!ftps?)[^:]+://~', '', $replace);
-		elseif (!$found)
+		elseif (!$found && empty($parse_url_replace))
 			$replace = $protocols[0] . '://' . $replace;
 
 		if ($hasEqualSign && $embeddedUrl)
@@ -1116,15 +1122,6 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		);
 	}
 
-	censorText($subject);
-	if (empty($modSettings['disallow_sendBody']))
-	{
-		censorText($message);
-		$message = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($smcFunc['htmlspecialchars']($message), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
-	}
-	else
-		$message = '';
-
 	$to_names = array();
 	if (count($to_list) > 1)
 	{
@@ -1150,8 +1147,38 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	);
 	$email_template = 'new_pm' . (empty($modSettings['disallow_sendBody']) ? '_body' : '') . (!empty($to_names) ? '_tolist' : '');
 
+	$notification_texts = array();
+
 	foreach ($notifications as $lang => $notification_list)
 	{
+		// Censor and parse BBC in the receiver's language. Only do each language once.
+		if (empty($notification_texts[$lang]))
+		{
+			if ($lang != $user_info['language'])
+				loadLanguage('index+Modifications', $lang, false);
+
+			$notification_texts[$lang]['subject'] = $subject;
+			censorText($notification_texts[$lang]['subject']);
+
+			if (empty($modSettings['disallow_sendBody']))
+			{
+				$notification_texts[$lang]['body'] = $message;
+
+				censorText($notification_texts[$lang]['body']);
+
+				$notification_texts[$lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($smcFunc['htmlspecialchars']($notification_texts[$lang]['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+			}
+			else
+				$notification_texts[$lang]['body'] = '';
+
+
+			if ($lang != $user_info['language'])
+				loadLanguage('index+Modifications', $user_info['language'], false);
+		}
+
+		$replacements['SUBJECT'] = $notification_texts[$lang]['subject'];
+		$replacements['MESSAGE'] = $notification_texts[$lang]['body'];
+
 		$emaildata = loadEmailTemplate($email_template, $replacements, $lang);
 
 		// Off the notification email goes!
@@ -1622,12 +1649,6 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 	$task_rows = array();
 	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
-		// Clean it up.
-		censorText($row['subject']);
-		censorText($row['body']);
-		$row['subject'] = un_htmlspecialchars($row['subject']);
-		$row['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($row['body'], false, $row['id_last_msg']), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
-
 		$task_rows[] = array(
 			'$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', $smcFunc['json_encode'](array(
 				'msgOptions' => array(
@@ -2953,7 +2974,7 @@ function spell_check($dict, $word)
  *
  * Returns an array of suggested replacements for the specified word
  *
- * @param resource $dict An enchant or pspell dictioary resource
+ * @param resource $dict An enchant or pspell dictionary resource
  * @param string $word A misspelled word
  * @return array An array of suggested replacements for the misspelled word
  */

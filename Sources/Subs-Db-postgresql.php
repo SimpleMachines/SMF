@@ -10,7 +10,7 @@
  * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC1
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -71,6 +71,9 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 	// We are not going to make it very far without these.
 	if (!function_exists('pg_pconnect'))
 		display_db_error();
+
+	// We need to escape ' and \
+	$db_passwd = str_replace(array('\\','\''), array('\\\\','\\\''), $db_passwd);
 
 	if (!empty($db_options['persist']))
 		$connection = @pg_pconnect((empty($db_server) ? '' : 'host=' . $db_server . ' ') . 'dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
@@ -625,7 +628,7 @@ function smf_db_error($db_string, $connection = null)
  * @param string $table The table we're inserting the data into
  * @param array $columns An array of the columns we're inserting the data into. Should contain 'column' => 'datatype' pairs
  * @param array $data The data to insert
- * @param array $keys The keys for the table
+ * @param array $keys The keys for the table, needs to be not empty on replace mode
  * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array; every mode runs only with method != 'ignore'
  * @param resource $connection The connection to use (if null, $db_connection is used)
  * @return mixed value of the first key, behavior based on returnmode. null if no data.
@@ -648,9 +651,15 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
 
 	// Sanity check for replace is key part of the columns array
-	if ($method == 'replace' && count(array_intersect_key($columns, array_flip($keys))) !== count($keys))
-		smf_db_error_backtrace('Primary Key field missing in insert call',
-			'Change the method of db insert to insert or add the pk field to the columns array', E_USER_ERROR, __FILE__, __LINE__);
+	if ($method == 'replace')
+	{
+		if (empty($keys))
+			smf_db_error_backtrace('When using the replace mode, the key column is a required entry.',
+				'Change the method of db insert to insert or add the pk field to the key array', E_USER_ERROR, __FILE__, __LINE__);
+		if (count(array_intersect_key($columns, array_flip($keys))) !== count($keys))
+			smf_db_error_backtrace('Primary Key field missing in insert call',
+				'Change the method of db insert to insert or add the pk field to the columns array', E_USER_ERROR, __FILE__, __LINE__);
+	}			
 
 	// PostgreSQL doesn't support replace: we implement a MySQL-compatible behavior instead
 	if ($method == 'replace' || $method == 'ignore')
