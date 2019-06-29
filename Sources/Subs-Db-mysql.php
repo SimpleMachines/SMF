@@ -558,7 +558,7 @@ function smf_db_transaction($type = 'commit', $connection = null)
 function smf_db_error($db_string, $connection = null)
 {
 	global $txt, $context, $sourcedir, $webmaster_email, $modSettings;
-	global $db_connection, $db_last_error, $db_persist;
+	global $db_connection, $db_last_error, $db_persist, $cache_enable;
 	global $db_server, $db_user, $db_passwd, $db_name, $db_show_debug, $ssi_db_user, $ssi_db_passwd;
 	global $smcFunc;
 
@@ -588,8 +588,8 @@ function smf_db_error($db_string, $connection = null)
 	if (function_exists('cache_get_data') && (!isset($modSettings['autoFixDatabase']) || $modSettings['autoFixDatabase'] == '1'))
 	{
 		// Force caching on, just for the error checking.
-		$old_cache = @$modSettings['cache_enable'];
-		$modSettings['cache_enable'] = '1';
+		$old_cache = @$cache_enable;
+		$cache_enable = '1';
 
 		if (($temp = cache_get_data('db_last_error', 600)) !== null)
 			$db_last_error = max(@$db_last_error, $temp);
@@ -649,7 +649,7 @@ function smf_db_error($db_string, $connection = null)
 			// And send off an email!
 			sendmail($webmaster_email, $txt['database_error'], $txt['tried_to_repair'], null, 'dberror');
 
-			$modSettings['cache_enable'] = $old_cache;
+			$cache_enable = $old_cache;
 
 			// Try the query again...?
 			$ret = $smcFunc['db_query']('', $db_string, false, false);
@@ -657,7 +657,7 @@ function smf_db_error($db_string, $connection = null)
 				return $ret;
 		}
 		else
-			$modSettings['cache_enable'] = $old_cache;
+			$cache_enable = $old_cache;
 
 		// Check for the "lost connection" or "deadlock found" errors - and try it just one more time.
 		if (in_array($query_errno, array(1205, 1213)))

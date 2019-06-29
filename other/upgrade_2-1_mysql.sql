@@ -865,6 +865,37 @@ ALTER TABLE {$db_prefix}members
 	DROP notify_announcements;
 ---#
 
+---# Updating obsolete alerts from before RC3
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'member', content_id = id_member_started
+WHERE content_type = 'buddy';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'member'
+WHERE content_type = 'profile';
+
+UPDATE {$db_prefix}user_alerts
+SET content_id = id_member_started
+WHERE content_type = 'member' AND content_action LIKE 'register_%';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'topic', content_action = 'unapproved_topic'
+WHERE content_type = 'unapproved' AND content_action = 'topic';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'topic', content_action = 'unapproved_reply'
+WHERE content_type = 'unapproved' AND content_action = 'reply';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'topic', content_action = 'unapproved_post'
+WHERE content_type = 'unapproved' AND content_action = 'post';
+
+UPDATE {$db_prefix}user_alerts AS a
+JOIN {$db_prefix}attachments AS f ON (f.id_attach = a.content_id)
+SET a.content_type = 'msg', a.content_action = 'unapproved_attachment', a.content_id = f.id_msg
+WHERE content_type = 'unapproved' AND content_action = 'attachment';
+---#
+
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
@@ -1408,7 +1439,7 @@ WHERE variable = 'avatar_action_too_large'
 
 ---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_feature', 'log_ban_hits', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc', 'enable_unwatch');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_feature', 'log_ban_hits', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc', 'enable_unwatch', 'cache_memcached', 'cache_enable');
 ---#
 
 ---# Cleaning up old theme settings.
@@ -2977,3 +3008,67 @@ VALUES ('Independence Day', '1004-07-04'),
 CREATE INDEX idx_id_thumb ON {$db_prefix}attachments (id_thumb);
 ---#
 
+/******************************************************************************/
+--- Fix mods columns
+/******************************************************************************/
+---# make members mod col nullable
+---{
+$request = upgrade_query("
+		SELECT COLUMN_NAME, COLUMN_TYPE
+		FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE TABLE_SCHEMA = '" . $db_name . "' AND  TABLE_NAME = '" . $db_prefix . "members' AND
+			COLUMN_DEFAULT IS NULL AND COLUMN_KEY <> 'PRI' AND IS_NULLABLE = 'NO' AND
+			COLUMN_NAME NOT IN ('buddy_list', 'signature', 'ignore_boards')
+	");
+
+
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+		upgrade_query("
+			ALTER TABLE {$db_prefix}members
+			MODIFY " . $row['COLUMN_NAME'] . " " . $row['COLUMN_TYPE'] . " NULL
+		");
+}
+---}
+---#
+
+---# make boards mod col nullable
+---{
+$request = upgrade_query("
+		SELECT COLUMN_NAME, COLUMN_TYPE
+		FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE TABLE_SCHEMA = '" . $db_name . "' AND  TABLE_NAME = '" . $db_prefix . "boards' AND
+			COLUMN_DEFAULT IS NULL AND COLUMN_KEY <> 'PRI' AND IS_NULLABLE = 'NO' AND
+			COLUMN_NAME NOT IN ('description')
+	");
+
+
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+		upgrade_query("
+			ALTER TABLE {$db_prefix}boards
+			MODIFY " . $row['COLUMN_NAME'] . " " . $row['COLUMN_TYPE'] . " NULL
+		");
+}
+---}
+---#
+
+---# make topics mod col nullable
+---{
+$request = upgrade_query("
+		SELECT COLUMN_NAME, COLUMN_TYPE
+		FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE TABLE_SCHEMA = '" . $db_name . "' AND  TABLE_NAME = '" . $db_prefix . "topics' AND
+			COLUMN_DEFAULT IS NULL AND COLUMN_KEY <> 'PRI' AND IS_NULLABLE = 'NO'
+	");
+
+
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+		upgrade_query("
+			ALTER TABLE {$db_prefix}topics
+			MODIFY " . $row['COLUMN_NAME'] . " " . $row['COLUMN_TYPE'] . " NULL
+		");
+}
+---}
+---#

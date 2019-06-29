@@ -196,7 +196,6 @@ function MessageMain()
 		'manrules' => 'ManageRules',
 		'pmactions' => 'MessageActionsApply',
 		'prune' => 'MessagePrune',
-		'removeall' => 'MessageKillAllQuery',
 		'removeall2' => 'MessageKillAll',
 		'report' => 'ReportMessage',
 		'search' => 'MessageSearch',
@@ -2803,36 +2802,15 @@ function MessageActionsApply()
 }
 
 /**
- * Are you sure you want to PERMANENTLY (mostly) delete ALL your messages?
- */
-function MessageKillAllQuery()
-{
-	global $txt, $context;
-
-	// Only have to set up the template....
-	$context['sub_template'] = 'ask_delete';
-	$context['page_title'] = $txt['delete_all'];
-	$context['delete_all'] = $_REQUEST['f'] == 'all';
-
-	// And set the folder name...
-	$txt['delete_all'] = str_replace('PMBOX', $context['folder'] != 'sent' ? $txt['inbox'] : $txt['sent_items'], $txt['delete_all']);
-}
-
-/**
  * Delete ALL the messages!
  */
 function MessageKillAll()
 {
 	global $context;
 
-	checkSession('get');
+	checkSession();
 
-	// If all then delete all messages the user has.
-	if ($_REQUEST['f'] == 'all')
-		deleteMessages(null, null);
-	// Otherwise just the selected folder.
-	else
-		deleteMessages(null, $_REQUEST['f'] != 'sent' ? 'inbox' : 'sent');
+	deleteMessages(null, null);
 
 	// Done... all gone.
 	redirectexit($context['current_label_redirect']);

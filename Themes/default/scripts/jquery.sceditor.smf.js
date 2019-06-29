@@ -11,19 +11,26 @@
 
 (function ($) {
 	var extensionMethods = {
+		insertQuoteFast: function (messageid)
+		{
+			var self = this;
+			getXMLDocument(
+				smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + messageid + ';xml',
+				function(XMLDoc)
+				{
+					var text = '';
+
+					for (var i = 0, n = XMLDoc.getElementsByTagName('quote')[0].childNodes.length; i < n; i++)
+						text += XMLDoc.getElementsByTagName('quote')[0].childNodes[i].nodeValue;
+					self.insert(text);
+				}
+			);
+		},
 		InsertText: function (text, bClear) {
-			var bIsSource = this.inSourceMode();
+			if (bClear)
+				this.val('');
 
-			// @TODO make it put the quote close to the current selection
-
-			if (!bIsSource)
-				this.toggleSourceMode();
-
-			var current_value = bClear ? text : this.getSourceEditorValue(false) + text;
-			this.setSourceEditorValue(current_value);
-
-			if (!bIsSource)
-				this.toggleSourceMode();
+			this.insert(text);
 		},
 		getText: function (filter) {
 			var current_value = '';
@@ -242,7 +249,7 @@ sceditor.command.set(
 			{
 				var content = '';
 
-				each(selected.split(/\r?\n/), function () {
+				$.each(selected.split(/\r?\n/), function () {
 					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
 				});
 
@@ -261,7 +268,7 @@ sceditor.command.set(
 			{
 				var content = '';
 
-				each(selected.split(/\r?\n/), function () {
+				$.each(selected.split(/\r?\n/), function () {
 					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
 				});
 
@@ -820,7 +827,7 @@ sceditor.formats.bbcode.set(
 			 * This fixes GH Bug #2845
 			 * As SMF allows "[quote=text]message[/quote]" it is lost during sceditor when it converts bbc to html and then html back to bbc code.  The simplest method is to tell sceditor that this is a "author", which is how the bbc parser treats it in SMF.  This will cause all bbc to be updated to "[quote author=text]message[/quote]".
 			*/
-			if (attr_author == '' && attrs.defaultattr != '')
+			if (attr_author == '' && attrs.defaultattr)
 				attr_author = attrs.defaultattr;
 
 			content = '<blockquote author="' + attr_author + '" date="' + attr_date + '" link="' + attr_link + '"><cite>' + author + ' ' + sDate + '</cite>' + content + '</blockquote>';

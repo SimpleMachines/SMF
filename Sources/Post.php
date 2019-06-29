@@ -2787,9 +2787,6 @@ function QuoteFast()
 
 	$moderate_boards = boardsAllowedTo('moderate_board');
 
-	// Where we going if we need to?
-	$context['post_box_name'] = isset($_GET['pb']) ? $_GET['pb'] : '';
-
 	$request = $smcFunc['db_query']('', '
 		SELECT COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body, m.id_topic, m.subject,
 			m.id_board, m.id_member, m.approved, m.modified_time, m.modified_name, m.modified_reason

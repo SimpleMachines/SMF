@@ -501,7 +501,7 @@ function AddMembergroup()
 				);
 
 				$insert = array();
-				foreach ( $changed_boards[$board_action] as $board_id)
+				foreach ($changed_boards[$board_action] as $board_id)
 					$insert[] = array($id_group, $board_id, $board_action == 'allow' ? 0 : 1);
 
 				$smcFunc['db_insert']('insert',
@@ -837,7 +837,7 @@ function EditMembergroup()
 					);
 
 					$insert = array();
-					foreach ( $changed_boards[$board_action] as $board_id)
+					foreach ($changed_boards[$board_action] as $board_id)
 						$insert[] = array((int) $_REQUEST['group'], $board_id, $board_action == 'allow' ? 0 : 1);
 
 					$smcFunc['db_insert']('insert',

@@ -1310,6 +1310,15 @@ function UpgradeOptions()
 	if (empty($cachedir) || substr($cachedir, 0, 1) == '.')
 		$changes['cachedir'] = '\'' . fixRelativePath($boarddir) . '/cache\'';
 
+	// Migrate cache settings.
+	// Accelerator setting didn't exist previously; use 'smf' file based caching as default if caching had been enabled.
+	if (!isset($GLOBALS['cache_enable']))
+		$changes += array(
+			'cache_accelerator' => !empty($modSettings['cache_enable']) ? '\'smf\'' : '\'\'',
+			'cache_enable' => !empty($modSettings['cache_enable']) ? $modSettings['cache_enable'] : 0,
+			'cache_memcached' => !empty($modSettings['cache_memcached']) ? '\'' . $modSettings['cache_memcached'] . '\'' : '\'\'',
+		);
+
 	// If they have a "host:port" setup for the host, split that into separate values
 	// You should never have a : in the hostname if you're not on MySQL, but better safe than sorry
 	if (strpos($db_server, ':') !== false && $db_type == 'mysql')
@@ -1322,16 +1331,14 @@ function UpgradeOptions()
 		if ($db_port != ini_get('mysqli.default_port'))
 			$changes['db_port'] = (int) $db_port;
 	}
-	elseif (!empty($db_port))
+
+	// If db_port is set and is the same as the default, set it to 0.
+	if (!empty($db_port))
 	{
-		// If db_port is set and is the same as the default, set it to ''
-		if ($db_type == 'mysql')
-		{
-			if ($db_port == ini_get('mysqli.default_port'))
-				$changes['db_port'] = '\'\'';
-			elseif ($db_type == 'postgresql' && $db_port == 5432)
-				$changes['db_port'] = '\'\'';
-		}
+		if ($db_type == 'mysql' && $db_port == ini_get('mysqli.default_port'))
+			$changes['db_port'] = 0;
+		elseif ($db_type == 'postgresql' && $db_port == 5432)
+			$changes['db_port'] = 0;
 	}
 
 	// Maybe we haven't had this option yet?
@@ -2017,7 +2024,7 @@ function parse_sql($filename)
 				}
 
 				// @todo Update this to a try/catch for PHP 7+, because eval() now throws an exception for parse errors instead of returning false
-				if (eval('global $db_prefix, $modSettings, $smcFunc, $txt, $upcontext; ' . $current_data) === false)
+				if (eval('global $db_prefix, $modSettings, $smcFunc, $txt, $upcontext, $db_name; ' . $current_data) === false)
 				{
 					$upcontext['error_message'] = 'Error in upgrade script ' . basename($filename) . ' on line ' . $line_number . '!' . $endl;
 					if ($command_line)
@@ -5141,10 +5148,10 @@ function migrateSettingsFile($changes)
 		'$db_type = \'mysql\';',
 		'/**',
 		' * The database port',
-		' * Default options: 3306 for mysql, 5432 for postgresql',
+		' * 0 to use default port for the database type',
 		' * @var int',
 		' */',
-		'$db_port = 3306;',
+		'$db_port = 0;',
 		'/**',
 		' * The server to connect to (or a Unix socket)',
 		' * @var string',

@@ -289,12 +289,16 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
  *
  * if the member's post number is updated, updates their post groups.
  *
- * @param mixed $members An array of member IDs, null to update this for all members or the ID of a single member
+ * @param mixed $members An array of member IDs, the ID of a single member, or null to update this for all members
  * @param array $data The info to update for the members
  */
 function updateMemberData($members, $data)
 {
-	global $modSettings, $user_info, $smcFunc, $sourcedir;
+	global $modSettings, $user_info, $smcFunc, $sourcedir, $cache_enable;
+
+	// An empty array means there's nobody to update.
+	if ($members === array())
+		return;
 
 	$parameters = array();
 	if (is_array($members))
@@ -429,14 +433,14 @@ function updateMemberData($members, $data)
 	updateStats('postgroups', $members, array_keys($data));
 
 	// Clear any caching?
-	if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2 && !empty($members))
+	if (!empty($cache_enable) && $cache_enable >= 2 && !empty($members))
 	{
 		if (!is_array($members))
 			$members = array($members);
 
 		foreach ($members as $member)
 		{
-			if ($modSettings['cache_enable'] >= 3)
+			if ($cache_enable >= 3)
 			{
 				cache_put_data('member_data-profile-' . $member, null, 120);
 				cache_put_data('member_data-normal-' . $member, null, 120);
@@ -1205,7 +1209,7 @@ function permute($array)
  */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
-	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
+	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir, $cache_enable;
 	static $bbc_lang_locales = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled, $alltags_regex = '', $param_regexes = array();
 
@@ -2197,7 +2201,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	}
 
 	// Shall we take the time to cache this?
-	if ($cache_id != '' && !empty($modSettings['cache_enable']) && (($modSettings['cache_enable'] >= 2 && isset($message[1000])) || isset($message[2400])) && empty($parse_tags))
+	if ($cache_id != '' && !empty($cache_enable) && (($cache_enable >= 2 && isset($message[1000])) || isset($message[2400])) && empty($parse_tags))
 	{
 		// It's likely this will change if the message is modified.
 		$cache_key = 'parse:' . $cache_id . '-' . md5(md5($message) . '-' . $smileys . (empty($disabled) ? '' : implode(',', array_keys($disabled))) . $smcFunc['json_encode']($context['browser']) . $txt['lang_locale'] . $user_info['time_offset'] . $user_info['time_format']);
@@ -2389,17 +2393,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 										'localhost' .
 										// or
 										'|' .
-										// a run of Unicode domain name characters and a dot
-										'[\p{L}\p{M}\p{N}\-.:@]+\.' .
-										// and then a TLD
-										'(?:' .
-											// Either a TLD valid in the DNS
-											'(?P>tlds)' .
-											// or
-											'|' .
-											// the reserved "local" TLD
-											'local' .
-										')' .
+										// a run of IRI characters, a dot, and a TLD
+										'[\p{L}\p{M}\p{N}\-.:@]+\.(?P>tlds)' .
 									')' .
 									// followed by a non-domain character or end of line
 									'(?=[^\p{L}\p{N}\-.]|$)' .
@@ -3334,7 +3329,7 @@ function get_proxied_url($url)
 		return strtr($url, array('http://' => 'https://'));
 
 	// By default, use SMF's own image proxy script
-	$proxied_url = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($url) . '&hash=' . md5($url . $image_proxy_secret);
+	$proxied_url = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($url) . '&hash=' . hash_hmac('sha1', $url, $image_proxy_secret);
 
 	// Allow mods to easily implement an alternative proxy
 	// MOD AUTHORS: To add settings UI for your proxy, use the integrate_general_settings hook.
@@ -3840,7 +3835,7 @@ function memoryReturnBytes($val)
  */
 function template_header()
 {
-	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir;
+	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir, $cache_enable;
 
 	setupThemeContext();
 
@@ -3910,7 +3905,7 @@ function template_header()
 			if ($modSettings['requireAgreement'])
 				$agreement = !file_exists($boarddir . '/agreement.txt');
 
-			if (!empty($securityFiles) || (!empty($modSettings['cache_enable']) && !is_writable($cachedir)) || !empty($agreement))
+			if (!empty($securityFiles) || (!empty($cache_enable) && !is_writable($cachedir)) || !empty($agreement))
 			{
 				echo '
 		<div class="errorbox">
@@ -3928,7 +3923,7 @@ function template_header()
 				', sprintf($txt['not_removed_extra'], $securityFile, substr($securityFile, 0, -1)), '<br>';
 				}
 
-				if (!empty($modSettings['cache_enable']) && !is_writable($cachedir))
+				if (!empty($cache_enable) && !is_writable($cachedir))
 					echo '
 				<strong>', $txt['cache_writable'], '</strong><br>';
 
@@ -4665,7 +4660,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  */
 function setupMenuContext()
 {
-	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc;
+	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc, $cache_enable;
 
 	// Set up the menu privileges.
 	$context['allow_search'] = !empty($modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
@@ -4908,7 +4903,7 @@ function setupMenuContext()
 				$menu_buttons[$act] = $button;
 			}
 
-		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+		if (!empty($cache_enable) && $cache_enable >= 2)
 			cache_put_data('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $menu_buttons, $cacheTime);
 	}
 
@@ -5617,8 +5612,6 @@ function sanitizeMSCutPaste($string)
 		"\xe2\x80\x99",	// right single curly quote
 		"\xe2\x80\x9c",	// left double curly quote
 		"\xe2\x80\x9d",	// right double curly quote
-		"\xe2\x80\x93",	// en dash
-		"\xe2\x80\x94",	// em dash
 	);
 
 	// windows 1252 / iso equivalents
@@ -5630,8 +5623,6 @@ function sanitizeMSCutPaste($string)
 		chr(146),
 		chr(147),
 		chr(148),
-		chr(150),
-		chr(151),
 	);
 
 	// safe replacements
@@ -5643,8 +5634,6 @@ function sanitizeMSCutPaste($string)
 		"'",	// &rsquo;
 		'"',	// &ldquo;
 		'"',	// &rdquo;
-		'-',	// &ndash;
-		'--',	// &mdash;
 	);
 
 	if ($context['utf8'])
@@ -6384,12 +6373,14 @@ function smf_serverResponse($data = '', $type = 'content-type: application/json'
  *
  * The optimized regex is stored in $modSettings['tld_regex'].
  *
- * To update the stored version of the regex to use the latest list of valid TLDs from iana.org, set
- * the $update parameter to true. Updating can take some time, based on network connectivity, so it
- * should normally only be done by calling this function from a background or scheduled task.
+ * To update the stored version of the regex to use the latest list of valid
+ * TLDs from iana.org, set the $update parameter to true. Updating can take some
+ * time, based on network connectivity, so it should normally only be done by
+ * calling this function from a background or scheduled task.
  *
- * If $update is not true, but the regex is missing or invalid, the regex will be regenerated from a
- * hard-coded list of TLDs. This regenerated regex will be overwritten on the next scheduled update.
+ * If $update is not true, but the regex is missing or invalid, the regex will
+ * be regenerated from a hard-coded list of TLDs. This regenerated regex will be
+ * overwritten on the next scheduled update.
  *
  * @param bool $update If true, fetch and process the latest official list of TLDs from iana.org.
  */
@@ -6406,14 +6397,21 @@ function set_tld_regex($update = false)
 	if ($update)
 	{
 		$tlds = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
+		$tlds_md5 = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt.md5');
 
-		// If the Internet Assigned Numbers Authority can't be reached, the Internet is GONE!
-		// We're probably running on a server hidden in a bunker deep underground to protect it from
-		// marauding bandits roaming on the surface. We don't want to waste precious electricity on
-		// pointlessly repeating background tasks, so we'll wait until the next regularly scheduled
-		// update to see if civilization has been restored.
-		if ($tlds === false)
+		/**
+		 * If the Internet Assigned Numbers Authority can't be reached, the Internet is GONE!
+		 * We're probably running on a server hidden in a bunker deep underground to protect
+		 * it from marauding bandits roaming on the surface. We don't want to waste precious
+		 * electricity on pointlessly repeating background tasks, so we'll wait until the next
+		 * regularly scheduled update to see if civilization has been restored.
+		 */
+		if ($tlds === false || $tlds_md5 === false)
 			$postapocalypticNightmare = true;
+
+		// Make sure nothing went horribly wrong along the way.
+		if (md5($tlds) != substr($tlds_md5, 0, 32))
+			$tlds = array();
 	}
 	// If we aren't updating and the regex is valid, we're done
 	elseif (!empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', null) !== false)
@@ -6429,7 +6427,7 @@ function set_tld_regex($update = false)
 		$tlds = array_filter(explode("\n", strtolower($tlds)), function($line)
 		{
 			$line = trim($line);
-			if (empty($line) || strpos($line, '#') !== false || strpos($line, ' ') !== false)
+			if (empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'))
 				return false;
 			else
 				return true;
@@ -6446,27 +6444,29 @@ function set_tld_regex($update = false)
 	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
 	else
 	{
-		$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz', 'cat',
-			'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post', 'pro', 'tel',
-			'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'an', 'ao', 'aq',
-			'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh',
-			'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc',
-			'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cs', 'cu', 'cv',
-			'cx', 'cy', 'cz', 'dd', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg', 'eh',
-			'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr', 'ga', 'gb', 'gd', 'ge',
-			'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw',
-			'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq',
-			'ir', 'is', 'it', 'ja', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn',
-			'kp', 'kr', 'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu',
-			'lv', 'ly', 'ma', 'mc', 'md', 'me', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp',
-			'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf',
-			'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph',
-			'pk', 'pl', 'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru',
-			'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn',
-			'so', 'sr', 'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th',
-			'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tp', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug',
-			'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'ye',
-			'yt', 'yu', 'za', 'zm', 'zw');
+		$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz',
+			'cat', 'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post',
+			'pro', 'tel', 'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al',
+			'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd',
+			'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv',
+			'bw', 'by', 'bz', 'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm',
+			'cn', 'co', 'cr', 'cu', 'cv', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do',
+			'dz', 'ec', 'ee', 'eg', 'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo',
+			'fr', 'ga', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp',
+			'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu',
+			'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'ir', 'is', 'it', 'je', 'jm', 'jo',
+			'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn', 'kp', 'kr', 'kw', 'ky', 'kz', 'la',
+			'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu', 'lv', 'ly', 'ma', 'mc', 'md',
+			'me', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt',
+			'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl',
+			'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl',
+			'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw',
+			'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn',
+			'so', 'sr', 'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg',
+			'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua',
+			'ug', 'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf',
+			'ws', 'ye', 'yt', 'za', 'zm', 'zw',
+		);
 
 		// Schedule a background update, unless civilization has collapsed and/or we are having connectivity issues.
 		if (empty($postapocalypticNightmare))
@@ -6477,6 +6477,10 @@ function set_tld_regex($update = false)
 			);
 		}
 	}
+
+	// Tack on some "special use domain names" that aren't in DNS but may possibly resolve.
+	// See https://www.iana.org/assignments/special-use-domain-names/ for more info.
+	$tlds = array_merge($tlds, array('local', 'onion', 'test'));
 
 	// Get an optimized regex to match all the TLDs
 	$tld_regex = build_regex($tlds);
@@ -6491,18 +6495,22 @@ function set_tld_regex($update = false)
 /**
  * Creates optimized regular expressions from an array of strings.
  *
- * An optimized regex built using this function will be much faster than a simple regex built using
- * `implode('|', $strings)` --- anywhere from several times to several orders of magnitude faster.
+ * An optimized regex built using this function will be much faster than a
+ * simple regex built using `implode('|', $strings)` --- anywhere from several
+ * times to several orders of magnitude faster.
  *
- * However, the time required to build the optimized regex is approximately equal to the time it
- * takes to execute the simple regex. Therefore, it is only worth calling this function if the
- * resulting regex will be used more than once.
+ * However, the time required to build the optimized regex is approximately
+ * equal to the time it takes to execute the simple regex. Therefore, it is only
+ * worth calling this function if the resulting regex will be used more than
+ * once.
  *
- * Because PHP places an upper limit on the allowed length of a regex, very large arrays of $strings
- * may not fit in a single regex. Normally, the excess strings will simply be dropped. However, if
- * the $returnArray parameter is set to true, this function will build as many regexes as necessary
- * to accommodate everything in $strings and return them in an array. You will need to iterate
- * through all elements of the returned array in order to test all possible matches.
+ * Because PHP places an upper limit on the allowed length of a regex, very
+ * large arrays of $strings may not fit in a single regex. Normally, the excess
+ * strings will simply be dropped. However, if the $returnArray parameter is set
+ * to true, this function will build as many regexes as necessary to accommodate
+ * everything in $strings and return them in an array. You will need to iterate
+ * through all elements of the returned array in order to test all possible
+ * matches.
  *
  * @param array $strings An array of strings to make a regex for.
  * @param string $delim An optional delimiter character to pass to preg_quote().
@@ -6512,6 +6520,10 @@ function set_tld_regex($update = false)
 function build_regex($strings, $delim = null, $returnArray = false)
 {
 	global $smcFunc;
+
+	// If it's not an array, there's not much to do. ;)
+	if (!is_array($strings))
+		return preg_quote(@strval($strings), $delim);
 
 	// The mb_* functions are faster than the $smcFunc ones, but may not be available
 	if (function_exists('mb_internal_encoding') && function_exists('mb_detect_encoding') && function_exists('mb_strlen') && function_exists('mb_substr'))
@@ -6537,7 +6549,21 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		static $depth = 0;
 		$depth++;
 
-		$first = $substr($string, 0, 1);
+		$first = @$substr($string, 0, 1);
+
+		// No first character? That's no good.
+		if (empty($first))
+		{
+			// A nested array? Really? Ugh. Fine.
+			if (is_array($string) && $depth < 20)
+			{
+				foreach ($string as $str)
+					$index = $add_string_to_index($str, $index);
+			}
+
+			$depth--;
+			return $index;
+		}
 
 		if (empty($index[$first]))
 			$index[$first] = array();
@@ -6790,18 +6816,26 @@ function build_query_board($userid)
 			)';
 	}
 
+	$query_part['query_see_message_board'] = str_replace('b.', 'm.', $query_part['query_see_board']);
+	$query_part['query_see_topic_board'] = str_replace('b.', 't.', $query_part['query_see_board']);
+
 	// Build the list of boards they WANT to see.
 	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
 
 	// If they aren't ignoring any boards then they want to see all the boards they can see
 	if (empty($ignoreboards))
+	{
 		$query_part['query_wanna_see_board'] = $query_part['query_see_board'];
+		$query_part['query_wanna_see_message_board'] = $query_part['query_see_message_board'];
+		$query_part['query_wanna_see_topic_board'] = $query_part['query_see_topic_board'];
+	}
 	// Ok I guess they don't want to see all the boards
 	else
+	{
 		$query_part['query_wanna_see_board'] = '(' . $query_part['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
-
-	$query_part['query_see_message_board'] = str_replace('b.', 'm.', $query_part['query_see_board']);
-	$query_part['query_see_topic_board'] = str_replace('b.', 't.', $query_part['query_see_board']);
+		$query_part['query_wanna_see_message_board'] = '(' . $query_part['query_see_message_board'] . ' AND m.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
+		$query_part['query_wanna_see_topic_board'] = '(' . $query_part['query_see_topic_board'] . ' AND t.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
+	}
 
 	return $query_part;
 }
