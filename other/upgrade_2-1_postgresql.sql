@@ -284,7 +284,7 @@ if (!isset($modSettings['allow_no_censored']))
 ---# Converting collapsed categories...
 ---{
 // We cannot do this twice
-if (@$modSettings['smfVersion'] < '2.1')
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, id_cat
@@ -308,7 +308,7 @@ if (@$modSettings['smfVersion'] < '2.1')
 
 ---# Parsing board descriptions and names
 ---{
-if (@$modSettings['smfVersion'] < '2.1')
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
     $request = $smcFunc['db_query']('', '
         SELECT name, description, id_board
@@ -1452,7 +1452,7 @@ CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts
 ---# Adding draft permissions...
 ---{
 // We cannot do this twice
-if (@$modSettings['smfVersion'] < '2.1')
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
 	// Anyone who can currently post unapproved topics we assume can create drafts as well ...
 	$request = upgrade_query("
