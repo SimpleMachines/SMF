@@ -35,7 +35,7 @@ function sha1_smf($str)
 	$blks = array_pad(array(), $nblk * 16, 0);
 
 	for ($i = 0; $i < strlen($str); $i++)
-		$blks[$i >> 2] |= ord($str{$i}) << (24 - ($i % 4) * 8);
+		$blks[$i >> 2] |= ord($str[$i]) << (24 - ($i % 4) * 8);
 
 	$blks[$i >> 2] |= 0x80 << (24 - ($i % 4) * 8);
 

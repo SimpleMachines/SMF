@@ -620,9 +620,9 @@ if (!function_exists('imagecreatefrombmp'))
 		$n = 0;
 		for ($j = 0; $j < $palette_size; $j++)
 		{
-			$b = ord($palettedata{$j++});
-			$g = ord($palettedata{$j++});
-			$r = ord($palettedata{$j++});
+			$b = ord($palettedata[$j++]);
+			$g = ord($palettedata[$j++]);
+			$r = ord($palettedata[$j++]);
 
 			$palette[$n++] = imagecolorallocate($dst_img, $r, $g, $b);
 		}
@@ -643,9 +643,9 @@ if (!function_exists('imagecreatefrombmp'))
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$b = ord($scan_line{$j++});
-					$g = ord($scan_line{$j++});
-					$r = ord($scan_line{$j++});
+					$b = ord($scan_line[$j++]);
+					$g = ord($scan_line[$j++]);
+					$r = ord($scan_line[$j++]);
 					$j++;
 
 					$color = imagecolorexact($dst_img, $r, $g, $b);
@@ -666,9 +666,9 @@ if (!function_exists('imagecreatefrombmp'))
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$b = ord($scan_line{$j++});
-					$g = ord($scan_line{$j++});
-					$r = ord($scan_line{$j++});
+					$b = ord($scan_line[$j++]);
+					$g = ord($scan_line[$j++]);
+					$r = ord($scan_line[$j++]);
 
 					$color = imagecolorexact($dst_img, $r, $g, $b);
 					if ($color == -1)
@@ -688,8 +688,8 @@ if (!function_exists('imagecreatefrombmp'))
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$b1 = ord($scan_line{$j++});
-					$b2 = ord($scan_line{$j++});
+					$b1 = ord($scan_line[$j++]);
+					$b2 = ord($scan_line[$j++]);
 
 					$word = $b2 * 256 + $b1;
 
@@ -715,14 +715,14 @@ if (!function_exists('imagecreatefrombmp'))
 			{
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
-					imagesetpixel($dst_img, $x, $y, $palette[ord($scan_line{$j++})]);
+					imagesetpixel($dst_img, $x, $y, $palette[ord($scan_line[$j++])]);
 			}
 			elseif ($info['bits'] == 4)
 			{
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$byte = ord($scan_line{$j++});
+					$byte = ord($scan_line[$j++]);
 
 					imagesetpixel($dst_img, $x, $y, $palette[(int) ($byte / 16)]);
 
@@ -735,7 +735,7 @@ if (!function_exists('imagecreatefrombmp'))
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$byte = ord($scan_line{$j++});
+					$byte = ord($scan_line[$j++]);
 
 					imagesetpixel($dst_img, $x, $y, $palette[(($byte) & 128) != 0]);
 
@@ -892,7 +892,7 @@ function showCodeImage($code)
 	for ($i = 0; $i < strlen($code); $i++)
 	{
 		$characters[$i] = array(
-			'id' => $code{$i},
+			'id' => $code[$i],
 			'font' => array_rand($font_list),
 		);
 
