@@ -93,7 +93,7 @@ if (!isset($modSettings['allow_no_censored']))
 ---# Converting collapsed categories...
 ---{
 // We cannot do this twice
-if (@$modSettings['smfVersion'] < '2.1')
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, id_cat
@@ -111,6 +111,43 @@ if (@$modSettings['smfVersion'] < '2.1')
 			$inserts,
 			array('id_theme', 'id_member', 'variable')
 		);
+}
+---}
+---#
+
+---# Parsing board descriptions and names
+---{
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
+{
+    $request = $smcFunc['db_query']('', '
+        SELECT name, description, id_board
+        FROM {db_prefix}boards');
+
+    $inserts = array();
+
+    $smcFunc['db_free_result']($request);
+
+    while ($row = $smcFunc['db_fetch_assoc']($request))
+    {
+        $inserts[] = array(
+            'name' => $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['name']))),
+            'description' => $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['description']))),
+            'id' => $row['id'],
+        );
+    }
+
+    if (!empty($inserts))
+    {
+        foreach ($inserts as $insert)
+        {
+            $smcFunc['db_query']('', '
+                UPDATE {db_prefix}boards
+                SET name = {string:name}, description = {string:description}
+                WHERE id = {int:id}',
+                $insert
+            );
+        }
+    }
 }
 ---}
 ---#
@@ -1231,7 +1268,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 ---# Adding draft permissions...
 ---{
 // We cannot do this twice
-if (@$modSettings['smfVersion'] < '2.1')
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
 	// Anyone who can currently post unapproved topics we assume can create drafts as well ...
 	$request = upgrade_query("

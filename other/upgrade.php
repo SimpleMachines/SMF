@@ -203,6 +203,7 @@ if (isset($_GET['ssi']))
 // Include our helper functions.
 require_once($sourcedir . '/Subs.php');
 require_once($sourcedir . '/LogInOut.php');
+require_once($sourcedir . '/Subs-Editor.php');
 
 // This only exists if we're on SMF ;)
 if (isset($modSettings['smfVersion']))
