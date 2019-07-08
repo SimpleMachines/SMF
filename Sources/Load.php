@@ -251,7 +251,7 @@ function reloadSettings()
 
 			return random_int($min, $max);
 		},
-		'random_bytes' => function($length = 8)
+		'random_bytes' => function($length = 64)
 		{
 			global $sourcedir;
 
