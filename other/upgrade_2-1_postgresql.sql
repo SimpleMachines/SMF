@@ -867,7 +867,7 @@ VALUES
 /******************************************************************************/
 ---# Removing manage_boards permission
 ---{
-if (version_compare(@$modSettings['smfVersion'], '2.1', '<'))
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
 	$board_managers = array();
 
