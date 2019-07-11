@@ -425,7 +425,8 @@ function template_extract_package()
 
 	elseif ($context['uninstalling'])
 		echo '
-			', $txt['package_uninstall_done'];
+			', $txt['package_uninstall_done'] .' <br>
+			', '<a href="', $context['remove_url'], '" class="button">', $txt['package_delete'], '</a>';
 
 	elseif ($context['install_finished'])
 	{
