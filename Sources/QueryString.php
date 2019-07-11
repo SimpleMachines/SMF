@@ -248,6 +248,11 @@ function cleanRequest()
 		exit;
 	}
 
+	// Check for Cloudflare
+	if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+		$_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
+	}
+
 	// Make sure we have a valid REMOTE_ADDR.
 	if (!isset($_SERVER['REMOTE_ADDR']))
 	{
