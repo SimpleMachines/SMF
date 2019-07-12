@@ -6520,6 +6520,12 @@ function set_tld_regex($update = false)
 function build_regex($strings, $delim = null, $returnArray = false)
 {
 	global $smcFunc;
+	static $cache_buids = array();
+	
+	$cache_key = md5(json_encode($strings).'d='.$delim.'r='.$returnArray);
+	
+	if (isset($cache_buids[$cache_key]))
+		return $cache_buids[$cache_key];
 
 	// If it's not an array, there's not much to do. ;)
 	if (!is_array($strings))
@@ -6666,6 +6672,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	if (!empty($current_encoding))
 		mb_internal_encoding($current_encoding);
 
+	$cache_buids[$cache_key] = $regex;
 	return $regex;
 }
 
