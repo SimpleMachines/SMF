@@ -270,7 +270,9 @@ CREATE TABLE {$db_prefix}boards (
 	member_groups varchar(255) NOT NULL DEFAULT '-1,0',
 	id_profile smallint NOT NULL DEFAULT '1',
 	name varchar(255) NOT NULL DEFAULT '',
+	name_disp varchar(255) NOT NULL DEFAULT '',
 	description text NOT NULL,
+	description_disp text,
 	num_topics int NOT NULL DEFAULT '0',
 	num_posts int NOT NULL DEFAULT '0',
 	count_posts smallint NOT NULL DEFAULT '0',
@@ -374,7 +376,9 @@ CREATE TABLE {$db_prefix}categories (
 	id_cat smallint DEFAULT nextval('{$db_prefix}categories_seq'),
 	cat_order smallint NOT NULL DEFAULT '0',
 	name varchar(255) NOT NULL DEFAULT '',
+	name_disp varchar(255) NOT NULL DEFAULT '',
 	description text NOT NULL,
+	description_disp text,
 	can_collapse smallint NOT NULL DEFAULT '1',
 	PRIMARY KEY (id_cat)
 );

@@ -95,8 +95,8 @@ function getBoardIndex($boardIndexOptions)
 	else
 		$result_boards = $smcFunc['db_query']('', '
 			SELECT' . ($boardIndexOptions['include_categories'] ? '
-				c.id_cat, c.name AS cat_name, c.description AS cat_desc,' : '') . '
-				b.id_board, b.name AS board_name, b.description,
+				c.id_cat, c.name AS cat_name, c.name_disp AS cat_name_disp,c.description AS cat_desc, c.description_disp AS cat_desc_disp,' : '') . '
+				b.id_board, b.name AS board_name,b.name_disp AS board_name_disp, b.description, b.description_disp,
 				CASE WHEN b.redirect != {string:blank_string} THEN 1 ELSE 0 END AS is_redirect,
 				b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent,
 				COALESCE(m.poster_time, 0) AS poster_time, COALESCE(mem.member_name, m.poster_name) AS poster_name,
@@ -157,8 +157,15 @@ function getBoardIndex($boardIndexOptions)
 			// Haven't set this category yet.
 			if (empty($categories[$row_board['id_cat']]))
 			{
-				$name = parse_bbc($row_board['cat_name'], false, '', $context['description_allowed_tags']);
-				$description = parse_bbc($row_board['cat_desc'], false, '', $context['description_allowed_tags']);
+				if (!empty($row_board['cat_name_disp']) || empty($row_board['cat_name']))
+					$name = $row_board['cat_name_disp'];
+				else
+					$name = parse_bbc($row_board['cat_name'], false, '', $context['description_allowed_tags']);
+				
+				if (!empty($row_board['cat_desc_disp']) || empty($row_board['cat_desc']))
+					$description = $row_board['cat_desc_disp'];
+				else
+					$description = parse_bbc($row_board['cat_desc'], false, '', $context['description_allowed_tags']);
 
 				$categories[$row_board['id_cat']] = array(
 					'id' => $row_board['id_cat'],
@@ -199,8 +206,15 @@ function getBoardIndex($boardIndexOptions)
 				if (!isset($this_category[$row_board['id_board']]))
 					$this_category[$row_board['id_board']] = array();
 
-				$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
-				$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
+				if (!empty($row_board['board_name_disp']) || empty($row_board['board_name']))
+					$board_name = $row_board['board_name_disp'];
+				else
+					$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
+				
+				if (!empty($row_board['description_disp']) || empty($row_board['description']))
+					$board_description = !empty($row_board['description_disp']) ? $row_board['description_disp'] : '';
+				else
+					$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
 
 				$this_category[$row_board['id_board']] += array(
 					'new' => empty($row_board['is_read']),
@@ -259,8 +273,15 @@ function getBoardIndex($boardIndexOptions)
 					'board_class' => 'off',
 				);
 
-			$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
-			$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
+				if (!empty($row_board['board_name_disp']) || empty($row_board['board_name']))
+					$board_name = $row_board['board_name_disp'];
+				else
+					$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
+				
+				if (!empty($row_board['description_disp']) || empty($row_board['description']))
+					$board_description = !empty($row_board['description_disp']) ? $row_board['description_disp'] : '';
+				else
+					$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
 
 			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']] = array(
 				'id' => $row_board['id_board'],

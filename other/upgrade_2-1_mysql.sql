@@ -117,7 +117,9 @@ if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<
 
 ---# Parsing board descriptions and names
 ---{
-if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
+$table_columns = $smcFunc['db_list_columns']('{db_prefix}boards');
+
+if (!in_array('description_disp', $table_columns)))
 {
     $request = $smcFunc['db_query']('', '
         SELECT name, description, id_board
@@ -127,12 +129,21 @@ if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<
 
     $smcFunc['db_free_result']($request);
 
+	$smcFunc['db_query'}('','
+		ALTER TABLE {db_prefix}boards
+			ADD COLUMN description_disp text');
+
+	$smcFunc['db_query'}('','
+		ALTER TABLE {db_prefix}boards
+			ADD COLUMN name_disp varchar(255) NOT NULL DEFAULT \'\'');
+
     while ($row = $smcFunc['db_fetch_assoc']($request))
     {
         $inserts[] = array(
             'name' => $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['name']))),
             'description' => $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['description']))),
             'id' => $row['id'],
+			'description_disp' => parse_bbc($smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['description'])))),
         );
     }
 
@@ -142,13 +153,25 @@ if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<
         {
             $smcFunc['db_query']('', '
                 UPDATE {db_prefix}boards
-                SET name = {string:name}, description = {string:description}
+                SET name = {string:name}, description = {string:description}, description_disp = {string:description_disp} 
                 WHERE id = {int:id}',
                 $insert
             );
         }
     }
 }
+
+$table_columns = $smcFunc['db_list_columns']('{db_prefix}categories');
+
+if (!in_array('description_disp', $table_columns)))
+	$smcFunc['db_query'}('','
+		ALTER TABLE {db_prefix}categories
+			ADD COLUMN description_disp text');
+
+if (!in_array('name_disp', $table_columns)))
+	$smcFunc['db_query'}('','
+		ALTER TABLE {db_prefix}categories
+			ADD COLUMN name_disp varchar(255) NOT NULL DEFAULT \'\'');
 ---}
 ---#
 

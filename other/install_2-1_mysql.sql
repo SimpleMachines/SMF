@@ -129,7 +129,9 @@ CREATE TABLE {$db_prefix}boards (
 	member_groups VARCHAR(255) NOT NULL DEFAULT '-1,0',
 	id_profile SMALLINT UNSIGNED NOT NULL DEFAULT '1',
 	name VARCHAR(255) NOT NULL DEFAULT '',
+	name_disp varchar(255) NOT NULL DEFAULT '',
 	description TEXT NOT NULL,
+	description_disp TEXT,
 	num_topics MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	num_posts MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	count_posts TINYINT NOT NULL DEFAULT '0',
@@ -200,7 +202,9 @@ CREATE TABLE {$db_prefix}categories (
 	id_cat TINYINT UNSIGNED AUTO_INCREMENT,
 	cat_order TINYINT NOT NULL DEFAULT '0',
 	name VARCHAR(255) NOT NULL DEFAULT '',
+	name_disp VARCHAR(255) NOT NULL DEFAULT '',
 	description TEXT NOT NULL,
+	description_disp TEXT,
 	can_collapse TINYINT NOT NULL DEFAULT '1',
 	PRIMARY KEY (id_cat)
 ) ENGINE={$engine};
