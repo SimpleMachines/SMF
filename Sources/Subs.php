@@ -6522,7 +6522,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	global $smcFunc;
 	static $cache_buids = array();
 	
-	$cache_key = md5(json_encode($strings).'d='.$delim.'r='.$returnArray);
+	$cache_key = md5(json_encode($strings)) .'d=' . $delim . 'r=' . $returnArray;
 	
 	if (isset($cache_buids[$cache_key]))
 		return $cache_buids[$cache_key];
