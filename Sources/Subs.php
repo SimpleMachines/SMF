@@ -6521,15 +6521,15 @@ function build_regex($strings, $delim = null, $returnArray = false)
 {
 	global $smcFunc;
 	static $cache_buids = array();
-	
-	$cache_key = md5(json_encode($strings)) .'d=' . $delim . 'r=' . $returnArray;
-	
-	if (isset($cache_buids[$cache_key]))
-		return $cache_buids[$cache_key];
 
 	// If it's not an array, there's not much to do. ;)
 	if (!is_array($strings))
 		return preg_quote(@strval($strings), $delim);
+
+	$cache_key = md5(json_encode($strings)) .'d=' . $delim . 'r=' . $returnArray;
+	
+	if (isset($cache_buids[$cache_key]))
+		return $cache_buids[$cache_key];
 
 	// The mb_* functions are faster than the $smcFunc ones, but may not be available
 	if (function_exists('mb_internal_encoding') && function_exists('mb_detect_encoding') && function_exists('mb_strlen') && function_exists('mb_substr'))
