@@ -6520,16 +6520,16 @@ function set_tld_regex($update = false)
 function build_regex($strings, $delim = null, $returnArray = false)
 {
 	global $smcFunc;
-	static $cache_buids = array();
+	static $regexes = array();
 
 	// If it's not an array, there's not much to do. ;)
 	if (!is_array($strings))
 		return preg_quote(@strval($strings), $delim);
 
-	$cache_key = md5(json_encode($strings)) .'d=' . $delim . 'r=' . $returnArray;
+	$regex_key = md5(json_encode(array($strings, $delim, $returnArray)));
 	
-	if (isset($cache_buids[$cache_key]))
-		return $cache_buids[$cache_key];
+	if (isset($regexes[$regex_key]))
+		return $regexes[$regex_key];
 
 	// The mb_* functions are faster than the $smcFunc ones, but may not be available
 	if (function_exists('mb_internal_encoding') && function_exists('mb_detect_encoding') && function_exists('mb_strlen') && function_exists('mb_substr'))
@@ -6672,7 +6672,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	if (!empty($current_encoding))
 		mb_internal_encoding($current_encoding);
 
-	$cache_buids[$cache_key] = $regex;
+	$regexes[$regex_key] = $regex;
 	return $regex;
 }
 
