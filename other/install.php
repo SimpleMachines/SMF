@@ -923,7 +923,7 @@ function DatabaseSettings()
 // Let's start with basic forum type settings.
 function ForumSettings()
 {
-	global $txt, $incontext, $databases, $db_type, $db_connection;
+	global $txt, $incontext, $databases, $db_type, $db_connection, $smcFunc;
 
 	$incontext['sub_template'] = 'forum_settings';
 	$incontext['page_title'] = $txt['install_settings'];
@@ -957,6 +957,29 @@ function ForumSettings()
 	$incontext['utf8_required'] = $databases[$db_type]['utf8_required'];
 
 	$incontext['continue'] = 1;
+
+	// Check Postgres setting
+	if ( $db_type === 'postgresql')
+	{
+		load_database();
+		$result = $smcFunc['db_query']('', '
+			show standard_conforming_strings',
+			array(
+				'db_error_skip' => true,
+			)
+		);
+
+		if ($result !== false)
+		{
+			$row = $smcFunc['db_fetch_assoc']($result);
+			if ($row['standard_conforming_strings'] !== 'on')
+				{
+					$incontext['continue'] = 0;
+					$incontext['error'] = $txt['error_pg_scs'];
+				}
+			$smcFunc['db_free_result']($result);
+		}
+	}
 
 	// Setup the SSL checkbox...
 	$incontext['ssl_chkbx_protected'] = false;

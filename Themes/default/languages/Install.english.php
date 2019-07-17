@@ -206,6 +206,7 @@ $txt['error_warning_notice'] = 'Warning!';
 $txt['error_script_outdated'] = 'This install script is out of date! The current version of SMF is %1$s but this install script is for %2$s.<br><br>
 	It is recommended that you visit the <a href="https://www.simplemachines.org">Simple Machines</a> website to ensure you are installing the latest version.';
 $txt['error_db_prefix_numeric'] = 'The selected database type does not support the use of numeric prefixes.';
+$txt['error_pg_scs'] = 'PostgreSQL is configured incorrectly. Please turn on the standard_conforming_strings configuration parameter.';
 $txt['error_invalid_characters_username'] = 'Invalid character used in Username.';
 $txt['error_username_too_long'] = 'Username must be less than 25 characters long.';
 $txt['error_username_left_empty'] = 'Username field was left empty.';
