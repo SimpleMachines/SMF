@@ -1647,8 +1647,7 @@ function scheduled_prune_log_topics()
 	);
 
 	// Move to array...
-	while($row = $smcFunc['db_fetch_assoc']($result))
-		$members[$row['id_member']] = $row['last_login'];
+	$members = $smcFunc['db_fetch_all']($result);
 	$smcFunc['db_free_result']($result);
 
 	// Nothing to do?
@@ -1658,12 +1657,12 @@ function scheduled_prune_log_topics()
 	// Determine action based on last_login...
 	$purgeMembers = array();
 	$markReadMembers = array();
-	foreach($members as $id => $last_login)
+	foreach($members as $member)
 	{
-		if ($last_login <= $cleanupBeyond)
-			$purgeMembers[] = $id;
-		elseif ($last_login <= $markReadCutoff)
-			$markReadMembers[] = $id;
+		if ($member['last_login'] <= $cleanupBeyond)
+			$purgeMembers[] = $member['id_member'];
+		elseif ($member['last_login'] <= $markReadCutoff)
+			$markReadMembers[] = $member['id_member'];
 	}
 
 	if (!empty($purgeMembers))
@@ -1701,30 +1700,26 @@ function scheduled_prune_log_topics()
 		return true;
 
 	// Find board inserts to perform...
+	// Get board info for each member from log_topics.
+	// Note this user may have read many topics on that board, 
+	// but we just want one row each, & the ID of the last message read in each board.
 	$boards = array();
-	foreach($markReadMembers as $id)
-	{
-		// Get board info for each member from log_topics.
-		// Note this user may have read many topics on that board, 
-		// but we just want one row each, & the ID of the last message read in each board.
-		$sql = 'SELECT lt.id_member, t.id_board, MAX(lt.id_msg) AS id_last_message
-			FROM {db_prefix}topics t
-			INNER JOIN
-			(
-				SELECT id_member, id_topic, id_msg
-				FROM {db_prefix}log_topics
-				WHERE id_member = {int:member}
-			) lt ON lt.id_topic = t.id_topic
-			GROUP BY lt.id_member, t.id_board';
-		$result = $smcFunc['db_query']('', $sql,
-			array(
-				'member' => $id,
-			)
-		);
-		while($row = $smcFunc['db_fetch_assoc']($result))
-			$boards[] = $row;
-		$smcFunc['db_free_result']($result);
-	}
+	$sql = 'SELECT lt.id_member, t.id_board, MAX(lt.id_msg) AS id_last_message
+		FROM {db_prefix}topics t
+		INNER JOIN
+		(
+			SELECT id_member, id_topic, id_msg
+			FROM {db_prefix}log_topics
+			WHERE id_member IN ({array_int:members})
+		) lt ON lt.id_topic = t.id_topic
+		GROUP BY lt.id_member, t.id_board';
+	$result = $smcFunc['db_query']('', $sql,
+		array(
+			'members' => $markReadMembers,
+		)
+	);
+	$boards = $smcFunc['db_fetch_all']($result);
+	$smcFunc['db_free_result']($result);
 
 	// Create one SQL statement for this set of inserts
 	if (!empty($boards))
