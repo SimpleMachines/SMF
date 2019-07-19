@@ -855,13 +855,13 @@ function AdminBoardRecount()
 			// Recount approved messages
 			$request = $smcFunc['db_query']('', '
 				SELECT t.id_topic, MAX(t.num_replies) AS num_replies,
-					CASE WHEN COUNT(ma.id_msg) >= 1 THEN COUNT(ma.id_msg) - 1 ELSE 0 END AS real_num_replies
+					GREATEST(COUNT(ma.id_msg) - 1, 0) AS real_num_replies
 				FROM {db_prefix}topics AS t
 					LEFT JOIN {db_prefix}messages AS ma ON (ma.id_topic = t.id_topic AND ma.approved = {int:is_approved})
 				WHERE t.id_topic > {int:start}
 					AND t.id_topic <= {int:max_id}
 				GROUP BY t.id_topic
-				HAVING CASE WHEN COUNT(ma.id_msg) >= 1 THEN COUNT(ma.id_msg) - 1 ELSE 0 END != MAX(t.num_replies)',
+				HAVING GREATEST(COUNT(ma.id_msg) - 1, 0) != MAX(t.num_replies)',
 				array(
 					'is_approved' => 1,
 					'start' => $_REQUEST['start'],
