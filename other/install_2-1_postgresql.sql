@@ -469,7 +469,7 @@ CREATE INDEX {$db_prefix}log_actions_id_topic_id_log ON {$db_prefix}log_actions 
 #
 
 CREATE TABLE {$db_prefix}log_activity (
-	date date NOT NULL DEFAULT '1004-01-01',
+	date date NOT NULL,
 	hits int NOT NULL DEFAULT '0',
 	topics smallint NOT NULL DEFAULT '0',
 	posts smallint NOT NULL DEFAULT '0',
