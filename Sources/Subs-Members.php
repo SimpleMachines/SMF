@@ -530,7 +530,8 @@ function registerMember(&$regOptions, $return_errors = false)
 	if ($smcFunc['db_num_rows']($request) != 0)
 	{
 		list ($membername_db) = $smcFunc['db_fetch_row']($request);
-		if ($membername_db === $regOptions['username']) {
+		if ($membername_db === $regOptions['username'])
+		{
 			$reg_errors[] = array('lang', 'already_a_user', false);
 		} else {
 			$reg_errors[] = array('lang', 'email_in_use', false, array($smcFunc['htmlspecialchars']($regOptions['email'])));
