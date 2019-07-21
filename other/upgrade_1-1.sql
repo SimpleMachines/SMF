@@ -612,18 +612,6 @@ ALTER TABLE {$db_prefix}calendar
 ADD INDEX topic (ID_TOPIC, ID_MEMBER);
 ---#
 
----# Converting other date columns...
-ALTER TABLE {$db_prefix}log_activity
-CHANGE COLUMN startDate date date NOT NULL default '0001-01-01';
-
-ALTER TABLE {$db_prefix}log_activity
-CHANGE COLUMN date date date NOT NULL default '0001-01-01';
-
-UPDATE {$db_prefix}log_activity
-SET date = '0001-01-01'
-WHERE date = '0000-00-00';
----#
-
 /******************************************************************************/
 --- Adding custom message icons...
 /******************************************************************************/
