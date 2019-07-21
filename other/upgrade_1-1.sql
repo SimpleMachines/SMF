@@ -622,17 +622,6 @@ CHANGE COLUMN date date date NOT NULL default '0001-01-01';
 UPDATE {$db_prefix}log_activity
 SET date = '0001-01-01'
 WHERE date = '0000-00-00';
-
-ALTER TABLE {$db_prefix}members
-CHANGE COLUMN birthdate birthdate date NOT NULL default '0001-01-01';
-
-UPDATE {$db_prefix}members
-SET birthdate = '0001-01-01'
-WHERE birthdate = '0000-00-00';
-
-UPDATE {$db_prefix}members
-SET birthdate = CONCAT('0004-', MONTH(birthdate), '-', DAYOFMONTH(birthdate))
-WHERE YEAR(birthdate) = 0;
 ---#
 
 /******************************************************************************/
