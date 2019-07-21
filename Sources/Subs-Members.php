@@ -513,34 +513,24 @@ function registerMember(&$regOptions, $return_errors = false)
 	if (!empty($regOptions['check_email_ban']))
 		isBannedEmail($regOptions['email'], 'cannot_register', $txt['ban_register_prohibited']);
 
-	// Check if the email address is in use.
+	// Check if the email address or the username is in use.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_member
+		SELECT member_name
 		FROM {db_prefix}members
-		WHERE email_address = {string:email_address}
+		WHERE email_address = {string:email_address} OR member_name = {string:username}
 		LIMIT 1',
-		array('email_address' => $regOptions['email'])
+		array('email_address' => $regOptions['email'], 'username' => $regOptions['username'])
 	);
 	
 	// @todo Separate the sprintf?
-	if ($smcFunc['db_num_rows']($request) != 0)
-		$reg_errors[] = array('lang', 'email_in_use', false, array($smcFunc['htmlspecialchars']($regOptions['email'])));
-
-	$smcFunc['db_free_result']($request);
-	
-	// Check if the username is in use.
-	$request = $smcFunc['db_query']('', '
-		SELECT id_member
-		FROM {db_prefix}members
-		WHERE member_name = {string:username}
-		LIMIT 1',
-		array('username' => $regOptions['username'])
-	);
-	
-	// @todo Separate the sprintf?
-	if ($smcFunc['db_num_rows']($request) != 0)
-		$reg_errors[] = array('lang', 'already_a_user', false);
-
+	if ($smcFunc['db_num_rows']($request) != 0) {
+		list ($membername_db) = $smcFunc['db_fetch_row']($request);
+		if ($membername_db===$regOptions['username']) {
+			$reg_errors[] = array('lang', 'already_a_user', false);
+		} else {
+			$reg_errors[] = array('lang', 'email_in_use', false, array($smcFunc['htmlspecialchars']($regOptions['email'])));
+		}
+	}
 	$smcFunc['db_free_result']($request);
 
 	// Perhaps someone else wants to check this user.
