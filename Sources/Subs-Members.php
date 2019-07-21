@@ -517,7 +517,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	$request = $smcFunc['db_query']('', '
 		SELECT member_name
 		FROM {db_prefix}members
-		WHERE email_address = {string:email_address} 
+		WHERE email_address = {string:email_address}
 				OR member_name = {string:username}
 		LIMIT 1',
 		array(
