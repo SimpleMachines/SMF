@@ -518,16 +518,28 @@ function registerMember(&$regOptions, $return_errors = false)
 		SELECT id_member
 		FROM {db_prefix}members
 		WHERE email_address = {string:email_address}
-			OR email_address = {string:username}
 		LIMIT 1',
-		array(
-			'email_address' => $regOptions['email'],
-			'username' => $regOptions['username'],
-		)
+		array('email_address' => $regOptions['email'])
 	);
+	
 	// @todo Separate the sprintf?
 	if ($smcFunc['db_num_rows']($request) != 0)
 		$reg_errors[] = array('lang', 'email_in_use', false, array($smcFunc['htmlspecialchars']($regOptions['email'])));
+
+	$smcFunc['db_free_result']($request);
+	
+	// Check if the username is in use.
+	$request = $smcFunc['db_query']('', '
+		SELECT id_member
+		FROM {db_prefix}members
+		WHERE member_name = {string:username}
+		LIMIT 1',
+		array('username' => $regOptions['username'])
+	);
+	
+	// @todo Separate the sprintf?
+	if ($smcFunc['db_num_rows']($request) != 0)
+		$reg_errors[] = array('lang', 'already_a_user', false);
 
 	$smcFunc['db_free_result']($request);
 
