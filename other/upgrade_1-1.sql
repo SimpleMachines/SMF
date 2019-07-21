@@ -609,49 +609,7 @@ if ($do_it)
 
 ---# Updating event start and end dates...
 ALTER TABLE {$db_prefix}calendar
-DROP INDEX eventDate;
-
-ALTER TABLE {$db_prefix}calendar
-CHANGE COLUMN eventDate startDate date NOT NULL default '0001-01-01';
-
-ALTER TABLE {$db_prefix}calendar
-CHANGE COLUMN startDate startDate date NOT NULL default '0001-01-01';
-
-UPDATE {$db_prefix}calendar
-SET startDate = '0001-01-01'
-WHERE startDate = '0000-00-00';
-
-ALTER TABLE {$db_prefix}calendar
-ADD COLUMN endDate date NOT NULL default '0001-01-01';
-
-ALTER TABLE {$db_prefix}calendar
-CHANGE COLUMN endDate endDate date NOT NULL default '0001-01-01';
-
-UPDATE {$db_prefix}calendar
-SET endDate = startDate
-WHERE endDate = '0001-01-01'
-	OR endDate = '0000-00-00';
-
-ALTER TABLE {$db_prefix}calendar
-ADD INDEX startDate (startDate),
-ADD INDEX endDate (endDate);
-
-ALTER TABLE {$db_prefix}calendar
-DROP INDEX ID_TOPIC;
-
-ALTER TABLE {$db_prefix}calendar
 ADD INDEX topic (ID_TOPIC, ID_MEMBER);
-
-ALTER TABLE {$db_prefix}calendar_holidays
-CHANGE COLUMN eventDate eventDate date NOT NULL default '0001-01-01';
-
-UPDATE {$db_prefix}calendar_holidays
-SET eventDate = '0001-01-01'
-WHERE eventDate = '0000-00-00';
-
-UPDATE {$db_prefix}calendar_holidays
-SET eventDate = CONCAT('0004-', MONTH(eventDate), '-', DAYOFMONTH(eventDate))
-WHERE YEAR(eventDate) = 0;
 ---#
 
 ---# Converting other date columns...
