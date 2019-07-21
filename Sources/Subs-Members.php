@@ -521,7 +521,7 @@ function registerMember(&$regOptions, $return_errors = false)
 				OR member_name = {string:username}
 		LIMIT 1',
 		array(
-			'email_address' => $regOptions['email'], 
+			'email_address' => $regOptions['email'],
 			'username' => $regOptions['username'],
 		)
 	);
