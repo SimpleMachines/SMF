@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -62,7 +62,6 @@ function template_edit_scheduled_tasks()
 
 	// Starts off with general maintenance procedures.
 	echo '
-	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=scheduledtasks;sa=taskedit;save;tid=', $context['task']['id'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['scheduled_task_edit'], '</h3>
@@ -112,8 +111,7 @@ function template_edit_scheduled_tasks()
 					<input type="submit" name="save" value="', $txt['scheduled_tasks_save_changes'], '" class="button">
 				</div>
 			</div><!-- .windowbg -->
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 }
 
 ?>

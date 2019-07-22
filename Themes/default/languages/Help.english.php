@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; Help
+// Version: 2.1 RC2; Help
 
 global $helptxt, $scripturl;
 
@@ -52,7 +52,7 @@ $helptxt['edit_news'] = '
 		</li>
 		<li>
 			<strong>Settings</strong><br>
-				This page contains a few settings that relate to news and newsletters, including selecting which groups can edit forum news or send newsletters. There is also a setting to configure whether you want news feeds enabled on the forum, as well as a setting to configure the length (how many characters are displayed) for each news post from a news feed.
+				This page contains a few settings that relate to news and newsletters, including selecting which groups can edit forum news or send newsletters. There is also a setting to configure whether you want news feeds enabled on the forum, as well as a setting to configure the length (how many characters are displayed) for each new post that shows in the feed.
 		</li>
 	</ul>';
 
@@ -66,7 +66,7 @@ $helptxt['view_members'] = '
 			ability to delete them from the forum.<br><br>
 		</li>
 		<li>
-			<strong>Awaiting Approval</strong><br>
+			<strong>Awaiting approval</strong><br>
 			This page is only shown if you have enabled admin approval of all new registrations. Anyone who registers to join your
 			forum will only become a full member once they have been approved by an admin. The page lists all those members who
 			are still awaiting approval, along with their email and IP address. You can choose to either accept or reject (delete)
@@ -74,7 +74,7 @@ $helptxt['view_members'] = '
 			of the page. When rejecting a member you can choose to delete the member either with or without notifying them of your decision.<br><br>
 		</li>
 		<li>
-			<strong>Awaiting Activation</strong><br>
+			<strong>Awaiting activation</strong><br>
 			This page will only be visible if you have email activation of new member accounts enabled on the forum. This page will list all
 			members who have still not activated their new accounts. From this page you can choose to either accept, reject or remind
 			members with outstanding registrations. As above you can also choose to email the member to inform them of the
@@ -196,7 +196,7 @@ $helptxt['cal_display_type'] = 'This setting allows you to change the display ty
 $helptxt['cal_week_links'] = 'If this setting is checked, links will be added alongside each week in the calendar.';
 $helptxt['cal_prev_next_links'] = 'If this setting is checked, previous month and next month links will be added to the top of each month for easy navigation.';
 $helptxt['cal_short_months'] = 'If this setting is checked, month names within the calendar will be shortened.<br><br><strong>Enabled:</strong> ' . $txt['months_short'][1] . ' 1<br><strong>Disabled:</strong> ' . $txt['months_titles'][1] . ' 1';
-$helptxt['cal_short_days'] = 'If this setting is checked, day names within the calendar will be shortened.<br><br><strong>Enabled:</strong> ' . $txt['days_short'][1] . '<br><strong>Disbaled:</strong> ' . $txt['days'][1];
+$helptxt['cal_short_days'] = 'If this setting is checked, day names within the calendar will be shortened.<br><br><strong>Enabled:</strong> ' . $txt['days_short'][1] . '<br><strong>Disabled:</strong> ' . $txt['days'][1];
 
 $helptxt['serversettings'] = '<strong>Server Settings</strong><br>
 	Here you can perform some core configuration for your forum. This page includes the database and url settings, as well as other
@@ -258,10 +258,9 @@ $helptxt['cache_enable'] = 'SMF performs caching at a variety of levels. The hig
 $helptxt['cache_memcached'] = 'If you are using memcached you need to provide the server details. This should be entered as a comma separated list as shown in the example below:<br><br>	&quot;server1,server2,server3:port,server4&quot;<br><br>Note that if no port is specified SMF will use port 11211 unless the host contains a slash, then it is assumed to be an alternative transport and the port will be set to 0. SMF will attempt to perform rough/random load balancing across the specified servers.';
 $helptxt['cache_cachedir'] = 'This setting is only for the smf file-based cache system. It specifies the path to the cache directory. It is recommended that you place this in /tmp/ if you are going to use this, although it will work in any directory';
 $helptxt['cache_sqlite_cachedir'] = 'This setting is only for the SQLite database cache system. It specifies the path to the cache directory. It is recommended that you place this in /tmp/ if you are going to use this, although it will work in any directory';
-$helptxt['xcache_adminuser'] = 'This setting is only for the xcache based cache system. It specifies a username and password required to issue a clear command. If this is not set, clearing the cache will fail and the caching system will still force it to invaliate all cached data.<br>The username and password are in cleartext. The password is a unsalted MD5. It is recommended the username and password are set to random values.<br><br>The Cache API will attempt to set these values, however it is <a href="https://xcache.lighttpd.net/wiki/InstallAdministration">recommended these be set in your php.ini</a>';
+$helptxt['xcache_adminuser'] = 'This setting is only for the xcache based cache system. It specifies a username and password required to issue a clear command. If this is not set, clearing the cache will fail and the caching system will still force it to invalidate all cached data.<br>The username and password are in cleartext. The password is a unsalted MD5. It is recommended the username and password are set to random values.<br><br>The Cache API will attempt to set these values, however it is <a href="https://xcache.lighttpd.net/wiki/InstallAdministration">recommended these be set in your php.ini</a>';
 $helptxt['enableErrorLogging'] = 'This will log any errors, like a failed login, so you can see what went wrong.';
 $helptxt['enableErrorQueryLogging'] = 'This will include the full query sent to the database in the error log. It requires error logging to be turned on.<br><br><strong>Note:  This will affect the ability to filter the error log by the error message.</strong>';
-$helptxt['log_ban_hits'] = 'If enabled, every time a banned user tries to access the site, this will be logged in the error log. If you do not care whether, or how often, banned users attempt to access the site, you can turn this off for a performance boost.';
 $helptxt['allow_disableAnnounce'] = 'This will allow users to opt out of notification of topics you announce by checking the &quot;announce topic&quot; checkbox when posting.';
 $helptxt['disallow_sendBody'] = 'This setting removes the option to receive the text of replies, posts, and personal messages in notification emails.<br><br>Often, members will reply to the notification email, which in most cases means the webmaster receives the reply.';
 $helptxt['enable_ajax_alerts'] = 'This option allows your members to receive AJAX notifications. This means that members don\'t need to refresh the page to get new notifications.<br><strong>DO NOTE:</strong> This option might cause a severe load at your server with many users online.';
@@ -311,19 +310,13 @@ $helptxt['use_subdirectories_for_attachments'] = 'Create new directories.';
 $helptxt['max_image_height'] = 'As with the maximum width, this setting indicates the maximum height a posted image can be.';
 $helptxt['avatar_paranoid'] = 'Selecting this setting will enable very strict security checks on avatars. <strong>Warning!</strong> These extensive checks can fail on valid images too. It is strongly recommended to only use this setting together with avatar re-encoding, in order to have SMF try to resample the images which fail the security checks: if successful, they will be sanitized and uploaded. Otherwise, if re-encoding of avatars is not enabled, all avatars failing checks will be rejected.';
 $helptxt['avatar_reencode'] = 'Selecting this setting will enable trying to re-encode the uploaded avatars. Image re-encoding offers better security. Note, however, that image re-encoding also renders all animated images static. <br> This feature is only possible if the GD module is installed on your server.';
-$helptxt['cal_enabled'] = 'The calendar can be used for showing birthdays, or for showing important events happening in your community.<br><br>
-		<strong>Show days as link to \'Post Event\'</strong>:<br>This will allow members to post events for that day, when they click on that date<br>
-		<strong>Max days in advance on board index</strong>:<br>If this is set to 7, the next week\'s worth of events will be shown.<br>
-		<strong>Show holidays on board index</strong>:<br>Show today\'s holidays in a calendar bar on the board index.<br>
-		<strong>Show birthdays on board index</strong>:<br>Show today\'s birthdays in a calendar bar on the board index.<br>
-		<strong>Show events on board index</strong>:<br>Show today\'s events in a calendar bar on the board index.<br>
-		<strong>Default Board to Post In</strong>:<br>What\'s the default board to post events in?<br>
-		<strong>Allow events not linked to posts</strong>:<br>Allow members to post events without requiring them to be linked with a post in a board.<br>
-		<strong>Minimum year</strong>:<br>Select the &quot;first&quot; year on the calendar list.<br>
-		<strong>Maximum year</strong>:<br>Select the &quot;last&quot; year on the calendar list<br>
-		<strong>Allow events to span multiple days</strong>:<br>Select this to allow events to span multiple days.<br>
-		<strong>Max number of days an event can span</strong>:<br>Select the maximum number of days that an event can span.<br><br>
-		Remember that usage of the calendar (posting events, viewing events, etc.) is controlled by permissions set on the permissions page.';
+$helptxt['cal_enabled'] = 'The calendar can be used for showing birthdays, or for showing important events happening in your community. This setting enables the calendar and all its features.';
+$helptxt['cal_link_postevent'] = 'This will allow members to post events for that day, when they click on that date';
+$helptxt['cal_maxdays_advance'] = 'If this is set to 7, the next week\'s worth of events will be shown';
+$helptxt['cal_allow_unlinkedevents'] = 'Allow members to post events without requiring them to be linked with a post in a board';
+$helptxt['cal_min_year'] = 'Select the &quot;first&quot; year on the calendar list';
+$helptxt['cal_max_year'] = 'Select the &quot;last&quot; year on the calendar list';
+$helptxt['cal_maxevent_span'] = 'Select the maximum number of days that an event can span';
 $helptxt['localCookies'] = 'SMF uses cookies to store login information on the client computer.
 	Cookies can be stored globally (myserver.com) or locally (myserver.com/path/to/forum).<br><br>
 	Try this setting if you\'re experiencing problems with users getting logged out automatically.<hr>
@@ -331,6 +324,7 @@ $helptxt['localCookies'] = 'SMF uses cookies to store login information on the c
 	Local cookies don\'t work outside the forum directory so, if your forum is stored at www.myserver.com/forum, pages like www.myserver.com/index.php cannot access the account information.<br><br>
 	Global cookies are especially recommended when using SSI.php but work well for most sites on their own domain.';
 $helptxt['enableBBC'] = 'Selecting this setting will allow your members to use Bulletin Board Code (BBC) throughout the forum, allowing users to format their posts with images, type formatting, and more.';
+$helptxt['legacy_bbc'] = 'Legacy BBCodes are obsolete and cannot be used in new posts. However, they will be parsed in existing posts if enabled here.<br><br>Enabling legacy BBCodes is only useful if your forum was upgraded from a previous version of SMF.<br><br>Also, even when they are enabled, some legacy BBCodes will not be rendered in the same way that they once were. For example, the [flash] BBCode will simply show a link to the Flash content instead of embedding it.';
 $helptxt['time_offset'] = 'Not all forum administrators want their forum to use the same time zone as the server upon which it is hosted. Use this setting to specify the time difference (in hours) between the server time and the time to be used for the forum. Negative and decimal values are permitted.';
 $helptxt['default_timezone'] = 'The server time zone tells PHP where your server is located. You should ensure that this is set correctly, preferably to the country/city in which the server is located. You can find out more information on the <a href="https://php.net/manual/en/timezones.php" target="_blank" rel="noopener">PHP Site</a>.';
 $helptxt['timezone_priority_countries'] = 'This setting lets you push the time zones for a certain country or countries to the top of the list of selectabled time zones that is shown when users are configuring their profiles, creating calendar events, etc.<br><br>For example, if many of your forum\'s members live in New Zealand or Fiji, you may enter "NZ,FJ" to make it easier for them to find the most relevant time zones quickly.<br><br>You can find the complete list of ISO country codes by searching the Internet for "<a href="//www.google.com/search?q=iso+3166-1+alpha-2" target="_blank" rel="noopener">ISO 3166-1 alpha-2</a>".';
@@ -348,9 +342,6 @@ $helptxt['enablePostHTML'] = 'This will allow the posting of some basic HTML tag
 $helptxt['themes'] = 'Here you can select whether the default theme can be chosen, what theme guests will use,
 	as well as other settings. Click on a theme to the right to change the settings for it.';
 $helptxt['theme_install'] = 'This allows you to install new themes. You can do this from an existing directory, by uploading an archive for the theme, or by copying the default theme.<br><br>Note that the archive or directory must have a <pre>theme_info.xml</pre> definition file.';
-$helptxt['enableEmbeddedFlash'] = 'This setting will allow your users to use Flash directly inside their posts,
-	just like images. This could pose a security risk, although few have successfully exploited it.
-	USE AT YOUR OWN RISK!';
 $helptxt['xmlnews_enable'] = 'Allows people to link to <a href="%1$s?action=.xml;sa=news" target="_blank" rel="noopener">Recent news</a>
 	and similar data. It is also recommended that you limit the size of recent posts/news because some clients expect the RSS data to be truncated for display.';
 $helptxt['xmlnews_attachments'] = 'Allows links to attachments to be enclosed within your XML/RSS feeds. Turn this on if you want to use your forum as a podcasting, broadcatching, or similar content distribution platform.
@@ -476,7 +467,7 @@ $helptxt['coppaType'] = 'If age restrictions are enabled, then this setting will
 	</ul>';
 $helptxt['coppaPost'] = 'The contact boxes are required so that forms granting permission for underage registration can be sent to the forum administrator. These details will be shown to all new minors, and are required for parent/guardian approval. At the very least a postal address or fax number must be provided.';
 
-$helptxt['allow_hideOnline'] = 'With this setting enabled all members will be able to hide their online status from other users (except administrators). If disabled, only users who can moderate the forum can hide their presence. Note that disabling this setting will not change any existing member\'s status - it just stops them from hiding themselves in the future.';
+$helptxt['allow_hideOnline'] = 'With this setting enabled all members will be able to hide their online status from other users (except administrators). Note that disabling this setting will not change any existing member\'s status - it just stops them from hiding themselves in the future.';
 $helptxt['meta_keywords'] = 'These keywords are sent in the output of every page to indicate to search engines (etc) the key content of your site. They should be a comma separated list of words, and should not use HTML.';
 
 $helptxt['latest_themes'] = 'This area shows a few of the latest and most popular themes from <a href="https://www.simplemachines.org/" target="_blank" rel="noopener">www.simplemachines.org</a>. It may not show up properly if your computer can\'t find <a href="https://www.simplemachines.org/" target="_blank" rel="noopener">www.simplemachines.org</a>, though.';
@@ -634,5 +625,13 @@ $helptxt['languages_helptxt'] = 'These language entries are used to show floatin
 $helptxt['languages_editortxt'] = 'These language entries are used for user interface elements in the post editor.';
 $helptxt['languages_tztxt'] = 'These language entries define custom descriptions for entire time zones.<br><br>Each of these language entries uses a specific location, such as <code>Africa/Khartoum</code> or <code>America/New_York</code>, to represent all locations that share its time zone, and then defines a custom description to use for that time zone.<br><br>If no description is set for a given time zone, SMF will generate one using a list of locations within that time zone. If a location is set for a given time zone, but the description is empty, SMF will generate a description in the same way, but will make sure to put the defined location first in the list.';
 $helptxt['languages_txt_for_timezones'] = 'These language entries allow you to define custom names for individual locations anywhere they might be used in a context related to time zones.<br><br>For example, you can tell SMF to show "Greenland" for the location "America/Godthab" instead of "Godthab".';
+$helptxt['languages_txt_for_email_templates'] = 'These language entries are used to create the email messages that SMF sends to your members.';
+$helptxt['languages_native_name'] = 'The language\'s name for itself, represented in its own script.';
+$helptxt['languages_character_set'] = 'The character encoding used for this language. As of SMF 2.1, this should always be "UTF-8".';
+$helptxt['languages_locale'] = 'The locale code is used to determine various formatting conventions, etc.<br><br>The locale code typically takes the form of a two character language code, optionally followed by an underscore and a two character country code. For example, <code>en</code> would identify generic English, while <code>en_AU</code> would identify Australian English in particular.';
+$helptxt['languages_rtl'] = 'Check this box if this language reads from right to left (e.g. Hebrew, Arabic).';
+$helptxt['languages_dictionary'] = 'This defines the main language dictionary that will be used by the <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> spellchecker (if installed).';
+$helptxt['languages_spelling'] = 'This defines the language variant that will be used by the <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> spellchecker. For many languages this is not applicable.';
+$helptxt['languages_recaptcha'] = 'The language code to use for the reCAPTCHA verification widget.<br><br>See Google\'s reCAPTCHA documentation for its <a href="https://developers.google.com/recaptcha/docs/language" target="_blank" class="bbc_link">list of supported languages</a>.';
 
 ?>

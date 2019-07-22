@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; ModerationCenter
+// Version: 2.1 RC2; ModerationCenter
 
 $txt['moderation_center'] = 'Moderation Center';
 $txt['mc_main'] = 'Main';
@@ -44,7 +44,7 @@ $txt['mc_reportedp_by'] = 'by';
 $txt['mc_reportedp_reported_by'] = 'Reported By';
 $txt['mc_reportedp_last_reported'] = 'Last Reported';
 $txt['mc_reportedp_none_found'] = 'No Reports Found';
-$txt['mc_reportedp_comment_none_found'] = 'No Moderator Comment Found';
+$txt['mc_reportedp_comment_none_found'] = 'No Moderator comment found';
 $txt['mc_reportedp_comment_edit'] = 'Edit';
 $txt['mc_reportedp_comment_delete'] = 'Delete';
 $txt['mc_reportedp_details'] = 'Details';
@@ -111,8 +111,8 @@ $txt['mc_watched_users_title'] = 'Watched Members';
 $txt['mc_watched_users_desc'] = 'Here you can keep a track of all members who have been assigned a &quot;watch&quot; by the moderation team.';
 $txt['mc_watched_users_post'] = 'View by Post';
 $txt['mc_watched_users_warning'] = 'Warning Level';
-$txt['mc_watched_users_last_login'] = 'Last Login';
-$txt['mc_watched_users_last_post'] = 'Last Post';
+$txt['mc_watched_users_last_login'] = 'Last login';
+$txt['mc_watched_users_last_post'] = 'Last post';
 $txt['mc_watched_users_no_posts'] = 'There are no posts from watched members.';
 // Don't use entities in the two strings below.
 $txt['mc_watched_users_delete_post'] = 'Are you sure you want to delete this post?';
@@ -137,13 +137,13 @@ $txt['mc_warning_template_add'] = 'Add Template';
 $txt['mc_warning_template_modify'] = 'Edit Template';
 $txt['mc_warning_template_delete'] = 'Delete Selected';
 $txt['mc_warning_template_delete_confirm'] = 'Are you sure you want to delete the selected templates?';
-$txt['report_action_message_saved'] = 'You successfully created a new comment.';
-$txt['report_action_message_edited'] = 'You successfully edited the comment.';
-$txt['report_action_message_deleted'] = 'The message was successfully deleted.';
-$txt['report_action_message_edit_issue'] = 'The message you\'re trying to edit isn\'t available any more. Please check if it wasn\'t deleted already.';
-$txt['report_action_message_edit_cannot'] = 'I\'m sorry, you aren\'t allowed to edit this comment.';
-$txt['report_action_message_delete_cannot'] = 'I\'m sorry, you aren\'t allowed to delete this comment.';
-$txt['report_action_message_delete_issue'] = 'The message you\'re trying to delete isn\'t available any more. Please check if it wasn\'t deleted already.';
+$txt['report_action_message_saved'] = 'You successfully created a new note.';
+$txt['report_action_message_edited'] = 'You successfully edited the note.';
+$txt['report_action_message_deleted'] = 'The note was successfully deleted.';
+$txt['report_action_message_edit_issue'] = 'The note you are trying to edit is not available any more. Please check if it wasn\'t deleted already.';
+$txt['report_action_message_edit_cannot'] = 'I am sorry, you are not allowed to edit this note.';
+$txt['report_action_message_delete_cannot'] = 'I am sorry, you are not allowed to delete this note.';
+$txt['report_action_message_delete_issue'] = 'The note you are trying to delete is not available any more. Please check if it wasn\'t deleted already.';
 $txt['report_action_ignore'] = 'The report was successfully ignored.';
 $txt['report_action_unignore'] = 'The report was successfully un-ignored.';
 $txt['report_action_close'] = 'The report was successfully closed.';
@@ -164,7 +164,6 @@ $txt['mc_prefs_title'] = 'Moderation Preferences';
 $txt['mc_prefs_desc'] = 'This section allows you to set some personal preferences for moderation related activities such as email notifications.';
 $txt['mc_no_settings'] = 'There are no settings to display.';
 
-$txt['mc_prefs_notify_approval'] = 'Notify of items awaiting approval';
 $txt['mc_logoff'] = 'End Moderator Session';
 
 // Use entities in the below string.

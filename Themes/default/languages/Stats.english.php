@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; Stats
+// Version: 2.1 RC2; Stats
 
 global $context;
 
@@ -31,7 +31,7 @@ $txt['average_topics'] = 'Average topics per day';
 $txt['average_online'] = 'Average online per day';
 $txt['users_online'] = 'Users Online';
 $txt['gender_stats'] = 'Gender stats';
-$txt['users_online_today'] = 'Online Today';
+$txt['users_online_today'] = 'Online today';
 $txt['num_hits'] = 'Total page views';
 $txt['average_hits'] = 'Average page views per day';
 

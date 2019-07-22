@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -38,14 +38,6 @@ function template_main()
 		}
 	</script>';
 
-	// Start the main poll form.
-	echo '
-	<div id="edit_poll">
-		<form action="' . $scripturl . '?action=editpoll2', $context['is_edit'] ? '' : ';add', ';topic=' . $context['current_topic'] . '.' . $context['start'] . '" method="post" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);" name="postmodify" id="postmodify">
-			<div class="cat_bar">
-				<h3 class="catbg">', $context['page_title'], '</h3>
-			</div>';
-
 	if (!empty($context['poll_error']['messages']))
 		echo '
 			<div class="errorbox">
@@ -59,9 +51,17 @@ function template_main()
 				</dl>
 			</div>';
 
+	// Start the main poll form.
+	echo '
+	<div id="edit_poll">
+		<form action="' . $scripturl . '?action=editpoll2', $context['is_edit'] ? '' : ';add', ';topic=' . $context['current_topic'] . '.' . $context['start'] . '" method="post" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);" name="postmodify" id="postmodify">
+			<div class="cat_bar">
+				<h3 class="catbg">', $context['page_title'], '</h3>
+			</div>';
+
 	echo '
 			<div>
-				<div class="roundframe">
+				<div class="roundframe noup">
 					<input type="hidden" name="poll" value="', $context['poll']['id'], '">
 					<fieldset id="poll_main">
 						<legend><span ', (isset($context['poll_error']['no_question']) ? ' class="error"' : ''), '>', $txt['poll_question'], ':</span></legend>

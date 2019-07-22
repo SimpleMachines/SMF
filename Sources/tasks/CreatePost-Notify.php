@@ -6,10 +6,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -18,16 +18,36 @@
 class CreatePost_Notify_Background extends SMF_BackgroundTask
 {
 	/**
+	 * Constants for reply types.
+	*/
+	const NOTIFY_TYPE_REPLY_AND_MODIFY = 1;
+	const NOTIFY_TYPE_REPLY_AND_TOPIC_START_FOLLOWING = 2;
+	const NOTIFY_TYPE_ONLY_REPLIES = 3;
+	const NOTIFY_TYPE_NOTHING = 4;
+
+	/**
+	 * Constants for frequencies.
+	*/
+	const FREQUENCY_NOTHING = 0;
+	const FREQUENCY_EVERYTHING = 1;
+	const FREQUENCY_FIRST_UNREAD_MSG = 2;
+	const FREQUENCY_DAILY_DIGEST = 3;
+	const FREQUENCY_WEEKLY_DIGEST = 4;
+
+	/**
      * This handles notifications when a new post is created - new topic, reply, quotes and mentions.
 	 * @return bool Always returns true
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings;
+		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings, $user_info;
 
 		require_once($sourcedir . '/Subs-Post.php');
 		require_once($sourcedir . '/Mentions.php');
 		require_once($sourcedir . '/Subs-Notify.php');
+		require_once($sourcedir . '/Subs.php');
+		require_once($sourcedir . '/ScheduledTasks.php');
+		loadEssentialThemeData();
 
 		$msgOptions = $this->_details['msgOptions'];
 		$topicOptions = $this->_details['topicOptions'];
@@ -38,6 +58,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$quotedMembers = array();
 		$done_members = array();
 		$alert_rows = array();
+		$receiving_members = array();
 
 		if ($type == 'reply' || $type == 'topic')
 		{
@@ -54,9 +75,12 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		// Find the people interested in receiving notifications for this topic
 		$request = $smcFunc['db_query']('', '
-			SELECT mem.id_member, ln.id_topic, ln.id_board, ln.sent, mem.email_address, b.member_groups,
-				mem.id_group, mem.id_post_group, mem.additional_groups, t.id_member_started, mem.pm_ignore_list,
-				t.id_member_updated
+			SELECT
+				ln.id_member, ln.id_board, ln.id_topic, ln.sent,
+				mem.email_address, mem.lngfile, mem.pm_ignore_list,
+				mem.id_group, mem.id_post_group, mem.additional_groups,
+				mem.time_format, mem.time_offset, mem.timezone,
+				b.member_groups, t.id_member_started, t.id_member_updated
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}members AS mem ON (ln.id_member = mem.id_member)
 				LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)
@@ -73,8 +97,14 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			$groups = array_merge(array($row['id_group'], $row['id_post_group']), (empty($row['additional_groups']) ? array() : explode(',', $row['additional_groups'])));
+
 			if (!in_array(1, $groups) && count(array_intersect($groups, explode(',', $row['member_groups']))) == 0)
 				continue;
+			else
+			{
+				$row['groups'] = $groups;
+				unset($row['id_group'], $row['id_post_group'], $row['additional_groups']);
+			}
 
 			$members[] = $row['id_member'];
 			$watched[$row['id_member']] = $row;
@@ -82,11 +112,36 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		$smcFunc['db_free_result']($request);
 
+		// Modified post
+		if ($type == 'edit')
+		{
+			// Filter out members who have already been notified about this post's topic
+			$unnotified = array_filter($watched, function ($member)
+			{
+				return empty($member['sent']);
+			});
+			$members = array_intersect($members, array_keys($unnotified));
+			$quotedMembers = array_intersect_key($quotedMembers, $unnotified);
+			$msgOptions['mentioned_members'] = array_intersect_key($msgOptions['mentioned_members'], $unnotified);
+
+			// Notifications about modified posts only go to members who were mentioned or quoted
+			$watched = array();
+		}
+
 		if (empty($members))
 			return true;
 
 		$members = array_unique($members);
 		$prefs = getNotifyPrefs($members, '', true);
+
+		// May as well disable these, since they'll be stripped out anyway.
+		$disable = array('attach', 'img', 'iurl', 'url', 'youtube');
+		if (!empty($modSettings['disabledBBC']))
+		{
+			$disabledBBC = $modSettings['disabledBBC'];
+			$disable = array_unique(array_merge($disable, explode(',', $modSettings['disabledBBC'])));
+		}
+		$modSettings['disabledBBC'] = implode(',', $disable);
 
 		// Do we have anyone to notify via mention? Handle them first and cross them off the list
 		if (!empty($msgOptions['mentioned_members']))
@@ -100,28 +155,39 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		// Save ourselves a bit of work in the big loop below
 		foreach ($done_members as $done_member)
+		{
+			$receiving_members[] = $done_member;
 			unset($watched[$done_member]);
+		}
+
+		$parsed_message = array();
 
 		// Handle rest of the notifications for watched topics and boards
 		foreach ($watched as $member => $data)
 		{
-			$frequency = isset($prefs[$member]['msg_notify_pref']) ? $prefs[$member]['msg_notify_pref'] : 0;
-			$notify_types = !empty($prefs[$member]['msg_notify_type']) ? $prefs[$member]['msg_notify_type'] : 1;
+			$frequency = isset($prefs[$member]['msg_notify_pref']) ? $prefs[$member]['msg_notify_pref'] : self::FREQUENCY_NOTHING;
+			$notify_types = !empty($prefs[$member]['msg_notify_type']) ? $prefs[$member]['msg_notify_type'] : self::NOTIFY_TYPE_REPLY_AND_MODIFY;
 
 			// Don't send a notification if the watching member ignored the member who made the action.
 			if (!empty($data['pm_ignore_list']) && in_array($data['id_member_updated'], explode(',', $data['pm_ignore_list'])))
-			    continue;
-			if (!in_array($type, array('reply', 'topic')) && $notify_types == 2 && $member != $data['id_member_started'])
+				continue;
+			if (!in_array($type, array('reply', 'topic')) && $notify_types == self::NOTIFY_TYPE_REPLY_AND_TOPIC_START_FOLLOWING && $member != $data['id_member_started'])
 				continue;
 			elseif (in_array($type, array('reply', 'topic')) && $member == $posterOptions['id'])
 				continue;
-			elseif (!in_array($type, array('reply', 'topic')) && $notify_types == 3)
+			elseif (!in_array($type, array('reply', 'topic')) && $notify_types == self::NOTIFY_TYPE_ONLY_REPLIES)
 				continue;
-			elseif ($notify_types == 4)
+			elseif ($notify_types == self::NOTIFY_TYPE_NOTHING)
 				continue;
 
-			if (empty($frequency) || $frequency > 2 || $data['sent']
-				|| (!empty($this->_details['members_only']) && !in_array($member, $this->_details['members_only'])))
+			// Don't send a notification if they don't want any...
+			if (in_array($frequency, array(self::FREQUENCY_NOTHING, self::FREQUENCY_DAILY_DIGEST, self::FREQUENCY_WEEKLY_DIGEST)))
+				continue;
+			// ... or if we already sent one and they don't want more...
+			elseif ($frequency == self::FREQUENCY_FIRST_UNREAD_MSG && $data['sent'])
+				continue;
+			// ... or if they aren't on the bouncer's list.
+			elseif (!empty($this->_details['members_only']) && !in_array($member, $this->_details['members_only']))
 				continue;
 
 			// Watched topic?
@@ -151,25 +217,83 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				if (!empty($prefs[$member]['msg_receive_body']))
 					$message_type .= '_body';
 			}
-			// If neither of the above, this might be a redundent row due to the OR clause in our SQL query, skip
+			// If neither of the above, this might be a redundant row due to the OR clause in our SQL query, skip
 			else
 				continue;
 
-			if ($pref & 0x02)
+			$receiver_lang = empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile'];
+
+			// We need to fake some of $user_info to make BBC parsing work correctly.
+			if (isset($user_info))
+				$real_user_info = $user_info;
+
+			$user_info = array(
+				'id' => $member,
+				'language' => $receiver_lang,
+				'groups' => $data['groups'],
+				'is_guest' => false,
+				'time_format' => empty($data['time_format']) ? $modSettings['time_format'] : $data['time_format'],
+			);
+			$user_info['is_admin'] = in_array(1, $user_info['groups']);
+
+			if (!empty($data['timezone']))
+			{
+				// Get the offsets from UTC for the server, then for the user.
+				$tz_system = new DateTimeZone(@date_default_timezone_get());
+				$tz_user = new DateTimeZone($data['timezone']);
+				$time_system = new DateTime('now', $tz_system);
+				$time_user = new DateTime('now', $tz_user);
+				$user_info['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
+			}
+			else
+				$user_info['time_offset'] = empty($data['time_offset']) ? 0 : $data['time_offset'];
+
+			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
+			$localization = implode('|', array($receiver_lang, $user_info['time_offset'], $user_info['time_format']));
+			if (empty($parsed_message[$localization]))
+			{
+				loadLanguage('index+Modifications', $receiver_lang, false);
+
+				$parsed_message[$localization]['subject'] = $msgOptions['subject'];
+				$parsed_message[$localization]['body'] = $msgOptions['body'];
+
+				censorText($parsed_message[$localization]['subject']);
+				censorText($parsed_message[$localization]['body']);
+
+				$parsed_message[$localization]['subject'] = un_htmlspecialchars($parsed_message[$localization]['subject']);
+				$parsed_message[$localization]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($parsed_message[$localization]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\'', '</tr>' => "\n", '</td>' => "\t", '<hr>' => "\n---------------------------------------------------------------\n")))));
+			}
+
+			// Put $user_info back the way we found it.
+			if (isset($real_user_info))
+			{
+				$user_info = $real_user_info;
+				unset($real_user_info);
+			}
+			else
+				unset($user_info);
+
+			// Bitwise check: Receiving a email notification?
+			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				$replacements = array(
-					'TOPICSUBJECT' => $msgOptions['subject'],
+					'TOPICSUBJECT' => $parsed_message[$localization]['subject'],
 					'POSTERNAME' => un_htmlspecialchars($posterOptions['name']),
 					'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
-					'MESSAGE' => trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($smcFunc['htmlspecialchars']($msgOptions['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']'))))),
+					'MESSAGE' => $parsed_message[$localization]['body'],
 					'UNSUBSCRIBELINK' => $scripturl . '?action=notifyboard;board=' . $topicOptions['board'] . '.0',
 				);
 
-				$emaildata = loadEmailTemplate($message_type, $replacements, empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile']);
-				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
+				$emaildata = loadEmailTemplate($message_type, $replacements, $receiver_lang);
+				$mail_result = sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
+
+				// We failed, don't trigger a alert as we don't have a way to attempt to resend just the email currently.
+				if ($mail_result === false)
+					continue;
 			}
 
-			if ($pref & 0x01)
+			// Bitwise check: Receiving a alert?
+			if ($pref & self::RECEIVE_NOTIFY_ALERT)
 			{
 				$alert_rows[] = array(
 					'alert_time' => time(),
@@ -184,11 +308,12 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'extra' => $smcFunc['json_encode'](array(
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
-						'content_subject' => $msgOptions['subject'],
+						'content_subject' => $parsed_message[$localization]['subject'],
 						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
 					)),
 				);
-				updateMemberData($member, array('alerts' => '+'));
+
+				$receiving_members[] = $member;
 			}
 
 			$smcFunc['db_query']('', '
@@ -204,6 +329,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				)
 			);
 		}
+
+		// Put this back the way we found it.
+		if (!empty($disabledBBC))
+			$modSettings['disabledBBC'] = $disabledBBC;
 
 		// Insert it into the digest for daily/weekly notifications
 		$smcFunc['db_insert']('',
@@ -225,6 +354,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				array()
 			);
 
+		if (!empty($receiving_members))
+			updateMemberData($receiving_members, array('alerts' => '+'));
+
 		return true;
 	}
 
@@ -239,7 +371,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 			$done_members[] = $id;
 
-			if ($prefs[$id]['msg_quote'] & 0x02)
+			// Bitwise check: Receiving a email notification?
+			if ($prefs[$id]['msg_quote'] & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				$replacements = array(
 					'CONTENTSUBJECT' => $msgOptions['subject'],
@@ -252,7 +385,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_quote_' . $msgOptions['id'], $emaildata['is_html'], 2);
 			}
 
-			if ($prefs[$id]['msg_quote'] & 0x01)
+			// Bitwise check: Receiving a alert?
+			if ($prefs[$id]['msg_quote'] & self::RECEIVE_NOTIFY_ALERT)
 			{
 				$alert_rows[] = array(
 					'alert_time' => time(),
@@ -268,8 +402,6 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
 					)),
 				);
-
-				updateMemberData($member['id_member'], array('alerts' => '+'));
 			}
 		}
 	}
@@ -351,7 +483,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				continue;
 
 			// Alerts' emails are always instant
-			if ($prefs[$id]['msg_mention'] & 0x02)
+			if ($prefs[$id]['msg_mention'] & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				$replacements = array(
 					'CONTENTSUBJECT' => $msgOptions['subject'],
@@ -364,7 +496,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_mention_' . $msgOptions['id'], $emaildata['is_html'], 2);
 			}
 
-			if ($prefs[$id]['msg_mention'] & 0x01)
+			if ($prefs[$id]['msg_mention'] & self::RECEIVE_NOTIFY_ALERT)
 			{
 				$alert_rows[] = array(
 					'alert_time' => time(),
@@ -380,8 +512,6 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
 					)),
 				);
-
-				updateMemberData($member['id'], array('alerts' => '+'));
 			}
 		}
 	}

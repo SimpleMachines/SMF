@@ -4,14 +4,14 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
- * Tempalte for the database maintenance tasks.
+ * Template for the database maintenance tasks.
  */
 function template_maintain_database()
 {
@@ -49,22 +49,6 @@ function template_maintain_database()
 				<p>', $txt['mediumtext_introduction'], '</p>',
 				$context['convert_to_suggest'] ? '<p class="infobox">' . $txt['convert_to_suggest_text'] . '</p>' : '', '
 				<input type="submit" name="evaluate_conversion" value="', $txt['maintain_run_now'], '" class="button">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
-			</form>
-		</div>';
-
-	// Show an option to convert to UTF-8 if we're not on UTF-8 yet.
-	if ($context['convert_utf8'])
-		echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['utf8_title'], '</h3>
-		</div>
-		<div class="windowbg noup">
-			<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertutf8" method="post" accept-charset="', $context['character_set'], '">
-				<p>', $txt['utf8_introduction'], '</p>
-				', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? '<div class="errorbox">' . $txt['utf8_cannot_convert_fulltext'] . '</div>' : '', '
-				<input type="submit" value="', $txt['maintain_run_now'], '" class="button" ', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? 'disabled' : '', '><br class="clear_right">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 			</form>
@@ -284,7 +268,7 @@ function template_maintain_members()
 		</div><!-- .windowbg -->
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<a href="', $scripturl, '?action=helpadmin;help=maintenance_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ', $txt['maintain_members'], '
+				<a href="', $scripturl, '?action=helpadmin;help=maintenance_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a> ', $txt['maintain_members'], '
 			</h3>
 		</div>
 		<div class="windowbg noup">

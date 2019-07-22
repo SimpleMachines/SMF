@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -87,7 +87,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 						'REALNAME' => $member['name'],
 					);
 
-					if ($pref & 0x01)
+					if ($pref & self::RECEIVE_NOTIFY_ALERT)
 					{
 						$alertdata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
 						// For the alerts, we need to replace \n line breaks with <br> line breaks.
@@ -102,10 +102,9 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 							'is_read' => 0,
 							'extra' => $smcFunc['json_encode'](array('happy_birthday' => $alertdata['body'])),
 						);
-						updateMemberData($member_id, array('alerts' => '+'));
 					}
 
-					if ($pref & 0x02)
+					if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 					{
 						$emaildata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
 						sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'birthday', $emaildata['is_html'], 4);
@@ -118,6 +117,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 
 			// Insert the alerts if any
 			if (!empty($alert_rows))
+			{
 				$smcFunc['db_insert']('',
 					'{db_prefix}user_alerts',
 					array(
@@ -127,6 +127,9 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 					$alert_rows,
 					array()
 				);
+
+				updateMemberData(array_keys($members), array('alerts' => '+'));
+			}
 		}
 
 		return true;

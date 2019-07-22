@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /*	This template is, perhaps, the most important template in the theme. It
@@ -47,9 +47,6 @@ function template_init()
 	// The version this template/theme is for. This should probably be the version of SMF it was created for.
 	$settings['theme_version'] = '2.1';
 
-	// Use plain buttons - as opposed to text buttons?
-	$settings['use_buttons'] = true;
-
 	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
 	$settings['require_theme_strings'] = false;
 
@@ -62,11 +59,11 @@ function template_init()
 	// This defines the formatting for the page indexes used throughout the forum.
 	$settings['page_index'] = array(
 		'extra_before' => '<span class="pages">' . $txt['pages'] . '</span>',
-		'previous_page' => '<span class="generic_icons previous_page"></span>',
+		'previous_page' => '<span class="main_icons previous_page"></span>',
 		'current_page' => '<span class="current_page">%1$d</span> ',
-		'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
+		'page' => '<a class="nav_page" href="{URL}">%2$s</a> ',
 		'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
-		'next_page' => '<span class="generic_icons next_page"></span>',
+		'next_page' => '<span class="main_icons next_page"></span>',
 		'extra_after' => '',
 	);
 
@@ -226,17 +223,16 @@ function template_body_above()
 			</ul>';
 	}
 	// Otherwise they're a guest. Ask them to either register or login.
-	else
-		if (empty($maintenance))
-			echo '
+	elseif (empty($maintenance))
+		echo '
 			<ul class="floatleft welcome">
 				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup'), '</li>
 			</ul>';
-		else
-			// In maintenance mode, only login is allowed and don't show OverlayDiv
-			echo '
+	else
+		// In maintenance mode, only login is allowed and don't show OverlayDiv
+		echo '
 			<ul class="floatleft welcome">
-				<li>', sprintf($txt['welcome_guest'], $txt['guest_title'], '', $scripturl. '?action=login', 'return true;'), '</li>
+				<li>', sprintf($txt['welcome_guest'], $txt['guest_title'], '', $scripturl . '?action=login', 'return true;'), '</li>
 			</ul>';
 
 	if (!empty($modSettings['userLanguage']) && !empty($context['languages']) && count($context['languages']) > 1)
@@ -278,7 +274,7 @@ function template_body_above()
 		// Can't limit it to a specific board if we are not in one
 		if (!empty($context['current_board']))
 			echo '
-					<option value="board"', ($selected == 'current_board' ? ' selected' : ''), '>', $txt['search_thisbrd'], '</option>';
+					<option value="board"', ($selected == 'current_board' ? ' selected' : ''), '>', $txt['search_thisboard'], '</option>';
 
 		// Can't search for members if we can't see the memberlist
 		if (!empty($context['allow_memberlist']))
@@ -315,9 +311,9 @@ function template_body_above()
 		</h1>';
 
 	echo '
-		', empty($settings['site_slogan']) ? '<img id="smflogo" src="' . $settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<div id="siteslogan" class="floatright">' . $settings['site_slogan'] . '</div>', '';
+		', empty($settings['site_slogan']) ? '<img id="smflogo" src="' . $settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<div id="siteslogan">' . $settings['site_slogan'] . '</div>', '';
 
-	echo'
+	echo '
 	</div>
 	<div id="wrapper">
 		<div id="upper_section">
@@ -339,21 +335,19 @@ function template_body_above()
 					<hr class="clear">
 				</div>';
 
+	// Show the menu here, according to the menu sub template, followed by the navigation tree.
 	// Load mobile menu here
 	echo '
 				<a class="menu_icon mobile_user_menu"></a>
-				<div id="mobile_user_menu" class="popup_container">
-					<div class="popup_window description">
-						<div class="popup_heading">', $txt['mobile_user_menu'], '
-						<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
-						', template_menu(), '
-					</div>
-				</div>';
-
-	// Show the menu here, according to the menu sub template, followed by the navigation tree.
-	echo '
 				<div id="main_menu">
-					', template_menu(), '
+					<div id="mobile_user_menu" class="popup_container">
+						<div class="popup_window description">
+							<div class="popup_heading">', $txt['mobile_user_menu'], '
+								<a href="javascript:void(0);" class="main_icons hide_popup"></a>
+							</div>
+							', template_menu(), '
+						</div>
+					</div>
 				</div>';
 
 	theme_linktree();
@@ -429,7 +423,7 @@ function theme_linktree($force_show = false)
 	// If linktree is empty, just return - also allow an override.
 	if (empty($context['linktree']) || (!empty($context['dont_default_linktree']) && !$force_show))
 		return;
-		echo '
+	echo '
 				<div class="navigate_section">
 					<ul>';
 
@@ -496,7 +490,7 @@ function template_menu()
 		echo '
 						<li class="button_', $act, '', !empty($button['sub_buttons']) ? ' subsections"' : '"', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
-								', $button['icon'], '<span class="textmenu">', $button['title'], '</span>
+								', $button['icon'], '<span class="textmenu">', $button['title'], !empty($button['amt']) ? ' <span class="amt">' . $button['amt'] . '</span>' : '', '</span>
 							</a>';
 
 		// 2nd level menus
@@ -510,7 +504,7 @@ function template_menu()
 				echo '
 								<li', !empty($childbutton['sub_buttons']) ? ' class="subsections"' : '', '>
 									<a href="', $childbutton['href'], '"', isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', '>
-										', $childbutton['title'], '
+										', $childbutton['title'], !empty($childbutton['amt']) ? ' <span class="amt">' . $childbutton['amt'] . '</span>' : '', '
 									</a>';
 				// 3rd level menus :)
 				if (!empty($childbutton['sub_buttons']))
@@ -522,7 +516,7 @@ function template_menu()
 						echo '
 										<li>
 											<a href="', $grandchildbutton['href'], '"', isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '', '>
-												', $grandchildbutton['title'], '
+												', $grandchildbutton['title'], !empty($grandchildbutton['amt']) ? ' <span class="amt">' . $grandchildbutton['amt'] . '</span>' : '', '
 											</a>
 										</li>';
 
@@ -569,7 +563,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 				$value['id'] = $key;
 
 			$button = '
-				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>' . $txt[$value['text']] . '</a>';
+				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>'.(!empty($value['icon']) ? '<span class="main_icons '.$value['icon'].'"></span>' : '').'' . $txt[$value['text']] . '</a>';
 
 			if (!empty($value['sub_buttons']))
 			{
@@ -604,8 +598,99 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 
 	echo '
 		<div class="buttonlist', !empty($direction) ? ' float' . $direction : '', '"', (empty($buttons) ? ' style="display: none;"' : ''), (!empty($strip_options['id']) ? ' id="' . $strip_options['id'] . '"' : ''), '>
-			',implode('', $buttons), '
+			', implode('', $buttons), '
 		</div>';
+}
+
+/**
+ * Generate a list of quickbuttons.
+ *
+ * @param array $list_items An array with info for displaying the strip
+ * @param string $list_id unique list id, used for integration hooks
+ */
+function template_quickbuttons($list_items, $list_id = null, $output_method = 'echo')
+{
+	global $txt;
+
+	// Enable manipulation with hooks
+	if(!empty($list_id))
+		call_integration_hook('integrate_' . $list_id . '_quickbuttons', array(&$list_items));
+
+	// Make sure the list has at least one shown item
+	foreach ($list_items as $key => $li)
+	{
+		// Is there a sublist, and does it have any shown items
+		if ($key == 'more')
+		{
+			foreach ($li as $subkey => $subli)
+				if (isset($subli['show']) && !$subli['show'])
+					unset($list_items[$key][$subkey]);
+
+			if (empty($list_items[$key]))
+				unset($list_items[$key]);
+		}
+		// A normal list item
+		elseif (isset($li['show']) && !$li['show'])
+			unset($list_items[$key]);
+	}
+
+	// Now check if there are any items left
+	if (empty($list_items))
+		return;
+
+	// Print the quickbuttons
+	$output = '
+		<ul' . (!empty($list_id) ? ' id="quickbuttons_'.$list_id.'"' : '') . ' class="quickbuttons">';
+
+	// This is used for a list item or a sublist item
+	$list_item_format = function($li)
+	{
+		$html = '
+			<li' . (!empty($li['class']) ? ' class="'.$li['class'].'"' : '') . (!empty($li['id']) ? ' id="'.$li['id'].'"' : '') . (!empty($li['custom']) ? $li['custom'] : '') . '>';
+
+		if(isset($li['content']))
+			$html .= $li['content'];
+		else
+			$html .= '
+				<a' . (!empty($li['href']) ? ' href="'.$li['href'].'"' : '') . (!empty($li['javascript']) ? $li['javascript'] : '') . '>
+					' . (!empty($li['icon']) ? '<span class="main_icons '.$li['icon'].'"></span>' : '') . (!empty($li['label']) ? $li['label'] : '') . '
+				</a>';
+
+		$html .= '
+			</li>';
+
+		return $html;
+	};
+
+	foreach ($list_items as $key => $li)
+	{
+		// Handle the sublist
+		if($key == 'more')
+		{
+			$output .= '
+			<li class="post_options">' . $txt['post_options'] . '
+				<ul>';
+
+			foreach ($li as $subli)
+				$output .= $list_item_format($subli);
+
+			$output .= '
+				</ul>
+			</li>';
+		}
+		// Ordinary list item
+		else
+			$output .= $list_item_format($li);
+	}
+
+	$output .= '
+		</ul><!-- .quickbuttons -->';
+
+	// There are a few spots where the result needs to be returned
+	if($output_method == 'echo')
+		echo $output;
+	else
+		return $output;
 }
 
 /**

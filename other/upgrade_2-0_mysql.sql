@@ -456,24 +456,26 @@ INSERT IGNORE INTO {$db_prefix}spiders
 VALUES
 	(1, 'Google', 'googlebot', ''),
 	(2, 'Yahoo!', 'slurp', ''),
-	(3, 'MSN', 'msnbot', ''),
+	(3, 'Bing', 'bingbot', ''),
 	(4, 'Google (Mobile)', 'Googlebot-Mobile', ''),
 	(5, 'Google (Image)', 'Googlebot-Image', ''),
 	(6, 'Google (AdSense)', 'Mediapartners-Google', ''),
 	(7, 'Google (Adwords)', 'AdsBot-Google', ''),
 	(8, 'Yahoo! (Mobile)', 'YahooSeeker/M1A1-R2D2', ''),
 	(9, 'Yahoo! (Image)', 'Yahoo-MMCrawler', ''),
-	(10, 'MSN (Mobile)', 'MSNBOT_Mobile', ''),
-	(11, 'MSN (Media)', 'msnbot-media', ''),
-	(12, 'Cuil', 'twiceler', ''),
-	(13, 'Ask', 'Teoma', ''),
-	(14, 'Baidu', 'Baiduspider', ''),
-	(15, 'Gigablast', 'Gigabot', ''),
-	(16, 'InternetArchive', 'ia_archiver-web.archive.org', ''),
-	(17, 'Alexa', 'ia_archiver', ''),
-	(18, 'Omgili', 'omgilibot', ''),
-	(19, 'EntireWeb', 'Speedy Spider', ''),
-	(20, 'Yandex', 'yandex', '');
+	(10, 'Bing (Preview)', 'BingPreview', ''),
+	(11, 'Bing (Ads)', 'adidxbot', ''),
+	(12, 'Bing (MSNBot)', 'msnbot', ''),
+	(13, 'Bing (Media)', 'msnbot-media', ''),
+	(14, 'Cuil', 'twiceler', ''),
+	(15, 'Ask', 'Teoma', ''),
+	(16, 'Baidu', 'Baiduspider', ''),
+	(17, 'Gigablast', 'Gigabot', ''),
+	(18, 'InternetArchive', 'ia_archiver-web.archive.org', ''),
+	(19, 'Alexa', 'ia_archiver', ''),
+	(20, 'Omgili', 'omgilibot', ''),
+	(21, 'EntireWeb', 'Speedy Spider', ''),
+	(22, 'Yandex', 'yandex', '');
 ---#
 
 ---# Removing a spider.
@@ -1212,6 +1214,7 @@ UPDATE {$db_prefix}attachments
 SET fileext = LOWER(SUBSTRING(filename, 1 - (INSTR(REVERSE(filename), '.'))))
 WHERE fileext = ''
 	AND INSTR(filename, '.')
+	AND INSTR(REVERSE(filename), '.') < 10
 	AND attachment_type != 3;
 ---#
 
@@ -2150,7 +2153,7 @@ WHERE id_pm_head = 0;
 --- Adding Open ID support.
 /******************************************************************************/
 
----# Adding Open ID Assocation table...
+---# Adding Open ID Association table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}openid_assoc (
 	server_url text NOT NULL,
 	handle varchar(255) NOT NULL default '',
@@ -2635,7 +2638,7 @@ ADD COLUMN pm_receive_from tinyint(4) unsigned NOT NULL default '1';
 // Don't do this if we've done this already.
 if (empty($modSettings['dont_repeat_buddylists']))
 {
-	// Make sure the pm_receive_from column has the right default value - early adoptors might have a '0' set here.
+	// Make sure the pm_receive_from column has the right default value - early adopters might have a '0' set here.
 	upgrade_query("
 		ALTER TABLE {$db_prefix}members
 		CHANGE pm_receive_from pm_receive_from tinyint(3) unsigned NOT NULL default '1'");
@@ -2770,8 +2773,10 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 	// Don't do anything if this theme is already uninstalled
 	if (smf_mysql_num_rows($theme_request) == 1)
 	{
-		$id_theme = mysql_result($theme_request, 0);
-		mysql_free_result($theme_request);
+		$row = smf_mysql_fetch_row($theme_request);
+		$id_theme = $row[0];
+		smf_mysql_free_result($theme_request);
+		unset($row);
 
 		$known_themes = explode(', ', $modSettings['knownThemes']);
 
@@ -2821,7 +2826,7 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 ---# Installing new smiley sets...
 ---{
 // Don't do this twice!
-if (empty($modSettings['installed_new_smiley_sets_20']))
+if (empty($modSettings['dont_repeat_smileys_20']) && empty($modSettings['installed_new_smiley_sets_20']))
 {
 	// First, the entries.
 	upgrade_query("

@@ -1,7 +1,7 @@
 <?php
-// Version: 2.1 Beta 4; ManageMail
+// Version: 2.1 RC2; ManageMail
 
-$txt['mailqueue_desc'] = 'From this page you can configure your mail settings, as well as viewing and administrating the current mail queue if it is enabled.';
+$txt['mailqueue_desc'] = 'From this page you can configure your mail settings, as well as view and administer the current mail queue.';
 
 $txt['mail_type'] = 'Mail type';
 $txt['mail_type_default'] = '(PHP default)';
@@ -46,5 +46,9 @@ $txt['mq_mpriority_1'] = 'Very High';
 $txt['birthday_email'] = 'Birthday message to use';
 $txt['birthday_body'] = 'Email body';
 $txt['birthday_subject'] = 'Email subject';
+
+$txt['mailtest_header'] = 'Email Test';
+$txt['mailtest_result_success'] = 'Successfully sent a test message';
+$txt['mailtest_result_failure'] = 'Unable to send a test message, check the <a href="%1$s">error log</a> for more information.';
 
 ?>

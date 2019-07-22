@@ -24,10 +24,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -117,8 +117,8 @@ function ThemesMain()
  *  - requires the admin_forum permission.
  *  - accessed with ?action=admin;area=theme;sa=admin.
  *
- *  @uses Themes template
- *  @uses Admin language file
+ * @uses Themes template
+ * @uses Admin language file
  */
 function ThemeAdmin()
 {
@@ -156,7 +156,7 @@ function ThemeAdmin()
 	isAllowedTo('admin_forum');
 	loadTemplate('Themes');
 
-	// List all installed and enabled themes.
+	// List all enabled themes.
 	get_all_themes(true);
 
 	// Can we create a new theme?
@@ -198,7 +198,7 @@ function ThemeList()
 		validateToken('admin-tl');
 
 		// Calling the almighty power of global vars!
-		get_all_themes(false);
+		get_installed_themes();
 
 		$setValues = array();
 		foreach ($context['themes'] as $id => $theme)
@@ -236,7 +236,7 @@ function ThemeList()
 	loadTemplate('Themes');
 
 	// Get all installed themes.
-	get_all_themes(false);
+	get_installed_themes();
 
 	$context['reset_dir'] = realpath($boarddir . '/Themes');
 	$context['reset_url'] = $boardurl . '/Themes';
@@ -600,12 +600,7 @@ function SetThemeOptions()
 			continue;
 
 		// Is this disabled?
-		if ($setting['id'] == 'calendar_start_day' && empty($modSettings['cal_enabled']))
-		{
-			unset($context['options'][$i]);
-			continue;
-		}
-		elseif (($setting['id'] == 'topics_per_page' || $setting['id'] == 'messages_per_page') && !empty($modSettings['disableCustomPerPage']))
+		if (isset($setting['enabled']) && $setting['enabled'] === false)
 		{
 			unset($context['options'][$i]);
 			continue;
@@ -692,7 +687,7 @@ function SetThemeSettings()
 	{
 		$file_contents = implode('', file($settings['theme_dir'] . '/index.template.php'));
 		if (preg_match('~\$settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches))
-				eval('global $settings;' . $matches[0]);
+			eval('global $settings;' . $matches[0]);
 	}
 
 	// Let mods hook into the theme settings.
@@ -885,13 +880,28 @@ function EnableTheme()
 }
 
 /**
+ * Determines if a user can change their theme.
+ *
+ * @param int $id_member
+ * @param int $id_theme
+ *
+ * @return bool
+ */
+function canPickTheme($id_member, $id_theme)
+{
+	global $modSettings, $user_info;
+
+	return
+		allowedTo($user_info['id'] == $id_member ? 'profile_extra_own' : 'profile_extra_any')
+		&& ($id_theme == 0 || (allowedTo('admin_forum') || in_array($id_theme, explode(',', $modSettings['knownThemes']))) && in_array($id_theme, explode(',', $modSettings['enableThemes'])))
+		&& (!empty($modSettings['theme_allow']) || allowedTo('admin_forum'));
+}
+
+/**
  * Choose a theme from a list.
- * allows an user or administrator to pick a new theme with an interface.
- * - can edit everyone's (u = 0), guests' (u = -1), or a specific user's.
+ * allows a user to pick a new theme with an interface.
  * - uses the Themes template. (pick sub template.)
- * - accessed with ?action=admin;area=theme;sa=pick.
- * @todo thought so... Might be better to split this file in ManageThemes and Themes,
- * with centralized admin permissions on ManageThemes.
+ * - accessed with ?action=theme;sa=pick.
  */
 function PickTheme()
 {
@@ -906,125 +916,41 @@ function PickTheme()
 		'name' => $txt['theme_pick'],
 	);
 	$context['default_theme_id'] = $modSettings['theme_default'];
-
 	$_SESSION['id_theme'] = 0;
-
-	if (isset($_GET['id']))
-		$_GET['th'] = $_GET['id'];
-
-	// Saving a variant cause JS doesn't work - pretend it did ;)
-	if (isset($_POST['save']))
-	{
-		// Which theme?
-		foreach ($_POST['save'] as $k => $v)
-			$_GET['th'] = (int) $k;
-
-		if (isset($_POST['vrt'][$k]))
-			$_GET['vrt'] = $_POST['vrt'][$k];
-	}
+	if (!isset($_REQUEST['u']))
+		$_REQUEST['u'] = $user_info['id'];
 
 	// Have we made a decision, or are we just browsing?
-	if (isset($_GET['th']))
+	if (isset($_POST['save']))
 	{
-		checkSession('get');
+		checkSession();
+		validateToken('pick-th');
 
-		$_GET['th'] = (int) $_GET['th'];
+		$id_theme = (int) key($_POST['save']);
+		if (isset($_POST['vrt'][$id_theme]))
+			$variant = $_POST['vrt'][$id_theme];
 
-		// Save for this user.
-		if (!isset($_REQUEST['u']) || !allowedTo('admin_forum') || (!empty($_REQUEST['u']) && $_REQUEST['u'] == $user_info['id']))
+		if (canPickTheme((int) $_REQUEST['u'], $id_theme))
 		{
-			updateMemberData($user_info['id'], array('id_theme' => (int) $_GET['th']));
+			// An identifier of zero means that the user wants the forum default theme.
+			updateMemberData((int) $_REQUEST['u'], array('id_theme' => $id_theme));
 
-			// A variants to save for the user?
-			if (!empty($_GET['vrt']))
+			if (!empty($variant))
 			{
+				// Set the identifier to the forum default.
+				if (isset($id_theme) && $id_theme == 0)
+					$id_theme = $modSettings['theme_guests'];
+
 				$smcFunc['db_insert']('replace',
 					'{db_prefix}themes',
 					array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
-					array($_GET['th'], $user_info['id'], 'theme_variant', $_GET['vrt']),
+					array($id_theme, (int) $_REQUEST['u'], 'theme_variant', $variant),
 					array('id_theme', 'id_member', 'variable')
 				);
-				cache_put_data('theme_settings-' . $_GET['th'] . ':' . $user_info['id'], null, 90);
-
-				$_SESSION['id_variant'] = 0;
-			}
-
-			redirectexit('action=profile;area=theme');
-		}
-
-		// If changing members or guests - and there's a variant - assume changing default variant.
-		if (!empty($_GET['vrt']) && ($_REQUEST['u'] == '0' || $_REQUEST['u'] == '-1'))
-		{
-			$smcFunc['db_insert']('replace',
-				'{db_prefix}themes',
-				array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
-				array($_GET['th'], 0, 'default_variant', $_GET['vrt']),
-				array('id_theme', 'id_member', 'variable')
-			);
-
-			// Make it obvious that it's changed
-			cache_put_data('theme_settings-' . $_GET['th'], null, 90);
-		}
-
-		// For everyone.
-		if ($_REQUEST['u'] == '0')
-		{
-			updateMemberData(null, array('id_theme' => (int) $_GET['th']));
-
-			// Remove any custom variants.
-			if (!empty($_GET['vrt']))
-			{
-				$smcFunc['db_query']('', '
-					DELETE FROM {db_prefix}themes
-					WHERE id_theme = {int:current_theme}
-						AND variable = {string:theme_variant}',
-					array(
-						'current_theme' => (int) $_GET['th'],
-						'theme_variant' => 'theme_variant',
-					)
-				);
-			}
-
-			redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
-		}
-		// Change the default/guest theme.
-		elseif ($_REQUEST['u'] == '-1')
-		{
-			updateSettings(array('theme_guests' => (int) $_GET['th']));
-
-			redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
-		}
-		// Change a specific member's theme.
-		else
-		{
-			updateMemberData((int) $_REQUEST['u'], array('id_theme' => (int) $_GET['th']));
-
-			if (!empty($_GET['vrt']) && $_GET['th'] != 0)
-			{
-				$smcFunc['db_insert']('replace',
-					'{db_prefix}themes',
-					array('id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
-					array($_GET['th'], (int) $_REQUEST['u'], 'theme_variant', $_GET['vrt']),
-					array('id_theme', 'id_member', 'variable')
-				);
-				cache_put_data('theme_settings-' . $_GET['th'] . ':' . (int) $_REQUEST['u'], null, 90);
+				cache_put_data('theme_settings-' . $id_theme . ':' . (int) $_REQUEST['u'], null, 90);
 
 				if ($user_info['id'] == $_REQUEST['u'])
 					$_SESSION['id_variant'] = 0;
-			}
-			elseif ($_GET['th'] == 0)
-			{
-				// Remove any custom variants.
-				$smcFunc['db_query']('', '
-					DELETE FROM {db_prefix}themes
-					WHERE 
-						variable = {string:theme_variant}
-						AND id_member = {int:id_member}',
-					array(
-						'theme_variant' => 'theme_variant',
-						'id_member' => (int) $_REQUEST['u'],
-					)
-				);
 			}
 
 			redirectexit('action=profile;u=' . (int) $_REQUEST['u'] . ';area=theme');
@@ -1037,19 +963,6 @@ function PickTheme()
 		$context['current_member'] = $user_info['id'];
 		$context['current_theme'] = $user_info['theme'];
 	}
-	// Everyone can't chose just one.
-	elseif ($_REQUEST['u'] == '0')
-	{
-		$context['current_member'] = 0;
-		$context['current_theme'] = 0;
-	}
-	// Guests and such...
-	elseif ($_REQUEST['u'] == '-1')
-	{
-		$context['current_member'] = -1;
-		$context['current_theme'] = $modSettings['theme_guests'];
-	}
-	// Someones else :P.
 	else
 	{
 		$context['current_member'] = (int) $_REQUEST['u'];
@@ -1074,19 +987,14 @@ function PickTheme()
 		$request = $smcFunc['db_query']('', '
 			SELECT id_theme, variable, value
 			FROM {db_prefix}themes
-			WHERE variable IN ({string:name}, {string:theme_url}, {string:theme_dir}, {string:images_url}, {string:disable_user_variant})' . (!allowedTo('admin_forum') ? '
-				AND id_theme IN ({array_string:known_themes})' : '') . '
+			WHERE variable IN ({literal:name}, {literal:theme_url}, {literal:theme_dir}, {literal:images_url}, {literal:disable_user_variant})' . (!allowedTo('admin_forum') ? '
+				AND id_theme IN ({array_int:known_themes})' : '') . '
 				AND id_theme != {int:default_theme}
 				AND id_member = {int:no_member}
-				AND id_theme IN ({array_string:enable_themes})',
+				AND id_theme IN ({array_int:enable_themes})',
 			array(
 				'default_theme' => 0,
-				'name' => 'name',
 				'no_member' => 0,
-				'theme_url' => 'theme_url',
-				'theme_dir' => 'theme_dir',
-				'images_url' => 'images_url',
-				'disable_user_variant' => 'disable_user_variant',
 				'known_themes' => explode(',', $modSettings['knownThemes']),
 				'enable_themes' => explode(',', $modSettings['enableThemes']),
 			)
@@ -1185,6 +1093,7 @@ function PickTheme()
 		$context['available_themes'][$id_theme]['description'] = $txt['theme_description'];
 
 		// Are there any variants?
+		$context['available_themes'][$id_theme]['variants'] = array();
 		if (file_exists($theme_data['theme_dir'] . '/index.template.php') && (empty($theme_data['disable_user_variant']) || allowedTo('admin_forum')))
 		{
 			$file_contents = implode('', file($theme_data['theme_dir'] . '/index.template.php'));
@@ -1199,7 +1108,6 @@ function PickTheme()
 				{
 					loadLanguage('Settings');
 
-					$context['available_themes'][$id_theme]['variants'] = array();
 					foreach ($settings['theme_variants'] as $variant)
 						$context['available_themes'][$id_theme]['variants'][$variant] = array(
 							'label' => isset($txt['variant_' . $variant]) ? $txt['variant_' . $variant] : $variant,
@@ -1218,6 +1126,14 @@ function PickTheme()
 		}
 	}
 	// Then return it.
+	addJavaScriptVar(
+		'oThemeVariants',
+		json_encode(array_map(function($theme)
+		{
+			return $theme['variants'];
+		}, $context['available_themes']
+	)));
+	loadJavaScriptFile('profile.js', array('defer' => false, 'minimize' => true), 'smf_profile');
 	$settings['images_url'] = $current_images_url;
 	$settings['theme_variants'] = $current_theme_variants;
 
@@ -1237,6 +1153,7 @@ function PickTheme()
 
 	$context['page_title'] = $txt['theme_pick'];
 	$context['sub_template'] = 'pick';
+	createToken('pick-th');
 }
 
 /**
@@ -1304,6 +1221,7 @@ function ThemeInstall()
  * Installs a theme from a theme package.
  *
  * Stores the theme files on a temp dir, on success it renames the dir to the new theme's name. Ends execution with fatal_lang_error() on any error.
+ *
  * @return array The newly created theme's info.
  */
 function InstallFile()
@@ -1378,12 +1296,12 @@ function InstallFile()
  * Makes a copy from the default theme, assigns a name for it and installs it.
  *
  * Creates a new .xml file containing all the theme's info.
+ *
  * @return array The newly created theme's info.
  */
 function InstallCopy()
 {
 	global $themedir, $themeurl, $settings, $smcFunc, $context;
-	global $forum_version;
 
 	// There's gotta be something to work with.
 	if (!isset($_REQUEST['copy']) || empty($_REQUEST['copy']))
@@ -1403,7 +1321,7 @@ function InstallCopy()
 		'name' => $name,
 		'images_url' => $themeurl . '/' . $name . '/images',
 		'version' => '1.0',
-		'install_for' => '2.1 - 2.1.99, ' . strtr($forum_version, array('SMF ' => '')),
+		'install_for' => '2.1 - 2.1.99, ' . SMF_VERSION,
 		'based_on' => '',
 		'based_on_dir' => $themedir . '/default',
 	);
@@ -1474,7 +1392,7 @@ function InstallCopy()
 <!-- The theme\'s version, please try to use semantic versioning. -->
 <version>1.0</version>
 <!-- Install for, the SMF versions this theme was designed for. Uses the same wildcards used in the packager manager. This field is mandatory. -->
-<install for="'. $context['to_install']['install_for'] . '" />
+<install for="' . $context['to_install']['install_for'] . '" />
 <!-- Theme name, used purely for aesthetics. -->
 <name>' . $context['to_install']['name'] . '</name>
 <!-- Author: your email address or contact information. The name attribute is optional. -->
@@ -1508,6 +1426,7 @@ function InstallCopy()
  * Install a theme from a specific dir
  *
  * Assumes the dir is located on the main Themes dir. Ends execution with fatal_lang_error() on any error.
+ *
  * @return array The newly created theme's info.
  */
 function InstallDir()
@@ -1686,7 +1605,7 @@ function EditTheme()
 
 	if (empty($_GET['th']))
 	{
-		get_all_themes();
+		get_installed_themes();
 
 		foreach ($context['themes'] as $key => $theme)
 		{
@@ -1748,6 +1667,13 @@ function EditTheme()
 		else
 			$context['theme_files'] = get_file_listing($currentTheme['theme_dir'], '');
 
+		// Do not list minified_ files
+		foreach ($context['theme_files'] as $key => $file)
+		{
+			if (strpos($file['filename'], 'minified_') !== false)
+				unset($context['theme_files'][$key]);
+		}
+
 		$context['sub_template'] = 'edit_browse';
 
 		return;
@@ -1797,6 +1723,9 @@ function EditTheme()
 				$fp = fopen($currentTheme['theme_dir'] . '/' . $_REQUEST['filename'], 'w');
 				fwrite($fp, $_POST['entire_file']);
 				fclose($fp);
+
+				// Nuke any minified files and update $modSettings['browser_cache']
+				deleteAllMinified();
 
 				redirectexit('action=admin;area=theme;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;directory=' . dirname($_REQUEST['filename']));
 			}
@@ -1884,6 +1813,7 @@ function EditTheme()
 
 /**
  * Makes a copy of a template file in a new location
+ *
  * @uses Themes template, copy_template sub-template.
  */
 function CopyTemplate()

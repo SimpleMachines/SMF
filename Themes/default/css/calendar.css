@@ -223,15 +223,8 @@ span.hidelink {
 	margin: 5px 0;
 	padding: 0
 }
-#month_grid .compact.days a {
-	padding: 2px;
-}
-#main_grid .compact,
-.calendar_week .compact {
-	height: 45px;
-}
-#main_grid .comfortable,
-.calendar_week .comfortable {
+#main_grid td.days,
+.calendar_week td.days {
 	height: 100px;
 	padding: 10px;
 }

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; ManageSettings
+// Version: 2.1 RC2; ManageSettings
 
 global $scripturl;
 
@@ -99,10 +99,10 @@ $txt['force_ssl_complete'] = 'Force SSL throughout the forum';
 $txt['search_language'] = 'Fulltext Search Language';
 
 // Like settings.
-$txt['enable_likes'] = 'Enable likes';
+$txt['enable_likes'] = 'Enable Likes';
 
 // Mention settings.
-$txt['enable_mentions'] = 'Enable mentions';
+$txt['enable_mentions'] = 'Enable Mentions';
 
 $txt['caching_information'] = 'SMF supports caching through the use of accelerators. The currently supported accelerators include:
 <ul class="normallist">
@@ -117,7 +117,6 @@ $txt['caching_information'] = 'SMF supports caching through the use of accelerat
 Caching will work best if you have PHP compiled with one of the above optimizers, or have memcached available. If you do not have any optimizer installed SMF will do file based caching.';
 $txt['detected_no_caching'] = '<strong class="alert">SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.</strong>';
 $txt['detected_accelerators'] = '<strong class="success">SMF has detected the following accelerators: %1$s</strong>';
-
 
 $txt['cache_enable'] = 'Caching Level';
 $txt['cache_off'] = 'No caching';
@@ -174,7 +173,7 @@ $txt['setting_guests_require_captcha'] = 'Guests must pass verification when mak
 $txt['setting_guests_require_captcha_desc'] = '(Automatically set if you specify a minimum post count below)';
 $txt['question_not_defined'] = 'You need to add a question and answer for your forum\'s default language (%1$s) otherwise users will not be able to fill in a CAPTCHA, meaning no registration.';
 
-$txt['configure_verification_means'] = 'Configure Verification Methods';
+$txt['configure_verification_means'] = 'Configure Verification methods';
 $txt['setting_qa_verification_number'] = 'Number of verification questions user must answer';
 $txt['setting_qa_verification_number_desc'] = '(0 to disable; questions are set below)';
 $txt['configure_verification_means_desc'] = '<span class="smalltext">Below you can set which anti-spam features you wish to have enabled whenever a user needs to verify they are a human. Note that the user will have to pass <em>all</em> verification so if you enable both a verification image and a question/answer test they need to complete both to proceed.</span>';
@@ -202,6 +201,7 @@ $txt['recaptcha_secret_key'] = 'Secret Key';
 $txt['recaptcha_secret_key_desc'] = 'This is for communication between your site and Google. Be sure to keep it a secret.';
 $txt['recaptcha_no_key_question'] = 'Don\'t have a key for reCAPTCHA?';
 $txt['recaptcha_get_key'] = 'Get your reCAPTCHA key here.';
+$txt['languages_recaptcha'] = 'ReCAPTCHA language';
 
 $txt['setting_image_verification_nogd'] = '<strong>Note:</strong> as this server does not have the GD library installed the different complexity settings will have no effect.';
 $txt['setup_verification_questions'] = 'Verification Questions';
@@ -212,7 +212,7 @@ $txt['setup_verification_add_more'] = 'Add another question';
 $txt['setup_verification_add_answer'] = 'Add another answer';
 
 $txt['moderation_settings'] = 'Moderation Settings';
-$txt['setting_warning_enable'] = 'Enable User Warning System';
+$txt['setting_warning_enable'] = 'Enable User Warning system';
 $txt['setting_warning_watch'] = 'Warning level for user watch';
 $txt['setting_warning_watch_note'] = 'The user warning level after which a user watch is put in place.';
 $txt['setting_warning_moderate'] = 'Warning level for post moderation';
@@ -223,7 +223,8 @@ $txt['setting_user_limit'] = 'Maximum user warning points per day';
 $txt['setting_user_limit_note'] = 'This value is the maximum amount of warning points a single moderator can assign to a user in a 24 hour period - 0 for no limit.';
 $txt['setting_warning_decrement'] = 'Warning points that are decreased every 24 hours';
 $txt['setting_warning_decrement_note'] = 'Only applies to users not warned within last 24 hours.';
-$txt['setting_view_warning'] = 'Users who can see warning status';
+$txt['setting_view_warning_any'] = 'Users who can see any warning status';
+$txt['setting_view_warning_own'] = 'Users who can see their own warning status';
 
 $txt['signature_settings'] = 'Signature Settings';
 $txt['signature_settings_desc'] = 'Use the settings on this page to decide how member signatures should be treated in SMF.';
@@ -257,8 +258,8 @@ $txt['custom_profile_type_select'] = 'Select Box';
 $txt['custom_profile_type_radio'] = 'Radio Button';
 $txt['custom_profile_type_check'] = 'Checkbox';
 
-$txt['custom_add_title'] = 'Add Profile Field';
-$txt['custom_edit_title'] = 'Edit Profile Field';
+$txt['custom_add_title'] = 'Add Profile field';
+$txt['custom_edit_title'] = 'Edit Profile field';
 $txt['custom_edit_general'] = 'Display Settings';
 $txt['custom_edit_input'] = 'Input Settings';
 $txt['custom_edit_advanced'] = 'Advanced Settings';
@@ -327,6 +328,7 @@ $txt['standard_profile_field'] = 'Field';
 $txt['standard_profile_field_timezone'] = 'Timezone';
 
 $txt['languages_lang_name'] = 'Language Name';
+$txt['languages_native_name'] = 'Native Name of Language';
 $txt['languages_locale'] = 'Locale';
 $txt['languages_default'] = 'Default';
 $txt['languages_character_set'] = 'Character Set';
@@ -391,7 +393,9 @@ $txt['languages_helptxt'] = 'Help text';
 $txt['languages_editortxt'] = 'User interface for the editor';
 $txt['languages_tztxt'] = 'Time zone descriptions';
 $txt['languages_txt_for_timezones'] = 'Custom location names';
+$txt['languages_txt_for_email_templates'] = 'Email message templates';
 $txt['languages_enter_key'] = 'Enter a variable name for this text string';
+$txt['languages_invalid_key'] = 'Sorry, but this variable name is invalid: ';
 
 $txt['setting_frame_security'] = 'Frame Security Options';
 $txt['setting_frame_security_SAMEORIGIN'] = 'Allow Same Origin';

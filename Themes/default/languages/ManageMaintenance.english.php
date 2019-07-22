@@ -1,14 +1,14 @@
 <?php
-// Version: 2.1 Beta 4; ManageMaintenance
+// Version: 2.1 RC2; ManageMaintenance
 
 $txt['repair_zero_ids'] = 'Found topics and/or messages with topic or message IDs of 0.';
 $txt['repair_missing_topics'] = 'Message #%1$d is in non-existent topic #%2$d.';
 $txt['repair_missing_messages'] = 'Topic #%1$d contains no (actual) messages.';
-$txt['repair_stats_topics_1'] = 'Topic #%1$d has the first message ID %2$d, which is incorrect.';
-$txt['repair_stats_topics_2'] = 'Topic #%1$d has the last message ID %2$d, which is incorrect.';
-$txt['repair_stats_topics_3'] = 'Topic #%1$d has the wrong number of replies, %2$d.';
-$txt['repair_stats_topics_4'] = 'Topic #%1$d has the wrong number of unapproved posts, %2$d.';
-$txt['repair_stats_topics_5'] = 'Topic #%1$d has the wrong approval flag set.';
+$txt['repair_topic_wrong_first_id'] = 'Topic #%1$d has the first message ID %2$d, which is incorrect.';
+$txt['repair_topic_wrong_last_id'] = 'Topic #%1$d has the last message ID %2$d, which is incorrect.';
+$txt['repair_topic_wrong_replies'] = 'Topic #%1$d has the wrong number of replies, %2$d.';
+$txt['repair_topic_wrong_unapproved_number'] = 'Topic #%1$d has the wrong number of unapproved posts, %2$d.';
+$txt['repair_topic_wrong_approval'] = 'Topic #%1$d has the wrong approval flag set.';
 $txt['repair_missing_boards'] = 'Topic #%1$d is in board #%2$d, which is missing.';
 $txt['repair_missing_categories'] = 'Board #%1$d is in category #%2$d, which is missing.';
 $txt['repair_missing_posters'] = 'Message #%1$d was posted by member #%2$d, who is now missing.';
@@ -73,6 +73,7 @@ $txt['repair_operation_group_request_missing_group'] = 'Group requests for a non
 
 $txt['salvaged_category_name'] = 'Salvage Area';
 $txt['salvaged_category_error'] = 'Unable to create Salvage Area category!';
+$txt['salvaged_category_description'] = 'Boards created for the salvaged messages';
 $txt['salvaged_board_name'] = 'Salvaged Topics';
 $txt['salvaged_board_description'] = 'Topics created for messages with non-existent topics';
 $txt['salvaged_board_error'] = 'Unable to create Salvaged Topics board!';
@@ -103,7 +104,7 @@ $txt['error_message'] = 'Error message';
 $txt['error_file'] = 'File';
 $txt['error_line'] = 'Line';
 $txt['clear_filter'] = 'Clear filter';
-$txt['remove_selection'] = 'Remove Selection';
+$txt['remove_selection'] = 'Remove selection';
 $txt['remove_filtered_results'] = 'Remove all filtered results';
 $txt['sure_about_errorlog_remove'] = 'Are you sure you want to completely clear the error log?';
 $txt['remove_selection_confirm'] = 'Are you sure you want to delete the selected entries?';
@@ -136,7 +137,7 @@ $txt['errortype_cron_desc'] = 'Errors resulting from background tasks.';
 $txt['errortype_paidsubs'] = 'Paid Subs';
 $txt['errortype_paidsubs_desc'] = 'Errors resulting from paid subscriptions, which can include notification of payment failures.';
 $txt['errortype_backup'] = 'Backups';
-$txt['errortype_backup_desc'] = 'Errors resulting from backing up files, which are usually messages explaining why the proceedure failed.';
+$txt['errortype_backup_desc'] = 'Errors resulting from backing up files, which are usually messages explaining why the procedure failed.';
 $txt['errortype_login'] = 'Logins';
 $txt['errortype_login_desc'] = 'Errors caused by failed login attempts or brute force attempts.';
 
@@ -162,7 +163,7 @@ $txt['maintain_backup_data'] = 'Save the table data (the important stuff).';
 $txt['maintain_backup_gz'] = 'Compress the file with gzip.';
 $txt['maintain_backup_save'] = 'Download';
 
-$txt['maintain_old'] = 'Remove Old Posts';
+$txt['maintain_old'] = 'Remove old posts';
 $txt['maintain_old_since_days1'] = 'Remove all topics not posted in for ';
 $txt['maintain_old_since_days2'] = ' days, which are:';
 $txt['maintain_old_nothing_else'] = 'Any sort of topic.';

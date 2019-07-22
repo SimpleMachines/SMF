@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -18,6 +18,7 @@ if (!defined('SMF'))
 
 /**
  * Create a menu.
+ *
  * @param array $menuData An array of menu data
  * @param array $menuOptions An array of menu options
  * @return boolean|array False if nothing to show or an array of info about the selected menu item
@@ -60,10 +61,16 @@ function createMenu($menuData, $menuOptions = array())
 	$context['menu_data_' . $context['max_menu_id']] = array();
 	$menu_context = &$context['menu_data_' . $context['max_menu_id']];
 
-	// What is the general action of this menu (i.e. $scripturl?action=XXXX.
+	// What is the general action of this menu? (i.e. $scripturl?action=XXXX)
 	$menu_context['current_action'] = isset($menuOptions['action']) ? $menuOptions['action'] : $context['current_action'];
 
-	// Allow extend *any* menu with a single hook
+	/* Allow extending *any* menu with a single hook.
+		For the sake of people searching for specific hooks, here are some common examples:
+			integrate_admin_areas
+			integrate_moderate_areas
+			integrate_pm_areas
+			integrate_profile_areas
+	*/
 	if (!empty($menu_context['current_action']))
 		call_integration_hook('integrate_' . $menu_context['current_action'] . '_areas', array(&$menuData));
 
@@ -82,6 +89,7 @@ function createMenu($menuData, $menuOptions = array())
 		$menu_context['extra_parameters'] .= ';' . $context['session_var'] . '=' . $context['session_id'];
 
 	$include_data = array();
+	$menu_context['sections'] = array();
 
 	// Now setup the context correctly.
 	foreach ($menuData as $section_id => $section)
@@ -113,12 +121,20 @@ function createMenu($menuData, $menuOptions = array())
 						if (!isset($menu_context['sections'][$section_id]))
 							$menu_context['sections'][$section_id]['title'] = $section['title'];
 
+						// Is there a counter amount to show for this section?
+						if (!empty($section['amt']))
+							$menu_context['sections'][$section_id]['amt'] = $section['amt'];
+
 						$menu_context['sections'][$section_id]['areas'][$area_id] = array('label' => isset($area['label']) ? $area['label'] : $txt[$area_id]);
 						// We'll need the ID as well...
 						$menu_context['sections'][$section_id]['id'] = $section_id;
 						// Does it have a custom URL?
 						if (isset($area['custom_url']))
 							$menu_context['sections'][$section_id]['areas'][$area_id]['url'] = $area['custom_url'];
+
+						// Is there a counter amount to show for this area?
+						if (!empty($area['amt']))
+							$menu_context['sections'][$section_id]['areas'][$area_id]['amt'] = $area['amt'];
 
 						// Does this area have its own icon?
 						if (!isset($area['force_menu_into_arms_of_another_menu']) && $user_info['name'] == 'iamanoompaloompa')
@@ -136,10 +152,10 @@ function createMenu($menuData, $menuOptions = array())
 								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . $settings['default_images_url'] . '/admin/' . $area['icon'] . '" alt="">';
 							}
 							else
-								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="generic_icons ' . $area['icon'] . '"></span>';
+								$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="main_icons ' . $area['icon'] . '"></span>';
 						}
 						else
-							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="generic_icons ' . $area_id . '"></span>';
+							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="main_icons ' . $area_id . '"></span>';
 
 						if (isset($area['icon_class']) && empty($menu_context['sections'][$section_id]['areas'][$area_id]['icon']))
 						{
@@ -186,6 +202,10 @@ function createMenu($menuData, $menuOptions = array())
 									// Custom URL?
 									if (isset($sub['url']))
 										$menu_context['sections'][$section_id]['areas'][$area_id]['subsections'][$sa]['url'] = $sub['url'];
+
+									// Is there a counter amount to show for this subsection?
+									if (!empty($sub['amt']))
+										$menu_context['sections'][$section_id]['areas'][$area_id]['subsections'][$sa]['amt'] = $sub['amt'];
 
 									// A bit complicated - but is this set?
 									if ($menu_context['current_area'] == $area_id)
@@ -242,6 +262,26 @@ function createMenu($menuData, $menuOptions = array())
 					$menu_context['current_section'] = $section_id;
 					$backup_area = isset($area['select']) ? $area['select'] : $area_id;
 					$include_data = $area;
+				}
+			}
+		}
+	}
+
+	foreach ($menu_context['sections'] as $section_id => $section)
+	{
+		if (!empty($section['areas']))
+		{
+			foreach ($section['areas'] as $area_id => $area)
+			{
+				if (!empty($area['subsections']))
+				{
+					foreach ($area['subsections'] as $sa => $sub)
+					{
+						if (empty($sub['disabled']))
+							break;
+
+						$menu_context['sections'][$section_id]['areas'][$area_id]['hide_subsections'] = true;
+					}
 				}
 			}
 		}
@@ -306,6 +346,7 @@ function createMenu($menuData, $menuOptions = array())
 
 /**
  * Delete a menu.
+ *
  * @param string $menu_id The ID of the menu to destroy or 'last' for the most recent one
  * @return bool|void False if the menu doesn't exist, nothing otherwise
  */

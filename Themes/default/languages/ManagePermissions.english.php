@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; ManagePermissions
+// Version: 2.1 RC2; ManagePermissions
 
 $txt['permissions_title'] = 'Manage Permissions';
 $txt['permissions_modify'] = 'Modify';
@@ -51,7 +51,7 @@ $txt['permissionname_profile_blurb'] = 'Edit personal text';
 $txt['permissionhelp_profile_blurb'] = 'Allow the member to edit the personal text field in their profile';
 $txt['permissionname_profile_blurb_own'] = 'Own profile';
 $txt['permissionname_profile_blurb_any'] = 'Any profile';
-$txt['permissions_profile_copy_from'] = 'Copy Permissions From';
+$txt['permissions_profile_copy_from'] = 'Copy Permissions from';
 
 $txt['permissions_includes_inherited'] = 'Inherited Groups';
 
@@ -121,7 +121,7 @@ $txt['permissiongroup_maintenance'] = 'Forum administration';
 $txt['permissionname_admin_forum'] = 'Administrate forum and database';
 $txt['permissionhelp_admin_forum'] = 'This permission allows a user to:<ul class="normallist"><li>change forum, database and theme settings</li><li>manage packages</li><li>use the forum and database maintenance tools</li><li>view the error and mod logs</li></ul> Use this permission with caution, as it is very powerful.';
 $txt['permissionname_manage_boards'] = 'Manage boards and categories';
-$txt['permissionhelp_manage_boards'] = 'This permission allows creation, editing and removal of boards and categories.';
+$txt['permissionhelp_manage_boards'] = 'This permission allows creation, editing, and removal of boards and categories.<br><br>Users with this permission can see all boards.';
 $txt['permissionname_manage_attachments'] = 'Manage attachments and avatars';
 $txt['permissionhelp_manage_attachments'] = 'This permission allows access to the attachment center, where all forum attachments and avatars are listed and can be removed.';
 $txt['permissionname_manage_smileys'] = 'Manage smileys and message icons';
@@ -323,5 +323,10 @@ $txt['permissions_post_moderation_group'] = 'Group';
 $txt['auto_approve_topics'] = 'Post new topics, without requiring approval';
 $txt['auto_approve_replies'] = 'Post replies to topics, without requiring approval';
 $txt['auto_approve_attachments'] = 'Post attachments, without requiring approval';
+
+$txt['permissiongroup_bbc'] = 'BBCode';
+$txt['permissionname_bbc'] = 'Use the [%1$s] BBCode';
+$txt['permissionhelp_bbc_html'] = 'This permission allows a member to use the [html] BBCode to embed arbitrary HTML in posts, personal messages, etc.<br><br><strong>Embedding arbitrary HTML can break your site and create major security risks. <u>Do not grant this permission to anyone unless you completely trust them not to break your website!</u></strong>';
+$txt['permissionnote_bbc_html'] = 'Creates a security risk!';
 
 ?>

@@ -281,6 +281,13 @@ String.prototype.easyReplace = function (oReplacements)
 	return sResult;
 }
 
+/* From: https://stackoverflow.com/questions/1144783/how-to-replace-all-occurrences-of-a-string-in-javascript */
+String.prototype.replaceAll = function (find, replace)
+{
+	var str = this;
+	return str.replace(new RegExp(find, 'g'), replace);
+}
+
 // Open a new window
 function reqWin(desktopURL, alternateWidth, alternateHeight, noScrollbars)
 {
@@ -430,7 +437,7 @@ smc_Popup.prototype.show = function ()
 		icon = this.opt.icon ? '<img src="' + this.opt.icon + '" class="icon" alt=""> ' : '';
 
 	// Create the div that will be shown
-	$('body').append('<div id="' + this.popup_id + '" class="popup_container"><div class="' + popup_class + '"><div class="catbg popup_heading"><a href="javascript:void(0);" class="generic_icons hide_popup"></a>' + icon + this.opt.heading + '</div><div class="popup_content">' + this.opt.content + '</div></div></div>');
+	$('body').append('<div id="' + this.popup_id + '" class="popup_container"><div class="' + popup_class + '"><div class="catbg popup_heading"><a href="javascript:void(0);" class="main_icons hide_popup"></a>' + icon + this.opt.heading + '</div><div class="popup_content">' + this.opt.content + '</div></div></div>');
 
 	// Show it
 	this.popup_body = $('#' + this.popup_id).children('.popup_window');
@@ -1160,9 +1167,6 @@ var aIconLists = new Array();
 // *** IconList object.
 function IconList(oOptions)
 {
-	if (!window.XMLHttpRequest)
-		return;
-
 	this.opt = oOptions;
 	this.bListLoaded = false;
 	this.oContainerDiv = null;
@@ -1417,8 +1421,7 @@ function smfSelectText(oCurElement, bActOnElement)
 		// Safari is special!
 		if (oCurSelection.setBaseAndExtent)
 		{
-			var oLastChild = oCodeArea.lastChild;
-			oCurSelection.setBaseAndExtent(oCodeArea, 0, oLastChild, 'innerText' in oLastChild ? oLastChild.innerText.length : oLastChild.textContent.length);
+			oCurSelection.setBaseAndExtent(oCodeArea, 0, oCodeArea, oCodeArea.childNodes.length);
 		}
 		else
 		{
@@ -1449,20 +1452,6 @@ function cleanFileInput(idElement)
 	}
 }
 
-function applyWindowClasses(oList)
-{
-	var bAlternate = false;
-	oListItems = oList.getElementsByTagName("LI");
-	for (i = 0; i < oListItems.length; i++)
-	{
-		// Skip dummies.
-		if (oListItems[i].id == "")
-			continue;
-		oListItems[i].className = "windowbg" + (bAlternate ? "2" : "");
-		bAlternate = !bAlternate;
-	}
-}
-
 function reActivate()
 {
 	document.forms.postmodify.message.readOnly = false;
@@ -1472,6 +1461,29 @@ function reActivate()
 function showimage()
 {
 	document.images.icons.src = icon_urls[document.forms.postmodify.icon.options[document.forms.postmodify.icon.selectedIndex].value];
+}
+
+function expandThumb(thumbID)
+{
+	var img = document.getElementById('thumb_' + thumbID);
+	var link = document.getElementById('link_' + thumbID);
+
+	// save the currently displayed image attributes
+	var tmp_src = img.src;
+	var tmp_height = img.style.height;
+	var tmp_width = img.style.width;
+
+	// set the displayed image attributes to the link attributes, this will expand in place
+	img.src = link.href;
+	img.style.width = link.style.width;
+	img.style.height = link.style.height;
+
+	// place the image attributes back
+	link.href = tmp_src;
+	link.style.width = tmp_width;
+	link.style.height = tmp_height;
+
+	return false;
 }
 
 function pollOptions()
@@ -1571,6 +1583,23 @@ function updateActionDef(optNum)
 	}
 }
 
+function makeToggle(el, text)
+{
+	var t = document.createElement("a");
+	t.href = 'javascript:void(0);';
+	t.textContent = text;
+	t.className = 'toggle_down';
+	createEventListener(t);
+	t.addEventListener('click', function()
+	{
+		var d = this.nextSibling;
+		d.classList.toggle('hidden');
+		this.className = this.className == 'toggle_down' ? 'toggle_up' : 'toggle_down';
+	}, false);
+	el.classList.add('hidden');
+	el.parentNode.insertBefore(t, el);
+}
+
 function smc_resize(selector)
 {
 	var allElements = [];
@@ -1655,6 +1684,30 @@ $(function() {
 
 		return typeof actOnElement !== "undefined" ? smfSelectText(actOnElement, true) : smfSelectText(this);
 	});
+	
+	// Show the Expand bbc button if needed
+	$('.bbc_code').each(function(index, item) {
+		if($(item).css('max-height') == 'none')
+			return;
+
+		if($(item).prop('scrollHeight') > parseInt($(item).css('max-height'), 10))
+			$(item.previousSibling).find('.smf_expand_code').removeClass('hidden');
+	});
+	// Expand or Shrink the code bbc area
+	$('.smf_expand_code').on('click', function(e) {
+		e.preventDefault();
+
+		var oCodeArea = this.parentNode.nextSibling;
+		
+		if(oCodeArea.classList.contains('expand_code')) {
+			$(oCodeArea).removeClass('expand_code');
+			$(this).html($(this).attr('data-expand-txt'));
+		}
+		else {
+			$(oCodeArea).addClass('expand_code');
+			$(this).html($(this).attr('data-shrink-txt'));
+		}
+	});
 });
 
 function avatar_fallback(e) {
@@ -1673,3 +1726,193 @@ if (document.addEventListener)
     document.addEventListener("error", avatar_fallback, true);
 else
     document.attachEvent("error", avatar_fallback);
+
+// SMF Preview handler.
+function smc_preview_post(oOptions)
+{
+	this.opts = oOptions;
+	this.previewXMLSupported = true;
+	this.init();
+}
+
+smc_preview_post.prototype.init = function ()
+{
+	if (this.opts.sPreviewLinkContainerID)
+		$('#' + this.opts.sPreviewLinkContainerID).on('click', this.doPreviewPost.bind(this));
+	else
+		$(document.forms).find("input[name='preview']").on('click', this.doPreviewPost.bind(this));
+}
+
+smc_preview_post.prototype.doPreviewPost = function (event)
+{
+	event.preventDefault();
+
+	if (!this.previewXMLSupported)
+		return submitThisOnce(document.forms.postmodify);
+
+	var new_replies = new Array();
+	if (window.XMLHttpRequest)
+	{
+		// @todo Currently not sending poll options and option checkboxes.
+		var x = new Array();
+		var textFields = ['subject', this.opts.sPostBoxContainerID, this.opts.sSessionVar, 'icon', 'guestname', 'email', 'evtitle', 'question', 'topic'];
+		var numericFields = [
+			'board', 'topic', 'last_msg',
+			'eventid', 'calendar', 'year', 'month', 'day',
+			'poll_max_votes', 'poll_expire', 'poll_change_vote', 'poll_hide'
+		];
+		var checkboxFields = [
+			'ns'
+		];
+
+		// Text Fields.
+		for (var i = 0, n = textFields.length; i < n; i++)
+			if (textFields[i] in document.forms.postmodify)
+			{
+				// Handle the WYSIWYG editor.
+				var e = $('#' + this.opts.sPostBoxContainerID).get(0);
+
+				// After moving this from Post template, html() stopped working in all cases.
+				if (textFields[i] == this.opts.sPostBoxContainerID && sceditor.instance(e) != undefined && typeof sceditor.instance(e).getText().html !== 'undefined')
+					x[x.length] = textFields[i] + '=' + sceditor.instance(e).getText().html().php_to8bit().php_urlencode();
+				else if (textFields[i] == this.opts.sPostBoxContainerID && sceditor.instance(e) != undefined)
+					x[x.length] = textFields[i] + '=' + sceditor.instance(e).getText().php_to8bit().php_urlencode();
+				else if (typeof document.forms.postmodify[textFields[i]].value.html !== 'undefined')
+					x[x.length] = textFields[i] + '=' + document.forms.postmodify[textFields[i]].value.html().php_to8bit().php_urlencode();
+				else
+					x[x.length] = textFields[i] + '=' + document.forms.postmodify[textFields[i]].value.php_to8bit().php_urlencode();
+			}
+
+		// Numbers.
+		for (var i = 0, n = numericFields.length; i < n; i++)
+			if (numericFields[i] in document.forms.postmodify && 'value' in document.forms.postmodify[numericFields[i]])
+				x[x.length] = numericFields[i] + '=' + parseInt(document.forms.postmodify.elements[numericFields[i]].value);
+
+		// Checkboxes.
+		for (var i = 0, n = checkboxFields.length; i < n; i++)
+			if (checkboxFields[i] in document.forms.postmodify && document.forms.postmodify.elements[checkboxFields[i]].checked)
+				x[x.length] = checkboxFields[i] + '=' + document.forms.postmodify.elements[checkboxFields[i]].value;
+
+		sendXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=post2' + (this.opts.iCurrentBoard ? ';board=' + this.opts.iCurrentBoard : '') + (this.opts.bMakePoll ? ';poll' : '') + ';preview;xml', x.join('&'), this.onDocSent.bind(this));
+
+		document.getElementById(this.opts.sPreviewSectionContainerID).style.display = '';
+		setInnerHTML(document.getElementById(this.opts.sPreviewSubjectContainerID), this.opts.sTxtPreviewTitle);
+		setInnerHTML(document.getElementById(this.opts.sPreviewBodyContainerID), this.opts.sTxtPreviewFetch);
+
+		return false;
+	}
+	else
+		return submitThisOnce(document.forms.postmodify);
+}
+
+smc_preview_post.prototype.onDocSent = function (XMLDoc)
+{
+	if (!XMLDoc)
+	{
+		document.forms.postmodify.preview.onclick = new function ()
+		{
+			return true;
+		}
+		document.forms.postmodify.preview.click();
+	}
+
+	// Show the preview section.
+	var preview = XMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('preview')[0];
+	setInnerHTML(document.getElementById(this.opts.sPreviewSubjectContainerID), preview.getElementsByTagName('subject')[0].firstChild.nodeValue);
+
+	var bodyText = '';
+	for (var i = 0, n = preview.getElementsByTagName('body')[0].childNodes.length; i < n; i++)
+		if (preview.getElementsByTagName('body')[0].childNodes[i].nodeValue != null)
+			bodyText += preview.getElementsByTagName('body')[0].childNodes[i].nodeValue;
+
+	setInnerHTML(document.getElementById(this.opts.sPreviewBodyContainerID), bodyText);
+	document.getElementById(this.opts.sPreviewBodyContainerID).className = 'windowbg';
+
+	// Show a list of errors (if any).
+	var errors = XMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('errors')[0];
+	var errorList = new Array();
+	for (var i = 0, numErrors = errors.getElementsByTagName('error').length; i < numErrors; i++)
+		errorList[errorList.length] = errors.getElementsByTagName('error')[i].firstChild.nodeValue;
+	document.getElementById(this.opts.sErrorsContainerID).style.display = numErrors == 0 ? 'none' : '';
+	document.getElementById(this.opts.sErrorsContainerID).className = errors.getAttribute('serious') == 1 ? 'errorbox' : 'noticebox';
+	document.getElementById(this.opts.sErrorsSeriousContainerID).style.display = numErrors == 0 ? 'none' : '';
+	setInnerHTML(document.getElementById(this.opts.sErrorsListContainerID), numErrors == 0 ? '' : errorList.join('<br>'));
+
+	// Adjust the color of captions if the given data is erroneous.
+	var captions = errors.getElementsByTagName('caption');
+	for (var i = 0, numCaptions = errors.getElementsByTagName('caption').length; i < numCaptions; i++)
+	{
+		if (document.getElementById(this.opts.sCaptionContainerID.replace('%ID%', captions[i].getAttribute('name'))))
+			document.getElementById(this.opts.sCaptionContainerID.replace('%ID%', captions[i].getAttribute('name'))).className = captions[i].getAttribute('class');
+	}
+
+	if (errors.getElementsByTagName('post_error').length == 1)
+		document.forms.postmodify[this.opts.sPostBoxContainerID].style.border = '1px solid red';
+	else if (document.forms.postmodify[this.opts.sPostBoxContainerID].style.borderColor == 'red' || document.forms.postmodify[this.opts.sPostBoxContainerID].style.borderColor == 'red red red red')
+	{
+		if ('runtimeStyle' in document.forms.postmodify[this.opts.sPostBoxContainerID])
+			document.forms.postmodify[this.opts.sPostBoxContainerID].style.borderColor = '';
+		else
+			document.forms.postmodify[this.opts.sPostBoxContainerID].style.border = null;
+	}
+
+	// Set the new last message id.
+	if ('last_msg' in document.forms.postmodify)
+		document.forms.postmodify.last_msg.value = XMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('last_msg')[0].firstChild.nodeValue;
+
+	var ignored_replies = new Array(), ignoring;
+	var newPosts = XMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('new_posts')[0] ? XMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('new_posts')[0].getElementsByTagName('post') : {length: 0};
+	var numNewPosts = newPosts.length;
+	if (numNewPosts != 0)
+	{
+		var newPostsHTML = '<span id="new_replies"><' + '/span>';
+		var tempHTML;
+		var new_replies = new Array();
+		for (var i = 0; i < numNewPosts; i++)
+		{
+			new_replies[i] = newPosts[i].getAttribute("id");
+
+			ignoring = false;
+			if (newPosts[i].getElementsByTagName("is_ignored")[0].firstChild.nodeValue != 0)
+				ignored_replies[ignored_replies.length] = ignoring = newPosts[i].getAttribute("id");
+
+			tempHTML = this.opts.newPostsTemplate.replaceAll('%PostID%', newPosts[i].getAttribute("id")).replaceAll('%PosterName%', newPosts[i].getElementsByTagName("poster")[0].firstChild.nodeValue).replaceAll('%PostTime%', newPosts[i].getElementsByTagName("time")[0].firstChild.nodeValue).replaceAll('%PostBody%', newPosts[i].getElementsByTagName("message")[0].firstChild.nodeValue).replaceAll('%IgnoredStyle%', ignoring ?  'display: none' : '');
+
+			newPostsHTML += tempHTML;
+		}
+
+		// Remove the new image from old-new replies!
+		for (i = 0; i < new_replies.length; i++)
+			document.getElementById(this.opts.sNewImageContainerID.replace('%ID%', new_replies[i])).style.display = 'none';
+
+		setOuterHTML(document.getElementById('new_replies'), newPostsHTML);
+	}
+
+	var numIgnoredReplies = ignored_replies.length;
+	if (numIgnoredReplies != 0)
+	{
+		for (var i = 0; i < numIgnoredReplies; i++)
+		{
+			aIgnoreToggles[ignored_replies[i]] = new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: true,
+				aSwappableContainers: [
+					'msg_' + ignored_replies[i] + '_body',
+					'msg_' + ignored_replies[i] + '_quote',
+				],
+				aSwapLinks: [
+					{
+						sId: 'msg_' + ignored_replies[i] + '_ignored_link',
+						msgExpanded: '',
+						msgCollapsed: this.opts.sTxtIgnoreUserPost
+					}
+				]
+			});
+		}
+	}
+
+	location.hash = '#' + this.opts.sPreviewSectionContainerID;
+
+	if (typeof(smf_codeFix) != 'undefined')
+		smf_codeFix();
+}

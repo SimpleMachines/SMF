@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -29,6 +29,8 @@ if (!defined('SMF'))
 function preparsecode(&$message, $previewing = false)
 {
 	global $user_info, $modSettings, $context, $sourcedir;
+
+	static $tags_regex, $disallowed_tags_regex;
 
 	// This line makes all languages *theoretically* work even with the wrong charset ;).
 	if (empty($context['utf8']))
@@ -51,6 +53,9 @@ function preparsecode(&$message, $previewing = false)
 		$message = substr($message, 0, -7);
 	while (substr($message, 0, 8) == '[/quote]')
 		$message = substr($message, 8);
+
+	if (strpos($message, '[cowsay') !== false && !allowedTo('bbc_cowsay'))
+		$message = preg_replace('~\[(/?)cowsay[^\]]*\]~iu', '[$1pre]', $message);
 
 	// Find all code blocks, work out whether we'd be parsing them, then ensure they are all closed.
 	$in_tag = false;
@@ -115,8 +120,9 @@ function preparsecode(&$message, $previewing = false)
 
 	if (!$previewing && strpos($message, '[html]') !== false)
 	{
-		if (allowedTo('admin_forum'))
-			$message = preg_replace_callback('~\[html\](.+?)\[/html\]~is', function($m) {
+		if (allowedTo('bbc_html'))
+			$message = preg_replace_callback('~\[html\](.+?)\[/html\]~is', function($m)
+			{
 				return '[html]' . strtr(un_htmlspecialchars($m[1]), array("\n" => '&#13;', '  ' => ' &#32;', '[' => '&#91;', ']' => '&#93;')) . '[/html]';
 			}, $message);
 
@@ -138,8 +144,29 @@ function preparsecode(&$message, $previewing = false)
 	$message = preg_replace('~\[(black|blue|green|red|white)\]~', '[color=$1]', $message); // First do the opening tags.
 	$message = preg_replace('~\[/(black|blue|green|red|white)\]~', '[/color]', $message); // And now do the closing tags
 
+	// Neutralize any BBC tags this member isn't permitted to use.
+	if (empty($disallowed_tags_regex))
+	{
+		// Legacy BBC are only retained for historical reasons. They're not for use in new posts.
+		$disallowed_bbc = $context['legacy_bbc'];
+
+		// Some BBC require permissions.
+		foreach ($context['restricted_bbc'] as $bbc)
+		{
+			// Skip html, since we handled it separately above.
+			if ($bbc === 'html')
+				continue;
+			if (!allowedTo('bbc_' . $bbc))
+				$disallowed_bbc[] = $bbc;
+		}
+
+		$disallowed_tags_regex = build_regex(array_unique($disallowed_bbc), '~');
+	}
+	if (!empty($disallowed_tags_regex))
+		$message = preg_replace('~\[(?=/?' . $disallowed_tags_regex . '\b)~i', '&#91;', $message);
+
 	// Make sure all tags are lowercase.
-	$message = preg_replace_callback('~\[([/]?)(list|li|table|tr|td)((\s[^\]]+)*)\]~i', function($m)
+	$message = preg_replace_callback('~\[(/?)(list|li|table|tr|td)\b([^\]]*)\]~i', function($m)
 	{
 		return "[$m[1]" . strtolower("$m[2]") . "$m[3]]";
 	}, $message);
@@ -202,22 +229,21 @@ function preparsecode(&$message, $previewing = false)
 		$message = preg_replace(array_keys($mistake_fixes), $mistake_fixes, $message);
 
 	// Remove empty bbc from the sections outside the code tags
-	$allowedEmpty = array(
-		'anchor',
-		'td',
-	);
+	if (empty($tags_regex))
+	{
+		require_once($sourcedir . '/Subs.php');
 
-	require_once($sourcedir . '/Subs.php');
+		$allowed_empty = array('anchor', 'td',);
 
-	$alltags = array();
-	foreach (($codes = parse_bbc(false)) as $code)
-		if (!in_array($code['tag'], $allowedEmpty))
-			$alltags[] = $code['tag'];
+		$tags = array();
+		foreach (($codes = parse_bbc(false)) as $code)
+			if (!in_array($code['tag'], $allowed_empty))
+				$tags[] = $code['tag'];
 
-	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
-
-	while (preg_match('~\[(' . $alltags_regex . ')[^\]]*\]\s*\[/\1\]\s?~i', $message))
-		$message = preg_replace('~\[(' . $alltags_regex . ')[^\]]*\]\s*\[/\1\]\s?~i', '', $message);
+		$tags_regex = build_regex($tags, '~');
+	}
+	while (preg_match('~\[(' . $tags_regex . ')\b[^\]]*\]\s*\[/\1\]\s?~i', $message))
+		$message = preg_replace('~\[(' . $tags_regex . ')[^\]]*\]\s*\[/\1\]\s?~i', '', $message);
 
 	// Restore code blocks
 	if (!empty($code_tags))
@@ -264,6 +290,9 @@ function un_preparsecode($message)
 		return "[html]" . strtr($smcFunc['htmlspecialchars']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
 	}, $message);
 
+	if (strpos($message, '[cowsay') !== false && !allowedTo('bbc_cowsay'))
+		$message = preg_replace('~\[(/?)cowsay[^\]]*\]~iu', '[$1pre]', $message);
+
 	// Attempt to un-parse the time to something less awful.
 	$message = preg_replace_callback('~\[time\](\d{0,10})\[/time\]~i', function($m)
 	{
@@ -271,10 +300,10 @@ function un_preparsecode($message)
 	}, $message);
 
 	if (!empty($code_tags))
-		$message = str_replace(array_keys($code_tags), array_values($code_tags), $message);
+		$message = strtr($message, $code_tags);
 
 	// Change breaks back to \n's and &nsbp; back to spaces.
-	return preg_replace('~<br( /)?' . '>~', "\n", str_replace('&nbsp;', ' ', $message));
+	return preg_replace('~<br\s*/?' . '>~', "\n", str_replace('&nbsp;', ' ', $message));
 }
 
 /**
@@ -327,17 +356,18 @@ function fixTags(&$message)
 			'embeddedUrl' => true,
 			'hasEqualSign' => true,
 		),
+		// The rest of these are deprecated.
 		// [ftp]ftp://...[/ftp]
 		array(
 			'tag' => 'ftp',
-			'protocols' => array('ftp', 'ftps'),
+			'protocols' => array('ftp', 'ftps', 'sftp'),
 			'embeddedUrl' => false,
 			'hasEqualSign' => false,
 		),
 		// [ftp=ftp://...]name[/ftp]
 		array(
 			'tag' => 'ftp',
-			'protocols' => array('ftp', 'ftps'),
+			'protocols' => array('ftp', 'ftps', 'sftp'),
 			'embeddedUrl' => true,
 			'hasEqualSign' => true,
 		),
@@ -412,22 +442,27 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 
 		if (!$found && $protocols[0] == 'http')
 		{
+			$parse_url_replace = parse_url($replace, PHP_URL_SCHEME);
+
+			// A path
 			if (substr($replace, 0, 1) == '/' && substr($replace, 0, 2) != '//')
 				$replace = $domain_url . $replace;
+			// A query
 			elseif (substr($replace, 0, 1) == '?')
 				$replace = $scripturl . $replace;
+			// A fragment
 			elseif (substr($replace, 0, 1) == '#' && $embeddedUrl)
 			{
 				$replace = '#' . preg_replace('~[^A-Za-z0-9_\-#]~', '', substr($replace, 1));
 				$this_tag = 'iurl';
 				$this_close = 'iurl';
 			}
-			elseif (substr($replace, 0, 2) != '//')
+			elseif (substr($replace, 0, 2) != '//' && empty($parse_url_replace))
 				$replace = $protocols[0] . '://' . $replace;
 		}
 		elseif (!$found && $protocols[0] == 'ftp')
 			$replace = $protocols[0] . '://' . preg_replace('~^(?!ftps?)[^:]+://~', '', $replace);
-		elseif (!$found)
+		elseif (!$found && empty($parse_url_replace))
 			$replace = $protocols[0] . '://' . $replace;
 
 		if ($hasEqualSign && $embeddedUrl)
@@ -626,14 +661,15 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 		foreach ($to_array as $to)
 		{
 			set_error_handler(function($errno, $errstr, $errfile, $errline)
+			{
+				// error was suppressed with the @-operator
+				if (0 === error_reporting())
 				{
-					// error was suppressed with the @-operator
-					if (0 === error_reporting()) {
-						return false;
-					}
-
-					throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+					return false;
 				}
+
+				throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+			}
 			);
 			try
 			{
@@ -643,7 +679,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 					$mail_result = false;
 				}
 			}
-			catch(ErrorException $e)
+			catch (ErrorException $e)
 			{
 				log_error($e->getMessage(), 'general', $e->getFile(), $e->getLine());
 				log_error(sprintf($txt['mail_send_unable'], $to));
@@ -1086,15 +1122,6 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		);
 	}
 
-	censorText($subject);
-	if (empty($modSettings['disallow_sendBody']))
-	{
-		censorText($message);
-		$message = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($smcFunc['htmlspecialchars']($message), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
-	}
-	else
-		$message = '';
-
 	$to_names = array();
 	if (count($to_list) > 1)
 	{
@@ -1120,8 +1147,38 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	);
 	$email_template = 'new_pm' . (empty($modSettings['disallow_sendBody']) ? '_body' : '') . (!empty($to_names) ? '_tolist' : '');
 
+	$notification_texts = array();
+
 	foreach ($notifications as $lang => $notification_list)
 	{
+		// Censor and parse BBC in the receiver's language. Only do each language once.
+		if (empty($notification_texts[$lang]))
+		{
+			if ($lang != $user_info['language'])
+				loadLanguage('index+Modifications', $lang, false);
+
+			$notification_texts[$lang]['subject'] = $subject;
+			censorText($notification_texts[$lang]['subject']);
+
+			if (empty($modSettings['disallow_sendBody']))
+			{
+				$notification_texts[$lang]['body'] = $message;
+
+				censorText($notification_texts[$lang]['body']);
+
+				$notification_texts[$lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($smcFunc['htmlspecialchars']($notification_texts[$lang]['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+			}
+			else
+				$notification_texts[$lang]['body'] = '';
+
+
+			if ($lang != $user_info['language'])
+				loadLanguage('index+Modifications', $user_info['language'], false);
+		}
+
+		$replacements['SUBJECT'] = $notification_texts[$lang]['subject'];
+		$replacements['MESSAGE'] = $notification_texts[$lang]['body'];
+
 		$emaildata = loadEmailTemplate($email_template, $replacements, $lang);
 
 		// Off the notification email goes!
@@ -1249,6 +1306,7 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 /**
  * Sends mail, like mail() but over SMTP.
  * It expects no slashes or entities.
+ *
  * @internal
  *
  * @param array $mail_to_array Array of strings (email addresses)
@@ -1259,7 +1317,9 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
  */
 function smtp_mail($mail_to_array, $subject, $message, $headers)
 {
-	global $modSettings, $webmaster_email, $txt;
+	global $modSettings, $webmaster_email, $txt, $boardurl;
+
+	static $helo;
 
 	$modSettings['smtp_host'] = trim($modSettings['smtp_host']);
 
@@ -1290,6 +1350,10 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 		// Maybe we can still save this?  The port might be wrong.
 		if (substr($modSettings['smtp_host'], 0, 4) == 'ssl:' && (empty($modSettings['smtp_port']) || $modSettings['smtp_port'] == 25))
 		{
+			// ssl:hostname can cause fsocketopen to fail with a lookup failure, ensure it exists for this test.
+			if (substr($modSettings['smtp_host'], 0, 6) != 'ssl://')
+				$modSettings['smtp_host'] = str_replace('ssl:', 'ss://', $modSettings['smtp_host']);
+
 			if ($socket = fsockopen($modSettings['smtp_host'], 465, $errno, $errstr, 3))
 				log_error($txt['smtp_port_ssl']);
 		}
@@ -1306,17 +1370,24 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 	if (!server_parse(null, $socket, '220'))
 		return false;
 
-	// Try and determine the servers name, fall back to the mail servers if not found
-	$helo = false;
-	if (function_exists('gethostname') && gethostname() !== false)
-		$helo = gethostname();
-	elseif (function_exists('php_uname'))
-		$helo = php_uname('n');
-	elseif (array_key_exists('SERVER_NAME', $_SERVER) && !empty($_SERVER['SERVER_NAME']))
-		$helo = $_SERVER['SERVER_NAME'];
-
+	// Try to determine the server's fully qualified domain name
+	// Can't rely on $_SERVER['SERVER_NAME'] because it can be spoofed on Apache
 	if (empty($helo))
-		$helo = $modSettings['smtp_host'];
+	{
+		// See if we can get the domain name from the host itself
+		if (function_exists('gethostname'))
+			$helo = gethostname();
+		elseif (function_exists('php_uname'))
+			$helo = php_uname('n');
+
+		// If the hostname isn't a fully qualified domain name, we can use the host name from $boardurl instead
+		if (empty($helo) || strpos($helo, '.') === false || substr_compare($helo, '.local', -6) === 0 || (!empty($modSettings['tld_regex']) && !preg_match('/\.' . $modSettings['tld_regex'] . '$/u', $helo)))
+			$helo = parse_url($boardurl, PHP_URL_HOST);
+
+		// This is one of those situations where 'www.' is undesirable
+		if (strpos($helo, 'www.') === 0)
+			$helo = substr($helo, 4);
+	}
 
 	// SMTP = 1, SMTP - STARTTLS = 2
 	if (in_array($modSettings['mail_type'], array(1, 2)) && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
@@ -1331,7 +1402,16 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 				if (!server_parse('STARTTLS', $socket, '220'))
 					return false;
 				// Enable the encryption
-				if (!@stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT))
+				// php 5.6+ fix
+				$crypto_method = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+
+				if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT'))
+				{
+					$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+					$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT;
+				}
+
+				if (!@stream_socket_enable_crypto($socket, true, $crypto_method))
 					return false;
 				// Send the EHLO command again
 				if (!server_parse('EHLO ' . $helo, $socket, null) == '250')
@@ -1403,6 +1483,7 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
  * Parse a message to the SMTP server.
  * Sends the specified message to the server, and checks for the
  * expected response.
+ *
  * @internal
  *
  * @param string $message The message to send
@@ -1568,12 +1649,6 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 	$task_rows = array();
 	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
-		// Clean it up.
-		censorText($row['subject']);
-		censorText($row['body']);
-		$row['subject'] = un_htmlspecialchars($row['subject']);
-		$row['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($row['body'], false, $row['id_last_msg']), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
-
 		$task_rows[] = array(
 			'$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', $smcFunc['json_encode'](array(
 				'msgOptions' => array(
@@ -1946,7 +2021,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		}
 	}
 
-	if ($msgOptions['approved'] && empty($topicOptions['is_approved']))
+	if ($msgOptions['approved'] && empty($topicOptions['is_approved']) && $posterOptions['id'] != $user_info['id'])
 		$smcFunc['db_insert']('',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
@@ -2477,6 +2552,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 
 /**
  * Approve topics?
+ *
  * @todo shouldn't this be in topic
  *
  * @param array $topics Array of topic ids
@@ -2786,7 +2862,6 @@ function user_info_callback($matches)
 	return $use_ref ? $ref : $matches[0];
 }
 
-
 /**
  * spell_init()
  *
@@ -2820,7 +2895,7 @@ function spell_init()
 		}
 
 		// Success
-		if ($enchant_link)
+		if (!empty($enchant_link))
 		{
 			$context['provider'] = 'enchant';
 			return $enchant_link;
@@ -2899,7 +2974,7 @@ function spell_check($dict, $word)
  *
  * Returns an array of suggested replacements for the specified word
  *
- * @param resource $dict An enchant or pspell dictioary resource
+ * @param resource $dict An enchant or pspell dictionary resource
  * @param string $word A misspelled word
  * @return array An array of suggested replacements for the misspelled word
  */

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -36,8 +36,8 @@ class Register_Notify_Background extends SMF_BackgroundTask
 
 		// So now we find out who wants what.
 		$alert_bits = array(
-			'alert' => 0x01,
-			'email' => 0x02,
+			'alert' => self::RECEIVE_NOTIFY_ALERT,
+			'email' => self::RECEIVE_NOTIFY_EMAIL,
 		);
 		$notifies = array();
 
@@ -61,7 +61,7 @@ class Register_Notify_Background extends SMF_BackgroundTask
 					'id_member_started' => $this->_details['new_member_id'],
 					'member_name' => $this->_details['new_member_name'],
 					'content_type' => 'member',
-					'content_id' => 0,
+					'content_id' => $this->_details['new_member_id'],
 					'content_action' => 'register_' . $this->_details['notify_type'],
 					'is_read' => 0,
 					'extra' => '',

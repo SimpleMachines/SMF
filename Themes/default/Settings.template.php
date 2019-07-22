@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -15,20 +15,9 @@
  */
 function template_options()
 {
-	global $context, $txt;
+	global $context, $txt, $modSettings;
 
 	$context['theme_options'] = array(
-		$txt['theme_opt_calendar'],
-		array(
-			'id' => 'calendar_start_day',
-			'label' => $txt['calendar_start_day'],
-			'options' => array(
-				0 => $txt['days'][0],
-				1 => $txt['days'][1],
-				6 => $txt['days'][6],
-			),
-			'default' => true,
-		),
 		$txt['theme_opt_display'],
 		array(
 			'id' => 'show_children',
@@ -46,6 +35,7 @@ function template_options()
 				50 => 50,
 			),
 			'default' => true,
+			'enabled' => empty($modSettings['disableCustomPerPage']),
 		),
 		array(
 			'id' => 'messages_per_page',
@@ -58,6 +48,7 @@ function template_options()
 				50 => 50,
 			),
 			'default' => true,
+			'enabled' => empty($modSettings['disableCustomPerPage']),
 		),
 		array(
 			'id' => 'view_newest_first',
@@ -78,6 +69,7 @@ function template_options()
 			'id' => 'posts_apply_ignore_list',
 			'label' => $txt['posts_apply_ignore_list'],
 			'default' => false,
+			'enabled' => !empty($modSettings['enable_buddylist'])
 		),
 		$txt['theme_opt_posting'],
 		array(
@@ -94,6 +86,7 @@ function template_options()
 			'id' => 'wysiwyg_default',
 			'label' => $txt['wysiwyg_default'],
 			'default' => false,
+			'enabled' => empty($modSettings['disable_wysiwyg']),
 		),
 		array(
 			'id' => 'use_editor_quick_reply',
@@ -104,11 +97,13 @@ function template_options()
 			'id' => 'drafts_autosave_enabled',
 			'label' => $txt['drafts_autosave_enabled'],
 			'default' => true,
+			'enabled' => !empty($modSettings['drafts_autosave_enabled']) && (!empty($modSettings['drafts_post_enabled']) || !empty($modSettings['drafts_pm_enabled'])),
 		),
 		array(
 			'id' => 'drafts_show_saved_enabled',
-			'label'  => $txt['drafts_show_saved_enabled'],
+			'label' => $txt['drafts_show_saved_enabled'],
 			'default' => true,
+			'enabled' => !empty($modSettings['drafts_show_saved_enabled']) && (!empty($modSettings['drafts_post_enabled']) || !empty($modSettings['drafts_pm_enabled'])),
 		),
 		$txt['theme_opt_moderation'],
 		array(
@@ -137,6 +132,29 @@ function template_options()
 			'label' => $txt['pm_remove_inbox_label'],
 			'default' => true,
 		),
+		$txt['theme_opt_calendar'],
+		array(
+			'id' => 'calendar_default_view',
+			'label' => $txt['calendar_default_view'],
+			'options' => array(
+				'viewlist' => $txt['calendar_viewlist'],
+				'viewmonth' => $txt['calendar_viewmonth'],
+				'viewweek' => $txt['calendar_viewweek']
+			),
+			'default' => true,
+			'enabled' => !empty($modSettings['cal_enabled']),
+		),
+		array(
+			'id' => 'calendar_start_day',
+			'label' => $txt['calendar_start_day'],
+			'options' => array(
+				0 => $txt['days'][0],
+				1 => $txt['days'][1],
+				6 => $txt['days'][6],
+			),
+			'default' => true,
+			'enabled' => !empty($modSettings['cal_enabled']),
+		),
 	);
 }
 
@@ -161,17 +179,23 @@ function template_settings()
 			'type' => 'text',
 		),
 		array(
+			'id' => 'og_image',
+			'label' => $txt['og_image'],
+			'description' => $txt['og_image_desc'],
+			'type' => 'url',
+		),
+		'',
+		array(
 			'id' => 'smiley_sets_default',
 			'label' => $txt['smileys_default_set_for_theme'],
 			'options' => $context['smiley_sets'],
 			'type' => 'text',
 		),
-	'',
+		'',
 		array(
 			'id' => 'enable_news',
 			'label' => $txt['enable_random_news'],
 		),
-	'',
 		array(
 			'id' => 'show_newsfader',
 			'label' => $txt['news_fader'],
@@ -181,6 +205,7 @@ function template_settings()
 			'label' => $txt['admin_fader_delay'],
 			'type' => 'number',
 		),
+		'',
 		array(
 			'id' => 'number_recent_posts',
 			'label' => $txt['number_recent_posts'],
@@ -207,14 +232,7 @@ function template_settings()
 				1 => $txt['who_display_viewing_numbers'],
 				2 => $txt['who_display_viewing_names'],
 			),
-			'type' => 'number',
-		),
-	'',
-		array(
-			'id' => 'og_image',
-			'label' => $txt['og_image'],
-			'description' => $txt['og_image_desc'],
-			'type' => 'url',
+			'type' => 'list',
 		),
 	);
 }

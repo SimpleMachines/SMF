@@ -2,16 +2,16 @@
 
 /**
  * This taks handles notifying someone that a user has
- * requeted to join a group they moderate.
+ * requested to join a group they moderate.
  *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -64,7 +64,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			}
 
 			// Build the required information array
-			$affected_users[] = array(
+			$affected_users[$row['id_member']] = array(
 				'rid' => $row['id_request'],
 				'member_id' => $row['id_member'],
 				'member_name' => $row['member_name'],
@@ -105,7 +105,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 				$pref = !empty($prefs[$user['member_id']]['groupr_' . $pref_name]) ? $prefs[$user['member_id']]['groupr_' . $pref_name] : 0;
 				$custom_reason = isset($this->_details['reason']) && isset($this->_details['reason'][$user['rid']]) ? $this->_details['reason'][$user['rid']] : '';
 
-				if ($pref & 0x01)
+				if ($pref & self::RECEIVE_NOTIFY_ALERT)
 				{
 					$alert_rows[] = array(
 						'alert_time' => time(),
@@ -116,10 +116,9 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 						'is_read' => 0,
 						'extra' => $smcFunc['json_encode'](array('group_name' => $user['group_name'], 'reason' => !empty($custom_reason) ? '<br><br>' . $custom_reason : '')),
 					);
-					updateMemberData($user['member_id'], array('alerts' => '+'));
 				}
 
-				if ($pref & 0x02)
+				if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 				{
 					// Emails are a bit complicated. We have to do language stuff.
 					require_once($sourcedir . '/Subs-Post.php');
@@ -142,6 +141,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 
 			// Insert the alerts if any
 			if (!empty($alert_rows))
+			{
 				$smcFunc['db_insert']('',
 					'{db_prefix}user_alerts',
 					array(
@@ -151,6 +151,9 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 					$alert_rows,
 					array()
 				);
+
+				updateMemberData(array_keys($affected_users), array('alerts' => '+'));
+			}
 		}
 
 		return true;

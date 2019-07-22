@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -56,8 +56,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 	echo '
 			});';
 
-		// Now for backward compatibility let's collect few infos in the good ol' style
-		echo '
+	// Now for backward compatibility let's collect few infos in the good ol' style
+	echo '
 			var oEditorHandle_', $editor_id, ' = new smc_Editor({
 				sUniqueId: ', JavaScriptEscape($editor_id), ',
 				sEditWidth: ', JavaScriptEscape($editor_context['width']), ',
@@ -100,23 +100,22 @@ function template_control_richedit_buttons($editor_id)
 	$tempTab++;
 	$context['tabindex'] = $tempTab;
 
-	if (!empty($context['drafts_pm_save']))
-		echo '
-		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', --$tempTab, '" onclick="submitThisOnce(this);" accesskey="d" class="button">
-		<input type="hidden" id="id_pm_draft" name="id_pm_draft" value="', empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'], '">';
+	foreach ($context['richedit_buttons'] as $name => $button) {
+		if ($name == 'spell_check') {
+			$button['onclick'] = 'oEditorHandle_' . $editor_id . '.spellCheckStart();';
+		}
 
-	if (!empty($context['drafts_save']))
-		echo '
-		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', --$tempTab, '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" class="button">
-		<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '">';
+		if ($name == 'preview') {
+			$button['value'] = isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $button['value'];
+			$button['onclick'] = $editor_context['preview_type'] == 2 ? '' : 'return submitThisOnce(this);';
+			$button['show'] = $editor_context['preview_type'];
+		}
 
-	if ($context['show_spellchecking'])
-		echo '
-		<input type="button" value="', $txt['spell_check'], '" tabindex="', --$tempTab, '" onclick="oEditorHandle_', $editor_id, '.spellCheckStart();" class="button">';
-
-	if ($editor_context['preview_type'])
-		echo '
-		<input type="submit" name="preview" value="', isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $txt['preview'], '" tabindex="', --$tempTab, '" onclick="', $editor_context['preview_type'] == 2 ? 'return event.ctrlKey || previewPost();' : 'return submitThisOnce(this);', '" accesskey="p" class="button">';
+		if ($button['show']) {
+			echo '
+		<input type="', $button['type'], '"', $button['type'] == 'hidden' ? ' id="' . $name . '"' : '', ' name="', $name, '" value="', $button['value'], '"', $button['type'] != 'hidden' ? ' tabindex="' . --$tempTab . '"' : '', !empty($button['onclick']) ? ' onclick="' . $button['onclick'] . '"' : '', !empty($button['accessKey']) ? ' accesskey="' . $button['accessKey'] . '"' : '', $button['type'] != 'hidden' ? ' class="button"' : '', '>';
+		}
+	}
 
 	echo '
 		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : $txt['post'], '" name="post" tabindex="', --$tempTab, '" onclick="return submitThisOnce(this);" accesskey="s" class="button">';
@@ -128,7 +127,7 @@ function template_control_richedit_buttons($editor_id)
 			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon"></span>
 			<span id="draft_lastautosave" ></span>
 		</span>
-		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'], '"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $context['browser_cache'], '"></script>
 		<script>
 			var oDraftAutoSave = new smf_DraftAutoSave({
 				sSelf: \'oDraftAutoSave\',
@@ -149,7 +148,7 @@ function template_control_richedit_buttons($editor_id)
 			<span id="throbber" style="display:none"><img src="', $settings['images_url'], '/loading_sm.gif" alt="" class="centericon"></span>
 			<span id="draft_lastautosave" ></span>
 		</span>
-		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'], '"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $context['browser_cache'], '"></script>
 		<script>
 			var oDraftAutoSave = new smf_DraftAutoSave({
 				sSelf: \'oDraftAutoSave\',
@@ -238,15 +237,16 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 				echo '
 				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context['recaptcha_site_key'] . '" data-theme="' . $verify_context['recaptcha_theme'] . '"></div>
 				<br>
-				<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl='.$lang.'"></script>';
+				<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=' . $lang . '"></script>';
 			}
 		}
 		else
 		{
 			// Where in the question array is this question?
-			$qIndex = $verify_context['show_visual'] ? $i - 1 : $i;
+			$qIndex = $verify_context['show_visual'] || $verify_context['can_recaptcha'] ? $i - 1 : $i;
 
-			echo '
+			if (isset($verify_context['questions'][$qIndex]))
+				echo '
 				<div class="smalltext">
 					', $verify_context['questions'][$qIndex]['q'], ':<br>
 					<input type="text" name="', $verify_id, '_vv[q][', $verify_context['questions'][$qIndex]['id'], ']" size="30" value="', $verify_context['questions'][$qIndex]['a'], '" ', $verify_context['questions'][$qIndex]['is_error'] ? 'style="border: 1px red solid;"' : '', ' tabindex="', $context['tabindex']++, '" required>

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function showAttachment()
 {
-	global $smcFunc, $modSettings, $maintenance, $context;
+	global $smcFunc, $modSettings, $maintenance, $context, $txt;
 
 	// Some defaults that we need.
 	$context['character_set'] = empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set'];
@@ -59,7 +59,7 @@ function showAttachment()
 	// We need a valid ID.
 	if (empty($attachId))
 	{
-		header('HTTP/1.0 404 File Not Found');
+		send_http_status(404, 'File Not Found');
 		die('404 File Not Found');
 	}
 
@@ -71,13 +71,13 @@ function showAttachment()
 	// No access in strict maintenance mode or you don't have permission to see attachments.
 	if ((!empty($maintenance) && $maintenance == 2) || !allowedTo('view_attachments'))
 	{
-		header('HTTP/1.0 404 File Not Found');
+		send_http_status(404, 'File Not Found');
 		die('404 File Not Found');
 	}
 
 	// Use cache when possible.
 	if (($cache = cache_get_data('attachment_lookup_id-' . $attachId)) != null)
-		list($file, $thumbFile) = $cache;
+		list ($file, $thumbFile) = $cache;
 
 	// Get the info from the DB.
 	if (empty($file) || empty($thumbFile) && !empty($file['id_thumb']))
@@ -87,14 +87,16 @@ function showAttachment()
 		call_integration_hook('integrate_download_request', array(&$attachRequest));
 		if (!is_null($attachRequest) && $smcFunc['db_is_resource']($attachRequest))
 			$request = $attachRequest;
-
 		else
 		{
 			// Make sure this attachment is on this board and load its info while we are at it.
 			$request = $smcFunc['db_query']('', '
-				SELECT id_folder, filename, file_hash, fileext, id_attach, id_thumb, attachment_type, mime_type, approved, id_msg
+				SELECT
+					id_folder, filename, file_hash, fileext, id_attach,
+					id_thumb, attachment_type, mime_type, approved, id_msg
 				FROM {db_prefix}attachments
-				WHERE id_attach = {int:attach}
+				WHERE id_attach = {int:attach}' . (!empty($context['preview_message']) ? '
+					AND a.id_msg != 0' : '') . '
 				LIMIT 1',
 				array(
 					'attach' => $attachId,
@@ -105,7 +107,7 @@ function showAttachment()
 		// No attachment has been found.
 		if ($smcFunc['db_num_rows']($request) == 0)
 		{
-			header('HTTP/1.0 404 File Not Found');
+			send_http_status(404, 'File Not Found');
 			die('404 File Not Found');
 		}
 
@@ -115,7 +117,7 @@ function showAttachment()
 		// If theres a message ID stored, we NEED a topic ID.
 		if (!empty($file['id_msg']) && empty($attachTopic) && empty($preview))
 		{
-			header('HTTP/1.0 404 File Not Found');
+			send_http_status(404, 'File Not Found');
 			die('404 File Not Found');
 		}
 
@@ -126,8 +128,8 @@ function showAttachment()
 				SELECT a.id_msg
 				FROM {db_prefix}attachments AS a
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
-					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
-				WHERE a.id_attach = {int:attach}
+				WHERE {query_see_message_board}
+					AND a.id_attach = {int:attach}
 				LIMIT 1',
 				array(
 					'attach' => $attachId,
@@ -138,7 +140,7 @@ function showAttachment()
 			// The provided topic must match the one stored in the DB for this particular attachment, also.
 			if ($smcFunc['db_num_rows']($request2) == 0)
 			{
-				header('HTTP/1.0 404 File Not Found');
+				send_http_status(404, 'File Not Found');
 				die('404 File Not Found');
 			}
 
@@ -149,7 +151,8 @@ function showAttachment()
 		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
 		// ensure variant attachment compatibility
 		$filePath = pathinfo($file['filePath']);
-		$file['filePath'] = !file_exists($file['filePath']) ? substr($file['filePath'], 0, -(strlen($filePath['extension']) + 1)) : $file['filePath'];
+
+		$file['filePath'] = !file_exists($file['filePath']) && isset($filePath['extension']) ? substr($file['filePath'], 0, -(strlen($filePath['extension']) + 1)) : $file['filePath'];
 		$file['etag'] = '"' . md5_file($file['filePath']) . '"';
 
 		// now get the thumbfile!
@@ -192,7 +195,7 @@ function showAttachment()
 	// No point in a nicer message, because this is supposed to be an attachment anyway...
 	if (!file_exists($file['filePath']))
 	{
-		header((preg_match('~HTTP/1\.[01]~i', $_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0') . ' 404 Not Found');
+		send_http_status(404);
 		header('content-type: text/plain; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
 		// We need to die like this *before* we send any anti-caching headers as below.
@@ -208,7 +211,7 @@ function showAttachment()
 			ob_end_clean();
 
 			// Answer the question - no, it hasn't been modified ;).
-			header('HTTP/1.1 304 Not Modified');
+			send_http_status(304);
 			exit;
 		}
 	}
@@ -219,7 +222,7 @@ function showAttachment()
 	{
 		ob_end_clean();
 
-		header('HTTP/1.1 304 Not Modified');
+		send_http_status(304);
 		exit;
 	}
 
@@ -301,13 +304,12 @@ function showAttachment()
 	// Multipart and resuming support
 	if (isset($_SERVER['HTTP_RANGE']))
 	{
-		header("HTTP/1.1 206 Partial Content");
+		send_http_status(206);
 		header("content-length: $new_length");
 		header("content-range: bytes $range-$range_end/$size");
 	}
 	else
 		header("content-length: " . $size);
-
 
 	// Try to buy some time...
 	@set_time_limit(600);

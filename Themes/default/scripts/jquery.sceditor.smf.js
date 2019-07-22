@@ -3,27 +3,34 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 (function ($) {
 	var extensionMethods = {
+		insertQuoteFast: function (messageid)
+		{
+			var self = this;
+			getXMLDocument(
+				smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + messageid + ';xml',
+				function(XMLDoc)
+				{
+					var text = '';
+
+					for (var i = 0, n = XMLDoc.getElementsByTagName('quote')[0].childNodes.length; i < n; i++)
+						text += XMLDoc.getElementsByTagName('quote')[0].childNodes[i].nodeValue;
+					self.insert(text);
+				}
+			);
+		},
 		InsertText: function (text, bClear) {
-			var bIsSource = this.inSourceMode();
+			if (bClear)
+				this.val('');
 
-			// @TODO make it put the quote close to the current selection
-
-			if (!bIsSource)
-				this.toggleSourceMode();
-
-			var current_value = bClear ? text : this.getSourceEditorValue(false) + text;
-			this.setSourceEditorValue(current_value);
-
-			if (!bIsSource)
-				this.toggleSourceMode();
+			this.insert(text);
 		},
 		getText: function (filter) {
 			var current_value = '';
@@ -62,6 +69,13 @@
 						e.preventDefault();
 					})
 				);
+		},
+		storeLastState: function (){
+			this.wasSource = this.inSourceMode();
+		},
+		setTextMode: function () {
+			if (!this.inSourceMode())
+				this.toggleSourceMode();
 		},
 		createPermanentDropDown: function () {
 			var emoticons = $.extend({}, this.opts.emoticons.dropdown);
@@ -235,7 +249,7 @@ sceditor.command.set(
 			{
 				var content = '';
 
-				each(selected.split(/\r?\n/), function () {
+				$.each(selected.split(/\r?\n/), function () {
 					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
 				});
 
@@ -254,7 +268,7 @@ sceditor.command.set(
 			{
 				var content = '';
 
-				each(selected.split(/\r?\n/), function () {
+				$.each(selected.split(/\r?\n/), function () {
 					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
 				});
 
@@ -380,6 +394,82 @@ sceditor.formats.bbcode.set(
 );
 
 sceditor.formats.bbcode.set(
+	'li', {
+		tags: {
+			li: null
+		},
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		format: '[li]{0}[/li]',
+		html: '<li>{0}</li>',
+	}
+);
+sceditor.formats.bbcode.set(
+	'*', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li>{0}</li>',
+		format: '[*]{0}',
+	}
+);
+sceditor.formats.bbcode.set(
+	'@', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li>{0}</li>',
+		format: '[@]{0}',
+	}
+);
+sceditor.formats.bbcode.set(
+	'+', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li type="square">{0}</li>',
+		format: '[+]{0}',
+	}
+);
+sceditor.formats.bbcode.set(
+	'x', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li type="square">{0}</li>',
+		format: '[x]{0}',
+	}
+);
+sceditor.formats.bbcode.set(
+	'#', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li type="square">{0}</li>',
+		format: '[#]{0}',
+	}
+);
+sceditor.formats.bbcode.set(
+	'o', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li type="circle">{0}</li>',
+		format: '[o]{0}',
+	}
+);
+sceditor.formats.bbcode.set(
+	'O', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li type="circle">{0}</li>',
+		format: '[O]{0}',
+	}
+);
+sceditor.formats.bbcode.set(
+	'0', {
+		isInline: false,
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
+		html: '<li type="circle">{0}</li>',
+		format: '[0]{0}',
+	}
+);
+
+sceditor.formats.bbcode.set(
 	'img', {
 		tags: {
 			img: {
@@ -401,21 +491,20 @@ sceditor.formats.bbcode.set(
 
 			// only add width and height if one is specified
 			if (element.attr('width') || style('width'))
-				attribs += " width=" + element.width();
+				attribs += " width=" + element.attr('width');
 			if (element.attr('height') || style('height'))
-				attribs += " height=" + element.height();
+				attribs += " height=" + element.attr('height');
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
 
 			// Is this an attachment?
 			if (element.attr('data-attachment'))
 			{
-				if (element.attr('title'))
-					attribs += ' name=' + element.attr('title');
+				attribs = " id=" + element.attr('data-attachment') + attribs;
 				if (element.attr('data-type'))
-					attribs += ' type=' + 	element.attr('data-type');
+					attribs += " type=" + element.attr('data-type');
 
-				return '[attach' + attribs + ']' + element.attr('data-attachment') + '[/attach]';
+				return '[attach' + attribs + ']' + element.attr('title') + '[/attach]';
 			}
 			else if (element.attr('title'))
 				attribs += " title=" + element.attr('title');
@@ -453,59 +542,83 @@ sceditor.formats.bbcode.set(
 		format: function (element, content) {
 			var	element = $(element),
 				attribs = '',
+				attach_type,
 				style = function (name) {
 					return element.style ? element.style[name] : null;
-				};
+				},
+				index;
 
-			// only add width and height if one is specified
+			attribs += " id=" + element.attr('data-attachment');
 			if (element.attr('width') || style('width'))
-				attribs += " width=" + $(element).width();
+				attribs += " width=" + element.attr('width');
 			if (element.attr('height') || style('height'))
-				attribs += " height=" + $(element).height();
+				attribs += " height=" + element.attr('height');
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
-			if (element.attr('title'))
-				attribs += " name=" + element.attr('title');
-			if (element.attr('data-type'))
-				attribs += " type=" + element.attr('data-type');
 
-			return '[attach' + attribs + ']' + (element.attr('data-attachment') ? element.attr('data-attachment') : content) + '[/attach]';
+			if (typeof current_attachments !== "undefined")
+				for (index = 0; index < current_attachments.length; ++index) {
+					if (current_attachments[index]['attachID'] == id) {
+						attach_type = current_attachments[index]['type'];
+						break;
+					}
+				}
+
+			if (element.attr('title') && attach_type.indexOf("image") === 0)
+				content = element.attr('title');
+
+			return '[attach' + attribs + ']' + content + '[/attach]';
 		},
-		html: function (token, attrs, id) {
+		html: function (token, attrs, content) {
 			var parts,
-				attribs = '';
+				attribs = '',
+				attach_type,
+				index;
+
+			// Handles SMF 2.1 final format
+			if (typeof attrs.id !== "undefined")
+				var id = attrs.id;
+			// Handles format from SMF 2.1 betas
+			else {
+				var id = content;
+				if (typeof attrs.name !== "undefined")
+					content = attrs.name;
+			}
+
+			if (typeof current_attachments !== "undefined")
+				for (index = 0; index < current_attachments.length; ++index) {
+					if (current_attachments[index]['attachID'] == id) {
+						attach_type = current_attachments[index]['type'];
+						break;
+					}
+				}
 
 			// If id is not an integer, bail out
 			if (!$.isNumeric(id) || Math.floor(id) != +id || +id <= 0) {
 
+				attribs += ' id=' + id;
 				if (typeof attrs.width !== "undefined")
 					attribs += ' width=' + attrs.width;
 				if (typeof attrs.height !== "undefined")
 					attribs += ' height=' + attrs.height;
 				if (typeof attrs.alt !== "undefined")
 					attribs += ' alt=' + attrs.alt;
-				if (typeof attrs.name !== "undefined")
-					attribs += ' name=' + attrs.name;
-				if (typeof attrs.type !== "undefined")
-					attribs += ' type=' + attrs.type;
 
-				return '[attach' + attribs + ']' + id + '[/attach]';
+				return '[attach' + attribs + ']' + content + '[/attach]';
 			}
 
 			attribs += ' data-attachment="' + id + '"'
-			if (typeof attrs.width !== "undefined")
-				attribs += ' width="' + attrs.width + '"';
-			if (typeof attrs.height !== "undefined")
-				attribs += ' height="' + attrs.height + '"';
 			if (typeof attrs.alt !== "undefined")
 				attribs += ' alt="' + attrs.alt + '"';
-			if (typeof attrs.type !== "undefined")
-				attribs += ' data-type="' + attrs.type + '"';
-			if (typeof attrs.name !== "undefined")
-				attribs += ' title="' + attrs.name + '"';
 
 			// Is this an image?
-			if ((typeof attrs.type !== "undefined" && attrs.type.indexOf("image") === 0)) {
+			if ((typeof attach_type !== "undefined" && attach_type.indexOf("image") === 0)) {
+				attribs += ' title="' + content + '"';
+				if (typeof attrs.width !== "undefined")
+					attribs += ' width="' + attrs.width + '"';
+				if (typeof attrs.height !== "undefined")
+					attribs += ' height="' + attrs.height + '"';
+
 				var contentUrl = smf_scripturl +'?action=dlattach;attach='+ id + ';type=preview;thumb';
 				contentIMG = new Image();
 					contentIMG.src = contentUrl;
@@ -513,7 +626,7 @@ sceditor.formats.bbcode.set(
 
 			// If not an image, show a boring ol' link
 			if (typeof contentUrl === "undefined" || contentIMG.getAttribute('width') == 0)
-				return '<a href="' + smf_scripturl + '?action=dlattach;attach=' + id + ';type=preview;file"' + attribs + '>' + (typeof attrs.name !== "undefined" ? attrs.name : id) + '</a>';
+				return '<a href="' + smf_scripturl + '?action=dlattach;attach=' + id + ';type=preview;file"' + attribs + '>' + content + '</a>';
 			// Show our purdy li'l picture
 			else
 				return '<img' + attribs + ' src="' + contentUrl + '">';
@@ -548,13 +661,13 @@ sceditor.formats.bbcode.set(
 			// Is this an attachment?
 			else if (typeof element.attr('data-attachment') !== "undefined")
 			{
-				var attribs = '';
-				if (typeof element.attr('title') !== "undefined")
-					attribs += ' name=' + element.attr('title');
+				var attribs = ' id=' + element.attr('data-attachment');
+				if (typeof element.attr('alt') !== "undefined")
+					attribs += ' alt=' + element.attr('alt');
 				if (typeof element.attr('data-type') !== "undefined")
 					attribs += ' type=' + element.attr("data-type");
 
-				return '[attach' + attribs + ']' + element.attr('data-attachment') + '[/attach]';
+				return '[attach' + attribs + ']' + content + '[/attach]';
 			}
 
 			else
@@ -710,6 +823,13 @@ sceditor.formats.bbcode.set(
 			else if (author == '' && sDate != '')
 				author += ' ' + bbc_search_on;
 
+			/*
+			 * This fixes GH Bug #2845
+			 * As SMF allows "[quote=text]message[/quote]" it is lost during sceditor when it converts bbc to html and then html back to bbc code.  The simplest method is to tell sceditor that this is a "author", which is how the bbc parser treats it in SMF.  This will cause all bbc to be updated to "[quote author=text]message[/quote]".
+			*/
+			if (attr_author == '' && attrs.defaultattr)
+				attr_author = attrs.defaultattr;
+
 			content = '<blockquote author="' + attr_author + '" date="' + attr_date + '" link="' + attr_link + '"><cite>' + author + ' ' + sDate + '</cite>' + content + '</blockquote>';
 
 			return content;
@@ -717,22 +837,24 @@ sceditor.formats.bbcode.set(
 	}
 );
 
-sceditor.formats.bbcode.set('font', {
-	format: function (element, content) {
-		var element = $(element);
-		var font;
+sceditor.formats.bbcode.set(
+	'font', {
+		format: function (element, content) {
+			var element = $(element);
+			var font;
 
-		// Get the raw font value from the DOM
-		if (!element.is('font') || !(font = element.attr('face'))) {
-			font = element.css('font-family');
+			// Get the raw font value from the DOM
+			if (!element.is('font') || !(font = element.attr('face'))) {
+				font = element.css('font-family');
+			}
+
+			// Strip all quotes
+			font = font.replace(/['"]/g, '');
+
+			return '[font=' + font + ']' + content + '[/font]';
 		}
-
-		// Strip all quotes
-		font = font.replace(/['"]/g, '');
-
-		return '[font=' + font + ']' + content + '[/font]';
-	}
-});
+}
+);
 
 sceditor.formats.bbcode.set(
 	'member', {

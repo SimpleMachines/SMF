@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -18,7 +18,6 @@ function template_report_type()
 	global $context, $scripturl, $txt;
 
 	echo '
-	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=reports" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['generate_reports_type'], '</h3>
@@ -44,8 +43,7 @@ function template_report_type()
 				<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div><!-- .windowbg -->
-		</form>
-	</div><!-- #admincenter -->';
+		</form>';
 }
 
 /**
@@ -56,7 +54,6 @@ function template_main()
 	global $context, $txt;
 
 	echo '
-	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['results'], '</h3>
 		</div>
@@ -133,8 +130,6 @@ function template_main()
 			</tbody>
 		</table>';
 	}
-	echo '
-	</div><!-- #admincenter -->';
 }
 
 /**
@@ -149,7 +144,7 @@ function template_print_above()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/report.css', $modSettings['browser_cache'], '">
+		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/report.css', $context['browser_cache'], '">
 	</head>
 	<body>';
 }

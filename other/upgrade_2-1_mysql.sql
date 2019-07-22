@@ -37,7 +37,6 @@ ALTER TABLE {$db_prefix}members CHANGE birthdate birthdate date NOT NULL DEFAULT
 /******************************************************************************/
 --- Adding new settings...
 /******************************************************************************/
-
 ---# Adding login history...
 CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
 	id_login INT(10) AUTO_INCREMENT,
@@ -94,7 +93,7 @@ if (!isset($modSettings['allow_no_censored']))
 ---# Converting collapsed categories...
 ---{
 // We cannot do this twice
-if (@$modSettings['smfVersion'] < '2.1')
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, id_cat
@@ -116,23 +115,49 @@ if (@$modSettings['smfVersion'] < '2.1')
 ---}
 ---#
 
+---# Parsing board descriptions and names
+---{
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
+{
+    $request = $smcFunc['db_query']('', '
+        SELECT name, description, id_board
+        FROM {db_prefix}boards');
+
+    $inserts = array();
+
+    $smcFunc['db_free_result']($request);
+
+    while ($row = $smcFunc['db_fetch_assoc']($request))
+    {
+        $inserts[] = array(
+            'name' => $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['name']))),
+            'description' => $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['description']))),
+            'id' => $row['id'],
+        );
+    }
+
+    if (!empty($inserts))
+    {
+        foreach ($inserts as $insert)
+        {
+            $smcFunc['db_query']('', '
+                UPDATE {db_prefix}boards
+                SET name = {string:name}, description = {string:description}
+                WHERE id = {int:id}',
+                $insert
+            );
+        }
+    }
+}
+---}
+---#
+
 ---# Dropping "collapsed_categories"
 DROP TABLE IF EXISTS {$db_prefix}collapsed_categories;
 ---#
 
 ---# Adding new "topic_move_any" setting
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1');
----#
-
----# Adding new "browser_cache" setting
----{
-	$smcFunc['db_insert']('replace',
-		'{db_prefix}settings',
-		array('variable' => 'string', 'value' => 'string'),
-		array('browser_cache', '?beta21'),
-		array('variable')
-	);
----}
 ---#
 
 ---# Adding new "enable_ajax_alerts" setting
@@ -173,9 +198,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 		WHERE variable IN({array_string:ripped_settings})
 			AND id_member = 0
 			AND id_theme = 1',
-	array(
-		'ripped_settings' => $ripped_settings,
-	));
+		array(
+			'ripped_settings' => $ripped_settings,
+		)
+	);
 
 	$inserts = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -212,6 +238,18 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 		array('variable')
 	);
 ---}
+
+---# Disable Moderation Center Security if it doesn't exist
+---{
+	if (!isset($modSettings['securityDisable_moderate']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('securityDisable_moderate', '1'),
+			array()
+		);
+---}
+---#
 
 /******************************************************************************/
 --- Updating legacy attachments...
@@ -411,7 +449,8 @@ $request = $smcFunc['db_query']('', '
 	SELECT id_attach, mime_type, width, height
 	FROM {db_prefix}attachments
 	WHERE id_member = 0
-		AND attachment_type = 0');
+		AND attachment_type = 0'
+);
 while ($row = $smcFunc['db_fetch_assoc']($request))
 {
 	if (($row['width'] > 0 || $row['height'] > 0) && strpos($row['mime_type'], 'image') !== 0)
@@ -477,7 +516,6 @@ elseif (empty($modSettings['json_done']))
 /******************************************************************************/
 --- Adding support for logging who fulfils a group request.
 /******************************************************************************/
-
 ---# Adding new columns to log_group_requests
 ALTER TABLE {$db_prefix}log_group_requests
 ADD COLUMN status TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
@@ -573,10 +611,9 @@ VALUES
 ---}
 ---#
 
----# Remove old mod tasks...
+---# Remove old tasks added by modifications...
 ---{
 	$vanilla_tasks = array(
-		'approval_notification',
 		'birthdayemails',
 		'daily_digest',
 		'daily_maintenance',
@@ -588,9 +625,9 @@ VALUES
 		'weekly_digest',
 		'weekly_maintenance');
 
-	$smcFunc['db_query']('',
-		'DELETE FROM {db_prefix}scheduled_tasks
-			WHERE task NOT IN ({array_string:keep_tasks});',
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}scheduled_tasks
+		WHERE task NOT IN ({array_string:keep_tasks});',
 		array(
 			'keep_tasks' => $vanilla_tasks
 		)
@@ -631,60 +668,60 @@ VALUES
 ---#
 
 /******************************************************************************/
---- Updating board access rules
+--- Removing manage_boards permission from anyone who shouldn't have it
 /******************************************************************************/
----# Updating board access rules
+---# Removing manage_boards permission
 ---{
-$member_groups = array(
-	'allowed' => array(),
-	'denied' => array(),
-);
-
-$request = $smcFunc['db_query']('', '
-	SELECT id_group, add_deny
-	FROM {db_prefix}permissions
-	WHERE permission = {string:permission}',
-	array(
-		'permission' => 'manage_boards',
-	)
-);
-while ($row = $smcFunc['db_fetch_assoc']($request))
-	$member_groups[$row['add_deny'] === '1' ? 'allowed' : 'denied'][] = $row['id_group'];
-$smcFunc['db_free_result']($request);
-
-$member_groups = array_diff($member_groups['allowed'], $member_groups['denied']);
-
-if (!empty($member_groups))
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
-	$count = count($member_groups);
-	$changes = array();
+	$board_managers = array();
 
 	$request = $smcFunc['db_query']('', '
-		SELECT id_board, member_groups
-		FROM {db_prefix}boards');
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+		SELECT id_group
+		FROM {db_prefix}permissions
+		WHERE permission = {string:permission}',
+		array(
+			'permission' => 'manage_boards',
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) != 0)
 	{
-		$current_groups = explode(',', $row['member_groups']);
-		if (count(array_intersect($current_groups, $member_groups)) != $count)
-		{
-			$new_groups = array_unique(array_merge($current_groups, $member_groups));
-			$changes[$row['id_board']] = implode(',', $new_groups);
-		}
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$board_managers[$row['id_group']] = 0;
 	}
 	$smcFunc['db_free_result']($request);
 
-	if (!empty($changes))
+	$request = $smcFunc['db_query']('', '
+		SELECT member_groups
+		FROM {db_prefix}boards',
+		array()
+	);
+	$num_boards = $smcFunc['db_num_rows']($request);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		foreach ($changes as $id_board => $member_groups)
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}boards
-				SET member_groups = {string:member_groups}
-					WHERE id_board = {int:id_board}',
-				array(
-					'member_groups' => $member_groups,
-					'id_board' => $id_board,
-				)
-			);
+		$groups = explode(',', $row['member_groups']);
+		foreach ($groups as $group)
+			if (array_key_exists($group, $board_managers))
+				++$board_managers[$group];
+	}
+	$smcFunc['db_free_result']($request);
+
+	$ex_board_managers = array();
+	foreach ($board_managers as $id_group => $board_count)
+		if ($board_count < $num_boards)
+			$ex_board_managers[] = $id_group;
+
+	if (!empty($ex_board_managers))
+	{
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}permissions
+			WHERE permission = {string:permission}
+				AND id_group IN ({array_int:ex_board_managers})',
+			array(
+				'permission' => 'manage_boards',
+				'ex_board_managers' => $ex_board_managers,
+			)
+		);
 	}
 }
 ---}
@@ -752,6 +789,7 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'birthday', 2),
 	(0, 'announcements', 0),
 	(0, 'member_report', 3),
+	(0, 'unapproved_attachment', 1),
 	(0, 'unapproved_post', 1),
 	(0, 'buddy_request', 1),
 	(0, 'warn_any', 1),
@@ -827,17 +865,43 @@ ALTER TABLE {$db_prefix}members
 	DROP notify_announcements;
 ---#
 
+---# Updating obsolete alerts from before RC3
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'member', content_id = id_member_started
+WHERE content_type = 'buddy';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'member'
+WHERE content_type = 'profile';
+
+UPDATE {$db_prefix}user_alerts
+SET content_id = id_member_started
+WHERE content_type = 'member' AND content_action LIKE 'register_%';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'topic', content_action = 'unapproved_topic'
+WHERE content_type = 'unapproved' AND content_action = 'topic';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'topic', content_action = 'unapproved_reply'
+WHERE content_type = 'unapproved' AND content_action = 'reply';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'topic', content_action = 'unapproved_post'
+WHERE content_type = 'unapproved' AND content_action = 'post';
+
+UPDATE {$db_prefix}user_alerts AS a
+JOIN {$db_prefix}attachments AS f ON (f.id_attach = a.content_id)
+SET a.content_type = 'msg', a.content_action = 'unapproved_attachment', a.content_id = f.id_msg
+WHERE content_type = 'unapproved' AND content_action = 'attachment';
+---#
+
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
 ---# Adding new column to log_topics...
 ALTER TABLE {$db_prefix}log_topics
-ADD COLUMN unwatched TINYINT NOT NULL DEFAULT '0';
----#
-
----# Initializing new column in log_topics...
-UPDATE {$db_prefix}log_topics
-SET unwatched = 0;
+ADD COLUMN unwatched TINYINT NOT NULL DEFAULT 0;
 ---#
 
 ---# Fixing column name change...
@@ -890,12 +954,6 @@ SET id_theme = 0;
 
 UPDATE {$db_prefix}members
 SET id_theme = 0;
----#
-
----# Update the max year for the calendar
-UPDATE {$db_prefix}settings
-SET value = '2030'
-WHERE variable = 'cal_maxyear';
 ---#
 
 /******************************************************************************/
@@ -962,7 +1020,7 @@ foreach ($toMove as $move)
 	$image = explode('#', $move);
 	$image = $image[1];
 
-	// PHP won't suppress errors when running things from shell, so make sure it exists first...
+	// PHP wont suppress errors when running things from shell, so make sure it exists first...
 	if (file_exists($modSettings['theme_dir'] . '/images/' . $image))
 		@rename($modSettings['theme_dir'] . '/images/' . $image, $modSettings['theme_dir'] . '/images/membericons/'. $image);
 }
@@ -976,9 +1034,9 @@ foreach ($toMove as $move)
 // Fetch list of theme directories
 $request = $smcFunc['db_query']('', '
 	SELECT id_theme, variable, value
-	  FROM {db_prefix}themes
+	FROM {db_prefix}themes
 	WHERE variable = {string:theme_dir}
-	  AND id_theme != {int:default_theme};',
+		AND id_theme != {int:default_theme};',
 	array(
 		'default_theme' => 1,
 		'theme_dir' => 'theme_dir',
@@ -1034,7 +1092,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 ('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
 ('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" rel="noopener" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
 ('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{KEY}" title="{INPUT}"></span>', 1);
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>', 1);
 ---#
 
 ---# Add an order value to each existing cust profile field.
@@ -1070,7 +1128,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 // We cannot do this twice
 // See which columns we have
 $results = $smcFunc['db_list_columns']('{db_prefix}members');
-$possible_columns = array('icq', 'msn', 'yim', 'location', 'gender');
+$possible_columns = array('icq', 'msn', 'location', 'gender');
 
 // Find values that are in both arrays
 $select_columns = array_intersect($possible_columns, $results);
@@ -1109,9 +1167,6 @@ if (!empty($select_columns))
 
 			if (!empty($row['msn']))
 				$inserts[] = array($row['id_member'], 1, 'cust_skype', $row['msn']);
-
-			if (!empty($row['yim']))
-				$inserts[] = array($row['id_member'], 1, 'cust_yahoo', $row['yim']);
 
 			if (!empty($row['location']))
 				$inserts[] = array($row['id_member'], 1, 'cust_loca', $row['location']);
@@ -1213,7 +1268,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 ---# Adding draft permissions...
 ---{
 // We cannot do this twice
-if (@$modSettings['smfVersion'] < '2.1')
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
 	// Anyone who can currently post unapproved topics we assume can create drafts as well ...
 	$request = upgrade_query("
@@ -1338,7 +1393,8 @@ WHERE variable = 'avatar_action_too_large'
 	$request = $smcFunc['db_query']('', '
 		SELECT value
 		FROM {db_prefix}settings
-		WHERE variable = {literal:admin_features}');
+		WHERE variable = {literal:admin_features}'
+	);
 	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Some of these *should* already be set but you never know.
@@ -1383,7 +1439,7 @@ WHERE variable = 'avatar_action_too_large'
 
 ---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc', 'enable_unwatch');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_feature', 'log_ban_hits', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc', 'enable_unwatch', 'cache_memcached', 'cache_enable');
 ---#
 
 ---# Cleaning up old theme settings.
@@ -1397,7 +1453,8 @@ WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_rep
 	$request = $smcFunc['db_query']('', '
 		SELECT value
 		FROM {db_prefix}settings
-		WHERE variable = {literal:allow_sm_stats}');
+		WHERE variable = {literal:allow_sm_stats}'
+	);
 	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if (!empty($row['value']))
@@ -1822,7 +1879,7 @@ ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}board_permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_board_perms})',
+			AND permission IN ({array_string:illegal_board_perms})',
 		array(
 			'guests' => -1,
 			'illegal_board_perms' => $illegal_board_permissions,
@@ -1832,7 +1889,7 @@ ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_perms})',
+			AND permission IN ({array_string:illegal_perms})',
 		array(
 			'guests' => -1,
 			'illegal_perms' => $illegal_permissions,
@@ -1989,89 +2046,6 @@ ADD COLUMN tfa_required TINYINT(3) NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
---- Converting old bbcodes
-/******************************************************************************/
----# Replacing [br] with &lt;br&gt; on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(body, '[br]', '<br>') WHERE body LIKE '%[br]%';
----#
-
----# Replacing [br] with &lt;br&gt; on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(body, '[br]', '<br>') WHERE body LIKE '%[br]%';
----#
-
----# Replacing [acronym] with [abbr] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[acronym=', '[abbr='), '[/acronym]', '[/abbr]') WHERE body LIKE '%[acronym=%';
----#
-
----# Replacing [acronym] with [abbr] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[acronym=', '[abbr='), '[/acronym]', '[/abbr]') WHERE body LIKE '%[acronym=%';
----#
-
----# Replacing [tt] with [font=monospace] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[tt]', '[font=monospace]'), '[/tt]', '[/font]') WHERE body LIKE '%[tt]%';
----#
-
----# Replacing [tt] with [font=monospace] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[tt]', '[font=monospace]'), '[/tt]', '[/font]') WHERE body LIKE '%[tt]%';
----#
-
----# Replacing [bdo=ltr] with [ltr] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[bdo=ltr]', '[ltr]'), '[/bdo]', '[/ltr]') WHERE body LIKE '%[bdo=ltr]%';
----#
-
----# Replacing [bdo=ltr] with [ltr] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[bdo=ltr]', '[ltr]'), '[/bdo]', '[/ltr]') WHERE body LIKE '%[bdo=ltr]%';
----#
-
----# Replacing [bdo=rtl] with [rtl] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[bdo=rtl]', '[rtl]'), '[/bdo]', '[/rtl]') WHERE body LIKE '%[bdo=rtl]%';
----#
-
----# Replacing [bdo=rtl] with [rtl] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[bdo=rtl]', '[rtl]'), '[/bdo]', '[/rtl]') WHERE body LIKE '%[bdo=rtl]%';
----#
-
----# Replacing [black] with [color=black] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[black]', '[color=black]'), '[/black]', '[/color]') WHERE body LIKE '%[black]%';
----#
-
----# Replacing [black] with [color=black] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[black]', '[color=black]'), '[/black]', '[/color]') WHERE body LIKE '%[black]%';
----#
-
----# Replacing [white] with [color=white] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[white]', '[color=white]'), '[/white]', '[/color]') WHERE body LIKE '%[white]%';
----#
-
----# Replacing [white] with [color=white] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[white]', '[color=white]'), '[/white]', '[/color]') WHERE body LIKE '%[white]%';
----#
-
----# Replacing [red] with [color=red] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[red]', '[color=red]'), '[/red]', '[/color]') WHERE body LIKE '%[red]%';
----#
-
----# Replacing [red] with [color=red] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[red]', '[color=red]'), '[/red]', '[/color]') WHERE body LIKE '%[red]%';
----#
-
----# Replacing [green] with [color=green] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[green]', '[color=green]'), '[/green]', '[/color]') WHERE body LIKE '%[green]%';
----#
-
----# Replacing [green] with [color=green] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[green]', '[color=green]'), '[/green]', '[/color]') WHERE body LIKE '%[green]%';
----#
-
----# Replacing [blue] with [color=blue] on messages
-UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
----#
-
----# Replacing [blue] with [color=blue] on pms
-UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
----#
-
-/******************************************************************************/
 --- Remove redundant indexes
 /******************************************************************************/
 ---# Duplicates to messages_current_topic
@@ -2095,17 +2069,17 @@ ADD COLUMN ip_high varbinary(16);
 ---# Convert data for ban_items
 UPDATE IGNORE {$db_prefix}ban_items
 SET ip_low =
-    UNHEX(
-        hex(
-            INET_ATON(concat(ip_low1,'.',ip_low2,'.',ip_low3,'.',ip_low4))
-        )
-    ),
+	UNHEX(
+		hex(
+			INET_ATON(concat(ip_low1,'.',ip_low2,'.',ip_low3,'.',ip_low4))
+		)
+	),
 ip_high =
-    UNHEX(
-        hex(
-            INET_ATON(concat(ip_high1,'.',ip_high2,'.',ip_high3,'.',ip_high4))
-        )
-    )
+	UNHEX(
+		hex(
+			INET_ATON(concat(ip_high1,'.',ip_high2,'.',ip_high3,'.',ip_high4))
+		)
+	)
 where ip_low1 > 0;
 ---#
 
@@ -2254,7 +2228,7 @@ if (stripos($column_info['type'], 'varbinary') !== false)
 	$doChange = false;
 
 if ($doChange)
-	upgrade_query("ALTER TABLE {$db_prefix}messages CHANGE poster_ip poster_ip_old varchar(200);");
+	upgrade_query("ALTER TABLE {$db_prefix}messages CHANGE poster_ip poster_ip_old varchar(255);");
 ---}
 ---#
 
@@ -2265,7 +2239,7 @@ ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
 ---# Create an ip index for old ips
 ---{
 $doChange = true;
-$results = $smcFunc['db_list_columns']('{db_prefix}members');
+$results = $smcFunc['db_list_columns']('{db_prefix}messages');
 if (!in_array('member_ip_old', $results))
 	$doChange = false;
 
@@ -2385,25 +2359,6 @@ ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip2 VARBINARY(16);
 ---#
 
 /******************************************************************************/
---- Update log_online ip with ipv6 support without converting
-/******************************************************************************/
----# Delete old column log banned ip
----{
-$doChange = true;
-$column_info = upgradeGetColumnInfo('{db_prefix}log_online', 'ip');
-if (stripos($column_info['type'], 'varbinary') !== false)
-	$doChange = false;
-
-if ($doChange)
-	upgrade_query("ALTER TABLE {$db_prefix}log_online DROP COLUMN ip;");
----}
----#
-
----# Add the new log banned ip
-ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
----#
-
-/******************************************************************************/
 --- Renaming the "profile_other" permission...
 /******************************************************************************/
 ---# Changing the "profile_other" permission to "profile_website"
@@ -2458,6 +2413,27 @@ ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
+--- Updating various calendar settings
+/******************************************************************************/
+---# Update the max year for the calendar
+UPDATE {$db_prefix}settings
+SET value = '2030'
+WHERE variable = 'cal_maxyear';
+---#
+
+---# Adding various calendar settings
+INSERT INTO {$db_prefix}settings
+	(variable, value)
+VALUES
+	('cal_disable_prev_next', '0'),
+	('cal_week_links', '2'),
+	('cal_prev_next_links', '1'),
+	('cal_short_days', '0'),
+	('cal_short_months', '0'),
+	('cal_week_numbers', '0');
+---#
+
+/******************************************************************************/
 --- Cleaning up after old UTF-8 languages
 /******************************************************************************/
 ---# Update the members' languages
@@ -2507,7 +2483,7 @@ MODIFY COLUMN new_pm TINYINT UNSIGNED NOT NULL DEFAULT '0';
 
 ---# Updating members pm_ignore_list
 ALTER TABLE {$db_prefix}members
-MODIFY COLUMN pm_ignore_list VARCHAR(255) NOT NULL DEFAULT '';
+MODIFY COLUMN pm_ignore_list TEXT NULL;
 ---#
 
 ---# Updating member_logins id_member
@@ -2611,42 +2587,127 @@ DROP INDEX id_board;
 /******************************************************************************/
 --- Update smileys
 /******************************************************************************/
----# Transform default from gif to png
-UPDATE {$db_prefix}smileys
-SET filename = REPLACE(filename, '.gif', '.png')
-WHERE
-	code IN (':)',';)',':D',';D','>:(',':(',':o','8)','???','::)',':P',':-[',':-X',':-\\',':-*',':''(','>:D','^-^','O0',':))','C:-)','O:-)') AND
-	filename LIKE '%.gif';
+---# Adding the new `smiley_files` table
+CREATE TABLE IF NOT EXISTS {$db_prefix}smiley_files
+(
+	id_smiley SMALLINT NOT NULL DEFAULT '0',
+	smiley_set VARCHAR(48) NOT NULL DEFAULT '',
+	filename VARCHAR(48) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_smiley, smiley_set)
+) ENGINE=MyISAM;
 ---#
 
----# Update Settings sets_known
-UPDATE {$db_prefix}settings
-SET value = CONCAT(value, ',alienine')
-WHERE variable = 'smiley_sets_known';
-UPDATE {$db_prefix}settings
-SET value = replace (value, ',aaron', '')
-WHERE variable = 'smiley_sets_known';
-UPDATE {$db_prefix}settings
-SET value = replace (value, ',akyhne', '')
-WHERE variable = 'smiley_sets_known';
-UPDATE {$db_prefix}settings
-SET value = replace (value, ',fugue', '')
-WHERE variable = 'smiley_sets_known';
----#
+---# Cleaning up unused smiley sets and adding the lovely new ones
+---{
+// Start with the prior values...
+$dirs = explode(',', $modSettings['smiley_sets_known']);
+$setnames = explode("\n", $modSettings['smiley_sets_names']);
 
----#  Update Settings sets_names
-UPDATE {$db_prefix}settings
-SET value = CONCAT(value, '\n{$default_alienine_smileyset_name}')
-WHERE variable = 'smiley_sets_names';
-UPDATE {$db_prefix}settings
-SET value = replace (value, '\n{$default_aaron_smileyset_name}', '')
-WHERE variable = 'smiley_sets_names';
-UPDATE {$db_prefix}settings
-SET value = replace (value, '\n{$default_akyhne_smileyset_name}', '')
-WHERE variable = 'smiley_sets_names';
-UPDATE {$db_prefix}settings
-SET value = replace (value, '\n{$default_fugue_smileyset_name', '')
-WHERE variable = 'smiley_sets_names';
+// Build combined pairs of folders and names; bypass default which is not used anymore
+$combined = array();
+foreach ($dirs AS $ix => $dir)
+{
+	if (!empty($setnames[$ix]) && $dir != 'default')
+		$combined[$dir] = array($setnames[$ix], '');
+}
+
+// Add our lovely new 2.1 smiley sets if not already there
+$combined['fugue'] = array($txt['default_fugue_smileyset_name'], 'png');
+$combined['alienine'] = array($txt['default_alienine_smileyset_name'], 'png');
+
+// Add/fix our 2.0 sets (to correct past problems where these got corrupted)
+$combined['aaron'] = array($txt['default_aaron_smileyset_name'], 'gif');
+$combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], 'gif');
+
+// Confirm they exist in the filesystem
+$filtered = array();
+foreach ($combined as $dir => $attrs)
+{
+	if (is_dir($modSettings['smileys_dir'] . '/' . $dir . '/'))
+		$filtered[$dir] = $attrs[0];
+}
+
+// Update the Settings Table...
+upgrade_query("
+	UPDATE {$db_prefix}settings
+	SET value = '" . $smcFunc['db_escape_string'](implode(',', array_keys($filtered))) . "'
+	WHERE variable = 'smiley_sets_known'");
+
+upgrade_query("
+	UPDATE {$db_prefix}settings
+	SET value = '" . $smcFunc['db_escape_string'](implode("\n", $filtered)) . "'
+	WHERE variable = 'smiley_sets_names'");
+
+// Populate the smiley_files table
+$smileys_columns = $smcFunc['db_list_columns']('{db_prefix}smileys');
+if (in_array('filename', $smileys_columns))
+{
+	$inserts = array();
+
+	$request = upgrade_query("
+		SELECT id_smiley, filename
+		FROM {$db_prefix}smileys");
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$pathinfo = pathinfo($row['filename']);
+
+		foreach ($filtered as $set => $dummy)
+		{
+			$ext = $pathinfo['extension'];
+
+			// If we have a default extension for this set, check if we can switch to it.
+			if (isset($combined[$set]) && !empty($combined[$set][1]))
+			{
+				if (file_exists($modSettings['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.' . $combined[$set][1]))
+					$ext = $combined[$set][1];
+			}
+			// In a custom set and no extension specified? Ugh...
+			elseif (empty($ext))
+			{
+				// Any files matching this name?
+				$found = glob($modSettings['smileys_dir'] . '/' . $set . '/' . $pathinfo['filename'] . '.*');
+				$ext = !empty($found) ? pathinfo($found[0], PATHINFO_EXTENSION) : 'gif';
+			}
+
+			$inserts[] = array($row['id_smiley'], $set, $pathinfo['filename'] . '.' . $ext);
+		}
+	}
+	$smcFunc['db_free_result']($request);
+
+	if (!empty($inserts))
+	{
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}smiley_files',
+			array('id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'),
+			$inserts,
+			array('id_smiley', 'smiley_set')
+		);
+
+		// Unless something went horrifically wrong, drop the defunct column
+		if (count($inserts) == $smcFunc['db_affected_rows']())
+			upgrade_query("
+				ALTER TABLE {$db_prefix}smileys
+				DROP COLUMN filename;");
+	}
+}
+
+// Set new default if the old one doesnt exist
+// If fugue exists, use that.  Otherwise, what the heck, just grab the first one...
+if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
+{
+	if (array_key_exists('fugue', $filtered))
+		$newdefault = 'fugue';
+	elseif (!empty($filtered))
+		$newdefault = reset(array_keys($filtered));
+	else
+		$newdefault = '';
+	upgrade_query("
+		UPDATE {$db_prefix}settings
+		SET value = '" . $newdefault . "'
+		WHERE variable = 'smiley_sets_default'");
+}
+
+---}
 ---#
 
 /******************************************************************************/
@@ -2655,4 +2716,359 @@ WHERE variable = 'smiley_sets_names';
 ---# add backtrace column
 ALTER TABLE {$db_prefix}log_errors
 ADD COLUMN backtrace varchar(10000) NOT NULL DEFAULT '';
+---#
+
+/******************************************************************************/
+--- Update permissions system board_permissions_view
+/******************************************************************************/
+---# Create table board_permissions_view
+CREATE TABLE IF NOT EXISTS {$db_prefix}board_permissions_view
+(
+	id_group SMALLINT NOT NULL DEFAULT '0',
+	id_board SMALLINT UNSIGNED NOT NULL,
+	deny smallint NOT NULL,
+	PRIMARY KEY (id_group, id_board, deny)
+) ENGINE=MyISAM;
+
+---# upgrade check
+---{
+	// if one of source col is missing skip this step
+$table_columns = $smcFunc['db_list_columns']('{db_prefix}membergroups');
+$table_columns2 = $smcFunc['db_list_columns']('{db_prefix}boards');
+$upcontext['skip_db_substeps'] = !in_array('id_group', $table_columns) || !in_array('member_groups', $table_columns2) || !in_array('deny_member_groups', $table_columns2);
+---}
+---#
+
+---#
+TRUNCATE {$db_prefix}board_permissions_view;
+---#
+
+---# Update board_permissions_view table with membergroups
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, mg.id_group,0
+FROM {$db_prefix}boards b
+JOIN {$db_prefix}membergroups mg ON (FIND_IN_SET(mg.id_group, b.member_groups) != 0);
+---#
+
+---# Update board_permissions_view table with -1
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, -1, 0
+FROM {$db_prefix}boards b
+where (FIND_IN_SET(-1, b.member_groups) != 0);
+---#
+
+---# Update board_permissions_view table with 0
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, 0, 0
+FROM {$db_prefix}boards b
+where (FIND_IN_SET(0, b.member_groups) != 0);
+---#
+
+---# Update deny board_permissions_view table with membergroups
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, mg.id_group, 1
+FROM {$db_prefix}boards b
+JOIN {$db_prefix}membergroups mg ON (FIND_IN_SET(mg.id_group, b.deny_member_groups) != 0);
+---#
+
+---# Update deny board_permissions_view table with -1
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, -1, 1
+FROM {$db_prefix}boards b
+where (FIND_IN_SET(-1, b.deny_member_groups) != 0);
+---#
+
+---# Update deny board_permissions_view table with 0
+INSERT INTO {$db_prefix}board_permissions_view (id_board, id_group, deny) SELECT id_board, 0, 1
+FROM {$db_prefix}boards b
+where (FIND_IN_SET(0, b.deny_member_groups) != 0);
+---#
+
+/******************************************************************************/
+--- Update holidays
+/******************************************************************************/
+---# Delete all the dates
+DELETE FROM {$db_prefix}calendar_holidays WHERE title in
+('Mother''s Day','Father''s Day', 'Summer Solstice', 'Vernal Equinox', 'Winter Solstice', 'Autumnal Equinox',
+	'Thanksgiving', 'Memorial Day', 'Labor Day', 'New Year''s', 'Christmas', 'Valentine''s Day', 'St. Patrick''s Day',
+	'April Fools', 'Earth Day', 'United Nations Day', 'Halloween', 'Independence Day', 'Cinco de Mayo', 'Flag Day',
+	'Veterans Day', 'Groundhog Day', 'D-Day');
+---#
+
+---# Insert the updated dates
+INSERT INTO {$db_prefix}calendar_holidays
+	(title, event_date)
+VALUES ('New Year''s', '1004-01-01'),
+	('Christmas', '1004-12-25'),
+	('Valentine''s Day', '1004-02-14'),
+	('St. Patrick''s Day', '1004-03-17'),
+	('April Fools', '1004-04-01'),
+	('Earth Day', '1004-04-22'),
+	('United Nations Day', '1004-10-24'),
+	('Halloween', '1004-10-31'),
+	('Mother''s Day', '2010-05-09'),
+	('Mother''s Day', '2011-05-08'),
+	('Mother''s Day', '2012-05-13'),
+	('Mother''s Day', '2013-05-12'),
+	('Mother''s Day', '2014-05-11'),
+	('Mother''s Day', '2015-05-10'),
+	('Mother''s Day', '2016-05-08'),
+	('Mother''s Day', '2017-05-14'),
+	('Mother''s Day', '2018-05-13'),
+	('Mother''s Day', '2019-05-12'),
+	('Mother''s Day', '2020-05-10'),
+	('Mother''s Day', '2021-05-09'),
+	('Mother''s Day', '2022-05-08'),
+	('Mother''s Day', '2023-05-14'),
+	('Mother''s Day', '2024-05-12'),
+	('Mother''s Day', '2025-05-11'),
+	('Mother''s Day', '2026-05-10'),
+	('Mother''s Day', '2027-05-09'),
+	('Mother''s Day', '2028-05-14'),
+	('Mother''s Day', '2029-05-13'),
+	('Mother''s Day', '2030-05-12'),
+	('Father''s Day', '2010-06-20'),
+	('Father''s Day', '2011-06-19'),
+	('Father''s Day', '2012-06-17'),
+	('Father''s Day', '2013-06-16'),
+	('Father''s Day', '2014-06-15'),
+	('Father''s Day', '2015-06-21'),
+	('Father''s Day', '2016-06-19'),
+	('Father''s Day', '2017-06-18'),
+	('Father''s Day', '2018-06-17'),
+	('Father''s Day', '2019-06-16'),
+	('Father''s Day', '2020-06-21'),
+	('Father''s Day', '2021-06-20'),
+	('Father''s Day', '2022-06-19'),
+	('Father''s Day', '2023-06-18'),
+	('Father''s Day', '2024-06-16'),
+	('Father''s Day', '2025-06-15'),
+	('Father''s Day', '2026-06-21'),
+	('Father''s Day', '2027-06-20'),
+	('Father''s Day', '2028-06-18'),
+	('Father''s Day', '2029-06-17'),
+	('Father''s Day', '2030-06-16'),
+	('Summer Solstice', '2010-06-21'),
+	('Summer Solstice', '2011-06-21'),
+	('Summer Solstice', '2012-06-20'),
+	('Summer Solstice', '2013-06-21'),
+	('Summer Solstice', '2014-06-21'),
+	('Summer Solstice', '2015-06-21'),
+	('Summer Solstice', '2016-06-20'),
+	('Summer Solstice', '2017-06-20'),
+	('Summer Solstice', '2018-06-21'),
+	('Summer Solstice', '2019-06-21'),
+	('Summer Solstice', '2020-06-20'),
+	('Summer Solstice', '2021-06-21'),
+	('Summer Solstice', '2022-06-21'),
+	('Summer Solstice', '2023-06-21'),
+	('Summer Solstice', '2024-06-20'),
+	('Summer Solstice', '2025-06-21'),
+	('Summer Solstice', '2026-06-21'),
+	('Summer Solstice', '2027-06-21'),
+	('Summer Solstice', '2028-06-20'),
+	('Summer Solstice', '2029-06-21'),
+	('Summer Solstice', '2030-06-21'),
+	('Vernal Equinox', '2010-03-20'),
+	('Vernal Equinox', '2011-03-20'),
+	('Vernal Equinox', '2012-03-20'),
+	('Vernal Equinox', '2013-03-20'),
+	('Vernal Equinox', '2014-03-20'),
+	('Vernal Equinox', '2015-03-20'),
+	('Vernal Equinox', '2016-03-20'),
+	('Vernal Equinox', '2017-03-20'),
+	('Vernal Equinox', '2018-03-20'),
+	('Vernal Equinox', '2019-03-20'),
+	('Vernal Equinox', '2020-03-20'),
+	('Vernal Equinox', '2021-03-20'),
+	('Vernal Equinox', '2022-03-20'),
+	('Vernal Equinox', '2023-03-20'),
+	('Vernal Equinox', '2024-03-20'),
+	('Vernal Equinox', '2025-03-20'),
+	('Vernal Equinox', '2026-03-20'),
+	('Vernal Equinox', '2027-03-20'),
+	('Vernal Equinox', '2028-03-20'),
+	('Vernal Equinox', '2029-03-20'),
+	('Vernal Equinox', '2030-03-20'),
+	('Winter Solstice', '2010-12-21'),
+	('Winter Solstice', '2011-12-22'),
+	('Winter Solstice', '2012-12-21'),
+	('Winter Solstice', '2013-12-21'),
+	('Winter Solstice', '2014-12-21'),
+	('Winter Solstice', '2015-12-22'),
+	('Winter Solstice', '2016-12-21'),
+	('Winter Solstice', '2017-12-21'),
+	('Winter Solstice', '2018-12-21'),
+	('Winter Solstice', '2019-12-22'),
+	('Winter Solstice', '2020-12-21'),
+	('Winter Solstice', '2021-12-21'),
+	('Winter Solstice', '2022-12-21'),
+	('Winter Solstice', '2023-12-22'),
+	('Winter Solstice', '2024-12-21'),
+	('Winter Solstice', '2025-12-21'),
+	('Winter Solstice', '2026-12-21'),
+	('Winter Solstice', '2027-12-22'),
+	('Winter Solstice', '2028-12-21'),
+	('Winter Solstice', '2029-12-21'),
+	('Winter Solstice', '2030-12-21'),
+	('Autumnal Equinox', '2010-09-23'),
+	('Autumnal Equinox', '2011-09-23'),
+	('Autumnal Equinox', '2012-09-22'),
+	('Autumnal Equinox', '2013-09-22'),
+	('Autumnal Equinox', '2014-09-23'),
+	('Autumnal Equinox', '2015-09-23'),
+	('Autumnal Equinox', '2016-09-22'),
+	('Autumnal Equinox', '2017-09-22'),
+	('Autumnal Equinox', '2018-09-23'),
+	('Autumnal Equinox', '2019-09-23'),
+	('Autumnal Equinox', '2020-09-22'),
+	('Autumnal Equinox', '2021-09-22'),
+	('Autumnal Equinox', '2022-09-23'),
+	('Autumnal Equinox', '2023-09-23'),
+	('Autumnal Equinox', '2024-09-22'),
+	('Autumnal Equinox', '2025-09-22'),
+	('Autumnal Equinox', '2026-09-23'),
+	('Autumnal Equinox', '2027-09-23'),
+	('Autumnal Equinox', '2028-09-22'),
+	('Autumnal Equinox', '2029-09-22'),
+	('Autumnal Equinox', '2030-09-22');
+
+INSERT INTO {$db_prefix}calendar_holidays
+	(title, event_date)
+VALUES ('Independence Day', '1004-07-04'),
+	('Cinco de Mayo', '1004-05-05'),
+	('Flag Day', '1004-06-14'),
+	('Veterans Day', '1004-11-11'),
+	('Groundhog Day', '1004-02-02'),
+	('Thanksgiving', '2010-11-25'),
+	('Thanksgiving', '2011-11-24'),
+	('Thanksgiving', '2012-11-22'),
+	('Thanksgiving', '2013-11-28'),
+	('Thanksgiving', '2014-11-27'),
+	('Thanksgiving', '2015-11-26'),
+	('Thanksgiving', '2016-11-24'),
+	('Thanksgiving', '2017-11-23'),
+	('Thanksgiving', '2018-11-22'),
+	('Thanksgiving', '2019-11-28'),
+	('Thanksgiving', '2020-11-26'),
+	('Thanksgiving', '2021-11-25'),
+	('Thanksgiving', '2022-11-24'),
+	('Thanksgiving', '2023-11-23'),
+	('Thanksgiving', '2024-11-28'),
+	('Thanksgiving', '2025-11-27'),
+	('Thanksgiving', '2026-11-26'),
+	('Thanksgiving', '2027-11-25'),
+	('Thanksgiving', '2028-11-23'),
+	('Thanksgiving', '2029-11-22'),
+	('Thanksgiving', '2030-11-28'),
+	('Memorial Day', '2010-05-31'),
+	('Memorial Day', '2011-05-30'),
+	('Memorial Day', '2012-05-28'),
+	('Memorial Day', '2013-05-27'),
+	('Memorial Day', '2014-05-26'),
+	('Memorial Day', '2015-05-25'),
+	('Memorial Day', '2016-05-30'),
+	('Memorial Day', '2017-05-29'),
+	('Memorial Day', '2018-05-28'),
+	('Memorial Day', '2019-05-27'),
+	('Memorial Day', '2020-05-25'),
+	('Memorial Day', '2021-05-31'),
+	('Memorial Day', '2022-05-30'),
+	('Memorial Day', '2023-05-29'),
+	('Memorial Day', '2024-05-27'),
+	('Memorial Day', '2025-05-26'),
+	('Memorial Day', '2026-05-25'),
+	('Memorial Day', '2027-05-31'),
+	('Memorial Day', '2028-05-29'),
+	('Memorial Day', '2029-05-28'),
+	('Memorial Day', '2030-05-27'),
+	('Labor Day', '2010-09-06'),
+	('Labor Day', '2011-09-05'),
+	('Labor Day', '2012-09-03'),
+	('Labor Day', '2013-09-02'),
+	('Labor Day', '2014-09-01'),
+	('Labor Day', '2015-09-07'),
+	('Labor Day', '2016-09-05'),
+	('Labor Day', '2017-09-04'),
+	('Labor Day', '2018-09-03'),
+	('Labor Day', '2019-09-02'),
+	('Labor Day', '2020-09-07'),
+	('Labor Day', '2021-09-06'),
+	('Labor Day', '2022-09-05'),
+	('Labor Day', '2023-09-04'),
+	('Labor Day', '2024-09-02'),
+	('Labor Day', '2025-09-01'),
+	('Labor Day', '2026-09-07'),
+	('Labor Day', '2027-09-06'),
+	('Labor Day', '2028-09-04'),
+	('Labor Day', '2029-09-03'),
+	('Labor Day', '2030-09-02'),
+	('D-Day', '1004-06-06');
+---#
+
+/******************************************************************************/
+--- Add Attachments index
+/******************************************************************************/
+---# Create new index on Attachments
+CREATE INDEX idx_id_thumb ON {$db_prefix}attachments (id_thumb);
+---#
+
+/******************************************************************************/
+--- Fix mods columns
+/******************************************************************************/
+---# make members mod col nullable
+---{
+$request = upgrade_query("
+		SELECT COLUMN_NAME, COLUMN_TYPE
+		FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE TABLE_SCHEMA = '" . $db_name . "' AND  TABLE_NAME = '" . $db_prefix . "members' AND
+			COLUMN_DEFAULT IS NULL AND COLUMN_KEY <> 'PRI' AND IS_NULLABLE = 'NO' AND
+			COLUMN_NAME NOT IN ('buddy_list', 'signature', 'ignore_boards')
+	");
+
+
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+		upgrade_query("
+			ALTER TABLE {$db_prefix}members
+			MODIFY " . $row['COLUMN_NAME'] . " " . $row['COLUMN_TYPE'] . " NULL
+		");
+}
+---}
+---#
+
+---# make boards mod col nullable
+---{
+$request = upgrade_query("
+		SELECT COLUMN_NAME, COLUMN_TYPE
+		FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE TABLE_SCHEMA = '" . $db_name . "' AND  TABLE_NAME = '" . $db_prefix . "boards' AND
+			COLUMN_DEFAULT IS NULL AND COLUMN_KEY <> 'PRI' AND IS_NULLABLE = 'NO' AND
+			COLUMN_NAME NOT IN ('description')
+	");
+
+
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+		upgrade_query("
+			ALTER TABLE {$db_prefix}boards
+			MODIFY " . $row['COLUMN_NAME'] . " " . $row['COLUMN_TYPE'] . " NULL
+		");
+}
+---}
+---#
+
+---# make topics mod col nullable
+---{
+$request = upgrade_query("
+		SELECT COLUMN_NAME, COLUMN_TYPE
+		FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE TABLE_SCHEMA = '" . $db_name . "' AND  TABLE_NAME = '" . $db_prefix . "topics' AND
+			COLUMN_DEFAULT IS NULL AND COLUMN_KEY <> 'PRI' AND IS_NULLABLE = 'NO'
+	");
+
+
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+		upgrade_query("
+			ALTER TABLE {$db_prefix}topics
+			MODIFY " . $row['COLUMN_NAME'] . " " . $row['COLUMN_TYPE'] . " NULL
+		");
+}
+---}
 ---#

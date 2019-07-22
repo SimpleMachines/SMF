@@ -2,6 +2,7 @@
 #######################
 Settings.php
 Settings_bak.php
+Settings_org.php
 db_last_error.php
 cache/data*.php
 Packages/backups/*

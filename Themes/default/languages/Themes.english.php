@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; Themes
+// Version: 2.1 RC2; Themes
 
 $txt['themeadmin_explain'] = 'Themes are the different looks and feels of your forum. These settings affect the selection of themes, and which themes guests and other members use.';
 
@@ -29,7 +29,7 @@ $txt['theme_install_go'] = 'Install';
 $txt['theme_install_new'] = 'Create a copy of Default named';
 $txt['theme_install_new_confirm'] = 'Are you sure you want to install this new theme?';
 $txt['theme_install_writable'] = 'Warning - you cannot create or install a new theme as your themes directory is not currently writable.';
-$txt['theme_installed'] = 'Installed Successfully';
+$txt['theme_installed'] = 'Installed successfully';
 $txt['theme_installed_message'] = 'was installed successfully.';
 $txt['theme_updated_message'] = 'was updated successfully.';
 $txt['theme_install_no_action'] = 'This isn\'t a valid install action.';
@@ -89,7 +89,7 @@ $txt['latest_members'] = 'Show latest member on board index';
 $txt['news_fader'] = 'Show news fader on board index';
 $txt['member_list_bar'] = 'Show members list bar on board index';
 $txt['header_logo_url'] = 'Logo image URL';
-$txt['header_logo_url_desc'] = '(leave blank to show forum name or default logo.)';
+$txt['header_logo_url_desc'] = 'Leave blank to show forum name or default logo.';
 $txt['number_recent_posts'] = 'Number of recent posts to display on board index';
 
 $txt['theme_adding_title'] = 'Obtaining Themes';
@@ -98,14 +98,14 @@ $txt['theme_adding'] = 'You can always find new themes for your forum from the S
 $txt['theme_options_defaults'] = 'These are the default values for some member specific settings. Changing these will only affect new members and guests.';
 $txt['theme_options_title'] = 'Change or reset default options';
 
-$txt['themeadmin_title'] = 'Themes and Layout Settings';
+$txt['themeadmin_title'] = 'Themes and Layout settings';
 $txt['themeadmin_description'] = 'Here you can modify the settings for your themes, update theme selections, reset member options, and the like.';
 $txt['themeadmin_admin_desc'] = 'This page allows you to change the default theme, reset members to all use a certain theme, and choose other settings related to theme selection. You are also able to install themes from here.<br><br>Don\'t forget to look at the theme settings for your themes for layout options.';
 $txt['themeadmin_list_desc'] = 'From here, you can view the list of themes you currently have installed, change their paths and settings, and uninstall them.';
 $txt['themeadmin_reset_desc'] = 'Below you will see an interface to change the current theme-specific options for all your members. You will only see those themes that have their own set of settings.';
 $txt['themeadmin_edit_desc'] = 'Modify the stylesheet and source code of your installed themes. Please consult the documentation for more information.';
 
-$txt['themeadmin_list_heading'] = 'Theme Settings Overview';
+$txt['themeadmin_list_heading'] = 'Theme Settings overview';
 $txt['themeadmin_list_tip'] = 'Remember, the layout settings may be different between one theme and another. Click on the theme\'s names below to set their options, change their directory or URL settings, or to find other options.';
 $txt['themeadmin_list_theme_dir'] = 'Theme directory (templates)';
 $txt['themeadmin_list_invalid'] = '(Warning! this path is not correct.)';
@@ -150,8 +150,8 @@ $txt['themeadmin_edit_preview'] = 'Preview';
 $txt['themeadmin_selectable'] = 'Themes that the user is able to select';
 $txt['themeadmin_themelist_link'] = 'Show the list of themes';
 
-/* Open Graph */
-$txt['og_image'] = 'OG Image';
-$txt['og_image_desc'] = 'Link to your Open Graph optimized image, suggested size 175x175px<br><span class="smalltext">You can read more about here <a href="http://ogp.me/">Open Graph</a></span>';
+// Open Graph
+$txt['og_image'] = 'Open Graph image';
+$txt['og_image_desc'] = 'Suggested size: 175x175px. <a href="http://ogp.me/" target="_blank" class="bbc_link">Open Graph</a> is used for social media sharing.';
 
 ?>

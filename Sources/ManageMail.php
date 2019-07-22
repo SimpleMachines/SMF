@@ -3,16 +3,17 @@
 /**
  * This file is all about mail, how we love it so. In particular it handles the admin side of
  * mail configuration, as well as reviewing the mail queue - if enabled.
+ *
  * @todo refactor as controller-model.
  *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -41,6 +42,7 @@ function ManageMail()
 		'browse' => 'BrowseMailQueue',
 		'clear' => 'ClearMailQueue',
 		'settings' => 'ModifyMailSettings',
+		'test' => 'TestMailSend',
 	);
 
 	// By default we want to browse
@@ -258,6 +260,7 @@ function list_getMailQueue($start, $items_per_page, $sort)
 /**
  * Returns the total count of items in the mail queue.
  * Callback for $listOptions['get_count'] in BrowseMailQueue
+ *
  * @return int The total number of mail queue items
  */
 function list_getMailQueueSize()
@@ -304,20 +307,22 @@ function ModifyMailSettings($return_config = false)
 		$emails[$index] = $index;
 
 	$config_vars = array(
-			// Mail queue stuff, this rocks ;)
-			array('int', 'mail_limit', 'subtext' => $txt['zero_to_disable']),
-			array('int', 'mail_quantity'),
+		// Mail queue stuff, this rocks ;)
+		array('int', 'mail_limit', 'subtext' => $txt['zero_to_disable']),
+		array('int', 'mail_quantity'),
 		'',
-			// SMTP stuff.
-			array('select', 'mail_type', array($txt['mail_type_default'], 'SMTP', 'SMTP - STARTTLS')),
-			array('text', 'smtp_host'),
-			array('text', 'smtp_port'),
-			array('text', 'smtp_username'),
-			array('password', 'smtp_password'),
+
+		// SMTP stuff.
+		array('select', 'mail_type', array($txt['mail_type_default'], 'SMTP', 'SMTP - STARTTLS')),
+		array('text', 'smtp_host'),
+		array('text', 'smtp_port'),
+		array('text', 'smtp_username'),
+		array('password', 'smtp_password'),
 		'',
-			array('select', 'birthday_email', $emails, 'value' => array('subject' => $subject, 'body' => $body), 'javascript' => 'onchange="fetch_birthday_preview()"'),
-			'birthday_subject' => array('var_message', 'birthday_subject', 'var_message' => $processedBirthdayEmails[empty($modSettings['birthday_email']) ? 'happy_birthday' : $modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => strlen($subject) + 3),
-			'birthday_body' => array('var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(strlen($body) / 25)),
+
+		array('select', 'birthday_email', $emails, 'value' => array('subject' => $subject, 'body' => $body), 'javascript' => 'onchange="fetch_birthday_preview()"'),
+		'birthday_subject' => array('var_message', 'birthday_subject', 'var_message' => $processedBirthdayEmails[empty($modSettings['birthday_email']) ? 'happy_birthday' : $modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => strlen($subject) + 3),
+		'birthday_body' => array('var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(strlen($body) / 25)),
 	);
 
 	call_integration_hook('integrate_modify_mail_settings', array(&$config_vars));
@@ -447,6 +452,39 @@ function pauseMailQueueClear()
 	$context['continue_percent'] = min($context['continue_percent'], 100);
 
 	obExit();
+}
+
+/**
+ * Test mail sending ability.
+ *
+ */
+function TestMailSend()
+{
+	global $scripturl, $context, $sourcedir, $user_info, $smcFunc;
+
+	loadLanguage('ManageMail');
+	loadTemplate('ManageMail');
+	$context['sub_template'] = 'mailtest';
+	$context['base_url'] = $scripturl . '?action=admin;area=mailqueue;sa=test';
+	$context['post_url'] = $context['base_url'] . ';save';
+
+	// Sending the test message now.
+	if (isset($_GET['save']))
+	{
+		require_once($sourcedir . '/Subs-Post.php');
+
+		// Send to the current user, no options.
+		$to = $user_info['email'];
+		$subject = $smcFunc['htmlspecialchars']($_POST['subject']);
+		$message = $smcFunc['htmlspecialchars']($_POST['message']);
+
+		$result = sendmail($to, $subject, $message, null, null, false, 0);
+		redirectexit($context['base_url'] . ';result=' . ($result ? 'success' : 'failure'));
+	}
+
+	// The result.
+	if (isset($_GET['result']))
+		$context['result'] = ($_GET['result'] == 'success' ? 'success' : 'failure');
 }
 
 /**

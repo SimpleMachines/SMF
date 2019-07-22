@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 //------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ function template_main()
 
 	// Want to see your master piece?
 	echo '
-	<div id="preview_section"', isset($context['preview_message']) ? '' : ' style="display: none;"', '>
+	<div id="preview_section"', isset($context['preview_message']) ? '' : ' class="hidden"', '>
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span>', $txt['preview'], '</span>
@@ -71,7 +71,7 @@ function template_main()
 	}
 	else
 		echo '
-				<div style="display:none" id="error_box" class="errorbox">';
+				<div id="error_box" class="errorbox hidden">';
 
 	echo '
 				</div>';
@@ -87,7 +87,7 @@ function template_main()
 					</dd>
 				</dl>
 				<input type="submit" name="preview" value="', $txt['preview'], '" class="button">
-				<input type="submit" name="save" value="', $txt['rtm10'], '" class="button">
+				<input type="submit" name="save" value="', $txt['report_submit'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div><!-- .windowbg -->
 		</form>

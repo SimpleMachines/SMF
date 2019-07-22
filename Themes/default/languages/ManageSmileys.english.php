@@ -1,10 +1,10 @@
 <?php
-// Version: 2.1 Beta 4; ManageSmileys
+// Version: 2.1 RC2; ManageSmileys
 
 $txt['smiley_sets_save'] = 'Save Changes';
 $txt['smiley_sets_add'] = 'New smiley Set';
 $txt['smiley_sets_delete'] = 'Delete selected';
-$txt['smiley_sets_confirm'] = 'Are you sure you want to remove these smiley sets?-n-Note: This won\\\'t remove the images, just the choices.';
+$txt['smiley_sets_confirm'] = 'Are you sure you want to remove these smiley sets?-n-Note: This won&#39;t remove the images, just the choices.';
 $txt['smiley_sets_none'] = 'There are currently no smiley sets.';
 
 $txt['setting_smiley_sets_default'] = 'Default Smiley Set';
@@ -18,6 +18,7 @@ $txt['setting_messageIcons_enable_note'] = '(otherwise, the default message icon
 $txt['groups_manage_smileys'] = 'Groups allowed to manage smileys and message icons';
 
 $txt['smiley_sets_name'] = 'Name';
+$txt['smiley_sets_ext'] = 'Extension';
 $txt['smiley_sets_url'] = 'URL';
 $txt['smiley_sets_default'] = 'Default';
 
@@ -53,9 +54,13 @@ $txt['smiley_set_select_default'] = 'Default Smiley set';
 $txt['smiley_set_new'] = 'Create new Smiley set';
 $txt['smiley_set_modify_existing'] = 'Modify existing Smiley set';
 $txt['smiley_set_modify'] = 'Modify';
-$txt['smiley_set_import_directory'] = 'Import smileys already in this directory';
-$txt['smiley_set_import_single'] = 'There is one smiley in this smiley set not yet imported. Click <a href="%1$s">here</a> to import it now.';
-$txt['smiley_set_import_multiple'] = 'There are %1$d smileys in the directory that have not yet been imported. Click <a href="%2$s">here</a> to import them now.';
+$txt['smiley_set_import_info'] = 'Smiley files whose names match with one of the existing smileys will be imported automatically.';
+$txt['smiley_set_unused'] = 'There are unused smiley images in the folder for this smiley set. To use these files, do one of the following:
+	<ul class="bbc_list">
+		<li><a href="%1$s" class="bbc_link">Edit</a> your existing smileys to use them.</li>
+		<li><a href="%2$s" class="bbc_link">Create</a> new smileys for them.</li>
+		<li><a href="%3$s" class="bbc_link">Import</a> them as new smileys automatically.</li>
+	</ul>';
 
 $txt['smileys_location'] = 'Location';
 $txt['smileys_location_form'] = 'Post form';
@@ -67,8 +72,8 @@ $txt['smileys_default_description'] = '(Insert a description)';
 $txt['smiley_new'] = 'Add new smiley';
 $txt['smiley_modify_existing'] = 'Modify smiley';
 $txt['smiley_preview'] = 'Preview';
-$txt['smiley_preview_using'] = 'using smiley set';
-$txt['smileys_confirm'] = 'Are you sure you want to remove these smileys?\\n\\nNote: This won\\\'t remove the images, just the choices.';
+$txt['smiley_preview_using_set'] = 'Preview using smiley set';
+$txt['smileys_confirm'] = 'Are you sure you want to remove these smileys?\\nNote: This won\\\'t remove the images, just the choices.';
 $txt['smileys_location_form_description'] = 'These smileys will appear above the text area, when posting a new forum message or Personal Message.';
 $txt['smileys_location_popup_description'] = 'These smileys will be shown in a popup, that is shown after a user has clicked \'more\' button.';
 $txt['smileys_move_select_destination'] = 'Select smiley destination';

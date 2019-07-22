@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; Login
+// Version: 2.1 RC2; Login
 
 global $context;
 
@@ -18,7 +18,7 @@ $txt['no_password'] = 'You didn\'t enter your password.';
 $txt['incorrect_password'] = 'Password incorrect';
 $txt['choose_username'] = 'Choose username';
 $txt['maintain_mode'] = 'Maintenance Mode';
-$txt['registration_successful'] = 'Registration Successful';
+$txt['registration_successful'] = 'Registration successful';
 $txt['now_a_member'] = 'Success! You are now a member of the forum.';
 // Use numeric entities in the below string.
 $txt['your_password'] = 'and your password is';
@@ -108,11 +108,11 @@ $txt['admin_register_group_desc'] = 'Primary membergroup new member will belong 
 $txt['admin_register_group_none'] = '(no primary membergroup)';
 $txt['admin_register_done'] = 'Member %1$s has been registered successfully!';
 
-$txt['coppa_title'] = 'Age Restricted Forum';
+$txt['coppa_title'] = 'Age restricted Forum';
 $txt['coppa_after_registration'] = 'Thank you for signing up with ' . $context['forum_name_html_safe'] . '.<br><br>Because you fall under the age of {MINIMUM_AGE}, it is a legal requirement
 	to obtain your parent or guardian\'s permission before you may begin to use your account. To arrange for account activation please print off the form below:';
-$txt['coppa_form_link_popup'] = 'Load Form In New Window';
-$txt['coppa_form_link_download'] = 'Download Form as Text File';
+$txt['coppa_form_link_popup'] = 'Load Form in new Window';
+$txt['coppa_form_link_download'] = 'Download Form as text file';
 $txt['coppa_send_to_one_option'] = 'Then arrange for your parent/guardian to send the completed form by:';
 $txt['coppa_send_to_two_options'] = 'Then arrange for your parent/guardian to send the completed form by either:';
 $txt['coppa_send_by_post'] = 'Post, to the following address:';

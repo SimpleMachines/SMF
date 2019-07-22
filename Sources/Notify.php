@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -60,7 +60,7 @@ function BoardNotify()
 			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}log_notify
 				WHERE id_member = {int:current_member}
-				AND id_board = {int:current_board}',
+					AND id_board = {int:current_board}',
 				array(
 					'current_board' => $board,
 					'current_member' => $user_info['id'],
@@ -106,9 +106,6 @@ function TopicNotify()
 		{
 			$mode = (int) $_GET['mode'];
 			$alertPref = $mode <= 1 ? 0 : ($mode == 2 ? 1 : 3);
-
-			if (empty($mode))
-				$mode = 1;
 
 			$request = $smcFunc['db_query']('', '
 				SELECT id_member, id_topic, id_msg, unwatched
@@ -168,7 +165,8 @@ function TopicNotify()
 					array(
 						'topic' => $log['id_topic'],
 						'member' => $user_info['id'],
-					));
+					)
+				);
 		}
 	}
 

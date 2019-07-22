@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -119,7 +119,7 @@ function template_main()
 
 	// If it's locked, show a message to warn the replier.
 	if (!empty($context['locked']))
-	echo '
+		echo '
 					<div class="errorbox">
 						', $txt['topic_locked_no_reply'], '
 					</div>';
@@ -132,25 +132,7 @@ function template_main()
 					</div>';
 
 	// The post header... important stuff
-	echo '
-					<dl id="post_header">';
-
-	// All the posting fields (subject, message icon, guest name & email, etc.)
-	// Mod & theme authors can use the 'integrate_post_end' hook to modify or add to these (see Post.php)
-	if (!empty($context['posting_fields']) && is_array($context['posting_fields']))
-	{
-		foreach ($context['posting_fields'] as $pfid => $pf)
-			echo '
-						<dt class="clear', !is_numeric($pfid) ? ' pf_' . $pfid : '', '">
-							', $pf['dt'], '
-						</dt>
-						<dd', !is_numeric($pfid) ? ' class="pf_' . $pfid . '"' : '', '>
-							', preg_replace('~<(input|select|textarea|button|area|a|object)\b~', '<$1 tabindex="' . $context['tabindex']++ . '"', $pf['dd']), '
-						</dd>';
-	}
-
-	echo '
-					</dl>';
+	template_post_header();
 
 	// Are you posting a calendar event?
 	if ($context['make_event'])
@@ -335,27 +317,27 @@ function template_main()
 	// If the admin has enabled the hiding of the additional options - show a link and image for it.
 	if (!empty($modSettings['additional_options_collapsable']))
 		echo '
-					<div id="postAdditionalOptionsHeader">
+					<div id="post_additional_options_header">
 						<strong><a href="#" id="postMoreExpandLink"> ', $context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt'], '</a></strong>
 					</div>';
 
 	echo '
-					<div id="postAdditionalOptions">';
+					<div id="post_additional_options">';
 
 	// Display the checkboxes for all the standard options - if they are available to the user!
 	echo '
-						<div id="postMoreOptions" class="smalltext">
+						<div id="post_settings" class="smalltext">
 							<ul class="post_options">
 								', $context['can_notify'] ? '<li><input type="hidden" name="notify" value="0"><label for="check_notify"><input type="checkbox" name="notify" id="check_notify"' . ($context['notify'] || !empty($options['auto_notify']) || $context['auto_notify'] ? ' checked' : '') . ' value="1"> ' . $txt['notify_replies'] . '</label></li>' : '', '
 								', $context['can_lock'] ? '<li><input type="hidden" name="already_locked" value="' . $context['already_locked'] . '"><input type="hidden" name="lock" value="0"><label for="check_lock"><input type="checkbox" name="lock" id="check_lock"' . ($context['locked'] ? ' checked' : '') . ' value="1"> ' . $txt['lock_topic'] . '</label></li>' : '', '
 								<li><label for="check_back"><input type="checkbox" name="goback" id="check_back"' . ($context['back_to_topic'] || !empty($options['return_to_post']) ? ' checked' : '') . ' value="1"> ' . $txt['back_to_topic'] . '</label></li>
-								', $context['can_sticky'] ? '<li><input type="hidden" name="already_sticky" value="' . $context['already_sticky'] . '"><input type="hidden" name="sticky" value="0"><label for="check_sticky"><input type="checkbox" name="sticky" id="check_sticky"' . ($context['sticky'] ? ' checked' : '') . ' value="1"> ' . $txt['sticky_after'] . '</label></li>' : '', '
+								', $context['can_sticky'] ? '<li><input type="hidden" name="already_sticky" value="' . $context['already_sticky'] . '"><input type="hidden" name="sticky" value="0"><label for="check_sticky"><input type="checkbox" name="sticky" id="check_sticky"' . ($context['sticky'] ? ' checked' : '') . ' value="1"> ' . $txt['sticky_after_posting'] . '</label></li>' : '', '
 								<li><label for="check_smileys"><input type="checkbox" name="ns" id="check_smileys"', $context['use_smileys'] ? '' : ' checked', ' value="NS"> ', $txt['dont_use_smileys'], '</label></li>', '
-								', $context['can_move'] ? '<li><input type="hidden" name="move" value="0"><label for="check_move"><input type="checkbox" name="move" id="check_move" value="1"' . (!empty($context['move']) ? ' checked" ' : '') . '> ' . $txt['move_after2'] . '</label></li>' : '', '
+								', $context['can_move'] ? '<li><input type="hidden" name="move" value="0"><label for="check_move"><input type="checkbox" name="move" id="check_move" value="1"' . (!empty($context['move']) ? ' checked" ' : '') . '> ' . $txt['move_after_posting'] . '</label></li>' : '', '
 								', $context['can_announce'] && $context['is_first_post'] ? '<li><label for="check_announce"><input type="checkbox" name="announce_topic" id="check_announce" value="1"' . (!empty($context['announce']) ? ' checked' : '') . '> ' . $txt['announce_topic'] . '</label></li>' : '', '
 								', $context['show_approval'] ? '<li><label for="approve"><input type="checkbox" name="approve" id="approve" value="2"' . ($context['show_approval'] === 2 ? ' checked' : '') . '> ' . $txt['approve_this_post'] . '</label></li>' : '', '
 							</ul>
-						</div><!-- #postMoreOptions -->';
+						</div><!-- #post_settings -->';
 
 	// If this post already has attachments on it - give information about them.
 	if (!empty($context['current_attachments']))
@@ -390,12 +372,12 @@ function template_main()
 	{
 		// Print dropzone UI.
 		echo '
-						<div class="files" id="au-previews">
+						<div class="files" id="attachment_previews">
 							<div id="au-template">
 								<div class="attach-preview">
 									<img data-dz-thumbnail />
 								</div>
-								<div class="attach-info">
+								<div class="attachment_info">
 									<div>
 										<span class="name" data-dz-name></span>
 										<span class="error" data-dz-errormessage></span>
@@ -406,11 +388,11 @@ function template_main()
 										<input type="text" name="attachBBC" value="" readonly>
 										<div class="attached_BBC_width_height">
 											<div class="attached_BBC_width">
-												<label for="attached_BBC_width">', $txt['attached_insertwidth'], '</label>
+												<label for="attached_BBC_width">', $txt['attached_insert_width'], '</label>
 												<input type="number" name="attached_BBC_width" min="0" value="" placeholder="auto">
 											</div>
 											<div class="attached_BBC_height">
-												<label for="attached_BBC_height">', $txt['attached_insertheight'], '</label>
+												<label for="attached_BBC_height">', $txt['attached_insert_height'], '</label>
 												<input type="number" name="attached_BBC_height" min="0" value="" placeholder="auto">
 											</div>
 										</div>
@@ -419,16 +401,16 @@ function template_main()
 										<div class="bar"></div>
 									</div>
 									<div class="attach-ui">
-										<a data-dz-remove class="button cancel">', $txt['modify_cancel'] ,'</a>
-										<a class="button upload">', $txt['upload'] ,'</a>
+										<a data-dz-remove class="button cancel">', $txt['modify_cancel'], '</a>
+										<a class="button upload">', $txt['upload'], '</a>
 									</div>
-								</div><!-- .attach-info -->
+								</div><!-- .attachment_info -->
 							</div><!-- #au-template -->
-						</div><!-- #au-previews -->
-						<div id ="maxFiles_progress" class="maxFiles_progress progress_bar">
+						</div><!-- #attachment_previews -->
+						<div id ="max_files_progress" class="max_files_progress progress_bar">
 							<div class="bar"></div>
 						</div>
-						<div id ="maxFiles_progress_text"></div>';
+						<div id ="max_files_progress_text"></div>';
 
 		echo '
 						<dl id="postAttachment2">
@@ -436,12 +418,12 @@ function template_main()
 								', $txt['attach'], ':
 							</dt>
 							<dd class="smalltext fallback">
-								<div id="attachUpload" class="descbox">
-									<h5>', $txt['attach_drop_zone'] ,'</h5>
-									<a class="button" id="attach-cancelAll">', $txt['attached_cancelAll'] ,'</a>
-									<a class="button" id="attach-uploadAll">', $txt['attached_uploadAll'] ,'</a>
-									<a class="button fileinput-button">', $txt['attach_add'] ,'</a>
-									<div id="total-progress" class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+								<div id="attachment_upload" class="descbox">
+									<h5>', $txt['attach_drop_zone'], '</h5>
+									<a class="button" id="attach_cancel_all">', $txt['attached_cancel_all'], '</a>
+									<a class="button" id="attach_upload_all">', $txt['attached_upload_all'], '</a>
+									<a class="button fileinput-button">', $txt['attach_add'], '</a>
+									<div id="total_progress" class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
 										<div class="bar"></div>
 									</div>
 									<div class="fallback">
@@ -472,7 +454,7 @@ function template_main()
 										</script>
 										<a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a>
 									</div><!-- .fallback -->
-								</div><!-- #attachUpload -->';
+								</div><!-- #attachment_upload -->';
 
 		echo '
 							</dd>';
@@ -506,18 +488,18 @@ function template_main()
 	}
 
 	echo '
-					</div><!-- #postAdditionalOptions -->';
+					</div><!-- #post_additional_options -->';
 
 	// If the admin enabled the drafts feature, show a draft selection box
 	if (!empty($modSettings['drafts_post_enabled']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
 	{
 		echo '
-					<div id="postDraftOptionsHeader" class="title_bar">
+					<div id="post_draft_options_header" class="title_bar">
 						<h4 class="titlebg">
 							<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['drafts_show'], '</a></strong>
 						</h4>
 					</div>
-					<div id="postDraftOptions">
+					<div id="post_draft_options">
 						<dl class="settings">
 							<dt><strong>', $txt['subject'], '</strong></dt>
 							<dd><strong>', $txt['draft_saved_on'], '</strong></dd>';
@@ -550,7 +532,7 @@ function template_main()
 	// Option to delete an event if user is editing one.
 	if ($context['make_event'] && !$context['event']['new'])
 		echo '
-						<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['event_delete_confirm'] ,'" class="button you_sure">';
+						<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['event_delete_confirm'], '" class="button you_sure">';
 
 	echo '
 					</span>
@@ -572,181 +554,54 @@ function template_main()
 	echo '
 		<script>';
 
-	// The functions used to preview a posts without loading a new page.
-	echo '
-			var make_poll = ', $context['make_poll'] ? 'true' : 'false', ';
-			var txt_preview_title = "', $txt['preview_title'], '";
-			var txt_preview_fetch = "', $txt['preview_fetch'], '";
-			var new_replies = new Array();
-			var reply_counter = ', empty($counter) ? 0 : $counter, ';
-			function previewPost()
-			{
-				if (window.XMLHttpRequest)
-				{
-					// Opera didn\'t support setRequestHeader() before 8.01.
-					if (\'opera\' in window)
-					{
-						var test = new XMLHttpRequest();
-						if (!(\'setRequestHeader\' in test))
-							return submitThisOnce(document.forms.postmodify);
-					}
-					// @todo Currently not sending poll options and option checkboxes.
-					var x = new Array();
-					var textFields = [\'subject\', ', JavaScriptEscape($context['post_box_name']), ', ', JavaScriptEscape($context['session_var']), ', \'icon\', \'guestname\', \'email\', \'evtitle\', \'question\', \'topic\'];
-					var numericFields = [
-						\'board\', \'topic\', \'last_msg\',
-						\'eventid\', \'calendar\', \'year\', \'month\', \'day\',
-						\'poll_max_votes\', \'poll_expire\', \'poll_change_vote\', \'poll_hide\'
-					];
-					var checkboxFields = [
-						\'ns\'
-					];
-
-					for (var i = 0, n = textFields.length; i < n; i++)
-						if (textFields[i] in document.forms.postmodify)
-						{
-							// Handle the WYSIWYG editor.
-							var e = $("#', $context['post_box_name'], '").get(0);
-							if (textFields[i] == ', JavaScriptEscape($context['post_box_name']), ' && sceditor.instance(e) != undefined)
-								x[x.length] = textFields[i] + \'=\' + sceditor.instance(e).getText().html();
-							else
-								x[x.length] = textFields[i] + \'=\' + document.forms.postmodify[textFields[i]].value.html();
-						}
-					for (var i = 0, n = numericFields.length; i < n; i++)
-						if (numericFields[i] in document.forms.postmodify && \'value\' in document.forms.postmodify[numericFields[i]])
-							x[x.length] = numericFields[i] + \'=\' + parseInt(document.forms.postmodify.elements[numericFields[i]].value);
-					for (var i = 0, n = checkboxFields.length; i < n; i++)
-						if (checkboxFields[i] in document.forms.postmodify && document.forms.postmodify.elements[checkboxFields[i]].checked)
-							x[x.length] = checkboxFields[i] + \'=\' + document.forms.postmodify.elements[checkboxFields[i]].value;
-
-					sendXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=post2\' + (current_board ? \';board=\' + current_board : \'\') + (make_poll ? \';poll\' : \'\') + \';preview;xml\', x.join(\'&\'), onDocSent);
-
-					document.getElementById(\'preview_section\').style.display = \'\';
-					setInnerHTML(document.getElementById(\'preview_subject\'), txt_preview_title);
-					setInnerHTML(document.getElementById(\'preview_body\'), txt_preview_fetch);
-
-					return false;
-				}
-				else
-					return submitThisOnce(document.forms.postmodify);
-			}
-			function onDocSent(XMLDoc)
-			{
-				if (!XMLDoc)
-				{
-					document.forms.postmodify.preview.onclick = new function ()
-					{
-						return true;
-					}
-					document.forms.postmodify.preview.click();
-				}
-
-				// Show the preview section.
-				var preview = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'preview\')[0];
-				setInnerHTML(document.getElementById(\'preview_subject\'), preview.getElementsByTagName(\'subject\')[0].firstChild.nodeValue);
-
-				var bodyText = \'\';
-				for (var i = 0, n = preview.getElementsByTagName(\'body\')[0].childNodes.length; i < n; i++)
-					if (preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue != null)
-						bodyText += preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue;
-
-				setInnerHTML(document.getElementById(\'preview_body\'), bodyText);
-				document.getElementById(\'preview_body\').className = \'windowbg\';
-
-				// Show a list of errors (if any).
-				var errors = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'errors\')[0];
-				var errorList = new Array();
-				for (var i = 0, numErrors = errors.getElementsByTagName(\'error\').length; i < numErrors; i++)
-					errorList[errorList.length] = errors.getElementsByTagName(\'error\')[i].firstChild.nodeValue;
-				document.getElementById(\'errors\').style.display = numErrors == 0 ? \'none\' : \'\';
-				document.getElementById(\'errors\').className = errors.getAttribute(\'serious\') == 1 ? \'errorbox\' : \'noticebox\';
-				document.getElementById(\'error_serious\').style.display = numErrors == 0 ? \'none\' : \'\';
-				setInnerHTML(document.getElementById(\'error_list\'), numErrors == 0 ? \'\' : errorList.join(\'<br>\'));
-
-				// Adjust the color of captions if the given data is erroneous.
-				var captions = errors.getElementsByTagName(\'caption\');
-				for (var i = 0, numCaptions = errors.getElementsByTagName(\'caption\').length; i < numCaptions; i++)
-					if (document.getElementById(\'caption_\' + captions[i].getAttribute(\'name\')))
-						document.getElementById(\'caption_\' + captions[i].getAttribute(\'name\')).className = captions[i].getAttribute(\'class\');
-
-				if (errors.getElementsByTagName(\'post_error\').length == 1)
-					document.forms.postmodify.', $context['post_box_name'], '.style.border = \'1px solid red\';
-				else if (document.forms.postmodify.', $context['post_box_name'], '.style.borderColor == \'red\' || document.forms.postmodify.', $context['post_box_name'], '.style.borderColor == \'red red red red\')
-				{
-					if (\'runtimeStyle\' in document.forms.postmodify.', $context['post_box_name'], ')
-						document.forms.postmodify.', $context['post_box_name'], '.style.borderColor = \'\';
-					else
-						document.forms.postmodify.', $context['post_box_name'], '.style.border = null;
-				}
-
-				// Set the new last message id.
-				if (\'last_msg\' in document.forms.postmodify)
-					document.forms.postmodify.last_msg.value = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'last_msg\')[0].firstChild.nodeValue;
-
-				// Remove the new image from old-new replies!
-				for (i = 0; i < new_replies.length; i++)
-					document.getElementById(\'image_new_\' + new_replies[i]).style.display = \'none\';
-				new_replies = new Array();
-
-				var ignored_replies = new Array(), ignoring;
-				var newPosts = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'new_posts\')[0] ? XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'new_posts\')[0].getElementsByTagName(\'post\') : {length: 0};
-				var numNewPosts = newPosts.length;
-				if (numNewPosts != 0)
-				{
-					var newPostsHTML = \'<span id="new_replies"><\' + \'/span>\';
-					for (var i = 0; i < numNewPosts; i++)
-					{
-						new_replies[new_replies.length] = newPosts[i].getAttribute("id");
-
-						ignoring = false;
-						if (newPosts[i].getElementsByTagName("is_ignored")[0].firstChild.nodeValue != 0)
-							ignored_replies[ignored_replies.length] = ignoring = newPosts[i].getAttribute("id");
-
-						newPostsHTML += \'<div class="windowbg\' + (++reply_counter % 2 == 0 ? \'2\' : \'\') + \'"><div id="msg\' + newPosts[i].getAttribute("id") + \'"><div class="floatleft"><h5>', $txt['posted_by'], ': \' + newPosts[i].getElementsByTagName("poster")[0].firstChild.nodeValue + \'</h5><span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> \' + newPosts[i].getElementsByTagName("time")[0].firstChild.nodeValue + \'&nbsp;&#187;</span> <span class="new_posts" id="image_new_\' + newPosts[i].getAttribute("id") + \'">', $txt['new'], '</span></div>\';';
+	$newPostsHTML = '
+		<span id="new_replies"></span>
+		<div class="windowbg">
+			<div id="msg%PostID%">
+			<h5 class="floatleft">
+				<span>' . $txt['posted_by'] . '</span>
+				%PosterName%
+			</h5>
+			&nbsp;-&nbsp;%PostTime%&nbsp;&#187; <span class="new_posts" id="image_new_%PostID%">' . $txt['new'] . '</span>';
 
 	if ($context['can_quote'])
-		echo '
-						newPostsHTML += \'<ul class="quickbuttons" id="msg_\' + newPosts[i].getAttribute("id") + \'_quote"><li><a href="#postmodify" onclick="return insertQuoteFast(\\\'\' + newPosts[i].getAttribute("id") + \'\\\');" class="quote_button"><span>', $txt['quote'], '</span><\' + \'/a></li></ul>\';';
+		$newPostsHTML .= '
+			<ul class="quickbuttons sf-js-enabled sf-arrows" id="msg_%PostID%_quote" style="touch-action: pan-y;">
+				<li id="post_modify">
+					<a href="#postmodify" onclick="return insertQuoteFast(%PostID%);" class="quote_button"><span class="main_icons quote"></span>' . $txt['quote'] . '</a>
+				</li>
+			</ul>';
+
+	$newPostsHTML .= '
+			<br class="clear">
+			<div id="msg_%PostID%_ignored_prompt" class="smalltext" style="display: none;">' . $txt['ignoring_user'] . '<a href="#" id="msg_%PostID%_ignored_link" style="%IgnoredStyle%">' . $txt['show_ignore_user_post'] . '</a></div>
+			<div class="list_posts smalltext" id="msg_%PostID%_body">%PostBody%</div>
+		</div>';
+
+	// The functions used to preview a posts without loading a new page.
+	echo '
+			var oPreviewPost = new smc_preview_post({
+				sPreviewSectionContainerID: "preview_section",
+				sPreviewSubjectContainerID: "preview_subject",
+				sPreviewBodyContainerID: "preview_body",
+				sErrorsContainerID: "errors",
+				sErrorsSeriousContainerID: "error_serious",
+				sErrorsListContainerID: "error_list",
+				sCaptionContainerID: "caption_%ID%",
+				sNewImageContainerID: "image_new_%ID%",
+				sPostBoxContainerID: ', JavaScriptEscape($context['post_box_name']), ',
+				bMakePoll: ', $context['make_poll'] ? 'true' : 'false', ',
+				sTxtPreviewTitle: ', JavaScriptEscape($txt['preview_title']), ',
+				sTxtPreviewFetch: ', JavaScriptEscape($txt['preview_fetch']), ',
+				sSessionVar: ', JavaScriptEscape($context['session_var']), ',
+				newPostsTemplate:', JavaScriptEscape($newPostsHTML);
+
+	if (!empty($context['current_board']))
+		echo ',
+				iCurrentBoard: ', $context['current_board'], '';
 
 	echo '
-						newPostsHTML += \'<br class="clear">\';
-
-						if (ignoring)
-							newPostsHTML += \'<div id="msg_\' + newPosts[i].getAttribute("id") + \'_ignored_prompt" class="smalltext">', $txt['ignoring_user'], '<a href="#" id="msg_\' + newPosts[i].getAttribute("id") + \'_ignored_link" style="display: none;">', $txt['show_ignore_user_post'], '</a></div>\';
-
-						newPostsHTML += \'<div class="list_posts smalltext" id="msg_\' + newPosts[i].getAttribute("id") + \'_body">\' + newPosts[i].getElementsByTagName("message")[0].firstChild.nodeValue + \'<\' + \'/div></div></div>\';
-					}
-					setOuterHTML(document.getElementById(\'new_replies\'), newPostsHTML);
-				}
-
-				var numIgnoredReplies = ignored_replies.length;
-				if (numIgnoredReplies != 0)
-				{
-					for (var i = 0; i < numIgnoredReplies; i++)
-					{
-						aIgnoreToggles[ignored_replies[i]] = new smc_Toggle({
-							bToggleEnabled: true,
-							bCurrentlyCollapsed: true,
-							aSwappableContainers: [
-								\'msg_\' + ignored_replies[i] + \'_body\',
-								\'msg_\' + ignored_replies[i] + \'_quote\',
-							],
-							aSwapLinks: [
-								{
-									sId: \'msg_\' + ignored_replies[i] + \'_ignored_link\',
-									msgExpanded: \'\',
-									msgCollapsed: ', JavaScriptEscape($txt['show_ignore_user_post']), '
-								}
-							]
-						});
-					}
-				}
-
-				location.hash = \'#\' + \'preview_section\';
-
-				if (typeof(smf_codeFix) != \'undefined\')
-					smf_codeFix();
-			}';
+			});';
 
 	// Code for showing and hiding additional options.
 	if (!empty($modSettings['additional_options_collapsable']))
@@ -761,7 +616,7 @@ function template_main()
 					document.getElementById(\'additional_options\').value = \'1\';
 				},
 				aSwappableContainers: [
-					\'postAdditionalOptions\',
+					\'post_additional_options\',
 				],
 				aSwapImages: [
 					{
@@ -786,7 +641,7 @@ function template_main()
 				bToggleEnabled: true,
 				bCurrentlyCollapsed: true,
 				aSwappableContainers: [
-					\'postDraftOptions\',
+					\'post_draft_options\',
 				],
 				aSwapImages: [
 					{
@@ -805,7 +660,7 @@ function template_main()
 			});';
 
 	echo '
-			var oEditorID = "', $context['post_box_name'] ,'";
+			var oEditorID = "', $context['post_box_name'], '";
 			var oEditorObject = oEditorHandle_', $context['post_box_name'], ';
 		</script>';
 
@@ -837,8 +692,8 @@ function template_main()
 			if ($context['can_quote'])
 				echo '
 					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
-						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'] ,'</a></li>
-						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="generic_icons quote"></span>', $txt['quote'], '</a></li>
+						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="main_icons quote_selected"></span>', $txt['quote_selected_action'], '</a></li>
+						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="main_icons quote"></span>', $txt['quote'], '</a></li>
 					</ul>';
 
 			echo '
@@ -885,25 +740,15 @@ function template_main()
 		echo '
 			function insertQuoteFast(messageid)
 			{
-				if (window.XMLHttpRequest)
-					getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';xml;pb=', $context['post_box_name'], ';mode=0\', onDocReceived);
-				else
-					reqWin(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';pb=', $context['post_box_name'], ';mode=0\', 240, 90);
+				var e = document.getElementById("', $context['post_box_name'], '");
+				sceditor.instance(e).insertQuoteFast(messageid);
 
 				return true;
 			}
-			function onDocReceived(XMLDoc)
-			{
-				var text = \'\';
-				var e = $("#', $context['post_box_name'], '").get(0);
-
-				for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
-					text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
-				sceditor.instance(e).InsertText(text);
-			}
 			function onReceiveOpener(text)
 			{
-				sceditor.instance(e).InsertText(text);
+				var e = document.getElementById("', $context['post_box_name'], '");
+				sceditor.instance(e).insert(text);
 			}
 		</script>';
 	}
@@ -922,7 +767,7 @@ function template_spellcheck()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['spell_check'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
 		<style>
 			body, td {
 				font-size: small;
@@ -952,8 +797,8 @@ function template_spellcheck()
 			var spell_formname = window.opener.spell_formname;
 			var spell_fieldname = window.opener.spell_fieldname;
 		</script>
-		<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js', $modSettings['browser_cache'] ,'"></script>
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js', $context['browser_cache'], '"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $context['browser_cache'], '"></script>
 		<script>
 			', $context['spell_js'], '
 		</script>
@@ -997,7 +842,7 @@ function template_quotefast()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['retrieving_quote'], '</title>
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $context['browser_cache'], '"></script>
 	</head>
 	<body>
 		', $txt['retrieving_quote'], '
@@ -1137,6 +982,274 @@ function template_announcement_send()
 			setTimeout("doAutoSubmit();", 1000);
 		}
 	</script>';
+}
+
+/**
+ * Prints the input fields in the form's header (subject, message icon, guest name & email, etc.)
+ *
+ * Mod authors can use the 'integrate_post_end' hook to modify or add to these (see Post.php).
+ *
+ * Theme authors can customize the output in a couple different ways:
+ * 1. Change specific values in the $context['posting_fields'] array.
+ * 2. Add an 'html' element to the 'label' and/or 'input' elements of the field they want to
+ *    change. This should contain the literal HTML string to be printed.
+ *
+ * See the documentation in Post.php for more info on the $context['posting_fields'] array.
+ */
+function template_post_header()
+{
+	global $context, $txt;
+
+	// Sanity check: submitting the form won't work without at least a subject field
+	if (empty($context['posting_fields']['subject']) || !is_array($context['posting_fields']['subject']))
+	{
+		$context['posting_fields']['subject'] = array(
+			'label' => array('html' => '<label for="subject" id="caption_subject">' . $txt['subject'] . '</label>'),
+			'input' => array('html' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>')
+		);
+	}
+
+	// THEME AUTHORS: Above this line is a great place to make customizations to the posting_fields array
+
+	// Start printing the header
+	echo '
+					<dl id="post_header">';
+
+	foreach ($context['posting_fields'] as $pfid => $pf)
+	{
+		// We need both a label and an input
+		if (empty($pf['label']) || empty($pf['input']))
+			continue;
+
+		// The labels are pretty simple...
+		echo '
+						<dt class="clear pf_', $pfid, '">';
+
+		// Any leading HTML before the label
+		if (!empty($pf['label']['before']))
+			echo '
+							', $pf['label']['before'];
+
+		if (!empty($pf['label']['html']))
+			echo $pf['label']['html'];
+		else
+			echo '
+							<label', ($pf['input']['type'] === 'radio_select' ? '' : ' for="' . (!empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid) . '"'), ' id="caption_', $pfid, '"', !empty($pf['label']['class']) ? ' class="' . $pf['label']['class'] . '"' : '', '>', $pf['label']['text'], '</label>';
+
+		// Any trailing HTML after the label
+		if (!empty($pf['label']['after']))
+			echo '
+							', $pf['label']['after'];
+
+		echo '
+						</dt>';
+
+		// Here's where the fun begins...
+		echo '
+						<dd class="pf_', $pfid, '">';
+
+		// Any leading HTML before the main input
+		if (!empty($pf['input']['before']))
+			echo '
+							', $pf['input']['before'];
+
+		// If there is a literal HTML string already defined, just print it.
+		if (!empty($pf['input']['html']))
+		{
+			echo $pf['input']['html'];
+		}
+		// Simple text inputs and checkboxes
+		elseif (in_array($pf['input']['type'], array('text', 'password', 'color', 'date', 'datetime-local', 'email', 'month', 'number', 'range', 'tel', 'time', 'url', 'week', 'checkbox')))
+		{
+			echo '
+							<input type="', $pf['input']['type'], '"';
+
+			if (empty($pf['input']['attributes']['name']))
+				echo ' name="', $pfid, '"';
+
+			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes']))
+			{
+				foreach ($pf['input']['attributes'] as $attribute => $value)
+				{
+					if (is_bool($value))
+						echo $value ? ' ' . $attribute : '';
+					else
+						echo ' ', $attribute, '="', $value, '"';
+				}
+			}
+
+			echo ' tabindex="', $context['tabindex']++, '">';
+		}
+		// textarea
+		elseif ($pf['input']['type'] === 'textarea')
+		{
+			echo '
+							<textarea';
+
+			if (empty($pf['input']['attributes']['name']))
+				echo ' name="', $pfid, '"';
+
+			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes']))
+			{
+				foreach ($pf['input']['attributes'] as $attribute => $value)
+				{
+					if ($attribute === 'value')
+						continue;
+					elseif (is_bool($value))
+						echo $value ? ' ' . $attribute : '';
+					else
+						echo ' ', $attribute, '="', $value, '"';
+				}
+			}
+
+			echo ' tabindex="', $context['tabindex']++, '">', !empty($pf['input']['attributes']['value']) ? $pf['input']['attributes']['value'] : '', '</textarea>';
+		}
+		// Select menus are more complicated
+		elseif ($pf['input']['type'] === 'select' && is_array($pf['input']['options']))
+		{
+			// The select element itself
+			echo '
+							<select';
+
+			if (empty($pf['input']['attributes']['name']))
+				echo ' name="', $pfid, '"';
+
+			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes']))
+			{
+				foreach ($pf['input']['attributes'] as $attribute => $value)
+				{
+					if (is_bool($value))
+						echo $value ? ' ' . $attribute : '';
+					else
+						echo ' ', $attribute, '="', $value, '"';
+				}
+			}
+
+			echo ' tabindex="', $context['tabindex']++, '">';
+
+			// The options
+			foreach ($pf['input']['options'] as $optlabel => $option)
+			{
+				// An option containing options is an optgroup
+				if (!empty($option['options']) && is_array($option['options']))
+				{
+					echo '
+								<optgroup';
+
+					if (empty($option['label']))
+						echo ' label="', $optlabel, '"';
+
+					if (!empty($option) && is_array($option))
+					{
+						foreach ($option as $attribute => $value)
+						{
+							if ($attribute === 'options')
+								continue;
+							elseif (is_bool($value))
+								echo $value ? ' ' . $attribute : '';
+							else
+								echo ' ', $attribute, '="', $value, '"';
+						}
+					}
+
+					echo '>';
+
+					foreach ($option['options'] as $grouped_optlabel => $grouped_option)
+					{
+						echo '
+									<option';
+
+						foreach ($grouped_option as $attribute => $value)
+						{
+							if (is_bool($value))
+								echo $value ? ' ' . $attribute : '';
+							else
+								echo ' ', $attribute, '="', $value, '"';
+						}
+
+						echo '>', $grouped_optlabel, '</option>';
+
+					}
+
+					echo '
+								</optgroup>';
+				}
+				// Simple option
+				else
+				{
+					echo '
+								<option';
+
+					foreach ($option as $attribute => $value)
+					{
+						if (is_bool($value))
+							echo $value ? ' ' . $attribute : '';
+						else
+							echo ' ', $attribute, '="', $value, '"';
+					}
+
+					echo '>', $optlabel, '</option>';
+				}
+			}
+
+			// Close the select element
+			echo '
+							</select>';
+		}
+		// Radio_select makes a div with some radio buttons in it
+		elseif ($pf['input']['type'] === 'radio_select' && is_array($pf['input']['options']))
+		{
+			echo '
+							<div';
+
+			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes']))
+			{
+				foreach ($pf['input']['attributes'] as $attribute => $value)
+				{
+					if ($attribute === 'name')
+						continue;
+					elseif (is_bool($value))
+						echo $value ? ' ' . $attribute : '';
+					else
+						echo ' ', $attribute, '="', $value, '"';
+				}
+			}
+
+			echo '>';
+
+			foreach ($pf['input']['options'] as $optlabel => $option)
+			{
+				echo '
+							<label style="margin-right:2ch"><input type="radio" name="', !empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid, '"';
+
+				foreach ($option as $attribute => $value)
+				{
+					if ($attribute === 'label')
+						continue;
+					elseif (is_bool($value))
+						echo $value ? ' ' . ($attribute === 'selected' ? 'checked' : $attribute) : '';
+					else
+						echo ' ', $attribute, '="', $value, '"';
+				}
+
+				echo ' tabindex="', $context['tabindex']++, '"> ', isset($option['label']) ? $option['label'] : $optlabel, '</label>';
+			}
+
+			echo '
+							</div>';
+		}
+
+		// Any trailing HTML after the main input
+		if (!empty($pf['input']['after']))
+			echo '
+							', $pf['input']['after'];
+
+		echo '
+						</dd>';
+	}
+
+	echo '
+					</dl>';
 }
 
 ?>

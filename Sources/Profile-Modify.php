@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -26,7 +26,7 @@ if (!defined('SMF'))
 function loadProfileFields($force_reload = false)
 {
 	global $context, $profile_fields, $txt, $scripturl, $modSettings, $user_info, $smcFunc, $cur_profile, $language;
-	global $sourcedir, $profile_vars;
+	global $sourcedir, $profile_vars, $settings;
 
 	// Don't load this twice!
 	if (!empty($profile_fields) && !$force_reload)
@@ -167,9 +167,9 @@ function loadProfileFields($force_reload = false)
 			'js_submit' => !empty($modSettings['send_validation_onChange']) ? '
 	form_handle.addEventListener(\'submit\', function(event)
 	{
-		if (this.email_address.value != "'. (!empty($cur_profile['email_address']) ? $cur_profile['email_address'] : '') . '")
+		if (this.email_address.value != "' . (!empty($cur_profile['email_address']) ? $cur_profile['email_address'] : '') . '")
 		{
-			alert('. JavaScriptEscape($txt['email_change_logout']) . ');
+			alert(' . JavaScriptEscape($txt['email_change_logout']) . ');
 			return true;
 		}
 	}, false);' : '',
@@ -430,12 +430,12 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['secret_answer'],
 			'subtext' => $txt['secret_desc2'],
 			'size' => 20,
-			'postinput' => '<span class="smalltext"><a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help"></span> ' . $txt['secret_why_blank'] . '</a></span>',
+			'postinput' => '<span class="smalltext"><a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ' . $txt['secret_why_blank'] . '</a></span>',
 			'value' => '',
 			'permission' => 'profile_password',
-			'input_validate' => function(&$value)
+			'input_validate' => function(&$value) use ($cur_profile)
 			{
-				$value = $value != '' ? md5($value) : '';
+				$value = $value != '' ? hash_password($cur_profile['member_name'], $value) : '';
 				return true;
 			},
 		),
@@ -458,11 +458,52 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'smiley_pick',
 			'enabled' => !empty($modSettings['smiley_sets_enable']),
 			'permission' => 'profile_extra',
-			'preload' => function() use ($modSettings, &$context, $txt, $cur_profile, $smcFunc)
+			'preload' => function() use ($modSettings, &$context, &$txt, $cur_profile, $smcFunc, $settings, $language)
 			{
 				$context['member']['smiley_set']['id'] = empty($cur_profile['smiley_set']) ? '' : $cur_profile['smiley_set'];
 				$context['smiley_sets'] = explode(',', 'none,,' . $modSettings['smiley_sets_known']);
 				$set_names = explode("\n", $txt['smileys_none'] . "\n" . $txt['smileys_forum_board_default'] . "\n" . $modSettings['smiley_sets_names']);
+
+				$filenames = array();
+				$result = $smcFunc['db_query']('', '
+					SELECT f.filename, f.smiley_set
+					FROM {db_prefix}smiley_files AS f
+						JOIN {db_prefix}smileys AS s ON (s.id_smiley = f.id_smiley)
+					WHERE s.code = {string:smiley}',
+					array(
+						'smiley' => ':)',
+					)
+				);
+				while ($row = $smcFunc['db_fetch_assoc']($result))
+					$filenames[$row['smiley_set']] = $row['filename'];
+				$smcFunc['db_free_result']($result);
+
+				// In case any sets don't contain a ':)' smiley
+				$no_smiley_sets = array_diff(explode(',', $modSettings['smiley_sets_known']), array_keys($filenames));
+				foreach ($no_smiley_sets as $set)
+				{
+					$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
+					$images = glob(implode('/', array($modSettings['smileys_dir'], $set, '*.{' . (implode(',', $allowedTypes) . '}'))), GLOB_BRACE);
+
+					// Just use some image or other
+					if (!empty($images))
+					{
+						$image = array_pop($images);
+						$filenames[$set] = pathinfo($image, PATHINFO_BASENAME);
+					}
+					// No images at all? That's no good. Let the admin know, and quietly skip for this user.
+					else
+					{
+						loadLanguage('Errors', $language);
+						log_error(sprintf($txt['smiley_set_dir_not_found'], $set_names[array_search($set, $context['smiley_sets'])]));
+
+						$context['smiley_sets'] = array_filter($context['smiley_sets'], function($v) use ($set)
+							{
+								return $v != $set;
+							});
+					}
+				}
+
 				foreach ($context['smiley_sets'] as $i => $set)
 				{
 					$context['smiley_sets'][$i] = array(
@@ -471,9 +512,25 @@ function loadProfileFields($force_reload = false)
 						'selected' => $set == $context['member']['smiley_set']['id']
 					);
 
+					if ($set === 'none')
+						$context['smiley_sets'][$i]['preview'] = $settings['images_url'] . '/blank.png';
+					elseif ($set === '')
+					{
+						$default_set = !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'];
+						$context['smiley_sets'][$i]['preview'] = implode('/', array($modSettings['smileys_url'], $default_set, $filenames[$default_set]));
+					}
+					else
+						$context['smiley_sets'][$i]['preview'] = implode('/', array($modSettings['smileys_url'], $set, $filenames[$set]));
+
 					if ($context['smiley_sets'][$i]['selected'])
+					{
 						$context['member']['smiley_set']['name'] = $set_names[$i];
+						$context['member']['smiley_set']['preview'] = $context['smiley_sets'][$i]['preview'];
+					}
+
+					$context['smiley_sets'][$i]['preview'] = $smcFunc['htmlspecialchars']($context['smiley_sets'][$i]['preview']);
 				}
+
 				return true;
 			},
 			'input_validate' => function(&$value)
@@ -540,6 +597,7 @@ function loadProfileFields($force_reload = false)
 		'timezone' => array(
 			'type' => 'select',
 			'options' => smf_list_timezones(),
+			'disabled_options' => array_filter(array_keys(smf_list_timezones()), 'is_int'),
 			'permission' => 'profile_extra',
 			'label' => $txt['timezone'],
 			'input_validate' => function($value)
@@ -702,13 +760,13 @@ function setupProfileContext($fields)
 	addInlineJavaScript('
 	var form_handle = document.forms.creator;
 	createEventListener(form_handle);
-	'. (!empty($context['require_password']) ? '
+	' . (!empty($context['require_password']) ? '
 	form_handle.addEventListener(\'submit\', function(event)
 	{
 		if (this.oldpasswrd.value == "")
 		{
 			event.preventDefault();
-			alert('. (JavaScriptEscape($txt['required_security_reasons'])) . ');
+			alert(' . (JavaScriptEscape($txt['required_security_reasons'])) . ');
 			return false;
 		}
 	}, false);' : ''), true);
@@ -1020,7 +1078,7 @@ function makeThemeChanges($memID, $id_theme)
 				$val = max(0, min($val, 50));
 			// Only let admins and owners change the censor.
 			elseif ($opt == 'allow_no_censored' && !$user_info['is_admin'] && !$context['user']['is_owner'])
-					continue;
+				continue;
 
 			$themeSetArray[] = array($memID, 1, $opt, is_array($val) ? implode(',', $val) : $val);
 			$erase_options[] = $opt;
@@ -1241,8 +1299,11 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			}
 		}
 
+		if (!isset($user_profile[$memID]['options'][$row['col_name']]))
+			$user_profile[$memID]['options'][$row['col_name']] = '';
+
 		// Did it change?
-		if (!isset($user_profile[$memID]['options'][$row['col_name']]) || $user_profile[$memID]['options'][$row['col_name']] !== $value)
+		if ($user_profile[$memID]['options'][$row['col_name']] != $value)
 		{
 			$log_changes[] = array(
 				'action' => 'customfield_' . $row['col_name'],
@@ -1256,7 +1317,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			);
 			if (empty($value))
 			{
-				$deletes = array('id_theme' => 1 , 'variable' => $row['col_name'], 'id_member' => $memID);
+				$deletes[] = array('id_theme' => 1, 'variable' => $row['col_name'], 'id_member' => $memID);
 				unset($user_profile[$memID]['options'][$row['col_name']]);
 			}
 			else
@@ -1284,12 +1345,13 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				array('id_theme', 'variable', 'id_member')
 			);
 		if (!empty($deletes))
-			$smcFunc['db_query']('','
-				DELETE FROM {db_prefix}themes
-				WHERE id_theme = {int:id_theme} AND
-						variable = {string:variable} AND
-						id_member = {int:id_member}',
-				$deletes
+			foreach ($deletes as $delete)
+				$smcFunc['db_query']('', '
+					DELETE FROM {db_prefix}themes
+					WHERE id_theme = {int:id_theme}
+						AND variable = {string:variable}
+						AND id_member = {int:id_member}',
+					$delete
 				);
 		if (!empty($log_changes) && !empty($modSettings['modlog_enabled']))
 		{
@@ -1354,7 +1416,7 @@ function editBuddyIgnoreLists($memID)
  */
 function editBuddies($memID)
 {
-	global $txt, $scripturl, $settings;
+	global $txt, $scripturl, $settings, $modSettings;
 	global $context, $user_profile, $memberContext, $smcFunc;
 
 	// For making changes!
@@ -1795,7 +1857,7 @@ function getAvatars($directory, $level)
 				'name' => '[' . $smcFunc['htmlspecialchars'](str_replace('_', ' ', $line)) . ']',
 				'is_dir' => true,
 				'files' => $tmp
-		);
+			);
 		unset($tmp);
 	}
 
@@ -1917,6 +1979,7 @@ function alert_configuration($memID)
 		'alert_timeout' => isset($context['alert_prefs']['alert_timeout']) ? $context['alert_prefs']['alert_timeout'] : 10,
 		'notify_announcements' => isset($context['alert_prefs']['announcements']) ? $context['alert_prefs']['announcements'] : 0,
 	);
+	$context['can_disable_announce'] = $memID == 0 || !empty($modSettings['allow_disableAnnounce']);
 
 	// Now for the exciting stuff.
 	// We have groups of items, each item has both an alert and an email key as well as an optional help string.
@@ -1941,6 +2004,7 @@ function alert_configuration($memID)
 			'groupr_rejected' => array('alert' => 'always', 'email' => 'yes'),
 		),
 		'moderation' => array(
+			'unapproved_attachment' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'approve_posts', 'is_board' => true)),
 			'unapproved_post' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'approve_posts', 'is_board' => true)),
 			'msg_report' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_board', 'is_board' => true)),
 			'msg_report_reply' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_board', 'is_board' => true)),
@@ -1951,8 +2015,8 @@ function alert_configuration($memID)
 			'member_register' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_forum', 'is_board' => false)),
 			'request_group' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_any' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'issue_warning', 'is_board' => false)),
-			'buddy_request'  => array('alert' => 'yes', 'email' => 'never'),
-			'birthday'  => array('alert' => 'yes', 'email' => 'yes'),
+			'buddy_request' => array('alert' => 'yes', 'email' => 'never'),
+			'birthday' => array('alert' => 'yes', 'email' => 'yes'),
 		),
 		'calendar' => array(
 			'event_new' => array('alert' => 'yes', 'email' => 'yes', 'help' => 'alert_event_new'),
@@ -2253,6 +2317,8 @@ function alert_delete($toDelete, $memID = false)
 
 /**
  * Counts how many alerts a user has - either unread or all depending on $unread
+ * We can't use db_num_rows here, as we have to determine what boards the user can see
+ * Possibly in future versions as database support for json is mainstream, we can simplify this.
  *
  * @param int $memID The user ID.
  * @param bool $unread Whether to only count unread alerts.
@@ -2260,26 +2326,122 @@ function alert_delete($toDelete, $memID = false)
  */
 function alert_count($memID, $unread = false)
 {
-	global $smcFunc;
+	global $smcFunc, $user_info;
 
 	if (empty($memID))
 		return false;
 
+	$alerts = array();
+	$possible_topics = array();
+	$possible_msgs = array();
+	$possible_attachments = array();
+
+	// We have to do this the slow way as to iterate over all possible boards the user can see.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_alert
+		SELECT id_alert, content_id, content_type, content_action
 		FROM {db_prefix}user_alerts
 		WHERE id_member = {int:id_member}
-			'.($unread ? '
+			' . ($unread ? '
 			AND is_read = 0' : ''),
 		array(
 			'id_member' => $memID,
 		)
 	);
+	// First we dump alerts and possible boards information out.
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$alerts[$row['id_alert']] = $row;
 
-	$count = $smcFunc['db_num_rows']($request);
+		// For these types, we need to check whether they can actually see the content.
+		if ($row['content_type'] == 'msg')
+		{
+			$alerts[$row['id_alert']]['visible'] = false;
+			$possible_msgs[$row['id_alert']] = $row['content_id'];
+		}
+		elseif (in_array($row['content_type'], array('topic', 'board')))
+		{
+			$alerts[$row['id_alert']]['visible'] = false;
+			$possible_topics[$row['id_alert']] = $row['content_id'];
+		}
+		// For the rest, they can always see it.
+		else
+			$alerts[$row['id_alert']]['visible'] = true;
+	}
 	$smcFunc['db_free_result']($request);
 
-	return $count;
+	// If we need to check board access, use the correct board access filter for the member in question.
+	if ((!isset($user_info['id']) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
+		$qb = build_query_board($memID);
+	else
+	{
+		$qb['query_see_topic_board'] = '{query_see_topic_board}';
+		$qb['query_see_message_board'] = '{query_see_message_board}';
+	}
+
+	// We want only the stuff they can see.
+	if (!empty($possible_msgs))
+	{
+		$flipped_msgs = array();
+		foreach ($possible_msgs as $id_alert => $id_msg)
+		{
+			if (!isset($flipped_msgs[$id_msg]))
+				$flipped_msgs[$id_msg] = array();
+
+			$flipped_msgs[$id_msg][] = $id_alert;
+		}
+
+		$request = $smcFunc['db_query']('', '
+			SELECT m.id_msg
+			FROM {db_prefix}messages AS m
+			WHERE ' . $qb['query_see_message_board'] . '
+				AND m.id_msg IN ({array_int:msgs})',
+			array(
+				'msgs' => $possible_msgs,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			foreach ($flipped_msgs[$row['id_msg']] as $id_alert)
+				$alerts[$id_alert]['visible'] = true;
+		}
+		$smcFunc['db_free_result']($request);
+	}
+	if (!empty($possible_topics))
+	{
+		$flipped_topics = array();
+		foreach ($possible_topics as $id_alert => $id_topic)
+		{
+			if (!isset($flipped_topics[$id_topic]))
+				$flipped_topics[$id_topic] = array();
+
+			$flipped_topics[$id_topic][] = $id_alert;
+		}
+
+		$request = $smcFunc['db_query']('', '
+			SELECT t.id_topic
+			FROM {db_prefix}topics AS t
+			WHERE ' . $qb['query_see_topic_board'] . '
+				AND t.id_topic IN ({array_int:topics})',
+			array(
+				'topics' => $possible_topics,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			foreach ($flipped_topics[$row['id_topic']] as $id_alert)
+				$alerts[$id_alert]['visible'] = true;
+		}
+		$smcFunc['db_free_result']($request);
+	}
+
+	// Now check alerts again and remove any they can't see.
+	foreach ($alerts as $id_alert => $alert)
+	{
+		if (!$alert['visible'])
+			unset($alerts[$id_alert]);
+	}
+
+	return count($alerts);
 }
 
 /**
@@ -2572,10 +2734,9 @@ function list_getTopicNotificationCount($memID)
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_notify AS ln' . (!$modSettings['postmod_active'] && $user_info['query_see_board'] === '1=1' ? '' : '
-			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)') . ($user_info['query_see_board'] === '1=1' ? '' : '
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)') . '
-		WHERE ln.id_member = {int:selected_member}' . ($user_info['query_see_board'] === '1=1' ? '' : '
-			AND {query_see_board}') . ($modSettings['postmod_active'] ? '
+			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)') . '
+		WHERE ln.id_member = {int:selected_member}' . ($user_info['query_see_topic_board'] === '1=1' ? '' : '
+			AND {query_see_topic_board}') . ($modSettings['postmod_active'] ? '
 			AND t.approved = {int:is_approved}' : ''),
 		array(
 			'selected_member' => $memID,
@@ -2608,7 +2769,7 @@ function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
 	// All the topics with notification on...
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			COALESCE(lt.id_msg, COALESCE(lmr.id_msg, -1)) + 1 AS new_from, b.id_board, b.name,
+			COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from, b.id_board, b.name,
 			t.id_topic, ms.subject, ms.id_member, COALESCE(mem.real_name, ms.poster_name) AS real_name_col,
 			ml.id_msg_modified, ml.poster_time, ml.id_member AS id_member_updated,
 			COALESCE(mem2.real_name, ml.poster_name) AS last_real_name,
@@ -2778,7 +2939,7 @@ function ignoreboards($memID)
 	// Find all the boards this user is allowed to see.
 	$request = $smcFunc['db_query']('order_by_board_order', '
 		SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level,
-			'. (!empty($cur_profile['ignore_boards']) ? 'b.id_board IN ({array_int:ignore_boards})' : '0') . ' AS is_ignored
+			' . (!empty($cur_profile['ignore_boards']) ? 'b.id_board IN ({array_int:ignore_boards})' : '0') . ' AS is_ignored
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 		WHERE {query_see_board}
@@ -2960,7 +3121,7 @@ function profileLoadSignatureData()
 	elseif ($context['signature_limits']['max_image_width'] || $context['signature_limits']['max_image_height'])
 		$context['signature_warning'] = sprintf($txt['profile_error_signature_max_image_' . ($context['signature_limits']['max_image_width'] ? 'width' : 'height')], $context['signature_limits'][$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']);
 
-	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv'))));
+	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv'))));
 
 	if (empty($context['do_preview']))
 		$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br>', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
@@ -3170,6 +3331,7 @@ function profileSaveGroups(&$value)
 
 /**
  * The avatar is incredibly complicated, what with the options... and what not.
+ *
  * @todo argh, the avatar here. Take this out of here!
  *
  * @param string &$value What kind of avatar we're expecting. Can be 'none', 'server_stored', 'gravatar', 'external' or 'upload'
@@ -3536,7 +3698,8 @@ function profileValidateSignature(&$value)
 			{
 				foreach ($matches[0] as $key => $image)
 				{
-					$width = -1; $height = -1;
+					$width = -1;
+					$height = -1;
 
 					// Does it have predefined restraints? Width first.
 					if ($matches[6][$key])
@@ -4048,17 +4211,20 @@ function groupMembership2($profile_vars, $post_errors, $memID)
  */
 function tfasetup($memID)
 {
-	global $user_info, $context, $user_settings, $sourcedir, $modSettings;
+	global $user_info, $context, $user_settings, $sourcedir, $modSettings, $smcFunc;
 
 	require_once($sourcedir . '/Class-TOTP.php');
 	require_once($sourcedir . '/Subs-Auth.php');
+
+	// load JS lib for QR
+	loadJavaScriptFile('qrcode.js', array('force_current' => false, 'validate' => true));
 
 	// If TFA has not been setup, allow them to set it up
 	if (empty($user_settings['tfa_secret']) && $context['user']['is_owner'])
 	{
 		// Check to ensure we're forcing SSL for authentication
 		if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
-			fatal_lang_error('login_ssl_required');
+			fatal_lang_error('login_ssl_required', false);
 
 		// In some cases (forced 2FA or backup code) they would be forced to be redirected here,
 		// we do not want too much AJAX to confuse them.
@@ -4074,12 +4240,11 @@ function tfasetup($memID)
 			$code = $_POST['tfa_code'];
 			$totp = new \TOTP\Auth($_SESSION['tfa_secret']);
 			$totp->setRange(1);
-			$valid_password = hash_verify_password($user_settings['member_name'], trim($_POST['passwd']), $user_settings['passwd']);
 			$valid_code = strlen($code) == $totp->getCodeLength() && $totp->validateCode($code);
 
-			if ($valid_password && $valid_code)
+			if (empty($context['password_auth_failed']) && $valid_code)
 			{
-				$backup = substr(sha1(mt_rand()), 0, 16);
+				$backup = substr(sha1($smcFunc['random_int']()), 0, 16);
 				$backup_encrypted = hash_password($user_settings['member_name'], $backup);
 
 				updateMemberData($memID, array(
@@ -4100,7 +4265,6 @@ function tfasetup($memID)
 			{
 				$context['tfa_secret'] = $_SESSION['tfa_secret'];
 				$context['tfa_error'] = !$valid_code;
-				$context['tfa_pass_error'] = !$valid_password;
 				$context['tfa_pass_value'] = $_POST['passwd'];
 				$context['tfa_value'] = $_POST['tfa_code'];
 			}
@@ -4116,13 +4280,51 @@ function tfasetup($memID)
 
 		$context['tfa_qr_url'] = $totp->getQrCodeUrl($context['forum_name'] . ':' . $user_info['name'], $context['tfa_secret']);
 	}
-	elseif (isset($_REQUEST['disable']))
-	{
-		updateMemberData($memID, array(
-			'tfa_secret' => '',
-			'tfa_backup' => '',
-		));
+	else
 		redirectexit('action=profile;area=account;u=' . $memID);
+}
+
+/**
+ * Provides interface to disable two-factor authentication in SMF
+ *
+ * @param int $memID The ID of the member
+ */
+function tfadisable($memID)
+{
+	global $context, $modSettings, $smcFunc, $user_settings;
+
+	if (!empty($user_settings['tfa_secret']))
+	{
+		// Bail if we're forcing SSL for authentication and the network connection isn't secure.
+		if (!empty($modSettings['force_ssl']) && !httpsOn())
+			fatal_lang_error('login_ssl_required', false);
+
+		// The admin giveth...
+		elseif ($modSettings['tfa_mode'] == 3 && $context['user']['is_owner'])
+			fatal_lang_error('cannot_disable_tfa', false);
+		elseif ($modSettings['tfa_mode'] == 2 && $context['user']['is_owner'])
+		{
+			$groups = array($user_settings['id_group']);
+			if (!empty($user_settings['additional_groups']))
+				$groups = array_unique(array_merge($groups, explode(',', $user_settings['additional_groups'])));
+
+			$request = $smcFunc['db_query']('', '
+				SELECT id_group
+				FROM {db_prefix}membergroups
+				WHERE tfa_required = {int:tfa_required}
+					AND id_group IN ({array_int:groups})',
+				array(
+					'tfa_required' => 1,
+					'groups' => $groups,
+				)
+			);
+			$tfa_required_groups = $smcFunc['db_num_rows']($request);
+			$smcFunc['db_free_result']($request);
+
+			// They belong to a membergroup that requires tfa.
+			if (!empty($tfa_required_groups))
+				fatal_lang_error('cannot_disable_tfa2', false);
+		}
 	}
 	else
 		redirectexit('action=profile;area=account;u=' . $memID);

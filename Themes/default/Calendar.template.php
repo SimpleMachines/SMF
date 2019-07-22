@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -52,7 +52,6 @@ function template_main()
 		</div><!-- #calendar -->';
 }
 
-
 /**
  * Display a list of upcoming events, birthdays, and holidays.
  *
@@ -82,6 +81,11 @@ function template_show_upcoming_list($grid_name)
 	// Give the user some controls to work with
 	template_calendar_top($calendar_data);
 
+	// Output something just so people know it's not broken
+	if (empty($calendar_data['events']) && empty($calendar_data['birthdays']) && empty($calendar_data['holidays']))
+		echo '
+			<div class="descbox">', $txt['calendar_empty'], '</div>';
+
 	// First, list any events
 	if (!empty($calendar_data['events']))
 	{
@@ -101,10 +105,10 @@ function template_show_upcoming_list($grid_name)
 						<strong class="event_title">', $event['link'], '</strong>';
 
 				if ($event['can_edit'])
-					echo ' <a href="' . $event['modify_href'] . '"><span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span></a>';
+					echo ' <a href="' . $event['modify_href'] . '"><span class="main_icons calendar_modify" title="', $txt['calendar_edit'], '"></span></a>';
 
 				if ($event['can_export'])
-					echo ' <a href="' . $event['export_href'] . '"><span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span></a>';
+					echo ' <a href="' . $event['export_href'] . '"><span class="main_icons calendar_export" title="', $txt['calendar_export'], '"></span></a>';
 
 				echo '
 						<br>';
@@ -268,7 +272,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 
 		// Arguably the most exciting part, the title!
 		echo '
-					<a href="', $scripturl, '?action=calendar;', $context['calendar_view'], ';year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], '">', $txt['months_titles'][$calendar_data['current_month']], ' ', $calendar_data['current_year'], '</a>
+					<a href="', $scripturl, '?action=calendar;', $context['calendar_view'], ';year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $calendar_data['current_day'], '">', $txt['months_titles'][$calendar_data['current_month']], ' ', $calendar_data['current_year'], '</a>
 				</h3>
 			</div><!-- .cat_bar -->';
 	}
@@ -326,37 +330,15 @@ function template_show_month_grid($grid_name, $is_mini = false)
 			$classes = array('days');
 			if (!empty($day['day']))
 			{
-				// Default Classes (either compact or comfortable and either calendar_today or windowbg).
-				$classes[] = !empty($calendar_data['size']) && $calendar_data['size'] == 'small' ? 'compact' : 'comfortable';
 				$classes[] = !empty($day['is_today']) ? 'calendar_today' : 'windowbg';
 
 				// Additional classes are given for events, holidays, and birthdays.
-				if (!empty($day['events']) && !empty($calendar_data['highlight']['events']))
-				{
-					if ($is_mini === true && in_array($calendar_data['highlight']['events'], array(1, 3)))
-						$classes[] = 'events';
-					elseif ($is_mini === false && in_array($calendar_data['highlight']['events'], array(2, 3)))
-						$classes[] = 'events';
-				}
-				if (!empty($day['holidays']) && !empty($calendar_data['highlight']['holidays']))
-				{
-					if ($is_mini === true && in_array($calendar_data['highlight']['holidays'], array(1, 3)))
-						$classes[] = 'holidays';
-					elseif ($is_mini === false && in_array($calendar_data['highlight']['holidays'], array(2, 3)))
-						$classes[] = 'holidays';
-				}
-				if (!empty($day['birthdays']) && !empty($calendar_data['highlight']['birthdays']))
-				{
-					if ($is_mini === true && in_array($calendar_data['highlight']['birthdays'], array(1, 3)))
-						$classes[] = 'birthdays';
-					elseif ($is_mini === false && in_array($calendar_data['highlight']['birthdays'], array(2, 3)))
-						$classes[] = 'birthdays';
-				}
+				foreach (array('events', 'holidays', 'birthdays') as $event_type)
+					if (!empty($day[$event_type]))
+						$classes[] = $event_type;
 			}
 			else
 			{
-				// Default Classes (either compact or comfortable and disabled).
-				$classes[] = !empty($calendar_data['size']) && $calendar_data['size'] == 'small' ? 'compact' : 'comfortable';
 				$classes[] = 'disabled';
 			}
 
@@ -409,7 +391,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 							// 9...10! Let's stop there.
 							if ($birthday_count == 10 && $use_js_hide)
 								// !!TODO - Inline CSS and JavaScript should be moved.
-								echo '<span class="hidelink" id="bdhidelink_', $day['day'], '">...<br><a href="', $scripturl, '?action=calendar;month=', $calendar_data['current_month'], ';year=', $calendar_data['current_year'], ';showbd" onclick="document.getElementById(\'bdhide_', $day['day'], '\').style.display = \'\'; document.getElementById(\'bdhidelink_', $day['day'], '\').style.display = \'none\'; return false;">(', sprintf($txt['calendar_click_all'], count($day['birthdays'])), ')</a></span><span id="bdhide_', $day['day'], '" style="display: none;">, ';
+								echo '<span class="hidelink" id="bdhidelink_', $day['day'], '">...<br><a href="', $scripturl, '?action=calendar;month=', $calendar_data['current_month'], ';year=', $calendar_data['current_year'], ';showbd" onclick="document.getElementById(\'bdhide_', $day['day'], '\').classList.remove(\'hidden\'); document.getElementById(\'bdhidelink_', $day['day'], '\').classList.add(\'hidden\'); return false;">(', sprintf($txt['calendar_click_all'], count($day['birthdays'])), ')</a></span><span id="bdhide_', $day['day'], '" class="hidden">, ';
 
 							++$birthday_count;
 						}
@@ -471,14 +453,14 @@ function template_show_month_grid($grid_name, $is_mini = false)
 								if ($event['can_edit'])
 									echo '
 									<a class="modify_event" href="', $event['modify_href'], '">
-										<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
+										<span class="main_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
 									</a>';
 
 								// Exporting!
 								if ($event['can_export'])
 									echo '
 									<a class="modify_event" href="', $event['export_href'], '">
-										<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
+										<span class="main_icons calendar_export" title="', $txt['calendar_export'], '"></span>
 									</a>';
 
 								echo '
@@ -562,7 +544,7 @@ function template_show_week_grid($grid_name)
 							<a href="', $calendar_data['next_week']['href'], '">&#187;</a>
 						</span>';
 
-			// The Month Title + Week Number...
+			// "Week beginning <date>"
 			if (!empty($calendar_data['week_title']))
 				echo $calendar_data['week_title'];
 
@@ -597,7 +579,6 @@ function template_show_week_grid($grid_name)
 		{
 			// How should we be highlighted or otherwise not...?
 			$classes = array('days');
-			$classes[] = !empty($calendar_data['size']) && $calendar_data['size'] == 'small' ? 'compact' : 'comfortable';
 			$classes[] = !empty($day['is_today']) ? 'calendar_today' : 'windowbg';
 
 			echo '
@@ -655,14 +636,14 @@ function template_show_week_grid($grid_name)
 						if (!empty($event['can_edit']))
 							echo '
 									<a class="modify_event" href="', $event['modify_href'], '">
-										<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
+										<span class="main_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
 									</a>';
 
 						// Can we export? Sweet.
 						if (!empty($event['can_export']))
 							echo '
 									<a class="modify_event" href="', $event['export_href'], '">
-										<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
+										<span class="main_icons calendar_export" title="', $txt['calendar_export'], '"></span>
 									</a>';
 
 						echo '
@@ -746,43 +727,18 @@ function template_calendar_top($calendar_data)
 			</div>
 			', template_button_strip($context['calendar_buttons'], 'right');
 
-	if ($context['calendar_view'] == 'viewlist')
-	{
+	echo '
+			<form action="', $scripturl, '?action=calendar;', $context['calendar_view'], '" id="', !empty($calendar_data['end_date']) ? 'calendar_range' : 'calendar_navigation', '" method="post" accept-charset="', $context['character_set'], '">
+				<input type="text" name="start_date" id="start_date" maxlength="10" value="', $calendar_data['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">';
+
+	if (!empty($calendar_data['end_date']))
 		echo '
-			<form action="', $scripturl, '?action=calendar;viewlist" id="calendar_range" method="post" accept-charset="', $context['character_set'], '">
-				<input type="text" name="start_date" id="start_date" maxlength="10" value="', $calendar_data['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
 				<span>', strtolower($txt['to']), '</span>
-				<input type="text" name="end_date" id="end_date" maxlength="10" value="', $calendar_data['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date">
+				<input type="text" name="end_date" id="end_date" maxlength="10" value="', $calendar_data['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date">';
+
+	echo '
 				<input type="submit" class="button" style="float:none" id="view_button" value="', $txt['view'], '">
-			</form>';
-	}
-	else
-	{
-		echo'
-			<form action="', $scripturl, '?action=calendar" id="calendar_navigation" method="post" accept-charset="', $context['character_set'], '">
-				<select name="month" id="input_month">';
-
-		// Show a select box with all the months.
-		foreach ($txt['months_short'] as $number => $month)
-			echo '
-					<option value="', $number, '"', $number == $context['current_month'] ? ' selected' : '', '>', $month, '</option>';
-
-		echo '
-				</select>
-				<select name="year">';
-
-		// Show a link for every year...
-		for ($year = $context['calendar_resources']['min_year']; $year <= $context['calendar_resources']['max_year']; $year++)
-			echo '
-					<option value="', $year, '"', $year == $context['current_year'] ? ' selected' : '', '>', $year, '</option>';
-
-		echo '
-				</select>
-				<input type="submit" class="button" id="view_button" value="', $txt['view'], '">
-			</form>';
-	}
-
-	echo'
+			</form>
 		</div><!-- .calendar_top -->';
 }
 
@@ -1169,7 +1125,7 @@ function template_omfg()
 	foreach ($context['clockicons'] as $t => $v)
 	{
 		foreach ($v as $i)
-		echo '
+			echo '
 				if (', $t, ' >= ', $i, ')
 				{
 					turnon.push("', $t, '_', $i, '");

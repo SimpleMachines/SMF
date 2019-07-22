@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -166,7 +166,7 @@ function ScheduledTasks()
 			elseif (!empty($row['task']))
 				$task_string = $row['task'];
 
-			$start_time = microtime();
+			$start_time = microtime(true);
 			// The functions got to exist for us to use it.
 			if (empty($task_string))
 				continue;
@@ -189,7 +189,7 @@ function ScheduledTasks()
 			// Log that we did it ;)
 			if ($completed)
 			{
-				$total_time = round(array_sum(explode(' ', microtime())) - array_sum(explode(' ', $start_time)), 3);
+				$total_time = round(microtime(true) - $start_time, 3);
 				$smcFunc['db_insert']('',
 					'{db_prefix}log_scheduled_tasks',
 					array('id_task' => 'int', 'time_run' => 'int', 'time_taken' => 'float'),
@@ -616,6 +616,7 @@ function list_getTaskLogEntries($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList() in TaskLog().
+ *
  * @return int The number of log entries
  */
 function list_getNumTaskLogEntries()

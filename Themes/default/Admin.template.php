@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -16,10 +16,6 @@
 function template_admin()
 {
 	global $context, $scripturl, $txt, $modSettings;
-
-	// Welcome message for the admin.
-	echo '
-					<div id="admincenter">';
 
 	// Is there an update available?
 	echo '
@@ -33,17 +29,17 @@ function template_admin()
 							<div id="live_news" class="floatleft">
 								<div class="cat_bar">
 									<h3 class="catbg">
-										<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ', $txt['live'], '
+										<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a> ', $txt['live'], '
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
-									<div id="smfAnnouncements">', $txt['lfyi'], '</div>
+									<div id="smfAnnouncements">', $txt['smf_news_cant_connect'], '</div>
 								</div>
 							</div>';
 
 	// Show the user version information from their server.
 	echo '
-							<div id="supportVersionsTable" class="floatright">
+							<div id="support_info" class="floatright">
 								<div class="cat_bar">
 									<h3 class="catbg">
 										<a href="', $scripturl, '?action=admin;area=credits">', $txt['support_title'], '</a>
@@ -72,7 +68,7 @@ function template_admin()
 	echo '
 									</div><!-- #version_details -->
 								</div><!-- .windowbg -->
-							</div><!-- #supportVersionsTable -->
+							</div><!-- #support_info -->
 						</div><!-- #admin_main_section -->';
 
 	foreach ($context[$context['admin_menu_name']]['sections'] as $area_id => $area)
@@ -100,9 +96,6 @@ function template_admin()
 		echo '
 						</fieldset>';
 	}
-
-	echo '
-					</div><!-- #admincenter -->';
 
 	// The below functions include all the scripts needed from the simplemachines.org site. The language and format are passed for internationalization.
 	if (empty($modSettings['disable_smf_js']))
@@ -163,95 +156,93 @@ function template_credits()
 
 	// Show the user version information from their server.
 	echo '
-
-					<div id="admincenter">
-						<div id="support_credits" class="roundframe">
-							<div class="sub_bar">
-								<h3 class="subbg">
-									', $txt['support_title'], ' <img src="', $settings['images_url'], '/smflogo.svg" id="credits_logo" alt="">
-								</h3>
-							</div>
-							<div class="padding">
-								<strong>', $txt['support_versions'], ':</strong><br>
-									', $txt['support_versions_forum'], ':
-								<em id="yourVersion">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>
-									', $txt['support_versions_current'], ':
-								<em id="smfVersion">??</em><br>';
+					<div class="roundframe noup">
+						<div class="title_bar">
+							<h3 class="titlebg">
+								', $txt['support_title'], '
+							</h3>
+						</div>
+						<div class="padding">
+							<img src="', $settings['images_url'], '/smflogo.svg" class="floatright" alt="">
+							<strong>', $txt['support_versions'], ':</strong><br>
+								', $txt['support_versions_forum'], ':
+							<em id="yourVersion">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>
+								', $txt['support_versions_current'], ':
+							<em id="smfVersion">??</em><br>';
 
 	// Display all the variables we have server information for.
 	foreach ($context['current_versions'] as $version)
 	{
 		echo '
-									', $version['title'], ':
-								<em>', $version['version'], '</em>';
+								', $version['title'], ':
+							<em>', $version['version'], '</em>';
 
 		// more details for this item, show them a link
 		if ($context['can_admin'] && isset($version['more']))
 			echo
-								' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
+							' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
 		echo '
-								<br>';
+							<br>';
 	}
 
 	echo '
-							</div><!-- .padding -->';
+						</div><!-- .padding -->';
 
 	// Point the admin to common support resources.
 	echo '
-							<div id="support_resources" class="sub_bar">
-								<h3 class="subbg">
-									', $txt['support_resources'], '
-								</h3>
-							</div>
-							<div class="padding">
-								<p>', $txt['support_resources_p1'], '</p>
-								<p>', $txt['support_resources_p2'], '</p>
-							</div>';
+						<div id="support_resources" class="title_bar">
+							<h3 class="titlebg">
+								', $txt['support_resources'], '
+							</h3>
+						</div>
+						<div class="padding">
+							<p>', $txt['support_resources_p1'], '</p>
+							<p>', $txt['support_resources_p2'], '</p>
+						</div>';
 
 	// The most important part - the credits :P.
 	echo '
-							<div id="credits_sections" class="sub_bar">
-								<h3 class="subbg">
-									', $txt['admin_credits'], '
-								</h3>
-							</div>
-							<div class="padding">';
+						<div id="credits_sections" class="title_bar">
+							<h3 class="titlebg">
+								', $txt['admin_credits'], '
+							</h3>
+						</div>
+						<div id="support_credits_list" class="padding">';
 
 	foreach ($context['credits'] as $section)
 	{
 		if (isset($section['pretext']))
 			echo '
-								<p>', $section['pretext'], '</p>
-								<hr>';
+							<p>', $section['pretext'], '</p>
+							<hr>';
 
 		echo '
-								<dl>';
+							<dl>';
 
 		foreach ($section['groups'] as $group)
 		{
 			if (isset($group['title']))
 				echo '
-									<dt>
-										<strong>', $group['title'], ':</strong>
-									</dt>';
+								<dt>
+									<strong>', $group['title'], ':</strong>
+								</dt>';
 
 			echo '
-									<dd>', implode(', ', $group['members']), '</dd>';
+								<dd>', implode(', ', $group['members']), '</dd>';
 		}
 
 		echo '
-								</dl>';
+							</dl>';
 
 		if (isset($section['posttext']))
 			echo '
-								<hr>
-								<p>', $section['posttext'], '</p>';
+							<hr>
+							<p>', $section['posttext'], '</p>';
 	}
 
 	echo '
-							</div><!-- .padding -->
-						</div><!-- #support_credits -->
-					</div><!-- #admincenter -->';
+						</div><!-- .padding -->
+					</div><!-- #support_credits -->';
 
 	// This makes all the support information available to the support script...
 	echo '
@@ -302,7 +293,6 @@ function template_view_versions()
 	global $context, $scripturl, $txt;
 
 	echo '
-					<div id="admincenter">
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">
 								', $txt['admin_version_check'], '
@@ -542,8 +532,7 @@ function template_view_versions()
 	}
 
 	echo '
-						</div><!-- #versions -->
-					</div><!-- #admincenter -->';
+						</div><!-- #versions -->';
 
 	/* Below is the hefty javascript for this. Upon opening the page it checks the current file versions with ones
 	   held at simplemachines.org and works out if they are up to date. If they aren't it colors that files number
@@ -582,7 +571,6 @@ function template_edit_censored()
 
 	// First section is for adding/removing words from the censored list.
 	echo '
-					<div id="admincenter">
 						<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=postsettings;sa=censor" method="post" accept-charset="', $context['character_set'], '">
 							<div id="section_header" class="cat_bar">
 								<h3 class="catbg">
@@ -605,11 +593,11 @@ function template_edit_censored()
 									<input type="text" name="censor_vulgar[]" size="30"> =&gt; <input type="text" name="censor_proper[]" size="30">
 								</div>
 								<div id="moreCensoredWords"></div>
-								<div class="block" style="display: none;" id="moreCensoredWords_link">
+								<div class="block hidden" id="moreCensoredWords_link">
 									<a class="button" href="#" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br>
 								</div>
 								<script>
-									document.getElementById("moreCensoredWords_link").style.display = "";
+									document.getElementById("moreCensoredWords_link").classList.remove(\'hidden\');
 								</script>
 								<hr>
 								<dl class="settings">
@@ -651,8 +639,7 @@ function template_edit_censored()
 
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 							<input type="hidden" name="', $context['admin-censor_token_var'], '" value="', $context['admin-censor_token'], '">
-						</form>
-					</div><!-- #admincenter -->';
+						</form>';
 }
 
 /**
@@ -663,7 +650,6 @@ function template_not_done()
 	global $context, $txt, $scripturl;
 
 	echo '
-					<div id="admincenter">
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">
 								', $txt['not_done_title'], '
@@ -687,12 +673,18 @@ function template_not_done()
 							</div>';
 
 	echo '
-							<form action="', $scripturl, $context['continue_get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
+							<form action="', $scripturl, $context['continue_get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">';
+
+	// Do we have a token?
+	if (isset($context['not_done_token']) && isset($context[$context['not_done_token'] . '_token'], $context[$context['not_done_token'] . '_token_var']))
+		echo '
+							<input type="hidden" name="', $context[$context['not_done_token'] . '_token_var'], '" value="', $context[$context['not_done_token'] . '_token'], '">';
+
+	echo '
 								<input type="submit" name="cont" value="', $txt['not_done_continue'], '" class="button">
 								', $context['continue_post_data'], '
 							</form>
 						</div><!-- .windowbg -->
-					</div><!-- #admincenter -->
 					<script>
 						var countdown = ', $context['continue_countdown'], ';
 						doAutoSubmit();
@@ -734,7 +726,6 @@ function template_show_settings()
 		echo $context['settings_insert_above'];
 
 	echo '
-					<div id="admincenter">
 						<form id="admin_form_wrapper" action="', $context['post_url'], '" method="post" accept-charset="', $context['character_set'], '"', !empty($context['force_form_onsubmit']) ? ' onsubmit="' . $context['force_form_onsubmit'] . '"' : '', '>';
 
 	// Is there a custom title?
@@ -747,7 +738,29 @@ function template_show_settings()
 	// Have we got a message to display?
 	if (!empty($context['settings_message']))
 		echo '
-							<div class="information">', $context['settings_message'], '</div>';
+							<div class="information noup">', $context['settings_message'], '</div>';
+
+	// Filter out any redundant separators before we start the loop
+	$context['config_vars'] = array_filter($context['config_vars'], function ($v) use ($context)
+		{
+			static $config_vars, $prev;
+
+			$at_start = is_null($config_vars);
+			$config_vars = $at_start ? $context['config_vars'] : $config_vars;
+
+			$next = next($config_vars);
+			$at_end = key($config_vars) === null;
+
+			if (!$at_start && !$at_end)
+			{
+				$div_types = array('title', 'desc');
+				$at_start = isset($prev['type']) && in_array($prev['type'], $div_types);
+				$at_end = isset($next['type']) && in_array($next['type'], $div_types);
+			}
+
+			$prev = $v;
+			return ($v === '' && ($at_start || $at_end || $v === $next)) ? false : true;
+		});
 
 	// Now actually loop through all the variables.
 	$is_open = false;
@@ -771,7 +784,7 @@ function template_show_settings()
 				echo '
 							<div class="cat_bar">
 								<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'catbg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
-									', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="' . $txt['help'] . '"></span></a>' : ''), '
+									', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . $txt['help'] . '"></span></a>' : ''), '
 									', $config_var['label'], '
 								</h3>
 							</div>';
@@ -833,7 +846,7 @@ function template_show_settings()
 				// Show the [?] button.
 				if ($config_var['help'])
 					echo '
-										<a id="setting_', $config_var['name'], '_help" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ';
+										<a id="setting_', $config_var['name'], '_help" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', $txt['help'], '"></span></a> ';
 
 				echo '
 										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label for="', $config_var['name'], '">', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
@@ -906,10 +919,10 @@ function template_show_settings()
 				{
 					echo '
 										<fieldset id="', $config_var['name'], '">
-											<legend>', $txt['bbcTagsToUse_select'], '</legend>
+											<legend>', $txt['enabled_bbc_select'], '</legend>
 											<ul>';
 
-					foreach ($context['bbc_columns'] as $bbcColumn)
+					foreach ($context['bbc_sections'][$config_var['name']]['columns'] as $bbcColumn)
 					{
 						foreach ($bbcColumn as $bbcTag)
 							echo '
@@ -918,7 +931,7 @@ function template_show_settings()
 												</li>';
 					}
 					echo '					</ul>
-											<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', $context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked' : '', '> <label for="bbc_', $config_var['name'], '_select_all"><em>', $txt['bbcTagsToUse_select_all'], '</em></label>
+											<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', $context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked' : '', '> <label for="bbc_', $config_var['name'], '_select_all"><em>', $txt['enabled_bbc_select_all'], '</em></label>
 										</fieldset>';
 				}
 				// A simple message?
@@ -948,7 +961,7 @@ function template_show_settings()
 				}
 
 				echo isset($config_var['postinput']) ? '
-											' . $config_var['postinput'] : '','
+											' . $config_var['postinput'] : '', '
 									</dd>';
 			}
 		}
@@ -962,9 +975,10 @@ function template_show_settings()
 								<dl class="settings">';
 			else
 				echo '
-									<dd>
+									<dt>
 										<strong>' . $config_var . '</strong>
-									</dd>';
+									</dt>
+									<dd></dd>';
 		}
 	}
 
@@ -979,7 +993,6 @@ function template_show_settings()
 	if ($is_open)
 		echo '
 							</div><!-- .windowbg -->';
-
 
 	// At least one token has to be used!
 	if (isset($context['admin-ssc_token']))
@@ -996,8 +1009,7 @@ function template_show_settings()
 
 	echo '
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-						</form>
-					</div><!-- #admincenter -->';
+						</form>';
 
 	if (!empty($context['settings_post_javascript']))
 		echo '
@@ -1073,7 +1085,6 @@ function template_edit_profile_field()
 	}
 
 	echo '
-					<div id="admincenter">
 						<form action="', $scripturl, '?action=admin;area=featuresettings;sa=profileedit;fid=', $context['fid'], ';', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 							<div id="section_header" class="cat_bar">
 								<h3 class="catbg">', $context['page_title'], '</h3>
@@ -1108,7 +1119,7 @@ function template_edit_profile_field()
 											</select>
 										</dd>
 										<dt>
-											<a id="field_reg_require" href="', $scripturl, '?action=helpadmin;help=field_reg_require" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+											<a id="field_reg_require" href="', $scripturl, '?action=helpadmin;help=field_reg_require" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 											<strong><label for="reg">', $txt['custom_edit_registration'], ':</label></strong>
 										</dt>
 										<dd>
@@ -1144,7 +1155,7 @@ function template_edit_profile_field()
 											</select>
 										</dd>
 										<dt>
-											<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+											<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 											<strong><label for="enclose">', $txt['custom_edit_enclose'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_enclose_desc'], '</span>
 										</dt>
@@ -1190,7 +1201,7 @@ function template_edit_profile_field()
 											<input type="checkbox" name="bbc" id="bbc_dd"', $context['field']['bbc'] ? ' checked' : '', '>
 										</dd>
 										<dt id="options_dt">
-											<a href="', $scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+											<a href="', $scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 											<strong><label for="options_dd">', $txt['custom_edit_options'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_options_desc'], '</span>
 										</dt>
@@ -1216,7 +1227,7 @@ function template_edit_profile_field()
 									<legend>', $txt['custom_edit_advanced'], '</legend>
 									<dl class="settings">
 										<dt id="mask_dt">
-											<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+											<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 											<strong><label for="mask">', $txt['custom_edit_mask'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_mask_desc'], '</span>
 										</dt>
@@ -1270,8 +1281,7 @@ function template_edit_profile_field()
 							</div><!-- .windowbg -->
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 							<input type="hidden" name="', $context['admin-ecp_token_var'], '" value="', $context['admin-ecp_token'], '">
-						</form>
-					</div><!-- #admincenter -->';
+						</form>';
 
 	// Get the javascript bits right!
 	echo '
@@ -1296,7 +1306,7 @@ function template_admin_search_results()
 										<input type="hidden" name="search_type" value="', $context['search_type'], '">
 										<input type="submit" name="search_go" value="', $txt['admin_search_results_again'], '" class="button">
 									</span>
-									<span class="generic_icons filter"></span>
+									<span class="main_icons filter"></span>
 									<span id="quick_search_results">
 										', sprintf($txt['admin_search_results_desc'], $context['search_term']), '
 									</span>
@@ -1416,7 +1426,6 @@ function template_repair_boards()
 	global $context, $txt, $scripturl;
 
 	echo '
-					<div id="admincenter">
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">',
 								$context['error_search'] ? $txt['errors_list'] : $txt['errors_fixing'], '
@@ -1445,7 +1454,7 @@ function template_repair_boards()
 								', $txt['errors_fix'], '
 							</p>
 							<p class="padding">
-								<strong><a href="', $scripturl, '?action=admin;area=repairboards;fixErrors;', $context['session_var'], '=', $context['session_id'], '">', $txt['yes'], '</a> - <a href="', $scripturl, '?action=admin;area=maintain">', $txt['no'], '</a></strong>
+								<strong><a href="', $scripturl, '?action=admin;area=repairboards;fixErrors;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-repairboards_token_var'], '=', $context['admin-repairboards_token'], '">', $txt['yes'], '</a> - <a href="', $scripturl, '?action=admin;area=maintain">', $txt['no'], '</a></strong>
 							</p>';
 		}
 		else
@@ -1464,6 +1473,7 @@ function template_repair_boards()
 								', $txt['errors_do_recount'], '
 							</p>
 							<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=recount" id="recount_form" method="post">
+								<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 								<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 								<input type="submit" name="recount" id="recount_now" value="', $txt['errors_recount_now'], '">
 							</form>';
@@ -1479,8 +1489,7 @@ function template_repair_boards()
 	}
 
 	echo '
-						</div><!-- .windowbg -->
-					</div><!-- #admincenter -->';
+						</div><!-- .windowbg -->';
 
 	if (!empty($context['redirect_to_recount']))
 	{
@@ -1544,7 +1553,7 @@ function template_php_info()
 			{
 				if ($localmaster)
 				{
-					// heading row for the settings section of this categorys settings
+					// heading row for the settings section of this category's settings
 					echo '
 								<tr class="title_bar">
 									<td class="equal_table"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
@@ -1624,7 +1633,7 @@ function template_admin_quick_search()
 	if ($context['user']['is_admin'])
 		echo '
 								<span class="floatright admin_search">
-									<span class="generic_icons filter centericon"></span>
+									<span class="main_icons filter centericon"></span>
 									<input type="search" name="search_term" placeholder="', $txt['admin_search'], '">
 									<select name="search_type">
 										<option value="internal"', (empty($context['admin_preferences']['sb']) || $context['admin_preferences']['sb'] == 'internal' ? ' selected' : ''), '>', $txt['admin_search_type_internal'], '</option>

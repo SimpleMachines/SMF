@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -37,42 +37,12 @@ function ViewMembers()
 		'query' => array('ViewMemberlist', 'moderate_forum'),
 	);
 
-	call_integration_hook('integrate_manage_members', array(&$subActions));
-
-	// Default to sub action 'index' or 'settings' depending on permissions.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'all';
-
-	// We know the sub action, now we know what you're allowed to do.
-	isAllowedTo($subActions[$_REQUEST['sa']][1]);
-
 	// Load the essentials.
 	loadLanguage('ManageMembers');
 	loadTemplate('ManageMembers');
 
-	// Get counts on every type of activation - for sections and filtering alike.
-	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*) AS total_members, is_activated
-		FROM {db_prefix}members
-		WHERE is_activated != {int:is_activated}
-		GROUP BY is_activated',
-		array(
-			'is_activated' => 1,
-		)
-	);
-	$context['activation_numbers'] = array();
-	$context['awaiting_activation'] = 0;
-	$context['awaiting_approval'] = 0;
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$context['activation_numbers'][$row['is_activated']] = $row['total_members'];
-	$smcFunc['db_free_result']($request);
-
-	foreach ($context['activation_numbers'] as $activation_type => $total_members)
-	{
-		if (in_array($activation_type, array(0, 2)))
-			$context['awaiting_activation'] += $total_members;
-		elseif (in_array($activation_type, array(3, 4, 5)))
-			$context['awaiting_approval'] += $total_members;
-	}
+	// Fetch our activation counts.
+	GetMemberActivationCounts();
 
 	// For the page header... do we show activation?
 	$context['show_activate'] = (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1) || !empty($context['awaiting_activation']);
@@ -93,43 +63,60 @@ function ViewMembers()
 			'label' => $txt['view_all_members'],
 			'description' => $txt['admin_members_list'],
 			'url' => $scripturl . '?action=admin;area=viewmembers;sa=all',
-			'is_selected' => $_REQUEST['sa'] == 'all',
+			'selected_actions' => array('all'),
 		),
 		'search' => array(
 			'label' => $txt['mlist_search'],
 			'description' => $txt['admin_members_list'],
 			'url' => $scripturl . '?action=admin;area=viewmembers;sa=search',
-			'is_selected' => $_REQUEST['sa'] == 'search' || $_REQUEST['sa'] == 'query',
+			'selected_actions' => array('search', 'query'),
 		),
-		'approve' => array(
+	);
+	$context['last_tab'] = 'search';
+
+	// Do we have approvals
+	if ($context['show_approve'])
+	{
+		$context['tabs']['approve'] = array(
 			'label' => sprintf($txt['admin_browse_awaiting_approval'], $context['awaiting_approval']),
 			'description' => $txt['admin_browse_approve_desc'],
 			'url' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
-			'is_selected' => false,
-		),
-		'activate' => array(
+		);
+		$context['last_tab'] = 'approve';
+	}
+
+	// Do we have activations to show?
+	if ($context['show_activate'])
+	{
+		$context['tabs']['activate'] = array(
 			'label' => sprintf($txt['admin_browse_awaiting_activate'], $context['awaiting_activation']),
 			'description' => $txt['admin_browse_activate_desc'],
 			'url' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
-			'is_selected' => false,
-			'is_last' => true,
-		),
-	);
-
-	// Sort out the tabs for the ones which may not exist!
-	if (!$context['show_activate'] && ($_REQUEST['sa'] != 'browse' || $_REQUEST['type'] != 'activate'))
-	{
-		$context['tabs']['approve']['is_last'] = true;
-		unset($context['tabs']['activate']);
-	}
-	if (!$context['show_approve'] && ($_REQUEST['sa'] != 'browse' || $_REQUEST['type'] != 'approve'))
-	{
-		if (!$context['show_activate'] && ($_REQUEST['sa'] != 'browse' || $_REQUEST['type'] != 'activate'))
-			$context['tabs']['search']['is_last'] = true;
-		unset($context['tabs']['approve']);
+		);
+		$context['last_tab'] = 'activate';
 	}
 
-	call_helper($subActions[$_REQUEST['sa']][0]);
+	// Call our hook now, letting customizations add to the subActions and/or modify $context as needed.
+	call_integration_hook('integrate_manage_members', array(&$subActions));
+
+	// Default to sub action 'index' or 'settings' depending on permissions.
+	$context['current_subaction'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'all';
+
+	// We know the sub action, now we know what you're allowed to do.
+	isAllowedTo($subActions[$context['current_subaction']][1]);
+
+	// Set the last tab.
+	$context['tabs'][$context['last_tab']]['is_last'] = true;
+
+	// Find the active tab.
+	if (isset($context['tabs'][$context['current_subaction']]))
+		$context['tabs'][$context['current_subaction']]['is_selected'] = true;
+	elseif (isset($context['current_subaction']))
+		foreach ($context['tabs'] as $id_tab => $tab_data)
+			if (!empty($tab_data['selected_actions']) && in_array($context['current_subaction'], $tab_data['selected_actions']))
+				$context['tabs'][$id_tab]['is_selected'] = true;
+
+	call_helper($subActions[$context['current_subaction']][0]);
 }
 
 /**
@@ -144,9 +131,6 @@ function ViewMembers()
 function ViewMemberlist()
 {
 	global $txt, $scripturl, $context, $modSettings, $sourcedir, $smcFunc, $user_info;
-
-	// Set the current sub action.
-	$context['sub_action'] = $_REQUEST['sa'];
 
 	// Are we performing a delete?
 	if (isset($_POST['delete_members']) && !empty($_POST['delete']) && allowedTo('profile_remove_any'))
@@ -170,7 +154,7 @@ function ViewMemberlist()
 	}
 
 	// Check input after a member search has been submitted.
-	if ($context['sub_action'] == 'query')
+	if ($context['current_subaction'] == 'query')
 	{
 		// Retrieving the membergroups and postgroups.
 		$context['membergroups'] = array(
@@ -276,7 +260,7 @@ function ViewMemberlist()
 		call_integration_hook('integrate_view_members_params', array(&$params));
 
 		$search_params = array();
-		if ($context['sub_action'] == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
+		if ($context['current_subaction'] == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
 			$search_params = $smcFunc['json_decode'](base64_decode($_REQUEST['params']), true);
 		elseif (!empty($_POST))
 		{
@@ -368,7 +352,7 @@ function ViewMemberlist()
 			// INET.
 			elseif ($param_info['type'] == 'inet')
 			{
-				if(count($search_params[$param_name]) === 1)
+				if (count($search_params[$param_name]) === 1)
 				{
 					$query_parts[] = '(' . $param_info['db_fields'][0] . ' = {inet:' . $param_name . '})';
 					$where_params[$param_name] = $search_params[$param_name][0];
@@ -376,10 +360,10 @@ function ViewMemberlist()
 				elseif (count($search_params[$param_name]) === 2)
 				{
 					$query_parts[] = '(' . $param_info['db_fields'][0] . ' <= {inet:' . $param_name . '_high} and ' . $param_info['db_fields'][0] . ' >= {inet:' . $param_name . '_low})';
-					$where_params[$param_name.'_low'] = $search_params[$param_name]['low'];
-					$where_params[$param_name.'_high'] = $search_params[$param_name]['high'];
+					$where_params[$param_name . '_low'] = $search_params[$param_name]['low'];
+					$where_params[$param_name . '_high'] = $search_params[$param_name]['high'];
 				}
-				
+
 			}
 			elseif ($param_info['type'] != 'groups')
 			{
@@ -431,7 +415,7 @@ function ViewMemberlist()
 		$search_url_params = null;
 
 	// Construct the additional URL part with the query info in it.
-	$context['params_url'] = $context['sub_action'] == 'query' ? ';sa=query;params=' . $search_url_params : '';
+	$context['params_url'] = $context['current_subaction'] == 'query' ? ';sa=query;params=' . $search_url_params : '';
 
 	// Get the title and sub template ready..
 	$context['page_title'] = $txt['admin_members'];
@@ -483,7 +467,6 @@ function ViewMemberlist()
 							'member_name' => false,
 						),
 					),
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'member_name',
@@ -536,7 +519,6 @@ function ViewMemberlist()
 							'member_ip' => false,
 						),
 					),
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'member_ip',
@@ -576,7 +558,6 @@ function ViewMemberlist()
 
 						return $difference;
 					},
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'last_login DESC',
@@ -589,7 +570,6 @@ function ViewMemberlist()
 				),
 				'data' => array(
 					'db' => 'posts',
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'posts',
@@ -758,7 +738,7 @@ function MembersAwaitingActivation()
 			);
 		else
 			$context['allowed_actions'] = array(
-				'ok' => $txt['admin_browse_w_approve'],
+				'ok' => $txt['admin_browse_w_approve'] .' '. $txt['admin_browse_no_email'],
 				'okemail' => $txt['admin_browse_w_approve'] . ' ' . $txt['admin_browse_w_email'],
 				'require_activation' => $txt['admin_browse_w_approve_require_activate'],
 				'reject' => $txt['admin_browse_w_reject'],
@@ -798,6 +778,7 @@ function MembersAwaitingActivation()
 				message = "' . $txt['admin_browse_w_delete'] . '";
 			else
 				message = "' . $txt['admin_browse_w_reject'] . '";';
+
 	// Otherwise a nice standard message.
 	else
 		$javascript .= '
@@ -809,6 +790,7 @@ function MembersAwaitingActivation()
 				message = "' . $txt['admin_browse_w_remind'] . '";
 			else
 				message = "' . ($context['browse_type'] == 'approve' ? $txt['admin_browse_w_approve'] : $txt['admin_browse_w_activate']) . '";';
+
 	$javascript .= '
 			if (confirm(message + " ' . $txt['admin_browse_warn'] . '"))
 				document.forms.postForm.submit();
@@ -816,7 +798,6 @@ function MembersAwaitingActivation()
 
 	$listOptions = array(
 		'id' => 'approve_list',
-// 		'title' => $txt['members_approval_title'],
 		'items_per_page' => $modSettings['defaultMaxMembers'],
 		'base_href' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=' . $context['browse_type'] . (!empty($context['show_filter']) ? ';filter=' . $context['current_filter'] : ''),
 		'default_sort_col' => 'date_registered',
@@ -1025,8 +1006,8 @@ function MembersAwaitingActivation()
 	if (!empty($context['show_filter']) && !empty($context['available_filters']))
 		$listOptions['additional_rows'][] = array(
 			'position' => 'above_column_headers',
-			'value' => '<strong>' . $txt['admin_browse_filter_show'] . ':</strong> ' . $context['available_filters'][0]['desc'],
-			'class' => 'smalltext floatright',
+			'value' => '<strong>' . $txt['admin_browse_filter_show'] . ':</strong> ' . ((isset($context['current_filter']) && isset($txt['admin_browse_filter_type_' . $context['current_filter']])) ? $txt['admin_browse_filter_type_' . $context['current_filter']] : $context['available_filters'][0]['desc']),
+			'class' => 'filter_row generic_list_wrapper smalltext',
 		);
 
 	// Now that we have all the options, create the list.
@@ -1313,6 +1294,41 @@ function jeffsdatediff($old)
 
 	// Divide out the seconds in a day to get the number of days.
 	return ceil($dis / (24 * 60 * 60));
+}
+
+/**
+ * Fetches all the activation counts for ViewMembers.
+ *
+ */
+function GetMemberActivationCounts()
+{
+	global $smcFunc, $context;
+
+	// Get counts on every type of activation - for sections and filtering alike.
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(*) AS total_members, is_activated
+		FROM {db_prefix}members
+		WHERE is_activated != {int:is_activated}
+		GROUP BY is_activated',
+		array(
+			'is_activated' => 1,
+		)
+	);
+	$context['activation_numbers'] = array();
+	$context['awaiting_activation'] = 0;
+	$context['awaiting_approval'] = 0;
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$context['activation_numbers'][$row['is_activated']] = $row['total_members'];
+	$smcFunc['db_free_result']($request);
+
+	foreach ($context['activation_numbers'] as $activation_type => $total_members)
+	{
+		if (in_array($activation_type, array(0, 2)))
+			$context['awaiting_activation'] += $total_members;
+		elseif (in_array($activation_type, array(3, 4, 5)))
+			$context['awaiting_approval'] += $total_members;
+	}
+
 }
 
 ?>

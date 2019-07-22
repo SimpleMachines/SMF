@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -62,7 +62,6 @@ function ManageMaintenance()
 			'activities' => array(
 				'optimize' => 'OptimizeTables',
 				'convertentities' => 'ConvertEntities',
-				'convertutf8' => 'ConvertUtf8',
 				'convertmsgbody' => 'ConvertMsgBody',
 			),
 		),
@@ -117,10 +116,6 @@ function ManageMaintenance()
 	if (isset($activity))
 		call_helper($subActions[$subAction]['activities'][$activity]);
 
-	//converted to UTF-8? show a small maintenance info
-	if (isset($_GET['done']) && $_GET['done'] == 'convertutf8')
-		$context['maintenance_finished'] = $txt['utf8_title'];
-
 	// Create a maintenance token.  Kinda hard to do it any other way.
 	createToken('admin-maint');
 }
@@ -133,8 +128,7 @@ function MaintainDatabase()
 	global $context, $db_type, $db_character_set, $modSettings, $smcFunc, $txt;
 
 	// Show some conversion options?
-	$context['convert_utf8'] = ($db_type == 'mysql') && (!isset($db_character_set) || $db_character_set !== 'utf8' || empty($modSettings['global_character_set']) || $modSettings['global_character_set'] !== 'UTF-8') && version_compare('4.1.2', preg_replace('~\-.+?$~', '', $smcFunc['db_server_info']()), '<=');
-	$context['convert_entities'] = isset($db_character_set, $modSettings['global_character_set']) && $db_character_set === 'utf8' && $modSettings['global_character_set'] === 'UTF-8';
+	$context['convert_entities'] = isset($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8';
 
 	if ($db_type == 'mysql')
 	{
@@ -149,8 +143,6 @@ function MaintainDatabase()
 		$context['convert_to_suggest'] = ($body_type != 'text' && !empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] < 65536);
 	}
 
-	if (isset($_GET['done']) && $_GET['done'] == 'convertutf8')
-		$context['maintenance_finished'] = $txt['utf8_title'];
 	if (isset($_GET['done']) && $_GET['done'] == 'convertentities')
 		$context['maintenance_finished'] = $txt['entity_convert_title'];
 }
@@ -495,7 +487,7 @@ function ConvertEntities()
 	isAllowedTo('admin_forum');
 
 	// Check to see if UTF-8 is currently the default character set.
-	if ($modSettings['global_character_set'] !== 'UTF-8' || !isset($db_character_set) || $db_character_set !== 'utf8')
+	if ($modSettings['global_character_set'] !== 'UTF-8')
 		fatal_lang_error('entity_convert_only_utf8');
 
 	// Some starting values.
@@ -525,6 +517,7 @@ function ConvertEntities()
 	checkSession('request');
 	validateToken('admin-maint');
 	createToken('admin-maint');
+	$context['not_done_token'] = 'admin-maint';
 
 	// A list of tables ready for conversion.
 	$tables = array(
@@ -566,11 +559,11 @@ function ConvertEntities()
 		if ($db_type == 'postgresql')
 			$request = $smcFunc['db_query']('', '
 				SELECT column_name "Field", data_type "Type"
-				FROM information_schema.columns 
+				FROM information_schema.columns
 				WHERE table_name = {string:cur_table}
-				AND (data_type = \'character varying\' or data_type = \'text\')',
+					AND (data_type = \'character varying\' or data_type = \'text\')',
 				array(
-					'cur_table' => $db_prefix.$cur_table,
+					'cur_table' => $db_prefix . $cur_table,
 				)
 			);
 		else
@@ -591,11 +584,11 @@ function ConvertEntities()
 				SELECT a.attname "Column_name", \'PRIMARY\' "Key_name", attnum "Seq_in_index"
 				FROM   pg_index i
 				JOIN   pg_attribute a ON a.attrelid = i.indrelid
-									 AND a.attnum = ANY(i.indkey)
+					AND a.attnum = ANY(i.indkey)
 				WHERE  i.indrelid = {string:cur_table}::regclass
-				AND    i.indisprimary',
+					AND    i.indisprimary',
 				array(
-					'cur_table' => $db_prefix.$cur_table,
+					'cur_table' => $db_prefix . $cur_table,
 				)
 			);
 		else
@@ -704,7 +697,7 @@ function ConvertEntities()
 	$context['continue_percent'] = 100;
 	$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;done=convertentities';
 	$context['last_step'] = true;
-	$context['continue_countdown'] = -1;
+	$context['continue_countdown'] = 3;
 }
 
 /**
@@ -713,7 +706,7 @@ function ConvertEntities()
  * It shows as the maintain_forum admin area.
  * It is accessed from ?action=admin;area=maintain;sa=database;activity=optimize.
  * It also updates the optimize scheduled task such that the tables are not automatically optimized again too soon.
-
+ *
  * @uses the optimize sub template
  */
 function OptimizeTables()
@@ -1223,6 +1216,7 @@ function AdminBoardRecount()
 			$boards = array();
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 				$boards[$row['id_board']][] = $row['id_msg'];
+
 			$smcFunc['db_free_result']($request);
 
 			foreach ($boards as $board_id => $messages)
@@ -1335,11 +1329,12 @@ function AdminBoardRecount()
  * It requires the admin_forum permission.
  * Uses the view_versions admin area.
  * Accessed through ?action=admin;area=maintain;sa=routine;activity=version.
+ *
  * @uses Admin template, view_versions sub-template.
  */
 function VersionDetail()
 {
-	global $forum_version, $txt, $sourcedir, $context;
+	global $txt, $sourcedir, $context;
 
 	isAllowedTo('admin_forum');
 
@@ -1364,7 +1359,7 @@ function VersionDetail()
 	);
 
 	// Make it easier to manage for the template.
-	$context['forum_version'] = $forum_version;
+	$context['forum_version'] = SMF_FULL_VERSION;
 
 	$context['sub_template'] = 'view_versions';
 	$context['page_title'] = $txt['admin_version_check'];
@@ -1401,6 +1396,7 @@ function MaintainReattributePosts()
 
 /**
  * Removing old members. Done and out!
+ *
  * @todo refactor
  */
 function MaintainPurgeInactiveMembers()
@@ -1819,8 +1815,8 @@ function MaintainRecountPosts()
 		$request = $smcFunc['db_query']('', '
 			SELECT mem.id_member, mem.posts
 			FROM {db_prefix}members AS mem
-			LEFT OUTER JOIN {db_prefix}tmp_maint_recountposts AS res
-			ON res.id_member = mem.id_member
+				LEFT OUTER JOIN {db_prefix}tmp_maint_recountposts AS res
+				ON res.id_member = mem.id_member
 			WHERE res.id_member IS null
 				AND mem.posts != {int:zero}',
 			array(
@@ -1911,7 +1907,7 @@ function list_integration_hooks()
 				'data' => array(
 					'db' => 'hook_name',
 				),
-				'sort' =>  array(
+				'sort' => array(
 					'default' => 'hook_name',
 					'reverse' => 'hook_name DESC',
 				),
@@ -1924,7 +1920,7 @@ function list_integration_hooks()
 					'function' => function($data) use ($txt)
 					{
 						// Show a nice icon to indicate this is an instance.
-						$instance = (!empty($data['instance']) ? '<span class="generic_icons news" title="' . $txt['hooks_field_function_method'] . '"></span> ' : '');
+						$instance = (!empty($data['instance']) ? '<span class="main_icons news" title="' . $txt['hooks_field_function_method'] . '"></span> ' : '');
 
 						if (!empty($data['included_file']))
 							return $instance . $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'];
@@ -1933,7 +1929,7 @@ function list_integration_hooks()
 							return $instance . $data['real_function'];
 					},
 				),
-				'sort' =>  array(
+				'sort' => array(
 					'default' => 'function_name',
 					'reverse' => 'function_name DESC',
 				),
@@ -1945,7 +1941,7 @@ function list_integration_hooks()
 				'data' => array(
 					'db' => 'file_name',
 				),
-				'sort' =>  array(
+				'sort' => array(
 					'default' => 'file_name',
 					'reverse' => 'file_name DESC',
 				),
@@ -1960,14 +1956,14 @@ function list_integration_hooks()
 					{
 						$change_status = array('before' => '', 'after' => '');
 
-							$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
-							$change_status['after'] = '</a>';
+						$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
+						$change_status['after'] = '</a>';
 
-						return $change_status['before'] . '<span class="generic_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>';
+						return $change_status['before'] . '<span class="main_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>';
 					},
 					'class' => 'centertext',
 				),
-				'sort' =>  array(
+				'sort' => array(
 					'default' => 'status',
 					'reverse' => 'status DESC',
 				),
@@ -1979,9 +1975,9 @@ function list_integration_hooks()
 				'value' => $txt['hooks_disable_instructions'] . '<br>
 					' . $txt['hooks_disable_legend'] . ':
 				<ul style="list-style: none;">
-					<li><span class="generic_icons post_moderation_allow"></span> ' . $txt['hooks_disable_legend_exists'] . '</li>
-					<li><span class="generic_icons post_moderation_moderate"></span> ' . $txt['hooks_disable_legend_disabled'] . '</li>
-					<li><span class="generic_icons post_moderation_deny"></span> ' . $txt['hooks_disable_legend_missing'] . '</li>
+					<li><span class="main_icons post_moderation_allow"></span> ' . $txt['hooks_disable_legend_exists'] . '</li>
+					<li><span class="main_icons post_moderation_moderate"></span> ' . $txt['hooks_disable_legend_disabled'] . '</li>
+					<li><span class="main_icons post_moderation_deny"></span> ' . $txt['hooks_disable_legend_missing'] . '</li>
 				</ul>'
 			),
 		),
@@ -1998,7 +1994,7 @@ function list_integration_hooks()
 				if (!$data['hook_exists'])
 					return '
 					<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">
-						<span class="generic_icons delete" title="' . $txt['hooks_button_remove'] . '"></span>
+						<span class="main_icons delete" title="' . $txt['hooks_button_remove'] . '"></span>
 					</a>';
 			},
 			'class' => 'centertext',
@@ -2008,7 +2004,6 @@ function list_integration_hooks()
 		'href' => $scripturl . '?action=admin;area=maintain;sa=hooks' . $context['filter_url'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 		'name' => 'list_integration_hooks',
 	);
-
 
 	require_once($sourcedir . '/Subs-List.php');
 	createList($list_options);
@@ -2323,7 +2318,7 @@ function fixchardb__callback($matches)
 		return '';
 
 	$num = $matches[1][0] === 'x' ? hexdec(substr($matches[1], 1)) : (int) $matches[1];
-	
+
 	// it's to big for mb3?
 	if ($num > 0xFFFF && !$smcFunc['db_mb4'])
 		return $matches[0];

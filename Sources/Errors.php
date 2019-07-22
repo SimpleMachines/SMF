@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -25,7 +25,7 @@ if (!defined('SMF'))
  *  die(log_error($msg));
  *
  * @param string $error_message The message to log
- * @param string $error_type The type of error
+ * @param string|bool $error_type The type of error
  * @param string $file The name of the file where this error occurred
  * @param int $line The line where the error occurred
  * @return string The message that was logged
@@ -45,7 +45,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		$backtrace = debug_backtrace();
 
 	// are we in a loop?
-	if($error_call > 2)
+	if ($error_call > 2)
 	{
 		var_dump($backtrace);
 		die('Error loop.');
@@ -64,7 +64,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	if ($file == null)
 		$file = '';
 	else
-		// Window style slashes don't play well, lets convert them to the unix style.
+		// Windows style slashes don't play well, lets convert them to the unix style.
 		$file = str_replace('\\', '/', $file);
 
 	if ($line == null)
@@ -155,8 +155,9 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 /**
  * An irrecoverable error. This function stops execution and displays an error message.
  * It logs the error message if $log is specified.
+ *
  * @param string $error The error message
- * @param string $log = 'general' What type of error to log this as (false to not log it))
+ * @param string|bool $log = 'general' What type of error to log this as (false to not log it))
  * @param int $status The HTTP status code associated with this error
  */
 function fatal_error($error, $log = 'general', $status = 500)
@@ -171,7 +172,7 @@ function fatal_error($error, $log = 'general', $status = 500)
 	if (empty($txt))
 		die($error);
 
-	log_error_online($error, false);
+	log_error_online($error);
 	setup_fatal_error_context($log ? log_error($error, $log) : $error);
 }
 
@@ -227,13 +228,14 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
 	}
 
-	log_error_online($error, true, $sprintf);
+	log_error_online($error, $sprintf);
 	setup_fatal_error_context($error_message, $error);
 }
 
 /**
  * Handler for standard error messages, standard PHP error handler replacement.
  * It dies with fatal_error() if the error_level matches with error_reporting.
+ *
  * @param int $error_level A pre-defined error-handling constant (see {@link https://php.net/errorfunc.constants})
  * @param string $error_string The error message
  * @param string $file The file where the error occurred
@@ -311,6 +313,7 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 
 /**
  * It is called by {@link fatal_error()} and {@link fatal_lang_error()}.
+ *
  * @uses Errors template, fatal_error sub template.
  *
  * @param string $error_message The error message
@@ -417,13 +420,13 @@ function display_maintenance_message()
 function display_db_error()
 {
 	global $mbname, $modSettings, $maintenance;
-	global $db_connection, $webmaster_email, $db_last_error, $db_error_send, $smcFunc, $sourcedir;
+	global $db_connection, $webmaster_email, $db_last_error, $db_error_send, $smcFunc, $sourcedir, $cache_enable;
 
 	require_once($sourcedir . '/Logging.php');
 	set_fatal_error_headers();
 
 	// For our purposes, we're gonna want this on if at all possible.
-	$modSettings['cache_enable'] = '1';
+	$cache_enable = '1';
 
 	if (($temp = cache_get_data('db_last_error', 600)) !== null)
 		$db_last_error = max($db_last_error, $temp);
@@ -499,11 +502,10 @@ function set_fatal_error_headers()
 	header('cache-control: no-cache');
 
 	// Send the right error codes.
-	header('HTTP/1.1 503 Service Temporarily Unavailable');
+	send_http_status(503, 'Service Temporarily Unavailable');
 	header('status: 503 Service Temporarily Unavailable');
 	header('retry-after: 3600');
 }
-
 
 /**
  * Small utility function for fatal error pages.
@@ -549,7 +551,7 @@ function log_error_online($error, $sprintf = array())
 		$url['error'] = $error;
 		// Url field got a max length of 1024 in db
 		if (strlen($url['error']) > 500)
-			$url['error'] = substr($url['error'],0,500);
+			$url['error'] = substr($url['error'], 0, 500);
 
 		if (!empty($sprintf))
 			$url['error_params'] = $sprintf;
@@ -565,28 +567,6 @@ function log_error_online($error, $sprintf = array())
 		);
 	}
 	$smcFunc['db_free_result']($request);
-}
-
-/**
- * Sends an appropriate HTTP status header based on a given status code
- * @param int $code The status code
- */
-function send_http_status($code)
-{
-	$statuses = array(
-		403 => 'Forbidden',
-		404 => 'Not Found',
-		410 => 'Gone',
-		500 => 'Internal Server Error',
-		503 => 'Service Unavailable'
-	);
-
-	$protocol = preg_match('~HTTP/1\.[01]~i', $_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
-
-	if (!isset($statuses[$code]))
-		header($protocol . ' 500 Internal Server Error');
-	else
-		header($protocol . ' ' . $code . ' ' . $statuses[$code]);
 }
 
 ?>

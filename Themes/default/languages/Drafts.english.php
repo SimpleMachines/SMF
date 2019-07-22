@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; Drafts
+// Version: 2.1 RC2; Drafts
 
 // profile
 $txt['drafts_show'] = 'Show drafts';
@@ -32,7 +32,7 @@ $txt['drafts_autosave_frequency'] = 'How often should drafts be autosaved?';
 $txt['drafts_autosave_frequency_subnote'] = 'The minimum allowable value is 30 seconds';
 $txt['drafts_pm_enabled'] = 'Enable the saving of PM drafts';
 $txt['drafts_post_enabled'] = 'Enable the saving of Post drafts';
-$txt['drafts_none'] = 'No Subject';
+$txt['drafts_none'] = 'No subject';
 $txt['drafts_saved'] = 'Draft was successfully saved';
 
 ?>

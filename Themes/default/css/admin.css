@@ -124,10 +124,10 @@ body#chrome #quick_search form input {
 /* Cleaned this up a bit for less clutter.
 /* Admin and moderation could generally do with a clean up everywhere.
 /* Live news from smorg and support information. */
-#live_news, #supportVersionsTable {
+#live_news, #support_info {
 	width: 70%;
 }
-#supportVersionsTable {
+#support_info {
 	width: 30%;
 	padding-left: 6px;
 }
@@ -185,7 +185,7 @@ fieldset.admin_group .inactive {
 	height: 32px;
 }
 .large_admin_menu_icon::before {
-	background: url(../images/icons/admin_sprite.png) no-repeat  -5px -47px;
+	background: url(../images/icons/admin_sprite.png) no-repeat -5px -47px;
 	margin: 0 auto;
 	display: block;
 	content: '';
@@ -291,34 +291,19 @@ fieldset.admin_group .inactive {
 /* Only a couple of trivial markup hacks that wont break any mods or themes.
 /* The older I get, the more devious I get. :D
 /* Nobody ever themes admin anyway. That's why it looked like crap. */
-#support_credits {
-	position: relative;
-	margin: -4px 0 0 0;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
-}
-#credits_logo {
-	position: absolute;
-	right: 10px;
-	top: 9px;
-}
-#latestSupport {
-	padding: 0 25px 15px 25px;
-}
-#support_credits dl {
+#support_credits_list dl {
 	padding: 0 6px;
 }
-#support_credits dt {
+#support_credits_list dt {
 	float: left;
 	padding: 6px 0.8em 0 0;
 	text-indent: -4px;
 }
-#support_credits dd {
+#support_credits_list dd {
 	padding: 6px 0;
 }
 
-/* Styles for the package manager.
-/* Haven't got here yet. :P */
+/* Styles for the package manager. */
 #package_list .tborder {
 	margin: .25em 0 .25em 26px;
 }
@@ -343,29 +328,21 @@ pre.file_content {
 	width: 100%;
 	padding-bottom: 1em;
 }
-.operation {
-	padding: 0 1em;
+#view_package table {
+	border-collapse: collapse;
 }
-tr[id^="operation_"] tr.windowbg {
-	border: 0;
-	border-radius: 0;
-}
-tr[id^="operation_"] .windowbg {
+#view_package td[colspan="5"] {
+	border: none;
+	font-size: 0.9em;
 	padding: 0;
-	background: none !important;
-}
-tr[id^="operation_"] .table_grid {
-	width: 95%;
-	float: right;
-	margin: 0;
 }
 
 /* Styles for the file permissions section. */
-.filepermissions {
+.file_permissions {
 	font-size: 0.8em;
 	white-space: nowrap;
 }
-.fperm {
+.perms_status {
 	display: block;
 	width: 35%;
 	text-align: center;
@@ -440,7 +417,8 @@ tr[id^="operation_"] .table_grid {
 #manage_boards dl {
 	padding: 8px 6px 0 6px;
 }
-#manage_boards dl textarea, #manage_boards dl table{
+
+#manage_boards dl textarea, #manage_boards dl table {
 	margin: 0 0 8px 0;
 }
 #manage_boards span.post_group, #manage_boards span.regular_members {
@@ -451,7 +429,7 @@ tr[id^="operation_"] .table_grid {
 	margin: 2px 2px 0px 12px;
 }
 .select_all_box {
-	display:none;
+	display: none;
 }
 
 /* Styles for the manage members section. */
@@ -461,6 +439,14 @@ tr[id^="operation_"] .table_grid {
 }
 dl.right dt {
 	padding-right: 10px;
+}
+
+/* Styles for the manage membergroups section. */
+.denyboards_layout .board:hover {
+	background: #e3e9ec;
+}
+.all_boards_in_cat {
+	margin-left: 2.5em;
 }
 
 /* Styles for the question and answers */
@@ -615,7 +601,7 @@ h3.grid_header {
 	vertical-align: middle;
 	margin: 0 8px 0 0;
 }
-#error_log .generic_icons::before {
+#error_log .main_icons::before {
 	margin: 0 5px 0 0;
 }
 #error_log .error_info {
@@ -634,9 +620,10 @@ h3.grid_header {
 	float: left;
 	margin-right: 5px;
 }
-#error_log span.error_message {
+#error_log span.error_message, #backtrace span.error_message {
 	overflow: hidden; /* This changes how the text wraps around the float */
 	display: block;
+	white-space: pre-wrap;
 }
 
 /* Styles for the Report generation */
@@ -652,7 +639,7 @@ h3.grid_header {
 #support_credits .sub_bar {
 	padding: 6px 0px 5px 0px;
 }
-#taskpad .button, #admincenter, #admin_form_wrapper {
+#taskpad .button, #admin_form_wrapper {
 	margin: 5px 0 5px 0;
 }
 h3.config_hd {
@@ -695,7 +682,7 @@ h3.config_hd {
 }
 
 .move_smileys .selected_item {
-	border-color: #FFB42D;
+	border-color: #ffb42d;
 }
 
 /* Progress bars */

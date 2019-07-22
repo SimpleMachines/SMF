@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -137,7 +137,7 @@ interface cache_api_interface
 	 * @access public
 	 * @return string the value of $key.
 	 */
-	public function getMiniumnVersion();
+	public function getMinimumVersion();
 
 	/**
 	 * Gets the Version of the Caching API.
@@ -146,11 +146,11 @@ interface cache_api_interface
 	 * @return string the value of $key.
 	 */
 	public function getVersion();
-	
+
 	/**
 	 * Run housekeeping of this cache
 	 * exp. clean up old data or do optimization
-	 * 
+	 *
 	 * @access public
 	 * @return void
 	 */
@@ -163,14 +163,14 @@ interface cache_api_interface
 abstract class cache_api implements cache_api_interface
 {
 	/**
-	 * @var string The last version of SMF that this was tested on. Helps protect against API changes.
+	 * @var string The maximum SMF version that this will work with.
 	 */
-	protected $version_compatible = 'SMF 2.1 Beta 4';
+	protected $version_compatible = '2.1.999';
 
 	/**
-	 * @var string The minimum SMF version that this will work with
+	 * @var string The minimum SMF version that this will work with.
 	 */
-	protected $min_smf_version = 'SMF 2.1 Beta 4';
+	protected $min_smf_version = '2.1 RC1';
 
 	/**
 	 * @var string The prefix for all keys.
@@ -324,7 +324,7 @@ abstract class cache_api implements cache_api_interface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getMiniumnVersion()
+	public function getMinimumVersion()
 	{
 		return $this->min_smf_version;
 	}
@@ -336,7 +336,7 @@ abstract class cache_api implements cache_api_interface
 	{
 		return $this->min_smf_version;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -34,7 +34,7 @@ if (!defined('SMF'))
  */
 function deleteMembers($users, $check_not_admin = false)
 {
-	global $sourcedir, $modSettings, $user_info, $smcFunc;
+	global $sourcedir, $modSettings, $user_info, $smcFunc, $cache_enable;
 
 	// Try give us a while to sort this out...
 	@set_time_limit(600);
@@ -124,7 +124,7 @@ function deleteMembers($users, $check_not_admin = false)
 		);
 
 		// Remove any cached data if enabled.
-		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+		if (!empty($cache_enable) && $cache_enable >= 2)
 			cache_put_data('user_settings-' . $user[0], null, 60);
 	}
 
@@ -132,7 +132,7 @@ function deleteMembers($users, $check_not_admin = false)
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}messages
 		SET id_member = {int:guest_id}' . (!empty($modSettings['deleteMembersRemovesEmail']) ? ',
-		poster_email = {string:blank_email}' : '') . '
+			poster_email = {string:blank_email}' : '') . '
 		WHERE id_member IN ({array_int:users})',
 		array(
 			'guest_id' => 0,
@@ -466,6 +466,9 @@ function registerMember(&$regOptions, $return_errors = false)
 	// Spaces and other odd characters are evil...
 	$regOptions['username'] = trim(preg_replace('~[\t\n\r \x0B\0' . ($context['utf8'] ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $regOptions['username']));
 
+	// Convert character encoding for non-utf8mb4 database
+	$regOptions['username'] = $smcFunc['htmlspecialchars']($regOptions['username']);
+
 	// @todo Separate the sprintf?
 	if (empty($regOptions['email']) || !filter_var($regOptions['email'], FILTER_VALIDATE_EMAIL) || strlen($regOptions['email']) > 255)
 		$reg_errors[] = array('lang', 'profile_error_bad_email');
@@ -586,7 +589,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		'member_name' => $regOptions['username'],
 		'email_address' => $regOptions['email'],
 		'passwd' => hash_password($regOptions['username'], $regOptions['password']),
-		'password_salt' => substr(md5(mt_rand()), 0, 4) ,
+		'password_salt' => substr(md5($smcFunc['random_int']()), 0, 4),
 		'posts' => 0,
 		'date_registered' => time(),
 		'member_ip' => $regOptions['interface'] == 'admin' ? '127.0.0.1' : $user_info['ip'],
@@ -676,7 +679,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		'time_offset',
 	);
 	$knownInets = array(
-		'member_ip','member_ip2',
+		'member_ip', 'member_ip2',
 	);
 
 	// Call an optional function to validate the users' input.
@@ -834,7 +837,6 @@ function registerMember(&$regOptions, $return_errors = false)
 	return $memberID;
 }
 
-
 /**
  * Check if a name is in the reserved words list.
  * (name, current member id, name/username?.)
@@ -904,7 +906,7 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 	$checkName = strtr($name, array('_' => '\\_', '%' => '\\%'));
 
 	//when we got no wildcard we can use equal -> fast
-	$operator = (strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=' );
+	$operator = (strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=');
 
 	// Make sure they don't want someone else's name.
 	$request = $smcFunc['db_query']('', '
@@ -945,7 +947,12 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 	}
 
 	// Okay, they passed.
-	return false;
+	$is_reserved = false;
+
+	// Maybe a mod wants to perform further checks?
+	call_integration_hook('integrate_check_name', array($checkName, &$is_reserved, $current_ID_MEMBER, $is_name));
+
+	return $is_reserved;
 }
 
 // Get a list of groups that have a given permission (on a given board).
@@ -1102,10 +1109,9 @@ function membersAllowedTo($permission, $board_id = null)
 	$request = $smcFunc['db_query']('', '
 		SELECT mem.id_member
 		FROM {db_prefix}members AS mem' . ($include_moderators || $exclude_moderators ? '
-			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member AND mods.id_board = {int:board_id})
-			LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_group IN ({array_int:all_member_groups}) AND modgs.id_board = {int:board_id})' : '') . '
-		WHERE (' . ($include_moderators ? 'mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_allowed}) OR FIND_IN_SET({raw:member_group_allowed_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_allowed}))' . (empty($member_groups['denied']) ? '' : '
-			AND NOT (' . ($exclude_moderators ? 'mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_denied}) OR FIND_IN_SET({raw:member_group_denied_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_denied}))'),
+			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member AND mods.id_board = {int:board_id})' : '') . '
+		WHERE (' . ($include_moderators ? 'mods.id_member IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_allowed}) OR FIND_IN_SET({raw:member_group_allowed_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_allowed}))' . (empty($member_groups['denied']) ? '' : '
+			AND NOT (' . ($exclude_moderators ? 'mods.id_member IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_denied}) OR FIND_IN_SET({raw:member_group_denied_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_denied}))'),
 		array(
 			'member_groups_allowed' => $member_groups['allowed'],
 			'member_groups_denied' => $member_groups['denied'],
@@ -1238,7 +1244,7 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 	}
 
 	// Allow mods with their own post tables to reattribute posts as well :)
- 	call_integration_hook('integrate_reattribute_posts', array($memID, $email, $membername, $post_count, &$updated));
+	call_integration_hook('integrate_reattribute_posts', array($memID, $email, $membername, $post_count, &$updated));
 
 	return $updated;
 }
@@ -1255,7 +1261,7 @@ function BuddyListToggle()
 
 	checkSession('get');
 
-	isAllowedTo('profile_identity_own');
+	isAllowedTo('profile_extra_own');
 	is_not_guest();
 
 	$userReceiver = (int) !empty($_REQUEST['u']) ? $_REQUEST['u'] : 0;
@@ -1273,7 +1279,7 @@ function BuddyListToggle()
 		$user_info['buddies'][] = $userReceiver;
 
 		// And add a nice alert. Don't abuse though!
-		if ((cache_get_data('Buddy-sent-'. $user_info['id'] .'-'. $userReceiver, 86400)) == null)
+		if ((cache_get_data('Buddy-sent-' . $user_info['id'] . '-' . $userReceiver, 86400)) == null)
 		{
 			$smcFunc['db_insert']('insert',
 				'{db_prefix}background_tasks',
@@ -1288,7 +1294,7 @@ function BuddyListToggle()
 			);
 
 			// Store this in a cache entry to avoid creating multiple alerts. Give it a long life cycle.
-			cache_put_data('Buddy-sent-'. $user_info['id'] .'-'. $userReceiver, '1', 86400);
+			cache_put_data('Buddy-sent-' . $user_info['id'] . '-' . $userReceiver, '1', 86400);
 		}
 	}
 
@@ -1503,6 +1509,7 @@ function populateDuplicateMembers(&$members)
 
 /**
  * Generate a random validation code.
+ *
  * @todo Err. Whatcha doin' here.
  *
  * @return string A random validation code
@@ -1520,7 +1527,7 @@ function generateValidationCode()
 	list ($dbRand) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	return substr(preg_replace('/\W/', '', sha1(microtime() . mt_rand() . $dbRand . $modSettings['rand_seed'])), 0, 10);
+	return substr(preg_replace('/\W/', '', sha1(microtime() . $smcFunc['random_int']() . $dbRand . $modSettings['rand_seed'])), 0, 10);
 }
 
 ?>

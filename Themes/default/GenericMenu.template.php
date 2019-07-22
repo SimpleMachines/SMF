@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -15,15 +15,35 @@
  */
 function template_generic_menu_dropdown_above()
 {
-	global $context;
+	global $context, $txt;
 
 	// Which menu are we rendering?
 	$context['cur_menu_id'] = isset($context['cur_menu_id']) ? $context['cur_menu_id'] + 1 : 1;
 	$menu_context = &$context['menu_data_' . $context['cur_menu_id']];
 
 	// Load the menu
-	template_generic_menu($menu_context);
-	template_generic_menu_mobile($menu_context);
+	// Add mobile menu as well
+	echo '
+	<a class="menu_icon mobile_generic_menu_', $context['cur_menu_id'], '"></a>
+	<div id="genericmenu">
+		<div id="mobile_generic_menu_', $context['cur_menu_id'], '" class="popup_container">
+			<div class="popup_window description">
+				<div class="popup_heading">
+					', $txt['mobile_user_menu'], '
+					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
+				</div>
+				', template_generic_menu($menu_context), '
+				</div>
+		</div>
+	</div>
+	<script>
+		$( ".mobile_generic_menu_', $context['cur_menu_id'], '" ).click(function() {
+			$( "#mobile_generic_menu_', $context['cur_menu_id'], '" ).show();
+			});
+		$( ".hide_popup" ).click(function() {
+			$( "#mobile_generic_menu_', $context['cur_menu_id'], '" ).hide();
+		});
+	</script>';
 
 	// This is the main table - we need it so we can keep the content to the right of it.
 	echo '
@@ -31,7 +51,7 @@ function template_generic_menu_dropdown_above()
 
 	// It's possible that some pages have their own tabs they wanna force...
 // 	if (!empty($context['tabs']))
-		template_generic_menu_tabs($menu_context);
+	template_generic_menu_tabs($menu_context);
 }
 
 /**
@@ -41,32 +61,6 @@ function template_generic_menu_dropdown_below()
 {
 	echo '
 				</div><!-- #admin_content -->';
-}
-
-function template_generic_menu_mobile(&$menu_context)
-{
-	global $context, $txt;
-
-	// Load mobile menu here
-	echo '
-		<a class="menu_icon mobile_generic_menu_', $context['cur_menu_id'], '"></a>
-		<div id="mobile_generic_menu_', $context['cur_menu_id'], '" class="popup_container">
-			<div class="popup_window description">
-				<div class="popup_heading">
-					', $txt['mobile_user_menu'], '
-					<a href="javascript:void(0);" class="generic_icons hide_popup"></a>
-				</div>
-				', template_generic_menu($menu_context), '
-			</div>
-		</div>
-		<script>
-			$( ".mobile_generic_menu_', $context['cur_menu_id'], '" ).click(function() {
-				$( "#mobile_generic_menu_', $context['cur_menu_id'], '" ).show();
-				});
-			$( ".hide_popup" ).click(function() {
-				$( "#mobile_generic_menu_', $context['cur_menu_id'], '" ).hide();
-			});
-		</script>';
 }
 
 function template_generic_menu(&$menu_context)
@@ -81,7 +75,7 @@ function template_generic_menu(&$menu_context)
 	foreach ($menu_context['sections'] as $section)
 	{
 		echo '
-						<li ', !empty($section['areas']) ? 'class="subsections"' : '', '><a class="', !empty($section['selected']) ? 'active ' : '', '" href="', $section['url'], $menu_context['extra_parameters'], '">', $section['title'], '</a>
+						<li ', !empty($section['areas']) ? 'class="subsections"' : '', '><a class="', !empty($section['selected']) ? 'active ' : '', '" href="', $section['url'], $menu_context['extra_parameters'], '">', $section['title'], !empty($section['amt']) ? ' <span class="amt">' . $section['amt'] . '</span>' : '', '</a>
 							<ul>';
 
 		// For every area of this section show a link to that area (bold if it's currently selected.)
@@ -93,15 +87,15 @@ function template_generic_menu(&$menu_context)
 				continue;
 
 			echo '
-								<li', !empty($area['subsections']) ? ' class="subsections"' : '', '>
-									<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], '</a>';
+								<li', !empty($area['subsections']) && empty($area['hide_subsections']) ? ' class="subsections"' : '', '>
+									<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], !empty($area['amt']) ? ' <span class="amt">' . $area['amt'] . '</span>' : '', '</a>';
 
 			// Is this the current area, or just some area?
 			if (!empty($area['selected']) && empty($context['tabs']))
-					$context['tabs'] = isset($area['subsections']) ? $area['subsections'] : array();
+				$context['tabs'] = isset($area['subsections']) ? $area['subsections'] : array();
 
 			// Are there any subsections?
-			if (!empty($area['subsections']))
+			if (!empty($area['subsections']) && empty($area['hide_subsections']))
 			{
 				echo '
 									<ul>';
@@ -115,7 +109,7 @@ function template_generic_menu(&$menu_context)
 
 					echo '
 										<li>
-											<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', ' href="', $url, $menu_context['extra_parameters'], '">', $sub['label'], '</a>
+											<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', ' href="', $url, $menu_context['extra_parameters'], '">', $sub['label'], !empty($sub['amt']) ? ' <span class="amt">' . $sub['amt'] . '</span>' : '', '</a>
 										</li>';
 				}
 
@@ -181,7 +175,7 @@ function template_generic_menu_tabs(&$menu_context)
 				if (isset($tab['url']) && !isset($tab_context['tabs'][$id]['url']))
 					$tab_context['tabs'][$id]['url'] = $tab['url'];
 
-				// Any additional paramaters for the url?
+				// Any additional parameters for the url?
 				if (isset($tab['add_params']) && !isset($tab_context['tabs'][$id]['add_params']))
 					$tab_context['tabs'][$id]['add_params'] = $tab['add_params'];
 
@@ -221,7 +215,7 @@ function template_generic_menu_tabs(&$menu_context)
 
 			if (!empty($selected_tab['help']) || !empty($tab_context['help']))
 				echo '
-								<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>';
+								<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>';
 
 			echo $tab_context['title'];
 		}
