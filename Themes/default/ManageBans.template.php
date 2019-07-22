@@ -260,11 +260,11 @@ function template_ban_edit_trigger()
 			<div class="windowbg">
 				<fieldset>
 					<legend>
-						<input type="checkbox" onclick="',$context['ban_trigger']['is_new'] ? '' : 'this.checked = false;','invertAll(this, this.form, \'ban_suggestion\');" id="triggers_check"', $context['ban_trigger']['is_new'] ? '': 'disabled=true',' > ', $txt['ban_triggers'], '
+						<input type="checkbox" onclick="',$context['ban_trigger']['is_new'] ? '' : 'this.checked = false;','invertAll(this, this.form, \'ban_suggestion\');" id="triggers_check"', $context['ban_trigger']['is_new'] ? '': ' disabled',' > ', $txt['ban_triggers'], '
 					</legend>
 					<dl class="settings">
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip"', $context['ban_trigger']['ip']['selected'] ? ' checked ' : '', $context['ban_trigger']['is_new'] ? '': 'onClick="return false;"' , '>
+							<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip"', $context['ban_trigger']['ip']['selected'] ? ' checked' : '', $context['ban_trigger']['is_new'] ? '': ' onClick="return false;"' , '>
 							<label for="main_ip_check">', $txt['ban_on_ip'], '</label>
 						</dt>
 						<dd>
@@ -274,7 +274,7 @@ function template_ban_edit_trigger()
 	if (empty($modSettings['disableHostnameLookup']))
 		echo '
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname"', $context['ban_trigger']['hostname']['selected'] ? ' checked ' : '', $context['ban_trigger']['is_new'] ? '': 'onClick="return false;"' , '>
+							<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname"', $context['ban_trigger']['hostname']['selected'] ? ' checked' : '', $context['ban_trigger']['is_new'] ? '': ' onClick="return false;"' , '>
 							<label for="hostname_check">', $txt['ban_on_hostname'], '</label>
 						</dt>
 						<dd>
@@ -283,14 +283,14 @@ function template_ban_edit_trigger()
 
 	echo '
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email"', $context['ban_trigger']['email']['selected'] ? ' checked ' : '', $context['ban_trigger']['is_new'] ? '': 'onClick="return false;"' , '>
+							<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email"', $context['ban_trigger']['email']['selected'] ? ' checked' : '', $context['ban_trigger']['is_new'] ? '': ' onClick="return false;"' , '>
 							<label for="email_check">', $txt['ban_on_email'], '</label>
 						</dt>
 						<dd>
 							<input type="text" name="email" value="', $context['ban_trigger']['email']['value'], '" size="44" onfocus="$(\'#email_check\').prop(\'checked\', true);$(\'#email_check\').trigger(\'change\');">
 						</dd>
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', $context['ban_trigger']['banneduser']['selected'] ? ' checked ' : '', $context['ban_trigger']['is_new'] ? '': 'onClick="return false;"' , '>
+							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', $context['ban_trigger']['banneduser']['selected'] ? ' checked' : '', $context['ban_trigger']['is_new'] ? '': ' onClick="return false;"' , '>
 							<label for="user_check">', $txt['ban_on_username'], '</label>:
 						</dt>
 						<dd>
