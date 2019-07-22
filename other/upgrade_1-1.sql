@@ -608,6 +608,33 @@ if ($do_it)
 ---#
 
 ---# Updating event start and end dates...
+UPDATE {$db_prefix}calendar
+SET eventDate = '0001-01-01'
+WHERE eventDate = '0000-00-00';
+
+ALTER TABLE {$db_prefix}calendar
+CHANGE COLUMN eventDate startDate date NOT NULL default '0001-01-01';
+
+ALTER TABLE {$db_prefix}calendar
+ADD COLUMN endDate date NOT NULL default '0001-01-01';
+
+UPDATE {$db_prefix}calendar
+SET endDate = startDate
+WHERE endDate = '0001-01-01';
+
+ALTER TABLE {$db_prefix}calendar
+ADD INDEX endDate (endDate);
+
+ALTER TABLE {$db_prefix}calendar
+DROP INDEX ID_TOPIC;
+
+UPDATE {$db_prefix}calendar_holidays
+SET eventDate = '0001-01-01'
+WHERE eventDate = '0000-00-00';
+
+ALTER TABLE {$db_prefix}calendar_holidays
+CHANGE COLUMN eventDate eventDate date NOT NULL default '0001-01-01';
+
 ALTER TABLE {$db_prefix}calendar
 ADD INDEX topic (ID_TOPIC, ID_MEMBER);
 ---#
