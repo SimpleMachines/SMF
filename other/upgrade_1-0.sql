@@ -311,7 +311,10 @@ if (!empty($replaceRows))
 
 ---# Converting "log_activity"...
 ALTER TABLE {$db_prefix}log_activity
-ADD date date NOT NULL default '0001-01-01';
+ADD date date NOT NULL default '1004-01-01';
+
+ALTER TABLE {$db_prefix}log_activity
+CHANGE COLUMN date date DATE NOT NULL default '1004-01-01';
 
 ALTER TABLE {$db_prefix}log_activity
 DROP PRIMARY KEY;
@@ -328,6 +331,9 @@ ALTER TABLE {$db_prefix}log_activity
 ADD INDEX hits (hits);
 ALTER TABLE {$db_prefix}log_activity
 ADD PRIMARY KEY (date);
+
+ALTER TABLE {$db_prefix}log_activity
+CHANGE COLUMN mostOn most_on smallint(5) unsigned NOT NULL default '0';
 
 ALTER TABLE {$db_prefix}log_activity
 CHANGE COLUMN hits hits mediumint(8) unsigned NOT NULL default '0',
