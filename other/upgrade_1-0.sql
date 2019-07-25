@@ -1088,11 +1088,20 @@ if ($do_it)
 	$adv_im = smf_mysql_num_rows($request) == 0;
 	smf_mysql_free_result($request);
 
-	upgrade_query("
-		INSERT IGNORE INTO {$db_prefix}im_recipients
-			(ID_PM, ID_MEMBER, bcc, is_read, deleted)
-		SELECT ID_PM, ID_MEMBER_TO, 0, IF(" . (!$adv_im ? 'readBy' : 'alerted') . " != 0, 1, 0), IF(deletedBy = '1', 1, 0)
-		FROM {$db_prefix}instant_messages");
+	$request = upgrade_query("
+		SHOW COLUMNS
+		FROM {$db_prefix}instant_messages
+		LIKE 'ID_MEMBER_TO'");
+	$do_it2 = smf_mysql_num_rows($request) > 0;
+
+	if ($do_it2)
+	{
+		upgrade_query("
+			INSERT IGNORE INTO {$db_prefix}im_recipients
+				(ID_PM, ID_MEMBER, bcc, is_read, deleted)
+			SELECT ID_PM, ID_MEMBER_TO, 0, IF(" . (!$adv_im ? 'readBy' : 'alerted') . " != 0, 1, 0), IF(deletedBy = '1', 1, 0)
+			FROM {$db_prefix}instant_messages");
+	}
 }
 ---}
 
