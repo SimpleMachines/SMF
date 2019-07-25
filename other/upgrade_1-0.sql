@@ -8,8 +8,8 @@
 CREATE TABLE IF NOT EXISTS {$db_prefix}themes (
 	ID_MEMBER mediumint(8) NOT NULL default '0',
 	ID_THEME tinyint(4) unsigned NOT NULL default '1',
-	variable tinytext NOT NULL default '',
-	value text NOT NULL default '',
+	variable tinytext NOT NULL,
+	value text NOT NULL,
 	PRIMARY KEY (ID_MEMBER, ID_THEME, variable(30))
 ) ENGINE=MyISAM;
 
@@ -17,7 +17,7 @@ ALTER TABLE {$db_prefix}themes
 CHANGE COLUMN ID_MEMBER ID_MEMBER mediumint(8) NOT NULL default '0';
 
 ALTER TABLE {$db_prefix}themes
-CHANGE COLUMN value value text NOT NULL default '';
+CHANGE COLUMN value value text NOT NULL;
 
 INSERT IGNORE INTO {$db_prefix}themes
 	(ID_MEMBER, ID_THEME, variable, value)
@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}attachments (
 	ID_ATTACH int(11) unsigned NOT NULL auto_increment,
 	ID_MSG int(10) unsigned NOT NULL default '0',
 	ID_MEMBER int(10) unsigned NOT NULL default '0',
-	filename tinytext NOT NULL default '',
+	filename tinytext NOT NULL,
 	size int(10) unsigned NOT NULL default '0',
 	downloads mediumint(8) unsigned NOT NULL default '0',
 	PRIMARY KEY (ID_ATTACH),
@@ -141,9 +141,9 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}log_actions (
 	ID_ACTION int(10) unsigned NOT NULL auto_increment,
 	logTime int(10) unsigned NOT NULL default '0',
 	ID_MEMBER mediumint(8) unsigned NOT NULL default '0',
-	IP tinytext NOT NULL default '',
+	IP tinytext NOT NULL,
 	action varchar(30) NOT NULL default '',
-	extra text NOT NULL default '',
+	extra text NOT NULL,
 	PRIMARY KEY (ID_ACTION),
 	KEY logTime (logTime),
 	KEY ID_MEMBER (ID_MEMBER)
@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}log_actions (
 CREATE TABLE IF NOT EXISTS {$db_prefix}poll_choices (
 	ID_POLL mediumint(8) unsigned NOT NULL default '0',
 	ID_CHOICE tinyint(4) unsigned NOT NULL default '0',
-	label tinytext NOT NULL default '',
+	label tinytext NOT NULL,
 	votes smallint(5) unsigned NOT NULL default '0',
 	PRIMARY KEY (ID_POLL, ID_CHOICE)
 ) ENGINE=MyISAM;
@@ -237,7 +237,7 @@ CREATE TABLE {$db_prefix}log_online (
 	logTime timestamp,
 	ID_MEMBER mediumint(8) unsigned NOT NULL default '0',
 	ip int(11) unsigned NOT NULL default '0',
-	url text NOT NULL default '',
+	url text NOT NULL,
 	PRIMARY KEY (session),
 	KEY online (logTime, ID_MEMBER),
 	KEY ID_MEMBER (ID_MEMBER)
@@ -247,7 +247,7 @@ CREATE TABLE {$db_prefix}log_online (
 ---# Converting "log_floodcontrol"...
 DROP TABLE IF EXISTS {$db_prefix}log_floodcontrol;
 CREATE TABLE {$db_prefix}log_floodcontrol (
-	ip tinytext NOT NULL default '',
+	ip tinytext NOT NULL,
 	logTime int(10) unsigned NOT NULL default '0',
 	PRIMARY KEY (ip(16)),
 	KEY logTime (logTime)
@@ -385,7 +385,7 @@ DROP PRIMARY KEY,
 CHANGE COLUMN ID_CAT ID_CAT tinyint(4) unsigned NOT NULL default '0',
 CHANGE COLUMN numTopics numTopics mediumint(8) unsigned NOT NULL default '0',
 CHANGE COLUMN numPosts numPosts mediumint(8) unsigned NOT NULL default '0',
-CHANGE COLUMN description description text NOT NULL default '',
+CHANGE COLUMN description description text NOT NULL,
 CHANGE COLUMN ID_BOARD ID_BOARD smallint(5) unsigned NOT NULL auto_increment PRIMARY KEY;
 ---#
 
@@ -875,7 +875,7 @@ ADD ID_GROUP smallint(5) unsigned NOT NULL default 0,
 ADD is_activated tinyint(3) unsigned NOT NULL default '1',
 ADD validation_code varchar(10) NOT NULL default '',
 ADD ID_MSG_LAST_VISIT int(10) unsigned NOT NULL default '0',
-ADD additionalGroups tinytext NOT NULL default '';
+ADD additionalGroups tinytext NOT NULL;
 ---#
 
 ---# Updating columns on "members"...
@@ -945,13 +945,13 @@ DROP INDEX realName;
 ALTER TABLE {$db_prefix}members
 CHANGE COLUMN AIM AIM varchar(16) NOT NULL default '',
 CHANGE COLUMN YIM YIM varchar(32) NOT NULL default '',
-CHANGE COLUMN ICQ ICQ tinytext NOT NULL default '',
-CHANGE COLUMN realName realName tinytext NOT NULL default '',
-CHANGE COLUMN emailAddress emailAddress tinytext NOT NULL default '',
+CHANGE COLUMN ICQ ICQ tinytext NOT NULL,
+CHANGE COLUMN realName realName tinytext NOT NULL,
+CHANGE COLUMN emailAddress emailAddress tinytext NOT NULL,
 CHANGE COLUMN dateRegistered dateRegistered int(10) unsigned NOT NULL default '0',
 CHANGE COLUMN passwd passwd varchar(64) NOT NULL default '',
-CHANGE COLUMN personalText personalText tinytext NOT NULL default '',
-CHANGE COLUMN websiteTitle websiteTitle tinytext NOT NULL default '';
+CHANGE COLUMN personalText personalText tinytext NOT NULL,
+CHANGE COLUMN websiteTitle websiteTitle tinytext NOT NULL;
 ---#
 
 ---# Changing column sizes on "members" (part 3)...
@@ -959,14 +959,14 @@ ALTER TABLE {$db_prefix}members
 DROP INDEX lngfile;
 
 ALTER TABLE {$db_prefix}members
-CHANGE COLUMN websiteUrl websiteUrl tinytext NOT NULL default '',
-CHANGE COLUMN location location tinytext NOT NULL default '',
-CHANGE COLUMN avatar avatar tinytext NOT NULL default '',
-CHANGE COLUMN im_ignore_list im_ignore_list tinytext NOT NULL default '',
-CHANGE COLUMN usertitle usertitle tinytext NOT NULL default '',
-CHANGE COLUMN lngfile lngfile tinytext NOT NULL default '',
-CHANGE COLUMN MSN MSN tinytext NOT NULL default '',
-CHANGE COLUMN memberIP memberIP tinytext NOT NULL default '',
+CHANGE COLUMN websiteUrl websiteUrl tinytext NOT NULL,
+CHANGE COLUMN location location tinytext NOT NULL,
+CHANGE COLUMN avatar avatar tinytext NOT NULL,
+CHANGE COLUMN im_ignore_list im_ignore_list tinytext NOT NULL,
+CHANGE COLUMN usertitle usertitle tinytext NOT NULL,
+CHANGE COLUMN lngfile lngfile tinytext NOT NULL,
+CHANGE COLUMN MSN MSN tinytext NOT NULL,
+CHANGE COLUMN memberIP memberIP tinytext NOT NULL,
 ADD INDEX lngfile (lngfile(24));
 ---#
 
@@ -1216,7 +1216,7 @@ if ($result === false)
 			onlineColor varchar(20) NOT NULL default '',
 			minPosts mediumint(9) NOT NULL default '-1',
 			maxMessages smallint(5) unsigned NOT NULL default '0',
-			stars tinytext NOT NULL default '',
+			stars tinytext NOT NULL,
 			PRIMARY KEY (ID_GROUP),
 			KEY minPosts (minPosts)
 		) ENGINE=MyISAM");
@@ -1502,14 +1502,14 @@ if ($request !== false)
 			ip_high3 tinyint(3) unsigned NOT NULL default '0',
 			ip_low4 tinyint(3) unsigned NOT NULL default '0',
 			ip_high4 tinyint(3) unsigned NOT NULL default '0',
-			hostname tinytext NOT NULL default '',
-			email_address tinytext NOT NULL default '',
+			hostname tinytext NOT NULL,
+			email_address tinytext NOT NULL,
 			ID_MEMBER mediumint(8) unsigned NOT NULL default '0',
 			ban_time int(10) unsigned NOT NULL default '0',
 			expire_time int(10) unsigned,
 			restriction_type varchar(30) NOT NULL default '',
-			reason tinytext NOT NULL default '',
-			notes text NOT NULL default '',
+			reason tinytext NOT NULL,
+			notes text NOT NULL,
 			PRIMARY KEY (id_ban)
 		) ENGINE=MyISAM");
 
@@ -1705,14 +1705,14 @@ DROP votedMemberIDs,
 DROP PRIMARY KEY,
 CHANGE COLUMN ID_POLL ID_POLL mediumint(8) unsigned NOT NULL auto_increment PRIMARY KEY,
 CHANGE COLUMN votingLocked votingLocked tinyint(1) NOT NULL default '0',
-CHANGE COLUMN question question tinytext NOT NULL default '',
+CHANGE COLUMN question question tinytext NOT NULL,
 ADD maxVotes tinyint(4) unsigned NOT NULL default '1',
 ADD expireTime int(10) unsigned NOT NULL default '0',
 ADD hideResults tinyint(4) unsigned NOT NULL default '0';
 
 ALTER TABLE {$db_prefix}polls
 ADD ID_MEMBER mediumint(8) unsigned NOT NULL default '0',
-ADD posterName tinytext NOT NULL default '';
+ADD posterName tinytext NOT NULL;
 ALTER TABLE {$db_prefix}polls
 ADD changeVote tinyint(4) unsigned NOT NULL default '0';
 ---#
