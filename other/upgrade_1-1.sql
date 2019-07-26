@@ -612,25 +612,24 @@ ALTER TABLE {$db_prefix}calendar
 DROP INDEX eventDate;
 
 ALTER TABLE {$db_prefix}calendar
-CHANGE COLUMN eventDate startDate date NOT NULL default '0001-01-01';
+CHANGE COLUMN eventDate startDate date NOT NULL default '1004-01-01';
 
 ALTER TABLE {$db_prefix}calendar
-CHANGE COLUMN startDate startDate date NOT NULL default '0001-01-01';
+CHANGE COLUMN startDate startDate date NOT NULL default '1004-01-01';
 
 UPDATE {$db_prefix}calendar
-SET startDate = '0001-01-01'
-WHERE startDate = '0000-00-00';
+SET startdate = DATE(CONCAT(IF(YEAR(startdate) < 1004, 1004, YEAR(startdate)), '-', IF(MONTH(startdate) < 1, 1, MONTH(startdate)), '-', IF(DAY(startdate) < 1, 1, DAY(startdate))))
+WHERE YEAR(startdate) < 1004;
 
 ALTER TABLE {$db_prefix}calendar
-ADD COLUMN endDate date NOT NULL default '0001-01-01';
+ADD COLUMN endDate date NOT NULL default '1004-01-01';
 
 ALTER TABLE {$db_prefix}calendar
-CHANGE COLUMN endDate endDate date NOT NULL default '0001-01-01';
+CHANGE COLUMN endDate endDate date NOT NULL default '1004-01-01';
 
 UPDATE {$db_prefix}calendar
 SET endDate = startDate
-WHERE endDate = '0001-01-01'
-	OR endDate = '0000-00-00';
+WHERE YEAR(endDate) < 1004;
 
 ALTER TABLE {$db_prefix}calendar
 ADD INDEX startDate (startDate),
@@ -643,38 +642,38 @@ ALTER TABLE {$db_prefix}calendar
 ADD INDEX topic (ID_TOPIC, ID_MEMBER);
 
 ALTER TABLE {$db_prefix}calendar_holidays
-CHANGE COLUMN eventDate eventDate date NOT NULL default '0001-01-01';
+CHANGE COLUMN eventDate eventDate date NOT NULL default '1004-01-01';
 
 UPDATE {$db_prefix}calendar_holidays
-SET eventDate = '0001-01-01'
-WHERE eventDate = '0000-00-00';
+SET eventDate = '1004-01-01'
+WHERE YEAR(eventDate) < 1004;
 
 UPDATE {$db_prefix}calendar_holidays
-SET eventDate = CONCAT('0004-', MONTH(eventDate), '-', DAYOFMONTH(eventDate))
-WHERE YEAR(eventDate) = 0;
+SET eventDate = CONCAT('1004-', MONTH(eventDate), '-', DAYOFMONTH(eventDate))
+WHERE YEAR(eventDate) < 1004;
 ---#
 
 ---# Converting other date columns...
 ALTER TABLE {$db_prefix}log_activity
-CHANGE COLUMN startDate date date NOT NULL default '0001-01-01';
+CHANGE COLUMN startDate date date NOT NULL default '1004-01-01';
 
 ALTER TABLE {$db_prefix}log_activity
-CHANGE COLUMN date date date NOT NULL default '0001-01-01';
+CHANGE COLUMN date date date NOT NULL default '1004-01-01';
 
 UPDATE {$db_prefix}log_activity
-SET date = '0001-01-01'
-WHERE date = '0000-00-00';
+SET date = '1004-01-01'
+WHERE YEAR(date) < 1004;
 
 ALTER TABLE {$db_prefix}members
-CHANGE COLUMN birthdate birthdate date NOT NULL default '0001-01-01';
+CHANGE COLUMN birthdate birthdate date NOT NULL default '1004-01-01';
 
 UPDATE {$db_prefix}members
-SET birthdate = '0001-01-01'
-WHERE birthdate = '0000-00-00';
+SET birthdate = '1004-01-01'
+WHERE YEAR(birthdate) < 1004;
 
 UPDATE {$db_prefix}members
-SET birthdate = CONCAT('0004-', MONTH(birthdate), '-', DAYOFMONTH(birthdate))
-WHERE YEAR(birthdate) = 0;
+SET birthdate = CONCAT('1004-', MONTH(birthdate), '-', DAYOFMONTH(birthdate))
+WHERE YEAR(birthdate) < 1004;
 ---#
 
 /******************************************************************************/
