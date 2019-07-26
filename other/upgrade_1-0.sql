@@ -1456,12 +1456,14 @@ if (!isset($modSettings['censor_vulgar']) || !isset($modSettings['censor_proper'
 
 ---# Converting topic notifications...
 ---{
-$result = upgrade_query("
-	SELECT COUNT(*)
-	FROM {$db_prefix}topics
-	WHERE notifies != ''");
-if ($result !== false)
+$request = upgrade_query("SHOW COLUMNS FROM {$db_prefix}topics LIKE 'notifies'");
+if (smf_mysql_num_rows($request) > 0)
 {
+	$result = upgrade_query("
+		SELECT COUNT(*)
+		FROM {$db_prefix}topics
+		WHERE notifies != ''");
+
 	list ($numNotifies) = smf_mysql_fetch_row($result);
 	smf_mysql_free_result($result);
 
@@ -1492,12 +1494,14 @@ DROP notifies;
 
 ---# Converting "banned"...
 ---{
-$request = upgrade_query("
-	SELECT type, value
-	FROM {$db_prefix}banned
-	WHERE type = 'ip'");
-if ($request !== false)
+$request = upgrade_query("SHOW COLUMNS FROM {$db_prefix}banned LIKE 'type'");
+if (smf_mysql_num_rows($request) > 0)
 {
+	$request = upgrade_query("
+		SELECT type, value
+		FROM {$db_prefix}banned
+		WHERE type = 'ip'");
+
 	$insertEntries = array();
 	while ($row = smf_mysql_fetch_assoc($request))
 	{
@@ -1574,6 +1578,9 @@ ADD INDEX logTime (logTime);
 
 ---# Updating columns on "calendar"...
 ALTER TABLE {$db_prefix}calendar
+CHANGE COLUMN eventDate eventDate DATE NOT NULL default '1004-01-01';
+
+ALTER TABLE {$db_prefix}calendar
 DROP PRIMARY KEY,
 CHANGE COLUMN id ID_EVENT smallint(5) unsigned NOT NULL auto_increment PRIMARY KEY,
 CHANGE COLUMN id_board ID_BOARD smallint(5) unsigned NOT NULL default '0',
@@ -1583,7 +1590,7 @@ ALTER TABLE {$db_prefix}calendar
 CHANGE COLUMN title title varchar(48) NOT NULL default '';
 
 ALTER TABLE {$db_prefix}calendar
-ADD eventDate date NOT NULL default '0000-00-00';
+ADD eventDate date NOT NULL default '1004-01-01';
 ---#
 
 ---# Updating indexes on "calendar"...
@@ -1607,7 +1614,7 @@ ADD INDEX eventDate (eventDate);
 ---# Updating structure on "calendar_holidays"...
 CREATE TABLE IF NOT EXISTS {$db_prefix}calendar_holidays (
 	ID_HOLIDAY smallint(5) unsigned NOT NULL auto_increment,
-	eventDate date NOT NULL default '0000-00-00',
+	eventDate date NOT NULL default '1004-01-01',
 	title varchar(30) NOT NULL default '',
 	PRIMARY KEY (ID_HOLIDAY),
 	KEY eventDate (eventDate)
