@@ -1697,11 +1697,13 @@ FROM {$db_prefix}polls;
 
 ---# Converting data to "log_polls"...
 ---{
-$query = upgrade_query("
-	SELECT ID_POLL, votedMemberIDs
-	FROM {$db_prefix}polls");
-if ($query !== false)
+$request = upgrade_query("SHOW COLUMNS FROM {$db_prefix}polls LIKE 'votedMemberIDs'");
+if (smf_mysql_num_rows($request) > 0)
 {
+	$query = upgrade_query("
+		SELECT ID_POLL, votedMemberIDs
+		FROM {$db_prefix}polls");
+
 	$setStringLog = '';
 	while ($row = smf_mysql_fetch_assoc($query))
 	{
