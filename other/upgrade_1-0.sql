@@ -1645,13 +1645,13 @@ if (empty($size))
 	upgrade_query("
 		INSERT INTO {$db_prefix}calendar_holidays
 			(eventDate, title)
-		SELECT IF(year IS NULL, CONCAT('0000-', month, '-', day), CONCAT(year, '-', month, '-', day)), title
+		SELECT IF(year IS NULL, CONCAT('1004-', month, '-', day), CONCAT(year, '-', month, '-', day)), title
 		FROM {$db_prefix}calendar_holiday");
 
 	upgrade_query("
 		INSERT INTO {$db_prefix}calendar_holidays
 			(eventDate, title)
-		VALUES ('0000-06-06', 'D-Day')");
+		VALUES ('1004-06-06', 'D-Day')");
 }
 ---}
 
