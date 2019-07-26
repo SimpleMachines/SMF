@@ -1341,11 +1341,15 @@ if ($result === false)
 
 ---# Converting "reserved_names"...
 ---{
-$request = upgrade_query("
-	SELECT setting, value
-	FROM {$db_prefix}reserved_names");
-if ($request !== false)
+$result = upgrade_query("SHOW TABLES LIKE '{$db_prefix}reserved_names'");
+$tableExists = smf_mysql_num_rows($result) > 0;
+
+if ($tableExists)
 {
+	$request = upgrade_query("
+		SELECT setting, value
+		FROM {$db_prefix}reserved_names");
+
 	$words = array();
 	$match_settings = array();
 	while ($row = smf_mysql_fetch_assoc($request))
