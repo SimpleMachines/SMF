@@ -884,6 +884,17 @@ ADD ID_MSG_LAST_VISIT int(10) unsigned NOT NULL default '0',
 ADD additionalGroups tinytext NOT NULL;
 ---#
 
+---# Fixing birthdates...
+UPDATE {$db_prefix}members
+SET birthdate = DATE(CONCAT(IF(YEAR(birthdate) < 1004, 1004, YEAR(birthdate)), '-', IF(MONTH(birthdate) < 1, 1, MONTH(birthdate)), '-', IF(DAY(birthdate) < 1, 1, DAY(birthdate))))
+WHERE YEAR(birthdate) < 1004;
+---#
+
+---# Fixing birthdate default...
+ALTER TABLE {$db_prefix}members
+CHANGE COLUMN birthdate birthdate DATE NOT NULL default '1004-01-01';
+---#
+
 ---# Updating columns on "members"...
 ALTER TABLE {$db_prefix}members
 CHANGE COLUMN ID_THEME ID_THEME tinyint(4) unsigned NOT NULL default 0;
