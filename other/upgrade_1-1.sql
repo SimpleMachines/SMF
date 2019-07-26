@@ -682,26 +682,32 @@ WHERE YEAR(birthdate) < 1004;
 
 ---# Checking for an old table...
 ---{
-$request = upgrade_query("
-	SHOW COLUMNS
-	FROM {$db_prefix}message_icons");
-$test = false;
-while ($request && $row = smf_mysql_fetch_row($request))
-	$test |= $row[0] == 'Name';
-if ($request)
-	smf_mysql_free_result($request);
+$result = upgrade_query("SHOW TABLES LIKE '{$db_prefix}message_icons'");
+$tableExists = smf_mysql_num_rows($result) > 0;
 
-if ($test)
+if ($tableExists)
 {
-	upgrade_query("
-		ALTER TABLE {$db_prefix}message_icons
-		DROP PRIMARY KEY,
-		CHANGE COLUMN id_icon id_icon smallint(5) unsigned NOT NULL auto_increment PRIMARY KEY,
-		CHANGE COLUMN Name filename varchar(80) NOT NULL default '',
-		CHANGE COLUMN Description title varchar(80) NOT NULL default '',
-		CHANGE COLUMN ID_BOARD ID_BOARD mediumint(8) unsigned NOT NULL default '0',
-		DROP INDEX id_icon,
-		ADD COLUMN iconOrder smallint(5) unsigned NOT NULL default '0'");
+	$request = upgrade_query("
+		SHOW COLUMNS
+		FROM {$db_prefix}message_icons");
+	$test = false;
+	while ($request && $row = smf_mysql_fetch_row($request))
+		$test |= $row[0] == 'Name';
+	if ($request)
+		smf_mysql_free_result($request);
+
+	if ($test)
+	{
+		upgrade_query("
+			ALTER TABLE {$db_prefix}message_icons
+			DROP PRIMARY KEY,
+			CHANGE COLUMN id_icon id_icon smallint(5) unsigned NOT NULL auto_increment PRIMARY KEY,
+			CHANGE COLUMN Name filename varchar(80) NOT NULL default '',
+			CHANGE COLUMN Description title varchar(80) NOT NULL default '',
+			CHANGE COLUMN ID_BOARD ID_BOARD mediumint(8) unsigned NOT NULL default '0',
+			DROP INDEX id_icon,
+			ADD COLUMN iconOrder smallint(5) unsigned NOT NULL default '0'");
+	}
 }
 ---}
 ---#
