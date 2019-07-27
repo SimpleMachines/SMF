@@ -1504,11 +1504,12 @@ function DatabaseChanges()
 
 	// All possible files.
 	// Name, < version, insert_on_complete
+	// Last entry in array indicates whether to use sql_mode of STRICT or not.
 	$files = array(
-		array('upgrade_1-0.sql', '1.1', '1.1 RC0'),
-		array('upgrade_1-1.sql', '2.0', '2.0 a'),
-		array('upgrade_2-0_' . $db_type . '.sql', '2.1', '2.1 dev0'),
-		array('upgrade_2-1_' . $db_type . '.sql', '3.0', SMF_VERSION),
+		array('upgrade_1-0.sql', '1.1', '1.1 RC0', false),
+		array('upgrade_1-1.sql', '2.0', '2.0 a', false),
+		array('upgrade_2-0_' . $db_type . '.sql', '2.1', '2.1 dev0', false),
+		array('upgrade_2-1_' . $db_type . '.sql', '3.0', SMF_VERSION, true),
 	);
 
 	// How many files are there in total?
@@ -1539,6 +1540,7 @@ function DatabaseChanges()
 			// Do we actually need to do this still?
 			if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < $file[1])
 			{
+				setSqlMode($file[3]);
 				$nextFile = parse_sql(dirname(__FILE__) . '/' . $file[0]);
 				if ($nextFile)
 				{
@@ -1580,6 +1582,24 @@ function DatabaseChanges()
 		return true;
 	}
 	return false;
+}
+
+// Different versions of the files use different sql_modes
+function setSqlMode($strict = true)
+{
+	global $db_type, $db_connection;
+
+	if ($db_type != 'mysql')
+		return;
+
+	if ($strict)
+		$mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+	else
+		$mode = '';
+
+	mysqli_query($db_connection, 'SET SESSION sql_mode = \'' . $mode . '\'');
+
+	return;
 }
 
 // Delete the damn thing!
