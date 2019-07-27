@@ -407,7 +407,7 @@ function deleteMembers($users, $check_not_admin = false)
 	updateSettings(array(
 		'calendar_updated' => time(),
 	));
-	
+
 	// Recalc of unapprovedMembers
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*) as unapprovedMembers
@@ -417,7 +417,7 @@ function deleteMembers($users, $check_not_admin = false)
 			'unapproved' => 3,
 		)
 	);
-	
+
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 	updateSettings(array('unapprovedMembers' => $row['unapprovedMembers']));
