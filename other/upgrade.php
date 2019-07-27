@@ -2149,7 +2149,7 @@ function upgrade_query($string, $unbuffered = false)
 	if ($db_type == 'mysql')
 	{
 		$mysqli_errno = mysqli_errno($db_connection);
-		$error_query = in_array(substr(trim($string), 0, 11), array('INSERT INTO', 'UPDATE IGNO', 'ALTER TABLE', 'DROP TABLE ', 'ALTER IGNOR'));
+		$error_query = in_array(substr(trim($string), 0, 11), array('INSERT INTO', 'UPDATE IGNO', 'ALTER TABLE', 'DROP TABLE ', 'ALTER IGNOR', 'INSERT IGNO'));
 
 		// Error numbers:
 		//    1016: Can't open file '....MYI'
