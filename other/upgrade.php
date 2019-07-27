@@ -2196,6 +2196,9 @@ function upgrade_query($string, $unbuffered = false)
 			return false;
 		elseif ($mysqli_errno == 1050 && substr(trim($string), 0, 12) == 'RENAME TABLE')
 			return false;
+		// Testing for legacy tables or columns? Needed for 1.0 & 1.1 scripts.
+		elseif (in_array($mysqli_errno, array(1054, 1146)) && in_array(substr(trim($string), 0, 7), array('SELECT ', 'SHOW CO')))
+			return false;
 	}
 	// If a table already exists don't go potty.
 	else
