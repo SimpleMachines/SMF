@@ -1669,11 +1669,18 @@ $(function() {
 	});
 
 	// Generic confirmation message.
-	$(document).on('click', '.you_sure', function() {
-		var custom_message = $(this).attr('data-confirm');
+	$(document).on('click', '.you_sure', function() { 
+	 	var custom_message = $(this).attr('data-confirm');
+		var timeBefore = new Date(); 
+		var result = confirm(custom_message ? custom_message.replace(/-n-/g, "\n") : smf_you_sure);
+		var timeAfter = new Date();
 
-		return confirm(custom_message ? custom_message.replace(/-n-/g, "\n") : smf_you_sure);
-	});
+		// Check if the browser disabled the alert
+		if (!result && (timeAfter - timeBefore) < 10)
+			return true;
+
+		return result;
+ }); 
 
 	// Generic event for smfSelectText()
 	$('.smf_select_text').on('click', function(e) {
