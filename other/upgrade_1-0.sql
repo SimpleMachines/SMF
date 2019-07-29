@@ -2008,4 +2008,8 @@ FROM {$db_prefix}topics;
 REPLACE INTO {$db_prefix}settings
 	(variable, value)
 VALUES ('cal_today_updated', '00000000');
+
+REPLACE INTO {$db_prefix}settings
+	(variable, value)
+VALUES ('enable_password_conversion', '1');
 ---#
