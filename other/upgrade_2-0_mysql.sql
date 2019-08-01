@@ -2763,7 +2763,7 @@ if (!isset($modSettings['attachment_thumb_png']))
 // Do they have "babylon" installed?
 if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 {
-	$babylon_dir = $GLOBALS['boarddir'] . '/Themes/babylon';
+	$babylon_dir = smf_mysql_real_escape_string($GLOBALS['boarddir'] . '/Themes/babylon');
 	$theme_request = upgrade_query("
 		SELECT ID_THEME
 		FROM {$db_prefix}themes
@@ -2778,13 +2778,13 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 		smf_mysql_free_result($theme_request);
 		unset($row);
 
-		$known_themes = explode(', ', $modSettings['knownThemes']);
+		$known_themes = explode(',', $modSettings['knownThemes']);
 
 		// Remove this value...
 		$known_themes = array_diff($known_themes, array($id_theme));
 
 		// Change back to a string...
-		$known_themes = implode(', ', $known_themes);
+		$known_themes = implode(',', $known_themes);
 
 		// Update the database
 		upgrade_query("
