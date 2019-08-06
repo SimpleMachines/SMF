@@ -32,6 +32,7 @@ ALTER TABLE {$db_prefix}calendar CHANGE end_date end_date date NOT NULL DEFAULT 
 ALTER TABLE {$db_prefix}calendar_holidays CHANGE event_date event_date date NOT NULL DEFAULT '1004-01-01';
 ALTER TABLE {$db_prefix}log_spider_stats CHANGE stat_date stat_date date NOT NULL DEFAULT '1004-01-01';
 ALTER TABLE {$db_prefix}members CHANGE birthdate birthdate date NOT NULL DEFAULT '1004-01-01';
+ALTER TABLE {$db_prefix}log_activity CHANGE DATE DATE date NOT NULL;
 ---#
 
 /******************************************************************************/
