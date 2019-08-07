@@ -607,11 +607,19 @@ function scheduled_weekly_digest()
  */
 function ReduceMailQueue($number = false, $override_limit = false, $force_send = false)
 {
-	global $modSettings, $smcFunc, $sourcedir;
+	global $modSettings, $smcFunc, $sourcedir, $txt, $language;
 
 	// Are we intending another script to be sending out the queue?
 	if (!empty($modSettings['mail_queue_use_cron']) && empty($force_send))
 		return false;
+
+	// Just in case we run into a problem.
+	if (!isset($txt))
+	{
+		loadEssentialThemeData();
+		loadLanguage('Errors', $language, false);
+		loadLanguage('index', $language, false);
+	}
 
 	// By default send 5 at once.
 	if (!$number)
