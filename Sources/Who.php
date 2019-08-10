@@ -441,6 +441,8 @@ function determineActions($urls, $preferred_prefix = false)
 
 		if (isset($actions['error']))
 		{
+			loadLanguage('Errors');
+
 			if (isset($txt[$actions['error']]))
 				$error_message = str_replace('"', '&quot;', empty($actions['who_error_params']) ? $txt[$actions['error']] : vsprintf($txt[$actions['error']], $actions['who_error_params']));
 			elseif ($actions['error'] == 'guest_login')
