@@ -626,7 +626,7 @@ function ModifyProfile($post_errors = array())
 				$post_errors[] = 'no_password';
 
 			// Since the password got modified due to all the $_POST cleaning, lets undo it so we can get the correct password
-			$password = un_htmlspecialchars($_POST['oldpasswrd']);
+			$password = un_htmlspecialchars($password);
 
 			// Does the integration want to check passwords?
 			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $password, false)), true);
