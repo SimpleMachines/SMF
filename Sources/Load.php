@@ -536,7 +536,7 @@ function loadUserSettings()
 		{
 			if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'profile' && isset($_REQUEST['area']) && in_array($_REQUEST['area'], array('popup', 'alerts_popup')))
 				$force_tfasetup = false;
-			elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == 'pm' && ($_REQUEST['sa'] == 'popup'))
+			elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == 'pm' && (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'popup'))
 				$force_tfasetup = false;
 
 			call_integration_hook('integrate_force_tfasetup', array(&$force_tfasetup));
