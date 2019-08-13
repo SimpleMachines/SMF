@@ -641,7 +641,7 @@ function ModifyProfile($post_errors = array())
 		}
 
 		// Change the IP address in the database.
-		if ($context['user']['is_owner'])
+		if ($context['user']['is_owner'] && $menuOptions['current_area'] != 'tfasetup')
 			$profile_vars['member_ip'] = $user_info['ip'];
 
 		// Now call the sub-action function...
@@ -658,7 +658,7 @@ function ModifyProfile($post_errors = array())
 				redirectexit();
 			}
 		}
-		elseif ($current_area == 'tfadisable')
+		elseif ($menuOptions['current_area'] == 'tfadisable')
 		{
 			// Already checked the password, token, permissions, and session.
 			$profile_vars += array(
