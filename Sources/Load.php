@@ -532,12 +532,15 @@ function loadUserSettings()
 		$force_tfasetup = !empty($modSettings['tfa_mode']) && $modSettings['tfa_mode'] >= 2 && $id_member && empty($user_settings['tfa_secret']) && SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != '.xml');
 
 		// Don't force TFA on popups
-		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'profile' && isset($_REQUEST['area']) && in_array($_REQUEST['area'], array('popup', 'alerts_popup')))
-			$force_tfasetup = false;
-		elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == 'pm' && ($_REQUEST['sa'] == 'popup'))
-			$force_tfasetup = false;
+		if ($force_tfasetup)
+		{
+			if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'profile' && isset($_REQUEST['area']) && in_array($_REQUEST['area'], array('popup', 'alerts_popup')))
+				$force_tfasetup = false;
+			elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == 'pm' && ($_REQUEST['sa'] == 'popup'))
+				$force_tfasetup = false;
 
-		call_integration_hook('integrate_force_tfasetup', array(&$force_tfasetup));
+			call_integration_hook('integrate_force_tfasetup', array(&$force_tfasetup));
+		}
 
 		// If we no longer have the member maybe they're being all hackey, stop brute force!
 		if (!$id_member)
