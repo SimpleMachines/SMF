@@ -347,17 +347,6 @@
 	input#searchfor, input#userspec {
 		width: 75%;
 	}
-	/* Hide me */
-	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
-	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
-	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
-	#member_list .ip, #member_list .last_active, #member_list .user_name,
-	#approve_list .ip, #approve_list .date_registered, #group_members .date_registered,
-	#main_content_section .navigate_section, .pagesection.top, .time,
-	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
-	#header_custom_profile_fields_placement, #custom_profile_fields .active, #custom_profile_fields .field_type, #custom_profile_fields .placement {
-		display: none !important;
-	}
 	/* Generic Lists */
 	#topic_notification_list .last_post, #topic_notification_list .started_by,
 	#request_list .time_applied, #file_list .date, #ban_list .notes, #ban_list .reason, #ban_log .email,
@@ -373,6 +362,19 @@
 	}
 	#private, #enclose {
 		width: 95%;
+	}
+	/* Search & Language */
+	#search_form {
+		width: 100%;
+		padding: 5px;
+		text-align: center;
+	}
+	/* (BETA) Table */
+	.table_grid th, .table_grid td {
+		display: block;
+		text-align: center; /* Make sure everything centered */
+		width: 100% !important; /* Note: Dunno if we can eliminate !imporant here due to inline width's */
+		word-break: break-all;
 	}
 }
 
@@ -565,7 +567,7 @@
 		text-align: left;
 	}
 	.login #ajax_loginuser, .login #ajax_loginpass, .login #loginuser, .login #loginpass, select {
-		width: 100%;
+		max-width: 100%;
 	}
 
 	/* Display (Topic View) */
@@ -741,15 +743,6 @@
 	#adm_submenus .dropmenu li {
 		float: left;
 		margin: 0;
-	}
-	#header_news_lists_preview, tr[id^="list_news_lists_"] td:nth-child(even),
-	#header_smiley_set_list_default, #header_smiley_set_list_url, #header_smiley_set_list_check,
-	tr[id^="list_smiley_set_list_"] td:nth-child(odd),
-	#header_mail_queue_priority,
-	tr[id^="list_mail_queue_"] td:nth-child(odd),
-	#header_member_list_user_name, #header_member_list_ip,
-	#header_member_list_last_active, #header_member_list_posts {
-		display: none;
 	}
 	tr[id^="list_mail_queue_"] td:first-of-type,
 	tr[id^="list_mail_queue_"] td:last-of-type {
