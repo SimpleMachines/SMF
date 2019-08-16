@@ -528,6 +528,20 @@ function loadUserSettings()
 		else
 			$id_member = 0;
 
+		// Check if we are forcing TFA
+		$force_tfasetup = !empty($modSettings['tfa_mode']) && $modSettings['tfa_mode'] >= 2 && $id_member && empty($user_settings['tfa_secret']) && SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != '.xml');
+
+		// Don't force TFA on popups
+		if ($force_tfasetup)
+		{
+			if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'profile' && isset($_REQUEST['area']) && in_array($_REQUEST['area'], array('popup', 'alerts_popup')))
+				$force_tfasetup = false;
+			elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == 'pm' && (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'popup'))
+				$force_tfasetup = false;
+
+			call_integration_hook('integrate_force_tfasetup', array(&$force_tfasetup));
+		}
+
 		// If we no longer have the member maybe they're being all hackey, stop brute force!
 		if (!$id_member)
 		{
@@ -576,7 +590,7 @@ function loadUserSettings()
 			$user_settings = array();
 		}
 		// Are we forcing 2FA? Need to check if the user groups actually require 2FA
-		elseif (!empty($modSettings['tfa_mode']) && $modSettings['tfa_mode'] >= 2 && $id_member && empty($user_settings['tfa_secret']))
+		elseif ($force_tfasetup)
 		{
 			if ($modSettings['tfa_mode'] == 2) //only do this if we are just forcing SOME membergroups
 			{

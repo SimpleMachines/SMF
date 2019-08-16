@@ -4265,7 +4265,7 @@ function tfasetup($memID)
 			{
 				$context['tfa_secret'] = $_SESSION['tfa_secret'];
 				$context['tfa_error'] = !$valid_code;
-				$context['tfa_pass_value'] = $_POST['passwd'];
+				$context['tfa_pass_value'] = $_POST['oldpasswrd'];
 				$context['tfa_value'] = $_POST['tfa_code'];
 			}
 		}
