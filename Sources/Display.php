@@ -906,6 +906,11 @@ function Display()
 			$DBascending = $ascending;
 			$page_operator = $ascending ? '>=' : '<=';
 		}
+        elseif ($start_char === 'L')
+        {
+            $DBascending = !$ascending;
+            $page_operator = $ascending ? '>=' : '<=';
+        }
 		else
 		{
 			$DBascending = !$ascending;
@@ -1013,13 +1018,15 @@ function Display()
 
 		// Sort the messages into the correct display order
 		if (!$DBascending)
-			sort($messages);
+			sort($messages, SORT_NUMERIC);
+		else
+            rsort($messages, SORT_NUMERIC);
 	}
 
 	// Remember the paging data for next time
-	$_SESSION['page_first_id'] = $ascending ? reset($messages) : end($messages);
+	$_SESSION['page_first_id'] = $messages[0];
 	$_SESSION['page_before_start'] = $_REQUEST['start'] - $limit;
-	$_SESSION['page_last_id'] = $ascending ? end($messages) : reset($messages);
+	$_SESSION['page_last_id'] = $messages[count($messages) - 1];
 	$_SESSION['page_next_start'] = $_REQUEST['start'] + $limit;
 	$_SESSION['page_current_start'] = $_REQUEST['start'];
 	$_SESSION['page_topic'] = $topic;
