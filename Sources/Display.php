@@ -906,11 +906,11 @@ function Display()
 			$DBascending = $ascending;
 			$page_operator = $ascending ? '>=' : '<=';
 		}
-        elseif ($start_char === 'L')
-        {
-            $DBascending = !$ascending;
-            $page_operator = $ascending ? '>=' : '<=';
-        }
+		elseif ($start_char === 'L')
+		{
+			$DBascending = !$ascending;
+			$page_operator = $ascending ? '>=' : '<=';
+		}
 		else
 		{
 			$DBascending = !$ascending;
@@ -1020,7 +1020,7 @@ function Display()
 		if (!$DBascending)
 			sort($messages, SORT_NUMERIC);
 		else
-            rsort($messages, SORT_NUMERIC);
+			rsort($messages, SORT_NUMERIC);
 	}
 
 	// Remember the paging data for next time
