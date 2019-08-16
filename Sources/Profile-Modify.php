@@ -2000,8 +2000,8 @@ function alert_configuration($memID)
 			'pm_reply' => array('alert' => 'never', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_send', 'is_board' => false)),
 		),
 		'groupr' => array(
-			'groupr_approved' => array('alert' => 'always', 'email' => 'yes'),
-			'groupr_rejected' => array('alert' => 'always', 'email' => 'yes'),
+			'groupr_approved' => array('alert' => 'yes', 'email' => 'yes'),
+			'groupr_rejected' => array('alert' => 'yes', 'email' => 'yes'),
 		),
 		'moderation' => array(
 			'unapproved_attachment' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'approve_posts', 'is_board' => true)),
