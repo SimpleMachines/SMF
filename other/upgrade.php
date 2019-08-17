@@ -947,12 +947,8 @@ function checkLogin()
 	global $modSettings, $upcontext, $disable_security;
 	global $smcFunc, $db_type, $support_js, $sourcedir, $txt;
 
-	// Don't bother if the security is disabled.
-	if ($disable_security)
-		return true;
-
 	// Are we trying to login?
-	if (isset($_POST['contbutt']) && (!empty($_POST['user'])))
+	if (isset($_POST['contbutt']) && (!empty($_POST['user']) || $disable_security))
 	{
 		// If we've disabled security pick a suitable name!
 		if (empty($_POST['user']))
