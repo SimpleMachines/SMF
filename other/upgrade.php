@@ -237,6 +237,14 @@ if (!isset($settings['default_theme_url']))
 if (!isset($settings['default_theme_dir']))
 	$settings['default_theme_dir'] = $modSettings['theme_dir'];
 
+// Old DBs won't have this
+if (!isset($modSettings['rand_seed']))
+{
+	if (!function_exists('cache_put_data'))
+		require_once($sourcedir . '/Load.php');
+	smf_seed_generator();
+}
+
 // This is needed in case someone invokes the upgrader using https when upgrading an http forum
 if (httpsOn())
 	$settings['default_theme_url'] = strtr($settings['default_theme_url'], array('http://' => 'https://'));
