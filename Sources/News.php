@@ -289,15 +289,15 @@ function ShowXmlFeed()
 			'dc' => 'http://purl.org/dc/elements/1.1/',
 		),
 		'smf' => array(
-			'' => 'http://www.simplemachines.org/xml/' . $_GET['sa'],
-			'smf' => 'http://www.simplemachines.org/',
+			'' => 'https://www.simplemachines.org/xml/' . $_GET['sa'],
+			'smf' => 'https://www.simplemachines.org/',
 		),
 	);
 	if ($_GET['sa'] == 'pms')
 	{
-		$namespaces['rss']['smf'] = 'http://www.simplemachines.org/';
-		$namespaces['rss2']['smf'] = 'http://www.simplemachines.org/';
-		$namespaces['atom']['smf'] = 'http://www.simplemachines.org/';
+		$namespaces['rss']['smf'] = 'https://www.simplemachines.org/';
+		$namespaces['rss2']['smf'] = 'https://www.simplemachines.org/';
+		$namespaces['atom']['smf'] = 'https://www.simplemachines.org/';
 	}
 
 	$extraFeedTags = array(
