@@ -155,7 +155,7 @@ QuickModifyTopic.prototype.modify_topic_done = function (XMLDoc)
 	this.bInEditMode = false;
 
 	// redo tips if they are on since we just pulled the rug out on this one
-	if ($.isFunction($.fn.SMFtooltip));
+	if ($.isFunction($.fn.SMFtooltip))
 		$('.preview').SMFtooltip().smf_tooltip_off;
 
 	return false;
@@ -326,7 +326,7 @@ QuickModify.prototype.modifyMsg = function (iMessageId, blnShowSubject)
 	// Send out the XMLhttp request to get more info
 	ajax_indicator(true);
 	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + iMessageId + ';modify;xml;' + smf_session_var + '=' + smf_session_id, '', this.onMessageReceived);
-	
+
 	// Jump to the message
 	document.getElementById('msg' + iMessageId).scrollIntoView();
 }
@@ -678,29 +678,6 @@ InTopicModeration.prototype.handleSubmit = function (sSubmitType)
 
 
 // *** Other functions...
-function expandThumb(thumbID)
-{
-	var img = document.getElementById('thumb_' + thumbID);
-	var link = document.getElementById('link_' + thumbID);
-
-	// save the currently displayed image attributes
-	var tmp_src = img.src;
-	var tmp_height = img.style.height;
-	var tmp_width = img.style.width;
-
-	// set the displayed image attributes to the link attributes, this will expand in place
-	img.src = link.href;
-	img.style.width = link.style.width;
-	img.style.height = link.style.height;
-
-	// place the image attributes back
-	link.href = tmp_src;
-	link.style.width = tmp_width;
-	link.style.height = tmp_height;
-
-	return false;
-}
-
 function ignore_toggles(msgids, text)
 {
 	for (i = 0; i < msgids.length; i++)

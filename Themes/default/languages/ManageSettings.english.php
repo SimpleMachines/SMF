@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; ManageSettings
+// Version: 2.1 RC2; ManageSettings
 
 global $scripturl;
 
@@ -118,7 +118,6 @@ Caching will work best if you have PHP compiled with one of the above optimizers
 $txt['detected_no_caching'] = '<strong class="alert">SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.</strong>';
 $txt['detected_accelerators'] = '<strong class="success">SMF has detected the following accelerators: %1$s</strong>';
 
-
 $txt['cache_enable'] = 'Caching Level';
 $txt['cache_off'] = 'No caching';
 $txt['cache_level1'] = 'Level 1 Caching (Recommended)';
@@ -224,7 +223,8 @@ $txt['setting_user_limit'] = 'Maximum user warning points per day';
 $txt['setting_user_limit_note'] = 'This value is the maximum amount of warning points a single moderator can assign to a user in a 24 hour period - 0 for no limit.';
 $txt['setting_warning_decrement'] = 'Warning points that are decreased every 24 hours';
 $txt['setting_warning_decrement_note'] = 'Only applies to users not warned within last 24 hours.';
-$txt['setting_view_warning'] = 'Users who can see warning status';
+$txt['setting_view_warning_any'] = 'Users who can see any warning status';
+$txt['setting_view_warning_own'] = 'Users who can see their own warning status';
 
 $txt['signature_settings'] = 'Signature Settings';
 $txt['signature_settings_desc'] = 'Use the settings on this page to decide how member signatures should be treated in SMF.';
@@ -393,6 +393,7 @@ $txt['languages_helptxt'] = 'Help text';
 $txt['languages_editortxt'] = 'User interface for the editor';
 $txt['languages_tztxt'] = 'Time zone descriptions';
 $txt['languages_txt_for_timezones'] = 'Custom location names';
+$txt['languages_txt_for_email_templates'] = 'Email message templates';
 $txt['languages_enter_key'] = 'Enter a variable name for this text string';
 $txt['languages_invalid_key'] = 'Sorry, but this variable name is invalid: ';
 

@@ -1,15 +1,16 @@
 <?php
 /**
- * This file contains background notification code for any create post action
+ * This file contains background notification code for moderators
+ * to approve posts.
  *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -18,7 +19,7 @@
 class ApprovePost_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the info, puts the email in the queue and inserts any alerts as needed.
+	 * This executes the task - loads up the info, puts the email in the queue and inserts any alerts as needed.
 	 * @return bool Always returns true
 	 */
 	public function execute()
@@ -40,7 +41,7 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, email_address, lngfile
 			FROM {db_prefix}members
-			WHERE id_member IN({array_int:members})',
+			WHERE id_member IN ({array_int:members})',
 			array(
 				'members' => $modMembers,
 			)
@@ -64,7 +65,7 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 		{
 			$pref = !empty($prefs[$member]['unapproved_post']) ? $prefs[$member]['unapproved_post'] : 0;
 
-			if ($pref & 0x02)
+			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				// Emails are a bit complicated. We have to do language stuff.
 				require_once($sourcedir . '/Subs-Post.php');
@@ -80,30 +81,30 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
 			}
 
-			if ($pref & 0x01)
+			if ($pref & self::RECEIVE_NOTIFY_ALERT)
 			{
 				$alert_rows[] = array(
 					'alert_time' => time(),
 					'id_member' => $member,
 					'id_member_started' => $posterOptions['id'],
 					'member_name' => $posterOptions['name'],
-					'content_type' => 'unapproved',
+					'content_type' => 'topic',
 					'content_id' => $topicOptions['id'],
-					'content_action' => $type,
+					'content_action' => 'unapproved_' . $type,
 					'is_read' => 0,
 					'extra' => $smcFunc['json_encode'](array(
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
 						'content_subject' => $msgOptions['subject'],
-						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
+						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.msg' . $msgOptions['id'] . '#msg' . $msgOptions['id'],
 					)),
 				);
-				updateMemberData($member, array('alerts' => '+'));
 			}
 		}
 
 		// Insert the alerts if any
 		if (!empty($alert_rows))
+		{
 			$smcFunc['db_insert']('',
 				'{db_prefix}user_alerts',
 				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
@@ -111,6 +112,9 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 				$alert_rows,
 				array()
 			);
+
+			updateMemberData(array_keys($watched), array('alerts' => '+'));
+		}
 
 		return true;
 	}

@@ -11,10 +11,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function loadSession()
 {
-	global $modSettings, $boardurl, $sc;
+	global $modSettings, $boardurl, $sc, $smcFunc, $cache_enable;
 
 	// Attempt to change a few PHP settings.
 	@ini_set('session.use_cookies', true);
@@ -53,7 +53,7 @@ function loadSession()
 		// This is here to stop people from using bad junky PHPSESSIDs.
 		if (isset($_REQUEST[session_name()]) && preg_match('~^[A-Za-z0-9,-]{16,64}$~', $_REQUEST[session_name()]) == 0 && !isset($_COOKIE[session_name()]))
 		{
-			$session_id = md5(md5('smf_sess_' . time()) . mt_rand());
+			$session_id = md5(md5('smf_sess_' . time()) . $smcFunc['random_int']());
 			$_REQUEST[session_name()] = $session_id;
 			$_GET[session_name()] = $session_id;
 			$_POST[session_name()] = $session_id;
@@ -72,7 +72,7 @@ function loadSession()
 			@ini_set('session.gc_maxlifetime', max($modSettings['databaseSession_lifetime'], 60));
 
 		// Use cache setting sessions?
-		if (empty($modSettings['databaseSession_enable']) && !empty($modSettings['cache_enable']) && php_sapi_name() != 'cli')
+		if (empty($modSettings['databaseSession_enable']) && !empty($cache_enable) && php_sapi_name() != 'cli')
 			call_integration_hook('integrate_session_handlers');
 
 		session_start();
@@ -85,8 +85,8 @@ function loadSession()
 	// Set the randomly generated code.
 	if (!isset($_SESSION['session_var']))
 	{
-		$_SESSION['session_value'] = md5(session_id() . mt_rand());
-		$_SESSION['session_var'] = substr(preg_replace('~^\d+~', '', sha1(mt_rand() . session_id() . mt_rand())), 0, mt_rand(7, 12));
+		$_SESSION['session_value'] = md5(session_id() . $smcFunc['random_int']());
+		$_SESSION['session_var'] = substr(preg_replace('~^\d+~', '', sha1($smcFunc['random_int']() . session_id() . $smcFunc['random_int']())), 0, $smcFunc['random_int'](7, 12));
 	}
 	$sc = $_SESSION['session_value'];
 }
@@ -169,7 +169,7 @@ function sessionWrite($session_id, $data)
 			$db_options['port'] = $db_port;
 
 		if (!empty($db_mb4))
-		$db_options['db_mb4'] = $db_mb4;
+			$db_options['db_mb4'] = $db_mb4;
 
 		$options = array_merge($db_options, array('persist' => $db_persist, 'dont_select_db' => SMF == 'SSI'));
 

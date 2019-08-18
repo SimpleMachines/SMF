@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -66,9 +66,9 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			{
 				// Update the latest activated member (highest id_member) and count.
 				$result = $smcFunc['db_query']('', '
-				SELECT COUNT(*), MAX(id_member)
-				FROM {db_prefix}members
-				WHERE is_activated = {int:is_activated}',
+					SELECT COUNT(*), MAX(id_member)
+					FROM {db_prefix}members
+					WHERE is_activated = {int:is_activated}',
 					array(
 						'is_activated' => 1,
 					)
@@ -78,10 +78,10 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 
 				// Get the latest activated member's display name.
 				$result = $smcFunc['db_query']('', '
-				SELECT real_name
-				FROM {db_prefix}members
-				WHERE id_member = {int:id_member}
-				LIMIT 1',
+					SELECT real_name
+					FROM {db_prefix}members
+					WHERE id_member = {int:id_member}
+					LIMIT 1',
 					array(
 						'id_member' => (int) $changes['latestMember'],
 					)
@@ -96,9 +96,9 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 					{
 						// Update the amount of members awaiting approval
 						$result = $smcFunc['db_query']('', '
-						SELECT COUNT(*)
-						FROM {db_prefix}members
-						WHERE is_activated IN ({array_int:activation_status})',
+							SELECT COUNT(*)
+							FROM {db_prefix}members
+							WHERE is_activated IN ({array_int:activation_status})',
 							array(
 								'activation_status' => array(3, 4),
 							)
@@ -108,12 +108,12 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 					}
 
 					// What about unapproved COPPA registrations?
-					if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 1)
+					if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 0)
 					{
 						$result = $smcFunc['db_query']('', '
-						SELECT COUNT(*)
-						FROM {db_prefix}members
-						WHERE is_activated = {int:coppa_approval}',
+							SELECT COUNT(*)
+							FROM {db_prefix}members
+							WHERE is_activated = {int:coppa_approval}',
 							array(
 								'coppa_approval' => 5,
 							)
@@ -139,10 +139,10 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			{
 				// SUM and MAX on a smaller table is better for InnoDB tables.
 				$result = $smcFunc['db_query']('', '
-				SELECT SUM(num_posts + unapproved_posts) AS total_messages, MAX(id_last_msg) AS max_msg_id
-				FROM {db_prefix}boards
-				WHERE redirect = {string:blank_redirect}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-					AND id_board != {int:recycle_board}' : ''),
+					SELECT SUM(num_posts + unapproved_posts) AS total_messages, MAX(id_last_msg) AS max_msg_id
+					FROM {db_prefix}boards
+					WHERE redirect = {string:blank_redirect}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+						AND id_board != {int:recycle_board}' : ''),
 					array(
 						'recycle_board' => isset($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
 						'blank_redirect' => '',
@@ -161,8 +161,8 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 		case 'subject':
 			// Remove the previous subject (if any).
 			$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}log_search_subjects
-			WHERE id_topic = {int:id_topic}',
+				DELETE FROM {db_prefix}log_search_subjects
+				WHERE id_topic = {int:id_topic}',
 				array(
 					'id_topic' => (int) $parameter1,
 				)
@@ -197,9 +197,9 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 				// Get the number of topics - a SUM is better for InnoDB tables.
 				// We also ignore the recycle bin here because there will probably be a bunch of one-post topics there.
 				$result = $smcFunc['db_query']('', '
-				SELECT SUM(num_topics + unapproved_topics) AS total_topics
-				FROM {db_prefix}boards' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-				WHERE id_board != {int:recycle_board}' : ''),
+					SELECT SUM(num_topics + unapproved_topics) AS total_topics
+					FROM {db_prefix}boards' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+					WHERE id_board != {int:recycle_board}' : ''),
 					array(
 						'recycle_board' => !empty($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
 					)
@@ -221,9 +221,9 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			{
 				// Fetch the postgroups!
 				$request = $smcFunc['db_query']('', '
-				SELECT id_group, min_posts
-				FROM {db_prefix}membergroups
-				WHERE min_posts != {int:min_posts}',
+					SELECT id_group, min_posts
+					FROM {db_prefix}membergroups
+					WHERE min_posts != {int:min_posts}',
 					array(
 						'min_posts' => -1,
 					)
@@ -257,11 +257,11 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 
 			// A big fat CASE WHEN... END is faster than a zillion UPDATE's ;).
 			$smcFunc['db_query']('', '
-			UPDATE {db_prefix}members
-			SET id_post_group = CASE ' . $conditions . '
-					ELSE 0
+				UPDATE {db_prefix}members
+				SET id_post_group = CASE ' . $conditions . '
+				ELSE 0
 				END' . ($parameter1 != null ? '
-			WHERE ' . (is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
+				WHERE ' . (is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
 				array(
 					'members' => $parameter1,
 				)
@@ -289,12 +289,16 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
  *
  * if the member's post number is updated, updates their post groups.
  *
- * @param mixed $members An array of member IDs, null to update this for all members or the ID of a single member
+ * @param mixed $members An array of member IDs, the ID of a single member, or null to update this for all members
  * @param array $data The info to update for the members
  */
 function updateMemberData($members, $data)
 {
-	global $modSettings, $user_info, $smcFunc, $sourcedir;
+	global $modSettings, $user_info, $smcFunc, $sourcedir, $cache_enable;
+
+	// An empty array means there's nobody to update.
+	if ($members === array())
+		return;
 
 	$parameters = array();
 	if (is_array($members))
@@ -386,22 +390,19 @@ function updateMemberData($members, $data)
 		// Doing an increment?
 		if ($var == 'alerts' && ($val === '+' || $val === '-'))
 		{
-			include_once($sourcedir . '/Profile-View.php');
+			include_once($sourcedir . '/Profile-Modify.php');
 			if (is_array($members))
 			{
 				$val = 'CASE ';
 				foreach ($members as $k => $v)
-					$val .= 'WHEN id_member = ' . $v . ' THEN '. count(fetch_alerts($v, false, 0, array(), false)) . ' ';
+					$val .= 'WHEN id_member = ' . $v . ' THEN '. alert_count($v, true) . ' ';
 				$val = $val . ' END';
 				$type = 'raw';
 			}
 			else
-			{
-				$blub = fetch_alerts($members, false, 0, array(), false);
-				$val = count($blub);
-			}
+				$val = alert_count($members, true);
 		}
-		else if ($type == 'int' && ($val === '+' || $val === '-'))
+		elseif ($type == 'int' && ($val === '+' || $val === '-'))
 		{
 			$val = $var . ' ' . $val . ' 1';
 			$type = 'raw';
@@ -432,14 +433,14 @@ function updateMemberData($members, $data)
 	updateStats('postgroups', $members, array_keys($data));
 
 	// Clear any caching?
-	if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2 && !empty($members))
+	if (!empty($cache_enable) && $cache_enable >= 2 && !empty($members))
 	{
 		if (!is_array($members))
 			$members = array($members);
 
 		foreach ($members as $member)
 		{
-			if ($modSettings['cache_enable'] >= 3)
+			if ($cache_enable >= 3)
 			{
 				cache_put_data('member_data-profile-' . $member, null, 120);
 				cache_put_data('member_data-normal-' . $member, null, 120);
@@ -594,11 +595,11 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 		// This defines the formatting for the page indexes used throughout the forum.
 		$settings['page_index'] = array(
 			'extra_before' => '<span class="pages">' . $txt['pages'] . '</span>',
-			'previous_page' => '<span class="generic_icons previous_page"></span>',
+			'previous_page' => '<span class="main_icons previous_page"></span>',
 			'current_page' => '<span class="current_page">%1$d</span> ',
-			'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
+			'page' => '<a class="nav_page" href="{URL}">%2$s</a> ',
 			'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
-			'next_page' => '<span class="generic_icons next_page"></span>',
+			'next_page' => '<span class="main_icons next_page"></span>',
 			'extra_after' => '',
 		);
 	}
@@ -741,10 +742,10 @@ function comma_format($number, $override_decimal_count = false)
 function timeformat($log_time, $show_today = true, $offset_type = false, $process_safe = false)
 {
 	global $context, $user_info, $txt, $modSettings;
-	static $non_twelve_hour, $locale_cache;
+	static $non_twelve_hour, $locale, $now;
 	static $unsupportedFormats, $finalizedFormats;
 
-	$unsupportedFormatsWindows = array('z','Z');
+	$unsupportedFormatsWindows = array('z', 'Z');
 
 	// Ensure required values are set
 	$user_info['time_offset'] = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
@@ -753,43 +754,37 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 
 	// Offset the time.
 	if (!$offset_type)
-		$time = $log_time + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
+		$log_time = $log_time + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
 	// Just the forum offset?
 	elseif ($offset_type == 'forum')
-		$time = $log_time + $modSettings['time_offset'] * 3600;
-	else
-		$time = $log_time;
+		$log_time = $log_time + $modSettings['time_offset'] * 3600;
 
 	// We can't have a negative date (on Windows, at least.)
 	if ($log_time < 0)
 		$log_time = 0;
 
 	// Today and Yesterday?
+	$prefix = '';
 	if ($modSettings['todayMod'] >= 1 && $show_today === true)
 	{
-		// Get the current time.
-		$nowtime = forum_time();
+		$now_time = forum_time();
 
-		$then = @getdate($time);
-		$now = @getdate($nowtime);
-
-		// Try to make something of a time format string...
-		$s = strpos($user_info['time_format'], '%S') === false ? '' : ':%S';
-		if (strpos($user_info['time_format'], '%H') === false && strpos($user_info['time_format'], '%T') === false)
+		if ($now_time - $log_time < (86400 * $modSettings['todayMod']))
 		{
-			$h = strpos($user_info['time_format'], '%l') === false ? '%I' : '%l';
-			$today_fmt = $h . ':%M' . $s . ' %p';
+			$then = @getdate($log_time);
+			$now = (!empty($now) ? $now : @getdate($now_time));
+
+			// Same day of the year, same year.... Today!
+			if ($then['yday'] == $now['yday'] && $then['year'] == $now['year'])
+			{
+				$prefix = $txt['today'];
+			}
+			// Day-of-year is one less and same year, or it's the first of the year and that's the last of the year...
+			elseif ($modSettings['todayMod'] == '2' && (($then['yday'] == $now['yday'] - 1 && $then['year'] == $now['year']) || ($now['yday'] == 0 && $then['year'] == $now['year'] - 1) && $then['mon'] == 12 && $then['mday'] == 31))
+			{
+				$prefix = $txt['yesterday'];
+			}
 		}
-		else
-			$today_fmt = '%H:%M' . $s;
-
-		// Same day of the year, same year.... Today!
-		if ($then['yday'] == $now['yday'] && $then['year'] == $now['year'])
-			return $txt['today'] . timeformat($log_time, $today_fmt, $offset_type);
-
-		// Day-of-year is one less and same year, or it's the first of the year and that's the last of the year...
-		if ($modSettings['todayMod'] == '2' && (($then['yday'] == $now['yday'] - 1 && $then['year'] == $now['year']) || ($now['yday'] == 0 && $then['year'] == $now['year'] - 1) && $then['mon'] == 12 && $then['mday'] == 31))
-			return $txt['yesterday'] . timeformat($log_time, $today_fmt, $offset_type);
 	}
 
 	$str = !is_bool($show_today) ? $show_today : $user_info['time_format'];
@@ -798,25 +793,29 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	if (is_null($finalizedFormats))
 		$finalizedFormats = (array) cache_get_data('timeformatstrings', 86400);
 
+	if (!isset($finalizedFormats[$str]) || !is_array($finalizedFormats[$str]))
+		$finalizedFormats[$str] = array();
+
 	// Make a supported version for this format if we don't already have one
-	if (empty($finalizedFormats[$str]))
+	$format_type = !empty($prefix) ? 'time_only' : 'normal';
+	if (empty($finalizedFormats[$str][$format_type]))
 	{
-		$timeformat = $str;
+		$timeformat = $format_type == 'time_only' ? get_date_or_time_format('time', $str) : $str;
 
 		// Not all systems support all formats, and Windows fails altogether if unsupported ones are
 		// used, so let's prevent that. Some substitutions go to the nearest reasonable fallback, some
-		// turn into static strings, some (i.e. %a, %A, $b, %B, %p) have special handling below.
+		// turn into static strings, some (i.e. %a, %A, %b, %B, %p) have special handling below.
 		$strftimeFormatSubstitutions = array(
 			// Day
-			'a' => '%a', 'A' => '%A', 'e' => '%d', 'd' => '&#37;d', 'j' => '&#37;j', 'u' => '%w', 'w' => '&#37;w',
+			'a' => '#txt_days_short_%w#', 'A' => '#txt_days_%w#', 'e' => '%d', 'd' => '&#37;d', 'j' => '&#37;j', 'u' => '%w', 'w' => '&#37;w',
 			// Week
 			'U' => '&#37;U', 'V' => '%U', 'W' => '%U',
 			// Month
-			'b' => '%b', 'B' => '%B', 'h' => '%b', 'm' => '%b',
+			'b' => '#txt_months_short_%m#', 'B' => '#txt_months_%m#', 'h' => '%b', 'm' => '&#37;m',
 			// Year
 			'C' => '&#37;C', 'g' => '%y', 'G' => '%Y', 'y' => '&#37;y', 'Y' => '&#37;Y',
 			// Time
-			'H' => '&#37;H', 'k' => '%H', 'I' => '%H', 'l' => '%I', 'M' => '&#37;M', 'p' => '%p', 'P' => '%p',
+			'H' => '&#37;H', 'k' => '%H', 'I' => '%H', 'l' => '%I', 'M' => '&#37;M', 'p' => '&#37;p', 'P' => '%p',
 			'r' => '%I:%M:%S %p', 'R' => '%H:%M', 'S' => '&#37;S', 'T' => '%H:%M:%S', 'X' => '%T', 'z' => '&#37;z', 'Z' => '&#37;Z',
 			// Time and Date Stamps
 			'c' => '%F %T', 'D' => '%m/%d/%y', 'F' => '%Y-%m-%d', 's' => '&#37;s', 'x' => '%F',
@@ -829,7 +828,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 			$unsupportedFormats = (array) cache_get_data('unsupportedtimeformats', 86400);
 		if (empty($unsupportedFormats))
 		{
-			foreach($strftimeFormatSubstitutions as $format => $substitution)
+			foreach ($strftimeFormatSubstitutions as $format => $substitution)
 			{
 				// Avoid a crashing bug with PHP 7 on certain versions of Windows
 				if ($context['server']['is_windows'] && in_array($format, $unsupportedFormatsWindows))
@@ -849,7 +848,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 		}
 
 		// Windows needs extra help if $timeformat contains something completely invalid, e.g. '%Q'
-		if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN')
+		if (DIRECTORY_SEPARATOR === '\\')
 			$timeformat = preg_replace('~%(?!' . implode('|', array_keys($strftimeFormatSubstitutions)) . ')~', '&#37;', $timeformat);
 
 		// Substitute unsupported formats with supported ones
@@ -858,43 +857,227 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 				$timeformat = str_replace($matches[0], $strftimeFormatSubstitutions[$matches[1]], $timeformat);
 
 		// Remember this so we don't need to do it again
-		$finalizedFormats[$str] = $timeformat;
+		$finalizedFormats[$str][$format_type] = $timeformat;
 		cache_put_data('timeformatstrings', $finalizedFormats, 86400);
 	}
 
-	$str = $finalizedFormats[$str];
+	$timeformat = $finalizedFormats[$str][$format_type];
 
-	if (!isset($locale_cache))
-		$locale_cache = setlocale(LC_TIME, $txt['lang_locale'] . !empty($modSettings['global_character_set']) ? '.' . $modSettings['global_character_set'] : '');
+	// Make sure we are using the correct locale.
+	if (!isset($locale) || ($process_safe === true && setlocale(LC_TIME, '0') != $locale))
+		$locale = setlocale(LC_TIME, array($txt['lang_locale'] . '.' . $modSettings['global_character_set'], $txt['lang_locale'] . '.' . $txt['lang_character_set'], $txt['lang_locale']));
 
-	if ($locale_cache !== false)
+	// If the current locale is unsupported, we'll have to localize the hard way.
+	if ($locale === false)
 	{
-		// Check if another process changed the locale
-		if ($process_safe === true && setlocale(LC_TIME, '0') != $locale_cache)
-			setlocale(LC_TIME, $txt['lang_locale'] . !empty($modSettings['global_character_set']) ? '.' . $modSettings['global_character_set'] : '');
-
-		if (!isset($non_twelve_hour))
-			$non_twelve_hour = trim(strftime('%p')) === '';
-		if ($non_twelve_hour && strpos($str, '%p') !== false)
-			$str = str_replace('%p', (strftime('%H', $time) < 12 ? $txt['time_am'] : $txt['time_pm']), $str);
-
-		foreach (array('%a', '%A', '%b', '%B') as $token)
-			if (strpos($str, $token) !== false)
-				$str = str_replace($token, strftime($token, $time), $str);
+		$timeformat = strtr($timeformat, array(
+			'%a' => '#txt_days_short_%w#',
+			'%A' => '#txt_days_%w#',
+			'%b' => '#txt_months_short_%m#',
+			'%B' => '#txt_months_%m#',
+			'%p' => '&#37;p',
+			'%P' => '&#37;p'
+		));
 	}
+	// Just in case the locale doesn't support '%p' properly.
+	// @todo Is this even necessary?
 	else
 	{
-		// Do-it-yourself time localization.  Fun.
-		foreach (array('%a' => 'days_short', '%A' => 'days', '%b' => 'months_short', '%B' => 'months') as $token => $text_label)
-			if (strpos($str, $token) !== false)
-				$str = str_replace($token, $txt[$text_label][(int) strftime($token === '%a' || $token === '%A' ? '%w' : '%m', $time)], $str);
+		if (!isset($non_twelve_hour) && strpos($timeformat, '%p') !== false)
+			$non_twelve_hour = trim(strftime('%p')) === '';
 
-		if (strpos($str, '%p') !== false)
-			$str = str_replace('%p', (strftime('%H', $time) < 12 ? $txt['time_am'] : $txt['time_pm']), $str);
+		if (!empty($non_twelve_hour))
+			$timeformat = strtr($timeformat, array(
+				'%p' => '&#37;p',
+				'%P' => '&#37;p'
+			));
 	}
 
-	// Format the time and then restore any literal percent characters
-	return str_replace('&#37;', '%', strftime($str, $time));
+	// And now, the moment we've all be waiting for...
+	$timestring = strftime($timeformat, $log_time);
+
+	// Do-it-yourself time localization.  Fun.
+	if (strpos($timestring, '&#37;p') !== false)
+		$timestring = str_replace('&#37;p', (strftime('%H', $log_time) < 12 ? $txt['time_am'] : $txt['time_pm']), $timestring);
+	if (strpos($timestring, '#txt_') !== false)
+	{
+		if (strpos($timestring, '#txt_days_short_') !== false)
+			$timestring = strtr($timestring, array(
+				'#txt_days_short_0#' => $txt['days_short'][0],
+				'#txt_days_short_1#' => $txt['days_short'][1],
+				'#txt_days_short_2#' => $txt['days_short'][2],
+				'#txt_days_short_3#' => $txt['days_short'][3],
+				'#txt_days_short_4#' => $txt['days_short'][4],
+				'#txt_days_short_5#' => $txt['days_short'][5],
+				'#txt_days_short_6#' => $txt['days_short'][6],
+			));
+
+		if (strpos($timestring, '#txt_days_') !== false)
+			$timestring = strtr($timestring, array(
+				'#txt_days_0#' => $txt['days'][0],
+				'#txt_days_1#' => $txt['days'][1],
+				'#txt_days_2#' => $txt['days'][2],
+				'#txt_days_3#' => $txt['days'][3],
+				'#txt_days_4#' => $txt['days'][4],
+				'#txt_days_5#' => $txt['days'][5],
+				'#txt_days_6#' => $txt['days'][6],
+			));
+
+		if (strpos($timestring, '#txt_months_short_') !== false)
+			$timestring = strtr($timestring, array(
+				'#txt_months_short_01#' => $txt['months_short'][1],
+				'#txt_months_short_02#' => $txt['months_short'][2],
+				'#txt_months_short_03#' => $txt['months_short'][3],
+				'#txt_months_short_04#' => $txt['months_short'][4],
+				'#txt_months_short_05#' => $txt['months_short'][5],
+				'#txt_months_short_06#' => $txt['months_short'][6],
+				'#txt_months_short_07#' => $txt['months_short'][7],
+				'#txt_months_short_08#' => $txt['months_short'][8],
+				'#txt_months_short_09#' => $txt['months_short'][9],
+				'#txt_months_short_10#' => $txt['months_short'][10],
+				'#txt_months_short_11#' => $txt['months_short'][11],
+				'#txt_months_short_12#' => $txt['months_short'][12],
+			));
+
+		if (strpos($timestring, '#txt_months_') !== false)
+			$timestring = strtr($timestring, array(
+				'#txt_months_01#' => $txt['months'][1],
+				'#txt_months_02#' => $txt['months'][2],
+				'#txt_months_03#' => $txt['months'][3],
+				'#txt_months_04#' => $txt['months'][4],
+				'#txt_months_05#' => $txt['months'][5],
+				'#txt_months_06#' => $txt['months'][6],
+				'#txt_months_07#' => $txt['months'][7],
+				'#txt_months_08#' => $txt['months'][8],
+				'#txt_months_09#' => $txt['months'][9],
+				'#txt_months_10#' => $txt['months'][10],
+				'#txt_months_11#' => $txt['months'][11],
+				'#txt_months_12#' => $txt['months'][12],
+			));
+	}
+
+	// Restore any literal percent characters, add the prefix, and we're done.
+	return $prefix . str_replace('&#37;', '%', $timestring);
+}
+
+/**
+ * Gets a version of a strftime() format that only shows the date or time components
+ *
+ * @param string $type Either 'date' or 'time'.
+ * @param string $format A strftime() format to process. Defaults to $user_info['time_format'].
+ * @return string A strftime() format string
+ */
+function get_date_or_time_format($type = '', $format = '')
+{
+	global $user_info, $modSettings;
+	static $formats;
+
+	// If the format is invalid, fall back to defaults.
+	if (strpos($format, '%') === false)
+		$format = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %k:%M');
+
+	$orig_format = $format;
+
+	// Have we already done this?
+	if (isset($formats[$orig_format][$type]))
+		return $formats[$orig_format][$type];
+
+	if ($type === 'date')
+	{
+		$specifications = array(
+			// Day
+			'%a' => '%a', '%A' => '%A', '%e' => '%e', '%d' => '%d', '%j' => '%j', '%u' => '%u', '%w' => '%w',
+			// Week
+			'%U' => '%U', '%V' => '%V', '%W' => '%W',
+			// Month
+			'%b' => '%b', '%B' => '%B', '%h' => '%h', '%m' => '%m',
+			// Year
+			'%C' => '%C', '%g' => '%g', '%G' => '%G', '%y' => '%y', '%Y' => '%Y',
+			// Time
+			'%H' => '', '%k' => '', '%I' => '', '%l' => '', '%M' => '', '%p' => '', '%P' => '',
+			'%r' => '', '%R' => '', '%S' => '', '%T' => '', '%X' => '', '%z' => '', '%Z' => '',
+			// Time and Date Stamps
+			'%c' => '%x', '%D' => '%D', '%F' => '%F', '%s' => '%s', '%x' => '%x',
+			// Miscellaneous
+			'%n' => '', '%t' => '', '%%' => '%%',
+		);
+
+		$default_format = '%F';
+	}
+	elseif ($type === 'time')
+	{
+		$specifications = array(
+			// Day
+			'%a' => '', '%A' => '', '%e' => '', '%d' => '', '%j' => '', '%u' => '', '%w' => '',
+			// Week
+			'%U' => '', '%V' => '', '%W' => '',
+			// Month
+			'%b' => '', '%B' => '', '%h' => '', '%m' => '',
+			// Year
+			'%C' => '', '%g' => '', '%G' => '', '%y' => '', '%Y' => '',
+			// Time
+			'%H' => '%H', '%k' => '%k', '%I' => '%I', '%l' => '%l', '%M' => '%M', '%p' => '%p', '%P' => '%P',
+			'%r' => '%r', '%R' => '%R', '%S' => '%S', '%T' => '%T', '%X' => '%X', '%z' => '%z', '%Z' => '%Z',
+			// Time and Date Stamps
+			'%c' => '%X', '%D' => '', '%F' => '', '%s' => '%s', '%x' => '',
+			// Miscellaneous
+			'%n' => '', '%t' => '', '%%' => '%%',
+		);
+
+		$default_format = '%k:%M';
+	}
+	// Invalid type requests just get the full format string.
+	else
+		return $format;
+
+	// Separate the specifications we want from the ones we don't.
+	$wanted = array_filter($specifications);
+	$unwanted = array_diff(array_keys($specifications), $wanted);
+
+	// First, make any necessary substitutions in the format.
+	$format = strtr($format, $wanted);
+
+	// Next, strip out any specifications and literal text that we don't want.
+	$format_parts = preg_split('~%[' . (strtr(implode('', $unwanted), array('%' => ''))) . ']~u', $format);
+
+	foreach ($format_parts as $p => $f)
+	{
+		if (strpos($f, '%') === false)
+			unset($format_parts[$p]);
+	}
+
+	$format = implode('', $format_parts);
+
+	// Finally, strip out any unwanted leftovers.
+	// For info on the charcter classes used here, see https://www.php.net/manual/en/regexp.reference.unicode.php and https://www.regular-expressions.info/unicode.html
+	$format = preg_replace(
+		array(
+			// Anything that isn't a specification, punctuation mark, or whitespace.
+			'~(?<!%)\p{L}|[^\p{L}\p{P}\s]~u',
+			// A series of punctuation marks (except %), possibly separated by whitespace.
+			'~([^%\P{P}])(\s*)(?'.'>(\1|[^%\P{Po}])\s*(?!$))*~u',
+			// Unwanted trailing punctuation and whitespace.
+			'~(?'.'>([\p{Pd}\p{Ps}\p{Pi}\p{Pc}]|[^%\P{Po}])\s*)*$~u',
+			// Unwanted opening punctuation and whitespace.
+			'~^\s*(?'.'>([\p{Pd}\p{Pe}\p{Pf}\p{Pc}]|[^%\P{Po}])\s*)*~u',
+		),
+		array(
+			'',
+			'$1$2',
+			'',
+			'',
+		),
+		$format
+	);
+
+	// Gotta have something...
+	if (empty($format))
+		$format = $default_format;
+
+	// Remember what we've done.
+	$formats[$orig_format][$type] = trim($format);
+
+	return $formats[$orig_format][$type];
 }
 
 /**
@@ -1013,9 +1196,12 @@ function permute($array)
  * - only parses smileys if smileys is true.
  * - does nothing if the enableBBC setting is off.
  * - uses the cache_id as a unique identifier to facilitate any caching it may do.
- *  -returns the modified message.
+ * - returns the modified message.
  *
- * @param string $message The message
+ * @param string|bool $message The message.
+ *		When a empty string, nothing is done.
+ *		When false we provide a list of BBC codes available.
+ *		When a string, the message is parsed and bbc handled.
  * @param bool $smileys Whether to parse smileys as well
  * @param string $cache_id The cache ID
  * @param array $parse_tags If set, only parses these tags rather than all of them
@@ -1023,9 +1209,9 @@ function permute($array)
  */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
-	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
-	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
-	static $disabled;
+	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir, $cache_enable;
+	static $bbc_lang_locales = array(), $itemcodes = array(), $no_autolink_tags = array();
+	static $disabled, $alltags_regex = '', $param_regexes = array();
 
 	// Don't waste cycles
 	if ($message === '')
@@ -1056,12 +1242,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		return $message;
 	}
 
-	// If we are not doing every tag then we don't cache this run.
-	if (!empty($parse_tags) && !empty($bbc_codes))
-	{
-		$temp_bbc = $bbc_codes;
+	// If we already have a version of the BBCodes for the current language, use that. Otherwise, make one.
+	if (!empty($bbc_lang_locales[$txt['lang_locale']]))
+		$bbc_codes = $bbc_lang_locales[$txt['lang_locale']];
+	else
 		$bbc_codes = array();
-	}
+
+	// If we are not doing every tag then we don't cache this run.
+	if (!empty($parse_tags))
+		$bbc_codes = array();
 
 	// Ensure $modSettings['tld_regex'] contains a valid regex for the autolinker
 	if (!empty($modSettings['autoLinkUrls']))
@@ -1081,6 +1270,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			foreach ($temp as $tag)
 				$disabled[trim($tag)] = true;
+
+			if (in_array('color', $disabled))
+				$disabled = array_merge($disabled, array(
+					'black' => true,
+					'white' => true,
+					'red' => true,
+					'green' => true,
+					'blue' => true,
+					)
+				);
 		}
 
 		// The YouTube bbc needs this for its origin parameter
@@ -1109,8 +1308,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				- quoted: true if the value should be quoted.
 				- validate: callback to evaluate on the data, which is $data.
 				- value: a string in which to replace $1 with the data.
-				  either it or validate may be used, not both.
+					Either value or validate may be used, not both.
 				- optional: true if the parameter is optional.
+				- default: a default value for missing optional parameters.
 
 			test: a regular expression to test immediately after the tag's
 			  '=', ' ' or ']'.  Typically, should have a \] at the end.
@@ -1182,11 +1382,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'quoted' => 'optional',
 				'disabled_after' => ' ($1)',
 			),
+			// Legacy (and just an alias for [abbr] even when enabled)
 			array(
 				'tag' => 'acronym',
 				'type' => 'unparsed_equals',
-				'before' => '<acronym title="$1">',
-				'after' => '</acronym>',
+				'before' => '<abbr title="$1">',
+				'after' => '</abbr>',
 				'quoted' => 'optional',
 				'disabled_after' => ' ($1)',
 			),
@@ -1201,15 +1402,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'attach',
 				'type' => 'unparsed_content',
 				'parameters' => array(
-					'name' => array('optional' => true),
-					'type' => array('optional' => true),
+					'id' => array('match' => '(\d+)'),
 					'alt' => array('optional' => true),
-					'title' => array('optional' => true),
 					'width' => array('optional' => true, 'match' => '(\d+)'),
 					'height' => array('optional' => true, 'match' => '(\d+)'),
 				),
 				'content' => '$1',
-				'validate' => function (&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt)
+				'validate' => function(&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt, $smcFunc)
 				{
 					$returnContext = '';
 
@@ -1218,7 +1417,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						return $data;
 
 					// Save the attach ID.
-					$attachID = $data;
+					$attachID = $params['{id}'];
 
 					// Kinda need this.
 					require_once($sourcedir . '/Subs-Attachments.php');
@@ -1229,10 +1428,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (is_string($currentAttachment))
 						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
 
-					if (!empty($currentAttachment['is_image']))
+					if (!empty($currentAttachment['is_image']) && (!isset($param['{type}']) || strpos($param['{type}'], 'image') === 0))
 					{
 						$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $currentAttachment['name']) . '"';
-						$title = !empty($params['{title}']) ? ' title="' . $params['{title}'] . '"' : '';
+						$title = !empty($data) ? ' title="' . $smcFunc['htmlspecialchars']($data) . '"' : '';
 
 						$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
 						$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
@@ -1244,14 +1443,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						}
 
 						if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
-							$returnContext .= '<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '"' . $alt . $title . ' id="thumb_'. $currentAttachment['id']. '" class="atc_img"></a>';
+							$returnContext .= '<a href="' . $currentAttachment['href'] . ';image" id="link_' . $currentAttachment['id'] . '" onclick="' . $currentAttachment['thumbnail']['javascript'] . '"><img src="' . $currentAttachment['thumbnail']['href'] . '"' . $alt . $title . ' id="thumb_' . $currentAttachment['id'] . '" class="atc_img"></a>';
 						else
 							$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img"/>';
 					}
 
 					// No image. Show a link.
 					else
-						$returnContext .= $currentAttachment['link'];
+						$returnContext .= '<a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a>';
 
 					// Gotta append what we just did.
 					$data = $returnContext;
@@ -1262,6 +1461,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<b>',
 				'after' => '</b>',
 			),
+			// Legacy (equivalent to [ltr] or [rtl])
 			array(
 				'tag' => 'bdo',
 				'type' => 'unparsed_equals',
@@ -1270,11 +1470,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'test' => '(rtl|ltr)\]',
 				'block_level' => true,
 			),
+			// Legacy (alias of [color=black])
 			array(
 				'tag' => 'black',
 				'before' => '<span style="color: black;" class="bbc_color">',
 				'after' => '</span>',
 			),
+			// Legacy (alias of [color=blue])
 			array(
 				'tag' => 'blue',
 				'before' => '<span style="color: blue;" class="bbc_color">',
@@ -1283,7 +1485,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'br',
 				'type' => 'closed',
-				'content' => '<br />',
+				'content' => '<br>',
 			),
 			array(
 				'tag' => 'center',
@@ -1294,9 +1496,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_content',
-				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div><code class="bbc_code">$1</code>',
+				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . $txt['code_shrink'] . '" data-expand-txt="' . $txt['code_expand'] . '">' . $txt['code_expand'] . '</a></div><code class="bbc_code">$1</code>',
 				// @todo Maybe this can be simplified?
-				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
+				'validate' => isset($disabled['code']) ? null : function(&$tag, &$data, $disabled) use ($context)
 				{
 					if (!isset($disabled['code']))
 					{
@@ -1331,9 +1533,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_equals_content',
-				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> ($2) <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div><code class="bbc_code">$1</code>',
+				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> ($2) <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . $txt['code_shrink'] . '" data-expand-txt="' . $txt['code_expand'] . '">' . $txt['code_expand'] . '</a></div><code class="bbc_code">$1</code>',
 				// @todo Maybe this can be simplified?
-				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
+				'validate' => isset($disabled['code']) ? null : function(&$tag, &$data, $disabled) use ($context)
 				{
 					if (!isset($disabled['code']))
 					{
@@ -1377,7 +1579,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_content',
 				'content' => '<a href="mailto:$1" class="bbc_email">$1</a>',
 				// @todo Should this respect guest_hideContacts?
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
 				},
@@ -1391,13 +1593,26 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
 			),
+			// Legacy (and just a link even when not disabled)
+			array(
+				'tag' => 'flash',
+				'type' => 'unparsed_commas_content',
+				'test' => '\d+,\d+\]',
+				'content' => '<a href="$1" target="_blank" rel="noopener">$1</a>',
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+					$scheme = parse_url($data[0], PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data[0] = '//' . ltrim($data[0], ':/');
+				},
+			),
 			array(
 				'tag' => 'float',
 				'type' => 'unparsed_equals',
 				'test' => '(left|right)(\s+max=\d+(?:%|px|em|rem|ex|pt|pc|ch|vw|vh|vmin|vmax|cm|mm|in)?)?\]',
 				'before' => '<div $1>',
 				'after' => '</div>',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$class = 'class="bbc_float float' . (strpos($data, 'left') === 0 ? 'left' : 'right') . '"';
 
@@ -1411,27 +1626,30 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'trim' => 'outside',
 				'block_level' => true,
 			),
+			// Legacy (alias of [url] with an FTP URL)
 			array(
 				'tag' => 'ftp',
 				'type' => 'unparsed_content',
-				'content' => '<a href="$1" class="bbc_ftp new_win" target="_blank">$1</a>',
+				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = strtr($data, array('<br />' => ''));
-
-					if (strpos($data, 'ftp://') !== 0 && strpos($data, 'ftps://') !== 0)
-						$data = 'ftp://' . $data;
+					$data = strtr($data, array('<br>' => ''));
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = 'ftp://' . ltrim($data, ':/');
 				},
 			),
+			// Legacy (alias of [url] with an FTP URL)
 			array(
 				'tag' => 'ftp',
 				'type' => 'unparsed_equals',
-				'before' => '<a href="$1" class="bbc_ftp new_win" target="_blank">',
+				'before' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">',
 				'after' => '</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					if (strpos($data, 'ftp://') !== 0 && strpos($data, 'ftps://') !== 0)
-						$data = 'ftp://' . $data;
+					$scheme = parse_url($data, PHP_URL_SCHEME);
+					if (empty($scheme))
+						$data = 'ftp://' . ltrim($data, ':/');
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
@@ -1443,6 +1661,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<span style="font-family: $1;" class="bbc_font">',
 				'after' => '</span>',
 			),
+			// Legacy (one of those things that should not be done)
 			array(
 				'tag' => 'glow',
 				'type' => 'unparsed_commas',
@@ -1450,6 +1669,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<span style="text-shadow: $1 1px 1px 1px">',
 				'after' => '</span>',
 			),
+			// Legacy (alias of [color=green])
 			array(
 				'tag' => 'green',
 				'before' => '<span style="color: green;" class="bbc_color">',
@@ -1483,7 +1703,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
 				),
 				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					global $image_proxy_enabled, $user_info;
 
@@ -1509,7 +1729,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'img',
 				'type' => 'unparsed_content',
 				'content' => '<img src="$1" alt="" class="bbc_img">',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					global $image_proxy_enabled, $user_info;
 
@@ -1535,7 +1755,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'iurl',
 				'type' => 'unparsed_content',
 				'content' => '<a href="$1" class="bbc_link">$1</a>',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
@@ -1549,7 +1769,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'quoted' => 'optional',
 				'before' => '<a href="$1" class="bbc_link">',
 				'after' => '</a>',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					if (substr($data, 0, 1) == '#')
 						$data = '#post_' . substr($data, 1);
@@ -1626,6 +1846,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<a href="' . $scripturl . '?action=profile;u=$1" class="mention" data-mention="$1">@',
 				'after' => '</a>',
 			),
+			// Legacy (horrible memories of the 1990s)
 			array(
 				'tag' => 'move',
 				'before' => '<marquee>',
@@ -1642,7 +1863,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'php',
 				'type' => 'unparsed_content',
 				'content' => '<span class="phpcode">$1</span>',
-				'validate' => isset($disabled['php']) ? null : function (&$tag, &$data, $disabled)
+				'validate' => isset($disabled['php']) ? null : function(&$tag, &$data, $disabled)
 				{
 					if (!isset($disabled['php']))
 					{
@@ -1710,6 +1931,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'trim' => 'both',
 				'block_level' => true,
 			),
+			// Legacy (alias of [color=red])
 			array(
 				'tag' => 'red',
 				'before' => '<span style="color: red;" class="bbc_color">',
@@ -1732,6 +1954,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<s>',
 				'after' => '</s>',
 			),
+			// Legacy (never a good idea)
 			array(
 				'tag' => 'shadow',
 				'type' => 'unparsed_commas',
@@ -1739,23 +1962,23 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'before' => '<span style="text-shadow: $1 $2">',
 				'after' => '</span>',
 				'validate' => function(&$tag, &$data, $disabled)
-					{
+				{
 
-						if ($data[1] == 'top' || (is_numeric($data[1]) && $data[1] < 50))
-							$data[1] = '0 -2px 1px';
+					if ($data[1] == 'top' || (is_numeric($data[1]) && $data[1] < 50))
+						$data[1] = '0 -2px 1px';
 
-						elseif ($data[1] == 'right' || (is_numeric($data[1]) && $data[1] < 100))
-							$data[1] = '2px 0 1px';
+					elseif ($data[1] == 'right' || (is_numeric($data[1]) && $data[1] < 100))
+						$data[1] = '2px 0 1px';
 
-						elseif ($data[1] == 'bottom' || (is_numeric($data[1]) && $data[1] < 190))
-							$data[1] = '0 2px 1px';
+					elseif ($data[1] == 'bottom' || (is_numeric($data[1]) && $data[1] < 190))
+						$data[1] = '0 2px 1px';
 
-						elseif ($data[1] == 'left' || (is_numeric($data[1]) && $data[1] < 280))
-							$data[1] = '-2px 0 1px';
+					elseif ($data[1] == 'left' || (is_numeric($data[1]) && $data[1] < 280))
+						$data[1] = '-2px 0 1px';
 
-						else
-							$data[1] = '1px 1px 1px';
-					},
+					else
+						$data[1] = '1px 1px 1px';
+				},
 			),
 			array(
 				'tag' => 'size',
@@ -1770,7 +1993,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'test' => '[1-7]\]',
 				'before' => '<span style="font-size: $1;" class="bbc_size">',
 				'after' => '</span>',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$sizes = array(1 => 0.7, 2 => 1.0, 3 => 1.35, 4 => 1.45, 5 => 2.0, 6 => 2.65, 7 => 3.95);
 					$data = $sizes[$data] . 'em';
@@ -1808,7 +2031,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'time',
 				'type' => 'unparsed_content',
 				'content' => '$1',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					if (is_numeric($data))
 						$data = timeformat($data);
@@ -1827,10 +2050,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disabled_before' => '',
 				'disabled_after' => '',
 			),
+			// Legacy (the <tt> element is dead)
 			array(
 				'tag' => 'tt',
-				'before' => '<tt class="bbc_tt">',
-				'after' => '</tt>',
+				'before' => '<span class="monospace">',
+				'after' => '</span>',
 			),
 			array(
 				'tag' => 'u',
@@ -1841,7 +2065,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'url',
 				'type' => 'unparsed_content',
 				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
@@ -1855,7 +2079,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'quoted' => 'optional',
 				'before' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">',
 				'after' => '</a>',
-				'validate' => function (&$tag, &$data, $disabled)
+				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if (empty($scheme))
@@ -1864,6 +2088,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
 			),
+			// Legacy (alias of [color=white])
 			array(
 				'tag' => 'white',
 				'before' => '<span style="color: white;" class="bbc_color">',
@@ -1883,15 +2108,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			'url',
 			'iurl',
 			'email',
+			'img',
+			'html',
 		);
-
-		// Handle legacy bbc codes.
-		foreach ($context['legacy_bbc'] as $bbc)
-			$codes[] = array(
-				'tag' => $bbc,
-				'before' => '',
-				'after' => '',
-			);
 
 		// Let mods add new BBC without hassle.
 		call_integration_hook('integrate_bbc_codes', array(&$codes, &$no_autolink_tags));
@@ -1899,9 +2118,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		// This is mainly for the bbc manager, so it's easy to add tags above.  Custom BBC should be added above this line.
 		if ($message === false)
 		{
-			if (isset($temp_bbc))
-				$bbc_codes = $temp_bbc;
-			usort($codes, function ($a, $b) {
+			usort($codes, function($a, $b)
+			{
 				return strcmp($a['tag'], $b['tag']);
 			});
 			return $codes;
@@ -1938,6 +2156,36 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => ' :-*</span>',
 			);
 		}
+		$codes[] = array(
+			'tag' => 'cowsay',
+			'parameters' => array(
+				'e' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => 'oo', 'validate' => function ($eyes) use ($smcFunc)
+					{
+						static $css_added;
+
+						if (empty($css_added))
+						{
+							$css = base64_decode('cHJlW2RhdGEtZV1bZGF0YS10XXt3aGl0ZS1zcGFjZTpwcmUtd3JhcDtsaW5lLWhlaWdodDppbml0aWFsO31wcmVbZGF0YS1lXVtkYXRhLXRdID4gZGl2e2Rpc3BsYXk6dGFibGU7Ym9yZGVyOjFweCBzb2xpZDtib3JkZXItcmFkaXVzOjAuNWVtO3BhZGRpbmc6MWNoO21heC13aWR0aDo4MGNoO21pbi13aWR0aDoxMmNoO31wcmVbZGF0YS1lXVtkYXRhLXRdOjphZnRlcntkaXNwbGF5OmlubGluZS1ibG9jazttYXJnaW4tbGVmdDo4Y2g7bWluLXdpZHRoOjIwY2g7ZGlyZWN0aW9uOmx0cjtjb250ZW50OidcNUMgICBeX19eXEEgIFw1QyAgKCcgYXR0cihkYXRhLWUpICcpXDVDX19fX19fX1xBICAgIChfXylcNUMgICAgICAgIClcNUMvXDVDXEEgICAgICcgYXR0cihkYXRhLXQpICcgfHwtLS0tdyB8XEEgICAgICAgIHx8ICAgICB8fCc7fQ==');
+
+							addInlineJavaScript('
+								$("head").append("<style>" + ' . JavaScriptEscape($css) . ' + "</style>");', true);
+
+							$css_added = true;
+						}
+
+						return $smcFunc['substr']($eyes . 'oo', 0, 2);
+					},
+				),
+				't' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => '  ', 'validate' => function ($tongue) use ($smcFunc)
+					{
+						return $smcFunc['substr']($tongue . '  ', 0, 2);
+					},
+				),
+			),
+			'before' => '<pre data-e="{e}" data-t="{t}"><div>',
+			'after' => '</div></pre>',
+			'block_level' => true,
+		);
 
 		foreach ($codes as $code)
 		{
@@ -1953,7 +2201,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	}
 
 	// Shall we take the time to cache this?
-	if ($cache_id != '' && !empty($modSettings['cache_enable']) && (($modSettings['cache_enable'] >= 2 && isset($message[1000])) || isset($message[2400])) && empty($parse_tags))
+	if ($cache_id != '' && !empty($cache_enable) && (($cache_enable >= 2 && isset($message[1000])) || isset($message[2400])) && empty($parse_tags))
 	{
 		// It's likely this will change if the message is modified.
 		$cache_key = 'parse:' . $cache_id . '-' . md5(md5($message) . '-' . $smileys . (empty($disabled) ? '' : implode(',', array_keys($disabled))) . $smcFunc['json_encode']($context['browser']) . $txt['lang_locale'] . $user_info['time_offset'] . $user_info['time_format']);
@@ -1961,7 +2209,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		if (($temp = cache_get_data($cache_key, 240)) != null)
 			return $temp;
 
-		$cache_t = microtime();
+		$cache_t = microtime(true);
 	}
 
 	if ($smileys === 'print')
@@ -1994,19 +2242,28 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		if (!isset($_GET['images']))
 			$disabled['img'] = true;
 
-		// @todo Interface/setting to add more?
+		// Maybe some custom BBC need to be disabled for printing.
+		call_integration_hook('integrate_bbc_print', array(&$disabled));
 	}
 
 	$open_tags = array();
 	$message = strtr($message, array("\n" => '<br>'));
 
-	$alltags = array();
-	foreach ($bbc_codes as $section)
+	if (!empty($parse_tags))
 	{
-		foreach ($section as $code)
-			$alltags[] = $code['tag'];
+		$real_alltags_regex = $alltags_regex;
+		$alltags_regex = '';
 	}
-	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
+	if (empty($alltags_regex))
+	{
+		$alltags = array();
+		foreach ($bbc_codes as $section)
+		{
+			foreach ($section as $code)
+				$alltags[] = $code['tag'];
+		}
+		$alltags_regex = '(?' . '>\b' . build_regex(array_unique($alltags)) . '\b|' . build_regex(array_keys($itemcodes)) . ')';
+	}
 
 	$pos = -1;
 	while ($pos !== false)
@@ -2019,7 +2276,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		if ($pos === false || $last_pos > $pos)
 			$pos = strlen($message) + 1;
 
-		// Can't have a one letter smiley, URL, or email! (sorry.)
+		// Can't have a one letter smiley, URL, or email! (Sorry.)
 		if ($last_pos < $pos - 1)
 		{
 			// Make sure the $last_pos is not negative.
@@ -2027,6 +2284,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			// Pick a block of data to do some raw fixing on.
 			$data = substr($message, $last_pos, $pos - $last_pos);
+
+			$placeholders = array();
+			$placeholders_counter = 0;
 
 			// Take care of some HTML!
 			if (!empty($modSettings['enablePostHTML']) && strpos($data, '&lt;') !== false)
@@ -2059,10 +2319,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$alt = empty($matches[3][$match]) ? '' : ' alt=' . preg_replace('~^&quot;|&quot;$~', '', $matches[3][$match]);
 
 						// Remove action= from the URL - no funny business, now.
+						// @todo Testing this preg_match seems pointless
 						if (preg_match('~action(=|%3d)(?!dlattach)~i', $imgtag) != 0)
 							$imgtag = preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $imgtag);
 
-						$replaces[$matches[0][$match]] = '[img' . $alt . ']' . $imgtag . '[/img]';
+						$placeholder = '<placeholder ' . ++$placeholders_counter . '>';
+						$placeholders[$placeholder] = '[img' . $alt . ']' . $imgtag . '[/img]';
+
+						$replaces[$matches[0][$match]] = $placeholder;
 					}
 
 					$data = strtr($data, $replaces);
@@ -2089,103 +2353,120 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 				if (!$no_autolink_area)
 				{
+					// An &nbsp; right after a URL can break the autolinker
+					if (strpos($data, '&nbsp;') !== false)
+					{
+						$placeholders['<placeholder non-breaking-space>'] = '&nbsp;';
+						$data = strtr($data, array('&nbsp;' => '<placeholder non-breaking-space>'));
+					}
+
 					// Parse any URLs
 					if (!isset($disabled['url']) && strpos($data, '[url') === false)
 					{
-						$url_regex = '
-						(?:
-							# IRIs with a scheme (or at least an opening "//")
-							(?:
-								# URI scheme (or lack thereof for schemeless URLs)
-								(?:
-									# URL scheme and colon
-									\b[a-z][\w\-]+:
-									| # or
-									# A boundary followed by two slashes for schemeless URLs
-									(?<=^|\W)(?=//)
-								)
+						// For efficiency, first define the TLD regex in a PCRE subroutine
+						$url_regex = '(?(DEFINE)(?<tlds>' . $modSettings['tld_regex'] . '))';
 
-								# IRI "authority" chunk
-								(?:
-									# 2 slashes for IRIs with an "authority"
-									//
-									# then a domain name
-									(?:
-										# Either the reserved "localhost" domain name
-										localhost
-										| # or
-										# a run of Unicode domain name characters and a dot
-										[\p{L}\p{M}\p{N}\-.:@]+\.
-										# and then a TLD valid in the DNS or the reserved "local" TLD
-										(?:'. $modSettings['tld_regex'] .'|local)
-									)
-									# followed by a non-domain character or end of line
-									(?=[^\p{L}\p{N}\-.]|$)
+						// Now build the rest of the regex
+						$url_regex .=
+						// 1. IRI scheme and domain components
+						'(?:' .
+							// 1a. IRIs with a scheme, or at least an opening "//"
+							'(?:' .
 
-									| # Or, if there is no "authority" per se (e.g. mailto: URLs) ...
+								// URI scheme (or lack thereof for schemeless URLs)
+								'(?:' .
+									// URL scheme and colon
+									'\b[a-z][\w\-]+:' .
+									// or
+									'|' .
+									// A boundary followed by two slashes for schemeless URLs
+									'(?<=^|\W)(?=//)' .
+								')' .
 
-									# a run of IRI characters
-									[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.:@]+[\p{L}\p{M}\p{N}]
-									# and then a dot and a closing IRI label
-									\.[\p{L}\p{M}\p{N}\-]+
-								)
-							)
+								// IRI "authority" chunk
+								'(?:' .
+									// 2 slashes for IRIs with an "authority"
+									'//' .
+									// then a domain name
+									'(?:' .
+										// Either the reserved "localhost" domain name
+										'localhost' .
+										// or
+										'|' .
+										// a run of IRI characters, a dot, and a TLD
+										'[\p{L}\p{M}\p{N}\-.:@]+\.(?P>tlds)' .
+									')' .
+									// followed by a non-domain character or end of line
+									'(?=[^\p{L}\p{N}\-.]|$)' .
 
-							| # or
+									// or, if no "authority" per se (e.g. "mailto:" URLs)...
+									'|' .
 
-							# Naked domains (e.g. "example.com" in "Go to example.com for an example.")
-							(?:
-								# Preceded by start of line or a non-domain character
-								(?<=^|[^\p{L}\p{M}\p{N}\-:@])
+									// a run of IRI characters
+									'[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.:@]+[\p{L}\p{M}\p{N}]' .
+									// and then a dot and a closing IRI label
+									'\.[\p{L}\p{M}\p{N}\-]+' .
+								')' .
+							')' .
 
-								# A run of Unicode domain name characters (excluding [:@])
-								[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.]+[\p{L}\p{M}\p{N}]
-								# and then a dot and a valid TLD
-								\.' . $modSettings['tld_regex'] . '
+							// Or
+							'|' .
 
-								# Followed by either:
-								(?=
-									# end of line or a non-domain character (excluding [.:@])
-									$|[^\p{L}\p{N}\-]
-									| # or
-									# a dot followed by end of line or a non-domain character (excluding [.:@])
-									\.(?=$|[^\p{L}\p{N}\-])
-								)
-							)
-						)
+							// 1b. Naked domains (e.g. "example.com" in "Go to example.com for an example.")
+							'(?:' .
+								// Preceded by start of line or a non-domain character
+								'(?<=^|[^\p{L}\p{M}\p{N}\-:@])' .
+								// A run of Unicode domain name characters (excluding [:@])
+								'[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.]+[\p{L}\p{M}\p{N}]' .
+								// and then a dot and a valid TLD
+								'\.(?P>tlds)' .
+								// Followed by either:
+								'(?=' .
+									// end of line or a non-domain character (excluding [.:@])
+									'$|[^\p{L}\p{N}\-]' .
+									// or
+									'|' .
+									// a dot followed by end of line or a non-domain character (excluding [.:@])
+									'\.(?=$|[^\p{L}\p{N}\-])' .
+								')' .
+							')' .
+						')' .
 
-						# IRI path, query, and fragment (if present)
-						(?:
-							# If any of these parts exist, must start with a single /
-							/
+						// 2. IRI path, query, and fragment components (if present)
+						'(?:' .
 
-							# And then optionally:
-							(?:
-								# One or more of:
-								(?:
-									# a run of non-space, non-()<>
-									[^\s()<>]+
-									| # or
-									# balanced parens, up to 2 levels
-									\(([^\s()<>]+|(\([^\s()<>]+\)))*\)
-								)+
+							// If any of these parts exist, must start with a single "/"
+							'/' .
 
-								# End with:
-								(?:
-									# balanced parens, up to 2 levels
-									\(([^\s()<>]+|(\([^\s()<>]+\)))*\)
-									| # or
-									# not a space or one of these punct char
-									[^\s`!()\[\]{};:\'".,<>?«»“”‘’/]
-									| # or
-									# a trailing slash (but not two in a row)
-									(?<!/)/
-								)
-							)?
-						)?
-						';
+							// And then optionally:
+							'(?:' .
+								// One or more of:
+								'(?:' .
+									// a run of non-space, non-()<>
+									'[^\s()<>]+' .
+									// or
+									'|' .
+									// balanced parentheses, up to 2 levels
+									'\(([^\s()<>]+|(\([^\s()<>]+\)))*\)' .
+								')+' .
+								// Ending with:
+								'(?:' .
+									// balanced parentheses, up to 2 levels
+									'\(([^\s()<>]+|(\([^\s()<>]+\)))*\)' .
+									// or
+									'|' .
+									// not a space or one of these punctuation characters
+									'[^\s`!()\[\]{};:\'".,<>?«»“”‘’/]' .
+									// or
+									'|' .
+									// a trailing slash (but not two in a row)
+									'(?<!/)/' .
+								')' .
+							')?' .
+						')?';
 
-						$data = preg_replace_callback('~' . $url_regex . '~xi' . ($context['utf8'] ? 'u' : ''), function ($matches) {
+						$data = preg_replace_callback('~' . $url_regex . '~i' . ($context['utf8'] ? 'u' : ''), function($matches)
+						{
 							$url = array_shift($matches);
 
 							// If this isn't a clean URL, bail out
@@ -2210,7 +2491,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								$fullUrl = $url;
 
 							// Make sure that $fullUrl really is valid
-							if (validate_iri((strpos($fullUrl, '//') === 0 ? 'http:' : '' ) . $fullUrl) === false)
+							if (validate_iri((strpos($fullUrl, '//') === 0 ? 'http:' : '') . $fullUrl) === false)
 								return $url;
 
 							return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
@@ -2229,7 +2510,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						@
 						[\p{L}\p{M}\p{N}\-.]+
 						\.
-						'. $modSettings['tld_regex'] . '
+						' . $modSettings['tld_regex'] . '
 
 						# Followed by either:
 						(?=
@@ -2244,6 +2525,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					}
 				}
 			}
+
+			// Restore any placeholders
+			$data = strtr($data, $placeholders);
 
 			$data = strtr($data, array("\t" => '&nbsp;&nbsp;&nbsp;'));
 
@@ -2263,9 +2547,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		if ($pos >= strlen($message) - 1)
 			break;
 
-		$tags = strtolower($message[$pos + 1]);
+		$tag_character = strtolower($message[$pos + 1]);
 
-		if ($tags == '/' && !empty($open_tags))
+		if ($tag_character == '/' && !empty($open_tags))
 		{
 			$pos2 = strpos($message, ']', $pos + 1);
 			if ($pos2 == $pos + 2)
@@ -2274,7 +2558,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$look_for = strtolower(substr($message, $pos + 2, $pos2 - $pos - 2));
 
 			// A closing tag that doesn't match any open tags? Skip it.
-			if (!in_array($look_for, array_map(function($code){return $code['tag'];}, $open_tags)))
+			if (!in_array($look_for, array_map(function($code)
+			{
+				return $code['tag'];
+			}, $open_tags)))
 				continue;
 
 			$to_close = array();
@@ -2373,12 +2660,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		}
 
 		// No tags for this character, so just keep going (fastest possible course.)
-		if (!isset($bbc_codes[$tags]))
+		if (!isset($bbc_codes[$tag_character]))
 			continue;
 
 		$inside = empty($open_tags) ? null : $open_tags[count($open_tags) - 1];
 		$tag = null;
-		foreach ($bbc_codes[$tags] as $possible)
+		foreach ($bbc_codes[$tag_character] as $possible)
 		{
 			$pt_strlen = strlen($possible['tag']);
 
@@ -2398,7 +2685,18 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// Do we want parameters?
 			elseif (!empty($possible['parameters']))
 			{
-				if ($next_c != ' ')
+				// Are all the parameters optional?
+				$param_required = false;
+				foreach ($possible['parameters'] as $param)
+				{
+					if (empty($param['optional']))
+					{
+						$param_required = true;
+						break;
+					}
+				}
+
+				if ($param_required && $next_c != ' ')
 					continue;
 			}
 			elseif (isset($possible['type']))
@@ -2447,9 +2745,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if (!empty($possible['parameters']))
 			{
 				// Build a regular expression for each parameter for the current tag.
-				$preg = array();
-				foreach ($possible['parameters'] as $p => $info)
-					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
+				$regex_key = $smcFunc['json_encode']($possible['parameters']);
+				if (!isset($params_regexes[$regex_key]))
+				{
+					$params_regexes[$regex_key] = '';
+
+					foreach ($possible['parameters'] as $p => $info)
+						$params_regexes[$regex_key] .= '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
+				}
 
 				// Extract the string that potentially holds our parameters.
 				$blob = preg_split('~\[/?(?:' . $alltags_regex . ')~i', substr($message, $pos));
@@ -2466,10 +2769,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$given_params = preg_split('~\s(?=(' . $splitters . '))~i', $given_param_string);
 					sort($given_params, SORT_STRING);
 
-					$match = preg_match('~^' . implode('', $preg) . '$~i', implode(' ', $given_params), $matches) !== 0;
+					$match = preg_match('~^' . $params_regexes[$regex_key] . '$~i', implode(' ', $given_params), $matches) !== 0;
 
 					if ($match)
-						$blob_counter = count($blobs) + 1;
+						break;
 				}
 
 				// Didn't match our parameter list, try the next possible.
@@ -2480,7 +2783,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				for ($i = 1, $n = count($matches); $i < $n; $i += 2)
 				{
 					$key = strtok(ltrim($matches[$i]), '=');
-					if (isset($possible['parameters'][$key]['value']))
+					if ($key === false)
+						continue;
+					elseif (isset($possible['parameters'][$key]['value']))
 						$params['{' . $key . '}'] = strtr($possible['parameters'][$key]['value'], array('$1' => $matches[$i + 1]));
 					elseif (isset($possible['parameters'][$key]['validate']))
 						$params['{' . $key . '}'] = $possible['parameters'][$key]['validate']($matches[$i + 1]);
@@ -2494,7 +2799,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				foreach ($possible['parameters'] as $p => $info)
 				{
 					if (!isset($params['{' . $p . '}']))
-						$params['{' . $p . '}'] = '';
+					{
+						if (!isset($info['default']))
+							$params['{' . $p . '}'] = '';
+						elseif (isset($possible['parameters'][$p]['value']))
+							$params['{' . $p . '}'] = strtr($possible['parameters'][$p]['value'], array('$1' => $info['default']));
+						elseif (isset($possible['parameters'][$p]['validate']))
+							$params['{' . $p . '}'] = $possible['parameters'][$p]['validate']($info['default']);
+						else
+							$params['{' . $p . '}'] = $info['default'];
+					}
 				}
 
 				$tag = $possible;
@@ -2653,7 +2967,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		// No type means 'parsed_content'.
 		if (!isset($tag['type']))
 		{
-			// @todo Check for end tag first, so people can say "I like that [i] tag"?
 			$open_tags[] = $tag;
 			$message = substr($message, 0, $pos) . "\n" . $tag['before'] . "\n" . substr($message, $pos1);
 			$pos += strlen($tag['before']) - 1 + 2;
@@ -2851,20 +3164,17 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	call_integration_hook('integrate_post_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
 
 	// Cache the output if it took some time...
-	if (isset($cache_key, $cache_t) && array_sum(explode(' ', microtime())) - array_sum(explode(' ', $cache_t)) > 0.05)
+	if (isset($cache_key, $cache_t) && microtime(true) - $cache_t > 0.05)
 		cache_put_data($cache_key, $message, 240);
 
 	// If this was a force parse revert if needed.
 	if (!empty($parse_tags))
 	{
-		if (empty($temp_bbc))
-			$bbc_codes = array();
-		else
-		{
-			$bbc_codes = $temp_bbc;
-			unset($temp_bbc);
-		}
+		$alltags_regex = empty($real_alltags_regex) ? '' : $real_alltags_regex;
+		unset($real_alltags_regex);
 	}
+	elseif (!empty($bbc_codes))
+		$bbc_lang_locales[$txt['lang_locale']] = $bbc_codes;
 
 	return $message;
 }
@@ -2895,49 +3205,39 @@ function parsesmileys(&$message)
 	// If smileyPregSearch hasn't been set, do it now.
 	if (empty($smileyPregSearch))
 	{
-		// Use the default smileys if it is disabled. (better for "portability" of smileys.)
-		if (empty($modSettings['smiley_enable']))
+		// Cache for longer when customized smiley codes aren't enabled
+		$cache_time = empty($modSettings['smiley_enable']) ? 7200 : 480;
+
+		// Load the smileys in reverse order by length so they don't get parsed incorrectly.
+		if (($temp = cache_get_data('parsing_smileys_' . $user_info['smiley_set'], $cache_time)) == null)
 		{
-			$smileysfrom = array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)');
-			$smileysto = array('evil', 'cheesy', 'rolleyes', 'angry', 'laugh', 'smiley', 'wink', 'grin', 'sad', 'shocked', 'cool', 'tongue', 'huh', 'embarrassed', 'lipsrsealed', 'kiss', 'cry', 'undecided', 'azn', 'afro', 'police', 'angel');
-			$smileysdescs = array('', $txt['icon_cheesy'], $txt['icon_rolleyes'], $txt['icon_angry'], '', $txt['icon_smiley'], $txt['icon_wink'], $txt['icon_grin'], $txt['icon_sad'], $txt['icon_shocked'], $txt['icon_cool'], $txt['icon_tongue'], $txt['icon_huh'], $txt['icon_embarrassed'], $txt['icon_lips'], $txt['icon_kiss'], $txt['icon_cry'], $txt['icon_undecided'], '', '', '', '');
+			$result = $smcFunc['db_query']('', '
+				SELECT s.code, f.filename, s.description
+				FROM {db_prefix}smileys AS s
+					JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
+				WHERE f.smiley_set = {string:smiley_set}' . (empty($modSettings['smiley_enable']) ? '
+					AND s.code IN ({array_string:default_codes})' : '') . '
+				ORDER BY LENGTH(s.code) DESC',
+				array(
+					'default_codes' => array('>:D', ':D', '::)', '>:(', ':))', ':)', ';)', ';D', ':(', ':o', '8)', ':P', '???', ':-[', ':-X', ':-*', ':\'(', ':-\\', '^-^', 'O0', 'C:-)', 'O:-)'),
+					'smiley_set' => $user_info['smiley_set'],
+				)
+			);
+			$smileysfrom = array();
+			$smileysto = array();
+			$smileysdescs = array();
+			while ($row = $smcFunc['db_fetch_assoc']($result))
+			{
+				$smileysfrom[] = $row['code'];
+				$smileysto[] = $smcFunc['htmlspecialchars']($row['filename']);
+				$smileysdescs[] = !empty($txt['icon_' . strtolower($row['description'])]) ? $txt['icon_' . strtolower($row['description'])] : $row['description'];
+			}
+			$smcFunc['db_free_result']($result);
+
+			cache_put_data('parsing_smileys_' . $user_info['smiley_set'], array($smileysfrom, $smileysto, $smileysdescs), $cache_time);
 		}
 		else
-		{
-			// Load the smileys in reverse order by length so they don't get parsed wrong.
-			if (($temp = cache_get_data('parsing_smileys', 480)) == null)
-			{
-				$result = $smcFunc['db_query']('', '
-					SELECT code, filename, description
-					FROM {db_prefix}smileys
-					ORDER BY LENGTH(code) DESC',
-					array(
-					)
-				);
-				$smileysfrom = array();
-				$smileysto = array();
-				$smileysdescs = array();
-				while ($row = $smcFunc['db_fetch_assoc']($result))
-				{
-					$smileysfrom[] = $row['code'];
-					$smileysto[] = $smcFunc['htmlspecialchars']($row['filename']);
-					$smileysdescs[] = $row['description'];
-				}
-				$smcFunc['db_free_result']($result);
-
-				cache_put_data('parsing_smileys', array($smileysfrom, $smileysto, $smileysdescs), 480);
-			}
-			else
-				list ($smileysfrom, $smileysto, $smileysdescs) = $temp;
-		}
-
-		// Set proper extensions; do this post caching so cache doesn't become extension-specific
-		foreach($smileysto AS $ix=>$file)
-			// Need to use the default if user selection is disabled
-			if (empty($modSettings['smiley_sets_enable']))
-				$smileysto[$ix] = $file . $context['user']['smiley_set_default_ext'];
-			else
-				$smileysto[$ix] = $file . $user_info['smiley_set_ext'];
+			list ($smileysfrom, $smileysto, $smileysdescs) = $temp;
 
 		// The non-breaking-space is a complex thing...
 		$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
@@ -2950,7 +3250,7 @@ function parsesmileys(&$message)
 		for ($i = 0, $n = count($smileysfrom); $i < $n; $i++)
 		{
 			$specialChars = $smcFunc['htmlspecialchars']($smileysfrom[$i], ENT_QUOTES);
-			$smileyCode = '<img src="' . $smileys_path . $smileysto[$i] . '" alt="' . strtr($specialChars, array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')). '" title="' . strtr($smcFunc['htmlspecialchars']($smileysdescs[$i]), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" class="smiley">';
+			$smileyCode = '<img src="' . $smileys_path . $smileysto[$i] . '" alt="' . strtr($specialChars, array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" title="' . strtr($smcFunc['htmlspecialchars']($smileysdescs[$i]), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" class="smiley">';
 
 			$smileyPregReplacements[$smileysfrom[$i]] = $smileyCode;
 
@@ -2974,8 +3274,7 @@ function parsesmileys(&$message)
 	}
 
 	// Replace away!
-	$message = preg_replace_callback($smileyPregSearch,
-		function ($matches) use ($smileyPregReplacements)
+	$message = preg_replace_callback($smileyPregSearch, function($matches) use ($smileyPregReplacements)
 		{
 			return $smileyPregReplacements[$matches[1]];
 		}, $message);
@@ -3030,7 +3329,7 @@ function get_proxied_url($url)
 		return strtr($url, array('http://' => 'https://'));
 
 	// By default, use SMF's own image proxy script
-	$proxied_url = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($url) . '&hash=' . md5($url . $image_proxy_secret);
+	$proxied_url = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($url) . '&hash=' . hash_hmac('sha1', $url, $image_proxy_secret);
 
 	// Allow mods to easily implement an alternative proxy
 	// MOD AUTHORS: To add settings UI for your proxy, use the integrate_general_settings hook.
@@ -3072,13 +3371,13 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 	{
 		if (defined('SID') && SID != '')
 			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
-				function ($m) use ($scripturl)
+				function($m) use ($scripturl)
 				{
-					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . SID. (isset($m[2]) ? "$m[2]" : "");
+					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . SID . (isset($m[2]) ? "$m[2]" : "");
 				}, $setLocation);
 		else
 			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
-				function ($m) use ($scripturl)
+				function($m) use ($scripturl)
 				{
 					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? "$m[2]" : "");
 				}, $setLocation);
@@ -3099,6 +3398,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 
 /**
  * Ends execution.  Takes care of template loading and remembering the previous URL.
+ *
  * @param bool $header Whether to do the header
  * @param bool $do_footer Whether to do the footer
  * @param bool $from_index Whether we're coming from the board index
@@ -3106,7 +3406,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
  */
 function obExit($header = null, $do_footer = null, $from_index = false, $from_fatal_error = false)
 {
-	global $context, $settings, $modSettings, $txt, $smcFunc;
+	global $context, $settings, $modSettings, $txt, $smcFunc, $should_log;
 	static $header_done = false, $footer_done = false, $level = 0, $has_fatal_error = false;
 
 	// Attempt to prevent a recursive loop.
@@ -3183,7 +3483,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	}
 
 	// Remember this URL in case someone doesn't like sending HTTP_REFERER.
-	if (strpos($_SERVER['REQUEST_URL'], 'action=dlattach') === false && strpos($_SERVER['REQUEST_URL'], 'action=viewsmfile') === false)
+	if ($should_log)
 		$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];
 
 	// For session check verification.... don't switch browsers...
@@ -3199,6 +3499,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 
 /**
  * Get the size of a specified image with better error handling.
+ *
  * @todo see if it's better in Subs-Graphics, but one step at the time.
  * Uses getimagesize() to determine the size of a file.
  * Attempts to connect to the server first so it won't time out.
@@ -3216,7 +3517,7 @@ function url_image_size($url)
 	// Can we pull this from the cache... please please?
 	if (($temp = cache_get_data('url_image_size-' . md5($url), 240)) !== null)
 		return $temp;
-	$t = microtime();
+	$t = microtime(true);
 
 	// Get the host to pester...
 	preg_match('~^\w+://(.+?)/(.*)$~', $url, $match);
@@ -3271,7 +3572,7 @@ function url_image_size($url)
 		$size = false;
 
 	// If this took a long time, we may never have to do it again, but then again we might...
-	if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $t)) > 0.8)
+	if (microtime(true) - $t > 0.8)
 		cache_put_data('url_image_size-' . md5($url), $size, 240);
 
 	// Didn't work.
@@ -3280,6 +3581,7 @@ function url_image_size($url)
 
 /**
  * Sets up the basic theme context stuff.
+ *
  * @param bool $forceload Whether to load the theme even if it's already loaded
  */
 function setupThemeContext($forceload = false)
@@ -3326,7 +3628,7 @@ function setupThemeContext($forceload = false)
 		$_SESSION['unread_messages'] = $user_info['unread_messages'];
 
 		if (allowedTo('moderate_forum'))
-			$context['unapproved_members'] = (!empty($modSettings['registration_method']) && ($modSettings['registration_method'] == 2 || (!empty($modSettings['coppaType']) && $modSettings['coppaType'] == 2))) || !empty($modSettings['approveAccountDeletion']) ? $modSettings['unapprovedMembers'] : 0;
+			$context['unapproved_members'] = !empty($modSettings['unapprovedMembers']) ? $modSettings['unapprovedMembers'] : 0;
 
 		$context['user']['avatar'] = array();
 
@@ -3393,13 +3695,13 @@ function setupThemeContext($forceload = false)
 			new smc_Popup({
 				heading: ' . JavaScriptEscape($txt['show_personal_messages_heading']) . ',
 				content: ' . JavaScriptEscape(sprintf($txt['show_personal_messages'], $context['user']['unread_messages'], $scripturl . '?action=pm')) . ',
-				icon_class: \'generic_icons mail_new\'
+				icon_class: \'main_icons mail_new\'
 			});
 		});');
 
 	// Add a generic "Are you sure?" confirmation message.
 	addInlineJavaScript('
-	var smf_you_sure =' . JavaScriptEscape($txt['quickmod_confirm']) .';');
+	var smf_you_sure =' . JavaScriptEscape($txt['quickmod_confirm']) . ';');
 
 	// Now add the capping code for avatars.
 	if (!empty($modSettings['avatar_max_width_external']) && !empty($modSettings['avatar_max_height_external']) && !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_css_resize')
@@ -3533,7 +3835,7 @@ function memoryReturnBytes($val)
  */
 function template_header()
 {
-	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir;
+	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir, $cache_enable;
 
 	setupThemeContext();
 
@@ -3603,7 +3905,7 @@ function template_header()
 			if ($modSettings['requireAgreement'])
 				$agreement = !file_exists($boarddir . '/agreement.txt');
 
-			if (!empty($securityFiles) || (!empty($modSettings['cache_enable']) && !is_writable($cachedir)) || !empty($agreement))
+			if (!empty($securityFiles) || (!empty($cache_enable) && !is_writable($cachedir)) || !empty($agreement))
 			{
 				echo '
 		<div class="errorbox">
@@ -3621,7 +3923,7 @@ function template_header()
 				', sprintf($txt['not_removed_extra'], $securityFile, substr($securityFile, 0, -1)), '<br>';
 				}
 
-				if (!empty($modSettings['cache_enable']) && !is_writable($cachedir))
+				if (!empty($cache_enable) && !is_writable($cachedir))
 					echo '
 				<strong>', $txt['cache_writable'], '</strong><br>';
 
@@ -3664,14 +3966,14 @@ function template_header()
  */
 function theme_copyright()
 {
-	global $forum_copyright, $software_year, $forum_version;
+	global $forum_copyright;
 
 	// Don't display copyright for things like SSI.
-	if (!isset($forum_version) || !isset($software_year))
+	if (SMF !== 1)
 		return;
 
 	// Put in the version...
-	printf($forum_copyright, $forum_version, $software_year);
+	printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR);
 }
 
 /**
@@ -3686,14 +3988,15 @@ function template_footer()
 	$context['load_time'] = round(microtime(true) - $time_start, 3);
 	$context['load_queries'] = $db_count;
 
-	foreach (array_reverse($context['template_layers']) as $layer)
-		loadSubTemplate($layer . '_below', true);
+	if (!empty($context['template_layers']) && is_array($context['template_layers']))
+		foreach (array_reverse($context['template_layers']) as $layer)
+			loadSubTemplate($layer . '_below', true);
 }
 
 /**
  * Output the Javascript files
  * 	- tabbing in this function is to make the HTML source look good and proper
- *  - if defered is set function will output all JS set to load at page end
+ *  - if deferred is set function will output all JS set to load at page end
  *
  * @param bool $do_deferred If true will only output the deferred JS (the stuff that goes right before the closing body tag)
  */
@@ -3761,8 +4064,21 @@ function template_javascript($do_deferred = false)
 			}
 
 			else
+			{
 				echo '
-	<script src="', $js_file['fileUrl'], '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '', '></script>';
+	<script src="', $js_file['fileUrl'], isset($js_file['options']['seed']) ? $js_file['options']['seed'] : '', '"', !empty($js_file['options']['async']) ? ' async' : '', !empty($js_file['options']['defer']) ? ' defer' : '';
+
+				if (!empty($js_file['options']['attributes']))
+					foreach ($js_file['options']['attributes'] as $key => $value)
+					{
+						if (is_bool($value))
+							echo !empty($value) ? ' ' . $key : '';
+						else
+							echo ' ', $key, '="', $value, '"';
+					}
+
+				echo '></script>';
+			}
 		}
 
 		foreach ($toMinify as $js_files)
@@ -3813,7 +4129,6 @@ window.addEventListener("DOMContentLoaded", function() {';
 
 /**
  * Output the CSS files
- *
  */
 function template_css()
 {
@@ -3825,9 +4140,10 @@ function template_css()
 	$toMinify = array();
 	$normal = array();
 
-	ksort($context['css_files_order']);
-	$context['css_files'] = array_merge(array_flip($context['css_files_order']), $context['css_files']);
-
+	usort($context['css_files'], function ($a, $b)
+	{
+		return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
+	});
 	foreach ($context['css_files'] as $id => $file)
 	{
 		// Last minute call! allow theme authors to disable single files.
@@ -3847,7 +4163,10 @@ function template_css()
 				$minSeed = $file['options']['seed'];
 		}
 		else
-			$normal[] = $file['fileUrl'];
+			$normal[] = array(
+				'url' => $file['fileUrl'] . (isset($file['options']['seed']) ? $file['options']['seed'] : ''),
+				'attributes' => !empty($file['options']['attributes']) ? $file['options']['attributes'] : array()
+			);
 	}
 
 	if (!empty($toMinify))
@@ -3864,8 +4183,21 @@ function template_css()
 	// Print the rest after the minified files.
 	if (!empty($normal))
 		foreach ($normal as $nf)
+		{
 			echo '
-	<link rel="stylesheet" href="', $nf ,'">';
+	<link rel="stylesheet" href="', $nf['url'], '"';
+
+			if (!empty($nf['attributes']))
+				foreach ($nf['attributes'] as $key => $value)
+				{
+					if (is_bool($value))
+						echo !empty($value) ? ' ' . $key : '';
+					else
+						echo ' ', $key, '="', $value, '"';
+				}
+
+			echo '>';
+		}
 
 	if ($db_show_debug === true)
 	{
@@ -3881,10 +4213,10 @@ function template_css()
 	<style>';
 
 		foreach ($context['css_header'] as $css)
-			echo $css .'
+			echo $css . '
 	';
 
-		echo'
+		echo '
 	</style>';
 	}
 }
@@ -3909,64 +4241,60 @@ function custMinify($data, $type)
 		return $data;
 
 	// Different pages include different files, so we use a hash to label the different combinations
-	$hash = md5(implode(' ', array_map(function($file) { return $file['filePath'] . (int) @filesize($file['filePath']) . (int) @filemtime($file['filePath']); }, $data)));
+	$hash = md5(implode(' ', array_map(function($file)
+	{
+		return $file['filePath'] . '-' . $file['mtime'];
+	}, $data)));
+
+	// Is this a deferred or asynchronous JavaScript file?
+	$async = $type === 'js';
+	$defer = $type === 'js';
+	if ($type === 'js')
+	{
+		foreach ($data as $id => $file)
+		{
+			// A minified script should only be loaded asynchronously if all its components wanted to be.
+			if (empty($file['options']['async']))
+				$async = false;
+
+			// A minified script should only be deferred if all its components wanted to be.
+			if (empty($file['options']['defer']))
+				$defer = false;
+		}
+	}
 
 	// Did we already do this?
-	list($toCache, $async, $defer) = array_pad((array) cache_get_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, 86400), 3, null);
+	$minified_file = $settings['theme_dir'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/minified_' . $hash . '.' . $type;
+	$already_exists = file_exists($minified_file);
 
 	// Already done?
-	if (!empty($toCache))
+	if ($already_exists)
+	{
 		return array('smf_minified' => array(
-			'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($toCache),
-			'filePath' => $toCache,
-			'fileName' => basename($toCache),
+			'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($minified_file),
+			'filePath' => $minified_file,
+			'fileName' => basename($minified_file),
 			'options' => array('async' => !empty($async), 'defer' => !empty($defer)),
 		));
-
-
-	// No namespaces, sorry!
-	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
-
-	// Temp path.
-	$cTempPath = $settings['theme_dir'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/';
-
-	// What kind of file are we going to create?
-	$toCreate = $cTempPath . 'minified_' . $hash . '.' . $type;
-
+	}
 	// File has to exist. If it doesn't, try to create it.
-	if ((!file_exists($toCreate) && @fopen($toCreate, 'w') === false) || !smf_chmod($toCreate))
+	elseif (@fopen($minified_file, 'w') === false || !smf_chmod($minified_file))
 	{
 		loadLanguage('Errors');
-		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
-		cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, null);
+		log_error(sprintf($txt['file_not_created'], $minified_file), 'general');
 
 		// The process failed, so roll back to print each individual file.
 		return $data;
 	}
 
-	$minifier = new $classType();
+	// No namespaces, sorry!
+	$classType = 'MatthiasMullie\\Minify\\' . strtoupper($type);
 
-	$async = $type === 'js';
-	$defer = $type === 'js';
+	$minifier = new $classType();
 
 	foreach ($data as $id => $file)
 	{
-		if (empty($file['filePath']))
-			$toAdd = false;
-		else
-		{
-			$seed = isset($file['options']['seed']) ? $file['options']['seed'] : '';
-			$tempFile = str_replace($seed, '', $file['filePath']);
-			$toAdd = file_exists($tempFile) ? $tempFile : false;
-		}
-
-		// A minified script should only be loaded asynchronously if all its components wanted to be.
-		if (empty($file['options']['async']))
-			$async = false;
-
-		// A minified script should only be deferred if all its components wanted to be.
-		if (empty($file['options']['defer']))
-			$defer = false;
+		$toAdd = !empty($file['filePath']) && file_exists($file['filePath']) ? $file['filePath'] : false;
 
 		// The file couldn't be located so it won't be added. Log this error.
 		if (empty($toAdd))
@@ -3981,40 +4309,37 @@ function custMinify($data, $type)
 	}
 
 	// Create the file.
-	$minifier->minify($toCreate);
+	$minifier->minify($minified_file);
 	unset($minifier);
 	clearstatcache();
 
 	// Minify process failed.
-	if (!filesize($toCreate))
+	if (!filesize($minified_file))
 	{
 		loadLanguage('Errors');
-		log_error(sprintf($txt['file_not_created'], $toCreate), 'general');
-		cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, null);
+		log_error(sprintf($txt['file_not_created'], $minified_file), 'general');
 
 		// The process failed so roll back to print each individual file.
 		return $data;
 	}
 
-	// And create a one day cache entry.
-	cache_put_data('minimized_' . $settings['theme_id'] . '_' . $type . '_' . $hash, array($toCache, $async, $defer), 86400);
-
 	return array('smf_minified' => array(
-		'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($toCreate),
-		'filePath' => $toCreate,
-		'fileName' => basename($toCreate),
+		'fileUrl' => $settings['theme_url'] . '/' . ($type == 'css' ? 'css' : 'scripts') . '/' . basename($minified_file),
+		'filePath' => $minified_file,
+		'fileName' => basename($minified_file),
 		'options' => array('async' => $async, 'defer' => $defer),
 	));
 }
 
 /**
- * Clears out old minimized CSS and JavaScript files
+ * Clears out old minimized CSS and JavaScript files and ensures $modSettings['browser_cache'] is up to date
  */
 function deleteAllMinified()
 {
-	global $smcFunc, $txt;
+	global $smcFunc, $txt, $modSettings;
 
 	$not_deleted = array();
+	$most_recent = 0;
 
 	// Kinda sucks that we need to do another query to get all the theme dirs, but c'est la vie.
 	$request = $smcFunc['db_query']('', '
@@ -4029,18 +4354,23 @@ function deleteAllMinified()
 	{
 		foreach (array('css', 'js') as $type)
 		{
-			foreach (glob(rtrim($theme['dir'], '/') . '/' . ($type == 'css' ? 'css' : 'scripts') . '/minified*.' . $type) as $filename)
+			foreach (glob(rtrim($theme['dir'], '/') . '/' . ($type == 'css' ? 'css' : 'scripts') . '/*.' . $type) as $filename)
 			{
-				// Remove the cache entry
-				if (preg_match('~([a-zA-Z0-9]+)\.' . $type . '$~', $filename, $matches))
-					cache_put_data('minimized_' . $theme['id'] . '_' . $type . '_' . $matches[1], null);
+				// We want to find the most recent mtime of non-minified files
+				if (strpos(pathinfo($filename, PATHINFO_BASENAME), 'minified') === false)
+					$most_recent = max($modSettings['browser_cache'], (int) @filemtime($filename));
 
-				// Try to delete the file. Add it to our error list if it fails.
-				if (!@unlink($filename))
+				// Try to delete minified files. Add them to our error list if that fails.
+				elseif (!@unlink($filename))
 					$not_deleted[] = $filename;
 			}
 		}
 	}
+	$smcFunc['db_free_result']($request);
+
+	// This setting tracks the most recent modification time of any of our CSS and JS files
+	if ($most_recent > $modSettings['browser_cache'])
+		updateSettings(array('browser_cache' => $most_recent));
 
 	// If any of the files could not be deleted, log an error about it.
 	if (!empty($not_deleted))
@@ -4052,6 +4382,7 @@ function deleteAllMinified()
 
 /**
  * Get an attachment's encrypted filename. If $new is true, won't check for file existence.
+ *
  * @todo this currently returns the hash if new, and the full filename otherwise.
  * Something messy like that.
  * @todo and of course everything relies on this behavior and work around it. :P.
@@ -4059,7 +4390,7 @@ function deleteAllMinified()
  *
  * @param string $filename The name of the file
  * @param int $attachment_id The ID of the attachment
- * @param string $dir Which directory it should be in (null to use current one)
+ * @param string|null $dir Which directory it should be in (null to use current one)
  * @param bool $new Whether this is a new attachment
  * @param string $file_hash The file hash
  * @return string The path to the file
@@ -4085,7 +4416,8 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 			WHERE id_attach = {int:id_attach}',
 			array(
 				'id_attach' => $attachment_id,
-			));
+			)
+		);
 
 		if ($smcFunc['db_num_rows']($request) === 0)
 			return false;
@@ -4105,7 +4437,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	else
 		$path = $modSettings['attachmentUploadDir'];
 
-	return $path . '/' . $attachment_id . '_' . $file_hash .'.dat';
+	return $path . '/' . $attachment_id . '_' . $file_hash . '.dat';
 }
 
 /**
@@ -4149,10 +4481,10 @@ function ip2range($fullip)
 		$valid_low = isValidIP($ip_parts[0]);
 		$valid_high = isValidIP($ip_parts[1]);
 		$count = 0;
-		$mode = (preg_match('/:/',$ip_parts[0]) > 0 ? ':' : '.');
+		$mode = (preg_match('/:/', $ip_parts[0]) > 0 ? ':' : '.');
 		$max = ($mode == ':' ? 'ffff' : '255');
 		$min = 0;
-		if(!$valid_low)
+		if (!$valid_low)
 		{
 			$ip_parts[0] = preg_replace('/\*/', '0', $ip_parts[0]);
 			$valid_low = isValidIP($ip_parts[0]);
@@ -4166,7 +4498,7 @@ function ip2range($fullip)
 		}
 
 		$count = 0;
-		if(!$valid_high)
+		if (!$valid_high)
 		{
 			$ip_parts[1] = preg_replace('/\*/', $max, $ip_parts[1]);
 			$valid_high = isValidIP($ip_parts[1]);
@@ -4179,7 +4511,7 @@ function ip2range($fullip)
 			}
 		}
 
-		if($valid_high && $valid_low)
+		if ($valid_high && $valid_low)
 		{
 			$ip_array['low'] = $ip_parts[0];
 			$ip_array['high'] = $ip_parts[1];
@@ -4201,7 +4533,7 @@ function host_from_ip($ip)
 
 	if (($host = cache_get_data('hostlookup-' . $ip, 600)) !== null)
 		return $host;
-	$t = microtime();
+	$t = microtime(true);
 
 	// Try the Linux host command, perhaps?
 	if (!isset($host) && (strpos(strtolower(PHP_OS), 'win') === false || strpos(strtolower(PHP_OS), 'darwin') !== false) && mt_rand(0, 1) == 1)
@@ -4237,7 +4569,7 @@ function host_from_ip($ip)
 		$host = @gethostbyaddr($ip);
 
 	// It took a long time, so let's cache it!
-	if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $t)) > 0.5)
+	if (microtime(true) - $t > 0.5)
 		cache_put_data('hostlookup-' . $ip, $host, 600);
 
 	return $host;
@@ -4297,7 +4629,8 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 /**
  * Creates an image/text button
  *
- * @param string $name The name of the button (should be a generic_icons class or the name of an image)
+ * @deprecated since 2.1
+ * @param string $name The name of the button (should be a main_icons class or the name of an image)
  * @param string $alt The alt text
  * @param string $label The $txt string to use as the label
  * @param string $custom Custom text/html to add to the img tag (only when using an actual image)
@@ -4315,7 +4648,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
 	if (!$settings['use_image_buttons'])
 		return $txt[$alt];
 	elseif (!empty($settings['use_buttons']))
-		return '<span class="generic_icons ' . $name . '" alt="' . $txt[$alt] . '"></span>' . ($label != '' ? '&nbsp;<strong>' . $txt[$label] . '</strong>' : '');
+		return '<span class="main_icons ' . $name . '" alt="' . $txt[$alt] . '"></span>' . ($label != '' ? '&nbsp;<strong>' . $txt[$label] . '</strong>' : '');
 	else
 		return '<img src="' . $settings['lang_images_url'] . '/' . $name . '" alt="' . $txt[$alt] . '" ' . $custom . '>';
 }
@@ -4324,11 +4657,10 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  * Sets up all of the top menu buttons
  * Saves them in the cache if it is available and on
  * Places the results in $context
- *
  */
 function setupMenuContext()
 {
-	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc;
+	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc, $cache_enable;
 
 	// Set up the menu privileges.
 	$context['allow_search'] = !empty($modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
@@ -4360,7 +4692,7 @@ function setupMenuContext()
 		addInlineJavaScript('
 	var user_menus = new smc_PopupMenu();
 	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");
-	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u='. $context['user']['id'] .'");', true);
+	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u=' . $context['user']['id'] . '");', true);
 		if ($context['allow_pm'])
 			addInlineJavaScript('
 	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
@@ -4414,7 +4746,7 @@ function setupMenuContext()
 						'show' => allowedTo('admin_forum'),
 					),
 					'errorlog' => array(
-						'title' => $txt['errlog'],
+						'title' => $txt['errorlog'],
 						'href' => $scripturl . '?action=admin;area=logs;sa=errorlog;desc',
 						'show' => allowedTo('admin_forum') && !empty($modSettings['enableErrorLogging']),
 					),
@@ -4564,14 +4896,14 @@ function setupMenuContext()
 				elseif (isset($button['icon']) && file_exists($settings['default_theme_dir'] . '/images/' . $button['icon']))
 					$button['icon'] = '<img src="' . $settings['default_images_url'] . '/' . $button['icon'] . '" alt="">';
 				elseif (isset($button['icon']))
-					$button['icon'] = '<span class="generic_icons ' . $button['icon'] . '"></span>';
+					$button['icon'] = '<span class="main_icons ' . $button['icon'] . '"></span>';
 				else
-					$button['icon'] = '<span class="generic_icons ' . $act . '"></span>';
+					$button['icon'] = '<span class="main_icons ' . $act . '"></span>';
 
 				$menu_buttons[$act] = $button;
 			}
 
-		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+		if (!empty($cache_enable) && $cache_enable >= 2)
 			cache_put_data('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $menu_buttons, $cacheTime);
 	}
 
@@ -4655,7 +4987,7 @@ function setupMenuContext()
 		$context['total_admin_reports'] += $context['unapproved_members'];
 	}
 
-	if($context['total_admin_reports'] > 0 && !empty($context['menu_buttons']['admin']))
+	if ($context['total_admin_reports'] > 0 && !empty($context['menu_buttons']['admin']))
 	{
 		$context['menu_buttons']['admin']['amt'] = $context['total_admin_reports'];
 	}
@@ -4720,7 +5052,9 @@ function call_integration_hook($hook, $parameters = array())
 		// Is it valid?
 		if (!empty($call))
 			$results[$function] = call_user_func_array($call, $parameters);
-
+		// This failed, but we want to do so silently.
+		elseif (!empty($function) && !empty($context['ignore_hook_errors']))
+			return $results;
 		// Whatever it was suppose to call, it failed :(
 		elseif (!empty($function))
 		{
@@ -4733,7 +5067,6 @@ function call_integration_hook($hook, $parameters = array())
 				$absPath = empty($settings['theme_dir']) ? (strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir))) : (strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
 				log_error(sprintf($txt['hook_fail_call_to'], $string, $absPath), 'general');
 			}
-
 			// "Assume" the file resides on $boarddir somewhere...
 			else
 				log_error(sprintf($txt['hook_fail_call_to'], $function, $boarddir), 'general');
@@ -4940,11 +5273,14 @@ function call_helper($string, $return = false)
 	else
 		$func = $string;
 
+	// We can't call this helper, but we want to silently ignore this.
+	if (!is_callable($func, false, $callable_name) && !empty($context['ignore_hook_errors']))
+		return false;
 	// Right, we got what we need, time to do some checks.
-	if (!is_callable($func, false, $callable_name))
+	elseif (!is_callable($func, false, $callable_name))
 	{
 		loadLanguage('Errors');
-		log_error(sprintf($txt['subAction_fail'], $callable_name), 'general');
+		log_error(sprintf($txt['sub_action_fail'], $callable_name), 'general');
 
 		// Gotta tell everybody.
 		return false;
@@ -5002,7 +5338,7 @@ function load_file($string)
 		// No? try a fallback to $sourcedir
 		else
 		{
-			$absPath = $sourcedir .'/'. $file;
+			$absPath = $sourcedir . '/' . $file;
 
 			if (file_exists($absPath))
 				require_once($absPath);
@@ -5131,7 +5467,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 				$header = '';
 				$location = '';
 				while (!feof($fp) && trim($header = fgets($fp, 4096)) != '')
-					if (strpos($header, 'location:') !== false)
+					if (stripos($header, 'location:') !== false)
 						$location = trim(substr($header, strpos($header, ':') + 1));
 
 				if (empty($location))
@@ -5210,6 +5546,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 
 /**
  * Prepares an array of "likes" info for the topic specified by $topic
+ *
  * @param integer $topic The topic ID to fetch the info from.
  * @return array An array of IDs of messages in the specified topic that the current user likes
  */
@@ -5220,7 +5557,6 @@ function prepareLikesContext($topic)
 	// Make sure we have something to work with.
 	if (empty($topic))
 		return array();
-
 
 	// We already know the number of likes per message, we just want to know whether the current user liked it or not.
 	$user = $user_info['id'];
@@ -5276,8 +5612,6 @@ function sanitizeMSCutPaste($string)
 		"\xe2\x80\x99",	// right single curly quote
 		"\xe2\x80\x9c",	// left double curly quote
 		"\xe2\x80\x9d",	// right double curly quote
-		"\xe2\x80\x93",	// en dash
-		"\xe2\x80\x94",	// em dash
 	);
 
 	// windows 1252 / iso equivalents
@@ -5289,8 +5623,6 @@ function sanitizeMSCutPaste($string)
 		chr(146),
 		chr(147),
 		chr(148),
-		chr(150),
-		chr(151),
 	);
 
 	// safe replacements
@@ -5302,8 +5634,6 @@ function sanitizeMSCutPaste($string)
 		"'",	// &rsquo;
 		'"',	// &ldquo;
 		'"',	// &rdquo;
-		'-',	// &ndash;
-		'--',	// &mdash;
 	);
 
 	if ($context['utf8'])
@@ -5524,7 +5854,6 @@ function smf_list_timezones($when = 'now')
 	// Process the preferred timezones first, then the normal ones, then the low priority ones.
 	$tzids = array_merge(array_keys($tztxt), array_diff(timezone_identifiers_list(), array_keys($tztxt), $low_priority_tzids), $low_priority_tzids);
 
-
 	// Idea here is to get exactly one representative identifier for each and every unique set of time zone rules.
 	foreach ($tzids as $tzid)
 	{
@@ -5623,7 +5952,7 @@ function inet_ptod($ip_address)
  */
 function inet_dtop($bin)
 {
-	if(empty($bin))
+	if (empty($bin))
 		return '';
 
 	global $db_type;
@@ -5654,33 +5983,34 @@ function inet_dtop($bin)
  */
 function _safe_serialize($value)
 {
-	if(is_null($value))
+	if (is_null($value))
 		return 'N;';
 
-	if(is_bool($value))
-		return 'b:'. (int) $value .';';
+	if (is_bool($value))
+		return 'b:' . (int) $value . ';';
 
-	if(is_int($value))
-		return 'i:'. $value .';';
+	if (is_int($value))
+		return 'i:' . $value . ';';
 
-	if(is_float($value))
-		return 'd:'. str_replace(',', '.', $value) .';';
+	if (is_float($value))
+		return 'd:' . str_replace(',', '.', $value) . ';';
 
-	if(is_string($value))
-		return 's:'. strlen($value) .':"'. $value .'";';
+	if (is_string($value))
+		return 's:' . strlen($value) . ':"' . $value . '";';
 
-	if(is_array($value))
+	if (is_array($value))
 	{
 		$out = '';
-		foreach($value as $k => $v)
+		foreach ($value as $k => $v)
 			$out .= _safe_serialize($k) . _safe_serialize($v);
 
-		return 'a:'. count($value) .':{'. $out .'}';
+		return 'a:' . count($value) . ':{' . $out . '}';
 	}
 
 	// safe_serialize cannot serialize resources or objects.
 	return false;
 }
+
 /**
  * Wrapper for _safe_serialize() that handles exceptions and multibyte encoding issues.
  *
@@ -5717,7 +6047,7 @@ function safe_serialize($value)
 function _safe_unserialize($str)
 {
 	// Input  is not a string.
-	if(empty($str) || !is_string($str))
+	if (empty($str) || !is_string($str))
 		return false;
 
 	$stack = array();
@@ -5731,40 +6061,40 @@ function _safe_unserialize($str)
 	 *   3 - in array, expecting value or another array
 	 */
 	$state = 0;
-	while($state != 1)
+	while ($state != 1)
 	{
 		$type = isset($str[0]) ? $str[0] : '';
-		if($type == '}')
+		if ($type == '}')
 			$str = substr($str, 1);
 
-		else if($type == 'N' && $str[1] == ';')
+		elseif ($type == 'N' && $str[1] == ';')
 		{
 			$value = null;
 			$str = substr($str, 2);
 		}
-		else if($type == 'b' && preg_match('/^b:([01]);/', $str, $matches))
+		elseif ($type == 'b' && preg_match('/^b:([01]);/', $str, $matches))
 		{
 			$value = $matches[1] == '1' ? true : false;
 			$str = substr($str, 4);
 		}
-		else if($type == 'i' && preg_match('/^i:(-?[0-9]+);(.*)/s', $str, $matches))
+		elseif ($type == 'i' && preg_match('/^i:(-?[0-9]+);(.*)/s', $str, $matches))
 		{
-			$value = (int)$matches[1];
+			$value = (int) $matches[1];
 			$str = $matches[2];
 		}
-		else if($type == 'd' && preg_match('/^d:(-?[0-9]+\.?[0-9]*(E[+-][0-9]+)?);(.*)/s', $str, $matches))
+		elseif ($type == 'd' && preg_match('/^d:(-?[0-9]+\.?[0-9]*(E[+-][0-9]+)?);(.*)/s', $str, $matches))
 		{
-			$value = (float)$matches[1];
+			$value = (float) $matches[1];
 			$str = $matches[3];
 		}
-		else if($type == 's' && preg_match('/^s:([0-9]+):"(.*)/s', $str, $matches) && substr($matches[2], (int)$matches[1], 2) == '";')
+		elseif ($type == 's' && preg_match('/^s:([0-9]+):"(.*)/s', $str, $matches) && substr($matches[2], (int) $matches[1], 2) == '";')
 		{
-			$value = substr($matches[2], 0, (int)$matches[1]);
-			$str = substr($matches[2], (int)$matches[1] + 2);
+			$value = substr($matches[2], 0, (int) $matches[1]);
+			$str = substr($matches[2], (int) $matches[1] + 2);
 		}
-		else if($type == 'a' && preg_match('/^a:([0-9]+):{(.*)/s', $str, $matches))
+		elseif ($type == 'a' && preg_match('/^a:([0-9]+):{(.*)/s', $str, $matches))
 		{
-			$expectedLength = (int)$matches[1];
+			$expectedLength = (int) $matches[1];
 			$str = $matches[2];
 		}
 
@@ -5772,10 +6102,10 @@ function _safe_unserialize($str)
 		else
 			return false;
 
-		switch($state)
+		switch ($state)
 		{
 			case 3: // In array, expecting value or another array.
-				if($type == 'a')
+				if ($type == 'a')
 				{
 					$stack[] = &$list;
 					$list[$key] = array();
@@ -5784,7 +6114,7 @@ function _safe_unserialize($str)
 					$state = 2;
 					break;
 				}
-				if($type != '}')
+				if ($type != '}')
 				{
 					$list[$key] = $value;
 					$state = 2;
@@ -5795,29 +6125,29 @@ function _safe_unserialize($str)
 				return false;
 
 			case 2: // in array, expecting end of array or a key
-				if($type == '}')
+				if ($type == '}')
 				{
 					// Array size is less than expected.
-					if(count($list) < end($expected))
+					if (count($list) < end($expected))
 						return false;
 
 					unset($list);
-					$list = &$stack[count($stack)-1];
+					$list = &$stack[count($stack) - 1];
 					array_pop($stack);
 
 					// Go to terminal state if we're at the end of the root array.
 					array_pop($expected);
 
-					if(count($expected) == 0)
+					if (count($expected) == 0)
 						$state = 1;
 
 					break;
 				}
 
-				if($type == 'i' || $type == 's')
+				if ($type == 'i' || $type == 's')
 				{
 					// Array size exceeds expected length.
-					if(count($list) >= end($expected))
+					if (count($list) >= end($expected))
 						return false;
 
 					$key = $value;
@@ -5830,7 +6160,7 @@ function _safe_unserialize($str)
 
 			// Expecting array or value.
 			case 0:
-				if($type == 'a')
+				if ($type == 'a')
 				{
 					$data = array();
 					$list = &$data;
@@ -5839,7 +6169,7 @@ function _safe_unserialize($str)
 					break;
 				}
 
-				if($type != '}')
+				if ($type != '}')
 				{
 					$data = $value;
 					$state = 1;
@@ -5852,7 +6182,7 @@ function _safe_unserialize($str)
 	}
 
 	// Trailing data in input.
-	if(!empty($str))
+	if (!empty($str))
 		return false;
 
 	return $data;
@@ -5884,7 +6214,7 @@ function safe_unserialize($str)
 
 /**
  * Tries different modes to make file/dirs writable. Wrapper function for chmod()
-
+ *
  * @param string $file The file/dir full path.
  * @param int $value Not needed, added for legacy reasons.
  * @return boolean  true if the file/dir is already writable or the function was able to make it writable, false if the function couldn't make the file/dir writable.
@@ -5906,7 +6236,7 @@ function smf_chmod($file, $value = 0)
 	// Set different modes.
 	$chmodValues = $isDir ? array(0750, 0755, 0775, 0777) : array(0644, 0664, 0666);
 
-	foreach($chmodValues as $val)
+	foreach ($chmodValues as $val)
 	{
 		// If it's writable, break out of the loop.
 		if (is_writable($file))
@@ -5924,7 +6254,7 @@ function smf_chmod($file, $value = 0)
 
 /**
  * Wrapper function for json_decode() with error handling.
-
+ *
  * @param string $json The string to decode.
  * @param bool $returnAsArray To return the decoded string as an array or an object, SMF only uses Arrays but to keep on compatibility with json_decode its set to false as default.
  * @param bool $logIt To specify if the error will be logged if theres any.
@@ -5941,13 +6271,13 @@ function smf_json_decode($json, $returnAsArray = false, $logIt = true)
 	$returnArray = @json_decode($json, $returnAsArray);
 
 	// PHP 5.3 so no json_last_error_msg()
-	switch(json_last_error())
+	switch (json_last_error())
 	{
 		case JSON_ERROR_NONE:
 			$jsonError = false;
 			break;
 		case JSON_ERROR_DEPTH:
-			$jsonError =  'JSON_ERROR_DEPTH';
+			$jsonError = 'JSON_ERROR_DEPTH';
 			break;
 		case JSON_ERROR_STATE_MISMATCH:
 			$jsonError = 'JSON_ERROR_STATE_MISMATCH';
@@ -5975,10 +6305,10 @@ function smf_json_decode($json, $returnAsArray = false, $logIt = true)
 		loadLanguage('Errors');
 
 		if (!empty($jsonDebug))
-			log_error($txt['json_'. $jsonError], 'critical', $jsonDebug['file'], $jsonDebug['line']);
+			log_error($txt['json_' . $jsonError], 'critical', $jsonDebug['file'], $jsonDebug['line']);
 
 		else
-			log_error($txt['json_'. $jsonError], 'critical');
+			log_error($txt['json_' . $jsonError], 'critical');
 
 		// Everyone expects an array.
 		return array();
@@ -6003,6 +6333,7 @@ function isValidIP($IPString)
 /**
  * Outputs a response.
  * It assumes the data is already a string.
+ *
  * @param string $data The data to print
  * @param string $type The content type. Defaults to Json.
  * @return void
@@ -6042,14 +6373,16 @@ function smf_serverResponse($data = '', $type = 'content-type: application/json'
  *
  * The optimized regex is stored in $modSettings['tld_regex'].
  *
- * To update the stored version of the regex to use the latest list of valid TLDs from iana.org, set
- * the $update parameter to true. Updating can take some time, based on network connectivity, so it
- * should normally only be done by calling this function from a background or scheduled task.
+ * To update the stored version of the regex to use the latest list of valid
+ * TLDs from iana.org, set the $update parameter to true. Updating can take some
+ * time, based on network connectivity, so it should normally only be done by
+ * calling this function from a background or scheduled task.
  *
- * If $update is not true, but the regex is missing or invalid, the regex will be regenerated from a
- * hard-coded list of TLDs. This regenerated regex will be overwritten on the next scheduled update.
+ * If $update is not true, but the regex is missing or invalid, the regex will
+ * be regenerated from a hard-coded list of TLDs. This regenerated regex will be
+ * overwritten on the next scheduled update.
  *
- * @param bool $update If true, fetch and process the latest offical list of TLDs from iana.org.
+ * @param bool $update If true, fetch and process the latest official list of TLDs from iana.org.
  */
 function set_tld_regex($update = false)
 {
@@ -6064,14 +6397,21 @@ function set_tld_regex($update = false)
 	if ($update)
 	{
 		$tlds = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
+		$tlds_md5 = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt.md5');
 
-		// If the Internet Assigned Numbers Authority can't be reached, the Internet is gone.
-		// We're probably running on a server hidden in a bunker deep underground to protect it from
-		// marauding bandits roaming on the surface. We don't want to waste precious electricity on
-		// pointlessly repeating background tasks, so we'll wait until the next regularly scheduled
-		// update to see if civilization has been restored.
-		if ($tlds === false)
+		/**
+		 * If the Internet Assigned Numbers Authority can't be reached, the Internet is GONE!
+		 * We're probably running on a server hidden in a bunker deep underground to protect
+		 * it from marauding bandits roaming on the surface. We don't want to waste precious
+		 * electricity on pointlessly repeating background tasks, so we'll wait until the next
+		 * regularly scheduled update to see if civilization has been restored.
+		 */
+		if ($tlds === false || $tlds_md5 === false)
 			$postapocalypticNightmare = true;
+
+		// Make sure nothing went horribly wrong along the way.
+		if (md5($tlds) != substr($tlds_md5, 0, 32))
+			$tlds = array();
 	}
 	// If we aren't updating and the regex is valid, we're done
 	elseif (!empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', null) !== false)
@@ -6084,9 +6424,10 @@ function set_tld_regex($update = false)
 	if (!empty($tlds))
 	{
 		// Clean $tlds and convert it to an array
-		$tlds = array_filter(explode("\n", strtolower($tlds)), function($line) {
+		$tlds = array_filter(explode("\n", strtolower($tlds)), function($line)
+		{
 			$line = trim($line);
-			if (empty($line) || strpos($line, '#') !== false || strpos($line, ' ') !== false)
+			if (empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'))
 				return false;
 			else
 				return true;
@@ -6095,51 +6436,57 @@ function set_tld_regex($update = false)
 		// Convert Punycode to Unicode
 		require_once($sourcedir . '/Class-Punycode.php');
 		$Punycode = new Punycode();
-		$tlds = array_map(function ($input) use ($Punycode) { return $Punycode->decode($input); }, $tlds);
+		$tlds = array_map(function($input) use ($Punycode)
+		{
+			return $Punycode->decode($input);
+		}, $tlds);
 	}
 	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
 	else
 	{
-		$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz', 'cat',
-			'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post', 'pro', 'tel',
-			'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'an', 'ao', 'aq',
-			'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh',
-			'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc',
-			'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cs', 'cu', 'cv',
-			'cx', 'cy', 'cz', 'dd', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg', 'eh',
-			'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr', 'ga', 'gb', 'gd', 'ge',
-			'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw',
-			'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq',
-			'ir', 'is', 'it', 'ja', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn',
-			'kp', 'kr', 'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu',
-			'lv', 'ly', 'ma', 'mc', 'md', 'me', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp',
-			'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf',
-			'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph',
-			'pk', 'pl', 'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru',
-			'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn',
-			'so', 'sr', 'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th',
-			'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tp', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug',
-			'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'ye',
-			'yt', 'yu', 'za', 'zm', 'zw');
+		$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz',
+			'cat', 'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post',
+			'pro', 'tel', 'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al',
+			'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd',
+			'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv',
+			'bw', 'by', 'bz', 'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm',
+			'cn', 'co', 'cr', 'cu', 'cv', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do',
+			'dz', 'ec', 'ee', 'eg', 'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo',
+			'fr', 'ga', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp',
+			'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu',
+			'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'ir', 'is', 'it', 'je', 'jm', 'jo',
+			'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn', 'kp', 'kr', 'kw', 'ky', 'kz', 'la',
+			'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu', 'lv', 'ly', 'ma', 'mc', 'md',
+			'me', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt',
+			'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl',
+			'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl',
+			'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw',
+			'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn',
+			'so', 'sr', 'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg',
+			'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua',
+			'ug', 'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf',
+			'ws', 'ye', 'yt', 'za', 'zm', 'zw',
+		);
 
 		// Schedule a background update, unless civilization has collapsed and/or we are having connectivity issues.
-		$schedule_update = empty($postapocalypticNightmare);
+		if (empty($postapocalypticNightmare))
+		{
+			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
+				array('$sourcedir/tasks/UpdateTldRegex.php', 'Update_TLD_Regex', '', 0), array()
+			);
+		}
 	}
+
+	// Tack on some "special use domain names" that aren't in DNS but may possibly resolve.
+	// See https://www.iana.org/assignments/special-use-domain-names/ for more info.
+	$tlds = array_merge($tlds, array('local', 'onion', 'test'));
 
 	// Get an optimized regex to match all the TLDs
 	$tld_regex = build_regex($tlds);
 
 	// Remember the new regex in $modSettings
 	updateSettings(array('tld_regex' => $tld_regex));
-
-	// Schedule a background update if we need one
-	if (!empty($schedule_update))
-	{
-		$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
-			array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/UpdateTldRegex.php', 'Update_TLD_Regex', '', 0), array()
-		);
-	}
 
 	// Redundant repetition is redundant
 	$done = true;
@@ -6148,18 +6495,22 @@ function set_tld_regex($update = false)
 /**
  * Creates optimized regular expressions from an array of strings.
  *
- * An optimized regex built using this function will be much faster than a simple regex built using
- * `implode('|', $strings)` --- anywhere from several times to several orders of magnitude faster.
+ * An optimized regex built using this function will be much faster than a
+ * simple regex built using `implode('|', $strings)` --- anywhere from several
+ * times to several orders of magnitude faster.
  *
- * However, the time required to build the optimized regex is approximately equal to the time it
- * takes to execute the simple regex. Therefore, it is only worth calling this function if the
- * resulting regex will be used more than once.
+ * However, the time required to build the optimized regex is approximately
+ * equal to the time it takes to execute the simple regex. Therefore, it is only
+ * worth calling this function if the resulting regex will be used more than
+ * once.
  *
- * Because PHP places an upper limit on the allowed length of a regex, very large arrays of $strings
- * may not fit in a single regex. Normally, the excess strings will simply be dropped. However, if
- * the $returnArray parameter is set to true, this function will build as many regexes as necessary
- * to accomodate everything in $strings and return them in an array. You will need to iterate
- * through all elements of the returned array in order to test all possible matches.
+ * Because PHP places an upper limit on the allowed length of a regex, very
+ * large arrays of $strings may not fit in a single regex. Normally, the excess
+ * strings will simply be dropped. However, if the $returnArray parameter is set
+ * to true, this function will build as many regexes as necessary to accommodate
+ * everything in $strings and return them in an array. You will need to iterate
+ * through all elements of the returned array in order to test all possible
+ * matches.
  *
  * @param array $strings An array of strings to make a regex for.
  * @param string $delim An optional delimiter character to pass to preg_quote().
@@ -6169,6 +6520,16 @@ function set_tld_regex($update = false)
 function build_regex($strings, $delim = null, $returnArray = false)
 {
 	global $smcFunc;
+	static $regexes = array();
+
+	// If it's not an array, there's not much to do. ;)
+	if (!is_array($strings))
+		return preg_quote(@strval($strings), $delim);
+
+	$regex_key = md5(json_encode(array($strings, $delim, $returnArray)));
+	
+	if (isset($regexes[$regex_key]))
+		return $regexes[$regex_key];
 
 	// The mb_* functions are faster than the $smcFunc ones, but may not be available
 	if (function_exists('mb_internal_encoding') && function_exists('mb_detect_encoding') && function_exists('mb_strlen') && function_exists('mb_substr'))
@@ -6189,12 +6550,26 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	}
 
 	// This recursive function creates the index array from the strings
-	$add_string_to_index = function ($string, $index) use (&$strlen, &$substr, &$add_string_to_index)
+	$add_string_to_index = function($string, $index) use (&$strlen, &$substr, &$add_string_to_index)
 	{
 		static $depth = 0;
 		$depth++;
 
-		$first = $substr($string, 0, 1);
+		$first = @$substr($string, 0, 1);
+
+		// No first character? That's no good.
+		if (empty($first))
+		{
+			// A nested array? Really? Ugh. Fine.
+			if (is_array($string) && $depth < 20)
+			{
+				foreach ($string as $str)
+					$index = $add_string_to_index($str, $index);
+			}
+
+			$depth--;
+			return $index;
+		}
 
 		if (empty($index[$first]))
 			$index[$first] = array();
@@ -6216,7 +6591,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	};
 
 	// This recursive function turns the index array into a regular expression
-	$index_to_regex = function (&$index, $delim) use (&$strlen, &$index_to_regex)
+	$index_to_regex = function(&$index, $delim) use (&$strlen, &$index_to_regex)
 	{
 		static $depth = 0;
 		$depth++;
@@ -6240,11 +6615,11 @@ function build_regex($strings, $delim = null, $returnArray = false)
 
 				if (count(array_keys($value)) == 1)
 				{
-					$new_key_array = explode('(?'.'>', $sub_regex);
+					$new_key_array = explode('(?' . '>', $sub_regex);
 					$new_key .= $new_key_array[0];
 				}
 				else
-					$sub_regex = '(?'.'>' . $sub_regex . ')';
+					$sub_regex = '(?' . '>' . $sub_regex . ')';
 			}
 
 			if ($depth > 1)
@@ -6262,7 +6637,8 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		}
 
 		// Sort by key length and then alphabetically
-		uksort($regex, function($k1, $k2) use (&$strlen) {
+		uksort($regex, function($k1, $k2) use (&$strlen)
+		{
 			$l1 = $strlen($k1);
 			$l2 = $strlen($k2);
 
@@ -6287,15 +6663,16 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	{
 		$regex = array();
 		while (!empty($index))
-			$regex[] = '(?'.'>' . $index_to_regex($index, $delim) . ')';
+			$regex[] = '(?' . '>' . $index_to_regex($index, $delim) . ')';
 	}
 	else
-		$regex = '(?'.'>' . $index_to_regex($index, $delim) . ')';
+		$regex = '(?' . '>' . $index_to_regex($index, $delim) . ')';
 
 	// Restore PHP's internal character encoding to whatever it was originally
 	if (!empty($current_encoding))
 		mb_internal_encoding($current_encoding);
 
+	$regexes[$regex_key] = $regex;
 	return $regex;
 }
 
@@ -6303,24 +6680,34 @@ function build_regex($strings, $delim = null, $returnArray = false)
  * Check if the passed url has an SSL certificate.
  *
  * Returns true if a cert was found & false if not.
+ *
  * @param string $url to check, in $boardurl format (no trailing slash).
  */
- function ssl_cert_found($url)
- {
+function ssl_cert_found($url)
+{
+	// This check won't work without OpenSSL
+	if (!extension_loaded('openssl'))
+		return true;
+
 	// First, strip the subfolder from the passed url, if any
 	$parsedurl = parse_url($url);
 	$url = 'ssl://' . $parsedurl['host'] . ':443';
 
 	// Next, check the ssl stream context for certificate info
+	if (version_compare(PHP_VERSION, '5.6.0', '<'))
+		$ssloptions = array("capture_peer_cert" => true);
+	else
+		$ssloptions = array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true);
+
 	$result = false;
-	$context = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => true, "allow_self_signed" => true)));
+	$context = stream_context_create(array("ssl" => $ssloptions));
 	$stream = @stream_socket_client($url, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
 	if ($stream !== false)
 	{
 		$params = stream_context_get_params($stream);
 		$result = isset($params["options"]["ssl"]["peer_certificate"]) ? true : false;
 	}
-    return $result;
+	return $result;
 }
 
 /**
@@ -6329,6 +6716,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
  * Returns true if a redirect was found & false if not.
  * Note that when force_ssl = 2, SMF issues its own redirect...  So if this
  * returns true, it may be caused by SMF, not necessarily an .htaccess redirect.
+ *
  * @param string $url to check, in $boardurl format (no trailing slash).
  */
 function https_redirect_active($url)
@@ -6362,6 +6750,7 @@ function https_redirect_active($url)
  * Build query_wanna_see_board and query_see_board for a userid
  *
  * Returns array with keys query_wanna_see_board and query_see_board
+ *
  * @param int $userid of the user
  */
 function build_query_board($userid)
@@ -6369,30 +6758,25 @@ function build_query_board($userid)
 	global $user_info, $modSettings, $smcFunc, $db_prefix;
 
 	$query_part = array();
-	$groups = array();
-	$is_admin = false;
-	$deny_boards_access = !empty($modSettings['deny_boards_access']) ? $modSettings['deny_boards_access'] : null;
-	$mod_cache;
-	$ignoreboards;
 
-	if ($user_info['id'] == $userid)
+	// If we come from cron, we can't have a $user_info.
+	if (isset($user_info['id']) && $user_info['id'] == $userid)
 	{
 		$groups = $user_info['groups'];
-		$is_admin = $user_info['is_admin'];
-		$mod_cache = !empty($user_info['mod_cache']) ? $user_info['mod_cache'] : null;
+		$can_see_all_boards = $user_info['is_admin'] || $user_info['can_manage_boards'];
 		$ignoreboards = !empty($user_info['ignoreboards']) ? $user_info['ignoreboards'] : null;
 	}
 	else
 	{
 		$request = $smcFunc['db_query']('', '
-				SELECT mem.ignore_boards, mem.id_group, mem.additional_groups, mem.id_post_group
-				FROM {db_prefix}members AS mem
-				WHERE mem.id_member = {int:id_member}
-				LIMIT 1',
-				array(
-					'id_member' => $userid,
-				)
-			);
+			SELECT mem.ignore_boards, mem.id_group, mem.additional_groups, mem.id_post_group
+			FROM {db_prefix}members AS mem
+			WHERE mem.id_member = {int:id_member}
+			LIMIT 1',
+			array(
+				'id_member' => $userid,
+			)
+		);
 
 		$row = $smcFunc['db_fetch_assoc']($request);
 
@@ -6400,70 +6784,65 @@ function build_query_board($userid)
 			$groups = array($row['id_group'], $row['id_post_group']);
 		else
 			$groups = array_merge(
-					array($row['id_group'], $row['id_post_group']),
-					explode(',', $row['additional_groups'])
+				array($row['id_group'], $row['id_post_group']),
+				explode(',', $row['additional_groups'])
 			);
 
 		// Because history has proven that it is possible for groups to go bad - clean up in case.
 		foreach ($groups as $k => $v)
 			$groups[$k] = (int) $v;
 
-		$is_admin = in_array(1, $groups);
+		$can_see_all_boards = in_array(1, $groups) || (!empty($modSettings['board_manager_groups']) && count(array_intersect($groups, explode(',', $modSettings['board_manager_groups']))) > 0);
 
 		$ignoreboards = !empty($row['ignore_boards']) && !empty($modSettings['allow_ignore_boards']) ? explode(',', $row['ignore_boards']) : array();
-
-		// What boards are they the moderator of?
-		$boards_mod = array();
-
-		$request = $smcFunc['db_query']('', '
-			SELECT id_board
-			FROM {db_prefix}moderators
-			WHERE id_member = {int:current_member}',
-			array(
-				'current_member' => $userid,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$boards_mod[] = $row['id_board'];
-		$smcFunc['db_free_result']($request);
-
-		// Can any of the groups they're in moderate any of the boards?
-		$request = $smcFunc['db_query']('', '
-			SELECT id_board
-			FROM {db_prefix}moderator_groups
-			WHERE id_group IN({array_int:groups})',
-			array(
-				'groups' => $groups,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$boards_mod[] = $row['id_board'];
-		$smcFunc['db_free_result']($request);
-
-		// Just in case we've got duplicates here...
-		$boards_mod = array_unique($boards_mod);
-
-		$mod_cache['mq'] = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';
 	}
 
 	// Just build this here, it makes it easier to change/use - administrators can see all boards.
-	if ($is_admin)
+	if ($can_see_all_boards)
 		$query_part['query_see_board'] = '1=1';
 	// Otherwise just the groups in $user_info['groups'].
 	else
-		$query_part['query_see_board'] = 'EXISTS (SELECT DISTINCT bpv.id_board FROM ' . $db_prefix . 'board_permissions_view bpv WHERE (bpv.id_group IN ( '. implode(',', $groups) .') AND bpv.deny = 0) '
-				.  ( !empty($deny_boards_access) ? ' AND (bpv.id_group NOT IN ( '. implode(',', $groups) .') and bpv.deny = 1)' : '')
-				. ' AND bpv.id_board = b.id_board)';
-		
+	{
+		$query_part['query_see_board'] = '
+			EXISTS (
+				SELECT bpv.id_board
+				FROM ' . $db_prefix . 'board_permissions_view AS bpv
+				WHERE bpv.id_group IN ('. implode(',', $groups) .')
+					AND bpv.deny = 0
+					AND bpv.id_board = b.id_board
+			)';
+
+		if (!empty($modSettings['deny_boards_access']))
+			$query_part['query_see_board'] .= '
+			AND NOT EXISTS (
+				SELECT bpv.id_board
+				FROM ' . $db_prefix . 'board_permissions_view AS bpv
+				WHERE bpv.id_group IN ( '. implode(',', $groups) .')
+					AND bpv.deny = 1
+					AND bpv.id_board = b.id_board
+			)';
+	}
+
+	$query_part['query_see_message_board'] = str_replace('b.', 'm.', $query_part['query_see_board']);
+	$query_part['query_see_topic_board'] = str_replace('b.', 't.', $query_part['query_see_board']);
+
 	// Build the list of boards they WANT to see.
 	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
 
 	// If they aren't ignoring any boards then they want to see all the boards they can see
 	if (empty($ignoreboards))
+	{
 		$query_part['query_wanna_see_board'] = $query_part['query_see_board'];
+		$query_part['query_wanna_see_message_board'] = $query_part['query_see_message_board'];
+		$query_part['query_wanna_see_topic_board'] = $query_part['query_see_topic_board'];
+	}
 	// Ok I guess they don't want to see all the boards
 	else
+	{
 		$query_part['query_wanna_see_board'] = '(' . $query_part['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
+		$query_part['query_wanna_see_message_board'] = '(' . $query_part['query_see_message_board'] . ' AND m.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
+		$query_part['query_wanna_see_topic_board'] = '(' . $query_part['query_see_topic_board'] . ' AND t.id_board NOT IN (' . implode(',', $ignoreboards) . '))';
+	}
 
 	return $query_part;
 }
@@ -6516,7 +6895,8 @@ function validate_iri($iri, $flags = null)
 function sanitize_iri($iri)
 {
 	// Encode any non-ASCII characters (but not space or control characters of any sort)
-	$iri = preg_replace_callback('~[^\x00-\x7F\pZ\pC]~u', function ($matches) {
+	$iri = preg_replace_callback('~[^\x00-\x7F\pZ\pC]~u', function($matches)
+	{
 		return rawurlencode($matches[0]);
 	}, $iri);
 
@@ -6556,10 +6936,11 @@ function iri_to_url($iri)
 
 	// Encode any disallowed characters in the rest of the URL
 	$unescaped = array(
-		'%21'=>'!', '%23'=>'#', '%24'=>'$', '%26'=>'&',
-		'%27'=>"'", '%28'=>'(', '%29'=>')', '%2A'=>'*',
-		'%2B'=>'+', '%2C'=>',',	'%2F'=>'/', '%3A'=>':',
-		'%3B'=>';', '%3D'=>'=', '%3F'=>'?', '%40'=>'@',
+		'%21' => '!', '%23' => '#', '%24' => '$', '%26' => '&',
+		'%27' => "'", '%28' => '(', '%29' => ')', '%2A' => '*',
+		'%2B' => '+', '%2C' => ',', '%2F' => '/', '%3A' => ':',
+		'%3B' => ';', '%3D' => '=', '%3F' => '?', '%40' => '@',
+		'%25' => '%',
 	);
 	$iri = strtr(rawurlencode($iri), $unescaped);
 
@@ -6637,6 +7018,7 @@ function check_cron()
 
 /**
  * Sends an appropriate HTTP status header based on a given status code
+ *
  * @param int $code The status code
  * @param string $status The string for the status. Set automatically if not provided.
  */
@@ -6659,6 +7041,147 @@ function send_http_status($code, $status = '')
 		header($protocol . ' 500 Internal Server Error');
 	else
 		header($protocol . ' ' . $code . ' ' . (!empty($status) ? $status : $statuses[$code]));
+}
+
+/**
+ * Concatenates an array of strings into a grammatically correct sentence list
+ *
+ * Uses formats defined in the language files to build the list appropropriately
+ * for the currently loaded language.
+ *
+ * @param array $list An array of strings to concatenate.
+ * @return string The localized sentence list.
+ */
+function sentence_list($list)
+{
+	global $txt;
+
+	// Make sure the bare necessities are defined
+	if (empty($txt['sentence_list_format']['n']))
+		$txt['sentence_list_format']['n'] = '{series}';
+	if (!isset($txt['sentence_list_separator']))
+		$txt['sentence_list_separator'] = ', ';
+	if (!isset($txt['sentence_list_separator_alt']))
+		$txt['sentence_list_separator_alt'] = '; ';
+
+	// Which format should we use?
+	if (isset($txt['sentence_list_format'][count($list)]))
+		$format = $txt['sentence_list_format'][count($list)];
+	else
+		$format = $txt['sentence_list_format']['n'];
+
+	// Do we want the normal separator or the alternate?
+	$separator = $txt['sentence_list_separator'];
+	foreach ($list as $item)
+	{
+		if (strpos($item, $separator) !== false)
+		{
+			$separator = $txt['sentence_list_separator_alt'];
+			$format = strtr($format, trim($txt['sentence_list_separator']), trim($separator));
+			break;
+		}
+	}
+
+	$replacements = array();
+
+	// Special handling for the last items on the list
+	$i = 0;
+	while (empty($done))
+	{
+		if (strpos($format, '{'. --$i . '}') !== false)
+			$replacements['{'. $i . '}'] = array_pop($list);
+		else
+			$done = true;
+	}
+	unset($done);
+
+	// Special handling for the first items on the list
+	$i = 0;
+	while (empty($done))
+	{
+		if (strpos($format, '{'. ++$i . '}') !== false)
+			$replacements['{'. $i . '}'] = array_shift($list);
+		else
+			$done = true;
+	}
+	unset($done);
+
+	// Whatever is left
+	$replacements['{series}'] = implode($separator, $list);
+
+	// Do the deed
+	return strtr($format, $replacements);
+}
+
+/**
+ * Truncate an array to a specified length
+ *
+ * @param array $array The array to truncate
+ * @param int $max_length The upperbound on the length
+ * @param int $deep How levels in an multidimensional array should the function take into account.
+ * @return array The truncated array
+ */
+function truncate_array($array, $max_length = 1900, $deep = 3)
+{
+    $array = (array) $array;
+
+    $curr_length = array_length($array, $deep);
+
+    if ($curr_length <= $max_length)
+        return $array;
+
+    else
+    {
+        // Truncate each element's value to a reasonable length
+        $param_max = floor($max_length / count($array));
+
+        $current_deep = $deep - 1;
+
+        foreach ($array as $key => &$value)
+        {
+            if (is_array($value))
+                if ($current_deep > 0)
+                    $value = truncate_array($value, $current_deep);
+
+            else
+                $value = substr($value, 0, $param_max - strlen($key) - 5);
+        }
+
+        return $array;
+    }
+}
+
+/**
+ * array_length Recursive
+ * @param $array
+ * @param int $deep How many levels should the function
+ * @return int
+ */
+function array_length($array, $deep = 3)
+{
+    // Work with arrays
+    $array = (array) $array;
+    $length = 0;
+
+    $deep_count = $deep - 1;
+
+    foreach ($array as $value)
+    {
+        // Recursive?
+        if (is_array($value))
+        {
+            // No can't do
+            if ($deep_count <= 0)
+                continue;
+
+            $length += array_length($value, $deep_count);
+        }
+
+        else
+            $length += strlen($value);
+    }
+
+    return $length;
 }
 
 ?>

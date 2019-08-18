@@ -38,8 +38,20 @@ input, button, select, textarea {
 	border: 1px solid #bbb;
 	vertical-align: middle;
 	border-radius: 3px;
-	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
+	box-shadow: 1px 2px 1px rgba(160, 187, 221, 0.2) inset;
 	padding: 0.3em 0.4em;
+}
+input:hover, textarea:hover, button:hover, select:hover {
+	outline: none;
+	border-color: #82a2bc;
+}
+textarea:hover {
+	background: #fbfbfb;
+}
+input:focus, textarea:focus, button:focus, select:focus {
+	outline: none;
+	border-color: #7fb0d8;
+	background: #fff;
 }
 input, button, select {
 	padding: 0 0.4em;
@@ -62,7 +74,7 @@ input[type="submit"]::-moz-focus-inner, button::-moz-focus-inner {
 	border: 0;
 }
 /* Prevent inputs and images overflowing */
-img, input, select {
+img, input, select, textarea {
 	max-width: 100%;
 }
 /* This is a specific issue on Ubuntu - Chrome */
@@ -73,7 +85,13 @@ img, input, select {
 textarea {
 	font-size: 1em;
 }
-.sceditor-container textarea, .sceditor-container textarea:focus  {
+
+/* Use a consistent monospace font everywhere */
+.monospace, .bbc_code, .phpcode, pre, #error_log span.error_message, #backtrace span.error_message {
+	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
+}
+
+.sceditor-container textarea, .sceditor-container textarea:focus {
 	box-shadow: none;
 }
 #quick_edit_body_container textarea,
@@ -86,20 +104,25 @@ dd textarea {
 input, button, select {
 	font-size: 0.9em;
 }
+/* Number inputs don't support size nor width, so add some common ones here and set a default... */
+input[type="number"] {
+	padding-right: 0; /* Removes weird white space after arrows in some browsers */
+	width: calc(4ch + 15px + 0.8em);
+}
+input[type="number"][size="2"], input[type="number"][size="1"] {
+	width: calc(2ch + 15px + 0.8em);
+}
+input[type="number"][size="3"] {
+	width: calc(3ch + 15px + 0.8em);
+}
+input[type="number"][size="5"] {
+	width: calc(5ch + 15px + 0.8em);
+}
+input[type="number"][size="6"] {
+	width: calc(6ch + 15px + 0.8em);
+}
 select option {
 	padding: 0 4px;
-}
-input:hover, textarea:hover, button:hover, select:hover {
-	outline: none;
-	border: 1px solid #999;
-}
-textarea:hover {
-	background: #fbfbfb;
-}
-input:focus, textarea:focus, button:focus, select:focus {
-	outline: none;
-	border: 1px solid #999;
-	box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
 }
 /* Fieldsets are used to group elements */
 fieldset {
@@ -138,16 +161,19 @@ input[type="checkbox"], input[type="radio"] {
 	border: none;
 	background: none;
 	vertical-align: middle;
+	box-shadow: none;
 	margin: 0 3px;
 }
 .moderationbuttons_mobile_check {
 	display: none;
 }
 /* Give disabled input elements a different style */
-input[disabled], textarea[disabled], select[disabled] {
+input[disabled], textarea[disabled], select[disabled], .button.disabled, .button[disabled]:hover {
 	background: #eee;
 	color: #999;
+	border-color: #b6b6b6;
 	opacity: 0.8;
+	cursor: default;
 }
 /* Standard horizontal rule.. ([hr], etc.) */
 hr {
@@ -175,20 +201,25 @@ body#help_popup {
 
 #likes li {
 	clear: both;
+	padding: 1px 0;
 }
 #likes .avatar {
-	max-height: 90px;
-	max-width: 90px;
+	max-height: 45px;
+	max-width: 45px;
 	padding: 0 10px 0 0;
 }
-#likes span {
+#likes .avatar, #likes li .like_profile {
+	vertical-align: middle;
 	display: inline-block;
-	vertical-align: top;
+}
+#likes li .like_time {
+	padding: 4px 0;
 }
 #likes .description {
 	font-style: italic;
 	opacity: 0.4;
 	font-size: 0.9em;
+	display: block;
 }
 
 /* The "new" button */
@@ -203,7 +234,7 @@ body#help_popup {
 	padding: 2px 4px;
 	font-size: 9px;
 	font-family: verdana, sans-serif;
-	box-shadow: 1px 2px 2px rgba(0,0,0,0.1), 0 -2px 4px rgba(0,0,0,0.1) inset;
+	box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1), 0 -2px 4px rgba(0, 0, 0, 0.1) inset;
 	opacity: 0.7;
 	transition: 0.3s all;
 }
@@ -302,7 +333,7 @@ blockquote {
 }
 blockquote cite {
 	display: block;
-	border-bottom: 1px solid rgba(0,0,0,0.1);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 	font-size: 0.9em;
 	margin-bottom: 3px;
 }
@@ -324,8 +355,7 @@ blockquote cite::before {
 /* A code block - maybe PHP ;). */
 .bbc_code {
 	display: block;
-	font-family: "DejaVu Sans Mono", Monaco, Consolas, monospace;
-	font-size: 0.75em;
+	font-size: 0.85em;
 	background: #f3f3f3;
 	border: 1px solid #dfdfdf;
 	border-top: 2px solid #bbb;
@@ -335,7 +365,7 @@ blockquote cite::before {
 	padding: 3px 12px;
 	overflow: auto;
 	white-space: nowrap;
-	resize: vertical;
+	max-height: 25em;
 }
 /* The "Quote:" and "Code:" header parts... */
 .codeheader, .quoteheader {
@@ -346,6 +376,10 @@ blockquote cite::before {
 /* For links to change the code stuff... */
 .codeoperation {
 	font-weight: normal;
+}
+/* Expand code bbc */
+.expand_code {
+	max-height: none;
 }
 /* Let's get a bit more flexibility in font sizes for quotes and code. */
 /* We just need to stop em compounding when elements are nested. */
@@ -395,7 +429,7 @@ blockquote cite::before {
 	margin-left: 1em;
 	clear: right;
 }
-.postarea .bbc_img:hover {
+.postarea .bbc_img.resized:hover {
 	cursor: pointer;
 }
 .bbc_img.original_size {
@@ -421,7 +455,7 @@ a img {
 	margin: 0 5px 0 5px;
 	border: 1px solid #c5c5c5;
 	border-radius: 3px;
-	box-shadow: 0 1px 2px rgba(0,0,0,.2),
+	box-shadow: 0 1px 2px rgba(0, 0, 0, .2),
 		0 1px 1px #fff inset,
 		0 -5px 4px rgba(0,0,0,.1) inset;
 	transition: background-color 0.25s;
@@ -432,7 +466,7 @@ a img {
 
 .toggle_up:hover:before, .toggle_down:hover:before {
 	background-color: #bfd4e7;
-	box-shadow: 0 1px 2px rgba(0,0,0,0.25) inset;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) inset;
 	transition: background-color 0.25s;
 }
 
@@ -472,7 +506,7 @@ strong[id^='child_list_']::after {
 .pagelinks .button {
 	padding: 0 5px;
 }
-.navPages {
+.nav_page {
 	padding: 0 1px;
 }
 .expand_pages {
@@ -525,8 +559,9 @@ strong[id^='child_list_']::after {
 }
 
 a.moderation_link, a.moderation_link:visited {
-	color: red;
 	font-weight: bold;
+	padding: 0px 8px;
+	background: #f59e00;
 }
 /* AJAX notification bar
 ------------------------------------------------------- */
@@ -682,7 +717,7 @@ img.sort, .sort {
 	border-radius: 8px;
 }
 .dropmenu li .active .amt, #top_info li .active .amt {
-	background: rgba(0,0,0,0.2);
+	background: rgba(0, 0, 0, 0.2);
 	color: inherit;
 }
 #top_info .top_menu.visible {
@@ -705,7 +740,7 @@ img.sort, .sort {
 	color: #fff;
 	font-weight: bold;
 	border: 1px solid #f49a3a;
-	box-shadow: 0 5px 5px rgba(255,255,255,0.2) inset;
+	box-shadow: 0 5px 5px rgba(255, 255, 255, 0.2) inset;
 	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
 /* Level 1 hover effects. */
@@ -715,7 +750,7 @@ img.sort, .sort {
 	color: #fff;
 	cursor: pointer;
 	text-decoration: none;
-	box-shadow: 0 4px 4px rgba(255,255,255,0.1) inset;
+	box-shadow: 0 4px 4px rgba(255, 255, 255, 0.1) inset;
 	text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.5);
 }
 /* Level 1 active button. */
@@ -723,7 +758,7 @@ img.sort, .sort {
 	background: orange;
 	border: 1px solid #f49a3a;
 	color: #444;
-	box-shadow: 0 5px 5px rgba(255,255,255,0.2) inset;
+	box-shadow: 0 5px 5px rgba(255, 255, 255, 0.2) inset;
 	text-shadow: none;
 }
 
@@ -741,7 +776,7 @@ img.sort, .sort {
 	vertical-align: middle;
 }
 .profile_user_avatar img.avatar {
-    max-width: 100px;
+	max-width: 100px;
 }
 .profile_username {
 	font-size: 150%;
@@ -771,31 +806,63 @@ img.sort, .sort {
 	margin-top: 5px;
 	border-top: 1px solid #ddd;
 }
-.top_menu.scrollable .unread {
+.unread_notify {
 	border-bottom: 1px solid #ddd;
 }
-.top_menu.scrollable .no_unread {
+.no_unread {
 	margin-top: 5px;
 	text-align: center;
 }
-.top_menu.scrollable .unread:hover {
+.unread_notify:hover {
 	background: #eee;
+	text-decoration: none;
 }
-.top_menu.scrollable .unread:last-of-type {
+.unread_notify:last-child {
 	border-bottom: none;
 }
-.top_menu.scrollable .avatar {
+.unread_notify {
+	display: flex;
+	align-items: center;
+	padding: 6px 5px;
+	line-height: 20px;
+}
+.unread_notify.alert_read {
+	opacity: 0.5;
+	outline: none;
+	filter: grayscale(1);
+}
+.unread_notify strong {
+	font-weight: 600;
+}
+.unread_notify .avatar {
 	width: 40px;
 	height: 40px;
 	object-fit: scale-down;
-	margin: 4px;
+	margin: 4px 4px 4px 0;
 	display: inline-block;
 	color: transparent; /* For broken images */
+	vertical-align: bottom;
 }
-.top_menu.scrollable .details {
-	max-width: 80%;
+.unread_notify_image {
+	position: relative;
+	width: 44px;
+	margin-right: 4px;
+	text-align: center;
+}
+.unread_notify_image span.alert_icon {
+	display: block;
+	line-height: 1em;
+}
+.unread_notify_image .avatar + .alert_icon {
+	width: auto;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+.unread_notify .details {
 	display: inline-block;
 	vertical-align: top;
+	max-width: calc(100% - 48px);
 }
 #pm_menu .subject {
 	font-weight: bold;
@@ -812,7 +879,7 @@ img.sort, .sort {
 	border-left: solid 1px #bbb;
 	border-top: solid 1px #ccc;
 	border-radius: 4px;
-	box-shadow: 3px 3px 4px rgba(0,0,0,0.3);
+	box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
 	background: #fff;
 }
 /* Level 2 link background. */
@@ -832,7 +899,8 @@ img.sort, .sort {
 	border: none;
 	line-height: 2.2em;
 }
-.dropmenu li li a>img {
+
+.dropmenu li li a > img {
 	vertical-align: middle;
 }
 /* The profile/pm menus are declared off .dropmenu li ul for consistency but have other characteristics. */
@@ -878,7 +946,8 @@ img.sort, .sort {
 .dropmenu li li:hover {
 	border: none;
 }
-.dropmenu li li:hover>a, .dropmenu li li a:focus, .dropmenu li li a:hover {
+
+.dropmenu li li:hover > a, .dropmenu li li a:focus, .dropmenu li li a:hover {
 	color: #333;
 	text-decoration: none;
 	border: 1px solid #cfcfcf;
@@ -929,7 +998,7 @@ img.sort, .sort {
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
 	border-radius: 3px;
-	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+	box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
 	padding: 0 0.7em;
 	overflow: visible;
 	color: #444;
@@ -949,7 +1018,7 @@ img.sort, .sort {
 	border: 1px solid #ddd;
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
-	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
+	box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.07), -1px -2px 4px rgba(255, 255, 255, 0.33) inset;
 }
 /* the active one */
 .button.active {
@@ -979,7 +1048,12 @@ img.sort, .sort {
 	border-top-right-radius: 0;
 	border-bottom-right-radius: 0;
 	border-right: none;
-	box-shadow: -1px 0 0 rgba(255,255,255,0.7);
+	box-shadow: -1px 0 0 rgba(255, 255, 255, 0.7);
+}
+/* in a titlebg, the buttonlist is of small height */
+.titlebg .buttonlist {
+	margin: 0;
+	padding: 0;
 }
 
 /* Styles for the general looks of the theme.
@@ -992,7 +1066,7 @@ img.sort, .sort {
 	background: #fff;
 	border: 1px solid #b8b8b8;
 	border-radius: 8px;
-	box-shadow: 0 2px 3px rgba(0,0,0,0.14);
+	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.14);
 }
 
 /* Set maximum width limit for content */
@@ -1006,12 +1080,12 @@ img.sort, .sort {
 #top_section {
 	padding: 0 5%;
 	border-bottom: 1px solid #bbb;
-	box-shadow: 0 1px 4px rgba(0,0,0,0.16);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
 	background: #fff;
 	clear: both;
 }
 #top_section::after {
-	content:"";
+	content: "";
 	display: block;
 	clear: both;
 }
@@ -1040,9 +1114,11 @@ img.sort, .sort {
 #header {
 	padding: 2px 2px 12px 2px;
 	width: 90%;
+	display: flex;
+	align-items: flex-end;
 }
 #header::after {
-	content:"";
+	content: "";
 	display: block;
 	clear: both;
 }
@@ -1051,8 +1127,8 @@ h1.forumtitle {
 	font-size: 1.8em;
 	font-family: "Tahoma", sans-serif;
 	padding: 22px 12px 6px 10px;
-	float: left;
 	font-weight: normal;
+	flex: 1 1 auto;
 }
 h1.forumtitle a {
 	color: #a85400;
@@ -1061,9 +1137,7 @@ h1.forumtitle a {
 /* Float these items to the right */
 #siteslogan, img#smflogo {
 	padding-right: 2px;
-	float: right;
-	line-height: 50px;
-	font-size: 1.8em;
+	font-size: 1.4em;
 }
 /* Tweak the SMF logo */
 img#smflogo {
@@ -1083,7 +1157,7 @@ img#smflogo {
 	border-radius: 6px 6px 0 0;
 }
 #inner_section::after {
-	content:"";
+	content: "";
 	display: block;
 	clear: both;
 }
@@ -1138,7 +1212,7 @@ ul li.greeting {
 	overflow: hidden;
 	border: 1px solid #ddd;
 	border-radius: 2px;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.08);
+	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.08);
 }
 .navigate_section ul li {
 	float: left;
@@ -1186,7 +1260,7 @@ ul li.greeting {
 	padding: 5px 12px 16px 12px;
 }
 #main_content_section::after {
-	content:"";
+	content: "";
 	display: block;
 	clear: both;
 }
@@ -1253,7 +1327,7 @@ ul li.greeting {
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
 	border-radius: 1px;
-	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+	box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
 	padding: 0 1px 0 1px;
 	color: #222;
 	overflow: visible;
@@ -1281,7 +1355,7 @@ ul li.greeting {
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
 	border-radius: 1px;
-	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+	box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
 }
 
 /* Drop part of QuickButtons */
@@ -1296,7 +1370,7 @@ ul li.greeting {
 	border-left: solid 1px #aaa;
 	border-top: solid 1px #bbb;
 	border-radius: 0 0 4px 4px;
-	box-shadow: 2px 3px 3px rgba(0,0,0,0.2);
+	box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2);
 }
 .quickbuttons li ul {
 	display: none;
@@ -1352,7 +1426,8 @@ ul li.greeting {
 	padding: 0 4px 0 4px;
 	cursor: pointer;
 }
-.quickbuttons li.post_options>a {
+
+.quickbuttons li.post_options > a {
 	padding: 0 4px 0 4px;
 }
 
@@ -1379,8 +1454,8 @@ ul li.greeting {
 	clear: both;
 }
 div.event_options {
-    line-height: 25px;
-    margin-top: 5px;
+	line-height: 25px;
+	margin-top: 5px;
 }
 #post_event span.label {
 	margin: 0 0.5em 0 2px;
@@ -1399,37 +1474,37 @@ div.event_options {
 	width: 50%;
 }
 .event_options_left div, .event_options_right div {
-    min-height: 25px;
-    margin-bottom: 5px;
+	min-height: 25px;
+	margin-bottom: 5px;
 }
 
 #post_event #event_main input {
-    margin: 0;
+	margin: 0;
 }
 #evtitle {
-    max-width: 100%;
+	max-width: 100%;
 }
 #event_time_input {
-    clear: left;
+	clear: left;
 }
 #event_time_input input[type="text"] {
 	width: 80px;
 	display: inline-block;
 }
 #post_event input[type="checkbox"] {
-    height: auto;
+	height: auto;
 }
 #post_event input[type="text"][disabled] {
 	color: transparent;
 }
 #post_event select, #event_options input[type="text"], #tz {
-    max-width: calc(100% - 75px);
+	max-width: calc(100% - 75px);
 }
 #post_event select, #event_location {
-    width: calc(100% - 75px);
+	width: calc(100% - 75px);
 }
 #post_event input[type="checkbox"] + select {
-    max-width: calc(100% - 95px);
+	max-width: calc(100% - 95px);
 }
 
 /* Styles for the recent messages section.
@@ -1476,6 +1551,9 @@ ul.split_messages li a.split_icon {
 }
 ul.split_messages li a.split_icon:hover {
 	opacity: 1;
+}
+.split_messages, .message_header {
+	margin-bottom: 8px;
 }
 /* Styles for the merge topic section. */
 ul.merge_topics li {
@@ -1599,7 +1677,7 @@ dl.register_form dd {
 	vertical-align: middle;
 }
 
-tr.windowbg td, .table_grid tr td {
+tr.windowbg td, tr.bg td, .table_grid tr td {
 	padding: 4px 8px;
 }
 #credits p {
@@ -1616,10 +1694,10 @@ tr.windowbg td, .table_grid tr td {
 }
 .errorfile_table td.current {
 	font-weight: bold;
-	border-top: 1px solid rgba(0,0,0,0.2);
-	border-bottom: 1px solid rgba(0,0,0,0.2);
+	border-top: 1px solid rgba(0, 0, 0, 0.2);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 	border-width: 1px 0 1px 1px;
-	background: rgba(245,141,15,0.2);
+	background: rgba(245, 141, 15, 0.2);
 }
 
 .generic_menu {
@@ -1627,360 +1705,361 @@ tr.windowbg td, .table_grid tr td {
 }
 /* Some lovely generic icons.
 ------------------------------------------------- */
-.generic_icons::before {
+.main_icons::before {
 	content: '';
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url(../images/icons/generic_icons_sprite.png) no-repeat -5px -5px / 260px auto;
+	background: url(../images/icons/main_icons_sprite.png) no-repeat -5px -5px / 260px auto;
 	vertical-align: middle;
 }
 /* Load better icons for higher resolution screens */
 @media screen and (min-resolution: 160dpi) {
-	.generic_icons::before {
-		background-image: url(../images/icons/generic_icons_sprite_hd.png);
+	.main_icons::before {
+		background-image: url(../images/icons/main_icons_sprite_hd.png);
 	}
 }
 
 /* Small fix for topics */
-.quickbuttons span.generic_icons {
+.quickbuttons span.main_icons, .button span.main_icons {
 	margin: -3px 3px 0 1px;
 }
-.quickbuttons span.generic_icons.quote,
-.quickbuttons span.generic_icons.quote_selected {
+.quickbuttons span.main_icons.quote,
+.quickbuttons span.main_icons.quote_selected {
 	margin: -8px 3px 0 0;
 }
 
-.generic_icons.gender_None::before {
+.main_icons.gender_None::before {
 	background: none;
 }
 
-.generic_icons.gender_0::before {
+.main_icons.gender_0::before {
 	display: none;
 }
 
 /* This is a small fix for dropmenu icons */
-.dropmenu .generic_icons::before, #profile_menu .generic_icons::before, .dropmenu img {
+.dropmenu .main_icons::before, #profile_menu .main_icons::before, .dropmenu img {
 	margin: -3px 8px 0 0;
 	vertical-align: middle;
 }
 
 /* Top row */
-.generic_icons.help::before {
+.main_icons.help::before {
 	background-position: -5px -5px;
 }
-.generic_icons.search::before, .generic_icons.engines::before {
+.main_icons.search::before, .main_icons.engines::before {
 	background-position: -31px -5px;
 }
-.generic_icons.quick_edit_button::before, .generic_icons.modify_button::before {
+.main_icons.quick_edit_button::before, .main_icons.modify_button::before {
 	background-position: -57px -5px;
 }
-.generic_icons.check::before {
+.main_icons.check::before {
 	background-position: -83px -5px;
 }
-.generic_icons.invalid::before {
+.main_icons.invalid::before {
 	background-position: -109px -5px;
 }
-.generic_icons.gender_2::before {
+.main_icons.gender_2::before {
 	background-position: -135px -5px;
 }
-.generic_icons.watch::before {
+.main_icons.watch::before {
 	background-position: -239px -5px;
 }
 /* 2nd row */
-.generic_icons.move::before, .generic_icons.next_page::before {
+.main_icons.move::before, .main_icons.next_page::before {
 	background-position: -5px -31px;
 }
-.generic_icons.general::before, .generic_icons.boards::before, .generic_icons.topics_views::before {
+.main_icons.general::before, .main_icons.boards::before, .main_icons.topics_views::before {
 	background-position: -31px -31px;
 }
-.generic_icons.gender_1::before {
+.main_icons.gender_1::before {
 	background-position: -57px -31px;
 }
-.generic_icons.features::before {
+.main_icons.features::before {
 	background-position: -83px -31px;
 }
-.generic_icons.posters::before {
+.main_icons.posters::before {
 	background-position: -109px -31px;
 }
-.generic_icons.replies::before, .generic_icons.topics_replies::before {
+.main_icons.replies::before, .main_icons.topics_replies::before {
 	background-position: -135px -31px;
 }
-.generic_icons.history::before, .generic_icons.time_online::before, .generic_icons.scheduled::before {
+.main_icons.history::before, .main_icons.time_online::before, .main_icons.scheduled::before {
 	background-position: -161px -31px;
 }
-.generic_icons.views::before {
+.main_icons.views::before {
 	background-position: -187px -31px;
 }
-.generic_icons.last_post::before {
+.main_icons.last_post::before {
 	background-position: -213px -31px;
 }
-.generic_icons.starters::before, .generic_icons.people::before, .generic_icons.membergroups::before, .generic_icons.mlist::before {
+.main_icons.starters::before, .main_icons.people::before, .main_icons.membergroups::before, .main_icons.mlist::before {
 	background-position: -239px -31px;
 }
 /* 3rd Street Saints */
-.generic_icons.poll::before {
+.main_icons.poll::before {
 	background-position: -5px -57px;
 }
-.generic_icons.previous_page::before {
+.main_icons.previous_page::before {
 	background-position: -31px -57px;
 }
-.generic_icons.inbox::before {
+.main_icons.inbox::before {
 	background-position: -57px -57px;
 }
-.generic_icons.www::before {
+.main_icons.www::before {
 	background-position: -83px -57px;
 }
-.generic_icons.exit::before, .generic_icons.logout::before {
+.main_icons.exit::before, .main_icons.logout::before {
 	background-position: -109px -57px;
 }
-.generic_icons.switch::before {
+.main_icons.switch::before {
 	background-position: -135px -57px;
 }
-.generic_icons.replied::before, .generic_icons.send::before {
+.main_icons.replied::before, .main_icons.send::before {
 	background-position: -161px -57px;
 }
-.generic_icons.im_on::before {
+.main_icons.im_on::before {
 	background-position: -187px -57px;
 }
-.generic_icons.im_off::before {
+.main_icons.im_off::before {
 	background-position: -213px -57px;
 }
-.generic_icons.split_desel::before {
+.main_icons.split_desel::before {
 	background-position: -239px -57px;
 }
 /* 4th Row */
-.generic_icons.split_sel::before {
+.main_icons.split_sel::before {
 	background-position: -5px -83px;
 }
-.generic_icons.mail::before {
+.main_icons.mail::before {
 	background-position: -31px -83px;
 }
-.generic_icons.warning_mute::before {
+.main_icons.warning_mute::before {
 	background-position: -57px -83px;
 }
-.generic_icons.alerts::before, .generic_icons.warn_button::before,
-.generic_icons.warning_moderate::before {
+.main_icons.alerts::before, .main_icons.warn_button::before,
+.main_icons.warning_moderate::before {
 	background-position: -83px -83px;
 }
-.generic_icons.mail_new::before {
+.main_icons.mail_new::before {
 	background-position: -109px -83px;
 }
-.generic_icons.drafts::before,
-.generic_icons.reply_button::before,
-.generic_icons.reply_all_button::before{
+.main_icons.drafts::before,
+.main_icons.reply_button::before,
+.main_icons.reply_all_button::before {
 	background-position: -135px -83px;
 }
-.generic_icons.warning_watch::before {
+.main_icons.warning_watch::before {
 	background-position: -161px -83px;
 }
-.generic_icons.calendar_export::before {
+.main_icons.calendar_export::before {
 	background-position: -187px -83px;
 }
-.generic_icons.calendar::before {
+.main_icons.calendar::before {
 	background-position: -213px -83px;
 }
-.generic_icons.calendar_modify::before {
+.main_icons.calendar_modify::before {
 	background-position: -239px -83px;
 }
 /* 5th Row */
-.generic_icons.plus::before {
+.main_icons.plus::before {
 	background-position: -5px -109px;
 }
-.generic_icons.warning::before, .generic_icons.moderate::before {
+.main_icons.warning::before, .main_icons.moderate::before {
 	background-position: -31px -109px;
 }
-.generic_icons.themes::before {
+.main_icons.themes::before {
 	background-position: -57px -109px;
 }
-.generic_icons.support::before {
+.main_icons.support::before {
 	background-position: -83px -109px;
 }
-.generic_icons.liked_users::before, .generic_icons.liked_messages::before, .generic_icons.like::before {
+.main_icons.liked_users::before, .main_icons.liked_messages::before, .main_icons.like::before {
 	background-position: -109px -109px;
 }
-.generic_icons.unlike::before {
+.main_icons.unlike::before {
 	background-position: -135px -109px;
 }
-.generic_icons.current_theme::before {
+.main_icons.current_theme::before {
 	background-position: -161px -109px;
 }
-.generic_icons.stats::before {
+.main_icons.stats::before {
 	background-position: -187px -109px;
 }
-.generic_icons.right_arrow::before {
+.main_icons.right_arrow::before {
 	background-position: -213px -109px;
 }
-.generic_icons.left_arrow::before {
+.main_icons.left_arrow::before {
 	background-position: -239px -109px;
 }
 /* 6th Row */
-.generic_icons.smiley::before {
+.main_icons.smiley::before {
 	background-position: -5px -135px;
 }
-.generic_icons.server::before {
+.main_icons.server::before {
 	background-position: -31px -135px;
 }
-.generic_icons.ban::before, .generic_icons.ignore::before {
+.main_icons.ban::before, .main_icons.ignore::before {
 	background-position: -57px -135px;
 }
-.generic_icons.boards::before  {
+
+.main_icons.boards::before {
 	background-position: -83px -135px;
 }
-.generic_icons.regcenter::before {
+.main_icons.regcenter::before {
 	background-position: -109px -135px;
 }
-.generic_icons.posts::before {
+.main_icons.posts::before {
 	background-position: -135px -135px;
 }
-.generic_icons.sort_down::before {
+.main_icons.sort_down::before {
 	background-position: -161px -135px;
 }
-.generic_icons.change_menu2::before, .generic_icons.sent::before {
+.main_icons.change_menu2::before, .main_icons.sent::before {
 	background-position: -187px -135px;
 }
-.generic_icons.post_moderation_moderate::before {
+.main_icons.post_moderation_moderate::before {
 	background-position: -213px -135px;
 }
-.generic_icons.sort_up::before {
+.main_icons.sort_up::before {
 	background-position: -239px -135px;
 }
 /* 7th Row */
-.generic_icons.post_moderation_deny::before {
+.main_icons.post_moderation_deny::before {
 	background-position: -5px -161px;
 }
-.generic_icons.post_moderation_attach::before {
+.main_icons.post_moderation_attach::before {
 	background-position: -31px -161px;
 }
-.generic_icons.post_moderation_allow::before {
+.main_icons.post_moderation_allow::before {
 	background-position: -57px -161px;
 }
-.generic_icons.personal_message::before {
+.main_icons.personal_message::before {
 	background-position: -83px -161px;
 }
-.generic_icons.permissions::before, .generic_icons.signup::before {
+.main_icons.permissions::before, .main_icons.signup::before {
 	background-position: -109px -161px;
 }
-.generic_icons.paid::before {
+.main_icons.paid::before {
 	background-position: -135px -161px;
 }
-.generic_icons.packages::before {
+.main_icons.packages::before {
 	background-position: -161px -161px;
 }
-.generic_icons.filter::before {
+.main_icons.filter::before {
 	background-position: -187px -161px;
 	margin: 0 5px 0 0;
 }
-.generic_icons.change_menu::before {
+.main_icons.change_menu::before {
 	background-position: -213px -161px;
 }
-.generic_icons.package_ops::before {
+.main_icons.package_ops::before {
 	background-position: -239px -161px;
 }
 /* 8th Row */
-.generic_icons.reports::before {
+.main_icons.reports::before {
 	background-position: -5px -187px;
 }
-.generic_icons.news::before {
+.main_icons.news::before {
 	background-position: -31px -187px;
 }
-.generic_icons.delete::before, .generic_icons.hide_popup::before, .generic_icons.prune::before, .generic_icons.remove_button::before {
+.main_icons.delete::before, .main_icons.hide_popup::before, .main_icons.prune::before, .main_icons.remove_button::before {
 	background-position: -57px -187px;
 }
-.generic_icons.modifications::before {
+.main_icons.modifications::before {
 	background-position: -83px -187px;
 }
-.generic_icons.maintain::before, .generic_icons.admin::before {
+.main_icons.maintain::before, .main_icons.admin::before {
 	background-position: -109px -187px;
 }
-.generic_icons.administration::before, .generic_icons.home::before {
+.main_icons.administration::before, .main_icons.home::before {
 	background-position: -135px -187px;
 }
-.generic_icons.frenemy::before {
+.main_icons.frenemy::before {
 	background-position: -161px -187px;
 }
-.generic_icons.attachment::before {
+.main_icons.attachment::before {
 	background-position: -187px -187px;
 }
-.generic_icons.lock::before, .generic_icons.security::before {
+.main_icons.lock::before, .main_icons.security::before {
 	background-position: -213px -187px;
 }
-.generic_icons.error::before, .generic_icons.disable::before {
+.main_icons.error::before, .main_icons.disable::before {
 	background-position: -239px -187px;
 }
 /* 9th Row */
-.generic_icons.languages::before {
+.main_icons.languages::before {
 	background-position: -5px -213px;
 }
-.generic_icons.members_request::before {
+.main_icons.members_request::before {
 	background-position: -31px -213px;
 }
-.generic_icons.members_delete::before {
+.main_icons.members_delete::before {
 	background-position: -57px -213px;
 }
-.generic_icons.members::before {
+.main_icons.members::before {
 	background-position: -83px -213px;
 }
-.generic_icons.members_watched::before {
+.main_icons.members_watched::before {
 	background-position: -109px -213px;
 }
-.generic_icons.sticky::before {
+.main_icons.sticky::before {
 	background-position: -135px -213px;
 }
-.generic_icons.corefeatures::before, .generic_icons.settings::before, .generic_icons.manrules::before, .generic_icons.manlabels::before {
+.main_icons.corefeatures::before, .main_icons.settings::before, .main_icons.manrules::before, .main_icons.manlabels::before {
 	background-position: -161px -213px;
 }
-.generic_icons.calendar::before {
+.main_icons.calendar::before {
 	background-position: -187px -213px;
 }
-.generic_icons.logs::before {
+.main_icons.logs::before {
 	background-position: -213px -213px;
 }
-.generic_icons.valid::before {
+.main_icons.valid::before {
 	background-position: -239px -213px;
 }
 /* 10th Row */
-.generic_icons.approve::before, .generic_icons.enable::before,
-.generic_icons.approve_button::before,
-.generic_icons.read_button::before {
+.main_icons.approve::before, .main_icons.enable::before,
+.main_icons.approve_button::before,
+.main_icons.read_button::before {
 	background-position: -5px -239px;
 }
-.generic_icons.close::before {
+.main_icons.close::before {
 	background-position: -31px -239px;
 }
-.generic_icons.details::before {
+.main_icons.details::before {
 	background-position: -57px -239px;
 }
-.generic_icons.merge::before {
+.main_icons.merge::before {
 	background-position: -83px -239px;
 }
-.generic_icons.folder::before {
+.main_icons.folder::before {
 	background-position: -109px -239px;
 }
-.generic_icons.restore_button::before {
+.main_icons.restore_button::before {
 	background-position: -135px -239px;
 }
-.generic_icons.split_button::before {
+.main_icons.split_button::before {
 	background-position: -161px -239px;
 }
-.generic_icons.unapprove_button::before,
-.generic_icons.unread_button::before {
+.main_icons.unapprove_button::before,
+.main_icons.unread_button::before {
 	background-position: -187px -239px;
 }
-.generic_icons.quote::before, .generic_icons.quote_selected::before {
+.main_icons.quote::before, .main_icons.quote_selected::before {
 	background-position: -213px -239px;
 }
-.generic_icons.notify_button::before {
+.main_icons.notify_button::before {
 	background-position: -239px -239px;
 }
 
-.generic_icons.select_above::before {
+.main_icons.select_above::before {
 	background-position: -161px -5px;
 }
-.generic_icons.select_here::before {
+.main_icons.select_here::before {
 	background-position: -187px -5px;
 }
-.generic_icons.select_below::before {
+.main_icons.select_below::before {
 	background-position: -213px -5px;
 }
 /* Styles for (fatal) errors.
@@ -1993,7 +2072,7 @@ tr.windowbg td, .table_grid tr td {
 .errorbox::before, .noticebox::before, .infobox::before {
 	width: 16px;
 	height: 16px;
-	background: url(../images/icons/generic_icons_sprite.png) no-repeat -57px -83px;
+	background: url(../images/icons/main_icons_sprite.png) no-repeat -57px -83px;
 	left: 10px;
 	content: '';
 	position: absolute;
@@ -2068,12 +2147,12 @@ tr.windowbg td, .table_grid tr td {
 	border-radius: 2px;
 	position: relative;
 	overflow: hidden;
-	color: rgba(0,0,0,0.6);
+	color: rgba(0, 0, 0, 0.6);
 }
 .generic_bar span, .progress_bar span {
 	position: relative;
 	z-index: 2;
-	text-shadow: 1px 1px rgba(255,255,255,.4);
+	text-shadow: 1px 1px rgba(255, 255, 255, .4);
 	display: inline-block;
 	padding: 0 5px;
 }
@@ -2086,7 +2165,7 @@ tr.windowbg td, .table_grid tr td {
 	background: orange;
 	transition: width .3s;
 	border-radius: 1px;
-	box-shadow: 4px -4px 8px rgba(0,0,0,0.1) inset,
+	box-shadow: 4px -4px 8px rgba(0, 0, 0, 0.1) inset,
 		4px 4px 8px rgba(255,255,255,0.3) inset;
 	display: block;
 }
@@ -2096,7 +2175,7 @@ tr.windowbg td, .table_grid tr td {
 .generic_bar.vertical .bar {
 	right: 0;
 	top: auto;
-	box-shadow: 4px -4px 4px rgba(0,0,0,0.1) inset,
+	box-shadow: 4px -4px 4px rgba(0, 0, 0, 0.1) inset,
 		4px 4px 4px rgba(255,255,255,0.3) inset;
 }
 
@@ -2104,7 +2183,7 @@ tr.windowbg td, .table_grid tr td {
 	border-radius: 4px;
 	text-align: center;
 	font-weight: bold;
-	color: rgba(0,0,0,0.8);
+	color: rgba(0, 0, 0, 0.8);
 }
 .progress_bar .bar {
 	box-shadow: -1px 1px 0 rgba(255, 255, 255, 0.25) inset,
@@ -2128,7 +2207,6 @@ tr.windowbg td, .table_grid tr td {
 .progress_blue .bar {
 	background-color: #34c2e3;
 }
-
 
 /* Styles for the profile section.
 ------------------------------------------------- */
@@ -2221,6 +2299,9 @@ dl {
 #smileypr {
 	margin-left: 10px;
 }
+.edit_avatar_img {
+	margin: 0 0 1em;
+}
 
 /* Activity by time */
 #activitytime {
@@ -2279,7 +2360,6 @@ dl {
 	float: left;
 }
 .topic_details {
-	width: 94%;
 	padding: 0 4px 4px 4px;
 }
 .list_posts {
@@ -2483,7 +2563,7 @@ dl.stats {
 #personal_messages .pm_inline_time {
 	display: none;
 }
-#searchLabelsExpand li {
+#search_labels li {
 	padding: 4px 6px;
 }
 #manrules div.righttext {
@@ -2509,6 +2589,39 @@ dl.addrules dt.floatleft {
 #alerts .alert_inline_time {
 	display: none;
 }
+#alerts .quickbuttons {
+	display: flex;
+	margin: 4px 0;
+}
+#alerts .quickbuttons li, #alerts .alert_time {
+	white-space: nowrap;
+}
+#alerts .alert_image {
+	width: 65px;
+	padding: 6px 0;
+	text-align: center;
+	vertical-align: middle;
+}
+#alerts .alert_image > div {
+	position: relative;
+}
+#alerts .alert_image .avatar {
+	max-width: 80%;
+	max-height: 80%;
+	margin-top: 4px;
+	vertical-align: bottom;
+}
+#alerts .alert_image span.alert_icon {
+	display: block;
+	width: 100%;
+	line-height: 1em;
+}
+#alerts .alert_image .avatar + .alert_icon {
+	width: auto;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
 
 /* Styles for the memberlist section.
 ------------------------------------------------- */
@@ -2528,7 +2641,7 @@ dl.addrules dt.floatleft {
 #mlist .website_url {
 	width: 70px;
 }
-#mlist .icq, #mlist .aim, #mlist .yim, #mlist .skype {
+#mlist .icq, #mlist .skype {
 	width: 30px;
 }
 #mlist .post_count {
@@ -2576,6 +2689,9 @@ dl.addrules dt.floatleft {
 	margin: 0 0 0 6px;
 	text-align: left;
 }
+#search_results {
+	margin-bottom: 5px;
+}
 
 /* Styles for the help section.
 ------------------------------------------------- */
@@ -2588,7 +2704,7 @@ dl.addrules dt.floatleft {
 	padding: 8px 20px 12px 20px;
 	border: 1px solid #ddd;
 	border-radius: 7px;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
+	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.1);
 	overflow: auto;
 }
 #helpmain p {
@@ -2620,7 +2736,7 @@ dl.addrules dt.floatleft {
 	background: #fff;
 	border: 1px solid #aaa;
 	border-radius: 4px;
-	box-shadow: 1px 2px 4px rgba(0,0,0,0.2), 0 0px 10px rgba(0,0,0,0.05) inset;
+	box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2), 0 0px 10px rgba(0, 0, 0, 0.05) inset;
 }
 
 /* Styles for popup windows */
@@ -2631,7 +2747,7 @@ dl.addrules dt.floatleft {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: rgba(40,64,80,0.5);
+	background: rgba(40, 64, 80, 0.5);
 	z-index: 5;
 }
 .popup_window {
@@ -2639,7 +2755,7 @@ dl.addrules dt.floatleft {
 	width: 480px;
 	z-index: 99;
 	padding: 0 6px 6px 6px;
-	box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
 	border: 1px solid #777;
 	border-radius: 7px 7px 3px 3px;
 	overflow: visible !important;
@@ -2660,7 +2776,7 @@ dl.addrules dt.floatleft {
 	border: 1px solid #bbb;
 	border-bottom: 1px solid #ddd;
 	border-radius: 6px 6px 2px 2px;
-	box-shadow: 0 -2px 3px rgba(0,0,0,0.15), 0 1px 1px rgba(255,255,255,0.2);
+	box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 #main_menu .popup_heading, #genericmenu .popup_heading {
 	display: none;
@@ -2673,6 +2789,7 @@ dl.addrules dt.floatleft {
 	position: relative;
 	background: none;
 	margin: 0;
+	height: auto; /* In case anything fishy happens in the situations where this used make sure it stays still */
 }
 #main_menu .popup_window, #genericmenu .popup_window {
 	position: relative;
@@ -2686,7 +2803,7 @@ dl.addrules dt.floatleft {
 	top: 0;
 	padding: 0;
 }
-.generic_icons.hide_popup {
+.main_icons.hide_popup {
 	float: right;
 }
 .popup_heading .icon {
@@ -2694,20 +2811,20 @@ dl.addrules dt.floatleft {
 	margin: -4px 4px 0 0;
 }
 
-.generic_list_wrapper, .windowbg, #forumposts .approvebg, #forumposts .approvebg2 {
+.generic_list_wrapper, .windowbg, .approvebg, .approvebg2 {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 12px 16px;
 	border: 1px solid #ddd;
 	border-radius: 6px;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
+	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.1);
 	overflow: auto;
 }
 /* Here comes the glory... */
-.windowbg:nth-of-type(even) {
+.windowbg:nth-of-type(even), .bg.even {
 	background: #f0f4f7;
 }
-.windowbg:nth-of-type(odd) {
+.windowbg:nth-of-type(odd), .bg.odd {
 	background: #fdfdfd;
 }
 
@@ -2717,7 +2834,7 @@ tr.windowbg:hover {
 }
 
 /* Special treatment for #forumposts area */
-#forumposts .windowbg, #forumposts .approvebg, #forumposts .approvebg2 {
+#forumposts .windowbg, #forumposts .approvebg, #forumposts .approvebg2, #pmFolder .windowbg {
 	overflow: visible;
 }
 /* Nobody wants locked topics to stand out much. */
@@ -2769,11 +2886,11 @@ tr.windowbg {
 }
 
 /* Colors for background of posts requiring approval */
-#forumposts .approvebg {
+.approvebg {
 	color: #222;
 	background: #ffeaea;
 }
-#forumposts .approvebg2 {
+.approvebg2 {
 	color: #222;
 	background: #fff2f2;
 }
@@ -2846,6 +2963,9 @@ h3 .collapse {
 	border-left: 1px solid #ddd;
 	border-right: 1px solid #ddd;
 }
+.boardindex_table .board_stats:last-child p {
+	border-right: none;
+}
 .info {
 	overflow: hidden;
 	overflow-wrap: break-word;
@@ -2914,7 +3034,7 @@ span.postby {
 #info_center .sub_bar:first-child {
 	border-top: none;
 }
-#upshrinkHeaderIC {
+#upshrink_stats {
 	margin-top: 4px;
 }
 #ic_recentposts {
@@ -2953,30 +3073,30 @@ span.postby {
 #ic_recentposts .windowbg {
 	background: none;
 }
-#upshrinkHeaderIC p.inline {
+#upshrink_stats p.inline {
 	border: none;
 	margin: 0;
 	padding: 2px 29px;
 	line-height: 1.6em;
 	font-size: 0.9em;
 }
-#upshrinkHeaderIC p.inline span {
+#upshrink_stats p.inline span {
 	margin: 0;
 	padding: 4px 0 0 0;
 }
-#upshrinkHeaderIC span.membergroups {
+#upshrink_stats span.membergroups {
 	display: block;
 }
 
 /* MessageIndex */
 /* Start with description and other things */
-#description_board {
+#description_board, .filter_row {
 	padding: 8px 10px;
 	border-radius: 6px 6px 0 0;
 	border-bottom: none;
 	box-shadow: none;
 }
-#description_board h3, #description_board p {
+#description_board h3, #description_board div {
 	display: inline-block;
 }
 #description_board h3::after {
@@ -3188,7 +3308,7 @@ div#pollmoderation {
 	vertical-align: middle;
 }
 .poster img.avatar {
-    max-width: 100%;
+	max-width: 100%;
 }
 .postarea, .moderatorbar {
 	margin: 0 0 0 175px;
@@ -3209,6 +3329,11 @@ div#pollmoderation {
 	padding: 1px 0 5px 0;
 	line-height: 1.5em;
 	font-size: 0.9em;
+}
+.keyinfo h5::after {
+	content: "";
+	clear: right;
+	display: block;
 }
 .keyinfo h5 a, .keyinfo h5 a strong {
 	color: #ad6825;
@@ -3263,8 +3388,8 @@ img.smiley {
 .attached {
 	padding: 0 6px 8px 6px;
 	max-width: 100%;
-	display:inline-block;
-	vertical-align:top;
+	display: inline-block;
+	vertical-align: top;
 }
 .attachments_top {
 	margin: 0 auto;
@@ -3283,10 +3408,10 @@ img.smiley {
 	text-transform: capitalize;
 }
 /* Styles for the quick reply area. */
-#quickreplybox {
+#quickreply {
 	clear: both;
 }
-#quickReplyOptions .roundframe {
+#quickreply_options .roundframe {
 	margin: 0;
 	padding: 8px 10% 12px 10%;
 	border-top-left-radius: 0;
@@ -3331,16 +3456,16 @@ ul.post_options li {
 	width: 49%;
 	float: left;
 }
-#postAdditionalOptionsHeader {
+#post_additional_options_header {
 	margin-top: 0.5em;
 }
-#postAdditionalOptions {
+#post_additional_options {
 	overflow: hidden;
 }
-#postAdditionalOptions .progress_bar {
+#post_additional_options .progress_bar {
 	height: 22px;
 }
-#postMoreOptions, #postAttachment, #postAttachment2 {
+#post_settings, #postAttachment, #postAttachment2 {
 	border-top: 1px solid #ddd;
 	margin: -1px 0 0 0;
 	padding: 10px;
@@ -3358,23 +3483,23 @@ ul.post_options li {
 #postAttachment dt, #postAttachment2 dt {
 	font-weight: bold;
 }
-#postDraftOptions {
+#post_draft_options {
 	background: #fdfdfd;
 	border: 1px solid #aaa;
 	border-left: 1px solid #bbb;
 	border-top: none;
 	border-radius: 0 0 4px 4px;
 }
-#postDraftOptions .settings dd, #postDraftOptions .settings dt {
+#post_draft_options .settings dd, #post_draft_options .settings dt {
 	width: 50%;
 	border-top: 1px solid #e4e4e4;
 	padding: 5px 10px;
 	margin: 0;
 }
-#postDraftOptions .settings dd:first-of-type, #postDraftOptions .settings dt:first-child {
+#post_draft_options .settings dd:first-of-type, #post_draft_options .settings dt:first-child {
 	border-top: none; /* Some people are OCD, like me. :P */
 }
-#postDraftOptions .settings strong {
+#post_draft_options .settings strong {
 	color: #555;
 }
 #post_confirm_strip /* < That may be deprecated. */, #shortcuts {
@@ -3449,8 +3574,8 @@ div.cat_bar {
 	border-bottom: 1px solid #777;
 	padding: 0;
 	border-radius: 6px 6px 0 0;
-	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
-	text-shadow: -1px -1px 1px rgba(0,0,0,0.2);
+	box-shadow: 0 16px 20px rgba(255, 255, 255, 0.15) inset;
+	text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.2);
 }
 .cat_bar h3 {
 	padding: 8px 12px 6px 12px;
@@ -3475,7 +3600,7 @@ h3.catbg a:hover {
 	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
 	text-decoration: none;
 }
-h3.catbg .generic_icons::before, h3.catbg .icon {
+h3.catbg .main_icons::before, h3.catbg .icon {
 	vertical-align: middle;
 	margin: 0 5px 0 0;
 }
@@ -3484,6 +3609,9 @@ h3.catbg .generic_icons::before, h3.catbg .icon {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
+.cat_bar + .title_bar {
+	margin-top: 0;
+}
 /* Roundframe */
 .roundframe {
 	margin: 10px 0 0 0;
@@ -3491,7 +3619,7 @@ h3.catbg .generic_icons::before, h3.catbg .icon {
 	background: #f8f8f8;
 	border: 1px solid #c5c5c5;
 	border-radius: 7px;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
+	box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.1);
 	overflow: auto;
 }
 /* TitleBar & SubBar */
@@ -3524,6 +3652,11 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	background: none;
 	color: #555;
 	text-decoration: none;
+}
+.title_bar + .windowbg, .title_bar + .roundframe {
+	margin-top: -1px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 
 /* Other */
@@ -3575,7 +3708,7 @@ p.information img {
 	background: #fff;
 	border: 1px solid #ddd;
 	border-radius: 3px;
-	box-shadow: 0 0 5px rgba(0,0,0,0.1);
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 	min-width: 120px;
 	z-index: 11110 !important;
 }
@@ -3671,7 +3804,7 @@ h3.profile_hd {
 /* Those classes are sharing exact same gradient. */
 /* Background of buttons */
 .dropmenu li ul, .top_menu, .dropmenu li li:hover, .button,
-.dropmenu li li:hover>a, .dropmenu li li a:focus, .dropmenu li li a:hover,
+.dropmenu li li:hover > a, .dropmenu li li a:focus, .dropmenu li li a:hover,
 #top_section, #search_form .button, .quickbuttons li,
 .quickbuttons li ul, .quickbuttons li ul li:hover, .quickbuttons ul li a:focus,
 .popup_window, #inner_section {
@@ -3724,16 +3857,13 @@ h3.profile_hd {
 	overflow-wrap: break-word;
 }
 
-#reported_posts .generic_icons,
-#reported_members .generic_icons {
+#reported_posts .main_icons,
+#reported_members .main_icons {
 	margin: -3px 1px 0 0;
 }
 #reported_posts .quickbuttons li a,
 #reported_members .quickbuttons li a {
 	background: none;
-}
-#modcenter .generic_icons {
-	margin: -3px -3px 0 0;
 }
 
 /* Some colors for generic usage */
@@ -3776,10 +3906,6 @@ h3.profile_hd {
 	background-color: #e8edf0;
 }
 
-#alerts tr.windowbg td {
-	border-right: 1px solid #ddd;
-}
-
 .centerbox {
 	top: 50%;
 	left: 50%;
@@ -3792,30 +3918,32 @@ h3.profile_hd {
 	justify-content: space-between;
 	align-items: center;
 }
-#au-previews div.descbox > div,
-#au-previews div.errorbox > div,
-#au-previews div.infobox > div {
+#attachment_previews div.descbox > div,
+#attachment_previews div.errorbox > div,
+#attachment_previews div.infobox > div {
 	padding: 10px;
 }
-#au-previews .attach-preview {
+#attachment_previews .attach-preview {
 	flex: 0 0 auto;
 	width: 170px;
 }
-#au-previews .attach-info {
+#attachment_previews .attachment_info {
 	flex: 1 1 auto;
 	width: 250px;
 }
-#au-previews .attach-ui {
+#attachment_previews .attach-ui {
 	min-height: 36px;
+	padding: 10px 0;
+	float: right;
 }
 input[name="attachBBC"] {
 	width: 100%;
 	margin-top: 10px;
 }
-.attach-info .progress_bar, .attach-info .attached_BBC, a#attach-cancelAll, a#attach-uploadAll {
+.attachment_info .progress_bar, .attachment_info .attached_BBC, a#attach_cancel_all, a#attach_upload_all {
 	display: none;
 }
-.attach-info .progress_bar {
+.attachment_info .progress_bar {
 	margin: 6px 0;
 }
 .attached_BBC_width_height label {
@@ -3826,17 +3954,17 @@ input[name="attachBBC"] {
 	margin: 10px 1em 0 0;
 	display: inline-block;
 }
-.attach-info input[type="number"] {
+.attachment_info input[type="number"] {
 	width: 5em;
 }
-#attachUpload {
-	min-height:50px;
+#attachment_upload {
+	min-height: 50px;
 }
-#total-progress {
-	width:50%;
-	display:none;
+#total_progress {
+	width: 50%;
+	display: none;
 }
-#maxFiles_progress, #maxFiles_progress_text {
+#max_files_progress, #max_files_progress_text {
 	display: none;
 }
 

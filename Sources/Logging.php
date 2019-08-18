@@ -7,46 +7,14 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
-
-/**
- * Truncate the GET array to a specified length
- * @param array $arr The array to truncate
- * @param int $max_length The upperbound on the length
- *
- * @return array The truncated array
- */
-function truncateArray($arr, $max_length=1900)
-{
-	$curr_length = 0;
-	foreach ($arr as $key => $value)
-		if (is_array($value))
-			foreach ($value as $key2 => $value2)
-				$curr_length += strlen ($value2);
-		else
-			$curr_length += strlen ($value);
-	if ($curr_length <= $max_length)
-		return $arr;
-	else
-	{
-		// Truncate each element's value to a reasonable length
-		$param_max = floor($max_length/count($arr));
-		foreach ($arr as $key => &$value)
-			if (is_array($value))
-				foreach ($value as $key2 => &$value2)
-					$value2 = substr($value2, 0, $param_max - strlen($key) - 5);
-			else
-				$value = substr($value, 0, $param_max - strlen($key) - 5);
-		return $arr;
-	}
-}
 
 /**
  * Put this user in the online log.
@@ -55,7 +23,7 @@ function truncateArray($arr, $max_length=1900)
  */
 function writeLog($force = false)
 {
-	global $user_info, $user_settings, $context, $modSettings, $settings, $topic, $board, $smcFunc, $sourcedir;
+	global $user_info, $user_settings, $context, $modSettings, $settings, $topic, $board, $smcFunc, $sourcedir, $cache_enable;
 
 	// If we are showing who is viewing a topic, let's see if we are, and force an update if so - to make it accurate.
 	if (!empty($settings['display_who_viewing']) && ($topic || $board))
@@ -84,7 +52,7 @@ function writeLog($force = false)
 
 	if (!empty($modSettings['who_enabled']))
 	{
-		$encoded_get = truncateArray($_GET) + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
+		$encoded_get = truncate_array($_GET) + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
 
 		// In the case of a dlattach action, session_var may not be set.
 		if (!isset($context['session_var']))
@@ -178,7 +146,7 @@ function writeLog($force = false)
 		$user_settings['total_time_logged_in'] += time() - $_SESSION['timeOnlineUpdated'];
 		updateMemberData($user_info['id'], array('last_login' => time(), 'member_ip' => $user_info['ip'], 'member_ip2' => $_SERVER['BAN_CHECK_IP'], 'total_time_logged_in' => $user_settings['total_time_logged_in']));
 
-		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+		if (!empty($cache_enable) && $cache_enable >= 2)
 			cache_put_data('user_settings-' . $user_info['id'], $user_settings, 60);
 
 		$user_info['total_time_logged_in'] += time() - $_SESSION['timeOnlineUpdated'];
@@ -207,7 +175,7 @@ function logLastDatabaseError()
 	if (filemtime($cachedir . '/db_last_error.php') === $last_db_error_change)
 	{
 		// Write the change
-		$write_db_change =  '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n" . '?' . '>';
+		$write_db_change = '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n" . '?' . '>';
 		$written_bytes = file_put_contents($cachedir . '/db_last_error.php', $write_db_change, LOCK_EX);
 
 		// survey says ...
@@ -234,7 +202,7 @@ function logLastDatabaseError()
 function displayDebug()
 {
 	global $context, $scripturl, $boarddir, $sourcedir, $cachedir, $settings, $modSettings;
-	global $db_cache, $db_count, $cache_misses, $cache_count_misses, $db_show_debug, $cache_count, $cache_hits, $smcFunc, $txt;
+	global $db_cache, $db_count, $cache_misses, $cache_count_misses, $db_show_debug, $cache_count, $cache_hits, $smcFunc, $txt, $cache_enable;
 
 	// Add to Settings.php if you want to show the debugging information.
 	if (!isset($db_show_debug) || $db_show_debug !== true || (isset($_GET['action']) && $_GET['action'] == 'viewquery'))
@@ -280,7 +248,7 @@ function displayDebug()
 	', $txt['debug_language_files'], count($context['debug']['language_files']), ': <em>', implode('</em>, <em>', $context['debug']['language_files']), '</em>.<br>
 	', $txt['debug_stylesheets'], count($context['debug']['sheets']), ': <em>', implode('</em>, <em>', $context['debug']['sheets']), '</em>.<br>
 	', $txt['debug_hooks'], empty($context['debug']['hooks']) ? 0 : count($context['debug']['hooks']) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_hooks\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_hooks" style="display: none;"><em>' . implode('</em>, <em>', $context['debug']['hooks']), '</em></span>)', '<br>
-	',(isset($context['debug']['instances']) ? ($txt['debug_instances'] . (empty($context['debug']['instances']) ? 0 : count($context['debug']['instances'])) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_instances\').style.display = \'inline\'; this.style.display = \'none\'; return false;">'. $txt['debug_show'] .'</a><span id="debug_instances" style="display: none;"><em>'. implode('</em>, <em>', array_keys($context['debug']['instances'])) .'</em></span>)'. '<br>') : ''),'
+	', (isset($context['debug']['instances']) ? ($txt['debug_instances'] . (empty($context['debug']['instances']) ? 0 : count($context['debug']['instances'])) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_instances\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . $txt['debug_show'] . '</a><span id="debug_instances" style="display: none;"><em>' . implode('</em>, <em>', array_keys($context['debug']['instances'])) . '</em></span>)' . '<br>') : ''), '
 	', $txt['debug_files_included'], count($files), ' - ', round($total_size / 1024), $txt['debug_kb'], ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_include_info" style="display: none;"><em>', implode('</em>, <em>', $files), '</em></span>)<br>';
 
 	if (function_exists('memory_get_peak_usage'))
@@ -290,7 +258,7 @@ function displayDebug()
 	if (isset($_SESSION['token']))
 		echo $txt['debug_tokens'] . '<em>' . implode(',</em> <em>', array_keys($_SESSION['token'])), '</em>.<br>';
 
-	if (!empty($modSettings['cache_enable']) && !empty($cache_hits))
+	if (!empty($cache_enable) && !empty($cache_hits))
 	{
 		$missed_entries = array();
 		$entries = array();
@@ -422,6 +390,7 @@ function trackStats($stats = array())
 /**
  * This function logs an action in the respective log. (database log)
  * You should use {@link logActions()} instead.
+ *
  * @example logAction('remove', array('starter' => $id_member_started));
  *
  * @param string $action The action to log
@@ -507,7 +476,8 @@ function logActions($logs)
 				array(
 					'column_name' => !empty($msg_id) ? 'id_msg' : 'id_topic',
 					'reported' => !empty($msg_id) ? $msg_id : $topic_id,
-			));
+				)
+			);
 
 			// Alright, if we get any result back, update open reports.
 			if ($smcFunc['db_num_rows']($request) > 0)
@@ -548,7 +518,7 @@ function logActions($logs)
 			$memID = $log['extra']['member_affected'];
 		else
 			$memID = $user_info['id'];
-		
+
 		if (isset($user_info['ip']))
 			$memIP = $user_info['ip'];
 		else

@@ -14,13 +14,16 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 define('SMF', 'BACKGROUND');
+define('SMF_VERSION', '2.1 RC2');
+define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
+define('SMF_SOFTWARE_YEAR', '2019');
 define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
 
 // This one setting is worth bearing in mind. If you are running this from proper cron, make sure you
@@ -52,7 +55,7 @@ require_once(dirname(__FILE__) . '/Settings.php');
 if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
 
-// Don't do john didley if the forum's been shut down competely.
+// Don't do john didley if the forum's been shut down completely.
 if ($maintenance == 2)
 	die($mmessage);
 
@@ -67,6 +70,10 @@ if (file_exists($cachedir . '/cron.lock'))
 // Before we go any further, if this is not a CLI request, we need to do some checking.
 if (!FROM_CLI)
 {
+	// When using sub-domains with SSI and ssi_themes set, browsers will receive a "Access-Control-Allow-Origin" error.
+	// * is not ideal but the best method to preventing this from occurring.
+	header('Access-Control-Allow-Origin: *');
+
 	// We will clean up $_GET shortly. But we want to this ASAP.
 	$ts = isset($_GET['ts']) ? (int) $_GET['ts'] : 0;
 	if ($ts <= 0 || $ts % 15 != 0 || time() - $ts < 0 || time() - $ts > 20)
@@ -76,6 +83,7 @@ if (!FROM_CLI)
 // Load the most important includes. In general, a background should be loading its own dependencies.
 require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
+require_once($sourcedir . '/Security.php');
 require_once($sourcedir . '/Subs.php');
 
 // Create a variable to store some SMF specific functions in.
@@ -116,6 +124,7 @@ exit;
 
 /**
  * The heart of this cron handler...
+ *
  * @return bool|array False if there's nothing to do or an array of info about the task
  */
 function fetch_task()
@@ -176,6 +185,7 @@ function fetch_task()
 
 /**
  * This actually handles the task
+ *
  * @param array $task_details An array of info about the task
  * @return bool|void True if the task is invalid; otherwise calls the function to execute the task
  */
@@ -215,6 +225,7 @@ function perform_task($task_details)
 // These are all our helper functions that resemble their big brother counterparts. These are not so important.
 /**
  * Cleans up the request variables
+ *
  * @return void
  */
 function cleanRequest_cron()
@@ -235,6 +246,7 @@ function cleanRequest_cron()
 
 /**
  * The error handling function
+ *
  * @param int $error_level One of the PHP error level constants (see )
  * @param string $error_string The error message
  * @param string $file The file where the error occurred
@@ -280,12 +292,19 @@ function obExit_cron()
 abstract class SMF_BackgroundTask
 {
 	/**
+	 * Constants for notfication types.
+	*/
+	const RECEIVE_NOTIFY_EMAIL = 0x02;
+	const RECEIVE_NOTIFY_ALERT = 0x01;
+
+	/**
 	 * @var array Holds the details for the task
 	 */
 	protected $_details;
 
 	/**
 	 * The constructor.
+	 *
 	 * @param array $details The details for the task
 	 */
 	public function __construct($details)
@@ -295,6 +314,7 @@ abstract class SMF_BackgroundTask
 
 	/**
 	 * The function to actually execute a task
+	 *
 	 * @return mixed
 	 */
 	abstract public function execute();

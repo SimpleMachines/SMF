@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -128,6 +128,13 @@ function Register($reg_errors = array())
 		}
 	}
 
+	if (!empty($modSettings['allow_disableAnnounce']))
+	{
+		require_once($sourcedir . '/Subs-Notify.php');
+		$prefs = getNotifyPrefs(0, 'announcements');
+		$context['notify_announcements'] = !empty($prefs[0]['announcements']);
+	}
+
 	if (!empty($modSettings['userLanguage']))
 	{
 		$selectedLanguage = empty($_SESSION['language']) ? $language : $_SESSION['language'];
@@ -198,7 +205,6 @@ function Register($reg_errors = array())
 	// Otherwise we have nothing to show.
 	else
 		$context['visual_verification'] = false;
-
 
 	$context += array(
 		'username' => isset($_POST['user']) ? $smcFunc['htmlspecialchars']($_POST['user']) : '',
@@ -364,7 +370,7 @@ function Register2()
 
 		// Only set it if you can and if we are sure it is good
 		if ($canEditDisplayName && $smcFunc['htmltrim']($_POST['real_name']) != '' && !isReservedName($_POST['real_name']) && $smcFunc['strlen']($_POST['real_name']) < 60)
-				$possible_strings[] = 'real_name';
+			$possible_strings[] = 'real_name';
 	}
 
 	// Handle a string as a birthdate...
@@ -508,15 +514,16 @@ function Register2()
 	spamProtection('register');
 
 	// Do they want to recieve announcements?
-	require_once($sourcedir . '/Subs-Notify.php');
-	$prefs = getNotifyPrefs($memberID, 'announcements', true);
-	$var = !empty($_POST['notify_announcements']);
-	$pref = !empty($prefs[$memberID]['announcements']);
-
-	// Don't update if the default is the same.
-	if ($var != $pref)
+	if (!empty($modSettings['allow_disableAnnounce']))
 	{
-		setNotifyPrefs($memberID, array('announcements' => (int) !empty($_POST['notify_announcements'])));
+		require_once($sourcedir . '/Subs-Notify.php');
+		$prefs = getNotifyPrefs($memberID, 'announcements', true);
+		$var = !empty($_POST['notify_announcements']);
+		$pref = !empty($prefs[$memberID]['announcements']);
+
+		// Don't update if the default is the same.
+		if ($var != $pref)
+			setNotifyPrefs($memberID, array('announcements' => (int) !empty($_POST['notify_announcements'])));
 	}
 
 	// We'll do custom fields after as then we get to use the helper function!

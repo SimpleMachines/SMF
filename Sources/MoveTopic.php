@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -199,6 +199,7 @@ function MoveTopic2()
 	);
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('no_board');
+
 	list ($pcounter, $board_name, $subject) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
@@ -375,7 +376,7 @@ function MoveTopic2()
  */
 function moveTopics($topics, $toBoard)
 {
-	global $sourcedir, $user_info, $modSettings, $smcFunc;
+	global $sourcedir, $user_info, $modSettings, $smcFunc, $cache_enable;
 
 	// Empty array?
 	if (empty($topics))
@@ -553,7 +554,7 @@ function moveTopics($topics, $toBoard)
 			SELECT id_msg
 			FROM {db_prefix}messages
 			WHERE id_topic IN ({array_int:topics})
-				and approved = {int:not_approved}',
+				AND approved = {int:not_approved}',
 			array(
 				'topics' => $topics,
 				'not_approved' => 0,
@@ -562,6 +563,7 @@ function moveTopics($topics, $toBoard)
 		$approval_msgs = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$approval_msgs[] = $row['id_msg'];
+
 		$smcFunc['db_free_result']($request);
 
 		// Empty the approval queue for these, as we're going to approve them next.
@@ -677,7 +679,7 @@ function moveTopics($topics, $toBoard)
 	}
 
 	// Update the cache?
-	if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 3)
+	if (!empty($cache_enable) && $cache_enable >= 3)
 		foreach ($topics as $topic_id)
 			cache_put_data('topic_board-' . $topic_id, null, 120);
 

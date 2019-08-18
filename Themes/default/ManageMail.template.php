@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -45,26 +45,34 @@ function template_browse()
 
 function template_mailtest()
 {
-	global $context, $txt;
+	global $context, $txt, $scripturl;
 
 	// The results.
 	if (!empty($context['result']))
+	{
+		if ($context['result'] == 'failure')
+			$result_txt = sprintf($txt['mailtest_result_failure'], $scripturl . '?action=admin;area=logs;sa=errorlog;desc');
+		else
+			$result_txt = $txt['mailtest_result_success'];
+
 		echo '
-					<div class="', $context['result'] == 'success' ? 'infobox' : 'errorbox', '">', $txt['mailtest_result_' . $context['result']], '</div>';
+					<div class="', $context['result'] == 'success' ? 'infobox' : 'errorbox', '">', $result_txt, '</div>';
+	}
 
 	echo '
 	<form id="admin_form_wrapper" action="', $context['post_url'], '" method="post">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['mailtest_header'], '</h3>
 		</div>
-		<div class="windowbg noup">
+		<div class="windowbg">
 				<dl id="post_header">
 					<dt><span id="caption_subject">', $txt['subject'], '</span></dt>
 					<dd><input type="text" name="subject" tabindex="1" size="80" maxlength="80"></dd>
 				</dl>
-				<textarea class="editor" name="message" rows="12" cols="60" tabindex="2" style="width: 90%; height: 150px;"></textarea>
+				<textarea class="editor" name="message" rows="5" cols="200" tabindex="2"></textarea>
 				<dl id="post_footer">
-					<dd><input type="submit" value="', $txt['send_message'], '" />
+					<dd><input type="submit" value="', $txt['send_message'], '" class="button"></dd>
+				</dl>
 		</div>
 	</form>';
 }

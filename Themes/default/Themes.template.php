@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 /**
@@ -21,7 +21,7 @@ function template_main()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a>
+				<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 				', $txt['themeadmin_title'], '
 			</h3>
 		</div>
@@ -220,11 +220,11 @@ function template_list_themes()
 
 			// Enable/Disable.
 			echo '
-						<a href="', $scripturl, '?action=admin;area=theme;sa=enable;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tre_token_var'], '=', $context['admin-tre_token'], '', (!empty($theme['enable']) ? ';disabled' : ''), '" data-confirm="', $txt['theme_' . (!empty($theme['enable']) ? 'disable' : 'enable') . '_confirm'], '" class="you_sure"><span class="generic_icons ', !empty($theme['enable']) ? 'disable' : 'enable', '" title="', $txt['theme_' . (!empty($theme['enable']) ? 'disable' : 'enable')], '"></span></a>';
+						<a href="', $scripturl, '?action=admin;area=theme;sa=enable;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tre_token_var'], '=', $context['admin-tre_token'], '', (!empty($theme['enable']) ? ';disabled' : ''), '" data-confirm="', $txt['theme_' . (!empty($theme['enable']) ? 'disable' : 'enable') . '_confirm'], '" class="you_sure"><span class="main_icons ', !empty($theme['enable']) ? 'disable' : 'enable', '" title="', $txt['theme_' . (!empty($theme['enable']) ? 'disable' : 'enable')], '"></span></a>';
 
 			// Deleting.
 			echo '
-						<a href="', $scripturl, '?action=admin;area=theme;sa=remove;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tr_token_var'], '=', $context['admin-tr_token'], '" data-confirm="', $txt['theme_remove_confirm'], '" class="you_sure"><span class="generic_icons delete" title="', $txt['theme_remove'], '"></span></a>';
+						<a href="', $scripturl, '?action=admin;area=theme;sa=remove;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tr_token_var'], '=', $context['admin-tr_token'], '" data-confirm="', $txt['theme_remove_confirm'], '" class="you_sure"><span class="main_icons delete" title="', $txt['theme_remove'], '"></span></a>';
 
 			echo '
 					</span>';
@@ -425,7 +425,7 @@ function template_set_options()
 						<input type="number"', $min . $max . $step;
 			}
 			elseif (isset($setting['type']) && $setting['type'] == 'url')
-				echo'
+				echo '
 						<input type="url"';
 
 			else
@@ -462,7 +462,7 @@ function template_set_settings()
 		<form action="', $scripturl, '?action=admin;area=theme;sa=list;th=', $context['theme_settings']['theme_id'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'], '"></span></a> ', $txt['theme_settings'], ' - ', $context['theme_settings']['name'], '
+					<a href="', $scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a> ', $txt['theme_settings'], ' - ', $context['theme_settings']['name'], '
 				</h3>
 			</div>
 			<div class="windowbg">';
@@ -649,14 +649,14 @@ function template_set_settings()
 						<input type="number"', $min . $max . $step;
 			}
 			elseif (isset($setting['type']) && $setting['type'] == 'url')
-				echo'
+				echo '
 						<input type="url"';
 
 			else
 				echo '
 						<input type="text"';
 
-			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : (empty($settings['size']) ? ' size="40"' : ' size="' . $setting['size'] . '"'), '>
+			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : (empty($setting['size']) ? ' size="40"' : ' size="' . $setting['size'] . '"'), '>
 					</dd>';
 		}
 	}
@@ -700,7 +700,7 @@ function template_pick()
 
 	echo '
 	<div id="pick_theme">
-		<form action="', $scripturl, '?action=theme;sa=pick;u=', $context['current_member'], ';', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">';
+		<form action="', $scripturl, '?action=theme;sa=pick" method="post" accept-charset="', $context['character_set'], '">';
 
 	// Just go through each theme and show its information - thumbnail, etc.
 	foreach ($context['available_themes'] as $theme)
@@ -708,7 +708,7 @@ function template_pick()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=theme;sa=pick;u=', $context['current_member'], ';th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], !empty($theme['variants']) ? ';vrt=' . $theme['selected_variant'] : '', '">', $theme['name'], '</a>
+					', $theme['name'], '
 				</h3>
 			</div>
 			<div class="windowbg', $theme['selected'] ? ' selected' : '', '">
@@ -724,17 +724,14 @@ function template_pick()
 		{
 			echo '
 					<label for="variant', $theme['id'], '"><strong>', $theme['pick_label'], '</strong></label>:
-					<select id="variant', $theme['id'], '" name="vrt[', $theme['id'], ']" onchange="changeVariant', $theme['id'], '(this.value);">';
+					<select id="variant', $theme['id'], '" name="vrt[', $theme['id'], ']" onchange="changeVariant(', $theme['id'], ', this);">';
 
 			foreach ($theme['variants'] as $key => $variant)
 				echo '
 						<option value="', $key, '"', $theme['selected_variant'] == $key ? ' selected' : '', '>', $variant['label'], '</option>';
 
 			echo '
-					</select>
-					<noscript>
-						<input type="submit" name="save[', $theme['id'], ']" value="', $txt['save'], '" class="button">
-					</noscript>';
+					</select>';
 		}
 
 		echo '
@@ -744,48 +741,21 @@ function template_pick()
 					</p>
 					<br>
 					<ul>
-						<li>
-							<a href="', $scripturl, '?action=theme;sa=pick;u=', $context['current_member'], ';th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], !empty($theme['variants']) ? ';vrt=' . $theme['selected_variant'] : '', '" id="theme_use_', $theme['id'], '">[', $txt['theme_set'], ']</a>
+						<li class="lower_padding">
+							<input type="submit" name="save[', $theme['id'], ']" value="', $txt['theme_set'], '" class="button">
 						</li>
 						<li>
-							<a href="', $scripturl, '?action=theme;sa=pick;u=', $context['current_member'], ';theme=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '" id="theme_preview_', $theme['id'], '">[', $txt['theme_preview'], ']</a>
+							<a class="button" href="', $scripturl, '?action=theme;sa=pick;theme=', $theme['id'], '" id="theme_preview_', $theme['id'], '">', $txt['theme_preview'], '</a>
 						</li>
 					</ul>
 				</div>
 			</div>';
-
-		if (!empty($theme['variants']))
-		{
-			echo '
-			<script>
-			var sBaseUseUrl', $theme['id'], ' = smf_prepareScriptUrl(smf_scripturl) + \'action=theme;sa=pick;u=', $context['current_member'], ';th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '\';
-			var sBasePreviewUrl', $theme['id'], ' = smf_prepareScriptUrl(smf_scripturl) + \'action=theme;sa=pick;u=', $context['current_member'], ';theme=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '\';
-			var oThumbnails', $theme['id'], ' = {';
-
-			// All the variant thumbnails.
-			$count = 1;
-			foreach ($theme['variants'] as $key => $variant)
-			{
-				echo '
-				\'', $key, '\': \'', $variant['thumbnail'], '\'', (count($theme['variants']) == $count ? '' : ',');
-				$count++;
-			}
-
-			echo '
-			}
-
-			function changeVariant', $theme['id'], '(sVariant)
-			{
-				document.getElementById(\'theme_thumb_', $theme['id'], '\').src = oThumbnails', $theme['id'], '[sVariant];
-				document.getElementById(\'theme_use_', $theme['id'], '\').href = sBaseUseUrl', $theme['id'] == 0 ? $context['default_theme_id'] : $theme['id'], ' + \';vrt=\' + sVariant;
-				document.getElementById(\'theme_thumb_preview_', $theme['id'], '\').href = sBasePreviewUrl', $theme['id'], ' + \';vrt=\' + sVariant + \';variant=\' + sVariant;
-				document.getElementById(\'theme_preview_', $theme['id'], '\').href = sBasePreviewUrl', $theme['id'], ' + \';vrt=\' + sVariant + \';variant=\' + sVariant;
-			}
-			</script>';
 		}
-	}
 
-	echo '
+		echo '
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			<input type="hidden" name="', $context['pick-th_token_var'], '" value="', $context['pick-th_token'], '">
+			<input type="hidden" name="u" value="', $context['current_member'], '">
 		</form>
 	</div><!-- #pick_theme -->';
 }
@@ -936,7 +906,7 @@ function template_edit_browse()
 
 		elseif ($file['is_directory'])
 			echo '
-						<a href="', $file['href'], '" class="is_directory"><span class="generic_icons folder"></span>', $file['filename'], '</a>';
+						<a href="', $file['href'], '" class="is_directory"><span class="main_icons folder"></span>', $file['filename'], '</a>';
 
 		else
 			echo $file['filename'];

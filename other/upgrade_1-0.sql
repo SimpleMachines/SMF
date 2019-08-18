@@ -221,7 +221,7 @@ CREATE TABLE {$db_prefix}sessions (
 ---#
 
 ---# Verifying "settings"...
-ALTER IGNORE TABLE {$db_prefix}settings
+ALTER TABLE {$db_prefix}settings
 DROP PRIMARY KEY,
 ADD PRIMARY KEY (variable(30));
 ---#
@@ -761,9 +761,11 @@ ADD INDEX isSticky (isSticky);
 ---#
 
 ---# Updating indexes on "topics" (part 2)...
-ALTER IGNORE TABLE {$db_prefix}topics
-ADD UNIQUE INDEX lastMessage (ID_LAST_MSG, ID_BOARD),
-ADD UNIQUE INDEX firstMessage (ID_FIRST_MSG, ID_BOARD),
+ALTER TABLE {$db_prefix}topics
+ADD UNIQUE INDEX lastMessage (ID_LAST_MSG, ID_BOARD);
+ALTER TABLE {$db_prefix}topics
+ADD UNIQUE INDEX firstMessage (ID_FIRST_MSG, ID_BOARD);
+ALTER TABLE {$db_prefix}topics
 ADD UNIQUE INDEX poll (ID_POLL, ID_TOPIC);
 ---#
 
@@ -999,7 +1001,7 @@ LIMIT 1;
 ---#
 
 ---# Adding new columns to "instant_messages"...
-ALTER IGNORE TABLE {$db_prefix}instant_messages
+ALTER TABLE {$db_prefix}instant_messages
 ADD COLUMN deletedBySender tinyint(3) unsigned NOT NULL default '0' AFTER ID_MEMBER_FROM;
 ---#
 
@@ -1840,17 +1842,8 @@ VALUES
 	('cal_showeventsonindex', '0'),
 	('cal_showbdaysonindex', '0'),
 	('cal_showholidaysonindex', '0'),
+	('cal_showweeknum', '0'),
 	('cal_maxspan', '7'),
-	('cal_highlight_events', '3'),
-	('cal_highlight_holidays', '3'),
-	('cal_highlight_birthdays', '3'),
-	('cal_disable_prev_next', '0'),
-	('cal_display_type', '0'),
-	('cal_week_links', '2'),
-	('cal_prev_next_links', '1'),
-	('cal_short_days', '0'),
-	('cal_short_months', '0'),
-	('cal_week_numbers', '0'),
 	('smtp_host', ''),
 	('smtp_username', ''),
 	('smtp_password', ''),

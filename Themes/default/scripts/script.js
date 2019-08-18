@@ -437,7 +437,7 @@ smc_Popup.prototype.show = function ()
 		icon = this.opt.icon ? '<img src="' + this.opt.icon + '" class="icon" alt=""> ' : '';
 
 	// Create the div that will be shown
-	$('body').append('<div id="' + this.popup_id + '" class="popup_container"><div class="' + popup_class + '"><div class="catbg popup_heading"><a href="javascript:void(0);" class="generic_icons hide_popup"></a>' + icon + this.opt.heading + '</div><div class="popup_content">' + this.opt.content + '</div></div></div>');
+	$('body').append('<div id="' + this.popup_id + '" class="popup_container"><div class="' + popup_class + '"><div class="catbg popup_heading"><a href="javascript:void(0);" class="main_icons hide_popup"></a>' + icon + this.opt.heading + '</div><div class="popup_content">' + this.opt.content + '</div></div></div>');
 
 	// Show it
 	this.popup_body = $('#' + this.popup_id).children('.popup_window');
@@ -1167,9 +1167,6 @@ var aIconLists = new Array();
 // *** IconList object.
 function IconList(oOptions)
 {
-	if (!window.XMLHttpRequest)
-		return;
-
 	this.opt = oOptions;
 	this.bListLoaded = false;
 	this.oContainerDiv = null;
@@ -1455,20 +1452,6 @@ function cleanFileInput(idElement)
 	}
 }
 
-function applyWindowClasses(oList)
-{
-	var bAlternate = false;
-	oListItems = oList.getElementsByTagName("LI");
-	for (i = 0; i < oListItems.length; i++)
-	{
-		// Skip dummies.
-		if (oListItems[i].id == "")
-			continue;
-		oListItems[i].className = "windowbg" + (bAlternate ? "2" : "");
-		bAlternate = !bAlternate;
-	}
-}
-
 function reActivate()
 {
 	document.forms.postmodify.message.readOnly = false;
@@ -1478,6 +1461,29 @@ function reActivate()
 function showimage()
 {
 	document.images.icons.src = icon_urls[document.forms.postmodify.icon.options[document.forms.postmodify.icon.selectedIndex].value];
+}
+
+function expandThumb(thumbID)
+{
+	var img = document.getElementById('thumb_' + thumbID);
+	var link = document.getElementById('link_' + thumbID);
+
+	// save the currently displayed image attributes
+	var tmp_src = img.src;
+	var tmp_height = img.style.height;
+	var tmp_width = img.style.width;
+
+	// set the displayed image attributes to the link attributes, this will expand in place
+	img.src = link.href;
+	img.style.width = link.style.width;
+	img.style.height = link.style.height;
+
+	// place the image attributes back
+	link.href = tmp_src;
+	link.style.width = tmp_width;
+	link.style.height = tmp_height;
+
+	return false;
 }
 
 function pollOptions()
@@ -1577,6 +1583,23 @@ function updateActionDef(optNum)
 	}
 }
 
+function makeToggle(el, text)
+{
+	var t = document.createElement("a");
+	t.href = 'javascript:void(0);';
+	t.textContent = text;
+	t.className = 'toggle_down';
+	createEventListener(t);
+	t.addEventListener('click', function()
+	{
+		var d = this.nextSibling;
+		d.classList.toggle('hidden');
+		this.className = this.className == 'toggle_down' ? 'toggle_up' : 'toggle_down';
+	}, false);
+	el.classList.add('hidden');
+	el.parentNode.insertBefore(t, el);
+}
+
 function smc_resize(selector)
 {
 	var allElements = [];
@@ -1648,8 +1671,15 @@ $(function() {
 	// Generic confirmation message.
 	$(document).on('click', '.you_sure', function() {
 		var custom_message = $(this).attr('data-confirm');
+		var timeBefore = new Date();
+		var result = confirm(custom_message ? custom_message.replace(/-n-/g, "\n") : smf_you_sure);
+		var timeAfter = new Date();
 
-		return confirm(custom_message ? custom_message.replace(/-n-/g, "\n") : smf_you_sure);
+		// Check if the browser disabled the alert
+		if (!result && (timeAfter - timeBefore) < 10)
+			return true;
+
+		return result;
 	});
 
 	// Generic event for smfSelectText()
@@ -1660,6 +1690,30 @@ $(function() {
 		var actOnElement = $(this).attr('data-actonelement');
 
 		return typeof actOnElement !== "undefined" ? smfSelectText(actOnElement, true) : smfSelectText(this);
+	});
+	
+	// Show the Expand bbc button if needed
+	$('.bbc_code').each(function(index, item) {
+		if($(item).css('max-height') == 'none')
+			return;
+
+		if($(item).prop('scrollHeight') > parseInt($(item).css('max-height'), 10))
+			$(item.previousSibling).find('.smf_expand_code').removeClass('hidden');
+	});
+	// Expand or Shrink the code bbc area
+	$('.smf_expand_code').on('click', function(e) {
+		e.preventDefault();
+
+		var oCodeArea = this.parentNode.nextSibling;
+		
+		if(oCodeArea.classList.contains('expand_code')) {
+			$(oCodeArea).removeClass('expand_code');
+			$(this).html($(this).attr('data-expand-txt'));
+		}
+		else {
+			$(oCodeArea).addClass('expand_code');
+			$(this).html($(this).attr('data-shrink-txt'));
+		}
 	});
 });
 
@@ -1690,14 +1744,6 @@ function smc_preview_post(oOptions)
 
 smc_preview_post.prototype.init = function ()
 {
-	// Opera didn't support setRequestHeader() before 8.01.
-	if ('opera' in window)
-	{
-		var test = new XMLHttpRequest();
-		if (!('setRequestHeader' in test))
-			this.previewXMLSupported = false;
-	}
-
 	if (this.opts.sPreviewLinkContainerID)
 		$('#' + this.opts.sPreviewLinkContainerID).on('click', this.doPreviewPost.bind(this));
 	else
@@ -1714,14 +1760,6 @@ smc_preview_post.prototype.doPreviewPost = function (event)
 	var new_replies = new Array();
 	if (window.XMLHttpRequest)
 	{
-		// Opera didn't support setRequestHeader() before 8.01.
-		if ('opera' in window)
-		{
-			var test = new XMLHttpRequest();
-			if (!('setRequestHeader' in test))
-				return submitThisOnce(document.forms.postmodify);
-		}
-
 		// @todo Currently not sending poll options and option checkboxes.
 		var x = new Array();
 		var textFields = ['subject', this.opts.sPostBoxContainerID, this.opts.sSessionVar, 'icon', 'guestname', 'email', 'evtitle', 'question', 'topic'];
@@ -1743,13 +1781,13 @@ smc_preview_post.prototype.doPreviewPost = function (event)
 
 				// After moving this from Post template, html() stopped working in all cases.
 				if (textFields[i] == this.opts.sPostBoxContainerID && sceditor.instance(e) != undefined && typeof sceditor.instance(e).getText().html !== 'undefined')
-					x[x.length] = textFields[i] + '=' + sceditor.instance(e).getText().html();
+					x[x.length] = textFields[i] + '=' + sceditor.instance(e).getText().html().php_to8bit().php_urlencode();
 				else if (textFields[i] == this.opts.sPostBoxContainerID && sceditor.instance(e) != undefined)
-					x[x.length] = textFields[i] + '=' + sceditor.instance(e).getText();
+					x[x.length] = textFields[i] + '=' + sceditor.instance(e).getText().php_to8bit().php_urlencode();
 				else if (typeof document.forms.postmodify[textFields[i]].value.html !== 'undefined')
-					x[x.length] = textFields[i] + '=' + document.forms.postmodify[textFields[i]].value.html();
+					x[x.length] = textFields[i] + '=' + document.forms.postmodify[textFields[i]].value.html().php_to8bit().php_urlencode();
 				else
-					x[x.length] = textFields[i] + '=' + document.forms.postmodify[textFields[i]].value;;
+					x[x.length] = textFields[i] + '=' + document.forms.postmodify[textFields[i]].value.php_to8bit().php_urlencode();
 			}
 
 		// Numbers.
@@ -1811,8 +1849,6 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 	var captions = errors.getElementsByTagName('caption');
 	for (var i = 0, numCaptions = errors.getElementsByTagName('caption').length; i < numCaptions; i++)
 	{
-console.log(this.opts.sCaptionContainerID, captions[i], this.opts.sCaptionContainerID.replace('%ID%', captions[i].getAttribute('name')));
-
 		if (document.getElementById(this.opts.sCaptionContainerID.replace('%ID%', captions[i].getAttribute('name'))))
 			document.getElementById(this.opts.sCaptionContainerID.replace('%ID%', captions[i].getAttribute('name'))).className = captions[i].getAttribute('class');
 	}
@@ -1831,11 +1867,6 @@ console.log(this.opts.sCaptionContainerID, captions[i], this.opts.sCaptionContai
 	if ('last_msg' in document.forms.postmodify)
 		document.forms.postmodify.last_msg.value = XMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('last_msg')[0].firstChild.nodeValue;
 
-	// Remove the new image from old-new replies!
-	for (i = 0; i < new_replies.length; i++)
-		document.getElementById(this.opts.sNewImageContainerID.replace('%ID%', new_replies[i])).style.display = 'none';
-	new_replies = new Array();
-
 	var ignored_replies = new Array(), ignoring;
 	var newPosts = XMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('new_posts')[0] ? XMLDoc.getElementsByTagName('smf')[0].getElementsByTagName('new_posts')[0].getElementsByTagName('post') : {length: 0};
 	var numNewPosts = newPosts.length;
@@ -1843,9 +1874,10 @@ console.log(this.opts.sCaptionContainerID, captions[i], this.opts.sCaptionContai
 	{
 		var newPostsHTML = '<span id="new_replies"><' + '/span>';
 		var tempHTML;
+		var new_replies = new Array();
 		for (var i = 0; i < numNewPosts; i++)
 		{
-			new_replies[new_replies.length] = newPosts[i].getAttribute("id");
+			new_replies[i] = newPosts[i].getAttribute("id");
 
 			ignoring = false;
 			if (newPosts[i].getElementsByTagName("is_ignored")[0].firstChild.nodeValue != 0)
@@ -1855,6 +1887,11 @@ console.log(this.opts.sCaptionContainerID, captions[i], this.opts.sCaptionContai
 
 			newPostsHTML += tempHTML;
 		}
+
+		// Remove the new image from old-new replies!
+		for (i = 0; i < new_replies.length; i++)
+			document.getElementById(this.opts.sNewImageContainerID.replace('%ID%', new_replies[i])).style.display = 'none';
+
 		setOuterHTML(document.getElementById('new_replies'), newPostsHTML);
 	}
 

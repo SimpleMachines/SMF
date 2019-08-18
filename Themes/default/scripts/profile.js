@@ -285,21 +285,12 @@ function readfromUpload(input) {
 
 // The smiley set selector code
 $(document).on('change', '#smiley_set', function () {
-	let value = this.value;
-	let index = this.selectedIndex;
-	let filename;
-	let extsarr = smf_smiley_sets_exts.split(",");
-
-	if (index == 0) {
-		// None selected
-		filename = smf_images_url + "/blank.png";
-	} else if (index == 1) {
-		// Default selected
-		filename = smf_smileys_url + "/" + smf_smiley_sets_default + "/smiley" + smf_smiley_sets_default_ext;
-	} else {
-		// One of the sets selected
-		filename = smf_smileys_url + "/" + value + "/smiley" + extsarr[index - 2];
-	}
-
-	$("#smileypr").attr("src", filename);
+	$("#smileypr").attr("src", $('#smiley_set option:selected').data('preview'));
 });
+
+function changeVariant(iThemeId, el)
+{
+	document.getElementById('theme_thumb_' + iThemeId).src = oThemeVariants[iThemeId][el.value]['thumbnail'];
+	document.getElementById('theme_thumb_preview_' + iThemeId).href = el.form.action + ';theme=' + iThemeId + ';variant=' + el.value;
+	document.getElementById('theme_preview_' + iThemeId).href = el.form.action + ';theme=' + iThemeId + ';variant=' + el.value;
+}

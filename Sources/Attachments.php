@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -76,7 +76,7 @@ class Attachments
 		// Just send a generic message.
 		else
 			$this->setResponse(array(
-				'text' => $this->_sa == 'add' ? 'attach_error_title' :   'attached_file_deleted_error',
+				'text' => $this->_sa == 'add' ? 'attach_error_title' : 'attached_file_deleted_error',
 				'type' => 'error',
 				'data' => false,
 			));
@@ -131,7 +131,7 @@ class Attachments
 
 		// The attachments was created and moved the the right folder, time to update the DB.
 		if (!empty($_SESSION['temp_attachments']))
-			$this->createAtttach();
+			$this->createAttach();
 
 		// Set the response.
 		$this->setResponse();
@@ -313,14 +313,15 @@ class Attachments
 		call_integration_hook('integrate_attachment_upload', array());
 	}
 
-	protected function createAtttach()
+	protected function createAttach()
 	{
 		global $txt, $user_info, $modSettings;
 
 		// Create an empty session var to keep track of all the files we attached.
-		$SESSION['already_attached'] = array();
+		if (!isset($_SESSION['already_attached']))
+			$_SESSION['already_attached'] = array();
 
-		foreach ($_SESSION['temp_attachments'] as  $attachID => $attachment)
+		foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 		{
 			$attachmentOptions = array(
 				'post' => $this->_msg,
@@ -410,7 +411,7 @@ class Attachments
 			// Gotta urlencode the filename.
 			if ($this->_attachResults)
 				foreach ($this->_attachResults as $k => $v)
-					$this->_attachResults[$k]['name'] =  urlencode($this->_attachResults[$k]['name']);
+					$this->_attachResults[$k]['name'] = urlencode($this->_attachResults[$k]['name']);
 
 			$this->_response = array(
 				'files' => $this->_attachResults ? $this->_attachResults : false,
@@ -437,7 +438,7 @@ class Attachments
 			ob_start();
 
 		// Set the header.
-		header('content-type: application/json; charset='. $context['character_set'] .'');
+		header('content-type: application/json; charset=' . $context['character_set'] . '');
 
 		echo $smcFunc['json_encode']($this->_response ? $this->_response : array());
 

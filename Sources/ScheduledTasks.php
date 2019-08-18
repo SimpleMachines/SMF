@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -159,221 +159,6 @@ function AutoTask()
 }
 
 /**
- * Function for sending out approval notices to moderators etc.
- */
-function scheduled_approval_notification()
-{
-	global $scripturl, $txt, $sourcedir, $smcFunc;
-
-	// Grab all the items awaiting approval and sort type then board - clear up any things that are no longer relevant.
-	$request = $smcFunc['db_query']('', '
-		SELECT aq.id_msg, aq.id_attach, aq.id_event, m.id_topic, m.id_board, m.subject, t.id_first_msg,
-			b.id_profile
-		FROM {db_prefix}approval_queue AS aq
-			JOIN {db_prefix}messages AS m ON (m.id_msg = aq.id_msg)
-			JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
-			JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)',
-		array(
-		)
-	);
-	$notices = array();
-	$profiles = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		// If this is no longer around we'll ignore it.
-		if (empty($row['id_topic']))
-			continue;
-
-		// What type is it?
-		if ($row['id_first_msg'] && $row['id_first_msg'] == $row['id_msg'])
-			$type = 'topic';
-		elseif ($row['id_attach'])
-			$type = 'attach';
-		else
-			$type = 'msg';
-
-		// Add it to the array otherwise.
-		$notices[$row['id_board']][$type][] = array(
-			'subject' => $row['subject'],
-			'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-		);
-
-		// Store the profile for a bit later.
-		$profiles[$row['id_board']] = $row['id_profile'];
-	}
-	$smcFunc['db_free_result']($request);
-
-	// Delete it all!
-	$smcFunc['db_query']('', '
-		TRUNCATE {db_prefix}approval_queue',
-		array(
-		)
-	);
-
-	// If nothing quit now.
-	if (empty($notices))
-		return true;
-
-	// Now we need to think about finding out *who* can approve - this is hard!
-
-	// First off, get all the groups with this permission and sort by board.
-	$request = $smcFunc['db_query']('', '
-		SELECT id_group, id_profile, add_deny
-		FROM {db_prefix}board_permissions
-		WHERE permission = {literal:approve_posts}
-			AND id_profile IN ({array_int:profile_list})',
-		array(
-			'profile_list' => $profiles,
-		)
-	);
-	$perms = array();
-	$addGroups = array(1);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		// Sorry guys, but we have to ignore guests AND members - it would be too many otherwise.
-		if ($row['id_group'] < 2)
-			continue;
-
-		$perms[$row['id_profile']][$row['add_deny'] ? 'add' : 'deny'][] = $row['id_group'];
-
-		// Anyone who can access has to be considered.
-		if ($row['add_deny'])
-			$addGroups[] = $row['id_group'];
-	}
-	$smcFunc['db_free_result']($request);
-
-	// Grab the moderators if they have permission!
-	$mods = array();
-	$members = array();
-	if (in_array(2, $addGroups))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT id_member, id_board
-			FROM {db_prefix}moderators',
-			array(
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-		{
-			$mods[$row['id_member']][$row['id_board']] = true;
-			// Make sure they get included in the big loop.
-			$members[] = $row['id_member'];
-		}
-		$smcFunc['db_free_result']($request);
-	}
-
-	// Come along one and all... until we reject you ;)
-	$request = $smcFunc['db_query']('', '
-		SELECT id_member, real_name, email_address, lngfile, id_group, additional_groups, mod_prefs
-		FROM {db_prefix}members
-		WHERE id_group IN ({array_int:additional_group_list})
-			OR FIND_IN_SET({raw:additional_group_list_implode}, additional_groups) != 0' . (empty($members) ? '' : '
-			OR id_member IN ({array_int:member_list})') . '
-		ORDER BY lngfile',
-		array(
-			'additional_group_list' => $addGroups,
-			'member_list' => $members,
-			'additional_group_list_implode' => implode(', additional_groups) != 0 OR FIND_IN_SET(', $addGroups),
-		)
-	);
-	$members = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		// Check whether they are interested.
-		if (!empty($row['mod_prefs']))
-		{
-			list(,, $pref_binary) = explode('|', $row['mod_prefs']);
-			if (!($pref_binary & 4))
-				continue;
-		}
-
-		$members[$row['id_member']] = array(
-			'id' => $row['id_member'],
-			'groups' => array_merge(explode(',', $row['additional_groups']), array($row['id_group'])),
-			'language' => $row['lngfile'],
-			'email' => $row['email_address'],
-			'name' => $row['real_name'],
-		);
-	}
-	$smcFunc['db_free_result']($request);
-
-	// Get the mailing stuff.
-	require_once($sourcedir . '/Subs-Post.php');
-	// Need the below for loadLanguage to work!
-	loadEssentialThemeData();
-
-	$current_language = '';
-	// Finally, loop through each member, work out what they can do, and send it.
-	foreach ($members as $id => $member)
-	{
-		$emailbody = '';
-
-		// Load the language file as required.
-		if (empty($current_language) || $current_language != $member['language'])
-			$current_language = loadLanguage('EmailTemplates', $member['language'], false);
-
-		// Loop through each notice...
-		foreach ($notices as $board => $notice)
-		{
-			$access = false;
-
-			// Can they mod in this board?
-			if (isset($mods[$id][$board]))
-				$access = true;
-
-			// Do the group check...
-			if (!$access && isset($perms[$profiles[$board]]['add']))
-			{
-				// They can access?!
-				if (array_intersect($perms[$profiles[$board]]['add'], $member['groups']))
-					$access = true;
-
-				// If they have deny rights don't consider them!
-				if (isset($perms[$profiles[$board]]['deny']))
-					if (array_intersect($perms[$profiles[$board]]['deny'], $member['groups']))
-						$access = false;
-			}
-
-			// Finally, fix it for admins!
-			if (in_array(1, $member['groups']))
-				$access = true;
-
-			// If they can't access it then give it a break!
-			if (!$access)
-				continue;
-
-			foreach ($notice as $type => $items)
-			{
-				// Build up the top of this section.
-				$emailbody .= $txt['scheduled_approval_email_' . $type] . "\n" .
-					'------------------------------------------------------' . "\n";
-
-				foreach ($items as $item)
-					$emailbody .= $item['subject'] . ' - ' . $item['href'] . "\n";
-
-				$emailbody .= "\n";
-			}
-		}
-
-		if ($emailbody == '')
-			continue;
-
-		$replacements = array(
-			'REALNAME' => $member['name'],
-			'BODY' => $emailbody,
-		);
-
-		$emaildata = loadEmailTemplate('scheduled_approval', $replacements, $current_language);
-
-		// Send the actual email.
-		sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'schedapp', $emaildata['is_html'], 2);
-	}
-
-	// All went well!
-	return true;
-}
-
-/**
  * Do some daily cleaning up.
  */
 function scheduled_daily_maintenance()
@@ -456,20 +241,19 @@ function scheduled_daily_maintenance()
 		WHERE time < {int:oldLogins}',
 		array(
 			'oldLogins' => time() - (!empty($modSettings['loginHistoryDays']) ? 60 * 60 * 24 * $modSettings['loginHistoryDays'] : 2592000),
-	));
+		)
+	);
 
 	// Run Imageproxy housekeeping
 	if (!empty($image_proxy_enabled))
 	{
-		global $proxyhousekeeping;
-		$proxyhousekeeping = true;
-
 		require_once($boarddir . '/proxy.php');
 		$proxy = new ProxyServer();
 		$proxy->housekeeping();
-
-		unset($proxyhousekeeping);
 	}
+
+	// Anyone else have something to do?
+	call_integration_hook('integrate_daily_maintenance');
 
 	// Log we've done it...
 	return true;
@@ -637,6 +421,8 @@ function scheduled_daily_digest()
 			'split' => $txt['digest_mod_act_split'],
 			'bye' => $txt['regards_team'],
 		);
+
+		call_integration_hook('integrate_daily_digest_lang', array(&$langtxt, $lang));
 	}
 
 	// The preferred way...
@@ -725,6 +511,9 @@ function scheduled_daily_digest()
 						}
 			}
 		}
+
+		call_integration_hook('integrate_daily_digest_email', array(&$email, $types, $notify_types, $langtxt));
+
 		if ($titled)
 			$email['body'] .= "\n";
 
@@ -818,11 +607,19 @@ function scheduled_weekly_digest()
  */
 function ReduceMailQueue($number = false, $override_limit = false, $force_send = false)
 {
-	global $modSettings, $smcFunc, $sourcedir;
+	global $modSettings, $smcFunc, $sourcedir, $txt, $language;
 
 	// Are we intending another script to be sending out the queue?
 	if (!empty($modSettings['mail_queue_use_cron']) && empty($force_send))
 		return false;
+
+	// Just in case we run into a problem.
+	if (!isset($txt))
+	{
+		loadEssentialThemeData();
+		loadLanguage('Errors', $language, false);
+		loadLanguage('index', $language, false);
+	}
 
 	// By default send 5 at once.
 	if (!$number)
@@ -986,7 +783,8 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 				array(
 					'next_mail_send' => time() + 60,
 					'last_send' => $modSettings['mail_next_send'],
-			));
+				)
+			);
 
 		// Add our email back to the queue, manually.
 		$smcFunc['db_insert']('insert',
@@ -1007,7 +805,8 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 			array(
 				'zero' => '0',
 				'mail_failed_attempts' => 'mail_failed_attempts',
-		));
+			)
+		);
 
 	// Had something to send...
 	return true;
@@ -1218,7 +1017,7 @@ function loadEssentialThemeData()
  */
 function scheduled_fetchSMfiles()
 {
-	global $sourcedir, $txt, $language, $forum_version, $modSettings, $smcFunc, $context;
+	global $sourcedir, $txt, $language, $modSettings, $smcFunc, $context;
 
 	// What files do we want to get
 	$request = $smcFunc['db_query']('', '
@@ -1235,7 +1034,7 @@ function scheduled_fetchSMfiles()
 		$js_files[$row['id_file']] = array(
 			'filename' => $row['filename'],
 			'path' => $row['path'],
-			'parameters' => sprintf($row['parameters'], $language, urlencode($modSettings['time_format']), urlencode($forum_version)),
+			'parameters' => sprintf($row['parameters'], $language, urlencode($modSettings['time_format']), urlencode(SMF_FULL_VERSION)),
 		);
 	}
 
@@ -1492,6 +1291,9 @@ function scheduled_weekly_maintenance()
 	// Prevent stale minimized CSS and JavaScript from cluttering up the theme directories
 	deleteAllMinified();
 
+	// Maybe there's more to do.
+	call_integration_hook('integrate_weekly_maintenance');
+
 	return true;
 }
 
@@ -1586,7 +1388,7 @@ function scheduled_paid_subscriptions()
 				'is_read' => 0,
 				'extra' => $smcFunc['json_encode'](array(
 					'subscription_name' => $row['name'],
-					'end_time' => strip_tags(timeformat($row['end_time'])),
+					'end_time' => $row['end_time'],
 				)),
 			);
 			updateMemberData($row['id_member'], array('alerts' => '+'));

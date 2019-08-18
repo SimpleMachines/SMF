@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -20,6 +20,7 @@ if (!defined('SMF'))
 
 /**
  * This helps organize things...
+ *
  * @todo this should be a simple dispatcher....
  */
 function MessageMain()
@@ -195,7 +196,6 @@ function MessageMain()
 		'manrules' => 'ManageRules',
 		'pmactions' => 'MessageActionsApply',
 		'prune' => 'MessagePrune',
-		'removeall' => 'MessageKillAllQuery',
 		'removeall2' => 'MessageKillAll',
 		'report' => 'ReportMessage',
 		'search' => 'MessageSearch',
@@ -687,27 +687,27 @@ function MessageFolder()
 		}
 
 		$request = $smcFunc['db_query']('', '
-				SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
-				FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
+			SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
+			FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
 				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
 				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
 					AND pmr.id_member = {int:current_member}
 					AND pmr.deleted = {int:deleted_by}
 					' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ('
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:pm_member})') : '') . '
-				WHERE ' . ($context['folder'] == 'sent' ? 'pm.id_member_from = {int:current_member}
-					AND pm.deleted_by_sender = {int:deleted_by}' : '1=1') . (empty($pmsg) ? '' : '
-					AND pm.id_pm = {int:pmsg}') . $labelQuery2 . '
-				GROUP BY pm.id_pm_head'.($_GET['sort'] != 'pm.id_pm' ? ',' . $_GET['sort'] : '') . '
-				ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($_GET['pmsg']) ? '
-				LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
-				array(
-					'current_member' => $user_info['id'],
-					'deleted_by' => 0,
-					'sort' => $_GET['sort'],
-					'pm_member' => $context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
-					'pmsg' => isset($pmsg) ? (int) $pmsg : 0,
-				)
+			WHERE ' . ($context['folder'] == 'sent' ? 'pm.id_member_from = {int:current_member}
+				AND pm.deleted_by_sender = {int:deleted_by}' : '1=1') . (empty($pmsg) ? '' : '
+				AND pm.id_pm = {int:pmsg}') . $labelQuery2 . '
+			GROUP BY pm.id_pm_head' . ($_GET['sort'] != 'pm.id_pm' ? ',' . $_GET['sort'] : '') . '
+			ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($_GET['pmsg']) ? '
+			LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
+			array(
+				'current_member' => $user_info['id'],
+				'deleted_by' => 0,
+				'sort' => $_GET['sort'],
+				'pm_member' => $context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
+				'pmsg' => isset($pmsg) ? (int) $pmsg : 0,
+			)
 		);
 	}
 	// This is kinda simple!
@@ -790,7 +790,7 @@ function MessageFolder()
 					INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)
 				WHERE pm.id_pm_head = {int:id_pm_head}
 					AND ((pm.id_member_from = {int:current_member} AND pm.deleted_by_sender = {int:not_deleted})
-						OR (pmr.id_member = {int:current_member} AND pmr.deleted = {int:not_deleted}))
+					OR (pmr.id_member = {int:current_member} AND pmr.deleted = {int:not_deleted}))
 				ORDER BY pm.id_pm',
 				array(
 					'current_member' => $user_info['id'],
@@ -1099,6 +1099,51 @@ function prepareMessageContext($type = 'subject', $reset = false)
 			$output['custom_fields'][$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 
 	call_integration_hook('integrate_prepare_pm_context', array(&$output, &$message, $counter));
+
+	$output['quickbuttons'] = array(
+		'reply_to_all' => array(
+			'label' => $txt['reply_to_all'],
+			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';quote;u=all',
+			'icon' => 'reply_all_button',
+			'show' => $context['can_send_pm'] && !$output['member']['is_guest'] && $output['number_recipients'] > 1
+		),
+		'reply' => array(
+			'label' => $txt['reply'],
+			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';u='.$output['member']['id'],
+			'icon' => 'reply_button',
+			'show' => $context['can_send_pm'] && !$output['member']['is_guest']
+		),
+		'quote' => array(
+			'label' => $txt['quote_action'],
+			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';quote'.($context['folder'] == 'sent' ? '' : ';u=' .$output['member']['id']),
+			'icon' => 'quote',
+			'show' => $context['can_send_pm'] && !$output['member']['is_guest']
+		),
+		'reply_quote' => array(
+			'label' => $txt['reply_quote'],
+			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';quote',
+			'icon' => 'quote',
+			'show' => $context['can_send_pm'] && $output['member']['is_guest']
+		),
+		'delete' => array(
+			'label' => $txt['delete'],
+			'href' => $scripturl.'?action=pm;sa=pmactions;pm_actions%5b'.$output['id'].'%5D=delete;f='.$context['folder'].';start='.$context['start'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';'.$context['session_var'].'='.$context['session_id'],
+			'javascript' => 'data-confirm="'.addslashes($txt['remove_message_question']).'" class="you_sure"',
+			'icon' => 'remove_button',
+		),
+		'more' => array(
+			'report' => array(
+				'label' => $txt['pm_report_to_admin'],
+				'href' => $scripturl .'?action=pm;sa=report;l=' .$context['current_label_id'] .';pmsg=' .$output['id'],
+				'icon' => 'error',
+				'show' => $output['can_report']
+			),
+		),
+		'quickmod' => array(
+			'content' => '<input type="checkbox" name="pms[]" id="deletedisplay'.$output['id'].'" value="'.$output['id'].'" onclick="document.getElementById(\'deletelisting'.$output['id'].'\').checked = this.checked;">',
+			'show' => empty($context['display_mode'])
+		)
+	);
 
 	return $output;
 }
@@ -2148,6 +2193,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 		{
 			if ($error_type == 'long_message')
 				$txt['error_' . $error_type] = sprintf($txt['error_' . $error_type], $modSettings['max_messageLength']);
+
 			$context['post_error']['messages'][] = $txt['error_' . $error_type];
 		}
 
@@ -2365,7 +2411,7 @@ function MessagePost2()
 		preparsecode($message);
 
 		// Make sure there's still some content left without the tags.
-		if ($smcFunc['htmltrim'](strip_tags(parse_bbc($smcFunc['htmlspecialchars']($message, ENT_QUOTES), false), '<img>')) === '' && (!allowedTo('admin_forum') || strpos($message, '[html]') === false))
+		if ($smcFunc['htmltrim'](strip_tags(parse_bbc($smcFunc['htmlspecialchars']($message, ENT_QUOTES), false), '<img>')) === '' && (!allowedTo('bbc_html') || strpos($message, '[html]') === false))
 			$post_errors[] = 'no_message';
 	}
 
@@ -2489,6 +2535,7 @@ function MessagePost2()
 	// Go back to the where they sent from, if possible...
 	redirectexit($context['current_label_redirect']);
 }
+
 /**
  * This function performs all additional stuff...
  */
@@ -2666,7 +2713,7 @@ function MessageActionsApply()
 				// How many labels do you have?
 				list ($num_labels) = $smcFunc['db_fetch_assoc']($request2);
 
-				if ($num_labels > 0);
+				if ($num_labels > 0)
 					$context['can_remove_inbox'] = true;
 
 				$smcFunc['db_free_result']($request2);
@@ -2681,7 +2728,7 @@ function MessageActionsApply()
 				// If this label is in the list and we're not adding it, remove it
 				if (array_key_exists($to_label[$row['id_pm']], $labels) && $type !== 'add')
 					unset($labels[$to_label[$row['id_pm']]]);
-				else if ($type !== 'rem')
+				elseif ($type !== 'rem')
 					$labels[$to_label[$row['id_pm']]] = $to_label[$row['id_pm']];
 			}
 
@@ -2755,36 +2802,15 @@ function MessageActionsApply()
 }
 
 /**
- * Are you sure you want to PERMANENTLY (mostly) delete ALL your messages?
- */
-function MessageKillAllQuery()
-{
-	global $txt, $context;
-
-	// Only have to set up the template....
-	$context['sub_template'] = 'ask_delete';
-	$context['page_title'] = $txt['delete_all'];
-	$context['delete_all'] = $_REQUEST['f'] == 'all';
-
-	// And set the folder name...
-	$txt['delete_all'] = str_replace('PMBOX', $context['folder'] != 'sent' ? $txt['inbox'] : $txt['sent_items'], $txt['delete_all']);
-}
-
-/**
  * Delete ALL the messages!
  */
 function MessageKillAll()
 {
 	global $context;
 
-	checkSession('get');
+	checkSession();
 
-	// If all then delete all messages the user has.
-	if ($_REQUEST['f'] == 'all')
-		deleteMessages(null, null);
-	// Otherwise just the selected folder.
-	else
-		deleteMessages(null, $_REQUEST['f'] != 'sent' ? 'inbox' : 'sent');
+	deleteMessages(null, null);
 
 	// Done... all gone.
 	redirectexit($context['current_label_redirect']);
@@ -2961,7 +2987,7 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 		$get_labels = $smcFunc['db_query']('', '
 			SELECT pml.id_label
 			FROM {db_prefix}pm_labels AS l
-			INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
+				INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
 			WHERE l.id_member IN ({array_int:member_list})' . $where,
 			array(
 				'member_list' => $owner,
@@ -3389,7 +3415,7 @@ function ManageLabels()
 				$smcFunc['db_query']('', '
 					DELETE FROM {db_prefix}pm_rules
 					WHERE id_rule IN ({array_int:rule_list})
-							AND id_member = {int:current_member}',
+						AND id_member = {int:current_member}',
 					array(
 						'current_member' => $user_info['id'],
 						'rule_list' => $rule_changes,
@@ -3619,7 +3645,7 @@ function ReportMessage()
 				$report_body .= "\n" . '[b]' . $_POST['reason'] . '[/b]' . "\n\n";
 				if (!empty($recipients))
 					$report_body .= $txt['pm_report_pm_other_recipients'] . ' ' . implode(', ', $recipients) . "\n\n";
-				$report_body .= $txt['pm_report_pm_unedited_below'] . "\n" . '[quote author=' . (empty($memberFromID) ? '&quot;' . $memberFromName . '&quot;' : $memberFromName . ' link=action=profile;u=' . $memberFromID . ' date=' . $time) . ']' . "\n" . un_htmlspecialchars($body) . '[/quote]';
+				$report_body .= $txt['pm_report_pm_unedited_below'] . "\n" . '[quote author=' . (empty($memberFromID) ? '"' . $memberFromName . '"' : $memberFromName . ' link=action=profile;u=' . $memberFromID . ' date=' . $time) . ']' . "\n" . un_htmlspecialchars($body) . '[/quote]';
 
 				// Plonk it in the array ;)
 				$messagesToSend[$cur_language] = array(
@@ -3807,7 +3833,7 @@ function ManageRules()
 		foreach ($_POST['acttype'] as $ind => $type)
 		{
 			// Picking a valid label?
-			if ($type == 'lab' && (!isset($_POST['labdef'][$ind]) || !isset($context['labels'][$_POST['labdef'][$ind]])))
+			if ($type == 'lab' && (!ctype_digit((string) $ind) || !isset($_POST['labdef'][$ind]) || !isset($context['labels'][$_POST['labdef'][$ind]])))
 				continue;
 
 			// Record what we're doing.
@@ -3948,6 +3974,7 @@ function ApplyRules($all_messages = false)
 							// Get a basic pot started!
 							if (!isset($actions['labels'][$row['id_pm']]))
 								$actions['labels'][$row['id_pm']] = array();
+
 							$actions['labels'][$row['id_pm']][] = $ruleAction['v'];
 						}
 					}
@@ -4088,19 +4115,19 @@ function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 	{
 		case 'inbox':
 			return !empty($validationResult['valid_for_inbox']);
-		break;
+			break;
 
 		case 'outbox':
 			return !empty($validationResult['valid_for_outbox']);
-		break;
+			break;
 
 		case 'in_or_outbox':
 			return !empty($validationResult['valid_for_inbox']) || !empty($validationResult['valid_for_outbox']);
-		break;
+			break;
 
 		default:
 			trigger_error('Undefined validation type given', E_USER_ERROR);
-		break;
+			break;
 	}
 }
 

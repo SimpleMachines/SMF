@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -36,9 +36,6 @@ function ViewMembers()
 		'search' => array('SearchMembers', 'moderate_forum'),
 		'query' => array('ViewMemberlist', 'moderate_forum'),
 	);
-
-	// Default to sub action 'index' or 'settings' depending on permissions.
-	$context['current_subaction'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'all';
 
 	// Load the essentials.
 	loadLanguage('ManageMembers');
@@ -102,6 +99,9 @@ function ViewMembers()
 	// Call our hook now, letting customizations add to the subActions and/or modify $context as needed.
 	call_integration_hook('integrate_manage_members', array(&$subActions));
 
+	// Default to sub action 'index' or 'settings' depending on permissions.
+	$context['current_subaction'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'all';
+
 	// We know the sub action, now we know what you're allowed to do.
 	isAllowedTo($subActions[$context['current_subaction']][1]);
 
@@ -132,9 +132,6 @@ function ViewMemberlist()
 {
 	global $txt, $scripturl, $context, $modSettings, $sourcedir, $smcFunc, $user_info;
 
-	// Set the current sub action.
-	$context['sub_action'] = $_REQUEST['sa'];
-
 	// Are we performing a delete?
 	if (isset($_POST['delete_members']) && !empty($_POST['delete']) && allowedTo('profile_remove_any'))
 	{
@@ -157,7 +154,7 @@ function ViewMemberlist()
 	}
 
 	// Check input after a member search has been submitted.
-	if ($context['sub_action'] == 'query')
+	if ($context['current_subaction'] == 'query')
 	{
 		// Retrieving the membergroups and postgroups.
 		$context['membergroups'] = array(
@@ -263,7 +260,7 @@ function ViewMemberlist()
 		call_integration_hook('integrate_view_members_params', array(&$params));
 
 		$search_params = array();
-		if ($context['sub_action'] == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
+		if ($context['current_subaction'] == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
 			$search_params = $smcFunc['json_decode'](base64_decode($_REQUEST['params']), true);
 		elseif (!empty($_POST))
 		{
@@ -355,7 +352,7 @@ function ViewMemberlist()
 			// INET.
 			elseif ($param_info['type'] == 'inet')
 			{
-				if(count($search_params[$param_name]) === 1)
+				if (count($search_params[$param_name]) === 1)
 				{
 					$query_parts[] = '(' . $param_info['db_fields'][0] . ' = {inet:' . $param_name . '})';
 					$where_params[$param_name] = $search_params[$param_name][0];
@@ -363,10 +360,10 @@ function ViewMemberlist()
 				elseif (count($search_params[$param_name]) === 2)
 				{
 					$query_parts[] = '(' . $param_info['db_fields'][0] . ' <= {inet:' . $param_name . '_high} and ' . $param_info['db_fields'][0] . ' >= {inet:' . $param_name . '_low})';
-					$where_params[$param_name.'_low'] = $search_params[$param_name]['low'];
-					$where_params[$param_name.'_high'] = $search_params[$param_name]['high'];
+					$where_params[$param_name . '_low'] = $search_params[$param_name]['low'];
+					$where_params[$param_name . '_high'] = $search_params[$param_name]['high'];
 				}
-				
+
 			}
 			elseif ($param_info['type'] != 'groups')
 			{
@@ -418,7 +415,7 @@ function ViewMemberlist()
 		$search_url_params = null;
 
 	// Construct the additional URL part with the query info in it.
-	$context['params_url'] = $context['sub_action'] == 'query' ? ';sa=query;params=' . $search_url_params : '';
+	$context['params_url'] = $context['current_subaction'] == 'query' ? ';sa=query;params=' . $search_url_params : '';
 
 	// Get the title and sub template ready..
 	$context['page_title'] = $txt['admin_members'];
@@ -470,7 +467,6 @@ function ViewMemberlist()
 							'member_name' => false,
 						),
 					),
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'member_name',
@@ -523,7 +519,6 @@ function ViewMemberlist()
 							'member_ip' => false,
 						),
 					),
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'member_ip',
@@ -563,7 +558,6 @@ function ViewMemberlist()
 
 						return $difference;
 					},
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'last_login DESC',
@@ -576,7 +570,6 @@ function ViewMemberlist()
 				),
 				'data' => array(
 					'db' => 'posts',
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'posts',
@@ -745,7 +738,7 @@ function MembersAwaitingActivation()
 			);
 		else
 			$context['allowed_actions'] = array(
-				'ok' => $txt['admin_browse_w_approve'],
+				'ok' => $txt['admin_browse_w_approve'] .' '. $txt['admin_browse_no_email'],
 				'okemail' => $txt['admin_browse_w_approve'] . ' ' . $txt['admin_browse_w_email'],
 				'require_activation' => $txt['admin_browse_w_approve_require_activate'],
 				'reject' => $txt['admin_browse_w_reject'],
@@ -785,6 +778,7 @@ function MembersAwaitingActivation()
 				message = "' . $txt['admin_browse_w_delete'] . '";
 			else
 				message = "' . $txt['admin_browse_w_reject'] . '";';
+
 	// Otherwise a nice standard message.
 	else
 		$javascript .= '
@@ -796,6 +790,7 @@ function MembersAwaitingActivation()
 				message = "' . $txt['admin_browse_w_remind'] . '";
 			else
 				message = "' . ($context['browse_type'] == 'approve' ? $txt['admin_browse_w_approve'] : $txt['admin_browse_w_activate']) . '";';
+
 	$javascript .= '
 			if (confirm(message + " ' . $txt['admin_browse_warn'] . '"))
 				document.forms.postForm.submit();
@@ -803,7 +798,6 @@ function MembersAwaitingActivation()
 
 	$listOptions = array(
 		'id' => 'approve_list',
-// 		'title' => $txt['members_approval_title'],
 		'items_per_page' => $modSettings['defaultMaxMembers'],
 		'base_href' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=' . $context['browse_type'] . (!empty($context['show_filter']) ? ';filter=' . $context['current_filter'] : ''),
 		'default_sort_col' => 'date_registered',
@@ -1012,8 +1006,8 @@ function MembersAwaitingActivation()
 	if (!empty($context['show_filter']) && !empty($context['available_filters']))
 		$listOptions['additional_rows'][] = array(
 			'position' => 'above_column_headers',
-			'value' => '<strong>' . $txt['admin_browse_filter_show'] . ':</strong> ' . $context['available_filters'][0]['desc'],
-			'class' => 'smalltext floatright',
+			'value' => '<strong>' . $txt['admin_browse_filter_show'] . ':</strong> ' . ((isset($context['current_filter']) && isset($txt['admin_browse_filter_type_' . $context['current_filter']])) ? $txt['admin_browse_filter_type_' . $context['current_filter']] : $context['available_filters'][0]['desc']),
+			'class' => 'filter_row generic_list_wrapper smalltext',
 		);
 
 	// Now that we have all the options, create the list.

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2018 Simple Machines and individual contributors
+ * @copyright 2019 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 4
+ * @version 2.1 RC2
  */
 
 if (!defined('SMF'))
@@ -26,7 +26,7 @@ if (!defined('SMF'))
  * - shows options for the editing and posting of calendar events and attachments, as well as the posting of polls.
  * - accessed from ?action=post.
  *
- *  @param array $post_errors Holds any errors found while tyring to post
+ * @param array $post_errors Holds any errors found while tyring to post
  */
 function Post($post_errors = array())
 {
@@ -101,7 +101,8 @@ function Post($post_errors = array())
 			WHERE id_msg = {int:msg}',
 			array(
 				'msg' => (int) $_REQUEST['msg'],
-		));
+			)
+		);
 		if ($smcFunc['db_num_rows']($request) != 1)
 			unset($_REQUEST['msg'], $_POST['msg'], $_GET['msg']);
 		else
@@ -165,7 +166,7 @@ function Post($post_errors = array())
 		$context['can_move'] = allowedTo('move_any');
 		// You can only announce topics that will get approved...
 		$context['can_announce'] = allowedTo('announce_topic') && $context['becomes_approved'];
-		$context['show_approval'] = !allowedTo('approve_posts') ? 0 : ($context['becomes_approved'] && !empty($topic_approved) ? 2 : 1);
+		$context['show_approval'] = !allowedTo('approve_posts') ? 0 : ($context['becomes_approved'] ? 2 : 1);
 
 		// We don't always want the request vars to override what's in the db...
 		$context['already_locked'] = $locked;
@@ -283,17 +284,17 @@ function Post($post_errors = array())
 		// Permissions check!
 		isAllowedTo('calendar_post');
 
-		// We want a fairly compact version of the time, but as close as possible to the user's settings.
-		if (preg_match('~%[HkIlMpPrRSTX](?:[^%]*%[HkIlMpPrRSTX])*~', $user_info['time_format'], $matches) == 0 || empty($matches[0]))
-			$time_string = '%k:%M';
-		else
-			$time_string = str_replace(array('%I', '%H', '%S', '%r', '%R', '%T'), array('%l', '%k', '', '%l:%M %p', '%k:%M', '%l:%M'), $matches[0]);
+		require_once($sourcedir . '/Subs-Calendar.php');
 
-		$js_time_string = str_replace(
-			array('%H', '%k', '%I', '%l', '%M', '%p', '%P', '%r',      '%R',  '%S', '%T',    '%X'),
-			array('H',  'G',  'h',  'g',  'i',  'A',  'a',  'h:i:s A', 'H:i', 's',  'H:i:s', 'H:i:s'),
-			$time_string
-		);
+		// We want a fairly compact version of the time, but as close as possible to the user's settings.
+		$time_string = strtr(get_date_or_time_format('time'), array(
+			'%I' => '%l',
+			'%H' => '%k',
+			'%S' => '',
+			'%r' => '%l:%M %p',
+			'%R' => '%k:%M',
+			'%T' => '%l:%M',
+		));
 
 		// Editing an event?  (but NOT previewing!?)
 		if (empty($context['event']['new']) && !isset($_REQUEST['subject']))
@@ -306,14 +307,12 @@ function Post($post_errors = array())
 			}
 
 			// Get the current event information.
-			require_once($sourcedir . '/Subs-Calendar.php');
 			$eventProperties = getEventProperties($context['event']['id']);
 			$context['event'] = array_merge($context['event'], $eventProperties);
 		}
 		else
 		{
 			// Get the current event information.
-			require_once($sourcedir . '/Subs-Calendar.php');
 			$eventProperties = getNewEventDatetimes();
 			$context['event'] = array_merge($context['event'], $eventProperties);
 
@@ -354,54 +353,15 @@ function Post($post_errors = array())
 			$context['all_timezones'] = array($context['event']['tz'] => '[UTC' . date_format($d, 'P') . '] - ' . $context['event']['tz']) + $context['all_timezones'];
 		}
 
-		loadCSSFile('jquery-ui.datepicker.css', array(), 'smf_datepicker');
-		loadCSSFile('jquery.timepicker.css', array(), 'smf_timepicker');
-		loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
-		loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
-		loadJavaScriptFile('datepair.min.js', array('defer' => true), 'smf_datepair');
+		loadDatePicker('#event_time_input .date_input');
+		loadTimePicker('#event_time_input .date_input', $time_string);
+		loadDatePair('#event_time_input', 'date_input', 'time_input');
 		addInlineJavaScript('
 	$("#allday").click(function(){
 		$("#start_time").attr("disabled", this.checked);
 		$("#end_time").attr("disabled", this.checked);
 		$("#tz").attr("disabled", this.checked);
-	});
-	$("#event_time_input .date_input").datepicker({
-		dateFormat: "yy-mm-dd",
-		autoSize: true,
-		isRTL: ' . ($context['right_to_left'] ? 'true' : 'false') . ',
-		constrainInput: true,
-		showAnim: "",
-		showButtonPanel: false,
-		minDate: "' . $modSettings['cal_minyear'] . '-01-01",
-		maxDate: "' . $modSettings['cal_maxyear'] . '-12-31",
-		yearRange: "' . $modSettings['cal_minyear'] . ':' . $modSettings['cal_maxyear'] . '",
-		hideIfNoPrevNext: true,
-		monthNames: ["' . implode('", "', $txt['months_titles']) . '"],
-		monthNamesShort: ["' . implode('", "', $txt['months_short']) . '"],
-		dayNames: ["' . implode('", "', $txt['days']) . '"],
-		dayNamesShort: ["' . implode('", "', $txt['days_short']) . '"],
-		dayNamesMin: ["' . implode('", "', $txt['days_short']) . '"],
-		prevText: "' . $txt['prev_month'] . '",
-		nextText: "' . $txt['next_month'] . '",
-	});
-	$(".time_input").timepicker({
-		timeFormat: "' . $js_time_string . '",
-		showDuration: true,
-		maxTime: "23:59:59",
-	});
-	var date_entry = document.getElementById("event_time_input");
-	var date_entry_pair = new Datepair(date_entry, {
-		timeClass: "time_input",
-		dateClass: "date_input",
-		parseDate: function (el) {
-		    var utc = new Date($(el).datepicker("getDate"));
-		    return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
-		},
-		updateDate: function (el, v) {
-		    $(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
-		}
-	});
-	', true);
+	});	', true);
 
 		$context['event']['board'] = !empty($board) ? $board : $modSettings['cal_defaultboard'];
 		$context['event']['topic'] = !empty($topic) ? $topic : 0;
@@ -486,7 +446,7 @@ function Post($post_errors = array())
 
 		// In order to keep the approval status flowing through, we have to pass it through the form...
 		$context['becomes_approved'] = empty($_REQUEST['not_approved']);
-		$context['show_approval'] = isset($_REQUEST['approve']) ? ($_REQUEST['approve'] ? 2 : 1) : 0;
+		$context['show_approval'] = isset($_REQUEST['approve']) ? ($_REQUEST['approve'] ? 2 : 1) : allowedTo('approve_posts') ? 2 : 0;
 		$context['can_announce'] &= $context['becomes_approved'];
 
 		// Set up the inputs for the form.
@@ -780,9 +740,9 @@ function Post($post_errors = array())
 		$context['use_smileys'] = !empty($row['smileys_enabled']);
 		$context['icon'] = $row['icon'];
 
-		// Show an "approve" box if the user can approve it, and the message isn't approved.
-		if (!$row['approved'] && !$context['show_approval'])
-			$context['show_approval'] = allowedTo('approve_posts');
+		// Leave the approval checkbox unchecked by default for unapproved messages.
+		if (!$row['approved'] && !empty($context['show_approval']))
+			$context['show_approval'] = 1;
 
 		// Sort the attachments so they are in the order saved
 		$temp = array();
@@ -840,9 +800,9 @@ function Post($post_errors = array())
 			$request = $smcFunc['db_query']('', '
 				SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body
 				FROM {db_prefix}messages AS m
-					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-				WHERE m.id_msg = {int:id_msg}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+				WHERE {query_see_message_board}
+					AND m.id_msg = {int:id_msg}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 					AND m.approved = {int:is_approved}') . '
 				LIMIT 1',
 				array(
@@ -1047,7 +1007,7 @@ function Post($post_errors = array())
 					$context['files_in_session_warning'] = $txt['attached_files_in_session'];
 
 				$context['current_attachments'][$attachID] = array(
-					'name' => '<u>' . $smcFunc['htmlspecialchars']($attachment['name']) . '</u>',
+					'name' => $smcFunc['htmlspecialchars']($attachment['name']),
 					'size' => $attachment['size'],
 					'attachID' => $attachID,
 					'unchecked' => false,
@@ -1260,65 +1220,189 @@ function Post($post_errors = array())
 	// quotedText.js
 	loadJavaScriptFile('quotedText.js', array('defer' => true, 'minimize' => true), 'smf_quotedText');
 
-	// Mock files to show already attached files.
 	addInlineJavaScript('
 	var current_attachments = [];');
 
 	if (!empty($context['current_attachments']))
 	{
+		// Mock files to show already attached files.
 		foreach ($context['current_attachments'] as $key => $mock)
 			addInlineJavaScript('
 	current_attachments.push({
-		name: '. JavaScriptEscape($mock['name']) . ',
-		size: '. $mock['size'] . ',
-		attachID: '. $mock['attachID'] . ',
-		approved: '. $mock['approved'] . ',
-		type: '. JavaScriptEscape(!empty($mock['mime_type']) ? $mock['mime_type'] : '') . ',
-		thumbID: '. (!empty($mock['thumb']) ? $mock['thumb'] : 0) . '
+		name: ' . JavaScriptEscape($mock['name']) . ',
+		size: ' . $mock['size'] . ',
+		attachID: ' . $mock['attachID'] . ',
+		approved: ' . $mock['approved'] . ',
+		type: ' . JavaScriptEscape(!empty($mock['mime_type']) ? $mock['mime_type'] : '') . ',
+		thumbID: ' . (!empty($mock['thumb']) ? $mock['thumb'] : 0) . '
 	});');
 	}
 
 	// File Upload.
 	if ($context['can_post_attachment'])
 	{
-		$acceptedFiles = implode(',', array_map(function($val) use($smcFunc) { return '.' . $smcFunc['htmltrim']($val); } , explode(',', $context['allowed_extensions'])));
+		$acceptedFiles = implode(',', array_map(function ($val) use ($smcFunc)
+		{
+			return '.' . $smcFunc['htmltrim']($val);
+		}, explode(',', $context['allowed_extensions'])));
 
 		loadJavaScriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
 		loadJavaScriptFile('smf_fileUpload.js', array('defer' => true, 'minimize' => true), 'smf_fileUpload');
 		addInlineJavaScript('
 	$(function() {
 		smf_fileUpload({
-			dictDefaultMessage : '. JavaScriptEscape($txt['attach_drop_zone']) . ',
-			dictFallbackMessage : '. JavaScriptEscape($txt['attach_drop_zone_no']) . ',
-			dictCancelUpload : '. JavaScriptEscape($txt['modify_cancel']) . ',
-			genericError: '. JavaScriptEscape($txt['attach_php_error']) . ',
-			text_attachLeft: '. JavaScriptEscape($txt['attached_attachedLeft']) . ',
-			text_deleteAttach: '. JavaScriptEscape($txt['attached_file_delete']) . ',
-			text_attachDeleted: '. JavaScriptEscape($txt['attached_file_deleted']) . ',
-			text_insertBBC: '. JavaScriptEscape($txt['attached_insertBBC']) . ',
-			text_attachUploaded: '. JavaScriptEscape($txt['attached_file_uploaded']) . ',
-			text_attach_unlimited: '. JavaScriptEscape($txt['attach_drop_unlimited']) . ',
-			text_totalMaxSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
-			text_max_size_progress: '. JavaScriptEscape($txt['attach_max_size_progress']) . ',
-			dictMaxFilesExceeded: '. JavaScriptEscape($txt['more_attachments_error']) . ',
-			dictInvalidFileType: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) . ',
-			dictFileTooBig: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) . ',
-			acceptedFiles: '. JavaScriptEscape($acceptedFiles) . ',
-			thumbnailWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'null') . ',
-			thumbnailHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'null') . ',
-			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 . ',
-			maxFileAmount: '. (!empty($context['num_allowed_attachments']) ? $context['num_allowed_attachments'] : 'null') . ',
+			dictDefaultMessage : ' . JavaScriptEscape($txt['attach_drop_zone']) . ',
+			dictFallbackMessage : ' . JavaScriptEscape($txt['attach_drop_zone_no']) . ',
+			dictCancelUpload : ' . JavaScriptEscape($txt['modify_cancel']) . ',
+			genericError: ' . JavaScriptEscape($txt['attach_php_error']) . ',
+			text_attachLeft: ' . JavaScriptEscape($txt['attachments_left']) . ',
+			text_deleteAttach: ' . JavaScriptEscape($txt['attached_file_delete']) . ',
+			text_attachDeleted: ' . JavaScriptEscape($txt['attached_file_deleted']) . ',
+			text_insertBBC: ' . JavaScriptEscape($txt['attached_insert_bbc']) . ',
+			text_attachUploaded: ' . JavaScriptEscape($txt['attached_file_uploaded']) . ',
+			text_attach_unlimited: ' . JavaScriptEscape($txt['attach_drop_unlimited']) . ',
+			text_totalMaxSize: ' . JavaScriptEscape($txt['attach_max_total_file_size_current']) . ',
+			text_max_size_progress: ' . JavaScriptEscape($txt['attach_max_size_progress']) . ',
+			dictMaxFilesExceeded: ' . JavaScriptEscape($txt['more_attachments_error']) . ',
+			dictInvalidFileType: ' . JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) . ',
+			dictFileTooBig: ' . JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) . ',
+			acceptedFiles: ' . JavaScriptEscape($acceptedFiles) . ',
+			thumbnailWidth: ' . (!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'null') . ',
+			thumbnailHeight: ' . (!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'null') . ',
+			limitMultiFileUploadSize:' . round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 . ',
+			maxFileAmount: ' . (!empty($context['num_allowed_attachments']) ? $context['num_allowed_attachments'] : 'null') . ',
 			maxTotalSize: ' . (!empty($modSettings['attachmentPostLimit']) ? $modSettings['attachmentPostLimit'] : '0') . ',
-			maxFileSize: '. (!empty($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] : '0') . ',
+			maxFileSize: ' . (!empty($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] : '0') . ',
 		});
 	});', true);
 	}
 
 	// Knowing the current board ID might be handy.
 	addInlineJavaScript('
-	var current_board = '. (empty($context['current_board']) ? 'null' : $context['current_board']) . ';', false);
+	var current_board = ' . (empty($context['current_board']) ? 'null' : $context['current_board']) . ';', false);
 
-	// Now let's set up the fields for the posting form header...
+	/* Now let's set up the fields for the posting form header...
+
+		Each item in $context['posting_fields'] is an array similar to one of
+		the following:
+
+		$context['posting_fields']['foo'] = array(
+			'label' => array(
+				'text' => $txt['foo'], // required
+				'class' => 'foo', // optional
+			),
+			'input' => array(
+				'type' => 'text', // required
+				'attributes' => array(
+					'name' => 'foo', // optional, defaults to posting field's key
+					'value' => $foo,
+					'size' => 80,
+				),
+			),
+		);
+
+		$context['posting_fields']['bar'] = array(
+			'label' => array(
+				'text' => $txt['bar'], // required
+				'class' => 'bar', // optional
+			),
+			'input' => array(
+				'type' => 'select', // required
+				'attributes' => array(
+					'name' => 'bar', // optional, defaults to posting field's key
+				),
+				'options' => array(
+					'option_1' => array(
+						'label' => $txt['option_1'],
+						'value' => '1',
+						'selected' => true,
+					),
+					'option_2' => array(
+						'label' => $txt['option_2'],
+						'value' => '2',
+						'selected' => false,
+					),
+					'opt_group_1' => array(
+						'label' => $txt['opt_group_1'],
+						'options' => array(
+							'option_3' => array(
+								'label' => $txt['option_3'],
+								'value' => '3',
+								'selected' => false,
+							),
+							'option_4' => array(
+								'label' => $txt['option_4'],
+								'value' => '4',
+								'selected' => false,
+							),
+						),
+					),
+				),
+			),
+		);
+
+		$context['posting_fields']['baz'] = array(
+			'label' => array(
+				'text' => $txt['baz'], // required
+				'class' => 'baz', // optional
+			),
+			'input' => array(
+				'type' => 'radio_select', // required
+				'attributes' => array(
+					'name' => 'baz', // optional, defaults to posting field's key
+				),
+				'options' => array(
+					'option_1' => array(
+						'label' => $txt['option_1'],
+						'value' => '1',
+						'selected' => true,
+					),
+					'option_2' => array(
+						'label' => $txt['option_2'],
+						'value' => '2',
+						'selected' => false,
+					),
+				),
+			),
+		);
+
+		The label and input elements are required. The label text and input
+		type are also required. Other elements may be required or optional
+		depending on the situation.
+
+		The input type can be one of the following:
+
+		- text, password, color, date, datetime-local, email, month, number,
+		  range, tel, time, url, or week
+		- textarea
+		- checkbox
+		- select
+		- radio_select
+
+		When the input type is text (etc.), textarea, or checkbox, the
+		'attributes' element is used to specify the initial value and any
+		other HTML attributes that might be necessary for the input field.
+
+		When the input type is select or radio_select, the options element
+		is required in order to list the options that the user can select.
+		For the select type, these will be used to generate a typical select
+		menu. For the radio_select type, they will be used to make a div with
+		some radio buttons in it.
+
+		Each option in the options array is itself an array of attributes. If
+		an option contains a sub-array of more options, then it will be
+		turned into an optgroup in the generated select menu. Note that the
+		radio_select type only supports simple options, not grouped ones.
+
+		Both the label and the input can have a 'before' and/or 'after'
+		element. If used, these define literal HTML strings to be inserted
+		before or after the rest of the content of the label or input.
+
+		Finally, it is possible to define an 'html' element for the label
+		and/or the input. If used, this will override the HTML that would
+		normally be generated in the template file using the other
+		information in the array. This should be avoided if at all possible.
+	*/
 	$context['posting_fields'] = array();
 
 	// Guests must supply their name and email.
@@ -1375,7 +1459,7 @@ function Post($post_errors = array())
 			$context['posting_fields']['board']['input']['options'][$category['name']] = array('options' => array());
 
 			foreach ($category['boards'] as $brd)
-				$context['posting_fields']['board']['input']['options'][$category['name']]['options'][$brd['name']]['attributes'] = array(
+				$context['posting_fields']['board']['input']['options'][$category['name']]['options'][$brd['name']] = array(
 					'value' => $brd['id'],
 					'selected' => (bool) $brd['selected'],
 					'label' => ($brd['child_level'] > 0 ? str_repeat('==', $brd['child_level'] - 1) . '=&gt;' : '') . ' ' . $brd['name'],
@@ -1417,12 +1501,11 @@ function Post($post_errors = array())
 	);
 	foreach ($context['icons'] as $icon)
 	{
-		$context['posting_fields']['icon']['input']['options'][$icon['name']]['attributes'] = array(
+		$context['posting_fields']['icon']['input']['options'][$icon['name']] = array(
 			'value' => $icon['value'],
 			'selected' => $icon['value'] == $context['icon'],
 		);
 	}
-
 
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))
@@ -1544,6 +1627,8 @@ function Post2()
 		$post_errors[] = array('cannot_post_attachment', array($board_info['name']));
 	}
 
+	$can_approve = allowedTo('approve_posts');
+
 	// If this isn't a new topic load the topic info that we need.
 	if (!empty($topic))
 	{
@@ -1569,15 +1654,11 @@ function Post2()
 
 		// Do the permissions and approval stuff...
 		$becomesApproved = true;
-		$topicAndMessageBothUnapproved = false;
 
-		// If the topic is unapproved the message automatically becomes unapproved too.
-		if (empty($topic_info['approved']))
+		// Replies to unapproved topics are unapproved by default (but not for moderators)
+		if (empty($topic_info['approved']) && !$can_approve)
 		{
 			$becomesApproved = false;
-
-			// camelCase fan much? :P
-			$topicAndMessageBothUnapproved = true;
 
 			// Set a nice session var...
 			$_SESSION['becomesUnapproved'] = true;
@@ -1803,7 +1884,6 @@ function Post2()
 		$posterIsGuest = empty($row['id_member']);
 
 		// Can they approve it?
-		$can_approve = allowedTo('approve_posts');
 		$approve_checked = (!empty($REQUEST['approve']) ? 1 : 0);
 		$becomesApproved = $modSettings['postmod_active'] ? ($can_approve && !$row['approved'] ? $approve_checked : $row['approved']) : 1;
 		$approve_has_changed = $row['approved'] != $becomesApproved;
@@ -1823,10 +1903,9 @@ function Post2()
 	}
 
 	// In case we have approval permissions and want to override.
-	if (allowedTo('approve_posts') && $modSettings['postmod_active'])
+	if ($can_approve && $modSettings['postmod_active'])
 	{
-		// If 'approve' wasn't specified, assume true for these users
-		$becomesApproved = !isset($_REQUEST['approve']) || !empty($_REQUEST['approve']) ? 1 : 0;
+		$becomesApproved = isset($_POST['quickReply']) || !empty($_REQUEST['approve']) ? 1 : 0;
 		$approve_has_changed = isset($row['approved']) ? $row['approved'] != $becomesApproved : false;
 	}
 
@@ -1886,7 +1965,7 @@ function Post2()
 		preparsecode($_POST['message']);
 
 		// Let's see if there's still some content left without the tags.
-		if ($smcFunc['htmltrim'](strip_tags(parse_bbc($_POST['message'], false), implode('', $context['allowed_html_tags']))) === '' && (!allowedTo('admin_forum') || strpos($_POST['message'], '[html]') === false))
+		if ($smcFunc['htmltrim'](strip_tags(parse_bbc($_POST['message'], false), implode('', $context['allowed_html_tags']))) === '' && (!allowedTo('bbc_html') || strpos($_POST['message'], '[html]') === false))
 			$post_errors[] = 'no_message';
 
 	}
@@ -2039,7 +2118,7 @@ function Post2()
 		if (!empty($context['we_are_history']))
 			$attach_errors[] = '<dd>' . $txt['error_temp_attachments_flushed'] . '<br><br></dd>';
 
-		foreach ($_SESSION['temp_attachments'] as  $attachID => $attachment)
+		foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 		{
 			if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . $user_info['id']) === false)
 				continue;
@@ -2584,6 +2663,7 @@ function AnnouncementSend()
 
 	foreach ($rows as $row)
 	{
+		$context['start'] = $row['id_member'];
 		// Force them to have it?
 		if (empty($prefs[$row['id_member']]['announcements']))
 			continue;
@@ -2610,7 +2690,6 @@ function AnnouncementSend()
 		}
 
 		$announcements[$cur_language]['recipients'][$row['id_member']] = $row['email_address'];
-		$context['start'] = $row['id_member'];
 	}
 
 	// For each language send a different mail - low priority...
@@ -2708,18 +2787,15 @@ function QuoteFast()
 
 	$moderate_boards = boardsAllowedTo('moderate_board');
 
-	// Where we going if we need to?
-	$context['post_box_name'] = isset($_GET['pb']) ? $_GET['pb'] : '';
-
 	$request = $smcFunc['db_query']('', '
 		SELECT COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body, m.id_topic, m.subject,
 			m.id_board, m.id_member, m.approved, m.modified_time, m.modified_name, m.modified_reason
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-		WHERE m.id_msg = {int:id_msg}' . (isset($_REQUEST['modify']) || (!empty($moderate_boards) && $moderate_boards[0] == 0) ? '' : '
-			AND (t.locked = {int:not_locked}' . (empty($moderate_boards) ? '' : ' OR b.id_board IN ({array_int:moderation_board_list})') . ')') . '
+		WHERE {query_see_message_board}
+			AND m.id_msg = {int:id_msg}' . (isset($_REQUEST['modify']) || (!empty($moderate_boards) && $moderate_boards[0] == 0) ? '' : '
+			AND (t.locked = {int:not_locked}' . (empty($moderate_boards) ? '' : ' OR m.id_board IN ({array_int:moderation_board_list})') . ')') . '
 		LIMIT 1',
 		array(
 			'current_member' => $user_info['id'],
@@ -2743,8 +2819,6 @@ function QuoteFast()
 
 		// Censor the message!
 		censorText($row['body']);
-
-		$row['body'] = preg_replace('~<br ?/?' . '>~i', "\n", $row['body']);
 
 		// Want to modify a single message by double clicking it?
 		if (isset($_REQUEST['modify']))

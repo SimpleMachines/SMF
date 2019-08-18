@@ -1,20 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 	<meta charset="UTF-8">
 	<title>SMF 2.1 Install and Upgrade Guide</title>
-	<link rel="stylesheet" href="../Themes/default/css/index.css?fin20" />
+	<link rel="stylesheet" href="Themes/default/css/index.css?fin20"/>
 	<style>
-		#upper_section .user {
-			height: 1em;
-		}
-		#upper_section .news {
-			height: 1em;
-		}
 		#main_screen {
 			padding: 0 40px;
 		}
-		#main_screen h2	{
+		#main_screen h2 {
 			font-size: 2em;
 			border-bottom: solid 1px #d05800;
 			line-height: 2em;
@@ -47,12 +41,10 @@
 			font-weight: normal;
 			line-height: 1.6em;
 		}
-		tt {
-			font-family: verdana, sans-serif;
-			letter-spacing: 1px;
+		.tt {
 			font-weight: bold;
-			font-size: 90%;
 			font-style: italic;
+			letter-spacing: 0.5px;
 		}
 		dt {
 			font-weight: bold;
@@ -69,303 +61,317 @@
 			margin-left: 2em;
 			margin-bottom: .1em;
 		}
-		input, #main_content_section {
-			display: none;
+		#main_content_section ul, #main_content_section ol {
+			padding-left: 2em;
+			list-style: disc;
 		}
-		input:checked ~ #main_content_section {
-			display: block;
+		#main_content_section ul ul, #main_content_section ol ol {
+			list-style: circle;
+		}
+		#footer {
+			text-align: center;
 		}
 	</style>
 </head>
 <body>
-	<div id="header">
-		<h1 class="forumtitle">SMF 2.1 Install and Upgrade Guide</h1>
-		<img id="smflogo" src="../Themes/default/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum" />
-	</div>
-	<div id="wrapper">
-		<div id="upper_section" class="middletext" style="overflow: hidden;">
-			<div id="inner_section">
-				<label for="install" class="button">Install Guide</label><label for="upgrade" class="button">Upgrade Guide</label>
-			</div>
+	<div id="footerfix">
+		<div id="header">
+			<h1 class="forumtitle">SMF 2.1 Install and Upgrade Guide</h1>
+			<img id="smflogo" src="Themes/default/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum"/>
 		</div>
-		<input type="radio" name="install_upgrade" id="install" checked>
-		<div id="main_content_section">
-			<div class="panel">
-				<h2 id="contents">Installing your forum</h2>
-				<p>Thank you for deciding to use, or at least try, <a href="https://www.simplemachines.org/smf/">SMF</a>.  Before you get started, please remember that there is <a href="https://www.simplemachines.org/community/index.php">a place for help at www.simplemachines.org</a> if you run into any problems at all.</p>
-				<p>If you are looking to upgrade an installation of SMF, or convert from YaBB SE, you may have downloaded the wrong package.  Please check <a href="https://download.simplemachines.org/">the downloads page</a> for more information.</p>
-				<p>You can find the following information in this file:</p>
-				<ul style="list-style-type: none;">
-					<li>&raquo; <a href="#requirements">Minimum installation requirements</a></li>
-					<li>&raquo; <a href="#recommendations">Recommendations for best performance</a></li>
-					<li>&raquo; <a href="#uploadingftp">Upload files method 1: manually uploading files</a></li>
-					<li>&raquo; <a href="#Set_File_Permissions">Set file permissions</a></li>
-					<li>&raquo; <a href="#Create_a_Database_and_a_Database_User">Create a database and a database user</a></li>
-					<li>&raquo; <a href="#Run_the_installer">Run the installer</a></li>
-					<li>&raquo; <a href="#finishing">Finishing the installation and cleaning up.</a></li>
-				</ul>
+		<div id="wrapper">
+			<div id="upper_section" class="middletext" style="overflow: hidden;">
+				<div id="inner_section">
+					<a href="javascript:void(0)" class="button" onclick="document.getElementById('install_guide').classList.remove('hidden');document.getElementById('upgrade_guide').classList.add('hidden');">Install Guide</a>
+					<a href="javascript:void(0)" class="button" onclick="document.getElementById('install_guide').classList.add('hidden');document.getElementById('upgrade_guide').classList.remove('hidden');">Upgrade Guide</a>
+				</div>
 			</div>
-			<div class="panel">
-				<h2 id="requirements">Minimum installation requirements</h2>
-				<p>Your server must meet a few requirements to be able to run SMF.  If you are unsure as to whether your webserver meets these, please try to upgrade anyway - it should detect any problems.</p>
-				<ul>
-					<li>Any webserver that properly supports PHP, such as <a href="https://httpd.apache.org/" target="_blank" rel="noopener">Apache</a> or <a href="https://www.microsoft.com/iis" target="_blank" rel="noopener">Internet Information Services (IIS)</a>.</li>
-					<li>
-						<a href="https://php.net" target="_blank" rel="noopener">PHP</a> 5.3.8 or higher.  The following directives are required to be set correctly in php.ini:
-						<ul>
-							<li>the engine directive must be On.</li>
-							<li>the <a href="https://php.net/sybase#ini.magic-quotes-sybase" target="_blank" rel="noopener">magic_quotes_sybase</a> directive must be set to Off.</li>
-							<li>the <a href="https://php.net/session#ini.session.save-path" target="_blank" rel="noopener">session.save_path</a> directive must be set to a valid directory.</li>
-							<li>the <a href="https://php.net/manual/en/ini.core.php#ini.file-uploads" target="_blank" rel="noopener">file_uploads</a> directive must be On.</li>
-							<li>the <a href="https://php.net/manual/en/ini.core.php#ini.upload-tmp-dir" target="_blank" rel="noopener">upload_tmp_dir</a> must be set to a valid directory.</li>
+			<div id="main_content_section">
+				<div id="install_guide">
+					<div class="panel">
+						<h2 id="i_contents">Installing your forum</h2>
+						<p>Thank you for deciding to use, or at least try, <a href="https://www.simplemachines.org/smf/">SMF</a>.  Before you get started, please remember that there is <a href="https://www.simplemachines.org/community/index.php">a place for help at www.simplemachines.org</a> if you run into any problems at all.</p>
+						<p>If you are looking to upgrade an installation of SMF, or convert from YaBB SE, you may have downloaded the wrong package.  Please check <a href="https://download.simplemachines.org/">the downloads page</a> for more information.</p>
+						<p>You can find the following information in this file:</p>
+						<ul style="list-style-type: none;">
+							<li>&raquo; <a href="#i_requirements">Minimum installation requirements</a></li>
+							<li>&raquo; <a href="#i_recommendations">Recommendations for best performance</a></li>
+							<li>&raquo; <a href="#i_uploadingftp">Upload files method 1: manually uploading files</a></li>
+							<li>&raquo; <a href="#i_Set_File_Permissions">Set file permissions</a></li>
+							<li>&raquo; <a href="#i_Create_a_Database_and_a_Database_User">Create a database and a database user</a></li>
+							<li>&raquo; <a href="#i_Run_the_installer">Run the installer</a></li>
+							<li>&raquo; <a href="#i_finishing">Finishing the installation and cleaning up.</a></li>
 						</ul>
-					</li>
-					<li>Any of the following database systems
+					</div>
+					<div class="panel">
+						<h2 id="i_requirements">Minimum installation requirements</h2>
+						<p>Your server must meet a few requirements to be able to run SMF.  If you are unsure as to whether your webserver meets these, please try to upgrade anyway - it should detect any problems.</p>
 						<ul>
-							<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 5.0.3 or higher.</li>
-							<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 8.0 or higher.</li>
-						</ul>
-					</li>
-					<li>at least 2 megabytes of storage space in the database, although more is highly recommended.</li>
-					<li>The database user must have at least the following privileges: SELECT, INSERT, UPDATE, DELETE, ALTER, and INDEX.</li>
-					<li>about 20 megabytes of storage space on the web server, although more is recommended.</li>
-				</ul><br />
-				<h2 id="recommendations">Recommendations for best performance</h2>
-				<ul>
-					<li>Windows, <a href="https://www.linux.org/" target="_blank" rel="noopener">Linux</a> or another Unix based operating system.</li>
-					<li>the <a href="http://aspell.net/" target="_blank" rel="noopener">GNU Aspell</a> 0.50 or higher and <a href="https://ftp.gnu.org/gnu/aspell/dict/" target="_blank" rel="noopener">its dictionaries</a> for spell checking functionality.</li>
-					<li><a href="https://httpd.apache.org/" target="_blank" rel="noopener">Apache</a> 2.0.0 or higher with <a href="https://httpd.apache.org/docs-2.0/mod/core.html#acceptpathinfo" target="_blank" rel="noopener">AcceptPathInfo</a> set to On (Apache 2 and later only) for queryless URL support.</li>
-					<li>
-						<a href="https://php.net" target="_blank" rel="noopener">PHP</a> 5.3.8 or higher, with the following set in php.ini:
+							<li>Any webserver that properly supports PHP, such as <a href="https://httpd.apache.org/" target="_blank" rel="noopener">Apache</a> or <a href="https://www.microsoft.com/iis" target="_blank" rel="noopener">Internet Information Services (IIS)</a>.</li>
+							<li>
+								<a href="https://php.net" target="_blank" rel="noopener">PHP</a> 5.4.0 or higher.  The following directives are required to be set correctly in php.ini:
+								<ul>
+									<li>the engine directive must be On.</li>
+									<li>the <a href="https://php.net/sybase#ini.magic-quotes-sybase" target="_blank" rel="noopener">magic_quotes_sybase</a> directive must be set to Off.</li>
+									<li>the <a href="https://php.net/session#ini.session.save-path" target="_blank" rel="noopener">session.save_path</a> directive must be set to a valid directory.</li>
+									<li>the <a href="https://php.net/manual/en/ini.core.php#ini.file-uploads" target="_blank" rel="noopener">file_uploads</a> directive must be On.</li>
+									<li>the <a href="https://php.net/manual/en/ini.core.php#ini.upload-tmp-dir" target="_blank" rel="noopener">upload_tmp_dir</a> must be set to a valid directory.</li>
+								</ul>
+							</li>
+							<li>Any of the following database systems
+								<ul>
+									<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 5.0.22/5.1.10 or higher.</li>
+									<li><a href="https://mariadb.com/" target="_blank" rel="noopener">MariaDB</a> 5.1.10 or higher.</li>
+									<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 9.4 or higher.</li>
+								</ul>
+							</li>
+							<li>at least 2 megabytes of storage space in the database, although more is highly recommended.</li>
+							<li>The database user must have at least the following privileges: SELECT, INSERT, UPDATE, DELETE, ALTER, CREATE, DROP, TRUNCATE and INDEX.</li>
+							<li>about 20 megabytes of storage space on the web server, although more is recommended.</li>
+						</ul><br />
+						<h2 id="i_recommendations">Recommendations for best performance</h2>
 						<ul>
-							<li>the <a href="https://php.net/manual/en/info.configuration.php#ini.max-input-time" target="_blank" rel="noopener">max_input_time</a> directive is set to a value of at least 30.</li>
-							<li>the <a href="https://php.net/manual/en/ini.core.php#ini.post-max-size" target="_blank" rel="noopener">post_max_size</a> and <a href="https://php.net/configuration.directives#ini.upload-max-filesize" target="_blank" rel="noopener">upload_max_filesize</a> directives set to the size of the largest attachments you wish to be able to upload.</li>
-							<li>the <a href="https://php.net/session#ini.session.use-trans-sid" target="_blank" rel="noopener">session.use_trans_sid</a> directive set to Off.</li>
-							<li>the <a href="https://php.net/manual/en/ini.core.php#ini.memory-limit" target="_blank" rel="noopener">memory_limit</a> directive is set to at least 8M.</li>
-							<li>the <a href="https://php.net/manual/en/info.configuration.php#ini.max-execution-time" target="_blank" rel="noopener">max_execution_time</a> directive is set to at least 15.</li>
-							<li>the <a href="https://php.net/manual/en/ini.core.php#ini.register-globals" target="_blank" rel="noopener">register_globals</a> directive is set to Off.</li>
-							<li>the <a href="https://php.net/manual/en/features.safe-mode.php" target="_blank" rel="noopener">safe mode</a> disabled or <a href="https://httpd.apache.org/docs/2.0/suexec.html" target="_blank" rel="noopener">suEXEC</a> ensabled.</li>
+							<li>Windows, <a href="https://www.linux.org/" target="_blank" rel="noopener">Linux</a> or another Unix based operating system.</li>
+							<li>the <a href="http://aspell.net/" target="_blank" rel="noopener">GNU Aspell</a> 0.50 or higher and <a href="https://ftp.gnu.org/gnu/aspell/dict/" target="_blank" rel="noopener">its dictionaries</a> for spell checking functionality.</li>
+							<li><a href="https://httpd.apache.org/" target="_blank" rel="noopener">Apache</a> 2.0.0 or higher with <a href="https://httpd.apache.org/docs-2.0/mod/core.html#acceptpathinfo" target="_blank" rel="noopener">AcceptPathInfo</a> set to On (Apache 2 and later only) for queryless URL support.</li>
+							<li>
+								<a href="https://php.net" target="_blank" rel="noopener">PHP</a> 7.0.0 or higher, with the following set in php.ini:
+								<ul>
+									<li>the <a href="https://php.net/manual/en/info.configuration.php#ini.max-input-time" target="_blank" rel="noopener">max_input_time</a> directive is set to a value of at least 30.</li>
+									<li>the <a href="https://php.net/manual/en/ini.core.php#ini.post-max-size" target="_blank" rel="noopener">post_max_size</a> and <a href="https://php.net/configuration.directives#ini.upload-max-filesize" target="_blank" rel="noopener">upload_max_filesize</a> directives set to the size of the largest attachments you wish to be able to upload.</li>
+									<li>the <a href="https://php.net/session#ini.session.use-trans-sid" target="_blank" rel="noopener">session.use_trans_sid</a> directive set to Off.</li>
+									<li>the <a href="https://php.net/manual/en/ini.core.php#ini.memory-limit" target="_blank" rel="noopener">memory_limit</a> directive is set to at least 8M.</li>
+									<li>the <a href="https://php.net/manual/en/info.configuration.php#ini.max-execution-time" target="_blank" rel="noopener">max_execution_time</a> directive is set to at least 15.</li>
+									<li>the <a href="https://php.net/manual/en/ini.core.php#ini.register-globals" target="_blank" rel="noopener">register_globals</a> directive is set to Off.</li>
+									<li>the <a href="https://php.net/manual/en/features.safe-mode.php" target="_blank" rel="noopener">safe mode</a> disabled or <a href="https://httpd.apache.org/docs/2.0/suexec.html" target="_blank" rel="noopener">suEXEC</a> enabled.</li>
+								</ul>
+							</li>
+							<li>Any of the following database systems
+								<ul>
+									<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 8.0 or higher.</li>
+									<li><a href="https://mariadb.com/" target="_blank" rel="noopener">MariaDB</a> 10.2 or higher.</li>
+									<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 9.5 or higher.</li>
+								</ul>
+							</li>
+							<li><a href="https://boutell.com/gd/" target="_blank" rel="noopener">GD Graphics Library</a> 2.0 or higher.</li>
 						</ul>
-					</li>
-					<li>Any of the following database systems
+						<p>If your server does not meet these requirements, SMF may not work properly.</p>
+					</div>
+					<div class="panel">
+						<h2 id="i_uploadingftp">Upload files method 1: manually uploading files</h2>
+						<p>The first thing you need to do is upload all of the files in this package, excluding this file itself, to your server.  You can upload it to any directory accessible by URL, but if you're not sure where to put it, a directory named &quot;forum&quot; is a good choice.  You may wish to make sure that all of the folders were uploaded, such as <span class="tt">Themes/default/languages</span>, because some FTP clients have been known to drop files.</p>
+						<p>If you want or need to install any languages other than English, download the corresponding versions from the download page, and upload them to the same directory you uploaded SMF to.  This should put additional files in <span class="tt">Themes/default/languages</span> and, in most cases, <span class="tt">Themes/default/images</span>.</p>
+						<h3>Language files</h3>
+						<p>If you are using additional languages it will be useful to upload also the updated versions of the language files along with the upgrading packages. Doing so all updated text strings will appear correctly after the upgrade, and will allow the upgrade to run in your selected language.</p>
+					</div>
+					<div class="panel">
+						<h2 id="i_Set_File_Permissions">Set file permissions</h2>
+						<p>After the install archive has been uploaded and extracted, you need to set the files' permissions. This is commonly done by use of the Unix utility <strong>CHMOD</strong>. The correct CHMOD value for SMF files is either 777, 775 or 755, depending on your hosting service. There are two methods for this step, the method used depends on the hosting service that you use.</p>
+						<h3>Setting File Permissions With the Installer</h3>
+						<p>The SMF installer can set file permissions simply and easily. Navigating to the directory where SMF is located should redirect you to the install.php file and prompt the installer. For example: www.yourdomain.com/forum/install.php. If the installer detects files that need their permissions adjusted it will prompt for FTP details so it can <strong>CHMOD</strong> the files it requires for the install. This may not work on some servers.
+						</p>
+						<h3>Setting File Permissions With FTP</h3>
+						<p>Using a control panel or FTP client, file permissions can be changed quickly and easily. Usually, FTP programs will allow permissions to be changed by right-clicking files/directories and selecting &quot;Properties&quot;, &quot;Attributes&quot; or &quot;Permissions&quot;. The desired numerical value can be entered, or if provided, check boxes can be changed.</p>
+						<p>The following files and directories must be writable. Depending on how your server is set up, this could mean that they must have <strong>CHMOD</strong> values of 644, 664 or 666 for files, and 755, 775 or 777 for folders:</p>
+						<ul><li>/attachments
+						</li><li>/avatars
+						</li><li>/Packages
+						</li><li>/Packages/installed.list
+						</li><li>/Smileys
+						</li><li>/Themes
+						</li><li>/Themes/default/languages/Install.english.php
+						</li><li>agreement.txt
+						</li><li>Settings.php
+						</li><li>Settings_bak.php
+						</li><li>install.php
+						</li></ul>
+						<p>If the permission on your files or folders does not make them writable, the SMF installer will report the problem. In that case, use your FTP client or host panel to reset the permissions for the files or folders the installer reports.</p>
+					</div>
+					<div class="panel">
+						<h2 id="i_Create_a_Database_and_a_Database_User">Create a database and a database user</h2>
+						<p>Before running the installer, a database and a database user will need to be created. A database will store all of the information a forum requires, such as members, posts, and topics. A database user will allow the forum to access the stored information. Remember this information about the database and database user. You will need it when it comes time to run the installer.</p>
+						<h3>Creating a database using PHPMyAdmin</h3>
+						<p>Most shared hosting services disable this option. If the option to create databases through PHPMyAdmin is available through the hosting service you use, the database can be created from the PHPMyAdmin home page.</p>
+						<h3>Creating a database using a control panel</h3>
+						<p>Shared hosting services usually disable the ability to create a database through PHPMyAdmin. If the hosting service provides a control panel interface, then this can be used to create a database. Selecting the &quot;MySQL Databases&quot; or &quot;Database Wizard&quot; options should take you to a page prompting you to creating a MySQL database. With different hosts, these options may have different names.</p><p>SMF starting from version 2.0 has the ability to support other database types, including PostgreSQL. SMF 1.1 supports only MySQL database types.</p>
+						<h3>Creating a database user</h3>
+						<p>A database user can be created through the control panel provided by your hosting service. Selecting the &quot;MySQL Databases&quot; or &quot;Database Wizard&quot; options should take you to a page, prompting you to create a MySQL database user. With different hosts, these options may have different names.</p>
+						<p>The database user requires the following permissions: SELECT, INSERT, UPDATE, DELETE, ALTER, and INDEX. Additional permissions may be granted, if desired.</p>
+					</div>
+					<div class="panel">
+						<h2 id="i_Run_the_installer">Run the installer</h2>
+						<p>The final step in installing SMF is running the installer. The information from the previous steps will be used in the installation process.</p>
+						<p>The first page you see may request your FTP information.  If you see this screen, it is because the installer found some files or folders with inadequate permissions for SMF to run properly.  If you enter your FTP information here, the installer can automatically fix these permissions for you.  Please note that the path should be the same path you see in your FTP client.  For example, it might be &quot;public_html/forum&quot;.  And remember, the installer will not save your FTP password anywhere.</p>
+						<p>The SMF install screen looks different for SMF 2.1 and SMF 1.1, however, both still require the same information. Navigating to the directory where SMF is located, should redirect you to the install.php file, and prompt the installer to run. For example: www.yourdomain.com/forum/install.php</p>
+						<h3>Basic forum settings</h3>
+						<dl>
+							<dt>Forum Name</dt>
+							<dd>The name for the forum being installed should go here. By default this is set to &quot;My Community&quot;. This can be changed later via the server settings section of the administration center if needed.</dd>
+							<dt>Forum URL</dt>
+							<dd>The URL the forum can be found at, without the trailing slash. The SMF installer will most likely have this correct, so it is safe to leave this field alone.</dd>
+							<dt>Gzip Output</dt>
+							<dd>If Gzip output tests pass, this can be used to save bandwidth and make pages load faster.</dd>
+							<dt>Database Sessions</dt>
+							<dd>Sessions can be stored in the database, or in files. Database sessions are more reliable, secure, and may work better on sites with multiple servers.</dd>
+							<dt>UTF-8 Character Set</dt>
+							<dd>UTF-8 character sets are useful for international forums, or forums that use languages other than English.</dd>
+							<dt>Allow Stat Collection</dt>
+							<dd>This option allows Simple Machines to collect statistics from your forum, anonymously, so the software can grow to meet the needs of its user base.</dd>
+						</dl>
+						<h3>Database server settings</h3>
+						<dl>
+							<dt>Database type</dt>
+							<dd>The database schema can be selected here from a list of database schemas supported by the server being used. Newer schemas (starting from SMF 2.0) such as PostgreSQL may be listed here if available. MySQL and PostgreSQL are recommended.</dd>
+							<dt>Server name</dt>
+							<dd>The location of the database is specified here. 99% of the time this will be localhost.</dd>
+							<dt>Username</dt>
+							<dd>The username used for the database user should be placed here. If help is required for this, the hosting service provider should be contacted.</dd>
+							<dt>Password</dt>
+							<dd>The password for the database user is entered here.</dd>
+							<dt>Database name</dt>
+							<dd>The name used for the database should be placed here. If help is required for this, the hosting service provider should be contacted.</dd>
+							<dt>Database prefix</dt>
+							<dd>The prefix for all tables associated with this install is specified here. Prefixing tables with unique prefixes enables more than one application, or SMF install, to use the same database safely.</dd>
+						</dl>
+						<h3>Creating an administrator account</h3>
+						<p>The SMF installer will ask for information to create the forum's administrator account. This information includes username, password, and e-mail address, just like a regular account. Once created, this account can be used to visit the Administration Center to manage and configure the forum.</p>
+					</div>
+					<div class="panel">
+						<h2 id="i_finishing">Finishing everything up</h2>
+						<p>Once all steps of the installation process have been completed, check the box to remove the install files from the server. If this does not work, they will need to be deleted via FTP. All installer files should be removed from the server once the installation process is complete, as they are a major security risk if left on a server unattended. Once SMF is installed they are no longer needed.</p>
+						<p>Good luck!<br />
+						Simple Machines</p>
+					</div>
+				</div>
+				<div id="upgrade_guide" class="hidden">
+					<div class="panel">
+						<h2 id="u_contents">Upgrading your forum</h2>
+						<p>Thank you for deciding to upgrade to <a href="https://www.simplemachines.org/smf/">SMF</a>.  Before you get started, please remember that there is <a href="https://www.simplemachines.org/community/index.php">a place for help at www.simplemachines.org</a> if you run into any problems at all.</p>
+						<p>You can find the following information in this file:</p>
+						<ul style="list-style-type: none;">
+							<li>&raquo; <a href="#u_requirements">Minimum installation requirements</a></li>
+							<li>&raquo; <a href="#u_recommendations">Recommendations for best performance</a></li>
+							<li>&raquo; <a href="#u_backups">Backing up data</a></li>
+							<li>&raquo; <a href="#u_uploadingftp">Upload files method 1: using FTP</a></li>
+							<li>&raquo; <a href="#u_Set_File_Permissions">Set file permissions</a></li>
+							<li>&raquo; <a href="#u_Run_the_upgrading_tool">Run the upgrading tool</a></li>
+							<li>&raquo; <a href="#u_finishing">Finishing the upgrade and cleaning up</a></li>
+						</ul>
+					</div>
+					<div class="panel">
+						<h2 id="u_requirements">Minimum installation requirements</h2>
+						<p>Your server must meet a few requirements to be able to run SMF.  If you are unsure as to whether your webserver meets these, please try to upgrade anyway - it should detect any problems.</p>
 						<ul>
-							<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 5.0 or higher.</li>
-							<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 8.3.3 or higher.</li>
+							<li>Any webserver that properly supports PHP, such as <a href="https://httpd.apache.org/" target="_blank" rel="noopener">Apache</a> or <a href="https://www.microsoft.com/iis" target="_blank" rel="noopener">Internet Information Services (IIS)</a>.</li>
+							<li>
+								<a href="https://php.net" target="_blank" rel="noopener">PHP</a> 5.4.0 or higher.  The following directives are required to be set correctly in php.ini:
+								<ul>
+									<li>the engine directive must be On.</li>
+									<li>the <a href="https://php.net/sybase#ini.magic-quotes-sybase" target="_blank" rel="noopener">magic_quotes_sybase</a> directive must be set to Off.</li>
+									<li>the <a href="https://php.net/session#ini.session.save-path" target="_blank" rel="noopener">session.save_path</a> directive must be set to a valid directory.</li>
+									<li>the <a href="https://php.net/manual/en/ini.core.php#ini.file-uploads" target="_blank" rel="noopener">file_uploads</a> directive must be On.</li>
+									<li>the <a href="https://php.net/manual/en/ini.core.php#ini.upload-tmp-dir" target="_blank" rel="noopener">upload_tmp_dir</a> must be set to a valid directory.</li>
+								</ul>
+							</li>
+							<li>Any of the following database systems
+								<ul>
+									<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 5.0.22/5.1.10 or higher.</li>
+									<li><a href="https://mariadb.com/" target="_blank" rel="noopener">MariaDB</a> 5.1.10 or higher.</li>
+									<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 9.4 or higher.</li>
+								</ul>
+							</li>
+							<li>at least 2 megabytes of storage space in the database, although more is highly recommended.</li>
+							<li>The database user must have at least the following privileges: SELECT, INSERT, UPDATE, DELETE, ALTER, CREATE, DROP, TRUNCATE and INDEX.</li>
+							<li>about 20 megabytes of storage space on the web server, although more is recommended.</li>
 						</ul>
-					</li>
-					<li><a href="https://boutell.com/gd/" target="_blank" rel="noopener">GD Graphics Library</a> 2.0 or higher.</li>
-				</ul>
-				<p>If your server does not meet these requirements, SMF may not work properly.</p>
-			</div>
-			<div class="panel">
-				<h2 id="uploadingftp">Upload files method 1: manually uploading files</h2>
-				<p>The first thing you need to do is upload all of the files in this package, excluding this file itself, to your server.  You can upload it to any directory accessible by URL, but if you're not sure where to put it, a directory named &quot;forum&quot; is a good choice.  You may wish to make sure that all of the folders were uploaded, such as <tt>Themes/default/languages</tt>, because some FTP clients have been known to drop files.</p>
-				<p>If you want or need to install any languages other than English, download the corresponding versions from the download page, and upload them to the same directory you uploaded SMF to.  This should put additional files in <tt>Themes/default/languages</tt> and, in most cases, <tt>Themes/default/images</tt>.</p>
-				<h3>Language files</h3>
-				<p>If you are using additional languages it will be useful to upload also the updated versions of the language files along with the upgrading packages. Doing so all updated text strings will appear correctly after the upgrade, and will allow the upgrade to run in your selected language.</p>
-			</div>
-			<div class="panel">
-				<h2 id="Set_File_Permissions">Set file permissions</h2>
-				<p>After the install archive has been uploaded and extracted, you need to set the files' permissions. This is commonly done by use of the Unix utility <strong>CHMOD</strong>. The correct CHMOD value for SMF files is either 777, 775 or 755, depending on your hosting service. There are two methods for this step, the method used depends on the hosting service that you use.</p>
-				<h3>Setting File Permissions With the Installer</h3>
-				<p>The SMF installer can set file permissions simply and easily. Navigating to the directory where SMF is located should redirect you to the install.php file and prompt the installer. For example: www.yourdomain.com/forum/install.php. If the installer detects files that need their permissions adjusted it will prompt for FTP details so it can <strong>CHMOD</strong> the files it requires for the install. This may not work on some servers.
-				</p>
-				<h3>Setting File Permissions With FTP</h3>
-				<p>Using a control panel or FTP client, file permissions can be changed quickly and easily. Usually, FTP programs will allow permissions to be changed by right-clicking files/directories and selecting &quot;Properties&quot;, &quot;Attributes&quot; or &quot;Permissions&quot;. The desired numerical value can be entered, or if provided, check boxes can be changed.</p>
-				<p>The following files and directories must be writable. Depending on how your server is set up, this could mean that they must have <strong>CHMOD</strong> values of 644, 664 or 666 for files, and 755, 775 or 777 for folders:</p>
-				<ul><li>/attachments
-				</li><li>/avatars
-				</li><li>/Packages
-				</li><li>/Packages/installed.list
-				</li><li>/Smileys
-				</li><li>/Themes
-				</li><li>/Themes/default/languages/Install.english.php
-				</li><li>agreement.txt
-				</li><li>Settings.php
-				</li><li>Settings_bak.php
-				</li><li>install.php
-				</li></ul>
-				<p>If the permission on your files or folders does not make them writable, the SMF installer will report the problem. In that case, use your FTP client or host panel to reset the permissions for the files or folders the installer reports.</p>
-			</div>
-			<div class="panel">
-				<h2 id="Create_a_Database_and_a_Database_User">Create a database and a database user</h2>
-				<p>Before running the installer, a database and a database user will need to be created. A database will store all of the information a forum requires, such as members, posts, and topics. A database user will allow the forum to access the stored information. Remember this information about the database and database user. You will need it when it comes time to run the installer.</p>
-				<h3>Creating a database using PHPMyAdmin</h3>
-				<p>Most shared hosting services disable this option. If the option to create databases through PHPMyAdmin is available through the hosting service you use, the database can be created from the PHPMyAdmin home page.</p>
-				<h3>Creating a database using a control panel</h3>
-				<p>Shared hosting services usually disable the ability to create a database through PHPMyAdmin. If the hosting service provides a control panel interface, then this can be used to create a database. Selecting the &quot;MySQL Databases&quot; or &quot;Database Wizard&quot; options should take you to a page prompting you to creating a MySQL database. With different hosts, these options may have different names.</p><p>SMF starting from version 2.0 has the ability to support other database types, including PostgreSQL. SMF 1.1 supports only MySQL database types.</p>
-				<h3>Creating a database user</h3>
-				<p>A database user can be created through the control panel provided by your hosting service. Selecting the &quot;MySQL Databases&quot; or &quot;Database Wizard&quot; options should take you to a page, prompting you to create a MySQL database user. With different hosts, these options may have different names.</p>
-				<p>The database user requires the following permissions: SELECT, INSERT, UPDATE, DELETE, ALTER, and INDEX. Additional permissions may be granted, if desired.</p>
-			</div>
-			<div class="panel">
-				<h2 id="Run_the_installer">Run the installer</h2>
-				<p>The final step in installing SMF is running the installer. The information from the previous steps will be used in the installation process.</p>
-				<p>The first page you see may request your FTP information.  If you see this screen, it is because the installer found some files or folders with inadequate permissions for SMF to run properly.  If you enter your FTP information here, the installer can automatically fix these permissions for you.  Please note that the path should be the same path you see in your FTP client.  For example, it might be &quot;public_html/forum&quot;.  And remember, the installer will not save your FTP password anywhere.</p>
-				<p>The SMF install screen looks different for SMF 2.1 and SMF 1.1, however, both still require the same information. Navigating to the directory where SMF is located, should redirect you to the install.php file, and prompt the installer to run. For example: www.yourdomain.com/forum/install.php</p>
-				<h3>Basic forum settings</h3>
-				<dl>
-					<dt>Forum Name</dt>
-					<dd>The name for the forum being installed should go here. By default this is set to &quot;My Community&quot;. This can be changed later via the server settings section of the administration center if needed.</dd>
-					<dt>Forum URL</dt>
-					<dd>The URL the forum can be found at, without the trailing slash. The SMF installer will most likely have this correct, so it is safe to leave this field alone.</dd>
-					<dt>Gzip Output</dt>
-					<dd>If Gzip output tests pass, this can be used to save bandwidth and make pages load faster.</dd>
-					<dt>Database Sessions</dt>
-					<dd>Sessions can be stored in the database, or in files. Database sessions are more reliable, secure, and may work better on sites with multiple servers.</dd>
-					<dt>UTF-8 Character Set</dt>
-					<dd>UTF-8 character sets are useful for international forums, or forums that use languages other than English.</dd>
-					<dt>Allow Stat Collection</dt>
-					<dd>This option allows Simple Machines to collect statistics from your forum, anonymously, so the software can grow to meet the needs of its user base.</dd>
-				</dl>
-				<h3>Database server settings</h3>
-				<dl>
-					<dt>Database type</dt>
-					<dd>The database schema can be selected here from a list of database schemas supported by the server being used. Newer schemas (starting from SMF 2.0) such as PostgreSQL may be listed here if available. MySQL and PostgreSQL are recommended.</dd>
-					<dt>Server name</dt>
-					<dd>The location of the database is specified here. 99% of the time this will be localhost.</dd>
-					<dt>Username</dt>
-					<dd>The username used for the database user should be placed here. If help is required for this, the hosting service provider should be contacted.</dd>
-					<dt>Password</dt>
-					<dd>The password for the database user is entered here.</dd>
-					<dt>Database name</dt>
-					<dd>The name used for the database should be placed here. If help is required for this, the hosting service provider should be contacted.</dd>
-					<dt>Database prefix</dt>
-					<dd>The prefix for all tables associated with this install is specified here. Prefixing tables with unique prefixes enables more than one application, or SMF install, to use the same database safely.</dd>
-				</dl>
-				<h3>Creating an administrator account</h3>
-				<p>The SMF installer will ask for information to create the forum's administrator account. This information includes username, password, and e-mail address, just like a regular account. Once created, this account can be used to visit the Administration Center to manage and configure the forum.</p>
-			</div>
-			<div class="panel">
-				<h2 id="finishing">Finishing everything up</h2>
-				<p>Once all steps of the installation process have been completed, check the box to remove the install files from the server. If this does not work, they will need to be deleted via FTP. All installer files should be removed from the server once the installation process is complete, as they are a major security risk if left on a server unattended. Once SMF is installed they are no longer needed.</p>
-				<p>Good luck!<br />
-				Simple Machines</p>
-			</div>
-		</div>
-		<input type="radio" name="install_upgrade" id="upgrade">
-		<div id="main_content_section">
-			<div class="panel">
-				<h2 id="contents">Upgrading your forum</h2>
-				<p>Thank you for deciding to upgrade to <a href="https://www.simplemachines.org/smf/">SMF</a>.  Before you get started, please remember that there is <a href="https://www.simplemachines.org/community/index.php">a place for help at www.simplemachines.org</a> if you run into any problems at all.</p>
-				<p>You can find the following information in this file:</p>
-				<ul style="list-style-type: none;">
-					<li>&raquo; <a href="#requirements">Minimum installation requirements</a></li>
-					<li>&raquo; <a href="#backups">Backing up data</a></li>
-					<li>&raquo; <a href="#uploadingftp">Upload files method 1: using FTP</a></li>
-					<li>&raquo; <a href="#Set_File_Permissions">Set file permissions</a></li>
-					<li>&raquo; <a href="#Run_the_upgrading_tool">Run the upgrading tool</a></li>
-					<li>&raquo; <a href="#finishing">Finishing the upgrade and cleaning up</a></li>
-				</ul>
-			</div>
-			<div class="panel">
-				<h2 id="requirements">Minimum installation requirements</h2>
-				<p>Your server must meet a few requirements to be able to run SMF.  If you are unsure as to whether your webserver meets these, please try to upgrade anyway - it should detect any problems.</p>
-				<ul>
-					<li>Any webserver that properly supports PHP, such as <a href="https://httpd.apache.org/" target="_blank" rel="noopener">Apache</a> or <a href="https://www.microsoft.com/iis" target="_blank" rel="noopener">Internet Information Services (IIS)</a>.</li>
-					<li>
-						<a href="https://php.net" target="_blank" rel="noopener">PHP</a> 5.3.8 or higher.  The following directives are required to be set correctly in php.ini:
+					</div>
+					<div class="panel">
+						<h2 id="u_recommendations">Recommendations for best performance:</h2>
 						<ul>
-							<li>the engine directive must be On.</li>
-							<li>the <a href="https://php.net/sybase#ini.magic-quotes-sybase" target="_blank" rel="noopener">magic_quotes_sybase</a> directive must be set to Off.</li>
-							<li>the <a href="https://php.net/session#ini.session.save-path" target="_blank" rel="noopener">session.save_path</a> directive must be set to a valid directory.</li>
-							<li>the <a href="https://php.net/manual/en/ini.core.php#ini.file-uploads" target="_blank" rel="noopener">file_uploads</a> directive must be On.</li>
-							<li>the <a href="https://php.net/manual/en/ini.core.php#ini.upload-tmp-dir" target="_blank" rel="noopener">upload_tmp_dir</a> must be set to a valid directory.</li>
+							<li>Windows, <a href="https://www.linux.org/" target="_blank" rel="noopener">Linux</a> or another Unix based operating system.</li>
+							<li>the <a href="http://aspell.net/" target="_blank" rel="noopener">GNU Aspell</a> 0.50 or higher and <a href="https://ftp.gnu.org/gnu/aspell/dict/" target="_blank" rel="noopener">its dictionaries</a> for spell checking functionality.</li>
+							<li><a href="https://httpd.apache.org/" target="_blank" rel="noopener">Apache</a> 2.0.0 or higher with <a href="https://httpd.apache.org/docs-2.0/mod/core.html#acceptpathinfo" target="_blank" rel="noopener">AcceptPathInfo</a> set to On (Apache 2 and later only) for queryless URL support.</li>
+							<li>
+								<a href="https://php.net" target="_blank" rel="noopener">PHP</a> 7.0.0 or higher, with the following set in php.ini:
+								<ul>
+									<li>the <a href="https://php.net/manual/en/info.configuration.php#ini.max-input-time" target="_blank" rel="noopener">max_input_time</a> directive is set to a value of at least 30.</li>
+									<li>the <a href="https://php.net/manual/en/ini.core.php#ini.post-max-size" target="_blank" rel="noopener">post_max_size</a> and <a href="https://php.net/configuration.directives#ini.upload-max-filesize" target="_blank" rel="noopener">upload_max_filesize</a> directives set to the size of the largest attachments you wish to be able to upload.</li>
+									<li>the <a href="https://php.net/session#ini.session.use-trans-sid" target="_blank" rel="noopener">session.use_trans_sid</a> directive set to Off.</li>
+									<li>the <a href="https://php.net/manual/en/ini.core.php#ini.memory-limit" target="_blank" rel="noopener">memory_limit</a> directive is set to at least 8M.</li>
+									<li>the <a href="https://php.net/manual/en/info.configuration.php#ini.max-execution-time" target="_blank" rel="noopener">max_execution_time</a> directive is set to at least 15.</li>
+									<li>the <a href="https://php.net/manual/en/ini.core.php#ini.register-globals" target="_blank" rel="noopener">register_globals</a> directive is set to Off.</li>
+									<li>the <a href="https://php.net/manual/en/features.safe-mode.php" target="_blank" rel="noopener">safe mode</a> disabled or <a href="https://httpd.apache.org/docs/2.0/suexec.html" target="_blank" rel="noopener">suEXEC</a> enabled.</li>
+								</ul>
+							</li>
+							<li>Any of the following database systems
+								<ul>
+									<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 8.0 or higher.</li>
+									<li><a href="https://mariadb.com/" target="_blank" rel="noopener">MariaDB</a> 10.2 or higher.</li>
+									<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 9.5 or higher.</li>
+								</ul>
+							</li>
+							<li><a href="https://boutell.com/gd/" target="_blank" rel="noopener">GD Graphics Library</a> 2.0 or higher.</li>
 						</ul>
-					</li>
-					<li>Any of the following database systems
-						<ul>
-							<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 5.0.3 or higher.</li>
-							<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 8.0 or higher.</li>
-						</ul>
-					</li>
-					<li>at least 2 megabytes of storage space in the database, although more is highly recommended.</li>
-					<li>The database user must have at least the following privileges: SELECT, INSERT, UPDATE, DELETE, ALTER, and INDEX.</li>
-					<li>about 20 megabytes of storage space on the web server, although more is recommended.</li>
-				</ul>
-				<p>Recommendations for best performance:</p>
-				<ul>
-					<li>Windows, <a href="https://www.linux.org/" target="_blank" rel="noopener">Linux</a> or another Unix based operating system.</li>
-					<li>the <a href="http://aspell.net/" target="_blank" rel="noopener">GNU Aspell</a> 0.50 or higher and <a href="https://ftp.gnu.org/gnu/aspell/dict/" target="_blank" rel="noopener">its dictionaries</a> for spell checking functionality.</li>
-					<li><a href="https://httpd.apache.org/" target="_blank" rel="noopener">Apache</a> 2.0.0 or higher with <a href="https://httpd.apache.org/docs-2.0/mod/core.html#acceptpathinfo" target="_blank" rel="noopener">AcceptPathInfo</a> set to On (Apache 2 and later only) for queryless URL support.</li>
-					<li>
-						<a href="https://php.net" target="_blank" rel="noopener">PHP</a> 5.3.8 or higher, with the following set in php.ini:
-						<ul>
-							<li>the <a href="https://php.net/manual/en/info.configuration.php#ini.max-input-time" target="_blank" rel="noopener">max_input_time</a> directive is set to a value of at least 30.</li>
-							<li>the <a href="https://php.net/manual/en/ini.core.php#ini.post-max-size" target="_blank" rel="noopener">post_max_size</a> and <a href="https://php.net/configuration.directives#ini.upload-max-filesize" target="_blank" rel="noopener">upload_max_filesize</a> directives set to the size of the largest attachments you wish to be able to upload.</li>
-							<li>the <a href="https://php.net/session#ini.session.use-trans-sid" target="_blank" rel="noopener">session.use_trans_sid</a> directive set to Off.</li>
-							<li>the <a href="https://php.net/manual/en/ini.core.php#ini.memory-limit" target="_blank" rel="noopener">memory_limit</a> directive is set to at least 8M.</li>
-							<li>the <a href="https://php.net/manual/en/info.configuration.php#ini.max-execution-time" target="_blank" rel="noopener">max_execution_time</a> directive is set to at least 15.</li>
-							<li>the <a href="https://php.net/manual/en/ini.core.php#ini.register-globals" target="_blank" rel="noopener">register_globals</a> directive is set to Off.</li>
-							<li>the <a href="https://php.net/manual/en/features.safe-mode.php" target="_blank" rel="noopener">safe mode</a> disabled or <a href="https://httpd.apache.org/docs/2.0/suexec.html" target="_blank" rel="noopener">suEXEC</a> ensabled.</li>
-						</ul>
-					</li>
-					<li>Any of the following database systems
-						<ul>
-							<li><a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL</a> 5.0 or higher.</li>
-							<li><a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL</a> 8.3.3 or higher.</li>
-						</ul>
-					</li>
-					<li><a href="https://boutell.com/gd/" target="_blank" rel="noopener">GD Graphics Library</a> 2.0 or higher.</li>
-				</ul>
-				<p>If your server does not meet these requirements, SMF may not work properly.</p>
-			</div>
-			<div class="panel">
-				<h2 id="backups">Backing up data</h2>
-				<p>Before starting the upgrade process, a backup of the live database should be taken. This protects the forum from accidental damage and any issues from upgrading. Although all steps are taken, and extensive testing carried out, sometimes issues develop. Therefore, having a backup is crucial. The upgrading tool can backup all database tables before it runs, however the best practice is to have a full backup available. </p>
-				<h3>Back up a database using PHPMyAdmin</h3>
-				<p>PHPMyAdmin gives the option to export a database, from the initial page, select the &quot;Export&quot; option and follow the instructions. Select your SMF database. These are different based on host. </p>
-				<h3>Back up a database using a control panel</h3>
-				<p>If your hosting service provides a control panel interface, this can be used to back up a database. Selecting the &quot;Backups&quot; or &quot;Backups Wizard&quot; options should take you to a page, prompting you to back up your database. With different hosts, these options may have different titles. </p>
-			</div>
-			<div class="panel">
-				<h2 id="uploadingftp">Upload files method 1: using FTP</h2>
-				<p>You can use an FTP client and an FTP access to upload the files to your server.</p>
-				<p>All you need to do is upload all of the files in this package, excluding this file itself, to your server.  You should upload it to the same directory as your previous installation of SMF or YaBB SE. If you are given the option to &quot;resume&quot; uploads, make sure you do not do that - you must upload all of the files.  You may wish to make sure that all of the files were uploaded, such as those in <tt>Themes/default/languages</tt>, because some FTP clients have been known to drop files.</p>
-				<h3>Language files</h3>
-				<p>If you are using additional languages it will be useful to upload also the updated versions of the language files along with the upgrading packages. Doing so all updated text strings will appear correctly after the upgrade, and will allow the upgrade to run in your selected language.</p>
-			</div>
-			<div class="panel">
-				<h2 id="Set_File_Permissions">Set file permissions</h2>
-				<p>After the upgrade archive has been uploaded and extracted, you need to set the files' permissions. This is commonly done by use of the Unix utility <strong>CHMOD</strong>. The correct CHMOD value for SMF files is either 777, 775 or 755, depending on your hosting service. There are two methods for this step, the method used depends on the hosting service that you use.</p>
-				<h3>Setting File Permissions With the Upgrader</h3>
-				<p>The SMF upgrader can set file permissions simply and easily. Navigating to the directory where SMF is located should redirect you to the upgrade.php file and prompt the upgrader. For example: www.yourdomain.com/forum/upgrade.php. If the upgrader detects files that need their permissions adjusted it will prompt for FTP details so it can <strong>CHMOD</strong> the files it requires for the upgrade. This may not work on some servers.
-				</p>
-				<h3>Setting File Permissions With FTP</h3>
-				<p>Using a control panel or FTP client, file permissions can be changed quickly and easily. Usually, FTP programs will allow permissions to be changed by right-clicking files/directories and selecting &quot;Properties&quot;, &quot;Attributes&quot; or &quot;Permissions&quot;. The desired numerical value can be entered, or if provided, check boxes can be changed.</p>
-				<p>The following files and directories must be writable. Depending on how your server is set up, this could mean that they must have <strong>CHMOD</strong> values of 644, 664 or 666 for files, and 755, 775 or 777 for folders:</p>
-				<ul><li>/attachments
-				</li><li>/avatars
-				</li><li>/Packages
-				</li><li>/Packages/installed.list
-				</li><li>/Smileys
-				</li><li>/Themes
-				</li><li>agreement.txt
-				</li><li>Settings.php
-				</li><li>Settings_bak.php
-				</li><li>upgrade.php
-				</li></ul>
-				<p>If the permission on your files or folders does not make them writable, the SMF upgrader will report the problem. In that case, use your FTP client or host panel to reset the permissions for the files or folders the upgrader reports.</p>
-			</div>
-			<div class="panel">
-				<h2 id="Run_the_upgrading_tool">Run the upgrading tool</h2>
-				<p>The final step in upgrading SMF, is to run the upgrading tool. Navigate to the directory where SMF is located. It should redirect you to the upgrade.php file and prompt you to run the upgrade. In example: www.yourdomain.com/forum/upgrade.php. </p>
-				<p>The first page you see may request your FTP information.  If you see this screen, it is because the installer found some files or folders with inadequate permissions for SMF to run properly.  If you enter your FTP information here, the installer can automatically fix these permissions for you.  Please note that the path should be the same path you see in your FTP client.  For example, it might be &quot;public_html/forum&quot;.  And remember, the installer will not save your FTP password anywhere.</p>
-				<h3>Upgrade settings</h3>
-				<dl>
-					<dt>Backup database with the prefix "backup_"</dt>
-					<dd>Selecting this option will get the upgrade tool to copy all data in the database before upgrading within the original database.</dd>
-					<dt>Maintenance Mode</dt>
-					<dd>Selecting this option will place the forum into maintenance mode while upgrading rather than showing errors, this is highly recommended.</dd>
-					<dt>Output extra debugging information.</dt>
-					<dd>The upgrade tool can give detailed information while performing an upgrade by selecting this option, it will aid the support team to solve any errors if they occur while upgrading.</dd>
-				</dl>
-			</div>
-			<div class="panel">
-				<h2 id="finishing">Finishing the upgrade and cleaning up</h2>
-				<p>Once all parts of the upgrade have completed, check the box to remove the upgrade files from the server. If this does not work, they will need to be deleted via FTP. All upgrade files should be removed from the server once the upgrade process is complete. These files are upgrade.php and the .sql files whose name starts with 'upgrade'. They are a major security risk if they are left on a server unattended. Once SMF has been upgraded, they are no longer needed.</p>
-				<p>Good luck!<br />
-				Simple Machines</p>
+						<p>If your server does not meet these requirements, SMF may not work properly.</p>
+					</div>
+					<div class="panel">
+						<h2 id="u_backups">Backing up data</h2>
+						<p>Before starting the upgrade process, a backup of the live database should be taken. This protects the forum from accidental damage and any issues from upgrading. Although all steps are taken, and extensive testing carried out, sometimes issues develop. Therefore, having a backup is crucial. The upgrading tool can backup all database tables before it runs, however the best practice is to have a full backup available. </p>
+						<h3>Back up a database using PHPMyAdmin</h3>
+						<p>PHPMyAdmin gives the option to export a database, from the initial page, select the &quot;Export&quot; option and follow the instructions. Select your SMF database. These are different based on host. </p>
+						<h3>Back up a database using a control panel</h3>
+						<p>If your hosting service provides a control panel interface, this can be used to back up a database. Selecting the &quot;Backups&quot; or &quot;Backups Wizard&quot; options should take you to a page, prompting you to back up your database. With different hosts, these options may have different titles. </p>
+					</div>
+					<div class="panel">
+						<h2 id="u_uploadingftp">Upload files method 1: using FTP</h2>
+						<p>You can use an FTP client and an FTP access to upload the files to your server.</p>
+						<p>All you need to do is upload all of the files in this package, excluding this file itself, to your server.  You should upload it to the same directory as your previous installation of SMF or YaBB SE. If you are given the option to &quot;resume&quot; uploads, make sure you do not do that - you must upload all of the files.  You may wish to make sure that all of the files were uploaded, such as those in <span class="tt">Themes/default/languages</span>, because some FTP clients have been known to drop files.</p>
+						<h3>Language files</h3>
+						<p>If you are using additional languages it will be useful to upload also the updated versions of the language files along with the upgrading packages. Doing so all updated text strings will appear correctly after the upgrade, and will allow the upgrade to run in your selected language.</p>
+					</div>
+					<div class="panel">
+						<h2 id="u_Set_File_Permissions">Set file permissions</h2>
+						<p>After the upgrade archive has been uploaded and extracted, you need to set the files' permissions. This is commonly done by use of the Unix utility <strong>CHMOD</strong>. The correct CHMOD value for SMF files is either 777, 775 or 755, depending on your hosting service. There are two methods for this step, the method used depends on the hosting service that you use.</p>
+						<h3>Setting File Permissions With the Upgrader</h3>
+						<p>The SMF upgrader can set file permissions simply and easily. Navigating to the directory where SMF is located should redirect you to the upgrade.php file and prompt the upgrader. For example: www.yourdomain.com/forum/upgrade.php. If the upgrader detects files that need their permissions adjusted it will prompt for FTP details so it can <strong>CHMOD</strong> the files it requires for the upgrade. This may not work on some servers.
+						</p>
+						<h3>Setting File Permissions With FTP</h3>
+						<p>Using a control panel or FTP client, file permissions can be changed quickly and easily. Usually, FTP programs will allow permissions to be changed by right-clicking files/directories and selecting &quot;Properties&quot;, &quot;Attributes&quot; or &quot;Permissions&quot;. The desired numerical value can be entered, or if provided, check boxes can be changed.</p>
+						<p>The following files and directories must be writable. Depending on how your server is set up, this could mean that they must have <strong>CHMOD</strong> values of 644, 664 or 666 for files, and 755, 775 or 777 for folders:</p>
+						<ul><li>/attachments
+						</li><li>/avatars
+						</li><li>/Packages
+						</li><li>/Packages/installed.list
+						</li><li>/Smileys
+						</li><li>/Themes
+						</li><li>agreement.txt
+						</li><li>Settings.php
+						</li><li>Settings_bak.php
+						</li><li>upgrade.php
+						</li></ul>
+						<p>If the permission on your files or folders does not make them writable, the SMF upgrader will report the problem. In that case, use your FTP client or host panel to reset the permissions for the files or folders the upgrader reports.</p>
+					</div>
+					<div class="panel">
+						<h2 id="u_Run_the_upgrading_tool">Run the upgrading tool</h2>
+						<p>The final step in upgrading SMF, is to run the upgrading tool. Navigate to the directory where SMF is located. It should redirect you to the upgrade.php file and prompt you to run the upgrade. In example: www.yourdomain.com/forum/upgrade.php. </p>
+						<p>The first page you see may request your FTP information.  If you see this screen, it is because the installer found some files or folders with inadequate permissions for SMF to run properly.  If you enter your FTP information here, the installer can automatically fix these permissions for you.  Please note that the path should be the same path you see in your FTP client.  For example, it might be &quot;public_html/forum&quot;.  And remember, the installer will not save your FTP password anywhere.</p>
+						<h3>Upgrade settings</h3>
+						<dl>
+							<dt>Backup database with the prefix "backup_"</dt>
+							<dd>Selecting this option will get the upgrade tool to copy all data in the database before upgrading within the original database.</dd>
+							<dt>Maintenance Mode</dt>
+							<dd>Selecting this option will place the forum into maintenance mode while upgrading rather than showing errors, this is highly recommended.</dd>
+							<dt>Output extra debugging information.</dt>
+							<dd>The upgrade tool can give detailed information while performing an upgrade by selecting this option, it will aid the support team to solve any errors if they occur while upgrading.</dd>
+						</dl>
+					</div>
+					<div class="panel">
+						<h2 id="u_finishing">Finishing the upgrade and cleaning up</h2>
+						<p>Once all parts of the upgrade have completed, check the box to remove the upgrade files from the server. If this does not work, they will need to be deleted via FTP. All upgrade files should be removed from the server once the upgrade process is complete. These files are upgrade.php and the .sql files whose name starts with 'upgrade'. They are a major security risk if they are left on a server unattended. Once SMF has been upgraded, they are no longer needed.</p>
+						<p>Good luck!<br />
+						Simple Machines</p>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

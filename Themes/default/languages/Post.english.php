@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 4; Post
+// Version: 2.1 RC2; Post
 
 global $context;
 
@@ -32,12 +32,12 @@ $txt['notifyUnsubscribe'] = 'Unsubscribe to this topic by clicking here';
 $txt['lock_after_post'] = 'Lock after Post';
 $txt['notify_replies'] = 'Notify me of replies';
 $txt['lock_topic'] = 'Lock this topic';
-$txt['shortcuts'] = 'Shortcuts: ALT+S save/post or ALT+P preview';
-$txt['shortcuts_drafts'] = 'Shortcuts: ALT+S save/post, ALT+P preview, ALT+D save draft';
-$txt['shortcuts_firefox'] = 'Shortcuts: SHIFT+ALT+S save/post, SHIFT+ALT+P preview';
-$txt['shortcuts_drafts_firefox'] = 'Shortcuts: SHIFT+ALT+S save/post, SHIFT+ALT+P preview, SHIFT+ALT+D save draft';
-$txt['shortcuts_mac'] = 'Shortcuts: ⌃⌥S save/post or ⌃⌥P preview';
-$txt['shortcuts_drafts_mac'] = 'Shortcuts: ⌃⌥S save/post, ⌃⌥P preview, ⌃⌥D save draft';
+$txt['shortcuts'] = 'Shortcuts: ALT+S post or ALT+P preview';
+$txt['shortcuts_drafts'] = 'Shortcuts: ALT+S post, ALT+P preview, ALT+D save draft';
+$txt['shortcuts_firefox'] = 'Shortcuts: SHIFT+ALT+S post, SHIFT+ALT+P preview';
+$txt['shortcuts_drafts_firefox'] = 'Shortcuts: SHIFT+ALT+S post, SHIFT+ALT+P preview, SHIFT+ALT+D save draft';
+$txt['shortcuts_mac'] = 'Shortcuts: ⌃⌥S post or ⌃⌥P preview';
+$txt['shortcuts_drafts_mac'] = 'Shortcuts: ⌃⌥S post, ⌃⌥P preview, ⌃⌥D save draft';
 $txt['option'] = 'Option';
 $txt['reset_votes'] = 'Reset vote count';
 $txt['reset_votes_check'] = 'Check this if you want to reset all vote counts to 0.';
@@ -66,7 +66,7 @@ $txt['enter_comment'] = 'Enter comment';
 // Use numeric entities in the below two strings.
 $txt['reported_post'] = 'Reported post';
 $txt['reported_to_mod_by'] = 'by';
-$txt['rtm10'] = 'Submit';
+$txt['report_submit'] = 'Submit';
 // Use numeric entities in the below four strings.
 $txt['report_following_post'] = 'The following post, "%1$s" by';
 $txt['reported_by'] = 'has been reported by';
@@ -87,8 +87,8 @@ $txt['attach_restrictions'] = 'Restrictions:';
 
 $txt['post_additionalopt_attach'] = 'Attachments and other options';
 $txt['post_additionalopt'] = 'Other options';
-$txt['sticky_after'] = 'Sticky this topic.';
-$txt['move_after2'] = 'Move this topic.';
+$txt['sticky_after_posting'] = 'Sticky this topic.';
+$txt['move_after_posting'] = 'Move this topic.';
 $txt['back_to_topic'] = 'Return to this topic.';
 $txt['approve_this_post'] = 'Approve this post';
 
@@ -184,13 +184,12 @@ $txt['attached_file_delete'] = 'Delete';
 $txt['attached_file_cannot'] = 'You cannot upload attachments';
 $txt['attached_file_deleted'] = 'The attachment was successfully deleted.';
 $txt['attached_file_deleted_error'] = 'There was an error while performing the deletion.';
-$txt['attached_insertBBC'] = 'Insert';
-$txt['attached_cancelAll'] = 'Cancel all';
-$txt['attached_uploadAll'] = 'Upload all';
-$txt['attached_attachedLeft'] = 'There are a few attachments left, please upload them or cancel them before posting.';
-$txt['attached_insertwidth'] = 'Insert width (px):';
-$txt['attached_insertheight'] = 'Insert height (px):';
-
+$txt['attached_insert_bbc'] = 'Insert';
+$txt['attached_cancel_all'] = 'Cancel all';
+$txt['attached_upload_all'] = 'Upload all';
+$txt['attachments_left'] = 'There are a few attachments left, please upload them or cancel them before posting.';
+$txt['attached_insert_width'] = 'Insert width (px):';
+$txt['attached_insert_height'] = 'Insert height (px):';
 
 $txt['attach_php_error'] = 'Due to an error, your attachment could not be uploaded. Please contact the forum administrator if this problem continues.';
 $txt['php_upload_error_1'] = 'The uploaded file exceeds the upload_max_filesize directive in php.ini. Please contact your host if you are unable to correct this issue.';
