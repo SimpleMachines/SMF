@@ -1274,7 +1274,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 					else
 						$value = '';
 				}
-				elseif ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255))
+				elseif ($row['mask'] == 'email' && !empty($value) && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255))
 				{
 					if ($returnErrors)
 						$errors[] = 'custom_field_mail_fail';
