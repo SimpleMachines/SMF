@@ -16,8 +16,6 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-define('JQUERY_VERSION', '3.4.1');
-
 /**
  * Load the $modSettings array.
  */
