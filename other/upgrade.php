@@ -205,6 +205,10 @@ require_once($sourcedir . '/Subs.php');
 require_once($sourcedir . '/LogInOut.php');
 require_once($sourcedir . '/Subs-Editor.php');
 
+// Don't do security check if on Yabbse
+if (!isset($modSettings['smfVersion']))
+	$disable_security = true;
+
 // This only exists if we're on SMF ;)
 if (isset($modSettings['smfVersion']))
 {
