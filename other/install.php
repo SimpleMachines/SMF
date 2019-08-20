@@ -16,6 +16,7 @@ define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2019');
 define('DB_SCRIPT_VERSION', '2-1');
 define('SMF_INSTALLING', 1);
+define('JQUERY_VERSION', '3.4.1')
 
 $GLOBALS['required_php_version'] = '5.4.0';
 
@@ -2014,7 +2015,7 @@ function template_install_above()
 	<link rel="stylesheet" href="Themes/default/css/install.css">
 	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css">' : '', '
 
-	<script src="Themes/default/scripts/jquery-3.4.1.min.js"></script>
+	<script src="Themes/default/scripts/jquery-' . JQUERY_VERSION . '.min.js"></script>
 	<script src="Themes/default/scripts/script.js"></script>
 </head>
 <body>
