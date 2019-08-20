@@ -2014,7 +2014,7 @@ function template_install_above()
 	<link rel="stylesheet" href="Themes/default/css/install.css">
 	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css">' : '', '
 
-	<script src="Themes/default/scripts/jquery-3.2.1.min.js"></script>
+	<script src="Themes/default/scripts/jquery-3.4.1.min.js"></script>
 	<script src="Themes/default/scripts/script.js"></script>
 </head>
 <body>
