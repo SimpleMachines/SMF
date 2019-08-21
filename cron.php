@@ -25,6 +25,7 @@ define('SMF_VERSION', '2.1 RC2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2019');
 define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
+define('JQUERY_VERSION', '3.4.1');
 
 // This one setting is worth bearing in mind. If you are running this from proper cron, make sure you
 // don't run this file any more frequently than indicated here. It might turn ugly if you do.
