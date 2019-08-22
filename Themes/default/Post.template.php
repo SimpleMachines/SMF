@@ -1167,7 +1167,7 @@ function template_post_header()
 								echo ' ', $attribute, '="', $value, '"';
 						}
 
-						echo '>', $grouped_optlabel, '</option>';
+						echo '>', $grouped_option['label'], '</option>';
 
 					}
 
