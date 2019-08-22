@@ -200,7 +200,7 @@ $txt['admin_register_immediate_body'] = 'Thank you for registering at {FORUMNAME
 $txt['new_announcement_subject'] = 'New announcement: {TOPICSUBJECT}';
 $txt['new_announcement_body'] = '{MESSAGE}
 
-To unsubscribe from these announcements, login to the forum and uncheck "Receive forum announcements and important notifications by email." in your profile.
+To unsubscribe from these announcements, login to the forum and uncheck "Receive forum announcements and important notifications by email." in your profile <em>(Your username > Notificacions > General Settings)</em>.
 
 You can view the full announcement by following this link:
 {TOPICLINK}
@@ -226,7 +226,7 @@ More topics may be posted, but you won\'t receive more email notifications until
 The text of the topic is shown below:
 {MESSAGE}
 
-Unsubscribe to new topics from this board by using this link:
+Unsubscribe from new topics from this board by using this link:
 {UNSUBSCRIBELINK}
 
 {REGARDS}';
@@ -246,7 +246,7 @@ You can see it at
 
 More topics may be posted, but you won\'t receive more email notifications until you return to the board and read some of them.
 
-Unsubscribe to new topics from this board by using this link:
+Unsubscribe from new topics from this board by using this link:
 {UNSUBSCRIBELINK}
 
 {REGARDS}';
@@ -268,7 +268,7 @@ You can see it at
 The text of the topic is shown below:
 {MESSAGE}
 
-Unsubscribe to new topics from this board by using this link:
+Unsubscribe from new topics from this board by using this link:
 {UNSUBSCRIBELINK}
 
 {REGARDS}';
@@ -286,7 +286,7 @@ $txt['notify_boards_body'] = 'A new topic, \'{TOPICSUBJECT}\', has been made on 
 You can see it at
 {TOPICLINK}
 
-Unsubscribe to new topics from this board by using this link:
+Unsubscribe from new topics from this board by using this link:
 {UNSUBSCRIBELINK}
 
 {REGARDS}';
@@ -547,7 +547,7 @@ Before you can login, you first need to activate your account. To do so, please 
 
 {ACTIVATIONLINK}
 
-Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOUTCODE} use the code "{ACTIVATIONCODE}".
+Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOUTCODE} and use the code "{ACTIVATIONCODE}".
 
 {REGARDS}';
 
@@ -593,7 +593,7 @@ $txt['register_immediate_body'] = 'Thank you for registering at {FORUMNAME}. You
 $txt['register_pending_subject'] = 'Welcome to {FORUMNAME}';
 $txt['register_pending_body'] = 'Hello {REALNAME}, your registration request at {FORUMNAME} has been received.
 
-The username you registered with was {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}.
+The username you want to register with was {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}.
 
 Before you can login and start using the forum, your request will be reviewed and approved.
 
@@ -612,7 +612,7 @@ $txt['notification_reply_body'] = 'A reply has been posted to a topic you are wa
 
 View the reply at: {TOPICLINK}
 
-Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
+Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 {REGARDS}';
 
@@ -630,7 +630,7 @@ $txt['notification_reply_body_body'] = 'A reply has been posted to a topic you a
 
 View the reply at: {TOPICLINK}
 
-Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
+Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 The text of the reply is shown below:
 {MESSAGE}
@@ -650,7 +650,7 @@ $txt['notification_reply_once_body'] = 'A reply has been posted to a topic you a
 
 View the reply at: {TOPICLINK}
 
-Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
+Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 More replies may be posted, but you won\'t receive any more notifications until you read the topic.
 
@@ -670,7 +670,7 @@ $txt['notification_reply_body_once_body'] = 'A reply has been posted to a topic 
 
 View the reply at: {TOPICLINK}
 
-Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
+Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 The text of the reply is shown below:
 {MESSAGE}
@@ -688,7 +688,7 @@ $txt['notification_sticky_body'] = 'A topic you are watching has been marked as 
 
 View the topic at: {TOPICLINK}
 
-Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
+Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 {REGARDS}';
 
@@ -701,7 +701,7 @@ $txt['notification_lock_body'] = 'A topic you are watching has been locked.
 
 View the topic at: {TOPICLINK}
 
-Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
+Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 {REGARDS}';
 
@@ -714,7 +714,7 @@ $txt['notification_unlock_body'] = 'A topic you are watching has been unlocked.
 
 View the topic at: {TOPICLINK}
 
-Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
+Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 {REGARDS}';
 
@@ -736,7 +736,7 @@ $txt['notification_move_body'] = 'A topic you are watching has been moved to ano
 
 View the topic at: {TOPICLINK}
 
-Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
+Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 {REGARDS}';
 
@@ -749,7 +749,7 @@ $txt['notification_merge_body'] = 'A topic you are watching has been merged with
 
 View the new merged topic at: {TOPICLINK}
 
-Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
+Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 {REGARDS}';
 
@@ -762,7 +762,7 @@ $txt['notification_split_body'] = 'A topic you are watching has been split into 
 
 View what remains of this topic at: {TOPICLINK}
 
-Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
+Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
 {REGARDS}';
 

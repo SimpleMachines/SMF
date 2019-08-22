@@ -45,7 +45,7 @@ $txt['paid_currency'] = 'Select Currency';
 $txt['paid_currency_code'] = 'Currency Code';
 $txt['paid_currency_code_desc'] = 'Code used by payment merchants';
 $txt['paid_currency_symbol'] = 'Symbol used by payment method';
-$txt['paid_currency_symbol_desc'] = 'Use \'%1.2f\' to specify where number goes, for example $%1.2f, %1.2fDM etc';
+$txt['paid_currency_symbol_desc'] = 'Use \'%1.2f\' to specify where number goes. For example $%1.2f, %1.2fDM etc';
 $txt['paid_settings_save'] = 'Save';
 
 $txt['paypal_email'] = 'PayPal email address';

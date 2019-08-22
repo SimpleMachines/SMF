@@ -3926,7 +3926,7 @@ function template_welcome_message()
 		$ago_hours = floor($ago / 3600);
 		$ago_minutes = intval(($ago / 60) % 60);
 		$ago_seconds = intval($ago % 60);
-		$agoTxt = $ago < 60 ? 'upgrade_time_ago_s' : ($ago < 3600 ? 'upgrade_time_ago_ms' : 'upgrade_time_ago_hms');
+		$agoTxt = $ago < 60 ? 'upgrade_time_s' : ($ago < 3600 ? 'upgrade_time_ms' : 'upgrade_time_hms');
 
 		$updated = time() - $upcontext['updated'];
 		$updated_hours = floor($updated / 3600);
@@ -4559,7 +4559,7 @@ console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes,
 							if (!attemptAgain)
 							{
 								document.getElementById("error_block").classList.remove("hidden");
-								setInnerHTML(document.getElementById("error_message"), "', sprintf($txt['upgrade_repondtime'], ($timeLimitThreshold * 10)), '" + "<a href=\"#\" onclick=\"retTimeout(true); return false;\">', $txt['upgrade_respondtime_clickhere'], '</a>");
+								setInnerHTML(document.getElementById("error_message"), "', sprintf($txt['upgrade_respondtime'], ($timeLimitThreshold * 10)), '" + "<a href=\"#\" onclick=\"retTimeout(true); return false;\">', $txt['upgrade_respondtime_clickhere'], '</a>");
 							}
 							else
 							{

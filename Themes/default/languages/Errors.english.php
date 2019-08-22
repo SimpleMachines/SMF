@@ -222,8 +222,8 @@ $txt['theme_edit_missing'] = 'The file you are trying to edit can\'t be found.';
 $txt['no_dump_database'] = 'Only administrators can make database backups.';
 $txt['pm_not_yours'] = 'The personal message you\'re trying to quote is not your own or does not exist, please go back and try again.';
 $txt['mangled_post'] = 'Mangled form data - please go back and try again.';
-$txt['too_many_groups'] = 'Sorry, you selected too many groups, please remove some.';
-$txt['post_upload_error'] = 'The post data is missing. This error is can be caused by trying to submit a file larger than allowed by the server. Please contact your administrator if this problem continues.';
+$txt['too_many_groups'] = 'Sorry, you selected too many groups, please remove some from your selection.';
+$txt['post_upload_error'] = 'The post data is missing. This error can be caused by trying to submit a file larger than allowed by the server. Please contact your administrator if this problem continues.';
 $txt['quoted_post_deleted'] = 'The post you are trying to quote either does not exist, was deleted, or is no longer viewable by you.';
 $txt['pm_too_many_per_hour'] = 'You have exceeded the limit of %1$d personal messages per hour.';
 
@@ -278,7 +278,7 @@ $txt['smileys_upload_error_blank'] = 'All smiley sets must have an image.';
 $txt['smileys_upload_error_name'] = 'All smileys must have the same filename.';
 $txt['smileys_upload_error_illegal'] = 'Illegal Type.';
 
-$txt['search_invalid_weights'] = 'Search weights are not properly configured. At least one weight should be configure to be non-zero. Please report this error to an administrator.';
+$txt['search_invalid_weights'] = 'Search weights are not properly configured. At least one weight should be configured to be non-zero. Please report this error to an administrator.';
 $txt['unable_to_create_temporary'] = 'The search function was unable to create temporary tables. Please try again.';
 
 $txt['package_no_file'] = 'Unable to find package file!';
@@ -374,7 +374,7 @@ $txt['loadavg_allunread_disabled'] = 'The server\'s resources are temporarily un
 $txt['loadavg_unreadreplies_disabled'] = 'The server is currently under high stress. Please try again shortly.';
 $txt['loadavg_show_posts_disabled'] = 'Please try again later. This member\'s posts are not currently available due to high load on the server.';
 $txt['loadavg_unread_disabled'] = 'The server\'s resources are temporarily under too high a demand to list out the topics you have not read.';
-$txt['loadavg_userstats_disabled'] = 'Please try again later. This member\'s statistics are not currently available due to high load on the server.';
+$txt['loadavg_userstats_disabled'] = 'This member\'s statistics are not currently available due to high load on the server. Please try again later.';
 
 $txt['cannot_edit_permissions_inherited'] = 'You cannot edit inherited permissions directly, you must either edit the parent group or edit the membergroup inheritance.';
 
@@ -442,14 +442,14 @@ $txt['restore_not_found'] = 'The following messages could not be restored; the o
 $txt['error_invalid_dir'] = 'The directory you entered is invalid.';
 
 // json errors.
-$txt['json_JSON_ERROR_DEPTH'] = 'Json decode error: The maximum stack depth has been exceeded';
-$txt['json_JSON_ERROR_STATE_MISMATCH'] = 'Json decode error: Invalid or malformed JSON';
-$txt['json_JSON_ERROR_CTRL_CHAR'] = 'Json decode error: Control character error, possibly incorrectly encoded';
-$txt['json_JSON_ERROR_SYNTAX'] = 'Json decode error: Syntax error, malformed JSON';
-$txt['json_JSON_ERROR_UTF8'] = 'Json decode error: Malformed UTF-8 characters, possibly incorrectly encoded';
-$txt['json_JSON_ERROR_RECURSION'] = 'Json decode error: One or more recursive references in the value to be encoded';
-$txt['json_JSON_ERROR_INF_OR_NAN'] = 'Json decode error: One or more NAN or INF values in the value to be encoded';
-$txt['json_JSON_ERROR_UNSUPPORTED_TYPE'] = 'Json decode error: A value of a type that cannot be encoded was given';
+$txt['json_JSON_ERROR_DEPTH'] = 'JSON decode error: The maximum stack depth has been exceeded';
+$txt['json_JSON_ERROR_STATE_MISMATCH'] = 'JSON decode error: Invalid or malformed JSON';
+$txt['json_JSON_ERROR_CTRL_CHAR'] = 'JSON decode error: Control character error, possibly incorrectly encoded';
+$txt['json_JSON_ERROR_SYNTAX'] = 'JSON decode error: Syntax error, malformed JSON';
+$txt['json_JSON_ERROR_UTF8'] = 'JSON decode error: Malformed UTF-8 characters, possibly incorrectly encoded';
+$txt['json_JSON_ERROR_RECURSION'] = 'JSON decode error: One or more recursive references in the value to be encoded';
+$txt['json_JSON_ERROR_INF_OR_NAN'] = 'JSON decode error: One or more NAN or INF values in the value to be encoded';
+$txt['json_JSON_ERROR_UNSUPPORTED_TYPE'] = 'JSON decode error: A value of a type that cannot be encoded was given';
 $txt['json_unknown'] = 'Unknown error';
 
 ?>

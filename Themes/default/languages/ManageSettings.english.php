@@ -61,7 +61,7 @@ $txt['disallow_sendBody'] = 'Don\'t allow post text in notifications';
 $txt['enable_ajax_alerts'] = 'Allow AJAX Desktop Notifications for Alerts';
 $txt['jquery_source'] = 'Source for the jQuery Library';
 $txt['jquery_custom_label'] = 'Custom';
-$txt['jquery_custom'] = 'Custom url to the jQuery Library';
+$txt['jquery_custom'] = 'Custom URL to the jQuery Library';
 $txt['jquery_local'] = 'Local';
 $txt['jquery_cdn'] = 'Google CDN';
 $txt['jquery_auto'] = 'Auto';
@@ -82,7 +82,7 @@ $txt['todayMod'] = 'Enable shorthand date display';
 $txt['today_disabled'] = 'Disabled';
 $txt['today_only'] = 'Only Today';
 $txt['yesterday_today'] = 'Today &amp; Yesterday';
-$txt['onlineEnable'] = 'Show online/offline in posts and PMs';
+$txt['onlineEnable'] = 'Show online/offline status in posts and PMs';
 $txt['defaultMaxMembers'] = 'Members per page in member list';
 $txt['timeLoadPageEnable'] = 'Display time taken to create every page';
 $txt['disableHostnameLookup'] = 'Disable hostname lookups';
@@ -189,7 +189,7 @@ $txt['setting_image_verification_sample'] = 'Sample';
 
 // reCAPTCHA
 $txt['recaptcha_configure'] = 'reCAPTCHA Verification System';
-$txt['recaptcha_configure_desc'] = 'Configure the reCAPTCHA Verification System. Don\'t have a key for reCAPTCHA? <a href="https://www.google.com/recaptcha/admin"> Get your reCAPTCHA key here</a>.';
+$txt['recaptcha_configure_desc'] = 'Configure the reCAPTCHA Verification System. Don\'t have a key for reCAPTCHA? <a href="https://www.google.com/recaptcha/admin">Get your reCAPTCHA key here</a>.';
 $txt['recaptcha_enabled'] = 'Use reCAPTCHA Verification System';
 $txt['recaptcha_enable_desc'] = 'This augments the built-in visual verification';
 $txt['recaptcha_theme'] = 'reCAPTCHA Theme';
