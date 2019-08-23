@@ -212,7 +212,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 		'{db_prefix}settings',
 		array('variable' => 'string', 'value' => 'string'),
 		$inserts,
-		array('id_theme', 'id_member', 'variable')
+		array('variable')
 	);
 ---}
 ---#
