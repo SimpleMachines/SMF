@@ -1031,13 +1031,16 @@ function checkLogin()
 		$upcontext['username'] = $_POST['user'];
 
 		// Track whether javascript works!
-		if (!empty($_POST['js_works']))
+		if (isset($_POST['js_works']))
 		{
-			$upcontext['upgrade_status']['js'] = 1;
-			$support_js = 1;
+			if (!empty($_POST['js_works']))
+			{
+				$upcontext['upgrade_status']['js'] = 1;
+				$support_js = 1;
+			}
+			else
+				$support_js = 0;
 		}
-		else
-			$support_js = 0;
 
 		// Note down the version we are coming from.
 		if (!empty($modSettings['smfVersion']) && empty($upcontext['user']['version']))
