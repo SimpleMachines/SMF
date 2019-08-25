@@ -1909,7 +1909,7 @@ upgrade_query("
 		('enableBBC', '" . (!isset($GLOBALS['enable_ubbc']) ? 1 : $GLOBALS['enable_ubbc']) . "'),
 		('max_messageLength', '" . (empty($GLOBALS['MaxMessLen']) ? 10000 : $GLOBALS['MaxMessLen']) . "'),
 		('max_signatureLength', '" . @$GLOBALS['MaxSigLen'] . "'),
-		('spamWaitTime', '" . @$GLOBALS['timeout'] . "'),
+		('spamWaitTime', '" . (empty($GLOBALS['timeout']) ? 5 : $GLOBALS['timeout']) . "'),
 		('avatar_directory', '" . (isset($GLOBALS['facesdir']) ? fixRelativePath($GLOBALS['facesdir']) : fixRelativePath('./avatars')) . "'),
 		('avatar_url', '" . @$GLOBALS['facesurl'] . "'),
 		('avatar_max_height_external', '" . @$GLOBALS['userpic_height'] . "'),
@@ -1919,7 +1919,7 @@ upgrade_query("
 		('defaultMaxMessages', '" . (empty($GLOBALS['maxmessagedisplay']) ? 15 : $GLOBALS['maxmessagedisplay']) . "'),
 		('defaultMaxTopics', '" . (empty($GLOBALS['maxdisplay']) ? 20 : $GLOBALS['maxdisplay']) . "'),
 		('defaultMaxMembers', '" . (empty($GLOBALS['MembersPerPage']) ? 20 : $GLOBALS['MembersPerPage']) . "'),
-		('time_offset', '" . @$GLOBALS['timeoffset'] . "'),
+		('time_offset', '" . (empty($GLOBALS['timeoffset']) ? 0 : $GLOBALS['timeoffset']) . "'),
 		('cookieTime', '" . (empty($GLOBALS['Cookie_Length']) ? 60 : $GLOBALS['Cookie_Length']) . "'),
 		('requireAgreement', '" . @$GLOBALS['RegAgree'] . "')");
 ---}
