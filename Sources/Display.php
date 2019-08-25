@@ -1687,7 +1687,7 @@ function prepareDisplayContext($reset = false)
 			),
 			'warn' => array(
 				'label' => $txt['issue_warning'],
-				'href' => $scripturl, '?action=profile;area=issuewarning;u='.$output['member']['id'].';msg='.$output['id'],
+				'href' => $scripturl.'?action=profile;area=issuewarning;u='.$output['member']['id'].';msg='.$output['id'],
 				'icon' => 'warn_button',
 				'show' => $context['can_issue_warning'] && !$output['is_message_author'] && !$output['member']['is_guest']
 			),
