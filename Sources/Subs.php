@@ -1406,6 +1406,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'alt' => array('optional' => true),
 					'width' => array('optional' => true, 'match' => '(\d+)'),
 					'height' => array('optional' => true, 'match' => '(\d+)'),
+					'display' => array('optional' => true, 'match' => '(link|embed)'),
 				),
 				'content' => '$1',
 				'validate' => function(&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt, $smcFunc)
@@ -1428,7 +1429,19 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (is_string($currentAttachment))
 						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
 
-					if (!empty($currentAttachment['is_image']) && (!isset($param['{type}']) || strpos($param['{type}'], 'image') === 0))
+					// We need a display mode.
+					if (empty($params['{display}']))
+					{
+						// Images, video, and audio are embedded by default.
+						if (!empty($currentAttachment['is_image']) || strpos($currentAttachment['mime_type'], 'video/') === 0 || strpos($currentAttachment['mime_type'], 'audio/') === 0)
+							$params['{display}'] = 'embed';
+						// Anything else shows a link by default.
+						else
+							$params['{display}'] = 'link';
+					}
+
+					// Embedded file.
+					if ($params['{display}'] == 'embed')
 					{
 						$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $currentAttachment['name']) . '"';
 						$title = !empty($data) ? ' title="' . $smcFunc['htmlspecialchars']($data) . '"' : '';
@@ -1436,16 +1449,44 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
 						$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
 
-						if (empty($width) && empty($height))
+						// Image.
+						if (!empty($currentAttachment['is_image']))
 						{
-							$width = ' width="' . $currentAttachment['width'] . '"';
-							$height = ' height="' . $currentAttachment['height'] . '"';
-						}
+							if (empty($width) && empty($height))
+							{
+								$width = ' width="' . $currentAttachment['width'] . '"';
+								$height = ' height="' . $currentAttachment['height'] . '"';
+							}
 
-						if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
-							$returnContext .= '<a href="' . $currentAttachment['href'] . ';image" id="link_' . $currentAttachment['id'] . '" onclick="' . $currentAttachment['thumbnail']['javascript'] . '"><img src="' . $currentAttachment['thumbnail']['href'] . '"' . $alt . $title . ' id="thumb_' . $currentAttachment['id'] . '" class="atc_img"></a>';
+							if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
+								$returnContext .= '<a href="' . $currentAttachment['href'] . ';image" id="link_' . $currentAttachment['id'] . '" onclick="' . $currentAttachment['thumbnail']['javascript'] . '"><img src="' . $currentAttachment['thumbnail']['href'] . '"' . $alt . $title . ' id="thumb_' . $currentAttachment['id'] . '" class="atc_img"></a>';
+							else
+								$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img"/>';
+						}
+						// Video.
+						elseif (strpos($currentAttachment['mime_type'], 'video/') === 0)
+						{
+							$width = !empty($width) ? ' width="' . $width . '"' : '';
+							$height = !empty($height) ? ' height="' . $height . '"' : '';
+
+							$returnContext .= '<div class="videocontainer"><div><video controls preload="none" src="'. $currentAttachment['href'] . '" playsinline' . $width . $height . ' style="object-fit:contain;"><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></video></div></div>' . (!empty($data) && $data != $currentAttachment['name'] ? '<div class="smalltext">' . $data . '</div>' : '');
+						}
+						// Audio.
+						elseif (strpos($currentAttachment['mime_type'], 'audio/') === 0)
+						{
+							$width = 'max-width:100%; width: ' . (!empty($width) ? $width : '400') . 'px;';
+							$height = !empty($height) ? 'height: ' . $height . 'px;' : '';
+
+							$returnContext .= (!empty($data) && $data != $currentAttachment['name'] ? $data . ' ' : '') . '<audio controls preload="none" src="'. $currentAttachment['href'] . '" class="bbc_audio" style="vertical-align:middle;' . $width . $height . '"><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></audio>';
+						}
+						// Anything else.
 						else
-							$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img"/>';
+						{
+							$width = !empty($width) ? ' width="' . $width . '"' : '';
+							$height = !empty($height) ? ' height="' . $height . '"' : '';
+
+							$returnContext .= '<object type="' . $currentAttachment['mime_type'] . '" data="' . $currentAttachment['href'] . '"' . $width . $height . ' typemustmatch><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></object>';
+						}
 					}
 
 					// No image. Show a link.
