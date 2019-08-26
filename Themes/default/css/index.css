@@ -1319,6 +1319,9 @@ ul li.greeting {
 	text-align: right;
 	font-size: 0.9em;
 }
+#recent .quickbuttons {
+	margin: 0;
+}
 .quickbuttons li {
 	float: left;
 	display: inline;
