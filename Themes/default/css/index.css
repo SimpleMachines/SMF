@@ -3116,7 +3116,7 @@ span.postby {
 	margin-top: 5px !important;
 }
 #topic_container .windowbg {
-	border: 1px solid #ddd;
+	border: 1px solid rgba(0, 0, 0, 0.13);
 	border-top: none;
 	display: flex;
 	box-shadow: none;
