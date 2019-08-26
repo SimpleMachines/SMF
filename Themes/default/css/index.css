@@ -3143,11 +3143,7 @@ span.postby {
 }
 /* Quick moderation selects and submit */
 #quick_actions {
-	padding: 4px 0;
-}
-/* Investigate default select and button sizing. Something is slightly off there.*/
-.qaction.button {
-	margin: 1px 4px 0 4px;
+	margin: 6px 0;
 }
 /* Icons and jump to */
 #topic_icons::before {
