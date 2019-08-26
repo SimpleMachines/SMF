@@ -93,6 +93,9 @@ class browser_detector
 		// Fill out the historical array as needed to support old mods that don't use isBrowser
 		$this->fillInformation();
 
+		// Make it easy to check if the browser is on a mobile device.
+		$this->_browsers['is_mobile'] = $this->_is_mobile;
+
 		// Last step ...
 		$this->setupBrowserPriority();
 
