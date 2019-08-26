@@ -1433,7 +1433,7 @@ ul li.greeting {
 
 /* The jump to box */
 #display_jump_to {
-	padding: 11px 5px 5px 0;
+	padding: 11px 0 5px 0;
 	float: right;
 	font-size: 1em;
 }
@@ -3560,7 +3560,7 @@ ul.post_options li {
 }
 #moderationbuttons_strip {
 	float: left;
-	margin: 4px 0 4px -4px;
+	margin: 4px 0 4px;
 }
 #moderationbuttons ul li {
 	padding: 0 6px 4px 0;
