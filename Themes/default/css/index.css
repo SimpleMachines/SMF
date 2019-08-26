@@ -11,6 +11,11 @@ body {
 	flex-direction: column;
 	min-height: 100vh;
 }
+::selection {
+	text-shadow: none;
+	background: #99d4ff;
+	color: rgba(0, 0, 0, 0.6);
+}
 /* General reset */
 * {
 	box-sizing: border-box;
