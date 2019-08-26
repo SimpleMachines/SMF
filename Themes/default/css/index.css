@@ -1721,12 +1721,8 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 }
 
 /* Small fix for topics */
-.quickbuttons span.main_icons, .button span.main_icons {
+.quickbuttons .main_icons::before, .button .main_icons::before {
 	margin: -3px 3px 0 1px;
-}
-.quickbuttons span.main_icons.quote,
-.quickbuttons span.main_icons.quote_selected {
-	margin: -8px 3px 0 0;
 }
 
 .main_icons.gender_None::before {
