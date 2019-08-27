@@ -255,6 +255,9 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 
 	$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : 0;
 
+	// Do something before?
+	call_integration_hook('integrate_remove_topics_before', array($topics, $recycle_board));
+
 	// Decrease the post counts.
 	if ($decreasePostCount)
 	{
