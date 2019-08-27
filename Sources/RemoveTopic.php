@@ -984,10 +984,10 @@ function removeMessage($message, $decreasePostCount = true)
 			'id_msg' => $message,
 		);
 		removeAttachments($attachmentQuery);
-
-		// Allow mods to remove message related data of their own (likes, maybe?)
-		call_integration_hook('integrate_remove_message', array($message));
 	}
+
+	// Allow mods to remove message related data of their own (likes, maybe?)
+	call_integration_hook('integrate_remove_message', array($message, $row, $recycle));
 
 	// Update the pesky statistics.
 	updateStats('message');
