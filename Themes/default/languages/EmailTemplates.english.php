@@ -351,7 +351,7 @@ You can approve or reject this topic by using the link below:
 /**
 	@additional_params: request_membership
 		RECPNAME: The name of the person receiving the email
-		APPYNAME: The name of the person applying for group membership
+		APPLYNAME: The name of the person applying for group membership
 		GROUPNAME: The name of the group being applied to.
 		REASON: The reason given by the applicant for wanting to join the group.
 		MODLINK: Link to the group moderation page.
@@ -360,7 +360,7 @@ You can approve or reject this topic by using the link below:
 $txt['request_membership_subject'] = 'New Group Application';
 $txt['request_membership_body'] = '{RECPNAME},
 
-{APPYNAME} has requested membership to the "{GROUPNAME}" group. The user has given the following reason:
+{APPLYNAME} has requested membership to the "{GROUPNAME}" group. The user has given the following reason:
 
 {REASON}
 
