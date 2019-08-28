@@ -15,10 +15,10 @@ global $txtBirthdayEmails;
 	@additional_params: resend_activate_message
 		REALNAME: The display name for the member receiving the email.
 		USERNAME:  The user name for the member receiving the email.
-		ACTIVATIONLINK:  The url link to activate the member's account.
+		ACTIVATIONLINK:  The URL link to activate the member's account.
 		ACTIVATIONCODE:  The code needed to activate the member's account.
-		ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
-		FORGOTPASSWORDLINK: The url to the "forgot password" page.
+		ACTIVATIONLINKWITHOUTCODE: The URL to the page where the activation code can be entered.
+		FORGOTPASSWORDLINK: The URL to the "forgot password" page.
 	@description:
 */
 $txt['resend_activate_message_subject'] = 'Welcome to {FORUMNAME}';
@@ -107,8 +107,8 @@ Your account has been activated manually by the admin and you can now login and 
 /**
 	@additional_params: admin_approve_activation
 		USERNAME: The user name for the member receiving the email.
-		ACTIVATIONLINK:  The url link to activate the member's account.
-		ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
+		ACTIVATIONLINK:  The URL link to activate the member's account.
+		ACTIVATIONLINKWITHOUTCODE: The URL to the page where the activation code can be entered.
 		ACTIVATIONCODE: The activation code.
 	@description:
 */
@@ -150,8 +150,8 @@ Your account on {FORUMNAME} has been deleted. This may be because you never acti
 /**
 	@additional_params: admin_approve_remind
 		USERNAME: The user name for the member receiving the email.
-		ACTIVATIONLINK:  The url link to activate the member's account.
-		ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
+		ACTIVATIONLINK:  The URL link to activate the member's account.
+		ACTIVATIONLINKWITHOUTCODE: The URL to the page where the activation code can be entered.
 		ACTIVATIONCODE: The activation code.
 	@description:
 */
@@ -169,8 +169,8 @@ Should you have any problems with the activation, please visit {ACTIVATIONLINKWI
 /**
 	@additional_params:
 		USERNAME: The user name for the member receiving the email.
-		ACTIVATIONLINK:  The url link to activate the member's account.
-		ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
+		ACTIVATIONLINK:  The URL link to activate the member's account.
+		ACTIVATIONLINKWITHOUTCODE: The URL to the page where the activation code can be entered.
 		ACTIVATIONCODE: The activation code.
 	@description:
 */
@@ -186,7 +186,7 @@ Should you have any problems with the activation, please visit {ACTIVATIONLINKWI
 {REGARDS}';
 
 $txt['admin_register_immediate_subject'] = 'Welcome to {FORUMNAME}';
-$txt['admin_register_immediate_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME}, your password is {PASSWORD} and the forum url is: {SCRIPTURL}.
+$txt['admin_register_immediate_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME}, your password is {PASSWORD} and the forum URL is: {SCRIPTURL}.
 
 {REGARDS}';
 
@@ -393,9 +393,9 @@ To edit your subscriptions visit the following URL:
 
 /**
 	@additional_params: activate_reactivate
-		ACTIVATIONLINK:  The url link to reactivate the member's account.
+		ACTIVATIONLINK:  The URL link to reactivate the member's account.
 		ACTIVATIONCODE:  The code needed to reactivate the member's account.
-		ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
+		ACTIVATIONLINKWITHOUTCODE: The URL to the page where the activation code can be entered.
 	@description:
 */
 $txt['activate_reactivate_subject'] = 'Welcome back to {FORUMNAME}';
@@ -440,8 +440,8 @@ $txt['send_email_body'] = '{EMAILBODY}';
 		TOPICSUBJECT: The subject of the reported post.
 		POSTERNAME: The reported post's author's name.
 		REPORTERNAME: The name of the person reporting the post.
-		TOPICLINK: The url of the post that is being reported.
-		REPORTLINK: The url of the moderation center report.
+		TOPICLINK: The URL of the post that is being reported.
+		REPORTLINK: The URL of the moderation center report.
 		COMMENT: The comment left by the reporter, hopefully to explain why they are reporting the post.
 	@description: When a user reports a post this email is sent out to moderators and admins of that board.
 */
@@ -461,8 +461,8 @@ The reporter has made the following comment:
 		TOPICSUBJECT: The subject of the reported post.
 		POSTERNAME: The reported post's author's name.
 		COMMENTERNAME: The name of the person who replied to the report.
-		TOPICLINK: The url of the post that is being reported.
-		REPORTLINK: The url of the moderation center report.
+		TOPICLINK: The URL of the post that is being reported.
+		REPORTLINK: The URL of the moderation center report.
 	@description: When a moderator replies to a moderation report, this can be sent to the other moderators who previously replied.
 */
 $txt['reply_to_moderator_subject'] = 'Follow-up to reported post: {TOPICSUBJECT} by {POSTERNAME}';
@@ -534,10 +534,10 @@ You may change it after you login by going to the profile page, or by visiting t
 		REALNAME: The display name for the member receiving the email.
 		USERNAME: The user name for the member receiving the email.
 		PASSWORD: The password for the member.
-		ACTIVATIONLINK:  The url link to reactivate the member's account.
-		ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
+		ACTIVATIONLINK:  The URL link to reactivate the member's account.
+		ACTIVATIONLINKWITHOUTCODE: The URL to the page where the activation code can be entered.
 		ACTIVATIONCODE:  The code needed to reactivate the member's account.
-		FORGOTPASSWORDLINK: The url to the "forgot password" page.
+		FORGOTPASSWORDLINK: The URL to the "forgot password" page.
 	@description:
 */
 $txt['register_activate_subject'] = 'Welcome to {FORUMNAME}';
@@ -556,8 +556,8 @@ Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOU
 		REALNAME: The display name for the member receiving the email.
 		USERNAME: The user name for the member receiving the email.
 		PASSWORD: The password for the member.
-		COPPALINK:  The url link to the coppa form.
-		FORGOTPASSWORDLINK: The url to the "forgot password" page.
+		COPPALINK:  The URL link to the coppa form.
+		FORGOTPASSWORDLINK: The URL to the "forgot password" page.
 	@description:
 */
 $txt['register_coppa_subject'] = 'Welcome to {FORUMNAME}';
@@ -574,7 +574,7 @@ Before you can login, the admin requires consent from your parent/guardian for y
 		REALNAME: The display name for the member receiving the email.
 		USERNAME: The user name for the member receiving the email.
 		PASSWORD: The password for the member.
-		FORGOTPASSWORDLINK: The url to the "forgot password" page.
+		FORGOTPASSWORDLINK: The URL to the "forgot password" page.
 	@description:
 */
 $txt['register_immediate_subject'] = 'Welcome to {FORUMNAME}';
@@ -587,7 +587,7 @@ $txt['register_immediate_body'] = 'Thank you for registering at {FORUMNAME}. You
 		REALNAME: The display name for the member receiving the email.
 		USERNAME: The user name for the member receiving the email.
 		PASSWORD: The password for the member.
-		FORGOTPASSWORDLINK: The url to the "forgot password" page.
+		FORGOTPASSWORDLINK: The URL to the "forgot password" page.
 	@description:
 */
 $txt['register_pending_subject'] = 'Welcome to {FORUMNAME}';

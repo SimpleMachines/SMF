@@ -199,7 +199,7 @@ $helptxt['cal_short_months'] = 'If this setting is checked, month names within t
 $helptxt['cal_short_days'] = 'If this setting is checked, day names within the calendar will be shortened.<br><br><strong>Enabled:</strong> ' . $txt['days_short'][1] . '<br><strong>Disabled:</strong> ' . $txt['days'][1];
 
 $helptxt['serversettings'] = '<strong>Server Settings</strong><br>
-	Here you can perform some core configuration for your forum. This page includes the database and url settings, as well as other
+	Here you can perform some core configuration for your forum. This page includes the database and URL settings, as well as other
 	important configuration items such as mail settings and caching. Think carefully whenever editing these settings as an error may
 	render the forum inaccessible';
 $helptxt['manage_files'] = '
