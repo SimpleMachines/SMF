@@ -413,7 +413,7 @@ class Likes
 		}
 
 		// Sometimes there might be other things that need updating after we do this like.
-		call_integration_hook('integrate_issue_like', array($this));
+		call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $this->_user['id'], $this->_alreadyLiked, $this->_validLikes));
 
 		// Now some clean up. This is provided here for any like handlers that want to do any cache flushing.
 		// This way a like handler doesn't need to explicitly declare anything in integrate_issue_like, but do so
