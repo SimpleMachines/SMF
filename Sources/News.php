@@ -789,7 +789,7 @@ function getXmlMembers($xml_format)
 		SELECT id_member, member_name, real_name, date_registered, last_login
 		FROM {db_prefix}members
 		ORDER BY id_member DESC
-		LIMIT {int:limit}, {int:offset}',
+		LIMIT {int:limit} OFFSET {int:offset}',
 		array(
 			'limit' => $_GET['limit'],
 			'offset' => $_GET['offset'],
