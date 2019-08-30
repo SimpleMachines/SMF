@@ -41,6 +41,11 @@ foreach (array('db_character_set', 'cachedir') as $variable)
 // Load the settings...
 require_once(dirname(__FILE__) . '/Settings.php');
 
+// Ensure there are no trailing slashes in these variables.
+foreach (array('boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'taskddir', 'cachedir') as $variable)
+	if (!empty($GLOBALS[$variable]))
+		$GLOBALS[$variable] = rtrim($GLOBALS[$variable], "\\/");
+
 // Make absolutely sure the cache directory is defined.
 if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
@@ -81,7 +86,6 @@ if (isset($_GET['scheduled']))
 
 // And important includes.
 require_once($sourcedir . '/Session.php');
-require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Logging.php');
 require_once($sourcedir . '/Security.php');
 require_once($sourcedir . '/Class-BrowserDetect.php');

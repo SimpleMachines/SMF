@@ -6987,25 +6987,25 @@ function url_to_iri($url)
  */
 function check_cron()
 {
-	global $user_info, $modSettings, $smcFunc, $txt;
+	global $modSettings, $smcFunc, $txt;
 
-	if (empty($modSettings['cron_last_checked']))
-		$modSettings['cron_last_checked'] = 0;
-
-	if (!empty($modSettings['cron_is_real_cron']) && time() - $modSettings['cron_last_checked'] > 84600)
+	if (!empty($modSettings['cron_is_real_cron']) && time() - @intval($modSettings['cron_last_checked']) > 84600)
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT time_run
-			FROM {db_prefix}log_scheduled_tasks
-			ORDER BY id_log DESC
-			LIMIT 1',
-			array()
+			SELECT COUNT(*)
+			FROM {db_prefix}scheduled_tasks
+			WHERE disabled = {int:not_disabled}
+				AND next_time < {int:yesterday}',
+			array(
+				'not_disabled' => 0,
+				'yesterday' => time() - 84600,
+			)
 		);
-		list($time_run) = $smcFunc['db_fetch_row']($request);
+		list($overdue) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
-		// If it's been more than 24 hours since the last task ran, cron must not be working
-		if (!empty($time_run) && time() - $time_run > 84600)
+		// If we have tasks more than a day overdue, cron isn't doing its job.
+		if (!empty($overdue))
 		{
 			loadLanguage('ManageScheduledTasks');
 			log_error($txt['cron_not_working']);
