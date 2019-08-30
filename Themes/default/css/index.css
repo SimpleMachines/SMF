@@ -11,6 +11,11 @@ body {
 	flex-direction: column;
 	min-height: 100vh;
 }
+::selection {
+	text-shadow: none;
+	background: #99d4ff;
+	color: rgba(0, 0, 0, 0.6);
+}
 /* General reset */
 * {
 	box-sizing: border-box;
@@ -281,7 +286,7 @@ body#help_popup {
 h3.largetext {
 	font-size: large;
 }
-.xlarge_text {
+.xlargetext {
 	font-size: x-large;
 }
 .centertext, .centercol {
@@ -1319,6 +1324,9 @@ ul li.greeting {
 	text-align: right;
 	font-size: 0.9em;
 }
+#recent .quickbuttons {
+	margin: 0;
+}
 .quickbuttons li {
 	float: left;
 	display: inline;
@@ -1433,7 +1441,7 @@ ul li.greeting {
 
 /* The jump to box */
 #display_jump_to {
-	padding: 11px 5px 5px 0;
+	padding: 11px 0 5px 0;
 	float: right;
 	font-size: 1em;
 }
@@ -1721,12 +1729,8 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 }
 
 /* Small fix for topics */
-.quickbuttons span.main_icons, .button span.main_icons {
+.quickbuttons .main_icons::before, .button .main_icons::before {
 	margin: -3px 3px 0 1px;
-}
-.quickbuttons span.main_icons.quote,
-.quickbuttons span.main_icons.quote_selected {
-	margin: -8px 3px 0 0;
 }
 
 .main_icons.gender_None::before {
@@ -3117,7 +3121,7 @@ span.postby {
 	margin-top: 5px !important;
 }
 #topic_container .windowbg {
-	border: 1px solid #ddd;
+	border: 1px solid rgba(0, 0, 0, 0.13);
 	border-top: none;
 	display: flex;
 	box-shadow: none;
@@ -3144,11 +3148,7 @@ span.postby {
 }
 /* Quick moderation selects and submit */
 #quick_actions {
-	padding: 4px 0;
-}
-/* Investigate default select and button sizing. Something is slightly off there.*/
-.qaction.button {
-	margin: 1px 4px 0 4px;
+	margin: 6px 0;
 }
 /* Icons and jump to */
 #topic_icons::before {
@@ -3502,7 +3502,7 @@ ul.post_options li {
 #post_draft_options .settings strong {
 	color: #555;
 }
-#post_confirm_strip /* < That may be deprecated. */, #shortcuts {
+#post_confirm_buttons, #shortcuts {
 	padding: 12px 0;
 }
 #post_confirm_buttons .smalltext {
@@ -3560,7 +3560,7 @@ ul.post_options li {
 }
 #moderationbuttons_strip {
 	float: left;
-	margin: 4px 0 4px -4px;
+	margin: 4px 0 4px;
 }
 #moderationbuttons ul li {
 	padding: 0 6px 4px 0;

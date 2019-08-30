@@ -425,9 +425,6 @@ pre.file_content {
 	border-bottom: 1px dotted #000;
 	cursor: help;
 }
-#manage_boards .button {
-	margin: 2px 2px 0px 12px;
-}
 .select_all_box {
 	display: none;
 }
