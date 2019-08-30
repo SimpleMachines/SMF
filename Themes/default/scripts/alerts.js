@@ -6,7 +6,7 @@ $(function ()
 	if ($('meta[property="og:image"]').length != 0)
 		notificationIcon = $('meta[property="og:image"]').attr('content');
 
-	$.get(notificationIcon).fail(function() { 
+	$.get(notificationIcon).fail(function() {
 		notificationIcon = smf_images_url + '/blank.png';
 	})
 });
@@ -23,9 +23,9 @@ var updateAlerts = function ()
 		if (unreadAlerts != parseInt(unreadAlerts))
 			return true;
 
-		if ($('#alerts_menu_top > .amt:first').is(':visible'))
+		if ($('#alerts_menu_top > .amt:first').length)
 			$('#alerts_menu_top > .amt:first').text(unreadAlerts);
-		else if (!$('#alerts_menu_top > .amt:first').is(':visible') && unreadAlerts != 0)
+		else if (!$('#alerts_menu_top > .amt:first').length && unreadAlerts != 0)
 			$('#alerts_menu_top').append(' <span class="amt">' + unreadAlerts + '</span>');
 
 		if (localStorage.getItem('alertsPoll') != null && (+(new Date()) - localStorage.getItem('alertsPoll')) < pingTime)
@@ -54,9 +54,9 @@ var updateAlerts = function ()
 		if (typeof localStorage != 'undefined')
 			localStorage.setItem('alertsCounter', unreadAlerts);
 
-		if ($('#alerts_menu_top > .amt:first').is(':visible'))
+		if ($('#alerts_menu_top > .amt:first').length)
 			$('#alerts_menu_top > .amt:first').text(unreadAlerts);
-		else if (!$('#alerts_menu_top > .amt:first').is(':visible') && unreadAlerts != 0)
+		else if (!$('#alerts_menu_top > .amt:first').length && unreadAlerts != 0)
 			$('#alerts_menu_top').append('<span class="amt">' + unreadAlerts + '</span>');
 
 		$.each(alerts, function(index, item)
