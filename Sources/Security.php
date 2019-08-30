@@ -24,9 +24,10 @@ if (!defined('SMF'))
  * Uses the adminLogin() function of Subs-Auth.php if they need to login, which saves all request (post and get) data.
  *
  * @param string $type What type of session this is
+ * @param string $force When true, require a password even if we normally wouldn't
  * @return void|string Returns 'session_verify_fail' if verification failed
  */
-function validateSession($type = 'admin')
+function validateSession($type = 'admin', $force = false)
 {
 	global $modSettings, $sourcedir, $user_info;
 
@@ -41,13 +42,16 @@ function validateSession($type = 'admin')
 	// If we're using XML give an additional ten minutes grace as an admin can't log on in XML mode.
 	$refreshTime = isset($_GET['xml']) ? 4200 : 3600;
 
-	// Is the security option off?
-	if (!empty($modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]))
-		return;
+	if (empty($force))
+	{
+		// Is the security option off?
+		if (!empty($modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]))
+			return;
 
-	// Or are they already logged in?, Moderator or admin session is need for this area
-	if ((!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()) || (!empty($_SESSION['admin_time']) && $_SESSION['admin_time'] + $refreshTime >= time()))
-		return;
+		// Or are they already logged in?, Moderator or admin session is need for this area
+		if ((!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()) || (!empty($_SESSION['admin_time']) && $_SESSION['admin_time'] + $refreshTime >= time()))
+			return;
+	}
 
 	require_once($sourcedir . '/Subs-Auth.php');
 
