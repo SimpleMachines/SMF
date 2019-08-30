@@ -459,7 +459,7 @@ function DownloadLanguage()
 			),
 			'copy' => array(
 				'header' => array(
-					'value' => $txt['languages_download_copy'],
+					'value' => $txt['languages_download_overwrite'],
 					'class' => 'centercol',
 				),
 				'data' => array(
