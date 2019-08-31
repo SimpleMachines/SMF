@@ -1446,17 +1446,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $currentAttachment['name']) . '"';
 						$title = !empty($data) ? ' title="' . $smcFunc['htmlspecialchars']($data) . '"' : '';
 
-						$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
-						$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
+						$width = !empty($params['{width}']) ? $params['{width}'] : (!empty($currentAttachment['width']) ? $currentAttachment['width'] : '');
+						$height = !empty($params['{height}']) ? $params['{height}'] : (!empty($currentAttachment['height']) ? $currentAttachment['height'] : '');
 
 						// Image.
 						if (!empty($currentAttachment['is_image']))
 						{
-							if (empty($width) && empty($height))
-							{
-								$width = ' width="' . $currentAttachment['width'] . '"';
-								$height = ' height="' . $currentAttachment['height'] . '"';
-							}
+							$width = !empty($width) ? ' width="' . $width . '"' : '';
+							$height = !empty($height) ? ' height="' . $height . '"' : '';
 
 							if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
 								$returnContext .= '<a href="' . $currentAttachment['href'] . ';image" id="link_' . $currentAttachment['id'] . '" onclick="' . $currentAttachment['thumbnail']['javascript'] . '"><img src="' . $currentAttachment['thumbnail']['href'] . '"' . $alt . $title . ' id="thumb_' . $currentAttachment['id'] . '" class="atc_img"></a>';
