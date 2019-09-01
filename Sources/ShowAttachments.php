@@ -279,7 +279,12 @@ function showAttachment()
 
 	// Convert the file to UTF-8, cuz most browsers dig that.
 	$utf8name = !$context['utf8'] && function_exists('iconv') ? iconv($context['character_set'], 'UTF-8', $file['filename']) : (!$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($file['filename'], 'UTF-8', $context['character_set']) : $file['filename']);
-	$disposition = !isset($_REQUEST['image']) ? 'attachment' : 'inline';
+
+	// On mobile devices, audio and video should be served inline so the browser can play them.
+	if (isset($_REQUEST['image']) || (isBrowser('is_mobile') && (strpos($file['mime_type'], 'audio/') !== 0 || strpos($file['mime_type'], 'video/') !== 0)))
+		$disposition = 'inline';
+	else
+		$disposition = 'attachment';
 
 	// Different browsers like different standards...
 	if (isBrowser('firefox'))
