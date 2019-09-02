@@ -1182,7 +1182,7 @@ function Post($post_errors = array())
 	if ($context['can_post_attachment'])
 	{
 		// If they've unchecked an attachment, they may still want to attach that many more files, but don't allow more than num_allowed_attachments.
-		$context['num_allowed_attachments'] = empty($modSettings['attachmentNumPerPostLimit']) ? 50 : min($modSettings['attachmentNumPerPostLimit'] - count($context['current_attachments']), $modSettings['attachmentNumPerPostLimit']);
+		$context['num_allowed_attachments'] = min(ini_get('max_file_uploads'), (empty($modSettings['attachmentNumPerPostLimit']) ? 50 : $modSettings['attachmentNumPerPostLimit'] - count($context['current_attachments'])));
 		$context['can_post_attachment_unapproved'] = allowedTo('post_attachment');
 		$context['attachment_restrictions'] = array();
 		$context['allowed_extensions'] = strtr(strtolower($modSettings['attachmentExtensions']), array(',' => ', '));

@@ -327,7 +327,7 @@ function reloadSettings()
 
 	// Respect PHP's limits.
 	$post_max_kb = floor(memoryReturnBytes(ini_get('post_max_size')) / 1024);
-	$file_max_kb = min(floor(memoryReturnBytes(ini_get('upload_max_filesize')) / 1024), $post_max_kb);
+	$file_max_kb = floor(memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
 	$modSettings['attachmentPostLimit'] = empty($modSettings['attachmentPostLimit']) ? $post_max_kb : min($modSettings['attachmentPostLimit'], $post_max_kb);
 	$modSettings['attachmentSizeLimit'] = empty($modSettings['attachmentSizeLimit']) ? $file_max_kb : min($modSettings['attachmentSizeLimit'], $file_max_kb);
 
