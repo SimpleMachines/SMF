@@ -41,7 +41,7 @@ $txt['modlog_go'] = 'Go';
 $txt['modlog_add'] = 'Add';
 $txt['modlog_search'] = 'Quick Search';
 $txt['modlog_by'] = 'By';
-$txt['modlog_id'] = '<em>Deleted - ID:%1$d</em>';
+$txt['modlog_id'] = 'Deleted - ID:%1$d';
 
 $txt['modlog_ac_add_warn_template'] = 'Added warning template: &quot;{template}&quot;';
 $txt['modlog_ac_modify_warn_template'] = 'Edited the warning template: &quot;{template}&quot;';
@@ -87,7 +87,7 @@ $txt['modlog_ac_uninstall_package'] = 'Uninstalled package: &quot;{package}&quot
 $txt['modlog_ac_restore_topic'] = 'Restored topic &quot;{topic}&quot; from &quot;{board}&quot; to &quot;{board_to}&quot;';
 $txt['modlog_ac_restore_posts'] = 'Restored posts from &quot;{subject}&quot; to the topic &quot;{topic}&quot; in the &quot;{board}&quot; board.';
 
-$txt['modlog_parameter_guest'] = '<em>Guest</em>';
+$txt['modlog_parameter_guest'] = 'Guest';
 
 $txt['modlog_ac_approve_attach'] = 'Approved &quot;{filename}&quot; in &quot;{message}&quot;';
 $txt['modlog_ac_remove_attach'] = 'Removed unapproved &quot;{filename}&quot; in &quot;{message}&quot;';

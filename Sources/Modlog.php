@@ -435,7 +435,7 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 		{
 			// Guests don't have names!
 			if (empty($row['extra']['member']))
-				$row['extra']['member'] = $txt['modlog_parameter_guest'];
+				$row['extra']['member'] = '<em>' . $txt['modlog_parameter_guest'] . '</em>';
 			else
 			{
 				// Try to find it...
@@ -630,7 +630,7 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 		// Mark up any deleted members, topics and boards.
 		foreach (array('board', 'board_from', 'board_to', 'member', 'topic', 'new_topic') as $type)
 			if (!empty($entry['extra'][$type]) && is_numeric($entry['extra'][$type]))
-				$entries[$k]['extra'][$type] = sprintf($txt['modlog_id'], $entry['extra'][$type]);
+				$entries[$k]['extra'][$type] = '<em>' . sprintf($txt['modlog_id'], $entry['extra'][$type]) . '</em>';
 
 		if (isset($entry['extra']['report']))
 		{
