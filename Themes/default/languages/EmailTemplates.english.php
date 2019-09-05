@@ -200,7 +200,7 @@ $txt['admin_register_immediate_body'] = 'Thank you for registering at {FORUMNAME
 $txt['new_announcement_subject'] = 'New announcement: {TOPICSUBJECT}';
 $txt['new_announcement_body'] = '{MESSAGE}
 
-To unsubscribe from these announcements, login to the forum and uncheck "Receive forum announcements and important notifications by email." in your profile <em>(Your username > Notifications > General Settings)</em>.
+To unsubscribe from these announcements, login to the forum and uncheck "Receive forum newsletters, announcements and important notifications by email." in your profile <em>(Your username > Notifications > General Settings)</em>.
 
 You can view the full announcement by following this link:
 {TOPICLINK}

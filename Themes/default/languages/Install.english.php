@@ -272,7 +272,7 @@ $txt['upgrade_paused_overload'] = 'This upgrade has been paused to avoid overloa
 $txt['upgrade_continue_step'] = 'Continue from step reached during last execution of upgrade script.';
 $txt['upgrade_bypass'] = '<strong>Note:</strong> If necessary the above security check can be bypassed for users who may administrate a server but not have admin rights on the forum. In order to bypass the above check simply open &quot;upgrade.php&quot; in a text editor and replace &quot;$disable_security = false;&quot; with &quot;$disable_security = true;&quot; and refresh this page.';
 $txt['upgrade_areyouready'] = 'Before the upgrade gets underway please review the options below - and hit &quot;Continue&quot; when you\'re ready to begin.';
-$txt['upgrade_backup_table'] = 'Backup tables in your database with the prefix';
+$txt['upgrade_backup_table'] = 'Perform a tables backup in your database with the prefix';
 $txt['upgrade_recommended'] = 'recommended!';
 $txt['upgrade_maintenance'] = 'Put the forum into maintenance mode during upgrade.';
 $txt['upgrade_maintenance_title'] = 'Maintenance Title:';
