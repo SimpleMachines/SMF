@@ -176,7 +176,7 @@ $txt['attach_remaining'] = '<span class="attach_remaining">%1$d</span> attachmen
 $txt['attach_available'] = '%1$s KB available';
 $txt['attach_kb'] = ' (%1$s KB)';
 $txt['attach_0_byte_file'] = 'The file appears to be empty. Please contact your forum administrator if this continues to be a problem';
-$txt['attached_files_in_session'] = '<em>The above underlined file(s) have been uploaded but will not be attached to this post until it is submitted.</em>';
+$txt['attached_files_in_session'] = 'The above underlined file(s) have been uploaded but will not be attached to this post until it is submitted.';
 $txt['attached_file_uploaded'] = 'Attachment successfully uploaded!';
 $txt['attached_file_delete'] = 'Delete';
 $txt['attached_file_cannot'] = 'You cannot upload attachments';
