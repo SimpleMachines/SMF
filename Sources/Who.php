@@ -42,6 +42,10 @@ function Who()
 	loadTemplate('Who');
 	loadLanguage('Who');
 
+	// Wrapping HTML around text strings
+	$txt['who_hidden'] = '<em>' . $txt['who_hidden'] . '</em>';
+	$txt['who_unknown'] = '<em>' . $txt['who_unknown'] . '</em>';
+
 	// Sort out... the column sorting.
 	$sort_methods = array(
 		'user' => 'mem.real_name',
