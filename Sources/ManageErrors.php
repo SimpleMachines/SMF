@@ -44,6 +44,9 @@ function ViewErrorLog()
 	loadLanguage('ManageMaintenance');
 	loadTemplate('Errors');
 
+	// Wrapping HTML around text strings
+	$txt['errortype_critical'] = '<span class="red">' . $txt['errortype_critical'] . '</span>';
+
 	// You can filter by any of the following columns:
 	$filters = array(
 		'id_member' => array(
