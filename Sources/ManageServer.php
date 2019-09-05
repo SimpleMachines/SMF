@@ -770,13 +770,13 @@ function ModifyLoadBalancingSettings($return_config = false)
 	{
 		$context['settings_message'] = $txt['loadavg_disabled_windows'];
 		if (isset($_GET['save']))
-			$_SESSION['adm-save'] = $txt['loadavg_disabled_windows'];
+			$_SESSION['adm-save'] = $context['settings_message'];
 	}
 	elseif (stripos(PHP_OS, 'darwin') === 0)
 	{
 		$context['settings_message'] = $txt['loadavg_disabled_osx'];
 		if (isset($_GET['save']))
-			$_SESSION['adm-save'] = $txt['loadavg_disabled_osx'];
+			$_SESSION['adm-save'] = $context['settings_message'];
 	}
 	else
 	{
@@ -794,6 +794,8 @@ function ModifyLoadBalancingSettings($return_config = false)
 			$disabled = false;
 		}
 	}
+
+	$context['settings_message'] = '<span class="error">' . $context['settings_message'] . '</span>';
 
 	// Start with a simple checkbox.
 	$config_vars = array(
