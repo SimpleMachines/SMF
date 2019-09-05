@@ -1696,7 +1696,7 @@ function template_add_rule()
 					if (document.forms.addrule.elements[i].id.substr(0, 8) == "ruletype")
 					{
 						if (foundCriteria)
-							joinText = document.getElementById("logic").value == \'and\' ? ', JavaScriptEscape(' ' . $txt['pm_readable_and'] . ' '), ' : ', JavaScriptEscape(' ' . $txt['pm_readable_or'] . ' '), ';
+							joinText = document.getElementById("logic").value == \'and\' ? ', JavaScriptEscape(' <em>' . $txt['pm_readable_and'] . '</em> '), ' : ', JavaScriptEscape(' <em>' . $txt['pm_readable_or'] . '</em> '), ';
 						else
 							joinText = \'\';
 						foundCriteria = true;
@@ -1728,7 +1728,7 @@ function template_add_rule()
 					if (document.forms.addrule.elements[i].id.substr(0, 7) == "acttype")
 					{
 						if (foundAction)
-							joinText = ', JavaScriptEscape(' ' . $txt['pm_readable_and'] . ' '), ';
+							joinText = ', JavaScriptEscape(' <em>' . $txt['pm_readable_and'] . '</em> '), ';
 						else
 							joinText = "";
 						foundAction = true;
@@ -1754,7 +1754,7 @@ function template_add_rule()
 				else
 				{
 					if (actionText != "")
-						text += ', JavaScriptEscape(' ' . $txt['pm_readable_then'] . ' '), ' + actionText;
+						text += ', JavaScriptEscape(' <strong>' . $txt['pm_readable_then'] . '</strong> '), ' + actionText;
 					text = ', JavaScriptEscape($txt['pm_readable_start']), ' + text + ', JavaScriptEscape($txt['pm_readable_end']), ';
 				}
 
