@@ -115,8 +115,8 @@ $txt['caching_information'] = 'SMF supports caching through the use of accelerat
 	<li>XCache</li>
 </ul>
 Caching will work best if you have PHP compiled with one of the above optimizers, or have memcached available. If you do not have any optimizer installed SMF will do file based caching.';
-$txt['detected_no_caching'] = '<strong class="alert">SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.</strong>';
-$txt['detected_accelerators'] = '<strong class="success">SMF has detected the following accelerators: %1$s</strong>';
+$txt['detected_no_caching'] = 'SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.';
+$txt['detected_accelerators'] = 'SMF has detected the following accelerators: %1$s';
 
 $txt['cache_enable'] = 'Caching Level';
 $txt['cache_off'] = 'No caching';

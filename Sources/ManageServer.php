@@ -675,13 +675,13 @@ function ModifyCacheSettings($return_config = false)
 	// set our values to show what, if anything, we found
 	if (empty($detected))
 	{
-		$txt['cache_settings_message'] = $txt['detected_no_caching'];
+		$txt['cache_settings_message'] = '<strong class="alert">' . $txt['detected_no_caching'] . '</strong>';
 		$cache_level = array($txt['cache_off']);
 		$detected['none'] = $txt['cache_off'];
 	}
 	else
 	{
-		$txt['cache_settings_message'] = sprintf($txt['detected_accelerators'], implode(', ', $detected));
+		$txt['cache_settings_message'] = '<strong class="success">' . sprintf($txt['detected_accelerators'], implode(', ', $detected)) . '</strong>';
 		$cache_level = array($txt['cache_off'], $txt['cache_level1'], $txt['cache_level2'], $txt['cache_level3']);
 	}
 
