@@ -98,13 +98,6 @@ function PackageInstallTest()
 {
 	global $boarddir, $txt, $context, $scripturl, $sourcedir, $packagesdir, $modSettings, $smcFunc, $settings;
 
-	// Wrapping HTML around text strings
-	$txt['package_action_missing'] = '<strong class="error">' . $txt['package_action_missing'] . '</strong>';
-	$txt['package_action_error'] = '<strong class="error">' . $txt['package_action_error'] . '</strong>';
-	$txt['package_action_failure'] = '<strong class="error">' . $txt['package_action_failure'] . '</strong>';
-	$txt['package_action_success'] = '<strong>' . $txt['package_action_success'] . '</strong>';
-	$txt['package_action_skipping'] = '<strong>' . $txt['package_action_skipping'] . '</strong>';
-
 	// You have to specify a file!!
 	if (!isset($_REQUEST['package']) || $_REQUEST['package'] == '')
 		redirectexit('action=admin;area=packages');
