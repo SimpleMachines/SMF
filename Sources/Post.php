@@ -919,7 +919,7 @@ function Post($post_errors = array())
 						if (file_exists($attachment['tmp_name']))
 						{
 							$post_errors[] = 'temp_attachments_new';
-							$context['files_in_session_warning'] = '<em>' . $txt['attached_files_in_session'] . '</em>';
+							$context['files_in_session_warning'] = $txt['attached_files_in_session'];
 							unset($_SESSION['temp_attachments']['post']['files']);
 							break;
 						}
@@ -1004,7 +1004,7 @@ function Post($post_errors = array())
 				$context['attachments']['quantity']++;
 				$context['attachments']['total_size'] += $attachment['size'];
 				if (!isset($context['files_in_session_warning']))
-					$context['files_in_session_warning'] = '<em>' . $txt['attached_files_in_session'] . '</em>';
+					$context['files_in_session_warning'] = $txt['attached_files_in_session'];
 
 				$context['current_attachments'][$attachID] = array(
 					'name' => $smcFunc['htmlspecialchars']($attachment['name']),
