@@ -14,6 +14,9 @@
  * @version 2.1 RC2
  */
 
+// Set this to true to always log $_POST info received from payment gateways.
+$paid_debug = false;
+
 // Start things rolling by getting SMF alive...
 $ssi_guest_access = true;
 if (!file_exists(dirname(__FILE__) . '/SSI.php'))
@@ -286,7 +289,7 @@ else
 $gatewayClass->close();
 
 // Hidden setting to log the IPN info for debugging purposes.
-if (!empty($modSettings['paid_debug']))
+if ($paid_debug === true)
 	generateSubscriptionError($txt['subscription'], true);
 
 /**
