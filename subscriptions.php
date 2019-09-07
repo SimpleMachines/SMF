@@ -285,18 +285,22 @@ else
 // In case we have anything specific to do.
 $gatewayClass->close();
 
+// Hidden setting to log the IPN info for debugging purposes.
+if (!empty($modSettings['paid_debug']))
+	generateSubscriptionError($txt['subscription'], true);
+
 /**
  * Log an error then exit
  *
  * @param string $text The error to log
  * @return void
  */
-function generateSubscriptionError($text)
+function generateSubscriptionError($text, $debug = false)
 {
 	global $modSettings, $notify_users, $smcFunc;
 
 	// Send an email?
-	if (!empty($modSettings['paid_email']))
+	if (!empty($modSettings['paid_email']) && !$debug)
 	{
 		$replacements = array(
 			'ERROR' => $text,
