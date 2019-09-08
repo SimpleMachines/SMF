@@ -3641,8 +3641,6 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
 {
 	global $modSettings, $sourcedir, $cache_enable;
 
-	// @todo Why are we doing this if caching is disabled?
-
 	if (function_exists('call_integration_hook'))
 		call_integration_hook('pre_cache_quick_get', array(&$key, &$file, &$function, &$params, &$level));
 
@@ -3720,7 +3718,7 @@ function cache_put_data($key, $value, $ttl = 120)
  *
  * @param string $key The key for the value to retrieve
  * @param int $ttl The maximum age of the cached data
- * @return string|null The cached data or null if nothing was loaded
+ * @return array|null The cached data or null if nothing was loaded
  */
 function cache_get_data($key, $ttl = 120)
 {
@@ -3728,7 +3726,7 @@ function cache_get_data($key, $ttl = 120)
 	global $cache_hits, $cache_count, $cache_misses, $cache_count_misses, $db_show_debug;
 
 	if (empty($cache_enable) || empty($cacheAPI))
-		return;
+		return null;
 
 	$cache_count = isset($cache_count) ? $cache_count + 1 : 1;
 	if (isset($db_show_debug) && $db_show_debug === true)
