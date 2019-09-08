@@ -110,7 +110,7 @@ function getBoardIndex($board_index_options)
 	else
 		$result_boards = $smcFunc['db_query']('', '
 			SELECT' . ($board_index_options['include_categories'] ? '
-				c.id_cat, c.name AS cat_name, c.description AS cat_desc,' : '') . '
+				c.id_cat, c.name AS cat_name, c.description AS cat_desc,' : 'b.id_cat,') . '
 				' . (!empty($board_index_selects) ? implode(', ', $board_index_selects) : '') . ',
 				COALESCE(m.poster_time, 0) AS poster_time, COALESCE(mem.member_name, m.poster_name) AS poster_name,
 				m.subject, m.id_topic, COALESCE(mem.real_name, m.poster_name) AS real_name,
@@ -137,14 +137,24 @@ function getBoardIndex($board_index_options)
 		$this_category = array();
 
 	$boards = array();
+	$boards_ids = array();
+	$categories_ids = array();
 
 	// Children can affect parents, so we need to gather all the boards first and then process them after.
 	$row_boards = array();
 
 	foreach ($smcFunc['db_fetch_all']($result_boards) as $row)
+	{
 		$row_boards[$row['id_board']] = $row;
+		$boards_ids[] = $row['id_board'];
+		$categories_ids[] = $row['id_cat'];
+	}
 
 	$smcFunc['db_free_result']($result_boards);
+
+	// mmmm memory, delicious!
+	$parsed_descriptions = getParsedDescriptions($categories_ids);
+	$to_parse = array();
 
 	// Run through the categories and boards (or only boards)....
 	// Done like this so the modified values can be used.
@@ -165,8 +175,24 @@ function getBoardIndex($board_index_options)
 			// Haven't set this category yet.
 			if (empty($categories[$row_board['id_cat']]))
 			{
-				$name = parse_bbc($row_board['cat_name'], false, '', $context['description_allowed_tags']);
-				$description = parse_bbc($row_board['cat_desc'], false, '', $context['description_allowed_tags']);
+				// Is this your lucky day?
+				if (!empty($parsed_descriptions) && !empty($parsed_descriptions[$row_board['id_cat']]))
+				{
+					$name = parse_bbc($row_board['cat_name'], false, '', $context['description_allowed_tags']);
+					$description = parse_bbc($row_board['cat_desc'], false, '', $context['description_allowed_tags']);
+				}
+
+				// No? take one for the team then
+				else
+				{
+					$to_parse[$row_board['id_cat']] = array(
+						'name' => $row_board['cat_name'],
+						'description' => $row_board['cat_desc'],
+					);
+
+					if (!isset($to_parse[$row_board['id_cat']]['boards']))
+						$to_parse[$row_board['id_cat']]['boards'] = array();
+				}
 
 				$categories[$row_board['id_cat']] = array(
 					'id' => $row_board['id_cat'],
@@ -487,6 +513,28 @@ function getBoardIndex($board_index_options)
 		call_integration_hook('integrate_getboardtree', array($board_index_options, &$this_category));
 
 	return $board_index_options['include_categories'] ? $categories : $this_category;
+}
+
+/**
+ * retrieves parsed names and descriptions for categories and its corresponding boards.
+ *
+ * @param array $cat_ids
+ * @return array
+ */
+function getParsedDescriptions($cat_ids = array())
+{
+	$parsed_results = array();
+
+	// Yield anyone? :(
+	foreach ($cat_ids as $cat_id)
+		$parsed_results[$cat_id] = cache_get_data('parsed_cat_description_'. $cat_id);
+
+	return $parsed_results;
+}
+
+function setparsedDescriptions()
+{
+
 }
 
 ?>
