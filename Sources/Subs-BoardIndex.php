@@ -570,6 +570,9 @@ function getBoardIndex($board_index_options)
 		call_integration_hook('integrate_getboardtree', array($board_index_options, &$this_category));
 	}
 
+	// I took my time, I hurried up, the choice was mine I didn't think enough
+	setparsedDescriptions($to_parse);
+
 	return $board_index_options['include_categories'] ? $categories : $this_category;
 }
 
