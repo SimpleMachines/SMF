@@ -1344,7 +1344,18 @@ function ModifySignatureSettings($return_config = false)
 	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=sig';
 	$context['settings_title'] = $txt['signature_settings'];
 
-	$context['settings_message'] = !empty($settings_applied) ? '<div class="infobox">' . $txt['signature_settings_applied'] . '</div>' : '<p class="centertext">' . sprintf($txt['signature_settings_warning'], $context['session_id'], $context['session_var']) . '</p>';
+	if (!empty($settings_applied))
+		$context['settings_message'] = array(
+			'label' => $txt['signature_settings_applied'],
+			'tag' => 'div',
+			'class' => 'infobox'
+		);
+	else
+		$context['settings_message'] = array(
+			'label' => sprintf($txt['signature_settings_warning'], $context['session_id'], $context['session_var']),
+			'tag' => 'div',
+			'class' => 'centertext'
+		);
 
 	prepareDBSettingContext($config_vars);
 }
@@ -2347,7 +2358,11 @@ function ModifyGeneralModSettings($return_config = false)
 	if (empty($config_vars))
 	{
 		$context['settings_save_dont_show'] = true;
-		$context['settings_message'] = '<div class="centertext">' . $txt['modification_no_misc_settings'] . '</div>';
+		$context['settings_message'] = array(
+			'label' => $txt['modification_no_misc_settings'],
+			'tag' => 'div',
+			'class' => 'centertext'
+		);
 
 		return prepareDBSettingContext($config_vars);
 	}

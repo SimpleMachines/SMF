@@ -737,8 +737,23 @@ function template_show_settings()
 
 	// Have we got a message to display?
 	if (!empty($context['settings_message']))
+	{
+		$tag = !empty($context['settings_message']['tag']) ? $context['settings_message']['tag'] : 'span';
+
 		echo '
-							<div class="information noup">', $context['settings_message'], '</div>';
+							<div class="information noup">';
+
+		if (is_array($context['settings_message']))
+			echo '
+								<', $tag, !empty($context['settings_message']['class']) ? ' class="' . $context['settings_message']['class'] . '"' : '', '>
+									', $context['settings_message']['label'], '
+								</', $tag, '>';
+		else
+			echo $context['settings_message'];
+
+		echo '
+							</div>';
+	}
 
 	// Filter out any redundant separators before we start the loop
 	$context['config_vars'] = array_filter($context['config_vars'], function ($v) use ($context)
