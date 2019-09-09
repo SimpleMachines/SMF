@@ -301,12 +301,14 @@ function getBoardIndex($board_index_options)
 					$this_category[$row_board['id_board']]['board_class'] = 'on';
 					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['new_posts'];
 				}
+
 				else
 				{
 					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['old_posts'];
 				}
 			}
 		}
+
 		// This is a child board.
 		elseif (isset($row_boards[$row_board['id_parent']]['id_parent']) && $row_boards[$row_board['id_parent']]['id_parent'] == $board_index_options['parent_id'])
 		{
@@ -320,8 +322,27 @@ function getBoardIndex($board_index_options)
 					'board_class' => 'off'
 				);
 
-			$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
-			$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
+			// Is this your lucky day?
+			if (!empty($parsed_descriptions) && !empty($parsed_descriptions[$row_board['id_cat']]))
+			{
+				$board_name = $parsed_descriptions[$row_board['id_cat']]['name'];
+				$board_description = $parsed_descriptions[$row_board['id_cat']]['description'];
+			}
+
+			// No? take one for the team then
+			else
+			{
+				$to_parse[$row_board['id_cat']] = array(
+					'name' => $row_board['cat_name'],
+					'description' => $row_board['cat_desc'],
+				);
+
+				if (!isset($to_parse[$row_board['id_cat']]['boards']))
+					$to_parse[$row_board['id_cat']]['boards'] = array();
+
+				$board_name = $row_board['cat_name'];
+				$board_description = $row_board['cat_desc'];
+			}
 
 			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']] = array(
 				'id' => $row_board['id_board'],
