@@ -42,10 +42,6 @@ function Who()
 	loadTemplate('Who');
 	loadLanguage('Who');
 
-	// Wrapping HTML around text strings
-	$txt['who_hidden'] = '<em>' . $txt['who_hidden'] . '</em>';
-	$txt['who_unknown'] = '<em>' . $txt['who_unknown'] . '</em>';
-
 	// Sort out... the column sorting.
 	$sort_methods = array(
 		'user' => 'mem.real_name',
@@ -228,7 +224,7 @@ function Who()
 
 		// Keep the IP that came from the database.
 		$memberContext[$member['id']]['ip'] = $member['ip'];
-		$context['members'][$i]['action'] = isset($url_data[$i]) ? $url_data[$i] : $txt['who_hidden'];
+		$context['members'][$i]['action'] = isset($url_data[$i]) ? $url_data[$i] : array('label' => 'who_hidden', 'class' => 'em');
 		if ($member['id'] == 0 && isset($spiderContext[$member['id_spider']]))
 			$context['members'][$i] += $spiderContext[$member['id_spider']];
 		else
@@ -347,14 +343,14 @@ function determineActions($urls, $preferred_prefix = false)
 			if (isset($actions['topic']))
 			{
 				// Assume they can't view it, and queue it up for later.
-				$data[$k] = $txt['who_hidden'];
+				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 				$topic_ids[(int) $actions['topic']][$k] = $txt['who_topic'];
 			}
 			// It's a board!
 			elseif (isset($actions['board']))
 			{
 				// Hide first, show later.
-				$data[$k] = $txt['who_hidden'];
+				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 				$board_ids[$actions['board']][$k] = $txt['who_board'];
 			}
 			// It's the board index!!  It must be!
@@ -374,12 +370,12 @@ function determineActions($urls, $preferred_prefix = false)
 				if (empty($actions['u']))
 					$actions['u'] = $url[1];
 
-				$data[$k] = $txt['who_hidden'];
+				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 				$profile_ids[(int) $actions['u']][$k] = $actions['u'] == $url[1] ? $txt['who_viewownprofile'] : $txt['who_viewprofile'];
 			}
 			elseif (($actions['action'] == 'post' || $actions['action'] == 'post2') && empty($actions['topic']) && isset($actions['board']))
 			{
-				$data[$k] = $txt['who_hidden'];
+				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 				$board_ids[(int) $actions['board']][$k] = isset($actions['poll']) ? $txt['who_poll'] : $txt['who_post'];
 			}
 			// A subaction anyone can view... if the language string is there, show it.
@@ -394,7 +390,7 @@ function determineActions($urls, $preferred_prefix = false)
 				// Find out what topic they are accessing.
 				$topic = (int) (isset($actions['topic']) ? $actions['topic'] : (isset($actions['from']) ? $actions['from'] : 0));
 
-				$data[$k] = $txt['who_hidden'];
+				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 				$topic_ids[$topic][$k] = $txt['whotopic_' . $actions['action']];
 			}
 			elseif (isset($txt['whopost_' . $actions['action']]))
@@ -420,7 +416,7 @@ function determineActions($urls, $preferred_prefix = false)
 				$smcFunc['db_free_result']($result);
 
 				if (empty($id_topic))
-					$data[$k] = $txt['who_hidden'];
+					$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 			}
 			// Viewable only by administrators.. (if it starts with whoadmin, it's admin only!)
 			elseif (allowedTo('moderate_forum') && isset($txt['whoadmin_' . $actions['action']]))
@@ -435,12 +431,12 @@ function determineActions($urls, $preferred_prefix = false)
 				elseif (in_array('admin_forum', $allowedActions[$actions['action']]))
 					$data[$k] = $txt['who_admin'];
 				else
-					$data[$k] = $txt['who_hidden'];
+					$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 			}
 			elseif (!empty($actions['action']))
 				$data[$k] = $txt['who_generic'] . ' ' . $actions['action'];
 			else
-				$data[$k] = $txt['who_unknown'];
+				$data[$k] = array('label' => 'who_unknown', 'class' => 'em');
 		}
 
 		if (isset($actions['error']))
