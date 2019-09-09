@@ -2179,16 +2179,20 @@ function alert_configuration($memID)
 					if ($this_options[$type] == 'yes' && !empty($_POST[$type . '_' . $item_key]) || $this_options[$type] == 'always')
 						$this_value |= $bitvalue;
 				}
-				if (!isset($context['alert_prefs'][$item_key]) || $context['alert_prefs'][$item_key] != $this_value)
-					$update_prefs[$item_key] = $this_value;
+
+				$update_prefs[$item_key] = $this_value;
 			}
 		}
 
 		if (!empty($_POST['opt_alert_timeout']))
 			$update_prefs['alert_timeout'] = $context['member']['alert_timeout'] = (int) $_POST['opt_alert_timeout'];
+		else
+			$update_prefs['alert_timeout'] = $context['alert_prefs']['alert_timeout'];
 
 		if (!empty($_POST['notify_announcements']))
 			$update_prefs['announcements'] = $context['member']['notify_announcements'] = (int) $_POST['notify_announcements'];
+		else
+			$update_prefs['announcements'] = $context['alert_prefs']['announcements'];
 
 		setNotifyPrefs((int) $memID, $update_prefs);
 		foreach ($update_prefs as $pref => $value)
