@@ -250,6 +250,15 @@ function getBoardIndex($board_index_options)
 				{
 					$board_name = $row_board['board_name'];
 					$board_description = $row_board['description'];
+
+					// Always buckle up your kids!
+					if (!isset($to_parse[$row_board['id_cat']]['boards']))
+						$to_parse[$row_board['id_cat']]['boards'] = array();
+
+					$to_parse[$row_board['id_cat']]['boards'][$row_board['id_board']] = array(
+						'name' => $board_name,
+						'description' => $board_description
+					);
 				}
 
 				$this_category[$row_board['id_board']] += array(
@@ -525,8 +534,12 @@ function getBoardIndex($board_index_options)
 	// I can't remember why but trying to make a ternary to get this all in one line is actually a Very Bad Idea.
 	if ($board_index_options['include_categories'])
 		call_integration_hook('integrate_getboardtree', array($board_index_options, &$categories));
+
 	else
 		call_integration_hook('integrate_getboardtree', array($board_index_options, &$this_category));
+
+	// I took my time, I hurried up, the choice was mine I didn't think enough
+	setparsedDescriptions($to_parse);
 
 	return $board_index_options['include_categories'] ? $categories : $this_category;
 }
@@ -548,9 +561,57 @@ function getParsedDescriptions($cat_ids = array())
 	return $parsed_results;
 }
 
-function setparsedDescriptions()
+/**
+ * @param array $dataToParse
+ * @return array
+ */
+function setParsedDescriptions($dataToParse = array())
 {
+	global $context;
 
+	if (empty($dataToParse))
+		return array();
+
+	$already_parsed_data = array();
+
+	// If you're here it means your data isn't cached... or so the theory dictates...
+	foreach ($dataToParse as $cat_id => $data)
+	{
+		$to_cache[$cat_id] = array(
+			'name' => parse_bbc($data['name'], false, '', $context['description_allowed_tags']),
+			'description' => parse_bbc($data['description'], false, '', $context['description_allowed_tags']),
+			'boards' => array(),
+		);
+
+		foreach ($data['boards'] as $id => $board)
+		{
+			$to_cache[$cat_id]['boards'][$id]['name'] = parse_bbc($board['name'], false, '', $context['description_allowed_tags']);
+			$to_cache[$cat_id]['boards'][$id]['description'] = parse_bbc($board['description'], false, '', $context['description_allowed_tags']);
+		}
+
+		// Let's have some fun shall we?
+		$already_parsed_data[$cat_id] = cache_get_data('parsed_cat_description_'. $cat_id);
+
+		foreach ($to_cache as $to_cache_cat_id => $to_cache_data)
+		{
+			// Append data!
+			$already_parsed_data[$cat_id] = array(
+				'name' => $data['name'],
+				'description' => $data['description'],
+				'boards' => array(),
+			);
+
+			foreach ($data['boards'] as $board)
+				$already_parsed_data[$cat_id]['boards'] = array(
+					'name' => $board['name'],
+					'description' => $board['description'],
+				);
+
+			cache_put_data('parsed_cat_description_'. $cat_id, $already_parsed_data, 864000);
+		}
+	}
+
+	return $already_parsed_data;
 }
 
 ?>
