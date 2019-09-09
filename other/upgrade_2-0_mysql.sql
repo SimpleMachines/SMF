@@ -1735,7 +1735,7 @@ if ($profileCount == 0)
 	// Update the board tables.
 	foreach ($board_updates as $profile => $boards)
 	{
-		if (empty($boards))
+		if (empty($boards) || empty($profile))
 			continue;
 
 		$boards = implode(',', $boards);
