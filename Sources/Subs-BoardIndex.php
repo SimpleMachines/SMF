@@ -563,7 +563,7 @@ function getParsedDescriptions($cat_ids = array())
 
 /**
  * @param array $dataToParse
- * @return array
+ * @return array Parsed data
  */
 function setParsedDescriptions($dataToParse = array())
 {
@@ -607,7 +607,7 @@ function setParsedDescriptions($dataToParse = array())
 					'description' => $board['description'],
 				);
 
-			cache_put_data('parsed_cat_description_'. $cat_id, $already_parsed_data, 864000);
+			cache_put_data('parsed_cat_description_'. $cat_id, $already_parsed_data[$cat_id], 864000);
 		}
 	}
 

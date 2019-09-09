@@ -341,12 +341,14 @@ function EditCategory2()
 		else
 			modifyCategory($_POST['cat'], $catOptions);
 	}
+
 	// If they want to delete - first give them confirmation.
 	elseif (isset($_POST['delete']) && !isset($_POST['confirmation']) && !isset($_POST['empty']))
 	{
 		EditCategory();
 		return;
 	}
+
 	// Delete the category!
 	elseif (isset($_POST['delete']))
 	{
@@ -358,6 +360,7 @@ function EditCategory2()
 
 			deleteCategories(array($_POST['cat']), (int) $_POST['cat_to']);
 		}
+
 		else
 			deleteCategories(array($_POST['cat']));
 	}
