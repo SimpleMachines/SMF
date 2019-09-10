@@ -1317,7 +1317,7 @@ function DatabasePopulation()
 	// Are we allowing stat collection?
 	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']))
 	{
-		$upcontext['allow_sm_stats'] = true;
+		$incontext['allow_sm_stats'] = true;
 
 		// Attempt to register the site etc.
 		$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
@@ -1350,7 +1350,7 @@ function DatabasePopulation()
 		}
 	}
 	// Don't remove stat collection unless we unchecked the box for real, not from the loop.
-	elseif (empty($_POST['stats']) && empty($upcontext['allow_sm_stats']))
+	elseif (empty($_POST['stats']) && empty($incontext['allow_sm_stats']))
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}settings
 			WHERE variable = {string:enable_sm_stats}',
@@ -2062,7 +2062,7 @@ function template_install_above()
 
 	foreach ($incontext['steps'] as $num => $step)
 		echo '
-						<li', $num == $upcontext['current_step'] ? ' class="stepcurrent"' : '', '>
+						<li', $num == $incontext['current_step'] ? ' class="stepcurrent"' : '', '>
 							', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '
 						</li>';
 
