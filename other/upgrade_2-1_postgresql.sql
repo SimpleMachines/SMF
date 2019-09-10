@@ -1097,10 +1097,10 @@ UPDATE {$db_prefix}user_alerts
 SET content_type = 'topic', content_action = 'unapproved_post'
 WHERE content_type = 'unapproved' AND content_action = 'post';
 
-UPDATE {$db_prefix}user_alerts AS a
-SET a.content_type = 'msg', a.content_action = 'unapproved_attachment', a.content_id = f.id_msg
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'msg', content_action = 'unapproved_attachment', content_id = f.id_msg
 FROM {$db_prefix}attachments AS f
-WHERE content_type = 'unapproved' AND content_action = 'attachment' AND f.id_attach = a.content_id;
+WHERE content_type = 'unapproved' AND content_action = 'attachment' AND f.id_attach = content_id;
 ---#
 
 /******************************************************************************/
