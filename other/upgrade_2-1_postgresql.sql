@@ -2652,7 +2652,7 @@ VALUES
 	('cal_prev_next_links', '1'),
 	('cal_short_days', '0'),
 	('cal_short_months', '0'),
-	('cal_week_numbers', '0');
+	('cal_week_numbers', '0') ON CONFLICT DO NOTHING;
 ---#
 
 /******************************************************************************/
