@@ -153,7 +153,7 @@ strong, .strong {
 .cat_bar strong {
 	color: #fff;
 }
-em {
+em, .em {
 	font-style: italic;
 }
 /* Default <strong> color on these tags */

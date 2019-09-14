@@ -278,6 +278,7 @@ function ViewErrorLog()
 
 	$context['error_types']['all'] = array(
 		'label' => $txt['errortype_all'],
+		'error_type' => 'all',
 		'description' => isset($txt['errortype_all_desc']) ? $txt['errortype_all_desc'] : '',
 		'url' => $scripturl . '?action=admin;area=logs;sa=errorlog' . ($context['sort_direction'] == 'down' ? ';desc' : ''),
 		'is_selected' => empty($filter),
@@ -301,6 +302,7 @@ function ViewErrorLog()
 
 		$context['error_types'][$sum] = array(
 			'label' => (isset($txt['errortype_' . $row['error_type']]) ? $txt['errortype_' . $row['error_type']] : $row['error_type']) . ' (' . $row['num_errors'] . ')',
+			'error_type' => $row['error_type'],
 			'description' => isset($txt['errortype_' . $row['error_type'] . '_desc']) ? $txt['errortype_' . $row['error_type'] . '_desc'] : '',
 			'url' => $scripturl . '?action=admin;area=logs;sa=errorlog' . ($context['sort_direction'] == 'down' ? ';desc' : '') . ';filter=error_type;value=' . $row['error_type'],
 			'is_selected' => isset($filter) && $filter['value']['sql'] == $smcFunc['db_escape_wildcard_string']($row['error_type']),

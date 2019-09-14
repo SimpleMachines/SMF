@@ -167,7 +167,7 @@ function template_view_package()
 						<td style="width: 30px;">', $i++, '.</td>
 						<td style="width: 23%;">', $packageaction['type'], '</td>
 						<td style="width: 50%;">', $packageaction['action'], '</td>
-						<td style="width: 20%;">', $packageaction['description'], '</td>
+						<td style="width: 20%;"><strong', !empty($packageaction['failed']) ? ' class="error"' : '', '>', $packageaction['description'], '</strong></td>
 					</tr>';
 
 			// Is there water on the knee? Operation!
@@ -195,7 +195,7 @@ function template_view_package()
 									<td width="30">', $operation_num++, '.</td>
 									<td width="23%">', $txt[$operation_text], '</td>
 									<td width="50%">', $operation['action'], '</td>
-									<td width="20%">', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</td>
+									<td width="20%"><strong', !empty($operation['failed']) ? ' class="error"' : '', '>', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</strong></td>
 								</tr>';
 				}
 
@@ -259,7 +259,7 @@ function template_view_package()
 						</td>
 						<td width="23%">', $action['type'], '</td>
 						<td width="50%">', $action['action'], '</td>
-						<td width="20%"><strong>', $action['description'], '</strong></td>
+						<td width="20%"><strong', !empty($action['failed']) ? ' class="error"' : '', '>', $action['description'], '</strong></td>
 					</tr>';
 
 					// Is there water on the knee? Operation!
@@ -286,7 +286,7 @@ function template_view_package()
 									<td width="30">', $operation_num++, '.</td>
 									<td width="23%">', $txt[$operation_text], '</td>
 									<td width="50%">', $operation['action'], '</td>
-									<td width="20%">', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</td>
+									<td width="20%"><strong', !empty($operation['failed']) ? ' class="error"' : '', '>', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</strong></td>
 								</tr>';
 						}
 
