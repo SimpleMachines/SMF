@@ -52,9 +52,17 @@ foreach (array('db_character_set', 'cachedir') as $variable)
 // Get the forum's settings for database and file paths.
 require_once(dirname(__FILE__) . '/Settings.php');
 
-// Make absolutely sure the cache directory is defined.
-if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
-	$cachedir = $boarddir . '/cache';
+// Make absolutely sure the cache directory is defined and writable.
+if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
+{
+	if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
+		$cachedir = $boarddir . '/cache';
+	else
+	{
+		$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
+		@mkdir($cachedir, 0750);
+	}
+}
 
 // Don't do john didley if the forum's been shut down completely.
 if ($maintenance == 2)

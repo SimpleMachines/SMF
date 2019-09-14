@@ -72,6 +72,18 @@ class ProxyServer
 		require_once(dirname(__FILE__) . '/Settings.php');
 		require_once($sourcedir . '/Subs.php');
 
+		// Make absolutely sure the cache directory is defined and writable.
+		if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
+		{
+			if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
+				$cachedir = $boarddir . '/cache';
+			else
+			{
+				$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
+				@mkdir($cachedir, 0750);
+			}
+		}
+
 		// Turn off all error reporting; any extra junk makes for an invalid image.
 		error_reporting(0);
 
