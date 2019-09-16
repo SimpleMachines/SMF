@@ -1739,6 +1739,7 @@ function PlushSearch2()
 		$smcFunc['db_free_result']($request);
 	}
 
+	$num_results = 0;
 	if (!empty($context['topics']))
 	{
 		// Create an array for the permissions.
