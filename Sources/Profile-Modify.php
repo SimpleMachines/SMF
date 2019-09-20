@@ -144,14 +144,16 @@ function loadProfileFields($force_reload = false)
 			'input_validate' => function(&$value) use ($txt, $user_info, $modSettings, $cur_profile, $context)
 			{
 				// Bad date!  Go try again - please?
-				if (($value = strtotime($value)) === -1)
+				if (($value = strtotime($value)) === false)
 				{
 					$value = $cur_profile['date_registered'];
 					return $txt['invalid_registration'] . ' ' . strftime('%d %b %Y ' . (strpos($user_info['time_format'], '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), forum_time(false));
 				}
+
 				// As long as it doesn't equal "N/A"...
 				elseif ($value != $txt['not_applicable'] && $value != strtotime(strftime('%Y-%m-%d', $cur_profile['date_registered'] + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600)))
 					$value = $value - ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
+
 				else
 					$value = $cur_profile['date_registered'];
 
