@@ -514,7 +514,7 @@ function loadUserSettings()
 			$user_settings = $smcFunc['db_fetch_assoc']($request);
 			$smcFunc['db_free_result']($request);
 
-			if (!empty($user_settings['avatar']) && parse_url($data['avatar'], PHP_URL_SCHEME) !== null)
+			if (!empty($user_settings['avatar']))
 				$user_settings['avatar'] = get_proxied_url($user_settings['avatar']);
 
 			if (!empty($cache_enable) && $cache_enable >= 2)
@@ -1373,7 +1373,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			$row['avatar_original'] = !empty($row['avatar']) ? $row['avatar'] : '';
 
 			// Take care of proxying avatar if required, do this here for maximum reach
-			if (!empty($row['avatar']) && parse_url($row['avatar'], PHP_URL_SCHEME) !== null)
+			if (!empty($row['avatar']))
 				$row['avatar'] = get_proxied_url($row['avatar']);
 
 			// Keep track of the member's normal member group
