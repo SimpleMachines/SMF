@@ -1749,9 +1749,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if ($image_proxy_enabled)
 					{
-						if (!empty($user_info['possibly_robot']))
-							return;
-
 						if (empty($scheme))
 							$data = 'http://' . ltrim($data, ':/');
 
@@ -1775,9 +1772,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if ($image_proxy_enabled)
 					{
-						if (!empty($user_info['possibly_robot']))
-							return;
-
 						if (empty($scheme))
 							$data = 'http://' . ltrim($data, ':/');
 
@@ -3356,10 +3350,10 @@ function highlight_php_code($code)
  */
 function get_proxied_url($url)
 {
-	global $boardurl, $image_proxy_enabled, $image_proxy_secret;
+	global $boardurl, $image_proxy_enabled, $image_proxy_secret, $user_info;
 
-	// Only use the proxy if enabled and necessary
-	if (empty($image_proxy_enabled) || parse_url($url, PHP_URL_SCHEME) === 'https')
+	// Only use the proxy if enabled and necessary (never for robots)
+	if (empty($image_proxy_enabled) || parse_url($url, PHP_URL_SCHEME) === 'https' || !empty($user_info['possibly_robot']))
 		return $url;
 
 	// We don't need to proxy our own resources
