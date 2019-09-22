@@ -1747,8 +1747,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					if (parse_url($data, PHP_URL_SCHEME) === null)
 						$data = '//' . ltrim($data, ':/');
-					
-					$data = get_proxied_url($data);
+					else
+						$data = get_proxied_url($data);
 				},
 				'disabled_content' => '($1)',
 			),
@@ -1762,8 +1762,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					if (parse_url($data, PHP_URL_SCHEME) === null)
 						$data = '//' . ltrim($data, ':/');
-					
-					$data = get_proxied_url($data);
+					else
+						$data = get_proxied_url($data);
 				},
 				'disabled_content' => '($1)',
 			),
