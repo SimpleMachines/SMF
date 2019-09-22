@@ -23,6 +23,7 @@ function reloadSettings()
 {
 	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set;
 	global $cache_enable, $sourcedir, $context, $forum_version, $boardurl;
+	global $image_proxy_enabled;
 
 	// Most database systems have not set UTF-8 as their default input charset.
 	if (!empty($db_character_set))
@@ -91,6 +92,10 @@ function reloadSettings()
 	// Used to force browsers to download fresh CSS and JavaScript when necessary
 	$modSettings['browser_cache'] = !empty($modSettings['browser_cache']) ? (int) $modSettings['browser_cache'] : 0;
 	$context['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower(SMF_FULL_VERSION)) . '_' . $modSettings['browser_cache'];
+
+	// Disable image proxy if we don't have SSL enabled
+	if (empty($modSettings['force_ssl']))
+		$image_proxy_enabled = false;
 
 	// UTF-8 ?
 	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
@@ -1818,7 +1823,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 {
 	global $user_info, $user_settings, $board_info, $boarddir, $maintenance;
 	global $txt, $boardurl, $scripturl, $mbname, $modSettings;
-	global $context, $settings, $options, $sourcedir, $smcFunc, $language, $board, $image_proxy_enabled, $cache_enable;
+	global $context, $settings, $options, $sourcedir, $smcFunc, $language, $board, $cache_enable;
 
 	if (empty($id_theme))
 	{
@@ -1865,10 +1870,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (empty($settings['theme_id']) || $settings['theme_id'] != $id_theme)
 	{
 		$member = empty($user_info['id']) ? -1 : $user_info['id'];
-
-		// Disable image proxy if we don't have SSL enabled
-		if (empty($modSettings['force_ssl']))
-			$image_proxy_enabled = false;
 
 		if (!empty($cache_enable) && $cache_enable >= 2 && ($temp = cache_get_data('theme_settings-' . $id_theme . ':' . $member, 60)) != null && time() - 60 > $modSettings['settings_updated'])
 		{
