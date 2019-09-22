@@ -133,7 +133,7 @@ $txt['permissionhelp_access_mod_center'] = 'With this permission any members of 
 
 $txt['permissiongroup_member_admin'] = 'Member administration';
 $txt['permissionname_moderate_forum'] = 'Moderate forum members';
-$txt['permissionhelp_moderate_forum'] = 'This permission includes all important member moderation functions:<ul class="normallist"><li>access to registration management</li><li>access to the view/delete members screen</li><li>extensive profile info, including track IP/user and (hidden) online status</li><li>activate accounts</li><li>get approval notifications and approve accounts</li><li>immune to ignore PM</li><li>several small things</li></ul>';
+$txt['permissionhelp_moderate_forum'] = 'This permission includes all important member moderation functions:<ul class="normallist"><li>access to registration management</li><li>access to the view/delete members screen</li><li>extensive profile info, including track IP/user and online status (even if hidden)</li><li>activate accounts</li><li>get approval notifications and approve accounts</li><li>immune to ignore PM</li><li>several small things</li></ul>';
 $txt['permissionname_manage_membergroups'] = 'Manage and assign membergroups';
 $txt['permissionhelp_manage_membergroups'] = 'This permission allows a user to edit membergroups and assign membergroups to other members.';
 $txt['permissionname_manage_permissions'] = 'Manage permissions';

@@ -608,7 +608,7 @@ Before you can login and start using the forum, your request will be reviewed an
 	@description:
 */
 $txt['notification_reply_subject'] = 'Topic reply: {TOPICSUBJECT}';
-$txt['notification_reply_body'] = 'A reply has been posted to a topic you are watching by {POSTERNAME}.
+$txt['notification_reply_body'] = 'In a topic you are watching, a reply has been posted by {POSTERNAME}.
 
 View the reply at: {TOPICLINK}
 
@@ -652,7 +652,7 @@ View the reply at: {TOPICLINK}
 
 Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
-More replies may be posted, but you won\'t receive any more notifications until you read the topic.
+More replies may be posted, but you won\'t receive any more notifications for this topic until you visit it.
 
 {REGARDS}';
 
@@ -675,7 +675,7 @@ Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 The text of the reply is shown below:
 {MESSAGE}
 
-More replies may be posted, but you won\'t receive any more notifications until you read the topic.
+More replies may be posted, but you won\'t receive any more notifications for this topic until you visit it.
 
 {REGARDS}';
 
@@ -804,7 +804,7 @@ $txt['admin_attachments_full_body'] = '{REALNAME},
 
 The attachments directory at {FORUMNAME} is almost full. Please visit the forum to resolve this problem.
 
-Once the attachments directory reaches it\'s maximum permitted size users will not be able to continue to post attachments or upload custom avatars (If enabled).
+Once the attachments directory reaches its maximum permitted size users will not be able to continue to post attachments or upload custom avatars (If enabled).
 
 {REGARDS}';
 
@@ -883,7 +883,7 @@ The following error occurred when processing a paid subscription
 	@description: A notification email sent to the receivers of a personal message
 */
 $txt['new_pm_subject'] = 'New Personal Message: {SUBJECT}';
-$txt['new_pm_body'] = 'You have just been sent a personal message by {SENDER} on {FORUMNAME}
+$txt['new_pm_body'] = 'You have just been sent a personal message by {SENDER} on {FORUMNAME}.
 
 IMPORTANT: Remember, this is just a notification. Please do not reply to this email.
 
@@ -902,7 +902,7 @@ Reply to this Personal Message here: {REPLYLINK}
 	@description: A notification email sent to the receivers of a personal message
 */
 $txt['new_pm_body_subject'] = 'New Personal Message: {SUBJECT}';
-$txt['new_pm_body_body'] = 'You have just been sent a personal message by {SENDER} on {FORUMNAME}
+$txt['new_pm_body_body'] = 'You have just been sent a personal message by {SENDER} on {FORUMNAME}.
 
 IMPORTANT: Remember, this is just a notification. Please do not reply to this email.
 
@@ -1008,7 +1008,7 @@ But we didn\'t.
 
 We could have even sent you one of those automatically generated messages to wish you happy birthday where we don\'t even have to replace INSERT NAME.
 
-But we didn\'t
+But we didn\'t.
 
 We wrote this birthday greeting just for you.
 
@@ -1051,7 +1051,7 @@ Enjoy your day today, {REALNAME}!
 $txtBirthdayEmails['geezmo_author'] = '<a href="https://www.simplemachines.org/community/?action=profile;u=48671">geezmo</a>';
 
 $txtBirthdayEmails['karlbenson2_subject'] = 'Your Birthday Greeting';
-$txtBirthdayEmails['karlbenson2_body'] = 'We hope your birthday is the best ever cloudy, sunny or whatever the weather.
+$txtBirthdayEmails['karlbenson2_body'] = 'We hope your birthday is the best ever; cloudy, sunny or whatever the weather.
 Have lots of birthday cake and fun, and tell us what you have done.
 
 We hope this message brought you cheer, and make it last, until same time same place, next year.
