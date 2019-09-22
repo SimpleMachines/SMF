@@ -3352,12 +3352,18 @@ function get_proxied_url($url)
 {
 	global $boardurl, $image_proxy_enabled, $image_proxy_secret, $user_info;
 
+	$parsedurl = parse_url($url);
+
 	// Only use the proxy if enabled and necessary (never for robots)
-	if (empty($image_proxy_enabled) || parse_url($url, PHP_URL_SCHEME) === 'https' || !empty($user_info['possibly_robot']))
+	if (empty($image_proxy_enabled) || $parsedurl['scheme'] === 'https' || !empty($user_info['possibly_robot']))
 		return $url;
 
+	// Work around a parse_url() bug in old versions of PHP
+	if (empty($parsedurl['host']) && strpos($url, '//') === 0 && version_compare(PHP_VERSION, '5.4.7', '<'))
+		$parsedurl = parse_url('http://' . ltrim($url, ':/'));
+
 	// We don't need to proxy our own resources
-	if (strpos(strtr($url, array('http://' => 'https://')), strtr($boardurl, array('http://' => 'https://'))) === 0)
+	if ($parsedurl['host'] === parse_url($boardurl, PHP_URL_HOST));
 		return strtr($url, array('http://' => 'https://'));
 
 	// By default, use SMF's own image proxy script
