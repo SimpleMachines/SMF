@@ -347,7 +347,7 @@ $txt['profile_error_already_requested_group'] = 'You already have an outstanding
 $txt['profile_error_signature_not_yet_saved'] = 'The signature has not been saved.';
 $txt['profile_error_personal_text_too_long'] = 'The personal text is too long.';
 $txt['profile_error_user_title_too_long'] = 'The custom title is too long.';
-$txt['profile_error_custom_field_mail_fail'] = 'The mail validation check returned an error, you need to enter a valid email format (user@domain).';
+$txt['profile_error_custom_field_mail_fail'] = 'The mail validation check returned an error, you need to enter an email in a valid format (user@domain).';
 $txt['profile_error_custom_field_regex_fail'] = 'The regex verification returned an error, if you are unsure about what to type here, please contact the forum administrator.';
 $txt['profile_error_custom_field_nohtml_fail'] = 'HTML tags aren\'t allowed.';
 

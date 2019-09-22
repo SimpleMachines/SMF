@@ -221,7 +221,7 @@ $txt['notify_boards_once_body_body'] = 'A new topic, \'{TOPICSUBJECT}\', has bee
 You can see it at
 {TOPICLINK}
 
-More topics may be posted, but you won\'t receive more email notifications until you return to the board and read some of them.
+More topics may be posted, but you won\'t receive more email notifications for this board until you return to the board and read some of them.
 
 The text of the topic is shown below:
 {MESSAGE}
@@ -244,7 +244,7 @@ $txt['notify_boards_once_body'] = 'A new topic, \'{TOPICSUBJECT}\', has been mad
 You can see it at
 {TOPICLINK}
 
-More topics may be posted, but you won\'t receive more email notifications until you return to the board and read some of them.
+More topics may be posted, but you won\'t receive more email notifications for this board until you return to the board and read some of them.
 
 Unsubscribe from new topics from this board by using this link:
 {UNSUBSCRIBELINK}
@@ -626,7 +626,7 @@ Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 	@description:
 */
 $txt['notification_reply_body_subject'] = 'Topic reply: {TOPICSUBJECT}';
-$txt['notification_reply_body_body'] = 'A reply has been posted to a topic you are watching by {POSTERNAME}.
+$txt['notification_reply_body_body'] = 'In a topic you are watching, a reply has been posted by {POSTERNAME}.
 
 View the reply at: {TOPICLINK}
 
@@ -646,7 +646,7 @@ The text of the reply is shown below:
 	@description:
 */
 $txt['notification_reply_once_subject'] = 'Topic reply: {TOPICSUBJECT}';
-$txt['notification_reply_once_body'] = 'A reply has been posted to a topic you are watching by {POSTERNAME}.
+$txt['notification_reply_once_body'] = 'In a topic you are watching, a reply has been posted by {POSTERNAME}.
 
 View the reply at: {TOPICLINK}
 
@@ -666,7 +666,7 @@ More replies may be posted, but you won\'t receive any more notifications for th
 	@description:
 */
 $txt['notification_reply_body_once_subject'] = 'Topic reply: {TOPICSUBJECT}';
-$txt['notification_reply_body_once_body'] = 'A reply has been posted to a topic you are watching by {POSTERNAME}.
+$txt['notification_reply_body_once_body'] = 'In a topic you are watching, a reply has been posted by {POSTERNAME}.
 
 View the reply at: {TOPICLINK}
 
@@ -804,7 +804,7 @@ $txt['admin_attachments_full_body'] = '{REALNAME},
 
 The attachments directory at {FORUMNAME} is almost full. Please visit the forum to resolve this problem.
 
-Once the attachments directory reaches its maximum permitted size users will not be able to continue to post attachments or upload custom avatars (If enabled).
+Once the attachments directory reaches its maximum permitted size users will not be able to continue to post attachments or upload custom avatars (if enabled).
 
 {REGARDS}';
 
@@ -924,7 +924,7 @@ Reply to this Personal Message here: {REPLYLINK}
 	@description: A notification email sent to the receivers of a personal message
 */
 $txt['new_pm_tolist_subject'] = 'New Personal Message: {SUBJECT}';
-$txt['new_pm_tolist_body'] = 'You and {TOLIST} have just been sent a personal message by {SENDER} on {FORUMNAME}
+$txt['new_pm_tolist_body'] = 'You and {TOLIST} have just been sent a personal message by {SENDER} on {FORUMNAME}.
 
 IMPORTANT: Remember, this is just a notification. Please do not reply to this email.
 
@@ -944,7 +944,7 @@ Reply to this Personal Message (to the sender only) here: {REPLYLINK}
 	@description: A notification email sent to the receivers of a personal message
 */
 $txt['new_pm_body_tolist_subject'] = 'New Personal Message: {SUBJECT}';
-$txt['new_pm_body_tolist_body'] = 'You and {TOLIST} have just been sent a personal message by {SENDER} on {FORUMNAME}
+$txt['new_pm_body_tolist_body'] = 'You and {TOLIST} have just been sent a personal message by {SENDER} on {FORUMNAME}.
 
 IMPORTANT: Remember, this is just a notification. Please do not reply to this email.
 
