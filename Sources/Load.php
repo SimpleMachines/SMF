@@ -445,7 +445,7 @@ function reloadSettings()
 function loadUserSettings()
 {
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
-	global $cookiename, $user_info, $language, $context, $image_proxy_enabled, $cache_enable;
+	global $cookiename, $user_info, $language, $context, $cache_enable;
 
 	// Check first the integration, then the cookie, and last the session.
 	if (count($integration_ids = call_integration_hook('integrate_verify_user')) > 0)
@@ -514,7 +514,7 @@ function loadUserSettings()
 			$user_settings = $smcFunc['db_fetch_assoc']($request);
 			$smcFunc['db_free_result']($request);
 
-			if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($user_settings['avatar'], 'http://') !== false)
+			if (!empty($user_settings['avatar']) && parse_url($data['avatar'], PHP_URL_SCHEME) !== null)
 				$user_settings['avatar'] = get_proxied_url($user_settings['avatar']);
 
 			if (!empty($cache_enable) && $cache_enable >= 2)
@@ -1286,7 +1286,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $image_proxy_enabled, $user_info, $cache_enable;
+	global $user_info, $cache_enable;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1373,7 +1373,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			$row['avatar_original'] = !empty($row['avatar']) ? $row['avatar'] : '';
 
 			// Take care of proxying avatar if required, do this here for maximum reach
-			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false)
+			if (!empty($row['avatar']) && parse_url($row['avatar'], PHP_URL_SCHEME) !== null)
 				$row['avatar'] = get_proxied_url($row['avatar']);
 
 			// Keep track of the member's normal member group
@@ -3631,7 +3631,7 @@ function clean_cache($type = '')
  */
 function set_avatar_data($data = array())
 {
-	global $modSettings, $smcFunc, $image_proxy_enabled, $user_info;
+	global $modSettings, $smcFunc, $user_info;
 
 	// Come on!
 	if (empty($data))
@@ -3668,15 +3668,7 @@ function set_avatar_data($data = array())
 
 			// External url.
 			else
-			{
-				// Using ssl?
-				if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($data['avatar'], 'http://') !== false)
-					$image = get_proxied_url($data['avatar']);
-
-				// Just a plain external url.
-				else
-					$image = (stristr($data['avatar'], 'http://') || stristr($data['avatar'], 'https://')) ? $data['avatar'] : $modSettings['avatar_url'] . '/' . $data['avatar'];
-			}
+				$image = parse_url($data['avatar'], PHP_URL_SCHEME) !== null ? get_proxied_url($data['avatar']) : $modSettings['avatar_url'] . '/' . $data['avatar'];
 		}
 
 		// Perhaps this user has an attachment as avatar...

@@ -1743,20 +1743,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $user_info;
-
 					$data = strtr($data, array('<br>' => ''));
-					$scheme = parse_url($data, PHP_URL_SCHEME);
-					if ($image_proxy_enabled)
-					{
-						if (empty($scheme))
-							$data = 'http://' . ltrim($data, ':/');
 
-						if ($scheme != 'https')
-							$data = get_proxied_url($data);
-					}
-					elseif (empty($scheme))
+					if (parse_url($data, PHP_URL_SCHEME) === null)
 						$data = '//' . ltrim($data, ':/');
+					
+					$data = get_proxied_url($data);
 				},
 				'disabled_content' => '($1)',
 			),
@@ -1766,20 +1758,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="" class="bbc_img">',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $user_info;
-
 					$data = strtr($data, array('<br>' => ''));
-					$scheme = parse_url($data, PHP_URL_SCHEME);
-					if ($image_proxy_enabled)
-					{
-						if (empty($scheme))
-							$data = 'http://' . ltrim($data, ':/');
 
-						if ($scheme != 'https')
-							$data = get_proxied_url($data);
-					}
-					elseif (empty($scheme))
+					if (parse_url($data, PHP_URL_SCHEME) === null)
 						$data = '//' . ltrim($data, ':/');
+					
+					$data = get_proxied_url($data);
 				},
 				'disabled_content' => '($1)',
 			),
