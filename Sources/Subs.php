@@ -3352,15 +3352,15 @@ function get_proxied_url($url)
 {
 	global $boardurl, $image_proxy_enabled, $image_proxy_secret, $user_info;
 
-	$parsedurl = parse_url($url);
-
-	// Only use the proxy if enabled and necessary (never for robots)
-	if (empty($image_proxy_enabled) || $parsedurl['scheme'] === 'https' || !empty($user_info['possibly_robot']))
+	// Only use the proxy if enabled, and never for robots
+	if (empty($image_proxy_enabled) || !empty($user_info['possibly_robot']))
 		return $url;
 
-	// Work around a parse_url() bug in old versions of PHP
-	if (empty($parsedurl['host']) && strpos($url, '//') === 0 && version_compare(PHP_VERSION, '5.4.7', '<'))
-		$parsedurl = parse_url('http://' . ltrim($url, ':/'));
+	$parsedurl = parse_url($url);
+
+	// Don't bother with HTTPS URLs, schemeless URLs, or obviously invalid URLs
+	if (empty($parsedurl['scheme']) || empty($parsedurl['host']) || empty($parsedurl['path']) || $parsedurl['scheme'] === 'https')
+		return $url;
 
 	// We don't need to proxy our own resources
 	if ($parsedurl['host'] === parse_url($boardurl, PHP_URL_HOST));
