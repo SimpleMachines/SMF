@@ -380,6 +380,7 @@ function getBoardIndex($board_index_options)
 			// This is easier to use in many cases for the theme....
 			$this_category[$row_board['id_parent']]['link_children'][] = &$this_category[$row_board['id_parent']]['children'][$row_board['id_board']]['link'];
 		}
+
 		// A further descendent (grandchild, great-grandchild, etc.)
 		else
 		{
@@ -451,6 +452,7 @@ function getBoardIndex($board_index_options)
 			$this_last_post['href'] = $scripturl . '?topic=' . $row_board['id_topic'] . '.msg' . ($user_info['is_guest'] ? $row_board['id_msg'] : $row_board['new_from']) . (empty($row_board['is_read']) ? ';boardseen' : '') . '#new';
 			$this_last_post['link'] = '<a href="' . $this_last_post['href'] . '" title="' . $row_board['subject'] . '">' . $row_board['short_subject'] . '</a>';
 		}
+
 		else
 		{
 			$this_last_post['href'] = '';
@@ -552,15 +554,21 @@ function getBoardIndex($board_index_options)
 		$context['latest_post'] = $latest_post['ref'];
 	}
 
+	// I took my time, I hurried up, the choice was mine I didn't think enough
+	$parsed_descriptions = setparsedDescriptions($to_parse);
+
 	// I can't remember why but trying to make a ternary to get this all in one line is actually a Very Bad Idea.
 	if ($board_index_options['include_categories'])
+	{
+		$categories = appendCategoriesParsedDescriptions($categories, $parsed_descriptions);
 		call_integration_hook('integrate_getboardtree', array($board_index_options, &$categories));
+	}
 
 	else
+	{
+		$this_category = appendBoardsParsedDescriptions($this_category, $parsed_descriptions);
 		call_integration_hook('integrate_getboardtree', array($board_index_options, &$this_category));
-
-	// I took my time, I hurried up, the choice was mine I didn't think enough
-	setparsedDescriptions($to_parse);
+	}
 
 	return $board_index_options['include_categories'] ? $categories : $this_category;
 }
@@ -633,6 +641,47 @@ function setParsedDescriptions($dataToParse = array())
 	}
 
 	return $already_parsed_data;
+}
+
+/**
+ * @param array $categories
+ * @param array $parsed_descriptions
+ *
+ * @return array
+ */
+function appendCategoriesParsedDescriptions($categories = array(), $parsed_descriptions = array())
+{
+	if (empty($categories) || empty($parsed_description))
+		return $categories;
+
+	foreach ($parsed_descriptions as $id_cat => $parsed_description)
+	{
+		$categories[$id_cat]['name'] = $parsed_description['name'];
+		$categories[$id_cat]['description'] = $parsed_description['description'];
+	}
+
+	return $categories;
+}
+
+/**
+ * @param $this_category
+ * @param $parsed_descriptions
+ *
+ * @return array
+ */
+function appendBoardsParsedDescriptions($this_category = array(), $parsed_descriptions = array())
+{
+	if (empty($this_category) || empty($parsed_descriptions))
+		return $this_category;
+
+	foreach ($parsed_descriptions as $id_cat => $parsed_description)
+		foreach ($parsed_description['boards'] as $id_board => $board)
+		{
+			$this_category[$id_board]['name'] = $board['name'];
+			$this_category[$id_board]['description'] = $board['description'];
+		}
+
+	return $this_category;
 }
 
 ?>
