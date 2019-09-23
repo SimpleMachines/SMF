@@ -100,8 +100,8 @@ $txt['mc_modreport_add_mod_comment'] = 'Add Comment';
 $txt['mc_modreport_edit_mod_comment'] = 'Edit Comment';
 
 $txt['mc_viewmemberreport'] = 'Report for profile of %1$s';
-$txt['mc_memberreport_summary'] = 'There have been %1$d report(s) concerning this member. The last report was %2$s.';
-$txt['mc_memberreport_whoreported_title'] = 'Members who have reported this member.';
+$txt['mc_memberreport_summary'] = 'There have been %1$d report(s) concerning this profile. The last report was %2$s.';
+$txt['mc_memberreport_whoreported_title'] = 'Members who have reported this profile.';
 
 $txt['show_notice'] = 'Notice Text';
 $txt['show_notice_subject'] = 'Subject';
