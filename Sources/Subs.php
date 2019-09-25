@@ -3347,7 +3347,7 @@ function get_proxied_url($url)
 		return $url;
 
 	// We don't need to proxy our own resources
-	if ($parsedurl['host'] === parse_url($boardurl, PHP_URL_HOST));
+	if ($parsedurl['host'] === parse_url($boardurl, PHP_URL_HOST))
 		return strtr($url, array('http://' => 'https://'));
 
 	// By default, use SMF's own image proxy script
