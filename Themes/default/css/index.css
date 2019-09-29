@@ -331,7 +331,7 @@ h3.largetext {
 blockquote {
 	margin: 0 0 8px 0;
 	padding: 6px 10px;
-	font-size: small;
+	font-size: 0.85rem;
 	border: 1px solid #d6dfe2;
 	border-left: 2px solid #aaa;
 	border-right: 2px solid #aaa;
@@ -360,7 +360,7 @@ blockquote cite::before {
 /* A code block - maybe PHP ;). */
 .bbc_code {
 	display: block;
-	font-size: 0.85em;
+	font-size: 0.78rem;
 	background: #f3f3f3;
 	border: 1px solid #dfdfdf;
 	border-top: 2px solid #bbb;
@@ -385,13 +385,6 @@ blockquote cite::before {
 /* Expand code bbc */
 .expand_code {
 	max-height: none;
-}
-/* Let's get a bit more flexibility in font sizes for quotes and code. */
-/* We just need to stop em compounding when elements are nested. */
-.bbc_standard_quote .bbc_alternate_quote, .bbc_alternate_quote .bbc_standard_quote,
-.bbc_standard_quote .bbc_code, .bbc_alternate_quote .bbc_code, .bbc_standard_quote .codeheader,
-.bbc_alternate_quote .codeheader, .bbc_standard_quote .quoteheader, .bbc_alternate_quote .quoteheader {
-	font-size: 1em;
 }
 /* Styling for BBC tags */
 .bbc_link {
