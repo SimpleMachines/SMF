@@ -313,8 +313,9 @@ function MessageIndex()
 	$message_index_selects = array();
 	$message_index_tables = array();
 	$message_index_wheres = array();
+	$message_index_topic_wheres = array();
 
-	call_integration_hook('integrate_message_index', array(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids));
+	call_integration_hook('integrate_message_index', array(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids, &$message_index_topic_wheres));
 
 	if (!empty($modSettings['enableParticipation']) && !$user_info['is_guest'])
 		$enableParticipation = true;
@@ -328,7 +329,8 @@ function MessageIndex()
 		' . (!empty($message_index_tables) ? implode("\n\t\t\t\t", $message_index_tables) : '') . '
 		WHERE t.id_board = {int:current_board} '
 			. (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
-			AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
+			AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . (!empty($message_index_topic_wheres) ? ' 
+			AND ' . implode("\n\t\t\t\tAND ", $message_index_topic_wheres) : ''). '
 		ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') . '
 		LIMIT {int:maxindex}
 			OFFSET {int:start} ';

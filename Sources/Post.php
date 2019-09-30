@@ -1566,7 +1566,7 @@ function Post2()
 	require_once($sourcedir . '/Subs-Post.php');
 	loadLanguage('Post');
 
-	call_integration_hook('integrate_post2_start');
+	call_integration_hook('integrate_post2_start', array(&$post_errors));
 
 	// Drafts enabled and needed?
 	if (!empty($modSettings['drafts_post_enabled']) && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))

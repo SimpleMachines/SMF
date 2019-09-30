@@ -255,6 +255,9 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 
 	$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : 0;
 
+	// Do something before?
+	call_integration_hook('integrate_remove_topics_before', array($topics, $recycle_board));
+
 	// Decrease the post counts.
 	if ($decreasePostCount)
 	{
@@ -984,10 +987,10 @@ function removeMessage($message, $decreasePostCount = true)
 			'id_msg' => $message,
 		);
 		removeAttachments($attachmentQuery);
-
-		// Allow mods to remove message related data of their own (likes, maybe?)
-		call_integration_hook('integrate_remove_message', array($message));
 	}
+
+	// Allow mods to remove message related data of their own (likes, maybe?)
+	call_integration_hook('integrate_remove_message', array($message, $row, $recycle));
 
 	// Update the pesky statistics.
 	updateStats('message');
