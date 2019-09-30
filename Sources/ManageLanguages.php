@@ -516,7 +516,7 @@ function ModifyLanguages()
 		if ($_POST['def_language'] != $language && $lang_exists)
 		{
 			require_once($sourcedir . '/Subs-Admin.php');
-			updateSettingsFile(array('language' => '\'' . $_POST['def_language'] . '\''));
+			updateSettingsFile(array('language' => $_POST['def_language']));
 			$language = $_POST['def_language'];
 		}
 	}
@@ -968,7 +968,7 @@ function ModifyLanguage()
 		{
 			require_once($sourcedir . '/Subs-Admin.php');
 			$language = 'english';
-			updateSettingsFile(array('language' => '\'' . $language . '\''));
+			updateSettingsFile(array('language' => $language));
 		}
 
 		// Seventh, get out of here.
