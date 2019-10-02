@@ -1140,6 +1140,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 			),
 		),
 		'quickmod' => array(
+			'class' => 'inline_mod_check',
 			'content' => '<input type="checkbox" name="pms[]" id="deletedisplay'.$output['id'].'" value="'.$output['id'].'" onclick="document.getElementById(\'deletelisting'.$output['id'].'\').checked = this.checked;">',
 			'show' => empty($context['display_mode'])
 		)

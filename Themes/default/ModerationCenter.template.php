@@ -403,6 +403,7 @@ function template_unapproved_posts()
 				'show' => $item['can_delete']
 			),
 			'quickmod' => array(
+				'class' => 'inline_mod_check',
 				'content' => '<input type="checkbox" name="item[]" value="'.$item['id'].'" checked>',
 				'show' => !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1
 			),
@@ -474,6 +475,7 @@ function template_user_watch_post_callback($post)
 			'show' => $post['can_delete']
 		),
 		'quickmod' => array(
+			'class' => 'inline_mod_check',
 			'content' => '<input type="checkbox" name="delete[]" value="' . $post['id'] . '">',
 			'show' => $post['can_delete']
 		)

@@ -1711,6 +1711,7 @@ function prepareDisplayContext($reset = false)
 			),
 		),
 		'quickmod' => array(
+			'class' => 'inline_mod_check',
 			'id' => 'in_topic_mod_check_'. $output['id'],
 			'custom' => 'style="display: none;"',
 			'content' => '',

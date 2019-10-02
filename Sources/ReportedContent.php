@@ -128,6 +128,7 @@ function ReportedContent()
 					'show' => !$report['closed'] && !empty($context['report_manage_bans']) && ($context['report_type'] == 'posts' || $context['report_type'] == 'members' && !empty($report['user']['id']))
 				),
 				'quickmod' => array(
+					'class' => 'inline_mod_check',
 					'content' => '<input type="checkbox" name="close[]" value="'.$report['id'].'">',
 					'show' => !$context['view_closed']
 				)

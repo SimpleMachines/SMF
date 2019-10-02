@@ -988,35 +988,36 @@ img.sort, .sort {
 	padding: 5px 0 5px 0;
 	margin: 5px 0 5px 0;
 }
-.button {
+.button, .quickbuttons > li > a, .inline_mod_check {
 	display: inline-block;
+	padding: 0 8px;
+	background: linear-gradient(to bottom, #fff 0%, #e2e9f3 70%);
+	color: #444;
+	font-size: 0.7rem;
+	line-height: 2em;
 	text-transform: uppercase;
 	cursor: pointer;
+	height: calc(2em + 2em * (0.9 - 0.85)); /* "input" font size minus ".button" font size */
 	border: 1px solid #ddd;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
 	border-radius: 3px;
-	box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
-	padding: 0 0.7em;
-	overflow: visible;
-	color: #444;
-	font-size: 0.85em;
-	height: calc(2em + 2em * (0.9 - 0.85)); /* "input" font size minus ".button" font size */
-	line-height: 2em;
-}
-.button:not(:first-child) {
-	margin-left: 4px;
+	box-shadow: 1px 1px 1px #ddd;
 }
 .pagesection .button {
 	color: #346;
 }
-.button:hover {
-	color: #af6700;
-	text-decoration: none;
+.button:hover, .button:focus,
+.quickbuttons > li:hover > a, .quickbuttons > li > a:focus {
+	color: #222;
 	border: 1px solid #ddd;
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
-	box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.07), -1px -2px 4px rgba(255, 255, 255, 0.33) inset;
+	box-shadow: -1px -1px 2px #ddd, -1px -2px 4px #ddd inset;
+	text-decoration: none;
+}
+.button:hover, .button:focus {
+	color: #af6700;
 }
 /* the active one */
 .button.active {
@@ -1024,29 +1025,26 @@ img.sort, .sort {
 	color: #fff;
 	font-weight: bold;
 	border: 1px solid #558080;
-	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+	text-shadow: 0 0 1px #000;
 }
-.button.active:hover {
+.button.active:hover, .button.active:focus {
 	color: #ffc187;
 	background: #557ea0;
+	box-shadow: none;
 }
 /* In a .buttonrow, the buttons are joined together */
 .buttonrow {
-	margin-left: 5px;
+	margin: 0 5px;
 }
 .buttonrow .button {
 	display: table-cell;
+	border-radius: 0;
 }
-.buttonrow .button:not(:first-child) {
-	border-top-left-radius: 0;
-	border-bottom-left-radius: 0;
-	border-left-color: #ccc;
+.buttonrow .button:first-child {
+	border-radius: 3px 0 0 3px;
 }
-.buttonrow .button:not(:last-child) {
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 0;
-	border-right: none;
-	box-shadow: -1px 0 0 rgba(255, 255, 255, 0.7);
+.buttonrow .button:last-child {
+	border-radius:  0 3px 3px 0;
 }
 /* in a titlebg, the buttonlist is of small height */
 .titlebg .buttonlist {
@@ -1315,93 +1313,72 @@ ul li.greeting {
 	clear: right;
 	float: right;
 	text-align: right;
-	font-size: 0.9em;
 }
 #recent .quickbuttons {
 	margin: 0;
 }
-.quickbuttons li {
+.quickbuttons > li {
 	float: left;
-	display: inline;
-	height: 23px;
-	border: 1px solid #ddd;
-	border-right: 1px solid #bbb;
-	border-bottom: 1px solid #aaa;
-	border-radius: 1px;
-	box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
-	padding: 0 1px 0 1px;
-	color: #222;
-	overflow: visible;
 }
-.quickbuttons li a {
-	padding: 0 4px 0 5px;
+.quickbuttons > li > a, .inline_mod_check {
 	display: block;
-	line-height: 1.9em;
-}
-.quickbuttons li a, .quickbuttons li a:hover {
-	text-decoration: none;
+	height: auto;
+	padding: 0 4px;
 	color: #222;
-}
-.quickbuttons li:first-child, .quickbuttons li:first-child:hover {
-	border-radius: 4px 1px 1px 4px;
-	padding-bottom: 0;
-}
-.quickbuttons li:last-child, .quickbuttons li:last-child:hover {
-	border-radius: 1px 4px 4px 1px;
-	padding-bottom: 0;
-	line-height: 1.9em;
-}
-.quickbuttons li:hover {
+	line-height: 1.375rem;
 	border: 1px solid #ddd;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
-	border-radius: 1px;
-	box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+	box-shadow: 1px 1px 1px #ddd;
+	border-radius: 0;
 }
-
+.quickbuttons > li:first-child > a {
+	border-radius: 4px 0 0 4px;
+}
+.quickbuttons > li:last-child > a, .inline_mod_check:last-child {
+	border-radius: 0 4px 4px 0;
+}
+.moderationbuttons_check {
+	position: relative;
+	top: -1px;
+}
+.moderationbuttons_check:focus {
+	box-shadow: 0 0 4px #499dd8;
+}
+.quick_edit, .post_options {
+	position: relative;
+}
 /* Drop part of QuickButtons */
-.quickbuttons li ul {
+.post_options ul {
+	display: none;
 	position: absolute;
 	top: 100%;
+	right: -1px;
 	z-index: 90;
-	padding: 0.5em;
+	padding: 6px;
+	background: #fff;
 	font-weight: normal;
 	text-align: left;
 	border: solid 1px #999;
 	border-left: solid 1px #aaa;
 	border-top: solid 1px #bbb;
-	border-radius: 0 0 4px 4px;
+	border-radius: 4px 0 4px 4px;
 	box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2);
 }
-.quickbuttons li ul {
-	display: none;
-	right: -1px;
-}
-.quickbuttons li:hover ul {
+.post_options:hover ul {
 	display: block;
 }
-.quickbuttons li ul li, .quickbuttons li:hover ul li {
+.post_options ul a {
 	display: block;
-	background: none;
-	box-shadow: none;
 	width: 12em;
+	padding: 0 6px;
+	line-height: 2.2em;
+	text-decoration: none;
 	border: 1px solid transparent;
 	border-radius: 3px;
 }
-.quickbuttons li ul li:hover {
-	border: 1px solid #cfcfcf;
-	border-top: 1px solid #d4dee6;
-	border-bottom: 1px solid #cbdae6;
-}
-.quickbuttons ul li a, .quickbuttons ul li a:focus {
-	display: block;
-	line-height: 2.2em;
-	width: 12em;
-	padding: 0;
-}
-/* Sub buttons doesn't need to be effected by first-child/last-child */
-.quickbuttons li > ul > li {
-	border-radius: 3px !important;
+.post_options ul a:hover, .post_options ul a:focus {
+	border-color: #c4cbd3;
 }
 /* Note: The next declarations are for keyboard access with js disabled. */
 .quickbuttons ul li a:focus {
@@ -1415,21 +1392,6 @@ ul li.greeting {
    Fix for quote on reply box */
 #post_modify {
 	border-radius: 4px;
-}
-.quickbuttons li.inline_mod_check {
-	padding: 1px 1px 1px 1px;
-}
-.quickbuttons li.quick_edit, .quickbuttons li.post_options {
-	line-height: 1.9em;
-	position: relative;
-}
-.quickbuttons li.post_options {
-	padding: 0 4px 0 4px;
-	cursor: pointer;
-}
-
-.quickbuttons li.post_options > a {
-	padding: 0 4px 0 4px;
 }
 
 /* The jump to box */
@@ -3793,13 +3755,11 @@ h3.profile_hd {
 
 /* Those classes are sharing exact same gradient. */
 /* Background of buttons */
-.dropmenu li ul, .top_menu, .dropmenu li li:hover, .button,
+.dropmenu li ul, .top_menu, .dropmenu li li:hover,
 .dropmenu li li:hover > a, .dropmenu li li a:focus, .dropmenu li li a:hover,
-#top_section, #search_form .button, .quickbuttons li,
-.quickbuttons li ul, .quickbuttons li ul li:hover, .quickbuttons ul li a:focus,
-.popup_window, #inner_section {
+#top_section, .popup_window, #inner_section, .post_options ul, .post_options ul a:hover, .post_options ul a:focus {
 	background: #fff; /* fallback for some browsers */
-	background-image: linear-gradient(to bottom, #e2e9f3 0%, #fff 70%);
+	background-image: linear-gradient(#e2e9f3 0%, #fff 70%);
 }
 /* Well some of them has different gradient effect on hover */
 .button:hover, #search_form .button:hover, .quickbuttons li:hover {
