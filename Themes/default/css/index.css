@@ -3757,7 +3757,8 @@ h3.profile_hd {
 /* Background of buttons */
 .dropmenu li ul, .top_menu, .dropmenu li li:hover,
 .dropmenu li li:hover > a, .dropmenu li li a:focus, .dropmenu li li a:hover,
-#top_section, .popup_window, #inner_section, .post_options ul, .post_options ul a:hover, .post_options ul a:focus {
+#top_section, .popup_window, #inner_section, .post_options ul,
+.post_options ul a:hover, .post_options ul a:focus, .notify_dropdown a:hover, .notify_dropdown a:focus {
 	background: #fff; /* fallback for some browsers */
 	background-image: linear-gradient(#e2e9f3 0%, #fff 70%);
 }
@@ -3779,10 +3780,12 @@ h3.profile_hd {
 .notify_dropdown a {
 	display: block;
 	padding: 0.5em;
-}
-.notify_dropdown a:hover {
 	text-decoration: none;
-	background: #eee;
+	border: 1px solid transparent;
+	border-radius: 3px;
+}
+.notify_dropdown a:hover, .notify_dropdown a:focus {
+	border-color: #ddd;
 }
 .notify_dropdown span {
 	font-size: 0.9em;
