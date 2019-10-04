@@ -89,17 +89,28 @@ function template_html_above()
 	/*
 		You don't need to manually load index.css, this will be set up for you.
 		Note that RTL will also be loaded for you.
-
-		The most efficient way of writing multi themes is to use a master
-		index.css plus variant.css files. If you've set them up properly
-		(through $settings['theme_variants']), the variant files will be loaded
-		for you automatically.
-
-		If you want to load other CSS files, the best way is to use the
-		'integrate_load_theme' integration hook and the loadCSSFile() function.
+		To load other CSS and JS files you should use the functions
+		loadCSSFile() and loadJavaScriptFile() respectively.
 		This approach will let you take advantage of SMF's automatic CSS
 		minimization and other benefits. You can, of course, manually add any
 		other files you want after template_css() has been run.
+
+	*	Short example:
+			- CSS: loadCSSFile('filename.css', array('minimize' => true));
+			- JS:  loadJavaScriptFile('filename.css', array('minimize' => true));
+			You can also read more detailed usages of the parameters for these 
+			functions on the SMF wiki.
+
+	*	Themes:
+			The most efficient way of writing multi themes is to use a master
+			index.css plus variant.css files. If you've set them up properly
+			(through $settings['theme_variants']), the variant files will be loaded
+			for you automatically.
+
+	*	MODs:
+			If you want to load CSS or JS files in here, the best way is to use the
+			'integrate_load_theme' hook for adding multiple files, or using
+			'integrate_pre_css_output', 'integrate_pre_javascript_output' for a single file.
 	*/
 
 	// load in any css from mods or themes so they can overwrite if wanted
