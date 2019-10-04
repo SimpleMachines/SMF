@@ -149,7 +149,7 @@ $db_mb4 = null;
 /**
  * Is database case sensitive
  * null means use default behavior
- * @var null|boolean
+ * @var null|bool
  */
 $db_case_sensitive = null;
 
