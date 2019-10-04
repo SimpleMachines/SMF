@@ -95,13 +95,19 @@ function template_html_above()
 		minimization and other benefits. You can, of course, manually add any
 		other files you want after template_css() has been run.
 
-		Themes:
+	*	Short example:
+			- CSS: loadCSSFile('filename.css', array('minimize' => true));
+			- JS:  loadJavaScriptFile('filename.css', array('minimize' => true));
+			You can also read more detailed usages of the parameters for these 
+			functions on the SMF wiki.
+
+	*	Themes:
 			The most efficient way of writing multi themes is to use a master
 			index.css plus variant.css files. If you've set them up properly
 			(through $settings['theme_variants']), the variant files will be loaded
 			for you automatically.
 
-		MODs:
+	*	MODs:
 			If you want to load CSS or JS files in here, the best way is to use the
 			'integrate_load_theme' hook for adding multiple files, or using
 			'integrate_pre_css_output', 'integrate_pre_javascript_output' for a single file.
