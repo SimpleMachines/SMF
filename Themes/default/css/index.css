@@ -1326,10 +1326,6 @@ ul li.greeting {
 	padding: 0 4px;
 	color: #222;
 	line-height: 1.375rem;
-	border: 1px solid #ddd;
-	border-right: 1px solid #bbb;
-	border-bottom: 1px solid #aaa;
-	box-shadow: 1px 1px 1px #ddd;
 	border-radius: 0;
 }
 .quickbuttons > li:first-child > a {
