@@ -107,7 +107,7 @@ dd textarea {
 }
 /* Apply the font only to these elements */
 input, button, select {
-	font-size: 0.9em;
+	font-size: 0.75rem;
 }
 /* Number inputs don't support size nor width, so add some common ones here and set a default... */
 input[type="number"] {
