@@ -84,7 +84,7 @@ img, input, select, textarea {
 }
 /* This is a specific issue on Ubuntu - Chrome */
 #chrome input {
-	font: 83.33%/150% "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
+	font-family: "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
 }
 /* The following is necessary */
 textarea {
