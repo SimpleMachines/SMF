@@ -1002,7 +1002,7 @@ img.sort, .sort {
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
 	border-radius: 3px;
-	box-shadow: 1px 1px 1px rgba(221, 221, 221, 0.35);
+	box-shadow: 1px 1px 1px rgba(221, 221, 221, 0.57);
 	box-sizing: border-box;
 	vertical-align: middle;
 }
@@ -1018,7 +1018,7 @@ img.sort, .sort {
 	border: 1px solid #ddd;
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
-	box-shadow: -1px -1px 2px rgba(221, 221, 221, 0.5), -1px -2px 4px #ddd inset;
+	box-shadow: -1px -1px 2px rgba(221, 221, 221, 0.7), -1px -2px 4px #ddd inset;
 	text-decoration: none;
 }
 .button:hover, .button:focus {
@@ -1342,7 +1342,7 @@ ul li.greeting {
 .quickbuttons > li:last-child > a, .inline_mod_check:last-child {
 	border-radius: 0 4px 4px 0;
 }
-.moderationbuttons_check {
+.inline_mod_check input {
 	position: relative;
 	top: -1px;
 	height: auto;
