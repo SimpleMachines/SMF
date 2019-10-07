@@ -741,7 +741,8 @@ img.sort, .sort {
 	text-shadow: 0 0 1px #000;
 }
 /* Level 1 hover effects. */
-.dropmenu li a:hover, .dropmenu li:hover a, .dropmenu li a:focus, #top_info > li > a:hover, #top_info > li:hover > a, #top_info > li > a.open {
+.dropmenu > li:hover > a, .dropmenu > li > a:focus,
+#top_info > li:hover > a, #top_info > li > a:focus, #top_info > li > a.open {
 	background: #597b9f;
 	border: 1px solid #4a6b8c;
 	color: #fff;
