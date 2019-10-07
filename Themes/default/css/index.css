@@ -998,9 +998,8 @@ img.sort, .sort {
 	text-transform: uppercase;
 	cursor: pointer;
 	height: calc(2em + 2em * (0.9 - 0.85)); /* "input" font size minus ".button" font size */
-	border: 1px solid #ddd;
-	border-right: 1px solid #bbb;
-	border-bottom: 1px solid #aaa;
+	border: 1px solid;
+	border-color: #ddd #bbb #aaa #ddd;
 	border-radius: 3px;
 	box-shadow: 1px 1px 1px rgba(221, 221, 221, 0.57);
 	box-sizing: border-box;
@@ -1015,9 +1014,7 @@ img.sort, .sort {
 .button:hover, .button:focus,
 .quickbuttons > li:hover > a, .quickbuttons > li > a:focus {
 	color: #222;
-	border: 1px solid #ddd;
-	border-left: 1px solid #bbb;
-	border-top: 1px solid #aaa;
+	border-color: #aaa #ddd #ddd #bbb;
 	box-shadow: -1px -1px 2px rgba(221, 221, 221, 0.7), -1px -2px 4px #ddd inset;
 	text-decoration: none;
 }
