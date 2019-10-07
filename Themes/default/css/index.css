@@ -1009,6 +1009,9 @@ img.sort, .sort {
 .pagesection .button {
 	color: #346;
 }
+.button:not(:first-child) {
+	margin-left: 4px;
+}
 .button:hover, .button:focus,
 .quickbuttons > li:hover > a, .quickbuttons > li > a:focus {
 	color: #222;
