@@ -756,13 +756,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null)
 	);
 
 	// Allow mods the option to define comments, defaults, etc., for their settings.
-	$custom_settings_defs = array();
-	call_integration_hook('integrate_update_settings_file', array(&$custom_settings_defs));
-
-	// Add the custom definitions. No overwriting the standard ones!
-	$settings_defs = array_merge($settings_defs, array_diff_ukey($custom_settings_defs, $settings_defs, function($ckey, $skey) {
-		return is_int($ckey) ? 1 : strcmp($ckey, $skey);
-	}));
+	call_integration_hook('integrate_update_settings_file', array(&$settings_defs));
 
 	// Make sure we have values for everything in Settings.php.
 	foreach ($settingsfile_vars as $var)
@@ -856,14 +850,14 @@ function updateSettingsFile($config_vars, $keep_quotes = null)
 					),
 					$text_pattern
 				);
-				
+
 				$text_pattern = implode('\n[ \t]*', explode("\n", $text_pattern));
-				
+
 				$substitutions[$var]['search_pattern'] = '~' . $text_pattern . '\n?~';
 				$substitutions[$var]['placeholder'] = '';
 				$substitutions['^']['placeholder'] .= $placeholder . "\n";
 				$substitutions['^']['replacement'] .= $setting_def['text'] . "\n";
-			}	
+			}
 
 			// The text is the whole thing (code blocks, etc.)
 			elseif (is_int($var))
@@ -883,21 +877,21 @@ function updateSettingsFile($config_vars, $keep_quotes = null)
 
 		if (is_string($var))
 		{
-			// We don't save objects in Settings.php. 
+			// We don't save objects in Settings.php.
 			if (is_object($config_vars[$var]))
 			{
 				if (method_exists($config_vars[$var], '__toString'))
 					$config_vars[$var] = (string) $config_vars[$var];
 				else
-					$config_vars[$var] = (array) $config_vars[$var];				
+					$config_vars[$var] = (array) $config_vars[$var];
 			}
 
 			list($var_pattern, $flags) = gettype_regex($config_vars[$var]);
-			
+
 			if (!empty($setting_def['raw_default']) && !empty($setting_def['default']))
 				$var_pattern = '(?:' . $var_pattern . '|' . preg_quote($setting_def['default'], '~') . ')';
 
-			$substitutions[$var]['search_pattern'] = '~[ \t]*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';\n?~' . $flags;	
+			$substitutions[$var]['search_pattern'] = '~[ \t]*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';\n?~' . $flags;
 			$substitutions[$var]['placeholder'] = $placeholder . "\n";
 		}
 
@@ -942,7 +936,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null)
 				if (method_exists($config_vars[$var], '__toString'))
 					$config_vars[$var] = (string) $config_vars[$var];
 				else
-					$config_vars[$var] = (array) $config_vars[$var];				
+					$config_vars[$var] = (array) $config_vars[$var];
 			}
 
 			list($var_pattern, $flags) = gettype_regex($config_vars[$var]);
@@ -972,7 +966,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null)
 	{
 		$search_patterns[] = $substitution['search_pattern'];
 		$placeholders[] = $substitution['placeholder'];
-		
+
 		if (strpos($var, 'text_') !== 0)
 		{
 			if (!empty($substitution['placeholder']))
@@ -982,7 +976,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null)
 			else
 			{
 				$replace_patterns[] = $substitution['replace_pattern'];
-				$replace_strings[] = $substitution['replacement'];							
+				$replace_strings[] = $substitution['replacement'];
 			}
 		}
 	}
