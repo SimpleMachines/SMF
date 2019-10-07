@@ -1003,6 +1003,7 @@ img.sort, .sort {
 	border-bottom: 1px solid #aaa;
 	border-radius: 3px;
 	box-shadow: 1px 1px 1px #ddd;
+	box-sizing: border-box;
 }
 .pagesection .button {
 	color: #346;
