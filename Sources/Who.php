@@ -801,6 +801,15 @@ function Credits($in_admin = false)
 					'David Recordon',
 				),
 			),
+			array(
+				'title' => $txt['credits_in_memoriam'],
+				'members' => array(
+					'Crip',
+					'K@',
+					'metallica48423',
+					'Paul_Pauline',
+				),
+			),
 		),
 	);
 
