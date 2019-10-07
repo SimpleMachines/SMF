@@ -1004,6 +1004,7 @@ img.sort, .sort {
 	border-radius: 3px;
 	box-shadow: 1px 1px 1px #ddd;
 	box-sizing: border-box;
+	vertical-align: middle;
 }
 .pagesection .button {
 	color: #346;
