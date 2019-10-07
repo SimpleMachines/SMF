@@ -1342,6 +1342,7 @@ ul li.greeting {
 .moderationbuttons_check {
 	position: relative;
 	top: -1px;
+	height: auto;
 }
 .moderationbuttons_check:focus {
 	box-shadow: 0 0 4px #499dd8;
