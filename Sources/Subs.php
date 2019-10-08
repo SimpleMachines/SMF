@@ -3455,10 +3455,11 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 		$has_fatal_error = true;
 
 	// Clear out the stat cache.
-	trackStats();
+	if (function_exists('trackStats'))
+		trackStats();
 
 	// If we have mail to send, send it.
-	if (!empty($context['flush_mail']))
+	if (function_exists('AddMailQueue') && !empty($context['flush_mail']))
 		// @todo this relies on 'flush_mail' being only set in AddMailQueue itself... :\
 		AddMailQueue(true);
 
@@ -6565,7 +6566,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		return preg_quote(@strval($strings), $delim);
 
 	$regex_key = md5(json_encode(array($strings, $delim, $returnArray)));
-	
+
 	if (isset($regexes[$regex_key]))
 		return $regexes[$regex_key];
 
