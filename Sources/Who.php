@@ -741,7 +741,7 @@ function Credits($in_admin = false)
 					'members' => array(
 						'Derek Schwab',
 						'Michael Johnson',
-						'Liroy "CoreISP" van Hoewijk',
+						'Liroy van Hoewijk',
 					),
 				),
 			),
@@ -799,6 +799,15 @@ function Credits($in_admin = false)
 					'Jeff Lewis',
 					'Joseph Fung',
 					'David Recordon',
+				),
+			),
+			array(
+				'title' => $txt['credits_in_memoriam'],
+				'members' => array(
+					'Crip',
+					'K@',
+					'metallica48423',
+					'Paul_Pauline',
 				),
 			),
 		),
