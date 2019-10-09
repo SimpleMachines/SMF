@@ -38,14 +38,7 @@ foreach (array('db_character_set', 'cachedir') as $variable)
 	unset($GLOBALS[$variable]);
 
 // Load the settings...
-$glkeys = (array) @array_keys($GLOBALS);
-
 require_once(dirname(__FILE__) . '/Settings.php');
-
-$settingsfile_vars = array_filter(array_diff(array_keys($GLOBALS), $glkeys), function($var) {
-	return $var != 'glkeys';
-});
-unset($glkeys);
 
 // Ensure there are no trailing slashes in these variables.
 foreach (array('boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'taskddir', 'cachedir') as $variable)

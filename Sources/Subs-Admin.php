@@ -291,15 +291,17 @@ function getFileVersions(&$versionOptions)
  *
  * - Tries to intelligently trim quotes and remove slashes from string values.
  *   This is done for backwards compatibility purposes (old versions of this
- *   function expected strings to have been manually escaped and quoted.) This
+ *   function expected strings to have been manually escaped and quoted). This
  *   behaviour can be controlled by the $keep_quotes parameter.
  *
  * @param array $config_vars An array of one or more variables to update.
- * @param bool|null $keep_quotes Whether to strip slashes & trim quotes from string values.
+ * @param bool|null $keep_quotes Whether to strip slashes & trim quotes from string values. Defaults to auto-detection.
+ * @param bool $partial If true, does not try to make sure all variables are correct. Default false.
+ * @return bool True on success, false on failure.
  */
-function updateSettingsFile($config_vars, $keep_quotes = null)
+function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 {
-	global $context, $settingsfile_vars;
+	global $context;
 
 	// Should we try to unescape the strings?
 	if (empty($keep_quotes))
@@ -758,10 +760,14 @@ function updateSettingsFile($config_vars, $keep_quotes = null)
 	// Allow mods the option to define comments, defaults, etc., for their settings.
 	call_integration_hook('integrate_update_settings_file', array(&$settings_defs));
 
-	// Make sure we have values for everything in Settings.php.
-	foreach ($settingsfile_vars as $var)
+	// Just doing the bare minimum, eh? I guess someone's feeling lazy.
+	if ($partial)
+		$settings_defs = array_intersect_key($settings_defs, $config_vars);
+
+	// Make sure we have values for everything.
+	foreach ($settings_defs as $var => $setting_def)
 	{
-		if (!isset($config_vars[$var]))
+		if (is_string($var) && !isset($config_vars[$var]) && in_array($var, array_keys($GLOBALS)))
 			$config_vars[$var] = $GLOBALS[$var];
 	}
 
