@@ -294,7 +294,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
  */
 function updateMemberData($members, $data)
 {
-	global $modSettings, $user_info, $smcFunc, $sourcedir;
+	global $modSettings, $user_info, $smcFunc, $sourcedir, $cache_enable;
 
 	// An empty array means there's nobody to update.
 	if ($members === array())
@@ -433,14 +433,14 @@ function updateMemberData($members, $data)
 	updateStats('postgroups', $members, array_keys($data));
 
 	// Clear any caching?
-	if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2 && !empty($members))
+	if (!empty($cache_enable) && $cache_enable >= 2 && !empty($members))
 	{
 		if (!is_array($members))
 			$members = array($members);
 
 		foreach ($members as $member)
 		{
-			if ($modSettings['cache_enable'] >= 3)
+			if ($cache_enable >= 3)
 			{
 				cache_put_data('member_data-profile-' . $member, null, 120);
 				cache_put_data('member_data-normal-' . $member, null, 120);
@@ -1209,7 +1209,7 @@ function permute($array)
  */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
-	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
+	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir, $cache_enable;
 	static $bbc_lang_locales = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled, $alltags_regex = '', $param_regexes = array();
 
@@ -1406,6 +1406,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'alt' => array('optional' => true),
 					'width' => array('optional' => true, 'match' => '(\d+)'),
 					'height' => array('optional' => true, 'match' => '(\d+)'),
+					'display' => array('optional' => true, 'match' => '(link|embed)'),
 				),
 				'content' => '$1',
 				'validate' => function(&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt, $smcFunc)
@@ -1428,24 +1429,61 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (is_string($currentAttachment))
 						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
 
-					if (!empty($currentAttachment['is_image']) && (!isset($param['{type}']) || strpos($param['{type}'], 'image') === 0))
+					// We need a display mode.
+					if (empty($params['{display}']))
+					{
+						// Images, video, and audio are embedded by default.
+						if (!empty($currentAttachment['is_image']) || strpos($currentAttachment['mime_type'], 'video/') === 0 || strpos($currentAttachment['mime_type'], 'audio/') === 0)
+							$params['{display}'] = 'embed';
+						// Anything else shows a link by default.
+						else
+							$params['{display}'] = 'link';
+					}
+
+					// Embedded file.
+					if ($params['{display}'] == 'embed')
 					{
 						$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $currentAttachment['name']) . '"';
 						$title = !empty($data) ? ' title="' . $smcFunc['htmlspecialchars']($data) . '"' : '';
 
-						$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
-						$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
+						$width = !empty($params['{width}']) ? $params['{width}'] : (!empty($currentAttachment['width']) ? $currentAttachment['width'] : '');
+						$height = !empty($params['{height}']) ? $params['{height}'] : (!empty($currentAttachment['height']) ? $currentAttachment['height'] : '');
 
-						if (empty($width) && empty($height))
+						// Image.
+						if (!empty($currentAttachment['is_image']))
 						{
-							$width = ' width="' . $currentAttachment['width'] . '"';
-							$height = ' height="' . $currentAttachment['height'] . '"';
-						}
+							$width = !empty($width) ? ' width="' . $width . '"' : '';
+							$height = !empty($height) ? ' height="' . $height . '"' : '';
 
-						if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
-							$returnContext .= '<a href="' . $currentAttachment['href'] . ';image" id="link_' . $currentAttachment['id'] . '" onclick="' . $currentAttachment['thumbnail']['javascript'] . '"><img src="' . $currentAttachment['thumbnail']['href'] . '"' . $alt . $title . ' id="thumb_' . $currentAttachment['id'] . '" class="atc_img"></a>';
+							if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
+								$returnContext .= '<a href="' . $currentAttachment['href'] . ';image" id="link_' . $currentAttachment['id'] . '" onclick="' . $currentAttachment['thumbnail']['javascript'] . '"><img src="' . $currentAttachment['thumbnail']['href'] . '"' . $alt . $title . ' id="thumb_' . $currentAttachment['id'] . '" class="atc_img"></a>';
+							else
+								$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img"/>';
+						}
+						// Video.
+						elseif (strpos($currentAttachment['mime_type'], 'video/') === 0)
+						{
+							$width = !empty($width) ? ' width="' . $width . '"' : '';
+							$height = !empty($height) ? ' height="' . $height . '"' : '';
+
+							$returnContext .= '<div class="videocontainer"><div><video controls preload="none" src="'. $currentAttachment['href'] . '" playsinline' . $width . $height . ' style="object-fit:contain;"><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></video></div></div>' . (!empty($data) && $data != $currentAttachment['name'] ? '<div class="smalltext">' . $data . '</div>' : '');
+						}
+						// Audio.
+						elseif (strpos($currentAttachment['mime_type'], 'audio/') === 0)
+						{
+							$width = 'max-width:100%; width: ' . (!empty($width) ? $width : '400') . 'px;';
+							$height = !empty($height) ? 'height: ' . $height . 'px;' : '';
+
+							$returnContext .= (!empty($data) && $data != $currentAttachment['name'] ? $data . ' ' : '') . '<audio controls preload="none" src="'. $currentAttachment['href'] . '" class="bbc_audio" style="vertical-align:middle;' . $width . $height . '"><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></audio>';
+						}
+						// Anything else.
 						else
-							$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img"/>';
+						{
+							$width = !empty($width) ? ' width="' . $width . '"' : '';
+							$height = !empty($height) ? ' height="' . $height . '"' : '';
+
+							$returnContext .= '<object type="' . $currentAttachment['mime_type'] . '" data="' . $currentAttachment['href'] . '"' . $width . $height . ' typemustmatch><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></object>';
+						}
 					}
 
 					// No image. Show a link.
@@ -2201,7 +2239,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	}
 
 	// Shall we take the time to cache this?
-	if ($cache_id != '' && !empty($modSettings['cache_enable']) && (($modSettings['cache_enable'] >= 2 && isset($message[1000])) || isset($message[2400])) && empty($parse_tags))
+	if ($cache_id != '' && !empty($cache_enable) && (($cache_enable >= 2 && isset($message[1000])) || isset($message[2400])) && empty($parse_tags))
 	{
 		// It's likely this will change if the message is modified.
 		$cache_key = 'parse:' . $cache_id . '-' . md5(md5($message) . '-' . $smileys . (empty($disabled) ? '' : implode(',', array_keys($disabled))) . $smcFunc['json_encode']($context['browser']) . $txt['lang_locale'] . $user_info['time_offset'] . $user_info['time_format']);
@@ -2393,17 +2431,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 										'localhost' .
 										// or
 										'|' .
-										// a run of Unicode domain name characters and a dot
-										'[\p{L}\p{M}\p{N}\-.:@]+\.' .
-										// and then a TLD
-										'(?:' .
-											// Either a TLD valid in the DNS
-											'(?P>tlds)' .
-											// or
-											'|' .
-											// the reserved "local" TLD
-											'local' .
-										')' .
+										// a run of IRI characters, a dot, and a TLD
+										'[\p{L}\p{M}\p{N}\-.:@]+\.(?P>tlds)' .
 									')' .
 									// followed by a non-domain character or end of line
 									'(?=[^\p{L}\p{N}\-.]|$)' .
@@ -3844,7 +3873,7 @@ function memoryReturnBytes($val)
  */
 function template_header()
 {
-	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir;
+	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir, $cache_enable;
 
 	setupThemeContext();
 
@@ -3914,7 +3943,7 @@ function template_header()
 			if ($modSettings['requireAgreement'])
 				$agreement = !file_exists($boarddir . '/agreement.txt');
 
-			if (!empty($securityFiles) || (!empty($modSettings['cache_enable']) && !is_writable($cachedir)) || !empty($agreement))
+			if (!empty($securityFiles) || (!empty($cache_enable) && !is_writable($cachedir)) || !empty($agreement))
 			{
 				echo '
 		<div class="errorbox">
@@ -3932,7 +3961,7 @@ function template_header()
 				', sprintf($txt['not_removed_extra'], $securityFile, substr($securityFile, 0, -1)), '<br>';
 				}
 
-				if (!empty($modSettings['cache_enable']) && !is_writable($cachedir))
+				if (!empty($cache_enable) && !is_writable($cachedir))
 					echo '
 				<strong>', $txt['cache_writable'], '</strong><br>';
 
@@ -4669,7 +4698,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  */
 function setupMenuContext()
 {
-	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc;
+	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc, $cache_enable;
 
 	// Set up the menu privileges.
 	$context['allow_search'] = !empty($modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
@@ -4912,7 +4941,7 @@ function setupMenuContext()
 				$menu_buttons[$act] = $button;
 			}
 
-		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+		if (!empty($cache_enable) && $cache_enable >= 2)
 			cache_put_data('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $menu_buttons, $cacheTime);
 	}
 
@@ -5621,8 +5650,6 @@ function sanitizeMSCutPaste($string)
 		"\xe2\x80\x99",	// right single curly quote
 		"\xe2\x80\x9c",	// left double curly quote
 		"\xe2\x80\x9d",	// right double curly quote
-		"\xe2\x80\x93",	// en dash
-		"\xe2\x80\x94",	// em dash
 	);
 
 	// windows 1252 / iso equivalents
@@ -5634,8 +5661,6 @@ function sanitizeMSCutPaste($string)
 		chr(146),
 		chr(147),
 		chr(148),
-		chr(150),
-		chr(151),
 	);
 
 	// safe replacements
@@ -5647,8 +5672,6 @@ function sanitizeMSCutPaste($string)
 		"'",	// &rsquo;
 		'"',	// &ldquo;
 		'"',	// &rdquo;
-		'-',	// &ndash;
-		'--',	// &mdash;
 	);
 
 	if ($context['utf8'])
@@ -6388,12 +6411,14 @@ function smf_serverResponse($data = '', $type = 'content-type: application/json'
  *
  * The optimized regex is stored in $modSettings['tld_regex'].
  *
- * To update the stored version of the regex to use the latest list of valid TLDs from iana.org, set
- * the $update parameter to true. Updating can take some time, based on network connectivity, so it
- * should normally only be done by calling this function from a background or scheduled task.
+ * To update the stored version of the regex to use the latest list of valid
+ * TLDs from iana.org, set the $update parameter to true. Updating can take some
+ * time, based on network connectivity, so it should normally only be done by
+ * calling this function from a background or scheduled task.
  *
- * If $update is not true, but the regex is missing or invalid, the regex will be regenerated from a
- * hard-coded list of TLDs. This regenerated regex will be overwritten on the next scheduled update.
+ * If $update is not true, but the regex is missing or invalid, the regex will
+ * be regenerated from a hard-coded list of TLDs. This regenerated regex will be
+ * overwritten on the next scheduled update.
  *
  * @param bool $update If true, fetch and process the latest official list of TLDs from iana.org.
  */
@@ -6410,14 +6435,21 @@ function set_tld_regex($update = false)
 	if ($update)
 	{
 		$tlds = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
+		$tlds_md5 = fetch_web_data('https://data.iana.org/TLD/tlds-alpha-by-domain.txt.md5');
 
-		// If the Internet Assigned Numbers Authority can't be reached, the Internet is GONE!
-		// We're probably running on a server hidden in a bunker deep underground to protect it from
-		// marauding bandits roaming on the surface. We don't want to waste precious electricity on
-		// pointlessly repeating background tasks, so we'll wait until the next regularly scheduled
-		// update to see if civilization has been restored.
-		if ($tlds === false)
+		/**
+		 * If the Internet Assigned Numbers Authority can't be reached, the Internet is GONE!
+		 * We're probably running on a server hidden in a bunker deep underground to protect
+		 * it from marauding bandits roaming on the surface. We don't want to waste precious
+		 * electricity on pointlessly repeating background tasks, so we'll wait until the next
+		 * regularly scheduled update to see if civilization has been restored.
+		 */
+		if ($tlds === false || $tlds_md5 === false)
 			$postapocalypticNightmare = true;
+
+		// Make sure nothing went horribly wrong along the way.
+		if (md5($tlds) != substr($tlds_md5, 0, 32))
+			$tlds = array();
 	}
 	// If we aren't updating and the regex is valid, we're done
 	elseif (!empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', null) !== false)
@@ -6433,7 +6465,7 @@ function set_tld_regex($update = false)
 		$tlds = array_filter(explode("\n", strtolower($tlds)), function($line)
 		{
 			$line = trim($line);
-			if (empty($line) || strpos($line, '#') !== false || strpos($line, ' ') !== false)
+			if (empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'))
 				return false;
 			else
 				return true;
@@ -6450,27 +6482,29 @@ function set_tld_regex($update = false)
 	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
 	else
 	{
-		$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz', 'cat',
-			'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post', 'pro', 'tel',
-			'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'an', 'ao', 'aq',
-			'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh',
-			'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc',
-			'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cs', 'cu', 'cv',
-			'cx', 'cy', 'cz', 'dd', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg', 'eh',
-			'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr', 'ga', 'gb', 'gd', 'ge',
-			'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw',
-			'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq',
-			'ir', 'is', 'it', 'ja', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn',
-			'kp', 'kr', 'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu',
-			'lv', 'ly', 'ma', 'mc', 'md', 'me', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp',
-			'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf',
-			'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph',
-			'pk', 'pl', 'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru',
-			'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn',
-			'so', 'sr', 'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th',
-			'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tp', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug',
-			'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'ye',
-			'yt', 'yu', 'za', 'zm', 'zw');
+		$tlds = array('com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz',
+			'cat', 'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post',
+			'pro', 'tel', 'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al',
+			'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd',
+			'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv',
+			'bw', 'by', 'bz', 'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm',
+			'cn', 'co', 'cr', 'cu', 'cv', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do',
+			'dz', 'ec', 'ee', 'eg', 'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo',
+			'fr', 'ga', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp',
+			'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu',
+			'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'ir', 'is', 'it', 'je', 'jm', 'jo',
+			'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn', 'kp', 'kr', 'kw', 'ky', 'kz', 'la',
+			'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu', 'lv', 'ly', 'ma', 'mc', 'md',
+			'me', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt',
+			'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl',
+			'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl',
+			'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw',
+			'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn',
+			'so', 'sr', 'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg',
+			'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua',
+			'ug', 'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf',
+			'ws', 'ye', 'yt', 'za', 'zm', 'zw',
+		);
 
 		// Schedule a background update, unless civilization has collapsed and/or we are having connectivity issues.
 		if (empty($postapocalypticNightmare))
@@ -6481,6 +6515,10 @@ function set_tld_regex($update = false)
 			);
 		}
 	}
+
+	// Tack on some "special use domain names" that aren't in DNS but may possibly resolve.
+	// See https://www.iana.org/assignments/special-use-domain-names/ for more info.
+	$tlds = array_merge($tlds, array('local', 'onion', 'test'));
 
 	// Get an optimized regex to match all the TLDs
 	$tld_regex = build_regex($tlds);
@@ -6495,18 +6533,22 @@ function set_tld_regex($update = false)
 /**
  * Creates optimized regular expressions from an array of strings.
  *
- * An optimized regex built using this function will be much faster than a simple regex built using
- * `implode('|', $strings)` --- anywhere from several times to several orders of magnitude faster.
+ * An optimized regex built using this function will be much faster than a
+ * simple regex built using `implode('|', $strings)` --- anywhere from several
+ * times to several orders of magnitude faster.
  *
- * However, the time required to build the optimized regex is approximately equal to the time it
- * takes to execute the simple regex. Therefore, it is only worth calling this function if the
- * resulting regex will be used more than once.
+ * However, the time required to build the optimized regex is approximately
+ * equal to the time it takes to execute the simple regex. Therefore, it is only
+ * worth calling this function if the resulting regex will be used more than
+ * once.
  *
- * Because PHP places an upper limit on the allowed length of a regex, very large arrays of $strings
- * may not fit in a single regex. Normally, the excess strings will simply be dropped. However, if
- * the $returnArray parameter is set to true, this function will build as many regexes as necessary
- * to accommodate everything in $strings and return them in an array. You will need to iterate
- * through all elements of the returned array in order to test all possible matches.
+ * Because PHP places an upper limit on the allowed length of a regex, very
+ * large arrays of $strings may not fit in a single regex. Normally, the excess
+ * strings will simply be dropped. However, if the $returnArray parameter is set
+ * to true, this function will build as many regexes as necessary to accommodate
+ * everything in $strings and return them in an array. You will need to iterate
+ * through all elements of the returned array in order to test all possible
+ * matches.
  *
  * @param array $strings An array of strings to make a regex for.
  * @param string $delim An optional delimiter character to pass to preg_quote().
@@ -6516,6 +6558,16 @@ function set_tld_regex($update = false)
 function build_regex($strings, $delim = null, $returnArray = false)
 {
 	global $smcFunc;
+	static $regexes = array();
+
+	// If it's not an array, there's not much to do. ;)
+	if (!is_array($strings))
+		return preg_quote(@strval($strings), $delim);
+
+	$regex_key = md5(json_encode(array($strings, $delim, $returnArray)));
+	
+	if (isset($regexes[$regex_key]))
+		return $regexes[$regex_key];
 
 	// The mb_* functions are faster than the $smcFunc ones, but may not be available
 	if (function_exists('mb_internal_encoding') && function_exists('mb_detect_encoding') && function_exists('mb_strlen') && function_exists('mb_substr'))
@@ -6541,7 +6593,21 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		static $depth = 0;
 		$depth++;
 
-		$first = $substr($string, 0, 1);
+		$first = @$substr($string, 0, 1);
+
+		// No first character? That's no good.
+		if (empty($first))
+		{
+			// A nested array? Really? Ugh. Fine.
+			if (is_array($string) && $depth < 20)
+			{
+				foreach ($string as $str)
+					$index = $add_string_to_index($str, $index);
+			}
+
+			$depth--;
+			return $index;
+		}
 
 		if (empty($index[$first]))
 			$index[$first] = array();
@@ -6644,6 +6710,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 	if (!empty($current_encoding))
 		mb_internal_encoding($current_encoding);
 
+	$regexes[$regex_key] = $regex;
 	return $regex;
 }
 
@@ -6958,25 +7025,25 @@ function url_to_iri($url)
  */
 function check_cron()
 {
-	global $user_info, $modSettings, $smcFunc, $txt;
+	global $modSettings, $smcFunc, $txt;
 
-	if (empty($modSettings['cron_last_checked']))
-		$modSettings['cron_last_checked'] = 0;
-
-	if (!empty($modSettings['cron_is_real_cron']) && time() - $modSettings['cron_last_checked'] > 84600)
+	if (!empty($modSettings['cron_is_real_cron']) && time() - @intval($modSettings['cron_last_checked']) > 84600)
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT time_run
-			FROM {db_prefix}log_scheduled_tasks
-			ORDER BY id_log DESC
-			LIMIT 1',
-			array()
+			SELECT COUNT(*)
+			FROM {db_prefix}scheduled_tasks
+			WHERE disabled = {int:not_disabled}
+				AND next_time < {int:yesterday}',
+			array(
+				'not_disabled' => 0,
+				'yesterday' => time() - 84600,
+			)
 		);
-		list($time_run) = $smcFunc['db_fetch_row']($request);
+		list($overdue) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
-		// If it's been more than 24 hours since the last task ran, cron must not be working
-		if (!empty($time_run) && time() - $time_run > 84600)
+		// If we have tasks more than a day overdue, cron isn't doing its job.
+		if (!empty($overdue))
 		{
 			loadLanguage('ManageScheduledTasks');
 			log_error($txt['cron_not_working']);

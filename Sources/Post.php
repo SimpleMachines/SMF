@@ -446,7 +446,7 @@ function Post($post_errors = array())
 
 		// In order to keep the approval status flowing through, we have to pass it through the form...
 		$context['becomes_approved'] = empty($_REQUEST['not_approved']);
-		$context['show_approval'] = isset($_REQUEST['approve']) ? ($_REQUEST['approve'] ? 2 : 1) : 0;
+		$context['show_approval'] = isset($_REQUEST['approve']) ? ($_REQUEST['approve'] ? 2 : 1) : allowedTo('approve_posts') ? 2 : 0;
 		$context['can_announce'] &= $context['becomes_approved'];
 
 		// Set up the inputs for the form.
@@ -1182,7 +1182,7 @@ function Post($post_errors = array())
 	if ($context['can_post_attachment'])
 	{
 		// If they've unchecked an attachment, they may still want to attach that many more files, but don't allow more than num_allowed_attachments.
-		$context['num_allowed_attachments'] = empty($modSettings['attachmentNumPerPostLimit']) ? 50 : min($modSettings['attachmentNumPerPostLimit'] - count($context['current_attachments']), $modSettings['attachmentNumPerPostLimit']);
+		$context['num_allowed_attachments'] = min(ini_get('max_file_uploads'), (empty($modSettings['attachmentNumPerPostLimit']) ? 50 : $modSettings['attachmentNumPerPostLimit'] - count($context['current_attachments'])));
 		$context['can_post_attachment_unapproved'] = allowedTo('post_attachment');
 		$context['attachment_restrictions'] = array();
 		$context['allowed_extensions'] = strtr(strtolower($modSettings['attachmentExtensions']), array(',' => ', '));
@@ -1566,7 +1566,7 @@ function Post2()
 	require_once($sourcedir . '/Subs-Post.php');
 	loadLanguage('Post');
 
-	call_integration_hook('integrate_post2_start');
+	call_integration_hook('integrate_post2_start', array(&$post_errors));
 
 	// Drafts enabled and needed?
 	if (!empty($modSettings['drafts_post_enabled']) && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))

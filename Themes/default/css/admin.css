@@ -425,9 +425,6 @@ pre.file_content {
 	border-bottom: 1px dotted #000;
 	cursor: help;
 }
-#manage_boards .button {
-	margin: 2px 2px 0px 12px;
-}
 .select_all_box {
 	display: none;
 }
@@ -620,7 +617,7 @@ h3.grid_header {
 	float: left;
 	margin-right: 5px;
 }
-#error_log span.error_message {
+#error_log span.error_message, #backtrace span.error_message {
 	overflow: hidden; /* This changes how the text wraps around the float */
 	display: block;
 	white-space: pre-wrap;

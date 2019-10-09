@@ -186,6 +186,7 @@
 
 	// A simple plugin for deleting an element from the DOM.
 	$.fn.fadeOutAndRemove = function(speed){
+		if (typeof speed === 'undefined') speed = 400;
 		$(this).fadeOut(speed,function(){
 			$(this).remove();
 		});

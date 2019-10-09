@@ -144,14 +144,16 @@ function loadProfileFields($force_reload = false)
 			'input_validate' => function(&$value) use ($txt, $user_info, $modSettings, $cur_profile, $context)
 			{
 				// Bad date!  Go try again - please?
-				if (($value = strtotime($value)) === -1)
+				if (($value = strtotime($value)) === false)
 				{
 					$value = $cur_profile['date_registered'];
 					return $txt['invalid_registration'] . ' ' . strftime('%d %b %Y ' . (strpos($user_info['time_format'], '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), forum_time(false));
 				}
+
 				// As long as it doesn't equal "N/A"...
 				elseif ($value != $txt['not_applicable'] && $value != strtotime(strftime('%Y-%m-%d', $cur_profile['date_registered'] + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600)))
 					$value = $value - ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
+
 				else
 					$value = $cur_profile['date_registered'];
 
@@ -1274,7 +1276,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 					else
 						$value = '';
 				}
-				elseif ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255))
+				elseif ($row['mask'] == 'email' && !empty($value) && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255))
 				{
 					if ($returnErrors)
 						$errors[] = 'custom_field_mail_fail';
@@ -2000,8 +2002,8 @@ function alert_configuration($memID)
 			'pm_reply' => array('alert' => 'never', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_send', 'is_board' => false)),
 		),
 		'groupr' => array(
-			'groupr_approved' => array('alert' => 'always', 'email' => 'yes'),
-			'groupr_rejected' => array('alert' => 'always', 'email' => 'yes'),
+			'groupr_approved' => array('alert' => 'yes', 'email' => 'yes'),
+			'groupr_rejected' => array('alert' => 'yes', 'email' => 'yes'),
 		),
 		'moderation' => array(
 			'unapproved_attachment' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'approve_posts', 'is_board' => true)),
@@ -2370,7 +2372,7 @@ function alert_count($memID, $unread = false)
 	$smcFunc['db_free_result']($request);
 
 	// If we need to check board access, use the correct board access filter for the member in question.
-	if ((!isset($user_info['id']) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
+	if ((!isset($user_info['query_see_board']) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
 		$qb = build_query_board($memID);
 	else
 	{
@@ -4265,7 +4267,7 @@ function tfasetup($memID)
 			{
 				$context['tfa_secret'] = $_SESSION['tfa_secret'];
 				$context['tfa_error'] = !$valid_code;
-				$context['tfa_pass_value'] = $_POST['passwd'];
+				$context['tfa_pass_value'] = $_POST['oldpasswrd'];
 				$context['tfa_value'] = $_POST['tfa_code'];
 			}
 		}

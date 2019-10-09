@@ -363,7 +363,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		$format_type = str_replace('{scripturl}', $scripturl, $format_type);
 
 	// If we need to check board access, use the correct board access filter for the member in question.
-	if ((!isset($user_info['id']) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
+	if ((!isset($user_info['query_see_board']) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
 		$qb = build_query_board($memID);
 	else
 		$qb['query_see_board'] = '{query_see_board}';
@@ -600,8 +600,8 @@ function showAlerts($memID)
 	if (!empty($_REQUEST['alert']))
 	{
 		$alert_id = (int) $_REQUEST['alert'];
-
-		$alert = array_pop(($alerts = fetch_alerts($memID, $alert_id)));
+		$alerts = fetch_alerts($memID, $alert_id);
+		$alert = array_pop($alerts);
 
 		if (empty($alert))
 			redirectexit('action=profile;area=showalerts');

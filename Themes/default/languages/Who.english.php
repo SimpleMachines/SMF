@@ -171,6 +171,7 @@ $txt['credits_groups_beta'] = 'Beta Testers';
 $txt['credits_beta_message'] = 'The invaluable few who tirelessly find bugs, provide feedback, and drive the developers crazier.';
 $txt['credits_groups_founder'] = 'Founding Father of SMF';
 $txt['credits_groups_orignal_pm'] = 'Original Project Managers';
+$txt['credits_in_memoriam'] = 'In loving memory of';
 
 // List of people who have made more than a token contribution to this translation. (blank for English)
 $txt['translation_credits'] = array();

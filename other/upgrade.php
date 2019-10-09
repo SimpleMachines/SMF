@@ -17,6 +17,7 @@ define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2019');
 define('SMF_LANG_VERSION', '2.1 RC2');
 define('SMF_INSTALLING', 1);
+define('JQUERY_VERSION', '3.4.1');
 
 /**
  * The minimum required PHP version.
@@ -203,6 +204,7 @@ if (isset($_GET['ssi']))
 // Include our helper functions.
 require_once($sourcedir . '/Subs.php');
 require_once($sourcedir . '/LogInOut.php');
+require_once($sourcedir . '/Subs-Editor.php');
 
 // This only exists if we're on SMF ;)
 if (isset($modSettings['smfVersion']))
@@ -1308,6 +1310,15 @@ function UpgradeOptions()
 
 	if (empty($cachedir) || substr($cachedir, 0, 1) == '.')
 		$changes['cachedir'] = '\'' . fixRelativePath($boarddir) . '/cache\'';
+
+	// Migrate cache settings.
+	// Accelerator setting didn't exist previously; use 'smf' file based caching as default if caching had been enabled.
+	if (!isset($GLOBALS['cache_enable']))
+		$changes += array(
+			'cache_accelerator' => !empty($modSettings['cache_enable']) ? '\'smf\'' : '\'\'',
+			'cache_enable' => !empty($modSettings['cache_enable']) ? $modSettings['cache_enable'] : 0,
+			'cache_memcached' => !empty($modSettings['cache_memcached']) ? '\'' . $modSettings['cache_memcached'] . '\'' : '\'\'',
+		);
 
 	// If they have a "host:port" setup for the host, split that into separate values
 	// You should never have a : in the hostname if you're not on MySQL, but better safe than sorry
@@ -3905,7 +3916,7 @@ function template_welcome_message()
 	echo '
 					<div class="errorbox', (file_exists($settings['default_theme_dir'] . '/scripts/script.js') ? ' hidden' : ''), '" id="js_script_missing_error">
 						<h3>', $txt['upgrade_critical_error'], '</h3>
-						', sprintf($txt['upgrade_error_script_js'], 'https://www.simplemachines.org'), '
+						', sprintf($txt['upgrade_error_script_js'], 'https://download.simplemachines.org/?tools'), '
 					</div>';
 
 	// Is there someone already doing this?
@@ -3915,7 +3926,7 @@ function template_welcome_message()
 		$ago_hours = floor($ago / 3600);
 		$ago_minutes = intval(($ago / 60) % 60);
 		$ago_seconds = intval($ago % 60);
-		$agoTxt = $ago < 60 ? 'upgrade_time_ago_s' : ($ago < 3600 ? 'upgrade_time_ago_ms' : 'upgrade_time_ago_hms');
+		$agoTxt = $ago < 60 ? 'upgrade_time_s' : ($ago < 3600 ? 'upgrade_time_ms' : 'upgrade_time_hms');
 
 		$updated = time() - $upcontext['updated'];
 		$updated_hours = floor($updated / 3600);
@@ -4548,7 +4559,7 @@ console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes,
 							if (!attemptAgain)
 							{
 								document.getElementById("error_block").classList.remove("hidden");
-								setInnerHTML(document.getElementById("error_message"), "', sprintf($txt['upgrade_repondtime'], ($timeLimitThreshold * 10)), '" + "<a href=\"#\" onclick=\"retTimeout(true); return false;\">', $txt['upgrade_respondtime_clickhere'], '</a>");
+								setInnerHTML(document.getElementById("error_message"), "', sprintf($txt['upgrade_respondtime'], ($timeLimitThreshold * 10)), '" + "<a href=\"#\" onclick=\"retTimeout(true); return false;\">', $txt['upgrade_respondtime_clickhere'], '</a>");
 							}
 							else
 							{

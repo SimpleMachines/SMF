@@ -123,10 +123,8 @@ function ManageAttachmentSettings($return_config = false)
 	$testImg = get_extension_funcs('gd') || class_exists('Imagick') || get_extension_funcs('MagickWand');
 
 	// See if we can find if the server is set up to support the attachment limits
-	$post_max_size = ini_get('post_max_size');
-	$upload_max_filesize = ini_get('upload_max_filesize');
-	$testPM = !empty($post_max_size) ? (memoryReturnBytes($post_max_size) >= (isset($modSettings['attachmentPostLimit']) ? $modSettings['attachmentPostLimit'] * 1024 : 0)) : true;
-	$testUM = !empty($upload_max_filesize) ? (memoryReturnBytes($upload_max_filesize) >= (isset($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] * 1024 : 0)) : true;
+	$post_max_kb = floor(memoryReturnBytes(ini_get('post_max_size')) / 1024);
+	$file_max_kb = floor(memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
 
 	$config_vars = array(
 		array('title', 'attachment_manager_settings'),
@@ -145,10 +143,8 @@ function ManageAttachmentSettings($return_config = false)
 		'',
 
 		// Posting limits
-		array('int', 'attachmentPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
-		array('warning', empty($testPM) ? 'attachment_postsize_warning' : ''),
-		array('int', 'attachmentSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
-		array('warning', empty($testUM) ? 'attachment_filesize_warning' : ''),
+		array('int', 'attachmentPostLimit', 'subtext' => sprintf($txt['attachment_ini_max'], $post_max_kb . ' ' . $txt['kilobyte']), 6, 'postinput' => $txt['kilobyte'], 'min' => 1, 'max' => $post_max_kb, 'disabled' => empty($post_max_kb)),
+		array('int', 'attachmentSizeLimit', 'subtext' => sprintf($txt['attachment_ini_max'], $file_max_kb . ' ' . $txt['kilobyte']), 6, 'postinput' => $txt['kilobyte'], 'min' => 1, 'max' => $file_max_kb, 'disabled' => empty($file_max_kb)),
 		array('int', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
 		// Security Items
 		array('title', 'attachment_security_settings'),

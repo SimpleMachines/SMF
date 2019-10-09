@@ -607,11 +607,19 @@ function scheduled_weekly_digest()
  */
 function ReduceMailQueue($number = false, $override_limit = false, $force_send = false)
 {
-	global $modSettings, $smcFunc, $sourcedir;
+	global $modSettings, $smcFunc, $sourcedir, $txt, $language;
 
 	// Are we intending another script to be sending out the queue?
 	if (!empty($modSettings['mail_queue_use_cron']) && empty($force_send))
 		return false;
+
+	// Just in case we run into a problem.
+	if (!isset($txt))
+	{
+		loadEssentialThemeData();
+		loadLanguage('Errors', $language, false);
+		loadLanguage('index', $language, false);
+	}
 
 	// By default send 5 at once.
 	if (!$number)
@@ -667,7 +675,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 
 	// Now we know how many we're sending, let's send them.
 	$request = $smcFunc['db_query']('', '
-		SELECT /*!40001 SQL_NO_CACHE */ id_mail, recipient, body, subject, headers, send_html, time_sent, private
+		SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private
 		FROM {db_prefix}mail_queue
 		ORDER BY priority ASC, id_mail ASC
 		LIMIT {int:limit}',

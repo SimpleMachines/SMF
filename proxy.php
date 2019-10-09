@@ -25,6 +25,9 @@ if (!defined('SMF_FULL_VERSION'))
 if (!defined('SMF_SOFTWARE_YEAR'))
 	define('SMF_SOFTWARE_YEAR', '2019');
 
+if (!defined('JQUERY_VERSION'))
+	define('JQUERY_VERSION', '3.4.1');
+	
 /**
  * Class ProxyServer
  */
