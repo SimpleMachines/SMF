@@ -24,9 +24,10 @@ if (!defined('SMF'))
  * Uses the adminLogin() function of Subs-Auth.php if they need to login, which saves all request (post and get) data.
  *
  * @param string $type What type of session this is
+ * @param string $force When true, require a password even if we normally wouldn't
  * @return void|string Returns 'session_verify_fail' if verification failed
  */
-function validateSession($type = 'admin')
+function validateSession($type = 'admin', $force = false)
 {
 	global $modSettings, $sourcedir, $user_info;
 
@@ -41,13 +42,16 @@ function validateSession($type = 'admin')
 	// If we're using XML give an additional ten minutes grace as an admin can't log on in XML mode.
 	$refreshTime = isset($_GET['xml']) ? 4200 : 3600;
 
-	// Is the security option off?
-	if (!empty($modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]))
-		return;
+	if (empty($force))
+	{
+		// Is the security option off?
+		if (!empty($modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]))
+			return;
 
-	// Or are they already logged in?, Moderator or admin session is need for this area
-	if ((!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()) || (!empty($_SESSION['admin_time']) && $_SESSION['admin_time'] + $refreshTime >= time()))
-		return;
+		// Or are they already logged in?, Moderator or admin session is need for this area
+		if ((!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()) || (!empty($_SESSION['admin_time']) && $_SESSION['admin_time'] + $refreshTime >= time()))
+			return;
+	}
 
 	require_once($sourcedir . '/Subs-Auth.php');
 
@@ -1216,54 +1220,81 @@ function spamProtection($error_type, $only_return_result = false)
 /**
  * A generic function to create a pair of index.php and .htaccess files in a directory
  *
- * @param string $path The (absolute) directory path
+ * @param string|array $paths The (absolute) directory path
  * @param boolean $attachments Whether this is an attachment directory
- * @return bool|string True on success error or a string if anything fails
+ * @return bool|array True on success an array of errors if anything fails
  */
-function secureDirectory($path, $attachments = false)
+function secureDirectory($paths, $attachments = false)
 {
-	if (empty($path))
-		return 'empty_path';
-
-	if (!is_writable($path))
-		return 'path_not_writable';
-
-	$directoryname = basename($path);
-
 	$errors = array();
-	$close = empty($attachments) ? '
+
+	// Work with arrays
+	$paths = (array) $paths;
+
+	if (empty($path))
+		$errors[] = 'empty_path';
+
+	if (!empty($errors))
+		return $errors;
+
+	foreach ($paths as $path)
+	{
+		if (!is_writable($path))
+		{
+			$errors[] = 'path_not_writable';
+
+			continue;
+		}
+
+		$directory_name = basename($path);
+
+		$close = empty($attachments) ? '
 </Files>' : '
 	Allow from localhost
 </Files>
 
 RemoveHandler .php .php3 .phtml .cgi .fcgi .pl .fpl .shtml';
 
-	if (file_exists($path . '/.htaccess'))
-		$errors[] = 'htaccess_exists';
-	else
-	{
-		$fh = @fopen($path . '/.htaccess', 'w');
-		if ($fh)
+		if (file_exists($path . '/.htaccess'))
 		{
-			fwrite($fh, '<Files *>
+			$errors[] = 'htaccess_exists';
+
+			continue;
+		}
+
+		else
+		{
+			$fh = @fopen($path . '/.htaccess', 'w');
+
+			if ($fh)
+			{
+				fwrite($fh, '<Files *>
 	Order Deny,Allow
 	Deny from all' . $close);
-			fclose($fh);
-		}
-		$errors[] = 'htaccess_cannot_create_file';
-	}
+				fclose($fh);
+			}
 
-	if (file_exists($path . '/index.php'))
-		$errors[] = 'index-php_exists';
-	else
-	{
-		$fh = @fopen($path . '/index.php', 'w');
-		if ($fh)
+			else
+				$errors[] = 'htaccess_cannot_create_file';
+		}
+
+		if (file_exists($path . '/index.php'))
 		{
-			fwrite($fh, '<' . '?php
+			$errors[] = 'index-php_exists';
+
+			continue;
+		}
+
+		else
+		{
+			$fh = @fopen($path . '/index.php', 'w');
+
+			if ($fh)
+			{
+				fwrite($fh, '<' . '?php
 
 /**
- * This file is here solely to protect your ' . $directoryname . ' directory.
+ * This file is here solely to protect your ' . $directory_name . ' directory.
  */
 
 // Look for Settings.php....
@@ -1278,13 +1309,17 @@ else
 	exit;
 
 ?' . '>');
-			fclose($fh);
+				fclose($fh);
+			}
+
+			else
+				$errors[] = 'index-php_cannot_create_file';
 		}
-		$errors[] = 'index-php_cannot_create_file';
 	}
 
 	if (!empty($errors))
 		return $errors;
+
 	else
 		return true;
 }

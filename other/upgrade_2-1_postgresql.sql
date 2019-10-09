@@ -214,6 +214,7 @@ ALTER TABLE {$db_prefix}calendar ALTER COLUMN end_date SET DEFAULT '1004-01-01':
 ALTER TABLE {$db_prefix}calendar_holidays ALTER COLUMN event_date SET DEFAULT '1004-01-01'::date;
 ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN stat_date SET DEFAULT '1004-01-01'::date;
 ALTER TABLE {$db_prefix}members ALTER COLUMN birthdate SET DEFAULT '1004-01-01'::date;
+ALTER TABLE {$db_prefix}log_activity ALTER COLUMN date DROP DEFAULT;
 ---#
 
 /******************************************************************************/
@@ -284,7 +285,7 @@ if (!isset($modSettings['allow_no_censored']))
 ---# Converting collapsed categories...
 ---{
 // We cannot do this twice
-if (@$modSettings['smfVersion'] < '2.1')
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, id_cat
@@ -302,6 +303,43 @@ if (@$modSettings['smfVersion'] < '2.1')
 			$inserts,
 			array('id_theme', 'id_member', 'variable')
 		);
+}
+---}
+---#
+
+---# Parsing board descriptions and names
+---{
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
+{
+    $request = $smcFunc['db_query']('', '
+        SELECT name, description, id_board
+        FROM {db_prefix}boards');
+
+    $inserts = array();
+
+    $smcFunc['db_free_result']($request);
+
+    while ($row = $smcFunc['db_fetch_assoc']($request))
+    {
+        $inserts[] = array(
+            'name' => $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['name']))),
+            'description' => $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($row['description']))),
+            'id' => $row['id'],
+        );
+    }
+
+    if (!empty($inserts))
+    {
+        foreach ($inserts as $insert)
+        {
+            $smcFunc['db_query']('', '
+                UPDATE {db_prefix}boards
+                SET name = {string:name}, description = {string:description}
+                WHERE id = {int:id}',
+                $insert
+            );
+        }
+    }
 }
 ---}
 ---#
@@ -830,7 +868,7 @@ VALUES
 /******************************************************************************/
 ---# Removing manage_boards permission
 ---{
-if (version_compare(@$modSettings['smfVersion'], '2.1', '<'))
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
 	$board_managers = array();
 
@@ -1032,6 +1070,37 @@ ALTER TABLE {$db_prefix}members
 	DROP notify_types,
 	DROP notify_regularity,
 	DROP notify_announcements;
+---#
+
+---# Updating obsolete alerts from before RC3
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'member', content_id = id_member_started
+WHERE content_type = 'buddy';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'member'
+WHERE content_type = 'profile';
+
+UPDATE {$db_prefix}user_alerts
+SET content_id = id_member_started
+WHERE content_type = 'member' AND content_action LIKE 'register_%';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'topic', content_action = 'unapproved_topic'
+WHERE content_type = 'unapproved' AND content_action = 'topic';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'topic', content_action = 'unapproved_reply'
+WHERE content_type = 'unapproved' AND content_action = 'reply';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'topic', content_action = 'unapproved_post'
+WHERE content_type = 'unapproved' AND content_action = 'post';
+
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'msg', content_action = 'unapproved_attachment', content_id = f.id_msg
+FROM {$db_prefix}attachments AS f
+WHERE content_type = 'unapproved' AND content_action = 'attachment' AND f.id_attach = content_id;
 ---#
 
 /******************************************************************************/
@@ -1384,7 +1453,7 @@ CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts
 ---# Adding draft permissions...
 ---{
 // We cannot do this twice
-if (@$modSettings['smfVersion'] < '2.1')
+if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
 	// Anyone who can currently post unapproved topics we assume can create drafts as well ...
 	$request = upgrade_query("
@@ -1564,7 +1633,7 @@ WHERE variable = 'avatar_action_too_large'
 
 ---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'log_ban_hits', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc', 'enable_unwatch');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'log_ban_hits', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc', 'enable_unwatch', 'cache_memcached', 'cache_enable');
 ---#
 
 ---# Cleaning up old theme settings.
@@ -2583,7 +2652,7 @@ VALUES
 	('cal_prev_next_links', '1'),
 	('cal_short_days', '0'),
 	('cal_short_months', '0'),
-	('cal_week_numbers', '0');
+	('cal_week_numbers', '0') ON CONFLICT DO NOTHING;
 ---#
 
 /******************************************************************************/

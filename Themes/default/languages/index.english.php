@@ -713,7 +713,7 @@ $txt['search_no_results'] = 'Sorry, no matches were found';
 
 $txt['total_time_logged_days'] = ' days, ';
 $txt['total_time_logged_hours'] = ' hours and ';
-$txt['total_time_logged_minutes'] = ' minutes.';
+$txt['total_time_logged_minutes'] = ' minutes';
 $txt['total_time_logged_d'] = 'd ';
 $txt['total_time_logged_h'] = 'h ';
 $txt['total_time_logged_m'] = 'm';

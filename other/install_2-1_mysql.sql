@@ -273,7 +273,7 @@ CREATE TABLE {$db_prefix}log_actions (
 #
 
 CREATE TABLE {$db_prefix}log_activity (
-	date DATE DEFAULT '0001-01-01',
+	date DATE NOT NULL,
 	hits MEDIUMINT UNSIGNED NOT NULL DEFAULT '0',
 	topics SMALLINT UNSIGNED NOT NULL DEFAULT '0',
 	posts SMALLINT UNSIGNED NOT NULL DEFAULT '0',
@@ -2105,7 +2105,6 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('pruningOptions', '30,180,180,180,30,0'),
 	('modlog_enabled', '1'),
 	('adminlog_enabled', '1'),
-	('cache_enable', '1'),
 	('reg_verification', '1'),
 	('visual_verification_type', '3'),
 	('enable_buddylist', '1'),

@@ -64,7 +64,6 @@ class fulltext_search extends search_api
 			case 'searchSort':
 			case 'prepareIndexes':
 			case 'indexedWordQuery':
-			case 'postRemoved':
 				$return = true;
 				break;
 

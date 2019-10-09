@@ -15,10 +15,10 @@ global $txtBirthdayEmails;
 	@additional_params: resend_activate_message
 		REALNAME: The display name for the member receiving the email.
 		USERNAME:  The user name for the member receiving the email.
-		ACTIVATIONLINK:  The url link to activate the member's account.
+		ACTIVATIONLINK:  The URL link to activate the member's account.
 		ACTIVATIONCODE:  The code needed to activate the member's account.
-		ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
-		FORGOTPASSWORDLINK: The url to the "forgot password" page.
+		ACTIVATIONLINKWITHOUTCODE: The URL to the page where the activation code can be entered.
+		FORGOTPASSWORDLINK: The URL to the "forgot password" page.
 	@description:
 */
 $txt['resend_activate_message_subject'] = 'Welcome to {FORUMNAME}';
@@ -107,8 +107,8 @@ Your account has been activated manually by the admin and you can now log in and
 /**
 	@additional_params: admin_approve_activation
 		USERNAME: The user name for the member receiving the email.
-		ACTIVATIONLINK:  The url link to activate the member's account.
-		ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
+		ACTIVATIONLINK:  The URL link to activate the member's account.
+		ACTIVATIONLINKWITHOUTCODE: The URL to the page where the activation code can be entered.
 		ACTIVATIONCODE: The activation code.
 	@description:
 */
@@ -150,8 +150,8 @@ Your account on {FORUMNAME} has been deleted. This may be because you never acti
 /**
 	@additional_params: admin_approve_remind
 		USERNAME: The user name for the member receiving the email.
-		ACTIVATIONLINK:  The url link to activate the member's account.
-		ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
+		ACTIVATIONLINK:  The URL link to activate the member's account.
+		ACTIVATIONLINKWITHOUTCODE: The URL to the page where the activation code can be entered.
 		ACTIVATIONCODE: The activation code.
 	@description:
 */
@@ -169,8 +169,8 @@ Should you have any problems with the activation, please visit {ACTIVATIONLINKWI
 /**
 	@additional_params:
 		USERNAME: The user name for the member receiving the email.
-		ACTIVATIONLINK:  The url link to activate the member's account.
-		ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
+		ACTIVATIONLINK:  The URL link to activate the member's account.
+		ACTIVATIONLINKWITHOUTCODE: The URL to the page where the activation code can be entered.
 		ACTIVATIONCODE: The activation code.
 	@description:
 */
@@ -186,7 +186,7 @@ Should you have any problems with the activation, please visit {ACTIVATIONLINKWI
 {REGARDS}';
 
 $txt['admin_register_immediate_subject'] = 'Welcome to {FORUMNAME}';
-$txt['admin_register_immediate_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME}, your password is {PASSWORD} and the forum url is: {SCRIPTURL}.
+$txt['admin_register_immediate_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME}, your password is {PASSWORD} and the forum URL is: {SCRIPTURL}.
 
 {REGARDS}';
 
@@ -200,7 +200,7 @@ $txt['admin_register_immediate_body'] = 'Thank you for registering at {FORUMNAME
 $txt['new_announcement_subject'] = 'New announcement: {TOPICSUBJECT}';
 $txt['new_announcement_body'] = '{MESSAGE}
 
-To unsubscribe from these announcements, log in to the forum and uncheck "Receive forum announcements and important notifications by email." in your profile.
+To unsubscribe from these announcements, log in to the forum and uncheck "Receive forum newsletters, announcements and important notifications by email." in your profile <em>(Your username > Notifications > General Settings)</em>.
 
 You can view the full announcement by following this link:
 {TOPICLINK}
@@ -221,7 +221,7 @@ $txt['notify_boards_once_body_body'] = 'A new topic, \'{TOPICSUBJECT}\', has bee
 You can see it at
 {TOPICLINK}
 
-More topics may be posted, but you won\'t receive more email notifications until you return to the board and read some of them.
+More topics may be posted, but you won\'t receive more email notifications for this board until you return to the board and read some of them.
 
 The text of the topic is shown below:
 {MESSAGE}
@@ -244,7 +244,7 @@ $txt['notify_boards_once_body'] = 'A new topic, \'{TOPICSUBJECT}\', has been mad
 You can see it at
 {TOPICLINK}
 
-More topics may be posted, but you won\'t receive more email notifications until you return to the board and read some of them.
+More topics may be posted, but you won\'t receive more email notifications for this board until you return to the board and read some of them.
 
 Unsubscribe from new topics from this board by using this link:
 {UNSUBSCRIBELINK}
@@ -351,7 +351,7 @@ You can approve or reject this topic by using the link below:
 /**
 	@additional_params: request_membership
 		RECPNAME: The name of the person receiving the email
-		APPYNAME: The name of the person applying for group membership
+		APPLYNAME: The name of the person applying for group membership
 		GROUPNAME: The name of the group being applied to.
 		REASON: The reason given by the applicant for wanting to join the group.
 		MODLINK: Link to the group moderation page.
@@ -360,7 +360,7 @@ You can approve or reject this topic by using the link below:
 $txt['request_membership_subject'] = 'New Group Application';
 $txt['request_membership_body'] = '{RECPNAME},
 
-{APPYNAME} has requested membership to the "{GROUPNAME}" group. The user has given the following reason:
+{APPLYNAME} has requested membership to the "{GROUPNAME}" group. The user has given the following reason:
 
 {REASON}
 
@@ -393,9 +393,9 @@ To edit your subscriptions visit the following URL:
 
 /**
 	@additional_params: activate_reactivate
-		ACTIVATIONLINK:  The url link to reactivate the member's account.
+		ACTIVATIONLINK:  The URL link to reactivate the member's account.
 		ACTIVATIONCODE:  The code needed to reactivate the member's account.
-		ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
+		ACTIVATIONLINKWITHOUTCODE: The URL to the page where the activation code can be entered.
 	@description:
 */
 $txt['activate_reactivate_subject'] = 'Welcome back to {FORUMNAME}';
@@ -440,8 +440,8 @@ $txt['send_email_body'] = '{EMAILBODY}';
 		TOPICSUBJECT: The subject of the reported post.
 		POSTERNAME: The reported post's author's name.
 		REPORTERNAME: The name of the person reporting the post.
-		TOPICLINK: The url of the post that is being reported.
-		REPORTLINK: The url of the moderation center report.
+		TOPICLINK: The URL of the post that is being reported.
+		REPORTLINK: The URL of the moderation center report.
 		COMMENT: The comment left by the reporter, hopefully to explain why they are reporting the post.
 	@description: When a user reports a post this email is sent out to moderators and admins of that board.
 */
@@ -461,8 +461,8 @@ The reporter has made the following comment:
 		TOPICSUBJECT: The subject of the reported post.
 		POSTERNAME: The reported post's author's name.
 		COMMENTERNAME: The name of the person who replied to the report.
-		TOPICLINK: The url of the post that is being reported.
-		REPORTLINK: The url of the moderation center report.
+		TOPICLINK: The URL of the post that is being reported.
+		REPORTLINK: The URL of the moderation center report.
 	@description: When a moderator replies to a moderation report, this can be sent to the other moderators who previously replied.
 */
 $txt['reply_to_moderator_subject'] = 'Follow-up to reported post: {TOPICSUBJECT} by {POSTERNAME}';
@@ -534,10 +534,10 @@ You may change it after you log in by going to the profile page, or by visiting 
 		REALNAME: The display name for the member receiving the email.
 		USERNAME: The user name for the member receiving the email.
 		PASSWORD: The password for the member.
-		ACTIVATIONLINK:  The url link to reactivate the member's account.
-		ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
+		ACTIVATIONLINK:  The URL link to reactivate the member's account.
+		ACTIVATIONLINKWITHOUTCODE: The URL to the page where the activation code can be entered.
 		ACTIVATIONCODE:  The code needed to reactivate the member's account.
-		FORGOTPASSWORDLINK: The url to the "forgot password" page.
+		FORGOTPASSWORDLINK: The URL to the "forgot password" page.
 	@description:
 */
 $txt['register_activate_subject'] = 'Welcome to {FORUMNAME}';
@@ -547,7 +547,7 @@ Before you can log in, you first need to activate your account. To do so, please
 
 {ACTIVATIONLINK}
 
-Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOUTCODE} use the code "{ACTIVATIONCODE}".
+Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOUTCODE} and use the code "{ACTIVATIONCODE}".
 
 {REGARDS}';
 
@@ -556,8 +556,8 @@ Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOU
 		REALNAME: The display name for the member receiving the email.
 		USERNAME: The user name for the member receiving the email.
 		PASSWORD: The password for the member.
-		COPPALINK:  The url link to the coppa form.
-		FORGOTPASSWORDLINK: The url to the "forgot password" page.
+		COPPALINK:  The URL link to the coppa form.
+		FORGOTPASSWORDLINK: The URL to the "forgot password" page.
 	@description:
 */
 $txt['register_coppa_subject'] = 'Welcome to {FORUMNAME}';
@@ -574,7 +574,7 @@ Before you can log in, the admin requires consent from your parent/guardian for 
 		REALNAME: The display name for the member receiving the email.
 		USERNAME: The user name for the member receiving the email.
 		PASSWORD: The password for the member.
-		FORGOTPASSWORDLINK: The url to the "forgot password" page.
+		FORGOTPASSWORDLINK: The URL to the "forgot password" page.
 	@description:
 */
 $txt['register_immediate_subject'] = 'Welcome to {FORUMNAME}';
@@ -587,13 +587,13 @@ $txt['register_immediate_body'] = 'Thank you for registering at {FORUMNAME}. You
 		REALNAME: The display name for the member receiving the email.
 		USERNAME: The user name for the member receiving the email.
 		PASSWORD: The password for the member.
-		FORGOTPASSWORDLINK: The url to the "forgot password" page.
+		FORGOTPASSWORDLINK: The URL to the "forgot password" page.
 	@description:
 */
 $txt['register_pending_subject'] = 'Welcome to {FORUMNAME}';
 $txt['register_pending_body'] = 'Hello {REALNAME}, your registration request at {FORUMNAME} has been received.
 
-The username you registered with was {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}.
+The username you want to register with was {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}.
 
 Before you can log in and start using the forum, your request will be reviewed and approved.
 
@@ -608,7 +608,11 @@ Before you can log in and start using the forum, your request will be reviewed a
 	@description:
 */
 $txt['notification_reply_subject'] = 'Topic reply: {TOPICSUBJECT}';
+<<<<<<< HEAD
 $txt['notification_reply_body'] = 'A reply has been posted in a topic you are watching by {POSTERNAME}.
+=======
+$txt['notification_reply_body'] = 'In a topic you are watching, a reply has been posted by {POSTERNAME}.
+>>>>>>> upstream/release-2.1
 
 View the reply at: {TOPICLINK}
 
@@ -626,7 +630,11 @@ Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 	@description:
 */
 $txt['notification_reply_body_subject'] = 'Topic reply: {TOPICSUBJECT}';
+<<<<<<< HEAD
 $txt['notification_reply_body_body'] = 'A reply has been posted in a topic you are watching by {POSTERNAME}.
+=======
+$txt['notification_reply_body_body'] = 'In a topic you are watching, a reply has been posted by {POSTERNAME}.
+>>>>>>> upstream/release-2.1
 
 View the reply at: {TOPICLINK}
 
@@ -646,13 +654,17 @@ The text of the reply is shown below:
 	@description:
 */
 $txt['notification_reply_once_subject'] = 'Topic reply: {TOPICSUBJECT}';
+<<<<<<< HEAD
 $txt['notification_reply_once_body'] = 'A reply has been posted in a topic you are watching by {POSTERNAME}.
+=======
+$txt['notification_reply_once_body'] = 'In a topic you are watching, a reply has been posted by {POSTERNAME}.
+>>>>>>> upstream/release-2.1
 
 View the reply at: {TOPICLINK}
 
 Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 
-More replies may be posted, but you won\'t receive any more notifications until you read the topic.
+More replies may be posted, but you won\'t receive any more notifications for this topic until you visit it.
 
 {REGARDS}';
 
@@ -666,7 +678,11 @@ More replies may be posted, but you won\'t receive any more notifications until 
 	@description:
 */
 $txt['notification_reply_body_once_subject'] = 'Topic reply: {TOPICSUBJECT}';
+<<<<<<< HEAD
 $txt['notification_reply_body_once_body'] = 'A reply has been posted in a topic you are watching by {POSTERNAME}.
+=======
+$txt['notification_reply_body_once_body'] = 'In a topic you are watching, a reply has been posted by {POSTERNAME}.
+>>>>>>> upstream/release-2.1
 
 View the reply at: {TOPICLINK}
 
@@ -675,7 +691,7 @@ Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 The text of the reply is shown below:
 {MESSAGE}
 
-More replies may be posted, but you won\'t receive any more notifications until you read the topic.
+More replies may be posted, but you won\'t receive any more notifications for this topic until you visit it.
 
 {REGARDS}';
 
@@ -804,7 +820,7 @@ $txt['admin_attachments_full_body'] = '{REALNAME},
 
 The attachments directory at {FORUMNAME} is almost full. Please visit the forum to resolve this problem.
 
-Once the attachments directory reaches it\'s maximum permitted size users will not be able to continue to post attachments or upload custom avatars (If enabled).
+Once the attachments directory reaches its maximum permitted size users will not be able to continue to post attachments or upload custom avatars (if enabled).
 
 {REGARDS}';
 
@@ -883,7 +899,7 @@ The following error occurred when processing a paid subscription
 	@description: A notification email sent to the receivers of a personal message
 */
 $txt['new_pm_subject'] = 'New Personal Message: {SUBJECT}';
-$txt['new_pm_body'] = 'You have just been sent a personal message by {SENDER} on {FORUMNAME}
+$txt['new_pm_body'] = 'You have just been sent a personal message by {SENDER} on {FORUMNAME}.
 
 IMPORTANT: Remember, this is just a notification. Please do not reply to this email.
 
@@ -902,7 +918,7 @@ Reply to this Personal Message here: {REPLYLINK}
 	@description: A notification email sent to the receivers of a personal message
 */
 $txt['new_pm_body_subject'] = 'New Personal Message: {SUBJECT}';
-$txt['new_pm_body_body'] = 'You have just been sent a personal message by {SENDER} on {FORUMNAME}
+$txt['new_pm_body_body'] = 'You have just been sent a personal message by {SENDER} on {FORUMNAME}.
 
 IMPORTANT: Remember, this is just a notification. Please do not reply to this email.
 
@@ -924,7 +940,7 @@ Reply to this Personal Message here: {REPLYLINK}
 	@description: A notification email sent to the receivers of a personal message
 */
 $txt['new_pm_tolist_subject'] = 'New Personal Message: {SUBJECT}';
-$txt['new_pm_tolist_body'] = 'You and {TOLIST} have just been sent a personal message by {SENDER} on {FORUMNAME}
+$txt['new_pm_tolist_body'] = 'You and {TOLIST} have just been sent a personal message by {SENDER} on {FORUMNAME}.
 
 IMPORTANT: Remember, this is just a notification. Please do not reply to this email.
 
@@ -944,7 +960,7 @@ Reply to this Personal Message (to the sender only) here: {REPLYLINK}
 	@description: A notification email sent to the receivers of a personal message
 */
 $txt['new_pm_body_tolist_subject'] = 'New Personal Message: {SUBJECT}';
-$txt['new_pm_body_tolist_body'] = 'You and {TOLIST} have just been sent a personal message by {SENDER} on {FORUMNAME}
+$txt['new_pm_body_tolist_body'] = 'You and {TOLIST} have just been sent a personal message by {SENDER} on {FORUMNAME}.
 
 IMPORTANT: Remember, this is just a notification. Please do not reply to this email.
 
@@ -1008,7 +1024,7 @@ But we didn\'t.
 
 We could have even sent you one of those automatically generated messages to wish you happy birthday where we don\'t even have to replace INSERT NAME.
 
-But we didn\'t
+But we didn\'t.
 
 We wrote this birthday greeting just for you.
 
@@ -1051,7 +1067,7 @@ Enjoy your day today, {REALNAME}!
 $txtBirthdayEmails['geezmo_author'] = '<a href="https://www.simplemachines.org/community/?action=profile;u=48671">geezmo</a>';
 
 $txtBirthdayEmails['karlbenson2_subject'] = 'Your Birthday Greeting';
-$txtBirthdayEmails['karlbenson2_body'] = 'We hope your birthday is the best ever cloudy, sunny or whatever the weather.
+$txtBirthdayEmails['karlbenson2_body'] = 'We hope your birthday is the best ever; cloudy, sunny or whatever the weather.
 Have lots of birthday cake and fun, and tell us what you have done.
 
 We hope this message brought you cheer, and make it last, until same time same place, next year.

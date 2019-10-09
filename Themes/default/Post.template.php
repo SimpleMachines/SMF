@@ -373,6 +373,9 @@ function template_main()
 		// Print dropzone UI.
 		echo '
 						<div class="files" id="attachment_previews">
+							<div>
+								<strong>', $txt['attached'], ':</strong>
+							</div>
 							<div id="au-template">
 								<div class="attach-preview">
 									<img data-dz-thumbnail />
@@ -417,12 +420,18 @@ function template_main()
 							<dt>
 								', $txt['attach'], ':
 							</dt>
-							<dd class="smalltext fallback">
+							<dd class="fallback">
 								<div id="attachment_upload" class="descbox">
-									<h5>', $txt['attach_drop_zone'], '</h5>
-									<a class="button" id="attach_cancel_all">', $txt['attached_cancel_all'], '</a>
-									<a class="button" id="attach_upload_all">', $txt['attached_upload_all'], '</a>
-									<a class="button fileinput-button">', $txt['attach_add'], '</a>
+									<div id="drop_zone_ui">
+										<div>
+											<strong>', $txt['attach_drop_zone'], '</strong>
+										</div>
+										<div class="righttext">
+											<a class="button" id="attach_cancel_all">', $txt['attached_cancel_all'], '</a>
+											<a class="button" id="attach_upload_all">', $txt['attached_upload_all'], '</a>
+											<a class="button fileinput-button">', $txt['attach_add'], '</a>
+										</div>
+									</div>
 									<div id="total_progress" class="progress_bar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
 										<div class="bar"></div>
 									</div>
@@ -525,7 +534,6 @@ function template_main()
 
 	// Finally, the submit buttons.
 	echo '
-					<br class="clear_right">
 					<span id="post_confirm_buttons" class="floatright">
 						', template_control_richedit_buttons($context['post_box_name']);
 
@@ -740,25 +748,15 @@ function template_main()
 		echo '
 			function insertQuoteFast(messageid)
 			{
-				if (window.XMLHttpRequest)
-					getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';xml;pb=', $context['post_box_name'], ';mode=0\', onDocReceived);
-				else
-					reqWin(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';pb=', $context['post_box_name'], ';mode=0\', 240, 90);
+				var e = document.getElementById("', $context['post_box_name'], '");
+				sceditor.instance(e).insertQuoteFast(messageid);
 
 				return true;
 			}
-			function onDocReceived(XMLDoc)
-			{
-				var text = \'\';
-				var e = $("#', $context['post_box_name'], '").get(0);
-
-				for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
-					text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
-				sceditor.instance(e).InsertText(text);
-			}
 			function onReceiveOpener(text)
 			{
-				sceditor.instance(e).InsertText(text);
+				var e = document.getElementById("', $context['post_box_name'], '");
+				sceditor.instance(e).insert(text);
 			}
 		</script>';
 	}
@@ -1177,7 +1175,7 @@ function template_post_header()
 								echo ' ', $attribute, '="', $value, '"';
 						}
 
-						echo '>', $grouped_optlabel, '</option>';
+						echo '>', $grouped_option['label'], '</option>';
 
 					}
 

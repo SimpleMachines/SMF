@@ -626,7 +626,7 @@ function ModifyProfile($post_errors = array())
 				$post_errors[] = 'no_password';
 
 			// Since the password got modified due to all the $_POST cleaning, lets undo it so we can get the correct password
-			$password = un_htmlspecialchars($_POST['oldpasswrd']);
+			$password = un_htmlspecialchars($password);
 
 			// Does the integration want to check passwords?
 			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $password, false)), true);
@@ -641,7 +641,7 @@ function ModifyProfile($post_errors = array())
 		}
 
 		// Change the IP address in the database.
-		if ($context['user']['is_owner'])
+		if ($context['user']['is_owner'] && $menuOptions['current_area'] != 'tfasetup')
 			$profile_vars['member_ip'] = $user_info['ip'];
 
 		// Now call the sub-action function...
@@ -658,7 +658,7 @@ function ModifyProfile($post_errors = array())
 				redirectexit();
 			}
 		}
-		elseif ($current_area == 'tfadisable')
+		elseif ($menuOptions['current_area'] == 'tfadisable')
 		{
 			// Already checked the password, token, permissions, and session.
 			$profile_vars += array(
@@ -866,18 +866,17 @@ function alerts_popup($memID)
 	$context['template_layers'] = array();
 
 	// No funny business allowed
-	$fetch_all = !isset($_REQUEST['counter']);
-	$_REQUEST['counter'] = isset($_REQUEST['counter']) ? max(0, (int) $_REQUEST['counter']) : 0;
+	$counter = isset($_REQUEST['counter']) ? max(0, (int) $_REQUEST['counter']) : 0;
 
 	$context['unread_alerts'] = array();
-	if ($fetch_all || $_REQUEST['counter'] < $cur_profile['alerts'])
+	if ($counter < $cur_profile['alerts'])
 	{
 		// Now fetch me my unread alerts, pronto!
 		require_once($sourcedir . '/Profile-View.php');
-		$context['unread_alerts'] = fetch_alerts($memID, false, $fetch_all ? null : $cur_profile['alerts'] - $_REQUEST['counter']);
+		$context['unread_alerts'] = fetch_alerts($memID, false, !empty($counter) ? $cur_profile['alerts'] - $counter : 0, 0, !isset($_REQUEST['counter']));
 
 		// This shouldn't happen, but just in case...
-		if ($fetch_all && $cur_profile['alerts'] != count($context['unread_alerts']))
+		if (empty($counter) && $cur_profile['alerts'] != count($context['unread_alerts']))
 			updateMemberData($memID, array('alerts' => count($context['unread_alerts'])));
 	}
 }

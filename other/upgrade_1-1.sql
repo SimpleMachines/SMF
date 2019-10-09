@@ -768,7 +768,7 @@ VALUES
 /******************************************************************************/
 
 ---# Updating flood control log...
-ALTER IGNORE TABLE {$db_prefix}log_floodcontrol
+ALTER TABLE {$db_prefix}log_floodcontrol
 CHANGE COLUMN ip ip char(16) NOT NULL default '                ';
 
 ALTER TABLE {$db_prefix}log_floodcontrol
@@ -776,18 +776,22 @@ DROP INDEX logTime;
 ---#
 
 ---# Updating ip address storage...
-ALTER IGNORE TABLE {$db_prefix}log_actions
+ALTER TABLE {$db_prefix}log_actions
 CHANGE COLUMN IP ip char(16) NOT NULL default '                ';
 
-ALTER IGNORE TABLE {$db_prefix}log_banned
+ALTER TABLE {$db_prefix}log_banned
 CHANGE COLUMN IP ip char(16) NOT NULL default '                ';
 
-ALTER IGNORE TABLE {$db_prefix}log_banned
+ALTER TABLE {$db_prefix}log_banned
 DROP COLUMN ban_ids;
 
-ALTER IGNORE TABLE {$db_prefix}log_errors
-DROP INDEX IP,
-CHANGE COLUMN IP ip char(16) NOT NULL default '                ',
+ALTER TABLE {$db_prefix}log_errors
+DROP INDEX IP;
+
+ALTER TABLE {$db_prefix}log_errors
+CHANGE COLUMN IP ip char(16) NOT NULL default '                ';
+
+ALTER TABLE {$db_prefix}log_errors
 ADD INDEX ip (ip(16));
 ---#
 
@@ -2069,7 +2073,7 @@ if ($upgradeLogTable)
 /******************************************************************************/
 
 ---# Preparing messages table for strict upgrade
-ALTER IGNORE TABLE {$db_prefix}messages
+ALTER TABLE {$db_prefix}messages
 DROP INDEX ipIndex;
 ---#
 

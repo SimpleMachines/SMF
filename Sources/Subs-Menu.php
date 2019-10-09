@@ -89,6 +89,7 @@ function createMenu($menuData, $menuOptions = array())
 		$menu_context['extra_parameters'] .= ';' . $context['session_var'] . '=' . $context['session_id'];
 
 	$include_data = array();
+	$menu_context['sections'] = array();
 
 	// Now setup the context correctly.
 	foreach ($menuData as $section_id => $section)
@@ -261,6 +262,26 @@ function createMenu($menuData, $menuOptions = array())
 					$menu_context['current_section'] = $section_id;
 					$backup_area = isset($area['select']) ? $area['select'] : $area_id;
 					$include_data = $area;
+				}
+			}
+		}
+	}
+
+	foreach ($menu_context['sections'] as $section_id => $section)
+	{
+		if (!empty($section['areas']))
+		{
+			foreach ($section['areas'] as $area_id => $area)
+			{
+				if (!empty($area['subsections']))
+				{
+					foreach ($area['subsections'] as $sa => $sub)
+					{
+						if (empty($sub['disabled']))
+							break;
+
+						$menu_context['sections'][$section_id]['areas'][$area_id]['hide_subsections'] = true;
+					}
 				}
 			}
 		}

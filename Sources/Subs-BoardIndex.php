@@ -125,14 +125,18 @@ function getBoardIndex($boardIndexOptions)
 	// Start with an empty array.
 	if ($boardIndexOptions['include_categories'])
 		$categories = array();
+
 	else
 		$this_category = array();
+
 	$boards = array();
 
 	// Children can affect parents, so we need to gather all the boards first and then process them after.
 	$row_boards = array();
+
 	foreach ($smcFunc['db_fetch_all']($result_boards) as $row)
 		$row_boards[$row['id_board']] = $row;
+
 	$smcFunc['db_free_result']($result_boards);
 
 	// Run through the categories and boards (or only boards)....
@@ -153,10 +157,13 @@ function getBoardIndex($boardIndexOptions)
 			// Haven't set this category yet.
 			if (empty($categories[$row_board['id_cat']]))
 			{
+				$name = parse_bbc($row_board['cat_name'], false, '', $context['description_allowed_tags']);
+				$description = parse_bbc($row_board['cat_desc'], false, '', $context['description_allowed_tags']);
+
 				$categories[$row_board['id_cat']] = array(
 					'id' => $row_board['id_cat'],
-					'name' => $row_board['cat_name'],
-					'description' => $row_board['cat_desc'],
+					'name' => $name,
+					'description' => $description,
 					'is_collapsed' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1 && !empty($options['collapse_category_' . $row_board['id_cat']]),
 					'can_collapse' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1,
 					'href' => $scripturl . '#c' . $row_board['id_cat'],
@@ -164,7 +171,8 @@ function getBoardIndex($boardIndexOptions)
 					'new' => false,
 					'css_class' => '',
 				);
-				$categories[$row_board['id_cat']]['link'] = '<a id="c' . $row_board['id_cat'] . '"></a>' . (!$context['user']['is_guest'] ? '<a href="' . $scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], strip_tags($row_board['cat_name'])) . '">' . $row_board['cat_name'] . '</a>' : $row_board['cat_name']);
+
+				$categories[$row_board['id_cat']]['link'] = '<a id="c' . $row_board['id_cat'] . '"></a>' . (!$context['user']['is_guest'] ? '<a href="' . $scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], $name) . '">' . $name . '</a>' : $name);
 			}
 
 			// If this board has new posts in it (and isn't the recycle bin!) then the category is new.
@@ -191,12 +199,15 @@ function getBoardIndex($boardIndexOptions)
 				if (!isset($this_category[$row_board['id_board']]))
 					$this_category[$row_board['id_board']] = array();
 
+				$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
+				$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
+
 				$this_category[$row_board['id_board']] += array(
 					'new' => empty($row_board['is_read']),
 					'id' => $row_board['id_board'],
 					'type' => $row_board['is_redirect'] ? 'redirect' : 'board',
-					'name' => $row_board['board_name'],
-					'description' => $row_board['description'],
+					'name' => $board_name,
+					'description' => $board_description,
 					'moderators' => array(),
 					'moderator_groups' => array(),
 					'link_moderators' => array(),
@@ -211,7 +222,7 @@ function getBoardIndex($boardIndexOptions)
 					'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
 					'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
 					'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
-					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>',
+					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $board_name . '</a>',
 					'board_class' => 'off',
 					'css_class' => '',
 				);
@@ -248,11 +259,14 @@ function getBoardIndex($boardIndexOptions)
 					'board_class' => 'off',
 				);
 
+			$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
+			$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
+
 			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']] = array(
 				'id' => $row_board['id_board'],
-				'name' => $row_board['board_name'],
-				'description' => $row_board['description'],
-				'short_description' => shorten_subject(strip_tags($row_board['description']), 128),
+				'name' => $board_name,
+				'description' => $board_description,
+				'short_description' => shorten_subject($board_description, 128),
 				'new' => empty($row_board['is_read']),
 				'topics' => $row_board['num_topics'],
 				'posts' => $row_board['num_posts'],
@@ -261,7 +275,7 @@ function getBoardIndex($boardIndexOptions)
 				'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
 				'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
 				'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
-				'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>'
+				'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $board_name . '</a>'
 			);
 
 			// Counting child board posts in the parent's totals?

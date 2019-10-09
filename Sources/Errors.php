@@ -420,13 +420,13 @@ function display_maintenance_message()
 function display_db_error()
 {
 	global $mbname, $modSettings, $maintenance;
-	global $db_connection, $webmaster_email, $db_last_error, $db_error_send, $smcFunc, $sourcedir;
+	global $db_connection, $webmaster_email, $db_last_error, $db_error_send, $smcFunc, $sourcedir, $cache_enable;
 
 	require_once($sourcedir . '/Logging.php');
 	set_fatal_error_headers();
 
 	// For our purposes, we're gonna want this on if at all possible.
-	$modSettings['cache_enable'] = '1';
+	$cache_enable = '1';
 
 	if (($temp = cache_get_data('db_last_error', 600)) !== null)
 		$db_last_error = max($db_last_error, $temp);

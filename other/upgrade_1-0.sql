@@ -221,7 +221,7 @@ CREATE TABLE {$db_prefix}sessions (
 ---#
 
 ---# Verifying "settings"...
-ALTER IGNORE TABLE {$db_prefix}settings
+ALTER TABLE {$db_prefix}settings
 DROP PRIMARY KEY,
 ADD PRIMARY KEY (variable(30));
 ---#
@@ -761,9 +761,11 @@ ADD INDEX isSticky (isSticky);
 ---#
 
 ---# Updating indexes on "topics" (part 2)...
-ALTER IGNORE TABLE {$db_prefix}topics
-ADD UNIQUE INDEX lastMessage (ID_LAST_MSG, ID_BOARD),
-ADD UNIQUE INDEX firstMessage (ID_FIRST_MSG, ID_BOARD),
+ALTER TABLE {$db_prefix}topics
+ADD UNIQUE INDEX lastMessage (ID_LAST_MSG, ID_BOARD);
+ALTER TABLE {$db_prefix}topics
+ADD UNIQUE INDEX firstMessage (ID_FIRST_MSG, ID_BOARD);
+ALTER TABLE {$db_prefix}topics
 ADD UNIQUE INDEX poll (ID_POLL, ID_TOPIC);
 ---#
 
@@ -999,7 +1001,7 @@ LIMIT 1;
 ---#
 
 ---# Adding new columns to "instant_messages"...
-ALTER IGNORE TABLE {$db_prefix}instant_messages
+ALTER TABLE {$db_prefix}instant_messages
 ADD COLUMN deletedBySender tinyint(3) unsigned NOT NULL default '0' AFTER ID_MEMBER_FROM;
 ---#
 

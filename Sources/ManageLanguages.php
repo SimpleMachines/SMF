@@ -170,7 +170,7 @@ function list_getLanguagesList()
 				'id' => $file->fetch('id'),
 				'name' => $smcFunc['ucwords']($file->fetch('name')),
 				'version' => $file->fetch('version'),
-				'utf8' => $file->fetch('utf8') ? $txt['yes'] : $txt['no'],
+				'utf8' => $txt['yes'],
 				'description' => $file->fetch('description'),
 				'install_link' => '<a href="' . $scripturl . '?action=admin;area=languages;sa=downloadlang;did=' . $file->fetch('id') . ';' . $context['session_var'] . '=' . $context['session_id'] . '">' . $txt['add_language_smf_install'] . '</a>',
 			);
@@ -194,7 +194,7 @@ function list_getLanguagesList()
  */
 function DownloadLanguage()
 {
-	global $context, $sourcedir, $boarddir, $txt, $scripturl, $modSettings;
+	global $context, $sourcedir, $boarddir, $txt, $scripturl, $modSettings, $cache_enable;
 
 	loadLanguage('ManageSettings');
 	require_once($sourcedir . '/Subs-Package.php');
@@ -459,7 +459,7 @@ function DownloadLanguage()
 			),
 			'copy' => array(
 				'header' => array(
-					'value' => $txt['languages_download_copy'],
+					'value' => $txt['languages_download_overwrite'],
 					'class' => 'centercol',
 				),
 				'data' => array(
@@ -475,10 +475,10 @@ function DownloadLanguage()
 	);
 
 	// Kill the cache, as it is now invalid..
-	if (!empty($modSettings['cache_enable']))
+	if (!empty($cache_enable))
 	{
-		cache_put_data('known_languages', null, !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600);
-		cache_put_data('known_languages_all', null, !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600);
+		cache_put_data('known_languages', null, !empty($cache_enable) && $cache_enable < 1 ? 86400 : 3600);
+		cache_put_data('known_languages_all', null, !empty($cache_enable) && $cache_enable < 1 ? 86400 : 3600);
 	}
 
 	require_once($sourcedir . '/Subs-List.php');
@@ -792,7 +792,7 @@ function ModifyLanguageSettings($return_config = false)
  */
 function ModifyLanguage()
 {
-	global $settings, $context, $smcFunc, $txt, $modSettings, $boarddir, $sourcedir, $language;
+	global $settings, $context, $smcFunc, $txt, $modSettings, $boarddir, $sourcedir, $language, $cache_enable;
 
 	loadLanguage('ManageSettings');
 
@@ -958,9 +958,9 @@ function ModifyLanguage()
 		);
 
 		// Fifth, update getLanguages() cache.
-		if (!empty($modSettings['cache_enable']))
+		if (!empty($cache_enable))
 		{
-			cache_put_data('known_languages', null, !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600);
+			cache_put_data('known_languages', null, !empty($cache_enable) && $cache_enable < 1 ? 86400 : 3600);
 		}
 
 		// Sixth, if we deleted the default language, set us back to english?

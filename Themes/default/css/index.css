@@ -11,6 +11,11 @@ body {
 	flex-direction: column;
 	min-height: 100vh;
 }
+::selection {
+	text-shadow: none;
+	background: #99d4ff;
+	color: rgba(0, 0, 0, 0.6);
+}
 /* General reset */
 * {
 	box-sizing: border-box;
@@ -87,7 +92,7 @@ textarea {
 }
 
 /* Use a consistent monospace font everywhere */
-.monospace, .bbc_code, .phpcode, pre, #error_log span.error_message {
+.monospace, .bbc_code, .phpcode, pre, #error_log span.error_message, #backtrace span.error_message {
 	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
 }
 
@@ -281,7 +286,7 @@ body#help_popup {
 h3.largetext {
 	font-size: large;
 }
-.xlarge_text {
+.xlargetext {
 	font-size: x-large;
 }
 .centertext, .centercol {
@@ -838,14 +843,31 @@ img.sort, .sort {
 	width: 40px;
 	height: 40px;
 	object-fit: scale-down;
-	margin-right: 4px;
+	margin: 4px 4px 4px 0;
 	display: inline-block;
 	color: transparent; /* For broken images */
+	vertical-align: bottom;
+}
+.unread_notify_image {
+	position: relative;
+	width: 44px;
+	margin-right: 4px;
+	text-align: center;
+}
+.unread_notify_image span.alert_icon {
+	display: block;
+	line-height: 1em;
+}
+.unread_notify_image .avatar + .alert_icon {
+	width: auto;
+	position: absolute;
+	right: 0;
+	top: 0;
 }
 .unread_notify .details {
 	display: inline-block;
 	vertical-align: top;
-	max-width: calc(100% - 44px);
+	max-width: calc(100% - 48px);
 }
 #pm_menu .subject {
 	font-weight: bold;
@@ -1302,6 +1324,9 @@ ul li.greeting {
 	text-align: right;
 	font-size: 0.9em;
 }
+#recent .quickbuttons {
+	margin: 0;
+}
 .quickbuttons li {
 	float: left;
 	display: inline;
@@ -1416,7 +1441,7 @@ ul li.greeting {
 
 /* The jump to box */
 #display_jump_to {
-	padding: 11px 5px 5px 0;
+	padding: 11px 0 5px 0;
 	float: right;
 	font-size: 1em;
 }
@@ -1704,12 +1729,8 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 }
 
 /* Small fix for topics */
-.quickbuttons span.main_icons, .button span.main_icons {
+.quickbuttons .main_icons::before, .button .main_icons::before {
 	margin: -3px 3px 0 1px;
-}
-.quickbuttons span.main_icons.quote,
-.quickbuttons span.main_icons.quote_selected {
-	margin: -8px 3px 0 0;
 }
 
 .main_icons.gender_None::before {
@@ -2572,6 +2593,39 @@ dl.addrules dt.floatleft {
 #alerts .alert_inline_time {
 	display: none;
 }
+#alerts .quickbuttons {
+	display: flex;
+	margin: 4px 0;
+}
+#alerts .quickbuttons li, #alerts .alert_time {
+	white-space: nowrap;
+}
+#alerts .alert_image {
+	width: 65px;
+	padding: 6px 0;
+	text-align: center;
+	vertical-align: middle;
+}
+#alerts .alert_image > div {
+	position: relative;
+}
+#alerts .alert_image .avatar {
+	max-width: 80%;
+	max-height: 80%;
+	margin-top: 4px;
+	vertical-align: bottom;
+}
+#alerts .alert_image span.alert_icon {
+	display: block;
+	width: 100%;
+	line-height: 1em;
+}
+#alerts .alert_image .avatar + .alert_icon {
+	width: auto;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
 
 /* Styles for the memberlist section.
 ------------------------------------------------- */
@@ -3067,7 +3121,7 @@ span.postby {
 	margin-top: 5px !important;
 }
 #topic_container .windowbg {
-	border: 1px solid #ddd;
+	border: 1px solid rgba(0, 0, 0, 0.13);
 	border-top: none;
 	display: flex;
 	box-shadow: none;
@@ -3094,11 +3148,7 @@ span.postby {
 }
 /* Quick moderation selects and submit */
 #quick_actions {
-	padding: 4px 0;
-}
-/* Investigate default select and button sizing. Something is slightly off there.*/
-.qaction.button {
-	margin: 1px 4px 0 4px;
+	margin: 6px 0;
 }
 /* Icons and jump to */
 #topic_icons::before {
@@ -3415,16 +3465,13 @@ ul.post_options li {
 #post_additional_options .progress_bar {
 	height: 22px;
 }
-#post_settings, #postAttachment, #postAttachment2 {
+#post_settings, #postAttachment, #postAttachment2, #attachment_previews {
 	border-top: 1px solid #ddd;
 	margin: -1px 0 0 0;
 	padding: 10px;
 }
-#postAttachment dd {
-	margin: 2px 12px;
-}
-#postAttachment2 dd {
-	margin: 4px 12px;
+#postAttachment dd, #postAttachment2 dd {
+	margin: 4px 0;
 }
 #postAttachment dd {
 	width: 45%;
@@ -3452,7 +3499,7 @@ ul.post_options li {
 #post_draft_options .settings strong {
 	color: #555;
 }
-#post_confirm_strip /* < That may be deprecated. */, #shortcuts {
+#post_confirm_buttons, #shortcuts {
 	padding: 12px 0;
 }
 #post_confirm_buttons .smalltext {
@@ -3510,7 +3557,7 @@ ul.post_options li {
 }
 #moderationbuttons_strip {
 	float: left;
-	margin: 4px 0 4px -4px;
+	margin: 4px 0 4px;
 }
 #moderationbuttons ul li {
 	padding: 0 6px 4px 0;
@@ -3856,10 +3903,6 @@ h3.profile_hd {
 	background-color: #e8edf0;
 }
 
-#alerts tr.windowbg td {
-	border-right: 1px solid #ddd;
-}
-
 .centerbox {
 	top: 50%;
 	left: 50%;
@@ -3871,6 +3914,7 @@ h3.profile_hd {
 	flex-flow: row wrap;
 	justify-content: space-between;
 	align-items: center;
+	margin-top: 12px;
 }
 #attachment_previews div.descbox > div,
 #attachment_previews div.errorbox > div,
@@ -3894,7 +3938,7 @@ input[name="attachBBC"] {
 	width: 100%;
 	margin-top: 10px;
 }
-.attachment_info .progress_bar, .attachment_info .attached_BBC, a#attach_cancel_all, a#attach_upload_all {
+.attachment_info .progress_bar, .attachment_info .attached_BBC, a#attach_cancel_all, a#attach_upload_all, .attach-ui {
 	display: none;
 }
 .attachment_info .progress_bar {
@@ -3913,6 +3957,9 @@ input[name="attachBBC"] {
 }
 #attachment_upload {
 	min-height: 50px;
+}
+#drop_zone_ui {
+	display: none;
 }
 #total_progress {
 	width: 50%;

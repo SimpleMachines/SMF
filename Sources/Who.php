@@ -441,6 +441,8 @@ function determineActions($urls, $preferred_prefix = false)
 
 		if (isset($actions['error']))
 		{
+			loadLanguage('Errors');
+
 			if (isset($txt[$actions['error']]))
 				$error_message = str_replace('"', '&quot;', empty($actions['who_error_params']) ? $txt[$actions['error']] : vsprintf($txt[$actions['error']], $actions['who_error_params']));
 			elseif ($actions['error'] == 'guest_login')
@@ -600,6 +602,7 @@ function Credits($in_admin = false)
 						'Jessica "Suki" González',
 						'John "live627" Rayes',
 						'Jeremy "SleePy" Darwood',
+						'Shawn Bulen',
 
 						// Former Developers
 						'Aaron van Geffen',
@@ -633,12 +636,11 @@ function Credits($in_admin = false)
 						'Aleksi "Lex" Kilpinen',
 						// Support Specialists
 						'br360',
-						'Gary M. Gadsdon',
 						'GigaWatt',
 						'Will "Kindred" Wagner',
 						'Steve',
-						'shawnb61',
 						'ziycon',
+
 						// Former Support Specialists
 						'Adam Tallon',
 						'Bigguy',
@@ -647,6 +649,7 @@ function Credits($in_admin = false)
 						'ChalkCat',
 						'Chas Large',
 						'Duncan85',
+						'Gary M. Gadsdon',
 						'gbsothere',
 						'JimM',
 						'Justyne',
@@ -667,13 +670,14 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
 						// Lead Customizer
-						'Gwenwyfar',
-						// Customizers
 						'Sami "SychO" Mazouz',
+						// Customizers
+						'Gary M. Gadsdon',
+
 						// Former Customizers
 						'Brannon "B" Hall',
 						'Diego Andrés',
-						'Gary M. Gadsdon',
+						'Gwenwyfar',
 						'Jack "akabugeyes" Thorsen',
 						'Jason "JBlaze" Clemons',
 						'Jessica "Suki" González',
@@ -737,7 +741,7 @@ function Credits($in_admin = false)
 					'members' => array(
 						'Derek Schwab',
 						'Michael Johnson',
-						'Liroy "CoreISP" van Hoewijk',
+						'Liroy van Hoewijk',
 					),
 				),
 			),
@@ -795,6 +799,15 @@ function Credits($in_admin = false)
 					'Jeff Lewis',
 					'Joseph Fung',
 					'David Recordon',
+				),
+			),
+			array(
+				'title' => $txt['credits_in_memoriam'],
+				'members' => array(
+					'Crip',
+					'K@',
+					'metallica48423',
+					'Paul_Pauline',
 				),
 			),
 		),

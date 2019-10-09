@@ -115,7 +115,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 				{
 					$replacements = array(
 						'RECPNAME' => $row['member_name'],
-						'APPYNAME' => $this->_details['member_name'],
+						'APPLYNAME' => $this->_details['member_name'],
 						'GROUPNAME' => $this->_details['group_name'],
 						'REASON' => $this->_details['reason'],
 						'MODLINK' => $scripturl . '?action=moderate;area=groups;sa=requests',

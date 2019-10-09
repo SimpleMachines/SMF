@@ -1171,6 +1171,7 @@ function loadAttachmentContext($id_msg, $attachments)
 				'is_approved' => $attachment['approved'],
 				'topic' => $attachment['topic'],
 				'board' => $attachment['board'],
+				'mime_type' => $attachment['mime_type'],
 			);
 
 			// If something is unapproved we'll note it so we can sort them.
@@ -1340,7 +1341,7 @@ function prepareAttachsByMsg($msgIDs)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board, m.id_member,
+				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board, m.id_member, a.mime_type,
 				a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
 				COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
 			FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '

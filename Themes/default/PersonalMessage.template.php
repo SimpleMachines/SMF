@@ -76,7 +76,9 @@ function template_pm_popup()
 		foreach ($context['unread_pms'] as $id_pm => $pm_details)
 			echo '
 			<div class="unread_notify">
-				', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '
+				<div class="unread_notify_image">
+					', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '
+				</div>
 				<div class="details">
 					<div class="subject">', $pm_details['pm_link'], '</div>
 					<div class="sender">
@@ -1133,7 +1135,7 @@ function template_send()
 
 	// Send, Preview, spellcheck buttons.
 	echo '
-				<span id="post_confirm_strip" class="floatright">
+				<span id="post_confirm_buttons" class="floatright">
 					', template_control_richedit_buttons($context['post_box_name']), '
 				</span>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">

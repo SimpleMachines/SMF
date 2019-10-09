@@ -25,6 +25,9 @@ if (!defined('SMF_FULL_VERSION'))
 if (!defined('SMF_SOFTWARE_YEAR'))
 	define('SMF_SOFTWARE_YEAR', '2019');
 
+if (!defined('JQUERY_VERSION'))
+	define('JQUERY_VERSION', '3.4.1');
+	
 /**
  * Class ProxyServer
  */
@@ -105,7 +108,7 @@ class ProxyServer
 		$hash = $_GET['hash'];
 		$request = $_GET['request'];
 
-		if (md5($request . $this->secret) != $hash)
+		if (hash_hmac('sha1', $request, $this->secret) != $hash)
 			return false;
 
 		// Ensure any non-ASCII characters in the URL are encoded correctly

@@ -222,8 +222,8 @@ $txt['theme_edit_missing'] = 'The file you are trying to edit can\'t be found.';
 $txt['no_dump_database'] = 'Only administrators can make database backups.';
 $txt['pm_not_yours'] = 'The personal message you\'re trying to quote is not your own or does not exist, please go back and try again.';
 $txt['mangled_post'] = 'Mangled form data - please go back and try again.';
-$txt['too_many_groups'] = 'Sorry, you selected too many groups, please remove some.';
-$txt['post_upload_error'] = 'The post data is missing. This error is can be caused by trying to submit a file larger than allowed by the server. Please contact your administrator if this problem continues.';
+$txt['too_many_groups'] = 'Sorry, you selected too many groups, please remove some from your selection.';
+$txt['post_upload_error'] = 'The post data is missing. This error can be caused by trying to submit a file larger than allowed by the server. Please contact your administrator if this problem continues.';
 $txt['quoted_post_deleted'] = 'The post you are trying to quote either does not exist, was deleted, or is no longer viewable by you.';
 $txt['pm_too_many_per_hour'] = 'You have exceeded the limit of %1$d personal messages per hour.';
 
@@ -278,7 +278,7 @@ $txt['smileys_upload_error_blank'] = 'All smiley sets must have an image.';
 $txt['smileys_upload_error_name'] = 'All smileys must have the same filename.';
 $txt['smileys_upload_error_illegal'] = 'Illegal Type.';
 
-$txt['search_invalid_weights'] = 'Search weights are not properly configured. At least one weight should be configure to be non-zero. Please report this error to an administrator.';
+$txt['search_invalid_weights'] = 'Search weights are not properly configured. At least one weight should be configured to be non-zero. Please report this error to an administrator.';
 $txt['unable_to_create_temporary'] = 'The search function was unable to create temporary tables. Please try again.';
 
 $txt['package_no_file'] = 'Unable to find package file!';
@@ -301,7 +301,7 @@ $txt['package_get_error_is_theme'] = 'You can\'t install a Theme from this secti
 $txt['package_get_error_is_mod'] = 'You can\'t install a mod from this section, please use the <a href="{MANAGEMODURL}">Package manager</a> page to upload it';
 $txt['package_get_error_theme_not_compatible'] = 'Your theme does not show it has compatibility with %1$s. Please contact the theme author.';
 $txt['package_get_error_theme_no_based_on_found'] = 'The theme you\'re trying to install depends on another theme: %1$s, you need to install that theme first.';
-$txt['package_get_error_theme_no_new_version'] = 'The theme you\'re trying to install is already installed or is an outdated version of it. The version you\'re trying to install is: %1$s and the version already installed is: %2$s.';
+$txt['package_get_error_theme_no_new_version'] = 'The theme you\'re trying to install is already installed or is an outdated version of it. The version already installed is: %2$s and the version you\'re trying to install is: %1$s.';
 
 $txt['no_membergroup_selected'] = 'No membergroup selected';
 $txt['membergroup_does_not_exist'] = 'The membergroup doesn\'t exist or is invalid.';
@@ -337,7 +337,7 @@ $txt['profile_error_no_password'] = 'You did not enter your password';
 $txt['profile_error_bad_new_password'] = 'The new passwords you entered do not match';
 $txt['profile_error_bad_password'] = 'The password you entered was not correct';
 $txt['profile_error_bad_avatar'] = 'The avatar you have selected is not a valid image';
-$txt['profile_error_bad_avatar_invalid_url'] = 'The url you specified is invalid, please check it.';
+$txt['profile_error_bad_avatar_invalid_url'] = 'The URL you specified is invalid, please check it.';
 $txt['profile_error_bad_avatar_too_large'] = 'The image you\'re trying to use surpasses the max width/height settings, please use a smaller one.';
 $txt['profile_error_bad_avatar_fail_reencode'] = 'The image you uploaded was corrupted and the attempt to recover it failed.';
 $txt['profile_error_password_short'] = 'Your password must be at least ' . (empty($modSettings['password_strength']) ? 4 : 8) . ' characters long.';
@@ -347,7 +347,7 @@ $txt['profile_error_already_requested_group'] = 'You already have an outstanding
 $txt['profile_error_signature_not_yet_saved'] = 'The signature has not been saved.';
 $txt['profile_error_personal_text_too_long'] = 'The personal text is too long.';
 $txt['profile_error_user_title_too_long'] = 'The custom title is too long.';
-$txt['profile_error_custom_field_mail_fail'] = 'The mail validation check returned an error, you need to enter a valid email format (user@domain).';
+$txt['profile_error_custom_field_mail_fail'] = 'The mail validation check returned an error, you need to enter an email in a valid format (user@domain).';
 $txt['profile_error_custom_field_regex_fail'] = 'The regex verification returned an error, if you are unsure about what to type here, please contact the forum administrator.';
 $txt['profile_error_custom_field_nohtml_fail'] = 'HTML tags aren\'t allowed.';
 
@@ -374,7 +374,7 @@ $txt['loadavg_allunread_disabled'] = 'The server\'s resources are temporarily un
 $txt['loadavg_unreadreplies_disabled'] = 'The server is currently under high stress. Please try again shortly.';
 $txt['loadavg_show_posts_disabled'] = 'Please try again later. This member\'s posts are not currently available due to high load on the server.';
 $txt['loadavg_unread_disabled'] = 'The server\'s resources are temporarily under too high a demand to list out the topics you have not read.';
-$txt['loadavg_userstats_disabled'] = 'Please try again later. This member\'s statistics are not currently available due to high load on the server.';
+$txt['loadavg_userstats_disabled'] = 'This member\'s statistics are not currently available due to high load on the server. Please try again later.';
 
 $txt['cannot_edit_permissions_inherited'] = 'You cannot edit inherited permissions directly, you must either edit the parent group or edit the membergroup inheritance.';
 
@@ -442,14 +442,14 @@ $txt['restore_not_found'] = 'The following messages could not be restored; the o
 $txt['error_invalid_dir'] = 'The directory you entered is invalid.';
 
 // json errors.
-$txt['json_JSON_ERROR_DEPTH'] = 'Json decode error: The maximum stack depth has been exceeded';
-$txt['json_JSON_ERROR_STATE_MISMATCH'] = 'Json decode error: Invalid or malformed JSON';
-$txt['json_JSON_ERROR_CTRL_CHAR'] = 'Json decode error: Control character error, possibly incorrectly encoded';
-$txt['json_JSON_ERROR_SYNTAX'] = 'Json decode error: Syntax error, malformed JSON';
-$txt['json_JSON_ERROR_UTF8'] = 'Json decode error: Malformed UTF-8 characters, possibly incorrectly encoded';
-$txt['json_JSON_ERROR_RECURSION'] = 'Json decode error: One or more recursive references in the value to be encoded';
-$txt['json_JSON_ERROR_INF_OR_NAN'] = 'Json decode error: One or more NAN or INF values in the value to be encoded';
-$txt['json_JSON_ERROR_UNSUPPORTED_TYPE'] = 'Json decode error: A value of a type that cannot be encoded was given';
+$txt['json_JSON_ERROR_DEPTH'] = 'JSON decode error: The maximum stack depth has been exceeded';
+$txt['json_JSON_ERROR_STATE_MISMATCH'] = 'JSON decode error: Invalid or malformed JSON';
+$txt['json_JSON_ERROR_CTRL_CHAR'] = 'JSON decode error: Control character error, possibly incorrectly encoded';
+$txt['json_JSON_ERROR_SYNTAX'] = 'JSON decode error: Syntax error, malformed JSON';
+$txt['json_JSON_ERROR_UTF8'] = 'JSON decode error: Malformed UTF-8 characters, possibly incorrectly encoded';
+$txt['json_JSON_ERROR_RECURSION'] = 'JSON decode error: One or more recursive references in the value to be encoded';
+$txt['json_JSON_ERROR_INF_OR_NAN'] = 'JSON decode error: One or more NAN or INF values in the value to be encoded';
+$txt['json_JSON_ERROR_UNSUPPORTED_TYPE'] = 'JSON decode error: A value of a type that cannot be encoded was given';
 $txt['json_unknown'] = 'Unknown error';
 
 ?>

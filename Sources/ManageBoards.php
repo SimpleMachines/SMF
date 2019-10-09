@@ -259,8 +259,8 @@ function EditCategory()
 		$context['category'] = array(
 			'id' => $_REQUEST['cat'],
 			'name' => $cat_tree[$_REQUEST['cat']]['node']['name'],
-			'editable_name' => html_to_bbc($cat_tree[$_REQUEST['cat']]['node']['name']),
-			'description' => html_to_bbc($cat_tree[$_REQUEST['cat']]['node']['description']),
+			'editable_name' => $cat_tree[$_REQUEST['cat']]['node']['name'],
+			'description' => $cat_tree[$_REQUEST['cat']]['node']['description'],
 			'can_collapse' => !empty($cat_tree[$_REQUEST['cat']]['node']['can_collapse']),
 			'children' => array(),
 			'is_empty' => empty($cat_tree[$_REQUEST['cat']]['children'])
@@ -318,6 +318,7 @@ function EditCategory2()
 	validateToken('admin-bc-' . $_REQUEST['cat']);
 
 	require_once($sourcedir . '/Subs-Categories.php');
+	require_once($sourcedir . '/Subs-Editor.php');
 
 	$_POST['cat'] = (int) $_POST['cat'];
 
@@ -329,14 +330,14 @@ function EditCategory2()
 		if (isset($_POST['cat_order']))
 			$catOptions['move_after'] = (int) $_POST['cat_order'];
 
-		// Change "This & That" to "This &amp; That" but don't change "&cent" to "&amp;cent;"...
-		$catOptions['cat_name'] = parse_bbc($smcFunc['htmlspecialchars']($_POST['cat_name']), false, '', $context['description_allowed_tags']);
-		$catOptions['cat_desc'] = parse_bbc($smcFunc['htmlspecialchars']($_POST['cat_desc']), false, '', $context['description_allowed_tags']);
-
+		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest, parse it on display
+		$catOptions['cat_name'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['cat_name'])));
+		$catOptions['cat_desc'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['cat_desc'])));
 		$catOptions['is_collapsible'] = isset($_POST['collapse']);
 
 		if (isset($_POST['add']))
 			createCategory($catOptions);
+
 		else
 			modifyCategory($_POST['cat'], $catOptions);
 	}
@@ -394,13 +395,14 @@ function EditBoard()
 
 	// id_board must be a number....
 	$_REQUEST['boardid'] = isset($_REQUEST['boardid']) ? (int) $_REQUEST['boardid'] : 0;
+
 	if (!isset($boards[$_REQUEST['boardid']]))
 	{
 		$_REQUEST['boardid'] = 0;
 		$_REQUEST['sa'] = 'newboard';
 	}
 
-	if ($_REQUEST['sa'] == 'newboard')
+	if ('newboard' === $_REQUEST['sa'])
 	{
 		// Category doesn't exist, man... sorry.
 		if (empty($_REQUEST['cat']))
@@ -434,8 +436,6 @@ function EditBoard()
 		// Just some easy shortcuts.
 		$curBoard = &$boards[$_REQUEST['boardid']];
 		$context['board'] = $boards[$_REQUEST['boardid']];
-		$context['board']['name'] = html_to_bbc($context['board']['name']);
-		$context['board']['description'] = html_to_bbc($context['board']['description']);
 		$context['board']['no_children'] = empty($boards[$_REQUEST['boardid']]['tree']['children']);
 		$context['board']['is_recycle'] = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) && $modSettings['recycle_board'] == $context['board']['id'];
 	}
@@ -626,6 +626,7 @@ function EditBoard2()
 	validateToken('admin-be-' . $_REQUEST['boardid']);
 
 	require_once($sourcedir . '/Subs-Boards.php');
+	require_once($sourcedir . '/Subs-Editor.php');
 
 	// Mode: modify aka. don't delete.
 	if (isset($_POST['edit']) || isset($_POST['add']))
@@ -667,9 +668,9 @@ function EditBoard2()
 		if (strlen(implode(',', $boardOptions['access_groups'])) > 255 || strlen(implode(',', $boardOptions['deny_groups'])) > 255)
 			fatal_lang_error('too_many_groups', false);
 
-		// Do not allow HTML tags. Parse the string.
-		$boardOptions['board_name'] = parse_bbc($smcFunc['htmlspecialchars']($_POST['board_name']), false, '', $context['description_allowed_tags']);
-		$boardOptions['board_description'] = parse_bbc($smcFunc['htmlspecialchars']($_POST['desc']), false, '', $context['description_allowed_tags']);
+		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest, parse it on display
+		$boardOptions['board_name'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['board_name'])));
+		$boardOptions['board_description'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['desc'])));
 
 		$boardOptions['moderator_string'] = $_POST['moderators'];
 

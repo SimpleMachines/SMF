@@ -459,6 +459,9 @@ function ViewBacktrace()
 		$context['error_info']['url'] = $scripturl . $row['url'];
 		$context['error_info']['backtrace'] = $smcFunc['json_decode']($row['backtrace']);
 	}
+	$smcFunc['db_free_result']($request);
+
+	loadCSSFile('admin.css', array(), 'smf_admin');
 	loadTemplate('Errors');
 	loadLanguage('ManageMaintenance');
 	$context['template_layers'] = array();

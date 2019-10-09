@@ -251,6 +251,18 @@ function reloadSettings()
 
 			return random_int($min, $max);
 		},
+		'random_bytes' => function($length = 64)
+		{
+			global $sourcedir;
+
+			if (!is_callable('random_bytes'))
+				require_once($sourcedir . '/random_compat/random.php');
+
+			// Make sure length is valid
+			$length = max(1, (int) $length);
+
+			return random_bytes($length);
+		},
 	);
 
 	// Setting the timezone is a requirement for some functions.
@@ -312,6 +324,12 @@ function reloadSettings()
 			'currentAttachmentUploadDir' => 1,
 		));
 	}
+
+	// Respect PHP's limits.
+	$post_max_kb = floor(memoryReturnBytes(ini_get('post_max_size')) / 1024);
+	$file_max_kb = floor(memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
+	$modSettings['attachmentPostLimit'] = empty($modSettings['attachmentPostLimit']) ? $post_max_kb : min($modSettings['attachmentPostLimit'], $post_max_kb);
+	$modSettings['attachmentSizeLimit'] = empty($modSettings['attachmentSizeLimit']) ? $file_max_kb : min($modSettings['attachmentSizeLimit'], $file_max_kb);
 
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
@@ -422,7 +440,7 @@ function reloadSettings()
 function loadUserSettings()
 {
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
-	global $cookiename, $user_info, $language, $context, $image_proxy_enabled;
+	global $cookiename, $user_info, $language, $context, $image_proxy_enabled, $cache_enable;
 
 	// Check first the integration, then the cookie, and last the session.
 	if (count($integration_ids = call_integration_hook('integrate_verify_user')) > 0)
@@ -476,7 +494,7 @@ function loadUserSettings()
 	if ($id_member != 0)
 	{
 		// Is the member data cached?
-		if (empty($modSettings['cache_enable']) || $modSettings['cache_enable'] < 2 || ($user_settings = cache_get_data('user_settings-' . $id_member, 60)) == null)
+		if (empty($cache_enable) || $cache_enable < 2 || ($user_settings = cache_get_data('user_settings-' . $id_member, 60)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT mem.*, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type
@@ -494,7 +512,7 @@ function loadUserSettings()
 			if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($user_settings['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
 				$user_settings['avatar'] = get_proxied_url($user_settings['avatar']);
 
-			if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+			if (!empty($cache_enable) && $cache_enable >= 2)
 				cache_put_data('user_settings-' . $id_member, $user_settings, 60);
 		}
 
@@ -515,6 +533,20 @@ function loadUserSettings()
 		}
 		else
 			$id_member = 0;
+
+		// Check if we are forcing TFA
+		$force_tfasetup = !empty($modSettings['tfa_mode']) && $modSettings['tfa_mode'] >= 2 && $id_member && empty($user_settings['tfa_secret']) && SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != '.xml');
+
+		// Don't force TFA on popups
+		if ($force_tfasetup)
+		{
+			if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'profile' && isset($_REQUEST['area']) && in_array($_REQUEST['area'], array('popup', 'alerts_popup')))
+				$force_tfasetup = false;
+			elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == 'pm' && (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'popup'))
+				$force_tfasetup = false;
+
+			call_integration_hook('integrate_force_tfasetup', array(&$force_tfasetup));
+		}
 
 		// If we no longer have the member maybe they're being all hackey, stop brute force!
 		if (!$id_member)
@@ -564,7 +596,7 @@ function loadUserSettings()
 			$user_settings = array();
 		}
 		// Are we forcing 2FA? Need to check if the user groups actually require 2FA
-		elseif (!empty($modSettings['tfa_mode']) && $modSettings['tfa_mode'] >= 2 && $id_member && empty($user_settings['tfa_secret']))
+		elseif ($force_tfasetup)
 		{
 			if ($modSettings['tfa_mode'] == 2) //only do this if we are just forcing SOME membergroups
 			{
@@ -610,7 +642,7 @@ function loadUserSettings()
 		// 3. If it was set within this session, no need to set it again.
 		// 4. New session, yet updated < five hours ago? Maybe cache can help.
 		// 5. We're still logging in or authenticating
-		if (SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('.xml', 'login2', 'logintfa'))) && empty($_SESSION['id_msg_last_visit']) && (empty($modSettings['cache_enable']) || ($_SESSION['id_msg_last_visit'] = cache_get_data('user_last_visit-' . $id_member, 5 * 3600)) === null))
+		if (SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('.xml', 'login2', 'logintfa'))) && empty($_SESSION['id_msg_last_visit']) && (empty($cache_enable) || ($_SESSION['id_msg_last_visit'] = cache_get_data('user_last_visit-' . $id_member, 5 * 3600)) === null))
 		{
 			// @todo can this be cached?
 			// Do a quick query to make sure this isn't a mistake.
@@ -634,10 +666,10 @@ function loadUserSettings()
 				updateMemberData($id_member, array('id_msg_last_visit' => (int) $modSettings['maxMsgID'], 'last_login' => time(), 'member_ip' => $_SERVER['REMOTE_ADDR'], 'member_ip2' => $_SERVER['BAN_CHECK_IP']));
 				$user_settings['last_login'] = time();
 
-				if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+				if (!empty($cache_enable) && $cache_enable >= 2)
 					cache_put_data('user_settings-' . $id_member, $user_settings, 60);
 
-				if (!empty($modSettings['cache_enable']))
+				if (!empty($cache_enable))
 					cache_put_data('user_last_visit-' . $id_member, $_SESSION['id_msg_last_visit'], 5 * 3600);
 			}
 		}
@@ -801,9 +833,11 @@ function loadUserSettings()
 
 	$temp = build_query_board($user_info['id']);
 	$user_info['query_see_board'] = $temp['query_see_board'];
-	$user_info['query_wanna_see_board'] = $temp['query_wanna_see_board'];
 	$user_info['query_see_message_board'] = $temp['query_see_message_board'];
 	$user_info['query_see_topic_board'] = $temp['query_see_topic_board'];
+	$user_info['query_wanna_see_board'] = $temp['query_wanna_see_board'];
+	$user_info['query_wanna_see_message_board'] = $temp['query_wanna_see_message_board'];
+	$user_info['query_wanna_see_topic_board'] = $temp['query_wanna_see_topic_board'];
 
 	call_integration_hook('integrate_user_info');
 }
@@ -822,7 +856,7 @@ function loadUserSettings()
 function loadBoard()
 {
 	global $txt, $scripturl, $context, $modSettings;
-	global $board_info, $board, $topic, $user_info, $smcFunc;
+	global $board_info, $board, $topic, $user_info, $smcFunc, $cache_enable;
 
 	// Assume they are not a moderator.
 	$user_info['is_mod'] = false;
@@ -878,7 +912,7 @@ function loadBoard()
 		return;
 	}
 
-	if (!empty($modSettings['cache_enable']) && (empty($topic) || $modSettings['cache_enable'] >= 3))
+	if (!empty($cache_enable) && (empty($topic) || $cache_enable >= 3))
 	{
 		// @todo SLOW?
 		if (!empty($topic))
@@ -1008,7 +1042,7 @@ function loadBoard()
 				list ($board_info['unapproved_user_topics']) = $smcFunc['db_fetch_row']($request);
 			}
 
-			if (!empty($modSettings['cache_enable']) && (empty($topic) || $modSettings['cache_enable'] >= 3))
+			if (!empty($cache_enable) && (empty($topic) || $cache_enable >= 3))
 			{
 				// @todo SLOW?
 				if (!empty($topic))
@@ -1118,7 +1152,7 @@ function loadBoard()
  */
 function loadPermissions()
 {
-	global $user_info, $board, $board_info, $modSettings, $smcFunc, $sourcedir;
+	global $user_info, $board, $board_info, $modSettings, $smcFunc, $sourcedir, $cache_enable;
 
 	if ($user_info['is_admin'])
 	{
@@ -1126,7 +1160,7 @@ function loadPermissions()
 		return;
 	}
 
-	if (!empty($modSettings['cache_enable']))
+	if (!empty($cache_enable))
 	{
 		$cache_groups = $user_info['groups'];
 		asort($cache_groups);
@@ -1135,7 +1169,7 @@ function loadPermissions()
 		if ($user_info['possibly_robot'])
 			$cache_groups .= '-spider';
 
-		if ($modSettings['cache_enable'] >= 2 && !empty($board) && ($temp = cache_get_data('permissions:' . $cache_groups . ':' . $board, 240)) != null && time() - 240 > $modSettings['settings_updated'])
+		if ($cache_enable >= 2 && !empty($board) && ($temp = cache_get_data('permissions:' . $cache_groups . ':' . $board, 240)) != null && time() - 240 > $modSettings['settings_updated'])
 		{
 			list ($user_info['permissions']) = $temp;
 			banPermissions();
@@ -1209,7 +1243,7 @@ function loadPermissions()
 	if (!empty($modSettings['permission_enable_deny']))
 		$user_info['permissions'] = array_diff($user_info['permissions'], $removals);
 
-	if (isset($cache_groups) && !empty($board) && $modSettings['cache_enable'] >= 2)
+	if (isset($cache_groups) && !empty($board) && $cache_enable >= 2)
 		cache_put_data('permissions:' . $cache_groups . ':' . $board, array($user_info['permissions'], null), 240);
 
 	// Banned?  Watch, don't touch..
@@ -1247,7 +1281,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $image_proxy_enabled, $user_info;
+	global $image_proxy_enabled, $user_info, $cache_enable;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1260,7 +1294,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 	$users = !is_array($users) ? array($users) : array_unique($users);
 	$loaded_ids = array();
 
-	if (!$is_name && !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 3)
+	if (!$is_name && !empty($cache_enable) && $cache_enable >= 3)
 	{
 		$users = array_values($users);
 		for ($i = 0, $n = count($users); $i < $n; $i++)
@@ -1389,7 +1423,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		}
 	}
 
-	if (!empty($new_loaded_ids) && !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 3)
+	if (!empty($new_loaded_ids) && !empty($cache_enable) && $cache_enable >= 3)
 	{
 		for ($i = 0, $n = count($new_loaded_ids); $i < $n; $i++)
 			cache_put_data('member_data-' . $set . '-' . $new_loaded_ids[$i], $user_profile[$new_loaded_ids[$i]], 240);
@@ -1784,7 +1818,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 {
 	global $user_info, $user_settings, $board_info, $boarddir, $maintenance;
 	global $txt, $boardurl, $scripturl, $mbname, $modSettings;
-	global $context, $settings, $options, $sourcedir, $smcFunc, $language, $board, $image_proxy_enabled;
+	global $context, $settings, $options, $sourcedir, $smcFunc, $language, $board, $image_proxy_enabled, $cache_enable;
 
 	if (empty($id_theme))
 	{
@@ -1836,7 +1870,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		if (empty($modSettings['force_ssl']))
 			$image_proxy_enabled = false;
 
-		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2 && ($temp = cache_get_data('theme_settings-' . $id_theme . ':' . $member, 60)) != null && time() - 60 > $modSettings['settings_updated'])
+		if (!empty($cache_enable) && $cache_enable >= 2 && ($temp = cache_get_data('theme_settings-' . $id_theme . ':' . $member, 60)) != null && time() - 60 > $modSettings['settings_updated'])
 		{
 			$themeData = $temp;
 			$flag = true;
@@ -1884,7 +1918,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 						$themeData[$member][$k] = $v;
 				}
 
-			if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
+			if (!empty($cache_enable) && $cache_enable >= 2)
 				cache_put_data('theme_settings-' . $id_theme . ':' . $member, $themeData, 60);
 			// Only if we didn't already load that part of the cache...
 			elseif (!isset($temp))
@@ -2290,17 +2324,17 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Add the JQuery library to the list of files to load.
 	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
-		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		loadJavaScriptFile('jquery-3.4.1.min.js', array('seed' => false), 'smf_jquery');
+		loadJavaScriptFile('jquery-' . JQUERY_VERSION . '.min.js', array('seed' => false), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
 		loadJavaScriptFile($modSettings['jquery_custom'], array('external' => true), 'smf_jquery');
 
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
-		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	// Queue our JQuery plugins!
 	loadJavaScriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
@@ -2965,10 +2999,10 @@ function getBoardParents($id_parent)
  */
 function getLanguages($use_cache = true)
 {
-	global $context, $smcFunc, $settings, $modSettings;
+	global $context, $smcFunc, $settings, $modSettings, $cache_enable;
 
 	// Either we don't use the cache, or its expired.
-	if (!$use_cache || ($context['languages'] = cache_get_data('known_languages', !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600)) == null)
+	if (!$use_cache || ($context['languages'] = cache_get_data('known_languages', !empty($cache_enable) && $cache_enable < 1 ? 86400 : 3600)) == null)
 	{
 		// If we don't have our ucwords function defined yet, let's load the settings data.
 		if (empty($smcFunc['ucwords']))
@@ -2992,12 +3026,6 @@ function getLanguages($use_cache = true)
 		// Remove any duplicates.
 		$language_directories = array_unique($language_directories);
 
-		// Get a list of languages.
-		$langList = !empty($modSettings['langList']) ? $smcFunc['json_decode']($modSettings['langList'], true) : array();
-		$langList = is_array($langList) ? $langList : false;
-
-		$catchLang = array();
-
 		foreach ($language_directories as $language_dir)
 		{
 			// Can't look in here... doesn't exist!
@@ -3008,39 +3036,40 @@ function getLanguages($use_cache = true)
 			while ($entry = $dir->read())
 			{
 				// Look for the index language file... For good measure skip any "index.language-utf8.php" files
-				if (!preg_match('~^index\.(.+[^-utf8])\.php$~', $entry, $matches))
+				if (!preg_match('~^index\.((?:.(?!-utf8))+)\.php$~', $entry, $matches))
 					continue;
 
-				if (!empty($langList) && !empty($langList[$matches[1]]))
-					$langName = $langList[$matches[1]];
+				$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
 
-				else
+				if (($spos = strpos($langName, ' ')) !== false)
+					$langName = substr($langName, 0, ++$spos) . '(' . substr($langName, $spos) . ')';
+
+				// Get the line we need.
+				$fp = @fopen($language_dir . '/' . $entry, 'r');
+
+				// Yay!
+				if ($fp)
 				{
-					$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
-
-					// Get the line we need.
-					$fp = @fopen($language_dir . '/' . $entry, 'r');
-
-					// Yay!
-					if ($fp)
+					while (($line = fgets($fp)) !== false)
 					{
-						while (($line = fgets($fp)) !== false)
+						if (strpos($line, '$txt[\'native_name\']') === false)
+							continue;
+
+						preg_match('~\$txt\[\'native_name\'\]\s*=\s*\'([^\']+)\';~', $line, $matchNative);
+
+						// Set the language's name.
+						if (!empty($matchNative) && !empty($matchNative[1]))
 						{
-							preg_match('~\$txt\[\'native_name\'\] = \'(.+)\'\;~', $line, $matchNative);
-
-							// Set the language's name.
-							if (!empty($matchNative) && !empty($matchNative[1]))
-							{
-								$langName = un_htmlspecialchars($matchNative[1]);
+							// Don't mislabel the language if the translator missed this one.
+							if ($langName !== 'English' && $matchNative[1] === 'English')
 								break;
-							}
-						}
 
-						fclose($fp);
+							$langName = un_htmlspecialchars($matchNative[1]);
+							break;
+						}
 					}
 
-					// Catch the language name.
-					$catchLang[$matches[1]] = $langName;
+					fclose($fp);
 				}
 
 				// Build this language entry.
@@ -3054,13 +3083,14 @@ function getLanguages($use_cache = true)
 			$dir->close();
 		}
 
-		// Do we need to store the lang list?
-		if (empty($langList))
-			updateSettings(array('langList' => $smcFunc['json_encode']($catchLang)));
+		// Avoid confusion when we have more than one English variant installed.
+		// Honestly, our default English version should always have been called "English (US)"
+		if (substr_count(implode(' ', array_keys($context['languages'])), 'english') > 1 && $context['languages']['english']['name'] === 'English')
+			$context['languages']['english']['name'] = 'English (US)';
 
 		// Let's cash in on this deal.
-		if (!empty($modSettings['cache_enable']))
-			cache_put_data('known_languages', $context['languages'], !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600);
+		if (!empty($cache_enable))
+			cache_put_data('known_languages', $context['languages'], !empty($cache_enable) && $cache_enable < 1 ? 86400 : 3600);
 	}
 
 	return $context['languages'];
@@ -3435,7 +3465,7 @@ function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
  */
 function cache_quick_get($key, $file, $function, $params, $level = 1)
 {
-	global $modSettings, $sourcedir;
+	global $modSettings, $sourcedir, $cache_enable;
 
 	// @todo Why are we doing this if caching is disabled?
 
@@ -3449,12 +3479,12 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
 		4. The cached item has a custom expiration condition evaluating to true.
 		5. The expire time set in the cache item has passed (needed for Zend).
 	*/
-	if (empty($modSettings['cache_enable']) || $modSettings['cache_enable'] < $level || !is_array($cache_block = cache_get_data($key, 3600)) || (!empty($cache_block['refresh_eval']) && eval($cache_block['refresh_eval'])) || (!empty($cache_block['expires']) && $cache_block['expires'] < time()))
+	if (empty($cache_enable) || $cache_enable < $level || !is_array($cache_block = cache_get_data($key, 3600)) || (!empty($cache_block['refresh_eval']) && eval($cache_block['refresh_eval'])) || (!empty($cache_block['expires']) && $cache_block['expires'] < time()))
 	{
 		require_once($sourcedir . '/' . $file);
 		$cache_block = call_user_func_array($function, $params);
 
-		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= $level)
+		if (!empty($cache_enable) && $cache_enable >= $level)
 			cache_put_data($key, $cache_block, $cache_block['expires'] - time());
 	}
 
