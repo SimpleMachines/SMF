@@ -24,7 +24,7 @@ global $txtBirthdayEmails;
 $txt['resend_activate_message_subject'] = 'Welcome to {FORUMNAME}';
 $txt['resend_activate_message_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME}. If you forget your password, you can reset it by visiting {FORGOTPASSWORDLINK}.
 
-Before you can login, you must first activate your account by selecting the following link:
+Before you can log in, you must first activate your account by selecting the following link:
 
 {ACTIVATIONLINK}
 
@@ -43,7 +43,7 @@ $txt['resend_pending_message_body'] = 'Hello {REALNAME}, your registration reque
 
 The username you registered with was {USERNAME}.
 
-Before you can login and start using the forum, your request will be reviewed and approved.
+Before you can log in and start using the forum, your request will be reviewed and approved.
 
 {REGARDS}';
 
@@ -100,7 +100,7 @@ This is due to the following reason: {REASON}
 $txt['admin_approve_accept_subject'] = 'Welcome to {FORUMNAME}';
 $txt['admin_approve_accept_body'] = 'Welcome, {NAME}
 
-Your account has been activated manually by the admin and you can now login and post. Your username is: {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}.
+Your account has been activated manually by the admin and you can now log in and post. Your username is: {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}.
 
 {REGARDS}';
 
@@ -115,7 +115,7 @@ Your account has been activated manually by the admin and you can now login and 
 $txt['admin_approve_activation_subject'] = 'Welcome to {FORUMNAME}';
 $txt['admin_approve_activation_body'] = 'Welcome, {USERNAME}!
 
-Your account on {FORUMNAME} has been approved by the forum administrator. Before you can login, you must first activate your account by selecting the following link:
+Your account on {FORUMNAME} has been approved by the forum administrator. Before you can log in, you must first activate your account by selecting the following link:
 
 {ACTIVATIONLINK}
 
@@ -177,7 +177,7 @@ Should you have any problems with the activation, please visit {ACTIVATIONLINKWI
 $txt['admin_register_activate_subject'] = 'Welcome to {FORUMNAME}';
 $txt['admin_register_activate_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME} and your password is {PASSWORD}.
 
-Before you can login, you must first activate your account by selecting the following link:
+Before you can log in, you must first activate your account by selecting the following link:
 
 {ACTIVATIONLINK}
 
@@ -200,7 +200,7 @@ $txt['admin_register_immediate_body'] = 'Thank you for registering at {FORUMNAME
 $txt['new_announcement_subject'] = 'New announcement: {TOPICSUBJECT}';
 $txt['new_announcement_body'] = '{MESSAGE}
 
-To unsubscribe from these announcements, login to the forum and uncheck "Receive forum newsletters, announcements and important notifications by email." in your profile <em>(Your username > Notifications > General Settings)</em>.
+To unsubscribe from these announcements, log in to the forum and uncheck "Receive forum newsletters, announcements and important notifications by email." in your profile <em>(Your username > Notifications > General Settings)</em>.
 
 You can view the full announcement by following this link:
 {TOPICLINK}
@@ -298,7 +298,7 @@ Unsubscribe from new topics from this board by using this link:
 	@description:
 */
 $txt['alert_unapproved_reply_subject'] = 'Topic reply: {SUBJECT}';
-$txt['alert_unapproved_reply_body'] = 'A reply has been posted to \'{SUBJECT}\' by {POSTERNAME}.
+$txt['alert_unapproved_reply_body'] = 'A reply has been posted in \'{SUBJECT}\' by {POSTERNAME}.
 
 You can see it at
 {LINK}
@@ -381,7 +381,7 @@ You can approve or reject this application by using the link below:
 $txt['paid_subscription_reminder_subject'] = 'Subscription about to expire at {FORUMNAME}';
 $txt['paid_subscription_reminder_body'] = '{REALNAME},
 
-A subscription you are subscribed to at {FORUMNAME} is about to expire. If when you took out the subscription you selected to auto-renew you need take no action - otherwise you may wish to consider subscribing once more. Details are below:
+A subscription you are subscribed to at {FORUMNAME} is about to expire. If when you took out the subscription you selected to auto-renew you need take no action, otherwise you may wish to consider subscribing once more. Details are below:
 
 Subscription Name: {SUBSCRIPTION}
 Expires: {END_DATE}
@@ -468,7 +468,7 @@ The reporter has made the following comment:
 $txt['reply_to_moderator_subject'] = 'Follow-up to reported post: {TOPICSUBJECT} by {POSTERNAME}';
 $txt['reply_to_moderator_body'] = 'Previously, "{TOPICSUBJECT}" was reported to moderators.
 
-Since then, {COMMENTERNAME} has added a comment to the report. More information can be found in the forum.
+Since then, {COMMENTERNAME} has added a comment to the report. More information can be found on the forum.
 
 The topic: {TOPICLINK}
 Moderation center: {REPORTLINK}
@@ -524,7 +524,7 @@ Your login details at {FORUMNAME} have been changed and your password reset. Bel
 
 Your username is "{USERNAME}" and your password is "{PASSWORD}".
 
-You may change it after you login by going to the profile page, or by visiting this page after you login:
+You may change it after you log in by going to the profile page, or by visiting this page after you log in:
 {SCRIPTURL}?action=profile
 
 {REGARDS}';
@@ -543,7 +543,7 @@ You may change it after you login by going to the profile page, or by visiting t
 $txt['register_activate_subject'] = 'Welcome to {FORUMNAME}';
 $txt['register_activate_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME}. If you forget your password, you can reset it by visiting {FORGOTPASSWORDLINK}.
 
-Before you can login, you first need to activate your account. To do so, please follow this link:
+Before you can log in, you first need to activate your account. To do so, please follow this link:
 
 {ACTIVATIONLINK}
 
@@ -563,7 +563,7 @@ Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOU
 $txt['register_coppa_subject'] = 'Welcome to {FORUMNAME}';
 $txt['register_coppa_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}
 
-Before you can login, the admin requires consent from your parent/guardian for you to join the community. You can obtain more information at the link below:
+Before you can log in, the admin requires consent from your parent/guardian for you to join the community. You can obtain more information at the link below:
 
 {COPPALINK}
 
@@ -595,7 +595,7 @@ $txt['register_pending_body'] = 'Hello {REALNAME}, your registration request at 
 
 The username you want to register with was {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}.
 
-Before you can login and start using the forum, your request will be reviewed and approved.
+Before you can log in and start using the forum, your request will be reviewed and approved.
 
 {REGARDS}';
 
