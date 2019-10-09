@@ -638,10 +638,11 @@ function Credits($in_admin = false)
 						'br360',
 						'GigaWatt',
 						'Will "Kindred" Wagner',
-						'Steve',
-						'ziycon',
+						'lurkalot',
 
 						// Former Support Specialists
+						'Steve',
+						'ziycon',
 						'Adam Tallon',
 						'Bigguy',
 						'Bruno "margarett" Alves',
@@ -649,7 +650,6 @@ function Credits($in_admin = false)
 						'ChalkCat',
 						'Chas Large',
 						'Duncan85',
-						'Gary M. Gadsdon',
 						'gbsothere',
 						'JimM',
 						'Justyne',
@@ -673,10 +673,11 @@ function Credits($in_admin = false)
 						'Sami "SychO" Mazouz',
 						// Customizers
 						'Gary M. Gadsdon',
+						'Diego Andrés',
+						'Jonathan "vbgamer45" Valentin',
 
 						// Former Customizers
 						'Brannon "B" Hall',
-						'Diego Andrés',
 						'Gwenwyfar',
 						'Jack "akabugeyes" Thorsen',
 						'Jason "JBlaze" Clemons',
@@ -710,8 +711,8 @@ function Credits($in_admin = false)
 						'Francisco "d3vcho" Domínguez',
 						// Localizers
 						'Nikola "Dzonny" Novaković',
-						'Robert Monden',
 						// Former Localizers
+						'Robert Monden',
 						'Relyana',
 					),
 				),
