@@ -806,7 +806,7 @@ function DatabaseSettings()
 		}
 
 		// God I hope it saved!
-		if (!updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
+		if (!installer_updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
 		{
 			$incontext['error'] = $txt['error_windows_chmod'];
 			return false;
@@ -857,7 +857,7 @@ function DatabaseSettings()
 			if ($db_connection != null)
 			{
 				$db_user = $_POST['db_prefix'] . $db_user;
-				updateSettingsFile(array('db_user' => addcslashes($db_user, '\'\\')));
+				installer_updateSettingsFile(array('db_user' => $db_user));
 			}
 		}
 
@@ -903,7 +903,7 @@ function DatabaseSettings()
 				if ($smcFunc['db_select_db']($_POST['db_prefix'] . $db_name, $db_connection))
 				{
 					$db_name = $_POST['db_prefix'] . $db_name;
-					updateSettingsFile(array('db_name' => addcslashes($db_name, '\'\\')));
+					installer_updateSettingsFile(array('db_name' => $db_name));
 				}
 			}
 
@@ -1035,7 +1035,7 @@ function ForumSettings()
 		);
 
 		// Must save!
-		if (!updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
+		if (!installer_updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
 		{
 			$incontext['error'] = $txt['error_windows_chmod'];
 			return false;
@@ -1060,7 +1060,7 @@ function ForumSettings()
 			}
 			else
 				// Set the character set here.
-				updateSettingsFile(array('db_character_set' => 'utf8'));
+				installer_updateSettingsFile(array('db_character_set' => 'utf8'));
 		}
 
 		// Good, skip on.
@@ -1582,7 +1582,7 @@ function AdminAccount()
 
 		// Update the webmaster's email?
 		if (!empty($_POST['server_email']) && (empty($webmaster_email) || $webmaster_email == 'noreply@myserver.com'))
-			updateSettingsFile(array('webmaster_email' => addcslashes($_POST['server_email'], '\'\\')));
+			installer_updateSettingsFile(array('webmaster_email' => $_POST['server_email']));
 
 		// Work out whether we're going to have dodgy characters and remove them.
 		$invalid_characters = preg_match('~[<>&"\'=\\\]~', $_POST['username']) != 0;
@@ -1861,81 +1861,22 @@ function DeleteInstall()
 	return false;
 }
 
-function updateSettingsFile($vars)
+function installer_updateSettingsFile($vars, $partial = true)
 {
-	// Modify Settings.php.
-	$settingsArray = file(dirname(__FILE__) . '/Settings.php');
+	global $sourcedir;
 
-	// @todo Do we just want to read the file in clean, and split it this way always?
-	if (count($settingsArray) == 1)
-		$settingsArray = preg_split('~[\r\n]~', $settingsArray[0]);
-
-	for ($i = 0, $n = count($settingsArray); $i < $n; $i++)
+	if (empty($sourcedir))
 	{
-		// Remove the redirect...
-		if (trim($settingsArray[$i]) == 'if (file_exists(dirname(__FILE__) . \'/install.php\'))' && trim($settingsArray[$i + 1]) == '{' && trim($settingsArray[$i + 10]) == '}')
-		{
-			// Set the ten lines to nothing.
-			for ($j = 0; $j < 11; $j++)
-				$settingsArray[$i++] = '';
-
-			continue;
-		}
-
-		if (trim($settingsArray[$i]) == '?' . '>')
-			$settingsArray[$i] = '';
-
-		// Don't trim or bother with it if it's not a variable.
-		if (substr($settingsArray[$i], 0, 1) != '$')
-			continue;
-
-		$settingsArray[$i] = rtrim($settingsArray[$i]) . "\n";
-
-		foreach ($vars as $var => $val)
-			if (strncasecmp($settingsArray[$i], '$' . $var, 1 + strlen($var)) == 0)
-			{
-				$comment = strstr($settingsArray[$i], '#');
-				$settingsArray[$i] = '$' . $var . ' = \'' . $val . '\';' . ($comment != '' ? "\t\t" . $comment : "\n");
-				unset($vars[$var]);
-			}
+		if (file_exists(dirname(__FILE__) . '/Sources') && is_dir(dirname(__FILE__) . '/Sources'))
+			$sourcedir = dirname(__FILE__) . '/Sources';
+		else
+			return false;
 	}
 
-	// Uh oh... the file wasn't empty... was it?
-	if (!empty($vars))
-	{
-		$settingsArray[$i++] = '';
-		foreach ($vars as $var => $val)
-			$settingsArray[$i++] = '$' . $var . ' = \'' . $val . '\';' . "\n";
-	}
+	require_once($sourcedir . '/Subs.php');
+	require_once($sourcedir . '/Subs-Admin.php');
 
-	// Blank out the file - done to fix a oddity with some servers.
-	$fp = @fopen(dirname(__FILE__) . '/Settings.php', 'w');
-	if (!$fp)
-		return false;
-	fclose($fp);
-
-	$fp = fopen(dirname(__FILE__) . '/Settings.php', 'r+');
-
-	// Gotta have one of these ;)
-	if (trim($settingsArray[0]) != '<?php')
-		fwrite($fp, "<?php\n");
-
-	$lines = count($settingsArray);
-	for ($i = 0; $i < $lines - 1; $i++)
-	{
-		// Don't just write a bunch of blank lines.
-		if ($settingsArray[$i] != '' || @$settingsArray[$i - 1] != '')
-			fwrite($fp, strtr($settingsArray[$i], "\r", ''));
-	}
-	fwrite($fp, $settingsArray[$i] . '?' . '>');
-	fclose($fp);
-
-	// Even though on normal installations the filemtime should prevent this being used by the installer incorrectly
-	// it seems that there are times it might not. So let's MAKE it dump the cache.
-	if (function_exists('opcache_invalidate'))
-		opcache_invalidate(dirname(__FILE__) . '/Settings.php', true);
-
-	return true;
+	return updateSettingsFile($vars, false, $partial);
 }
 
 function updateDbLastError()
