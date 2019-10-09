@@ -608,11 +608,7 @@ Before you can log in and start using the forum, your request will be reviewed a
 	@description:
 */
 $txt['notification_reply_subject'] = 'Topic reply: {TOPICSUBJECT}';
-<<<<<<< HEAD
-$txt['notification_reply_body'] = 'A reply has been posted in a topic you are watching by {POSTERNAME}.
-=======
 $txt['notification_reply_body'] = 'In a topic you are watching, a reply has been posted by {POSTERNAME}.
->>>>>>> upstream/release-2.1
 
 View the reply at: {TOPICLINK}
 
@@ -630,11 +626,7 @@ Unsubscribe from this topic by using this link: {UNSUBSCRIBELINK}
 	@description:
 */
 $txt['notification_reply_body_subject'] = 'Topic reply: {TOPICSUBJECT}';
-<<<<<<< HEAD
-$txt['notification_reply_body_body'] = 'A reply has been posted in a topic you are watching by {POSTERNAME}.
-=======
 $txt['notification_reply_body_body'] = 'In a topic you are watching, a reply has been posted by {POSTERNAME}.
->>>>>>> upstream/release-2.1
 
 View the reply at: {TOPICLINK}
 
@@ -654,11 +646,7 @@ The text of the reply is shown below:
 	@description:
 */
 $txt['notification_reply_once_subject'] = 'Topic reply: {TOPICSUBJECT}';
-<<<<<<< HEAD
-$txt['notification_reply_once_body'] = 'A reply has been posted in a topic you are watching by {POSTERNAME}.
-=======
 $txt['notification_reply_once_body'] = 'In a topic you are watching, a reply has been posted by {POSTERNAME}.
->>>>>>> upstream/release-2.1
 
 View the reply at: {TOPICLINK}
 
@@ -678,11 +666,7 @@ More replies may be posted, but you won\'t receive any more notifications for th
 	@description:
 */
 $txt['notification_reply_body_once_subject'] = 'Topic reply: {TOPICSUBJECT}';
-<<<<<<< HEAD
-$txt['notification_reply_body_once_body'] = 'A reply has been posted in a topic you are watching by {POSTERNAME}.
-=======
 $txt['notification_reply_body_once_body'] = 'In a topic you are watching, a reply has been posted by {POSTERNAME}.
->>>>>>> upstream/release-2.1
 
 View the reply at: {TOPICLINK}
 
