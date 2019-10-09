@@ -206,7 +206,7 @@ You can view the full announcement by following this link:
 {TOPICLINK}
 
 {UNSUB}{REGARDS}';
-$txt['new_announcement_unsub'] = 'To unsubscribe from these announcements, login to the forum and uncheck "Receive forum announcements and important notifications by email." in your profile.';
+$txt['new_announcement_unsub'] = 'To unsubscribe from these announcements, log in to the forum and uncheck "Receive forum announcements and important notifications by email." in your profile.';
 
 /**
 	@additional_params: notify_boards_once_body
