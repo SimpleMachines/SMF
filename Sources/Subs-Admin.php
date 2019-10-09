@@ -785,7 +785,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 	 ******************************/
 
 	// This little function gets the appropriate regex for the variable type.
-	function gettype_regex($var)
+	$gettype_regex = function($var)
 	{
 		$flags = '';
 		switch (gettype($var))
@@ -822,7 +822,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 		}
 
 		return array($regex, $flags);
-	}
+	};
 
 	// Time to build our new Settings.php!
 	$prefix = mt_rand() . '-';
@@ -900,7 +900,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 					$config_vars[$var] = (array) $config_vars[$var];
 			}
 
-			list($var_pattern, $flags) = gettype_regex($config_vars[$var]);
+			list($var_pattern, $flags) = $gettype_regex($config_vars[$var]);
 
 			if (!empty($setting_def['raw_default']) && !empty($setting_def['default']))
 				$var_pattern = '(?:' . $var_pattern . '|' . preg_quote($setting_def['default'], '~') . ')';
@@ -963,7 +963,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 					$config_vars[$var] = (array) $config_vars[$var];
 			}
 
-			list($var_pattern, $flags) = gettype_regex($config_vars[$var]);
+			list($var_pattern, $flags) = $gettype_regex($config_vars[$var]);
 
 			$placeholder = md5($prefix . $var);
 
