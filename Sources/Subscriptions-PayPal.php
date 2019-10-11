@@ -373,7 +373,7 @@ class paypal_payment
 	}
 
 	/**
-	 * Record the transaction reference and exit
+	 * Record the transaction reference to finish up.
 	 *
 	 */
 	public function close()
@@ -393,8 +393,6 @@ class paypal_payment
 				)
 			);
 		}
-
-		exit();
 	}
 
 	/**
