@@ -271,7 +271,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				unset($real_user_info);
 			}
 			else
-				unset($user_info);
+				$user_info = null;
 
 			// Bitwise check: Receiving a email notification?
 			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
