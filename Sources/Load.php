@@ -760,16 +760,16 @@ function loadUserSettings()
 
 		// We don't know the offset...
 		$user_info['time_offset'] = 0;
-
-		// Login Cookie times. Format: time => txt
-		$context['login_cookie_times'] = array(
-			3153600 => 'always_logged_in',
-			60 => 'one_hour',
-			1440 => 'one_day',
-			10080 => 'one_week',
-			43200 => 'one_month',
-		);
 	}
+
+	// Login Cookie times. Format: time => txt
+	$context['login_cookie_times'] = array(
+		3153600 => 'always_logged_in',
+		60 => 'one_hour',
+		1440 => 'one_day',
+		10080 => 'one_week',
+		43200 => 'one_month',
+	);
 
 	// Set up the $user_info array.
 	$user_info += array(
