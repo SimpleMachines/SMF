@@ -570,10 +570,13 @@ function ModifySubscription()
 		$allowpartial = isset($_POST['allow_partial']) ? 1 : 0;
 		$reminder = isset($_POST['reminder']) ? (int) $_POST['reminder'] : 0;
 		$emailComplete = strlen($_POST['emailcomplete']) > 10 ? trim($_POST['emailcomplete']) : '';
+		$_POST['prim_group'] = !empty($_POST['prim_group']) ? (int) $_POST['prim_group'] : 0;
 
 		// Is this a fixed one?
 		if ($_POST['duration_type'] == 'fixed')
 		{
+			$_POST['span_value'] = !empty($_POST['span_value']) && is_numeric($_POST['span_value']) ? ceil($_POST['span_value']) : 0;
+
 			// There are sanity check limits on these things.
 			$limits = array(
 				'D' => 90,
@@ -581,7 +584,7 @@ function ModifySubscription()
 				'M' => 24,
 				'Y' => 5,
 			);
-			if (empty($_POST['span_unit']) || empty($limits[$_POST['span_unit']]) || empty($_POST['span_value']) || $_POST['span_value'] < 1)
+			if (empty($_POST['span_unit']) || empty($limits[$_POST['span_unit']]) || $_POST['span_value'] < 1)
 				fatal_lang_error('paid_invalid_duration', false);
 
 			if ($_POST['span_value'] > $limits[$_POST['span_unit']])
@@ -594,7 +597,7 @@ function ModifySubscription()
 			$cost = array('fixed' => sprintf('%01.2f', strtr($_POST['cost'], ',', '.')));
 
 			// There needs to be something.
-			if (empty($_POST['span_value']) || empty($_POST['cost']))
+			if (empty((double) $cost['fixed']))
 				fatal_lang_error('paid_no_cost_value');
 		}
 		// Flexible is harder but more fun ;)
@@ -609,7 +612,7 @@ function ModifySubscription()
 				'year' => sprintf('%01.2f', strtr($_POST['cost_year'], ',', '.')),
 			);
 
-			if (empty($_POST['cost_day']) && empty($_POST['cost_week']) && empty($_POST['cost_month']) && empty($_POST['cost_year']))
+			if (empty((double) $cost['day']) && empty((double) $cost['week']) && empty((double) $cost['month']) && empty((double) $cost['year']))
 				fatal_lang_error('paid_all_freq_blank');
 		}
 		$cost = $smcFunc['json_encode']($cost);
@@ -669,7 +672,7 @@ function ModifySubscription()
 				WHERE id_subscribe = {int:current_subscription}',
 				array(
 					'is_active' => $isActive,
-					'id_group' => !empty($_POST['prim_group']) ? $_POST['prim_group'] : 0,
+					'id_group' => $_POST['prim_group'],
 					'repeatable' => $isRepeatable,
 					'allow_partial' => $allowpartial,
 					'reminder' => $reminder,
@@ -729,12 +732,12 @@ function ModifySubscription()
 			preg_match('~(\d*)(\w)~', $row['length'], $match);
 			if (isset($match[2]))
 			{
-				$span_value = $match[1];
+				$_POST['span_value'] = $match[1];
 				$span_unit = $match[2];
 			}
 			else
 			{
-				$span_value = 0;
+				$_POST['span_value'] = 0;
 				$span_unit = 'D';
 			}
 
@@ -749,7 +752,7 @@ function ModifySubscription()
 				'desc' => $row['description'],
 				'cost' => $smcFunc['json_decode']($row['cost'], true),
 				'span' => array(
-					'value' => $span_value,
+					'value' => $_POST['span_value'],
 					'unit' => $span_unit,
 				),
 				'prim_group' => $row['id_group'],
