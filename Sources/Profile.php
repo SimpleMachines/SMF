@@ -799,32 +799,22 @@ function profile_popup($memID)
 	// This list will pull from the master list wherever possible. Hopefully it should be clear what does what.
 	$profile_items = array(
 		array(
-			'menu' => 'info',
-			'area' => 'summary',
-			'title' => $txt['popup_summary'],
-		),
-		array(
 			'menu' => 'edit_profile',
 			'area' => 'account',
 		),
 		array(
-			'menu' => 'info',
-			'area' => 'showposts',
-			'title' => $txt['popup_showposts'],
-		),
-		array(
 			'menu' => 'edit_profile',
 			'area' => 'forumprofile',
-			'title' => $txt['forumprofile'],
-		),
-		array(
-			'menu' => 'edit_profile',
-			'area' => 'notification',
+			'title' => $txt['popup_forumprofile'],
 		),
 		array(
 			'menu' => 'edit_profile',
 			'area' => 'theme',
 			'title' => $txt['theme'],
+		),
+		array(
+			'menu' => 'edit_profile',
+			'area' => 'notification',
 		),
 		array(
 			'menu' => 'edit_profile',
@@ -837,12 +827,24 @@ function profile_popup($memID)
 			'title' => $txt['popup_ignore'],
 		),
 		array(
+			'menu' => 'info',
+			'area' => 'showposts',
+			'title' => $txt['popup_showposts'],
+		),
+		array(
+			'menu' => 'info',
+			'area' => 'showdrafts',
+			'title' => $txt['popup_showdrafts'],
+		),
+		array(
 			'menu' => 'edit_profile',
 			'area' => 'groupmembership',
+			'title' => $txt['popup_groupmembership'],
 		),
 		array(
 			'menu' => 'profile_action',
 			'area' => 'subscriptions',
+			'title' => $txt['popup_subscriptions'],
 		),
 		array(
 			'menu' => 'profile_action',
