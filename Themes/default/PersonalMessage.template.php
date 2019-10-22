@@ -915,31 +915,8 @@ function template_search_results()
 				', $message['body'], '
 				<p class="pm_reply righttext">';
 
-			if ($context['can_send_pm'])
-			{
-				$quickbuttons = array(
-					'quote' => array(
-						'label' => $txt['reply_quote'],
-						'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '').';pmsg='.$message['id'].';quote;u='.($context['folder'] == 'sent' ? '' : $message['member']['id']),
-						'icon' => 'quote',
-						'show' => !$message['member']['is_guest']
-					),
-					'reply' => array(
-						'label' => $txt['reply'],
-						'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '').';pmsg='.$message['id'].';u='.$message['member']['id'],
-						'icon' => 'reply_button',
-						'show' => !$message['member']['is_guest']
-					),
-					'reply_quote' => array(
-						'label' => $txt['reply_quote'],
-						'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '').';pmsg='.$message['id'].';quote',
-						'icon' => 'quote',
-						'show' => $message['member']['is_guest']
-					)
-				);
-				// Show the quickbuttons
-				template_quickbuttons($quickbuttons, 'pm_search_results');
-			}
+			// Show the quickbuttons
+			template_quickbuttons($message['quickbuttons'], 'pm_search_results');
 
 			echo '
 				</p>

@@ -1103,44 +1103,38 @@ function prepareMessageContext($type = 'subject', $reset = false)
 	$output['quickbuttons'] = array(
 		'reply_to_all' => array(
 			'label' => $txt['reply_to_all'],
-			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';quote;u=all',
+			'href' => $scripturl . '?action=pm;sa=send;f=' . $context['folder'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';pmsg=' . $output['id'] . ($output['member']['id'] != $user_info['id'] ? ';quote' : '') . ';u=all',
 			'icon' => 'reply_all_button',
-			'show' => $context['can_send_pm'] && !$output['member']['is_guest'] && $output['number_recipients'] > 1
+			'show' => $context['can_send_pm'] && !$output['member']['is_guest'] && ($output['number_recipients'] > 1 || $output['member']['id'] == $user_info['id']),
 		),
 		'reply' => array(
 			'label' => $txt['reply'],
-			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';u='.$output['member']['id'],
+			'href' => $scripturl . '?action=pm;sa=send;f=' . $context['folder'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';pmsg=' . $output['id'] . ';u=' . $output['member']['id'],
 			'icon' => 'reply_button',
-			'show' => $context['can_send_pm'] && !$output['member']['is_guest']
+			'show' => $context['can_send_pm'] && !$output['member']['is_guest'] && $output['member']['id'] != $user_info['id'],
 		),
 		'quote' => array(
 			'label' => $txt['quote_action'],
-			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';quote'.($context['folder'] == 'sent' ? '' : ';u=' .$output['member']['id']),
+			'href' => $scripturl . '?action=pm;sa=send;f=' . $context['folder'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';pmsg=' . $output['id'] . ';quote' . ($output['number_recipients'] > 1 || $output['member']['id'] == $user_info['id'] ? ';u=all' : (!$output['member']['is_guest'] ? ';u=' . $output['member']['id'] : '')),
 			'icon' => 'quote',
-			'show' => $context['can_send_pm'] && !$output['member']['is_guest']
-		),
-		'reply_quote' => array(
-			'label' => $txt['reply_quote'],
-			'href' => $scripturl.'?action=pm;sa=send;f='.$context['folder'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';pmsg='.$output['id'].';quote',
-			'icon' => 'quote',
-			'show' => $context['can_send_pm'] && $output['member']['is_guest']
+			'show' => $context['can_send_pm'],
 		),
 		'delete' => array(
 			'label' => $txt['delete'],
-			'href' => $scripturl.'?action=pm;sa=pmactions;pm_actions%5b'.$output['id'].'%5D=delete;f='.$context['folder'].';start='.$context['start'].($context['current_label_id'] != -1 ? ';l=' .$context['current_label_id'] : '').';'.$context['session_var'].'='.$context['session_id'],
-			'javascript' => 'data-confirm="'.addslashes($txt['remove_message_question']).'" class="you_sure"',
+			'href' => $scripturl . '?action=pm;sa=pmactions;pm_actions%5b' . $output['id'] . '%5D=delete;f=' . $context['folder'] . ';start=' . $context['start'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'],
+			'javascript' => 'data-confirm="' . JavaScriptEscape($txt['remove_message_question']) . '" class="you_sure"',
 			'icon' => 'remove_button',
 		),
 		'more' => array(
 			'report' => array(
 				'label' => $txt['pm_report_to_admin'],
-				'href' => $scripturl .'?action=pm;sa=report;l=' .$context['current_label_id'] .';pmsg=' .$output['id'],
+				'href' => $scripturl . '?action=pm;sa=report;l=' . $context['current_label_id'] . ';pmsg=' . $output['id'],
 				'icon' => 'error',
 				'show' => $output['can_report']
 			),
 		),
 		'quickmod' => array(
-			'content' => '<input type="checkbox" name="pms[]" id="deletedisplay'.$output['id'].'" value="'.$output['id'].'" onclick="document.getElementById(\'deletelisting'.$output['id'].'\').checked = this.checked;">',
+			'content' => '<input type="checkbox" name="pms[]" id="deletedisplay' . $output['id'] . '" value="' . $output['id'] . '" onclick="document.getElementById(\'deletelisting' . $output['id'] . '\').checked = this.checked;">',
 			'show' => empty($context['display_mode'])
 		)
 	);
@@ -1734,6 +1728,40 @@ function MessageSearch2()
 				'href' => $href,
 				'link' => '<a href="' . $href . '">' . $row['subject'] . '</a>',
 				'counter' => ++$counter,
+				'quickbuttons' => array(
+					'reply_to_all' => array(
+						'label' => $txt['reply_to_all'],
+						'href' => $scripturl . '?action=pm;sa=send;f=' . $context['folder'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';pmsg=' . $row['id_pm'] . ($row['id_member_from'] != $user_info['id'] ? ';quote' : '') . ';u=all',
+						'icon' => 'reply_all_button',
+						'show' => $context['can_send_pm'] && !$memberContext[$row['id_member_from']]['is_guest'] && (count($recipients[$row['id_pm']]['to']) > 1 || $row['id_member_from'] == $user_info['id']),
+					),
+					'reply' => array(
+						'label' => $txt['reply'],
+						'href' => $scripturl . '?action=pm;sa=send;f=' . $context['folder'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';pmsg=' . $row['id_pm'] . ';u=' . $row['id_member_from'],
+						'icon' => 'reply_button',
+						'show' => $context['can_send_pm'] && !$memberContext[$row['id_member_from']]['is_guest'] && $row['id_member_from'] != $user_info['id'],
+					),
+					'quote' => array(
+						'label' => $txt['quote_action'],
+						'href' => $scripturl . '?action=pm;sa=send;f=' . $context['folder'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';pmsg=' . $row['id_pm'] . ';quote' . (count($recipients[$row['id_pm']]['to']) > 1 || $row['id_member_from'] == $user_info['id'] ? ';u=all' : (!$memberContext[$row['id_member_from']]['is_guest'] ? ';u=' . $row['id_member_from'] : '')),
+						'icon' => 'quote',
+						'show' => $context['can_send_pm'],
+					),
+					'delete' => array(
+						'label' => $txt['delete'],
+						'href' => $scripturl . '?action=pm;sa=pmactions;pm_actions%5b' . $row['id_pm'] . '%5D=delete;f=' . $context['folder'] . ';start=' . $context['start'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'],
+						'javascript' => 'data-confirm="' . JavaScriptEscape($txt['remove_message_question']) . '" class="you_sure"',
+						'icon' => 'remove_button',
+					),
+					'more' => array(
+						'report' => array(
+							'label' => $txt['pm_report_to_admin'],
+							'href' => $scripturl . '?action=pm;sa=report;l=' . $context['current_label_id'] . ';pmsg=' . $row['id_pm'],
+							'icon' => 'error',
+							'show' => !empty($modSettings['enableReportPM']),
+						),
+					),
+				)
 			);
 		}
 		$smcFunc['db_free_result']($request);
