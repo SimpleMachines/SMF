@@ -594,10 +594,10 @@ function ModifySubscription()
 			$span = $_POST['span_value'] . $_POST['span_unit'];
 
 			// Sort out the cost.
-			$cost = array('fixed' => (double) sprintf('%01.2f', strtr($_POST['cost'], ',', '.')));
+			$cost = array('fixed' => sprintf('%01.2f', strtr($_POST['cost'], ',', '.')));
 
 			// There needs to be something.
-			if (empty($cost['fixed']))
+			if ($cost['fixed'] == '0.00')
 				fatal_lang_error('paid_no_cost_value');
 		}
 		// Flexible is harder but more fun ;)
@@ -606,13 +606,13 @@ function ModifySubscription()
 			$span = 'F';
 
 			$cost = array(
-				'day' => (double) sprintf('%01.2f', strtr($_POST['cost_day'], ',', '.')),
-				'week' => (double) sprintf('%01.2f', strtr($_POST['cost_week'], ',', '.')),
-				'month' => (double) sprintf('%01.2f', strtr($_POST['cost_month'], ',', '.')),
-				'year' => (double) sprintf('%01.2f', strtr($_POST['cost_year'], ',', '.')),
+				'day' => sprintf('%01.2f', strtr($_POST['cost_day'], ',', '.')),
+				'week' => sprintf('%01.2f', strtr($_POST['cost_week'], ',', '.')),
+				'month' => sprintf('%01.2f', strtr($_POST['cost_month'], ',', '.')),
+				'year' => sprintf('%01.2f', strtr($_POST['cost_year'], ',', '.')),
 			);
 
-			if (empty($cost['day']) && empty($cost['week']) && empty($cost['month']) && empty($cost['year']))
+			if ($cost['day'] == '0.00' && $cost['week'] == '0.00' && $cost['month'] == '0.00' && $cost['year'] == '0.00')
 				fatal_lang_error('paid_all_freq_blank');
 		}
 		$cost = $smcFunc['json_encode']($cost);
