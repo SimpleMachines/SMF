@@ -967,7 +967,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 
 			$placeholder = md5($prefix . $var);
 
-			$substitutions[$var]['search_pattern'] = '~[ \t]*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';\n?~';
+			$substitutions[$var]['search_pattern'] = '~[ \t]*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';\n?~' . $flags;
 			$substitutions[$var]['placeholder'] = $placeholder;
 			$substitutions[$var]['replace_pattern'] = '~\b' . $placeholder . '\n~';
 			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . var_export($val, true) . ";\n";
