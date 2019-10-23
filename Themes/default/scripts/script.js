@@ -117,10 +117,11 @@ String.prototype.php_to8bit = function ()
 				sReturn += String.fromCharCode(n);
 			else if (n < 2048)
 				sReturn += String.fromCharCode(192 | n >> 6) + String.fromCharCode(128 | n & 63);
-			else if (n >= 0xD800 && n <= 0xDBFF)
+			// 0xD800 - 0xDBFF
+			else if (n >= 55296 && n <= 56319)
 			{
 				// In this range, this is the beginning of a surrogate pair, where 4-byte utf8 chars are
-				n = 0x10000 + ((n & 0x3FF) << 10) + (this.charCodeAt(i + 1) & 0x3FF);
+				n = 65536 + ((n & 1023) << 10) + (this.charCodeAt(i + 1) & 1023);
 				sReturn += String.fromCharCode(240 | n >> 18) + String.fromCharCode(128 | n >> 12 & 63) + String.fromCharCode(128 | n >> 6 & 63) + String.fromCharCode(128 | n & 63);
 				// Skip next char, already used...
 				i++;
