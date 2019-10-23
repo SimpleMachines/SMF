@@ -197,7 +197,7 @@ function template_folder()
 		// Show a few buttons if we are in conversation mode and outputting the first message.
 		if ($context['display_mode'] == 2)
 		{
-			// This bit uses info set in template_topic_list, so it's wrapped
+			// This bit uses info set in template_subject_list, so it's wrapped
 			// in an if just in case a mod or custom theme breaks it.
 			if (!empty($context['current_pm_subject']))
 			{
