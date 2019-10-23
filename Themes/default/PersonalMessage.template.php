@@ -194,23 +194,30 @@ function template_folder()
 	// Got some messages to display?
 	if ($context['get_pmessage']('message', true))
 	{
-		// Show the helpful titlebar - generally.
-		if ($context['display_mode'] != 1)
-			echo '
-			<div class="cat_bar">
-				<h3 class="catbg">
-					<span id="author">', $txt['author'], '</span>
-					<span id="topic_title">', $txt[$context['display_mode'] == 0 ? 'messages' : 'conversation'], '</span>
-				</h3>
-			</div>';
-
 		// Show a few buttons if we are in conversation mode and outputting the first message.
 		if ($context['display_mode'] == 2)
 		{
-			// Show the conversation buttons.
-			echo '
-			<div class="pagesection">';
+			// This bit uses info set in template_topic_list, so it's wrapped
+			// in an if just in case a mod or custom theme breaks it.
+			if (!empty($context['current_pm_subject']))
+			{
+				echo '
+			<div class="cat_bar">
+				<h3 class="catbg">
+					<span>', $txt['conversation'], '</span>
+				</h3>
+			</div>
+			<div class="roundframe">
+				<div class="display_title">', $context['current_pm_subject'], '</div>
+				<p>', $txt['started_by'], ' ', $context['current_pm_author'], ', ', $context['current_pm_time'], '</p>';
+			}
+			else
+			{
+				echo '
+			<div class="roundframe">';
+			}
 
+			// Show the conversation buttons.
 			template_button_strip($context['conversation_buttons'], 'right');
 
 			echo '
@@ -622,6 +629,14 @@ function template_subject_list()
 
 	while ($message = $context['get_pmessage']('subject'))
 	{
+		// Used for giving extra info in conversation view
+		if ($context['current_pm'] == $message['id'])
+		{
+			$context['current_pm_subject'] = $message['subject'];
+			$context['current_pm_time'] = $message['time'];
+			$context['current_pm_author'] = $message['member']['link'];
+		}
+
 		echo '
 			<tr class="windowbg', $message['is_unread'] ? ' unread_pm' : '', '">
 				<td class="table_icon pm_icon">
