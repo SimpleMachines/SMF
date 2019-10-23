@@ -811,9 +811,9 @@ function template_search()
 	{
 		echo '
 		<fieldset class="labels">
-			<div class="roundframe">
-				<div class="cat_bar">
-					<h3 class="catbg">
+			<div class="roundframe alt">
+				<div class="title_bar">
+					<h3 class="titlebg">
 						<span id="advanced_panel_toggle" class="toggle_up floatright" style="display: none;"></span><a href="#" id="advanced_panel_link">', $txt['pm_search_choose_label'], '</a>
 					</h3>
 				</div>
@@ -830,13 +830,12 @@ function template_search()
 		echo '
 					</ul>
 				</div>
-				<p>
-					<span class="floatleft">
-						<input type="checkbox" name="all" id="check_all" value=""', $context['check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'searchlabel\');"><em> <label for="check_all">', $txt['check_all'], '</label></em>
-					</span>
-					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button">
-				</p>
-				<br class="clear_right">
+				<br class="clear">
+				<div class="padding">
+					<input type="checkbox" name="all" id="check_all" value=""', $context['check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'searchlabel\');">
+					<label for="check_all"><em>', $txt['check_all'], '</em></label>
+					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button floatright">
+				</div class="padding">
 			</div><!-- .roundframe -->
 		</fieldset>';
 
@@ -876,11 +875,14 @@ function template_search()
  */
 function template_search_results()
 {
-	global $context, $scripturl, $txt;
+	global $context, $scripturl, $txt, $settings;
 
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pm_search_results'], '</h3>
+		</div>
+		<div class="roundframe noup">
+			', sprintf($txt['pm_search_results_info'], $context['num_results'], sentence_list($context['search_in'])), '
 		</div>
 		<div class="pagesection">
 			', $context['page_index'], '
@@ -906,15 +908,204 @@ function template_search_results()
 		if (!empty($context['search_params']['show_complete']))
 		{
 			echo '
-			<div class="cat_bar">
-				<h3 class="catbg">
-					<span class="floatright">', $txt['search_on'], ': ', $message['time'], '</span>
-					<span class="floatleft">', $message['counter'], '&nbsp;&nbsp;<a href="', $message['href'], '">', $message['subject'], '</a></span>
-				</h3>
-				<div class="desc">', $txt['from'], ': ', $message['member']['link'], ', ', $txt['to'], ': ';
+			<div class="windowbg">
+				<div class="post_wrapper">
+					<div class="poster">';
 
-			// Show the recipients.
-			// @todo This doesn't deal with the sent item searching quite right for bcc.
+			// Are there any custom fields above the member name?
+			if (!empty($message['custom_fields']['above_member']))
+			{
+				echo '
+						<div class="custom_fields_above_member">
+							<ul class="nolist">';
+
+				foreach ($message['custom_fields']['above_member'] as $custom)
+					echo '
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+
+				echo '
+							</ul>
+						</div>';
+			}
+
+			echo '
+						<h4>
+							<a id="msg', $message['id'], '"></a>';
+
+			// Show online and offline buttons?
+			if (!empty($modSettings['onlineEnable']) && !$message['member']['is_guest'])
+				echo '
+							<span class="' . ($message['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $message['member']['online']['text'] . '"></span>';
+
+			// Custom fields BEFORE the username?
+			if (!empty($message['custom_fields']['before_member']))
+				foreach ($message['custom_fields']['before_member'] as $custom)
+					echo '
+							<span class="custom ', $custom['col_name'], '">', $custom['value'], '</span>';
+
+			// Show a link to the member's profile.
+			echo '
+				', $message['member']['link'];
+
+			// Custom fields AFTER the username?
+			if (!empty($message['custom_fields']['after_member']))
+				foreach ($message['custom_fields']['after_member'] as $custom)
+					echo '
+							<span class="custom ', $custom['col_name'], '">', $custom['value'], '</span>';
+
+			echo '
+						</h4>';
+
+			echo '
+						<ul class="user_info">';
+
+			// Show the user's avatar.
+			if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
+				echo '
+							<li class="avatar">
+								<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
+							</li>';
+
+			// Are there any custom fields below the avatar?
+			if (!empty($message['custom_fields']['below_avatar']))
+				foreach ($message['custom_fields']['below_avatar'] as $custom)
+					echo '
+							<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+
+			if (!$message['member']['is_guest'])
+				echo '
+							<li class="icons">', $message['member']['group_icons'], '</li>';
+			// Show the member's primary group (like 'Administrator') if they have one.
+			if (isset($message['member']['group']) && $message['member']['group'] != '')
+				echo '
+							<li class="membergroup">', $message['member']['group'], '</li>';
+
+			// Show the member's custom title, if they have one.
+			if (isset($message['member']['title']) && $message['member']['title'] != '')
+				echo '
+							<li class="title">', $message['member']['title'], '</li>';
+
+			// Don't show these things for guests.
+			if (!$message['member']['is_guest'])
+			{
+				// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
+				if ((empty($modSettings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
+					echo '
+							<li class="postgroup">', $message['member']['post_group'], '</li>';
+
+				// Show how many posts they have made.
+				if (!isset($context['disabled_fields']['posts']))
+					echo '
+							<li class="postcount">', $txt['member_postcount'], ': ', $message['member']['posts'], '</li>';
+
+				// Show their personal text?
+				if (!empty($modSettings['show_blurb']) && $message['member']['blurb'] != '')
+					echo '
+							<li class="blurb">', $message['member']['blurb'], '</li>';
+
+				// Any custom fields to show as icons?
+				if (!empty($message['custom_fields']['icons']))
+				{
+					echo '
+							<li class="im_icons">
+								<ol>';
+
+					foreach ($message['custom_fields']['icons'] as $custom)
+						echo '
+									<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+
+					echo '
+								</ol>
+							</li>';
+				}
+
+				// Show the IP to this user for this post - because you can moderate?
+				if (!empty($context['can_moderate_forum']) && !empty($message['member']['ip']))
+					echo '
+							<li class="poster_ip">
+								<a href="', $scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '">', $message['member']['ip'], '</a> <a href="', $scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
+							</li>';
+
+				// Or, should we show it because this is you?
+				elseif ($message['can_see_ip'])
+					echo '
+							<li class="poster_ip">
+								<a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $message['member']['ip'], '</a>
+							</li>';
+
+				// Okay, you are logged in, then we can show something about why IPs are logged...
+				else
+					echo '
+							<li class="poster_ip">
+								<a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $txt['logged'], '</a>
+							</li>';
+
+				// Show the profile, website, email address, and personal message buttons.
+				if ($message['member']['show_profile_buttons'])
+				{
+					echo '
+							<li class="profile">
+								<ol class="profile_icons">';
+
+					// Show the profile button
+					if ($message['member']['can_view_profile'])
+						echo '
+									<li><a href="', $message['member']['href'], '">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="' . $txt['view_profile'] . '" title="' . $txt['view_profile'] . '">' : $txt['view_profile']), '</a></li>';
+
+					// Don't show an icon if they haven't specified a website.
+					if ($message['member']['website']['url'] != '' && !isset($context['disabled_fields']['website']))
+						echo '
+									<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', ($settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
+
+					// Don't show the email address if they want it hidden.
+					if ($message['member']['show_email'])
+						echo '
+									<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
+
+					// Since we know this person isn't a guest, you *can* message them.
+					if ($context['can_send_pm'])
+						echo '
+									<li><a href="', $scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']), '</a></li>';
+
+					echo '
+								</ol>
+							</li>';
+				}
+
+				// Any custom fields for standard placement?
+				if (!empty($message['custom_fields']['standard']))
+					foreach ($message['custom_fields']['standard'] as $custom)
+						echo '
+							<li class="custom ', $custom['col_name'], '">', $custom['title'], ': ', $custom['value'], '</li>';
+
+				// Are we showing the warning status?
+				if ($message['member']['can_see_warning'])
+					echo '
+							<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span>', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
+
+				// Are there any custom fields to show at the bottom of the poster info?
+				if (!empty($message['custom_fields']['bottom_poster']))
+					foreach ($message['custom_fields']['bottom_poster'] as $custom)
+						echo '
+							<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+			}
+
+			// Done with the information about the poster... on to the post itself.
+			echo '
+						</ul>
+					</div><!-- .poster -->
+					<div class="postarea">
+						<div class="flow_hidden">
+							<div class="keyinfo">
+								<h5 id="subject_', $message['id'], '">
+									', $message['subject'], '
+								</h5>';
+
+			// Show who the message was sent to.
+			echo '
+								<span class="smalltext">&#171; <strong> ', $txt['sent_to'], ':</strong> ';
+
+			// People it was sent directly to....
 			if (!empty($message['recipients']['to']))
 				echo implode(', ', $message['recipients']['to']);
 
@@ -923,18 +1114,124 @@ function template_search_results()
 				echo '(', $txt['pm_undisclosed_recipients'], ')';
 
 			echo '
-					</div>
-				</h3>
-			</div>
-			<div class="windowbg">
-				', $message['body'], '
-				<p class="pm_reply righttext">';
+									<strong> ', $txt['on'], ':</strong> ', $message['time'], ' &#187;
+								</span>';
 
-			// Show the quickbuttons
-			template_quickbuttons($message['quickbuttons'], 'pm_search_results');
+			// If we're in the sent items, show who it was sent to besides the "To:" people.
+			if (!empty($message['recipients']['bcc']))
+				echo '<br>
+								<span class="smalltext">&#171; <strong> ', $txt['pm_bcc'], ':</strong> ', implode(', ', $message['recipients']['bcc']), ' &#187;</span>';
+
+			if (!empty($message['is_replied_to']))
+				echo '<br>
+								<span class="smalltext">&#171; ', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' &#187;</span>';
 
 			echo '
-				</p>
+							</div><!-- .keyinfo -->
+						</div><!-- .flow_hidden -->
+						<div class="post">
+							<div class="inner" id="msg_', $message['id'], '"', '>
+								', $message['body'], '
+							</div>
+						</div><!-- .post -->
+						<div class="under_message">';
+
+			// Message options
+			template_quickbuttons($message['quickbuttons'], 'pm');
+
+			echo '
+						</div><!-- .under_message -->
+					</div><!-- .postarea -->
+					<div class="moderatorbar">';
+
+			// Are there any custom profile fields for above the signature?
+			if (!empty($message['custom_fields']['above_signature']))
+			{
+				echo '
+						<div class="custom_fields_above_signature">
+							<ul class="nolist">';
+
+				foreach ($message['custom_fields']['above_signature'] as $custom)
+					echo '
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+
+				echo '
+							</ul>
+						</div>';
+			}
+
+			// Show the member's signature?
+			if (!empty($message['member']['signature']) && empty($options['show_no_signatures']) && $context['signature_enabled'])
+				echo '
+						<div class="signature">
+							', $message['member']['signature'], '
+						</div>';
+
+			// Are there any custom profile fields for below the signature?
+			if (!empty($message['custom_fields']['below_signature']))
+			{
+				echo '
+						<div class="custom_fields_below_signature">
+							<ul class="nolist">';
+
+				foreach ($message['custom_fields']['below_signature'] as $custom)
+					echo '
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+
+				echo '
+							</ul>
+						</div>';
+			}
+
+			// Add an extra line at the bottom if we have labels enabled.
+			if ($context['folder'] != 'sent' && !empty($context['currently_using_labels']) && $context['display_mode'] != 2)
+			{
+				echo '
+						<div class="labels righttext flow_auto">';
+
+				// Add the label drop down box.
+				if (!empty($context['currently_using_labels']))
+				{
+					echo '
+							<select name="pm_actions[', $message['id'], ']" onchange="if (this.options[this.selectedIndex].value) form.submit();">
+								<option value="">', $txt['pm_msg_label_title'], ':</option>
+								<option value="" disabled>---------------</option>';
+
+					// Are there any labels which can be added to this?
+					if (!$message['fully_labeled'])
+					{
+						echo '
+								<option value="" disabled>', $txt['pm_msg_label_apply'], ':</option>';
+
+						foreach ($context['labels'] as $label)
+							if (!isset($message['labels'][$label['id']]))
+								echo '
+								<option value="', $label['id'], '">', $label['name'], '</option>';
+					}
+
+					// ... and are there any that can be removed?
+					if (!empty($message['labels']) && (count($message['labels']) > 1 || !isset($message['labels'][-1])))
+					{
+						echo '
+								<option value="" disabled>', $txt['pm_msg_label_remove'], ':</option>';
+
+						foreach ($message['labels'] as $label)
+							echo '
+								<option value="', $label['id'], '">&nbsp;', $label['name'], '</option>';
+					}
+					echo '
+							</select>
+							<noscript>
+								<input type="submit" value="', $txt['pm_apply'], '" class="button">
+							</noscript>';
+				}
+				echo '
+						</div><!-- .labels -->';
+			}
+
+			echo '
+					</div><!-- .moderatorbar -->
+				</div><!-- .post_wrapper -->
 			</div><!-- .windowbg -->';
 		}
 		// Otherwise just a simple list!

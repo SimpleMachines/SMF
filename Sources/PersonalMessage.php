@@ -1356,6 +1356,7 @@ function MessageSearch2()
 	$search_params['sort_dir'] = !empty($search_params['sort_dir']) && $search_params['sort_dir'] == 'asc' ? 'asc' : 'desc';
 
 	// Sort out any labels we may be searching by.
+	$context['search_in'] = array();
 	$labelQuery = '';
 	$labelJoin = '';
 	if ($context['folder'] == 'inbox' && !empty($search_params['advanced']) && $context['currently_using_labels'])
@@ -1385,6 +1386,8 @@ function MessageSearch2()
 			// Special case here... "inbox" isn't a real label anymore...
 			if (in_array(-1, $_REQUEST['searchlabel']))
 			{
+				$context['search_in'][] = $context['labels'][-1]['name'];
+
 				$labelQuery = '	AND pmr.in_inbox = {int:in_inbox}';
 				$searchq_parameters['in_inbox'] = 1;
 
@@ -1410,9 +1413,15 @@ function MessageSearch2()
 				}
 
 				$searchq_parameters['labels'] = $_REQUEST['searchlabel'];
+
+				foreach ($_REQUEST['searchlabel'] as $label_key)
+					$context['search_in'][] = $context['labels'][$label_key]['name'];
 			}
 		}
 	}
+
+	if (empty($context['search_in']))
+		$context['search_in'][] = $context['folder'];
 
 	// What are we actually searching for?
 	$search_params['search'] = !empty($search_params['search']) ? $search_params['search'] : (isset($_REQUEST['search']) ? $_REQUEST['search'] : '');
@@ -1614,6 +1623,8 @@ function MessageSearch2()
 	// Sort out the page index.
 	$context['page_index'] = constructPageIndex($scripturl . '?action=pm;sa=search2;params=' . $context['params'], $_GET['start'], $numResults, $modSettings['search_results_per_page'], false);
 
+	$context['num_results'] = $numResults;
+
 	$context['message_labels'] = array();
 	$context['message_replied'] = array();
 	$context['personal_messages'] = array();
@@ -1706,6 +1717,15 @@ function MessageSearch2()
 				$memberContext[$row['id_member_from']]['email'] = '';
 				$memberContext[$row['id_member_from']]['is_guest'] = true;
 			}
+			else
+			{
+				$memberContext[$row['id_member_from']]['can_view_profile'] = allowedTo('profile_view') || ($row['id_member_from'] == $user_info['id'] && !$user_info['is_guest']);
+				$memberContext[$row['id_member_from']]['can_see_warning'] = !isset($context['disabled_fields']['warning_status']) && $memberContext[$row['id_member_from']]['warning_status'] && ($context['user']['can_mod'] || (!empty($modSettings['warning_show']) && ($modSettings['warning_show'] > 1 || $row['id_member_from'] == $user_info['id'])));
+				// Show the email if it's your own PM
+				$memberContext[$row['id_member_from']]['show_email'] |= $row['id_member_from'] == $user_info['id'];
+			}
+
+			$memberContext[$row['id_member_from']]['show_profile_buttons'] = $modSettings['show_profile_buttons'] && (!empty($memberContext[$row['id_member_from']]['can_view_profile']) || (!empty($memberContext[$row['id_member_from']]['website']['url']) && !isset($context['disabled_fields']['website'])) || $memberContext[$row['id_member_from']]['show_email'] || $context['can_send_pm']);
 
 			// Censor anything we don't want to see...
 			censorText($row['body']);
@@ -1728,6 +1748,7 @@ function MessageSearch2()
 				'href' => $href,
 				'link' => '<a href="' . $href . '">' . $row['subject'] . '</a>',
 				'counter' => ++$counter,
+				'can_see_ip' => allowedTo('moderate_forum') || ($row['id_member_from'] == $user_info['id'] && !empty($user_info['id'])),
 				'quickbuttons' => array(
 					'reply_to_all' => array(
 						'label' => $txt['reply_to_all'],
