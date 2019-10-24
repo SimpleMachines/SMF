@@ -96,6 +96,8 @@ $txt['custom_title'] = 'Custom title';
 
 $txt['lastLoggedIn'] = 'Last active';
 
+$txt['alert_purge'] = 'Delete all read alerts';
+
 $txt['alert_prefs'] = 'Notification Preferences';
 $txt['alert_prefs_desc'] = 'This page will allow you to configure when and how you get notified about new content.';
 $txt['watched_topics'] = 'Watched Topics';
