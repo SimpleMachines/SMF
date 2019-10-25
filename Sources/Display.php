@@ -1139,7 +1139,7 @@ function Display()
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}user_alerts
 			SET is_read = {int:now}
-			WHERE id_member = {int:current_member}
+			WHERE is_read = 0 AND id_member = {int:current_member}
 				AND
 				(
 					(content_id IN ({array_int:messages}) AND content_type = {string:msg})
