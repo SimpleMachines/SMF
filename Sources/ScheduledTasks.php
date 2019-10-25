@@ -252,6 +252,19 @@ function scheduled_daily_maintenance()
 		$proxy->housekeeping();
 	}
 
+	// Delete old alerts.
+	if (!empty($modSettings['alerts_auto_purge']))
+	{
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}user_alerts
+			WHERE is_read > 0
+				AND is_read < {int:purge_before}',
+			array(
+				'purge_before' => time() - 86400 * $modSettings['alerts_auto_purge'],
+			)
+		);
+	}
+
 	// Anyone else have something to do?
 	call_integration_hook('integrate_daily_maintenance');
 
