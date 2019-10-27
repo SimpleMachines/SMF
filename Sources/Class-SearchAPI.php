@@ -143,14 +143,15 @@ interface search_api_interface
 abstract class search_api implements search_api_interface
 {
 	/**
-	 * @var string The maximum SMF version that this will work with.
+	 * @var string The last version of SMF that this was tested on. Helps protect against API changes.
 	 */
-	public $version_compatible = '2.1.999';
+/*KK важно?*/	 
+	public $version_compatible = 'SMF 2.1 RC2';
 
 	/**
-	 * @var string The minimum SMF version that this will work with.
+	 * @var string The minimum SMF version that this will work with
 	 */
-	public $min_smf_version = '2.1 RC1';
+	public $min_smf_version = 'SMF 2.1 RC1';
 
 	/**
 	 * @var bool Whether or not it's supported
