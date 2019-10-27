@@ -400,6 +400,12 @@ $txt['new_poll'] = 'New poll';
 $txt['poll_question'] = 'Question';
 $txt['poll_vote'] = 'Submit Vote';
 $txt['poll_total_voters'] = 'Total Members Voted';
+$txt['shortcuts'] = 'Shortcuts: alt+s save/post, alt+p preview';
+$txt['shortcuts_firefox'] = 'Shortcuts: shift+alt+s save/post, shift+alt+p preview';
+$txt['shortcuts_mac'] = 'Shortcuts: ⌃⌥S save/post, ⌃⌥P preview';
+$txt['shortcuts_drafts'] = ', alt+d save draft';
+$txt['shortcuts_drafts_firefox'] = ', shift+alt+d save draft';
+$txt['shortcuts_drafts_mac'] = ', ⌃⌥D save draft';
 $txt['poll_results'] = 'View results';
 $txt['poll_lock'] = 'Lock Voting';
 $txt['poll_unlock'] = 'Unlock Voting';
@@ -533,7 +539,6 @@ $txt['calendar_click_all'] = 'click to see all %1$s';
 $txt['calendar_allday'] = 'All day';
 $txt['calendar_timezone'] = 'Time zone';
 $txt['calendar_list'] = 'List';
-$txt['calendar_empty'] = 'There are no events to display.';
 
 $txt['movetopic_change_subject'] = 'Change the topic\'s subject';
 $txt['movetopic_new_subject'] = 'New subject';
@@ -713,7 +718,7 @@ $txt['search_no_results'] = 'Sorry, no matches were found';
 
 $txt['total_time_logged_days'] = ' days, ';
 $txt['total_time_logged_hours'] = ' hours and ';
-$txt['total_time_logged_minutes'] = ' minutes';
+$txt['total_time_logged_minutes'] = ' minutes.';
 $txt['total_time_logged_d'] = 'd ';
 $txt['total_time_logged_h'] = 'h ';
 $txt['total_time_logged_m'] = 'm';
@@ -910,5 +915,9 @@ $txt['sentence_list_format']['n'] = '{series}, and {-1}';
 // Separators used to build lists in a sentence
 $txt['sentence_list_separator'] = ', ';
 $txt['sentence_list_separator_alt'] = '; ';
-
+//KK кнопки
+//$txt['faq_button'] = 'FAQ';
+//$txt['wabi_button'] = 'Wabi Sabi Style';
+$txt['faq_button'] = 'Помощь';
+$txt['wabi_button'] = 'Ваби Саби стиль';
 ?>

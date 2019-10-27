@@ -1,14 +1,58 @@
 /* Some very big stuff? Dunno... */
+/*KK скрыли секции в мобиле */	 
+@media (max-width: 480px) {
+     #languages_form, .navigate_section_2{
+    display:none;
+    }
+/*KK пустая форма выбора языков? удалить?*/	     
+    .languages_form{     
+    }
+}
+
+/*KK высота картинки в мобильнике */
+.bbc_img{
+height:auto;
+}
+/*KK новое сообщение. Устарело. Проверить и удалить? */
+.newmessage{
+background: darkseagreen;
+	 padding-left: 5px;
+	 padding-right: 5px;
+	 padding-bottom: 3px;
+}
+/*KK иконку спрятать. Устарело. Проверить и удалить? */
+.newicon {
+ display: none;	
+}
+/*KK текст кнопки цитировать*/
+.quickbuttons li a {
+line-height: initial;
+}
+/*KK кнопка понравилось*/
+.smflikebutton {
+margin-bottom:12px;
+}
+/*KK выключен ip из постера участника*/
+.user_info li.poster_ip {
+		display: none;
+}
+/*KK выключена иконка мейл*/
+.main_icons.mail.centericon {
+display: none;
+}
+/*KK надпись под авой. Удалить?*/
+.user_info li.blurb{
+color: #969696; 
+	 font-size: .7em;
+}
+.user_info li.custom.cust_loca{
+color: #969696; 
+	 font-size: .7em;
+}
 @media (min-width: 856px) and (max-width: 1024px) {
 	.lastpost {
 		width: 20%;
 		margin: 3px 0 0 5px;
-	}
-	#alerts .alert_time {
-		display: none;
-	}
-	#alerts .alert_inline_time {
-		display: block;
 	}
 }
 
@@ -20,12 +64,6 @@
 	}
 	.board_stats {
 		display: none;
-	}
-	#alerts .alert_time {
-		display: none;
-	}
-	#alerts .alert_inline_time {
-		display: block;
 	}
 }
 
@@ -110,7 +148,7 @@
 		margin: 0;
 	}
 	.pagesection .buttonlist, #moderationbuttons {
-		display: none;
+/*KK	display: none;	отображение кнопок в мобильнике*/
 	}
 	.mobile_buttons {
 		display: block;
@@ -162,6 +200,10 @@
 	#header {
 		margin-left: 0;
 		margin-right: 0;
+/*KK хидер?*/		
+		display: block;
+		padding-bottom: 0px;
+		width: 100%;
 	}
 	#upper_section, #inner_section, #content_section {
 		border-radius: 0;
@@ -230,12 +272,15 @@
 		display: none;
 	}
 	/* Unread */
-	#unread .board_icon, #unread .lastpost {
+/*KK#unread .board_icon, #unread .lastpost { - оригинал. Что делает?*/
+	#unread .board_icon, #unread .lastpost, #unreadreplies .board_icon, #unreadreplies .lastpost{
 		display: none;
 	}
 
 	/* Display (Topics) */
 	.poster {
+/*KK - 100% постера */		
+		width:100%;
 		float: none;
 	}
 	.postarea {
@@ -257,9 +302,46 @@
 	.user_info li {
 		display: inline-block;
 	}
+/*KK настройки блока инфы аватара и около. Оригинал:
 	.user_info li.avatar, .user_info li.poster_ip {
 		display: none;
 	}
+*/
+/*KK настройки блока инфы аватара и около.*/
+	.user_info li.avatar {
+	max-width:35%
+	}
+.user_info li.icons{
+/*display: none;*/
+}
+.user_info li.membergroup{
+display: none;
+}
+.user_info li.postgroup{
+	 margin-left:3%;
+}
+.user_info li.postcount{
+display: none;
+}
+.user_info li.blurb{
+display: none;
+}
+.user_info li.im_icons{
+/*display: none;*/
+}
+.user_info li.profile{
+	 float:right;
+/*display: none;*/
+}
+.user_info li.custom.cust_loca{
+/*display: none;*/
+font-size: 1em;
+}
+.user_info li.poster_ip {
+	display: none;
+}
+/*KK конец настроек блока инфы аватара и около*/
+
 	.button.button_strip_mark_unread {
 		display: none;
 	}
@@ -295,21 +377,11 @@
 		display: block;
 	}
 	/* Alerts Page */
-	#alerts .alert_text, #alerts .alert_time, #alerts .alert_buttons {
+	#alerts .alert_inline_time {
 		display: block;
 	}
 	#alerts .alert_time {
-		float: left;
-	}
-	#alerts .alert_text {
-		margin: 11px 0 0;
-	}
-	#alerts .alert_buttons .quickbuttons {
-		margin: 0 0 11px;
-		display: block;
-	}
-	#alerts .alert_image {
-		width: 60px;
+		display: none;
 	}
 	/* Post Screen */
 	form#postmodify .roundframe, #post_event .roundframe {
@@ -347,9 +419,16 @@
 	input#searchfor, input#userspec {
 		width: 75%;
 	}
+/*KK настройки блока отдельно*/	
+		#siteslogan {
+	  font-size: 1em;
+	  padding-bottom: 5px;
+	  float:right;
+
+	}
 	/* Hide me */
 	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
-	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
+	th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
 	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
 	#member_list .ip, #member_list .last_active, #member_list .user_name,
 	#approve_list .ip, #approve_list .date_registered, #group_members .date_registered,
@@ -454,9 +533,9 @@
 		margin: 0 auto;
 	}
 	h1.forumtitle a, h1.forumtitle {
-		padding: 5px 0 0 4px;
-		max-width: 300px;
-		margin: 10px 0;
+/*KK форум заголовок*/		
+	    padding: 0px 5px 0px 0px;
+        margin-top: 5px;
 	}
 	.board_moderators {
 		display: none;
@@ -622,16 +701,9 @@
 	#personal_messages div.labels {
 		clear: both;
 	}
-	/* Alerts page */
-	#alerts .alert_image {
-		width: 40px;
-		padding-left: 6px;
-	}
-	#alerts .alert_image .avatar {
-		display: none;
-	}
-	#alerts .alert_image .avatar + .alert_icon {
-		position: static;
+	/* Alerts Page */
+	#alerts .alert_buttons, #alerts .alert_text {
+		display: block;
 	}
 	/* Buddies & Ignore List */
 	#edit_buddies .buddy_email {

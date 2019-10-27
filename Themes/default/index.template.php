@@ -47,6 +47,9 @@ function template_init()
 	// The version this template/theme is for. This should probably be the version of SMF it was created for.
 	$settings['theme_version'] = '2.1';
 
+	// Use plain buttons - as opposed to text buttons?
+	$settings['use_buttons'] = true;
+
 	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
 	$settings['require_theme_strings'] = false;
 
@@ -89,28 +92,17 @@ function template_html_above()
 	/*
 		You don't need to manually load index.css, this will be set up for you.
 		Note that RTL will also be loaded for you.
-		To load other CSS and JS files you should use the functions
-		loadCSSFile() and loadJavaScriptFile() respectively.
+
+		The most efficient way of writing multi themes is to use a master
+		index.css plus variant.css files. If you've set them up properly
+		(through $settings['theme_variants']), the variant files will be loaded
+		for you automatically.
+
+		If you want to load other CSS files, the best way is to use the
+		'integrate_load_theme' integration hook and the loadCSSFile() function.
 		This approach will let you take advantage of SMF's automatic CSS
 		minimization and other benefits. You can, of course, manually add any
 		other files you want after template_css() has been run.
-
-	*	Short example:
-			- CSS: loadCSSFile('filename.css', array('minimize' => true));
-			- JS:  loadJavaScriptFile('filename.css', array('minimize' => true));
-			You can also read more detailed usages of the parameters for these 
-			functions on the SMF wiki.
-
-	*	Themes:
-			The most efficient way of writing multi themes is to use a master
-			index.css plus variant.css files. If you've set them up properly
-			(through $settings['theme_variants']), the variant files will be loaded
-			for you automatically.
-
-	*	MODs:
-			If you want to load CSS or JS files in here, the best way is to use the
-			'integrate_load_theme' hook for adding multiple files, or using
-			'integrate_pre_css_output', 'integrate_pre_javascript_output' for a single file.
 	*/
 
 	// load in any css from mods or themes so they can overwrite if wanted
@@ -180,6 +172,23 @@ function template_html_above()
 	echo $context['html_headers'];
 
 	echo '
+//KK метрика яндекс	
+	<!-- Yandex.Metrika counter -->
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(55323430, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/55323430" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+
 </head>
 <body id="', $context['browser_body_id'], '" class="action_', !empty($context['current_action']) ? $context['current_action'] : (!empty($context['current_board']) ?
 		'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')), !empty($context['current_board']) ? ' board_' . $context['current_board'] : '', '">
@@ -574,7 +583,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 				$value['id'] = $key;
 
 			$button = '
-				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>'.(!empty($value['icon']) ? '<span class="main_icons '.$value['icon'].'"></span>' : '').'' . $txt[$value['text']] . '</a>';
+				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>' . $txt[$value['text']] . '</a>';
 
 			if (!empty($value['sub_buttons']))
 			{
@@ -611,97 +620,6 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 		<div class="buttonlist', !empty($direction) ? ' float' . $direction : '', '"', (empty($buttons) ? ' style="display: none;"' : ''), (!empty($strip_options['id']) ? ' id="' . $strip_options['id'] . '"' : ''), '>
 			', implode('', $buttons), '
 		</div>';
-}
-
-/**
- * Generate a list of quickbuttons.
- *
- * @param array $list_items An array with info for displaying the strip
- * @param string $list_id unique list id, used for integration hooks
- */
-function template_quickbuttons($list_items, $list_id = null, $output_method = 'echo')
-{
-	global $txt;
-
-	// Enable manipulation with hooks
-	if(!empty($list_id))
-		call_integration_hook('integrate_' . $list_id . '_quickbuttons', array(&$list_items));
-
-	// Make sure the list has at least one shown item
-	foreach ($list_items as $key => $li)
-	{
-		// Is there a sublist, and does it have any shown items
-		if ($key == 'more')
-		{
-			foreach ($li as $subkey => $subli)
-				if (isset($subli['show']) && !$subli['show'])
-					unset($list_items[$key][$subkey]);
-
-			if (empty($list_items[$key]))
-				unset($list_items[$key]);
-		}
-		// A normal list item
-		elseif (isset($li['show']) && !$li['show'])
-			unset($list_items[$key]);
-	}
-
-	// Now check if there are any items left
-	if (empty($list_items))
-		return;
-
-	// Print the quickbuttons
-	$output = '
-		<ul' . (!empty($list_id) ? ' id="quickbuttons_'.$list_id.'"' : '') . ' class="quickbuttons">';
-
-	// This is used for a list item or a sublist item
-	$list_item_format = function($li)
-	{
-		$html = '
-			<li' . (!empty($li['class']) ? ' class="'.$li['class'].'"' : '') . (!empty($li['id']) ? ' id="'.$li['id'].'"' : '') . (!empty($li['custom']) ? $li['custom'] : '') . '>';
-
-		if(isset($li['content']))
-			$html .= $li['content'];
-		else
-			$html .= '
-				<a' . (!empty($li['href']) ? ' href="'.$li['href'].'"' : '') . (!empty($li['javascript']) ? $li['javascript'] : '') . '>
-					' . (!empty($li['icon']) ? '<span class="main_icons '.$li['icon'].'"></span>' : '') . (!empty($li['label']) ? $li['label'] : '') . '
-				</a>';
-
-		$html .= '
-			</li>';
-
-		return $html;
-	};
-
-	foreach ($list_items as $key => $li)
-	{
-		// Handle the sublist
-		if($key == 'more')
-		{
-			$output .= '
-			<li class="post_options">' . $txt['post_options'] . '
-				<ul>';
-
-			foreach ($li as $subli)
-				$output .= $list_item_format($subli);
-
-			$output .= '
-				</ul>
-			</li>';
-		}
-		// Ordinary list item
-		else
-			$output .= $list_item_format($li);
-	}
-
-	$output .= '
-		</ul><!-- .quickbuttons -->';
-
-	// There are a few spots where the result needs to be returned
-	if($output_method == 'echo')
-		echo $output;
-	else
-		return $output;
 }
 
 /**

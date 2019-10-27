@@ -1,20 +1,21 @@
 /* You can find detailed information at https://wiki.simplemachines.org/smf/Curve2_CSS
 /* Index */
+/*KK иконка ваби */
+.main_icons.wabi::before{
+	background: url(../images/icons/wabi.png);
+width: 35px;
+}
 html {
 	background: #3e5a78;
 }
 body {
 	background: #e9eef2;
-	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
+/*KK шрифты для форума 100% вместо 83.33% */
+	font: 100%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
 	color: #4d4d4d;
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
-}
-::selection {
-	text-shadow: none;
-	background: #99d4ff;
-	color: rgba(0, 0, 0, 0.6);
 }
 /* General reset */
 * {
@@ -92,7 +93,7 @@ textarea {
 }
 
 /* Use a consistent monospace font everywhere */
-.monospace, .bbc_code, .phpcode, pre, #error_log span.error_message, #backtrace span.error_message {
+.monospace, .bbc_code, .phpcode, pre, #error_log span.error_message {
 	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
 }
 
@@ -286,7 +287,7 @@ body#help_popup {
 h3.largetext {
 	font-size: large;
 }
-.xlargetext {
+.xlarge_text {
 	font-size: x-large;
 }
 .centertext, .centercol {
@@ -811,63 +812,31 @@ img.sort, .sort {
 	margin-top: 5px;
 	border-top: 1px solid #ddd;
 }
-.unread_notify {
+.top_menu.scrollable .unread {
 	border-bottom: 1px solid #ddd;
 }
-.no_unread {
+.top_menu.scrollable .no_unread {
 	margin-top: 5px;
 	text-align: center;
 }
-.unread_notify:hover {
+.top_menu.scrollable .unread:hover {
 	background: #eee;
-	text-decoration: none;
 }
-.unread_notify:last-child {
+.top_menu.scrollable .unread:last-of-type {
 	border-bottom: none;
 }
-.unread_notify {
-	display: flex;
-	align-items: center;
-	padding: 6px 5px;
-	line-height: 20px;
-}
-.unread_notify.alert_read {
-	opacity: 0.5;
-	outline: none;
-	filter: grayscale(1);
-}
-.unread_notify strong {
-	font-weight: 600;
-}
-.unread_notify .avatar {
+.top_menu.scrollable .avatar {
 	width: 40px;
 	height: 40px;
 	object-fit: scale-down;
-	margin: 4px 4px 4px 0;
+	margin: 4px;
 	display: inline-block;
 	color: transparent; /* For broken images */
-	vertical-align: bottom;
 }
-.unread_notify_image {
-	position: relative;
-	width: 44px;
-	margin-right: 4px;
-	text-align: center;
-}
-.unread_notify_image span.alert_icon {
-	display: block;
-	line-height: 1em;
-}
-.unread_notify_image .avatar + .alert_icon {
-	width: auto;
-	position: absolute;
-	right: 0;
-	top: 0;
-}
-.unread_notify .details {
+.top_menu.scrollable .details {
+	max-width: 80%;
 	display: inline-block;
 	vertical-align: top;
-	max-width: calc(100% - 48px);
 }
 #pm_menu .subject {
 	font-weight: bold;
@@ -1055,11 +1024,6 @@ img.sort, .sort {
 	border-right: none;
 	box-shadow: -1px 0 0 rgba(255, 255, 255, 0.7);
 }
-/* in a titlebg, the buttonlist is of small height */
-.titlebg .buttonlist {
-	margin: 0;
-	padding: 0;
-}
 
 /* Styles for the general looks of the theme.
 ------------------------------------------------------- */
@@ -1117,7 +1081,8 @@ img.sort, .sort {
 }
 /* The logo and slogan. */
 #header {
-	padding: 2px 2px 12px 2px;
+/*KK отступ для хедера */	
+	padding: 2px 2px 0px 2px;
 	width: 90%;
 	display: flex;
 	align-items: flex-end;
@@ -1131,7 +1096,8 @@ img.sort, .sort {
 h1.forumtitle {
 	font-size: 1.8em;
 	font-family: "Tahoma", sans-serif;
-	padding: 22px 12px 6px 10px;
+/*KK отступ для заголовка */	
+	padding: 22px 12px 0px 10px;
 	font-weight: normal;
 	flex: 1 1 auto;
 }
@@ -1142,7 +1108,9 @@ h1.forumtitle a {
 /* Float these items to the right */
 #siteslogan, img#smflogo {
 	padding-right: 2px;
-	font-size: 1.4em;
+/*KK отступ и размер шрифта лого и заголовка */	
+	padding-bottom: 30px;
+	font-size: 1.5em;
 }
 /* Tweak the SMF logo */
 img#smflogo {
@@ -1324,9 +1292,6 @@ ul li.greeting {
 	text-align: right;
 	font-size: 0.9em;
 }
-#recent .quickbuttons {
-	margin: 0;
-}
 .quickbuttons li {
 	float: left;
 	display: inline;
@@ -1441,7 +1406,7 @@ ul li.greeting {
 
 /* The jump to box */
 #display_jump_to {
-	padding: 11px 0 5px 0;
+	padding: 11px 5px 5px 0;
 	float: right;
 	font-size: 1em;
 }
@@ -1729,8 +1694,12 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 }
 
 /* Small fix for topics */
-.quickbuttons .main_icons::before, .button .main_icons::before {
+.quickbuttons span.main_icons {
 	margin: -3px 3px 0 1px;
+}
+.quickbuttons span.main_icons.quote,
+.quickbuttons span.main_icons.quote_selected {
+	margin: -8px 3px 0 0;
 }
 
 .main_icons.gender_None::before {
@@ -2364,6 +2333,7 @@ dl {
 	float: left;
 }
 .topic_details {
+	width: 94%;
 	padding: 0 4px 4px 4px;
 }
 .list_posts {
@@ -2593,39 +2563,6 @@ dl.addrules dt.floatleft {
 #alerts .alert_inline_time {
 	display: none;
 }
-#alerts .quickbuttons {
-	display: flex;
-	margin: 4px 0;
-}
-#alerts .quickbuttons li, #alerts .alert_time {
-	white-space: nowrap;
-}
-#alerts .alert_image {
-	width: 65px;
-	padding: 6px 0;
-	text-align: center;
-	vertical-align: middle;
-}
-#alerts .alert_image > div {
-	position: relative;
-}
-#alerts .alert_image .avatar {
-	max-width: 80%;
-	max-height: 80%;
-	margin-top: 4px;
-	vertical-align: bottom;
-}
-#alerts .alert_image span.alert_icon {
-	display: block;
-	width: 100%;
-	line-height: 1em;
-}
-#alerts .alert_image .avatar + .alert_icon {
-	width: auto;
-	position: absolute;
-	right: 0;
-	top: 0;
-}
 
 /* Styles for the memberlist section.
 ------------------------------------------------- */
@@ -2838,7 +2775,7 @@ tr.windowbg:hover {
 }
 
 /* Special treatment for #forumposts area */
-#forumposts .windowbg, #forumposts .approvebg, #forumposts .approvebg2, #pmFolder .windowbg {
+#forumposts .windowbg, #forumposts .approvebg, #forumposts .approvebg2 {
 	overflow: visible;
 }
 /* Nobody wants locked topics to stand out much. */
@@ -3121,7 +3058,7 @@ span.postby {
 	margin-top: 5px !important;
 }
 #topic_container .windowbg {
-	border: 1px solid rgba(0, 0, 0, 0.13);
+	border: 1px solid #ddd;
 	border-top: none;
 	display: flex;
 	box-shadow: none;
@@ -3148,7 +3085,11 @@ span.postby {
 }
 /* Quick moderation selects and submit */
 #quick_actions {
-	margin: 6px 0;
+	padding: 4px 0;
+}
+/* Investigate default select and button sizing. Something is slightly off there.*/
+.qaction.button {
+	margin: 1px 4px 0 4px;
 }
 /* Icons and jump to */
 #topic_icons::before {
@@ -3465,13 +3406,16 @@ ul.post_options li {
 #post_additional_options .progress_bar {
 	height: 22px;
 }
-#post_settings, #postAttachment, #postAttachment2, #attachment_previews {
+#post_settings, #postAttachment, #postAttachment2 {
 	border-top: 1px solid #ddd;
 	margin: -1px 0 0 0;
 	padding: 10px;
 }
-#postAttachment dd, #postAttachment2 dd {
-	margin: 4px 0;
+#postAttachment dd {
+	margin: 2px 12px;
+}
+#postAttachment2 dd {
+	margin: 4px 12px;
 }
 #postAttachment dd {
 	width: 45%;
@@ -3499,7 +3443,7 @@ ul.post_options li {
 #post_draft_options .settings strong {
 	color: #555;
 }
-#post_confirm_buttons, #shortcuts {
+#post_confirm_strip /* < That may be deprecated. */, #shortcuts {
 	padding: 12px 0;
 }
 #post_confirm_buttons .smalltext {
@@ -3541,10 +3485,17 @@ ul.post_options li {
 	border-top: 1px solid #bfbfbf;
 	box-shadow: 0 1px 0 #fff inset;
 	line-height: 1.4em;
-	font-size: 0.9em;
+/*KK шрифт в подписи везде 1em вместо 0.9em */	
+	font-size: 1em;
+}
+.signature {
+/*KK шрифт в подписи 0.7 em вместо 0.9em */	 
+ font-size: 0.7em;
 }
 .under_message {
 	overflow: visible;
+/*KK а тут шрифт в подписи  0.9em */		
+font-size: 0.9em;
 }
 /* Events */
 .edit_event {
@@ -3557,7 +3508,7 @@ ul.post_options li {
 }
 #moderationbuttons_strip {
 	float: left;
-	margin: 4px 0 4px;
+	margin: 4px 0 4px -4px;
 }
 #moderationbuttons ul li {
 	padding: 0 6px 4px 0;
@@ -3606,9 +3557,6 @@ h3.catbg .main_icons::before, h3.catbg .icon {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
-.cat_bar + .title_bar {
-	margin-top: 0;
-}
 /* Roundframe */
 .roundframe {
 	margin: 10px 0 0 0;
@@ -3649,11 +3597,6 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	background: none;
 	color: #555;
 	text-decoration: none;
-}
-.title_bar + .windowbg, .title_bar + .roundframe {
-	margin-top: -1px;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
 }
 
 /* Other */
@@ -3862,6 +3805,9 @@ h3.profile_hd {
 #reported_members .quickbuttons li a {
 	background: none;
 }
+#modcenter .main_icons {
+	margin: -3px -3px 0 0;
+}
 
 /* Some colors for generic usage */
 /* Sometimes there will be an error when you post */
@@ -3903,6 +3849,10 @@ h3.profile_hd {
 	background-color: #e8edf0;
 }
 
+#alerts tr.windowbg td {
+	border-right: 1px solid #ddd;
+}
+
 .centerbox {
 	top: 50%;
 	left: 50%;
@@ -3914,7 +3864,6 @@ h3.profile_hd {
 	flex-flow: row wrap;
 	justify-content: space-between;
 	align-items: center;
-	margin-top: 12px;
 }
 #attachment_previews div.descbox > div,
 #attachment_previews div.errorbox > div,
@@ -3938,7 +3887,7 @@ input[name="attachBBC"] {
 	width: 100%;
 	margin-top: 10px;
 }
-.attachment_info .progress_bar, .attachment_info .attached_BBC, a#attach_cancel_all, a#attach_upload_all, .attach-ui {
+.attachment_info .progress_bar, .attachment_info .attached_BBC, a#attach_cancel_all, a#attach_upload_all {
 	display: none;
 }
 .attachment_info .progress_bar {
@@ -3957,9 +3906,6 @@ input[name="attachBBC"] {
 }
 #attachment_upload {
 	min-height: 50px;
-}
-#drop_zone_ui {
-	display: none;
 }
 #total_progress {
 	width: 50%;

@@ -364,8 +364,12 @@ function template_ic_block_recent()
 				</h4>
 			</div>
 			<div id="recent_posts_content">';
-
-	// Only show one post.
+			
+	// Only show one post.				
+/* KK подключение мода последних сообщений */			
+global $boarddir;
+require_once($boarddir.'/my_recent_topics2/index.php');
+/*KK Выключаем стандартный вывод
 	if ($settings['number_recent_posts'] == 1)
 	{
 		// latest_post has link, href, time, subject, short_subject (shortened with...), and topic. (its id.)
@@ -389,6 +393,7 @@ function template_ic_block_recent()
 		/* Each post in latest_posts has:
 			board (with an id, name, and link.), topic (the topic's id.), poster (with id, name, and link.),
 			subject, short_subject (shortened with...), time, link, and href. */
+/*KK Продолжаем выключать
 		foreach ($context['latest_posts'] as $post)
 			echo '
 					<tr class="windowbg">
@@ -402,6 +407,7 @@ function template_ic_block_recent()
 	}
 	echo '
 			</div><!-- #recent_posts_content -->';
+KK*/ 
 }
 
 /**

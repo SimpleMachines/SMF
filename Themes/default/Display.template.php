@@ -617,11 +617,12 @@ function template_single_post($message)
 								</li><!-- .profile -->';
 		}
 
-		// Any custom fields for standard placement?
+		// Any custom fields for standard placement?	624 line -  <li class="custom ', $custom['col_name'], '">', $custom['title'], ': ', $custom['value'], '</li>';
+		//KK замена 624 строки. Причина непонятна. 
 		if (!empty($message['custom_fields']['standard']))
 			foreach ($message['custom_fields']['standard'] as $custom)
 				echo '
-								<li class="custom ', $custom['col_name'], '">', $custom['title'], ': ', $custom['value'], '</li>';
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 	}
 	// Otherwise, show the guest's email.
 	elseif (!empty($message['member']['email']) && $message['member']['show_email'])
@@ -688,9 +689,17 @@ function template_single_post($message)
 									<span class="messageicon" ', ($message['icon_url'] === $settings['images_url'] . '/post/xx.png' && !$message['can_modify']) ? ' style="position: absolute; z-index: -1;"' : '', '>
 										<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
 									</span>
-									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter'], ' - ') : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>
-									<span class="page_number floatright">
-										', !empty($message['counter']) ? ' #' . $message['counter'] : '', ' ', '
+//KK Новое сообщение - метка. Уточнить где именно
+									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter'], ' - ') : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>';
+									// New message? If so, show the new.gif image after the message title, but not for guests.
+											 if ($message['new'] && $context['user']['is_logged'])
+												 echo '
+													<span class="new_posts" id="image_new_%PostID%">' . $txt['new'] . '</span>';
+									echo ' 
+									<span class="page_number floatright">';
+		
+									echo 
+									!empty($message['counter']) ? ' #' . $message['counter'] : '', ' ', '
 									</span>';
 
 	// Show "<< Last Edit: Time by Person >>" if this post was edited. But we need the div even if it wasn't modified!
@@ -820,8 +829,19 @@ function template_single_post($message)
 							</div><!-- #msg_[id]_footer -->';
 	}
 
-	echo '
+	// And stuff below the attachments.
+	if ($context['can_report_moderator'] || !empty($modSettings['enable_likes']) || $message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])
+		echo '
 							<div class="under_message">';
+
+	// Maybe they want to report this post to the moderator(s)?
+	if ($context['can_report_moderator'])
+		echo '
+								<ul class="floatright smalltext">
+									<li class="report_link">
+										<a href="', $scripturl, '?action=reporttm;topic=', $context['current_topic'], '.', $message['counter'], ';msg=', $message['id'], '">', $txt['report_to_mod'], '</a>
+									</li>
+								</ul>';
 
 	// What about likes?
 	if (!empty($modSettings['enable_likes']))
@@ -862,10 +882,91 @@ function template_single_post($message)
 	}
 
 	// Show the quickbuttons, for various operations on posts.
-	template_quickbuttons($message['quickbuttons'], 'post');
+	if ($message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])
+	{
+		echo '
+								<ul class="quickbuttons">';
+
+		// Can they quote? if so they can select and quote as well!
+		if ($context['can_quote'])
+			echo '
+									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" onclick="return oQuickReply.quote(', $message['id'], ');"><span class="main_icons quote"></span>', $txt['quote_action'], '</a></li>
+									<li style="display:none;" id="quoteSelected_', $message['id'], '">
+										<a href="javascript:void(0)"><span class="main_icons quote_selected"></span>', $txt['quote_selected_action'], '</a>
+									</li>';
+
+		// Can the user modify the contents of this post? Show the modify inline image.
+		if ($message['can_modify'])
+			echo '
+									<li class="quick_edit">
+										<a title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\', \'', !empty($modSettings['toggle_subject']), '\')"><span class="main_icons quick_edit_button"></span>', $txt['quick_edit'], '</a>
+									</li>';
+
+		if ($message['can_approve'] || $message['can_unapprove'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
+			echo '
+									<li class="post_options">', $txt['post_options'];
+
+		echo '
+										<ul>';
+
+		// Can the user modify the contents of this post?
+		if ($message['can_modify'])
+			echo '
+											<li><a href="', $scripturl, '?action=post;msg=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], '"><span class="main_icons modify_button"></span>', $txt['modify'], '</a></li>';
+
+		// How about... even... remove it entirely?!
+		if ($context['can_delete'] && ($context['topic_first_message'] == $message['id']))
+			echo '
+											<li><a href="', $scripturl, '?action=removetopic2;topic=', $context['current_topic'], '.', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['are_sure_remove_topic'], '" class="you_sure"><span class="main_icons remove_button"></span>', $txt['remove_topic'], '</a></li>';
+
+		elseif ($message['can_remove'] && ($context['topic_first_message'] != $message['id']))
+			echo '
+											<li><a href="', $scripturl, '?action=deletemsg;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message_question'], '" class="you_sure"><span class="main_icons remove_button"></span>', $txt['remove'], '</a></li>';
+
+		// What about splitting it off the rest of the topic?
+		if ($context['can_split'] && !empty($context['real_num_replies']))
+			echo '
+											<li><a href="', $scripturl, '?action=splittopics;topic=', $context['current_topic'], '.0;at=', $message['id'], '"><span class="main_icons split_button"></span>', $txt['split'], '</a></li>';
+
+		// Can we issue a warning because of this post? Remember, we can't give guests warnings.
+		if ($context['can_issue_warning'] && !$message['is_message_author'] && !$message['member']['is_guest'])
+			echo '
+											<li><a href="', $scripturl, '?action=profile;area=issuewarning;u=', $message['member']['id'], ';msg=', $message['id'], '"><span class="main_icons warn_button"></span>', $txt['issue_warning'], '</a></li>';
+
+		// Can we restore topics?
+		if ($context['can_restore_msg'])
+			echo '
+											<li><a href="', $scripturl, '?action=restoretopic;msgs=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="main_icons restore_button"></span>', $txt['restore_message'], '</a></li>';
+
+		// Maybe we can approve it, maybe we should?
+		if ($message['can_approve'])
+			echo '
+											<li><a href="', $scripturl, '?action=moderate;area=postmod;sa=approve;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="main_icons approve_button"></span>', $txt['approve'], '</a></li>';
+
+		// Maybe we can unapprove it?
+		if ($message['can_unapprove'])
+			echo '
+											<li><a href="', $scripturl, '?action=moderate;area=postmod;sa=approve;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="main_icons unapprove_button"></span>', $txt['unapprove'], '</a></li>';
+
+		echo '
+										</ul>
+									</li>';
+
+		// Show a checkbox for quick moderation?
+		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $message['can_remove'])
+			echo '
+									<li style="display: none;" id="in_topic_mod_check_', $message['id'], '"></li>';
+
+		if ($message['can_approve'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
+			echo '
+								</ul><!-- .quickbuttons -->';
+	}
+
+	if ($context['can_report_moderator'] || !empty($modSettings['enable_likes']) || $message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])
+		echo '
+							</div><!-- .under_message -->';
 
 	echo '
-							</div><!-- .under_message -->
 						</div><!-- .postarea -->
 						<div class="moderatorbar">';
 
@@ -989,10 +1090,20 @@ function template_quickreply()
 						<script>
 							function insertQuoteFast(messageid)
 							{
-								var e = document.getElementById("', $context['post_box_name'], '");
-								sceditor.instance(e).insertQuoteFast(messageid);
-
+								if (window.XMLHttpRequest)
+									getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';xml;pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), onDocReceived);
+								else
+									reqWin(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), 240, 90);
 								return false;
+							}
+							function onDocReceived(XMLDoc)
+							{
+								var text = \'\';
+								for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
+									text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
+								sceditor.instance($("#', $context['post_box_name'], '").get(0)).InsertText(text);
+
+								ajax_indicator(false);
 							}
 						</script>';
 
@@ -1006,6 +1117,7 @@ function template_quickreply()
 
 	// Finally, the submit buttons.
 	echo '
+						<br class="clear_right">
 						<span id="post_confirm_buttons" class="floatright">
 							', template_control_richedit_buttons($context['post_box_name']), '
 						</span>';
