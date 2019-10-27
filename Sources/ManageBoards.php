@@ -671,9 +671,25 @@ function EditBoard2()
 		if (strlen(implode(',', $boardOptions['access_groups'])) > 255 || strlen(implode(',', $boardOptions['deny_groups'])) > 255)
 			fatal_lang_error('too_many_groups', false);
 
-		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest, parse it on display
-		$boardOptions['board_name'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['board_name'])));
-		$boardOptions['board_description'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['desc'])));
+		// Parse and cache the new content
+		$parsed_descriptions = setParsedDescriptions(array(
+			$boardOptions['target_category'] => array(
+				'boards' => array(
+					$_POST['boardid'] => array(
+						'name' => $_POST['board_name'],
+						'description' => $_POST['desc'],
+					)
+				)
+			),
+		));
+
+		foreach ($parsed_descriptions as $id_cat => $category)
+			foreach ($category['boards'] as $id_board => $board)
+				if ($_POST['boardid'] == $id_board)
+				{
+					$boardOptions['board_name'] = $board['name'];
+					$boardOptions['board_description'] = $board['description'];
+				}
 
 		$boardOptions['moderator_string'] = $_POST['moderators'];
 

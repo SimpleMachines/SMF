@@ -607,18 +607,20 @@ function setParsedDescriptions($dataToParse = array())
 	$already_parsed_data = array();
 
 	// If you're here it means your data isn't cached... or so the theory dictates...
-	foreach ($dataToParse as $cat_id => $data)
+	foreach ($dataToParse as $cat_id => $category)
 	{
-		$to_cache[$cat_id] = array(
-			'name' => parse_bbc($data['name'], false, '', $context['description_allowed_tags']),
-			'description' => parse_bbc($data['description'], false, '', $context['description_allowed_tags']),
-			'boards' => array(),
-		);
+		// Sometimes we just want to update boards
+		if (!empty($category['name']))
+			$to_cache[$cat_id] = array(
+				'name' => parse_bbc($category['name'], false, '', $context['description_allowed_tags']),
+				'description' => parse_bbc($category['description'], false, '', $context['description_allowed_tags']),
+				'boards' => array(),
+			);
 
-		foreach ($data['boards'] as $id => $board)
+		foreach ($category['boards'] as $board_id => $board)
 		{
-			$to_cache[$cat_id]['boards'][$id]['name'] = parse_bbc($board['name'], false, '', $context['description_allowed_tags']);
-			$to_cache[$cat_id]['boards'][$id]['description'] = parse_bbc($board['description'], false, '', $context['description_allowed_tags']);
+			$to_cache[$cat_id]['boards'][$board_id]['name'] = parse_bbc($board['name'], false, '', $context['description_allowed_tags']);
+			$to_cache[$cat_id]['boards'][$board_id]['description'] = parse_bbc($board['description'], false, '', $context['description_allowed_tags']);
 		}
 
 		// Let's have some fun shall we?
@@ -628,12 +630,12 @@ function setParsedDescriptions($dataToParse = array())
 		{
 			// Append data!
 			$already_parsed_data[$cat_id] = array(
-				'name' => $data['name'],
-				'description' => $data['description'],
+				'name' => $category['name'],
+				'description' => $category['description'],
 				'boards' => array(),
 			);
 
-			foreach ($data['boards'] as $board)
+			foreach ($category['boards'] as $board)
 				$already_parsed_data[$cat_id]['boards'] = array(
 					'name' => $board['name'],
 					'description' => $board['description'],
