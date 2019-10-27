@@ -333,6 +333,22 @@ function EditCategory2()
 		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest, parse it on display
 		$catOptions['cat_name'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['cat_name'])));
 		$catOptions['cat_desc'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['cat_desc'])));
+
+		// Parse and cache the new category content
+		$parsed_descriptions = setParsedDescriptions(array(
+			$_POST['cat'] => array(
+				'name' => $_POST['cat_name'],
+				'description' => $_POST['cat_desc'],
+			),
+		));
+
+		foreach ($parsed_descriptions as $id_cat => $category)
+			if ($_POST['cat'] == $id_cat)
+			{
+				$catOptions['cat_name'] = $category['name'];
+				$catOptions['cat_desc'] = $category['description'];
+			}
+
 		$catOptions['is_collapsible'] = isset($_POST['collapse']);
 
 		if (isset($_POST['add']))
