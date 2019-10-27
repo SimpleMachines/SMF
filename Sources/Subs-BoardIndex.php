@@ -609,6 +609,8 @@ function setParsedDescriptions($dataToParse = array())
 	// If you're here it means your data isn't cached... or so the theory dictates...
 	foreach ($dataToParse as $cat_id => $category)
 	{
+		$to_cache = array();
+
 		// Sometimes we just want to update boards
 		if (!empty($category['name']))
 			$to_cache[$cat_id] = array(
@@ -617,11 +619,12 @@ function setParsedDescriptions($dataToParse = array())
 				'boards' => array(),
 			);
 
-		foreach ($category['boards'] as $board_id => $board)
-		{
-			$to_cache[$cat_id]['boards'][$board_id]['name'] = parse_bbc($board['name'], false, '', $context['description_allowed_tags']);
-			$to_cache[$cat_id]['boards'][$board_id]['description'] = parse_bbc($board['description'], false, '', $context['description_allowed_tags']);
-		}
+		if (!empty($category['boards']))
+			foreach ($category['boards'] as $board_id => $board)
+			{
+				$to_cache[$cat_id]['boards'][$board_id]['name'] = parse_bbc($board['name'], false, '', $context['description_allowed_tags']);
+				$to_cache[$cat_id]['boards'][$board_id]['description'] = parse_bbc($board['description'], false, '', $context['description_allowed_tags']);
+			}
 
 		// Let's have some fun shall we?
 		$already_parsed_data[$cat_id] = cache_get_data('parsed_cat_description_'. $cat_id);
