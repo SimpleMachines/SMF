@@ -5315,6 +5315,7 @@ function call_helper($string, $return = false)
 	// We can't call this helper, but we want to silently ignore this.
 	if (!is_callable($func, false, $callable_name) && !empty($context['ignore_hook_errors']))
 		return false;
+
 	// Right, we got what we need, time to do some checks.
 	elseif (!is_callable($func, false, $callable_name))
 	{
