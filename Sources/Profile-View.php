@@ -491,8 +491,8 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		}
 
 		// Do we want to link to the topic in general or the new messages specifically?
-		if (isset($possible_topics[$id_alert]))
-			$alert['extra']['topic_suffix'] = 'new#new';
+		if (isset($possible_topics[$id_alert]) && in_array($alert['content_action'], array('reply', 'topic', 'unapproved_reply')))
+				$alert['extra']['topic_suffix'] = 'new;topicseen#new';
 		elseif (isset($alert['extra']['topic']))
 			$alert['extra']['topic_suffix'] = '0';
 
