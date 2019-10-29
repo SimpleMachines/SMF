@@ -545,6 +545,65 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 			$alert['extra']['end_time'] = timeformat($alert['extra']['end_time']);
 		}
 
+		// Now set the main URL that this alert should take the user to.
+		$alert['target_href'] = '';
+
+		// Priority goes to explicitly specified links.
+		if (isset($alert['extra']['content_link']))
+			$alert['target_href'] = $alert['extra']['content_link'];
+
+		elseif (isset($alert['extra']['report_link']))
+			$alert['target_href'] = $scripturl . $alert['extra']['report_link'];
+
+		// Next, try determining the link based on the content action.
+		if (empty($alert['target_href']) && in_array($alert['content_action'], array('register_approval', 'group_request', 'buddy_request')))
+		{
+			switch ($alert['content_action'])
+			{
+				case 'register_approval':
+					$alert['target_href'] = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
+					break;
+
+				case 'group_request':
+					$alert['target_href'] = $scripturl . '?action=moderate;area=groups;sa=requests';
+					break;
+
+				case 'buddy_request':
+					if (!empty($alert['id_member_started']))
+						$alert['target_href'] = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
+					break;
+
+				default:
+					break;
+			}
+		}
+
+		// Or maybe we can determine the link based on the content type.
+		if (empty($alert['target_href']) && in_array($alert['content_type'], array('msg', 'member', 'event')))
+		{
+			switch ($alert['content_type'])
+			{
+				case 'msg':
+					if (!empty($alert['content_id']))
+						$alert['target_href'] = $scripturl . '?msg=' . $alert['content_id'];
+					break;
+
+				case 'member':
+					if (!empty($alert['id_member_started']))
+						$alert['target_href'] = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
+					break;
+
+				case 'event':
+					if (!empty($alert['extra']['event_id']))
+						$alert['target_href'] = $scripturl . '?action=calendar;event=' . $alert['extra']['event_id'];
+					break;
+
+				default:
+					break;
+			}
+
+		}
+
 		// Finally, set this alert's text string.
 		$string = 'alert_' . $alert['content_type'] . '_' . $alert['content_action'];
 
@@ -596,45 +655,22 @@ function showAlerts($memID)
 
 	require_once($sourcedir . '/Profile-Modify.php');
 
-	// Are we opening a specific alert ?
+	// Are we opening a specific alert? (i.e.: ?action=profile;area=showalerts;alert=12345)
 	if (!empty($_REQUEST['alert']))
 	{
 		$alert_id = (int) $_REQUEST['alert'];
 		$alerts = fetch_alerts($memID, $alert_id);
 		$alert = array_pop($alerts);
 
-		if (empty($alert))
+		// In case it failed to determine this alert's link
+		if (empty($alert['target_href']))
 			redirectexit('action=profile;area=showalerts');
-
-		// Determine where the alert takes
-		$link = '';
-		// Priority goes to explicitly specified links
-		if (isset($alert['extra']['content_link']))
-			$link = $alert['extra']['content_link'];
-		elseif (isset($alert['extra']['report_link']))
-			$link = $scripturl . $alert['extra']['report_link'];
-		elseif (isset($alert['content_action']) && $alert['content_action'] === 'register_approval')
-			$link = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
-		elseif (isset($alert['content_action']) && $alert['content_action'] === 'group_request')
-			$link = $scripturl . '?action=moderate;area=groups;sa=requests';
-		elseif (isset($alert['content_action'], $alert['id_member_started']) && ($alert['content_type'] === 'member' || $alert['content_action'] === 'buddy_request'))
-			$link = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
-		elseif (isset($alert['content_type'], $alert['extra']['event_id']) && $alert['content_type'] === 'event')
-			$link = $scripturl . '?action=calendar;event=' . $alert['extra']['event_id'];
-		elseif (isset($alert['content_type'], $alert['content_id']) && $alert['content_type'] === 'msg')
-			$link = $scripturl . '?msg=' . $alert['content_id'];
-
-		call_integration_hook('integrate_show_alert', array(&$alert, &$link));
 
 		// Mark the alert as read while we're at it.
 		alert_mark($memID, $alert_id, 1);
 
 		// Take the user to the content
-		if (!empty($link))
-			redirectexit($link);
-		// In case it failed to determine this alert's link
-		else
-			redirectexit('action=profile;area=showalerts');
+		redirectexit($alert['target_href']);
 	}
 
 	// Prepare the pagination vars.
@@ -691,7 +727,7 @@ function showAlerts($memID)
 			),
 			'view' => array(
 				'label' => $txt['view'],
-				'href' => $scripturl . '?action=profile;area=showalerts;alert=' . $id . ';',
+				'href' => $alert['target_href'],
 				'icon' => 'move',
 			),
 			'quickmod' => array(
