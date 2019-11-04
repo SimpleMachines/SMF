@@ -1136,28 +1136,31 @@ function Display()
 		}
 
 		// Mark any alerts about this topic or the posts on this page as read.
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}user_alerts
-			SET is_read = {int:now}
-			WHERE is_read = 0 AND id_member = {int:current_member}
-				AND
-				(
-					(content_id IN ({array_int:messages}) AND content_type = {string:msg})
-					OR
-					(content_id = {int:current_topic} AND (content_type = {string:topic} OR (content_type = {string:board} AND content_action = {string:topic})))
-				)',
-			array(
-				'topic' => 'topic',
-				'board' => 'board',
-				'msg' => 'msg',
-				'current_member' => $user_info['id'],
-				'current_topic' => $topic,
-				'messages' => $messages,
-				'now' => time(),
-			)
-		);
-		$user_info['alerts'] = $user_info['alerts'] - $smcFunc['db_affected_rows']();
-		updateMemberData($user_info['id'], array('alerts' => $user_info['alerts']));
+		if (!empty($user_info['alerts']))
+		{
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}user_alerts
+				SET is_read = {int:now}
+				WHERE is_read = 0 AND id_member = {int:current_member}
+					AND
+					(
+						(content_id IN ({array_int:messages}) AND content_type = {string:msg})
+						OR
+						(content_id = {int:current_topic} AND (content_type = {string:topic} OR (content_type = {string:board} AND content_action = {string:topic})))
+					)',
+				array(
+					'topic' => 'topic',
+					'board' => 'board',
+					'msg' => 'msg',
+					'current_member' => $user_info['id'],
+					'current_topic' => $topic,
+					'messages' => $messages,
+					'now' => time(),
+				)
+			);
+			$user_info['alerts'] = $user_info['alerts'] - $smcFunc['db_affected_rows']();
+			updateMemberData($user_info['id'], array('alerts' => $user_info['alerts']));
+		}
 	}
 
 	// Get notification preferences
