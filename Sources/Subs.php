@@ -3638,6 +3638,7 @@ function setupThemeContext($forceload = false)
 	$context['in_maintenance'] = !empty($maintenance);
 	$context['current_time'] = timeformat(time(), false);
 	$context['current_action'] = isset($_GET['action']) ? $smcFunc['htmlspecialchars']($_GET['action']) : '';
+	$context['random_news_line'] = array();
 
 	// Get some news...
 	$context['news_lines'] = array_filter(explode("\n", str_replace("\r", '', trim(addslashes($modSettings['news'])))));
@@ -3649,7 +3650,8 @@ function setupThemeContext($forceload = false)
 		// Clean it up for presentation ;).
 		$context['news_lines'][$i] = parse_bbc(stripslashes(trim($context['news_lines'][$i])), true, 'news' . $i);
 	}
-	if (!empty($context['news_lines']))
+
+	if (!empty($context['news_lines']) && (!empty($modSettings['allow_guestAccess']) || $context['user']['is_logged']))
 		$context['random_news_line'] = $context['news_lines'][mt_rand(0, count($context['news_lines']) - 1)];
 
 	if (!$user_info['is_guest'])
@@ -6565,7 +6567,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		return preg_quote(@strval($strings), $delim);
 
 	$regex_key = md5(json_encode(array($strings, $delim, $returnArray)));
-	
+
 	if (isset($regexes[$regex_key]))
 		return $regexes[$regex_key];
 
