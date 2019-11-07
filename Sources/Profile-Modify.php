@@ -18,6 +18,8 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
+const MAX_EXTERNAL_URL_SIZE = 255;
+
 /**
  * This defines every profile field known to man.
  *
@@ -3348,6 +3350,10 @@ function profileSaveAvatarData(&$value)
 		return false;
 
 	require_once($sourcedir . '/ManageAttachments.php');
+
+	// External url too large
+	if ($value == 'external' && allowedTo('profile_remote_avatar') && strlen($_POST['userpicpersonal']) > MAX_EXTERNAL_URL_SIZE)
+		return 'bad_avatar_url_too_long';
 
 	// We're going to put this on a nice custom dir.
 	$uploadDir = $modSettings['custom_avatar_dir'];
