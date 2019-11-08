@@ -790,7 +790,7 @@ function detectFulltextIndex()
 	// We need this for db_get_version
 	db_extend();
 
-	if ($smcFunc['db_title'] == 'PostgreSQL')
+	if ($smcFunc['db_title'] === POSTGRE_TITLE)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT

@@ -17,6 +17,8 @@ define('SMF_SOFTWARE_YEAR', '2019');
 define('DB_SCRIPT_VERSION', '2-1');
 define('SMF_INSTALLING', 1);
 define('JQUERY_VERSION', '3.4.1');
+define('POSTGRE_TITLE', 'PostgreSQL');
+define('MYSQL_TITLE', 'MySQLi');
 
 $GLOBALS['required_php_version'] = '5.4.0';
 

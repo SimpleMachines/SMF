@@ -33,7 +33,7 @@ function getBirthdayRange($low_date, $high_date)
 	$year_low = (int) substr($low_date, 0, 4);
 	$year_high = (int) substr($high_date, 0, 4);
 
-	if ($smcFunc['db_title'] != "PostgreSQL")
+	if ($smcFunc['db_title'] !== POSTGRE_TITLE)
 	{
 		// Collect all of the birthdays for this month.  I know, it's a painful query.
 		$result = $smcFunc['db_query']('birthday_array', '

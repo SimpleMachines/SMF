@@ -139,7 +139,7 @@ function ViewQuery()
 		if ($query_id == $q && $is_select_query)
 		{
 			$result = $smcFunc['db_query']('', '
-				EXPLAIN ' . ($smcFunc['db_title'] == 'PostgreSQL' ? 'ANALYZE ' : '') . $select,
+				EXPLAIN ' . ($smcFunc['db_title'] === POSTGRE_TITLE ? 'ANALYZE ' : '') . $select,
 				array(
 				)
 			);

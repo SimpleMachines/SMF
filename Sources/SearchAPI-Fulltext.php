@@ -175,7 +175,7 @@ class fulltext_search extends search_api
 		$query_where = array();
 		$query_params = $search_data['params'];
 
-		if ($smcFunc['db_title'] == "PostgreSQL")
+		if ($smcFunc['db_title'] === POSTGRE_TITLE)
 			$modSettings['search_simple_fulltext'] = true;
 
 		if ($query_params['id_search'])
@@ -218,7 +218,7 @@ class fulltext_search extends search_api
 
 		if (!empty($modSettings['search_simple_fulltext']))
 		{
-			if ($smcFunc['db_title'] == "PostgreSQL")
+			if ($smcFunc['db_title'] === POSTGRE_TITLE)
 			{
 				$language_ftx = $smcFunc['db_search_language']();
 
@@ -236,7 +236,7 @@ class fulltext_search extends search_api
 			// remove any indexed words that are used in the complex body search terms
 			$words['indexed_words'] = array_diff($words['indexed_words'], $words['complex_words']);
 
-			if ($smcFunc['db_title'] == "PostgreSQL")
+			if ($smcFunc['db_title'] === POSTGRE_TITLE)
 			{
 				$row = 0;
 				foreach ($words['indexed_words'] as $fulltextWord)
@@ -255,7 +255,7 @@ class fulltext_search extends search_api
 			// if we have bool terms to search, add them in
 			if ($query_params['boolean_match'])
 			{
-				if ($smcFunc['db_title'] == "PostgreSQL")
+				if ($smcFunc['db_title'] === POSTGRE_TITLE)
 				{
 					$language_ftx = $smcFunc['db_search_language']();
 
