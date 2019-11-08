@@ -1185,7 +1185,7 @@ function Post($post_errors = array())
 		$context['num_allowed_attachments'] = min(ini_get('max_file_uploads'), (empty($modSettings['attachmentNumPerPostLimit']) ? 50 : $modSettings['attachmentNumPerPostLimit'] - count($context['current_attachments'])));
 		$context['can_post_attachment_unapproved'] = allowedTo('post_attachment');
 		$context['attachment_restrictions'] = array();
-		$context['allowed_extensions'] = strtr(strtolower($modSettings['attachmentExtensions']), array(',' => ', '));
+		$context['allowed_extensions'] = !empty($modSettings['attachmentCheckExtensions']) ? (strtr(strtolower($modSettings['attachmentExtensions']), array(',' => ', '))) : '';
 		$attachmentRestrictionTypes = array('attachmentNumPerPostLimit', 'attachmentPostLimit', 'attachmentSizeLimit');
 		foreach ($attachmentRestrictionTypes as $type)
 			if (!empty($modSettings[$type]))
@@ -1241,9 +1241,9 @@ function Post($post_errors = array())
 	// File Upload.
 	if ($context['can_post_attachment'])
 	{
-		$acceptedFiles = implode(',', array_map(function ($val) use ($smcFunc)
+		$acceptedFiles = empty($context['allowed_extensions']) ? '' : implode(',', array_map(function ($val) use ($smcFunc)
 		{
-			return '.' . $smcFunc['htmltrim']($val);
+			return !empty($val) ? ('.' . $smcFunc['htmltrim']($val)) : '';
 		}, explode(',', $context['allowed_extensions'])));
 
 		loadJavaScriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
