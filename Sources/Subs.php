@@ -375,7 +375,8 @@ function updateMemberData($members, $data)
 	$setString = '';
 	foreach ($data as $var => $val)
 	{
-		switch ($var){
+		switch ($var)
+		{
 			case  'birthdate':
 				$type = 'date';
 				break;
@@ -384,6 +385,7 @@ function updateMemberData($members, $data)
 			case 'member_ip2':
 				$type = 'inet';
 				break;
+
 			default:
 				$type = 'string';
 		}
