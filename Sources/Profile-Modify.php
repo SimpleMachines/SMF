@@ -18,8 +18,6 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-const MAX_EXTERNAL_URL_SIZE = 255;
-
 /**
  * This defines every profile field known to man.
  *
@@ -3346,13 +3344,17 @@ function profileSaveAvatarData(&$value)
 	global $modSettings, $sourcedir, $smcFunc, $profile_vars, $cur_profile, $context;
 
 	$memID = $context['id_member'];
+	$context['max_external_size_url'] = 255;
+
 	if (empty($memID) && !empty($context['password_auth_failed']))
 		return false;
 
 	require_once($sourcedir . '/ManageAttachments.php');
 
+	call_integration_hook('before_profile_save_avatar', array(&$value));
+
 	// External url too large
-	if ($value == 'external' && allowedTo('profile_remote_avatar') && strlen($_POST['userpicpersonal']) > MAX_EXTERNAL_URL_SIZE)
+	if ($value == 'external' && allowedTo('profile_remote_avatar') && strlen($_POST['userpicpersonal']) > $context['max_external_size_url'])
 		return 'bad_avatar_url_too_long';
 
 	// We're going to put this on a nice custom dir.
@@ -3434,13 +3436,16 @@ function profileSaveAvatarData(&$value)
 		// Trying to make us do something we'll regret?
 		elseif (substr($profile_vars['avatar'], 0, 7) != 'http://' && substr($profile_vars['avatar'], 0, 8) != 'https://')
 			return 'bad_avatar_invalid_url';
+
 		// Should we check dimensions?
 		elseif (!empty($modSettings['avatar_max_height_external']) || !empty($modSettings['avatar_max_width_external']))
 		{
 			// Now let's validate the avatar.
 			$sizes = url_image_size($profile_vars['avatar']);
 
-			if (is_array($sizes) && (($sizes[0] > $modSettings['avatar_max_width_external'] && !empty($modSettings['avatar_max_width_external'])) || ($sizes[1] > $modSettings['avatar_max_height_external'] && !empty($modSettings['avatar_max_height_external']))))
+			if (is_array($sizes) && (($sizes[0] > $modSettings['avatar_max_width_external']
+				&& !empty($modSettings['avatar_max_width_external'])) || ($sizes[1] > $modSettings['avatar_max_height_external']
+				&& !empty($modSettings['avatar_max_height_external']))))
 			{
 				// Houston, we have a problem. The avatar is too large!!
 				if ($modSettings['avatar_action_too_large'] == 'option_refuse')
@@ -3462,6 +3467,7 @@ function profileSaveAvatarData(&$value)
 			}
 		}
 	}
+
 	elseif (($value == 'upload' && allowedTo('profile_upload_avatar')) || $downloadedExternalAvatar)
 	{
 		if ((isset($_FILES['attachment']['name']) && $_FILES['attachment']['name'] != '') || $downloadedExternalAvatar)
@@ -3488,7 +3494,8 @@ function profileSaveAvatarData(&$value)
 				return 'bad_avatar';
 			}
 			// Check whether the image is too large.
-			elseif ((!empty($modSettings['avatar_max_width_upload']) && $sizes[0] > $modSettings['avatar_max_width_upload']) || (!empty($modSettings['avatar_max_height_upload']) && $sizes[1] > $modSettings['avatar_max_height_upload']))
+			elseif ((!empty($modSettings['avatar_max_width_upload']) && $sizes[0] > $modSettings['avatar_max_width_upload'])
+				|| (!empty($modSettings['avatar_max_height_upload']) && $sizes[1] > $modSettings['avatar_max_height_upload']))
 			{
 				if (!empty($modSettings['avatar_resize_upload']))
 				{
@@ -3596,11 +3603,14 @@ function profileSaveAvatarData(&$value)
 	}
 	elseif ($value == 'gravatar' && allowedTo('profile_gravatar_avatar'))
 		$profile_vars['avatar'] = 'gravatar://www.gravatar.com/avatar/' . md5(strtolower(trim($cur_profile['email_address'])));
+
 	else
 		$profile_vars['avatar'] = '';
 
 	// Setup the profile variables so it shows things right on display!
 	$cur_profile['avatar'] = $profile_vars['avatar'];
+
+	call_integration_hook('after_profile_save_avatar');
 
 	return false;
 }
