@@ -19,7 +19,7 @@ define('SMF_LANG_VERSION', '2.1 RC2');
 define('SMF_INSTALLING', 1);
 define('JQUERY_VERSION', '3.4.1');
 define('POSTGRE_TITLE', 'PostgreSQL');
-define('MYSQL_TITLE', 'MySQLi');
+define('MYSQL_TITLE', 'MySQL');
 
 /**
  * The minimum required PHP version.

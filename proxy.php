@@ -32,7 +32,7 @@ if (!defined('POSTGRE_TITLE'))
 	define('POSTGRE_TITLE', 'PostgreSQL');
 
 if (!defined('MYSQL_TITLE'))
-	define('MYSQL_TITLE', 'MySQLi');
+	define('MYSQL_TITLE', 'MySQL');
 
 /**
  * Class ProxyServer
