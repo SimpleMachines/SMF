@@ -3152,6 +3152,9 @@ function JavaScriptModify()
 					$context['message']['errors'][] = $txt['error_' . $post_error];
 			}
 		}
+
+		// Allow mods to do something with $context before we return.
+		call_integration_hook('integrate_jsmodify_xml');
 	}
 	else
 		obExit(false);
