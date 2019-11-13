@@ -651,7 +651,7 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 
 	// Print the quickbuttons
 	$output = '
-		<ul class="quickbuttons' . (!empty($list_class) ? ' ' . $list_class : '') . '">';
+		<ul class="quickbuttons' . (!empty($list_class) ? ' quickbuttons_' . $list_class : '') . '">';
 
 	// This is used for a list item or a sublist item
 	$list_item_format = function($li)
