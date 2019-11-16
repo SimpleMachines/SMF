@@ -448,4 +448,33 @@ function template_resend()
 		</form>';
 }
 
+/**
+ * Confirm a logout.
+ */
+function template_logout()
+{
+	global $context, $settings, $scripturl, $modSettings, $txt;
+
+	// This isn't that much... just like normal login but with a message at the top.
+	echo '
+	<form action="', $scripturl . '?action=logout;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogout" id="frmLogout">
+		<div class="logout">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['logout_confirm'], '</h3>
+			</div>
+			<div class="roundframe">
+				<p class="information centertext">
+					', $txt['logout_notice'], '
+				</p>
+
+				<p class="centertext">
+					<input type="submit" value="', $txt['logout'], '" class="button">
+					<input type="submit" name="cancel" value="', $txt['logout_return'], '" class="button">
+				</p>
+
+			</p>
+		</div><!-- .logout -->
+	</form>';
+}
+
 ?>

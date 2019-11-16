@@ -648,8 +648,31 @@ function Logout($internal = false, $redirect = true)
 {
 	global $sourcedir, $user_info, $user_settings, $context, $smcFunc, $cookiename, $modSettings;
 
+	// They decided to cancel a logout?
+	if (!$internal && isset($_POST['cancel']) && isset($_GET[$context['session_var']]))
+		redirectexit(!empty($_SESSION['logout_return']) ? $_SESSION['logout_return'] : '');
+	// Prompt to logout?
+	elseif (!$internal && !isset($_GET[$context['session_var']]))
+	{
+		loadLanguage('Login');
+		loadTemplate('Login');
+		$context['sub_template'] = 'logout';
+
+		// This came from a valid hashed return url.  Or something that knows our secrets...
+		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && md5($_REQUEST['return_to'] . $image_proxy_secret) != $_REQUEST['return_hash'])
+		{
+			$_SESSION['logout_url'] = urldecode($_REQUEST['return_to']);
+			$_SESSION['logout_return'] = $_SESSION['logout_url'];
+		}
+		// Setup the return address.
+		else
+			$_SESSION['logout_return'] = $_SESSION['old_url'];
+
+		// Don't go any further.
+		return;
+	}
 	// Make sure they aren't being auto-logged out.
-	if (!$internal)
+	elseif (!$internal && isset($_GET[$context['session_var']]))
 		checkSession('get');
 
 	require_once($sourcedir . '/Subs-Auth.php');
