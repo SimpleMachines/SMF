@@ -27,7 +27,7 @@ if (!defined('SMF'))
  */
 function Login()
 {
-	global $txt, $context, $scripturl, $user_info;
+	global $txt, $context, $scripturl, $user_info, $image_proxy_secret;
 
 	// You are already logged in, go take a tour of the boards
 	if (!empty($user_info['id']))
@@ -60,6 +60,9 @@ function Login()
 	// Set the login URL - will be used when the login process is done (but careful not to send us to an attachment).
 	if (isset($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'dlattach') === false && preg_match('~(board|topic)[=,]~', $_SESSION['old_url']) != 0)
 		$_SESSION['login_url'] = $_SESSION['old_url'];
+	// This came from a valid hashed return url.  Or something that knows our secrets...
+	elseif (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && md5($_REQUEST['return_to'] . $image_proxy_secret) != $_REQUEST['return_hash'])
+		$_SESSION['login_url'] = urldecode($_REQUEST['return_to']);
 	elseif (isset($_SESSION['login_url']) && strpos($_SESSION['login_url'], 'dlattach') !== false)
 		unset($_SESSION['login_url']);
 
@@ -145,7 +148,7 @@ function Login2()
 			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
 		elseif (!empty($_SESSION['login_url']) && (strpos($_SESSION['login_url'], 'http://') === false && strpos($_SESSION['login_url'], 'https://') === false))
 		{
-			unset ($_SESSION['login_url']);
+			unset($_SESSION['login_url']);
 			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
 		}
 		elseif (!empty($user_settings['tfa_secret']))
