@@ -1013,7 +1013,7 @@ function template_post_header()
 	{
 		$context['posting_fields']['subject'] = array(
 			'label' => array('html' => '<label for="subject" id="caption_subject">' . $txt['subject'] . '</label>'),
-			'input' => array('html' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>')
+			'input' => array('html' => '<input type="text" id="subject" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>')
 		);
 	}
 
@@ -1042,7 +1042,7 @@ function template_post_header()
 			echo $pf['label']['html'];
 		else
 			echo '
-							<label', ($pf['input']['type'] === 'radio_select' ? '' : ' for="' . (!empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid) . '"'), ' id="caption_', $pfid, '"', !empty($pf['label']['class']) ? ' class="' . $pf['label']['class'] . '"' : '', '>', $pf['label']['text'], '</label>';
+							<label', ($pf['input']['type'] === 'radio_select' ? '' : ' for="' . (!empty($pf['input']['attributes']['id']) ? $pf['input']['attributes']['id'] : $pfid) . '"'), ' id="caption_', $pfid, '"', !empty($pf['label']['class']) ? ' class="' . $pf['label']['class'] . '"' : '', '>', $pf['label']['text'], '</label>';
 
 		// Any trailing HTML after the label
 		if (!empty($pf['label']['after']))
@@ -1072,6 +1072,9 @@ function template_post_header()
 			echo '
 							<input type="', $pf['input']['type'], '"';
 
+			if (empty($pf['input']['attributes']['id']))
+				echo ' id="', $pfid, '"';
+
 			if (empty($pf['input']['attributes']['name']))
 				echo ' name="', $pfid, '"';
 
@@ -1093,6 +1096,9 @@ function template_post_header()
 		{
 			echo '
 							<textarea';
+
+			if (empty($pf['input']['attributes']['id']))
+				echo ' id="', $pfid, '"';
 
 			if (empty($pf['input']['attributes']['name']))
 				echo ' name="', $pfid, '"';
@@ -1118,6 +1124,9 @@ function template_post_header()
 			// The select element itself
 			echo '
 							<select';
+
+			if (empty($pf['input']['attributes']['id']))
+				echo ' id="', $pfid, '"';
 
 			if (empty($pf['input']['attributes']['name']))
 				echo ' name="', $pfid, '"';
