@@ -206,7 +206,6 @@ function ModifyBasicSettings($return_config = false)
 		array(
 			'float',
 			'time_offset',
-			'subtext' => $txt['setting_time_offset_note'],
 			6,
 			'postinput' => $txt['hours'],
 			'step' => 0.25,
