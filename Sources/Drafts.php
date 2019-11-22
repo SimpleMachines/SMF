@@ -229,8 +229,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 				subject = {string:subject},
 				body = {string:body},
 				to_list = {string:to_list}
-			WHERE id_draft = {int:id_pm_draft}
-			LIMIT 1',
+			WHERE id_draft = {int:id_pm_draft}',
 			array(
 				'id_reply' => $reply_id,
 				'type' => 1,
@@ -697,8 +696,7 @@ function showPMDrafts($memID = -1)
 			DELETE FROM {db_prefix}user_drafts
 			WHERE id_draft = {int:id_draft}
 				AND id_member = {int:id_member}
-				AND type = {int:draft_type}
-			LIMIT 1',
+				AND type = {int:draft_type}',
 			array(
 				'id_draft' => $id_delete,
 				'id_member' => $memID,
