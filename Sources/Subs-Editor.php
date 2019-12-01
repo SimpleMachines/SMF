@@ -2024,6 +2024,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 		);
 	$thisVerification = &$context['controls']['verification'][$verificationOptions['id']];
 
+	// Add a verification hook, presetup.
+	call_integration_hook('integrate_create_control_verification_pre', array(&$verificationOptions, $do_test));
+
 	// Is there actually going to be anything?
 	if (empty($thisVerification['show_visual']) && empty($thisVerification['number_questions']) && empty($thisVerification['can_recaptcha']))
 		return false;
@@ -2154,6 +2157,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			if (!empty($incorrectQuestions))
 				$verification_errors[] = 'wrong_verification_answer';
 		}
+
+		// Hooks got anything to say about this verification?
+		call_integration_hook('integrate_create_control_verification_test', array($thisVerification, &$verification_errors));
 	}
 
 	// Any errors means we refresh potentially.
@@ -2226,6 +2232,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 				}
 			}
 		}
+
+		// Hooks may need to know about this.
+		call_integration_hook('integrate_create_control_verification_refresh', array($thisVerification));
 	}
 	else
 	{
@@ -2262,6 +2271,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	}
 
 	$_SESSION[$verificationOptions['id'] . '_vv']['count'] = empty($_SESSION[$verificationOptions['id'] . '_vv']['count']) ? 1 : $_SESSION[$verificationOptions['id'] . '_vv']['count'] + 1;
+
+	// Let our hooks know that we are done with the verification process.
+	call_integration_hook('integrate_create_control_verification_post', array(&$verification_errors, $do_test));
 
 	// Return errors if we have them.
 	if (!empty($verification_errors))
