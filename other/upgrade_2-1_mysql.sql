@@ -1318,9 +1318,9 @@ VALUES
 	('drafts_keep_days', '7');
 
 INSERT INTO {$db_prefix}themes
-	(id_theme, variable, value)
+	(id_member, id_theme, variable, value)
 VALUES
-	('1', 'drafts_show_saved_enabled', '1');
+	(-1, '1', 'drafts_show_saved_enabled', '1');
 ---#
 
 /******************************************************************************/
