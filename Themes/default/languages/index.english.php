@@ -172,7 +172,7 @@ $txt['post_awaiting_approval'] = 'This message is awaiting approval by a moderat
 $txt['there_are_unapproved_topics'] = 'There are %1$s topics and %2$s posts awaiting approval in this board. Click <a href="%3$s">here</a> to view them all.';
 $txt['send_message'] = 'Send message';
 
-$txt['msg_alert_no_messages'] = 'you don\'t have any message';
+$txt['msg_alert_no_messages'] = 'you don\'t have any messages';
 $txt['msg_alert_one_message'] = 'you have <a href="%1$s">1 message</a>';
 $txt['msg_alert_many_message'] = 'you have <a href="%1$s">%2$d messages</a>';
 $txt['msg_alert_one_new'] = '1 is new';
@@ -272,7 +272,6 @@ $txt['icon_cry'] = 'Cry';
 $txt['moderator'] = 'Moderator';
 $txt['moderators'] = 'Moderators';
 
-$txt['mark_board_read'] = 'Mark Topics as Read for this Board';
 $txt['views'] = 'Views';
 $txt['new'] = 'New';
 
