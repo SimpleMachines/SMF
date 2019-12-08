@@ -3511,7 +3511,7 @@ ul.post_options li {
 }
 #post_confirm_buttons .smalltext {
 	flex: 1;
-	word-break: break-all;
+	word-break: break-word;
 	margin: 0 5px 0 0;
 }
 #post_confirm_buttons .post_button_container {

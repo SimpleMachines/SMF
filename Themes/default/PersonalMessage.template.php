@@ -1135,7 +1135,7 @@ function template_send()
 
 	// Send, Preview, spellcheck buttons.
 	echo '
-				<span id="post_confirm_buttons" class="floatright">
+				<span id="post_confirm_buttons">
 					', template_control_richedit_buttons($context['post_box_name']), '
 				</span>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
