@@ -3468,7 +3468,7 @@ ul.post_options li {
 #post_settings, #postAttachment, #postAttachment2, #attachment_previews {
 	border-top: 1px solid #ddd;
 	margin: -1px 0 0 0;
-	padding: 10px;
+	padding: 10px 0;
 }
 #postAttachment dd, #postAttachment2 dd {
 	margin: 4px 0;
