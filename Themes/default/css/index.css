@@ -3499,11 +3499,26 @@ ul.post_options li {
 #post_draft_options .settings strong {
 	color: #555;
 }
+#post_confirm_buttons {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	width: 100%;
+}
 #post_confirm_buttons, #shortcuts {
 	padding: 12px 0;
 }
 #post_confirm_buttons .smalltext {
-	padding: 0 10px;
+	flex: 1;
+	word-break: break-all;
+	margin: 0 5px 0 0;
+}
+#post_confirm_buttons .post_button_container {
+	vertical-align: top;
+}
+#post_confirm_buttons .padding {
+	flex: 1 100%;
 }
 .post_verification {
 	margin-top: 6px;
