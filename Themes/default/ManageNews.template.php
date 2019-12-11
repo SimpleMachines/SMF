@@ -199,10 +199,10 @@ function template_email_members_compose()
 					<a href="', $scripturl, '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a> ', $txt['admin_newsletters'], '
 				</h3>
 			</div>
-			<div class="information">
+			<div class="information noup">
 				', $txt['email_variables'], '
 			</div>
-			<div class="windowbg">
+			<div class="windowbg noup">
 				<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
 					<dl>
 						<dt>
@@ -214,14 +214,13 @@ function template_email_members_compose()
 					</dl>
 				</div>
 				<dl id="post_header">
-					<dt class="clear_left">
-						<span', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', $txt['subject'], ':</span>
+					<dt>
+						<label', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), ' for="subject" id="caption_subject">', $txt['subject'], '</label>
 					</dt>
 					<dd id="pm_subject">
-						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="60" maxlength="60"', isset($context['post_error']['no_subject']) ? ' class="error"' : '', '>
+						<input type="text" id="subject" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="80" maxlength="84"', isset($context['post_error']['no_subject']) ? ' class="error"' : '', '>
 					</dd>
 				</dl>
-				<hr class="clear">
 				<div id="bbcBox_message"></div>';
 
 	// What about smileys?

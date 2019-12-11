@@ -4047,3 +4047,8 @@ tr[id^='list_news_lists_'] textarea {
 	border-bottom: 1px solid #ddd;
 	margin-bottom: 0.5em;
 }
+
+/* To break or not to break that is the question indeed */
+.word_break {
+	word-break: break-word;
+}
