@@ -35,7 +35,7 @@ function loadSession()
 	@ini_set('arg_separator.output', '&amp;');
 
 	// Allows mods to change/add PHP settings
-	call_integration_hook('integrate_ini_settings');
+	call_integration_hook('integrate_load_session');
 
 	if (!empty($modSettings['globalCookies']))
 	{
