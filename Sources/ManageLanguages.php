@@ -1665,7 +1665,7 @@ function cleanLangString($string, $to_display = true)
 			}
 
 			// Is this a variable?
-			if ($string[$i] == '{' && $string{$i + 1} == '%' && $string{$i + 2} == '$')
+			if ($string[$i] == '{' && $string[$i + 1] == '%' && $string[$i + 2] == '$')
 			{
 				// Grab the variable.
 				preg_match('~\{%([\$A-Za-z0-9\'\[\]_-]+)%\}~', substr($string, $i), $matches);
@@ -1687,7 +1687,7 @@ function cleanLangString($string, $to_display = true)
 			elseif ($string[$i] == '<')
 			{
 				// Probably HTML?
-				if ($string{$i + 1} != ' ')
+				if ($string[$i + 1] != ' ')
 					$in_html = true;
 				// Assume we need an entity...
 				else

@@ -843,7 +843,7 @@ function VerificationCode()
 		elseif (isset($_REQUEST['letter']))
 		{
 			$_REQUEST['letter'] = (int) $_REQUEST['letter'];
-			if ($_REQUEST['letter'] > 0 && $_REQUEST['letter'] <= strlen($code) && !showLetterImage(strtolower($code{$_REQUEST['letter'] - 1})))
+			if ($_REQUEST['letter'] > 0 && $_REQUEST['letter'] <= strlen($code) && !showLetterImage(strtolower($code[$_REQUEST['letter'] - 1])))
 			{
 				header('content-type: image/gif');
 				die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
