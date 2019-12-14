@@ -739,6 +739,9 @@ function loadSearchAPIs()
 {
 	global $sourcedir, $txt;
 
+	// Ensure we have class.
+	require_once($sourcedir . '/Class-SearchAPI.php');
+
 	$apis = array();
 	if ($dh = opendir($sourcedir))
 	{
