@@ -2397,7 +2397,7 @@ function ModifyAlertsSettings()
 	loadLanguage('Profile');
 
 	include_once($sourcedir . '/Profile-Modify.php');
-	alert_configuration(0);
+	alert_configuration(0, true);
 
 	$context['page_title'] = $txt['notify_settings'];
 
