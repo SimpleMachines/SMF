@@ -1151,12 +1151,12 @@ function showLetterImage($letter)
 	$random_font = $font_list[array_rand($font_list)];
 
 	// Check if the given letter exists.
-	if (!file_exists($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . $letter . '.png'))
+	if (!file_exists($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png'))
 		return false;
 
 	// Include it!
 	header('content-type: image/png');
-	include($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . $letter . '.png');
+	include($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png');
 
 	// Nothing more to come.
 	die();
