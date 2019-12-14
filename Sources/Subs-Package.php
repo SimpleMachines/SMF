@@ -117,9 +117,9 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 	// @todo Might be mussed.
 	if ($flags & 12)
 	{
-		while ($flags & 8 && $data{$offset++} != "\0")
+		while ($flags & 8 && $data[$offset++] != "\0")
 			continue;
-		while ($flags & 4 && $data{$offset++} != "\0")
+		while ($flags & 4 && $data[$offset++] != "\0")
 			continue;
 	}
 
@@ -160,9 +160,9 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 
 		$checksum = 256;
 		for ($i = 0; $i < 148; $i++)
-			$checksum += ord($header{$i});
+			$checksum += ord($header[$i]);
 		for ($i = 156; $i < 512; $i++)
-			$checksum += ord($header{$i});
+			$checksum += ord($header[$i]);
 
 		if ($current['checksum'] != $checksum)
 			break;
@@ -2994,7 +2994,7 @@ function package_crypt($pass)
 		$salt .= session_id();
 
 	for ($i = 0; $i < $n; $i++)
-		$pass{$i} = chr(ord($pass{$i}) ^ (ord($salt{$i}) - 32));
+		$pass[$i] = chr(ord($pass[$i]) ^ (ord($salt[$i]) - 32));
 
 	return $pass;
 }
