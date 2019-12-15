@@ -558,8 +558,7 @@ function logSpider()
 		$date = strftime('%Y-%m-%d', forum_time(false));
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}log_spider_stats
-			SET last_seen = {int:current_time},
-				page_hits = CASE WHEN page_hits + 1 > 65535 THEN 65535 ELSE page_hits + 1 END
+			SET last_seen = {int:current_time}, page_hits = page_hits + 1
 			WHERE id_spider = {int:current_spider}
 				AND stat_date = {date:current_date}',
 			array(
@@ -637,7 +636,7 @@ function consolidateSpiderStats()
 		$date = strftime('%Y-%m-%d', $stat['last_seen']);
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}log_spider_stats
-			SET page_hits = CASE WHEN page_hits + {int:hits} > 65535 THEN 65535 ELSE page_hits + {int:hits} END,
+			SET page_hits = page_hits + {int:hits},
 				last_seen = CASE WHEN last_seen > {int:last_seen} THEN last_seen ELSE {int:last_seen} END
 			WHERE id_spider = {int:current_spider}
 				AND stat_date = {date:last_seen_date}',
