@@ -5990,17 +5990,16 @@ function inet_ptod($ip_address)
  */
 function inet_dtop($bin)
 {
-	if (empty($bin))
-		return '';
-
 	global $db_type;
 
-	if ($db_type == 'postgresql')
+	if (empty($bin))
+		return '';
+	elseif ($db_type == 'postgresql')
 		return $bin;
-
-	$ip_address = inet_ntop($bin);
-
-	return $ip_address;
+	// Already a String?
+	elseif (isValidIP($bin))
+		return $bin;
+	return inet_ntop($bin);
 }
 
 /**
