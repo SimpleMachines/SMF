@@ -215,6 +215,26 @@ class smf_cache extends cache_api
 	{
 		return SMF_VERSION;
 	}
+
+	/**
+	 * @param string $file_name
+	 * @param string $cache_data
+	 * @return int
+	 */
+	protected function filePutWithLock($file_name, $cache_data)
+	{
+		$saved_file = 0;
+		$tmp_lock_file = $this->cachedir . '/tmp/'. str_replace('.php', '.lock', $file_name);
+
+		if (mkdir($tmp_lock_file, 0700)) {
+
+			$saved_file = file_put_contents( $file_name, $cache_data, LOCK_EX);
+
+			rmdir($tmp_lock_file);
+		}
+
+		return $saved_file;
+	}
 }
 
 ?>
