@@ -86,34 +86,37 @@ class smf_cache extends cache_api
 	public function putData($key, $value, $ttl = null)
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
-		$cachedir = $this->cachedir;
+		$file_name = $this->cachedir . '/data_' . $key . '.php';
 
 		// Work around Zend's opcode caching (PHP 5.5+), they would cache older files for a couple of seconds
 		// causing newer files to take effect a while later.
 		if (function_exists('opcache_invalidate'))
-			opcache_invalidate($cachedir . '/data_' . $key . '.php', true);
+			opcache_invalidate($file_name, true);
 
 		if (function_exists('apc_delete_file'))
-			@apc_delete_file($cachedir . '/data_' . $key . '.php');
+			@apc_delete_file($file_name);
 
 		// Otherwise custom cache?
 		if ($value === null)
-			@unlink($cachedir . '/data_' . $key . '.php');
+			@unlink($file_name);
+
 		else
 		{
 			$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, "\0" . '\\\'') . '\';}' . '?' . '>';
 
 			// Write out the cache file, check that the cache write was successful; all the data must be written
 			// If it fails due to low diskspace, or other, remove the cache file
-			$fileSize = file_put_contents($cachedir . '/data_' . $key . '.php', $cache_data, LOCK_EX);
+			$fileSize = $this->filePutWithLock($file_name, $cache_data);
+
 			if ($fileSize !== strlen($cache_data))
 			{
-				@unlink($cachedir . '/data_' . $key . '.php');
+				@unlink($file_name);
+
 				return false;
 			}
-			else
-				return true;
 		}
+
+		return true;
 	}
 
 	/**
