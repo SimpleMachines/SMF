@@ -3209,6 +3209,21 @@ LANGUAGE 'sql';
 ---#
 
 /******************************************************************************/
+--- bigint versions of date functions
+/******************************************************************************/
+---# MONTH(bigint)
+CREATE OR REPLACE FUNCTION MONTH (bigint) RETURNS integer AS
+	'SELECT CAST (EXTRACT(MONTH FROM TO_TIMESTAMP($1)) AS integer) AS result'
+LANGUAGE 'sql';
+---#
+
+---# DAYOFMONTH(bigint)
+CREATE OR REPLACE FUNCTION DAYOFMONTH (bigint) RETURNS integer AS
+	'SELECT CAST (EXTRACT(DAY FROM TO_TIMESTAMP($1)) AS integer) AS result'
+LANGUAGE 'sql';
+---#
+
+/******************************************************************************/
 --- Update holidays
 /******************************************************************************/
 ---# Delete all the dates
