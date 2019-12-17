@@ -86,19 +86,20 @@ class smf_cache extends cache_api
 	public function putData($key, $value, $ttl = null)
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
-		$file_name = $this->cachedir . '/data_' . $key . '.php';
+		$file_name = '/data_' . $key . '.php';
+		$file_path = $this->cachedir . $file_name;
 
 		// Work around Zend's opcode caching (PHP 5.5+), they would cache older files for a couple of seconds
 		// causing newer files to take effect a while later.
 		if (function_exists('opcache_invalidate'))
-			opcache_invalidate($file_name, true);
+			opcache_invalidate($file_path, true);
 
 		if (function_exists('apc_delete_file'))
-			@apc_delete_file($file_name);
+			@apc_delete_file($file_path);
 
 		// Otherwise custom cache?
 		if ($value === null)
-			@unlink($file_name);
+			@unlink($file_path);
 
 		else
 		{
@@ -224,9 +225,9 @@ class smf_cache extends cache_api
 	protected function filePutWithLock($file_name, $cache_data)
 	{
 		$saved_file = 0;
-		$tmp_lock_file = $this->cachedir . '/tmp/'. str_replace('.php', '.lock', $file_name);
+		$tmp_lock_file = $this->cachedir . '/tmp'. str_replace('.php', '.lock', $file_name);
 
-		if (mkdir($tmp_lock_file, 0700)) {
+		if (mkdir($tmp_lock_file, 0700, true)) {
 
 			$saved_file = file_put_contents( $file_name, $cache_data, LOCK_EX);
 
