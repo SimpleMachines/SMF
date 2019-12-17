@@ -165,8 +165,10 @@ function ViewErrorLog()
 	for ($i = 0; $row = $smcFunc['db_fetch_assoc']($request); $i++)
 	{
 		$search_message = preg_replace('~&lt;span class=&quot;remove&quot;&gt;(.+?)&lt;/span&gt;~', '%', $smcFunc['db_escape_wildcard_string']($row['message']));
-		if ($search_message == $filter['value']['sql'])
+
+		if (isset($filter) && $search_message == $filter['value']['sql'])
 			$search_message = $smcFunc['db_escape_wildcard_string']($row['message']);
+
 		$show_message = strtr(strtr(preg_replace('~&lt;span class=&quot;remove&quot;&gt;(.+?)&lt;/span&gt;~', '$1', $row['message']), array("\r" => '', '<br>' => "\n", '<' => '&lt;', '>' => '&gt;', '"' => '&quot;')), array("\n" => '<br>'));
 
 		$context['errors'][$row['id_error']] = array(
