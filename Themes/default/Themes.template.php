@@ -325,7 +325,7 @@ function template_set_options()
 			<input type="hidden" name="who" value="', $context['theme_options_reset'] ? 1 : 0, '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $txt['theme_options_title'], ' - ', $context['theme_settings']['name'], '
+					', $context['theme_options_reset'] ? $txt['themeadmin_reset_options_title'] : $txt['theme_options_title'], ' - ', $context['theme_settings']['name'], '
 				</h3>
 			</div>
 			<div class="information noup">

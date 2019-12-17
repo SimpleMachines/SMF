@@ -413,7 +413,7 @@ function SetThemeOptions()
 				$smcFunc['db_query']('substring', '
 					DELETE FROM {db_prefix}themes
 					WHERE id_theme = {int:default_theme}
-						AND id_member != {int:no_member}
+						AND id_member > {int:no_member}
 						AND variable = SUBSTRING({string:option}, 1, 255)',
 					array(
 						'default_theme' => 1,
@@ -472,7 +472,7 @@ function SetThemeOptions()
 				$smcFunc['db_query']('substring', '
 					DELETE FROM {db_prefix}themes
 					WHERE id_theme = {int:current_theme}
-						AND id_member != {int:no_member}
+						AND id_member > {int:no_member}
 						AND variable = SUBSTRING({string:option}, 1, 255)',
 					array(
 						'current_theme' => $_GET['th'],
