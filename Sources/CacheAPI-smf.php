@@ -229,7 +229,7 @@ class smf_cache extends cache_api
 
 		if (mkdir($tmp_lock_file, 0700, true)) {
 
-			$saved_file = file_put_contents( $file_name, $cache_data, LOCK_EX);
+			$saved_file = file_put_contents( $this->cachedir . $file_name, $cache_data, LOCK_EX);
 
 			rmdir($tmp_lock_file);
 		}
