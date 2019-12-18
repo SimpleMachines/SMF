@@ -460,7 +460,6 @@ $txt['new_merged_topic'] = 'Newly Merged Topic';
 $txt['topic_to_merge'] = 'Topic to be merged';
 $txt['target_board'] = 'Target board';
 $txt['target_topic'] = 'Target topic';
-$txt['with'] = 'with';
 $txt['merge_desc'] = 'This function will merge the messages of two topics into one topic. The messages will be sorted according to the time of posting. Therefore, the earliest posted message will be the first message of the merged topic.';
 
 $txt['set_sticky'] = 'Set topic sticky';
