@@ -34,6 +34,9 @@ function loadSession()
 	@ini_set('session.use_trans_sid', false);
 	@ini_set('arg_separator.output', '&amp;');
 
+	// Allows mods to change/add PHP settings
+	call_integration_hook('integrate_load_session');
+
 	if (!empty($modSettings['globalCookies']))
 	{
 		$parsed_url = parse_url($boardurl);
