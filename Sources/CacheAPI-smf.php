@@ -111,7 +111,7 @@ class smf_cache extends cache_api
 			// Write out the cache file, check that the cache write was successful; all the data must be written
 			$fileSize = $this->filePutWithLock($file_name, $cache_data);
 
-			// Check the file againts what its suppose to have in it.
+			// Check the file against what its suppose to have in it.
 			if ($fileSize === strlen($cache_data))
 				$file_created = true;
 
