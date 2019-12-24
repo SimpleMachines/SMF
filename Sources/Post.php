@@ -1888,8 +1888,8 @@ function Post2()
 		}
 
 		$posterIsGuest = empty($row['id_member']);
-		$context['is_own_post'] = $user_info['id'] === (int) $rowp['id_member'];
-		$context['poster_id'] = (int) $rowp['id_member'];
+		$context['is_own_post'] = $user_info['id'] === (int) $row['id_member'];
+		$context['poster_id'] = (int) $row['id_member'];
 
 		// Can they approve it?
 		$approve_checked = (!empty($REQUEST['approve']) ? 1 : 0);
