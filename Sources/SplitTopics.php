@@ -857,6 +857,7 @@ function MergeIndex()
 
 	if (!isset($_GET['from']))
 		fatal_lang_error('no_access', false);
+
 	$_GET['from'] = (int) $_GET['from'];
 
 	$_REQUEST['targetboard'] = isset($_REQUEST['targetboard']) ? (int) $_REQUEST['targetboard'] : $board;
@@ -868,6 +869,7 @@ function MergeIndex()
 		$can_approve_boards = boardsAllowedTo('approve_posts');
 		$onlyApproved = $can_approve_boards !== array(0) && !in_array($_REQUEST['targetboard'], $can_approve_boards);
 	}
+
 	else
 		$onlyApproved = false;
 
@@ -882,6 +884,7 @@ function MergeIndex()
 			'is_approved' => 1,
 		)
 	);
+
 	list ($topiccount) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
@@ -903,8 +906,10 @@ function MergeIndex()
 			'is_approved' => 1,
 		)
 	);
+
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('no_board');
+
 	list ($subject) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
