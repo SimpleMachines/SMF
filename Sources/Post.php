@@ -1751,6 +1751,8 @@ function Post2()
 		}
 
 		$posterIsGuest = $user_info['is_guest'];
+		$context['is_own_post'] = true;
+		$context['poster_id'] = $user_info['id'];
 	}
 	// Posting a new topic.
 	elseif (empty($topic))
@@ -1789,6 +1791,8 @@ function Post2()
 		}
 
 		$posterIsGuest = $user_info['is_guest'];
+		$context['is_own_post'] = true;
+		$context['poster_id'] = $user_info['id'];
 	}
 	// Modifying an existing message?
 	elseif (isset($_REQUEST['msg']) && !empty($topic))
@@ -1884,6 +1888,8 @@ function Post2()
 		}
 
 		$posterIsGuest = empty($row['id_member']);
+		$context['is_own_post'] = $user_info['id'] === (int) $rowp['id_member'];
+		$context['poster_id'] = (int) $rowp['id_member'];
 
 		// Can they approve it?
 		$approve_checked = (!empty($REQUEST['approve']) ? 1 : 0);
@@ -1901,7 +1907,6 @@ function Post2()
 		$searchAPI = findSearchAPI();
 		if ($searchAPI->supportsMethod('postRemoved'))
 			$searchAPI->postRemoved($_REQUEST['msg']);
-
 	}
 
 	// In case we have approval permissions and want to override.
@@ -2024,6 +2029,8 @@ function Post2()
 		$_POST['email'] = $user_info['email'];
 	}
 
+ 	call_integration_hook('integrate_post2_pre', array(&$post_errors));
+	
 	// Any mistakes?
 	if (!empty($post_errors))
 	{
