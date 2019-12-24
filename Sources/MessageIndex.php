@@ -811,16 +811,22 @@ function QuickModeration()
 
 	if (!$user_info['is_guest'])
 		$possibleActions[] = 'markread';
+
 	if (!empty($boards_can['make_sticky']))
 		$possibleActions[] = 'sticky';
+
 	if (!empty($boards_can['move_any']) || !empty($boards_can['move_own']))
 		$possibleActions[] = 'move';
+
 	if (!empty($boards_can['remove_any']) || !empty($boards_can['remove_own']))
 		$possibleActions[] = 'remove';
+
 	if (!empty($boards_can['lock_any']) || !empty($boards_can['lock_own']))
 		$possibleActions[] = 'lock';
+
 	if (!empty($boards_can['merge_any']))
 		$possibleActions[] = 'merge';
+
 	if (!empty($boards_can['approve_posts']))
 		$possibleActions[] = 'approve';
 
