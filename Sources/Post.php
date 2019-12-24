@@ -2759,6 +2759,8 @@ function getTopic()
 		censorText($row['body']);
 		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
+	 	call_integration_hook('integrate_getTopic_previous_post', array(&$row));
+
 		// ...and store.
 		$context['previous_posts'][] = array(
 			'counter' => $counter++,
@@ -2993,6 +2995,8 @@ function JavaScriptModify()
 			}
 		}
 	}
+
+ 	call_integration_hook('integrate_post_JavascriptModify', array(&$post_errors, $row));
 
 	if (isset($_POST['lock']))
 	{
