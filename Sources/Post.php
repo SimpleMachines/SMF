@@ -1045,7 +1045,7 @@ function Post($post_errors = array())
 	 */
 	$minor_errors = array('not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject', 'topic_locked', 'topic_unlocked', 'topic_stickied', 'topic_unstickied', 'cannot_post_attachment');
 
-	call_integration_hook('integrate_post_errors', array(&$post_errors, &$minor_errors, $forum_message, $form_subject));
+	call_integration_hook('integrate_post_errors', array(&$post_errors, &$minor_errors, $form_message, $form_subject));
 
 	// Any errors occurred?
 	if (!empty($post_errors))
