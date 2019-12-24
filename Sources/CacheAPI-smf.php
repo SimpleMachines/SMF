@@ -89,6 +89,9 @@ class smf_cache extends cache_api
 		$file_name = '/data_' . $key . '.php';
 		$file_path = $this->cachedir . $file_name;
 
+		// Always assume the worst
+		$file_created = false;
+
 		// Work around Zend's opcode caching (PHP 5.5+), they would cache older files for a couple of seconds
 		// causing newer files to take effect a while later.
 		if (function_exists('opcache_invalidate'))
@@ -106,18 +109,15 @@ class smf_cache extends cache_api
 			$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, "\0" . '\\\'') . '\';}' . '?' . '>';
 
 			// Write out the cache file, check that the cache write was successful; all the data must be written
-			// If it fails due to low diskspace, or other, remove the cache file
 			$fileSize = $this->filePutWithLock($file_name, $cache_data);
 
-			if ($fileSize !== strlen($cache_data))
-			{
-				@unlink($file_name);
+			// Check the file againts what its suppose to have in it.
+			if ($fileSize === strlen($cache_data))
+				$file_created = true;
 
-				return false;
-			}
 		}
 
-		return true;
+		return $file_created;
 	}
 
 	/**
