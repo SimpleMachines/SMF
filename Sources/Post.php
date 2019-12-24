@@ -534,6 +534,8 @@ function Post($post_errors = array())
 			else
 				$context['preview_subject'] = '<em>' . $txt['no_subject'] . '</em>';
 
+			call_integration_hook('integrate_preview_post', array(&$form_message, &$form_subject));
+
 			// Protect any CDATA blocks.
 			if (isset($_REQUEST['xml']))
 				$context['preview_message'] = strtr($context['preview_message'], array(']]>' => ']]]]><![CDATA[>'));
