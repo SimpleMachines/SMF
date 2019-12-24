@@ -866,8 +866,7 @@ function template_show_settings()
 				// Show a selection box.
 				elseif ($config_var['type'] == 'select')
 				{
-					$select_size = !empty($config_var['size']) ? $config_var['size'] : (!empty($config_var['data']) && (count($config_var['data']) <= 4) ? count($config_var['data']) : 4)
-					;
+					$select_size = !empty($config_var['size']) ? $config_var['size'] : (!empty($config_var['data']) && (count($config_var['data']) <= 4) ? count($config_var['data']) : 4);
 
 					echo '
 										<select name="', $config_var['name'], '" id="', $config_var['name'], '" ', $javascript, $disabled, (!empty($config_var['multiple']) ? ' multiple="multiple"' : ''), (!empty($select_size) ? ' size="' . $select_size . '"' : ''), '>';
