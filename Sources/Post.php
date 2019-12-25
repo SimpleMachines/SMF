@@ -534,6 +534,8 @@ function Post($post_errors = array())
 			else
 				$context['preview_subject'] = '<em>' . $txt['no_subject'] . '</em>';
 
+			call_integration_hook('integrate_preview_post', array(&$form_message, &$form_subject));
+
 			// Protect any CDATA blocks.
 			if (isset($_REQUEST['xml']))
 				$context['preview_message'] = strtr($context['preview_message'], array(']]>' => ']]]]><![CDATA[>'));
@@ -1043,7 +1045,7 @@ function Post($post_errors = array())
 	 */
 	$minor_errors = array('not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject', 'topic_locked', 'topic_unlocked', 'topic_stickied', 'topic_unstickied', 'cannot_post_attachment');
 
-	call_integration_hook('integrate_post_errors', array(&$post_errors, &$minor_errors));
+	call_integration_hook('integrate_post_errors', array(&$post_errors, &$minor_errors, $form_message, $form_subject));
 
 	// Any errors occurred?
 	if (!empty($post_errors))
@@ -1749,6 +1751,8 @@ function Post2()
 		}
 
 		$posterIsGuest = $user_info['is_guest'];
+		$context['is_own_post'] = true;
+		$context['poster_id'] = $user_info['id'];
 	}
 	// Posting a new topic.
 	elseif (empty($topic))
@@ -1787,6 +1791,8 @@ function Post2()
 		}
 
 		$posterIsGuest = $user_info['is_guest'];
+		$context['is_own_post'] = true;
+		$context['poster_id'] = $user_info['id'];
 	}
 	// Modifying an existing message?
 	elseif (isset($_REQUEST['msg']) && !empty($topic))
@@ -1882,6 +1888,8 @@ function Post2()
 		}
 
 		$posterIsGuest = empty($row['id_member']);
+		$context['is_own_post'] = $user_info['id'] === (int) $row['id_member'];
+		$context['poster_id'] = (int) $row['id_member'];
 
 		// Can they approve it?
 		$approve_checked = (!empty($REQUEST['approve']) ? 1 : 0);
@@ -1899,7 +1907,6 @@ function Post2()
 		$searchAPI = findSearchAPI();
 		if ($searchAPI->supportsMethod('postRemoved'))
 			$searchAPI->postRemoved($_REQUEST['msg']);
-
 	}
 
 	// In case we have approval permissions and want to override.
@@ -2022,6 +2029,8 @@ function Post2()
 		$_POST['email'] = $user_info['email'];
 	}
 
+ 	call_integration_hook('integrate_post2_pre', array(&$post_errors));
+	
 	// Any mistakes?
 	if (!empty($post_errors))
 	{
@@ -2750,6 +2759,8 @@ function getTopic()
 		censorText($row['body']);
 		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
+	 	call_integration_hook('integrate_getTopic_previous_post', array(&$row));
+
 		// ...and store.
 		$context['previous_posts'][] = array(
 			'counter' => $counter++,
@@ -2984,6 +2995,8 @@ function JavaScriptModify()
 			}
 		}
 	}
+
+ 	call_integration_hook('integrate_post_JavascriptModify', array(&$post_errors, $row));
 
 	if (isset($_POST['lock']))
 	{
