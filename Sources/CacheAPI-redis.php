@@ -21,7 +21,73 @@ if (!defined('SMF'))
  */
 class redis_cache extends cache_api
 {
+	const PORT = 6379;
 
+	/**
+	 * @var \Redis The redis instance.
+	 */
+	private $redis;
+
+	/**
+	 * @var int.
+	 */
+	private $server;
+
+	/**
+	 * @var string.
+	 */
+	private $port = self::PORT;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function isSupported($test = false)
+	{
+		$supported = class_exists('Redis');
+
+		if ($test)
+			return $supported;
+
+		return parent::isSupported() && $supported;
+	}
+
+	public function connect()
+	{
+
+	}
+
+	/**
+	 * @param Redis $redis
+	 * @return redis_cache
+	 */
+	public function setRedis($redis)
+	{
+		$this->redis = $redis;
+
+		return $this;
+	}
+
+	/**
+	 * @param string $server
+	 * @return redis_cache
+	 */
+	public function setServer($server)
+	{
+		$this->server = $server;
+
+		return $this;
+	}
+
+	/**
+	 * @param int $port
+	 * @return redis_cache
+	 */
+	public function setPort($port)
+	{
+		$this->port = $port;
+
+		return $this;
+	}
 }
 
 ?>
