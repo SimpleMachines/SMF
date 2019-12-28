@@ -513,7 +513,7 @@ function attachmentChecks($attachID)
 
 	// First, the dreaded security check. Sorry folks, but this shouldn't be avoided.
 	$size = @getimagesize($_SESSION['temp_attachments'][$attachID]['tmp_name']);
-	if (isset($context['valid_image_types'][$size[2]]))
+	if (is_array($size) && isset($size[2], $context['valid_image_types'][$size[2]]))
 	{
 		require_once($sourcedir . '/Subs-Graphics.php');
 		if (!checkImageContents($_SESSION['temp_attachments'][$attachID]['tmp_name'], !empty($modSettings['attachment_image_paranoid'])))
@@ -530,10 +530,7 @@ function attachmentChecks($attachID)
 			$old_format = $size[2];
 			$size = @getimagesize($_SESSION['temp_attachments'][$attachID]['tmp_name']);
 			if (!(empty($size)) && ($size[2] != $old_format))
-			{
-				if (isset($context['valid_image_types'][$size[2]]))
-					$_SESSION['temp_attachments'][$attachID]['type'] = 'image/' . $context['valid_image_types'][$size[2]];
-			}
+				$_SESSION['temp_attachments'][$attachID]['type'] = 'image/' . $context['valid_image_types'][$size[2]];
 		}
 	}
 

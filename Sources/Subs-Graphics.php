@@ -356,8 +356,9 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 			$sizes = array(-1, -1, -1);
 		fclose($fp_destination);
 	}
-	// We can't get to the file.
-	else
+
+	// We can't get to the file. or a previous getimagesize failed.
+	if (empty($sizes))
 		$sizes = array(-1, -1, -1);
 
 	// See if we have -or- can get the needed memory for this operation
