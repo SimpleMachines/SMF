@@ -24,7 +24,7 @@
 define('SMF', 1);
 define('SMF_VERSION', '2.1 RC2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2019');
+define('SMF_SOFTWARE_YEAR', '2020');
 define('JQUERY_VERSION', '3.4.1');
 
 error_reporting(E_ALL);

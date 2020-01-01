@@ -23,7 +23,7 @@ if (!defined('SMF_FULL_VERSION'))
 	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 
 if (!defined('SMF_SOFTWARE_YEAR'))
-	define('SMF_SOFTWARE_YEAR', '2019');
+	define('SMF_SOFTWARE_YEAR', '2020');
 
 if (!defined('JQUERY_VERSION'))
 	define('JQUERY_VERSION', '3.4.1');
