@@ -259,7 +259,7 @@ function preparsecode(&$message, $previewing = false)
 	$message = strtr($message, array('[]' => '&#91;]', '[&#039;' => '&#91;&#039;'));
 
 	// Any hooks want to work here?
-	call_integration_hook('integrate_preparsecode', array(&$message));
+	call_integration_hook('integrate_preparsecode', array(&$message, $previewing));
 }
 
 /**
