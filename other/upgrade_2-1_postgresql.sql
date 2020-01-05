@@ -1759,7 +1759,7 @@ CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pat
 		WHERE comment_type = 'ver_test'");
 
 	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
-		$questions[] = array($language, $row['question'], serialize(array($row['answer'])));
+		$questions[] = array($upcontext['language'], $row['question'], serialize(array($row['answer'])));
 
 	$smcFunc['db_free_result']($get_questions);
 
