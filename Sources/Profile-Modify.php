@@ -2032,7 +2032,7 @@ function alert_configuration($memID)
 			array('check', 'msg_auto_notify', 'label' => 'after'),
 			array('check', 'msg_receive_body', 'label' => 'after'),
 			array('select', 'msg_notify_pref', 'label' => 'before', 'opts' => array(
-				0 => $txt['alert_opt_msg_notify_pref_nothing'],
+				0 => $txt['alert_opt_msg_notify_pref_never'],
 				1 => $txt['alert_opt_msg_notify_pref_instant'],
 				2 => $txt['alert_opt_msg_notify_pref_first'],
 				3 => $txt['alert_opt_msg_notify_pref_daily'],
