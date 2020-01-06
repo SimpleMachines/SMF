@@ -145,6 +145,7 @@ function EditSmileySettings($return_config = false)
 
 		// Message icons.
 		array('check', 'messageIcons_enable', 'subtext' => $txt['setting_messageIcons_enable_note']),
+		array('check', 'messageIconChecks_enable', 'subtext' => $txt['setting_messageIconChecks_enable_note'])
 	);
 
 	call_integration_hook('integrate_modify_smiley_settings', array(&$config_vars));

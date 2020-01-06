@@ -1506,7 +1506,7 @@ function prepareDisplayContext($reset = false)
 	}
 
 	// Message Icon Management... check the images exist.
-	if (empty($modSettings['messageIconChecks_disable']))
+	if (!empty($modSettings['messageIconChecks_enable']))
 	{
 		// If the current icon isn't known, then we need to do something...
 		if (!isset($context['icon_sources'][$message['icon']]))
