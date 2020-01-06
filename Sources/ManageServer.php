@@ -1015,6 +1015,7 @@ function prepareDBSettingContext(&$config_vars)
 			// Special case for inline permissions
 			if ($config_var[0] == 'permissions' && allowedTo('manage_permissions'))
 				$inlinePermissions[] = $config_var[1];
+
 			elseif ($config_var[0] == 'permissions')
 				continue;
 
@@ -1085,6 +1086,7 @@ function prepareDBSettingContext(&$config_vars)
 				// Default to a min of 0 if one isn't set
 				if (isset($config_var['min']))
 					$context['config_vars'][$config_var[1]]['min'] = $config_var['min'];
+
 				else
 					$context['config_vars'][$config_var[1]]['min'] = 0;
 
@@ -1108,6 +1110,7 @@ function prepareDBSettingContext(&$config_vars)
 				// If it's associative
 				if (isset($config_var[2][0]) && is_array($config_var[2][0]))
 					$context['config_vars'][$config_var[1]]['data'] = $config_var[2];
+
 				else
 				{
 					foreach ($config_var[2] as $key => $item)
@@ -1129,6 +1132,7 @@ function prepareDBSettingContext(&$config_vars)
 				// See if there are any other labels that might fit?
 				if (isset($txt['setting_' . $config_var[1]]))
 					$context['config_vars'][$config_var[1]]['label'] = $txt['setting_' . $config_var[1]];
+
 				elseif (isset($txt['groups_' . $config_var[1]]))
 					$context['config_vars'][$config_var[1]]['label'] = $txt['groups_' . $config_var[1]];
 			}
