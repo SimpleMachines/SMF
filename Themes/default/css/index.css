@@ -1318,7 +1318,7 @@ ul li.greeting {
 
 /* The quick buttons */
 .quickbuttons {
-	margin: 11px 0 4px 0;
+	margin: 0 0 5px;
 	clear: right;
 	float: right;
 	text-align: right;
@@ -3330,7 +3330,7 @@ div#pollmoderation {
 	line-height: 1.5em;
 	font-size: 0.9em;
 }
-.keyinfo h5::after {
+.keyinfo h5::after, .under_message::after {
 	content: "";
 	clear: right;
 	display: block;
@@ -3560,6 +3560,8 @@ ul.post_options li {
 }
 .under_message {
 	overflow: visible;
+	border: none;
+	box-shadow: none;
 }
 /* Events */
 .edit_event {
