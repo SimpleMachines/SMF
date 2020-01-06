@@ -61,7 +61,7 @@ class postgres_cache extends cache_api
 	{
 		global $smcFunc, $db_connection;
 
-		if ($smcFunc['db_title'] !== 'PostgreSQL')
+		if ($smcFunc['db_title'] !== POSTGRE_TITLE)
 			return false;
 
 		$result = pg_query($db_connection, 'SHOW server_version_num');

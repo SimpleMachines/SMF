@@ -28,10 +28,16 @@ if (!defined('SMF_SOFTWARE_YEAR'))
 if (!defined('JQUERY_VERSION'))
 	define('JQUERY_VERSION', '3.4.1');
 
-if (!defined('SMF_USER_AGENT'))
+if (!defined('POSTGRE_TITLE'))
+	define('POSTGRE_TITLE', 'PostgreSQL');
+
+if (!defined('MYSQL_TITLE'))
+	define('MYSQL_TITLE', 'MySQL');
+
+/if (!defined('SMF_USER_AGENT'))
 	define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
 
-/**
+**
  * Class ProxyServer
  */
 class ProxyServer

@@ -54,7 +54,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_transaction'            => 'smf_db_transaction',
 			'db_error'                  => 'pg_last_error',
 			'db_select_db'              => 'smf_db_select_db',
-			'db_title'                  => 'PostgreSQL',
+			'db_title'                  => POSTGRE_TITLE,
 			'db_sybase'                 => true,
 			'db_case_sensitive'         => true,
 			'db_escape_wildcard_string' => 'smf_db_escape_wildcard_string',
@@ -659,7 +659,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 		if (count(array_intersect_key($columns, array_flip($keys))) !== count($keys))
 			smf_db_error_backtrace('Primary Key field missing in insert call',
 				'Change the method of db insert to insert or add the pk field to the columns array', E_USER_ERROR, __FILE__, __LINE__);
-	}			
+	}
 
 	// PostgreSQL doesn't support replace: we implement a MySQL-compatible behavior instead
 	if ($method == 'replace' || $method == 'ignore')
