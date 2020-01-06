@@ -246,7 +246,6 @@ function template_merge()
 
 		echo '
 					</ul>
-					<input type="submit" value="', $txt['merge'], '" class="button">
 				</div>
 				<div class="pagesection">
 					', $context['page_index'], '
