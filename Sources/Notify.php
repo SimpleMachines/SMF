@@ -7,9 +7,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -52,9 +52,9 @@ function BoardNotify()
 			// Turn notification on.  (note this just blows smoke if it's already on.)
 			$smcFunc['db_insert']('ignore',
 				'{db_prefix}log_notify',
-				array('id_member' => 'int', 'id_board' => 'int'),
-				array($user_info['id'], $board),
-				array('id_member', 'id_board')
+				array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'),
+				array($user_info['id'], 0, $board),
+				array('id_member', 'id_topic', 'id_board')
 			);
 		else
 			$smcFunc['db_query']('', '
@@ -152,9 +152,9 @@ function TopicNotify()
 				// Turn notification on.  (note this just blows smoke if it's already on.)
 				$smcFunc['db_insert']('ignore',
 					'{db_prefix}log_notify',
-					array('id_member' => 'int', 'id_topic' => 'int'),
-					array($user_info['id'], $log['id_topic']),
-					array('id_member', 'id_board')
+					array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'),
+					array($user_info['id'], $log['id_topic'], 0),
+					array('id_member','id_topic', 'id_board')
 				);
 			}
 			else

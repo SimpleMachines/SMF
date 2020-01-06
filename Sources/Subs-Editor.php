@@ -7,9 +7,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -1594,7 +1594,7 @@ function create_control_richedit($editorOptions)
 		'columns' => isset($editorOptions['columns']) ? $editorOptions['columns'] : 60,
 		'rows' => isset($editorOptions['rows']) ? $editorOptions['rows'] : 18,
 		'width' => isset($editorOptions['width']) ? $editorOptions['width'] : '70%',
-		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '250px',
+		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '175px',
 		'form' => isset($editorOptions['form']) ? $editorOptions['form'] : 'postmodify',
 		'bbc_level' => !empty($editorOptions['bbc_level']) ? $editorOptions['bbc_level'] : 'full',
 		'preview_type' => isset($editorOptions['preview_type']) ? (int) $editorOptions['preview_type'] : 1,
@@ -1899,11 +1899,10 @@ function create_control_richedit($editorOptions)
 		}
 	}
 
-	// Set a flag so the sub template knows what to do...
-	$context['show_bbc'] = !empty($modSettings['enableBBC']);
-
 	// Set up the SCEditor options
 	$sce_options = array(
+		'width' => isset($editorOptions['width']) ? $editorOptions['width'] : '100%',
+		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '175px',
 		'style' => $settings[file_exists($settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css',
 		'emoticonsCompat' => true,
 		'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
@@ -1957,7 +1956,7 @@ function create_control_richedit($editorOptions)
 	}
 
 	$sce_options['toolbar'] = '';
-	if ($context['show_bbc'])
+	if (!empty($modSettings['enableBBC']))
 	{
 		$count_tags = count($context['bbc_tags']);
 		foreach ($context['bbc_toolbar'] as $i => $buttonRow)
@@ -2023,6 +2022,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			'can_recaptcha' => !empty($modSettings['recaptcha_enabled']) && !empty($modSettings['recaptcha_site_key']) && !empty($modSettings['recaptcha_secret_key']),
 		);
 	$thisVerification = &$context['controls']['verification'][$verificationOptions['id']];
+
+	// Add a verification hook, presetup.
+	call_integration_hook('integrate_create_control_verification_pre', array(&$verificationOptions, $do_test));
 
 	// Is there actually going to be anything?
 	if (empty($thisVerification['show_visual']) && empty($thisVerification['number_questions']) && empty($thisVerification['can_recaptcha']))
@@ -2154,6 +2156,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			if (!empty($incorrectQuestions))
 				$verification_errors[] = 'wrong_verification_answer';
 		}
+
+		// Hooks got anything to say about this verification?
+		call_integration_hook('integrate_create_control_verification_test', array($thisVerification, &$verification_errors));
 	}
 
 	// Any errors means we refresh potentially.
@@ -2226,6 +2231,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 				}
 			}
 		}
+
+		// Hooks may need to know about this.
+		call_integration_hook('integrate_create_control_verification_refresh', array($thisVerification));
 	}
 	else
 	{
@@ -2262,6 +2270,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	}
 
 	$_SESSION[$verificationOptions['id'] . '_vv']['count'] = empty($_SESSION[$verificationOptions['id'] . '_vv']['count']) ? 1 : $_SESSION[$verificationOptions['id'] . '_vv']['count'] + 1;
+
+	// Let our hooks know that we are done with the verification process.
+	call_integration_hook('integrate_create_control_verification_post', array(&$verification_errors, $do_test));
 
 	// Return errors if we have them.
 	if (!empty($verification_errors))

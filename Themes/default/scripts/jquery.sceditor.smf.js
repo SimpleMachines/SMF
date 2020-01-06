@@ -2,9 +2,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -176,7 +176,17 @@
 		// creating the first instance and extend it then
 		var instance = sceditor.instance(textarea);
 		if (!isPatched && instance) {
-			$.extend(true, instance.constructor.prototype, extensionMethods);
+			sceditor.utils.extend(instance.constructor.prototype, extensionMethods);
+
+			/*
+			 * Stop SCEditor from resizing the entire container. Long
+			 * toolbars and tons of smilies play havoc with this.
+			 * Only resize the text areas instead.
+			 */
+			document.querySelector(".sceditor-container").removeAttribute("style");
+			instance.getContentAreaContainer().style.minHeight = options.height;
+			document.querySelector(".sceditor-container textarea").style.minHeight = options.height;
+
 			isPatched = true;
 		}
 	};

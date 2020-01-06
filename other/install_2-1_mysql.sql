@@ -601,7 +601,7 @@ CREATE TABLE {$db_prefix}log_spider_hits (
 
 CREATE TABLE {$db_prefix}log_spider_stats (
 	id_spider SMALLINT UNSIGNED DEFAULT '0',
-	page_hits SMALLINT UNSIGNED NOT NULL DEFAULT '0',
+	page_hits INT NOT NULL DEFAULT '0',
 	last_seen INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	stat_date DATE DEFAULT '1004-01-01',
 	PRIMARY KEY (stat_date, id_spider)
@@ -2069,7 +2069,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('enableThemes', '1'),
 	('who_enabled', '1'),
 	('time_offset', '0'),
-	('cookieTime', '60'),
+	('cookieTime', '3153600'),
 	('lastActive', '15'),
 	('smiley_sets_known', 'fugue,alienine'),
 	('smiley_sets_names', '{$default_fugue_smileyset_name}\n{$default_alienine_smileyset_name}'),
@@ -2131,6 +2131,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('show_blurb', '1'),
 	('show_profile_buttons', '1'),
 	('enable_ajax_alerts', '1'),
+	('alerts_auto_purge', '30'),
 	('gravatarEnabled', '1'),
 	('gravatarOverride', '0'),
 	('gravatarAllowExtraEmail', '1'),
@@ -2223,12 +2224,12 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'show_stats_index', '1'),
 	(1, 'newsfader_time', '3000'),
 	(1, 'use_image_buttons', '1'),
-	(1, 'enable_news', '1'),
-	(1, 'drafts_show_saved_enabled', '1');
+	(1, 'enable_news', '1');
 
 INSERT INTO {$db_prefix}themes
 	(id_member, id_theme, variable, value)
 VALUES (-1, 1, 'posts_apply_ignore_list', '1'),
+	(-1, 1, 'drafts_show_saved_enabled', '1'),
 	(-1, 1, 'return_to_post', '1');
 # --------------------------------------------------------
 

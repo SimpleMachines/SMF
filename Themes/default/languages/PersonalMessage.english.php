@@ -135,6 +135,7 @@ $txt['pm_search_choose_label'] = 'Choose labels to search by, or search all';
 
 $txt['pm_search_results'] = 'Search results';
 $txt['pm_search_none_found'] = 'No messages found';
+$txt['pm_search_results_info'] = 'Found %1$d matching messages in %2$s.';
 
 $txt['pm_search_orderby_relevant_first'] = 'Most relevant first';
 $txt['pm_search_orderby_recent_first'] = 'Most recent first';
@@ -187,8 +188,8 @@ $txt['pm_rule_no_name'] = 'You forgot to enter a name for the rule.';
 $txt['pm_rule_no_criteria'] = 'A rule must have at least one criteria and one action set.';
 $txt['pm_rule_too_complex'] = 'The rule you are creating is too long for SMF to store. Try breaking it up into smaller rules.';
 
-$txt['pm_readable_and'] = '<em>and</em>';
-$txt['pm_readable_or'] = '<em>or</em>';
+$txt['pm_readable_and'] = 'and';
+$txt['pm_readable_or'] = 'or';
 $txt['pm_readable_start'] = 'If ';
 $txt['pm_readable_end'] = '.';
 $txt['pm_readable_member'] = 'message is from &quot;{MEMBER}&quot;';
@@ -198,7 +199,7 @@ $txt['pm_readable_body'] = 'message body contains &quot;{BODY}&quot;';
 $txt['pm_readable_buddy'] = 'sender is a buddy';
 $txt['pm_readable_label'] = 'apply label &quot;{LABEL}&quot;';
 $txt['pm_readable_delete'] = 'delete the message';
-$txt['pm_readable_then'] = '<strong>then</strong>';
+$txt['pm_readable_then'] = 'then';
 $txt['pm_remove_message'] = 'Remove this message';
 
 ?>

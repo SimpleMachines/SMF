@@ -4,19 +4,23 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
 
 define('SMF_VERSION', '2.1 RC2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2019');
+define('SMF_SOFTWARE_YEAR', '2020');
 define('DB_SCRIPT_VERSION', '2-1');
 define('SMF_INSTALLING', 1);
+
 define('JQUERY_VERSION', '3.4.1');
+define('POSTGRE_TITLE', 'PostgreSQL');
+define('MYSQL_TITLE', 'MySQL');
+define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
 
 $GLOBALS['required_php_version'] = '5.4.0';
 
@@ -1317,7 +1321,7 @@ function DatabasePopulation()
 	// Are we allowing stat collection?
 	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']))
 	{
-		$upcontext['allow_sm_stats'] = true;
+		$incontext['allow_sm_stats'] = true;
 
 		// Attempt to register the site etc.
 		$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
@@ -1350,7 +1354,7 @@ function DatabasePopulation()
 		}
 	}
 	// Don't remove stat collection unless we unchecked the box for real, not from the loop.
-	elseif (empty($_POST['stats']) && empty($upcontext['allow_sm_stats']))
+	elseif (empty($_POST['stats']) && empty($incontext['allow_sm_stats']))
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}settings
 			WHERE variable = {string:enable_sm_stats}',
@@ -2003,7 +2007,7 @@ function template_install_above()
 
 	foreach ($incontext['steps'] as $num => $step)
 		echo '
-						<li', $num == $upcontext['current_step'] ? ' class="stepcurrent"' : '', '>
+						<li', $num == $incontext['current_step'] ? ' class="stepcurrent"' : '', '>
 							', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '
 						</li>';
 

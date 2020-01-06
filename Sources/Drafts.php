@@ -7,9 +7,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -229,8 +229,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 				subject = {string:subject},
 				body = {string:body},
 				to_list = {string:to_list}
-			WHERE id_draft = {int:id_pm_draft}
-			LIMIT 1',
+			WHERE id_draft = {int:id_pm_draft}',
 			array(
 				'id_reply' => $reply_id,
 				'type' => 1,
@@ -697,8 +696,7 @@ function showPMDrafts($memID = -1)
 			DELETE FROM {db_prefix}user_drafts
 			WHERE id_draft = {int:id_draft}
 				AND id_member = {int:id_member}
-				AND type = {int:draft_type}
-			LIMIT 1',
+				AND type = {int:draft_type}',
 			array(
 				'id_draft' => $id_delete,
 				'id_member' => $memID,

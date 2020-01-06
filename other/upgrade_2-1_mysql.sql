@@ -165,6 +165,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1');
 ---#
 
+---# Adding new "alerts_auto_purge" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('alerts_auto_purge', '30');
+---#
+
 ---# Adding new "minimize_files" setting
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('minimize_files', '1');
 ---#
@@ -1318,9 +1322,9 @@ VALUES
 	('drafts_keep_days', '7');
 
 INSERT INTO {$db_prefix}themes
-	(id_theme, variable, value)
+	(id_member, id_theme, variable, value)
 VALUES
-	('1', 'drafts_show_saved_enabled', '1');
+	(-1, '1', 'drafts_show_saved_enabled', '1');
 ---#
 
 /******************************************************************************/
@@ -1537,7 +1541,7 @@ $get_questions = upgrade_query("
 	WHERE comment_type = 'ver_test'");
 
 	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
-		$questions[] = array($language, $row['question'], serialize(array($row['answer'])));
+		$questions[] = array($upcontext['language'], $row['question'], serialize(array($row['answer'])));
 
 	$smcFunc['db_free_result']($get_questions);
 
@@ -3073,3 +3077,11 @@ while ($row = $smcFunc['db_fetch_assoc']($request))
 }
 ---}
 ---#
+
+/******************************************************************************/
+--- Update log_spider_stats
+/******************************************************************************/
+---# Allow for hyper aggressive crawlers
+ALTER TABLE {$db_prefix}log_spider_stats CHANGE page_hits page_hits INT NOT NULL DEFAULT '0';
+---#
+

@@ -7,9 +7,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -115,7 +115,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 				{
 					$replacements = array(
 						'RECPNAME' => $row['member_name'],
-						'APPYNAME' => $this->_details['member_name'],
+						'APPLYNAME' => $this->_details['member_name'],
 						'GROUPNAME' => $this->_details['group_name'],
 						'REASON' => $this->_details['reason'],
 						'MODLINK' => $scripturl . '?action=moderate;area=groups;sa=requests',

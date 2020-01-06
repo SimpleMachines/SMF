@@ -86,6 +86,10 @@ var updateAlerts = function ()
 		user_menus.add("alerts", smf_scripturl + "?action=profile;area=alerts_popup;u=" + smf_member_id);
 	});
 
+	// A counter showing zero looks silly
+	if (unreadAlerts === 0)
+		$('#alerts_menu_top > .amt:first').remove();
+
 	setTimeout(updateAlerts, pingTime);
 }
 

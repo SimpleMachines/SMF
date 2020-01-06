@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -816,6 +816,7 @@ function SMStats()
 
 			$out = 'POST /smf/stats/collect_stats.php HTTP/1.1' . "\r\n";
 			$out .= 'Host: www.simplemachines.org' . "\r\n";
+			$out .= 'user-agent: '. SMF_USER_AGENT . "\r\n";
 			$out .= 'content-type: application/x-www-form-urlencoded' . "\r\n";
 			$out .= 'connection: Close' . "\r\n";
 			$out .= 'content-length: ' . $length . "\r\n\r\n";

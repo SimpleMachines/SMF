@@ -3,9 +3,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -621,11 +621,11 @@ function template_showAlerts()
 			<div class="pagesection">
 				<div class="floatleft">
 					', $context['pagination'], '
-				</div>';
+				</div>
+				<div class="floatright">';
 
 		if ($context['showCheckboxes'])
 			echo '
-				<div class="floatright">
 					', $txt['check_all'], ': <input type="checkbox" name="select_all" id="select_all">
 					<select name="mark_as">
 						<option value="read">', $txt['quick_mod_markread'], '</option>
@@ -634,10 +634,11 @@ function template_showAlerts()
 					</select>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="start" value="', $context['start'], '">
-					<input type="submit" name="req" value="', $txt['quick_mod_go'], '" class="button you_sure">
-				</div>';
+					<input type="submit" name="req" value="', $txt['quick_mod_go'], '" class="button you_sure">';
 
 		echo '
+					<a href="', $context['alert_purge_link'], '" class="button you_sure">', $txt['alert_purge'], '</a>
+				</div>
 			</div>';
 
 		if ($context['showCheckboxes'])
@@ -1550,7 +1551,7 @@ function template_edit_options()
 					if (is_array($field['options']))
 						foreach ($field['options'] as $value => $name)
 							echo '
-							<option', (!empty($field['disabled_options']) && is_array($field['disabled_options']) && in_array($value, $field['disabled_options'], true) ? ' disabled' : ''), ' value="' . $value . '"', $value == $field['value'] ? ' selected' : '', '>', $name, '</option>';
+							<option value="' . $value . '"', (!empty($field['disabled_options']) && is_array($field['disabled_options']) && in_array($value, $field['disabled_options'], true) ? ' disabled' : ($value == $field['value'] ? ' selected' : '')), '>', $name, '</option>';
 				}
 
 				echo '

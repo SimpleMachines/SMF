@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -250,6 +250,19 @@ function scheduled_daily_maintenance()
 		require_once($boarddir . '/proxy.php');
 		$proxy = new ProxyServer();
 		$proxy->housekeeping();
+	}
+
+	// Delete old alerts.
+	if (!empty($modSettings['alerts_auto_purge']))
+	{
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}user_alerts
+			WHERE is_read > 0
+				AND is_read < {int:purge_before}',
+			array(
+				'purge_before' => time() - 86400 * $modSettings['alerts_auto_purge'],
+			)
+		);
 	}
 
 	// Anyone else have something to do?

@@ -153,7 +153,7 @@ strong, .strong {
 .cat_bar strong {
 	color: #fff;
 }
-em {
+em, .em {
 	font-style: italic;
 }
 /* Default <strong> color on these tags */
@@ -3468,7 +3468,7 @@ ul.post_options li {
 #post_settings, #postAttachment, #postAttachment2, #attachment_previews {
 	border-top: 1px solid #ddd;
 	margin: -1px 0 0 0;
-	padding: 10px;
+	padding: 10px 0;
 }
 #postAttachment dd, #postAttachment2 dd {
 	margin: 4px 0;
@@ -3499,11 +3499,26 @@ ul.post_options li {
 #post_draft_options .settings strong {
 	color: #555;
 }
+#post_confirm_buttons {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	width: 100%;
+}
 #post_confirm_buttons, #shortcuts {
 	padding: 12px 0;
 }
 #post_confirm_buttons .smalltext {
-	padding: 0 10px;
+	flex: 1;
+	word-break: break-word;
+	margin: 0 5px 0 0;
+}
+#post_confirm_buttons .post_button_container {
+	vertical-align: top;
+}
+#post_confirm_buttons .padding {
+	flex: 1 100%;
 }
 .post_verification {
 	margin-top: 6px;
@@ -4046,4 +4061,9 @@ tr[id^='list_news_lists_'] textarea {
 	padding-bottom: 0.5em;
 	border-bottom: 1px solid #ddd;
 	margin-bottom: 0.5em;
+}
+
+/* To break or not to break that is the question indeed */
+.word_break {
+	word-break: break-all;
 }

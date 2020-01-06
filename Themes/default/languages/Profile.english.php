@@ -4,9 +4,12 @@
 global $scripturl, $context;
 
 // Some of the things from the popup need their own descriptions
-$txt['popup_summary'] = 'My Profile';
+$txt['popup_forumprofile'] = 'Profile Details';
 $txt['popup_showposts'] = 'My Posts';
+$txt['popup_showdrafts'] = 'My Drafts';
 $txt['popup_ignore'] = 'Ignore List';
+$txt['popup_groupmembership'] = 'My Groups';
+$txt['popup_subscriptions'] = 'Subscriptions';
 
 $txt['no_profile_edit'] = 'You are not allowed to change this person\'s profile.';
 $txt['website_title'] = 'Website title';
@@ -96,6 +99,8 @@ $txt['custom_title'] = 'Custom title';
 
 $txt['lastLoggedIn'] = 'Last active';
 
+$txt['alert_purge'] = 'Delete all read alerts';
+
 $txt['alert_prefs'] = 'Notification Preferences';
 $txt['alert_prefs_desc'] = 'This page will allow you to configure when and how you get notified about new content.';
 $txt['watched_topics'] = 'Watched Topics';
@@ -131,7 +136,7 @@ $txt['alert_opt_msg_notify_type'] = 'Notify me of:';
 $txt['alert_opt_msg_auto_notify'] = 'Follow topics I create and reply to';
 $txt['alert_opt_msg_receive_body'] = 'Receive message body in e-mails';
 $txt['alert_opt_msg_notify_pref'] = 'How frequently to tell me:';
-$txt['alert_opt_msg_notify_pref_nothing'] = 'Nothing, just make a note of it';
+$txt['alert_opt_msg_notify_pref_never'] = 'Never';
 $txt['alert_opt_msg_notify_pref_instant'] = 'Straight away';
 $txt['alert_opt_msg_notify_pref_first'] = 'Straight away (but only for the first unread message)';
 $txt['alert_opt_msg_notify_pref_daily'] = 'Send me a daily email digest';
@@ -340,12 +345,13 @@ $txt['show_no_censored'] = 'Leave words uncensored.';
 $txt['topics_per_page'] = 'Topics to display per page:';
 $txt['messages_per_page'] = 'Messages to display per page:';
 $txt['per_page_default'] = 'forum default';
+
 $txt['calendar_start_day'] = 'First day of the week on the calendar';
 $txt['calendar_default_view'] = 'Default view on calendar page';
 $txt['calendar_viewlist'] = 'List view';
 $txt['calendar_viewmonth'] = 'Month view';
 $txt['calendar_viewweek'] = 'Week view';
-$txt['use_editor_quick_reply'] = 'Use full editor toolbar in Quick Reply';
+
 $txt['display_quick_mod'] = 'Show quick-moderation as';
 $txt['display_quick_mod_none'] = 'don\'t show';
 $txt['display_quick_mod_check'] = 'checkboxes';

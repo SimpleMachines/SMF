@@ -124,11 +124,11 @@ $txt['package_theme_failure_warning'] = 'At least one error was encountered duri
 
 $txt['package_bytes'] = 'bytes';
 
-$txt['package_action_missing'] = '<strong class="error">File not found</strong>';
-$txt['package_action_error'] = '<strong class="error">Modification parse error</strong>';
-$txt['package_action_failure'] = '<strong class="error">Test failed</strong>';
-$txt['package_action_success'] = '<strong>Test successful</strong>';
-$txt['package_action_skipping'] = '<strong>Skipping file</strong>';
+$txt['package_action_missing'] = 'File not found';
+$txt['package_action_error'] = 'Modification parse error';
+$txt['package_action_failure'] = 'Test failed';
+$txt['package_action_success'] = 'Test successful';
+$txt['package_action_skipping'] = 'Skipping file';
 
 $txt['package_uninstall_actions'] = 'Uninstall Actions';
 $txt['package_uninstall_done'] = 'The package has been successfully uninstalled.';
@@ -183,9 +183,9 @@ $txt['package_cleanperms_free'] = 'All files are writable.';
 $txt['package_cleanperms_restrictive'] = 'The minimum files are writable.';
 $txt['package_cleanperms_go'] = 'Change file permissions';
 
-$txt['package_download_by_url'] = 'Download a package by url';
+$txt['package_download_by_url'] = 'Download a package by URL';
 $txt['package_download_filename'] = 'Name of the file';
-$txt['package_download_filename_info'] = 'Optional value. Should be used when the url does not end in the filename. For example: index.php?mod=5';
+$txt['package_download_filename_info'] = 'Optional value. Should be used when the URL does not end in the filename. For example: index.php?mod=5';
 
 $txt['package_db_uninstall'] = 'Remove all data associated with this modification.';
 $txt['package_db_uninstall_details'] = 'Details';

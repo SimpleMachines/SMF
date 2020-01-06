@@ -36,19 +36,19 @@ $txt['permissions_profile_do_edit'] = 'Edit';
 $txt['permissions_profile_do_delete'] = 'Delete';
 
 $txt['permissionname_profile_signature'] = 'Edit signature';
-$txt['permissionhelp_profile_signature'] = 'Allow the member to edit the signature field in their profile';
+$txt['permissionhelp_profile_signature'] = 'Allow members to edit the signature field in their profiles';
 $txt['permissionname_profile_signature_own'] = 'Own signature';
 $txt['permissionname_profile_signature_any'] = 'Any signature';
 $txt['permissionname_profile_forum'] = 'Allow Forum Profile edits';
-$txt['permissionhelp_profile_forum'] = 'This option will allow a member to edit their Forum Profile';
+$txt['permissionhelp_profile_forum'] = 'This option will allow members to edit their Forum Profiles';
 $txt['permissionname_profile_forum_own'] = 'Own profile';
 $txt['permissionname_profile_forum_any'] = 'Any profile';
 $txt['permissionname_profile_website'] = 'Edit website';
-$txt['permissionhelp_profile_website'] = 'Allow the member to edit the website fields in their profile';
+$txt['permissionhelp_profile_website'] = 'Allow members to edit the website fields in their profiles';
 $txt['permissionname_profile_website_own'] = 'Own profile';
 $txt['permissionname_profile_website_any'] = 'Any profile';
 $txt['permissionname_profile_blurb'] = 'Edit personal text';
-$txt['permissionhelp_profile_blurb'] = 'Allow the member to edit the personal text field in their profile';
+$txt['permissionhelp_profile_blurb'] = 'Allow members to edit the personal text field in their profiles';
 $txt['permissionname_profile_blurb_own'] = 'Own profile';
 $txt['permissionname_profile_blurb_any'] = 'Any profile';
 $txt['permissions_profile_copy_from'] = 'Copy Permissions from';
@@ -109,7 +109,7 @@ $txt['permissionhelp_pm_send'] = 'Send personal messages to other registered mem
 
 $txt['permissiongroup_calendar'] = 'Calendar';
 $txt['permissionname_calendar_view'] = 'View the calendar';
-$txt['permissionhelp_calendar_view'] = 'The calendar shows for each month the birthdays, events and holidays. This permission allows access to this calendar. When this permission is enabled, a button will be added to the top button bar and a list will be shown at the bottom of the board index with current and upcoming birthdays, events and holidays. The calendar needs be enabled from \'Configuration - Core Features\'.';
+$txt['permissionhelp_calendar_view'] = 'The calendar shows for each month the birthdays, events and holidays. This permission allows access to this calendar. When this permission is enabled, a button will be added to the top button bar and a list will be shown at the bottom of the board index with current and upcoming birthdays, events and holidays. The calendar needs be enabled from \'Forum - Calendar\'.';
 $txt['permissionname_calendar_post'] = 'Create events in the calendar';
 $txt['permissionhelp_calendar_post'] = 'An Event is a topic linked to a certain date or date range. Creating events can be done from the calendar. An event can only be created if the user that creates the event is allowed to post new topics.';
 $txt['permissionname_calendar_edit'] = 'Edit events in the calendar';
@@ -127,13 +127,13 @@ $txt['permissionhelp_manage_attachments'] = 'This permission allows access to th
 $txt['permissionname_manage_smileys'] = 'Manage smileys and message icons';
 $txt['permissionhelp_manage_smileys'] = 'This allows access to the smiley center. In the smiley center you can add, edit and remove smileys and smiley sets. If you\'ve enabled customized message icons you are also able to add and edit message icons with this permission.';
 $txt['permissionname_edit_news'] = 'Edit news';
-$txt['permissionhelp_edit_news'] = 'The news function allows a random news line to appear on each screen. In order to use the news function, enabled it in the forum settings.';
+$txt['permissionhelp_edit_news'] = 'The news function allows a random news line to appear on each screen. In order to use the news function, enable it in the forum settings.';
 $txt['permissionname_access_mod_center'] = 'Access the moderation center';
 $txt['permissionhelp_access_mod_center'] = 'With this permission any members of this group can access the moderation center from where they will have access to functionality to ease moderation. Note that this does not in itself grant any moderation privileges.';
 
 $txt['permissiongroup_member_admin'] = 'Member administration';
 $txt['permissionname_moderate_forum'] = 'Moderate forum members';
-$txt['permissionhelp_moderate_forum'] = 'This permission includes all important member moderation functions:<ul class="normallist"><li>access to registration management</li><li>access to the view/delete members screen</li><li>extensive profile info, including track IP/user and (hidden) online status</li><li>activate accounts</li><li>get approval notifications and approve accounts</li><li>immune to ignore PM</li><li>several small things</li></ul>';
+$txt['permissionhelp_moderate_forum'] = 'This permission includes all important member moderation functions:<ul class="normallist"><li>access to registration management</li><li>access to the view/delete members screen</li><li>extensive profile info, including track IP/user and online status (even if hidden)</li><li>activate accounts</li><li>get approval notifications and approve accounts</li><li>immune to ignore PM</li><li>several small things</li></ul>';
 $txt['permissionname_manage_membergroups'] = 'Manage and assign membergroups';
 $txt['permissionhelp_manage_membergroups'] = 'This permission allows a user to edit membergroups and assign membergroups to other members.';
 $txt['permissionname_manage_permissions'] = 'Manage permissions';
@@ -206,8 +206,7 @@ $txt['permissionhelp_move'] = 'Move a topic from one board to the other. Users c
 $txt['permissionname_move_own'] = 'Own topic';
 $txt['permissionname_move_any'] = 'Any topic';
 $txt['permissionname_lock'] = 'Lock topics';
-$txt['permissionhelp_lock'] = 'This permission allows a
-user to lock a topic. This can be done in order to make sure no one can reply to a topic. Only users with a \'Moderate board\' permission can still post in locked topics.';
+$txt['permissionhelp_lock'] = 'This permission allows a user to lock a topic. This can be done in order to make sure no one can reply to a topic. Only users with a \'Moderate board\' permission can still post in locked topics.';
 $txt['permissionname_lock_own'] = 'Own topic';
 $txt['permissionname_lock_any'] = 'Any topic';
 $txt['permissionname_remove'] = 'Remove topics';
@@ -304,7 +303,7 @@ $txt['permission_by_board_desc'] = 'Here you can set which permissions profile a
 $txt['permission_settings_desc'] = 'Here you can set who has permission to change permissions, as well as how sophisticated the permission system should be.';
 $txt['permission_settings_enable_postgroups'] = 'Enable permissions for post count based groups';
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
-$txt['permission_disable_postgroups_warning'] = 'Disabling this setting will remove permissions currently set to post count based groups.';
+$txt['permission_disable_postgroups_warning'] = 'Turning off this option will remove permissions currently set to post count based groups.';
 
 $txt['permissions_post_moderation_desc'] = 'From this page, you can configure the ability to hold users\' posts before being visible to regular forum members, including which group or groups of users can approve them. Users whose posts are held for approval will still be able to see their posts, as well as replies from approvers, e.g. moderator feedback about making a post appropriate.';
 $txt['permissions_post_moderation_enable'] = 'Enable Post Moderation';

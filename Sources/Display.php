@@ -7,9 +7,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -676,7 +676,8 @@ function Display()
 			SELECT pc.id_choice, pc.label, pc.votes, COALESCE(lp.id_choice, -1) AS voted_this
 			FROM {db_prefix}poll_choices AS pc
 				LEFT JOIN {db_prefix}log_polls AS lp ON (lp.id_choice = pc.id_choice AND lp.id_poll = {int:id_poll} AND lp.id_member = {int:current_member} AND lp.id_member != {int:not_guest})
-			WHERE pc.id_poll = {int:id_poll}',
+			WHERE pc.id_poll = {int:id_poll}
+			ORDER BY pc.id_choice',
 			array(
 				'current_member' => $user_info['id'],
 				'id_poll' => $context['topicinfo']['id_poll'],
@@ -1134,6 +1135,33 @@ function Display()
 				array('id_member', 'id_board')
 			);
 		}
+
+		// Mark any alerts about this topic or the posts on this page as read.
+		if (!empty($user_info['alerts']))
+		{
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}user_alerts
+				SET is_read = {int:now}
+				WHERE is_read = 0 AND id_member = {int:current_member}
+					AND
+					(
+						(content_id IN ({array_int:messages}) AND content_type = {string:msg})
+						OR
+						(content_id = {int:current_topic} AND (content_type = {string:topic} OR (content_type = {string:board} AND content_action = {string:topic})))
+					)',
+				array(
+					'topic' => 'topic',
+					'board' => 'board',
+					'msg' => 'msg',
+					'current_member' => $user_info['id'],
+					'current_topic' => $topic,
+					'messages' => $messages,
+					'now' => time(),
+				)
+			);
+			$user_info['alerts'] = $user_info['alerts'] - max(0, $smcFunc['db_affected_rows']());
+			updateMemberData($user_info['id'], array('alerts' => $user_info['alerts']));
+		}
 	}
 
 	// Get notification preferences
@@ -1335,12 +1363,11 @@ function Display()
 	$editorOptions = array(
 		'id' => 'quickReply',
 		'value' => '',
-		'disable_smiley_box' => empty($options['use_editor_quick_reply']),
 		'labels' => array(
 			'post_button' => $txt['post'],
 		),
 		// add height and width for the editor
-		'height' => '250px',
+		'height' => '150px',
 		'width' => '100%',
 		// We do HTML preview here.
 		'preview_type' => 1,
@@ -1352,9 +1379,6 @@ function Display()
 	// Store the ID.
 	$context['post_box_name'] = $editorOptions['id'];
 
-	// Set a flag so the sub template knows what to do...
-	$context['show_bbc'] = !empty($options['use_editor_quick_reply']);
-	$modSettings['disable_wysiwyg'] = !empty($options['use_editor_quick_reply']);
 	$context['attached'] = '';
 	$context['make_poll'] = isset($_REQUEST['poll']);
 
@@ -1506,7 +1530,7 @@ function prepareDisplayContext($reset = false)
 	}
 
 	// Message Icon Management... check the images exist.
-	if (empty($modSettings['messageIconChecks_disable']))
+	if (!empty($modSettings['messageIconChecks_enable']))
 	{
 		// If the current icon isn't known, then we need to do something...
 		if (!isset($context['icon_sources'][$message['icon']]))

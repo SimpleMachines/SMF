@@ -3,9 +3,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -364,7 +364,7 @@ function template_main()
 
 		if (!empty($context['files_in_session_warning']))
 			echo '
-						<div class="smalltext">', $context['files_in_session_warning'], '</div>';
+						<div class="smalltext"><em>', $context['files_in_session_warning'], '</em></div>';
 	}
 
 	// Is the user allowed to post any additional ones? If so give them the boxes to do it!
@@ -534,7 +534,7 @@ function template_main()
 
 	// Finally, the submit buttons.
 	echo '
-					<span id="post_confirm_buttons" class="floatright">
+					<span id="post_confirm_buttons">
 						', template_control_richedit_buttons($context['post_box_name']);
 
 	// Option to delete an event if user is editing one.
@@ -1013,7 +1013,7 @@ function template_post_header()
 	{
 		$context['posting_fields']['subject'] = array(
 			'label' => array('html' => '<label for="subject" id="caption_subject">' . $txt['subject'] . '</label>'),
-			'input' => array('html' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>')
+			'input' => array('html' => '<input type="text" id="subject" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>')
 		);
 	}
 
@@ -1042,7 +1042,7 @@ function template_post_header()
 			echo $pf['label']['html'];
 		else
 			echo '
-							<label', ($pf['input']['type'] === 'radio_select' ? '' : ' for="' . (!empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid) . '"'), ' id="caption_', $pfid, '"', !empty($pf['label']['class']) ? ' class="' . $pf['label']['class'] . '"' : '', '>', $pf['label']['text'], '</label>';
+							<label', ($pf['input']['type'] === 'radio_select' ? '' : ' for="' . (!empty($pf['input']['attributes']['id']) ? $pf['input']['attributes']['id'] : $pfid) . '"'), ' id="caption_', $pfid, '"', !empty($pf['label']['class']) ? ' class="' . $pf['label']['class'] . '"' : '', '>', $pf['label']['text'], '</label>';
 
 		// Any trailing HTML after the label
 		if (!empty($pf['label']['after']))
@@ -1072,6 +1072,9 @@ function template_post_header()
 			echo '
 							<input type="', $pf['input']['type'], '"';
 
+			if (empty($pf['input']['attributes']['id']))
+				echo ' id="', $pfid, '"';
+
 			if (empty($pf['input']['attributes']['name']))
 				echo ' name="', $pfid, '"';
 
@@ -1093,6 +1096,9 @@ function template_post_header()
 		{
 			echo '
 							<textarea';
+
+			if (empty($pf['input']['attributes']['id']))
+				echo ' id="', $pfid, '"';
 
 			if (empty($pf['input']['attributes']['name']))
 				echo ' name="', $pfid, '"';
@@ -1118,6 +1124,9 @@ function template_post_header()
 			// The select element itself
 			echo '
 							<select';
+
+			if (empty($pf['input']['attributes']['id']))
+				echo ' id="', $pfid, '"';
 
 			if (empty($pf['input']['attributes']['name']))
 				echo ' name="', $pfid, '"';

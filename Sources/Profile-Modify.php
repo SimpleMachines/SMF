@@ -8,9 +8,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -144,14 +144,16 @@ function loadProfileFields($force_reload = false)
 			'input_validate' => function(&$value) use ($txt, $user_info, $modSettings, $cur_profile, $context)
 			{
 				// Bad date!  Go try again - please?
-				if (($value = strtotime($value)) === -1)
+				if (($value = strtotime($value)) === false)
 				{
 					$value = $cur_profile['date_registered'];
 					return $txt['invalid_registration'] . ' ' . strftime('%d %b %Y ' . (strpos($user_info['time_format'], '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), forum_time(false));
 				}
+
 				// As long as it doesn't equal "N/A"...
 				elseif ($value != $txt['not_applicable'] && $value != strtotime(strftime('%Y-%m-%d', $cur_profile['date_registered'] + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600)))
 					$value = $value - ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
+
 				else
 					$value = $cur_profile['date_registered'];
 
@@ -600,6 +602,7 @@ function loadProfileFields($force_reload = false)
 			'disabled_options' => array_filter(array_keys(smf_list_timezones()), 'is_int'),
 			'permission' => 'profile_extra',
 			'label' => $txt['timezone'],
+			'value' => empty($cur_profile['timezone']) ? $modSettings['default_timezone'] : $cur_profile['timezone'],
 			'input_validate' => function($value)
 			{
 				$tz = smf_list_timezones();
@@ -2030,7 +2033,7 @@ function alert_configuration($memID)
 			array('check', 'msg_auto_notify', 'label' => 'after'),
 			array('check', 'msg_receive_body', 'label' => 'after'),
 			array('select', 'msg_notify_pref', 'label' => 'before', 'opts' => array(
-				0 => $txt['alert_opt_msg_notify_pref_nothing'],
+				0 => $txt['alert_opt_msg_notify_pref_never'],
 				1 => $txt['alert_opt_msg_notify_pref_instant'],
 				2 => $txt['alert_opt_msg_notify_pref_first'],
 				3 => $txt['alert_opt_msg_notify_pref_daily'],
@@ -2179,16 +2182,20 @@ function alert_configuration($memID)
 					if ($this_options[$type] == 'yes' && !empty($_POST[$type . '_' . $item_key]) || $this_options[$type] == 'always')
 						$this_value |= $bitvalue;
 				}
-				if (!isset($context['alert_prefs'][$item_key]) || $context['alert_prefs'][$item_key] != $this_value)
-					$update_prefs[$item_key] = $this_value;
+
+				$update_prefs[$item_key] = $this_value;
 			}
 		}
 
-		if (!empty($_POST['opt_alert_timeout']))
+		if (isset($_POST['opt_alert_timeout']))
 			$update_prefs['alert_timeout'] = $context['member']['alert_timeout'] = (int) $_POST['opt_alert_timeout'];
+		else
+			$update_prefs['alert_timeout'] = $context['alert_prefs']['alert_timeout'];
 
-		if (!empty($_POST['notify_announcements']))
+		if (isset($_POST['notify_announcements']))
 			$update_prefs['announcements'] = $context['member']['notify_announcements'] = (int) $_POST['notify_announcements'];
+		else
+			$update_prefs['announcements'] = $context['alert_prefs']['announcements'];
 
 		setNotifyPrefs((int) $memID, $update_prefs);
 		foreach ($update_prefs as $pref => $value)
@@ -2313,6 +2320,27 @@ function alert_delete($toDelete, $memID = false)
 		// Might want to know this.
 		return $count;
 	}
+}
+
+/**
+ * Deletes all the alerts that a user has already read.
+ *
+ * @param int $memID The user ID. Defaults to the current user's ID.
+ */
+function alert_purge($memID = 0)
+{
+	global $smcFunc, $user_info;
+
+	$memID = !empty($memID) && is_int($memID) ? $memID : $user_info['id'];
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}user_alerts
+		WHERE id_member = {int:memID}
+			AND is_read > 0',
+		array(
+			'memID' => $memID,
+		)
+	);
 }
 
 /**
@@ -3342,10 +3370,18 @@ function profileSaveAvatarData(&$value)
 	global $modSettings, $sourcedir, $smcFunc, $profile_vars, $cur_profile, $context;
 
 	$memID = $context['id_member'];
+	$context['max_external_size_url'] = 255;
+
 	if (empty($memID) && !empty($context['password_auth_failed']))
 		return false;
 
 	require_once($sourcedir . '/ManageAttachments.php');
+
+	call_integration_hook('before_profile_save_avatar', array(&$value));
+
+	// External url too large
+	if ($value == 'external' && allowedTo('profile_remote_avatar') && strlen($_POST['userpicpersonal']) > $context['max_external_size_url'])
+		return 'bad_avatar_url_too_long';
 
 	// We're going to put this on a nice custom dir.
 	$uploadDir = $modSettings['custom_avatar_dir'];
@@ -3426,13 +3462,16 @@ function profileSaveAvatarData(&$value)
 		// Trying to make us do something we'll regret?
 		elseif (substr($profile_vars['avatar'], 0, 7) != 'http://' && substr($profile_vars['avatar'], 0, 8) != 'https://')
 			return 'bad_avatar_invalid_url';
+
 		// Should we check dimensions?
 		elseif (!empty($modSettings['avatar_max_height_external']) || !empty($modSettings['avatar_max_width_external']))
 		{
 			// Now let's validate the avatar.
 			$sizes = url_image_size($profile_vars['avatar']);
 
-			if (is_array($sizes) && (($sizes[0] > $modSettings['avatar_max_width_external'] && !empty($modSettings['avatar_max_width_external'])) || ($sizes[1] > $modSettings['avatar_max_height_external'] && !empty($modSettings['avatar_max_height_external']))))
+			if (is_array($sizes) && (($sizes[0] > $modSettings['avatar_max_width_external']
+				&& !empty($modSettings['avatar_max_width_external'])) || ($sizes[1] > $modSettings['avatar_max_height_external']
+				&& !empty($modSettings['avatar_max_height_external']))))
 			{
 				// Houston, we have a problem. The avatar is too large!!
 				if ($modSettings['avatar_action_too_large'] == 'option_refuse')
@@ -3454,6 +3493,7 @@ function profileSaveAvatarData(&$value)
 			}
 		}
 	}
+
 	elseif (($value == 'upload' && allowedTo('profile_upload_avatar')) || $downloadedExternalAvatar)
 	{
 		if ((isset($_FILES['attachment']['name']) && $_FILES['attachment']['name'] != '') || $downloadedExternalAvatar)
@@ -3462,7 +3502,7 @@ function profileSaveAvatarData(&$value)
 			if (!$downloadedExternalAvatar)
 			{
 				if (!is_writable($uploadDir))
-					fatal_lang_error('attachments_no_write', 'critical');
+					fatal_lang_error('avatars_no_write', 'critical');
 
 				$new_filename = $uploadDir . '/' . getAttachmentFilename('avatar_tmp_' . $memID, false, null, true);
 				if (!move_uploaded_file($_FILES['attachment']['tmp_name'], $new_filename))
@@ -3480,7 +3520,8 @@ function profileSaveAvatarData(&$value)
 				return 'bad_avatar';
 			}
 			// Check whether the image is too large.
-			elseif ((!empty($modSettings['avatar_max_width_upload']) && $sizes[0] > $modSettings['avatar_max_width_upload']) || (!empty($modSettings['avatar_max_height_upload']) && $sizes[1] > $modSettings['avatar_max_height_upload']))
+			elseif ((!empty($modSettings['avatar_max_width_upload']) && $sizes[0] > $modSettings['avatar_max_width_upload'])
+				|| (!empty($modSettings['avatar_max_height_upload']) && $sizes[1] > $modSettings['avatar_max_height_upload']))
 			{
 				if (!empty($modSettings['avatar_resize_upload']))
 				{
@@ -3588,11 +3629,14 @@ function profileSaveAvatarData(&$value)
 	}
 	elseif ($value == 'gravatar' && allowedTo('profile_gravatar_avatar'))
 		$profile_vars['avatar'] = 'gravatar://www.gravatar.com/avatar/' . md5(strtolower(trim($cur_profile['email_address'])));
+
 	else
 		$profile_vars['avatar'] = '';
 
 	// Setup the profile variables so it shows things right on display!
 	$cur_profile['avatar'] = $profile_vars['avatar'];
+
+	call_integration_hook('after_profile_save_avatar');
 
 	return false;
 }

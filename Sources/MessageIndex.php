@@ -7,9 +7,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -313,8 +313,9 @@ function MessageIndex()
 	$message_index_selects = array();
 	$message_index_tables = array();
 	$message_index_wheres = array();
+	$message_index_topic_wheres = array();
 
-	call_integration_hook('integrate_message_index', array(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids));
+	call_integration_hook('integrate_message_index', array(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids, &$message_index_topic_wheres));
 
 	if (!empty($modSettings['enableParticipation']) && !$user_info['is_guest'])
 		$enableParticipation = true;
@@ -328,7 +329,8 @@ function MessageIndex()
 		' . (!empty($message_index_tables) ? implode("\n\t\t\t\t", $message_index_tables) : '') . '
 		WHERE t.id_board = {int:current_board} '
 			. (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
-			AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
+			AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . (!empty($message_index_topic_wheres) ? ' 
+			AND ' . implode("\n\t\t\t\tAND ", $message_index_topic_wheres) : ''). '
 		ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') . '
 		LIMIT {int:maxindex}
 			OFFSET {int:start} ';
@@ -809,16 +811,22 @@ function QuickModeration()
 
 	if (!$user_info['is_guest'])
 		$possibleActions[] = 'markread';
+
 	if (!empty($boards_can['make_sticky']))
 		$possibleActions[] = 'sticky';
+
 	if (!empty($boards_can['move_any']) || !empty($boards_can['move_own']))
 		$possibleActions[] = 'move';
+
 	if (!empty($boards_can['remove_any']) || !empty($boards_can['remove_own']))
 		$possibleActions[] = 'remove';
+
 	if (!empty($boards_can['lock_any']) || !empty($boards_can['lock_own']))
 		$possibleActions[] = 'lock';
+
 	if (!empty($boards_can['merge_any']))
 		$possibleActions[] = 'merge';
+
 	if (!empty($boards_can['approve_posts']))
 		$possibleActions[] = 'approve';
 

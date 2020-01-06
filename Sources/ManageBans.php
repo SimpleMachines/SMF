@@ -8,9 +8,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -514,6 +514,9 @@ function BanEdit()
 			return confirm("' . $txt['ban_remove_selected_confirm'] . '");
 		});',
 			);
+
+			call_integration_hook('integrate_ban_edit_list', array(&$listOptions));
+
 			createList($listOptions);
 		}
 		// Not an existing one, then it's probably a new one.
@@ -606,6 +609,9 @@ function BanEdit()
 				$context['ban']['name'] = $context['ban_suggestions']['member']['name'];
 				$context['ban']['from_user'] = true;
 			}
+
+			call_integration_hook('integrate_ban_edit_new', array());
+
 		}
 	}
 
@@ -713,6 +719,8 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
 		}
 	}
 	$smcFunc['db_free_result']($request);
+
+	call_integration_hook('integrate_ban_list', array(&$ban_items));
 
 	return $ban_items;
 }
@@ -856,6 +864,8 @@ function banEdit2()
 		$ban_info['cannot']['register'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_register']) ? 0 : 1;
 		$ban_info['cannot']['login'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_login']) ? 0 : 1;
 
+		call_integration_hook('integrate_edit_bans', array(&$ban_info, empty($_REQUEST['bg'])));
+
 		// Adding a new ban group
 		if (empty($_REQUEST['bg']))
 			$ban_group_id = insertBanGroup($ban_info);
@@ -897,6 +907,8 @@ function banEdit2()
 
 		removeBanTriggers($_POST['ban_items'], $ban_group_id);
 	}
+
+	call_integration_hook('integrate_edit_bans_post', array());
 
 	// Register the last modified date.
 	updateSettings(array('banLastUpdated' => time()));
@@ -940,6 +952,8 @@ function saveTriggers($suggestions = array(), $ban_group, $member = 0, $ban_id =
 
 	$ban_triggers = validateTriggers($triggers);
 
+	call_integration_hook('integrate_save_triggers', array(&$ban_triggers, &$ban_group));
+
 	// Time to save!
 	if (!empty($ban_triggers['ban_triggers']) && empty($context['ban_errors']))
 	{
@@ -977,6 +991,8 @@ function removeBanTriggers($items_ids = array(), $group_id = false)
 
 	$log_info = array();
 	$ban_items = array();
+
+	call_integration_hook('integrate_remove_triggers', array(&$items_ids, $group_id));
 
 	// First order of business: Load up the info so we can log this...
 	$request = $smcFunc['db_query']('', '

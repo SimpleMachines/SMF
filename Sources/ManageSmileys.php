@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -145,6 +145,7 @@ function EditSmileySettings($return_config = false)
 
 		// Message icons.
 		array('check', 'messageIcons_enable', 'subtext' => $txt['setting_messageIcons_enable_note']),
+		array('check', 'messageIconChecks_enable', 'subtext' => $txt['setting_messageIconChecks_enable_note'])
 	);
 
 	call_integration_hook('integrate_modify_smiley_settings', array(&$config_vars));
@@ -626,7 +627,7 @@ function AddSmiley()
 			FROM {db_prefix}smileys
 			WHERE code = {raw:mysql_binary_statement} {string:smiley_code}',
 			array(
-				'mysql_binary_statement' => $smcFunc['db_title'] == 'MySQL' ? 'BINARY' : '',
+				'mysql_binary_statement' => $smcFunc['db_title'] == MYSQL_TITLE ? 'BINARY' : '',
 				'smiley_code' => $_POST['smiley_code'],
 			)
 		);
@@ -1050,7 +1051,7 @@ function EditSmileys()
 						AND id_smiley != {int:current_smiley}'),
 					array(
 						'current_smiley' => $_POST['smiley'],
-						'mysql_binary_type' => $smcFunc['db_title'] == 'MySQL' ? 'BINARY' : '',
+						'mysql_binary_type' => $smcFunc['db_title'] == MYSQL_TITLE ? 'BINARY' : '',
 						'smiley_code' => $_POST['smiley_code'],
 					)
 				);
