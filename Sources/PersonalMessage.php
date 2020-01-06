@@ -176,6 +176,7 @@ function MessageMain()
 	// This is convenient.  Do you know how annoying it is to do this every time?!
 	$context['current_label_redirect'] = 'action=pm;f=' . $context['folder'] . (isset($_GET['start']) ? ';start=' . $_GET['start'] : '') . (isset($_REQUEST['l']) ? ';l=' . $_REQUEST['l'] : '');
 	$context['can_issue_warning'] = allowedTo('issue_warning') && $modSettings['warning_settings'][0] == 1;
+	$context['can_moderate_forum'] = allowedTo('moderate_forum');
 
 	// Are PM drafts enabled?
 	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
