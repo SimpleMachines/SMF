@@ -135,6 +135,7 @@ $txt['pm_search_choose_label'] = 'Choose labels to search by, or search all';
 
 $txt['pm_search_results'] = 'Search results';
 $txt['pm_search_none_found'] = 'No messages found';
+$txt['pm_search_results_info'] = 'Found %1$d matching messages in %2$s.';
 
 $txt['pm_search_orderby_relevant_first'] = 'Most relevant first';
 $txt['pm_search_orderby_recent_first'] = 'Most recent first';
