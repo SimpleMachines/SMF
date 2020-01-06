@@ -1743,23 +1743,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $user_info;
-
 					$data = strtr($data, array('<br>' => ''));
-					$scheme = parse_url($data, PHP_URL_SCHEME);
-					if ($image_proxy_enabled)
-					{
-						if (!empty($user_info['possibly_robot']))
-							return;
 
-						if (empty($scheme))
-							$data = 'http://' . ltrim($data, ':/');
-
-						if ($scheme != 'https')
-							$data = get_proxied_url($data);
-					}
-					elseif (empty($scheme))
+					if (parse_url($data, PHP_URL_SCHEME) === null)
 						$data = '//' . ltrim($data, ':/');
+					else
+						$data = get_proxied_url($data);
 				},
 				'disabled_content' => '($1)',
 			),
@@ -1769,23 +1758,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="" class="bbc_img">',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $user_info;
-
 					$data = strtr($data, array('<br>' => ''));
-					$scheme = parse_url($data, PHP_URL_SCHEME);
-					if ($image_proxy_enabled)
-					{
-						if (!empty($user_info['possibly_robot']))
-							return;
 
-						if (empty($scheme))
-							$data = 'http://' . ltrim($data, ':/');
-
-						if ($scheme != 'https')
-							$data = get_proxied_url($data);
-					}
-					elseif (empty($scheme))
+					if (parse_url($data, PHP_URL_SCHEME) === null)
 						$data = '//' . ltrim($data, ':/');
+					else
+						$data = get_proxied_url($data);
 				},
 				'disabled_content' => '($1)',
 			),
@@ -3356,14 +3334,20 @@ function highlight_php_code($code)
  */
 function get_proxied_url($url)
 {
-	global $boardurl, $image_proxy_enabled, $image_proxy_secret;
+	global $boardurl, $image_proxy_enabled, $image_proxy_secret, $user_info;
 
-	// Only use the proxy if enabled and necessary
-	if (empty($image_proxy_enabled) || parse_url($url, PHP_URL_SCHEME) === 'https')
+	// Only use the proxy if enabled, and never for robots
+	if (empty($image_proxy_enabled) || !empty($user_info['possibly_robot']))
+		return $url;
+
+	$parsedurl = parse_url($url);
+
+	// Don't bother with HTTPS URLs, schemeless URLs, or obviously invalid URLs
+	if (empty($parsedurl['scheme']) || empty($parsedurl['host']) || empty($parsedurl['path']) || $parsedurl['scheme'] === 'https')
 		return $url;
 
 	// We don't need to proxy our own resources
-	if (strpos(strtr($url, array('http://' => 'https://')), strtr($boardurl, array('http://' => 'https://'))) === 0)
+	if ($parsedurl['host'] === parse_url($boardurl, PHP_URL_HOST))
 		return strtr($url, array('http://' => 'https://'));
 
 	// By default, use SMF's own image proxy script
