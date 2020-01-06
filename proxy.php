@@ -27,7 +27,13 @@ if (!defined('SMF_SOFTWARE_YEAR'))
 
 if (!defined('JQUERY_VERSION'))
 	define('JQUERY_VERSION', '3.4.1');
-	
+
+if (!defined('POSTGRE_TITLE'))
+	define('POSTGRE_TITLE', 'PostgreSQL');
+
+if (!defined('MYSQL_TITLE'))
+	define('MYSQL_TITLE', 'MySQL');
+
 /**
  * Class ProxyServer
  */

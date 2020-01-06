@@ -398,7 +398,7 @@ function ModifyDatabaseSettings($return_config = false)
 	);
 
 	// Add PG Stuff
-	if ($smcFunc['db_title'] == "PostgreSQL")
+	if ($smcFunc['db_title'] === POSTGRE_TITLE)
 	{
 		$request = $smcFunc['db_query']('', 'SELECT cfgname FROM pg_ts_config', array());
 		$fts_language = array();
