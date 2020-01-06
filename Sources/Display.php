@@ -676,7 +676,8 @@ function Display()
 			SELECT pc.id_choice, pc.label, pc.votes, COALESCE(lp.id_choice, -1) AS voted_this
 			FROM {db_prefix}poll_choices AS pc
 				LEFT JOIN {db_prefix}log_polls AS lp ON (lp.id_choice = pc.id_choice AND lp.id_poll = {int:id_poll} AND lp.id_member = {int:current_member} AND lp.id_member != {int:not_guest})
-			WHERE pc.id_poll = {int:id_poll}',
+			WHERE pc.id_poll = {int:id_poll}
+			ORDER BY pc.id_choice',
 			array(
 				'current_member' => $user_info['id'],
 				'id_poll' => $context['topicinfo']['id_poll'],
