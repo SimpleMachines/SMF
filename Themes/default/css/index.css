@@ -346,7 +346,7 @@ blockquote cite::before {
 	color: #aaa;
 	font-size: 22px;
 	font-style: normal;
-	content: '\275D';
+	content: "\275D";
 	margin-right: 3px;
 	vertical-align: middle;
 }
@@ -455,7 +455,7 @@ a img {
 	display: inline-block;
 	background: #f7f7f7 url(../images/icons/toggle.png) no-repeat 0 0 / 17px;
 	overflow: hidden;
-	content: '';
+	content: "";
 	vertical-align: middle;
 	margin: 0 5px 0 5px;
 	border: 1px solid #c5c5c5;
@@ -773,7 +773,7 @@ img.sort, .sort {
 
 /* User information. */
 #profile_menu_top::after {
-	content: ' \25BC';
+	content: " \25BC";
 }
 .profile_user_info, .profile_user_avatar {
 	display: inline-block;
@@ -975,7 +975,7 @@ img.sort, .sort {
 	padding: 5px 0;
 	right: 10px;
 	font: 83.33%/150% Arial, sans-serif;
-	content: '\25ba';
+	content: "\25ba";
 }
 /* Highlighting of current section */
 .dropmenu li li a.chosen {
@@ -1714,7 +1714,7 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 /* Some lovely generic icons.
 ------------------------------------------------- */
 .main_icons::before {
-	content: '';
+	content: "";
 	width: 16px;
 	height: 16px;
 	display: inline-block;
@@ -2078,7 +2078,7 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 	height: 16px;
 	background: url(../images/icons/main_icons_sprite.png) no-repeat -57px -83px;
 	left: 10px;
-	content: '';
+	content: "";
 	position: absolute;
 	top: 50%;
 	margin-top: -8px;
@@ -3101,7 +3101,7 @@ span.postby {
 	display: inline-block;
 }
 #description_board h3::after {
-	content: ' - ';
+	content: " - ";
 }
 /* Topic list */
 #topic_header {
@@ -3152,7 +3152,7 @@ span.postby {
 	display: block;
 	height: 8px;
 	clear: both;
-	content: '';
+	content: "";
 }
 #topic_icons .information {
 	font-size: .9em;
@@ -3345,10 +3345,10 @@ div#pollmoderation {
 	padding: 2px 4px 0 4px;
 }
 .mvisible::before {
-	content: "« ";
+	content: "\00ab ";
 }
 .mvisible::after {
-	content: " »";
+	content: " \00bb";
 }
 #reason::before {
 	content: " - ";
@@ -3726,10 +3726,10 @@ p.information img {
 	margin: 0 0 0 5px;
 }
 .topic_pages::before {
-	content: " «";
+	content: "\00ab ";
 }
 .topic_pages::after {
-	content: " »"
+	content: " \00bb"
 }
 /* Mentions */
 .atwho-view {
