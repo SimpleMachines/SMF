@@ -318,6 +318,7 @@ function messageIndexBar($area)
 				'amt' => $label['unread_messages'],
 				'unread_messages' => $label['unread_messages'],
 				'messages' => $label['messages'],
+				'icon' => 'folder',
 			);
 		}
 	}
