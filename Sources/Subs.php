@@ -89,45 +89,18 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 				list ($changes['latestRealName']) = $smcFunc['db_fetch_row']($result);
 				$smcFunc['db_free_result']($result);
 
-				if (!empty($modSettings['registration_method']))
-				{
-					// Are we using registration approval?
-					if ($modSettings['registration_method'] == 2 || !empty($modSettings['approveAccountDeletion']))
-					{
-						// Update the amount of members awaiting approval
-						$result = $smcFunc['db_query']('', '
-							SELECT COUNT(*)
-							FROM {db_prefix}members
-							WHERE is_activated IN ({array_int:activation_status})',
-							array(
-								'activation_status' => array(3, 4),
-							)
-						);
-						list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
-						$smcFunc['db_free_result']($result);
-					}
+				// Update the amount of members awaiting approval
+				$result = $smcFunc['db_query']('', '
+					SELECT COUNT(*)
+					FROM {db_prefix}members
+					WHERE is_activated IN ({array_int:activation_status})',
+					array(
+						'activation_status' => array(3, 4, 5),
+					)
+				);
 
-					// What about unapproved COPPA registrations?
-					if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 0)
-					{
-						$result = $smcFunc['db_query']('', '
-							SELECT COUNT(*)
-							FROM {db_prefix}members
-							WHERE is_activated = {int:coppa_approval}',
-							array(
-								'coppa_approval' => 5,
-							)
-						);
-						list ($coppa_approvals) = $smcFunc['db_fetch_row']($result);
-						$smcFunc['db_free_result']($result);
-
-						// Add this to the number of unapproved members
-						if (!empty($changes['unapprovedMembers']))
-							$changes['unapprovedMembers'] += $coppa_approvals;
-						else
-							$changes['unapprovedMembers'] = $coppa_approvals;
-					}
-				}
+				list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
+				$smcFunc['db_free_result']($result);
 			}
 			updateSettings($changes);
 			break;
