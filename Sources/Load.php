@@ -1822,6 +1822,14 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	if (empty($id_theme))
 	{
+		// The theme was specified by the board.
+		if (!empty($board_info['theme']))
+			$id_theme = $board_info['theme'];
+		// The theme is the forum's default.
+		else
+			$id_theme = $modSettings['theme_guests'];
+
+		// Sometimes the user can choose their own theme.
 		if (!empty($modSettings['theme_allow']) || allowedTo('admin_forum'))
 		{
 			// The theme was specified by REQUEST.
@@ -1837,12 +1845,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 			elseif (!empty($user_info['theme']))
 				$id_theme = $user_info['theme'];
 		}
-		// The theme was specified by the board.
-		elseif (!empty($board_info['theme']))
-			$id_theme = $board_info['theme'];
-		// The theme is the forum's default.
-		else
-			$id_theme = $modSettings['theme_guests'];
 
 		// Verify the id_theme... no foul play.
 		// Always allow the board specific theme, if they are overriding.
