@@ -599,6 +599,8 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 		else
 			$type_name = $types[$type_name];
 	}
+	elseif ($type_name == 'boolean')
+		$type_size = null;
 
 	return array($type_name, $type_size);
 }
