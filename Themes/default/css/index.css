@@ -3578,6 +3578,24 @@ ul.post_options li {
 	margin: 0;
 }
 
+/* File error */
+.errorfile_table {
+	font-family: monospace;
+	border-spacing: 1px;
+}
+.errorfile_table td {
+	background: #fbfbfb;
+}
+.errorfile_table .current {
+	background: #fbc6c6;
+}
+.errorfile_table .file_line.current {
+	background: #fb9090;
+}
+.errorfile_table .file_line {
+	background: #ececec;
+}
+
 /* General Classes */
 /* Cat_bar / catbg */
 div.cat_bar {
