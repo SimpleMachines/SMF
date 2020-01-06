@@ -701,6 +701,9 @@ function showAlerts($memID)
 		);
 	}
 
+	// The Delete all unread link.
+	$context['alert_purge_link'] = $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=showalerts;do=purge;' . $context['session_var'] . '=' . $context['session_id'] . (!empty($context['start']) ? ';start=' . $context['start'] : '');
+
 	// Set a nice message.
 	if (!empty($_SESSION['update_message']))
 	{
@@ -724,15 +727,21 @@ function showAlerts($memID)
 		$toMark = (int) $_GET['aid'];
 		$action = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_GET['do']));
 	}
+	// Delete all read alerts.
+	elseif (!empty($_GET['do']) && $_GET['do'] === 'purge')
+		$action = 'purge';
 
 	// Save the changes.
-	if (!empty($toMark) && !empty($action))
+	if (!empty($action) && (!empty($toMark) || $action === 'purge'))
 	{
 		checkSession('request');
 
 		// Call it!
 		if ($action == 'remove')
 			alert_delete($toMark, $memID);
+
+		elseif ($action == 'purge')
+			alert_purge($memID);
 
 		else
 			alert_mark($memID, $toMark, $action == 'read' ? 1 : 0);

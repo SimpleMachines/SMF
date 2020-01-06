@@ -621,11 +621,11 @@ function template_showAlerts()
 			<div class="pagesection">
 				<div class="floatleft">
 					', $context['pagination'], '
-				</div>';
+				</div>
+				<div class="floatright">';
 
 		if ($context['showCheckboxes'])
 			echo '
-				<div class="floatright">
 					', $txt['check_all'], ': <input type="checkbox" name="select_all" id="select_all">
 					<select name="mark_as">
 						<option value="read">', $txt['quick_mod_markread'], '</option>
@@ -634,10 +634,11 @@ function template_showAlerts()
 					</select>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="start" value="', $context['start'], '">
-					<input type="submit" name="req" value="', $txt['quick_mod_go'], '" class="button you_sure">
-				</div>';
+					<input type="submit" name="req" value="', $txt['quick_mod_go'], '" class="button you_sure">';
 
 		echo '
+					<a href="', $context['alert_purge_link'], '" class="button you_sure">', $txt['alert_purge'], '</a>
+				</div>
 			</div>';
 
 		if ($context['showCheckboxes'])

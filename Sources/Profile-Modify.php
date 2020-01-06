@@ -2323,6 +2323,27 @@ function alert_delete($toDelete, $memID = false)
 }
 
 /**
+ * Deletes all the alerts that a user has already read.
+ *
+ * @param int $memID The user ID. Defaults to the current user's ID.
+ */
+function alert_purge($memID = 0)
+{
+	global $smcFunc, $user_info;
+
+	$memID = !empty($memID) && is_int($memID) ? $memID : $user_info['id'];
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}user_alerts
+		WHERE id_member = {int:memID}
+			AND is_read > 0',
+		array(
+			'memID' => $memID,
+		)
+	);
+}
+
+/**
  * Counts how many alerts a user has - either unread or all depending on $unread
  * We can't use db_num_rows here, as we have to determine what boards the user can see
  * Possibly in future versions as database support for json is mainstream, we can simplify this.

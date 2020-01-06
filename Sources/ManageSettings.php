@@ -233,6 +233,14 @@ function ModifyBasicSettings($return_config = false)
 
 		// Alerts stuff
 		array('check', 'enable_ajax_alerts'),
+		array('select', 'alerts_auto_purge',
+			array(
+				'0' => $txt['alerts_auto_purge_0'],
+				'7' => $txt['alerts_auto_purge_7'],
+				'30' => $txt['alerts_auto_purge_30'],
+				'90' => $txt['alerts_auto_purge_90'],
+			),
+		),
 	);
 
 	// Get all the time zones.
