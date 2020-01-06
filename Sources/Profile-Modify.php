@@ -3468,7 +3468,7 @@ function profileSaveAvatarData(&$value)
 			if (!$downloadedExternalAvatar)
 			{
 				if (!is_writable($uploadDir))
-					fatal_lang_error('attachments_no_write', 'critical');
+					fatal_lang_error('avatars_no_write', 'critical');
 
 				$new_filename = $uploadDir . '/' . getAttachmentFilename('avatar_tmp_' . $memID, false, null, true);
 				if (!move_uploaded_file($_FILES['attachment']['tmp_name'], $new_filename))

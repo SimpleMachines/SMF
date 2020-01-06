@@ -25,6 +25,7 @@ $txt['not_a_user'] = 'The user whose profile you are trying to view does not exi
 $txt['not_a_topic'] = 'This topic doesn\'t exist on this board.';
 $txt['email_in_use'] = 'That email address (%1$s) is already being used by a registered member. If you feel this is a mistake, go to the login page and use the password reminder with that address.';
 $txt['attachments_no_write'] = 'The attachments directory is not writable';
+$txt['avatars_no_write'] = 'The avatars directory is not writable';
 $txt['attachment_not_created'] = 'The attachment could not be created';
 
 $txt['didnt_select_vote'] = 'You didn\'t select a vote option.';
