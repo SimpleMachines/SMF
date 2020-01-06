@@ -176,7 +176,17 @@
 		// creating the first instance and extend it then
 		var instance = sceditor.instance(textarea);
 		if (!isPatched && instance) {
-			$.extend(true, instance.constructor.prototype, extensionMethods);
+			sceditor.utils.extend(instance.constructor.prototype, extensionMethods);
+
+			/*
+			 * Stop SCEditor from resizing the entire container. Long
+			 * toolbars and tons of smilies play havoc with this.
+			 * Only resize the text areas instead.
+			 */
+			document.querySelector(".sceditor-container").removeAttribute("style");
+			instance.getContentAreaContainer().style.minHeight = options.height;
+			document.querySelector(".sceditor-container textarea").style.minHeight = options.height;
+
 			isPatched = true;
 		}
 	};
