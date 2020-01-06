@@ -140,7 +140,7 @@ function template_error_log()
 							', $error['member']['session'], '<br>';
 
 		echo '
-						<strong><a href ="', $scripturl, '?action=admin;area=logs;sa=errorlog;backtrace=', $error['id'], '" onclick="return reqWin(this.href, 600, 480, false);"><span class="main_icons details"></span>', $txt['backtrace_title'], '</a></strong>
+							<strong><a href ="', $scripturl, '?action=admin;area=logs;sa=errorlog;backtrace=', $error['id'], '" onclick="return reqWin(this.href, 600, 480, false);"><span class="main_icons details"></span>', $txt['backtrace_title'], '</a></strong>
 						</div>
 						<div class="error_info">';
 
