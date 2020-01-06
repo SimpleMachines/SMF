@@ -149,8 +149,7 @@ function template_error_log()
 							<a class="error_message" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_message'], '"><span class="main_icons filter"></span></a>
 							<span class="error_message">', $error['message']['html'], '</span>
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_url'], '"><span class="main_icons filter"></span></a>
-							<a href="', $error['url']['html'], '">', $error['url']['html'], '</a>
-';
+							<a href="', $error['url']['html'], '" class="word_break">', $error['url']['html'], '</a>';
 
 		if (!empty($error['file']))
 			echo '
