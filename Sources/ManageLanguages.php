@@ -779,9 +779,17 @@ function ModifyLanguageSettings($return_config = false)
 	$context['save_disabled'] = $settings_not_writable;
 
 	if ($settings_not_writable)
-		$context['settings_message'] = '<div class="centertext"><strong>' . $txt['settings_not_writable'] . '</strong></div><br>';
+		$context['settings_message'] = array(
+			'label' => $txt['settings_not_writable'],
+			'tag' => 'div',
+			'class' => 'centertext strong'
+		);
 	elseif ($settings_backup_fail)
-		$context['settings_message'] = '<div class="centertext"><strong>' . $txt['admin_backup_fail'] . '</strong></div><br>';
+		$context['settings_message'] = array(
+			'label' => $txt['admin_backup_fail'],
+			'tag' => 'div',
+			'class' => 'centertext strong'
+		);
 
 	// Fill the config array.
 	prepareServerSettingsContext($config_vars);

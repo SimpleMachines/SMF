@@ -112,9 +112,17 @@ function ModifySettings()
 	$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
 
 	if ($settings_not_writable)
-		$context['settings_message'] = '<div class="centertext"><strong>' . $txt['settings_not_writable'] . '</strong></div>';
+		$context['settings_message'] = array(
+			'label' => $txt['settings_not_writable'],
+			'tag' => 'div',
+			'class' => 'centertext strong'
+		);
 	elseif ($settings_backup_fail)
-		$context['settings_message'] = '<div class="centertext"><strong>' . $txt['admin_backup_fail'] . '</strong></div>';
+		$context['settings_message'] = array(
+			'label' => $txt['admin_backup_fail'],
+			'tag' => 'div',
+			'class' => 'centertext strong'
+		);
 
 	$context['settings_not_writable'] = $settings_not_writable;
 
@@ -681,13 +689,13 @@ function ModifyCacheSettings($return_config = false)
 	// set our values to show what, if anything, we found
 	if (empty($detected))
 	{
-		$txt['cache_settings_message'] = $txt['detected_no_caching'];
+		$txt['cache_settings_message'] = '<strong class="alert">' . $txt['detected_no_caching'] . '</strong>';
 		$cache_level = array($txt['cache_off']);
 		$detected['none'] = $txt['cache_off'];
 	}
 	else
 	{
-		$txt['cache_settings_message'] = sprintf($txt['detected_accelerators'], implode(', ', $detected));
+		$txt['cache_settings_message'] = '<strong class="success">' . sprintf($txt['detected_accelerators'], implode(', ', $detected)) . '</strong>';
 		$cache_level = array($txt['cache_off'], $txt['cache_level1'], $txt['cache_level2'], $txt['cache_level3']);
 	}
 
@@ -770,19 +778,19 @@ function ModifyLoadBalancingSettings($return_config = false)
 
 	// Setup a warning message, but disabled by default.
 	$disabled = true;
-	$context['settings_message'] = $txt['loadavg_disabled_conf'];
+	$context['settings_message'] = array('label' => $txt['loadavg_disabled_conf'], 'class' => 'error');
 
 	if (DIRECTORY_SEPARATOR === '\\')
 	{
-		$context['settings_message'] = $txt['loadavg_disabled_windows'];
+		$context['settings_message']['label'] = $txt['loadavg_disabled_windows'];
 		if (isset($_GET['save']))
-			$_SESSION['adm-save'] = $txt['loadavg_disabled_windows'];
+			$_SESSION['adm-save'] = $context['settings_message']['label'];
 	}
 	elseif (stripos(PHP_OS, 'darwin') === 0)
 	{
-		$context['settings_message'] = $txt['loadavg_disabled_osx'];
+		$context['settings_message']['label'] = $txt['loadavg_disabled_osx'];
 		if (isset($_GET['save']))
-			$_SESSION['adm-save'] = $txt['loadavg_disabled_osx'];
+			$_SESSION['adm-save'] = $context['settings_message']['label'];
 	}
 	else
 	{
@@ -796,7 +804,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 
 		if (!empty($modSettings['load_average']) || (isset($modSettings['load_average']) && $modSettings['load_average'] === 0.0))
 		{
-			$context['settings_message'] = sprintf($txt['loadavg_warning'], $modSettings['load_average']);
+			$context['settings_message']['label'] = sprintf($txt['loadavg_warning'], $modSettings['load_average']);
 			$disabled = false;
 		}
 	}

@@ -76,7 +76,22 @@ function template_main()
 		echo '
 							</td>
 							<td class="time">', $member['time'], '</td>
-							<td>', $member['action'], '</td>
+							<td>';
+
+		if (is_array($member['action']))
+		{
+			$tag = !empty($member['action']['tag']) ? $member['action']['tag'] : 'span';
+
+			echo '
+								<', $tag, !empty($member['action']['class']) ? ' class="' . $member['action']['class'] . '"' : '', '>
+									', $txt[$member['action']['label']], '
+								</', $tag, '>';
+		}
+		else
+			echo $member['action'];
+
+		echo '
+							</td>
 						</tr>';
 	}
 

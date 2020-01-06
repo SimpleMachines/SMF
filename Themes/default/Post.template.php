@@ -364,7 +364,7 @@ function template_main()
 
 		if (!empty($context['files_in_session_warning']))
 			echo '
-						<div class="smalltext">', $context['files_in_session_warning'], '</div>';
+						<div class="smalltext"><em>', $context['files_in_session_warning'], '</em></div>';
 	}
 
 	// Is the user allowed to post any additional ones? If so give them the boxes to do it!
