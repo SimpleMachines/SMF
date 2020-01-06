@@ -375,17 +375,26 @@ function updateMemberData($members, $data)
 	$setString = '';
 	foreach ($data as $var => $val)
 	{
-		$type = 'string';
+		switch ($var)
+		{
+			case  'birthdate':
+				$type = 'date';
+				break;
+
+			case 'member_ip':
+			case 'member_ip2':
+				$type = 'inet';
+				break;
+
+			default:
+				$type = 'string';
+		}
+
 		if (in_array($var, $knownInts))
 			$type = 'int';
+
 		elseif (in_array($var, $knownFloats))
 			$type = 'float';
-		elseif ($var == 'birthdate')
-			$type = 'date';
-		elseif ($var == 'member_ip')
-			$type = 'inet';
-		elseif ($var == 'member_ip2')
-			$type = 'inet';
 
 		// Doing an increment?
 		if ($var == 'alerts' && ($val === '+' || $val === '-'))
@@ -396,12 +405,15 @@ function updateMemberData($members, $data)
 				$val = 'CASE ';
 				foreach ($members as $k => $v)
 					$val .= 'WHEN id_member = ' . $v . ' THEN '. alert_count($v, true) . ' ';
+
 				$val = $val . ' END';
 				$type = 'raw';
 			}
+
 			else
 				$val = alert_count($members, true);
 		}
+
 		elseif ($type == 'int' && ($val === '+' || $val === '-'))
 		{
 			$val = $var . ' ' . $val . ' 1';
@@ -415,6 +427,7 @@ function updateMemberData($members, $data)
 			{
 				if ($match[1] != '+ ')
 					$val = 'CASE WHEN ' . $var . ' <= ' . abs($match[2]) . ' THEN 0 ELSE ' . $val . ' END';
+
 				$type = 'raw';
 			}
 		}
