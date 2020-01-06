@@ -1205,9 +1205,6 @@ function Post($post_errors = array())
 	$context['is_new_post'] = !isset($_REQUEST['msg']);
 	$context['is_first_post'] = $context['is_new_topic'] || (isset($_REQUEST['msg']) && $_REQUEST['msg'] == $id_first_msg);
 
-	// WYSIWYG only works if BBC is enabled
-	$modSettings['disable_wysiwyg'] = !empty($modSettings['disable_wysiwyg']) || empty($modSettings['enableBBC']);
-
 	// Register this form in the session variables.
 	checkSubmitOnce('register');
 
