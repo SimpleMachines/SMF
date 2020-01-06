@@ -4,9 +4,12 @@
 global $scripturl, $context;
 
 // Some of the things from the popup need their own descriptions
-$txt['popup_summary'] = 'My Profile';
+$txt['popup_forumprofile'] = 'Profile Details';
 $txt['popup_showposts'] = 'My Posts';
+$txt['popup_showdrafts'] = 'My Drafts';
 $txt['popup_ignore'] = 'Ignore List';
+$txt['popup_groupmembership'] = 'My Groups';
+$txt['popup_subscriptions'] = 'Subscriptions';
 
 $txt['no_profile_edit'] = 'You are not allowed to change this person\'s profile.';
 $txt['website_title'] = 'Website title';

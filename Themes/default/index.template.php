@@ -229,6 +229,13 @@ function template_body_above()
 					<div id="alerts_menu" class="top_menu scrollable"></div>
 				</li>';
 
+		// A logout button for people without JavaScript.
+		echo '
+				<li id="nojs_logout">
+					<a href="', $scripturl, '?action=logout;', $context['session_var'], '=', $context['session_id'], '">', $txt['logout'], '</a>
+					<script>document.getElementById("nojs_logout").style.display = "none";</script>
+				</li>';
+
 		// And now we're done.
 		echo '
 			</ul>';

@@ -4869,19 +4869,12 @@ function setupMenuContext()
 						'is_last' => true,
 					),
 				),
+				'is_last' => !$context['right_to_left'] && (!$user_info['is_guest'] || !$context['can_register']),
 			),
 			'signup' => array(
 				'title' => $txt['register'],
 				'href' => $scripturl . '?action=signup',
 				'show' => $user_info['is_guest'] && $context['can_register'],
-				'sub_buttons' => array(
-				),
-				'is_last' => !$context['right_to_left'],
-			),
-			'logout' => array(
-				'title' => $txt['logout'],
-				'href' => $scripturl . '?action=logout;%1$s=%2$s',
-				'show' => !$user_info['is_guest'],
 				'sub_buttons' => array(
 				),
 				'is_last' => !$context['right_to_left'],
