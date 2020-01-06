@@ -1994,8 +1994,6 @@ function MessagePost()
 		'name' => $txt['new_message']
 	);
 
-	$modSettings['disable_wysiwyg'] = !empty($modSettings['disable_wysiwyg']) || empty($modSettings['enableBBC']);
-
 	// Generate a list of drafts that they can load in to the editor
 	if (!empty($context['drafts_pm_save']))
 	{

@@ -89,11 +89,6 @@ function template_options()
 			'enabled' => empty($modSettings['disable_wysiwyg']),
 		),
 		array(
-			'id' => 'use_editor_quick_reply',
-			'label' => $txt['use_editor_quick_reply'],
-			'default' => true,
-		),
-		array(
 			'id' => 'drafts_autosave_enabled',
 			'label' => $txt['drafts_autosave_enabled'],
 			'default' => true,

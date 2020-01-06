@@ -933,11 +933,6 @@ function template_quickreply()
 			<div id="quickreply_options">
 				<div class="roundframe">';
 
-	// Are we hiding the full editor?
-	if (empty($options['use_editor_quick_reply']))
-		echo '
-					<p class="smalltext lefttext">', $txt['quick_reply_desc'], '</p>';
-
 	// Is the topic locked?
 	if ($context['is_locked'])
 		echo '
