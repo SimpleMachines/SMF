@@ -611,7 +611,7 @@ function consolidateSpiderStats()
 {
 	global $smcFunc;
 
-	$request = $smcFunc['db_query']('consolidate_spider_stats', '
+	$request = $smcFunc['db_query']('', '
 		SELECT id_spider, MAX(log_time) AS last_seen, COUNT(*) AS num_hits
 		FROM {db_prefix}log_spider_hits
 		WHERE processed = {int:not_processed}
