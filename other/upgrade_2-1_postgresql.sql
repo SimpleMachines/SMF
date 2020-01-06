@@ -3437,3 +3437,10 @@ VALUES ('Independence Day', '1004-07-04'),
 DROP INDEX IF EXISTS {$db_prefix}attachments_id_thumb;
 CREATE INDEX {$db_prefix}attachments_id_thumb ON {$db_prefix}attachments (id_thumb);
 ---#
+
+/******************************************************************************/
+--- Update log_spider_stats
+/******************************************************************************/
+---# Allow for hyper aggressive crawlers
+ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN page_hits TYPE INT;
+---#

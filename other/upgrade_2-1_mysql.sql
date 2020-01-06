@@ -3073,3 +3073,11 @@ while ($row = $smcFunc['db_fetch_assoc']($request))
 }
 ---}
 ---#
+
+/******************************************************************************/
+--- Update log_spider_stats
+/******************************************************************************/
+---# Allow for hyper aggressive crawlers
+ALTER TABLE {$db_prefix}log_spider_stats CHANGE page_hits page_hits INT NOT NULL DEFAULT '0';
+---#
+

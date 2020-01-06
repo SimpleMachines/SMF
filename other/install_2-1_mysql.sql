@@ -601,7 +601,7 @@ CREATE TABLE {$db_prefix}log_spider_hits (
 
 CREATE TABLE {$db_prefix}log_spider_stats (
 	id_spider SMALLINT UNSIGNED DEFAULT '0',
-	page_hits SMALLINT UNSIGNED NOT NULL DEFAULT '0',
+	page_hits INT NOT NULL DEFAULT '0',
 	last_seen INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	stat_date DATE DEFAULT '1004-01-01',
 	PRIMARY KEY (stat_date, id_spider)

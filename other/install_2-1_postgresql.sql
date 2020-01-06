@@ -917,7 +917,7 @@ CREATE INDEX {$db_prefix}log_spider_hits_processed ON {$db_prefix}log_spider_hit
 
 CREATE TABLE {$db_prefix}log_spider_stats (
 	id_spider smallint NOT NULL DEFAULT '0',
-	page_hits smallint NOT NULL DEFAULT '0',
+	page_hits int NOT NULL DEFAULT '0',
 	last_seen bigint NOT NULL DEFAULT '0',
 	stat_date date NOT NULL DEFAULT '1004-01-01',
 	PRIMARY KEY (stat_date, id_spider)
