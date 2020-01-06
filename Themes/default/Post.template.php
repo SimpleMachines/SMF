@@ -534,7 +534,7 @@ function template_main()
 
 	// Finally, the submit buttons.
 	echo '
-					<span id="post_confirm_buttons" class="floatright">
+					<span id="post_confirm_buttons">
 						', template_control_richedit_buttons($context['post_box_name']);
 
 	// Option to delete an event if user is editing one.

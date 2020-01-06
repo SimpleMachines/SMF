@@ -1006,7 +1006,7 @@ function template_quickreply()
 
 	// Finally, the submit buttons.
 	echo '
-						<span id="post_confirm_buttons" class="floatright">
+						<span id="post_confirm_buttons">
 							', template_control_richedit_buttons($context['post_box_name']), '
 						</span>';
 	echo '

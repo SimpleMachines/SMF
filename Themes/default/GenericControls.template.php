@@ -84,7 +84,8 @@ function template_control_richedit_buttons($editor_id)
 	echo '
 		<span class="smalltext">
 			', $context['shortcuts_text'], '
-		</span>';
+		</span>
+		<span class="post_button_container">';
 
 	$tempTab = $context['tabindex'];
 
@@ -118,7 +119,8 @@ function template_control_richedit_buttons($editor_id)
 	}
 
 	echo '
-		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : $txt['post'], '" name="post" tabindex="', --$tempTab, '" onclick="return submitThisOnce(this);" accesskey="s" class="button">';
+		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : $txt['post'], '" name="post" tabindex="', --$tempTab, '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
+		</span>';
 
 	// Load in the PM autosaver if it's enabled
 	if (!empty($context['drafts_pm_save']) && !empty($context['drafts_autosave']))
