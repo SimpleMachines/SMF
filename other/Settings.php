@@ -146,6 +146,12 @@ $db_error_send = 0;
  * @var null|bool
  */
 $db_mb4 = null;
+/**
+ * Is database case sensitive
+ * null means use default behavior
+ * @var null|bool
+ */
+$db_case_sensitive = null;
 
 ########## Cache Info ##########
 /**

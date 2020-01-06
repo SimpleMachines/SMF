@@ -32,7 +32,7 @@ if (!defined('SMF'))
  */
 function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix, $db_options = array())
 {
-	global $smcFunc;
+	global $smcFunc, $db_case_sensitive;
 
 	// Map some database specific functions, only do this once.
 	if (!isset($smcFunc['db_fetch_assoc']))
@@ -56,7 +56,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_select_db'              => 'smf_db_select_db',
 			'db_title'                  => POSTGRE_TITLE,
 			'db_sybase'                 => true,
-			'db_case_sensitive'         => true,
+			'db_case_sensitive'         => (isset($db_case_sensitive) ? $db_case_sensitive : true),
 			'db_escape_wildcard_string' => 'smf_db_escape_wildcard_string',
 			'db_is_resource'            => 'is_resource',
 			'db_mb4'                    => true,
