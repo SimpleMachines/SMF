@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -23,6 +23,7 @@ function reloadSettings()
 {
 	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set;
 	global $cache_enable, $sourcedir, $context, $forum_version, $boardurl;
+	global $image_proxy_enabled;
 
 	// Most database systems have not set UTF-8 as their default input charset.
 	if (!empty($db_character_set))
@@ -91,6 +92,10 @@ function reloadSettings()
 	// Used to force browsers to download fresh CSS and JavaScript when necessary
 	$modSettings['browser_cache'] = !empty($modSettings['browser_cache']) ? (int) $modSettings['browser_cache'] : 0;
 	$context['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower(SMF_FULL_VERSION)) . '_' . $modSettings['browser_cache'];
+
+	// Disable image proxy if we don't have SSL enabled
+	if (empty($modSettings['force_ssl']))
+		$image_proxy_enabled = false;
 
 	// UTF-8 ?
 	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
@@ -440,7 +445,7 @@ function reloadSettings()
 function loadUserSettings()
 {
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
-	global $cookiename, $user_info, $language, $context, $image_proxy_enabled, $cache_enable;
+	global $cookiename, $user_info, $language, $context, $cache_enable;
 
 	// Check first the integration, then the cookie, and last the session.
 	if (count($integration_ids = call_integration_hook('integrate_verify_user')) > 0)
@@ -509,7 +514,7 @@ function loadUserSettings()
 			$user_settings = $smcFunc['db_fetch_assoc']($request);
 			$smcFunc['db_free_result']($request);
 
-			if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($user_settings['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
+			if (!empty($user_settings['avatar']))
 				$user_settings['avatar'] = get_proxied_url($user_settings['avatar']);
 
 			if (!empty($cache_enable) && $cache_enable >= 2)
@@ -760,16 +765,16 @@ function loadUserSettings()
 
 		// We don't know the offset...
 		$user_info['time_offset'] = 0;
-
-		// Login Cookie times. Format: time => txt
-		$context['login_cookie_times'] = array(
-			60 => 'one_hour',
-			1440 => 'one_day',
-			10080 => 'one_week',
-			43200 => 'one_month',
-			3153600 => 'always_logged_in',
-		);
 	}
+
+	// Login Cookie times. Format: time => txt
+	$context['login_cookie_times'] = array(
+		3153600 => 'always_logged_in',
+		60 => 'one_hour',
+		1440 => 'one_day',
+		10080 => 'one_week',
+		43200 => 'one_month',
+	);
 
 	// Set up the $user_info array.
 	$user_info += array(
@@ -1281,7 +1286,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $image_proxy_enabled, $user_info, $cache_enable;
+	global $user_info, $cache_enable;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1368,7 +1373,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			$row['avatar_original'] = !empty($row['avatar']) ? $row['avatar'] : '';
 
 			// Take care of proxying avatar if required, do this here for maximum reach
-			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
+			if (!empty($row['avatar']))
 				$row['avatar'] = get_proxied_url($row['avatar']);
 
 			// Keep track of the member's normal member group
@@ -1818,10 +1823,18 @@ function loadTheme($id_theme = 0, $initialize = true)
 {
 	global $user_info, $user_settings, $board_info, $boarddir, $maintenance;
 	global $txt, $boardurl, $scripturl, $mbname, $modSettings;
-	global $context, $settings, $options, $sourcedir, $smcFunc, $language, $board, $image_proxy_enabled, $cache_enable;
+	global $context, $settings, $options, $sourcedir, $smcFunc, $language, $board, $cache_enable;
 
 	if (empty($id_theme))
 	{
+		// The theme was specified by the board.
+		if (!empty($board_info['theme']))
+			$id_theme = $board_info['theme'];
+		// The theme is the forum's default.
+		else
+			$id_theme = $modSettings['theme_guests'];
+
+		// Sometimes the user can choose their own theme.
 		if (!empty($modSettings['theme_allow']) || allowedTo('admin_forum'))
 		{
 			// The theme was specified by REQUEST.
@@ -1837,12 +1850,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 			elseif (!empty($user_info['theme']))
 				$id_theme = $user_info['theme'];
 		}
-		// The theme was specified by the board.
-		elseif (!empty($board_info['theme']))
-			$id_theme = $board_info['theme'];
-		// The theme is the forum's default.
-		else
-			$id_theme = $modSettings['theme_guests'];
 
 		// Verify the id_theme... no foul play.
 		// Always allow the board specific theme, if they are overriding.
@@ -1865,10 +1872,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (empty($settings['theme_id']) || $settings['theme_id'] != $id_theme)
 	{
 		$member = empty($user_info['id']) ? -1 : $user_info['id'];
-
-		// Disable image proxy if we don't have SSL enabled
-		if (empty($modSettings['force_ssl']))
-			$image_proxy_enabled = false;
 
 		if (!empty($cache_enable) && $cache_enable >= 2 && ($temp = cache_get_data('theme_settings-' . $id_theme . ':' . $member, 60)) != null && time() - 60 > $modSettings['settings_updated'])
 		{
@@ -3630,7 +3633,7 @@ function clean_cache($type = '')
  */
 function set_avatar_data($data = array())
 {
-	global $modSettings, $smcFunc, $image_proxy_enabled, $user_info;
+	global $modSettings, $smcFunc, $user_info;
 
 	// Come on!
 	if (empty($data))
@@ -3667,15 +3670,7 @@ function set_avatar_data($data = array())
 
 			// External url.
 			else
-			{
-				// Using ssl?
-				if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($data['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
-					$image = get_proxied_url($data['avatar']);
-
-				// Just a plain external url.
-				else
-					$image = (stristr($data['avatar'], 'http://') || stristr($data['avatar'], 'https://')) ? $data['avatar'] : $modSettings['avatar_url'] . '/' . $data['avatar'];
-			}
+				$image = parse_url($data['avatar'], PHP_URL_SCHEME) !== null ? get_proxied_url($data['avatar']) : $modSettings['avatar_url'] . '/' . $data['avatar'];
 		}
 
 		// Perhaps this user has an attachment as avatar...

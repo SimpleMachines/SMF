@@ -8,9 +8,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -257,6 +257,9 @@ function preparsecode(&$message, $previewing = false)
 
 	// Now let's quickly clean up things that will slow our parser (which are common in posted code.)
 	$message = strtr($message, array('[]' => '&#91;]', '[&#039;' => '&#91;&#039;'));
+
+	// Any hooks want to work here?
+	call_integration_hook('integrate_preparsecode', array(&$message, $previewing));
 }
 
 /**
@@ -267,6 +270,9 @@ function preparsecode(&$message, $previewing = false)
 function un_preparsecode($message)
 {
 	global $smcFunc;
+
+	// Any hooks want to work here?
+	call_integration_hook('integrate_unpreparsecode', array(&$message));
 
 	$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 

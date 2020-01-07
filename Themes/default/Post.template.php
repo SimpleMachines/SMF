@@ -3,9 +3,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -364,7 +364,7 @@ function template_main()
 
 		if (!empty($context['files_in_session_warning']))
 			echo '
-						<div class="smalltext">', $context['files_in_session_warning'], '</div>';
+						<div class="smalltext"><em>', $context['files_in_session_warning'], '</em></div>';
 	}
 
 	// Is the user allowed to post any additional ones? If so give them the boxes to do it!
@@ -534,7 +534,7 @@ function template_main()
 
 	// Finally, the submit buttons.
 	echo '
-					<span id="post_confirm_buttons" class="floatright">
+					<span id="post_confirm_buttons">
 						', template_control_richedit_buttons($context['post_box_name']);
 
 	// Option to delete an event if user is editing one.

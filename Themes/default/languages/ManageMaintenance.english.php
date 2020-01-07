@@ -120,7 +120,7 @@ $txt['backtrace_info'] = '<b>#%1$d</b>: %2$s()<br>Called from <a href="' . $scri
 $txt['errortype_all'] = 'All errors';
 $txt['errortype_general'] = 'General';
 $txt['errortype_general_desc'] = 'General errors that have not been categorized into another type';
-$txt['errortype_critical'] = '<span class="red">Critical</span>';
+$txt['errortype_critical'] = 'Critical';
 $txt['errortype_critical_desc'] = 'Critical errors. These should be taken care of as quickly as possible. Ignoring these errors can result in your forum failing and possibly security issues';
 $txt['errortype_database'] = 'Database';
 $txt['errortype_database_desc'] = 'Errors caused by faulty queries. These should be looked at and reported to the SMF team.';

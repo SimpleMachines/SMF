@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -513,7 +513,7 @@ function ComposeMailing()
 	$editorOptions = array(
 		'id' => 'message',
 		'value' => $context['message'],
-		'height' => '250px',
+		'height' => '150px',
 		'width' => '100%',
 		'labels' => array(
 			'post_button' => $txt['sendtopic_send'],
@@ -989,7 +989,7 @@ function SendMailing($clean_only = false)
 		foreach ($rows as $row)
 		{
 			// Force them to have it?
-			if (empty($context['email_force']) && empty($prefs[$row['id_member']]['announcements']))
+			if (empty($context['email_force']) && empty($prefs[$row['id_member']]['announcements']) && !empty($modSettings['allow_disableAnnounce']))
 				continue;
 
 			// What groups are we looking at here?

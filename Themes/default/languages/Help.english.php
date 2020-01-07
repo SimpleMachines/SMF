@@ -261,9 +261,10 @@ $helptxt['cache_sqlite_cachedir'] = 'This setting is only for the SQLite databas
 $helptxt['xcache_adminuser'] = 'This setting is only for the xcache based cache system. It specifies a username and password required to issue a clear command. If this is not set, clearing the cache will fail and the caching system will still force it to invalidate all cached data.<br>The username and password are in cleartext. The password is a unsalted MD5. It is recommended the username and password are set to random values.<br><br>The Cache API will attempt to set these values, however it is <a href="https://xcache.lighttpd.net/wiki/InstallAdministration">recommended these be set in your php.ini</a>';
 $helptxt['enableErrorLogging'] = 'This will log any errors, like a failed login, so you can see what went wrong.';
 $helptxt['enableErrorQueryLogging'] = 'This will include the full query sent to the database in the error log. It requires error logging to be turned on.<br><br><strong>Note:  This will affect the ability to filter the error log by the error message.</strong>';
-$helptxt['allow_disableAnnounce'] = 'This will allow users to opt out of notification of topics you announce by checking the &quot;announce topic&quot; checkbox when posting.';
+$helptxt['allow_disableAnnounce'] = 'This will allow users to opt out of emails for newsletters and topic announcements created by checking the &quot;announce topic&quot; checkbox when posting.';
 $helptxt['disallow_sendBody'] = 'This setting removes the option to receive the text of replies, posts, and personal messages in notification emails.<br><br>Often, members will reply to the notification email, which in most cases means the webmaster receives the reply.';
 $helptxt['enable_ajax_alerts'] = 'This option allows your members to receive AJAX notifications. This means that members don\'t need to refresh the page to get new notifications.<br><strong>DO NOTE:</strong> This option might cause a severe load at your server with many users online.';
+$helptxt['alerts_auto_purge'] = 'Once an alert has been read, it is rarely needed again. For performance reasons, it is a good idea to automatically delete them after a while.';
 $helptxt['jquery_source'] = 'This will determine the source used to load the jQuery Library. <em>Auto</em> will use the CDN first and if not available fall back to the local source. <em>Local</em> will only use the local source. <em>CDN</em> will only load it from Google CDN network';
 $helptxt['compactTopicPagesEnable'] = 'This will just show a selection of the number of pages.<br><em>Example:</em>
 		&quot;3&quot; to display: 1 ... 4 [5] 6 ... 9 <br>
@@ -410,7 +411,7 @@ $helptxt['countChildPosts'] = 'Checking this setting means that posts and topics
 $helptxt['allow_ignore_boards'] = 'Checking this setting will allow users to select boards they wish to ignore.';
 $helptxt['deny_boards_access'] = 'Checking this setting will allow you to deny access to certain boards based on membergroup access';
 
-$helptxt['who_enabled'] = 'This setting allows you to turn on or off the ability for users to see who is browsing the forum and what they are doing.';
+$helptxt['who_enabled'] = 'This setting allows you to turn on or off the <a href="' . $scripturl . '?action=who" target="_blank" rel="noopener">Who\'s Online</a> page, which shows who is browsing the forum and what they are doing.';
 
 $helptxt['recycle_enable'] = '&quot;Recycles&quot; deleted topics and posts to the specified board.';
 

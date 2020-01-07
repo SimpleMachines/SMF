@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -89,45 +89,18 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 				list ($changes['latestRealName']) = $smcFunc['db_fetch_row']($result);
 				$smcFunc['db_free_result']($result);
 
-				if (!empty($modSettings['registration_method']))
-				{
-					// Are we using registration approval?
-					if ($modSettings['registration_method'] == 2 || !empty($modSettings['approveAccountDeletion']))
-					{
-						// Update the amount of members awaiting approval
-						$result = $smcFunc['db_query']('', '
-							SELECT COUNT(*)
-							FROM {db_prefix}members
-							WHERE is_activated IN ({array_int:activation_status})',
-							array(
-								'activation_status' => array(3, 4),
-							)
-						);
-						list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
-						$smcFunc['db_free_result']($result);
-					}
+				// Update the amount of members awaiting approval
+				$result = $smcFunc['db_query']('', '
+					SELECT COUNT(*)
+					FROM {db_prefix}members
+					WHERE is_activated IN ({array_int:activation_status})',
+					array(
+						'activation_status' => array(3, 4, 5),
+					)
+				);
 
-					// What about unapproved COPPA registrations?
-					if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 0)
-					{
-						$result = $smcFunc['db_query']('', '
-							SELECT COUNT(*)
-							FROM {db_prefix}members
-							WHERE is_activated = {int:coppa_approval}',
-							array(
-								'coppa_approval' => 5,
-							)
-						);
-						list ($coppa_approvals) = $smcFunc['db_fetch_row']($result);
-						$smcFunc['db_free_result']($result);
-
-						// Add this to the number of unapproved members
-						if (!empty($changes['unapprovedMembers']))
-							$changes['unapprovedMembers'] += $coppa_approvals;
-						else
-							$changes['unapprovedMembers'] = $coppa_approvals;
-					}
-				}
+				list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
+				$smcFunc['db_free_result']($result);
 			}
 			updateSettings($changes);
 			break;
@@ -375,17 +348,26 @@ function updateMemberData($members, $data)
 	$setString = '';
 	foreach ($data as $var => $val)
 	{
-		$type = 'string';
+		switch ($var)
+		{
+			case  'birthdate':
+				$type = 'date';
+				break;
+
+			case 'member_ip':
+			case 'member_ip2':
+				$type = 'inet';
+				break;
+
+			default:
+				$type = 'string';
+		}
+
 		if (in_array($var, $knownInts))
 			$type = 'int';
+
 		elseif (in_array($var, $knownFloats))
 			$type = 'float';
-		elseif ($var == 'birthdate')
-			$type = 'date';
-		elseif ($var == 'member_ip')
-			$type = 'inet';
-		elseif ($var == 'member_ip2')
-			$type = 'inet';
 
 		// Doing an increment?
 		if ($var == 'alerts' && ($val === '+' || $val === '-'))
@@ -396,12 +378,15 @@ function updateMemberData($members, $data)
 				$val = 'CASE ';
 				foreach ($members as $k => $v)
 					$val .= 'WHEN id_member = ' . $v . ' THEN '. alert_count($v, true) . ' ';
+
 				$val = $val . ' END';
 				$type = 'raw';
 			}
+
 			else
 				$val = alert_count($members, true);
 		}
+
 		elseif ($type == 'int' && ($val === '+' || $val === '-'))
 		{
 			$val = $var . ' ' . $val . ' 1';
@@ -415,6 +400,7 @@ function updateMemberData($members, $data)
 			{
 				if ($match[1] != '+ ')
 					$val = 'CASE WHEN ' . $var . ' <= ' . abs($match[2]) . ' THEN 0 ELSE ' . $val . ' END';
+
 				$type = 'raw';
 			}
 		}
@@ -1743,23 +1729,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $user_info;
-
 					$data = strtr($data, array('<br>' => ''));
-					$scheme = parse_url($data, PHP_URL_SCHEME);
-					if ($image_proxy_enabled)
-					{
-						if (!empty($user_info['possibly_robot']))
-							return;
 
-						if (empty($scheme))
-							$data = 'http://' . ltrim($data, ':/');
-
-						if ($scheme != 'https')
-							$data = get_proxied_url($data);
-					}
-					elseif (empty($scheme))
+					if (parse_url($data, PHP_URL_SCHEME) === null)
 						$data = '//' . ltrim($data, ':/');
+					else
+						$data = get_proxied_url($data);
 				},
 				'disabled_content' => '($1)',
 			),
@@ -1769,23 +1744,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="" class="bbc_img">',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $user_info;
-
 					$data = strtr($data, array('<br>' => ''));
-					$scheme = parse_url($data, PHP_URL_SCHEME);
-					if ($image_proxy_enabled)
-					{
-						if (!empty($user_info['possibly_robot']))
-							return;
 
-						if (empty($scheme))
-							$data = 'http://' . ltrim($data, ':/');
-
-						if ($scheme != 'https')
-							$data = get_proxied_url($data);
-					}
-					elseif (empty($scheme))
+					if (parse_url($data, PHP_URL_SCHEME) === null)
 						$data = '//' . ltrim($data, ':/');
+					else
+						$data = get_proxied_url($data);
 				},
 				'disabled_content' => '($1)',
 			),
@@ -3356,14 +3320,20 @@ function highlight_php_code($code)
  */
 function get_proxied_url($url)
 {
-	global $boardurl, $image_proxy_enabled, $image_proxy_secret;
+	global $boardurl, $image_proxy_enabled, $image_proxy_secret, $user_info;
 
-	// Only use the proxy if enabled and necessary
-	if (empty($image_proxy_enabled) || parse_url($url, PHP_URL_SCHEME) === 'https')
+	// Only use the proxy if enabled, and never for robots
+	if (empty($image_proxy_enabled) || !empty($user_info['possibly_robot']))
+		return $url;
+
+	$parsedurl = parse_url($url);
+
+	// Don't bother with HTTPS URLs, schemeless URLs, or obviously invalid URLs
+	if (empty($parsedurl['scheme']) || empty($parsedurl['host']) || empty($parsedurl['path']) || $parsedurl['scheme'] === 'https')
 		return $url;
 
 	// We don't need to proxy our own resources
-	if (strpos(strtr($url, array('http://' => 'https://')), strtr($boardurl, array('http://' => 'https://'))) === 0)
+	if ($parsedurl['host'] === parse_url($boardurl, PHP_URL_HOST))
 		return strtr($url, array('http://' => 'https://'));
 
 	// By default, use SMF's own image proxy script
@@ -3455,10 +3425,11 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 		$has_fatal_error = true;
 
 	// Clear out the stat cache.
-	trackStats();
+	if (function_exists('trackStats'))
+		trackStats();
 
 	// If we have mail to send, send it.
-	if (!empty($context['flush_mail']))
+	if (function_exists('AddMailQueue') && !empty($context['flush_mail']))
 		// @todo this relies on 'flush_mail' being only set in AddMailQueue itself... :\
 		AddMailQueue(true);
 
@@ -3579,7 +3550,7 @@ function url_image_size($url)
 		if ($fp != false)
 		{
 			// Send the HEAD request (since we don't have to worry about chunked, HTTP/1.1 is fine here.)
-			fwrite($fp, 'HEAD /' . $match[2] . ' HTTP/1.1' . "\r\n" . 'Host: ' . $match[1] . "\r\n" . 'User-Agent: PHP/SMF' . "\r\n" . 'Connection: close' . "\r\n\r\n");
+			fwrite($fp, 'HEAD /' . $match[2] . ' HTTP/1.1' . "\r\n" . 'Host: ' . $match[1] . "\r\n" . 'user-agent: '. SMF_USER_AGENT . "\r\n" . 'Connection: close' . "\r\n\r\n");
 
 			// Read in the HTTP/1.1 or whatever.
 			$test = substr(fgets($fp, 11), -1);
@@ -3638,6 +3609,7 @@ function setupThemeContext($forceload = false)
 	$context['in_maintenance'] = !empty($maintenance);
 	$context['current_time'] = timeformat(time(), false);
 	$context['current_action'] = isset($_GET['action']) ? $smcFunc['htmlspecialchars']($_GET['action']) : '';
+	$context['random_news_line'] = array();
 
 	// Get some news...
 	$context['news_lines'] = array_filter(explode("\n", str_replace("\r", '', trim(addslashes($modSettings['news'])))));
@@ -3649,7 +3621,8 @@ function setupThemeContext($forceload = false)
 		// Clean it up for presentation ;).
 		$context['news_lines'][$i] = parse_bbc(stripslashes(trim($context['news_lines'][$i])), true, 'news' . $i);
 	}
-	if (!empty($context['news_lines']))
+
+	if (!empty($context['news_lines']) && (!empty($modSettings['allow_guestAccess']) || $context['user']['is_logged']))
 		$context['random_news_line'] = $context['news_lines'][mt_rand(0, count($context['news_lines']) - 1)];
 
 	if (!$user_info['is_guest'])
@@ -4869,19 +4842,12 @@ function setupMenuContext()
 						'is_last' => true,
 					),
 				),
+				'is_last' => !$context['right_to_left'] && (!$user_info['is_guest'] || !$context['can_register']),
 			),
 			'signup' => array(
 				'title' => $txt['register'],
 				'href' => $scripturl . '?action=signup',
 				'show' => $user_info['is_guest'] && $context['can_register'],
-				'sub_buttons' => array(
-				),
-				'is_last' => !$context['right_to_left'],
-			),
-			'logout' => array(
-				'title' => $txt['logout'],
-				'href' => $scripturl . '?action=logout;%1$s=%2$s',
-				'show' => !$user_info['is_guest'],
 				'sub_buttons' => array(
 				),
 				'is_last' => !$context['right_to_left'],
@@ -5477,7 +5443,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 			{
 				fwrite($fp, 'GET ' . ($match[6] !== '/' ? str_replace(' ', '%20', $match[6]) : '') . ' HTTP/1.0' . "\r\n");
 				fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
-				fwrite($fp, 'user-agent: PHP/SMF' . "\r\n");
+				fwrite($fp, 'user-agent: '. SMF_USER_AGENT . "\r\n");
 				if ($keep_alive)
 					fwrite($fp, 'connection: Keep-Alive' . "\r\n\r\n");
 				else
@@ -5487,7 +5453,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 			{
 				fwrite($fp, 'POST ' . ($match[6] !== '/' ? $match[6] : '') . ' HTTP/1.0' . "\r\n");
 				fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
-				fwrite($fp, 'user-agent: PHP/SMF' . "\r\n");
+				fwrite($fp, 'user-agent: '. SMF_USER_AGENT . "\r\n");
 				if ($keep_alive)
 					fwrite($fp, 'connection: Keep-Alive' . "\r\n");
 				else
@@ -5848,7 +5814,7 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $smcFunc, $modSettings, $tztxt, $txt;
+	global $smcFunc, $modSettings, $tztxt, $txt, $cur_profile;
 	static $timezones = null, $lastwhen = null;
 
 	// No point doing this over if we already did it once
@@ -5871,7 +5837,7 @@ function smf_list_timezones($when = 'now')
 
 	// We'll need these too
 	$date_when = date_create('@' . $when);
-	$later = (int) date_format(date_add($date_when, date_interval_create_from_date_string('1 year')), 'U');
+	$later = strtotime('@' . $when . ' + 1 year');
 
 	// Load up any custom time zone descriptions we might have
 	loadLanguage('Timezones');
@@ -5931,6 +5897,10 @@ function smf_list_timezones($when = 'now')
 		}
 		$offsets[$tzkey] = $tzinfo[0]['offset'];
 		$longitudes[$tzkey] = empty($longitudes[$tzkey]) ? $tzgeo['longitude'] : $longitudes[$tzkey];
+
+		// Remember this for later
+		if (isset($cur_profile['timezone']) && $cur_profile['timezone'] == $tzid)
+			$member_tzkey = $tzkey;
 	}
 
 	// Sort by offset then longitude
@@ -5957,6 +5927,10 @@ function smf_list_timezones($when = 'now')
 			$priority_timezones[$tzvalue['tzid']] = $desc;
 		else
 			$timezones[$tzvalue['tzid']] = $desc;
+
+		// Automatically fix orphaned timezones on the member profile page
+		if (isset($member_tzkey) && $member_tzkey == $tzkey)
+			$cur_profile['timezone'] = $tzvalue['tzid'];
 	}
 
 	if (!empty($priority_timezones))
@@ -5964,7 +5938,7 @@ function smf_list_timezones($when = 'now')
 
 	$timezones = array_merge(
 		$priority_timezones,
-		array('' => '(Forum Default)', 'UTC' => 'UTC - ' . $tztxt['UTC'], '-----'),
+		array('UTC' => 'UTC' . (!empty($tztxt['UTC']) ? ' - ' . $tztxt['UTC'] : ''), '-----'),
 		$timezones
 	);
 
@@ -5990,17 +5964,16 @@ function inet_ptod($ip_address)
  */
 function inet_dtop($bin)
 {
-	if (empty($bin))
-		return '';
-
 	global $db_type;
 
-	if ($db_type == 'postgresql')
+	if (empty($bin))
+		return '';
+	elseif ($db_type == 'postgresql')
 		return $bin;
-
-	$ip_address = inet_ntop($bin);
-
-	return $ip_address;
+	// Already a String?
+	elseif (isValidIP($bin))
+		return $bin;
+	return inet_ntop($bin);
 }
 
 /**
@@ -6565,7 +6538,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		return preg_quote(@strval($strings), $delim);
 
 	$regex_key = md5(json_encode(array($strings, $delim, $returnArray)));
-	
+
 	if (isset($regexes[$regex_key]))
 		return $regexes[$regex_key];
 

@@ -7,9 +7,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -811,16 +811,22 @@ function QuickModeration()
 
 	if (!$user_info['is_guest'])
 		$possibleActions[] = 'markread';
+
 	if (!empty($boards_can['make_sticky']))
 		$possibleActions[] = 'sticky';
+
 	if (!empty($boards_can['move_any']) || !empty($boards_can['move_own']))
 		$possibleActions[] = 'move';
+
 	if (!empty($boards_can['remove_any']) || !empty($boards_can['remove_own']))
 		$possibleActions[] = 'remove';
+
 	if (!empty($boards_can['lock_any']) || !empty($boards_can['lock_own']))
 		$possibleActions[] = 'lock';
+
 	if (!empty($boards_can['merge_any']))
 		$possibleActions[] = 'merge';
+
 	if (!empty($boards_can['approve_posts']))
 		$possibleActions[] = 'approve';
 

@@ -57,7 +57,12 @@ $txt['approveAccountDeletion'] = 'Require admin approval when member deletes acc
 $txt['autoFixDatabase'] = 'Automatically fix broken tables';
 $txt['allow_disableAnnounce'] = 'Allow users to disable mail announcements';
 $txt['disallow_sendBody'] = 'Don\'t allow post text in notifications';
-$txt['enable_ajax_alerts'] = 'Allow AJAX Desktop Notifications for Alerts';
+$txt['enable_ajax_alerts'] = 'Allow AJAX desktop notifications for alerts';
+$txt['alerts_auto_purge'] = 'Automatically delete read alerts';
+$txt['alerts_auto_purge_7'] = 'After 1 week';
+$txt['alerts_auto_purge_30'] = 'After 1 month';
+$txt['alerts_auto_purge_90'] = 'After 3 months';
+$txt['alerts_auto_purge_0'] = 'Never';
 $txt['jquery_source'] = 'Source for the jQuery Library';
 $txt['jquery_custom_label'] = 'Custom';
 $txt['jquery_custom'] = 'Custom URL to the jQuery Library';
@@ -114,8 +119,8 @@ $txt['caching_information'] = 'SMF supports caching through the use of accelerat
 	<li>XCache</li>
 </ul>
 Caching will work best if you have PHP compiled with one of the above optimizers, or have memcached available. If you do not have any optimizer installed SMF will do file based caching.';
-$txt['detected_no_caching'] = '<strong class="alert">SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.</strong>';
-$txt['detected_accelerators'] = '<strong class="success">SMF has detected the following accelerators: %1$s</strong>';
+$txt['detected_no_caching'] = 'SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.';
+$txt['detected_accelerators'] = 'SMF has detected the following accelerators: %1$s';
 
 $txt['cache_enable'] = 'Caching Level';
 $txt['cache_off'] = 'No caching';
@@ -142,7 +147,7 @@ $txt['cache_xcache_settings'] = 'XCache settings';
 $txt['cache_xcache_adminuser'] = 'XCache Admin User';
 $txt['cache_xcache_adminpass'] = 'XCache Admin Password';
 
-$txt['loadavg_warning'] = '<span class="error">Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>%01.2f</strong></span>';
+$txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>%01.2f</strong>';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';
 $txt['loadavg_auto_opt'] = 'Threshold to disabling automatic database optimization';
 $txt['loadavg_search'] = 'Threshold to disabling search';
@@ -152,9 +157,9 @@ $txt['loadavg_show_posts'] = 'Threshold to disabling showing user posts';
 $txt['loadavg_userstats'] = 'Threshold to disabling showing user statistics';
 $txt['loadavg_bbc'] = 'Threshold to disabling BBC formatting when showing posts';
 $txt['loadavg_forum'] = 'Threshold to disabling the forum <strong>completely</strong>';
-$txt['loadavg_disabled_windows'] = '<span class="error">Load balancing support is not available on Windows.</span>';
-$txt['loadavg_disabled_osx'] = '<span class="error">Load balancing support is not available on OS:X.</span>';
-$txt['loadavg_disabled_conf'] = '<span class="error">Load balancing support is disabled by your host configuration.</span>';
+$txt['loadavg_disabled_windows'] = 'Load balancing support is not available on Windows.';
+$txt['loadavg_disabled_osx'] = 'Load balancing support is not available on OS:X.';
+$txt['loadavg_disabled_conf'] = 'Load balancing support is disabled by your host configuration.';
 
 $txt['setting_password_strength'] = 'Required strength for user passwords';
 $txt['setting_password_strength_low'] = 'Low - 4 character minimum';

@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -779,9 +779,17 @@ function ModifyLanguageSettings($return_config = false)
 	$context['save_disabled'] = $settings_not_writable;
 
 	if ($settings_not_writable)
-		$context['settings_message'] = '<div class="centertext"><strong>' . $txt['settings_not_writable'] . '</strong></div><br>';
+		$context['settings_message'] = array(
+			'label' => $txt['settings_not_writable'],
+			'tag' => 'div',
+			'class' => 'centertext strong'
+		);
 	elseif ($settings_backup_fail)
-		$context['settings_message'] = '<div class="centertext"><strong>' . $txt['admin_backup_fail'] . '</strong></div><br>';
+		$context['settings_message'] = array(
+			'label' => $txt['admin_backup_fail'],
+			'tag' => 'div',
+			'class' => 'centertext strong'
+		);
 
 	// Fill the config array.
 	prepareServerSettingsContext($config_vars);

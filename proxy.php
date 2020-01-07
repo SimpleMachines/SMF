@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -23,12 +23,21 @@ if (!defined('SMF_FULL_VERSION'))
 	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 
 if (!defined('SMF_SOFTWARE_YEAR'))
-	define('SMF_SOFTWARE_YEAR', '2019');
+	define('SMF_SOFTWARE_YEAR', '2020');
 
 if (!defined('JQUERY_VERSION'))
 	define('JQUERY_VERSION', '3.4.1');
-	
-/**
+
+if (!defined('POSTGRE_TITLE'))
+	define('POSTGRE_TITLE', 'PostgreSQL');
+
+if (!defined('MYSQL_TITLE'))
+	define('MYSQL_TITLE', 'MySQL');
+
+/if (!defined('SMF_USER_AGENT'))
+	define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
+
+**
  * Class ProxyServer
  */
 class ProxyServer

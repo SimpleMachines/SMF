@@ -25,6 +25,7 @@ $txt['not_a_user'] = 'The user whose profile you are trying to view does not exi
 $txt['not_a_topic'] = 'This topic doesn\'t exist on this board.';
 $txt['email_in_use'] = 'That email address (%1$s) is already being used by a registered member. If you feel this is a mistake, go to the login page and use the password reminder with that address.';
 $txt['attachments_no_write'] = 'The attachments directory is not writable';
+$txt['avatars_no_write'] = 'The avatars directory is not writable';
 $txt['attachment_not_created'] = 'The attachment could not be created';
 
 $txt['didnt_select_vote'] = 'You didn\'t select a vote option.';
@@ -203,7 +204,7 @@ $txt['login_threshold_brute_fail'] = 'Sorry, but you\'ve reached your login atte
 $txt['who_off'] = 'You cannot access Who\'s Online right now because it is disabled.';
 
 $txt['merge_create_topic_failed'] = 'Error creating a new topic.';
-$txt['merge_need_more_topics'] = 'Merge topics require at least two topics to merge.';
+$txt['merge_need_more_topics'] = 'Merge topics requires at least two topics to merge.';
 
 $txt['post_WaitTime_broken'] = 'The last posting from your IP was less than %1$d seconds ago. Please try again later.';
 $txt['register_WaitTime_broken'] = 'You already registered just %1$d seconds ago!';
@@ -338,6 +339,7 @@ $txt['profile_error_bad_new_password'] = 'The new passwords you entered do not m
 $txt['profile_error_bad_password'] = 'The password you entered was not correct';
 $txt['profile_error_bad_avatar'] = 'The avatar you have selected is not a valid image';
 $txt['profile_error_bad_avatar_invalid_url'] = 'The URL you specified is invalid, please check it.';
+$txt['profile_error_bad_avatar_url_too_long'] = 'The avatar URL you specified is too long, please use a shorter URL.';
 $txt['profile_error_bad_avatar_too_large'] = 'The image you are trying to use surpasses the max width/height settings, please use a smaller one.';
 $txt['profile_error_bad_avatar_fail_reencode'] = 'The image you uploaded was corrupted and the attempt to recover it failed.';
 $txt['profile_error_password_short'] = 'Your password must be at least ' . (empty($modSettings['password_strength']) ? 4 : 8) . ' characters long.';

@@ -4,9 +4,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -14,10 +14,14 @@
 // Version information...
 define('SMF_VERSION', '2.1 RC2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2019');
+define('SMF_SOFTWARE_YEAR', '2020');
 define('SMF_LANG_VERSION', '2.1 RC2');
 define('SMF_INSTALLING', 1);
+
 define('JQUERY_VERSION', '3.4.1');
+define('POSTGRE_TITLE', 'PostgreSQL');
+define('MYSQL_TITLE', 'MySQL');
+define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
 
 /**
  * The minimum required PHP version.
@@ -5084,9 +5088,9 @@ function migrateSettingsFile($changes)
 		' * Simple Machines Forum (SMF)',
 		' *',
 		' * @package SMF',
-		' * @author Simple Machines http://www.simplemachines.org',
+		' * @author Simple Machines https://www.simplemachines.org',
 		' * @copyright ' . SMF_SOFTWARE_YEAR . ' Simple Machines and individual contributors',
-		' * @license http://www.simplemachines.org/about/smf/license.php BSD',
+		' * @license https://www.simplemachines.org/about/smf/license.php BSD',
 		' *',
 		' * @version ' . SMF_VERSION,
 		' */',

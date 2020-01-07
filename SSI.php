@@ -4,9 +4,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -18,7 +18,7 @@ if (defined('SMF'))
 define('SMF', 'SSI');
 define('SMF_VERSION', '2.1 RC2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2019');
+define('SMF_SOFTWARE_YEAR', '2020');
 define('JQUERY_VERSION', '3.4.1');
 
 // We're going to want a few globals... these are all set later.

@@ -3,9 +3,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -933,11 +933,6 @@ function template_quickreply()
 			<div id="quickreply_options">
 				<div class="roundframe">';
 
-	// Are we hiding the full editor?
-	if (empty($options['use_editor_quick_reply']))
-		echo '
-					<p class="smalltext lefttext">', $txt['quick_reply_desc'], '</p>';
-
 	// Is the topic locked?
 	if ($context['is_locked'])
 		echo '
@@ -1006,7 +1001,7 @@ function template_quickreply()
 
 	// Finally, the submit buttons.
 	echo '
-						<span id="post_confirm_buttons" class="floatright">
+						<span id="post_confirm_buttons">
 							', template_control_richedit_buttons($context['post_box_name']), '
 						</span>';
 	echo '
