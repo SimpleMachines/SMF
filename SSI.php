@@ -22,14 +22,14 @@ define('SMF_SOFTWARE_YEAR', '2020');
 define('JQUERY_VERSION', '3.4.1');
 
 // We're going to want a few globals... these are all set later.
-global $time_start, $maintenance, $msubject, $mmessage, $mbname, $language;
+global $maintenance, $msubject, $mmessage, $mbname, $language;
 global $boardurl, $boarddir, $sourcedir, $webmaster_email, $cookiename;
 global $db_type, $db_server, $db_name, $db_user, $db_prefix, $db_persist, $db_error_send, $db_last_error;
 global $db_connection, $db_port, $modSettings, $context, $sc, $user_info, $topic, $board, $txt;
 global $smcFunc, $ssi_db_user, $scripturl, $ssi_db_passwd, $db_passwd, $cache_enable, $cachedir;
 
 // Remember the current configuration so it can be set back.
-$time_start = microtime(true);
+define('TIME_START', microtime(true));
 
 // Just being safe...
 foreach (array('db_character_set', 'cachedir') as $variable)

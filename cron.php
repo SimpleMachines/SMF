@@ -40,7 +40,7 @@ define('MAX_CRON_TIME', 10);
 define('MAX_CLAIM_THRESHOLD', 300);
 
 // We're going to want a few globals... these are all set later.
-global $time_start, $maintenance, $msubject, $mmessage, $mbname, $language;
+global $maintenance, $msubject, $mmessage, $mbname, $language;
 global $boardurl, $boarddir, $sourcedir, $webmaster_email;
 global $db_server, $db_name, $db_user, $db_prefix, $db_persist, $db_error_send, $db_last_error;
 global $db_connection, $modSettings, $context, $sc, $user_info, $txt;

@@ -32,7 +32,7 @@ define('MYSQL_TITLE', 'MySQL');
 define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
 
 error_reporting(E_ALL);
-$time_start = microtime(true);
+define('TIME_START', microtime(true));
 
 // This makes it so headers can be sent!
 ob_start();

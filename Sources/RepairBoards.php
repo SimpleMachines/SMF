@@ -130,7 +130,7 @@ function RepairBoards()
  */
 function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0, $force = false)
 {
-	global $context, $txt, $time_start, $db_temp_cache, $db_cache;
+	global $context, $txt, $db_temp_cache, $db_cache;
 
 	// More time, I need more time!
 	@set_time_limit(600);
@@ -138,7 +138,7 @@ function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0
 		@apache_reset_timeout();
 
 	// Errr, wait.  How much time has this taken already?
-	if (!$force && (time() - $time_start) < 3)
+	if (!$force && (time() - TIME_START) < 3)
 		return;
 
 	// Restore the query cache if interested.
