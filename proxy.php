@@ -34,10 +34,10 @@ if (!defined('POSTGRE_TITLE'))
 if (!defined('MYSQL_TITLE'))
 	define('MYSQL_TITLE', 'MySQL');
 
-/if (!defined('SMF_USER_AGENT'))
+if (!defined('SMF_USER_AGENT'))
 	define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
 
-**
+/**
  * Class ProxyServer
  */
 class ProxyServer
@@ -295,12 +295,8 @@ class ProxyServer
 		{
 			while (false !== ($file = readdir($handle)))
 			{
-				$filelastmodified = filemtime($path . $file);
-
-				if ((time() - $filelastmodified) > ($this->maxDays * 86400))
-				{
+				if (is_file($path . $file) && !in_array($file, array('index.php', '.htaccess')) && time() - filemtime($path . $file) > $this->maxDays * 86400)
 					unlink($path . $file);
-				}
 			}
 
 			closedir($handle);
