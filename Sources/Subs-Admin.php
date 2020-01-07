@@ -787,19 +787,31 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 	// This little function gets the appropriate regex for the variable type.
 	$gettype_regex = function($var)
 	{
-		$flags = '';
+		global $context;
+
+		$flags = $context['utf8'] ? 'u' : '';
 		switch (gettype($var))
 		{
 			case 'string':
-				$regex = '(?(?=")"(?:[^"]|(?<=\\\)")*"|\'(?:[^\']|(?<=\\\)\')*\')';
+				$regex = '
+						# If the string starts with a single or double quotation mark
+						(?(?=["\'])
+							# match the opening quotation mark...
+							(["\'])
+							# then any number of other characters or escaped quotation marks...
+							(?:[^\\1]|(?<=\\\)\\1)*
+							# then the closing quotation mark.
+							\\1
+						)';
+				$flags .= 'x';
 				break;
 
 			case 'integer':
-				$regex = '\d+';
+				$regex = '[+-]?\d+';
 				break;
 
 			case 'double':
-				$regex = '\d+\.\d+';
+				$regex = '[+-]?\d+\.\d+';
 				break;
 
 			case 'boolean':
@@ -811,9 +823,8 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 				break;
 
 			case 'array':
-				// @todo This regex can probably be improved.
-				$regex = 'array\s*\((?:[^;]|(?<=\\\);)*?\)';
-				$flags = 'm';
+				// This uses a PCRE subroutine to match nested arrays.
+				$regex = 'array\s*(\((?>[^()]|(?1))*\))';
 				break;
 
 			default:
@@ -865,7 +876,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 					$text_pattern
 				);
 
-				$text_pattern = implode('\n[ \t]*', explode("\n", $text_pattern));
+				$text_pattern = implode('\n\h*', explode("\n", $text_pattern));
 
 				$substitutions[$var]['search_pattern'] = '~' . $text_pattern . '\n?~';
 				$substitutions[$var]['placeholder'] = '';
@@ -882,7 +893,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 			// The text is just a comment.
 			else
 			{
-				$text_pattern = implode('\n[ \t]*', explode("\n", $text_pattern));
+				$text_pattern = implode('\n\h*', explode("\n", $text_pattern));
 
 				$substitutions['text_' . $var]['search_pattern'] = '~' . $text_pattern . '\n?~';
 				$substitutions['text_' . $var]['placeholder'] = '';
@@ -905,7 +916,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 			if (!empty($setting_def['raw_default']) && !empty($setting_def['default']))
 				$var_pattern = '(?:' . $var_pattern . '|' . preg_quote($setting_def['default'], '~') . ')';
 
-			$substitutions[$var]['search_pattern'] = '~[ \t]*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';\n?~' . $flags;
+			$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';\n?~' . $flags;
 			$substitutions[$var]['placeholder'] = $placeholder . "\n";
 		}
 
@@ -967,7 +978,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 
 			$placeholder = md5($prefix . $var);
 
-			$substitutions[$var]['search_pattern'] = '~[ \t]*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';\n?~' . $flags;
+			$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';\n?~' . $flags;
 			$substitutions[$var]['placeholder'] = $placeholder;
 			$substitutions[$var]['replace_pattern'] = '~\b' . $placeholder . '\n~';
 			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . var_export($val, true) . ";\n";
@@ -1015,7 +1026,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 	$settingsText = preg_replace($replace_patterns, $replace_strings, $settingsText);
 
 	// This one is just cosmetic. Get rid of extra lines of whitespace.
-	$settingsText = preg_replace('~(\n[ \t]*)+\n~', "\n\n", $settingsText);
+	$settingsText = preg_replace('~\n\s*\n~', "\n\n", $settingsText);
 
 	/******************************************
 	 * PART 3: Write updated settings to file *
