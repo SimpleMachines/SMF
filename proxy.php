@@ -295,12 +295,8 @@ class ProxyServer
 		{
 			while (false !== ($file = readdir($handle)))
 			{
-				$filelastmodified = filemtime($path . $file);
-
-				if ((time() - $filelastmodified) > ($this->maxDays * 86400))
-				{
+				if (is_file($path . $file) && !in_array($file, array('index.php', '.htaccess')) && time() - filemtime($path . $file) > $this->maxDays * 86400)
 					unlink($path . $file);
-				}
 			}
 
 			closedir($handle);
