@@ -2899,7 +2899,7 @@ function loadThemeOptions($memID, $defaultSettings = false)
 			WHERE id_theme IN (1, {int:member_theme})
 				AND id_member IN (-1, {int:selected_member})',
 			array(
-				'member_theme' => !isset($cur_profile['id_theme']) && $defaultSettings ? 0 : (int) $cur_profile['id_theme'],
+				'member_theme' => !isset($cur_profile['id_theme']) && !empty($defaultSettings) ? 0 : (int) $cur_profile['id_theme'],
 				'selected_member' => $memID,
 			)
 		);
