@@ -108,17 +108,26 @@ String.prototype.php_to8bit = function ()
 	{
 		var n, sReturn = '';
 
+		// Recode from UTF16 (native .js) to UTF8
 		for (var i = 0, iTextLen = this.length; i < iTextLen; i++)
 		{
+			// Below xFFFF, UTF16 simply = the code points
 			n = this.charCodeAt(i);
 			if (n < 128)
 				sReturn += String.fromCharCode(n);
 			else if (n < 2048)
 				sReturn += String.fromCharCode(192 | n >> 6) + String.fromCharCode(128 | n & 63);
-			else if (n < 65536)
-				sReturn += String.fromCharCode(224 | n >> 12) + String.fromCharCode(128 | n >> 6 & 63) + String.fromCharCode(128 | n & 63);
-			else
+			// 0xD800 - 0xDBFF
+			else if (n >= 55296 && n <= 56319)
+			{
+				// In this range, this is the beginning of a surrogate pair, where 4-byte utf8 chars are
+				n = 65536 + ((n & 1023) << 10) + (this.charCodeAt(i + 1) & 1023);
 				sReturn += String.fromCharCode(240 | n >> 18) + String.fromCharCode(128 | n >> 12 & 63) + String.fromCharCode(128 | n >> 6 & 63) + String.fromCharCode(128 | n & 63);
+				// Skip next char, already used...
+				i++;
+			}
+			else
+				sReturn += String.fromCharCode(224 | n >> 12) + String.fromCharCode(128 | n >> 6 & 63) + String.fromCharCode(128 | n & 63);
 		}
 
 		return sReturn;
