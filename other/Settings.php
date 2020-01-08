@@ -227,11 +227,13 @@ $packagesdir = dirname(__FILE__) . '/Packages';
 $tasksdir = $sourcedir . '/tasks';
 
 # Make sure the paths are correct... at least try to fix them.
-if (!file_exists($boarddir) && file_exists(dirname(__FILE__) . '/agreement.txt'))
+if (!is_dir($boarddir) && file_exists(dirname(__FILE__) . '/agreement.txt'))
 	$boarddir = dirname(__FILE__);
-if (!file_exists($sourcedir) && file_exists($boarddir . '/Sources'))
+if (!is_dir($sourcedir) && is_dir($boarddir . '/Sources'))
 	$sourcedir = $boarddir . '/Sources';
-if (!file_exists($cachedir) && file_exists($boarddir . '/cache'))
+if (!is_dir($tasksdir) && is_dir($sourcedir . '/tasks'))
+	$tasksdir = $sourcedir . '/tasks';
+if (!is_dir($cachedir) && is_dir($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
 
 ######### Legacy Settings #########

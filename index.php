@@ -49,9 +49,17 @@ foreach (array('boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'taskddir', '
 	if (!empty($GLOBALS[$variable]))
 		$GLOBALS[$variable] = rtrim($GLOBALS[$variable], "\\/");
 
-// Make absolutely sure the cache directory is defined.
-if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
-	$cachedir = $boarddir . '/cache';
+// Make absolutely sure the cache directory is defined and writable.
+if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
+{
+	if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
+		$cachedir = $boarddir . '/cache';
+	else
+	{
+		$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
+		@mkdir($cachedir, 0750);
+	}
+}
 
 // Without those we can't go anywhere
 require_once($sourcedir . '/QueryString.php');
