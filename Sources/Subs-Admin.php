@@ -274,161 +274,867 @@ function getFileVersions(&$versionOptions)
  * The most important function in this file for mod makers happens to be the
  * updateSettingsFile() function, but it shouldn't be used often anyway.
  *
- * - updates the Settings.php file with the changes supplied in config_vars.
- * - expects config_vars to be an associative array, with the keys as the
- *   variable names in Settings.php, and the values the variable values.
- * - does not escape or quote values.
- * - preserves case, formatting, and additional options in file.
- * - writes nothing if the resulting file would be less than 10 lines
- *   in length (sanity check for read lock.)
- * - check for changes to db_last_error and passes those off to a separate handler
- * - attempts to create a backup file and will use it should the writing of the
- *   new settings file fail
+ * - Updates the Settings.php file with the changes supplied in config_vars.
  *
- * @param array $config_vars An array of one or more variables to update
+ * - Expects config_vars to be an associative array, with the keys as the
+ *   variable names in Settings.php, and the values the variable values.
+ *
+ * - Correctly formats the values using var_export().
+ *
+ * - Automatically restores standard formatting of the file.
+ *
+ * - Checks for changes to db_last_error and passes those off to a separate
+ *   handler.
+ *
+ * - Creates a backup file and will use it should the writing of the
+ *   new settings file fail.
+ *
+ * - Tries to intelligently trim quotes and remove slashes from string values.
+ *   This is done for backwards compatibility purposes (old versions of this
+ *   function expected strings to have been manually escaped and quoted). This
+ *   behaviour can be controlled by the $keep_quotes parameter.
+ *
+ * @param array $config_vars An array of one or more variables to update.
+ * @param bool|null $keep_quotes Whether to strip slashes & trim quotes from string values. Defaults to auto-detection.
+ * @param bool $partial If true, does not try to make sure all variables are correct. Default false.
+ * @return bool True on success, false on failure.
  */
-function updateSettingsFile($config_vars)
+function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 {
-	global $boarddir, $cachedir, $context;
+	global $context;
+
+	// Should we try to unescape the strings?
+	if (empty($keep_quotes))
+	{
+		foreach ($config_vars as $var => $val)
+		{
+			if (is_string($val) && ($keep_quotes === false || strpos($val, '\'') === 0 && strrpos($val, '\'') === strlen($val) - 1))
+				$config_vars[$var] = trim(stripcslashes($val), '\'');
+		}
+	}
 
 	// Updating the db_last_error, then don't mess around with Settings.php
 	if (count($config_vars) === 1 && isset($config_vars['db_last_error']))
 	{
 		updateDbLastError($config_vars['db_last_error']);
-		return;
+		return true;
 	}
+
+	/*****************
+	 * PART 1: Setup *
+	 *****************/
+
+	// Typically Settings.php is in $boarddir, but maybe this is a custom setup...
+	foreach (get_included_files() as $settingsFile)
+		if (basename($settingsFile) === 'Settings.php')
+			break;
 
 	// When was Settings.php last changed?
-	$last_settings_change = filemtime($boarddir . '/Settings.php');
+	$last_settings_change = filemtime($settingsFile);
 
-	// Load the settings file.
-	$settingsArray = trim(file_get_contents($boarddir . '/Settings.php'));
+	/**
+	 * A big, fat array to define properties of all the Settings.php variables.
+	 *
+	 * - String keys are used to identify actual variables.
+	 *
+	 * - Integer keys are used for content not connected to any particular
+	 *   variable, such as code blocks or the license block.
+	 *
+	 * - The content of the 'text' element is simply printed out. Use it for
+	 *   comments or to insert code blocks, etc.
+	 *
+	 * - The 'default' element, not surprisingly, gives a default value for
+	 *   the variable.
+	 *
+	 * - If 'raw_default' is true, the default should be printed directly,
+	 *   rather than being handles as a string. Use it if the default contains
+	 *   code, e.g. 'dirname(__FILE__)'
+	 *
+	 * - If 'required' is true and a value for the variable is undefined,
+	 *   the update will be aborted. (The only exception is during the SMF
+	 *   installation process.)
+	 *
+	 * - If 'null_delete' is true and a value for the variable is undefined or
+	 *   null, the variable will be deleted from Settings.php.
+	 */
+	$settings_defs = array(
+		0 => array(
+			'text' => implode("\n", array(
+				'',
+				'/**',
+				' * The settings file contains all of the basic settings that need to be present when a database/cache is not available.',
+				' *',
+				' * Simple Machines Forum (SMF)',
+				' *',
+				' * @package SMF',
+				' * @author Simple Machines https://www.simplemachines.org',
+				' * @copyright ' . SMF_SOFTWARE_YEAR . ' Simple Machines and individual contributors',
+				' * @license https://www.simplemachines.org/about/smf/license.php BSD',
+				' *',
+				' * @version ' . SMF_VERSION,
+				' */',
+			)),
+		),
+		'maintenance' => array(
+			'text' => implode("\n", array(
+				'',
+				'########## Maintenance ##########',
+				'/**',
+				' * The maintenance "mode"',
+				' * Set to 1 to enable Maintenance Mode, 2 to make the forum untouchable. (you\'ll have to make it 0 again manually!)',
+				' * 0 is default and disables maintenance mode.',
+				' *',
+				' * @var int 0, 1, 2',
+				' * @global int $maintenance',
+				' */',
+			)),
+			'default' => 0,
+		),
+		'mtitle' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * Title for the Maintenance Mode message.',
+				' *',
+				' * @var string',
+				' * @global int $mtitle',
+				' */',
+			)),
+			'default' => 'Maintenance Mode',
+		),
+		'mmessage' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * Description of why the forum is in maintenance mode.',
+				' *',
+				' * @var string',
+				' * @global string $mmessage',
+				' */',
+			)),
+			'default' => 'Okay faithful users...we\'re attempting to restore an older backup of the database...news will be posted once we\'re back!',
+		),
+		'mbname' => array(
+			'text' => implode("\n", array(
+				'',
+				'########## Forum Info ##########',
+				'/**',
+				' * The name of your forum.',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'My Community',
+		),
+		'language' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * The default language file set for the forum.',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'english',
+		),
+		'boardurl' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * URL to your forum\'s folder. (without the trailing /!)',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'http://127.0.0.1/smf',
+		),
+		'webmaster_email' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * Email address to send emails from. (like noreply@yourdomain.com.)',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'noreply@myserver.com',
+		),
+		'cookiename' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * Name of the cookie to set for authentication.',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'SMFCookie11',
+		),
+		'db_type' => array(
+			'text' => implode("\n", array(
+				'',
+				'########## Database Info ##########',
+				'/**',
+				' * The database type',
+				' * Default options: mysql, postgresql',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'mysql',
+		),
+		'db_port' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * The database port',
+				' * 0 to use default port for the database type',
+				' *',
+				' * @var int',
+				' */',
+			)),
+			'default' => 0,
+		),
+		'db_server' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * The server to connect to (or a Unix socket)',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'localhost',
+			'required' => true,
+		),
+		'db_name' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * The database name',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'smf',
+			'required' => true,
+		),
+		'db_user' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * Database username',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'root',
+			'required' => true,
+		),
+		'db_passwd' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * Database password',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => '',
+			'required' => true,
+		),
+		'ssi_db_user' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * Database user for when connecting with SSI',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => '',
+		),
+		'ssi_db_passwd' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * Database password for when connecting with SSI',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => '',
+		),
+		'db_prefix' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * A prefix to put in front of your table names.',
+				' * This helps to prevent conflicts',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'smf_',
+			'required' => true,
+		),
+		'db_persist' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * Use a persistent database connection',
+				' *',
+				' * @var int|bool',
+				' */',
+			)),
+			'default' => 0,
+		),
+		'db_error_send' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' *',
+				' * @var int|bool',
+				' */',
+			)),
+			'default' => 0,
+		),
+		'db_mb4' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * Override the default behavior of the database layer for mb4 handling',
+				' * null keep the default behavior untouched',
+				' *',
+				' * @var null|bool',
+				' */',
+			)),
+			'default' => null,
+		),
+		'cache_accelerator' => array(
+			'text' => implode("\n", array(
+				'',
+				'########## Cache Info ##########',
+				'/**',
+				' * Select a cache system. You want to leave this up to the cache area of the admin panel for',
+				' * proper detection of apc, memcached, output_cache, smf, or xcache',
+				' * (you can add more with a mod).',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => '',
+		),
+		'cache_enable' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * The level at which you would like to cache. Between 0 (off) through 3 (cache a lot).',
+				' *',
+				' * @var int',
+				' */',
+			)),
+			'default' => 0,
+		),
+		'cache_memcached' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * This is only used for memcache / memcached. Should be a string of \'server:port,server:port\'',
+				' *',
+				' * @var array',
+				' */',
+			)),
+			'default' => '',
+		),
+		'cachedir' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * This is only for the \'smf\' file cache system. It is the path to the cache directory.',
+				' * It is also recommended that you place this in /tmp/ if you are going to use this.',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'dirname(__FILE__) . \'/cache\'',
+			'raw_default' => true,
+		),
+		'image_proxy_enabled' => array(
+			'text' => implode("\n", array(
+				'',
+				'########## Image Proxy ##########',
+				'# This is done entirely in Settings.php to avoid loading the DB while serving the images',
+				'/**',
+				' * Whether the proxy is enabled or not',
+				' *',
+				' * @var int|bool',
+				' */',
+			)),
+			'default' => 1,
+		),
+		'image_proxy_secret' => array(
+			'text' => implode("\n", array(
+				'',
+				'/**',
+				' * Secret key to be used by the proxy',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'smfisawesome',
+		),
+		'image_proxy_maxsize' => array(
+			'text' => implode("\n", array(
+				'',
+				'/**',
+				' * Maximum file size (in KB) for individual files',
+				' *',
+				' * @var int',
+				' */',
+			)),
+			'default' => 5192,
+		),
+		'boarddir' => array(
+			'text' => implode("\n", array(
+				'',
+				'########## Directories/Files ##########',
+				'# Note: These directories do not have to be changed unless you move things.',
+				'/**',
+				' * The absolute path to the forum\'s folder. (not just \'.\'!)',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'dirname(__FILE__)',
+			'raw_default' => true,
+		),
+		'sourcedir' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * Path to the Sources directory.',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'dirname(__FILE__) . \'/Sources\'',
+			'raw_default' => true,
+		),
+		'packagesdir' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * Path to the Packages directory.',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => 'dirname(__FILE__) . \'/Packages\'',
+			'raw_default' => true,
+		),
+		'tasksdir' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * Path to the tasks directory.',
+				' *',
+				' * @var string',
+				' */',
+			)),
+			'default' => '$sourcedir . \'/tasks\'',
+			'raw_default' => true,
+		),
+		1 => array(
+			'text' => implode("\n", array(
+				'',
+				'# Make sure the paths are correct... at least try to fix them.',
+				'if (!is_dir($boarddir) && file_exists(dirname(__FILE__) . \'/agreement.txt\'))',
+				'	$boarddir = dirname(__FILE__);',
+				'if (!is_dir($sourcedir) && is_dir($boarddir . \'/Sources\'))',
+				'	$sourcedir = $boarddir . \'/Sources\';',
+				'if (!is_dir($taskdir) && is_dir($sourcedir . \'/tasks\'))',
+				'	$taskdir = $sourcedir . \'/tasks\';',
+				'if (!is_dir($cachedir) && is_dir($boarddir . \'/cache\'))',
+				'	$cachedir = $boarddir . \'/cache\';',
+			)),
+		),
+		'db_character_set' => array(
+			'text' => implode("\n", array(
+				'',
+				'######### Legacy Settings #########',
+				'# UTF-8 is now the only character set supported in 2.1.',
+			)),
+			'default' => 'utf8',
+		),
+		2 => array(
+			'text' => implode("\n", array(
+				'',
+				'########## Error-Catching ##########',
+				'# Note: You shouldn\'t touch these settings.',
+				'if (file_exists((isset($cachedir) ? $cachedir : dirname(__FILE__)) . \'/db_last_error.php\'))',
+				'	include((isset($cachedir) ? $cachedir : dirname(__FILE__)) . \'/db_last_error.php\');',
+				'',
+				'if (!isset($db_last_error))',
+				'{',
+				'	// File does not exist so lets try to create it',
+				'	file_put_contents((isset($cachedir) ? $cachedir : dirname(__FILE__)) . \'/db_last_error.php\', \'<\' . \'?\' . "php\n" . \'$db_last_error = 0;\' . "\n" . \'?\' . \'>\');',
+				'	$db_last_error = 0;',
+				'}',
+			)),
+		),
+		// Temporary variable used during the upgrade process.
+		'upgradeData' => array(
+			'default' => null,
+			'null_delete' => true,
+		),
+	);
 
-	// Break it up based on \r or \n, and then clean out extra characters.
-	if (strpos($settingsArray, "\n") !== false)
-		$settingsArray = explode("\n", $settingsArray);
-	elseif (strpos($settingsArray, "\r") !== false)
-		$settingsArray = explode("\r", $settingsArray);
-	else
-		return;
+	// Allow mods the option to define comments, defaults, etc., for their settings.
+	call_integration_hook('integrate_update_settings_file', array(&$settings_defs));
 
-	// Presumably, the file has to have stuff in it for this function to be called :P.
-	if (count($settingsArray) < 10)
-		return;
+	// Just doing the bare minimum, eh? I guess someone's feeling lazy.
+	if ($partial)
+		$settings_defs = array_intersect_key($settings_defs, $config_vars);
 
-	// remove any /r's that made there way in here
-	foreach ($settingsArray as $k => $dummy)
-		$settingsArray[$k] = strtr($dummy, array("\r" => '')) . "\n";
-
-	// go line by line and see whats changing
-	for ($i = 0, $n = count($settingsArray); $i < $n; $i++)
+	// Make sure we have values for everything.
+	foreach ($settings_defs as $var => $setting_def)
 	{
-		// Don't trim or bother with it if it's not a variable.
-		if (substr($settingsArray[$i], 0, 1) != '$')
-			continue;
-
-		$settingsArray[$i] = trim($settingsArray[$i]) . "\n";
-
-		// Look through the variables to set....
-		foreach ($config_vars as $var => $val)
-		{
-			// be sure someone is not updating db_last_error this with a group
-			if ($var === 'db_last_error')
-			{
-				updateDbLastError($val);
-				unset($config_vars[$var]);
-			}
-			elseif (strncasecmp($settingsArray[$i], '$' . $var, 1 + strlen($var)) == 0)
-			{
-				$comment = strstr(substr($settingsArray[$i], strpos($settingsArray[$i], ';')), '#');
-				$settingsArray[$i] = '$' . $var . ' = ' . $val . ';' . ($comment == '' ? '' : "\t\t" . rtrim($comment)) . "\n";
-
-				// This one's been 'used', so to speak.
-				unset($config_vars[$var]);
-			}
-		}
-
-		// End of the file ... maybe
-		if (substr(trim($settingsArray[$i]), 0, 2) == '?' . '>')
-			$end = $i;
+		if (is_string($var) && !isset($config_vars[$var]) && in_array($var, array_keys($GLOBALS)))
+			$config_vars[$var] = $GLOBALS[$var];
 	}
 
-	// This should never happen, but apparently it is happening.
-	if (empty($end) || $end < 10)
-		$end = count($settingsArray) - 1;
 
-	// Still more variables to go?  Then lets add them at the end.
-	if (!empty($config_vars))
+	/******************************
+	 * PART 2: Content processing *
+	 ******************************/
+
+	// This little function gets the appropriate regex for the variable type.
+	$gettype_regex = function($var)
 	{
-		if (trim($settingsArray[$end]) == '?' . '>')
-			$settingsArray[$end++] = '';
+		global $context;
+
+		$flags = $context['utf8'] ? 'u' : '';
+		switch (gettype($var))
+		{
+			case 'string':
+				$regex = '
+						# If the string starts with a single or double quotation mark
+						(?(?=["\'])
+							# match the opening quotation mark...
+							(["\'])
+							# then any number of other characters or escaped quotation marks...
+							(?:[^\\1]|(?<=\\\)\\1)*
+							# then the closing quotation mark.
+							\\1
+						)';
+				$flags .= 'x';
+				break;
+
+			case 'integer':
+				$regex = '[+-]?\d+';
+				break;
+
+			case 'double':
+				$regex = '[+-]?\d+\.\d+';
+				break;
+
+			case 'boolean':
+				$regex = '(?i:TRUE|FALSE)';
+				break;
+
+			case 'NULL':
+				$regex = '(?i:NULL)';
+				break;
+
+			case 'array':
+				// This uses a PCRE subroutine to match nested arrays.
+				$regex = 'array\s*(\((?>[^()]|(?1))*\))';
+				break;
+
+			default:
+				$regex = '';
+				break;
+		}
+
+		return array($regex, $flags);
+	};
+
+	// Use var_export to make sure the value is formatted correctly,
+	// but customize the output to match SMF coding conventions.
+	$pretty_var_export = function($var)
+	{
+		if (is_array($var))
+			return preg_replace_callback('/^\h+/m', function ($m) { return strtr($m[0], array('  ' => "\t")); }, var_export($var, true));
 		else
-			$end++;
+			return var_export($var, true);
+	};
 
-		// Add in any newly defined vars that were passed
-		foreach ($config_vars as $var => $val)
-			$settingsArray[$end++] = '$' . $var . ' = ' . $val . ';' . "\n";
+	// Time to build our new Settings.php!
+	$prefix = mt_rand() . '-';
+	$substitutions = array(
+		'^' => array(
+			'search_pattern' => '~^\s*<\?(php\b)?\n?~',
+			'placeholder' => '',
+			'replace_pattern' => '~^~',
+			'replacement' => '<' . "?php\n",
+		),
+		'$' => array(
+			'search_pattern' => '~\s*\?' . '>\s*$~',
+			'placeholder' => '',
+			'replace_pattern' => '~$~',
+			'replacement' => "\n\n?" . '>',
+		),
+	);
 
-		$settingsArray[$end] = '?' . '>';
-	}
-	else
-		$settingsArray[$end] = trim($settingsArray[$end]);
-
-	// Sanity error checking: the file needs to be at least 12 lines.
-	if (count($settingsArray) < 12)
-		return;
-
-	// Try to avoid a few pitfalls:
-	//  - like a possible race condition,
-	//  - or a failure to write at low diskspace
-	//
-	// Check before you act: if cache is enabled, we can do a simple write test
-	// to validate that we even write things on this filesystem.
-	if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
-		$cachedir = $boarddir . '/cache';
-
-	$test_fp = @fopen($cachedir . '/settings_update.tmp', "w+");
-	if ($test_fp)
+	foreach ($settings_defs as $var => $setting_def)
 	{
-		fclose($test_fp);
-		$written_bytes = file_put_contents($cachedir . '/settings_update.tmp', 'test', LOCK_EX);
-		@unlink($cachedir . '/settings_update.tmp');
+		$placeholder = md5($prefix . $var);
 
-		if ($written_bytes !== 4)
+		if (isset($setting_def['text']))
 		{
-			// Oops. Low disk space, perhaps. Don't mess with Settings.php then.
-			// No means no. :P
-			return;
+			$text_pattern = preg_quote($setting_def['text'], '~');
+
+			// Special handling for the license block.
+			if (strpos($setting_def['text'], "* @package SMF\n") !== false)
+			{
+				$license_block = $var;
+				$text_pattern = preg_replace(
+					array(
+						'~@copyright \d{4}~',
+						'~@version \d+\.\d+(?>\.\d+| (?>RC|Beta |Alpha )\d+)?~',
+					),
+					array(
+						'@copyright \d{4}',
+						'@version \d+\.\d+(?>\.\d+| (?>RC|Beta |Alpha )\d+)?',
+					),
+					$text_pattern
+				);
+
+				$text_pattern = implode('\n\h*', explode("\n", $text_pattern));
+
+				$substitutions[$var]['search_pattern'] = '~' . $text_pattern . '\n?~';
+				$substitutions[$var]['placeholder'] = '';
+				$substitutions['^']['placeholder'] .= $placeholder . "\n";
+				$substitutions['^']['replacement'] .= $setting_def['text'] . "\n";
+			}
+
+			// The text is the whole thing (code blocks, etc.)
+			elseif (is_int($var))
+			{
+				$substitutions[$var]['search_pattern'] = '~' . $text_pattern . '\n?~';
+				$substitutions[$var]['placeholder'] =  $var === $license_block ? '' : $placeholder . "\n";
+			}
+			// The text is just a comment.
+			else
+			{
+				$text_pattern = implode('\n\h*', explode("\n", $text_pattern));
+
+				$substitutions['text_' . $var]['search_pattern'] = '~' . $text_pattern . '\n?~';
+				$substitutions['text_' . $var]['placeholder'] = '';
+			}
+		}
+
+		if (is_string($var))
+		{
+			// We don't save objects in Settings.php.
+			if (is_object($config_vars[$var]))
+			{
+				if (method_exists($config_vars[$var], '__toString'))
+					$config_vars[$var] = (string) $config_vars[$var];
+				else
+					$config_vars[$var] = (array) $config_vars[$var];
+			}
+
+			list($var_pattern, $flags) = $gettype_regex($config_vars[$var]);
+
+			if (!empty($setting_def['raw_default']) && !empty($setting_def['default']))
+				$var_pattern = '(?:' . $var_pattern . '|' . preg_quote($setting_def['default'], '~') . ')';
+
+			$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';\n?~' . $flags;
+			$substitutions[$var]['placeholder'] = $placeholder . "\n";
+		}
+
+		$replacement = '';
+
+		// Add our lovely text block.
+		if (!empty($setting_def['text']))
+			$replacement .= $setting_def['text'] . "\n";
+
+		if (is_string($var))
+		{
+			// A setting to delete.
+			if (!empty($setting_def['null_delete']) && !isset($config_vars[$var]))
+			{
+				$replacement = '';
+			}
+			// Add this setting's value.
+			elseif (isset($config_vars[$var]) || is_null($config_vars[$var]))
+			{
+				$replacement .= '$' . $var . ' = ' . $pretty_var_export($config_vars[$var], TRUE) . ";\n";
+				unset($config_vars[$var]);
+			}
+			// Uh-oh! Something must have gone horribly, inconceivably wrong.
+			elseif (!empty($setting_def['required']) && !defined('SMF_INSTALLING'))
+			{
+				$context['settings_message'] = 'settings_error';
+				return false;
+			}
+			// Fall back to the default value.
+			elseif (isset($setting_def['default']))
+			{
+				$replacement .= '$' . $var . ' = ' . (!empty($setting_def['raw_default']) ? sprintf($setting_def['default']) : $pretty_var_export($setting_def['default'], true)) . ";\n";
+			}
+			// We've got nothing...
+			else
+			{
+				$replacement .= '$' . $var . ' = null;' . "\n";
+			}
+		}
+
+		$substitutions[$var]['replace_pattern'] = '~\b' . $placeholder . '\n~';
+		$substitutions[$var]['replacement'] = $replacement;
+	}
+
+	// Any leftovers to deal with?
+	foreach ($config_vars as $var => $val)
+	{
+		if ($var !== 'db_last_error')
+		{
+			if (is_object($config_vars[$var]))
+			{
+				if (method_exists($config_vars[$var], '__toString'))
+					$config_vars[$var] = (string) $config_vars[$var];
+				else
+					$config_vars[$var] = (array) $config_vars[$var];
+			}
+
+			list($var_pattern, $flags) = $gettype_regex($config_vars[$var]);
+
+			$placeholder = md5($prefix . $var);
+
+			$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';\n?~' . $flags;
+			$substitutions[$var]['placeholder'] = $placeholder;
+			$substitutions[$var]['replace_pattern'] = '~\b' . $placeholder . '\n~';
+			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . $pretty_var_export($val, true) . ";\n";
 		}
 	}
 
-	// Protect me from what I want! :P
-	clearstatcache();
-	if (filemtime($boarddir . '/Settings.php') === $last_settings_change)
+	// It's important to do the numbered ones before the named ones, or messes happen.
+	uksort($substitutions, function($a, $b) {
+		if (is_int($a) && is_int($b))
+			return $a > $b;
+		elseif (is_int($a))
+			return -1;
+		elseif (is_int($b))
+			return 1;
+		else
+			return strcasecmp($a, $b) * -1;
+	});
+
+	foreach ($substitutions as $var => $substitution)
 	{
-		// save the old before we do anything
-		$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
-		$settings_backup_fail = !$settings_backup_fail ? (!file_exists($boarddir . '/Settings_bak.php') || filesize($boarddir . '/Settings_bak.php') === 0) : $settings_backup_fail;
+		$search_patterns[] = $substitution['search_pattern'];
+		$placeholders[] = $substitution['placeholder'];
 
-		// write out the new
-		$write_settings = implode('', $settingsArray);
-		$written_bytes = file_put_contents($boarddir . '/Settings.php', $write_settings, LOCK_EX);
-
-		// survey says ...
-		if ($written_bytes !== strlen($write_settings) && !$settings_backup_fail)
+		if (strpos($var, 'text_') !== 0)
 		{
-			// Well this is not good at all, lets see if we can save this
-			$context['settings_message'] = 'settings_error';
-
-			if (file_exists($boarddir . '/Settings_bak.php'))
-				@copy($boarddir . '/Settings_bak.php', $boarddir . '/Settings.php');
+			if (!empty($substitution['placeholder']))
+			{
+				$simple_replacements[$substitution['placeholder']] = $substitution['replacement'];
+			}
+			else
+			{
+				$replace_patterns[] = $substitution['replace_pattern'];
+				$replace_strings[] = $substitution['replacement'];
+			}
 		}
 	}
 
-	// Even though on normal installations the filemtime should prevent this being used by the installer incorrectly
+	// Retrieve the contents of the settings file and fill in our placeholders.
+	$settingsText = preg_replace($search_patterns, $placeholders, file_get_contents($settingsFile));
+
+	// Where possible, perform simple substitutions.
+	$settingsText = strtr($settingsText, $simple_replacements);
+
+	// Deal with the complicated ones.
+	$settingsText = preg_replace($replace_patterns, $replace_strings, $settingsText);
+
+	// This one is just cosmetic. Get rid of extra lines of whitespace.
+	$settingsText = preg_replace('~\n\s*\n~', "\n\n", $settingsText);
+
+	/******************************************
+	 * PART 3: Write updated settings to file *
+	 ******************************************/
+
+	$backupFile = dirname($settingsFile) . '/Settings_bak.php';
+	$temp_sfile = tempnam($GLOBALS['cachedir'], 'Settings.');
+	$temp_bfile = tempnam($GLOBALS['cachedir'], 'Settings_bak.');
+
+	// We need write permissions.
+	$failed = false;
+	foreach (array($settingsFile, $backupFile) as $sf)
+	{
+		if (!file_exists($sf))
+			touch($sf);
+		elseif (!is_file($sf))
+			$failed = true;
+
+		if (!$failed)
+			$failed = !smf_chmod($sf);
+	}
+
+	// Is there enough free space on the disk?
+	if (!$failed && disk_free_space(dirname($settingsFile)) < (strlen($settingsText) + filesize($backupFile) + filesize($settingsFile)))
+		$failed = true;
+
+	// Now let's see if writing to a temp file succeeds.
+	if (!$failed && file_put_contents($temp_bfile, $settingsText, LOCK_EX) !== strlen($settingsText))
+		$failed = true;
+
+	// Tests passed, so it's time to do the job.
+	if (!$failed)
+	{
+		// Back up the backup, just in case.
+		if (file_exists($backupFile))
+			$temp_bfile_saved = @copy($backupFile, $temp_bfile);
+
+		// Make sure no one changed Settings.php while we weren't looking.
+		clearstatcache();
+		if (filemtime($settingsFile) === $last_settings_change)
+		{
+			// Attempt to open Settings.php
+			$sfhandle = @fopen($settingsFile, 'c');
+
+			// Let's do this thing!
+			if ($sfhandle !== false)
+			{
+				// Immediately get a lock.
+				flock($sfhandle, LOCK_EX);
+
+				// Make sure the backup works before we do anything more.
+				$temp_sfile_saved = @copy($settingsFile, $temp_sfile);
+
+				// Now write our new settings to the file.
+				if ($temp_sfile_saved)
+				{
+					ftruncate($sfhandle, 0);
+					rewind($sfhandle);
+					$failed = fwrite($sfhandle, $settingsText) !== strlen($settingsText);
+
+					// Hooray!
+					if (!$failed)
+						@rename($temp_sfile, $backupFile);
+				}
+
+				flock($sfhandle, LOCK_UN);
+				fclose($sfhandle);
+
+				// If writing failed, put everything back the way it was.
+				if ($failed)
+				{
+					if (!empty($temp_sfile_saved))
+						@rename($temp_sfile, $settingsFile);
+
+					if (!empty($temp_bfile_saved))
+						@rename($temp_bfile, $backupFile);
+				}
+			}
+		}
+	}
+
+	// We're done with these.
+	@unlink($temp_sfile, $temp_bfile);
+
+	if ($failed)
+	{
+		$context['settings_message'] = 'settings_error';
+		return false;
+	}
+
+	// Even though on normal installations the filemtime should invalidate any cached version
 	// it seems that there are times it might not. So let's MAKE it dump the cache.
 	if (function_exists('opcache_invalidate'))
-		opcache_invalidate($boarddir . '/Settings.php', true);
+		opcache_invalidate($settingsFile, true);
+
+	return true;
 }
 
 /**

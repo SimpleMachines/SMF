@@ -283,7 +283,6 @@ $txt['upgrade_empty_errorlog'] = 'Empty error log before upgrading';
 $txt['upgrade_delete_karma'] = 'Delete all karma settings and info from the DB';
 $txt['upgrade_stats_collection'] = 'Allow Simple Machines to collect basic stats monthly.';
 $txt['upgrade_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="%1$s" target="_blank" rel="noopener">info page</a>.';
-$txt['upgrade_migrate_settings_file'] = 'Migrate to a new Settings file.';
 $txt['upgrade_db_changes'] = 'Executing database changes';
 $txt['upgrade_db_patient'] = 'Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made!';
 $txt['upgrade_db_complete'] = '1 Database Updates Complete! Click Continue to Proceed.';
@@ -377,10 +376,6 @@ $txt['error_db_privileges'] = 'The %1$s user you have set in Settings.php does n
 $txt['error_dir_not_writable'] = 'The directory: %1$s has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.';
 $txt['error_cache_not_found'] = 'The cache directory could not be found.<br><br>Please make sure you have a directory called &quot;cache&quot; in your forum directory before continuing.';
 $txt['error_agreement_not_writable'] = 'The upgrader was unable to obtain write access to agreement.txt.<br><br>If you are using a linux or unix based server, please ensure that the file is chmod\'d to 777, or if it does not exist that the directory this upgrader is in is 777.<br>If your server is running Windows, please ensure that the internet guest account has the proper permissions on it or its folder.';
-$txt['error_settings_migration_no_var'] = 'The upgrader could not copy a setting (%1$s) from your Settings file. Unable to migrate your Settings file to a new version.';
-$txt['error_settings_migration_too_short'] = 'The upgrader could not process your Settings file for updates. Unable to migrate your Settings file to a new version.';
-$txt['error_settings_migration_write_failed'] = 'The upgrader could not write a test file. Perhaps there is not enough disk space available? Unable to migrate your Settings file to a new version.';
-$txt['error_settings_migration_general'] = 'The upgrader detected a bad Settings file and reverted the changes. Unable to migrate your Settings file to a new version.';
 $txt['error_not_admin'] = 'You need to be an admin to perform an upgrade!';
 
 $txt['warning_lang_old'] = 'The language files for your selected language, %1$s, have not been updated to the latest version. Upgrade will continue with the forum default, %2$s.';
