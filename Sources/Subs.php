@@ -4618,7 +4618,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 				$encrypted = substr(crypt($word, 'uk'), 2, $max_chars);
 				$total = 0;
 				for ($i = 0; $i < $max_chars; $i++)
-					$total += $possible_chars[ord($encrypted{$i})] * pow(63, $i);
+					$total += $possible_chars[ord($encrypted[$i])] * pow(63, $i);
 				$returned_ints[] = $max_chars == 4 ? min($total, 16777215) : $total;
 			}
 		}

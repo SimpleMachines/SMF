@@ -38,6 +38,7 @@ function cleanRequest()
 
 	// What function to use to reverse magic quotes - if sybase is on we assume that the database sensibly has the right unescape function!
 	$removeMagicQuoteFunction = ini_get('magic_quotes_sybase') || strtolower(ini_get('magic_quotes_sybase')) == 'on' ? 'unescapestring__recursive' : 'stripslashes__recursive';
+	$magicQuotesEnabled = version_compare(PHP_VERSION, '7.4.0') == -1 && function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty($modSettings['integrate_magic_quotes']);
 
 	// Save some memory.. (since we don't use these anyway.)
 	unset($GLOBALS['HTTP_POST_VARS'], $GLOBALS['HTTP_POST_VARS']);
@@ -83,12 +84,12 @@ function cleanRequest()
 		parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr($_SERVER['QUERY_STRING'], array(';?' => '&', ';' => '&', '%00' => '', "\0" => ''))), $_GET);
 
 		// Magic quotes still applies with parse_str - so clean it up.
-		if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty($modSettings['integrate_magic_quotes']))
+		if ($magicQuotesEnabled)
 			$_GET = $removeMagicQuoteFunction($_GET);
 	}
 	elseif (strpos(ini_get('arg_separator.input'), ';') !== false)
 	{
-		if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty($modSettings['integrate_magic_quotes']))
+		if ($magicQuotesEnabled)
 			$_GET = $removeMagicQuoteFunction($_GET);
 
 		// Search engines will send action=profile%3Bu=1, which confuses PHP.
@@ -137,7 +138,7 @@ function cleanRequest()
 	}
 
 	// If magic quotes is on we have some work...
-	if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0)
+	if ($magicQuotesEnabled)
 	{
 		$_ENV = $removeMagicQuoteFunction($_ENV);
 		$_POST = $removeMagicQuoteFunction($_POST);

@@ -465,7 +465,7 @@ function Post($post_errors = array())
 
 		// In order to keep the approval status flowing through, we have to pass it through the form...
 		$context['becomes_approved'] = empty($_REQUEST['not_approved']);
-		$context['show_approval'] = isset($_REQUEST['approve']) ? ($_REQUEST['approve'] ? 2 : 1) : allowedTo('approve_posts') ? 2 : 0;
+		$context['show_approval'] = isset($_REQUEST['approve']) ? ($_REQUEST['approve'] ? 2 : 1) : (allowedTo('approve_posts') ? 2 : 0);
 		$context['can_announce'] &= $context['becomes_approved'];
 
 		// Set up the inputs for the form.
