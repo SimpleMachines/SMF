@@ -46,7 +46,8 @@ global $db_server, $db_name, $db_user, $db_prefix, $db_persist, $db_error_send, 
 global $db_connection, $modSettings, $context, $sc, $user_info, $txt;
 global $smcFunc, $ssi_db_user, $scripturl, $db_passwd, $cachedir;
 
-define('TIME_START', microtime(true));
+if (!defined('TIME_START'))
+	define('TIME_START', microtime(true));
 
 // Just being safe...
 foreach (array('db_character_set', 'cachedir') as $variable)
