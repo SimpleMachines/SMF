@@ -1952,8 +1952,9 @@ function notification($memID)
  * Handles configuration of alert preferences
  *
  * @param int $memID The ID of the member
+ * @param bool $defaultSettings If true, we are loading default options.
  */
-function alert_configuration($memID)
+function alert_configuration($memID, $defaultSettings = false)
 {
 	global $txt, $context, $modSettings, $smcFunc, $sourcedir;
 
@@ -1969,7 +1970,7 @@ function alert_configuration($memID)
 		$context['action'] = 'action=profile;area=notification;sa=alerts;u=' . $memID;
 
 	// What options are set
-	loadThemeOptions($memID);
+	loadThemeOptions($memID, $defaultSettings);
 	loadJavaScriptFile('alertSettings.js', array('minimize' => true), 'smf_alertSettings');
 
 	// Now load all the values for this user.
@@ -2900,8 +2901,9 @@ function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
  * Loads the theme options for a user
  *
  * @param int $memID The ID of the member
+ * @param bool $defaultSettings If true, we are loading default options.
  */
-function loadThemeOptions($memID)
+function loadThemeOptions($memID, $defaultSettings = false)
 {
 	global $context, $options, $cur_profile, $smcFunc;
 
@@ -2923,7 +2925,7 @@ function loadThemeOptions($memID)
 			WHERE id_theme IN (1, {int:member_theme})
 				AND id_member IN (-1, {int:selected_member})',
 			array(
-				'member_theme' => (int) $cur_profile['id_theme'],
+				'member_theme' => !isset($cur_profile['id_theme']) && !empty($defaultSettings) ? 0 : (int) $cur_profile['id_theme'],
 				'selected_member' => $memID,
 			)
 		);
