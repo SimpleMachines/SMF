@@ -338,7 +338,7 @@ function Destroy()
 function ConvertMsgBody()
 {
 	global $scripturl, $context, $txt, $db_type;
-	global $modSettings, $smcFunc, $time_start;
+	global $modSettings, $smcFunc;
 
 	// Show me your badge!
 	isAllowedTo('admin_forum');
@@ -425,7 +425,7 @@ function ConvertMsgBody()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-convertMsg');
 				$context['continue_post_data'] = '
@@ -711,7 +711,7 @@ function ConvertEntities()
  */
 function OptimizeTables()
 {
-	global $db_prefix, $txt, $context, $smcFunc, $time_start;
+	global $db_prefix, $txt, $context, $smcFunc;
 
 	isAllowedTo('admin_forum');
 
@@ -757,7 +757,7 @@ function OptimizeTables()
 			break;
 
 		// Continue?
-		if (microtime(true) - $time_start > 10)
+		if (microtime(true) - TIME_START > 10)
 		{
 			$_REQUEST['start'] = $key;
 			$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;activity=optimize;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
@@ -809,8 +809,7 @@ function OptimizeTables()
  */
 function AdminBoardRecount()
 {
-	global $txt, $context, $modSettings, $sourcedir;
-	global $time_start, $smcFunc;
+	global $txt, $context, $modSettings, $sourcedir, $smcFunc;
 
 	isAllowedTo('admin_forum');
 	checkSession('request');
@@ -910,7 +909,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -968,7 +967,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1024,7 +1023,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1080,7 +1079,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1136,7 +1135,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1185,7 +1184,7 @@ function AdminBoardRecount()
 			updateMemberData($row['id_member'], array('unread_messages' => $row['real_num']));
 		$smcFunc['db_free_result']($request);
 
-		if (microtime(true) - $time_start > 3)
+		if (microtime(true) - TIME_START > 3)
 		{
 			createToken('admin-boardrecount');
 			$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1232,7 +1231,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';

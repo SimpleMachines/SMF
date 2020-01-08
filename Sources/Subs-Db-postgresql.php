@@ -322,7 +322,7 @@ function smf_db_quote($db_string, $db_values, $connection = null)
  */
 function smf_db_query($identifier, $db_string, $db_values = array(), $connection = null)
 {
-	global $db_cache, $db_count, $db_connection, $db_show_debug, $time_start;
+	global $db_cache, $db_count, $db_connection, $db_show_debug;
 	global $db_callback, $db_last_result, $db_replace_result, $modSettings;
 
 	// Decide which connection to use.
@@ -486,7 +486,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$db_cache[$db_count]['q'] = $db_count < 50 ? $db_string : '...';
 		$db_cache[$db_count]['f'] = $file;
 		$db_cache[$db_count]['l'] = $line;
-		$db_cache[$db_count]['s'] = ($st = microtime(true)) - $time_start;
+		$db_cache[$db_count]['s'] = ($st = microtime(true)) - TIME_START;
 	}
 
 	$db_last_result = @pg_query($connection, $db_string);

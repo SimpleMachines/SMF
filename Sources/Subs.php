@@ -3992,11 +3992,11 @@ function theme_copyright()
  */
 function template_footer()
 {
-	global $context, $modSettings, $time_start, $db_count;
+	global $context, $modSettings, $db_count;
 
 	// Show the load time?  (only makes sense for the footer.)
 	$context['show_load_time'] = !empty($modSettings['timeLoadPageEnable']);
-	$context['load_time'] = round(microtime(true) - $time_start, 3);
+	$context['load_time'] = round(microtime(true) - TIME_START, 3);
 	$context['load_queries'] = $db_count;
 
 	if (!empty($context['template_layers']) && is_array($context['template_layers']))
@@ -4618,7 +4618,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 				$encrypted = substr(crypt($word, 'uk'), 2, $max_chars);
 				$total = 0;
 				for ($i = 0; $i < $max_chars; $i++)
-					$total += $possible_chars[ord($encrypted{$i})] * pow(63, $i);
+					$total += $possible_chars[ord($encrypted[$i])] * pow(63, $i);
 				$returned_ints[] = $max_chars == 4 ? min($total, 16777215) : $total;
 			}
 		}

@@ -356,8 +356,9 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 			$sizes = array(-1, -1, -1);
 		fclose($fp_destination);
 	}
-	// We can't get to the file.
-	else
+
+	// We can't get to the file. or a previous getimagesize failed.
+	if (empty($sizes))
 		$sizes = array(-1, -1, -1);
 
 	// See if we have -or- can get the needed memory for this operation
@@ -620,9 +621,9 @@ if (!function_exists('imagecreatefrombmp'))
 		$n = 0;
 		for ($j = 0; $j < $palette_size; $j++)
 		{
-			$b = ord($palettedata{$j++});
-			$g = ord($palettedata{$j++});
-			$r = ord($palettedata{$j++});
+			$b = ord($palettedata[$j++]);
+			$g = ord($palettedata[$j++]);
+			$r = ord($palettedata[$j++]);
 
 			$palette[$n++] = imagecolorallocate($dst_img, $r, $g, $b);
 		}
@@ -643,9 +644,9 @@ if (!function_exists('imagecreatefrombmp'))
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$b = ord($scan_line{$j++});
-					$g = ord($scan_line{$j++});
-					$r = ord($scan_line{$j++});
+					$b = ord($scan_line[$j++]);
+					$g = ord($scan_line[$j++]);
+					$r = ord($scan_line[$j++]);
 					$j++;
 
 					$color = imagecolorexact($dst_img, $r, $g, $b);
@@ -666,9 +667,9 @@ if (!function_exists('imagecreatefrombmp'))
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$b = ord($scan_line{$j++});
-					$g = ord($scan_line{$j++});
-					$r = ord($scan_line{$j++});
+					$b = ord($scan_line[$j++]);
+					$g = ord($scan_line[$j++]);
+					$r = ord($scan_line[$j++]);
 
 					$color = imagecolorexact($dst_img, $r, $g, $b);
 					if ($color == -1)
@@ -688,8 +689,8 @@ if (!function_exists('imagecreatefrombmp'))
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$b1 = ord($scan_line{$j++});
-					$b2 = ord($scan_line{$j++});
+					$b1 = ord($scan_line[$j++]);
+					$b2 = ord($scan_line[$j++]);
 
 					$word = $b2 * 256 + $b1;
 
@@ -715,14 +716,14 @@ if (!function_exists('imagecreatefrombmp'))
 			{
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
-					imagesetpixel($dst_img, $x, $y, $palette[ord($scan_line{$j++})]);
+					imagesetpixel($dst_img, $x, $y, $palette[ord($scan_line[$j++])]);
 			}
 			elseif ($info['bits'] == 4)
 			{
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$byte = ord($scan_line{$j++});
+					$byte = ord($scan_line[$j++]);
 
 					imagesetpixel($dst_img, $x, $y, $palette[(int) ($byte / 16)]);
 
@@ -735,7 +736,7 @@ if (!function_exists('imagecreatefrombmp'))
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$byte = ord($scan_line{$j++});
+					$byte = ord($scan_line[$j++]);
 
 					imagesetpixel($dst_img, $x, $y, $palette[(($byte) & 128) != 0]);
 
@@ -892,7 +893,7 @@ function showCodeImage($code)
 	for ($i = 0; $i < strlen($code); $i++)
 	{
 		$characters[$i] = array(
-			'id' => $code{$i},
+			'id' => $code[$i],
 			'font' => array_rand($font_list),
 		);
 
@@ -1151,12 +1152,12 @@ function showLetterImage($letter)
 	$random_font = $font_list[array_rand($font_list)];
 
 	// Check if the given letter exists.
-	if (!file_exists($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . $letter . '.png'))
+	if (!file_exists($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png'))
 		return false;
 
 	// Include it!
 	header('content-type: image/png');
-	include($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . $letter . '.png');
+	include($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png');
 
 	// Nothing more to come.
 	die();
