@@ -244,7 +244,7 @@ class ProxyServer
 		$mime_type = finfo_buffer($finfo, $image);
 
 		// SVG needs a little extra care
-		if ($ext == 'svg' && $mime_type == 'text/plain')
+		if ($ext == 'svg' && in_array($mime_type, array('text/plain', 'text/xml')) && strpos($image, '<svg') !== false && strpos($image, '</svg>') !== false)
 			$mime_type = 'image/svg+xml';
 
 		// Make sure the url is returning an image
