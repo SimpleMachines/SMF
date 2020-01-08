@@ -425,7 +425,7 @@ function ClearMailQueue()
  */
 function pauseMailQueueClear()
 {
-	global $context, $txt, $time_start;
+	global $context, $txt;
 
 	// Try get more time...
 	@set_time_limit(600);
@@ -433,7 +433,7 @@ function pauseMailQueueClear()
 		@apache_reset_timeout();
 
 	// Have we already used our maximum time?
-	if ((time() - $time_start) < 5)
+	if ((time() - TIME_START) < 5)
 		return;
 
 	$context['continue_get_data'] = '?action=admin;area=mailqueue;sa=clear;te=' . $_GET['te'] . ';sent=' . $_GET['sent'] . ';' . $context['session_var'] . '=' . $context['session_id'];

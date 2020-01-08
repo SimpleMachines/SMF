@@ -3992,11 +3992,11 @@ function theme_copyright()
  */
 function template_footer()
 {
-	global $context, $modSettings, $time_start, $db_count;
+	global $context, $modSettings, $db_count;
 
 	// Show the load time?  (only makes sense for the footer.)
 	$context['show_load_time'] = !empty($modSettings['timeLoadPageEnable']);
-	$context['load_time'] = round(microtime(true) - $time_start, 3);
+	$context['load_time'] = round(microtime(true) - TIME_START, 3);
 	$context['load_queries'] = $db_count;
 
 	if (!empty($context['template_layers']) && is_array($context['template_layers']))

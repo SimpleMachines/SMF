@@ -1694,7 +1694,7 @@ function RepairAttachments()
  */
 function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 {
-	global $context, $txt, $time_start;
+	global $context, $txt;
 
 	// Try get more time...
 	@set_time_limit(600);
@@ -1702,7 +1702,7 @@ function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 		@apache_reset_timeout();
 
 	// Have we already used our maximum time?
-	if ((time() - $time_start) < 3 || $context['starting_substep'] == $_GET['substep'])
+	if ((time() - TIME_START) < 3 || $context['starting_substep'] == $_GET['substep'])
 		return;
 
 	$context['continue_get_data'] = '?action=admin;area=manageattachments;sa=repair' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . $context['session_var'] . '=' . $context['session_id'];
