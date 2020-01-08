@@ -231,6 +231,7 @@ class ProxyServer
 	protected function cacheImage($request)
 	{
 		$dest = $this->getCachedPath($request);
+		$ext = strtolower(pathinfo(parse_url($request, PHP_URL_PATH), PATHINFO_EXTENSION));
 
 		$image = fetch_web_data($request);
 
@@ -243,7 +244,7 @@ class ProxyServer
 		$mime_type = finfo_buffer($finfo, $image);
 
 		// SVG needs a little extra care
-		if (in_array($mime_type, array('text/plain', 'text/xml')) && strpos($image, '<svg') !== false && strpos($image, '</svg>') !== false)
+		if ($ext == 'svg' && in_array($mime_type, array('text/plain', 'text/xml')) && strpos($image, '<svg') !== false && strpos($image, '</svg>') !== false)
 			$mime_type = 'image/svg+xml';
 
 		// Make sure the url is returning an image
