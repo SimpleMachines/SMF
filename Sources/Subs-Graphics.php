@@ -336,6 +336,10 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 	{
 		$fileContents = fetch_web_data($source);
 
+		$mime_valid = check_mime_type($fileContents, implode('|', array_map('image_type_to_mime_type', array_keys($default_formats))));
+		if (empty($mime_valid))
+			return false;
+
 		fwrite($fp_destination, $fileContents);
 		fclose($fp_destination);
 
@@ -343,6 +347,10 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 	}
 	elseif ($fp_destination)
 	{
+		$mime_valid = check_mime_type($source, implode('|', array_map('image_type_to_mime_type', array_keys($default_formats))), true);
+		if (empty($mime_valid))
+			return false;
+
 		$sizes = @getimagesize($source);
 
 		$fp_source = fopen($source, 'rb');

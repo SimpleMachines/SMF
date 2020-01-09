@@ -5549,6 +5549,89 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 }
 
 /**
+ * Checks whether a file or data has the expected MIME type.
+ *
+ * @param string $data The data to check, or the path or URL of a file to check.
+ * @param string $type_pattern A regex pattern to match the acceptable MIME types.
+ * @param string $is_path If true, $data is a path or URL to a file.
+ * @return int 1 if the detected MIME type matches the pattern, 0 if it doesn't, or 2 if we can't check.
+ */
+function check_mime_type($data, $type_pattern, $is_path = false)
+{
+	global $cachedir;
+
+	$finfo_loaded = extension_loaded('fileinfo');
+	$exif_loaded = extension_loaded('exif') && function_exists('image_type_to_mime_type');
+
+	// On Windows, the Fileinfo extension may not be enabled by default.
+	if (!$finfo_loaded)
+	{
+		// Maybe we can load it dynamically? (Probably not, but give it a shot.)
+		$safe = ini_get('safe_mode');
+		$dl_ok = ini_get('enable_dl');
+		if (empty($safe) && !empty($dl_ok) && function_exists('dl'))
+			$finfo_loaded = @dl(((PHP_SHLIB_SUFFIX === 'dll') ? 'php_' : '') . 'fileinfo.' . PHP_SHLIB_SUFFIX);
+	}
+
+	// Oh well. We tried.
+	if (!$finfo_loaded && !$exif_loaded)
+		return 2;
+
+	if ($finfo_loaded)
+	{
+		// Just some nice, simple data to analyze.
+		if (empty($is_path))
+			$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME), $data);
+
+		// A file, or maybe a URL?
+		else
+		{
+			// Local file.
+			if (file_exists($data))
+				$mime_type = mime_content_type($data);
+
+			// URL.
+			elseif ($data = fetch_web_data($data))
+				$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME), $data);
+
+			// Non-existent files obviously don't have the right MIME type.
+			else
+				return 0;
+		}
+	}
+	// Workaround using Exif requires a local file.
+	else
+	{
+		// If $data is a URL to fetch, do so.
+		if (!empty($is_path) && !file_exists($data) && url_exists($data))
+		{
+			$data = fetch_web_data($data);
+			$is_path = false;
+		}
+
+		// If we don't have a local file, create one and use it.
+		if (empty($is_path))
+		{
+			$temp_file = tempnam($cachedir, md5($data));
+			file_put_contents($temp_file, $data);
+			$is_path = true;
+			$data = $temp_file;
+		}
+
+		$imagetype = @exif_imagetype($data);
+
+		// Unfortunately, this workaround only works for image files.
+		if ($imagetype == false)
+			return 2;
+
+		$mime_type = image_type_to_mime_type($imagetype);
+	}
+
+	// Finally, check whether the MIME type matches expectations.
+	return (int) @preg_match('~' . $type_pattern . '~', $mime_type);
+}
+
+/**
  * Prepares an array of "likes" info for the topic specified by $topic
  *
  * @param integer $topic The topic ID to fetch the info from.
