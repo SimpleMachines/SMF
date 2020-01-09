@@ -51,7 +51,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 			list(,,, $old_domain, $old_path) = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
 
 		// Legacy format (for recent 2.0 --> 2.1 upgrades)
-		elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[$cookiename]) === 1)
+		elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[$cookiename]) === 1)
 		{
 			list(,,, $old_state) = safe_unserialize($_COOKIE[$cookiename]);
 
@@ -884,7 +884,7 @@ function hash_password($username, $password, $cost = null)
 }
 
 /**
- * Hashes password with salt, this is solely used for cookies.
+ * Hashes password with salt and authentication secret. This is solely used for cookies.
  *
  * @param string $password The password
  * @param string $salt The salt
@@ -892,7 +892,7 @@ function hash_password($username, $password, $cost = null)
  */
 function hash_salt($password, $salt)
 {
-	return hash('sha512', $password . $salt);
+	return hash_hmac('sha1', sha1($password . $salt), get_auth_secret());
 }
 
 /**
