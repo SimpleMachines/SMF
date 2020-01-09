@@ -3703,4 +3703,27 @@ function set_avatar_data($data = array())
 		);
 }
 
+/**
+ * Gets, and if necessary creates, the authentication secret to use for cookies, tokens, etc.
+ *
+ * Note: Never use the $auth_secret variable directly. Always call this function instead.
+ *
+ * @return string The authentication secret.
+ */
+function get_auth_secret()
+{
+	global $auth_secret, $sourcedir, $smcFunc;
+
+	if (empty($auth_secret))
+	{
+		$auth_secret = bin2hex($smcFunc['random_bytes'](32));
+
+		// It is important to store this in Settings.php, not the database.
+		require_once($sourcedir . '/Subs-Admin.php');
+		updateSettingsFile(array('auth_secret' => $auth_secret));
+	}
+
+	return $auth_secret;
+}
+
 ?>
