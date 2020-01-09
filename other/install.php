@@ -789,12 +789,12 @@ function DatabaseSettings()
 
 		// Take care of these variables...
 		$vars = array(
-			'db_type' => addcslashes($db_type, '\'\\'),
-			'db_name' => addcslashes($_POST['db_name'], '\'\\'),
-			'db_user' => addcslashes($_POST['db_user'], '\'\\'),
-			'db_passwd' => isset($_POST['db_passwd']) ? addcslashes($_POST['db_passwd'], '\'\\') : '',
-			'db_server' => addcslashes($_POST['db_server'], '\'\\'),
-			'db_prefix' => addcslashes($db_prefix, '\'\\'),
+			'db_type' => $db_type,
+			'db_name' => $_POST['db_name'],
+			'db_user' => $_POST['db_user'],
+			'db_passwd' => isset($_POST['db_passwd']) ? $_POST['db_passwd'] : '',
+			'db_server' => $_POST['db_server'],
+			'db_prefix' => $db_prefix,
 			// The cookiename is special; we want it to be the same if it ever needs to be reinstalled with the same info.
 			'cookiename' => 'SMFCookie' . abs(crc32($_POST['db_name'] . preg_replace('~[^A-Za-z0-9_$]~', '', $_POST['db_prefix'])) % 1000),
 		);
@@ -1026,13 +1026,13 @@ function ForumSettings()
 
 		// Save these variables.
 		$vars = array(
-			'boardurl' => addcslashes($_POST['boardurl'], '\'\\'),
-			'boarddir' => addcslashes($path, '\'\\'),
-			'sourcedir' => addcslashes($path, '\'\\') . '/Sources',
-			'cachedir' => addcslashes($path, '\'\\') . '/cache',
-			'packagesdir' => addcslashes($path, '\'\\') . '/Packages',
-			'tasksdir' => addcslashes($path, '\'\\') . '/Sources/tasks',
-			'mbname' => strtr(addcslashes($_POST['mbname'], '\'\\'), array('\"' => '"')),
+			'boardurl' => $_POST['boardurl'],
+			'boarddir' => $path,
+			'sourcedir' => $path . '/Sources',
+			'cachedir' => $path . '/cache',
+			'packagesdir' => $path . '/Packages',
+			'tasksdir' => $path . '/Sources/tasks',
+			'mbname' => strtr($_POST['mbname'], array('\"' => '"')),
 			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),
 			'image_proxy_secret' => substr(sha1(mt_rand()), 0, 20),
 			'image_proxy_enabled' => !empty($_POST['force_ssl']),
