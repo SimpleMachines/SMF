@@ -3458,13 +3458,15 @@ function profileSaveAvatarData(&$value)
 		removeAttachments(array('id_member' => $memID));
 
 		$profile_vars['avatar'] = str_replace(' ', '%20', preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $_POST['userpicpersonal']));
+		$mime_valid = check_mime_type($profile_vars['avatar'], 'image/', true);
 
 		if ($profile_vars['avatar'] == 'http://' || $profile_vars['avatar'] == 'http:///')
 			$profile_vars['avatar'] = '';
 		// Trying to make us do something we'll regret?
 		elseif (substr($profile_vars['avatar'], 0, 7) != 'http://' && substr($profile_vars['avatar'], 0, 8) != 'https://')
 			return 'bad_avatar_invalid_url';
-
+		elseif (empty($mime_valid))
+			return 'bad_avatar';
 		// Should we check dimensions?
 		elseif (!empty($modSettings['avatar_max_height_external']) || !empty($modSettings['avatar_max_width_external']))
 		{
@@ -3513,7 +3515,8 @@ function profileSaveAvatarData(&$value)
 				$_FILES['attachment']['tmp_name'] = $new_filename;
 			}
 
-			$sizes = @getimagesize($_FILES['attachment']['tmp_name']);
+			$mime_valid = check_mime_type($_FILES['attachment']['tmp_name'], 'image/', true);
+			$sizes = empty($mime_valid) ? false : @getimagesize($_FILES['attachment']['tmp_name']);
 
 			// No size, then it's probably not a valid pic.
 			if ($sizes === false)
