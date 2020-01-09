@@ -210,6 +210,10 @@ require_once($sourcedir . '/Subs.php');
 require_once($sourcedir . '/LogInOut.php');
 require_once($sourcedir . '/Subs-Editor.php');
 
+// Don't do security check if on Yabbse
+if (!isset($modSettings['smfVersion']))
+	$disable_security = true;
+
 // This only exists if we're on SMF ;)
 if (isset($modSettings['smfVersion']))
 {
@@ -241,6 +245,14 @@ if (!isset($settings['default_theme_url']))
 	$settings['default_theme_url'] = $modSettings['theme_url'];
 if (!isset($settings['default_theme_dir']))
 	$settings['default_theme_dir'] = $modSettings['theme_dir'];
+
+// Old DBs won't have this
+if (!isset($modSettings['rand_seed']))
+{
+	if (!function_exists('cache_put_data'))
+		require_once($sourcedir . '/Load.php');
+	smf_seed_generator();
+}
 
 // This is needed in case someone invokes the upgrader using https when upgrading an http forum
 if (httpsOn())
@@ -952,12 +964,8 @@ function checkLogin()
 	global $modSettings, $upcontext, $disable_security;
 	global $smcFunc, $db_type, $support_js, $sourcedir, $txt;
 
-	// Don't bother if the security is disabled.
-	if ($disable_security)
-		return true;
-
 	// Are we trying to login?
-	if (isset($_POST['contbutt']) && (!empty($_POST['user'])))
+	if (isset($_POST['contbutt']) && (!empty($_POST['user']) || $disable_security))
 	{
 		// If we've disabled security pick a suitable name!
 		if (empty($_POST['user']))
@@ -1028,13 +1036,16 @@ function checkLogin()
 		$upcontext['username'] = $_POST['user'];
 
 		// Track whether javascript works!
-		if (!empty($_POST['js_works']))
+		if (isset($_POST['js_works']))
 		{
-			$upcontext['upgrade_status']['js'] = 1;
-			$support_js = 1;
+			if (!empty($_POST['js_works']))
+			{
+				$upcontext['upgrade_status']['js'] = 1;
+				$support_js = 1;
+			}
+			else
+				$support_js = 0;
 		}
-		else
-			$support_js = 0;
 
 		// Note down the version we are coming from.
 		if (!empty($modSettings['smfVersion']) && empty($upcontext['user']['version']))
@@ -1498,11 +1509,12 @@ function DatabaseChanges()
 
 	// All possible files.
 	// Name, < version, insert_on_complete
+	// Last entry in array indicates whether to use sql_mode of STRICT or not.
 	$files = array(
-		array('upgrade_1-0.sql', '1.1', '1.1 RC0'),
-		array('upgrade_1-1.sql', '2.0', '2.0 a'),
-		array('upgrade_2-0_' . $db_type . '.sql', '2.1', '2.1 dev0'),
-		array('upgrade_2-1_' . $db_type . '.sql', '3.0', SMF_VERSION),
+		array('upgrade_1-0.sql', '1.1', '1.1 RC0', false),
+		array('upgrade_1-1.sql', '2.0', '2.0 a', false),
+		array('upgrade_2-0_' . $db_type . '.sql', '2.1', '2.1 dev0', false),
+		array('upgrade_2-1_' . $db_type . '.sql', '3.0', SMF_VERSION, true),
 	);
 
 	// How many files are there in total?
@@ -1533,6 +1545,7 @@ function DatabaseChanges()
 			// Do we actually need to do this still?
 			if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < $file[1])
 			{
+				setSqlMode($file[3]);
 				$nextFile = parse_sql(dirname(__FILE__) . '/' . $file[0]);
 				if ($nextFile)
 				{
@@ -1574,6 +1587,24 @@ function DatabaseChanges()
 		return true;
 	}
 	return false;
+}
+
+// Different versions of the files use different sql_modes
+function setSqlMode($strict = true)
+{
+	global $db_type, $db_connection;
+
+	if ($db_type != 'mysql')
+		return;
+
+	if ($strict)
+		$mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+	else
+		$mode = '';
+
+	mysqli_query($db_connection, 'SET SESSION sql_mode = \'' . $mode . '\'');
+
+	return;
 }
 
 // Delete the damn thing!
@@ -2123,7 +2154,7 @@ function upgrade_query($string, $unbuffered = false)
 	if ($db_type == 'mysql')
 	{
 		$mysqli_errno = mysqli_errno($db_connection);
-		$error_query = in_array(substr(trim($string), 0, 11), array('INSERT INTO', 'UPDATE IGNO', 'ALTER TABLE', 'DROP TABLE ', 'ALTER IGNOR'));
+		$error_query = in_array(substr(trim($string), 0, 11), array('INSERT INTO', 'UPDATE IGNO', 'ALTER TABLE', 'DROP TABLE ', 'ALTER IGNOR', 'INSERT IGNO'));
 
 		// Error numbers:
 		//    1016: Can't open file '....MYI'
@@ -2169,6 +2200,9 @@ function upgrade_query($string, $unbuffered = false)
 		elseif ($mysqli_errno == 1072)
 			return false;
 		elseif ($mysqli_errno == 1050 && substr(trim($string), 0, 12) == 'RENAME TABLE')
+			return false;
+		// Testing for legacy tables or columns? Needed for 1.0 & 1.1 scripts.
+		elseif (in_array($mysqli_errno, array(1054, 1146)) && in_array(substr(trim($string), 0, 7), array('SELECT ', 'SHOW CO')))
 			return false;
 	}
 	// If a table already exists don't go potty.

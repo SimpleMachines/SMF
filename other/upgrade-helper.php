@@ -417,7 +417,7 @@ function smf_mysql_num_rows($rs)
 function smf_mysql_real_escape_string($string)
 {
 	global $db_connection;
-	mysqli_real_escape_string($db_connection, $string);
+	return mysqli_real_escape_string($db_connection, $string);
 }
 
 /**
