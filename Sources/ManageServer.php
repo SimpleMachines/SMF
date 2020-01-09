@@ -1124,6 +1124,8 @@ function prepareDBSettingContext(&$config_vars)
 					foreach ($config_var[2] as $key => $item)
 						$context['config_vars'][$config_var[1]]['data'][] = array($key, $item);
 				}
+				if (empty($config_var['size']) && !empty($config_var['multiple']))
+					$context['config_vars'][$config_var[1]]['size'] = max(4, count($config_var[2]));
 			}
 
 			// Finally allow overrides - and some final cleanups.
