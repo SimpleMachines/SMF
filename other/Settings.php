@@ -252,7 +252,8 @@ if (!isset($db_last_error))
 	$db_last_error = 0;
 }
 
-if (file_exists(dirname(__FILE__) . '/install.php'))
+## First time thru installer only ##
+if (file_exists(dirname(__FILE__) . '/install.php') && empty($GLOBALS['incontext']))
 {
 	$secure = false;
 	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
