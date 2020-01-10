@@ -41,7 +41,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 				AND DAYOFMONTH(birthdate) = {int:day}
 				AND YEAR(birthdate) > {int:year}',
 			array(
-				'year' => 1,
+				'year' => 1004,
 				'month' => $month,
 				'day' => $day,
 			)
