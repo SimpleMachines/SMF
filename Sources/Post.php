@@ -2046,7 +2046,7 @@ function Post2()
 	}
 
  	call_integration_hook('integrate_post2_pre', array(&$post_errors));
-	
+
 	// Any mistakes?
 	if (!empty($post_errors))
 	{
@@ -2603,7 +2603,7 @@ function AnnouncementSelectMembergroup()
 function AnnouncementSend()
 {
 	global $topic, $board, $board_info, $context, $modSettings;
-	global $language, $scripturl, $sourcedir, $smcFunc, $txt;
+	global $language, $scripturl, $sourcedir, $smcFunc;
 
 	checkSession();
 
@@ -2690,7 +2690,7 @@ function AnnouncementSend()
 	{
 		$context['start'] = $row['id_member'];
 		// Force them to have it?
-		if (empty($prefs[$row['id_member']]['announcements']) && !empty($modSettings['allow_disableAnnounce']))
+		if (empty($prefs[$row['id_member']]['announcements']))
 			continue;
 
 		$cur_language = empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'];
@@ -2698,14 +2698,11 @@ function AnnouncementSend()
 		// If the language wasn't defined yet, load it and compose a notification message.
 		if (!isset($announcements[$cur_language]))
 		{
-			// Get the language for the unsub message
-			loadLanguage('EmailTemplates', $cur_language);
-
 			$replacements = array(
 				'TOPICSUBJECT' => $context['topic_subject'],
 				'MESSAGE' => $message,
 				'TOPICLINK' => $scripturl . '?topic=' . $topic . '.0',
-				'UNSUB' => empty($modSettings['allow_disableAnnounce']) ? '' : $txt['new_announcement_unsub'] . "\n\n",
+				'UNSUBSCRIBELINK' => $scripturl . '?action=notifyannouncements;u={UNSUBSCRIBE_ID};token={UNSUBSCRIBE_TOKEN}',
 			);
 
 			$emaildata = loadEmailTemplate('new_announcement', $replacements, $cur_language);
@@ -2723,7 +2720,17 @@ function AnnouncementSend()
 
 	// For each language send a different mail - low priority...
 	foreach ($announcements as $lang => $mail)
-		sendmail($mail['recipients'], $mail['subject'], $mail['body'], null, 'ann-' . $lang, $mail['is_html'], 5);
+	{
+		foreach ($mail['recipients'] as $member_id => $member_email)
+		{
+			$token = createUnsubscribeToken($member_id, $member_email, 'announcements');
+
+			$body = str_replace(array('{UNSUBSCRIBE_ID}', '{UNSUBSCRIBE_TOKEN}'), array($member_id, $token), $mail['body']);
+
+			sendmail($member_email, $mail['subject'], $body, null, null, false, 5);
+		}
+
+	}
 
 	$context['percentage_done'] = round(100 * $context['start'] / $modSettings['latestMember'], 1);
 
