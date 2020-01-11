@@ -1872,11 +1872,7 @@ function template_alert_configuration()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<dl class="settings">';
-
-	// Allow notification on announcements to be disabled?
-	if ($context['can_disable_announce'])
-		echo '
+				<dl class="settings">
 					<dt>
 						<label for="notify_announcements">', $txt['notify_important_email'], '</label>
 					</dt>
