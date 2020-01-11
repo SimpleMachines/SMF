@@ -1134,9 +1134,11 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		$request = $smcFunc['db_query']('', '
 			SELECT real_name
 			FROM {db_prefix}members
-			WHERE id_member IN ({array_int:to_members})',
+			WHERE id_member IN ({array_int:to_members})
+				AND id_member != {int:from}',
 			array(
 				'to_members' => $to_list,
+				'from' => $from['id'],
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
