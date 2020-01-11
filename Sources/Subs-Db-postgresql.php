@@ -922,6 +922,8 @@ function smf_db_error_insert($error_array)
 	if (empty($db_connection))
 		return;
 
+	$error_array[2] = empty($error_array[2]) ? '127.0.0.1' : $error_array[2];
+
 	if (empty($pg_error_data_prep))
 		$pg_error_data_prep = pg_prepare($db_connection, 'smf_log_errors',
 			'INSERT INTO ' . $db_prefix . 'log_errors
