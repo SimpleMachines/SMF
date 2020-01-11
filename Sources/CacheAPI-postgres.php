@@ -78,12 +78,20 @@ class postgres_cache extends cache_api
 	 */
 	public function getData($key, $ttl = null)
 	{
-		global $db_prefix, $db_connection;
+		global $db_prefix, $db_connection, $db_persist;
 
 		$ttl = time() - $ttl;
 
 		if (empty($this->pg_get_data_prep))
-			$this->pg_get_data_prep = pg_prepare($db_connection, 'smf_cache_get_data', 'SELECT value FROM ' . $db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1');
+		{
+			if (empty($db_persist))
+				$this->pg_get_data_prep = pg_prepare($db_connection, 'smf_cache_get_data', 'SELECT value FROM ' . $db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1');
+			else
+			{
+				@pg_prepare($db_connection, 'smf_cache_get_data', 'SELECT value FROM ' . $db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1');
+				$this->pg_get_data_prep == true;
+			}
+		}
 
 		$result = pg_execute($db_connection, 'smf_cache_get_data', array($key, $ttl));
 
@@ -100,7 +108,7 @@ class postgres_cache extends cache_api
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		global $db_prefix, $db_connection;
+		global $db_prefix, $db_connection, $db_persist;
 
 		if (!isset($value))
 			$value = '';
@@ -108,10 +116,21 @@ class postgres_cache extends cache_api
 		$ttl = time() + $ttl;
 
 		if (empty($this->pg_put_data_prep))
-			$this->pg_put_data_prep = pg_prepare($db_connection, 'smf_cache_put_data',
-				'INSERT INTO ' . $db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
-				ON CONFLICT(key) DO UPDATE SET value = excluded.value, ttl = excluded.ttl'
-			);
+		{
+			if (empty($db_persist))
+				$this->pg_put_data_prep = pg_prepare($db_connection, 'smf_cache_put_data',
+					'INSERT INTO ' . $db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
+					ON CONFLICT(key) DO UPDATE SET value = excluded.value, ttl = excluded.ttl'
+				);
+			else
+			{
+				@pg_prepare($db_connection, 'smf_cache_put_data',
+					'INSERT INTO ' . $db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
+					ON CONFLICT(key) DO UPDATE SET value = excluded.value, ttl = excluded.ttl'
+				);
+				$this->pg_put_data_prep = true;
+			}
+		}
 
 		$result = pg_execute($db_connection, 'smf_cache_put_data', array($key, $value, $ttl));
 
