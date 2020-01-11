@@ -45,7 +45,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 				'year' => 1,
 				'month' => $month,
 				'day' => $day,
-				'bdate' => '2020-' . $month . '-' . $day,
+				'bdate' => '1004-' . $month . '-' . $day, // a random leap year is here needed
 			)
 		);
 
