@@ -801,9 +801,9 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 							# match the opening quotation mark...
 							(["\'])
 							# then any number of other characters or escaped quotation marks...
-							(?:[^\\1]|(?<=\\\)\\1)*
+							([^\1\r\n])*
 							# then the closing quotation mark.
-							\\1
+							\1
 						)';
 				$flags .= 'x';
 				break;
