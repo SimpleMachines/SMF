@@ -54,7 +54,7 @@ if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
 	}
 }
 
-$ssi_error_reporting = error_reporting(E_ALL);
+$ssi_error_reporting = error_reporting(E_ALL & ~E_DEPRECATED);
 /* Set this to one of three values depending on what you want to happen in the case of a fatal error.
 	false:	Default, will just load the error sub template and die - not putting any theme layers around it.
 	true:	Will load the error sub template AND put the SMF layers around it (Not useful if on total custom pages).

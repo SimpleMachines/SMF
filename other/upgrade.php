@@ -627,8 +627,13 @@ function loadEssentialData()
 	global $db_prefix, $db_character_set, $db_type, $db_port;
 	global $db_mb4, $modSettings, $sourcedir, $smcFunc, $txt, $utf8;
 
-	error_reporting(E_ALL);
+	// Report all errors except for deprecation notices.
+	error_reporting(E_ALL & ~E_DEPRECATED);
+
 	define('SMF', 1);
+	header('X-Frame-Options: SAMEORIGIN');
+	header('X-XSS-Protection: 1');
+	header('X-Content-Type-Options: nosniff');
 
 	// Start the session.
 	if (@ini_get('session.save_handler') == 'user')
