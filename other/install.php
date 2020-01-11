@@ -1869,12 +1869,15 @@ function DeleteInstall()
 
 function installer_updateSettingsFile($vars, $partial = true)
 {
-	global $sourcedir;
+	global $sourcedir, $boarddir;
 
 	if (empty($sourcedir))
 	{
 		if (file_exists(dirname(__FILE__) . '/Sources') && is_dir(dirname(__FILE__) . '/Sources'))
+		{
 			$sourcedir = dirname(__FILE__) . '/Sources';
+			$boarddir = dirname(__FILE__);
+		}
 		else
 			return false;
 	}

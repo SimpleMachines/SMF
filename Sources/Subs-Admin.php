@@ -301,7 +301,7 @@ function getFileVersions(&$versionOptions)
  */
 function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 {
-	global $context;
+	global $context, $boarddir;
 
 	// Should we try to unescape the strings?
 	if (empty($keep_quotes))
@@ -328,6 +328,10 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 	foreach (get_included_files() as $settingsFile)
 		if (basename($settingsFile) === 'Settings.php')
 			break;
+
+	// Possibly not found (not included, e.g., upon creation by installer)
+	if (strpos($settingsFile, 'Settings.php') === false)
+		$settingsFile = $boarddir . '/Settings.php';
 
 	// When was Settings.php last changed?
 	$last_settings_change = filemtime($settingsFile);
