@@ -3733,6 +3733,12 @@ function ManageRules()
 {
 	global $txt, $context, $user_info, $scripturl, $smcFunc;
 
+	// Limit the Criteria and Actions to this.
+	$context['rule_limiters'] = array(
+		'criteria' => 10,
+		'actions' => 10,
+	);
+
 	// The link tree - gotta have this :o
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=pm;sa=manrules',
@@ -3776,6 +3782,7 @@ function ManageRules()
 	if (isset($_GET['apply']))
 	{
 		checkSession('get');
+		spamProtection('pm');
 
 		ApplyRules(true);
 		redirectexit('action=pm;sa=manrules');
@@ -3837,6 +3844,7 @@ function ManageRules()
 
 		// Let's do the criteria first - it's also hardest!
 		$criteria = array();
+		$criteriaCount = 0;
 		foreach ($_POST['ruletype'] as $ind => $type)
 		{
 			// Check everything is here...
@@ -3844,6 +3852,10 @@ function ManageRules()
 				continue;
 			elseif ($type != 'bud' && !isset($_POST['ruledef'][$ind]))
 				continue;
+
+			// Too many rules in this rule.
+			if ($criteriaCount++ >= $context['rule_limiters']['criteria'])
+				break;
 
 			// Members need to be found.
 			if ($type == 'mid')
@@ -3880,11 +3892,16 @@ function ManageRules()
 		$actions = array();
 		$doDelete = 0;
 		$isOr = $_POST['rule_logic'] == 'or' ? 1 : 0;
+		$actionCount = 0;
 		foreach ($_POST['acttype'] as $ind => $type)
 		{
 			// Picking a valid label?
-			if ($type == 'lab' && (!ctype_digit((string) $ind) || !isset($_POST['labdef'][$ind]) || !isset($context['labels'][$_POST['labdef'][$ind]])))
+			if ($type == 'lab' && (!ctype_digit((string) $ind) || !isset($_POST['labdef'][$ind]) || $_POST['labdef'][$ind] == '' || !isset($context['labels'][$_POST['labdef'][$ind]])))
 				continue;
+
+			// Too many actions in this rule.
+			if ($actionCount++ >= $context['rule_limiters']['actions'])
+				break;
 
 			// Record what we're doing.
 			if ($type == 'del')
