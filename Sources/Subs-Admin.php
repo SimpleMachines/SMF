@@ -801,7 +801,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 							# match the opening quotation mark...
 							(["\'])
 							# then any number of other characters or escaped quotation marks...
-							(?:[^\\1]|(?<=\\\)\\1)*
+							(?:[^\\1]|(?<=\\\)\\1)*?
 							# then the closing quotation mark.
 							\\1
 						)';
@@ -847,7 +847,23 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 			return var_export($var, true);
 	};
 
-	// Time to build our new Settings.php!
+
+	/**
+	 * Time to build our new Settings.php!
+	 *
+	 * The substitutions take place in one of two ways:
+	 *
+	 *  1: The search_pattern regex finds a string in Settings.php, which is
+	 *     temporarily replaced by a placeholder. Once all the placeholders
+	 *     have been inserted, each is replaced by the final replacement string
+	 *     that we want to use. This is the standard method.
+	 *
+	 *  2: The search_pattern regex finds a string in Settings.php, which is
+	 *     then deleted by replacing it with an empty placeholder. Then after
+	 *     all the real placeholders have been dealt with, the replace_pattern
+	 *     regex finds where to insert the final replacement string that we
+	 *     want to use. This method is for special cases.
+	 */
 	$prefix = mt_rand() . '-';
 	$substitutions = array(
 		'^' => array(
@@ -858,8 +874,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 		),
 		'$' => array(
 			'search_pattern' => '~\s*\?' . '>\s*$~',
-			'placeholder' => '',
-			'replace_pattern' => '~$~',
+			'placeholder' => md5($prefix . '?' . '>') . "\n",
 			'replacement' => "\n\n?" . '>',
 		),
 	);
@@ -892,7 +907,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 
 				$substitutions[$var]['search_pattern'] = '~' . $text_pattern . '\n?~';
 				$substitutions[$var]['placeholder'] = '';
-				$substitutions['^']['placeholder'] .= $placeholder . "\n";
+				$substitutions['^']['placeholder'] = $placeholder . "\n";
 				$substitutions['^']['replacement'] .= $setting_def['text'] . "\n";
 			}
 
@@ -969,7 +984,6 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 			}
 		}
 
-		$substitutions[$var]['replace_pattern'] = '~\b' . $placeholder . '\n~';
 		$substitutions[$var]['replacement'] = $replacement;
 	}
 
@@ -992,7 +1006,6 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 
 			$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';\n?~' . $flags;
 			$substitutions[$var]['placeholder'] = $placeholder;
-			$substitutions[$var]['replace_pattern'] = '~\b' . $placeholder . '\n~';
 			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . $pretty_var_export($val, true) . ";\n";
 		}
 	}
@@ -1006,7 +1019,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 		elseif (is_int($b))
 			return 1;
 		else
-			return strcasecmp($a, $b) * -1;
+			return strcasecmp($a, $b);
 	});
 
 	foreach ($substitutions as $var => $substitution)
@@ -1020,7 +1033,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 			{
 				$simple_replacements[$substitution['placeholder']] = $substitution['replacement'];
 			}
-			else
+			elseif (!empty($substitution['replace_pattern']))
 			{
 				$replace_patterns[] = $substitution['replace_pattern'];
 				$replace_strings[] = $substitution['replacement'];
@@ -1034,8 +1047,9 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 	// Where possible, perform simple substitutions.
 	$settingsText = strtr($settingsText, $simple_replacements);
 
-	// Deal with the complicated ones.
-	$settingsText = preg_replace($replace_patterns, $replace_strings, $settingsText);
+	// Deal with any complicated ones.
+	if (!empty($replace_patterns))
+		$settingsText = preg_replace($replace_patterns, $replace_strings, $settingsText);
 
 	// This one is just cosmetic. Get rid of extra lines of whitespace.
 	$settingsText = preg_replace('~\n\s*\n~', "\n\n", $settingsText);
