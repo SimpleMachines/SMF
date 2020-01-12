@@ -329,6 +329,10 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 		if (basename($settingsFile) === 'Settings.php')
 			break;
 
+	// Fallback in case Settings.php isn't loaded (e.g. while installing)
+	if (basename($settingsFile) !== 'Settings.php')
+		$settingsFile = (!empty($GLOBALS['boarddir']) && @realpath($GLOBALS['boarddir']) ? $GLOBALS['boarddir'] : (isset($_SERVER['SCRIPT_FILENAME']) ? dirname($_SERVER['SCRIPT_FILENAME']) : dirname(__DIR__))) . '/Settings.php';
+
 	// When was Settings.php last changed?
 	$last_settings_change = filemtime($settingsFile);
 
