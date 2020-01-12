@@ -358,7 +358,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 	 *   null, the variable will be deleted from Settings.php.
 	 */
 	$settings_defs = array(
-		0 => array(
+		array(
 			'text' => implode("\n", array(
 				'',
 				'/**',
@@ -722,7 +722,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 			'default' => '$sourcedir . \'/tasks\'',
 			'raw_default' => true,
 		),
-		1 => array(
+		array(
 			'text' => implode("\n", array(
 				'',
 				'# Make sure the paths are correct... at least try to fix them.',
@@ -744,7 +744,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 			)),
 			'default' => 'utf8',
 		),
-		2 => array(
+		array(
 			'text' => implode("\n", array(
 				'',
 				'########## Error-Catching ##########',
@@ -877,6 +877,11 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 			'placeholder' => md5($prefix . '?' . '>') . "\n",
 			'replacement' => "\n\n?" . '>',
 		),
+		// Remove the code that redirects to the installer.
+		'@' => array(
+			'search_pattern' => '~^if\s*\(file_exists\(dirname\(__FILE__\)\s*\.\s*\'/install\.php\'\)\)\s*{[^}]+}\h*\n?~m',
+			'placeholder' => '',
+		),
 	);
 
 	foreach ($settings_defs as $var => $setting_def)
@@ -890,7 +895,6 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 			// Special handling for the license block.
 			if (strpos($setting_def['text'], "* @package SMF\n") !== false)
 			{
-				$license_block = $var;
 				$text_pattern = preg_replace(
 					array(
 						'~@copyright \d{4}~',
@@ -915,7 +919,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 			elseif (is_int($var))
 			{
 				$substitutions[$var]['search_pattern'] = '~' . $text_pattern . '\n?~';
-				$substitutions[$var]['placeholder'] =  $var === $license_block ? '' : $placeholder . "\n";
+				$substitutions[$var]['placeholder'] = !empty($settings_def['null_delete']) ? '' : $placeholder . "\n";
 			}
 			// The text is just a comment.
 			else
