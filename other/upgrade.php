@@ -624,7 +624,7 @@ function loadEssentialData()
 {
 	global $db_server, $db_user, $db_passwd, $db_name, $db_connection;
 	global $db_prefix, $db_character_set, $db_type, $db_port;
-	global $db_mb4, $modSettings, $sourcedir, $smcFunc, $txt;
+	global $db_mb4, $modSettings, $sourcedir, $smcFunc, $txt, $utf8;
 
 	error_reporting(E_ALL);
 	define('SMF', 1);
@@ -656,6 +656,8 @@ function loadEssentialData()
 
 	// Initialize everything...
 	initialize_inputs();
+
+	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
 
 	// Get the database going!
 	if (empty($db_type) || $db_type == 'mysqli')
