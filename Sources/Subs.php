@@ -5319,7 +5319,7 @@ function call_helper($string, $return = false)
  */
 function load_file($string)
 {
-	global $sourcedir, $txt, $boarddir, $settings;
+	global $sourcedir, $txt, $boarddir, $settings, $context;
 
 	if (empty($string))
 		return false;
@@ -5348,7 +5348,7 @@ function load_file($string)
 				require_once($absPath);
 
 			// Sorry, can't do much for you at this point.
-			else
+			elseif (empty($context['uninstalling']))
 			{
 				loadLanguage('Errors');
 				log_error(sprintf($txt['hook_fail_loading_file'], $absPath), 'general');
