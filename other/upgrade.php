@@ -3979,9 +3979,12 @@ function template_welcome_message()
 		if ($updated > $upcontext['inactive_timeout'])
 			echo '
 						<p>', $txt['upgrade_run'], '</p>';
+		elseif ($upcontext['inactive_timeout'] > 120)
+			echo '
+						<p>', sprintf($txt['upgrade_script_timeout_minutes'], $upcontext['user']['name'], round($upcontext['inactive_timeout'] / 60, 1)), '</p>';
 		else
 			echo '
-						<p>', $txt['upgrade_script_timeout'], ' ', $upcontext['user']['name'], ' ', $txt['upgrade_script_timeout2'], ' ', ($upcontext['inactive_timeout'] > 120 ? round($upcontext['inactive_timeout'] / 60, 1) . ' minutes!' : $upcontext['inactive_timeout'] . ' seconds!'), '</p>';
+						<p>', sprintf($txt['upgrade_script_timeout_seconds'], $upcontext['user']['name'], $upcontext['inactive_timeout']), '</p>';
 
 		echo '
 					</div>';

@@ -262,6 +262,8 @@ $txt['upgrade_username'] = 'Username:';
 $txt['upgrade_wrong_username'] = 'Username Incorrect';
 $txt['upgrade_password'] = 'Password:';
 $txt['upgrade_wrong_password'] = 'Password Incorrect';
+$txt['upgrade_script_timeout_minutes'] = 'This upgrade script cannot be run until %1$s has been inactive for at least %2$d minutes';
+$txt['upgrade_script_timeout_seconds'] = 'This upgrade script cannot be run until %1$s has been inactive for at least %2$d seconds';
 
 $txt['upgrade_wait'] = 'Please wait while a backup is created. For large forums this may take some time!';
 $txt['upgrade_wait2'] = 'Please wait while your database is converted to UTF-8. For large forums this may take some time!';
