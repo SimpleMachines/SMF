@@ -848,11 +848,6 @@ function loadUserSettings()
 	call_integration_hook('integrate_user_info');
 }
 
-function loadMinUserSettings($user_id = 0)
-{
-
-}
-
 /**
  * Check for moderators and see if they have access to the board.
  * What it does:

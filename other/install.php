@@ -503,8 +503,8 @@ function Welcome()
 		$incontext['error'] = $txt['install_no_mbstring'];
 
 	// Also Jim!
-    if (!extension_loaded('fileinfo'))
-        $incontext['error'] = $txt['install_no_fileinfo'];
+	if (!extension_loaded('fileinfo'))
+		$incontext['error'] = $txt['install_no_fileinfo'];
 
 	// Check for https stream support.
 	$supported_streams = stream_get_wrappers();
