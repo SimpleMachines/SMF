@@ -39,11 +39,13 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 			WHERE is_activated < 10
 				AND MONTH(birthdate) = {int:month}
 				AND DAYOFMONTH(birthdate) = {int:day}
-				AND YEAR(birthdate) > {int:year}',
+				AND YEAR(birthdate) > {int:year}
+				' . ($smcFunc['db_title'] === POSTGRE_TITLE ? 'AND indexable_month_day(birthdate) = indexable_month_day({date:bdate})' : ''),
 			array(
 				'year' => 1,
 				'month' => $month,
 				'day' => $day,
+				'bdate' => '1004-' . $month . '-' . $day, // a random leap year is here needed
 			)
 		);
 
