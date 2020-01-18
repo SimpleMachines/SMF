@@ -789,9 +789,9 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 	// This little function gets the appropriate regex for the variable type.
 	$gettype_regex = function($var)
 	{
-		global $context, $utf8;
+		global $context;
 
-		$flags = !empty($context['utf8']) || !empty($utf8) ? 'u' : '';
+		$flags = $context['utf8'] ? 'u' : '';
 		switch (gettype($var))
 		{
 			case 'string':
