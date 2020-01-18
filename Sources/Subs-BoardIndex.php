@@ -640,11 +640,12 @@ function setParsedDescriptions($dataToParse = array())
 					'boards' => array(),
 				);
 
-				foreach ($category['boards'] as $board)
-					$already_parsed_data[$cat_id]['boards'] = array(
-						'name' => $board['name'],
-						'description' => $board['description'],
-					);
+				if (!empty($category['boards']))
+					foreach ($category['boards'] as $board)
+						$already_parsed_data[$cat_id]['boards'] = array(
+							'name' => $board['name'],
+							'description' => $board['description'],
+						);
 
 				cache_put_data('parsed_cat_description_'. $cat_id, $already_parsed_data[$cat_id], 864000);
 			}
