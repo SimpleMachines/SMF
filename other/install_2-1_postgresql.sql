@@ -1261,6 +1261,8 @@ CREATE TABLE {$db_prefix}package_servers (
 	id_server smallint DEFAULT nextval('{$db_prefix}package_servers_seq'),
 	name varchar(255) NOT NULL DEFAULT '',
 	url varchar(255) NOT NULL DEFAULT '',
+	validation_url varchar(255) NOT NULL DEFAULT '',
+	extra text,
 	PRIMARY KEY (id_server)
 );
 
@@ -2408,7 +2410,8 @@ VALUES (1, 1, 1, 1, {$current_time}, '{$default_topic_subject}', 'Simple Machine
 
 INSERT INTO {$db_prefix}package_servers
 	(name, url)
-VALUES ('Simple Machines Third-party Mod Site', 'https://custom.simplemachines.org/packages/mods');
+VALUES ('Simple Machines Third-party Mod Site', 'https://custom.simplemachines.org/packages/mods', 'https://custom.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}'),
+		('Simple Machines Downloads Site', 'https://download.simplemachines.org/browse.php?api=v1;smf_version={SMF_VERSION}', 'https://download.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}');
 # --------------------------------------------------------
 
 #

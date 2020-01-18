@@ -41,6 +41,11 @@ function template_view_package()
 		</div>
 		<br>';
 
+	if (!empty($context['package_blacklist_found']))
+		echo '
+		<div class="errorbox">', $txt['package_validation_blacklist_found'], '
+		</div>';
+
 	// Do errors exist in the install? If so light them up like a christmas tree.
 	if ($context['has_failure'])
 		echo '
@@ -49,6 +54,31 @@ function template_view_package()
 			', sprintf($txt['package_will_fail_warning'], $txt['package_' . ($context['uninstalling'] ? 'uninstall' : 'install')]),
 			!empty($context['failure_details']) ? '<br><br><strong>' . $context['failure_details'] . '</strong>' : '', '
 		</div>';
+
+	// Validation info?
+	if (!empty($context['validation_tests']))
+	{
+		echo '
+		<div class="cat_bar">
+			<h3 class="catbg">Validation Results</h3>
+		</div>
+		<div id="package_validation">
+			<table class="table_grid">';
+
+		foreach ($context['validation_tests'] as $id_server => $result)
+		{
+			echo '
+			<tr>
+				<td>', $context['package_servers'][$id_server]['name'], '</td>
+				<td>', $txt[isset($result[$context['package_sha256_hash']]) ? $result[$context['package_sha256_hash']] : 'package_validation_status_unknown'], '</td>
+			</tr>';
+		}
+
+		echo '
+			</table>
+		</div>
+		<br>';
+	}
 
 	// Display the package readme if one exists
 	if (isset($context['package_readme']))
