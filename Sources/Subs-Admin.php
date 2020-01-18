@@ -837,16 +837,6 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 		return array($regex, $flags);
 	};
 
-	// Use var_export to make sure the value is formatted correctly,
-	// but customize the output to match SMF coding conventions.
-	$pretty_var_export = function($var)
-	{
-		if (is_array($var))
-			return preg_replace_callback('/^\h+/m', function ($m) { return strtr($m[0], array('  ' => "\t")); }, var_export($var, true));
-		else
-			return var_export($var, true);
-	};
-
 	// Time to build our new Settings.php!
 	$prefix = mt_rand() . '-';
 	$substitutions = array(
@@ -948,7 +938,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 			// Add this setting's value.
 			elseif (isset($config_vars[$var]) || is_null($config_vars[$var]))
 			{
-				$replacement .= '$' . $var . ' = ' . $pretty_var_export($config_vars[$var], TRUE) . ";\n";
+				$replacement .= '$' . $var . ' = ' . var_export($config_vars[$var], TRUE) . ";\n";
 				unset($config_vars[$var]);
 			}
 			// Uh-oh! Something must have gone horribly, inconceivably wrong.
@@ -960,7 +950,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 			// Fall back to the default value.
 			elseif (isset($setting_def['default']))
 			{
-				$replacement .= '$' . $var . ' = ' . (!empty($setting_def['raw_default']) ? sprintf($setting_def['default']) : $pretty_var_export($setting_def['default'], true)) . ";\n";
+				$replacement .= '$' . $var . ' = ' . (!empty($setting_def['raw_default']) ? sprintf($setting_def['default']) : var_export($setting_def['default'], true)) . ";\n";
 			}
 			// We've got nothing...
 			else
@@ -993,7 +983,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 			$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';\n?~' . $flags;
 			$substitutions[$var]['placeholder'] = $placeholder;
 			$substitutions[$var]['replace_pattern'] = '~\b' . $placeholder . '\n~';
-			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . $pretty_var_export($val, true) . ";\n";
+			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . var_export($val, true) . ";\n";
 		}
 	}
 
