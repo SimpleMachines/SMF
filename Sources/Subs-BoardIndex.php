@@ -627,24 +627,27 @@ function setParsedDescriptions($dataToParse = array())
 			}
 
 		// Let's have some fun shall we?
-		$already_parsed_data[$cat_id] = cache_get_data('parsed_cat_description_'. $cat_id);
-
-		foreach ($to_cache as $to_cache_cat_id => $to_cache_data)
+		if (!empty($cat_id))
 		{
-			// Append data!
-			$already_parsed_data[$cat_id] = array(
-				'name' => $category['name'],
-				'description' => $category['description'],
-				'boards' => array(),
-			);
+			$already_parsed_data[$cat_id] = cache_get_data('parsed_cat_description_'. $cat_id);
 
-			foreach ($category['boards'] as $board)
-				$already_parsed_data[$cat_id]['boards'] = array(
-					'name' => $board['name'],
-					'description' => $board['description'],
+			foreach ($to_cache as $to_cache_cat_id => $to_cache_data)
+			{
+				// Append data!
+				$already_parsed_data[$cat_id] = array(
+					'name' => $category['name'],
+					'description' => $category['description'],
+					'boards' => array(),
 				);
 
-			cache_put_data('parsed_cat_description_'. $cat_id, $already_parsed_data[$cat_id], 864000);
+				foreach ($category['boards'] as $board)
+					$already_parsed_data[$cat_id]['boards'] = array(
+						'name' => $board['name'],
+						'description' => $board['description'],
+					);
+
+				cache_put_data('parsed_cat_description_'. $cat_id, $already_parsed_data[$cat_id], 864000);
+			}
 		}
 	}
 
