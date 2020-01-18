@@ -1155,7 +1155,7 @@ function PackageInstall()
 				// We're really just checking for entries which are create table AND add columns (etc).
 				$tables = array();
 
-				usort($db_package_log, function ($a, $b)
+				usort($db_package_log, function($a, $b)
 				{
 					if ($a[0] == $b[0])
 						return 0;

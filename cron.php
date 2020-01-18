@@ -307,7 +307,7 @@ abstract class SMF_BackgroundTask
 {
 	/**
 	 * Constants for notfication types.
-	*/
+	 */
 	const RECEIVE_NOTIFY_EMAIL = 0x02;
 	const RECEIVE_NOTIFY_ALERT = 0x01;
 

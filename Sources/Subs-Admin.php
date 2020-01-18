@@ -42,7 +42,7 @@ function getServerVersions($checkFor)
 	{
 		if (class_exists('Imagick'))
 		{
-			$temp = New Imagick;
+			$temp = new Imagick;
 			$temp2 = $temp->getVersion();
 			$im_version = $temp2['versionString'];
 			$extension_version = 'Imagick ' . phpversion('Imagick');

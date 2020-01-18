@@ -764,7 +764,6 @@ function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 				$groups[$row['id_group']]['num_members'] += $row['num_members'];
 			$smcFunc['db_free_result']($query);
 		}
-
 		else
 		{
 			$query = $smcFunc['db_query']('', '

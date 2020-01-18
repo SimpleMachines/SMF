@@ -261,7 +261,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 			AND a.is_read = 0' : '') . (!empty($alertIDs) ? '
 			AND a.id_alert IN ({array_int:alertIDs})' : '') . '
 		ORDER BY id_alert DESC' . (!empty($limit) ? '
-		LIMIT {int:limit}' : '') . (!empty($offset) ?'
+		LIMIT {int:limit}' : '') . (!empty($offset) ? '
 		OFFSET {int:offset}' : ''),
 		array(
 			'id_member' => $memID,
@@ -1117,20 +1117,20 @@ function showPosts($memID)
 		$context['posts'][$key]['quickbuttons'] = array(
 			'reply' => array(
 				'label' => $txt['reply'],
-				'href' => $scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'],
+				'href' => $scripturl . '?action=post;topic=' . $post['topic'] . '.' . $post['start'],
 				'icon' => 'reply_button',
 				'show' => $post['can_reply']
 			),
 			'quote' => array(
 				'label' => $txt['quote_action'],
-				'href' => $scripturl.'?action=post;topic='.$post['topic'].'.'.$post['start'].';quote='.$post['id'],
+				'href' => $scripturl . '?action=post;topic=' . $post['topic'] . '.' . $post['start'] . ';quote=' . $post['id'],
 				'icon' => 'quote',
 				'show' => $post['can_quote']
 			),
 			'remove' => array(
 				'label' => $txt['remove'],
-				'href' => $scripturl.'?action=deletemsg;msg='.$post['id'].';topic='.$post['topic'].';profile;u='.$context['member']['id'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'],
-				'javascript' => 'data-confirm="'.$txt['remove_message'].'" class="you_sure"',
+				'href' => $scripturl . '?action=deletemsg;msg=' . $post['id'] . ';topic=' . $post['topic'] . ';profile;u=' . $context['member']['id'] . ';start=' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+				'javascript' => 'data-confirm="' . $txt['remove_message'] . '" class="you_sure"',
 				'icon' => 'remove_button',
 				'show' => $post['can_delete']
 			)

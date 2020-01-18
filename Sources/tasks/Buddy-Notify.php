@@ -19,11 +19,11 @@
 class Buddy_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the info, sets the alerts and loads up the email queue.
+	 * This executes the task - loads up the info, sets the alerts and loads up the email queue.
 	 * @return bool Always returns true
 	 */
 	public function execute()
- 	{
+	{
  		global $smcFunc, $sourcedir;
 
 		// Figure out if the user wants to be notified.

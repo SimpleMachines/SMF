@@ -632,7 +632,7 @@ function ModifyProfile($post_errors = array())
 			if (!empty($modSettings['force_ssl']) && empty($maintenance) && !httpsOn())
 				fatal_lang_error('login_ssl_required', false);
 
-			$password = isset($_POST['oldpasswrd']) ? $_POST['oldpasswrd'] :  '';
+			$password = isset($_POST['oldpasswrd']) ? $_POST['oldpasswrd'] : '';
 
 			// You didn't even enter a password!
 			if (trim($password) == '')

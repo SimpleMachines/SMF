@@ -388,7 +388,7 @@ function template_edit_group()
 	<script>
 		function swapPostGroup(isChecked)
 		{
-			var is_moderator_group = ', (int)$context['is_moderator_group'], ';
+			var is_moderator_group = ', (int) $context['is_moderator_group'], ';
 			var group_type = ', $context['group']['type'], ';
 			var min_posts_text = document.getElementById(\'min_posts_text\');
 			var group_desc_text = document.getElementById(\'group_desc_text\');
@@ -453,7 +453,7 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 		if (empty($modSettings['deny_boards_access']))
 			echo '
 									<li class="category">
-										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \''.$form_id.'\'); return false;"><strong>', $category['name'], '</strong></a>
+										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'' . $form_id . '\'); return false;"><strong>', $category['name'], '</strong></a>
 										<ul>';
 		else
 			echo '

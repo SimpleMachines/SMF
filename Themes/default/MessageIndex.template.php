@@ -50,7 +50,7 @@ function template_main()
 			</div>';
 
 			// Show the last post if there is one.
-			if(!empty($board['last_post']['id']))
+			if (!empty($board['last_post']['id']))
 				echo '
 			<div class="lastpost lpr_border">
 				', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '

@@ -2292,7 +2292,6 @@ function get_hook_info_from_raw($rawData)
 		list ($hookData['class'], $hookData['method']) = explode('::', $modFunc);
 		$hookData['pureFunc'] = $hookData['method'];
 	}
-
 	else
 		$hookData['pureFunc'] = $modFunc;
 

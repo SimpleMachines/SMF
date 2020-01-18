@@ -73,7 +73,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 		display_db_error();
 
 	// We need to escape ' and \
-	$db_passwd = str_replace(array('\\','\''), array('\\\\','\\\''), $db_passwd);
+	$db_passwd = str_replace(array('\\', '\''), array('\\\\', '\\\''), $db_passwd);
 
 	if (!empty($db_options['persist']))
 		$connection = @pg_pconnect((empty($db_server) ? '' : 'host=' . $db_server . ' ') . 'dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
@@ -669,12 +669,12 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 		$where = '';
 		$count_pk = 0;
 
-		If ($replace_support)
+		if ($replace_support)
 		{
 			foreach ($columns as $columnName => $type)
 			{
 				//check pk fiel
-				IF (in_array($columnName, $keys))
+				if (in_array($columnName, $keys))
 				{
 					$key_str .= ($count_pk > 0 ? ',' : '');
 					$key_str .= $columnName;

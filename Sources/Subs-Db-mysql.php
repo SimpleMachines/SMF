@@ -982,7 +982,7 @@ function smf_db_fetch_all($request)
 	else
 	{
 		$return = array();
-		while($row = mysqli_fetch_assoc($request))
+		while ($row = mysqli_fetch_assoc($request))
 			$return[] = $row;
 	}
 	return !empty($return) ? $return : array();

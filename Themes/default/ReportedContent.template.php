@@ -185,14 +185,14 @@ function template_viewmodreport()
 	$report_buttons = array(
 		'ignore' => array(
 			'text' => !$context['report']['ignore'] ? 'mc_reportedp_ignore' : 'mc_reportedp_unignore',
-			'url' => $scripturl.'?action=moderate;area=reportedposts;sa=handle;ignore='.(int) !$context['report']['ignore'].';rid='.$context['report']['id'].';'.$context['session_var'].'='.$context['session_id'].';'.$context['mod-report-ignore_token_var'].'='.$context['mod-report-ignore_token'],
+			'url' => $scripturl . '?action=moderate;area=reportedposts;sa=handle;ignore=' . (int) !$context['report']['ignore'] . ';rid=' . $context['report']['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context['mod-report-ignore_token_var'] . '=' . $context['mod-report-ignore_token'],
 			'class' => !$context['report']['ignore'] ? ' you_sure' : '',
 			'custom' => !$context['report']['ignore'] ? ' data-confirm="' . $txt['mc_reportedp_ignore_confirm'] . '"' : '',
 			'icon' => 'ignore'
 		),
 		'close' => array(
 			'text' => $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close',
-			'url' => $scripturl.'?action=moderate;area=reportedposts;sa=handle;closed='.(int) !$context['report']['closed'].';rid='.$context['report']['id'].';'.$context['session_var'].'='.$context['session_id'].';'.$context['mod-report-closed_token_var'].'='.$context['mod-report-closed_token'],
+			'url' => $scripturl . '?action=moderate;area=reportedposts;sa=handle;closed=' . (int) !$context['report']['closed'] . ';rid=' . $context['report']['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context['mod-report-closed_token_var'] . '=' . $context['mod-report-closed_token'],
 			'icon' => 'close'
 		)
 	);
@@ -465,14 +465,14 @@ function template_viewmemberreport()
 	$report_buttons = array(
 		'ignore' => array(
 			'text' => !$context['report']['ignore'] ? 'mc_reportedp_ignore' : 'mc_reportedp_unignore',
-			'url' => $scripturl.'?action=moderate;area=reportedmembers;sa=handle;ignore='.(int)!$context['report']['ignore'].';rid='.$context['report']['id'].';'.$context['session_var'].'='.$context['session_id'].';'.$context['mod-report-ignore_token_var'].'='.$context['mod-report-ignore_token'],
+			'url' => $scripturl . '?action=moderate;area=reportedmembers;sa=handle;ignore=' . (int) !$context['report']['ignore'] . ';rid=' . $context['report']['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context['mod-report-ignore_token_var'] . '=' . $context['mod-report-ignore_token'],
 			'class' => !$context['report']['ignore'] ? ' you_sure' : '',
 			'custom' => !$context['report']['ignore'] ? ' data-confirm="' . $txt['mc_reportedp_ignore_confirm'] . '"' : '',
 			'icon' => 'ignore'
 		),
 		'close' => array(
 			'text' => $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close',
-			'url' => $scripturl.'?action=moderate;area=reportedmembers;sa=handle;closed='.(int)!$context['report']['closed'].';rid='.$context['report']['id'].';'.$context['session_var'].'='.$context['session_id'].';'.$context['mod-report-closed_token_var'].'='.$context['mod-report-closed_token'],
+			'url' => $scripturl . '?action=moderate;area=reportedmembers;sa=handle;closed=' . (int) !$context['report']['closed'] . ';rid=' . $context['report']['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context['mod-report-closed_token_var'] . '=' . $context['mod-report-closed_token'],
 			'icon' => 'close'
 		)
 	);

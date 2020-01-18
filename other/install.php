@@ -966,7 +966,7 @@ function ForumSettings()
 	$incontext['continue'] = 1;
 
 	// Check Postgres setting
-	if ( $db_type === 'postgresql')
+	if ($db_type === 'postgresql')
 	{
 		load_database();
 		$result = $smcFunc['db_query']('', '

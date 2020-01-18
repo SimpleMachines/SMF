@@ -1259,7 +1259,7 @@ function Post($post_errors = array())
 	// File Upload.
 	if ($context['can_post_attachment'])
 	{
-		$acceptedFiles = empty($context['allowed_extensions']) ? '' : implode(',', array_map(function ($val) use ($smcFunc)
+		$acceptedFiles = empty($context['allowed_extensions']) ? '' : implode(',', array_map(function($val) use ($smcFunc)
 		{
 			return !empty($val) ? ('.' . $smcFunc['htmltrim']($val)) : '';
 		}, explode(',', $context['allowed_extensions'])));

@@ -199,7 +199,6 @@ class Attachments
 			list ($context['attachments']['quantity'], $context['attachments']['total_size']) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 		}
-
 		else
 			$context['attachments'] = array(
 				'quantity' => 0,

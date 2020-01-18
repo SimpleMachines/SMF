@@ -434,7 +434,7 @@ function getBoardIndex($boardIndexOptions)
 					$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
 			}
 		}
-	else
+		else
 		foreach ($this_category as &$board)
 		{
 			if (!empty($moderators[$board['id']]))

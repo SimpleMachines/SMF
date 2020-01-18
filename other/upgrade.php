@@ -520,7 +520,7 @@ function load_lang_file()
 		$to = explode('/', $lang_dir);
 		$relPath = $to;
 
-		foreach($from as $depth => $dir)
+		foreach ($from as $depth => $dir)
 		{
 			if ($dir === $to[$depth])
 				array_shift($relPath);
@@ -3244,7 +3244,7 @@ function fix_serialized_data($string)
 		return $string;
 
 	// This bit fixes incorrect string lengths, which can happen if the character encoding was changed (e.g. conversion to UTF-8)
-	$new_string = preg_replace_callback('~\bs:(\d+):"(.*?)";(?=$|[bidsa]:|[{}]|N;)~s', function ($matches) {return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";';}, $string);
+	$new_string = preg_replace_callback('~\bs:(\d+):"(.*?)";(?=$|[bidsa]:|[{}]|N;)~s', function($matches) {return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";'; }, $string);
 
 	// @todo Add more possible fixes here. For example, fix incorrect array lengths, try to handle truncated strings gracefully, etc.
 

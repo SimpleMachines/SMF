@@ -1931,7 +1931,7 @@ function template_showPMDrafts()
 				<div class="floatright smalltext righttext">
 					<div class="recipient_to">&#171;&nbsp;<strong>', $txt['to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '&nbsp;&#187;</div>';
 
-			if(!empty($draft['recipients']['bcc']))
+			if (!empty($draft['recipients']['bcc']))
 				echo'
 					<div class="pm_bbc">&#171;&nbsp;<strong>', $txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '&nbsp;&#187;</div>';
 

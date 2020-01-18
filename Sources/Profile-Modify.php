@@ -500,7 +500,7 @@ function loadProfileFields($force_reload = false)
 						log_error(sprintf($txt['smiley_set_dir_not_found'], $set_names[array_search($set, $context['smiley_sets'])]));
 
 						$context['smiley_sets'] = array_filter($context['smiley_sets'], function($v) use ($set)
-							{
+						{
 								return $v != $set;
 							});
 					}
@@ -3495,7 +3495,6 @@ function profileSaveAvatarData(&$value)
 			}
 		}
 	}
-
 	elseif (($value == 'upload' && allowedTo('profile_upload_avatar')) || $downloadedExternalAvatar)
 	{
 		if ((isset($_FILES['attachment']['name']) && $_FILES['attachment']['name'] != '') || $downloadedExternalAvatar)

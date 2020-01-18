@@ -816,7 +816,7 @@ function SMStats()
 
 			$out = 'POST /smf/stats/collect_stats.php HTTP/1.1' . "\r\n";
 			$out .= 'Host: www.simplemachines.org' . "\r\n";
-			$out .= 'user-agent: '. SMF_USER_AGENT . "\r\n";
+			$out .= 'user-agent: ' . SMF_USER_AGENT . "\r\n";
 			$out .= 'content-type: application/x-www-form-urlencoded' . "\r\n";
 			$out .= 'connection: Close' . "\r\n";
 			$out .= 'content-length: ' . $length . "\r\n\r\n";

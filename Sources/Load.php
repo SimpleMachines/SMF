@@ -2214,7 +2214,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 		loadLanguage('index+Modifications');
 		$context['template_layers'] = array();
 	}
-
 	else
 	{
 		// Custom templates to load, or just default?
@@ -2592,14 +2591,12 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 				$fileUrl = $settings['default_theme_url'] . '/css/' . $fileName;
 				$filePath = $settings['default_theme_dir'] . '/css/' . $fileName;
 			}
-
 			else
 			{
 				$fileUrl = false;
 				$filePath = false;
 			}
 		}
-
 		else
 		{
 			$fileUrl = $settings[$themeRef . '_url'] . '/css/' . $fileName;
@@ -2707,14 +2704,12 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName;
 				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName;
 			}
-
 			else
 			{
 				$fileUrl = false;
 				$filePath = false;
 			}
 		}
-
 		else
 		{
 			$fileUrl = $settings[$themeRef . '_url'] . '/scripts/' . $fileName;

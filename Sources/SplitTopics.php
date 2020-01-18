@@ -143,7 +143,7 @@ function SplitExecute()
 
 	// Redirect to the selector if they chose selective.
 	if ($_POST['step2'] == 'selective')
-		redirectexit ('action=splittopics;sa=selectTopics;subname=' . $_POST['subname'] . ';topic=' . $topic . '.0;start2=0');
+		redirectexit('action=splittopics;sa=selectTopics;subname=' . $_POST['subname'] . ';topic=' . $topic . '.0;start2=0');
 
 	$_POST['at'] = (int) $_POST['at'];
 	$messagesToBeSplit = array();
@@ -869,7 +869,6 @@ function MergeIndex()
 		$can_approve_boards = boardsAllowedTo('approve_posts');
 		$onlyApproved = $can_approve_boards !== array(0) && !in_array($_REQUEST['targetboard'], $can_approve_boards);
 	}
-
 	else
 		$onlyApproved = false;
 

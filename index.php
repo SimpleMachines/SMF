@@ -70,7 +70,7 @@ require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
 
 // If $maintenance is set specifically to 2, then we're upgrading or something.
-if (!empty($maintenance) &&  2 === $maintenance)
+if (!empty($maintenance) && 2 === $maintenance)
 	display_maintenance_message();
 
 // Create a variable to store some SMF specific functions in.
@@ -120,7 +120,7 @@ if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
  *
  * @param string $class The fully-qualified class name.
  */
-spl_autoload_register(function ($class) use ($sourcedir)
+spl_autoload_register(function($class) use ($sourcedir)
 {
 	$classMap = array(
 		'ReCaptcha\\' => 'ReCaptcha/',

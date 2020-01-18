@@ -3292,7 +3292,7 @@ function ManageLabels()
 		// Deleting an existing label?
 		elseif (isset($_POST['delete'], $_POST['delete_label']))
 		{
-			foreach ($_POST['delete_label'] AS $label => $dummy)
+			foreach ($_POST['delete_label'] as $label => $dummy)
 			{
 				unset($the_labels[$label]);
 				$labels_to_remove[] = $label;
@@ -3333,7 +3333,7 @@ function ManageLabels()
 		if (!empty($labels_to_add))
 		{
 			$inserts = array();
-			foreach ($labels_to_add AS $label)
+			foreach ($labels_to_add as $label)
 				$inserts[] = array($user_info['id'], $label);
 
 			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());
@@ -3342,7 +3342,7 @@ function ManageLabels()
 		// Update existing labels as needed
 		if (!empty($label_upates))
 		{
-			foreach ($label_updates AS $id => $name)
+			foreach ($label_updates as $id => $name)
 			{
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}labels

@@ -1721,7 +1721,7 @@ function template_profile_theme_settings()
 		{
 			// Avoid double separators and empty titled sections
 			$empty_section = true;
-			for ($j=$i+1; $j < count($context['theme_options']); $j++)
+			for ($j = $i + 1; $j < count($context['theme_options']); $j++)
 			{
 				// Found another separator, so we're done
 				if (!is_array($context['theme_options'][$j]))

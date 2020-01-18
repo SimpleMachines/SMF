@@ -230,7 +230,7 @@ function template_create_list_menu($list_menu, $direction = 'top')
 				),
 			),
 		);
-	*/
+	 */
 
 	// Are we using right-to-left orientation?
 	$first = $context['right_to_left'] ? 'last' : 'first';

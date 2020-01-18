@@ -407,7 +407,8 @@ function template_show_month_grid($grid_name, $is_mini = false)
 					if (!empty($day['events']))
 					{
 						// Sort events by start time (all day events will be listed first)
-						uasort($day['events'], function($a, $b) {
+						uasort($day['events'], function($a, $b)
+						{
 							if ($a['start_timestamp'] == $b['start_timestamp'])
 								return 0;
 
@@ -600,7 +601,8 @@ function template_show_week_grid($grid_name)
 			if (!empty($day['events']))
 			{
 				// Sort events by start time (all day events will be listed first)
-				uasort($day['events'], function($a, $b) {
+				uasort($day['events'], function($a, $b)
+				{
 					if ($a['start_timestamp'] == $b['start_timestamp'])
 						return 0;
 					return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;

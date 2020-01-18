@@ -154,7 +154,7 @@ function TopicNotify()
 					'{db_prefix}log_notify',
 					array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'),
 					array($user_info['id'], $log['id_topic'], 0),
-					array('id_member','id_topic', 'id_board')
+					array('id_member', 'id_topic', 'id_board')
 				);
 			}
 			else

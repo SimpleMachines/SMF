@@ -644,13 +644,13 @@ function showProfileDrafts($memID, $draft_type = 0)
 			'quickbuttons' => array(
 				'edit' => array(
 					'label' => $txt['draft_edit'],
-					'href' => $scripturl.'?action=post;'.(empty($row['id_topic']) ? 'board='.$row['id_board'] : 'topic='.$row['id_topic']).'.0;id_draft='.$row['id_draft'],
+					'href' => $scripturl . '?action=post;' . (empty($row['id_topic']) ? 'board=' . $row['id_board'] : 'topic=' . $row['id_topic']) . '.0;id_draft=' . $row['id_draft'],
 					'icon' => 'modify_button'
 				),
 				'delete' => array(
 					'label' => $txt['draft_delete'],
-					'href' => $scripturl.'?action=profile;u='.$context['member']['id'].';area=showdrafts;delete='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
-					'javascript' => 'data-confirm="'.$txt['draft_remove'].'" class="you_sure"',
+					'href' => $scripturl . '?action=profile;u=' . $context['member']['id'] . ';area=showdrafts;delete=' . $row['id_draft'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+					'javascript' => 'data-confirm="' . $txt['draft_remove'] . '" class="you_sure"',
 					'icon' => 'remove_button'
 				),
 			),
@@ -835,13 +835,13 @@ function showPMDrafts($memID = -1)
 			'quickbuttons' => array(
 				'edit' => array(
 					'label' => $txt['draft_edit'],
-					'href' => $scripturl.'?action=pm;sa=showpmdrafts;id_draft='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
+					'href' => $scripturl . '?action=pm;sa=showpmdrafts;id_draft=' . $row['id_draft'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 					'icon' => 'modify_button'
 				),
 				'delete' => array(
 					'label' => $txt['draft_delete'],
-					'href' => $scripturl.'?action=pm;sa=showpmdrafts;delete='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
-					'javascript' => 'data-confirm="'.$txt['draft_remove'].'?" class="you_sure"',
+					'href' => $scripturl . '?action=pm;sa=showpmdrafts;delete=' . $row['id_draft'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+					'javascript' => 'data-confirm="' . $txt['draft_remove'] . '?" class="you_sure"',
 					'icon' => 'remove_button'
 				),
 			),

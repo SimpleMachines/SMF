@@ -1655,14 +1655,14 @@ function prepareDisplayContext($reset = false)
 	$output['quickbuttons'] = array(
 		'quote' => array(
 			'label' => $txt['quote_action'],
-			'href' => $scripturl.'?action=post;quote='.$output['id'].';topic='.$context['current_topic'], '.'.$context['start'].';last_msg='.$context['topic_last_message'],
-			'javascript' => 'onclick="return oQuickReply.quote('.$output['id'].');"',
+			'href' => $scripturl . '?action=post;quote=' . $output['id'] . ';topic=' . $context['current_topic'], '.' . $context['start'] . ';last_msg=' . $context['topic_last_message'],
+			'javascript' => 'onclick="return oQuickReply.quote(' . $output['id'] . ');"',
 			'icon' => 'quote',
 			'show' => $context['can_quote']
 		),
 		'quote_selected' => array(
 			'label' => $txt['quote_selected_action'],
-			'id' => 'quoteSelected_'. $output['id'],
+			'id' => 'quoteSelected_' . $output['id'],
 			'href' => 'javascript:void(0)',
 			'custom' => 'style="display:none"',
 			'icon' => 'quote_selected',
@@ -1671,71 +1671,71 @@ function prepareDisplayContext($reset = false)
 		'quick_edit' => array(
 			'label' => $txt['quick_edit'],
 			'class' => 'quick_edit',
-			'id' =>' modify_button_'. $output['id'],
-			'custom' => 'onclick="oQuickModify.modifyMsg(\''.$output['id'].'\', \''.!empty($modSettings['toggle_subject']).'\')"',
+			'id' =>' modify_button_' . $output['id'],
+			'custom' => 'onclick="oQuickModify.modifyMsg(\'' . $output['id'] . '\', \'' . !empty($modSettings['toggle_subject']) . '\')"',
 			'icon' => 'quick_edit_button',
 			'show' => $output['can_modify']
 		),
 		'more' => array(
 			'modify' => array(
 				'label' => $txt['modify'],
-				'href' => $scripturl.'?action=post;msg='.$output['id'].';topic='.$context['current_topic'].'.'.$context['start'],
+				'href' => $scripturl . '?action=post;msg=' . $output['id'] . ';topic=' . $context['current_topic'] . '.' . $context['start'],
 				'icon' => 'modify_button',
 				'show' => $output['can_modify']
 			),
 			'remove_topic' => array(
 				'label' => $txt['remove_topic'],
-				'href' => $scripturl.'?action=removetopic2;topic='.$context['current_topic'].'.'.$context['start'].';'.$context['session_var'].'='.$context['session_id'],
-				'javascript' => 'data-confirm="'.$txt['are_sure_remove_topic'].'" class="you_sure"',
+				'href' => $scripturl . '?action=removetopic2;topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+				'javascript' => 'data-confirm="' . $txt['are_sure_remove_topic'] . '" class="you_sure"',
 				'icon' => 'remove_button',
 				'show' => $context['can_delete'] && ($context['topic_first_message'] == $output['id'])
 			),
 			'remove' => array(
 				'label' => $txt['remove'],
-				'href' => $scripturl.'?action=deletemsg;topic='.$context['current_topic'].'.'.$context['start'].';msg='.$output['id'].';'.$context['session_var'].'='.$context['session_id'],
-				'javascript' => 'data-confirm="'.$txt['remove_message_question'].'" class="you_sure"',
+				'href' => $scripturl . '?action=deletemsg;topic=' . $context['current_topic'] . '.' . $context['start'] . ';msg=' . $output['id'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+				'javascript' => 'data-confirm="' . $txt['remove_message_question'] . '" class="you_sure"',
 				'icon' => 'remove_button',
 				'show' => $output['can_remove'] && ($context['topic_first_message'] != $output['id'])
 			),
 			'split' => array(
 				'label' => $txt['split'],
-				'href' => $scripturl.'?action=splittopics;topic='.$context['current_topic'].'.0;at='.$output['id'],
+				'href' => $scripturl . '?action=splittopics;topic=' . $context['current_topic'] . '.0;at=' . $output['id'],
 				'icon' => 'split_button',
 				'show' => $context['can_split'] && !empty($context['real_num_replies'])
 			),
 			'report' => array(
 				'label' => $txt['report_to_mod'],
-				'href' => $scripturl.'?action=reporttm;topic='.$context['current_topic'].'.'.$output['counter'].';msg='.$output['id'],
+				'href' => $scripturl . '?action=reporttm;topic=' . $context['current_topic'] . '.' . $output['counter'] . ';msg=' . $output['id'],
 				'icon' => 'error',
 				'show' => $context['can_report_moderator']
 			),
 			'warn' => array(
 				'label' => $txt['issue_warning'],
-				'href' => $scripturl.'?action=profile;area=issuewarning;u='.$output['member']['id'].';msg='.$output['id'],
+				'href' => $scripturl . '?action=profile;area=issuewarning;u=' . $output['member']['id'] . ';msg=' . $output['id'],
 				'icon' => 'warn_button',
 				'show' => $context['can_issue_warning'] && !$output['is_message_author'] && !$output['member']['is_guest']
 			),
 			'restore' => array(
 				'label' => $txt['restore_message'],
-				'href' => $scripturl.'?action=restoretopic;msgs='.$output['id'].';'.$context['session_var'].'='.$context['session_id'],
+				'href' => $scripturl . '?action=restoretopic;msgs=' . $output['id'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 				'icon' => 'restore_button',
 				'show' => $context['can_restore_msg']
 			),
 			'approve' => array(
 				'label' => $txt['approve'],
-				'href' => $scripturl.'?action=moderate;area=postmod;sa=approve;topic='.$context['current_topic'].'.'.$context['start'].';msg='.$output['id'].';'.$context['session_var'].'='.$context['session_id'],
+				'href' => $scripturl . '?action=moderate;area=postmod;sa=approve;topic=' . $context['current_topic'] . '.' . $context['start'] . ';msg=' . $output['id'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 				'icon' => 'approve_button',
 				'show' => $output['can_approve']
 			),
 			'unapprove' => array(
 				'label' => $txt['unapprove'],
-				'href' => $scripturl.'?action=moderate;area=postmod;sa=approve;topic='.$context['current_topic'].'.'.$context['start'].';msg='.$output['id'].';'.$context['session_var'].'='.$context['session_id'],
+				'href' => $scripturl . '?action=moderate;area=postmod;sa=approve;topic=' . $context['current_topic'] . '.' . $context['start'] . ';msg=' . $output['id'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 				'icon' => 'unapprove_button',
 				'show' => $output['can_unapprove']
 			),
 		),
 		'quickmod' => array(
-			'id' => 'in_topic_mod_check_'. $output['id'],
+			'id' => 'in_topic_mod_check_' . $output['id'],
 			'custom' => 'style="display: none;"',
 			'content' => '',
 			'show' => !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $output['can_remove'],

@@ -94,7 +94,6 @@ function getMembersOnlineStats($membersOnlineOptions)
 
 			continue;
 		}
-
 		elseif (empty($row['show_online']) && empty($membersOnlineOptions['show_hidden']))
 		{
 			// Just increase the stats and don't add this hidden user to any list.
