@@ -135,6 +135,7 @@ $db_prefix = 'smf_';
  */
 $db_persist = 0;
 /**
+ * Send emails on database connection error
  *
  * @var int|bool
  */
@@ -184,14 +185,12 @@ $cachedir = dirname(__FILE__) . '/cache';
  * @var int|bool
  */
 $image_proxy_enabled = true;
-
 /**
  * Secret key to be used by the proxy
  *
  * @var string
  */
 $image_proxy_secret = 'smfisawesome';
-
 /**
  * Maximum file size (in KB) for individual files
  *
@@ -233,6 +232,8 @@ if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
 	$sourcedir = $boarddir . '/Sources';
 if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/tasks'))
 	$tasksdir = $sourcedir . '/tasks';
+if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
+	$packagesdir = $boarddir . '/Packages';
 if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
 
