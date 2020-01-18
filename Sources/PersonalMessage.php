@@ -2305,7 +2305,10 @@ function MessagePost2()
 
 	// PM Drafts enabled and needed?
 	if ($context['drafts_pm_save'] && (isset($_POST['save_draft']) || isset($_POST['id_pm_draft'])))
+	{
+		$context['id_pm_draft'] = !empty($_POST['id_pm_draft']) ? (int) $_POST['id_pm_draft'] : 0;
 		require_once($sourcedir . '/Drafts.php');
+	}
 
 	loadLanguage('PersonalMessage', '', false);
 
