@@ -266,7 +266,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 		$newval = strtr($boardurl, array('http://' => 'https://'));
 	else
 		$newval = strtr($boardurl, array('https://' => 'http://'));
-	updateSettingsFile(array('boardurl' => $newval));
+	updateSettingsFile(array('boardurl' => '\'' . addslashes($newval) . '\''));
 
 	$new_settings = array();
 
@@ -1276,7 +1276,6 @@ function saveSettings(&$config_vars)
 
 	// All the numeric variables.
 	$config_ints = array(
-		'db_port',
 		'cache_enable',
 		'image_proxy_maxsize',
 	);
@@ -1297,11 +1296,11 @@ function saveSettings(&$config_vars)
 		if (in_array($config_var, $config_passwords))
 		{
 			if (isset($_POST[$config_var][1]) && $_POST[$config_var][0] == $_POST[$config_var][1])
-				$new_settings[$config_var] = $_POST[$config_var][0];
+				$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var][0], '\'\\') . '\'';
 		}
 		elseif (in_array($config_var, $config_strs))
 		{
-			$new_settings[$config_var] = $_POST[$config_var];
+			$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var], '\'\\') . '\'';
 		}
 		elseif (in_array($config_var, $config_ints))
 		{
@@ -1318,9 +1317,9 @@ function saveSettings(&$config_vars)
 		elseif (in_array($config_var, $config_bools))
 		{
 			if (!empty($_POST[$config_var]))
-				$new_settings[$config_var] = 1;
+				$new_settings[$config_var] = '1';
 			else
-				$new_settings[$config_var] = 0;
+				$new_settings[$config_var] = '0';
 		}
 		else
 		{

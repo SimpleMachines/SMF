@@ -181,7 +181,7 @@ $cachedir = dirname(__FILE__) . '/cache';
 /**
  * Whether the proxy is enabled or not
  *
- * @var int|bool
+ * @var bool
  */
 $image_proxy_enabled = true;
 
