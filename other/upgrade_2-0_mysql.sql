@@ -1735,7 +1735,7 @@ if ($profileCount == 0)
 	// Update the board tables.
 	foreach ($board_updates as $profile => $boards)
 	{
-		if (empty($boards))
+		if (empty($boards) || empty($profile))
 			continue;
 
 		$boards = implode(',', $boards);
@@ -2764,32 +2764,40 @@ if (!isset($modSettings['attachment_thumb_png']))
 if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 {
 	$babylon_dir = $GLOBALS['boarddir'] . '/Themes/babylon';
-	$theme_request = upgrade_query("
-		SELECT ID_THEME
-		FROM {$db_prefix}themes
-		WHERE variable = 'theme_dir'
-			AND value ='$babylon_dir'");
+	$theme_request = $smcFunc['db_query']('', '
+		SELECT id_theme
+		FROM {db_prefix}themes
+		WHERE variable = {string:themedir}
+			AND value = {string:babylondir}',
+		array(
+			'themedir' => 'theme_dir',
+			'babylondir' => $babylon_dir,
+		)
+	);
 
 	// Don't do anything if this theme is already uninstalled
-	if (smf_mysql_num_rows($theme_request) == 1)
+	if ($smcFunc['db_num_rows']($theme_request) == 1)
 	{
-		$row = smf_mysql_fetch_row($theme_request);
+		$row = $smcFunc['db_fetch_row']($theme_request);
 		$id_theme = $row[0];
-		smf_mysql_free_result($theme_request);
+		$smcFunc['db_free_result']($theme_request);
 		unset($row);
 
-		$known_themes = explode(', ', $modSettings['knownThemes']);
+		$known_themes = explode(',', $modSettings['knownThemes']);
 
 		// Remove this value...
 		$known_themes = array_diff($known_themes, array($id_theme));
 
 		// Change back to a string...
-		$known_themes = implode(', ', $known_themes);
+		$known_themes = implode(',', $known_themes);
 
 		// Update the database
-		upgrade_query("
-			REPLACE INTO {$db_prefix}settings (variable, value)
-			VALUES ('knownThemes', '$known_themes')");
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('knownThemes', $known_themes),
+			array('variable')
+		);
 
 		// Delete any info about this theme
 		upgrade_query("
@@ -2809,10 +2817,12 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 
 		if ($modSettings['theme_guests'] == $id_theme)
 		{
-			upgrade_query("
-				REPLACE INTO {$db_prefix}settings
-				(variable, value)
-				VALUES('theme_guests', 0)");
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}settings',
+				array('variable' => 'string', 'value' => 'string'),
+				array('theme_guests', 0),
+				array('variable')
+			);
 		}
 	}
 }

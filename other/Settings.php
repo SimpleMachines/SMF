@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -181,7 +181,7 @@ $cachedir = dirname(__FILE__) . '/cache';
 /**
  * Whether the proxy is enabled or not
  *
- * @var bool
+ * @var int|bool
  */
 $image_proxy_enabled = true;
 
@@ -227,11 +227,13 @@ $packagesdir = dirname(__FILE__) . '/Packages';
 $tasksdir = $sourcedir . '/tasks';
 
 # Make sure the paths are correct... at least try to fix them.
-if (!file_exists($boarddir) && file_exists(dirname(__FILE__) . '/agreement.txt'))
+if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/agreement.txt'))
 	$boarddir = dirname(__FILE__);
-if (!file_exists($sourcedir) && file_exists($boarddir . '/Sources'))
+if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
 	$sourcedir = $boarddir . '/Sources';
-if (!file_exists($cachedir) && file_exists($boarddir . '/cache'))
+if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/tasks'))
+	$tasksdir = $sourcedir . '/tasks';
+if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
 
 ######### Legacy Settings #########

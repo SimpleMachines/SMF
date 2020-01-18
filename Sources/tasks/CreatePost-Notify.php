@@ -5,9 +5,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -85,9 +85,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				INNER JOIN {db_prefix}members AS mem ON (ln.id_member = mem.id_member)
 				LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)
 				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = ln.id_board OR b.id_board = t.id_board)
-			WHERE ln.id_topic = {int:topic}
-				OR ln.id_board = {int:board}',
+			WHERE ln.id_member != {int:member}
+				AND (ln.id_topic = {int:topic} OR ln.id_board = {int:board})',
 			array(
+				'member' => $posterOptions['id'],
 				'topic' => $topicOptions['id'],
 				'board' => $topicOptions['board'],
 			)
@@ -172,8 +173,6 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			if (!empty($data['pm_ignore_list']) && in_array($data['id_member_updated'], explode(',', $data['pm_ignore_list'])))
 				continue;
 			if (!in_array($type, array('reply', 'topic')) && $notify_types == self::NOTIFY_TYPE_REPLY_AND_TOPIC_START_FOLLOWING && $member != $data['id_member_started'])
-				continue;
-			elseif (in_array($type, array('reply', 'topic')) && $member == $posterOptions['id'])
 				continue;
 			elseif (!in_array($type, array('reply', 'topic')) && $notify_types == self::NOTIFY_TYPE_ONLY_REPLIES)
 				continue;

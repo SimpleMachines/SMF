@@ -176,7 +176,7 @@ $txt['attach_remaining'] = '<span class="attach_remaining">%1$d</span> attachmen
 $txt['attach_available'] = '%1$s KB available';
 $txt['attach_kb'] = ' (%1$s KB)';
 $txt['attach_0_byte_file'] = 'The file appears to be empty. Please contact your forum administrator if this continues to be a problem';
-$txt['attached_files_in_session'] = '<em>The above underlined file(s) have been uploaded but will not be attached to this post until it is submitted.</em>';
+$txt['attached_files_in_session'] = 'The above underlined file(s) have been uploaded but will not be attached to this post until it is submitted.';
 $txt['attached_file_uploaded'] = 'Attachment successfully uploaded!';
 $txt['attached_file_delete'] = 'Delete';
 $txt['attached_file_cannot'] = 'You cannot upload attachments';
@@ -209,7 +209,8 @@ $txt['file_too_big'] = 'Your file is too large. The maximum attachment size allo
 $txt['attach_timeout'] = 'Your attachment couldn\'t be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br><br>Please consult your server administrator for more information.';
 $txt['bad_attachment'] = 'Your attachment has failed security checks and cannot be uploaded. Please consult the forum administrator.';
 $txt['ran_out_of_space'] = 'The upload directory is full. Please contact an administrator about this problem.';
-$txt['attachments_no_write'] = 'The attachments upload directory is not writable. Your attachment or avatar cannot be saved.';
+$txt['attachments_no_write'] = 'The attachments upload directory is not writable. Your attachment cannot be saved.';
+$txt['avatars_no_write'] = 'The avatars upload directory is not writable. Your avatar cannot be saved.';
 $txt['attachments_no_create'] = 'Unable to create a new attachment directory. Your attachment or avatar cannot be saved.';
 $txt['attachments_limit_per_post'] = 'You may not upload more than %1$d attachments per post';
 

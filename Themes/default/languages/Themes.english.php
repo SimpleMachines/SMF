@@ -128,6 +128,7 @@ $txt['themeadmin_reset_options_info'] = 'The options below will reset options fo
 $txt['themeadmin_reset_options_change'] = 'Change';
 $txt['themeadmin_reset_options_none'] = 'Don\'t change';
 $txt['themeadmin_reset_options_default'] = 'Default';
+$txt['themeadmin_reset_options_title'] = 'Change or reset user options';
 
 $txt['themeadmin_edit_browse'] = 'Browse the templates and files in this theme.';
 $txt['themeadmin_edit_style'] = 'Edit this theme\'s stylesheets.';

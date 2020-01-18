@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -2413,7 +2413,7 @@ function fetchPerms__recursive($path, &$data, $level)
  */
 function PackagePermissionsAction()
 {
-	global $smcFunc, $context, $txt, $time_start, $package_ftp;
+	global $smcFunc, $context, $txt, $package_ftp;
 
 	umask(0);
 
@@ -2507,7 +2507,7 @@ function PackagePermissionsAction()
 			unset($context['to_process'][$path]);
 
 			// See if we're out of time?
-			if ((time() - $time_start) > $timeout_limit)
+			if ((time() - TIME_START) > $timeout_limit)
 			{
 				// Prepare template usage for to_process.
 				$context['to_process_encode'] = base64_encode($smcFunc['json_encode']($context['to_process']));
@@ -2620,7 +2620,7 @@ function PackagePermissionsAction()
 				}
 
 				// See if we're out of time?
-				if (!$dont_chmod && (time() - $time_start) > $timeout_limit)
+				if (!$dont_chmod && (time() - TIME_START) > $timeout_limit)
 				{
 					$dont_chmod = true;
 					// Don't do this again.
@@ -2647,7 +2647,7 @@ function PackagePermissionsAction()
 			unset($context['directory_list'][$path]);
 
 			// See if we're out of time?
-			if ((time() - $time_start) > $timeout_limit)
+			if ((time() - TIME_START) > $timeout_limit)
 			{
 				// Prepare this for usage on templates.
 				$context['directory_list_encode'] = base64_encode($smcFunc['json_encode']($context['directory_list']));

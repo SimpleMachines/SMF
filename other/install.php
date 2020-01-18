@@ -4,19 +4,25 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
 
 define('SMF_VERSION', '2.1 RC2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2019');
+define('SMF_SOFTWARE_YEAR', '2020');
 define('DB_SCRIPT_VERSION', '2-1');
 define('SMF_INSTALLING', 1);
+
 define('JQUERY_VERSION', '3.4.1');
+define('POSTGRE_TITLE', 'PostgreSQL');
+define('MYSQL_TITLE', 'MySQL');
+define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
+if (!defined('TIME_START'))
+	define('TIME_START', microtime(true));
 
 $GLOBALS['required_php_version'] = '5.4.0';
 
@@ -785,12 +791,12 @@ function DatabaseSettings()
 
 		// Take care of these variables...
 		$vars = array(
-			'db_type' => addcslashes($db_type, '\'\\'),
-			'db_name' => addcslashes($_POST['db_name'], '\'\\'),
-			'db_user' => addcslashes($_POST['db_user'], '\'\\'),
-			'db_passwd' => isset($_POST['db_passwd']) ? addcslashes($_POST['db_passwd'], '\'\\') : '',
-			'db_server' => addcslashes($_POST['db_server'], '\'\\'),
-			'db_prefix' => addcslashes($db_prefix, '\'\\'),
+			'db_type' => $db_type,
+			'db_name' => $_POST['db_name'],
+			'db_user' => $_POST['db_user'],
+			'db_passwd' => isset($_POST['db_passwd']) ? $_POST['db_passwd'] : '',
+			'db_server' => $_POST['db_server'],
+			'db_prefix' => $db_prefix,
 			// The cookiename is special; we want it to be the same if it ever needs to be reinstalled with the same info.
 			'cookiename' => 'SMFCookie' . abs(crc32($_POST['db_name'] . preg_replace('~[^A-Za-z0-9_$]~', '', $_POST['db_prefix'])) % 1000),
 		);
@@ -806,7 +812,7 @@ function DatabaseSettings()
 		}
 
 		// God I hope it saved!
-		if (!updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
+		if (!installer_updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
 		{
 			$incontext['error'] = $txt['error_windows_chmod'];
 			return false;
@@ -857,7 +863,7 @@ function DatabaseSettings()
 			if ($db_connection != null)
 			{
 				$db_user = $_POST['db_prefix'] . $db_user;
-				updateSettingsFile(array('db_user' => addcslashes($db_user, '\'\\')));
+				installer_updateSettingsFile(array('db_user' => $db_user));
 			}
 		}
 
@@ -903,7 +909,7 @@ function DatabaseSettings()
 				if ($smcFunc['db_select_db']($_POST['db_prefix'] . $db_name, $db_connection))
 				{
 					$db_name = $_POST['db_prefix'] . $db_name;
-					updateSettingsFile(array('db_name' => addcslashes($db_name, '\'\\')));
+					installer_updateSettingsFile(array('db_name' => $db_name));
 				}
 			}
 
@@ -1022,20 +1028,20 @@ function ForumSettings()
 
 		// Save these variables.
 		$vars = array(
-			'boardurl' => addcslashes($_POST['boardurl'], '\'\\'),
-			'boarddir' => addcslashes($path, '\'\\'),
-			'sourcedir' => addcslashes($path, '\'\\') . '/Sources',
-			'cachedir' => addcslashes($path, '\'\\') . '/cache',
-			'packagesdir' => addcslashes($path, '\'\\') . '/Packages',
-			'tasksdir' => addcslashes($path, '\'\\') . '/Sources/tasks',
-			'mbname' => strtr(addcslashes($_POST['mbname'], '\'\\'), array('\"' => '"')),
+			'boardurl' => $_POST['boardurl'],
+			'boarddir' => $path,
+			'sourcedir' => $path . '/Sources',
+			'cachedir' => $path . '/cache',
+			'packagesdir' => $path . '/Packages',
+			'tasksdir' => $path . '/Sources/tasks',
+			'mbname' => strtr($_POST['mbname'], array('\"' => '"')),
 			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),
 			'image_proxy_secret' => substr(sha1(mt_rand()), 0, 20),
 			'image_proxy_enabled' => !empty($_POST['force_ssl']),
 		);
 
 		// Must save!
-		if (!updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
+		if (!installer_updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
 		{
 			$incontext['error'] = $txt['error_windows_chmod'];
 			return false;
@@ -1060,7 +1066,7 @@ function ForumSettings()
 			}
 			else
 				// Set the character set here.
-				updateSettingsFile(array('db_character_set' => 'utf8'));
+				installer_updateSettingsFile(array('db_character_set' => 'utf8'));
 		}
 
 		// Good, skip on.
@@ -1317,7 +1323,7 @@ function DatabasePopulation()
 	// Are we allowing stat collection?
 	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']))
 	{
-		$upcontext['allow_sm_stats'] = true;
+		$incontext['allow_sm_stats'] = true;
 
 		// Attempt to register the site etc.
 		$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
@@ -1350,7 +1356,7 @@ function DatabasePopulation()
 		}
 	}
 	// Don't remove stat collection unless we unchecked the box for real, not from the loop.
-	elseif (empty($_POST['stats']) && empty($upcontext['allow_sm_stats']))
+	elseif (empty($_POST['stats']) && empty($incontext['allow_sm_stats']))
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}settings
 			WHERE variable = {string:enable_sm_stats}',
@@ -1582,7 +1588,7 @@ function AdminAccount()
 
 		// Update the webmaster's email?
 		if (!empty($_POST['server_email']) && (empty($webmaster_email) || $webmaster_email == 'noreply@myserver.com'))
-			updateSettingsFile(array('webmaster_email' => addcslashes($_POST['server_email'], '\'\\')));
+			installer_updateSettingsFile(array('webmaster_email' => $_POST['server_email']));
 
 		// Work out whether we're going to have dodgy characters and remove them.
 		$invalid_characters = preg_match('~[<>&"\'=\\\]~', $_POST['username']) != 0;
@@ -1861,94 +1867,22 @@ function DeleteInstall()
 	return false;
 }
 
-function updateSettingsFile($vars)
+function installer_updateSettingsFile($vars, $partial = true)
 {
-	// Modify Settings.php.
-	$settingsArray = file(dirname(__FILE__) . '/Settings.php');
+	global $sourcedir;
 
-	// @todo Do we just want to read the file in clean, and split it this way always?
-	if (count($settingsArray) == 1)
-		$settingsArray = preg_split('~[\r\n]~', $settingsArray[0]);
-
-	for ($i = 0, $n = count($settingsArray); $i < $n; $i++)
+	if (empty($sourcedir))
 	{
-		// Remove the redirect...
-		if (trim($settingsArray[$i]) == 'if (file_exists(dirname(__FILE__) . \'/install.php\'))' && trim($settingsArray[$i + 1]) == '{' && trim($settingsArray[$i + 10]) == '}')
-		{
-			// Set the ten lines to nothing.
-			for ($j = 0; $j < 11; $j++)
-				$settingsArray[$i++] = '';
-
-			continue;
-		}
-
-		if (trim($settingsArray[$i]) == '?' . '>')
-			$settingsArray[$i] = '';
-
-		// Don't trim or bother with it if it's not a variable.
-		if (substr($settingsArray[$i], 0, 1) != '$')
-			continue;
-
-		$settingsArray[$i] = rtrim($settingsArray[$i]) . "\n";
-
-		foreach ($vars as $var => $val)
-			if (strncasecmp($settingsArray[$i], '$' . $var, 1 + strlen($var)) == 0)
-			{
-				$comment = strstr($settingsArray[$i], '#');
-				$settingsArray[$i] = '$' . $var . ' = \'' . $val . '\';' . ($comment != '' ? "\t\t" . $comment : "\n");
-				unset($vars[$var]);
-			}
+		if (file_exists(dirname(__FILE__) . '/Sources') && is_dir(dirname(__FILE__) . '/Sources'))
+			$sourcedir = dirname(__FILE__) . '/Sources';
+		else
+			return false;
 	}
 
-	// Uh oh... the file wasn't empty... was it?
-	if (!empty($vars))
-	{
-		$settingsArray[$i++] = '';
-		foreach ($vars as $var => $val)
-			$settingsArray[$i++] = '$' . $var . ' = \'' . $val . '\';' . "\n";
-	}
+	require_once($sourcedir . '/Subs.php');
+	require_once($sourcedir . '/Subs-Admin.php');
 
-	// Blank out the file - done to fix a oddity with some servers.
-	$fp = @fopen(dirname(__FILE__) . '/Settings.php', 'w');
-	if (!$fp)
-		return false;
-	fclose($fp);
-
-	$fp = fopen(dirname(__FILE__) . '/Settings.php', 'r+');
-
-	// Gotta have one of these ;)
-	if (trim($settingsArray[0]) != '<?php')
-		fwrite($fp, "<?php\n");
-
-	$lines = count($settingsArray);
-	for ($i = 0; $i < $lines - 1; $i++)
-	{
-		// Don't just write a bunch of blank lines.
-		if ($settingsArray[$i] != '' || @$settingsArray[$i - 1] != '')
-			fwrite($fp, strtr($settingsArray[$i], "\r", ''));
-	}
-	fwrite($fp, $settingsArray[$i] . '?' . '>');
-	fclose($fp);
-
-	// Even though on normal installations the filemtime should prevent this being used by the installer incorrectly
-	// it seems that there are times it might not. So let's MAKE it dump the cache.
-	if (function_exists('opcache_invalidate'))
-		opcache_invalidate(dirname(__FILE__) . '/Settings.php', true);
-
-	return true;
-}
-
-function updateDbLastError()
-{
-	global $cachedir;
-
-	// Write out the db_last_error file with the error timestamp
-	if (!empty($cachedir) && is_writable($cachedir))
-		file_put_contents($cachedir . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
-	else
-		file_put_contents(dirname(__FILE__) . '/cache/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
-
-	return true;
+	return updateSettingsFile($vars, false, $partial);
 }
 
 // Create an .htaccess file to prevent mod_security. SMF has filtering built-in.
@@ -2062,7 +1996,7 @@ function template_install_above()
 
 	foreach ($incontext['steps'] as $num => $step)
 		echo '
-						<li', $num == $upcontext['current_step'] ? ' class="stepcurrent"' : '', '>
+						<li', $num == $incontext['current_step'] ? ' class="stepcurrent"' : '', '>
 							', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '
 						</li>';
 

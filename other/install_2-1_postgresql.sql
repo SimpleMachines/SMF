@@ -49,12 +49,20 @@ CREATE OR REPLACE FUNCTION MONTH (timestamp) RETURNS integer AS
 	'SELECT CAST (EXTRACT(MONTH FROM $1) AS integer) AS result'
 LANGUAGE 'sql';
 
+CREATE OR REPLACE FUNCTION MONTH (bigint) RETURNS integer AS
+	'SELECT CAST (EXTRACT(MONTH FROM TO_TIMESTAMP($1)) AS integer) AS result'
+LANGUAGE 'sql';
+
 CREATE OR REPLACE FUNCTION day(date) RETURNS integer AS
 	'SELECT EXTRACT(DAY FROM DATE($1))::integer AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION DAYOFMONTH (timestamp) RETURNS integer AS
 	'SELECT CAST (EXTRACT(DAY FROM $1) AS integer) AS result'
+LANGUAGE 'sql';
+
+CREATE OR REPLACE FUNCTION DAYOFMONTH (bigint) RETURNS integer AS
+	'SELECT CAST (EXTRACT(DAY FROM TO_TIMESTAMP($1)) AS integer) AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION HOUR (timestamp) RETURNS integer AS
@@ -917,7 +925,7 @@ CREATE INDEX {$db_prefix}log_spider_hits_processed ON {$db_prefix}log_spider_hit
 
 CREATE TABLE {$db_prefix}log_spider_stats (
 	id_spider smallint NOT NULL DEFAULT '0',
-	page_hits smallint NOT NULL DEFAULT '0',
+	page_hits int NOT NULL DEFAULT '0',
 	last_seen bigint NOT NULL DEFAULT '0',
 	stat_date date NOT NULL DEFAULT '1004-01-01',
 	PRIMARY KEY (stat_date, id_spider)
@@ -2617,7 +2625,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('enableThemes', '1'),
 	('who_enabled', '1'),
 	('time_offset', '0'),
-	('cookieTime', '60'),
+	('cookieTime', '3153600'),
 	('lastActive', '15'),
 	('smiley_sets_known', 'fugue,alienine'),
 	('smiley_sets_names', '{$default_fugue_smileyset_name}'||E'\n'||'{$default_alienine_smileyset_name}'),
@@ -2679,6 +2687,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('show_blurb', '1'),
 	('show_profile_buttons', '1'),
 	('enable_ajax_alerts', '1'),
+	('alerts_auto_purge', '30'),
 	('gravatarEnabled', '1'),
 	('gravatarOverride', '0'),
 	('gravatarAllowExtraEmail', '1'),
@@ -2770,12 +2779,12 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'show_stats_index', '1'),
 	(1, 'newsfader_time', '3000'),
 	(1, 'use_image_buttons', '1'),
-	(1, 'enable_news', '1'),
-	(1, 'drafts_show_saved_enabled', '1');
+	(1, 'enable_news', '1');
 
 INSERT INTO {$db_prefix}themes
 	(id_member, id_theme, variable, value)
 VALUES (-1, 1, 'posts_apply_ignore_list', '1'),
+	(-1, 1, 'drafts_show_saved_enabled', '1'),
 	(-1, 1, 'return_to_post', '1');
 # --------------------------------------------------------
 
