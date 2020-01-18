@@ -285,4 +285,5 @@ $txt['package_validation_status_unknown'] = 'Unknown or Not Found';
 $txt['package_validation_status_clean'] = 'Found';
 $txt['package_validation_status_blacklist'] = 'Blacklisted';
 $txt['package_validation_blacklist_found'] = 'This customization has been found on a blacklist and may be unsafe.';
+
 ?>
