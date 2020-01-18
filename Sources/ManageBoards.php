@@ -318,6 +318,7 @@ function EditCategory2()
 	validateToken('admin-bc-' . $_REQUEST['cat']);
 
 	require_once($sourcedir . '/Subs-Categories.php');
+	require_once($sourcedir . '/Subs-BoardIndex.php');
 	require_once($sourcedir . '/Subs-Editor.php');
 
 	$_POST['cat'] = (int) $_POST['cat'];
