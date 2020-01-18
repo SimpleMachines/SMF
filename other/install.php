@@ -1944,6 +1944,19 @@ function updateSettingsFile($vars)
 	return true;
 }
 
+function updateDbLastError()
+{
+	global $cachedir;
+
+	// Write out the db_last_error file with the error timestamp
+	if (!empty($cachedir) && is_writable($cachedir))
+		file_put_contents($cachedir . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
+	else
+		file_put_contents(dirname(__FILE__) . '/cache/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
+
+	return true;
+}
+
 // Create an .htaccess file to prevent mod_security. SMF has filtering built-in.
 function fixModSecurity()
 {
