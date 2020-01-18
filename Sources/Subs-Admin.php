@@ -317,7 +317,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 	if (count($config_vars) === 1 && isset($config_vars['db_last_error']))
 	{
 		updateDbLastError($config_vars['db_last_error']);
-		return true;
+		return;
 	}
 
 	/*****************
@@ -353,9 +353,6 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 	 * - If 'required' is true and a value for the variable is undefined,
 	 *   the update will be aborted. (The only exception is during the SMF
 	 *   installation process.)
-	 *
-	 * - If 'null_delete' is true and a value for the variable is undefined or
-	 *   null, the variable will be deleted from Settings.php.
 	 */
 	$settings_defs = array(
 		0 => array(
@@ -452,7 +449,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 				' * @var string',
 				' */',
 			)),
-			'default' => 'noreply@myserver.com',
+			'default' => 'noreply@' . (!empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (!empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'myserver.com')),
 		),
 		'cookiename' => array(
 			'text' => implode("\n", array(
@@ -760,11 +757,6 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 				'}',
 			)),
 		),
-		// Temporary variable used during the upgrade process.
-		'upgradeData' => array(
-			'default' => null,
-			'null_delete' => true,
-		),
 	);
 
 	// Allow mods the option to define comments, defaults, etc., for their settings.
@@ -919,13 +911,8 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 
 		if (is_string($var))
 		{
-			// A setting to delete.
-			if (!empty($setting_def['null_delete']) && !isset($config_vars[$var]))
-			{
-				$replacement = '';
-			}
 			// Add this setting's value.
-			elseif (isset($config_vars[$var]) || is_null($config_vars[$var]))
+			if (isset($config_vars[$var]) || is_null($config_vars[$var]))
 			{
 				$replacement .= '$' . $var . ' = ' . var_export($config_vars[$var], TRUE) . ";\n";
 				unset($config_vars[$var]);
@@ -934,17 +921,12 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 			elseif (!empty($setting_def['required']) && !defined('SMF_INSTALLING'))
 			{
 				$context['settings_message'] = 'settings_error';
-				return false;
+				return;
 			}
 			// Fall back to the default value.
 			elseif (isset($setting_def['default']))
 			{
 				$replacement .= '$' . $var . ' = ' . (!empty($setting_def['raw_default']) ? sprintf($setting_def['default']) : var_export($setting_def['default'], true)) . ";\n";
-			}
-			// We've got nothing...
-			else
-			{
-				$replacement .= '$' . $var . ' = null;' . "\n";
 			}
 		}
 
@@ -1105,15 +1087,13 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $partial = false)
 	if ($failed)
 	{
 		$context['settings_message'] = 'settings_error';
-		return false;
+		return;
 	}
 
 	// Even though on normal installations the filemtime should invalidate any cached version
 	// it seems that there are times it might not. So let's MAKE it dump the cache.
 	if (function_exists('opcache_invalidate'))
 		opcache_invalidate($settingsFile, true);
-
-	return true;
 }
 
 /**
