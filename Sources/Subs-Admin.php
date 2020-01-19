@@ -341,7 +341,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	// When was Settings.php last changed?
 	$last_settings_change = filemtime($settingsFile);
 
-	/**
+	/*
 	 * A big, fat array to define properties of all the Settings.php variables.
 	 *
 	 * - String keys are used to identify actual variables.
@@ -816,7 +816,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	foreach ($settings_defs as $var => $setting_def)
 	{
 		if (isset($setting_def['search_pattern']) && isset($setting_def['text']))
-			$settings_defs[$var]['search_pattern'] = str_replace('{{LAST_TEXT_LINE}}', preg_quote(trim(end(explode("\n", $setting_def['text']))), '~'), $setting_def['search_pattern']);
+			$settings_defs[$var]['search_pattern'] = str_replace('{{LAST_TEXT_LINE}}', preg_quote(trim(substr($setting_def['text'], strrpos($setting_def['text'], "\n"))), '~'), $setting_def['search_pattern']);
 
 		if (is_int($var))
 			continue;
@@ -866,7 +866,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		'object' =>  '\w+::__set_state\(array\s*(\((?>[^()]|(?1))*\))\)',
 	);
 
-	/**
+	/*
 	 * Time to build our new Settings.php!
 	 *
 	 * The substitutions take place in one of two ways:
@@ -1172,7 +1172,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			$bare_settingsText = str_replace(array($placeholder, $placeholder . "\n\n"), $placeholder . "\n", $bare_settingsText);
 		$bare_settingsText = preg_replace('/\h+$/m', '', rtrim($bare_settingsText));
 
-		/**
+/*
 		 * Divide the existing content into sections.
 		 * The idea here is to make sure we don't mess with the relative position
 		 * of any code blocks in the file, since that could break things. Within
@@ -1298,7 +1298,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			continue;
 
 		// Insert it either before or after the path correction code, whichever is appropriate.
-		$settingsText = preg_replace('~(?' . ($pathcode_reached ? '<=' : '=\n') . preg_quote($substitutions[$pathcode_var]['replacement'], '~') . ($pathcode_reached ? '\n' : '') . ')~', $substitutions[$var]['replacement'], $settingsText);
+		$settingsText = preg_replace('~(?' . ($pathcode_reached ? '<=' : '=\n') . preg_quote($substitutions[$pathcode_var]['replacement'], '~') . ($pathcode_reached ? '\n' : '') . ')~', "\n" . $substitutions[$var]['replacement'], $settingsText);
 	}
 
 	// If we have any brand new settings to add, do so.
@@ -1456,7 +1456,7 @@ function safe_file_write($file, $data, $backup_file = null, $mtime = null, $appe
  */
 function smf_var_export($var)
 {
-	/**
+/*
 	 * Old versions of updateSettingsFile couldn't handle multi-line values.
 	 * Even though technically we can now, we'll keep arrays on one line for
 	 * the sake of backwards compatibility.
@@ -1538,7 +1538,7 @@ function strip_php_comments($code_str, $line_ending = null)
 		$two_char = substr($part, 0, 2);
 		$to_remove = 0;
 
-		/**
+/*
 		 * Meaning of $in_string values:
 		 *	0: not in a string
 		 *	1: in a single quote string
@@ -1559,7 +1559,7 @@ function strip_php_comments($code_str, $line_ending = null)
 				$in_string = ($in_string ^ 2);
 		}
 
-		/**
+/*
 		 * Meaning of $in_comment values:
 		 * 	0: not in a comment
 		 *	1: in a single line comment
