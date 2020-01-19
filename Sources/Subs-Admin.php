@@ -971,7 +971,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				if (!empty($setting_def['raw_default']) && !empty($setting_def['default']))
 					$var_pattern = '(?:' . $var_pattern . '|' . preg_replace('/\s+/', '\s+', preg_quote($setting_def['default'], '~')) . ')';
 
-				$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . ($context['utf8'] ? 'u' : '');
+				$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($context['utf8']) ? 'u' : '');
 			}
 
 			// Next create the placeholder or replace_pattern.
@@ -1031,7 +1031,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 
 		$placeholder = md5($prefix . $var);
 
-		$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . ($context['utf8'] ? 'u' : '');
+		$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($context['utf8']) ? 'u' : '');
 		$substitutions[$var]['placeholder'] = $placeholder;
 		$substitutions[$var]['replacement'] = '$' . $var . ' = ' . smf_var_export($val, true) . ";";
 	}
