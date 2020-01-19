@@ -1458,7 +1458,7 @@ function safe_file_write($file, $data, $backup_file = null, $mtime = null, $appe
  */
 function smf_var_export($var)
 {
-/*
+	/*
 	 * Old versions of updateSettingsFile couldn't handle multi-line values.
 	 * Even though technically we can now, we'll keep arrays on one line for
 	 * the sake of backwards compatibility.
@@ -1540,7 +1540,7 @@ function strip_php_comments($code_str, $line_ending = null)
 		$two_char = substr($part, 0, 2);
 		$to_remove = 0;
 
-/*
+		/*
 		 * Meaning of $in_string values:
 		 *	0: not in a string
 		 *	1: in a single quote string
@@ -1561,7 +1561,7 @@ function strip_php_comments($code_str, $line_ending = null)
 				$in_string = ($in_string ^ 2);
 		}
 
-/*
+		/*
 		 * Meaning of $in_comment values:
 		 * 	0: not in a comment
 		 *	1: in a single line comment
@@ -1597,12 +1597,10 @@ function strip_php_comments($code_str, $line_ending = null)
 			}
 		}
 
-		$part = strlen($part) > $to_remove ? substr($part, $to_remove) : '';
-
-		if (empty($in_comment) && $part !== '')
-			$parts[$partkey] = $part;
+		if (empty($in_comment))
+			$parts[$partkey] = strlen($part) > $to_remove ? substr($part, $to_remove) : '';
 		else
-			unset($parts[$partkey]);
+			$parts[$partkey] = '';
 	}
 
 	return implode('', $parts);
