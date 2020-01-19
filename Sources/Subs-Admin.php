@@ -828,7 +828,8 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		if (!isset($config_vars[$var]))
 		{
 			// If a defined setting is missing from the file, we need to fix that ASAP.
-			if (!in_array($var, array_keys($GLOBALS)) && empty($setting_def['required']))
+			// ... Unless we are in the midst of installing, in which case we'll be patient.
+			if (!defined('SMF_INSTALLING') && !in_array($var, array_keys($GLOBALS)) && empty($setting_def['required']))
 				$config_vars[$var] = $setting_def['default'];
 
 			// If we're rebuilding, we want (almost) all of them.
@@ -856,10 +857,11 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				# then the closing quotation mark.
 				'\\1' .
 			')',
-		// Some integer values might have been stored as strings.
+		// Some numeric values might have been stored as strings.
 		'integer' =>  '["\']?[+-]?\d+["\']?',
-		'double' =>  '[+-]?\d+\.\d+([Ee][+-]\d+)?',
-		'boolean' =>  '(?i:TRUE|FALSE)',
+		'double' =>  '["\']?[+-]?\d+\.\d+([Ee][+-]\d+)?["\']?',
+		// Some boolean values might have been stored as integers.
+		'boolean' =>  '(?i:TRUE|FALSE|1|0)',
 		'NULL' =>  '(?i:NULL)',
 		// These use a PCRE subroutine to match nested arrays.
 		'array' =>  'array\s*(\((?>[^()]|(?1))*\))',
