@@ -1378,9 +1378,9 @@ function UpgradeOptions()
 	// Tell Settings.php to store db_last_error.php in the cache
 	move_db_last_error_to_cachedir();
 
-	// Update Settings.php with the new settings.
+	// Update Settings.php with the new settings, and rebuild if they selected that option.
 	require_once($sourcedir . '/Subs-Admin.php');
-	updateSettingsFile($changes);
+	updateSettingsFile($changes, false, !empty($_POST['migrateSettings']));
 
 	if ($command_line)
 		echo ' Successful.' . "\n";
@@ -4127,6 +4127,12 @@ function template_upgrade_options()
 						<label for="stat">
 							', $txt['upgrade_stats_collection'], '<br>
 							<span class="smalltext">', sprintf($txt['upgrade_stats_info'], 'https://www.simplemachines.org/about/stats.php'), '</a></span>
+						</label>
+					</li>
+					<li>
+						<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty($upcontext['migrateSettingsNeeded']) ? '' : ' checked="checked"', '>
+						<label for="migrateSettings">
+							', $txt['upgrade_migrate_settings_file'], '
 						</label>
 					</li>
 				</ul>
