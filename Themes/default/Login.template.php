@@ -471,8 +471,7 @@ function template_logout()
 					<input type="submit" value="', $txt['logout'], '" class="button">
 					<input type="submit" name="cancel" value="', $txt['logout_return'], '" class="button">
 				</p>
-				</div>
-			</p>
+			</div>
 		</div><!-- .logout -->
 	</form>';
 }
