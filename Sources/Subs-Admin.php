@@ -1152,9 +1152,9 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				else
 					$sp = $type_regex['array'];
 
-				if (preg_match($sp, $bare_settingsText))
+				if (preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*' . $sp . '~', $bare_settingsText))
 				{
-					$settingsText = preg_replace($sp, $substitution['placeholder'], $settingsText);
+					$settingsText = preg_replace('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*' . $sp . '~', $substitution['placeholder'], $settingsText);
 					break;
 				}
 			}
