@@ -1867,7 +1867,7 @@ function DeleteInstall()
 	return false;
 }
 
-function installer_updateSettingsFile($vars, $partial = true)
+function installer_updateSettingsFile($vars, $rebuild = false)
 {
 	global $sourcedir;
 
@@ -1882,7 +1882,7 @@ function installer_updateSettingsFile($vars, $partial = true)
 	require_once($sourcedir . '/Subs.php');
 	require_once($sourcedir . '/Subs-Admin.php');
 
-	return updateSettingsFile($vars, false, $partial);
+	return updateSettingsFile($vars, false, $rebuild);
 }
 
 // Create an .htaccess file to prevent mod_security. SMF has filtering built-in.
