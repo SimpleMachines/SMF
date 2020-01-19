@@ -1172,7 +1172,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			$bare_settingsText = str_replace(array($placeholder, $placeholder . "\n\n"), $placeholder . "\n", $bare_settingsText);
 		$bare_settingsText = preg_replace('/\h+$/m', '', rtrim($bare_settingsText));
 
-/*
+		/*
 		 * Divide the existing content into sections.
 		 * The idea here is to make sure we don't mess with the relative position
 		 * of any code blocks in the file, since that could break things. Within
