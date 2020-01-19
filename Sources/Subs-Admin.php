@@ -810,7 +810,9 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	);
 
 	// Allow mods the option to define comments, defaults, etc., for their settings.
-	call_integration_hook('integrate_update_settings_file', array(&$settings_defs));
+	// Check if function exists, in case we are calling from installer or upgrader.
+	if (function_exists('call_integration_hook'))
+		call_integration_hook('integrate_update_settings_file', array(&$settings_defs));
 
 	// Make sure we have values for everything we need.
 	foreach ($settings_defs as $var => $setting_def)
