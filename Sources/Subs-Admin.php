@@ -303,6 +303,10 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 {
 	global $context;
 
+	// If this function is called more than once, we need to keep track of everything
+	// so that the second call doesn't clobber the changes from the first call.
+	static $prev_config_vars = array();
+
 	// Should we try to unescape the strings?
 	if (empty($keep_quotes))
 	{
@@ -340,6 +344,9 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 
 	// When was Settings.php last changed?
 	$last_settings_change = filemtime($settingsFile);
+
+	// Do we already have some values we are supposed to use?
+	$config_vars = array_merge($prev_config_vars, $config_vars);
 
 	/*
 	 * A big, fat array to define properties of all the Settings.php variables.
@@ -830,8 +837,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		if (!isset($config_vars[$var]))
 		{
 			// If a defined setting is missing from the file, we need to fix that ASAP.
-			// ... Unless we are in the midst of installing, in which case we'll be patient.
-			if (!defined('SMF_INSTALLING') && !in_array($var, array_keys($GLOBALS)) && empty($setting_def['required']))
+			if (!in_array($var, array_keys($GLOBALS)) && empty($setting_def['required']))
 				$config_vars[$var] = $setting_def['default'];
 
 			// If we're rebuilding, we want (almost) all of them.
@@ -843,6 +849,9 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				unset($settings_defs[$var]);
 		}
 	}
+
+	// Remember for later, in case this function is called again.
+	$prev_config_vars = array_merge($prev_config_vars, $config_vars);
 
 	/******************************
 	 * PART 2: Content processing *
