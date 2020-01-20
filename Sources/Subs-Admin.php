@@ -1238,17 +1238,16 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			if (count($section) === 1)
 			{
 				// Lone placeholders can simply be appended.
-				if (in_array(reset($section), $trimmed_placeholders))
+				if (in_array($section[0], $trimmed_placeholders))
 				{
 					$new_settingsText .= "\n" . $section[0];
-					$var = array_search(reset($section), $trimmed_placeholders);
-					$done_defs[] = $var;
+					$done_defs[] = array_search($section[0], $trimmed_placeholders);
 				}
 				// Custom content needs to be preserved.
 				else
 				{
 					$prev_section_end = $sectionkey < 1 ? 0 : strpos($settingsText, end($sections[$sectionkey - 1])) + strlen(end($sections[$sectionkey - 1]));
-					$next_section_start = $sectionkey == end($sectionkeys) ? strlen($settingsText) : strpos($settingsText, reset($sections[$sectionkey + 1]));
+					$next_section_start = $sectionkey == end($sectionkeys) ? strlen($settingsText) : strpos($settingsText, $sections[$sectionkey + 1][0]);
 
 					$new_settingsText .= "\n" . substr($settingsText, $prev_section_end, $next_section_start - $prev_section_end) . "\n";
 				}
@@ -1263,17 +1262,29 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 
 					$p = trim($substitutions[$var]['placeholder']);
 
-					if (in_array($p, $section))
+					// Does this need to be inserted before the path correction code?
+					if (strpos($new_settingsText, trim($substitutions[$pathcode_var]['placeholder'])) !== false && !in_array($var, $done_defs) && strpos($substitutions[$pathcode_var]['replacement'], '$' . $var . ' = ') !== false)
+					{
+						$new_settingsText = strtr($new_settingsText, array($substitutions[$pathcode_var]['placeholder'] => $p . "\n" . $substitutions[$pathcode_var]['placeholder']));
+
+						$bare_settingsText .= "\n" . $substitutions[$var]['placeholder'];
+						$done_defs[] = $var;
+					}
+
+					// If it's in this section, add it to the new text now.
+					elseif (in_array($p, $section))
+					{
 						$new_settingsText .= "\n" . $substitutions[$var]['placeholder'];
+						$done_defs[] = $var;
+					}
 
 					// If this setting is missing entirely, fix it.
 					elseif ($p !== '' && strpos($bare_settingsText, $p) === false)
 					{
 						$new_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 						$bare_settingsText .= "\n" . $substitutions[$var]['placeholder'];
+						$done_defs[] = $var;
 					}
-
-					$done_defs[] = $var;
 				}
 			}
 		}
@@ -1315,7 +1326,14 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			continue;
 
 		// Insert it either before or after the path correction code, whichever is appropriate.
-		$settingsText = preg_replace('~(?' . ($pathcode_reached ? '<=' : '=\n') . preg_quote($substitutions[$pathcode_var]['replacement'], '~') . ($pathcode_reached ? '\n' : '') . ')~', "\n" . $substitutions[$var]['replacement'], $settingsText);
+		if (!$pathcode_reached || strpos('$' . $var . ' = ', $substitutions[$pathcode_var]['replacement']) !== false)
+		{
+			$settingsText = preg_replace('~(?=\n' . preg_quote($substitutions[$pathcode_var]['replacement'], '~') . ')~', "\n" . $substitutions[$var]['replacement'], $settingsText);
+		}
+		else
+		{
+			$settingsText = preg_replace('~(?<=' . preg_quote($substitutions[$pathcode_var]['replacement'], '~') . '\n)~', "\n" . $substitutions[$var]['replacement'], $settingsText);
+		}
 	}
 
 	// If we have any brand new settings to add, do so.
