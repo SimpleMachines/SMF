@@ -1232,6 +1232,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		// And now, rebuild the content!
 		$new_settingsText = '';
 		$done_defs = array();
+		$sectionkeys = array_keys($sections);
 		foreach ($sections as $sectionkey => $section)
 		{
 			// Custom content and lone placeholders.
@@ -1248,7 +1249,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				else
 				{
 					$prev_section_end = $sectionkey < 1 ? 0 : strpos($settingsText, end($sections[$sectionkey - 1])) + strlen(end($sections[$sectionkey - 1]));
-					$next_section_start = $sectionkey == end(array_keys($sections)) ? strlen($settingsText) : strpos($settingsText, reset($sections[$sectionkey + 1]));
+					$next_section_start = $sectionkey == end($sectionkeys) ? strlen($settingsText) : strpos($settingsText, reset($sections[$sectionkey + 1]));
 
 					$new_settingsText .= "\n" . substr($settingsText, $prev_section_end, $next_section_start - $prev_section_end) . "\n";
 				}
