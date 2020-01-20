@@ -1105,7 +1105,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 
 			if (strpos($sp, '^') === 0 || strpos($sp, '(?<') === 0)
 			{
-				$context['settings_message'] = 'death';
+				$context['settings_message'] = 'settings_error';
 				return false;
 			}
 
@@ -1114,7 +1114,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 
 			// Hooray!
 			if (count($matches[0]) == 1)
-				$settingsText = preg_replace($sp, $substitution['placeholder'], $settingsText);
+				$settingsText = preg_replace('~[;}]\s*' . (strpos($sp, '\K') === false ? '\K' : '') . $sp, $substitution['placeholder'], $settingsText);
 
 			// Booooo!
 			else
@@ -1619,7 +1619,7 @@ function strip_php_comments($code_str, $line_ending = null)
 	}
 
 	return implode('', $parts);
-};
+}
 
 /**
  * Saves the time of the last db error for the error log
