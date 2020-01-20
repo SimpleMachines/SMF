@@ -1134,7 +1134,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		elseif (is_string($var) && count($matches[0]) < 1)
 		{
 			// First, is it even worth trying again?
-			if (!preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*~', $settingsText))
+			if (!in_array($var, array_keys($config_vars)) || !preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*~', $settingsText))
 				continue;
 
 			foreach (array('scalar', 'object', 'array') as $type)
