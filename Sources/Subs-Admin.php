@@ -1100,7 +1100,6 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		// More than one instance of the variable = not good.
 		if (is_string($var) && count($matches[0]) > 1)
 		{
-			var_export($matches);
 			// Maybe we can try something more interesting?
 			$sp = substr($substitution['search_pattern'], 1);
 
