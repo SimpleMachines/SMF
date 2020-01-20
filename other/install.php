@@ -1869,7 +1869,9 @@ function DeleteInstall()
 
 function installer_updateSettingsFile($vars, $rebuild = false)
 {
-	global $sourcedir;
+	global $sourcedir, $context, $db_character_set, $txt;
+
+	$context['utf8'] = (isset($vars['db_character_set']) && $vars['db_character_set'] === 'utf8') || (!empty($db_character_set) && $db_character_set === 'utf8') || (!empty($txt) && $txt['lang_character_set'] === 'UTF-8');
 
 	if (empty($sourcedir))
 	{

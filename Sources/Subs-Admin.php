@@ -301,7 +301,7 @@ function getFileVersions(&$versionOptions)
  */
 function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 {
-	global $context;
+	global $context, $utf8;
 
 	// If this function is called more than once, we need to keep track of everything
 	// so that the second call doesn't clobber the changes from the first call.
@@ -347,6 +347,10 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 
 	// Do we already have some values we are supposed to use?
 	$config_vars = array_merge($prev_config_vars, $config_vars);
+
+	// Help for the upgrader.
+	if (!isset($context['utf8']) && isset($utf8))
+		$context['utf8'] = $utf8;
 
 	/*
 	 * A big, fat array to define properties of all the Settings.php variables.
