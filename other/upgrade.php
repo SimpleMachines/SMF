@@ -1628,7 +1628,7 @@ function DeleteUpgrade()
 
 	$changes = array(
 		'language' => (substr($language, -4) == '.lng' ? substr($language, 0, -4) : $language),
-		'db_error_send' => 1,
+		'db_error_send' => true,
 		'upgradeData' => null,
 	);
 

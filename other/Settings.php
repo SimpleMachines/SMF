@@ -131,15 +131,15 @@ $db_prefix = 'smf_';
 /**
  * Use a persistent database connection
  *
- * @var int|bool
+ * @var bool
  */
-$db_persist = 0;
+$db_persist = false;
 /**
  * Send emails on database connection error
  *
- * @var int|bool
+ * @var bool
  */
-$db_error_send = 0;
+$db_error_send = false;
 /**
  * Override the default behavior of the database layer for mb4 handling
  * null keep the default behavior untouched
@@ -182,7 +182,7 @@ $cachedir = dirname(__FILE__) . '/cache';
 /**
  * Whether the proxy is enabled or not
  *
- * @var int|bool
+ * @var bool
  */
 $image_proxy_enabled = true;
 /**

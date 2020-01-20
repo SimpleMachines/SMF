@@ -363,16 +363,12 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	 * - The content of the 'text' element is simply printed out, if it is used
 	 *   at all. Use it for comments or to insert code blocks, etc.
 	 *
-	 * - The optional 'search_pattern' element defines a custom regular
-	 *   expression to search for the existing entry in the file. This is
-	 *   primarily useful for code blocks rather than variables.
-	 *
-	 * - The optional 'replace_pattern' element defines a custom regular
-	 *   expression to decide where the replacement entry should be inserted.
-	 *   Note: 'replace_pattern' should be avoided unless ABSOLUTELY necessary.
-	 *
 	 * - The 'default' element, not surprisingly, gives a default value for
 	 *   the variable.
+	 *
+	 * - The 'type' element defines the expected variable type or types. If
+	 *   more than one type is allowed, this should be an array listing them.
+	 *   Types should match the possible types returned by gettype().
 	 *
 	 * - If 'raw_default' is true, the default should be printed directly,
 	 *   rather than being handled as a string. Use it if the default contains
@@ -388,6 +384,14 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	 *   depends on $rebuild: if $rebuild is true, 'auto_delete' == 2 behaves
 	 *   like 'auto_delete' == 1; if $rebuild is false, 'auto_delete' == 2
 	 *   behaves like 'auto_delete' == 0.
+	 *
+	 * - The optional 'search_pattern' element defines a custom regular
+	 *   expression to search for the existing entry in the file. This is
+	 *   primarily useful for code blocks rather than variables.
+	 *
+	 * - The optional 'replace_pattern' element defines a custom regular
+	 *   expression to decide where the replacement entry should be inserted.
+	 *   Note: 'replace_pattern' should be avoided unless ABSOLUTELY necessary.
 	 */
 	$settings_defs = array(
 		array(
@@ -423,6 +427,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => 0,
+			'type' => 'integer',
 		),
 		'mtitle' => array(
 			'text' => implode("\n", array(
@@ -434,6 +439,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => 'Maintenance Mode',
+			'type' => 'string',
 		),
 		'mmessage' => array(
 			'text' => implode("\n", array(
@@ -445,6 +451,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => 'Okay faithful users...we\'re attempting to restore an older backup of the database...news will be posted once we\'re back!',
+			'type' => 'string',
 		),
 		'mbname' => array(
 			'text' => implode("\n", array(
@@ -457,6 +464,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => 'My Community',
+			'type' => 'string',
 		),
 		'language' => array(
 			'text' => implode("\n", array(
@@ -467,6 +475,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => 'english',
+			'type' => 'string',
 		),
 		'boardurl' => array(
 			'text' => implode("\n", array(
@@ -477,6 +486,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => 'http://127.0.0.1/smf',
+			'type' => 'string',
 		),
 		'webmaster_email' => array(
 			'text' => implode("\n", array(
@@ -487,6 +497,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => 'noreply@myserver.com',
+			'type' => 'string',
 		),
 		'cookiename' => array(
 			'text' => implode("\n", array(
@@ -497,6 +508,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => 'SMFCookie11',
+			'type' => 'string',
 		),
 		'db_type' => array(
 			'text' => implode("\n", array(
@@ -510,6 +522,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => 'mysql',
+			'type' => 'string',
 		),
 		'db_port' => array(
 			'text' => implode("\n", array(
@@ -521,6 +534,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => 0,
+			'type' => 'integer',
 		),
 		'db_server' => array(
 			'text' => implode("\n", array(
@@ -532,6 +546,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			)),
 			'default' => 'localhost',
 			'required' => true,
+			'type' => 'string',
 		),
 		'db_name' => array(
 			'text' => implode("\n", array(
@@ -543,6 +558,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			)),
 			'default' => 'smf',
 			'required' => true,
+			'type' => 'string',
 		),
 		'db_user' => array(
 			'text' => implode("\n", array(
@@ -554,6 +570,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			)),
 			'default' => 'root',
 			'required' => true,
+			'type' => 'string',
 		),
 		'db_passwd' => array(
 			'text' => implode("\n", array(
@@ -565,6 +582,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			)),
 			'default' => '',
 			'required' => true,
+			'type' => 'string',
 		),
 		'ssi_db_user' => array(
 			'text' => implode("\n", array(
@@ -575,6 +593,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => '',
+			'type' => 'string',
 		),
 		'ssi_db_passwd' => array(
 			'text' => implode("\n", array(
@@ -585,6 +604,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => '',
+			'type' => 'string',
 		),
 		'db_prefix' => array(
 			'text' => implode("\n", array(
@@ -597,26 +617,29 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			)),
 			'default' => 'smf_',
 			'required' => true,
+			'type' => 'string',
 		),
 		'db_persist' => array(
 			'text' => implode("\n", array(
 				'/**',
 				' * Use a persistent database connection',
 				' *',
-				' * @var int|bool',
+				' * @var bool',
 				' */',
 			)),
 			'default' => 0,
+			'type' => 'boolean',
 		),
 		'db_error_send' => array(
 			'text' => implode("\n", array(
 				'/**',
 				' * Send emails on database connection error',
 				' *',
-				' * @var int|bool',
+				' * @var bool',
 				' */',
 			)),
-			'default' => 0,
+			'default' => false,
+			'type' => 'boolean',
 		),
 		'db_mb4' => array(
 			'text' => implode("\n", array(
@@ -628,6 +651,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => null,
+			'type' => array('NULL', 'boolean'),
 		),
 		'cache_accelerator' => array(
 			'text' => implode("\n", array(
@@ -642,6 +666,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => '',
+			'type' => 'string',
 		),
 		'cache_enable' => array(
 			'text' => implode("\n", array(
@@ -652,6 +677,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => 0,
+			'type' => 'integer',
 		),
 		'cache_memcached' => array(
 			'text' => implode("\n", array(
@@ -662,6 +688,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => '',
+			'type' => 'string',
 		),
 		'cachedir' => array(
 			'text' => implode("\n", array(
@@ -674,6 +701,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			)),
 			'default' => 'dirname(__FILE__) . \'/cache\'',
 			'raw_default' => true,
+			'type' => 'string',
 		),
 		'image_proxy_enabled' => array(
 			'text' => implode("\n", array(
@@ -683,10 +711,11 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				'/**',
 				' * Whether the proxy is enabled or not',
 				' *',
-				' * @var int|bool',
+				' * @var bool',
 				' */',
 			)),
-			'default' => 1,
+			'default' => true,
+			'type' => 'boolean',
 		),
 		'image_proxy_secret' => array(
 			'text' => implode("\n", array(
@@ -697,6 +726,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => 'smfisawesome',
+			'type' => 'string',
 		),
 		'image_proxy_maxsize' => array(
 			'text' => implode("\n", array(
@@ -707,6 +737,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' */',
 			)),
 			'default' => 5192,
+			'type' => 'integer',
 		),
 		'boarddir' => array(
 			'text' => implode("\n", array(
@@ -721,6 +752,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			)),
 			'default' => 'dirname(__FILE__)',
 			'raw_default' => true,
+			'type' => 'string',
 		),
 		'sourcedir' => array(
 			'text' => implode("\n", array(
@@ -732,6 +764,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			)),
 			'default' => 'dirname(__FILE__) . \'/Sources\'',
 			'raw_default' => true,
+			'type' => 'string',
 		),
 		'packagesdir' => array(
 			'text' => implode("\n", array(
@@ -743,6 +776,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			)),
 			'default' => 'dirname(__FILE__) . \'/Packages\'',
 			'raw_default' => true,
+			'type' => 'string',
 		),
 		'tasksdir' => array(
 			'text' => implode("\n", array(
@@ -754,6 +788,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			)),
 			'default' => '$sourcedir . \'/tasks\'',
 			'raw_default' => true,
+			'type' => 'string',
 		),
 		array(
 			'text' => implode("\n", array(
@@ -781,6 +816,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				'# UTF-8 is now the only character set supported in 2.1.',
 			)),
 			'default' => 'utf8',
+			'type' => 'string',
 		),
 		'db_show_debug' => array(
 			'text' => implode("\n", array(
@@ -790,6 +826,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			)),
 			'default' => false,
 			'auto_delete' => 2,
+			'type' => 'boolean',
 		),
 		array(
 			'text' => implode("\n", array(
@@ -813,11 +850,13 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		'upgradeData' => array(
 			'default' => '',
 			'auto_delete' => 1,
+			'type' => 'string',
 		),
 		// This should be removed if found.
 		'db_last_error' => array(
 			'default' => 0,
 			'auto_delete' => 1,
+			'type' => 'integer',
 		),
 	);
 
@@ -839,11 +878,20 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		if (!empty($setting_def['auto_delete']) && empty($config_vars[$var]) && empty($GLOBALS[$var]) && in_array($var, array_keys($GLOBALS)))
 			$config_vars[$var] = $setting_def['default'];
 
-		if (!isset($config_vars[$var]))
+		if (!in_array($var, array_keys($config_vars)))
 		{
 			// If a defined setting is missing from the file, we need to fix that ASAP.
-			if (!in_array($var, array_keys($GLOBALS)) && empty($setting_def['required']))
+			if (!in_array($var, array_keys($GLOBALS)))
+			{
+				// Abort if these ones don't have real values (unless we're installing).
+				if (!empty($setting_def['required']) && !defined('SMF_INSTALLING'))
+				{
+					$context['settings_message'] = 'settings_error';
+					return false;
+				}
+
 				$config_vars[$var] = $setting_def['default'];
+			}
 
 			// If we're rebuilding, we want (almost) all of them.
 			elseif (!empty($rebuild) && (!isset($setting_def['auto_delete']) || !empty($GLOBALS[$var])))
@@ -852,6 +900,56 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			// Otherwise, just leave this one alone.
 			else
 				unset($settings_defs[$var]);
+		}
+		else
+		{
+			// Objects without a __set_state method need a fallback.
+			if (is_object($config_vars[$var]) && !method_exists($config_vars[$var], '__set_state'))
+			{
+				if (method_exists($config_vars[$var], '__toString'))
+					$config_vars[$var] = (string) $config_vars[$var];
+				else
+					$config_vars[$var] = (array) $config_vars[$var];
+			}
+
+			// Normalize the type if necessary.
+			if (isset($setting_def['type']))
+			{
+				$expected_types = (array) $setting_def['type'];
+				$var_type = gettype($config_vars[$var]);
+
+				// Variable is not of an expected type.
+				if (!in_array($var_type, $expected_types))
+				{
+					// Passed in an unexpected array.
+					if ($var_type == 'array')
+					{
+						$temp = reset($config_vars[$var]);
+
+						// Use the first element if there's only one and it is a scalar.
+						if (count($config_vars[$var]) === 1 && is_scalar($temp))
+							$config_vars[$var] = $temp;
+
+						// Otherwise, we can't do anything useful with it.
+						else
+						{
+							unset($config_vars[$var]);
+							continue;
+						}
+					}
+
+					// Cast it to whatever type was expected.
+					// Note: the order of the types in this loop matters.
+					foreach (array('boolean', 'integer', 'double', 'string', 'array') as $to_type)
+					{
+						if (in_array($to_type, $expected_types))
+						{
+							settype($config_vars[$var], $to_type);
+							break;
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -941,7 +1039,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				$errcatch_var = $var;
 				$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
 				$substitutions[$var]['placeholder'] = '';
-				$substitutions[-2]['replacement'] = $setting_def['text'] . $substitutions[-2]['replacement'];
+				$substitutions[-2]['replacement'] = "\n" . $setting_def['text'] . $substitutions[-2]['replacement'];
 			}
 			// The text is the whole thing (code blocks, etc.)
 			elseif (is_int($var))
@@ -971,19 +1069,22 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
 			else
 			{
-				// Objects without a __set_state method need a fallback.
-				if (is_object($config_vars[$var]) && !method_exists($config_vars[$var], '__set_state'))
+				$var_pattern = array();
+
+				$cv_type = gettype($config_vars[$var]);
+				$var_pattern[] = $type_regex[$cv_type];
+
+				if (in_array($var, array_keys($GLOBALS)))
 				{
-					if (method_exists($config_vars[$var], '__toString'))
-						$config_vars[$var] = (string) $config_vars[$var];
-					else
-						$config_vars[$var] = (array) $config_vars[$var];
+					$gv_type = gettype($GLOBALS[$var]);
+					if ($cv_type !== $gv_type && isset($type_regex[$gv_type]))
+						$var_pattern[] = $type_regex[$gv_type];
 				}
 
-				$var_pattern = $type_regex[gettype($config_vars[$var])];
+				if (!empty($setting_def['raw_default']) && $setting_def['default'] !== '')
+					$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote($setting_def['default'], '~'));
 
-				if (!empty($setting_def['raw_default']) && !empty($setting_def['default']))
-					$var_pattern = '(?:' . $var_pattern . '|' . preg_replace('/\s+/', '\s+', preg_quote($setting_def['default'], '~')) . ')';
+				$var_pattern = count($var_pattern) > 1 ? '(?:' . (implode('|', $var_pattern)) . ')' : $var_pattern[0];
 
 				$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($context['utf8']) ? 'u' : '');
 			}
@@ -1008,12 +1109,6 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			{
 				$replacement .= '$' . $var . ' = ' . ($config_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($config_vars[$var]) : smf_var_export($config_vars[$var], true)) . ";";
 			}
-			// Uh-oh! Something must have gone horribly, inconceivably wrong.
-			elseif (!empty($setting_def['required']) && !defined('SMF_INSTALLING'))
-			{
-				$context['settings_message'] = 'settings_error';
-				return false;
-			}
 			// Fall back to the default value.
 			elseif (isset($setting_def['default']))
 			{
@@ -1033,15 +1128,19 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	// Any leftovers to deal with?
 	foreach ($config_vars as $var => $val)
 	{
-		if (is_object($config_vars[$var]) && !method_exists($config_vars[$var], '__set_state'))
+		$var_pattern = array();
+
+		$cv_type = gettype($config_vars[$var]);
+		$var_pattern[] = $type_regex[$cv_type];
+
+		if (in_array($var, array_keys($GLOBALS)))
 		{
-			if (method_exists($config_vars[$var], '__toString'))
-				$config_vars[$var] = (string) $config_vars[$var];
-			else
-				$config_vars[$var] = (array) $config_vars[$var];
+			$gv_type = gettype($GLOBALS[$var]);
+			if ($cv_type !== $gv_type && isset($type_regex[$gv_type]))
+				$var_pattern[] = $type_regex[$gv_type];
 		}
 
-		$var_pattern = $type_regex[gettype($config_vars[$var])];
+		$var_pattern = count($var_pattern) > 1 ? '(?:' . (implode('|', $var_pattern)) . ')' : $var_pattern[0];
 
 		$placeholder = md5($prefix . $var);
 
@@ -1333,7 +1432,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		}
 		else
 		{
-			$settingsText = preg_replace('~(?<=' . preg_quote($substitutions[$pathcode_var]['replacement'], '~') . '\n)~', "\n" . $substitutions[$var]['replacement'], $settingsText);
+			$settingsText = preg_replace('~(?<=' . preg_quote($substitutions[$pathcode_var]['replacement'], '~') . '\n)~', $substitutions[$var]['replacement'] . "\n", $settingsText);
 		}
 	}
 
