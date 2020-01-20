@@ -812,9 +812,9 @@ function DatabaseSettings()
 		}
 
 		// God I hope it saved!
-		if (!installer_updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
+		if (!installer_updateSettingsFile($vars))
 		{
-			$incontext['error'] = $txt['error_windows_chmod'];
+			$incontext['error'] = $txt['settings_error'];
 			return false;
 		}
 
@@ -1041,9 +1041,9 @@ function ForumSettings()
 		);
 
 		// Must save!
-		if (!installer_updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
+		if (!installer_updateSettingsFile($vars))
 		{
-			$incontext['error'] = $txt['error_windows_chmod'];
+			$incontext['error'] = $txt['settings_error'];
 			return false;
 		}
 
@@ -1878,6 +1878,14 @@ function installer_updateSettingsFile($vars, $rebuild = false)
 		if (file_exists(dirname(__FILE__) . '/Sources') && is_dir(dirname(__FILE__) . '/Sources'))
 			$sourcedir = dirname(__FILE__) . '/Sources';
 		else
+			return false;
+	}
+
+	if (!is_writeable(dirname(__FILE__) . '/Settings.php'))
+	{
+		@chmod(dirname(__FILE__) . '/Settings.php', 0777);
+
+		if (!is_writeable(dirname(__FILE__) . '/Settings.php'))
 			return false;
 	}
 
