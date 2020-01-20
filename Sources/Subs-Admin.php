@@ -677,6 +677,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		),
 		'image_proxy_enabled' => array(
 			'text' => implode("\n", array(
+				'',
 				'########## Image Proxy ##########',
 				'# This is done entirely in Settings.php to avoid loading the DB while serving the images',
 				'/**',
