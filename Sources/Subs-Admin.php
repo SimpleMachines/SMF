@@ -1164,6 +1164,29 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	// Retrieve the contents of Settings.php and normalize the line endings.
 	$settingsText = strtr(file_get_contents($settingsFile), array("\r\n" => "\n", "\r" => "\n"));
 
+	// If Settings.php is empty for some reason, see if we can recover.
+	if (trim($settingsText) == '')
+	{
+		// Try restoring from the backup.
+		if (file_exists(dirname($settingsFile) . '/Settings_bak.php'))
+			$settingsText = strtr(file_get_contents(dirname($settingsFile) . '/Settings_bak.php'), array("\r\n" => "\n", "\r" => "\n"));
+
+		// Backup is bad too? We have no choice but to create one from scratch.
+		if (trim($settingsText) == '')
+		{
+			$settingsText = '<' . "?php\n";
+			foreach ($settings_defs as $var => $setting_def)
+			{
+				if (!empty($setting_def['text']) && strpos($substitutions[$var]['replacement'], $setting_def['text']) === false)
+					$substitutions[$var]['replacement'] = $setting_def['text'] . "\n" . $substitutions[$var]['replacement'];
+
+				$settingsText .= $substitutions[$var]['replacement'] . "\n";
+			}
+			$settingsText .= "\n\n?" . '>';
+			$rebuild = true;
+		}
+	}
+
 	// Settings.php is unlikely to contain any heredocs, but just in case...
 	if (preg_match_all('/<<<(\'?)(\w+)\'?\n(.*?)\n\2;$/m', $settingsText, $matches))
 	{
