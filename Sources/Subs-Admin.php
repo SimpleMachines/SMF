@@ -1552,7 +1552,7 @@ function safe_file_write($file, $data, $backup_file = null, $mtime = null, $appe
 		if (filemtime($file) <= $mtime)
 		{
 			// Attempt to open the file.
-			$sfhandle = @fopen($file, empty($append) ? 'w' : 'c');
+			$sfhandle = @fopen($file, 'c');
 
 			// Let's do this thing!
 			if ($sfhandle !== false)
@@ -1566,17 +1566,16 @@ function safe_file_write($file, $data, $backup_file = null, $mtime = null, $appe
 				// Now write our data to the file.
 				if ($temp_sfile_saved)
 				{
-					$failed = fwrite($sfhandle, $data) !== strlen($data);
+					if (empty($append))
+					{
+						ftruncate($sfhandle, 0);
+						rewind($sfhandle);
+					}
 
-					// Hooray!
-					if (!$failed && !empty($backup_file))
-						@rename($temp_sfile, $backup_file);
+					$failed = fwrite($sfhandle, $data) !== strlen($data);
 				}
 				else
 					$failed = true;
-
-				flock($sfhandle, LOCK_UN);
-				fclose($sfhandle);
 
 				// If writing failed, put everything back the way it was.
 				if ($failed)
@@ -1587,6 +1586,13 @@ function safe_file_write($file, $data, $backup_file = null, $mtime = null, $appe
 					if (!empty($temp_bfile_saved))
 						@rename($temp_bfile, $backup_file);
 				}
+				// It worked, so make our temp backup the new permanent backup.
+				elseif (!empty($backup_file))
+					@rename($temp_sfile, $backup_file);
+
+				// And we're done.
+				flock($sfhandle, LOCK_UN);
+				fclose($sfhandle);
 			}
 		}
 	}
