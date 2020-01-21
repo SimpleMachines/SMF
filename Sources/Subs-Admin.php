@@ -1498,6 +1498,20 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	// This one is just cosmetic. Get rid of extra lines of whitespace.
 	$settingsText = preg_replace('~\n\s*\n~', "\n\n", $settingsText);
 
+	// Lint it before saving, if we can.
+	if (function_exists('exec'))
+	{
+		$temp_sfile = tempnam(sys_get_temp_dir(), md5($prefix . 'Settings.php'));
+		file_put_contents($temp_sfile, $settingsText);
+		@exec('php -l ' . escapeshellarg($temp_sfile), $exec_output, $exec_return);
+		unlink($temp_sfile);
+		if (!empty($exec_return))
+		{
+			$context['settings_message'] = @$txt['settings_malformed_edit'];
+			return false;
+		}
+	}
+
 	/******************************************
 	 * PART 3: Write updated settings to file *
 	 ******************************************/
