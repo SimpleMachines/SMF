@@ -1178,7 +1178,11 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		$settingsText = strtr($settingsText, $heredoc_replacements);
 	}
 
+	// For comparison purposes, we also need a version stripped of ALL comments.
+	$bare_settingsText = strip_php_comments($settingsText);
+
 	// Loop through all our substitutions to insert placeholders, etc.
+	$last_var = null;
 	foreach ($substitutions as $var => $substitution)
 	{
 		$placeholders[$var] = $substitution['placeholder'];
@@ -1193,8 +1197,11 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			$replace_strings[$var] = $substitution['replacement'];
 		}
 
+		// We need to redo $bare_settingsText once the code block placeholders are done.
+		if (is_int($last_var) && is_string($var))
+			$bare_settingsText = strip_php_comments($settingsText);
+
 		// Look before you leap.
-		$bare_settingsText = strip_php_comments($settingsText);
 		preg_match_all($substitution['search_pattern'], $bare_settingsText, $matches);
 
 		// More than one instance of the variable = not good.
@@ -1222,7 +1229,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				$context['settings_message'] = 'settings_error';
 
 				// Skip this one but do the rest.
-				if (count($config_vars) > 1)
+				if (count($prev_config_vars) > 1)
 					continue;
 				// Sadness and woe.
 				else
@@ -1265,6 +1272,8 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		// Good to go, so insert our placeholder.
 		else
 			$settingsText = preg_replace($substitution['search_pattern'], $substitution['placeholder'], $settingsText);
+
+		$last_var = $var;
 	}
 
 	// Rebuilding requires more work.
@@ -1280,12 +1289,14 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				$settingsText = strtr($settingsText, array($setting_def['text'] . "\n" => '', $setting_def['text'] => '',));
 		}
 
-		// For comparison purposes, we also need a version stripped of ALL comments.
+		// We need to refresh $bare_settingsText at this point.
 		$bare_settingsText = strip_php_comments($settingsText);
 
 		// Fix up whitespace to make comparison easier.
 		foreach ($placeholders as $placeholder)
+		{
 			$bare_settingsText = str_replace(array($placeholder, $placeholder . "\n\n"), $placeholder . "\n", $bare_settingsText);
+		}
 		$bare_settingsText = preg_replace('/\h+$/m', '', rtrim($bare_settingsText));
 
 		/*
@@ -1295,7 +1306,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		 * each section, however, we'll reorganize the content to match the
 		 * default layout as closely as we can.
 		 */
-		$sections = array();
+		$sections = array(0 => array());
 		$section_num = 0;
 		$trimmed_placeholders = array_filter(array_map('trim', $placeholders));
 		$newsection_placeholders = array();
@@ -1407,32 +1418,46 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	if (!empty($replace_patterns))
 		$settingsText = preg_replace($replace_patterns, $replace_strings, $settingsText);
 
-	// Make absolutely sure that the path correction code is included.
-	if (strpos($settingsText, $substitutions[$pathcode_var]['replacement']) === false)
-		$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n" . $substitutions[$pathcode_var]['replacement'] . "\n", $settingsText);
-
-	// Now insert any defined settings that are missing.
-	$pathcode_reached = false;
-	foreach ($settings_defs as $var => $setting_def)
+	// If we did not rebuild, do just enough to make sure the thing is viable.
+	if (empty($rebuild))
 	{
-		if ($var === $pathcode_var)
-			$pathcode_reached = true;
+		// Make absolutely sure that the path correction code is included.
+		if (strpos($settingsText, $substitutions[$pathcode_var]['replacement']) === false)
+			$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n" . $substitutions[$pathcode_var]['replacement'] . "\n", $settingsText);
 
-		if (is_int($var))
-			continue;
-
-		// Do nothing if it is already in there.
-		if (preg_match($substitutions[$var]['search_pattern'], str_replace($substitutions[$pathcode_var]['replacement'], $substitutions[$pathcode_var]['placeholder'], $settingsText)))
-			continue;
-
-		// Insert it either before or after the path correction code, whichever is appropriate.
-		if (!$pathcode_reached || strpos('$' . $var . ' = ', $substitutions[$pathcode_var]['replacement']) !== false)
+		// We need to refresh $bare_settingsText again, and remove the code blocks from it.
+		$bare_settingsText = strip_php_comments($settingsText);
+		foreach ($settings_defs as $var => $setting_def)
 		{
-			$settingsText = preg_replace('~(?=\n' . preg_quote($substitutions[$pathcode_var]['replacement'], '~') . ')~', "\n" . $substitutions[$var]['replacement'], $settingsText);
+			if (is_int($var))
+				$bare_settingsText = str_replace($substitutions[$var]['replacement'], '', $bare_settingsText);
+			else
+				break;
 		}
-		else
+
+		// Now insert any defined settings that are missing.
+		$pathcode_reached = false;
+		foreach ($settings_defs as $var => $setting_def)
 		{
-			$settingsText = preg_replace('~(?<=' . preg_quote($substitutions[$pathcode_var]['replacement'], '~') . '\n)~', $substitutions[$var]['replacement'] . "\n", $settingsText);
+			if ($var === $pathcode_var)
+				$pathcode_reached = true;
+
+			if (is_int($var))
+				continue;
+
+			// Do nothing if it is already in there.
+			if (preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*~', $bare_settingsText))
+				continue;
+
+			// Insert it either before or after the path correction code, whichever is appropriate.
+			if (!$pathcode_reached || strpos('$' . $var . ' = ', $substitutions[$pathcode_var]['replacement']) !== false)
+			{
+				$settingsText = preg_replace('~(?=\n' . preg_quote($substitutions[$pathcode_var]['replacement'], '~') . ')~', "\n" . $substitutions[$var]['replacement'], $settingsText);
+			}
+			else
+			{
+				$settingsText = preg_replace('~(?<=' . preg_quote($substitutions[$pathcode_var]['replacement'], '~') . '\n)~', $substitutions[$var]['replacement'] . "\n", $settingsText);
+			}
 		}
 	}
 
