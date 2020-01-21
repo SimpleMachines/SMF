@@ -322,11 +322,11 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	{
 		updateDbLastError($config_vars['db_last_error']);
 
-		if (count($config_vars) === 1)
+		if (count($config_vars) === 1 && empty($rebuild))
 			return true;
 
 		// Make sure we delete this from Settings.php, if present.
-		$config_vars['db_last_error'] = $GLOBALS['db_last_error'] = 0;
+		$config_vars['db_last_error'] = 0;
 	}
 
 	/*****************
