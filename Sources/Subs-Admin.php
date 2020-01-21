@@ -975,7 +975,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		'integer' =>  '["\']?[+-]?\d+["\']?',
 		'double' =>  '["\']?[+-]?\d+\.\d+([Ee][+-]\d+)?["\']?',
 		// Some boolean values might have been stored as integers.
-		'boolean' =>  '(?i:TRUE|FALSE|1|0)',
+		'boolean' =>  '(?i:TRUE|FALSE|(["\']?)[01]\b\\1)',
 		'NULL' =>  '(?i:NULL)',
 		// These use a PCRE subroutine to match nested arrays.
 		'array' =>  'array\s*(\((?>[^()]|(?1))*\))',
