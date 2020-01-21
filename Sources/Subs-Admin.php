@@ -627,7 +627,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				' * @var bool',
 				' */',
 			)),
-			'default' => 0,
+			'default' => false,
 			'type' => 'boolean',
 		),
 		'db_error_send' => array(
