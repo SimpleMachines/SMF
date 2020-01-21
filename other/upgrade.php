@@ -360,6 +360,7 @@ function upgradeExit($fallThrough = false)
 		$upcontext['user']['skip_db_substeps'] = !empty($upcontext['skip_db_substeps']);
 		$upcontext['debug'] = $is_debug;
 		$upgradeData = base64_encode(json_encode($upcontext['user']));
+		require_once($sourcedir . '/Subs.php');
 		require_once($sourcedir . '/Subs-Admin.php');
 		updateSettingsFile(array('upgradeData' => $upgradeData));
 		updateDbLastError(0);
@@ -637,6 +638,8 @@ function loadEssentialData()
 	if (empty($smcFunc))
 		$smcFunc = array();
 
+	require_once($sourcedir . '/Subs.php');
+
 	$smcFunc['random_int'] = function($min = 0, $max = PHP_INT_MAX)
 	{
 		global $sourcedir;
@@ -719,8 +722,6 @@ function loadEssentialData()
 	}
 	else
 		return throw_error(sprintf($txt['error_sourcefile_missing'], 'Subs-Db-' . $db_type . '.php'));
-
-	require_once($sourcedir . '/Subs.php');
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
 	if (file_exists($sourcedir . '/QueryString.php') && php_version_check())
@@ -1379,6 +1380,7 @@ function UpgradeOptions()
 	move_db_last_error_to_cachedir();
 
 	// Update Settings.php with the new settings, and rebuild if they selected that option.
+	require_once($sourcedir . '/Subs.php');
 	require_once($sourcedir . '/Subs-Admin.php');
 	updateSettingsFile($changes, false, !empty($_POST['migrateSettings']));
 
@@ -1647,6 +1649,7 @@ function DeleteUpgrade()
 	// Wipe this out...
 	$upcontext['user'] = array();
 
+	require_once($sourcedir . '/Subs.php');
 	require_once($sourcedir . '/Subs-Admin.php');
 	updateSettingsFile($changes);
 
@@ -3193,6 +3196,7 @@ function ConvertUtf8()
 
 		// Store it in Settings.php too because it's needed before db connection.
 		// Hopefully this works...
+		require_once($sourcedir . '/Subs.php');
 		require_once($sourcedir . '/Subs-Admin.php');
 		updateSettingsFile(array('db_character_set' => 'utf8'));
 
