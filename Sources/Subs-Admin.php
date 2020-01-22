@@ -885,10 +885,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			{
 				// Abort if these ones don't have real values (unless we're installing).
 				if (!empty($setting_def['required']) && !defined('SMF_INSTALLING'))
-				{
-					$context['settings_message'] = 'settings_error';
 					return false;
-				}
 
 				$config_vars[$var] = $setting_def['default'];
 			}
@@ -1234,10 +1231,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			$sp = substr($substitution['search_pattern'], 1);
 
 			if (strpos($sp, '^') === 0 || strpos($sp, '(?<') === 0)
-			{
-				$context['settings_message'] = 'settings_error';
 				return false;
-			}
 
 			// See if we can exclude `if` blocks, etc., to narrow down the matches.
 			preg_match_all('~[;}]\s*' . (strpos($sp, '\K') === false ? '\K' : '') . $sp, $bare_settingsText, $matches);
@@ -1249,8 +1243,6 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			// Booooo!
 			else
 			{
-				$context['settings_message'] = 'settings_error';
-
 				// Skip this one but do the rest.
 				if (count($prev_config_vars) > 1)
 					continue;
@@ -1506,10 +1498,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		@exec('php -l ' . escapeshellarg($temp_sfile), $exec_output, $exec_return);
 		unlink($temp_sfile);
 		if (!empty($exec_return))
-		{
-			$context['settings_message'] = @$txt['settings_malformed_edit'];
 			return false;
-		}
 	}
 
 	/******************************************
@@ -1517,9 +1506,6 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	 ******************************************/
 
 	$success = safe_file_write($settingsFile, $settingsText, dirname($settingsFile) . '/Settings_bak.php', $last_settings_change);
-
-	if (!$success)
-		$context['settings_message'] = 'settings_error';
 
 	return $success;
 }
