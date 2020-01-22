@@ -78,7 +78,7 @@ function summary($memID)
 		$datearray = getdate(forum_time());
 		$context['member'] += array(
 			'age' => $birth_year <= 1004 ? $txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
-			'today_is_birthday' => $datearray['mon'] == $birth_month && $datearray['mday'] == $birth_day && $birthyear > 1004
+			'today_is_birthday' => $datearray['mon'] == $birth_month && $datearray['mday'] == $birth_day && $birth_year > 1004
 		);
 	}
 
