@@ -1497,8 +1497,10 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		file_put_contents($temp_sfile, $settingsText);
 		@exec('php -l ' . escapeshellarg($temp_sfile), $exec_output, $exec_return);
 		unlink($temp_sfile);
+
+		// If the syntax is borked, try rebuilding to see if that fixes it.
 		if (!empty($exec_return))
-			return false;
+			return empty($rebuild) ? updateSettingsFile($prev_config_vars, $keep_quotes, true) : false;
 	}
 
 	/******************************************
