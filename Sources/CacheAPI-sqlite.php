@@ -31,11 +31,6 @@ class sqlite_cache extends cache_api
 	 */
 	private $cacheDB = null;
 
-	/**
-	 * @var int
-	 */
-	private $cacheTime = 0;
-
 	public function __construct()
 	{
 		parent::__construct();
@@ -57,7 +52,6 @@ class sqlite_cache extends cache_api
 			$this->cacheDB->exec('CREATE TABLE cache (key text unique, value blob, ttl int);');
 			$this->cacheDB->exec('CREATE INDEX ttls ON cache(ttl);');
 		}
-		$this->cacheTime = time();
 	}
 
 	/**
@@ -78,8 +72,7 @@ class sqlite_cache extends cache_api
 	 */
 	public function getData($key, $ttl = null)
 	{
-		$ttl = time() - $ttl;
-		$query = 'SELECT value FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\' AND ttl >= ' . $ttl . ' LIMIT 1';
+		$query = 'SELECT value FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\' AND ttl >= ' . time() . ' LIMIT 1';
 		$result = $this->cacheDB->query($query);
 
 		$value = null;
