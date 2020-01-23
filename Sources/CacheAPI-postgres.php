@@ -146,12 +146,7 @@ class postgres_cache extends cache_api
 	 */
 	public function cleanCache($type = '')
 	{
-		global $smcFunc;
-
-		$smcFunc['db_query']('', '
-			TRUNCATE TABLE {db_prefix}cache',
-			array()
-		);
+		pg_query($this->db_connection, 'TRUNCATE ' . $this->db_prefix . 'cache');
 
 		return true;
 	}
