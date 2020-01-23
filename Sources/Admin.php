@@ -540,6 +540,7 @@ function AdminHome()
 		'apc',
 		'apcu',
 		'memcache',
+		'memcached',
 		'xcache',
 		'php',
 		'server',
