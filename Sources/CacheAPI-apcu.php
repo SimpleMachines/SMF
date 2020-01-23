@@ -56,7 +56,7 @@ class apcu_cache extends cache_api
 		if ($value === null)
 			return apcu_delete($key . 'smf');
 		else
-			return apcu_store($key . 'smf', $value, $ttl);
+			return apcu_store($key . 'smf', $value, $ttl !== null ? $ttl : $this->ttl);
 	}
 
 	/**

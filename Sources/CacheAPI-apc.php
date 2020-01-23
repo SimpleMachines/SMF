@@ -56,7 +56,7 @@ class apc_cache extends cache_api
 		if ($value === null)
 			return apc_delete($key . 'smf');
 		else
-			return apc_store($key . 'smf', $value, $ttl);
+			return apc_store($key . 'smf', $value, $ttl !== null ? $ttl : $this->ttl);
 	}
 
 	/**
