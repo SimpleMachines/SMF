@@ -685,6 +685,8 @@ function ModifyCacheSettings($return_config = false)
 
 	// Detect all available optimizers
 	$detected = loadCacheAPIs();
+	foreach ($detected as $api => $object)
+		$detected[$api] = isset($txt[$api . '_cache']) ? $txt[$api . '_cache'] : $api;
 
 	// set our values to show what, if anything, we found
 	if (empty($detected))
