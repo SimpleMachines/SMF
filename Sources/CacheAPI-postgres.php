@@ -42,17 +42,54 @@ class postgres_cache extends cache_api
 	 */
 	public function connect()
 	{
-		global $db_prefix, $db_connection;
-
-		pg_prepare($db_connection, '', 'SELECT 1
+		$result = pg_query_params($this->db_connection, 'SELECT 1
 			FROM   pg_tables
 			WHERE  schemaname = $1
-			AND    tablename = $2');
-
-		$result = pg_execute($db_connection, '', array('public', $db_prefix . 'cache'));
+			AND    tablename = $2',
+			array(
+				'public',
+				$this->db_prefix . 'cache',
+			)
+		);
 
 		if (pg_affected_rows($result) === 0)
-			pg_query($db_connection, 'CREATE UNLOGGED TABLE ' . $db_prefix . 'cache (key text, value text, ttl bigint, PRIMARY KEY (key))');
+		{
+			pg_query($this->db_connection, 'CREATE UNLOGGED TABLE ' . $this->db_prefix . 'cache (key text, value text, ttl bigint, PRIMARY KEY (key))');
+
+			$this->prepareQuery(
+				'smf_cache_get_data',
+				'SELECT value FROM ' . $this->db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1'
+			);
+			$this->prepareQuery(
+				'smf_cache_put_data',
+				'INSERT INTO ' . $this->db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
+				ON CONFLICT(key) DO UPDATE SET value = $2, ttl = $3'
+			);
+			$this->prepareQuery(
+				'smf_cache_delete_data',
+				'DELETE FROM ' . $this->db_prefix . 'cache WHERE key = $1'
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Stores a prepared SQL statement, ensuring that it's not done twice.
+	 *
+	 * @param string $stmtname
+	 * @param string $query
+	 */
+	private function prepareQuery($stmtname, $query)
+	{
+		$result = pg_query_params(
+			$this->db_connection,
+			'SELECT name FROM pg_prepared_statements WHERE name = $1',
+			array($stmtname)
+		);
+
+		if (pg_num_rows($result) == 0)
+			pg_prepare($this->db_connection, $stmtname, $query);
 	}
 
 	/**
@@ -79,22 +116,7 @@ class postgres_cache extends cache_api
 	 */
 	public function getData($key, $ttl = null)
 	{
-		global $db_prefix, $db_connection, $db_persist;
-
-		$ttl = time() - $ttl;
-
-		if (empty($this->pg_get_data_prep))
-		{
-			if (empty($db_persist))
-				$this->pg_get_data_prep = pg_prepare($db_connection, 'smf_cache_get_data', 'SELECT value FROM ' . $db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1');
-			else
-			{
-				@pg_prepare($db_connection, 'smf_cache_get_data', 'SELECT value FROM ' . $db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1');
-				$this->pg_get_data_prep == true;
-			}
-		}
-
-		$result = pg_execute($db_connection, 'smf_cache_get_data', array($key, $ttl));
+		$result = pg_execute($this->db_connection, 'smf_cache_get_data', array($key, time()));
 
 		if (pg_affected_rows($result) === 0)
 			return null;
@@ -111,33 +133,12 @@ class postgres_cache extends cache_api
 	{
 		$ttl = time() + (int) ($ttl !== null ? $ttl : $this->ttl);
 
-		if (!isset($value))
-			$value = '';
-
-
-		if (empty($this->pg_put_data_prep))
-		{
-			if (empty($db_persist))
-				$this->pg_put_data_prep = pg_prepare($db_connection, 'smf_cache_put_data',
-					'INSERT INTO ' . $db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
-					ON CONFLICT(key) DO UPDATE SET value = excluded.value, ttl = excluded.ttl'
-				);
-			else
-			{
-				@pg_prepare($db_connection, 'smf_cache_put_data',
-					'INSERT INTO ' . $db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
-					ON CONFLICT(key) DO UPDATE SET value = excluded.value, ttl = excluded.ttl'
-				);
-				$this->pg_put_data_prep = true;
-			}
-		}
-
-		$result = pg_execute($db_connection, 'smf_cache_put_data', array($key, $value, $ttl));
-
-		if (pg_affected_rows($result) > 0)
-			return true;
+		if ($value === null)
+			$result = pg_execute($this->db_connection, 'smf_cache_delete_data', array($key));
 		else
-			return false;
+			$result = pg_execute($this->db_connection, 'smf_cache_put_data', array($key, $value, $ttl));
+
+		return pg_affected_rows($result) > 0;
 	}
 
 	/**
