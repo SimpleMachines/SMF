@@ -676,8 +676,8 @@ function cache_getMembergroupList()
 	{
 		$group[$row['id_group']] = $row;
 		$groupCache[$row['id_group']] = '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '" ' . ($row['online_color'] ? 'style="color: ' . $row['online_color'] . '"' : '') . '>' . $row['group_name'] . '</a>';
-	$smcFunc['db_free_result']($request);
 	}
+	$smcFunc['db_free_result']($request);
 
 	call_integration_hook('integrate_getMembergroupList', array(&$groupCache, $group));
 
