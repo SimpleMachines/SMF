@@ -1544,33 +1544,25 @@ function ShowPHPinfoSettings()
  */
 function loadCacheAPIs()
 {
-	global $sourcedir, $txt;
+	global $sourcedir;
 
 	// Make sure our class is in session.
 	require_once($sourcedir . '/Class-CacheAPI.php');
 
 	$apis = array();
-	if ($dh = opendir($sourcedir))
+	$classes = new GlobIterator($sourcedir . '/CacheAPI-*.php', FilesystemIterator::NEW_CURRENT_AND_KEY);
+
+	foreach ($classes as $file => $info)
 	{
-		while (($file = readdir($dh)) !== false)
-		{
-			if (is_file($sourcedir . '/' . $file) && preg_match('~^CacheAPI-([A-Za-z\d_]+)\.php$~', $file, $matches))
-			{
-				$tryCache = strtolower($matches[1]);
+		$tryCache = strtolower(explode('-', $info->getBasename('.php'))[1]);
 
-				require_once($sourcedir . '/' . $file);
-				$cache_class_name = $tryCache . '_cache';
-				$testAPI = new $cache_class_name();
+		require_once($sourcedir . '/' . $file);
+		$cache_class_name = $tryCache . '_cache';
+		$testAPI = new $cache_class_name();
 
-				// No Support?  NEXT!
-				if (!$testAPI->isSupported(true))
-					continue;
-
-				$apis[$tryCache] = isset($txt[$tryCache . '_cache']) ? $txt[$tryCache . '_cache'] : $tryCache;
-			}
-		}
+		if ($testAPI->isSupported(true) && $testAPI->connect())
+			$apis[$tryCache] = $testAPI;
 	}
-	closedir($dh);
 
 	return $apis;
 }
