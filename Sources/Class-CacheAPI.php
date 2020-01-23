@@ -189,7 +189,7 @@ abstract class cache_api implements cache_api_interface
 	 */
 	public function __construct()
 	{
-		$this->setPrefix('');
+		$this->setPrefix();
 	}
 
 	/**
