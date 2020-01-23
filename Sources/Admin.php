@@ -538,6 +538,7 @@ function AdminHome()
 		'db_server',
 		'phpa',
 		'apc',
+		'apcu',
 		'memcache',
 		'xcache',
 		'php',
