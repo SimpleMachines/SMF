@@ -108,12 +108,11 @@ class postgres_cache extends cache_api
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		global $db_prefix, $db_connection, $db_persist;
+		$ttl = time() + (int) ($ttl !== null ? $ttl : $this->ttl);
 
 		if (!isset($value))
 			$value = '';
 
-		$ttl = time() + $ttl;
 
 		if (empty($this->pg_put_data_prep))
 		{

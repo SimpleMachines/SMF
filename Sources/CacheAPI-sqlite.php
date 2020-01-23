@@ -94,7 +94,7 @@ class sqlite_cache extends cache_api
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		$ttl = $this->cacheTime + $ttl;
+		$ttl = time() + (int) ($ttl !== null ? $ttl : $this->ttl);
 		$query = 'REPLACE INTO cache VALUES (\'' . $this->cacheDB->escapeString($key) . '\', \'' . $this->cacheDB->escapeString($value) . '\', ' . $this->cacheDB->escapeString($ttl) . ');';
 		$result = $this->cacheDB->exec($query);
 
