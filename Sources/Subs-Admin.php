@@ -66,11 +66,14 @@ function getServerVersions($checkFor)
 			trigger_error('getServerVersions(): you need to be connected to the database in order to get its server version', E_USER_NOTICE);
 		else
 		{
-			$versions['db_engine'] = array('title' => sprintf($txt['support_versions_db_engine'], $smcFunc['db_title']), 'version' => '');
-			$versions['db_engine']['version'] = $smcFunc['db_get_vendor']();
-
-			$versions['db_server'] = array('title' => sprintf($txt['support_versions_db'], $smcFunc['db_title']), 'version' => '');
-			$versions['db_server']['version'] = $smcFunc['db_get_version']();
+			$versions['db_engine'] = array(
+				'title' => sprintf($txt['support_versions_db_engine'], $smcFunc['db_title']),
+				'version' => $smcFunc['db_get_vendor'](),
+			);
+			$versions['db_server'] = array(
+				'title' => sprintf($txt['support_versions_db'], $smcFunc['db_title']),
+				'version' => $smcFunc['db_get_version'](),
+			);
 		}
 	}
 
@@ -85,10 +88,17 @@ function getServerVersions($checkFor)
 			);
 
 	if (in_array('php', $checkFor))
-		$versions['php'] = array('title' => 'PHP', 'version' => PHP_VERSION, 'more' => '?action=admin;area=serversettings;sa=phpinfo');
+		$versions['php'] = array(
+			'title' => 'PHP',
+			'version' => PHP_VERSION,
+			'more' => '?action=admin;area=serversettings;sa=phpinfo',
+		);
 
 	if (in_array('server', $checkFor))
-		$versions['server'] = array('title' => $txt['support_versions_server'], 'version' => $_SERVER['SERVER_SOFTWARE']);
+		$versions['server'] = array(
+			'title' => $txt['support_versions_server'],
+			'version' => $_SERVER['SERVER_SOFTWARE'],
+		);
 
 	return $versions;
 }
