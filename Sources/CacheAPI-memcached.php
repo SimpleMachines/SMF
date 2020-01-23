@@ -58,22 +58,28 @@ class memcached_cache extends cache_api
 	 */
 	public function connect()
 	{
-		global $cache_memcached;
-
-		$servers = explode(',', $cache_memcached);
-
-		// memcached does not remove servers from the list upon completing the script under modes like FastCGI. So check to see if servers exist or not.
 		$this->memcached = new Memcached;
+
+		return $this->addServers();
+	}
+
+	/**
+	 * Add memcached servers.
+	 *
+	 * Don't add servers if they already exist. Ideal for persistent connections.
+	 *
+	 * @return bool True if there are servers in the daemon, false if not.
+	 */
+	protected function addServers()
+	{
+		// memcached does not remove servers from the list upon completing the
+		// script under modes like FastCGI. So check to see if servers exist or not.
 		$currentServers = $this->memcached->getServerList();
-		foreach ($servers as $server)
+		$retVal = !empty($currentServers);
+		foreach ($this->servers as $server)
 		{
-			if (strpos($server, '/') !== false)
-				$tempServer = array($server, 0);
-			else
-			{
-				$server = explode(':', $server);
-				$tempServer = array($server[0], isset($server[1]) ? $server[1] : 11211);
-			}
+			$tempServer = explode(':', trim($server));
+			$tempServer[1] = !empty($tempServer[1]) ? $tempServer[1] : 11211;
 
 			// Figure out if we have this server or not
 			$foundServer = false;
@@ -88,11 +94,10 @@ class memcached_cache extends cache_api
 
 			// Found it?
 			if (empty($foundServer))
-				$this->memcached->addServer($tempServer[0], $tempServer[1]);
+				$retVal |= $this->memcached->addServer($tempServer[0], $tempServer[1]);
 		}
 
-		// Best guess is this worked.
-		return true;
+		return $retVal;
 	}
 
 	/**
@@ -164,7 +169,7 @@ class memcached_cache extends cache_api
 	 */
 	public function getVersion()
 	{
-		return $this->memcached->getVersion();
+		return current($this->memcached->getVersion());
 	}
 }
 
