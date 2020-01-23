@@ -161,9 +161,7 @@ class postgres_cache extends cache_api
 	 */
 	public function getVersion()
 	{
-		global $smcFunc;
-
-		return $smcFunc['db_server_info']();
+		return pg_version()['server'];
 	}
 
 	/**
