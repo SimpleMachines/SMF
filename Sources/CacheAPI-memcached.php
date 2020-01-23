@@ -33,7 +33,7 @@ class memcached_cache extends cache_api
 	{
 		global $cache_memcached;
 
-		$supported = class_exists('memcached');
+		$supported = class_exists('Memcached');
 
 		if ($test)
 			return $supported;
