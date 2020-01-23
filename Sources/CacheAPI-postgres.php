@@ -21,18 +21,19 @@ if (!defined('SMF'))
  */
 class postgres_cache extends cache_api
 {
-	/**
-	 * @var false|resource of the pg_prepare from get_data.
-	 */
-	private $pg_get_data_prep;
+	/** @var string */
+	private $db_prefix;
 
-	/**
-	 * @var false|resource of the pg_prepare from put_data.
-	 */
-	private $pg_put_data_prep;
+	/** @var resource result of pg_connect. */
+	private $db_connection;
 
 	public function __construct()
 	{
+		global $db_prefix, $db_connection;
+
+		$this->db_prefix = $db_prefix;
+		$this->db_connection = $db_connection;
+
 		parent::__construct();
 	}
 
@@ -59,12 +60,12 @@ class postgres_cache extends cache_api
 	 */
 	public function isSupported($test = false)
 	{
-		global $smcFunc, $db_connection;
+		global $smcFunc;
 
 		if ($smcFunc['db_title'] !== POSTGRE_TITLE)
 			return false;
 
-		$result = pg_query($db_connection, 'SHOW server_version_num');
+		$result = pg_query($this->db_connection, 'SHOW server_version_num');
 		$res = pg_fetch_assoc($result);
 
 		if ($res['server_version_num'] < 90500)
@@ -182,9 +183,7 @@ class postgres_cache extends cache_api
 	 */
 	private function createTempTable()
 	{
-		global $db_connection, $db_prefix;
-
-		pg_query($db_connection, 'CREATE LOCAL TEMP TABLE IF NOT EXISTS ' . $db_prefix . 'cache_tmp AS SELECT * FROM ' . $db_prefix . 'cache WHERE ttl >= ' . time());
+		pg_query($this->db_connection, 'CREATE LOCAL TEMP TABLE IF NOT EXISTS ' . $this->db_prefix . 'cache_tmp AS SELECT * FROM ' . $this->db_prefix . 'cache WHERE ttl >= ' . time());
 	}
 
 	/**
@@ -194,9 +193,7 @@ class postgres_cache extends cache_api
 	 */
 	private function deleteTempTable()
 	{
-		global $db_connection, $db_prefix;
-
-		pg_query($db_connection, 'DROP TABLE IF EXISTS ' . $db_prefix . 'cache_tmp');
+		pg_query($this->db_connection, 'DROP TABLE IF EXISTS ' . $this->db_prefix . 'cache_tmp');
 	}
 
 	/**
@@ -206,9 +203,7 @@ class postgres_cache extends cache_api
 	 */
 	private function retrieveData()
 	{
-		global $db_connection, $db_prefix;
-
-		pg_query($db_connection, 'INSERT INTO ' . $db_prefix . 'cache SELECT * FROM ' . $db_prefix . 'cache_tmp ON CONFLICT DO NOTHING');
+		pg_query($this->db_connection, 'INSERT INTO ' . $this->db_prefix . 'cache SELECT * FROM ' . $this->db_prefix . 'cache_tmp ON CONFLICT DO NOTHING');
 	}
 }
 
