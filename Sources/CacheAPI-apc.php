@@ -40,7 +40,9 @@ class apc_cache extends cache_api
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
-		return apc_fetch($key . 'smf');
+		$value = apc_fetch($key . 'smf');
+
+		return !empty($value) ? $value : null;
 	}
 
 	/**

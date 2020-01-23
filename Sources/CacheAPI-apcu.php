@@ -40,7 +40,9 @@ class apcu_cache extends cache_api
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
-		return apcu_fetch($key . 'smf');
+		$value = apcu_fetch($key . 'smf');
+
+		return !empty($value) ? $value : null;
 	}
 
 	/**
