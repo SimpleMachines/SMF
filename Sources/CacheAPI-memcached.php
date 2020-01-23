@@ -21,10 +21,23 @@ if (!defined('SMF'))
  */
 class memcached_cache extends cache_api
 {
-	/**
-	 * @var \Memcached The memcache instance.
-	 */
+	/** @var Memcached The memcache instance. */
 	private $memcached = null;
+
+	/** @var string[] */
+	private $servers;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function __construct()
+	{
+		global $cache_memcached;
+
+		$this->servers = explode(',', $cache_memcached);
+
+		parent::__construct();
+	}
 
 	/**
 	 * {@inheritDoc}
