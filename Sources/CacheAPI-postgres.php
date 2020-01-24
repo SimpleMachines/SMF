@@ -53,23 +53,21 @@ class postgres_cache extends cache_api
 		);
 
 		if (pg_affected_rows($result) === 0)
-		{
 			pg_query($this->db_connection, 'CREATE UNLOGGED TABLE ' . $this->db_prefix . 'cache (key text, value text, ttl bigint, PRIMARY KEY (key))');
 
-			$this->prepareQuery(
-				'smf_cache_get_data',
-				'SELECT value FROM ' . $this->db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1'
-			);
-			$this->prepareQuery(
-				'smf_cache_put_data',
-				'INSERT INTO ' . $this->db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
-				ON CONFLICT(key) DO UPDATE SET value = $2, ttl = $3'
-			);
-			$this->prepareQuery(
-				'smf_cache_delete_data',
-				'DELETE FROM ' . $this->db_prefix . 'cache WHERE key = $1'
-			);
-		}
+		$this->prepareQuery(
+			'smf_cache_get_data',
+			'SELECT value FROM ' . $this->db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1'
+		);
+		$this->prepareQuery(
+			'smf_cache_put_data',
+			'INSERT INTO ' . $this->db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
+			ON CONFLICT(key) DO UPDATE SET value = $2, ttl = $3'
+		);
+		$this->prepareQuery(
+			'smf_cache_delete_data',
+			'DELETE FROM ' . $this->db_prefix . 'cache WHERE key = $1'
+		);
 
 		return true;
 	}
