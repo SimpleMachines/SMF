@@ -34,7 +34,16 @@ class memcached_cache extends cache_api
 	{
 		global $cache_memcached;
 
-		$this->servers = explode(',', $cache_memcached);
+		$this->servers = array_map(
+			function($server)
+			{
+				if (strpos($server, '/') !== false)
+					return array($server, 0);
+				else
+					return array($server, isset($server[1]) ? $server[1] : 11211);
+			},
+			explode(',', $cache_memcached)
+		);
 
 		parent::__construct();
 	}
@@ -78,14 +87,11 @@ class memcached_cache extends cache_api
 		$retVal = !empty($currentServers);
 		foreach ($this->servers as $server)
 		{
-			$tempServer = explode(':', trim($server));
-			$tempServer[1] = !empty($tempServer[1]) ? $tempServer[1] : 11211;
-
 			// Figure out if we have this server or not
 			$foundServer = false;
 			foreach ($currentServers as $currentServer)
 			{
-				if ($tempServer[0] == $currentServer['host'] && $tempServer[1] == $currentServer['port'])
+				if ($server[0] == $currentServer['host'] && $server[1] == $currentServer['port'])
 				{
 					$foundServer = true;
 					break;
@@ -94,7 +100,7 @@ class memcached_cache extends cache_api
 
 			// Found it?
 			if (empty($foundServer))
-				$retVal |= $this->memcached->addServer($tempServer[0], $tempServer[1]);
+				$retVal |= $this->memcached->addServer($server[0], $server[1]);
 		}
 
 		return $retVal;
