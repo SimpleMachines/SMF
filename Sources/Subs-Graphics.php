@@ -760,14 +760,14 @@ if (!function_exists('imagecreatefrombmp'))
 /**
  * Writes a gif file to disk as a png file.
  *
- * @param resource $gif A gif image resource
+ * @param gif_file $gif A gif image resource
  * @param string $lpszFileName The name of the file
  * @param int $background_color The background color
- * @return boolean Whether the operation was successful
+ * @return bool Whether the operation was successful
  */
-function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
+function gif_outputAsPng(gif_file $gif, $lpszFileName, $background_color = -1)
 {
-	if (!isset($gif) || @get_class($gif) != 'cgif' || !$gif->loaded || $lpszFileName == '')
+	if (!isset($gif) || !$gif->loaded || $lpszFileName == '')
 		return false;
 
 	$fd = $gif->get_png_data($background_color);
