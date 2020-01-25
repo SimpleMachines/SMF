@@ -582,11 +582,11 @@ function AdminHome()
  */
 function DisplayAdminFile()
 {
-	global $context, $modSettings, $smcFunc;
+	global $context, $modSettings, $smcFunc, $user_info;
 
 	setMemoryLimit('32M');
 
-	if (empty($_REQUEST['filename']) || !is_string($_REQUEST['filename']))
+	if (empty($_REQUEST['filename']) || !is_string($_REQUEST['filename']) || empty($user_info['is_admin']))
 		fatal_lang_error('no_access', false);
 
 	// Strip off the forum cache part or we won't find it...
