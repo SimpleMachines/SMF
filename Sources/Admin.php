@@ -962,5 +962,4 @@ function AdminEndSession()
 
 	redirectexit();
 }
-
 ?>
