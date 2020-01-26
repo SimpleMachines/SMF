@@ -301,11 +301,10 @@ function getFileVersions(&$versionOptions)
  */
 function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 {
-	global $context, $utf8;
+	// In this function we intentionally don't declare any global variables.
+	// This allows us to work with everything cleanly.
 
-	// If this function is called more than once, we need to keep track of everything
-	// so that the second call doesn't clobber the changes from the first call.
-	static $prev_config_vars = array();
+	static $mtime;
 
 	// Should we try to unescape the strings?
 	if (empty($keep_quotes))
@@ -329,6 +328,12 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		$config_vars['db_last_error'] = 0;
 	}
 
+	// Rebuilding should not be undertaken lightly, so we're picky about the parameter.
+	if (!is_bool($rebuild))
+		$rebuild = false;
+
+	$mtime = isset($mtime) ? (int) $mtime : (defined('TIME_START') ? TIME_START : $_SERVER['REQUEST_TIME']);
+
 	/*****************
 	 * PART 1: Setup *
 	 *****************/
@@ -345,12 +350,22 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	// When was Settings.php last changed?
 	$last_settings_change = filemtime($settingsFile);
 
-	// Do we already have some values we are supposed to use?
-	$config_vars = array_merge($prev_config_vars, $config_vars);
+	// Get the current values of everything in Settings.php.
+	$settings_vars = get_current_settings($mtime, $settingsFile);
 
-	// Help for the upgrader.
-	if (!isset($context['utf8']) && isset($utf8))
-		$context['utf8'] = $utf8;
+	// If Settings.php is empty for some reason, see if we can use the backup.
+	if (empty($settings_vars) && file_exists(dirname($settingsFile) . '/Settings_bak.php'))
+		$settings_vars = get_current_settings($mtime, dirname($settingsFile) . '/Settings_bak.php');
+
+	// False means there was a problem with the file and we can't safely continue.
+	if ($settings_vars === false)
+		return false;
+
+	// It works best to set everything afresh.
+	$new_settings_vars = array_merge($settings_vars, $config_vars);
+
+	// Are we using UTF-8?
+	$utf8 = isset($GLOBALS['context']['utf8']) ? $GLOBALS['context']['utf8'] : (isset($GLOBALS['utf8']) ? $GLOBALS['utf8'] : (isset($settings_vars['db_character_set']) ? $settings_vars['db_character_set'] === 'utf8' : false));
 
 	/*
 	 * A big, fat array to define properties of all the Settings.php variables.
@@ -865,109 +880,22 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	if (function_exists('call_integration_hook'))
 		call_integration_hook('integrate_update_settings_file', array(&$settings_defs));
 
-	// Make sure we have values for everything we need.
-	foreach ($settings_defs as $var => $setting_def)
-	{
-		if (isset($setting_def['search_pattern']) && isset($setting_def['text']))
-			$settings_defs[$var]['search_pattern'] = str_replace('{{LAST_TEXT_LINE}}', preg_quote(trim(substr($setting_def['text'], strrpos($setting_def['text'], "\n"))), '~'), $setting_def['search_pattern']);
-
-		if (is_int($var))
-			continue;
-
-		// This might seem counterintuitive, but it makes sure we delete what we ought to.
-		if (!empty($setting_def['auto_delete']) && empty($config_vars[$var]) && empty($GLOBALS[$var]) && in_array($var, array_keys($GLOBALS)))
-			$config_vars[$var] = $setting_def['default'];
-
-		if (!in_array($var, array_keys($config_vars)))
-		{
-			// If a defined setting is missing from the file, we need to fix that ASAP.
-			if (!in_array($var, array_keys($GLOBALS)))
-			{
-				// Abort if these ones don't have real values (unless we're installing).
-				if (!empty($setting_def['required']) && !defined('SMF_INSTALLING'))
-					return false;
-
-				$config_vars[$var] = $setting_def['default'];
-			}
-
-			// If we're rebuilding, we want (almost) all of them.
-			elseif (!empty($rebuild) && (!isset($setting_def['auto_delete']) || !empty($GLOBALS[$var])))
-				$config_vars[$var] = $GLOBALS[$var];
-
-			// Otherwise, just leave this one alone.
-			else
-				unset($settings_defs[$var]);
-		}
-		else
-		{
-			// Objects without a __set_state method need a fallback.
-			if (is_object($config_vars[$var]) && !method_exists($config_vars[$var], '__set_state'))
-			{
-				if (method_exists($config_vars[$var], '__toString'))
-					$config_vars[$var] = (string) $config_vars[$var];
-				else
-					$config_vars[$var] = (array) $config_vars[$var];
-			}
-
-			// Normalize the type if necessary.
-			if (isset($setting_def['type']))
-			{
-				$expected_types = (array) $setting_def['type'];
-				$var_type = gettype($config_vars[$var]);
-
-				// Variable is not of an expected type.
-				if (!in_array($var_type, $expected_types))
-				{
-					// Passed in an unexpected array.
-					if ($var_type == 'array')
-					{
-						$temp = reset($config_vars[$var]);
-
-						// Use the first element if there's only one and it is a scalar.
-						if (count($config_vars[$var]) === 1 && is_scalar($temp))
-							$config_vars[$var] = $temp;
-
-						// Otherwise, we can't do anything useful with it.
-						else
-						{
-							unset($config_vars[$var]);
-							continue;
-						}
-					}
-
-					// Cast it to whatever type was expected.
-					// Note: the order of the types in this loop matters.
-					foreach (array('boolean', 'integer', 'double', 'string', 'array') as $to_type)
-					{
-						if (in_array($to_type, $expected_types))
-						{
-							settype($config_vars[$var], $to_type);
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// Remember for later, in case this function is called again.
-	$prev_config_vars = array_merge($prev_config_vars, $config_vars);
-
-	/******************************
-	 * PART 2: Content processing *
-	 ******************************/
+	/*******************************
+	 * PART 2: Build substitutions *
+	 *******************************/
 
 	$type_regex = array(
 		'string' =>
-			# If the string starts with a single or double quotation mark
-			'(?(?=["\'])' .
-				# match the opening quotation mark...
+			'(?:' .
+				// match the opening quotation mark...
 				'(["\'])' .
-				# then any number of other characters or escaped quotation marks...
-				'(?:[^\\1]|(?<=\\\)\\1)*?' .
-				# then the closing quotation mark.
+				// then any number of other characters or escaped quotation marks...
+				'(?:.(?!\\1)|\\\(?=\\1))*.?' .
+				// then the closing quotation mark.
 				'\\1' .
-			')',
+				// Maybe there's a second string concatenated to this one.
+				'(?:\s*\.\s*)*' .
+			')+',
 		// Some numeric values might have been stored as strings.
 		'integer' =>  '["\']?[+-]?\d+["\']?',
 		'double' =>  '["\']?[+-]?\d+\.\d+([Ee][+-]\d+)?["\']?',
@@ -980,8 +908,6 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	);
 
 	/*
-	 * Time to build our new Settings.php!
-	 *
 	 * The substitutions take place in one of two ways:
 	 *
 	 *  1: The search_pattern regex finds a string in Settings.php, which is
@@ -995,7 +921,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	 *     regex finds where to insert the final replacement string that we
 	 *     want to use. This method is for special cases.
 	 */
-	$prefix = mt_rand() . '-';
+	$prefix = ''; //mt_rand() . '-';
 	$neg_index = -1;
 	$substitutions = array(
 		$neg_index-- => array(
@@ -1020,6 +946,15 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	{
 		$placeholder = md5($prefix . $var);
 		$replacement = '';
+
+		if (isset($setting_def['search_pattern']) && isset($setting_def['text']))
+			$setting_def['search_pattern'] = strtr(
+				$setting_def['search_pattern'],
+				array(
+					'{{LAST_TEXT_LINE}}' => preg_quote(trim(substr($setting_def['text'], strrpos(rtrim($setting_def['text']), "\n"))), '~'),
+					'{{FIRST_TEXT_LINE}}' => preg_quote(trim(substr($setting_def['text'], 0, strpos(ltrim($setting_def['text']), "\n"))), '~'),
+				)
+			);
 
 		if (!empty($setting_def['text']))
 		{
@@ -1061,25 +996,103 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 
 		if (is_string($var))
 		{
-			// First, create the search pattern.
+			// Ensure the value is good.
+			if (in_array($var, array_keys($new_settings_vars)))
+			{
+				// Objects without a __set_state method need a fallback.
+				if (is_object($new_settings_vars[$var]) && !method_exists($new_settings_vars[$var], '__set_state'))
+				{
+					if (method_exists($new_settings_vars[$var], '__toString'))
+						$new_settings_vars[$var] = (string) $new_settings_vars[$var];
+					else
+						$new_settings_vars[$var] = (array) $new_settings_vars[$var];
+				}
+
+				// Normalize the type if necessary.
+				if (isset($setting_def['type']))
+				{
+					$expected_types = (array) $setting_def['type'];
+					$var_type = gettype($new_settings_vars[$var]);
+
+					// Variable is not of an expected type.
+					if (!in_array($var_type, $expected_types))
+					{
+						// Passed in an unexpected array.
+						if ($var_type == 'array')
+						{
+							$temp = reset($new_settings_vars[$var]);
+
+							// Use the first element if there's only one and it is a scalar.
+							if (count($new_settings_vars[$var]) === 1 && is_scalar($temp))
+								$new_settings_vars[$var] = $temp;
+
+							// Or keep the old value, if that is good.
+							elseif (isset($settings_vars[$var]) && in_array(gettype($settings_vars[$var]), $expected_types))
+								$new_settings_vars[$var] = $settings_vars[$var];
+
+							// Fall back to the default
+							else
+								$new_settings_vars[$var] = $setting_def['default'];
+						}
+
+						// Cast it to whatever type was expected.
+						// Note: the order of the types in this loop matters.
+						foreach (array('boolean', 'integer', 'double', 'string', 'array') as $to_type)
+						{
+							if (in_array($to_type, $expected_types))
+							{
+								settype($new_settings_vars[$var], $to_type);
+								break;
+							}
+						}
+					}
+				}
+			}
+			// Abort if a required one is undefined (unless we're installing).
+			elseif (!empty($setting_def['required']) && !defined('SMF_INSTALLING'))
+				return false;
+
+			// Create the search pattern.
 			if (!empty($setting_def['search_pattern']))
 				$substitutions[$var]['search_pattern'] = $setting_def['search_pattern'];
 			else
 			{
 				$var_pattern = array();
 
-				$cv_type = gettype($config_vars[$var]);
-				$var_pattern[] = $type_regex[$cv_type];
-
-				if (in_array($var, array_keys($GLOBALS)))
+				if (isset($setting_def['type']))
 				{
-					$gv_type = gettype($GLOBALS[$var]);
-					if ($cv_type !== $gv_type && isset($type_regex[$gv_type]))
-						$var_pattern[] = $type_regex[$gv_type];
+					foreach ((array) $setting_def['type'] as $type)
+						$var_pattern[] = $type_regex[$type];
+				}
+
+				if (in_array($var, array_keys($config_vars)))
+				{
+					$var_pattern[] = @$type_regex[gettype($config_vars[$var])];
+
+					if (is_string($config_vars[$var]) && strpos($config_vars[$var], dirname($settingsFile)) === 0)
+						$var_pattern[] = '(?:__DIR__|dirname\(__FILE__\)) . \'' . (str_replace(dirname($settingsFile), '', $config_vars[$var])) . '\'';
+				}
+
+				if (in_array($var, array_keys($settings_vars)))
+				{
+					$var_pattern[] = @$type_regex[gettype($settings_vars[$var])];
+
+					if (is_string($settings_vars[$var]) && strpos($settings_vars[$var], dirname($settingsFile)) === 0)
+						$var_pattern[] = '(?:__DIR__|dirname\(__FILE__\)) . \'' . (str_replace(dirname($settingsFile), '', $settings_vars[$var])) . '\'';
 				}
 
 				if (!empty($setting_def['raw_default']) && $setting_def['default'] !== '')
+				{
 					$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote($setting_def['default'], '~'));
+
+					if (strpos($setting_def['default'], 'dirname(__FILE__)') !== false)
+						$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote(str_replace('dirname(__FILE__)', '__DIR__', $setting_def['default']), '~'));
+
+					if (strpos($setting_def['default'], '__DIR__') !== false)
+						$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote(str_replace('__DIR__', 'dirname(__FILE__)', $setting_def['default']), '~'));
+				}
+
+				$var_pattern = array_unique($var_pattern);
 
 				$var_pattern = count($var_pattern) > 1 ? '(?:' . (implode('|', $var_pattern)) . ')' : $var_pattern[0];
 
@@ -1094,17 +1107,24 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 
 			// Now create the replacement.
 			// A setting to delete.
-			if (!empty($setting_def['auto_delete']) && empty($config_vars[$var]))
+			if (!empty($setting_def['auto_delete']) && empty($new_settings_vars[$var]))
 			{
-				$replacement = '';
+				if ($setting_def['auto_delete'] === 2 && empty($rebuild) && in_array($var, array_keys($new_settings_vars)))
+				{
+					$replacement .= '$' . $var . ' = ' . ($new_settings_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($new_settings_vars[$var]) : smf_var_export($new_settings_vars[$var], true)) . ";";
+				}
+				else
+				{
+					$replacement = '';
 
-				// This is just for cosmetic purposes. Removes the blank line.
-				$substitutions[$var]['search_pattern'] = str_replace('(?<=^|\s)', '\n?', $substitutions[$var]['search_pattern']);
+					// This is just for cosmetic purposes. Removes the blank line.
+					$substitutions[$var]['search_pattern'] = str_replace('(?<=^|\s)', '\n?', $substitutions[$var]['search_pattern']);
+				}
 			}
 			// Add this setting's value.
-			elseif (in_array($var, array_keys($config_vars)))
+			elseif (in_array($var, array_keys($new_settings_vars)))
 			{
-				$replacement .= '$' . $var . ' = ' . ($config_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($config_vars[$var]) : smf_var_export($config_vars[$var], true)) . ";";
+				$replacement .= '$' . $var . ' = ' . ($new_settings_vars[$var] === $setting_def['default'] && !empty($setting_def['raw_default']) ? sprintf($new_settings_vars[$var]) : smf_var_export($new_settings_vars[$var], true)) . ";";
 			}
 			// Fall back to the default value.
 			elseif (isset($setting_def['default']))
@@ -1119,23 +1139,21 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		$substitutions[$var]['replacement'] = $replacement;
 
 		// We're done with this one.
-		unset($config_vars[$var]);
+		unset($new_settings_vars[$var]);
 	}
 
 	// Any leftovers to deal with?
-	foreach ($config_vars as $var => $val)
+	foreach ($new_settings_vars as $var => $val)
 	{
 		$var_pattern = array();
 
-		$cv_type = gettype($config_vars[$var]);
-		$var_pattern[] = $type_regex[$cv_type];
+		if (in_array($var, array_keys($config_vars)))
+			$var_pattern[] = $type_regex[gettype($config_vars[$var])];
 
-		if (in_array($var, array_keys($GLOBALS)))
-		{
-			$gv_type = gettype($GLOBALS[$var]);
-			if ($cv_type !== $gv_type && isset($type_regex[$gv_type]))
-				$var_pattern[] = $type_regex[$gv_type];
-		}
+		if (in_array($var, array_keys($settings_vars)))
+			$var_pattern[] = $type_regex[gettype($settings_vars[$var])];
+
+		$var_pattern = array_unique($var_pattern);
 
 		$var_pattern = count($var_pattern) > 1 ? '(?:' . (implode('|', $var_pattern)) . ')' : $var_pattern[0];
 
@@ -1158,18 +1176,24 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			return strcasecmp($b, $a);
 	});
 
-	// Retrieve the contents of Settings.php and normalize the line endings.
-	$settingsText = strtr(file_get_contents($settingsFile), array("\r\n" => "\n", "\r" => "\n"));
+	/******************************
+	 * PART 3: Content processing *
+	 ******************************/
 
-	// If Settings.php is empty for some reason, see if we can recover.
-	if (trim($settingsText) == '')
+	/* 3.a: Get the content of Settings.php and make sure it is good. */
+
+	// Retrieve the contents of Settings.php and normalize the line endings.
+	$settingsText = trim(strtr(file_get_contents($settingsFile), array("\r\n" => "\n", "\r" => "\n")));
+
+	// If Settings.php is empty or corrupt for some reason, see if we can recover.
+	if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php')
 	{
 		// Try restoring from the backup.
 		if (file_exists(dirname($settingsFile) . '/Settings_bak.php'))
 			$settingsText = strtr(file_get_contents(dirname($settingsFile) . '/Settings_bak.php'), array("\r\n" => "\n", "\r" => "\n"));
 
-		// Backup is bad too? We have no choice but to create one from scratch.
-		if (trim($settingsText) == '')
+		// Backup is bad too? Our only option is to create one from scratch.
+		if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php' || substr($settingsText, -2) !== '?' . '>')
 		{
 			$settingsText = '<' . "?php\n";
 			foreach ($settings_defs as $var => $setting_def)
@@ -1198,11 +1222,11 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		$settingsText = strtr($settingsText, $heredoc_replacements);
 	}
 
-	// For comparison purposes, we also need a version stripped of ALL comments.
-	$bare_settingsText = strip_php_comments($settingsText);
+	/* 3.b: Loop through all our substitutions to insert placeholders, etc. */
 
-	// Loop through all our substitutions to insert placeholders, etc.
 	$last_var = null;
+	$bare_settingsText = $settingsText;
+	$force_before_pathcode = array();
 	foreach ($substitutions as $var => $substitution)
 	{
 		$placeholders[$var] = $substitution['placeholder'];
@@ -1217,76 +1241,104 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			$replace_strings[$var] = $substitution['replacement'];
 		}
 
-		// We need to redo $bare_settingsText once the code block placeholders are done.
-		if (is_int($last_var) && is_string($var))
-			$bare_settingsText = strip_php_comments($settingsText);
+		if (strpos($substitutions[$pathcode_var]['replacement'], '$' . $var . ' = ') !== false)
+			$force_before_pathcode[] = $var;
 
 		// Look before you leap.
 		preg_match_all($substitution['search_pattern'], $bare_settingsText, $matches);
 
-		// More than one instance of the variable = not good.
-		if (is_string($var) && count($matches[0]) > 1)
+		if (is_string($var) && count($matches[0]) !== 1 && $substitution['replacement'] !== '')
 		{
-			// Maybe we can try something more interesting?
-			$sp = substr($substitution['search_pattern'], 1);
-
-			if (strpos($sp, '^') === 0 || strpos($sp, '(?<') === 0)
-				return false;
-
-			// See if we can exclude `if` blocks, etc., to narrow down the matches.
-			preg_match_all('~[;}]\s*' . (strpos($sp, '\K') === false ? '\K' : '') . $sp, $bare_settingsText, $matches);
-
-			// Hooray!
-			if (count($matches[0]) == 1)
-				$settingsText = preg_replace('~[;}]\s*' . (strpos($sp, '\K') === false ? '\K' : '') . $sp, $substitution['placeholder'], $settingsText);
-
-			// Booooo!
-			else
+			// More than one instance of the variable = not good.
+			if (count($matches[0]) > 1)
 			{
-				// Skip this one but do the rest.
-				if (count($prev_config_vars) > 1)
-					continue;
-				// Sadness and woe.
-				else
+				// Maybe we can try something more interesting?
+				$sp = substr($substitution['search_pattern'], 1);
+
+				if (strpos($sp, '(?<=^|\s)') === 0)
+					$sp = substr($sp, 9);
+
+				if (strpos($sp, '^') === 0 || strpos($sp, '(?<') === 0)
 					return false;
+
+				// See if we can exclude `if` blocks, etc., to narrow down the matches.
+				preg_match_all('~[;}]\s*' . (strpos($sp, '\K') === false ? '\K' : '') . $sp, $bare_settingsText, $matches);
+
+				// Hooray!
+				if (count($matches[0]) == 1)
+					$settingsText = preg_replace('~[;}]\s*' . (strpos($sp, '\K') === false ? '\K' : '') . $sp, $substitution['placeholder'], $settingsText);
+
+				// Booooo!
+				else
+					continue;
 			}
-		}
-		// No matches found? Check if the value changed type.
-		elseif (is_string($var) && count($matches[0]) < 1)
-		{
-			// First, is it even worth trying again?
-			if (!in_array($var, array_keys($config_vars)) || !preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*~', $settingsText))
-				continue;
-
-			foreach (array('scalar', 'object', 'array') as $type)
+			// No matches found.
+			elseif (count($matches[0]) === 0)
 			{
-				// Try all the other scalar types first.
-				if ($type == 'scalar')
-					$sp = '(?:' . (implode('|', array_diff_key($type_regex, array(gettype($config_vars[$var]) => '', 'array' => '', 'object' => '')))) . ')';
+				$found = false;
+				$in_c = in_array($var, array_keys($config_vars));
+				$in_s = in_array($var, array_keys($settings_vars));
 
-				// Maybe it's an object? (Probably not, but we should check.)
-				elseif ($type == 'object')
+				// Is it in there at all?
+				if (!preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*~', $bare_settingsText))
 				{
-					if (strpos($settingsText, '__set_state') === false)
-						continue;
+					// It's defined by Settings.php, but not by code in the file.
+					// Probably done via an include or something. Skip it.
+					if ($in_s)
+						unset($substitutions[$var], $settings_defs[$var]);
 
-					$sp = $type_regex['object'];
+					// Admin is explicitly trying to set this one, so we'll handle
+					// it as if it were a new custom setting being added.
+					elseif ($in_c)
+						$new_settings_vars[$var] = $config_vars[$var];
+
+					continue;
 				}
 
-				// Maybe it's an array?
-				else
-					$sp = $type_regex['array'];
-
-				if (preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*' . $sp . '~', $bare_settingsText))
+				// It's in there somewhere, so check if the value changed type.
+				foreach (array('scalar', 'object', 'array') as $type)
 				{
-					$settingsText = preg_replace('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*' . $sp . '~', $substitution['placeholder'], $settingsText);
-					break;
+					// Try all the other scalar types first.
+					if ($type == 'scalar')
+						$sp = '(?:' . (implode('|', array_diff_key($type_regex, array(gettype($in_c ? $config_vars[$var] : $settings_vars[$var]) => '', 'array' => '', 'object' => '')))) . ')';
+
+					// Maybe it's an object? (Probably not, but we should check.)
+					elseif ($type == 'object')
+					{
+						if (strpos($settingsText, '__set_state') === false)
+							continue;
+
+						$sp = $type_regex['object'];
+					}
+
+					// Maybe it's an array?
+					else
+						$sp = $type_regex['array'];
+
+					if (preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*' . $sp . '~', $bare_settingsText, $derp))
+					{
+						$settingsText = preg_replace('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*' . $sp . '~', $substitution['placeholder'], $settingsText);
+						$found = true;
+						break;
+					}
+				}
+
+				// Something weird is going on. Better just leave it alone.
+				if (!$found)
+				{
+					// $var? What $var? Never heard of it.
+					unset($substitutions[$var], $new_settings_vars[$var], $settings_defs[$var], $simple_replacements[$substitution['placeholder']], $replace_patterns[$var], $replace_strings[$var]);
+					continue;
 				}
 			}
 		}
 		// Good to go, so insert our placeholder.
 		else
 			$settingsText = preg_replace($substitution['search_pattern'], $substitution['placeholder'], $settingsText);
+
+		// Once the code blocks are done, we want to compare to a version without comments.
+		if (is_int($last_var) && is_string($var))
+			$bare_settingsText = strip_php_comments($settingsText);
 
 		$last_var = $var;
 	}
@@ -1310,7 +1362,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		// Fix up whitespace to make comparison easier.
 		foreach ($placeholders as $placeholder)
 		{
-			$bare_settingsText = str_replace(array($placeholder, $placeholder . "\n\n"), $placeholder . "\n", $bare_settingsText);
+			$bare_settingsText = str_replace(array($placeholder . "\n\n", $placeholder), $placeholder . "\n", $bare_settingsText);
 		}
 		$bare_settingsText = preg_replace('/\h+$/m', '', rtrim($bare_settingsText));
 
@@ -1321,13 +1373,14 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		 * each section, however, we'll reorganize the content to match the
 		 * default layout as closely as we can.
 		 */
-		$sections = array(0 => array());
+		$sections = array(array());
 		$section_num = 0;
 		$trimmed_placeholders = array_filter(array_map('trim', $placeholders));
 		$newsection_placeholders = array();
+		$all_custom_content = '';
 		foreach ($substitutions as $var => $substitution)
 		{
-			if (is_int($var) && ($var === -2 || $var > 0) && isset($trimmed_placeholders[$var]))
+			if (is_int($var) && ($var === -2 || $var > 0) && isset($trimmed_placeholders[$var]) && strpos($bare_settingsText, $trimmed_placeholders[$var]) !== false)
 				$newsection_placeholders[$var] = $trimmed_placeholders[$var];
 		}
 		foreach (preg_split('~(?<=' . implode('|', $trimmed_placeholders) . ')|(?=' . implode('|', $trimmed_placeholders) . ')~', $bare_settingsText) as $part)
@@ -1351,6 +1404,9 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				$sections[$section_num][] = $part;
 
 				++$section_num;
+
+				if (!in_array($part, $trimmed_placeholders))
+					$all_custom_content .= "\n" . $part;
 			}
 		}
 
@@ -1360,41 +1416,51 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		$sectionkeys = array_keys($sections);
 		foreach ($sections as $sectionkey => $section)
 		{
-			// Custom content and lone placeholders.
-			if (count($section) === 1)
+			// Custom content needs to be preserved.
+			if (count($section) === 1 && !in_array($section[0], $trimmed_placeholders))
 			{
-				// Lone placeholders can simply be appended.
-				if (in_array($section[0], $trimmed_placeholders))
-				{
-					$new_settingsText .= "\n" . $section[0];
-					$done_defs[] = array_search($section[0], $trimmed_placeholders);
-				}
-				// Custom content needs to be preserved.
-				else
-				{
-					$prev_section_end = $sectionkey < 1 ? 0 : strpos($settingsText, end($sections[$sectionkey - 1])) + strlen(end($sections[$sectionkey - 1]));
-					$next_section_start = $sectionkey == end($sectionkeys) ? strlen($settingsText) : strpos($settingsText, $sections[$sectionkey + 1][0]);
+				$prev_section_end = $sectionkey < 1 ? 0 : strpos($settingsText, end($sections[$sectionkey - 1])) + strlen(end($sections[$sectionkey - 1]));
+				$next_section_start = $sectionkey == end($sectionkeys) ? strlen($settingsText) : strpos($settingsText, $sections[$sectionkey + 1][0]);
 
-					$new_settingsText .= "\n" . substr($settingsText, $prev_section_end, $next_section_start - $prev_section_end) . "\n";
-				}
+				$new_settingsText .= "\n" . substr($settingsText, $prev_section_end, $next_section_start - $prev_section_end) . "\n";
 			}
 			// Put the placeholders in this section into canonical order.
 			else
 			{
+				$section_parts = array_flip($section);
+				$pathcode_reached = false;
 				foreach ($settings_defs as $var => $setting_def)
 				{
-					if (isset($newsection_placeholders[$var]) && !in_array($var, $done_defs))
+					if ($var === $pathcode_var)
+						$pathcode_reached = true;
+
+					// Already did this setting, so move on to the next.
+					if (in_array($var, $done_defs))
+						continue;
+
+					// Stop when we hit a setting definition that will start a later section.
+					if (isset($newsection_placeholders[$var]) && count($section) !== 1)
+						break;
+
+					// Stop when everything in this section is done, unless it's the last.
+					// This helps maintain the relative position of any custom content.
+					if (empty($section_parts) && $sectionkey < (count($sections) - 1))
 						break;
 
 					$p = trim($substitutions[$var]['placeholder']);
 
+					// Can't do anything with an empty placeholder.
+					if ($p === '')
+						continue;
+
 					// Does this need to be inserted before the path correction code?
-					if (strpos($new_settingsText, trim($substitutions[$pathcode_var]['placeholder'])) !== false && !in_array($var, $done_defs) && strpos($substitutions[$pathcode_var]['replacement'], '$' . $var . ' = ') !== false)
+					if (strpos($new_settingsText, trim($substitutions[$pathcode_var]['placeholder'])) !== false && in_array($var, $force_before_pathcode))
 					{
 						$new_settingsText = strtr($new_settingsText, array($substitutions[$pathcode_var]['placeholder'] => $p . "\n" . $substitutions[$pathcode_var]['placeholder']));
 
 						$bare_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 						$done_defs[] = $var;
+						unset($section_parts[trim($substitutions[$var]['placeholder'])]);
 					}
 
 					// If it's in this section, add it to the new text now.
@@ -1402,14 +1468,29 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 					{
 						$new_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 						$done_defs[] = $var;
+						unset($section_parts[trim($substitutions[$var]['placeholder'])]);
+					}
+
+					// Perhaps it is safe to reposition it anyway.
+					elseif (is_string($var) && strpos($new_settingsText, $p) === false && strpos($all_custom_content, '$' . $var) === false)
+					{
+						$new_settingsText .= "\n" . $substitutions[$var]['placeholder'];
+						$done_defs[] = $var;
+						unset($section_parts[trim($substitutions[$var]['placeholder'])]);
 					}
 
 					// If this setting is missing entirely, fix it.
-					elseif ($p !== '' && strpos($bare_settingsText, $p) === false)
+					elseif (strpos($bare_settingsText, $p) === false)
 					{
+						// Special case if the path code is missing. Put it near the end,
+						// and also anything else that is missing that normally follows it.
+						if (!isset($newsection_placeholders[$pathcode_var]) && $pathcode_reached === true && $sectionkey < (count($sections) - 1))
+							break;
+
 						$new_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 						$bare_settingsText .= "\n" . $substitutions[$var]['placeholder'];
 						$done_defs[] = $var;
+						unset($section_parts[trim($substitutions[$var]['placeholder'])]);
 					}
 				}
 			}
@@ -1425,6 +1506,27 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			}
 		}
 	}
+	// Even if not rebuilding, there are a few variables that may need to be moved around.
+	else
+	{
+		$pathcode_pos = strpos($settingsText, $substitutions[$pathcode_var]['placeholder']);
+
+		if ($pathcode_pos !== false)
+		{
+			foreach ($force_before_pathcode as $var)
+			{
+				if (strpos($settingsText, $substitutions[$var]['placeholder']) > $pathcode_pos)
+				{
+					$settingsText = strtr($settingsText, array(
+						$substitutions[$var]['placeholder'] => '',
+						$substitutions[$pathcode_var]['placeholder'] => $substitutions[$var]['placeholder'] . "\n" . $substitutions[$pathcode_var]['placeholder'],
+					));
+				}
+			}
+		}
+	}
+
+	/* 3.c: Replace the placeholders with the final values */
 
 	// Where possible, perform simple substitutions.
 	$settingsText = strtr($settingsText, $simple_replacements);
@@ -1433,22 +1535,24 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	if (!empty($replace_patterns))
 		$settingsText = preg_replace($replace_patterns, $replace_strings, $settingsText);
 
+	// Make absolutely sure that the path correction code is included.
+	if (strpos($settingsText, $substitutions[$pathcode_var]['replacement']) === false)
+		$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n" . $substitutions[$pathcode_var]['replacement'] . "\n", $settingsText);
+
 	// If we did not rebuild, do just enough to make sure the thing is viable.
 	if (empty($rebuild))
 	{
-		// Make absolutely sure that the path correction code is included.
-		if (strpos($settingsText, $substitutions[$pathcode_var]['replacement']) === false)
-			$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n" . $substitutions[$pathcode_var]['replacement'] . "\n", $settingsText);
-
 		// We need to refresh $bare_settingsText again, and remove the code blocks from it.
-		$bare_settingsText = strip_php_comments($settingsText);
-		foreach ($settings_defs as $var => $setting_def)
+		$bare_settingsText = $settingsText;
+		foreach ($substitutions as $var => $substitution)
 		{
-			if (is_int($var))
-				$bare_settingsText = str_replace($substitutions[$var]['replacement'], '', $bare_settingsText);
-			else
+			if (!is_int($var))
 				break;
+
+			if (isset($substitution['replacement']))
+				$bare_settingsText = str_replace($substitution['replacement'], '', $bare_settingsText);
 		}
+		$bare_settingsText = strip_php_comments($bare_settingsText);
 
 		// Now insert any defined settings that are missing.
 		$pathcode_reached = false;
@@ -1461,11 +1565,11 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				continue;
 
 			// Do nothing if it is already in there.
-			if (preg_match('~(^|\s)\$' . preg_quote($var, '~') . '\s*=\s*~', $bare_settingsText))
+			if (preg_match($substitutions[$var]['search_pattern'], $bare_settingsText))
 				continue;
 
 			// Insert it either before or after the path correction code, whichever is appropriate.
-			if (!$pathcode_reached || strpos('$' . $var . ' = ', $substitutions[$pathcode_var]['replacement']) !== false)
+			if (!$pathcode_reached || in_array($var, $force_before_pathcode))
 			{
 				$settingsText = preg_replace('~(?=\n' . preg_quote($substitutions[$pathcode_var]['replacement'], '~') . ')~', "\n" . $substitutions[$var]['replacement'], $settingsText);
 			}
@@ -1477,39 +1581,160 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	}
 
 	// If we have any brand new settings to add, do so.
-	if (!empty($config_vars) && strpos($settingsText, '# Custom Settings #') === false)
+	foreach ($new_settings_vars as $var => $val)
 	{
-		$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n\n######### Custom Settings #########\n", $settingsText);
-	}
-	foreach ($config_vars as $var => $val)
-	{
-		if (!preg_match($substitutions[$var]['search_pattern'], $settingsText))
+		if (isset($substitutions[$var]) && !preg_match($substitutions[$var]['search_pattern'], $settingsText))
+		{
+			if (strpos($settingsText, '# Custom Settings #') === false)
+				$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n\n######### Custom Settings #########\n", $settingsText);
+
 			$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', $substitutions[$var]['replacement'] . "\n", $settingsText);
+		}
 	}
 
-	// This one is just cosmetic. Get rid of extra lines of whitespace.
+	// This is just cosmetic. Get rid of extra lines of whitespace.
 	$settingsText = preg_replace('~\n\s*\n~', "\n\n", $settingsText);
 
-	// Lint it before saving, if we can.
-	if (function_exists('exec'))
-	{
-		$temp_sfile = tempnam(sys_get_temp_dir(), md5($prefix . 'Settings.php'));
-		file_put_contents($temp_sfile, $settingsText);
-		@exec('php -l ' . escapeshellarg($temp_sfile), $exec_output, $exec_return);
-		unlink($temp_sfile);
+	/**************************************
+	 * PART 4: Check syntax before saving *
+	 **************************************/
 
-		// If the syntax is borked, try rebuilding to see if that fixes it.
-		if (!empty($exec_return))
-			return empty($rebuild) ? updateSettingsFile($prev_config_vars, $keep_quotes, true) : false;
-	}
+	$temp_sfile = tempnam(sys_get_temp_dir(), md5($prefix . 'Settings.php'));
+	file_put_contents($temp_sfile, $settingsText);
+
+	/*
+	 * Using exec() or popen() will let us fail gracefully if $settingsText has
+	 * invalid syntax, and passing 0 to the first param forces that. If we
+	 * don't have exec() or popen(), then get_current_settings() will try a
+	 * local include(), which could crash if the syntax is invalid. But it is
+	 * better to crash now than to save a bad file and kill the forum.
+	 */
+	$result = get_current_settings((function_exists('exec') || function_exists('popen')) ? 0 : time(), $temp_sfile);
+
+	unlink($temp_sfile);
+
+	// If the syntax is borked, try rebuilding to see if that fixes it.
+	if ($result === false)
+		return empty($rebuild) ? updateSettingsFile($config_vars, $keep_quotes, true) : false;
 
 	/******************************************
-	 * PART 3: Write updated settings to file *
+	 * PART 5: Write updated settings to file *
 	 ******************************************/
 
 	$success = safe_file_write($settingsFile, $settingsText, dirname($settingsFile) . '/Settings_bak.php', $last_settings_change);
 
+	// Remember this in case updateSettingsFile is called twice.
+	$mtime = filemtime($settingsFile);
+
 	return $success;
+}
+
+/**
+ * Retrieves a copy of the current values of all settings defined in Settings.php.
+ *
+ * Importantly, it does this without affecting our actual global variables at all,
+ * and it performs safety checks before acting. The result is an array of the
+ * values as recorded in the settings file.
+ *
+ * @param int $mtime Timestamp of last known good configuration. Defaults to time SMF started.
+ * @param string $settings_file The settings file. Defaults to SMF's standard Settings.php.
+ * @return array An array of name/value pairs for all the settings in the file.
+ */
+function get_current_settings($mtime = null, $settings_file = null)
+{
+	$mtime = is_null($mtime) ? (defined('TIME_START') ? TIME_START : $_SERVER['REQUEST_TIME']) : (int) $mtime;
+
+	if (!is_file($settings_file))
+	{
+		foreach (get_included_files() as $settings_file)
+			if (basename($settings_file) === 'Settings.php')
+				break;
+
+		if (basename($settings_file) !== 'Settings.php')
+			return false;
+	}
+
+	// If the file hasn't been changed, we can safely do this the fast and easy way.
+	clearstatcache();
+	if (filemtime($settings_file) <= $mtime)
+	{
+		$errlvl = error_reporting(0);
+		include($settings_file);
+		error_reporting($errlvl);
+
+		unset($settings_file, $mtime, $errlvl);
+		$defined_vars = get_defined_vars();
+	}
+	// File has been changed, so let's parse it in a separate process for safety's sake.
+	elseif ((function_exists('exec') || function_exists('popen')))
+	{
+		// Find the PHP executable
+		$php = defined('PHP_BINARY') && is_executable(PHP_BINARY) ? PHP_BINARY : null;
+		if (empty($php) && ($php = @getenv('PHP_BINARY')))
+		{
+			if (!is_executable($php))
+				$php = null;
+		}
+		if (empty($php) && defined('PHP_BINDIR'))
+		{
+			$php = @getenv('_');
+			if (empty($php) || strpos($php, PHP_BINDIR . DIRECTORY_SEPARATOR . 'php') !== 0 || !is_executable($php))
+			{
+					$php = null;
+			}
+			if (empty($php))
+			{
+				$php = PHP_BINDIR . DIRECTORY_SEPARATOR . 'php' . (DIRECTORY_SEPARATOR === '\\'  ? '.exe' : '');
+				if (!file_exists($php) || !is_executable($php))
+					$php = null;
+			}
+		}
+		if (empty($php))
+			return false;
+
+		$cfile = tempnam(is_dir($GLOBALS['cachedir']) ? $GLOBALS['cachedir'] : dirname(__DIR__), md5(mt_rand()));
+
+		file_put_contents($cfile, '<?php
+		error_reporting(0);
+		function f()
+		{
+			$dv = array();
+			$dv = get_defined_vars();
+			include "' . $settings_file . '";
+			echo "$" . "defined_vars = " . (var_export(array_diff_key(get_defined_vars(), $dv), true)) . ";";
+		}
+		f();');
+
+		$cmd = escapeshellarg($php) . ' ' . escapeshellarg($cfile);
+
+		if (function_exists('exec'))
+		{
+			@exec($cmd, $o, $r);
+			$o = implode("\n", $o);
+		}
+		elseif (function_exists('popen'))
+		{
+			$p = popen($cmd, 'rb');
+			$o = fread($p, filesize($settings_file));
+			$r = pclose($p);
+		}
+
+		unlink($cfile);
+
+		if ($r === 0)
+		{
+			// Just in case the output was dirty.
+			$o = substr($o, strrpos($o, '$defined_vars = '));
+			eval($o);
+		}
+		else
+			return false;
+	}
+	// No good options available.
+	else
+		return false;
+
+	return $defined_vars;
 }
 
 /**
