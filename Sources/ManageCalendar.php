@@ -170,6 +170,7 @@ function ModifyHolidays()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_column_headers',
+				'class' => 'floatright',
 				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button">
 					<a class="button" href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . $txt['holidays_add'] . '</a>',
 			),
