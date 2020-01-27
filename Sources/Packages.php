@@ -1400,7 +1400,7 @@ function PackageBrowse()
 				'id' . $type => array(
 					'header' => array(
 						'value' => $txt['package_id'],
-						'style' => 'width: 40px;',
+						'style' => 'width: 52px;',
 					),
 					'data' => array(
 						'function' => function($package_md5) use ($type, &$context)
