@@ -6771,7 +6771,7 @@ function build_query_board($userid)
 	$query_part = array();
 
 	// If we come from cron, we can't have a $user_info.
-	if (isset($user_info['id']) && $user_info['id'] == $userid)
+	if (isset($user_info['id']) && $user_info['id'] == $userid && SMF != 'BACKGROUND')
 	{
 		$groups = $user_info['groups'];
 		$can_see_all_boards = $user_info['is_admin'] || $user_info['can_manage_boards'];
