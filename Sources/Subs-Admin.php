@@ -921,7 +921,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	 *     regex finds where to insert the final replacement string that we
 	 *     want to use. This method is for special cases.
 	 */
-	$prefix = ''; //mt_rand() . '-';
+	$prefix = mt_rand() . '-';
 	$neg_index = -1;
 	$substitutions = array(
 		$neg_index-- => array(
