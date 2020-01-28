@@ -1602,14 +1602,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	$temp_sfile = tempnam(sys_get_temp_dir(), md5($prefix . 'Settings.php'));
 	file_put_contents($temp_sfile, $settingsText);
 
-	/*
-	 * Using exec() or popen() will let us fail gracefully if $settingsText has
-	 * invalid syntax, and passing 0 to the first param forces that. If we
-	 * don't have exec() or popen(), then get_current_settings() will try a
-	 * local include(), which could crash if the syntax is invalid. But it is
-	 * better to crash now than to save a bad file and kill the forum.
-	 */
-	$result = get_current_settings((function_exists('exec') || function_exists('popen')) ? 0 : time(), $temp_sfile);
+	$result = get_current_settings(filemtime($temp_sfile), $temp_sfile);
 
 	unlink($temp_sfile);
 
@@ -1637,102 +1630,47 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
  * values as recorded in the settings file.
  *
  * @param int $mtime Timestamp of last known good configuration. Defaults to time SMF started.
- * @param string $settings_file The settings file. Defaults to SMF's standard Settings.php.
+ * @param string $settingsFile The settings file. Defaults to SMF's standard Settings.php.
  * @return array An array of name/value pairs for all the settings in the file.
  */
-function get_current_settings($mtime = null, $settings_file = null)
+function get_current_settings($mtime = null, $settingsFile = null)
 {
 	$mtime = is_null($mtime) ? (defined('TIME_START') ? TIME_START : $_SERVER['REQUEST_TIME']) : (int) $mtime;
 
-	if (!is_file($settings_file))
+	if (!is_file($settingsFile))
 	{
-		foreach (get_included_files() as $settings_file)
-			if (basename($settings_file) === 'Settings.php')
+		foreach (get_included_files() as $settingsFile)
+			if (basename($settingsFile) === 'Settings.php')
 				break;
 
-		if (basename($settings_file) !== 'Settings.php')
+		if (basename($settingsFile) !== 'Settings.php')
 			return false;
 	}
 
-	// If the file hasn't been changed, we can safely do this the fast and easy way.
+	// If the file has been changed since the last known good configuration, bail out.
 	clearstatcache();
-	if (filemtime($settings_file) <= $mtime)
-	{
-		$errlvl = error_reporting(0);
-		include($settings_file);
-		error_reporting($errlvl);
+	if (filemtime($settingsFile) > $mtime)
+		return false;
 
-		unset($settings_file, $mtime, $errlvl);
+	$settingsText = trim(file_get_contents($settingsFile));
+	if (substr($settingsText, 0, 5) == '<' . '?php')
+		$settingsText = substr($settingsText, 5);
+	if (substr($settingsText, -2) == '?' . '>')
+		$settingsText = substr($settingsText, 0, -2);
+
+	// Handle eval errors gracefully in both PHP 5 and PHP 7
+	try
+	{
+		if(@eval($settings_text) === false)
+			throw new ErrorException('eval error');
+		
+		unset($mtime, $settings_file, $settings_text);
 		$defined_vars = get_defined_vars();
 	}
-	// File has been changed, so let's parse it in a separate process for safety's sake.
-	elseif ((function_exists('exec') || function_exists('popen')))
-	{
-		// Find the PHP executable
-		$php = defined('PHP_BINARY') && is_executable(PHP_BINARY) ? PHP_BINARY : null;
-		if (empty($php) && ($php = @getenv('PHP_BINARY')))
-		{
-			if (!is_executable($php))
-				$php = null;
-		}
-		if (empty($php) && defined('PHP_BINDIR'))
-		{
-			$php = @getenv('_');
-			if (empty($php) || strpos($php, PHP_BINDIR . DIRECTORY_SEPARATOR . 'php') !== 0 || !is_executable($php))
-			{
-					$php = null;
-			}
-			if (empty($php))
-			{
-				$php = PHP_BINDIR . DIRECTORY_SEPARATOR . 'php' . (DIRECTORY_SEPARATOR === '\\'  ? '.exe' : '');
-				if (!file_exists($php) || !is_executable($php))
-					$php = null;
-			}
-		}
-		if (empty($php))
-			return false;
-
-		$cfile = tempnam(is_dir($GLOBALS['cachedir']) ? $GLOBALS['cachedir'] : dirname(__DIR__), md5(mt_rand()));
-
-		file_put_contents($cfile, '<?php
-		error_reporting(0);
-		function f()
-		{
-			$dv = array();
-			$dv = get_defined_vars();
-			include "' . $settings_file . '";
-			echo "$" . "defined_vars = " . (var_export(array_diff_key(get_defined_vars(), $dv), true)) . ";";
-		}
-		f();');
-
-		$cmd = escapeshellarg($php) . ' ' . escapeshellarg($cfile);
-
-		if (function_exists('exec'))
-		{
-			@exec($cmd, $o, $r);
-			$o = implode("\n", $o);
-		}
-		elseif (function_exists('popen'))
-		{
-			$p = popen($cmd, 'rb');
-			$o = fread($p, filesize($settings_file));
-			$r = pclose($p);
-		}
-
-		unlink($cfile);
-
-		if ($r === 0)
-		{
-			// Just in case the output was dirty.
-			$o = substr($o, strrpos($o, '$defined_vars = '));
-			eval($o);
-		}
-		else
-			return false;
-	}
-	// No good options available.
-	else
-		return false;
+	catch (Throwable $e) {}
+	catch (ErrorException $e) {}
+	if (isset($e))
+		$defined_vars = false;
 
 	return $defined_vars;
 }
