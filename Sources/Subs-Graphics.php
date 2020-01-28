@@ -765,9 +765,9 @@ if (!function_exists('imagecreatefrombmp'))
  * @param int $background_color The background color
  * @return bool Whether the operation was successful
  */
-function gif_outputAsPng(gif_file $gif, $lpszFileName, $background_color = -1)
+function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
 {
-	if (!isset($gif) || !$gif->loaded || $lpszFileName == '')
+	if (!is_a($gif, 'gif_file') || !$gif->loaded || $lpszFileName == '')
 		return false;
 
 	$fd = $gif->get_png_data($background_color);
