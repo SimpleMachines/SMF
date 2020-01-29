@@ -53,7 +53,7 @@ function getBoardIndex($boardIndexOptions)
 		$result_boards = $smcFunc['db_query']('', '
 			WITH RECURSIVE
 				boards_cte (child_level, id_board, name , description, redirect, num_posts, num_topics, unapproved_posts, unapproved_topics, id_parent, id_msg_updated, id_cat, id_last_msg, board_order)
-			as
+			AS
 			(
 				SELECT b.child_level, b.id_board, b.name , b.description, b.redirect, b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent, b.id_msg_updated, b.id_cat, b.id_last_msg, b.board_order
 				FROM {db_prefix}boards as b
