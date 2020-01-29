@@ -267,6 +267,7 @@ function getBoardIndex($boardIndexOptions)
 					'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
 					'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
 					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $board_name . '</a>',
+					'board_tooltip' => $txt['old_posts'],
 					'board_class' => 'off',
 					'css_class' => '',
 				);
@@ -283,10 +284,6 @@ function getBoardIndex($boardIndexOptions)
 					// If we're showing to guests, we want to give them the idea that something interesting is going on!
 					$this_category[$row_board['id_board']]['board_class'] = 'on';
 					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['new_posts'];
-				}
-				else
-				{
-					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['old_posts'];
 				}
 			}
 		}
@@ -397,7 +394,10 @@ function getBoardIndex($boardIndexOptions)
 				'link' => $row_board['poster_name'] != '' ? (!empty($row_board['id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row_board['id_member'] . '">' . $row_board['real_name'] . '</a>' : $row_board['real_name']) : $txt['not_applicable'],
 			),
 			'start' => 'msg' . $row_board['new_from'],
-			'topic' => $row_board['id_topic']
+			'topic' => $row_board['id_topic'],
+			'href' => '',
+			'link' => $row_board['id_topic'],
+			'last_post_message' => '',
 		);
 
 		if (!empty($settings['avatars_on_boardIndex']))
@@ -412,12 +412,6 @@ function getBoardIndex($boardIndexOptions)
 		{
 			$this_last_post['href'] = $scripturl . '?topic=' . $row_board['id_topic'] . '.msg' . ($user_info['is_guest'] ? $row_board['id_msg'] : $row_board['new_from']) . (empty($row_board['is_read']) ? ';boardseen' : '') . '#new';
 			$this_last_post['link'] = '<a href="' . $this_last_post['href'] . '" title="' . $row_board['subject'] . '">' . $row_board['short_subject'] . '</a>';
-		}
-		else
-		{
-			$this_last_post['href'] = '';
-			$this_last_post['link'] = $txt['not_applicable'];
-			$this_last_post['last_post_message'] = '';
 		}
 
 		// Set the last post in the parent board.
