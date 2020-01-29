@@ -2121,6 +2121,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			{
 				return strcmp($a['tag'], $b['tag']);
 			});
+
 			return $codes;
 		}
 
@@ -2158,7 +2159,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		$codes[] = array(
 			'tag' => 'cowsay',
 			'parameters' => array(
-				'e' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => 'oo', 'validate' => function ($eyes) use ($smcFunc)
+				'e' => array(
+					'optional' => true,
+					'quoted' => true,
+					'match' => '(.*?)',
+					'default' => 'oo',
+					'validate' => function($eyes) use ($smcFunc)
 					{
 						static $css_added;
 
@@ -2175,7 +2181,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						return $smcFunc['substr']($eyes . 'oo', 0, 2);
 					},
 				),
-				't' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => '  ', 'validate' => function ($tongue) use ($smcFunc)
+				't' => array(
+					'optional' => true,
+					'quoted' => true,
+					'match' => '(.*?)',
+					'default' => '  ',
+					'validate' => function($tongue) use ($smcFunc)
 					{
 						return $smcFunc['substr']($tongue . '  ', 0, 2);
 					},
@@ -3273,10 +3284,12 @@ function parsesmileys(&$message)
 	}
 
 	// Replace away!
-	$message = preg_replace_callback($smileyPregSearch, function($matches) use ($smileyPregReplacements)
+	$message = preg_replace_callback($smileyPregSearch,
+		function($matches) use ($smileyPregReplacements)
 		{
 			return $smileyPregReplacements[$matches[1]];
-		}, $message);
+		}, $message
+	);
 }
 
 /**
