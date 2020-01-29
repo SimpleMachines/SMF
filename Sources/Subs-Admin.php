@@ -1661,16 +1661,18 @@ function get_current_settings($mtime = null, $settingsFile = null)
 	// Handle eval errors gracefully in both PHP 5 and PHP 7
 	try
 	{
-		if(@eval($settings_text) === false)
+		if($settingsText !== '' && @eval($settingsText) === false)
 			throw new ErrorException('eval error');
-		
-		unset($mtime, $settings_file, $settings_text);
-		$defined_vars = get_defined_vars();
 	}
 	catch (Throwable $e) {}
 	catch (ErrorException $e) {}
 	if (isset($e))
-		$defined_vars = false;
+		return false;
+
+	// It's good, so do it again as an include so that __FILE__ and __DIR__ get the right values.
+	@include($settingsFile);
+	unset($mtime, $settingsFile, $settingsText);
+	$defined_vars = get_defined_vars();
 
 	return $defined_vars;
 }
