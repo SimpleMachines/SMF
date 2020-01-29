@@ -188,10 +188,6 @@ function getBoardIndex($boardIndexOptions)
 		$ignoreThisBoard = in_array($row_board['id_board'], $user_info['ignoreboards']);
 		$row_board['is_read'] = !empty($row_board['is_read']) || $ignoreThisBoard ? '1' : '0';
 
-		// Add parent boards to the $boards list later used to fetch moderators
-		if ($row_board['id_parent'] == $boardIndexOptions['parent_id'])
-			$boards[] = $row_board['id_board'];
-
 		if ($boardIndexOptions['include_categories'])
 		{
 			// Haven't set this category yet.
@@ -226,8 +222,11 @@ function getBoardIndex($boardIndexOptions)
 		}
 
 		// This is a parent board.
+		$isChild = false;
 		if ($row_board['id_parent'] == $boardIndexOptions['parent_id'])
 		{
+			$boards[] = $row_board['id_board'];
+
 			// Is this a new board, or just another moderator?
 			if (!isset($this_category[$row_board['id_board']]['type']))
 			{
