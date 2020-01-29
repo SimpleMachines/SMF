@@ -237,6 +237,11 @@ function getBoardIndex($boardIndexOptions)
 		// Prepare the subject, and make sure it's not too long.
 		censorText($row_board['subject']);
 		$row_board['short_subject'] = shorten_subject($row_board['subject'], 24);
+
+		/* The board's and children's 'last_post's have:
+		time, timestamp (a number that represents the time.), id (of the post), topic (topic id.),
+		link, href, subject, start (where they should go for the first unread post.),
+		and member. (which has id, name, link, href, username in it.) */
 		$this_last_post = array(
 			'id' => $row_board['id_msg'],
 			'time' => $row_board['poster_time'],
@@ -295,13 +300,7 @@ function getBoardIndex($boardIndexOptions)
 			);
 	}
 
-	/* The board's and children's 'last_post's have:
-	time, timestamp (a number that represents the time.), id (of the post), topic (topic id.),
-	link, href, subject, start (where they should go for the first unread post.),
-	and member. (which has id, name, link, href, username in it.) */
-
-	// Fetch the board's moderators and moderator groups
-	getBoardIndex_mods($boardIndexOptions, $boards, $categories, $this_categorey);
+	getBoardIndex_mods($boardIndexOptions, $boards, $categories, $this_category);
 
 	if ($boardIndexOptions['include_categories'])
 		sortCategories($categories);
