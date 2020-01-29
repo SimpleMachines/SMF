@@ -210,9 +210,8 @@ function getBoardIndex($boardIndexOptions)
 					'boards' => array(),
 					'new' => false,
 					'css_class' => '',
+					'link' => '<a id="c' . $row_board['id_cat'] . '"></a>' . (!$user_info['is_guest'] ? '<a href="' . $scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], $name) . '">' . $name . '</a>' : $name),
 				);
-
-				$categories[$row_board['id_cat']]['link'] = '<a id="c' . $row_board['id_cat'] . '"></a>' . (!$context['user']['is_guest'] ? '<a href="' . $scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], $name) . '">' . $name . '</a>' : $name);
 			}
 
 			// If this board has new posts in it (and isn't the recycle bin!) then the category is new.
