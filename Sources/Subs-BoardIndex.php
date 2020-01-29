@@ -340,8 +340,7 @@ function getBoardIndex($boardIndexOptions)
 			// Propagate some values to the parent board
 			if (isset($row_boards[$row_board['id_parent']]))
 			{
-				if (empty($row_board['is_read']))
-					$row_boards[$row_board['id_parent']]['is_read'] = $row_board['is_read'];
+				$row_boards[$row_board['id_parent']]['is_read'] |= $row_board['is_read'];
 
 				if (!empty($boardIndexOptions['countChildPosts']) && !$row_board['is_redirect'])
 				{
