@@ -96,58 +96,51 @@ function getBoardIndex($boardIndexOptions)
 		{
 			$boards[] = $row_board['id_board'];
 
-			// Is this a new board, or just another moderator?
-			if (!isset($this_category[$row_board['id_board']]['type']))
+			// We might or might not have already added this board, so...
+			if (!isset($this_category[$row_board['id_board']]))
+				$this_category[$row_board['id_board']] = array();
+
+			$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
+			$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
+
+			$this_category[$row_board['id_board']] += array(
+				'new' => empty($row_board['is_read']),
+				'id' => $row_board['id_board'],
+				'type' => $row_board['is_redirect'] ? 'redirect' : 'board',
+				'name' => $board_name,
+				'description' => $board_description,
+				'moderators' => array(),
+				'moderator_groups' => array(),
+				'link_moderators' => array(),
+				'link_moderator_groups' => array(),
+				'children' => array(),
+				'link_children' => array(),
+				'children_new' => false,
+				'topics' => $row_board['num_topics'],
+				'posts' => $row_board['num_posts'],
+				'is_redirect' => $row_board['is_redirect'],
+				'unapproved_topics' => $row_board['unapproved_topics'],
+				'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
+				'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
+				'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
+				'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $board_name . '</a>',
+				'board_tooltip' => $txt['old_posts'],
+				'board_class' => 'off',
+				'css_class' => '',
+			);
+
+			// We can do some of the figuring-out-what-icon now.
+			// For certain types of thing we also set up what the tooltip is.
+			if ($this_category[$row_board['id_board']]['is_redirect'])
 			{
-				// Not a child.
-				$isChild = false;
-
-				// We might or might not have already added this board, so...
-				if (!isset($this_category[$row_board['id_board']]))
-					$this_category[$row_board['id_board']] = array();
-
-				$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
-				$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
-
-				$this_category[$row_board['id_board']] += array(
-					'new' => empty($row_board['is_read']),
-					'id' => $row_board['id_board'],
-					'type' => $row_board['is_redirect'] ? 'redirect' : 'board',
-					'name' => $board_name,
-					'description' => $board_description,
-					'moderators' => array(),
-					'moderator_groups' => array(),
-					'link_moderators' => array(),
-					'link_moderator_groups' => array(),
-					'children' => array(),
-					'link_children' => array(),
-					'children_new' => false,
-					'topics' => $row_board['num_topics'],
-					'posts' => $row_board['num_posts'],
-					'is_redirect' => $row_board['is_redirect'],
-					'unapproved_topics' => $row_board['unapproved_topics'],
-					'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
-					'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
-					'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
-					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $board_name . '</a>',
-					'board_tooltip' => $txt['old_posts'],
-					'board_class' => 'off',
-					'css_class' => '',
-				);
-
-				// We can do some of the figuring-out-what-icon now.
-				// For certain types of thing we also set up what the tooltip is.
-				if ($this_category[$row_board['id_board']]['is_redirect'])
-				{
-					$this_category[$row_board['id_board']]['board_class'] = 'redirect';
-					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['redirect_board'];
-				}
-				elseif ($this_category[$row_board['id_board']]['new'] || $context['user']['is_guest'])
-				{
-					// If we're showing to guests, we want to give them the idea that something interesting is going on!
-					$this_category[$row_board['id_board']]['board_class'] = 'on';
-					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['new_posts'];
-				}
+				$this_category[$row_board['id_board']]['board_class'] = 'redirect';
+				$this_category[$row_board['id_board']]['board_tooltip'] = $txt['redirect_board'];
+			}
+			elseif ($this_category[$row_board['id_board']]['new'] || $context['user']['is_guest'])
+			{
+				// If we're showing to guests, we want to give them the idea that something interesting is going on!
+				$this_category[$row_board['id_board']]['board_class'] = 'on';
+				$this_category[$row_board['id_board']]['board_tooltip'] = $txt['new_posts'];
 			}
 		}
 		// This is a child board.
@@ -307,7 +300,6 @@ function getBoardIndex($boardIndexOptions)
 	and member. (which has id, name, link, href, username in it.) */
 
 	// Fetch the board's moderators and moderator groups
-	$boards = array_unique($boards);
 	require_once($sourcedir . '/Subs-Boards.php');
 	$moderators = getBoardModerators($boards);
 	$groups = getBoardModeratorGroups($boards);
