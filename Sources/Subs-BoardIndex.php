@@ -89,6 +89,7 @@ function getBoardIndex($boardIndexOptions)
 			'c.id_cat',
 			'c.name AS cat_name',
 			'c.description AS cat_desc',
+			'c.can_collapse',
 		));
 		$query_join[] = 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)';
 		$query_sort[] = 'c.cat_order';
@@ -108,11 +109,6 @@ function getBoardIndex($boardIndexOptions)
 			'COALESCE(lb.id_msg, -1) + 1 AS new_from',
 		));
 		$query_join[] = 'LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})';
-
-		if ($boardIndexOptions['include_categories'])
-			$query_select = array_merge($query_select, array(
-				'c.can_collapse',
-			));
 	}
 
 	if (!empty($settings['avatars_on_boardIndex']))
@@ -208,8 +204,8 @@ function getBoardIndex($boardIndexOptions)
 					'id' => $row_board['id_cat'],
 					'name' => $name,
 					'description' => $description,
-					'is_collapsed' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1 && !empty($options['collapse_category_' . $row_board['id_cat']]),
-					'can_collapse' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1,
+					'is_collapsed' => $row_board['can_collapse'] == 1 && !empty($options['collapse_category_' . $row_board['id_cat']]),
+					'can_collapse' => !$user_info['is_guest'] && $row_board['can_collapse'] == 1,
 					'href' => $scripturl . '#c' . $row_board['id_cat'],
 					'boards' => array(),
 					'new' => false,
