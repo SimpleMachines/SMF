@@ -261,27 +261,6 @@ abstract class cache_api implements cache_api_interface
 	}
 
 	/**
-	 * {@inheritDoc}
-	 */
-	public function getData($key, $ttl = null)
-	{
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function putData($key, $value, $ttl = null)
-	{
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function cleanCache($type = '')
-	{
-	}
-
-	/**
 	 * Invalidate all cached data.
 	 *
 	 * @return bool Whether or not we could invalidate the cache.
