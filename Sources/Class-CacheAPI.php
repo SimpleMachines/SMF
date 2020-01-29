@@ -110,7 +110,7 @@ interface cache_api_interface
 	 * Closes connections to the cache method.
 	 *
 	 * @access public
-	 * @return bool Whether or not we could close connections.
+	 * @return bool Whether the connections were closed.
 	 */
 	public function quit();
 
