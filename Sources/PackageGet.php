@@ -512,9 +512,9 @@ function PackageGBrowse()
 						$reset = true;
 
 						// Get the highest install version that is available from the package
-						foreach ($installs as $install)
+						foreach ($installs as $inst)
 						{
-							$context['package_list'][$ps_id]['items'][$i]['can_emulate_install'] = matchHighestPackageVersion($install->fetch('@for'), $reset, $the_version);
+							$context['package_list'][$ps_id]['items'][$i]['can_emulate_install'] = matchHighestPackageVersion($inst->fetch('@for'), $reset, $the_version);
 							$reset = false;
 						}
 					}
