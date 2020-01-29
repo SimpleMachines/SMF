@@ -85,45 +85,45 @@ function getBoardIndex($boardIndexOptions)
 
 	if ($boardIndexOptions['include_categories'])
 	{
-		$query_select += array(
+		$query_select = array_merge($query_select, array(
 			'c.id_cat',
 			'c.name AS cat_name',
 			'c.description AS cat_desc',
-		);
+		));
 		$query_join[] = 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)';
 		$query_sort[] = 'c.cat_order';
 	}
 
 	if ($user_info['is_guest'])
 	{
-		$query_select += array(
+		$query_select = array_merge($query_select, array(
 			'1 AS is_read',
 			'0 AS new_from',
-		);
+		));
 	}
 	else
 	{
-		$query_select += array(
+		$query_select = array_merge($query_select, array(
 			'CASE WHEN COALESCE(lb.id_msg, 0) >= b.id_last_msg THEN 1 ELSE 0 END AS is_read',
 			'COALESCE(lb.id_msg, -1) + 1 AS new_from',
-		);
+		));
 		$query_join[] = 'LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})';
 
 		if ($boardIndexOptions['include_categories'])
-			$query_select += array(
+			$query_select = array_merge($query_select, array(
 				'c.can_collapse',
-			);
+			));
 	}
 
 	if (!empty($settings['avatars_on_boardIndex']))
 	{
-		$query_select += array(
+		$query_select = array_merge($query_select, array(
 			'mem.email_address',
 			'mem.avatar',
 			'COALESCE(am.id_attach, 0) AS member_id_attach',
 			'am.filename AS member_filename',
 			'am.attachment_type AS member_attach_type',
-		);
+		));
 		$query_join[] = 'LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)';
 	}
 
