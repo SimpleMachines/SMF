@@ -404,13 +404,14 @@ function getBoardIndex($boardIndexOptions)
 	/* The board's and children's 'last_post's have:
 	time, timestamp (a number that represents the time.), id (of the post), topic (topic id.),
 	link, href, subject, start (where they should go for the first unread post.),
-	and member. (which has id, name, link, href, username in it.)
-	timeformat is a pricy call do it only for thos how get shown */
+	and member. (which has id, name, link, href, username in it.) */
+
 	// Fetch the board's moderators and moderator groups
 	$boards = array_unique($boards);
 	$moderators = getBoardModerators($boards);
 	$groups = getBoardModeratorGroups($boards);
 	if ($boardIndexOptions['include_categories'])
+	{
 		foreach ($categories as &$category)
 		{
 			foreach ($category['boards'] as &$board)
@@ -434,7 +435,9 @@ function getBoardIndex($boardIndexOptions)
 					$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
 			}
 		}
+	}
 	else
+	{
 		foreach ($this_category as &$board)
 		{
 			if (!empty($moderators[$board['id']]))
@@ -455,7 +458,7 @@ function getBoardIndex($boardIndexOptions)
 			if (!empty($board['last_post']))
 				$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
 		}
-
+	}
 	unset($category, $board);
 
 	if ($boardIndexOptions['include_categories'])
