@@ -103,6 +103,7 @@ function getBoardIndex($boardIndexOptions)
 			$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
 			$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
 
+			// !!! Reoving this union messes with the board hierarchy.
 			$this_category[$row_board['id_board']] += array(
 				'new' => empty($row_board['is_read']),
 				'id' => $row_board['id_board'],
