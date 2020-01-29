@@ -119,7 +119,6 @@ interface cache_api_interface
 	 *
 	 * @access public
 	 * @param array $config_vars Additional config_vars, see ManageSettings.php for usage.
-	 * @return void No return is needed.
 	 */
 	public function cacheSettings(array &$config_vars);
 
