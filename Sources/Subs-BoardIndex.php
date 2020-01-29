@@ -107,7 +107,7 @@ function getBoardIndex($boardIndexOptions)
 			$this_category[$row_board['id_board']] += array(
 				'new' => empty($row_board['is_read']),
 				'id' => $row_board['id_board'],
-				'type' => $row_board['is_redirect'] ? 'redirect' : 'board',
+				'type' => 'board',
 				'name' => $board_name,
 				'description' => $board_description,
 				'moderators' => array(),
@@ -134,6 +134,7 @@ function getBoardIndex($boardIndexOptions)
 			// For certain types of thing we also set up what the tooltip is.
 			if ($this_category[$row_board['id_board']]['is_redirect'])
 			{
+				$this_category[$row_board['id_board']]['type'] = 'redirect';
 				$this_category[$row_board['id_board']]['board_class'] = 'redirect';
 				$this_category[$row_board['id_board']]['board_tooltip'] = $txt['redirect_board'];
 			}
