@@ -499,10 +499,12 @@ function loadProfileFields($force_reload = false)
 						loadLanguage('Errors', $language);
 						log_error(sprintf($txt['smiley_set_dir_not_found'], $set_names[array_search($set, $context['smiley_sets'])]));
 
-						$context['smiley_sets'] = array_filter($context['smiley_sets'], function($v) use ($set)
-						{
+						$context['smiley_sets'] = array_filter(
+							$context['smiley_sets'], function($v) use ($set)
+							{
 								return $v != $set;
-							});
+							}
+						);
 					}
 				}
 
