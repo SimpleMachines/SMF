@@ -300,6 +300,38 @@ function getBoardIndex($boardIndexOptions)
 	and member. (which has id, name, link, href, username in it.) */
 
 	// Fetch the board's moderators and moderator groups
+	getBoardIndex_mods($boardIndexOptions, $boards, $categories, $this_categorey);
+
+	if ($boardIndexOptions['include_categories'])
+		sortCategories($categories);
+	else
+		sortBoards($this_category);
+
+	// By now we should know the most recent post...if we wanna know it that is.
+	if (!empty($boardIndexOptions['set_latest_post']) && !empty($latest_post['ref']))
+	{
+		$latest_post['ref']['time'] = timeformat($latest_post['ref']['time']);
+		$context['latest_post'] = $latest_post['ref'];
+	}
+
+	// I can't remember why but trying to make a ternary to get this all in one line is actually a Very Bad Idea.
+	if ($boardIndexOptions['include_categories'])
+		call_integration_hook('integrate_getboardtree', array($boardIndexOptions, &$categories));
+	else
+		call_integration_hook('integrate_getboardtree', array($boardIndexOptions, &$this_category));
+
+	return $boardIndexOptions['include_categories'] ? $categories : $this_category;
+}
+
+/**
+ * Helper function for getBoardIndex() that executes the xquery
+ * required to fetch the boards.
+ *
+ * @param array $boardIndexOptions An array of boardindex options
+ * @return array An array of board values directly from the SQL
+ */
+function getBoardIndex_mods(array $boardIndexOptions, array $boards, array &$categories, array &$this_categorey)
+{
 	require_once($sourcedir . '/Subs-Boards.php');
 	$moderators = getBoardModerators($boards);
 	$groups = getBoardModeratorGroups($boards);
@@ -352,27 +384,6 @@ function getBoardIndex($boardIndexOptions)
 				$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
 		}
 	}
-	unset($category, $board);
-
-	if ($boardIndexOptions['include_categories'])
-		sortCategories($categories);
-	else
-		sortBoards($this_category);
-
-	// By now we should know the most recent post...if we wanna know it that is.
-	if (!empty($boardIndexOptions['set_latest_post']) && !empty($latest_post['ref']))
-	{
-		$latest_post['ref']['time'] = timeformat($latest_post['ref']['time']);
-		$context['latest_post'] = $latest_post['ref'];
-	}
-
-	// I can't remember why but trying to make a ternary to get this all in one line is actually a Very Bad Idea.
-	if ($boardIndexOptions['include_categories'])
-		call_integration_hook('integrate_getboardtree', array($boardIndexOptions, &$categories));
-	else
-		call_integration_hook('integrate_getboardtree', array($boardIndexOptions, &$this_category));
-
-	return $boardIndexOptions['include_categories'] ? $categories : $this_category;
 }
 
 /**
