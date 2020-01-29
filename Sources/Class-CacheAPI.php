@@ -23,8 +23,8 @@ interface cache_api_interface
 	 * Checks whether we can use the cache method performed by this API.
 	 *
 	 * @access public
-	 * @param boolean $test Test if this is supported or enabled.
-	 * @return boolean Whether or not the cache is supported
+	 * @param bool $test Test if this is supported or enabled.
+	 * @return bool Whether or not the cache is supported
 	 */
 	public function isSupported($test = false);
 
@@ -32,7 +32,7 @@ interface cache_api_interface
 	 * Connects to the cache method. This defines our $key. If this fails, we return false, otherwise we return true.
 	 *
 	 * @access public
-	 * @return boolean Whether or not the cache method was connected to.
+	 * @return bool Whether or not the cache method was connected to.
 	 */
 	public function connect();
 
@@ -41,7 +41,7 @@ interface cache_api_interface
 	 *
 	 * @access public
 	 * @param string $key The key to use
-	 * @return boolean If this was successful or not.
+	 * @return bool If this was successful or not.
 	 */
 	public function setPrefix($key = '');
 
@@ -58,7 +58,7 @@ interface cache_api_interface
 	 *
 	 * @access public
 	 * @param int $ttl The default TTL
-	 * @return boolean If this was successful or not.
+	 * @return bool If this was successful or not.
 	 */
 	public function setDefaultTTL($ttl = 120);
 
