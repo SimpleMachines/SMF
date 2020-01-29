@@ -2180,7 +2180,7 @@ function alert_configuration($memID, $defaultSettings = false)
 				$this_value = 0;
 				foreach ($context['alert_bits'] as $type => $bitvalue)
 				{
-					if ($this_options[$type] == 'yes' && !empty($_POST[$type . '_' . $item_key]) || $this_options[$type] == 'always')
+					if (($this_options[$type] == 'yes' && !empty($_POST[$type . '_' . $item_key])) || $this_options[$type] == 'always')
 						$this_value |= $bitvalue;
 				}
 
