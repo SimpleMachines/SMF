@@ -324,65 +324,62 @@ function getBoardIndex($boardIndexOptions)
 }
 
 /**
- * Helper function for getBoardIndex() that executes the xquery
- * required to fetch the boards.
+ * Helper function for getBoardIndex() that fetches the moderators
+ * and moderator groups for the boards.
  *
  * @param array $boardIndexOptions An array of boardindex options
- * @return array An array of board values directly from the SQL
+ * @param array $boards List of board IDs
+ * @param array &$categories
+ * @param array &$this_category
  */
-function getBoardIndex_mods(array $boardIndexOptions, array $boards, array &$categories, array &$this_categorey)
+function getBoardIndex_mods(array $boardIndexOptions, array $boards, array &$categories, array &$this_category)
 {
+	global $sourcedir;
+
 	require_once($sourcedir . '/Subs-Boards.php');
 	$moderators = getBoardModerators($boards);
 	$groups = getBoardModeratorGroups($boards);
+
 	if ($boardIndexOptions['include_categories'])
 	{
 		foreach ($categories as &$category)
-		{
-			foreach ($category['boards'] as &$board)
-			{
-				if (!empty($moderators[$board['id']]))
-				{
-					$board['moderators'] = $moderators[$board['id']];
-					foreach ($moderators[$board['id']] as $moderator)
-						$board['link_moderators'][] = $moderator['link'];
-				}
-				if (!empty($groups[$board['id']]))
-				{
-					$board['moderator_groups'] = $groups[$board['id']];
-					foreach ($groups[$board['id']] as $group)
-					{
-						$board['link_moderators'][] = $group['link'];
-						$board['link_moderator_groups'][] = $group['link'];
-					}
-				}
-				if (!empty($board['last_post']))
-					$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
-			}
-		}
+			getBoardIndex_assign_mods($category['boards'], $moderators, $groups);
 	}
 	else
+		getBoardIndex_assign_mods($this_category, $moderators, $groups);
+}
+
+/**
+ * Helper function for getBoardIndex_mods() that assigns the moderators
+ * and moderator groups to the boards.
+ *
+ * @param array &$boards
+ * @param array $moderators Result of getBoardModerators()
+ * @param array $groups Result of getBoardModeratorGroups()
+ */
+function getBoardIndex_assign_mods(array &$boards, array $moderators, array $groups)
+{
+	global $txt;
+
+	foreach ($boards as &$board)
 	{
-		foreach ($this_category as &$board)
+		if (!empty($moderators[$board['id']]))
 		{
-			if (!empty($moderators[$board['id']]))
-			{
-				$board['moderators'] = $moderators[$board['id']];
-				foreach ($moderators[$board['id']] as $moderator)
-					$board['link_moderators'][] = $moderator['link'];
-			}
-			if (!empty($groups[$board['id']]))
-			{
-				$board['moderator_groups'] = $groups[$board['id']];
-				foreach ($groups[$board['id']] as $group)
-				{
-					$board['link_moderators'][] = $group['link'];
-					$board['link_moderator_groups'][] = $group['link'];
-				}
-			}
-			if (!empty($board['last_post']))
-				$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
+			$board['moderators'] = $moderators[$board['id']];
+			foreach ($moderators[$board['id']] as $moderator)
+				$board['link_moderators'][] = $moderator['link'];
 		}
+		if (!empty($groups[$board['id']]))
+		{
+			$board['moderator_groups'] = $groups[$board['id']];
+			foreach ($groups[$board['id']] as $group)
+			{
+				$board['link_moderators'][] = $group['link'];
+				$board['link_moderator_groups'][] = $group['link'];
+			}
+		}
+		if (!empty($board['last_post']))
+			$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
 	}
 }
 
