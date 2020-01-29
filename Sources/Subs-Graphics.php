@@ -773,7 +773,7 @@ function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
 	if (($fd = $gif->get_png_data($background_color)) === false)
 		return false;
 
-	if (($fp = @fopen($lpszFileName, 'wb')) === false)
+	if (($fh = @fopen($lpszFileName, 'wb')) === false)
 		return false;
 
 	@fwrite($fh, $fd, strlen($fd));
