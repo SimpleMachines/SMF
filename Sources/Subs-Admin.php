@@ -937,7 +937,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		),
 		// Remove the code that redirects to the installer.
 		$neg_index-- => array(
-			'search_pattern' => '~^if\s*\(file_exists\(dirname\(__FILE__\)\s*\.\s*\'/install\.php\'\)\)\s*{[^}]+}\h*~m',
+			'search_pattern' => '~^if\s*\(file_exists\(dirname\(__FILE__\)\s*\.\s*\'/install\.php\'\)\)\s*{[^}]+}\h*(?:\n\h*})?\h*~m',
 			'placeholder' => '',
 		),
 	);
