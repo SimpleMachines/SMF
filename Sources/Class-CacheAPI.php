@@ -208,6 +208,7 @@ abstract class cache_api implements cache_api_interface
 	 */
 	public function connect()
 	{
+		return true;
 	}
 
 	/**
@@ -282,6 +283,7 @@ abstract class cache_api implements cache_api_interface
 	 */
 	public function quit()
 	{
+		return true;
 	}
 
 	/**
