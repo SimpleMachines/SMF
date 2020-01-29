@@ -3046,15 +3046,15 @@ function package_create_backup($id = 'backup')
 				RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
 			);
 
-			foreach ($iter as $entry => $dir)
+			foreach ($iter as $file => $info)
 			{
-				if ($dir->isDir())
+				if ($info->isinfo())
 					continue;
 
-				if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~)$~', $entry) != 0)
+				if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~)$~', $file) != 0)
 					continue;
 
-				$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath($boarddir), '', $entry) : $entry] = $entry;
+				$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath($boardinfo), '', $file) : $file] = $file;
 			}
 		}
 		$obj = new ArrayObject($files);
