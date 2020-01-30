@@ -1658,21 +1658,24 @@ function get_current_settings($mtime = null, $settingsFile = null)
 	if (substr($settingsText, -2) == '?' . '>')
 		$settingsText = substr($settingsText, 0, -2);
 
+	$settingsText = strtr($settingsText, array(
+		'__FILE__' => var_export($settingsFile, true),
+		'__DIR__' => var_export(dirname($settingsFile), true),
+	));
+
 	// Handle eval errors gracefully in both PHP 5 and PHP 7
 	try
 	{
 		if($settingsText !== '' && @eval($settingsText) === false)
 			throw new ErrorException('eval error');
+
+		unset($mtime, $settingsFile, $settingsText);
+		$defined_vars = get_defined_vars();
 	}
 	catch (Throwable $e) {}
 	catch (ErrorException $e) {}
 	if (isset($e))
 		return false;
-
-	// It's good, so do it again as an include so that __FILE__ and __DIR__ get the right values.
-	@include($settingsFile);
-	unset($mtime, $settingsFile, $settingsText);
-	$defined_vars = get_defined_vars();
 
 	return $defined_vars;
 }
