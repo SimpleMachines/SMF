@@ -908,6 +908,8 @@ function WelcomeLogin()
 	if (!file_exists($cachedir_temp))
 		return throw_error($txt['error_cache_not_found']);
 
+	quickFileWritable($cachedir_temp . '/db_last_error.php');
+
 	if (!file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php'))
 		return throw_error(sprintf($txt['error_lang_index_missing'], $upcontext['language'], $upgradeurl));
 	elseif (!isset($_GET['skiplang']))
