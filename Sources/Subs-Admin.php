@@ -1667,16 +1667,28 @@ function get_current_settings($mtime = null, $settingsFile = null)
 	if (filemtime($settingsFile) > $mtime)
 		return false;
 
+	// Strip out opening and closing PHP tags.
 	$settingsText = trim(file_get_contents($settingsFile));
 	if (substr($settingsText, 0, 5) == '<' . '?php')
 		$settingsText = substr($settingsText, 5);
 	if (substr($settingsText, -2) == '?' . '>')
 		$settingsText = substr($settingsText, 0, -2);
 
+	// Since we're using eval, we need to manually replace these with strings.
 	$settingsText = strtr($settingsText, array(
 		'__FILE__' => var_export($settingsFile, true),
 		'__DIR__' => var_export(dirname($settingsFile), true),
 	));
+
+	// Prevents warnings about constants that are already defined.
+	$settingsText = preg_replace_callback(
+		'~\bdefine\s*\(\s*(["\'])(\w+)\1~',
+		function ($matches)
+		{
+			return 'define(\'' . md5(mt_rand()) . '\'';
+		},
+		$settingsText
+	);
 
 	// Handle eval errors gracefully in both PHP 5 and PHP 7
 	try
