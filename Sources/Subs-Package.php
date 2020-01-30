@@ -3048,13 +3048,13 @@ function package_create_backup($id = 'backup')
 
 			foreach ($iter as $file => $info)
 			{
-				if ($info->isinfo())
+				if ($info->isDir())
 					continue;
 
 				if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~)$~', $file) != 0)
 					continue;
 
-				$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath($boardinfo), '', $file) : $file] = $file;
+				$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath($boarddir), '', $file) : $file] = $file;
 			}
 		}
 		$obj = new ArrayObject($files);
