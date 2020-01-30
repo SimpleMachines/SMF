@@ -1315,7 +1315,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				{
 					// Try all the other scalar types first.
 					if ($type == 'scalar')
-						$sp = '(?:' . (implode('|', array_diff_key($type_regex, array(gettype($in_c ? $config_vars[$var] : ($in_s ? $settings_vars[$var] : PHP_INT_MAX)) => '', 'array' => '', 'object' => '')))) . ')';
+						$sp = '(?:' . (implode('|', array_diff_key($type_regex, array($in_c ? gettype($config_vars[$var]) : ($in_s ? gettype($settings_vars[$var]) : PHP_INT_MAX) => '', 'array' => '', 'object' => '')))) . ')';
 
 					// Maybe it's an object? (Probably not, but we should check.)
 					elseif ($type == 'object')
