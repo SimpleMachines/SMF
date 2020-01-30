@@ -820,9 +820,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				'if (!is_dir(realpath($cachedir)) && is_dir($boarddir . \'/cache\'))',
 				'	$cachedir = $boarddir . \'/cache\';',
 			)),
-			// {{LAST_TEXT_LINE}} will be replaced by the last line of the text element.
-			// We do it in this roundabout way in case a mod adds something to the end.
-			'search_pattern' => '~\n?(#[^\n]+\n)?if\s*\((?:\!file_exists\(\$boarddir\)|\!is_dir\(realpath\(\$boarddir\)\)).*?' . '{{LAST_TEXT_LINE}}' . '~sm',
+			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)|\!is_dir\(realpath\(\$(?>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)\))[^\n]+\n\h*\$(?>boarddir|sourcedir|tasksdir|packagesdir|cachedir)[^\n]+;)+~sm',
 		),
 		'db_character_set' => array(
 			'text' => implode("\n", array(
@@ -937,7 +935,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		),
 		// Remove the code that redirects to the installer.
 		$neg_index-- => array(
-			'search_pattern' => '~^if\s*\(file_exists\(dirname\(__FILE__\)\s*\.\s*\'/install\.php\'\)\)\s*{[^}]+}\h*(?:\n\h*})?\h*~m',
+			'search_pattern' => '~^if\s*\(file_exists\(dirname\(__FILE__\)\s*\.\s*\'/install\.php\'\)\)\s*(?:({(?>[^{}]|(?1))*})\h*|header(\((?' . '>[^()]|(?2))*\));\n)~m',
 			'placeholder' => '',
 		),
 	);
@@ -946,15 +944,6 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	{
 		$placeholder = md5($prefix . $var);
 		$replacement = '';
-
-		if (isset($setting_def['search_pattern']) && isset($setting_def['text']))
-			$setting_def['search_pattern'] = strtr(
-				$setting_def['search_pattern'],
-				array(
-					'{{LAST_TEXT_LINE}}' => preg_quote(trim(substr($setting_def['text'], strrpos(rtrim($setting_def['text']), "\n"))), '~'),
-					'{{FIRST_TEXT_LINE}}' => preg_quote(trim(substr($setting_def['text'], 0, strpos(ltrim($setting_def['text']), "\n"))), '~'),
-				)
-			);
 
 		if (!empty($setting_def['text']))
 		{
@@ -1164,6 +1153,18 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		$substitutions[$var]['replacement'] = '$' . $var . ' = ' . smf_var_export($val, true) . ";";
 	}
 
+	// Don't do anything with the path correction code unless the path vars exist.
+	$pathvars = array(
+		'boarddir' => 'boarddir',
+		'sourcedir' => 'sourcedir',
+		'tasksdir' => 'tasksdir',
+		'packagesdir' => 'packagesdir',
+		'cachedir' => 'cachedir',
+	);
+	$missing_pathvars = array_diff_key($pathvars, $substitutions);
+	if (!empty($missing_pathvars))
+		$substitutions[$pathcode_var]['search_pattern'] = '~' . md5(mt_rand()) . '~';
+
 	// It's important to do the numbered ones before the named ones, or messes happen.
 	uksort($substitutions, function($a, $b) {
 		if (is_int($a) && is_int($b))
@@ -1300,7 +1301,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				{
 					// Try all the other scalar types first.
 					if ($type == 'scalar')
-						$sp = '(?:' . (implode('|', array_diff_key($type_regex, array(gettype($in_c ? $config_vars[$var] : $settings_vars[$var]) => '', 'array' => '', 'object' => '')))) . ')';
+						$sp = '(?:' . (implode('|', array_diff_key($type_regex, array(gettype($in_c ? $config_vars[$var] : ($in_s ? $settings_vars[$var] : PHP_INT_MAX)) => '', 'array' => '', 'object' => '')))) . ')';
 
 					// Maybe it's an object? (Probably not, but we should check.)
 					elseif ($type == 'object')
@@ -1515,7 +1516,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		{
 			foreach ($force_before_pathcode as $var)
 			{
-				if (strpos($settingsText, $substitutions[$var]['placeholder']) > $pathcode_pos)
+				if (!empty($substitutions[$var]['placeholder']) && strpos($settingsText, $substitutions[$var]['placeholder']) > $pathcode_pos)
 				{
 					$settingsText = strtr($settingsText, array(
 						$substitutions[$var]['placeholder'] => '',
