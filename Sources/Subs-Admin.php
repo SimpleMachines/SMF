@@ -347,6 +347,10 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	if (basename($settingsFile) !== 'Settings.php')
 		$settingsFile = (!empty($GLOBALS['boarddir']) && @realpath($GLOBALS['boarddir']) ? $GLOBALS['boarddir'] : (!empty($_SERVER['SCRIPT_FILENAME']) ? dirname($_SERVER['SCRIPT_FILENAME']) : dirname(__DIR__))) . '/Settings.php';
 
+	// File not found? Attempt an emergency on-the-fly fix!
+	if (!file_exists($settingsFile))
+		@touch($settingsFile);
+
 	// When was Settings.php last changed?
 	$last_settings_change = filemtime($settingsFile);
 
@@ -877,6 +881,16 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	// Check if function exists, in case we are calling from installer or upgrader.
 	if (function_exists('call_integration_hook'))
 		call_integration_hook('integrate_update_settings_file', array(&$settings_defs));
+
+	// If Settings.php is empty or invalid, try to recover using whatever is in $GLOBALS.
+	if ($settings_vars === array())
+	{
+		foreach ($settings_defs as $var => $setting_def)
+			if (isset($GLOBALS[$var]))
+				$settings_vars[$var] = $GLOBALS[$var];
+
+		$new_settings_vars = array_merge($settings_vars, $config_vars);
+	}
 
 	/*******************************
 	 * PART 2: Build substitutions *
