@@ -495,8 +495,8 @@ function template_examine()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_examine_file'], '</h3>
 		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['package_file_contents'], ' ', $context['filename'], ':</h3>
+		<div class="title_bar">
+			<h3 class="titlebg">', $txt['package_file_contents'], ' ', $context['filename'], ':</h3>
 		</div>
 		<div class="windowbg">
 			<pre class="file_content">', $context['filedata'], '</pre>
