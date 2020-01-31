@@ -1597,7 +1597,7 @@ function template_php_info()
 				echo '
 								<tr class="windowbg">
 									<td class="equal_table">', $key, '</td>
-									<td colspan="2">', $setting, '</td>
+									<td colspan="2">', str_replace(',', ', ', $setting), '</td>
 								</tr>';
 			}
 		}
