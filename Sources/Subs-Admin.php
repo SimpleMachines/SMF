@@ -892,6 +892,14 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		$new_settings_vars = array_merge($settings_vars, $config_vars);
 	}
 
+	// During install/upgrade, don't set anything until we're ready for it.
+	if (defined('SMF_INSTALLING') && empty($rebuild))
+	{
+		foreach ($settings_defs as $var => $setting_def)
+			if (!in_array($var, array_keys($new_settings_vars)) && !is_int($var))
+				unset($settings_defs[$var]);
+	}
+
 	/*******************************
 	 * PART 2: Build substitutions *
 	 *******************************/
@@ -953,6 +961,12 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			'placeholder' => '',
 		),
 	);
+
+	if (defined('SMF_INSTALLING'))
+		$substitutions[$neg_index--] = array(
+			'search_pattern' => '~/\*.*?SMF\s+1\.\d.*?\*/~s',
+			'placeholder' => '',
+		);
 
 	foreach ($settings_defs as $var => $setting_def)
 	{
@@ -1167,17 +1181,20 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		$substitutions[$var]['replacement'] = '$' . $var . ' = ' . smf_var_export($val, true) . ";";
 	}
 
-	// Don't do anything with the path correction code unless the path vars exist.
-	$pathvars = array(
-		'boarddir' => 'boarddir',
-		'sourcedir' => 'sourcedir',
-		'tasksdir' => 'tasksdir',
-		'packagesdir' => 'packagesdir',
-		'cachedir' => 'cachedir',
-	);
-	$missing_pathvars = array_diff_key($pathvars, $substitutions);
-	if (!empty($missing_pathvars))
-		$substitutions[$pathcode_var]['search_pattern'] = '~' . md5(mt_rand()) . '~';
+	// During an upgrade, some of the path variables may not have been declared yet.
+	if (defined('SMF_INSTALLING') && empty($rebuild))
+	{
+		preg_match_all('~^\h*\$(\w+)\s*=\s*~m', $substitutions[$pathcode_var]['replacement'], $matches);
+		$missing_pathvars = array_diff($matches[1], array_keys($substitutions));
+
+		if (!empty($missing_pathvars))
+		{
+			foreach ($missing_pathvars as $var)
+			{
+				$substitutions[$pathcode_var]['replacement'] = preg_replace('~\nif[^\n]+\$' . $var . '[^\n]+\n\h*\$' . $var . ' = [^\n]+~', '', $substitutions[$pathcode_var]['replacement']);
+			}
+		}
+	}
 
 	// It's important to do the numbered ones before the named ones, or messes happen.
 	uksort($substitutions, function($a, $b) {
@@ -1586,11 +1603,11 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			// Insert it either before or after the path correction code, whichever is appropriate.
 			if (!$pathcode_reached || in_array($var, $force_before_pathcode))
 			{
-				$settingsText = preg_replace('~(?=\n' . preg_quote($substitutions[$pathcode_var]['replacement'], '~') . ')~', "\n" . $substitutions[$var]['replacement'], $settingsText);
+				$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], $substitutions[$var]['replacement'] . "\n$0", $settingsText);
 			}
 			else
 			{
-				$settingsText = preg_replace('~(?<=' . preg_quote($substitutions[$pathcode_var]['replacement'], '~') . '\n)~', $substitutions[$var]['replacement'] . "\n", $settingsText);
+				$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], "$0\n" . $substitutions[$var]['replacement'], $settingsText);
 			}
 		}
 	}
@@ -1600,7 +1617,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	{
 		if (isset($substitutions[$var]) && !preg_match($substitutions[$var]['search_pattern'], $settingsText))
 		{
-			if (strpos($settingsText, '# Custom Settings #') === false)
+			if (!isset($settings_defs[$var]) && strpos($settingsText, '# Custom Settings #') === false)
 				$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n\n######### Custom Settings #########\n", $settingsText);
 
 			$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', $substitutions[$var]['replacement'] . "\n", $settingsText);

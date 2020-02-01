@@ -1163,6 +1163,8 @@ function UpgradeOptions()
 	$upcontext['karma_installed']['good'] = in_array('karma_good', $member_columns);
 	$upcontext['karma_installed']['bad'] = in_array('karma_bad', $member_columns);
 
+	$upcontext['migrate_settings_recommended'] = version_compare(strtolower($modSettings['smfVersion']), substr(SMF_VERSION, 0, strpos(SMF_VERSION, '.') + 1 + strspn(SMF_VERSION, '1234567890', strpos(SMF_VERSION, '.') + 1)) . ' foo', '<');
+
 	unset($member_columns);
 
 	// If we've not submitted then we're done.
@@ -4096,7 +4098,7 @@ function template_upgrade_options()
 						</label>
 					</li>
 					<li>
-						<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty($upcontext['migrateSettingsNeeded']) ? '' : ' checked="checked"', '>
+						<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty($upcontext['migrate_settings_recommended']) ? '' : ' checked="checked"', '>
 						<label for="migrateSettings">
 							', $txt['upgrade_migrate_settings_file'], '
 						</label>
