@@ -4875,7 +4875,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 {
 	global $smcFunc, $step_progress;
 
-	$current_substep = $_GET['substep'];
+	$current_substep = !isset($_GET['substep']) ? 0 : (int) $_GET['substep'];
 
 	if (empty($_GET['a']))
 		$_GET['a'] = 0;
