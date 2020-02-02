@@ -305,7 +305,7 @@ function Register2()
 	// Collect all extra registration fields someone might have filled in.
 	$possible_strings = array(
 		'birthdate',
-		'time_format',
+		'timezone',
 		'buddy_list',
 		'pm_ignore_list',
 		'smiley_set',
