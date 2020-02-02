@@ -1284,7 +1284,7 @@ function UpgradeOptions()
 	$changes = array();
 
 	// Add proxy settings.
-	if (!isset($GLOBALS['image_proxy_secret']))
+	if (!isset($GLOBALS['image_proxy_secret']) || $GLOBALS['image_proxy_secret'] == 'smfisawesome')
 		$changes['image_proxy_secret'] = substr(sha1(mt_rand()), 0, 20);
 	if (!isset($GLOBALS['image_proxy_maxsize']))
 		$changes['image_proxy_maxsize'] = 5190;
