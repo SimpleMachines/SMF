@@ -1707,13 +1707,10 @@ function get_current_settings($mtime = null, $settingsFile = null)
 		$settingsText
 	);
 
-	// Don't try to create db_last_error.php during eval.
-	$settingsText = preg_replace('~file_put_contents\([^\n]+\bdb_last_error\.php[^\n]+~', '', $settingsText);
-
 	// Handle eval errors gracefully in both PHP 5 and PHP 7
 	try
 	{
-		if ($settingsText !== '' && @eval($settingsText) === false)
+		if($settingsText !== '' && @eval($settingsText) === false)
 			throw new ErrorException('eval error');
 
 		unset($mtime, $settingsFile, $settingsText);
@@ -2024,10 +2021,15 @@ function updateDbLastError($time)
 
 	// Write out the db_last_error file with the error timestamp
 	if (!empty($cachedir) && is_writable($cachedir))
-		file_put_contents($cachedir . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';' . "\n" . '?' . '>', LOCK_EX);
+		$errorfile = $cachedir . '/db_last_error.php';
+
+	elseif (file_exists(dirname(__DIR__) . '/cache'))
+		$errorfile = dirname(__DIR__) . '/cache/db_last_error.php';
 
 	else
-		file_put_contents(dirname(__FILE__) . '/cache/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';' . "\n" . '?' . '>', LOCK_EX);
+		$errorfile = dirname(__DIR__) . '/db_last_error.php';
+
+	file_put_contents($errorfile, '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';' . "\n" . '?' . '>', LOCK_EX);
 
 	@touch($boarddir . '/' . 'Settings.php');
 }
