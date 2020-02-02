@@ -1039,7 +1039,7 @@ function loadBoard()
 
 	if (empty($temp))
 	{
-		$custom_column_selects = [];
+		$custom_column_selects = array();
 		$custom_column_parameters = [
 			'current_topic' => $topic,
 			'board_link' => empty($topic) ? $smcFunc['db_quote']('{int:current_board}', array('current_board' => $board)) : 't.id_board',
