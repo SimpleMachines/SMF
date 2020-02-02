@@ -613,7 +613,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		'additional_groups' => '',
 		'ignore_boards' => '',
 		'smiley_set' => '',
-		'timezone' => !empty($regOptions['timezone']) ? $regOptions['timezone'] : 'UTC',
+		'timezone' => empty($regOptions['timezone']) || !in_array($regOptions['timezone'], smf_list_timezones()) ? 'UTC' : $regOptions['timezone'],
 	);
 
 	// Setup the activation status on this new account so it is correct - firstly is it an under age account?
