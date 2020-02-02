@@ -1707,10 +1707,13 @@ function get_current_settings($mtime = null, $settingsFile = null)
 		$settingsText
 	);
 
+	// Don't try to create db_last_error.php during eval.
+	$settingsText = preg_replace('~file_put_contents\([^\n]+\bdb_last_error\.php[^\n]+~', '', $settingsText);
+
 	// Handle eval errors gracefully in both PHP 5 and PHP 7
 	try
 	{
-		if($settingsText !== '' && @eval($settingsText) === false)
+		if ($settingsText !== '' && @eval($settingsText) === false)
 			throw new ErrorException('eval error');
 
 		unset($mtime, $settingsFile, $settingsText);
