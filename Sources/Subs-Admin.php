@@ -824,7 +824,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				'if (!is_dir(realpath($cachedir)) && is_dir($boarddir . \'/cache\'))',
 				'	$cachedir = $boarddir . \'/cache\';',
 			)),
-			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)|\!is_dir\(realpath\(\$(?>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)\))[^\n]+\n\h*\$(?>boarddir|sourcedir|tasksdir|packagesdir|cachedir)[^\n]+;)+~sm',
+			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)|\!is_dir\(realpath\(\$(?>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)\))[^;]+\n\h*\$(?>boarddir|sourcedir|tasksdir|packagesdir|cachedir)[^\n]+;)+~sm',
 		),
 		'db_character_set' => array(
 			'text' => implode("\n", array(
