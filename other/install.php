@@ -528,6 +528,7 @@ function CheckFilesWritable()
 		'agreement.txt',
 		'Settings.php',
 		'Settings_bak.php',
+		'cache/db_last_error.php',
 	);
 
 	foreach ($incontext['detected_languages'] as $lang => $temp)
@@ -812,9 +813,9 @@ function DatabaseSettings()
 		}
 
 		// God I hope it saved!
-		if (!installer_updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
+		if (!installer_updateSettingsFile($vars))
 		{
-			$incontext['error'] = $txt['error_windows_chmod'];
+			$incontext['error'] = $txt['settings_error'];
 			return false;
 		}
 
@@ -1041,9 +1042,9 @@ function ForumSettings()
 		);
 
 		// Must save!
-		if (!installer_updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
+		if (!installer_updateSettingsFile($vars))
 		{
-			$incontext['error'] = $txt['error_windows_chmod'];
+			$incontext['error'] = $txt['settings_error'];
 			return false;
 		}
 
@@ -1867,9 +1868,11 @@ function DeleteInstall()
 	return false;
 }
 
-function installer_updateSettingsFile($vars, $partial = true)
+function installer_updateSettingsFile($vars, $rebuild = false)
 {
-	global $sourcedir;
+	global $sourcedir, $context, $db_character_set, $txt;
+
+	$context['utf8'] = (isset($vars['db_character_set']) && $vars['db_character_set'] === 'utf8') || (!empty($db_character_set) && $db_character_set === 'utf8') || (!empty($txt) && $txt['lang_character_set'] === 'UTF-8');
 
 	if (empty($sourcedir))
 	{
@@ -1879,10 +1882,18 @@ function installer_updateSettingsFile($vars, $partial = true)
 			return false;
 	}
 
+	if (!is_writeable(dirname(__FILE__) . '/Settings.php'))
+	{
+		@chmod(dirname(__FILE__) . '/Settings.php', 0777);
+
+		if (!is_writeable(dirname(__FILE__) . '/Settings.php'))
+			return false;
+	}
+
 	require_once($sourcedir . '/Subs.php');
 	require_once($sourcedir . '/Subs-Admin.php');
 
-	return updateSettingsFile($vars, false, $partial);
+	return updateSettingsFile($vars, false, $rebuild);
 }
 
 // Create an .htaccess file to prevent mod_security. SMF has filtering built-in.
