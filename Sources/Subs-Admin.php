@@ -1279,30 +1279,50 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		// Look before you leap.
 		preg_match_all($substitution['search_pattern'], $bare_settingsText, $matches);
 
-		if (is_string($var) && count($matches[0]) !== 1 && $substitution['replacement'] !== '')
+		if ((is_string($var) || $var === $pathcode_var) && count($matches[0]) !== 1 && $substitution['replacement'] !== '')
 		{
 			// More than one instance of the variable = not good.
 			if (count($matches[0]) > 1)
 			{
-				// Maybe we can try something more interesting?
-				$sp = substr($substitution['search_pattern'], 1);
+				if (is_string($var))
+				{
+					// Maybe we can try something more interesting?
+					$sp = substr($substitution['search_pattern'], 1);
 
-				if (strpos($sp, '(?<=^|\s)') === 0)
-					$sp = substr($sp, 9);
+					if (strpos($sp, '(?<=^|\s)') === 0)
+						$sp = substr($sp, 9);
 
-				if (strpos($sp, '^') === 0 || strpos($sp, '(?<') === 0)
-					return false;
+					if (strpos($sp, '^') === 0 || strpos($sp, '(?<') === 0)
+						return false;
 
-				// See if we can exclude `if` blocks, etc., to narrow down the matches.
-				preg_match_all('~[;}]\s*' . (strpos($sp, '\K') === false ? '\K' : '') . $sp, $bare_settingsText, $matches);
+					// See if we can exclude `if` blocks, etc., to narrow down the matches.
+					// @todo Multiple layers of nested brackets might confuse this.
+					$sp = '~(?:^|//[^\n]+c\n|\*/|[;}]|' . implode('|', array_filter($placeholders)) . ')\s*' . (strpos($sp, '\K') === false ? '\K' : '') . $sp;
 
-				// Hooray!
-				if (count($matches[0]) == 1)
-					$settingsText = preg_replace('~[;}]\s*' . (strpos($sp, '\K') === false ? '\K' : '') . $sp, $substitution['placeholder'], $settingsText);
-
-				// Booooo!
+					preg_match_all($sp, $settingsText, $matches);
+				}
 				else
+					$sp = $substitution['search_pattern'];
+
+				// Found at least some that are simple assignment statements.
+				if (count($matches[0]) > 0)
+				{
+					// Remove any duplicates.
+					if (count($matches[0]) > 1)
+						$settingsText = preg_replace($sp, '', $settingsText, count($matches[0]) - 1);
+
+					// Insert placeholder for the last one.
+					$settingsText = preg_replace($sp, $substitution['placeholder'], $settingsText, 1);
+				}
+
+				// All instances are inside more complex code structures.
+				else
+				{
+					// Only safe option at this point is to skip it.
+					unset($substitutions[$var], $new_settings_vars[$var], $settings_defs[$var], $simple_replacements[$substitution['placeholder']], $replace_patterns[$var], $replace_strings[$var]);
+
 					continue;
+				}
 			}
 			// No matches found.
 			elseif (count($matches[0]) === 0)
