@@ -1163,7 +1163,7 @@ function UpgradeOptions()
 	$upcontext['karma_installed']['good'] = in_array('karma_good', $member_columns);
 	$upcontext['karma_installed']['bad'] = in_array('karma_bad', $member_columns);
 
-	$upcontext['migrate_settings_recommended'] = version_compare(strtolower($modSettings['smfVersion']), substr(SMF_VERSION, 0, strpos(SMF_VERSION, '.') + 1 + strspn(SMF_VERSION, '1234567890', strpos(SMF_VERSION, '.') + 1)) . ' foo', '<');
+	$upcontext['migrate_settings_recommended'] = empty($modSettings['smfVersion']) || version_compare(strtolower($modSettings['smfVersion']), substr(SMF_VERSION, 0, strpos(SMF_VERSION, '.') + 1 + strspn(SMF_VERSION, '1234567890', strpos(SMF_VERSION, '.') + 1)) . ' foo', '<');
 
 	unset($member_columns);
 
