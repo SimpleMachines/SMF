@@ -1087,7 +1087,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 					$var_pattern[] = @$type_regex[gettype($config_vars[$var])];
 
 					if (is_string($config_vars[$var]) && strpos($config_vars[$var], dirname($settingsFile)) === 0)
-						$var_pattern[] = '(?:__DIR__|dirname\(__FILE__\)) . \'' . (str_replace(dirname($settingsFile), '', $config_vars[$var])) . '\'';
+						$var_pattern[] = '(?:__DIR__|dirname\(__FILE__\)) . \'' . (preg_quote(str_replace(dirname($settingsFile), '', $config_vars[$var]), '~')) . '\'';
 				}
 
 				if (in_array($var, array_keys($settings_vars)))
@@ -1095,7 +1095,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 					$var_pattern[] = @$type_regex[gettype($settings_vars[$var])];
 
 					if (is_string($settings_vars[$var]) && strpos($settings_vars[$var], dirname($settingsFile)) === 0)
-						$var_pattern[] = '(?:__DIR__|dirname\(__FILE__\)) . \'' . (str_replace(dirname($settingsFile), '', $settings_vars[$var])) . '\'';
+						$var_pattern[] = '(?:__DIR__|dirname\(__FILE__\)) . \'' . (preg_quote(str_replace(dirname($settingsFile), '', $settings_vars[$var]), '~')) . '\'';
 				}
 
 				if (!empty($setting_def['raw_default']) && $setting_def['default'] !== '')
