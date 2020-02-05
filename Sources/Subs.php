@@ -6566,10 +6566,10 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		static $depth = 0;
 		$depth++;
 
-		$first = @$substr($string, 0, 1);
+		$first = (string) @$substr($string, 0, 1);
 
 		// No first character? That's no good.
-		if (empty($first))
+		if ($first === '')
 		{
 			// A nested array? Really? Ugh. Fine.
 			if (is_array($string) && $depth < 20)
