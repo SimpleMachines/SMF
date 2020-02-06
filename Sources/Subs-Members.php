@@ -846,12 +846,12 @@ function registerMember(&$regOptions, $return_errors = false)
  * current member.
  *
  * @param string $name The name to check
- * @param int $current_ID_MEMBER The ID of the current member (to avoid false positives with the current member)
+ * @param int $current_id_member The ID of the current member (to avoid false positives with the current member)
  * @param bool $is_name Whether we're checking against reserved names or just usernames
  * @param bool $fatal Whether to die with a fatal error if the name is reserved
  * @return bool|void False if name is not reserved, otherwise true if $fatal is false or dies with a fatal_lang_error if $fatal is true
  */
-function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal = true)
+function isReservedName($name, $current_id_member = 0, $is_name = true, $fatal = true)
 {
 	global $modSettings, $smcFunc;
 
@@ -902,25 +902,18 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 			else
 				return true;
 
-	// Get rid of any SQL parts of the reserved name...
-	$checkName = strtr($name, array('_' => '\\_', '%' => '\\%'));
-
-	//when we got no wildcard we can use equal -> fast
-	$operator = (strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=');
-
-	// Make sure they don't want someone else's name.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member
 		FROM {db_prefix}members
-		WHERE ' . (empty($current_ID_MEMBER) ? '' : 'id_member != {int:current_member}
+		WHERE ' . (empty($current_id_member) ? '' : 'id_member != {int:current_member}
 			AND ') . '({raw:real_name} {raw:operator} LOWER({string:check_name}) OR {raw:member_name} {raw:operator} LOWER({string:check_name}))
 		LIMIT 1',
 		array(
 			'real_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name',
 			'member_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(member_name)' : 'member_name',
-			'current_member' => $current_ID_MEMBER,
+			'current_member' => $current_id_member,
 			'check_name' => $checkName,
-			'operator' => $operator,
+			'operator' => strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=',
 		)
 	);
 	if ($smcFunc['db_num_rows']($request) > 0)
@@ -950,7 +943,7 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 	$is_reserved = false;
 
 	// Maybe a mod wants to perform further checks?
-	call_integration_hook('integrate_check_name', array($checkName, &$is_reserved, $current_ID_MEMBER, $is_name));
+	call_integration_hook('integrate_check_name', array($checkName, &$is_reserved, $current_id_member, $is_name));
 
 	return $is_reserved;
 }
