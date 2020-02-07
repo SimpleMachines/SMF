@@ -55,18 +55,18 @@ class postgres_cache extends cache_api
 		if (pg_affected_rows($result) === 0)
 			pg_query($this->db_connection, 'CREATE UNLOGGED TABLE ' . $this->db_prefix . 'cache (key text, value text, ttl bigint, PRIMARY KEY (key))');
 
-		$this->prepareQuery(
-			'smf_cache_get_data',
-			'SELECT value FROM ' . $this->db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1'
-		);
-		$this->prepareQuery(
-			'smf_cache_put_data',
-			'INSERT INTO ' . $this->db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
-			ON CONFLICT(key) DO UPDATE SET value = $2, ttl = $3'
-		);
-		$this->prepareQuery(
-			'smf_cache_delete_data',
-			'DELETE FROM ' . $this->db_prefix . 'cache WHERE key = $1'
+		$this->prepareQueries(
+			array(
+				'smf_cache_get_data',
+				'smf_cache_put_data',
+				'smf_cache_delete_data',
+			),
+			array(
+				'SELECT value FROM ' . $this->db_prefix . 'cache WHERE key = $1 AND ttl >= $2 LIMIT 1',
+				'INSERT INTO ' . $this->db_prefix . 'cache(key,value,ttl) VALUES($1,$2,$3)
+				ON CONFLICT(key) DO UPDATE SET value = $2, ttl = $3',
+				'DELETE FROM ' . $this->db_prefix . 'cache WHERE key = $1',
+			)
 		);
 
 		return true;
@@ -75,19 +75,27 @@ class postgres_cache extends cache_api
 	/**
 	 * Stores a prepared SQL statement, ensuring that it's not done twice.
 	 *
-	 * @param string $stmtname
-	 * @param string $query
+	 * @param array $stmtnames
+	 * @param array $queries
 	 */
-	private function prepareQuery($stmtname, $query)
+	private function prepareQueries(array $stmtnames, array $queries)
 	{
 		$result = pg_query_params(
 			$this->db_connection,
-			'SELECT name FROM pg_prepared_statements WHERE name = $1',
-			array($stmtname)
+			'SELECT name FROM pg_prepared_statements WHERE name = ANY ($1)',
+			array('{' . implode(', ', $stmtnames) . '}')
 		);
 
-		if (pg_num_rows($result) == 0)
-			pg_prepare($this->db_connection, $stmtname, $query);
+		$arr = pg_num_rows($result) == 0 ? array() : array_map(
+			function($el)
+			{
+				return $el['name'];
+			},
+			pg_fetch_all($result)
+		);
+		foreach ($stmtnames as $idx => $stmtname)
+			if (!in_array($stmtname, $arr))
+				pg_prepare($this->db_connection, $stmtname, $queries[$idx]);
 	}
 
 	/**
