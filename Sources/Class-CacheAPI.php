@@ -66,28 +66,33 @@ interface cache_api_interface
 	 * Gets the TTL as defined from set or the default.
 	 *
 	 * @access public
-	 * @return string the value of $ttl.
+	 * @return int the value of $ttl.
 	 */
 	public function getDefaultTTL();
 
 	/**
-	 * Gets data from the cache.
+	 * Retrieves an item from the cache.
 	 *
 	 * @access public
 	 * @param string $key The key to use, the prefix is applied to the key name.
-	 * @param string $ttl Overrides the default TTL.
+	 * @param int    $ttl Overrides the default TTL. Not really used anymore,
+	 *                    but is kept for backwards compatibility.
 	 * @return mixed The result from the cache, if there is no data or it is invalid, we return null.
+	 * @tddo Seprate existence checking into its own method
 	 */
 	public function getData($key, $ttl = null);
 
 	/**
-	 * Saves to data the cache.
+	 * Stores a value, regardless of whether or not the key already exists (in
+	 * which case it will overwrite the existing value for that key).
 	 *
 	 * @access public
-	 * @param string $key The key to use, the prefix is applied to the key name.
-	 * @param mixed $value The data we wish to save.
-	 * @param string $ttl Overrides the default TTL.
+	 * @param string $key   The key to use, the prefix is applied to the key name.
+	 * @param mixed  $value The data we wish to save. Use null to delete.
+	 * @param int    $ttl   How long (in seconds) the data should be cached for.
+	 *                      The default TTL will be used if this is null.
 	 * @return bool Whether or not we could save this to the cache.
+	 * @tddo Seprate deletion into its own method
 	 */
 	public function putData($key, $value, $ttl = null);
 
