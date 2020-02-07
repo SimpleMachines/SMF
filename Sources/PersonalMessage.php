@@ -4080,7 +4080,7 @@ function ApplyRules($all_messages = false)
 				'{db_prefix}pm_labeled_messages',
 				array('id_pm' => 'int', 'id_label' => 'int'),
 				$inserts,
-				array()
+				array('id_pm', 'id_label')
 			);
 		}
 	}
