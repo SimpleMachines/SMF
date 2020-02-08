@@ -662,6 +662,13 @@ function showAlerts($memID)
 		$alerts = fetch_alerts($memID, $alert_id);
 		$alert = array_pop($alerts);
 
+		/* 
+		 * MOD AUTHORS: 
+		 * To control this redirect, use the 'integrate_fetch_alerts' hook to
+		 * set the value of $alert['extra']['content_link'], which will become
+		 * the value for $alert['target_href'].
+		 */
+		
 		// In case it failed to determine this alert's link
 		if (empty($alert['target_href']))
 			redirectexit('action=profile;area=showalerts');
