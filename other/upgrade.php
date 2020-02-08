@@ -4946,7 +4946,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 		$smcFunc['db_free_result']($request);
 
 		// Special case, null ip could keep us in a loop.
-		if (is_null($arIp[0]))
+		if (!isset($arIp[0]) || is_null($arIp[0]) || $arIp[0] == '')
 			unset($arIp[0]);
 
 		if (empty($arIp))
