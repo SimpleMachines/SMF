@@ -2536,7 +2536,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 	if (allowedTo('admin_forum') && isset($_REQUEST['debug']) && !in_array($sub_template_name, array('init', 'main_below')) && ob_get_length() > 0 && !isset($_REQUEST['xml']))
 	{
 		echo '
-<div class="warningbox">---- ', $sub_template_name, ' ends ----</div>';
+<div class="noticebox">---- ', $sub_template_name, ' ends ----</div>';
 	}
 }
 
