@@ -2506,10 +2506,6 @@ function TrackIP($memID = 0)
 	if ($context['single_ip'])
 	{
 		$context['whois_servers'] = array(
-			'afrinic' => array(
-				'name' => $txt['whois_afrinic'],
-				'url' => 'https://www.afrinic.net/cgi-bin/whois?searchtext=' . $context['ip'],
-			),
 			'apnic' => array(
 				'name' => $txt['whois_apnic'],
 				'url' => 'https://wq.apnic.net/apnic-bin/whois.pl?searchtext=' . $context['ip'],
