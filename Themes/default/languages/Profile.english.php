@@ -358,7 +358,6 @@ $txt['display_quick_mod_check'] = 'checkboxes';
 $txt['display_quick_mod_image'] = 'icons';
 
 $txt['whois_title'] = 'Look up IP on a regional whois-server';
-$txt['whois_afrinic'] = 'AfriNIC (Africa)';
 $txt['whois_apnic'] = 'APNIC (Asia Pacific region)';
 $txt['whois_arin'] = 'ARIN (North America, a portion of the Caribbean and sub-Saharan Africa)';
 $txt['whois_lacnic'] = 'LACNIC (Latin American and Caribbean region)';
