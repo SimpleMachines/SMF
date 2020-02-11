@@ -92,6 +92,21 @@ class RedisImplementation extends CacheApi implements CacheApiInterface
 	{
 		// TODO: Implement cleanCache() method.
 	}
+
+	private function sendCommand($command = '')
+	{
+		return (!empty($command) && $this->socket_connection) ? fwrite($this->socket_connection, $command) :false;
+	}
+
+	private function readFromConnection()
+	{
+		return $this->socket_connection ? fgets($this->socket_connection) : '';
+	}
+
+	private function readFromConnectionAtPosition($position)
+	{
+		return $this->socket_connection ? fread($this->socket_connection, $position) : '';
+	}
 }
 
 ?>
