@@ -936,7 +936,10 @@ function loadBoard()
 	if (empty($temp))
 	{
 		$custom_column_selects = [];
-		$custom_column_parameters = [];
+		$custom_column_parameters = [
+			'current_topic' => $topic,
+			'board_link' => empty($topic) ? $smcFunc['db_quote']('{int:current_board}', array('current_board' => $board)) : 't.id_board',
+		];
 
 		call_integration_hook('integrate_load_board', array(&$custom_column_selects, &$custom_column_parameters));
 
@@ -957,10 +960,7 @@ function loadBoard()
 				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = {raw:board_link})
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
 			WHERE b.id_board = {raw:board_link}',
-			array_merge(array(
-				'current_topic' => $topic,
-				'board_link' => empty($topic) ? $smcFunc['db_quote']('{int:current_board}', array('current_board' => $board)) : 't.id_board',
-			), $custom_column_parameters)
+			$custom_column_parameters
 		);
 
 		// If there aren't any, skip.
