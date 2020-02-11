@@ -63,3 +63,5 @@ interface CacheApiInterface
 	 */
 	public function cleanCache($type = '');
 }
+
+?>
