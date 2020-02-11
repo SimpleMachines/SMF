@@ -12,14 +12,14 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Our Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class memcached_cache extends cache_api
+class MemcachedImplementation extends CacheApi implements CacheApiInterface
 {
 	/** @var Memcached The memcache instance. */
 	private $memcached = null;

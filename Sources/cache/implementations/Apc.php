@@ -12,21 +12,21 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Our Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class apcu_cache extends cache_api
+class Apc extends CacheApi implements CacheApiInterface
 {
 	/**
 	 * {@inheritDoc}
 	 */
 	public function isSupported($test = false)
 	{
-		$supported = function_exists('apcu_fetch') && function_exists('apcu_store');
+		$supported = function_exists('apc_fetch') && function_exists('apc_store');
 
 		if ($test)
 			return $supported;
@@ -40,7 +40,7 @@ class apcu_cache extends cache_api
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
-		$value = apcu_fetch($key . 'smf');
+		$value = apc_fetch($key . 'smf');
 
 		return !empty($value) ? $value : null;
 	}
@@ -54,9 +54,9 @@ class apcu_cache extends cache_api
 
 		// An extended key is needed to counteract a bug in APC.
 		if ($value === null)
-			return apcu_delete($key . 'smf');
+			return apc_delete($key . 'smf');
 		else
-			return apcu_store($key . 'smf', $value, $ttl !== null ? $ttl : $this->ttl);
+			return apc_store($key . 'smf', $value, $ttl !== null ? $ttl : $this->ttl);
 	}
 
 	/**
@@ -64,8 +64,18 @@ class apcu_cache extends cache_api
 	 */
 	public function cleanCache($type = '')
 	{
+		// if passed a type, clear that type out
+		if ($type === '' || $type === 'data')
+		{
+			// Always returns true.
+			apc_clear_cache('user');
+			apc_clear_cache('system');
+		}
+		elseif ($type === 'user')
+			apc_clear_cache('user');
+
 		$this->invalidateCache();
-		return apcu_clear_cache();
+		return true;
 	}
 
 	/**
@@ -73,7 +83,7 @@ class apcu_cache extends cache_api
 	 */
 	public function getVersion()
 	{
-		return phpversion('apcu');
+		return phpversion('apc');
 	}
 }
 

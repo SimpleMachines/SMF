@@ -12,14 +12,14 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Our Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class memcache_cache extends cache_api
+class MemcacheImplementation extends CacheApi implements CacheApiInterface
 {
 	/**
 	 * @var \Memcache The memcache instance.

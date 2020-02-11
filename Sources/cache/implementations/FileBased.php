@@ -12,14 +12,14 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Our Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class smf_cache extends cache_api
+class FileBased extends CacheApi implements CacheApiInterface
 {
 	/**
 	 * @var string The path to the current $cachedir directory.

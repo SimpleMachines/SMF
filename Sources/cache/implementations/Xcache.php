@@ -12,25 +12,33 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Our Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class xcache_cache extends cache_api
+class Xcache extends CacheApi implements CacheApiInterface
 {
 	/**
 	 * {@inheritDoc}
 	 */
 	public function __construct()
 	{
-		global $modSettings;
-
 		parent::__construct();
 
-		// Xcache requuires a admin username and password in order to issue a clear.
+		$this->connect();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function connect()
+	{
+		global $modSettings;
+
+		// Xcache requires a admin username and password in order to issue a clear.
 		if (!empty($modSettings['xcache_adminuser']) && !empty($modSettings['xcache_adminpass']))
 		{
 			ini_set('xcache.admin.user', $modSettings['xcache_adminuser']);

@@ -12,14 +12,14 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Our Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class zend_cache extends cache_api
+class Zend extends CacheApi implements CacheApiInterface
 {
 	/**
 	 * {@inheritDoc}
