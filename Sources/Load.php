@@ -3562,6 +3562,9 @@ function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
 
 	$apis_dir = $cacheAPIdir .'/'. CacheApi::APIS_FOLDER;
 
+	// Make sure our class is in session.
+	require_once($cacheAPIdir . '/CacheAPI.php');
+
 	// What accelerator we are going to try.
 	$fully_qualified_class_name = !empty($overrideCache) ? $overrideCache : (!empty($cache_accelerator) ? $cache_accelerator : 'smf');
 

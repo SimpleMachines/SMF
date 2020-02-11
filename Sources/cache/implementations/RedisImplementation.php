@@ -17,9 +17,9 @@ if (!defined('SMF'))
 /**
  * Our Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class redis_cache extends cache_api
+class RedisImplementation extends CacheApi implements CacheApiInterface
 {
 	const PORT = 6379;
 
@@ -87,6 +87,30 @@ class redis_cache extends cache_api
 		$this->port = $port;
 
 		return $this;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getData($key, $ttl = null)
+	{
+		// TODO: Implement getData() method.
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function putData($key, $value, $ttl = null)
+	{
+		// TODO: Implement putData() method.
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function cleanCache($type = '')
+	{
+		// TODO: Implement cleanCache() method.
 	}
 }
 
