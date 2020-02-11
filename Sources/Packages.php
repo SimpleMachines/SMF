@@ -1373,10 +1373,7 @@ function PackageBrowse()
 	$context['page_title'] .= ' - ' . $txt['browse_packages'];
 
 	$context['forum_version'] = SMF_FULL_VERSION;
-	$context['available_modification'] = array();
-	$context['available_avatar'] = array();
-	$context['available_language'] = array();
-	$context['available_unknown'] = array();
+	$context['available_packages'] = 0;
 	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
 
 	call_integration_hook('integrate_modification_types');
@@ -1403,11 +1400,7 @@ function PackageBrowse()
 						'style' => 'width: 40px;',
 					),
 					'data' => array(
-						'function' => function($package_md5) use ($type, &$context)
-						{
-							if (isset($context['available_' . $type . ''][$package_md5]))
-								return $context['available_' . $type . ''][$package_md5]['sort_id'];
-						},
+						'db' => 'sort_id',
 					),
 					'sort' => array(
 						'default' => 'sort_id',
@@ -1420,11 +1413,7 @@ function PackageBrowse()
 						'style' => 'width: 25%;',
 					),
 					'data' => array(
-						'function' => function($package_md5) use ($type, &$context)
-						{
-							if (isset($context['available_' . $type . ''][$package_md5]))
-								return $context['available_' . $type . ''][$package_md5]['name'];
-						},
+						'db' => 'name',
 					),
 					'sort' => array(
 						'default' => 'name',
@@ -1436,11 +1425,7 @@ function PackageBrowse()
 						'value' => $txt['mod_version'],
 					),
 					'data' => array(
-						'function' => function($package_md5) use ($type, &$context)
-						{
-							if (isset($context['available_' . $type . ''][$package_md5]))
-								return $context['available_' . $type . ''][$package_md5]['version'];
-						},
+						'db' => 'version',
 					),
 					'sort' => array(
 						'default' => 'version',
@@ -1452,10 +1437,11 @@ function PackageBrowse()
 						'value' => $txt['mod_installed_time'],
 					),
 					'data' => array(
-						'function' => function($package_md5) use ($type, $txt, &$context)
+						'function' => function ($package) use ($txt)
 						{
-							if (isset($context['available_' . $type . ''][$package_md5]))
-								return !empty($context['available_' . $type . ''][$package_md5]['time_installed']) ? timeformat($context['available_' . $type . ''][$package_md5]['time_installed']) : $txt['not_applicable'];
+							return !empty($package['time_installed'])
+								? timeformat($package['time_installed'])
+								: $txt['not_applicable'];
 						},
 						'class' => 'smalltext',
 					),
@@ -1469,13 +1455,8 @@ function PackageBrowse()
 						'value' => '',
 					),
 					'data' => array(
-						'function' => function($package_md5) use ($type, &$context, $scripturl, $txt)
+						'function' => function($package) use ($context, $scripturl, $txt)
 						{
-							if (!isset($context['available_' . $type . ''][$package_md5]))
-								return '';
-
-							// Rewrite shortcut
-							$package = $context['available_' . $type . ''][$package_md5];
 							$return = '';
 
 							if ($package['can_uninstall'])
@@ -1734,23 +1715,22 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 				// Save some memory by not passing the xmlArray object into context.
 				unset($packageInfo['xml']);
 
-				if (isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]) && $params == $packageInfo['type'])
+				if (isset($sort_id[$packageInfo['type']]) && $params == $packageInfo['type'])
 				{
 					$sort_id[$packageInfo['type']]++;
-					$packages[$packageInfo['type']][strtolower($packageInfo[$sort]) . '_' . $sort_id[$packageInfo['type']]] = md5($package);
-					$context['available_' . $packageInfo['type']][md5($package)] = $packageInfo;
+					$packages[$packageInfo['type']][strtolower($packageInfo[$sort]) . '_' . $sort_id[$packageInfo['type']]] = $packageInfo;
 				}
-				elseif (!isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]) && $params == 'unknown')
+				elseif (!isset($sort_id[$packageInfo['type']]) && $params == 'unknown')
 				{
 					$packageInfo['sort_id'] = $sort_id['unknown'];
 					$sort_id['unknown']++;
-					$packages['unknown'][strtolower($packageInfo[$sort]) . '_' . $sort_id['unknown']] = md5($package);
-					$context['available_unknown'][md5($package)] = $packageInfo;
+					$packages['unknown'][strtolower($packageInfo[$sort]) . '_' . $sort_id['unknown']] = $packageInfo;
 				}
 			}
 		}
 		closedir($dir);
 	}
+	$context['available_packages'] += count($packages[$params]);
 
 	if (isset($_GET['type']) && $_GET['type'] == $params)
 	{

@@ -565,22 +565,18 @@ function template_browse()
 	echo '
 		</div><!-- #admin_form_wrapper -->';
 
-	$mods_available = false;
-	foreach ($context['modification_types'] as $type)
-	{
-		if (!empty($context['available_' . $type]))
-		{
-			template_show_list('packages_lists_' . $type);
-			$mods_available = true;
-		}
-	}
-
-	if (!$mods_available)
+	if ($context['available_packages'] ==  0)
 		echo '
 		<div class="noticebox">', $txt['no_packages'], '</div>';
 	else
+	{
+		foreach ($context['modification_types'] as $type)
+			if (!empty($context['packages_lists_' . $type]['rows']))
+				template_show_list('packages_lists_' . $type);
+
 		echo '
 		<br>';
+	}
 
 	// The advanced (emulation) box, collapsed by default
 	echo '
