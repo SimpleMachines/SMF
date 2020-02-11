@@ -1722,27 +1722,24 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 				if (isset($sort_id[$packageInfo['type']]) && $params == $packageInfo['type'])
 				{
 					$sort_id[$packageInfo['type']]++;
-					$packages[$packageInfo['type']][strtolower($packageInfo[$sort]) . '_' . $sort_id[$packageInfo['type']]] = $packageInfo;
+					$packages[$packageInfo['type'][] = $packageInfo;
 				}
 				elseif (!isset($sort_id[$packageInfo['type']]) && $params == 'unknown')
 				{
 					$packageInfo['sort_id'] = $sort_id['unknown'];
 					$sort_id['unknown']++;
-					$packages['unknown'][strtolower($packageInfo[$sort]) . '_' . $sort_id['unknown']] = $packageInfo;
+					$packages['unknown'][] = $packageInfo;
 				}
 			}
 		}
 		closedir($dir);
 	}
 	$context['available_packages'] += count($packages[$params]);
-
-	if (isset($_GET['type']) && $_GET['type'] == $params)
-	{
-		if (isset($_GET['desc']))
-			krsort($packages[$params]);
-		else
-			ksort($packages[$params]);
-	}
+	array_multisort(
+		array_column($packages[$params], $sort),
+		isset($_GET['desc']) ? SORT_DESC : SORT_ASC,
+		$packages[$params]
+	);
 
 	return $packages[$params];
 }
