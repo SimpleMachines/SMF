@@ -12,14 +12,14 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * PostgreSQL Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class postgres_cache extends cache_api
+class Postgres extends CacheApi implements CacheApiInterface
 {
 	/** @var string */
 	private $db_prefix;

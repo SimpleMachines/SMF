@@ -12,14 +12,14 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * SQLite Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class sqlite_cache extends cache_api
+class Sqlite extends CacheApi implements CacheApiInterface
 {
 	/**
 	 * @var string The path to the current $cachedir directory.

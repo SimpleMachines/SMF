@@ -1627,13 +1627,14 @@ function ShowPHPinfoSettings()
  */
 function loadCacheAPIs()
 {
-	global $sourcedir;
+	global $sourcedir, $txt, $cacheAPIdir, $cacheAPIImplementationdir;
 
 	// Make sure our class is in session.
-	require_once($sourcedir . '/Class-CacheAPI.php');
+	require_once($cacheAPIdir . '/CacheAPI.php');
 
 	$apis = array();
-	$classes = new GlobIterator($sourcedir . '/CacheAPI-*.php', FilesystemIterator::NEW_CURRENT_AND_KEY);
+
+	$classes = new GlobIterator($cacheAPIImplementationdir . '/CacheAPI-*.php', FilesystemIterator::NEW_CURRENT_AND_KEY);
 
 	foreach ($classes as $file => $info)
 	{
