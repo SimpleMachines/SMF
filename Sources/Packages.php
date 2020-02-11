@@ -1532,9 +1532,8 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 	global $scripturl, $packagesdir, $context;
 	static $installed_mods;
 
-	// Start things up
-	if (!isset($packages))
-		$packages = array();
+	$packages = array();
+	$column = array();
 
 	// We need the packages directory to be writable for this.
 	if (!@is_writable($packagesdir))
@@ -1641,6 +1640,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 				$packageInfo['can_upgrade'] = false;
 				$packageInfo['can_emulate_install'] = false;
 				$packageInfo['can_emulate_uninstall'] = false;
+				$column[] = $packageInfo[$sort];
 
 				// This package is currently NOT installed.  Check if it can be.
 				if (!$packageInfo['is_installed'] && $packageInfo['xml']->exists('install'))
