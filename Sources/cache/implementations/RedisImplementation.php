@@ -39,11 +39,18 @@ class RedisImplementation extends CacheApi implements CacheApiInterface
 	private $port = self::PORT;
 
 	/**
+	 * @var false|resource
+	 */
+	private $socket_connection;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public function isSupported($test = false)
 	{
-		$supported = class_exists('Redis');
+		global $cache_redis;
+
+		$supported = !empty($cache_redis);
 
 		if ($test)
 			return $supported;
@@ -53,40 +60,13 @@ class RedisImplementation extends CacheApi implements CacheApiInterface
 
 	public function connect()
 	{
+		global $cache_redis;
 
-	}
+		list($host, $port) = explode(':', $cache_redis);
 
-	/**
-	 * @param Redis $redis
-	 * @return redis_cache
-	 */
-	public function setRedis($redis)
-	{
-		$this->redis = $redis;
+		$socket_connection = fsockopen($host, $port);
 
-		return $this;
-	}
-
-	/**
-	 * @param string $server
-	 * @return redis_cache
-	 */
-	public function setServer($server)
-	{
-		$this->server = $server;
-
-		return $this;
-	}
-
-	/**
-	 * @param int $port
-	 * @return redis_cache
-	 */
-	public function setPort($port)
-	{
-		$this->port = $port;
-
-		return $this;
+		$this->socket_connection = !$socket_connection ? false : $socket_connection;
 	}
 
 	/**
