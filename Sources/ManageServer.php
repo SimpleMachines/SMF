@@ -1627,28 +1627,43 @@ function ShowPHPinfoSettings()
  */
 function loadCacheAPIs()
 {
-	global $sourcedir, $txt, $cacheAPIdir, $cacheAPIImplementationdir;
+	global $cacheAPIdir;
 
-	// Make sure our class is in session.
-	require_once($cacheAPIdir . '/CacheAPI.php');
+	$loadedApis = array();
+	$apis_dir = $cacheAPIdir .'/'. CacheApi::APIS_FOLDER;
 
-	$apis = array();
+	$api_classes = new GlobIterator($apis_dir . '/CacheAPI-*.php', FilesystemIterator::NEW_CURRENT_AND_KEY);
 
-	$classes = new GlobIterator($cacheAPIImplementationdir . '/CacheAPI-*.php', FilesystemIterator::NEW_CURRENT_AND_KEY);
-
-	foreach ($classes as $file => $info)
+	foreach ($api_classes as $file_path => $file_info)
 	{
-		$tryCache = strtolower(explode('-', $info->getBasename('.php'))[1]);
+		$class_name = strtolower(explode('-', $file_info->getBasename('.php'))[1]);
 
-		require_once($sourcedir . '/' . $file);
-		$cache_class_name = $tryCache . '_cache';
-		$testAPI = new $cache_class_name();
+		require_once($apis_dir . '/' . $file_path);
 
-		if ($testAPI->isSupported(true) && $testAPI->connect())
-			$apis[$tryCache] = $testAPI;
+		$fully_qualified_class_name = CacheApi::APIS_NAMESPACE . $class_name;
+
+		/* @var CacheApiInterface $cache_api */
+		$cache_api = new $fully_qualified_class_name();
+
+		if (!($cache_api instanceof CacheApiInterface) || !($cache_api instanceof CacheApi))
+			continue;
+
+		// No Support?  NEXT!
+		if (!$cache_api->isSupported(true))
+			continue;
+
+		$class_name_txt_key = strtolower($class_name);
+
+		$loadedApis[$class_name_txt_key] = array(
+			'class_name' => $class_name,
+			'file_info' => $file_info,
+			'txt_key' => $class_name_txt_key,
+		);
 	}
 
-	return $apis;
+	call_integration_hook('integrate_load_cache_apis', array(&$loadedApis));
+
+	return $loadedApis;
 }
 
 /**
