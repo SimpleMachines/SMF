@@ -1530,11 +1530,11 @@ function PackageBrowse()
 function list_getPackages($start, $items_per_page, $sort, $params)
 {
 	global $scripturl, $packagesdir, $context;
-	static $packages, $installed_mods;
+	static $installed_mods;
 
 	// Start things up
-	if (!isset($packages[$params]))
-		$packages[$params] = array();
+	if (!isset($packages))
+		$packages = array();
 
 	// We need the packages directory to be writable for this.
 	if (!@is_writable($packagesdir))
@@ -1722,26 +1722,26 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 				if (isset($sort_id[$packageInfo['type']]) && $params == $packageInfo['type'])
 				{
 					$sort_id[$packageInfo['type']]++;
-					$packages[$packageInfo['type'][] = $packageInfo;
+					$packages[] = $packageInfo;
 				}
 				elseif (!isset($sort_id[$packageInfo['type']]) && $params == 'unknown')
 				{
 					$packageInfo['sort_id'] = $sort_id['unknown'];
 					$sort_id['unknown']++;
-					$packages['unknown'][] = $packageInfo;
+					$packages[] = $packageInfo;
 				}
 			}
 		}
 		closedir($dir);
 	}
-	$context['available_packages'] += count($packages[$params]);
+	$context['available_packages'] += count($packages);
 	array_multisort(
-		array_column($packages[$params], $sort),
+		$column,
 		isset($_GET['desc']) ? SORT_DESC : SORT_ASC,
-		$packages[$params]
+		$packages
 	);
 
-	return $packages[$params];
+	return $packages;
 }
 
 /**
