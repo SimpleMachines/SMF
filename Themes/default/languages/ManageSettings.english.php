@@ -138,6 +138,7 @@ $txt['memcache_cache'] = 'Memcache';
 $txt['memcached_cache'] = 'Memcached';
 $txt['xcache_cache'] = 'XCache';
 $txt['zend_cache'] = 'Zend Platform/Performance Suite';
+$txt['redis_cache'] = 'Redis caching';
 $txt['cache_smf_settings'] = 'SMF file based caching settings';
 $txt['cache_sqlite_settings'] = 'SQLite3 database caching settings';
 $txt['cache_memcache_settings'] = 'Memcache(d) settings';
