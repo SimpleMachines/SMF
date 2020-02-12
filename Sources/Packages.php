@@ -1518,13 +1518,18 @@ function PackageBrowse()
 
 /**
  * Get a listing of all the packages
- * Determines if the package is a mod, avatar, language package
- * Determines if the package has been installed or not
+ *
+ * Determines if the package is a mod, avatar, or language package and
+ * groups iit accordingly. If a package is not recognised as one of the
+ * above, it is then put into a special group, "unknowsn".
+ *
+ * Determines whether the package has been installed or not by
+ * checking it against loadInstalledPackages().
  *
  * @param int $start The item to start with (not used here)
  * @param int $items_per_page The number of items to show per page (not used here)
  * @param string $sort A string indicating how to sort the results
- * @param string? $params A key for the $packages array
+ * @param string $params Type of packages
  * @return array An array of information about the packages
  */
 function list_getPackages($start, $items_per_page, $sort, $params)
