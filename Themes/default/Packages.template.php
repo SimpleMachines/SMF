@@ -372,7 +372,7 @@ function template_view_package()
 	// And a bit more for database changes.
 	if ($context['uninstalling'] && !empty($context['database_changes']))
 		echo '
-		makeToggle(document.getElementById(\'db_changes_div\'), ', JavaScriptEscape($txt['package_db_uninstall_details']) , ');';
+		makeToggle(document.getElementById(\'db_changes_div\'), ', JavaScriptEscape($txt['package_db_uninstall_details']), ');';
 
 	echo '
 	</script>';
@@ -565,7 +565,7 @@ function template_browse()
 	echo '
 		</div><!-- #admin_form_wrapper -->';
 
-	if ($context['available_packages'] ==  0)
+	if ($context['available_packages'] == 0)
 		echo '
 		<div class="noticebox">', $txt['no_packages'], '</div>';
 	else

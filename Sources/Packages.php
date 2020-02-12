@@ -1155,7 +1155,7 @@ function PackageInstall()
 				// We're really just checking for entries which are create table AND add columns (etc).
 				$tables = array();
 
-				usort($db_package_log, function ($a, $b)
+				usort($db_package_log, function($a, $b)
 				{
 					if ($a[0] == $b[0])
 						return 0;
@@ -1437,7 +1437,7 @@ function PackageBrowse()
 						'value' => $txt['mod_installed_time'],
 					),
 					'data' => array(
-						'function' => function ($package) use ($txt)
+						'function' => function($package) use ($txt)
 						{
 							return !empty($package['time_installed'])
 								? timeformat($package['time_installed'])
