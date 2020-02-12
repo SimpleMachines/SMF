@@ -5563,16 +5563,6 @@ function check_mime_type($data, $type_pattern, $is_path = false)
 	$finfo_loaded = extension_loaded('fileinfo');
 	$exif_loaded = extension_loaded('exif') && function_exists('image_type_to_mime_type');
 
-	// On Windows, the Fileinfo extension may not be enabled by default.
-	if (!$finfo_loaded)
-	{
-		// Maybe we can load it dynamically? (Probably not, but give it a shot.)
-		$safe = ini_get('safe_mode');
-		$dl_ok = ini_get('enable_dl');
-		if (empty($safe) && !empty($dl_ok) && function_exists('dl'))
-			$finfo_loaded = @dl(((PHP_SHLIB_SUFFIX === 'dll') ? 'php_' : '') . 'fileinfo.' . PHP_SHLIB_SUFFIX);
-	}
-
 	// Oh well. We tried.
 	if (!$finfo_loaded && !$exif_loaded)
 		return 2;
