@@ -5549,14 +5549,13 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 }
 
 /**
- * Checks whether a file or data has the expected MIME type.
+ * Attempts to determine the MIME type of some data or a file.
  *
  * @param string $data The data to check, or the path or URL of a file to check.
- * @param string $type_pattern A regex pattern to match the acceptable MIME types.
  * @param string $is_path If true, $data is a path or URL to a file.
- * @return int 1 if the detected MIME type matches the pattern, 0 if it doesn't, or 2 if we can't check.
+ * @return string|bool A MIME type, or false if we cannot determine it.
  */
-function check_mime_type($data, $type_pattern, $is_path = false)
+function get_mime_type($data, $is_path = false)
 {
 	global $cachedir;
 
@@ -5565,13 +5564,16 @@ function check_mime_type($data, $type_pattern, $is_path = false)
 
 	// Oh well. We tried.
 	if (!$finfo_loaded && !$exif_loaded)
-		return 2;
+		return false;
+
+	// Start with the 'empty' MIME type.
+	$mime_type = 'application/x-empty';
 
 	if ($finfo_loaded)
 	{
 		// Just some nice, simple data to analyze.
 		if (empty($is_path))
-			$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME), $data);
+			$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
 
 		// A file, or maybe a URL?
 		else
@@ -5582,11 +5584,7 @@ function check_mime_type($data, $type_pattern, $is_path = false)
 
 			// URL.
 			elseif ($data = fetch_web_data($data))
-				$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME), $data);
-
-			// Non-existent files obviously don't have the right MIME type.
-			else
-				return 0;
+				$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
 		}
 	}
 	// Workaround using Exif requires a local file.
@@ -5610,14 +5608,35 @@ function check_mime_type($data, $type_pattern, $is_path = false)
 
 		$imagetype = @exif_imagetype($data);
 
-		// Unfortunately, this workaround only works for image files.
-		if ($imagetype == false)
-			return 2;
+		if (isset($temp_file))
+			unlink($temp_file);
 
-		$mime_type = image_type_to_mime_type($imagetype);
+		// Unfortunately, this workaround only works for image files.
+		if ($imagetype !== false)
+			$mime_type = image_type_to_mime_type($imagetype);
 	}
 
-	// Finally, check whether the MIME type matches expectations.
+	return $mime_type;
+}
+
+/**
+ * Checks whether a file or data has the expected MIME type.
+ *
+ * @param string $data The data to check, or the path or URL of a file to check.
+ * @param string $type_pattern A regex pattern to match the acceptable MIME types.
+ * @param string $is_path If true, $data is a path or URL to a file.
+ * @return int 1 if the detected MIME type matches the pattern, 0 if it doesn't, or 2 if we can't check.
+ */
+function check_mime_type($data, $type_pattern, $is_path = false)
+{
+	// Get the MIME type.
+	$mime_type = get_mime_type($data, $is_path);
+
+	// Couldn't determine it.
+	if ($mime_type === false)
+		return 2;
+
+	// Check whether the MIME type matches expectations.
 	return (int) @preg_match('~' . $type_pattern . '~', $mime_type);
 }
 
