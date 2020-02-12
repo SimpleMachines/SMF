@@ -21,21 +21,20 @@ if (!defined('SMF'))
  *
  * Load class
  * Initiate as
- *  - $fetch_data = new cURL_fetch_web_data();
- *	- optionally pass an array of cURL options and redirect count
- *	- cURL_fetch_web_data(cURL options array, Max redirects);
- *  - $fetch_data = new cURL_fetch_web_data(array(CURLOPT_SSL_VERIFYPEER => 1), 5);
+ *   <code>$fetch_data = new cURL_fetch_web_data();</code>
+ *   optionally pass an array of cURL options and redirect count
+ *   <code>$fetch_data = new cURL_fetch_web_data(array(CURLOPT_SSL_VERIFYPEER => 1), 5);</code>
  *
  * Make the call
- *  - $fetch_data('https://www.simplemachines.org'); // fetch a page
- *  - $fetch_data('https://www.simplemachines.org', array('user' => 'name', 'password' => 'password')); // post to a page
- *  - $fetch_data('https://www.simplemachines.org', parameter1&parameter2&parameter3); // post to a page
+ *   <code>$fetch_data->get_url_data('https://www.simplemachines.org'); // fetch a page</code>
+ *   <code>$fetch_data->get_url_data('https://www.simplemachines.org', array('user' => 'name', 'password' => 'password')); // post to a page</code>
+ *   <code>$fetch_data->get_url_data('https://www.simplemachines.org', parameter1&parameter2&parameter3); // post to a page</code>
  *
  * Get the data
- *  - $fetch_data->result('body'); // just the page content
- *  - $fetch_data->result(); // an array of results, body, header, http result codes
- *  - $fetch_data->result_raw(); // show all results of all calls (in the event of a redirect)
- *  - $fetch_data->result_raw(0); // show all results of call x
+ *   <code>$fetch_data->result('body'); // just the page content</code>
+ *   <code>$fetch_data->result(); // an array of results, body, header, http result codes</code>
+ *   <code>$fetch_data->result_raw(); // show all results of all calls (in the event of a redirect)</code>
+ *   <code>$fetch_data->result_raw(0); // show all results of call x</code>
  */
 class curl_fetch_web_data
 {

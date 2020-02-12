@@ -1521,10 +1521,10 @@ function PackageBrowse()
  *
  * Determines if the package is a mod, avatar, or language package and
  * groups iit accordingly. If a package is not recognised as one of the
- * above, it is then put into a special group, "unknowsn".
+ * above, it is then put into a special group, "unknown".
  *
  * Determines whether the package has been installed or not by
- * checking it against loadInstalledPackages().
+ * checking it against {@link loadInstalledPackages()}.
  *
  * @param int $start The item to start with (not used here)
  * @param int $items_per_page The number of items to show per page (not used here)
