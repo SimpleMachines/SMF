@@ -448,6 +448,8 @@ function loadUserSettings()
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
 	global $cookiename, $user_info, $language, $context, $cache_enable;
 
+	require_once($sourcedir . '/Subs-Auth.php');
+
 	// Check first the integration, then the cookie, and last the session.
 	if (count($integration_ids = call_integration_hook('integrate_verify_user')) > 0)
 	{
@@ -480,7 +482,6 @@ function loadUserSettings()
 		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
 
 		// Make sure the cookie is set to the correct domain and path
-		require_once($sourcedir . '/Subs-Auth.php');
 		if (array($cookie_domain, $cookie_path) !== url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies'])))
 			setLoginCookie((int) $login_span - time(), $id_member);
 	}
@@ -530,7 +531,7 @@ function loadUserSettings()
 				$check = true;
 			// Password hash should be 40 characters long.
 			elseif (strlen($password) == 40)
-				$check = hash_salt($user_settings['passwd'], $user_settings['password_salt']) == $password;
+				$check = hash_equals(hash_salt($user_settings['passwd'], $user_settings['password_salt']), $password);
 			else
 				$check = false;
 
@@ -586,7 +587,7 @@ function loadUserSettings()
 				}
 
 				// They didn't finish logging in before coming here? Then they're no one to us.
-				if (empty($tfasecret) || hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']) != $tfasecret)
+				if (empty($tfasecret) || !hash_equals(hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']), $tfasecret))
 				{
 					setLoginCookie(-3600, $id_member);
 					$id_member = 0;
