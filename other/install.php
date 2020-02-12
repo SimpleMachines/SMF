@@ -1647,7 +1647,7 @@ function AdminAccount()
 			if (!is_callable('random_int'))
 				require_once('Sources/random_compat/random.php');
 
-			$incontext['member_salt'] = substr(md5(random_int(0, PHP_INT_MAX)), 0, 4);
+			$incontext['member_salt'] = bin2hex(random_bytes(16));
 
 			// Format the username properly.
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
