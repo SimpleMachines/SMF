@@ -231,7 +231,7 @@ $tasksdir = $sourcedir . '/tasks';
  *
  * @var string
  */
-$cacheAPIdir = $sourcedir . '/cache';
+$cacheAPIdir = $sourcedir . '/Cache';
 
 # Make sure the paths are correct... at least try to fix them.
 if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/agreement.txt'))

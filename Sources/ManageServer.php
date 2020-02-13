@@ -761,7 +761,7 @@ function ModifyCacheSettings($return_config = false)
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=cache;save';
 	$context['settings_title'] = $txt['caching_settings'];
 
-	// Changing cache settings won't have any effect if Settings.php is not writeable.
+	// Changing cache settings won't have any effect if Settings.php is not writable.
 	$context['save_disabled'] = $context['settings_not_writable'];
 
 	// Decide what message to show.

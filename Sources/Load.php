@@ -13,6 +13,8 @@
  * @version 2.1 RC3
  */
 
+use SMF\Cache\CacheApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -3563,18 +3565,17 @@ function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
 	// Not overriding this and we have a cacheAPI, send it back.
 	if (empty($overrideCache) && is_object($cacheAPI))
 		return $cacheAPI;
+
 	elseif (is_null($cacheAPI))
 		$cacheAPI = false;
 
-	// Make sure our class is in session.
-	require_once($cacheAPIdir . '/CacheAPI.php');
+	$apis_dir = $cacheAPIdir .'/'. CacheApi::APIS_FOLDER;
 
 	// What accelerator we are going to try.
-	$tryAccelerator = !empty($overrideCache) ? $overrideCache : (!empty($cache_accelerator) ? $cache_accelerator : 'smf');
-	$tryAccelerator = strtolower($tryAccelerator);
+	$fully_qualified_class_name = !empty($overrideCache) ? $overrideCache : (!empty($cache_accelerator) ? $cache_accelerator : 'smf');
 
 	// Do some basic tests.
-	if (file_exists($sourcedir . '/CacheAPI-' . $tryAccelerator . '.php'))
+	if (file_exists($apis_dir . '/CacheAPI-' . $tryAccelerator . '.php'))
 	{
 		require_once($sourcedir . '/CacheAPI-' . $tryAccelerator . '.php');
 
