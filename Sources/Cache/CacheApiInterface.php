@@ -11,6 +11,8 @@
  * @version 2.1 RC2
  */
 
+namespace SMF\Cache;
+
 if (!defined('SMF'))
 	die('No direct access...');
 

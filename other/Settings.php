@@ -233,13 +233,6 @@ $tasksdir = $sourcedir . '/tasks';
  */
 $cacheAPIdir = $sourcedir . '/cache';
 
-/**
- * Path to the cache implementations.
- *
- * @var string
- */
-$cacheAPIImplementationdir = $cacheAPIdir . '/implementations';
-
 # Make sure the paths are correct... at least try to fix them.
 if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/agreement.txt'))
 	$boarddir = dirname(__FILE__);

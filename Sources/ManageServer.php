@@ -59,6 +59,8 @@
  * @version 2.1 RC3
  */
 
+use SMF\Cache\CacheApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 

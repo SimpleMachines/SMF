@@ -11,6 +11,8 @@
  * @version 2.1 RC3
  */
 
+namespace SMF\Cache;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -19,6 +21,7 @@ if (!defined('SMF'))
  */
 interface cache_api_interface
 {
+    const APIS_FOLDER = 'APIs';
 	/**
 	 * Checks whether we can use the cache method performed by this API.
 	 *
