@@ -42,7 +42,8 @@ class Apc extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function connect(){
+	public function connect()
+	{
 		return true;
 	}
 
@@ -68,6 +69,7 @@ class Apc extends CacheApi implements CacheApiInterface
 		// An extended key is needed to counteract a bug in APC.
 		if ($value === null)
 			return apc_delete($key . 'smf');
+
 		else
 			return apc_store($key . 'smf', $value, $ttl !== null ? $ttl : $this->ttl);
 	}
@@ -84,10 +86,12 @@ class Apc extends CacheApi implements CacheApiInterface
 			apc_clear_cache('user');
 			apc_clear_cache('system');
 		}
+
 		elseif ($type === 'user')
 			apc_clear_cache('user');
 
 		$this->invalidateCache();
+
 		return true;
 	}
 

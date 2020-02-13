@@ -58,7 +58,8 @@ class FileBased extends CacheApi implements CacheApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function connect(){
+	public function connect()
+	{
 		return true;
 	}
 
@@ -113,6 +114,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 		// Otherwise custom cache?
 		if ($value === null)
 			@unlink($cachedir . '/data_' . $key . '.php');
+
 		else
 		{
 			$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, "\0" . '\\\'') . '\';}' . '?' . '>';
@@ -123,8 +125,10 @@ class FileBased extends CacheApi implements CacheApiInterface
 			if ($fileSize !== strlen($cache_data))
 			{
 				@unlink($cachedir . '/data_' . $key . '.php');
+
 				return false;
 			}
+
 			else
 				return true;
 		}
@@ -139,7 +143,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 		// No directory = no game.
 		if (!is_dir($cachedir))
-			return;
+			return false;
 
 		// Remove the files in SMF's own disk cache, if any
 		$dh = opendir($cachedir);
@@ -204,6 +208,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 		// If its invalid, use SMF's.
 		if (is_null($dir) || !is_writable($dir))
 			$this->cachedir = $cachedir;
+
 		else
 			$this->cachedir = $dir;
 	}
