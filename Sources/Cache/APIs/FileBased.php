@@ -26,16 +26,6 @@ if (!defined('SMF'))
  */
 class FileBased extends CacheApi implements CacheApiInterface
 {
-    /**
-     * Connects to the cache method. This defines our $key. If this fails, we return false, otherwise we return true.
-     *
-     * @access public
-     * @return boolean Whether or not the cache method was connected to.
-     */
-    public function connect()
-    {
-    }
-
 	/**
 	 * @var string The path to the current $cachedir directory.
 	 */
@@ -61,7 +51,15 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 		if ($test)
 			return $supported;
+
 		return parent::isSupported() && $supported;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function connect(){
+		return true;
 	}
 
 	/**
