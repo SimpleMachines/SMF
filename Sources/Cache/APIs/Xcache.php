@@ -60,6 +60,7 @@ class Xcache extends CacheApi implements CacheApiInterface
 
 		if ($test)
 			return $supported;
+
 		return parent::isSupported() && $supported;
 	}
 
@@ -82,6 +83,7 @@ class Xcache extends CacheApi implements CacheApiInterface
 
 		if ($value === null)
 			return xcache_unset($key);
+
 		else
 			return xcache_set($key, $value, $ttl);
 	}
@@ -104,10 +106,12 @@ class Xcache extends CacheApi implements CacheApiInterface
 		// if passed a type, clear that type out
 		if ($type === '' || $type === 'user')
 			xcache_clear_cache(XC_TYPE_VAR, 0);
+
 		if ($type === '' || $type === 'data')
 			xcache_clear_cache(XC_TYPE_PHP, 0);
 
 		$this->invalidateCache();
+
 		return true;
 	}
 

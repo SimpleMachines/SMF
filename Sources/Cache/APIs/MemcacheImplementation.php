@@ -42,6 +42,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 
 		if ($test)
 			return $supported;
+
 		return parent::isSupported() && $supported && !empty($cache_memcached);
 	}
 
@@ -63,7 +64,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 		while (!$connected && $level < count($servers))
 		{
 			++$level;
-			$this->memcache = new Memcache();
+			$this->memcache = new \Memcache();
 			$server = trim($servers[array_rand($servers)]);
 
 			// No server, can't connect to this.
@@ -73,6 +74,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 			// Normal host names do not contain slashes, while e.g. unix sockets do. Assume alternative transport pipe with port 0.
 			if (strpos($server, '/') !== false)
 				$host = $server;
+
 			else
 			{
 				$server = explode(':', $server);
@@ -83,6 +85,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 			// Don't wait too long: yes, we want the server, but we might be able to run the query faster!
 			if (empty($db_persist))
 				$connected = $this->memcache->connect($host, $port);
+
 			else
 				$connected = $this->memcache->pconnect($host, $port);
 		}
@@ -102,6 +105,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 		// $value should return either data or false (from failure, key not found or empty array).
 		if ($value === false)
 			return null;
+
 		return $value;
 	}
 
@@ -129,6 +133,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	public function cleanCache($type = '')
 	{
 		$this->invalidateCache();
+
 		return $this->memcache->flush();
 	}
 
