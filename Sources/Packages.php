@@ -1645,7 +1645,6 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 				$packageInfo['can_upgrade'] = false;
 				$packageInfo['can_emulate_install'] = false;
 				$packageInfo['can_emulate_uninstall'] = false;
-				$column[] = $packageInfo[$sort];
 
 				// This package is currently NOT installed.  Check if it can be.
 				if (!$packageInfo['is_installed'] && $packageInfo['xml']->exists('install'))
@@ -1726,11 +1725,13 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 
 				if (isset($sort_id[$packageInfo['type']]) && $params == $packageInfo['type'])
 				{
+					$column[] = $packageInfo[$sort];
 					$sort_id[$packageInfo['type']]++;
 					$packages[] = $packageInfo;
 				}
 				elseif (!isset($sort_id[$packageInfo['type']]) && $params == 'unknown')
 				{
+					$column[] = $packageInfo[$sort];
 					$packageInfo['sort_id'] = $sort_id['unknown'];
 					$sort_id['unknown']++;
 					$packages[] = $packageInfo;
