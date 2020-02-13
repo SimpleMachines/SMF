@@ -26,8 +26,6 @@ if (!defined('SMF'))
  */
 class Apc extends CacheApi implements CacheApiInterface
 {
-    public function connect(){}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -39,6 +37,13 @@ class Apc extends CacheApi implements CacheApiInterface
 			return $supported;
 
 		return parent::isSupported() && $supported;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function connect(){
+		return true;
 	}
 
 	/**

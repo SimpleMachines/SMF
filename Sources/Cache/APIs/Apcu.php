@@ -26,8 +26,6 @@ if (!defined('SMF'))
  */
 class Apcu extends CacheApi implements CacheApiInterface
 {
-    public function connect(){}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -38,6 +36,13 @@ class Apcu extends CacheApi implements CacheApiInterface
 		if ($test)
 			return $supported;
 		return parent::isSupported() && $supported;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function connect(){
+		return true;
 	}
 
 	/**
