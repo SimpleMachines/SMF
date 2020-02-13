@@ -11,7 +11,7 @@
  * @version 2.1 RC3
  */
 
-namespace SMF\Cache\CacheApi\APIs;
+namespace SMF\Cache\APIs;
 
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;

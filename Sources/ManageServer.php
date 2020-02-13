@@ -60,6 +60,7 @@
  */
 
 use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -723,18 +724,18 @@ function ModifyCacheSettings($return_config = false)
 	// Maybe we have some additional settings from the selected accelerator.
 	if (!empty($detected))
 	{
-		foreach ($detected as $tryCache => $dummy)
+		foreach ($detected as $fully_qualified_class_name => $txt_key)
 		{
-			$cache_class_name = $tryCache . '_cache';
-
 			// loadCacheAPIs has already included the file, just see if we can't add the settings in.
-			if (is_callable(array($cache_class_name, 'cacheSettings')))
+			if (is_callable(array($fully_qualified_class_name, 'cacheSettings')))
 			{
-				$testAPI = new $cache_class_name();
-				call_user_func_array(array($testAPI, 'cacheSettings'), array(&$config_vars));
+                $classAPI = new $fully_qualified_class_name();
+
+				call_user_func_array(array($classAPI, 'cacheSettings'), array(&$config_vars));
 			}
 		}
 	}
+
 	if ($return_config)
 		return $config_vars;
 
