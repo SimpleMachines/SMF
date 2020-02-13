@@ -11,6 +11,11 @@
  * @version 2.1 RC3
  */
 
+namespace SMF\Cache\CacheApi\APIs;
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -21,6 +26,16 @@ if (!defined('SMF'))
  */
 class FileBased extends CacheApi implements CacheApiInterface
 {
+    /**
+     * Connects to the cache method. This defines our $key. If this fails, we return false, otherwise we return true.
+     *
+     * @access public
+     * @return boolean Whether or not the cache method was connected to.
+     */
+    public function connect()
+    {
+    }
+
 	/**
 	 * @var string The path to the current $cachedir directory.
 	 */

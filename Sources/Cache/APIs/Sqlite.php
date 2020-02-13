@@ -11,6 +11,12 @@
  * @version 2.1 RC3
  */
 
+namespace SMF\Cache\CacheApi\APIs;
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+
+
 if (!defined('SMF'))
 	die('No direct access...');
 
