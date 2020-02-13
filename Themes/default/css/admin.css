@@ -6,7 +6,7 @@
 	margin: 0 0 10px 0;
 	box-shadow: none;
 }
-#admin_content .button {
+#admin_content .button:not(.floatnone) {
 	float: right;
 }
 .action_admin .table_grid td {
