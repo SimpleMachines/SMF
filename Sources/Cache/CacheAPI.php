@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 interface cache_api_interface
 {
-    const APIS_FOLDER = 'APIs';
+	const APIS_FOLDER = 'APIs';
 	/**
 	 * Checks whether we can use the cache method performed by this API.
 	 *
