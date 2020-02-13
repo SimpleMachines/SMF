@@ -11,6 +11,11 @@
  * @version 2.1 RC3
  */
 
+namespace SMF\Cache\CacheApi\APIs;
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -30,8 +35,14 @@ class Zend extends CacheApi implements CacheApiInterface
 
 		if ($test)
 			return $supported;
+
 		return parent::isSupported() && $supported;
 	}
+
+    public function connect()
+    {
+        return true;
+    }
 
 	/**
 	 * {@inheritDoc}
@@ -43,6 +54,7 @@ class Zend extends CacheApi implements CacheApiInterface
 		// Zend's pricey stuff.
 		if (function_exists('zend_shm_cache_fetch'))
 			return zend_shm_cache_fetch('SMF::' . $key);
+
 		elseif (function_exists('output_cache_get'))
 			return output_cache_get($key, $ttl);
 	}
@@ -56,6 +68,7 @@ class Zend extends CacheApi implements CacheApiInterface
 
 		if (function_exists('zend_shm_cache_store'))
 			return zend_shm_cache_store('SMF::' . $key, $value, $ttl);
+
 		elseif (function_exists('output_cache_put'))
 			return output_cache_put($key, $value);
 	}

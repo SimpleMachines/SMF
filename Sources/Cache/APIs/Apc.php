@@ -11,8 +11,13 @@
  * @version 2.1 RC3
  */
 
+namespace SMF\Cache\CacheApi\APIs;
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+
 if (!defined('SMF'))
-	die('No direct access...');
+    die('No direct access...');
 
 /**
  * Our Cache API class
@@ -21,6 +26,8 @@ if (!defined('SMF'))
  */
 class Apc extends CacheApi implements CacheApiInterface
 {
+    public function connect(){}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -30,6 +37,7 @@ class Apc extends CacheApi implements CacheApiInterface
 
 		if ($test)
 			return $supported;
+
 		return parent::isSupported() && $supported;
 	}
 

@@ -11,6 +11,11 @@
  * @version 2.1 RC3
  */
 
+namespace SMF\Cache\CacheApi\APIs;
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -21,6 +26,8 @@ if (!defined('SMF'))
  */
 class Apcu extends CacheApi implements CacheApiInterface
 {
+    public function connect(){}
+
 	/**
 	 * {@inheritDoc}
 	 */
