@@ -729,7 +729,7 @@ function ModifyCacheSettings($return_config = false)
 			// loadCacheAPIs has already included the file, just see if we can't add the settings in.
 			if (is_callable(array($fully_qualified_class_name, 'cacheSettings')))
 			{
-                $classAPI = new $fully_qualified_class_name();
+				$classAPI = new $fully_qualified_class_name();
 
 				call_user_func_array(array($classAPI, 'cacheSettings'), array(&$config_vars));
 			}

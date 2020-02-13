@@ -39,10 +39,10 @@ class Zend extends CacheApi implements CacheApiInterface
 		return parent::isSupported() && $supported;
 	}
 
-    public function connect()
-    {
-        return true;
-    }
+	public function connect()
+	{
+		return true;
+	}
 
 	/**
 	 * {@inheritDoc}
