@@ -112,6 +112,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	{
 		if ($type == 'expired')
 			$query = 'DELETE FROM cache WHERE ttl >= ' . time() . ';';
+
 		else
 			$query = 'DELETE FROM cache;';
 
