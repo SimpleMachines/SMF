@@ -690,8 +690,8 @@ function ModifyCacheSettings($return_config = false)
 	// Detect all available optimizers
 	$detectedCacheApis = loadCacheAPIs();
 
-	$APisNames = array_map(function ($value){
-		return $value['txt_key'];
+	$APisNames = array_map(function ($cacheInfo) use ($txt){
+		return isset($txt[$cacheInfo['txt_key'] . '_cache']) ? $txt[$cacheInfo['txt_key'] . '_cache'] : $cacheInfo['txt_key'];
 	}, $detectedCacheApis);
 
 	// set our values to show what, if anything, we found
@@ -746,6 +746,9 @@ function ModifyCacheSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		call_integration_hook('integrate_save_cache_settings');
+
+		// Save the selected cache info.
+		$_POST['cache_accelerator'] = json_encode($detectedCacheApis[$_POST['cache_accelerator']]);
 
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
