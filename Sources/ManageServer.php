@@ -725,19 +725,21 @@ function ModifyCacheSettings($return_config = false)
 	call_integration_hook('integrate_modify_cache_settings', array(&$config_vars));
 
 	// Maybe we have some additional settings from the selected accelerator.
-	if (!empty($detected))
-	{
-		foreach ($detected as $fully_qualified_class_name => $txt_key)
+	if (!empty($detectedCacheApis))
+		foreach ($detectedCacheApis as $class_key => $class_info)
 		{
-			// loadCacheAPIs has already included the file, just see if we can't add the settings in.
-			if (is_callable(array($fully_qualified_class_name, 'cacheSettings')))
-			{
-				$classAPI = new $fully_qualified_class_name();
+			// No autoload :(
+			$class_name = CacheApi::APIS_NAMESPACE . $class_info['class_name'];
 
-				call_user_func_array(array($classAPI, 'cacheSettings'), array(&$config_vars));
+			// loadCacheAPIs has already included the file, just see if we can't add the settings in.
+			if (is_callable(array($class_name, 'cacheSettings')))
+			{
+				/* @var CacheApiInterface $cache_api */
+				$cache_api = new $class_name();
+
+				$cache_api->cacheSettings($config_vars);
 			}
 		}
-	}
 
 	if ($return_config)
 		return $config_vars;
