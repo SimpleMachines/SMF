@@ -688,20 +688,23 @@ function ModifyCacheSettings($return_config = false)
 	global $context, $scripturl, $txt;
 
 	// Detect all available optimizers
-	$detected = loadCacheAPIs();
-	foreach ($detected as $api => $object)
-		$detected[$api] = isset($txt[$api . '_cache']) ? $txt[$api . '_cache'] : $api;
+	$detectedCacheApis = loadCacheAPIs();
+
+	$APisNames = array_map(function ($value){
+		return $value['txt_key'];
+	}, $detectedCacheApis);
 
 	// set our values to show what, if anything, we found
-	if (empty($detected))
+	if (empty($detectedCacheApis))
 	{
 		$txt['cache_settings_message'] = '<strong class="alert">' . $txt['detected_no_caching'] . '</strong>';
 		$cache_level = array($txt['cache_off']);
-		$detected['none'] = $txt['cache_off'];
+		$APisNames['none'] = $txt['cache_off'];
 	}
+
 	else
 	{
-		$txt['cache_settings_message'] = '<strong class="success">' . sprintf($txt['detected_accelerators'], implode(', ', $detected)) . '</strong>';
+		$txt['cache_settings_message'] = '<strong class="success">' . sprintf($txt['detected_accelerators'], implode(', ', $APisNames)) . '</strong>';
 		$cache_level = array($txt['cache_off'], $txt['cache_level1'], $txt['cache_level2'], $txt['cache_level3']);
 	}
 
@@ -710,7 +713,7 @@ function ModifyCacheSettings($return_config = false)
 		// Only a few settings, but they are important
 		array('', $txt['cache_settings_message'], '', 'desc'),
 		array('cache_enable', $txt['cache_enable'], 'file', 'select', $cache_level, 'cache_enable'),
-		array('cache_accelerator', $txt['cache_accelerator'], 'file', 'select', $detected),
+		array('cache_accelerator', $txt['cache_accelerator'], 'file', 'select', $APisNames),
 	);
 
 	// some javascript to enable / disable certain settings if the option is not selected
