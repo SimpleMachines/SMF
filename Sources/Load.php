@@ -14,6 +14,7 @@
  */
 
 use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -3550,13 +3551,13 @@ function loadDatabase()
 /**
  * Try to load up a supported caching method. This is saved in $cacheAPI if we are not overriding it.
  *
- * @param string $overrideCache Try to use a different cache method other than that defined in $cache_accelerator.
+ * @param array $overrideCache Try to use a different cache method other than that defined in $cache_accelerator.
  * @param bool $fallbackSMF Use the default SMF method if the accelerator fails.
  * @return object|false A object of $cacheAPI, or False on failure.
  */
-function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
+function loadCacheAccelerator($overrideCache = [], $fallbackSMF = true)
 {
-	global $sourcedir, $cacheAPI, $cache_accelerator, $cache_enable, $cacheAPIdir;
+	global $cacheAPI, $cache_accelerator, $cache_enable, $cacheAPIdir;
 
 	// is caching enabled?
 	if (empty($cache_enable) && empty($overrideCache))
@@ -3569,43 +3570,66 @@ function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
 	elseif (is_null($cacheAPI))
 		$cacheAPI = false;
 
+	//	Autoload hasn't been called yet :/
+	require_once($cacheAPIdir .'/CacheApi.php');
+	require_once($cacheAPIdir .'/CacheApiInterface.php');
+
 	$apis_dir = $cacheAPIdir .'/'. CacheApi::APIS_FOLDER;
 
 	// Make sure our class is in session.
 	require_once($cacheAPIdir . '/CacheAPI.php');
 
 	// What accelerator we are going to try.
-	$fully_qualified_class_name = !empty($overrideCache) ? $overrideCache : (!empty($cache_accelerator) ? $cache_accelerator : 'smf');
+	$cache_file_info = !empty($overrideCache) ? $overrideCache : (!empty($cache_accelerator) ?
+		smf_json_decode($cache_accelerator, true) : array(
+			'class_name' => CacheApi::APIS_DEFAULT,
+			'file_info' => array(
+				'basename' => CacheApi::APIS_DEFAULT .'.php',
+			)
+		));
+
+	$file_to_load = $apis_dir . '/' . $cache_file_info['file_info']['basename'];
 
 	// Do some basic tests.
-	if (file_exists($apis_dir . '/CacheAPI-' . $tryAccelerator . '.php'))
+	if (file_exists($file_to_load))
 	{
-		require_once($sourcedir . '/CacheAPI-' . $tryAccelerator . '.php');
+		require_once($file_to_load);
 
-		$cache_class_name = $tryAccelerator . '_cache';
-		$testAPI = new $cache_class_name();
+		$fully_qualified_class_name = CacheApi::APIS_NAMESPACE . $cache_file_info['class_name'];
+
+		/* @var CacheApiInterface $cache_api */
+		$cache_api = new $fully_qualified_class_name();
+
+		// There are rules you know...
+		if (!($cache_api instanceof CacheApiInterface) || !($cache_api instanceof CacheApi))
+			return false;
 
 		// No Support?  NEXT!
-		if (!$testAPI->isSupported())
+		if (!$cache_api->isSupported())
 		{
 			// Can we save ourselves?
-			if (!empty($fallbackSMF) && is_null($overrideCache) && $tryAccelerator != 'smf')
+			if (!empty($fallbackSMF) && is_null($overrideCache) && $cache_file_info['class_name'] != CacheApi::APIS_DEFAULT)
 				return loadCacheAccelerator(null, false);
+
 			return false;
 		}
 
 		// Connect up to the accelerator.
-		$testAPI->connect();
+		$cache_api->connect();
 
 		// Don't set this if we are overriding the cache.
 		if (is_null($overrideCache))
 		{
-			$cacheAPI = $testAPI;
+			$cacheAPI = $cache_api;
+
 			return $cacheAPI;
 		}
+
 		else
-			return $testAPI;
+			return $cache_api;
 	}
+
+	return false;
 }
 
 /**

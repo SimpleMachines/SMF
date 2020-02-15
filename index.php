@@ -60,9 +60,11 @@ if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
 {
 	if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
 		$cachedir = $boarddir . '/cache';
+
 	else
 	{
 		$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
+
 		@mkdir($cachedir, 0750);
 	}
 }
@@ -87,6 +89,7 @@ loadDatabase();
 // Load the settings from the settings table, and perform operations like optimizing.
 $context = array();
 reloadSettings();
+
 // Clean the request variables, add slashes, etc.
 cleanRequest();
 
@@ -113,6 +116,7 @@ if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
 	// If zlib is being used, turn off output compression.
 	if (ini_get('zlib.output_compression') >= 1 || ini_get('output_handler') == 'ob_gzhandler')
 		$modSettings['enableCompressedOutput'] = '0';
+
 	else
 	{
 		ob_end_clean();
