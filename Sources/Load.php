@@ -3559,7 +3559,7 @@ function loadCacheAccelerator($overrideCache = [], $fallbackSMF = true)
 {
 	global $cacheAPI, $cache_accelerator, $cache_enable, $cacheAPIdir;
 
-	// is caching enabled?
+	// Is caching enabled?
 	if (empty($cache_enable) && empty($overrideCache))
 		return false;
 
@@ -3618,7 +3618,7 @@ function loadCacheAccelerator($overrideCache = [], $fallbackSMF = true)
 		$cache_api->connect();
 
 		// Don't set this if we are overriding the cache.
-		if (is_null($overrideCache))
+		if (empty($overrideCache))
 		{
 			$cacheAPI = $cache_api;
 
