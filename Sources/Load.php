@@ -3585,7 +3585,8 @@ function loadCacheAccelerator($overrideCache = [], $fallbackSMF = true)
 			'class_name' => CacheApi::APIS_DEFAULT,
 			'file_info' => array(
 				'basename' => CacheApi::APIS_DEFAULT .'.php',
-			)
+			),
+			'txt_key' => strtolower(CacheApi::APIS_DEFAULT),
 		));
 
 	$file_to_load = $apis_dir . '/' . $cache_file_info['file_info']['basename'];

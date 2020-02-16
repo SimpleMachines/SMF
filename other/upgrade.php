@@ -1368,7 +1368,7 @@ function UpgradeOptions()
 	// Accelerator setting didn't exist previously; use 'smf' file based caching as default if caching had been enabled.
 	if (!isset($GLOBALS['cache_enable']))
 		$changes += array(
-			'cache_accelerator' => !empty($modSettings['cache_enable']) ? '{"class_name":"FileBased","file_info":{"dirname":".","basename":"FileBased.php","extension":"php","filename":"FileBased"},"txt_key":"filebased"}' : '',
+			'cache_accelerator' => upgradeCacheSettings(),
 			'cache_enable' => !empty($modSettings['cache_enable']) ? $modSettings['cache_enable'] : 0,
 			'cache_memcached' => !empty($modSettings['cache_memcached']) ? $modSettings['cache_memcached'] : '',
 		);

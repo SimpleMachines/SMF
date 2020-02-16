@@ -310,6 +310,7 @@ function quickFileWritable($file)
 		// If it's writable, break out of the loop
 		if (is_writable($file))
 			break;
+
 		else
 			@chmod($file, $val);
 	}
@@ -456,4 +457,34 @@ if (!function_exists('array_column'))
 		}
 		return $arr;
 	}
+}
+
+/**
+ * Creates the json_encoded array for the current cache option.
+ *
+ * @return string a json_encoded array with the selected API options
+ */
+function upgradeCacheSettings()
+{
+	$cache_options = array(
+		'smf' => 'FileBase',
+		'apc' => 'Apc',
+		'apcu' => 'Apcu',
+		'memcache' => 'MemcacheImplementation',
+		'memcached' => 'MemcachedImplementation',
+		'postgres' => 'Postgres',
+		'sqlite' => 'Sqlite',
+		'xcache' => 'Xcache',
+		'zend' => 'Zend',
+	);
+
+	$current_cache = !empty($GLOBALS['cache_accelerator']) ? $GLOBALS['cache_accelerator'] : 'smf';
+
+	return json_encode(array(
+		'class_name' => $cache_options[$current_cache],
+		'file_info' => array(
+			'basename' => $cache_options[$current_cache] .'.php'
+		),
+		'txt_key' => strtolower($cache_options[$current_cache]),
+	));
 }
