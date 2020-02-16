@@ -1520,7 +1520,7 @@ function PackageBrowse()
  * Get a listing of all the packages
  *
  * Determines if the package is a mod, avatar, or language package and
- * groups iit accordingly. If a package is not recognised as one of the
+ * groups it accordingly. If a package is not recognised as one of the
  * above, it is then put into a special group, "unknown".
  *
  * Determines whether the package has been installed or not by
