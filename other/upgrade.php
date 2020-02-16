@@ -1368,7 +1368,7 @@ function UpgradeOptions()
 	// Accelerator setting didn't exist previously; use 'smf' file based caching as default if caching had been enabled.
 	if (!isset($GLOBALS['cache_enable']))
 		$changes += array(
-			'cache_accelerator' => !empty($modSettings['cache_enable']) ? 'smf' : '',
+			'cache_accelerator' => !empty($modSettings['cache_enable']) ? '{"class_name":"FileBased","file_info":{"dirname":".","basename":"FileBased.php","extension":"php","filename":"FileBased"},"txt_key":"filebased"}' : '',
 			'cache_enable' => !empty($modSettings['cache_enable']) ? $modSettings['cache_enable'] : 0,
 			'cache_memcached' => !empty($modSettings['cache_memcached']) ? $modSettings['cache_memcached'] : '',
 		);
@@ -1391,6 +1391,7 @@ function UpgradeOptions()
 	{
 		if ($db_type == 'mysql' && $db_port == ini_get('mysqli.default_port'))
 			$changes['db_port'] = 0;
+
 		elseif ($db_type == 'postgresql' && $db_port == 5432)
 			$changes['db_port'] = 0;
 	}
@@ -1402,6 +1403,10 @@ function UpgradeOptions()
 	// Add support for $tasksdir var.
 	if (empty($tasksdir))
 		$changes['tasksdir'] = fixRelativePath($sourcedir) . '/tasks';
+
+	// Add support for $cacheAPIdir var.
+	if (empty($cacheAPIdir))
+		$changes['cacheAPIdir'] = fixRelativePath($sourcedir) . '/Cache';
 
 	// Make sure we fix the language as well.
 	if (stristr($language, '-utf8'))
