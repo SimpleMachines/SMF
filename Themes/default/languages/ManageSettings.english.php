@@ -139,15 +139,24 @@ $txt['postgres_cache'] = 'PostgreSQL caching';
 $txt['cachedir_sqlite'] = 'SQLite3 database cache directory';
 $txt['apc_cache'] = 'APC';
 $txt['apcu_cache'] = 'APCu';
-$txt['memcache_cache'] = 'Memcache';
-$txt['memcached_cache'] = 'Memcached';
+$txt['memcacheimplementation_cache'] = 'Memcache';
+$txt['memcachedimplementation_cache'] = 'Memcached';
 $txt['xcache_cache'] = 'XCache';
 $txt['zend_cache'] = 'Zend Platform/Performance Suite';
-$txt['cache_smf_settings'] = 'SMF file based caching settings';
+$txt['cache_filebased_settings'] = 'SMF file based caching settings';
 $txt['cache_sqlite_settings'] = 'SQLite3 database caching settings';
-$txt['cache_memcache_settings'] = 'Memcache(d) settings';
-$txt['cache_memcache_servers'] = 'Memcache(d) servers';
-$txt['cache_memcache_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
+$txt['cache_memcacheimplementation_settings'] = 'Memcached settings';
+$txt['cache_memcacheimplementation_servers'] = 'Memcached servers';
+$txt['cache_memcacheimplementation_servers_subtext'] = '<br>
+<div class="smalltext">
+Example: 127.0.0.1:11211,127.0.0.2
+</div>';
+$txt['cache_memcacheimplementation_settings'] = 'Memcache settings';
+$txt['cache_memcacheimplementation_servers'] = 'Memcache servers';
+$txt['cache_memcacheimplementation_servers_subtext'] = '<br>
+<div class="smalltext">
+Example: 127.0.0.1:11211,127.0.0.2
+</div>';
 $txt['cache_xcache_settings'] = 'XCache settings';
 $txt['cache_xcache_adminuser'] = 'XCache Admin User';
 $txt['cache_xcache_adminpass'] = 'XCache Admin Password';
