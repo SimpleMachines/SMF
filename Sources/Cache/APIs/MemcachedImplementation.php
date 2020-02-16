@@ -64,6 +64,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 
 		if ($test)
 			return $supported;
+
 		return parent::isSupported() && $supported && !empty($cache_memcached);
 	}
 
@@ -178,7 +179,11 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 		$class_key = $this->getImplementationClassKeyName();
 
 		$config_vars[] = $txt['cache_'. $class_key .'_settings'];
-		$config_vars[] = array('cache_'. $class_key, $txt['cache_'. $class_key .'_servers'], 'file', 'text', 0,
+		$config_vars[] = array(
+			'cache_'. $class_key, $txt['cache_'. $class_key .'_servers'],
+			'file',
+			'text',
+			0,
 			'cache_'. $class_key .'',
 			'postinput' => $txt['cache_memcache_servers_subtext']);
 
