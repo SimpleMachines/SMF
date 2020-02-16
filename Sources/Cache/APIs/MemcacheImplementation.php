@@ -35,7 +35,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	 * {@inheritDoc}
 	 */
 	public function isSupported($test = false)
-	{
+	{return true;
 		global $cache_memcached;
 
 		$supported = class_exists('Memcache');
@@ -144,8 +144,12 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	{
 		global $context, $txt;
 
-		$config_vars[] = $txt['cache_memcache_settings'];
-		$config_vars[] = array('cache_memcached', $txt['cache_memcache_servers'], 'file', 'text', 0, 'cache_memcached', 'postinput' => '<br><div class="smalltext"><em>' . $txt['cache_memcache_servers_subtext'] . '</em></div>');
+		$class_key = $this->getImplementationClassKeyName();
+
+		$config_vars[] = $txt['cache_'. $class_key .'_settings'];
+		$config_vars[] = array('cache_'. $class_key, $txt['cache_'. $class_key .'_servers'], 'file', 'text', 0,
+			'cache_'. $class_key,
+			'postinput' => $txt['cache_'. $class_key .'_servers_subtext']);
 
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';
@@ -153,7 +157,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
-				$("#cache_memcached").prop("disabled", cache_type != "memcache");
+				$("#cache_'. $class_key .'").prop("disabled", cache_type != "'. $class_key .'");
 			});';
 	}
 
