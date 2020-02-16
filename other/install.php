@@ -164,8 +164,12 @@ function initialize_inputs()
 	if (!isset($_SERVER['PHP_SELF']))
 		$_SERVER['PHP_SELF'] = isset($GLOBALS['HTTP_SERVER_VARS']['PHP_SELF']) ? $GLOBALS['HTTP_SERVER_VARS']['PHP_SELF'] : 'install.php';
 
-	// Report all errors except for deprecation notices.
-	error_reporting(E_ALL & ~E_DEPRECATED);
+	// In pre-release versions, report all errors.
+	if (strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION))
+		error_reporting(E_ALL);
+	// Otherwise, report all errors except for deprecation notices.
+	else
+		error_reporting(E_ALL & ~E_DEPRECATED);
 
 	// Fun.  Low PHP version...
 	if (!isset($_GET))
