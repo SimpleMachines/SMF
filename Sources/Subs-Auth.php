@@ -950,6 +950,8 @@ function hash_benchmark($hashTime = 0.2)
 	return $cost;
 }
 
+// Based on code by Trevor Herselman.
+// https://www.php.net/manual/en/function.hash-pbkdf2.php#118301
 if (!function_exists('hash_pbkdf2'))
 {
 	function hash_pbkdf2($algo, $password, $salt, $iterations, $length = 0, $raw_output = false)
@@ -983,6 +985,8 @@ if (!function_exists('hash_pbkdf2'))
 	}
 }
 
+// Based on code by "s rotondo90 at gmail com".
+// https://www.php.net/manual/en/function.hash-equals.php#119576
 if (!function_exists('hash_equals'))
 {
 	function hash_equals($known_string, $user_string)

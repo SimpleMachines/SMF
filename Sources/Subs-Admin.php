@@ -533,7 +533,11 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			'text' => implode("\n", array(
 				'/**',
 				' * Secret key used to create and verify cookies, tokens, etc.',
-				' * Do not change this, and NEVER share it.',
+				' * Do not change this unless absolutely necessary, and NEVER share it.',
+				' *',
+				' * Note: Changing this will immediately log out all members of your forum',
+				' * and break the token-based links in all previous email notifications,',
+				' * among other possible effects.',
 				' *',
 				' * @var string',
 				' */',
