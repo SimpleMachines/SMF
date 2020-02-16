@@ -14,9 +14,6 @@ php:
   - 7.4
 
 script:
-  - sudo add-apt-repository ppa:git-core/ppa -y
-  - sudo apt-get update
-  - sudo apt-get install git
   - git submodule foreach git pull origin master
   - if find . -name "*.php" ! -path "./vendor/*" -exec php -l {} 2>&1 \; | grep "syntax error, unexpected"; then exit 1; fi
   - if php other/buildTools/check-signed-off.php travis | grep "Error:"; then php other/buildTools/check-signed-off.php travis; exit 1; fi
