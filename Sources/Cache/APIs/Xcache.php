@@ -122,11 +122,13 @@ class Xcache extends CacheApi implements CacheApiInterface
 	{
 		global $context, $txt;
 
-		$config_vars[] = $txt['cache_xcache_settings'];
-		$config_vars[] = array('xcache_adminuser', $txt['cache_xcache_adminuser'], 'db', 'text', 0, 'xcache_adminuser');
+		$class_key = $this->getImplementationClassKeyName();
+
+		$config_vars[] = $txt['cache_'. $class_key .'_settings'];
+		$config_vars[] = array($class_key .'_adminuser', $txt['cache_'. $class_key .'_adminuser'], 'db', 'text', 0, $class_key .'_adminuser');
 
 		// While we could md5 this when saving, this could be tricky to be sure it doesn't get corrupted on additional saves.
-		$config_vars[] = array('xcache_adminpass', $txt['cache_xcache_adminpass'], 'db', 'text', 0);
+		$config_vars[] = array($class_key .'_adminpass', $txt['cache_'. $class_key .'_adminpass'], 'db', 'text', 0);
 
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';
@@ -134,8 +136,8 @@ class Xcache extends CacheApi implements CacheApiInterface
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
-				$("#xcache_adminuser").prop("disabled", cache_type != "xcache");
-				$("#xcache_adminpass").prop("disabled", cache_type != "xcache");
+				$("#'. $class_key .'_adminuser").prop("disabled", cache_type != "'. $class_key .'");
+				$("#'. $class_key .'_adminpass").prop("disabled", cache_type != "'. $class_key .'");
 			});';
 	}
 
