@@ -529,8 +529,8 @@ function loadUserSettings()
 			// As much as the password should be right, we can assume the integration set things up.
 			if (!empty($already_verified) && $already_verified === true)
 				$check = true;
-			// Password hash should be 40 characters long.
-			elseif (strlen($password) == 40)
+			// SHA-512 hash should be 128 characters long.
+			elseif (strlen($password) == 128)
 				$check = hash_equals(hash_salt($user_settings['passwd'], $user_settings['password_salt']), $password);
 			else
 				$check = false;
