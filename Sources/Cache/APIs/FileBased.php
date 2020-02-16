@@ -181,7 +181,9 @@ class FileBased extends CacheApi implements CacheApiInterface
 	{
 		global $context, $txt;
 
-		$config_vars[] = $txt['cache_smf_settings'];
+		$class_key = $this->getImplementationClassKeyName();
+
+		$config_vars[] = $txt['cache_'. $class_key .'_settings'];
 		$config_vars[] = array('cachedir', $txt['cachedir'], 'file', 'text', 36, 'cache_cachedir');
 
 		if (!isset($context['settings_post_javascript']))
@@ -189,8 +191,8 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
-				var cache_type = e.currentTarget.value;
-				$("#cachedir").prop("disabled", cache_type != "smf");
+				var cache_type = e.currentTarget.value;console.log(cache_type);
+				$("#cachedir").prop("disabled", cache_type != "'. $class_key .'");
 			});';
 	}
 
