@@ -624,11 +624,16 @@ function redirectLocation($location, $addForm = true)
 function loadEssentialData()
 {
 	global $db_server, $db_user, $db_passwd, $db_name, $db_connection;
-	global $db_prefix, $db_character_set, $db_type, $db_port;
+	global $db_prefix, $db_character_set, $db_type, $db_port, $db_show_debug;
 	global $db_mb4, $modSettings, $sourcedir, $smcFunc, $txt, $utf8;
 
-	// Report all errors except for deprecation notices.
-	error_reporting(E_ALL & ~E_DEPRECATED);
+	// Report all errors if admin wants them or this is a pre-release version.
+	if (!empty($db_show_debug) || strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION))
+		error_reporting(E_ALL);
+	// Otherwise, report all errors except for deprecation notices.
+	else
+		error_reporting(E_ALL & ~E_DEPRECATED);
+
 
 	define('SMF', 1);
 	header('X-Frame-Options: SAMEORIGIN');

@@ -31,9 +31,11 @@ define('POSTGRE_TITLE', 'PostgreSQL');
 define('MYSQL_TITLE', 'MySQL');
 define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
 
-error_reporting(E_ALL);
 if (!defined('TIME_START'))
 	define('TIME_START', microtime(true));
+
+// If anything goes wrong loading Settings.php, make sure the admin knows it.
+error_reporting(E_ALL);
 
 // This makes it so headers can be sent!
 ob_start();
@@ -44,6 +46,9 @@ foreach (array('db_character_set', 'cachedir') as $variable)
 
 // Load the settings...
 require_once(dirname(__FILE__) . '/Settings.php');
+
+// Devs want all error messages, but others don't.
+error_reporting(!empty($db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
 
 // Ensure there are no trailing slashes in these variables.
 foreach (array('boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'taskddir', 'cachedir') as $variable)
