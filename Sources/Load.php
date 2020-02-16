@@ -448,6 +448,8 @@ function loadUserSettings()
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
 	global $cookiename, $user_info, $language, $context, $cache_enable;
 
+	require_once($sourcedir . '/Subs-Auth.php');
+
 	// Check first the integration, then the cookie, and last the session.
 	if (count($integration_ids = call_integration_hook('integrate_verify_user')) > 0)
 	{
@@ -480,7 +482,6 @@ function loadUserSettings()
 		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
 
 		// Make sure the cookie is set to the correct domain and path
-		require_once($sourcedir . '/Subs-Auth.php');
 		if (array($cookie_domain, $cookie_path) !== url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies'])))
 			setLoginCookie((int) $login_span - time(), $id_member);
 	}
@@ -493,7 +494,7 @@ function loadUserSettings()
 			$cookie_data = safe_unserialize($_SESSION['login_' . $cookiename]);
 
 		list($id_member, $password, $login_span) = array_pad((array) $cookie_data, 3, '');
-		$id_member = !empty($id_member) && strlen($password) == 128 && (int) $login_span > time() ? (int) $id_member : 0;
+		$id_member = !empty($id_member) && strlen($password) == 40 && (int) $login_span > time() ? (int) $id_member : 0;
 	}
 
 	// Only load this stuff if the user isn't a guest.
@@ -530,7 +531,7 @@ function loadUserSettings()
 				$check = true;
 			// SHA-512 hash should be 128 characters long.
 			elseif (strlen($password) == 128)
-				$check = hash_salt($user_settings['passwd'], $user_settings['password_salt']) == $password;
+				$check = hash_equals(hash_salt($user_settings['passwd'], $user_settings['password_salt']), $password);
 			else
 				$check = false;
 
@@ -586,7 +587,7 @@ function loadUserSettings()
 				}
 
 				// They didn't finish logging in before coming here? Then they're no one to us.
-				if (empty($tfasecret) || hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']) != $tfasecret)
+				if (empty($tfasecret) || !hash_equals(hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']), $tfasecret))
 				{
 					setLoginCookie(-3600, $id_member);
 					$id_member = 0;
@@ -3710,6 +3711,29 @@ function set_avatar_data($data = array())
 			'href' => '',
 			'url' => '',
 		);
+}
+
+/**
+ * Gets, and if necessary creates, the authentication secret to use for cookies, tokens, etc.
+ *
+ * Note: Never use the $auth_secret variable directly. Always call this function instead.
+ *
+ * @return string The authentication secret.
+ */
+function get_auth_secret()
+{
+	global $auth_secret, $sourcedir, $smcFunc;
+
+	if (empty($auth_secret))
+	{
+		$auth_secret = bin2hex($smcFunc['random_bytes'](32));
+
+		// It is important to store this in Settings.php, not the database.
+		require_once($sourcedir . '/Subs-Admin.php');
+		updateSettingsFile(array('auth_secret' => $auth_secret));
+	}
+
+	return $auth_secret;
 }
 
 ?>

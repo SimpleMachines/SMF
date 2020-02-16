@@ -1027,6 +1027,10 @@ function ForumSettings()
 		// Deal with different operating systems' directory structure...
 		$path = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', __DIR__), '/');
 
+		// Load the compatibility library if necessary.
+		if (!is_callable('random_bytes'))
+			require_once('Sources/random_compat/random.php');
+
 		// Save these variables.
 		$vars = array(
 			'boardurl' => $_POST['boardurl'],
@@ -1037,8 +1041,9 @@ function ForumSettings()
 			'tasksdir' => $path . '/Sources/tasks',
 			'mbname' => strtr($_POST['mbname'], array('\"' => '"')),
 			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),
-			'image_proxy_secret' => substr(sha1(mt_rand()), 0, 20),
+			'image_proxy_secret' => bin2hex(random_bytes(10)),
 			'image_proxy_enabled' => !empty($_POST['force_ssl']),
+			'auth_secret' => bin2hex(random_bytes(32)),
 		);
 
 		// Must save!
@@ -1642,7 +1647,7 @@ function AdminAccount()
 			if (!is_callable('random_int'))
 				require_once('Sources/random_compat/random.php');
 
-			$incontext['member_salt'] = substr(md5(random_int(0, PHP_INT_MAX)), 0, 4);
+			$incontext['member_salt'] = bin2hex(random_bytes(16));
 
 			// Format the username properly.
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
@@ -1717,6 +1722,7 @@ function DeleteInstall()
 {
 	global $smcFunc, $db_character_set, $context, $txt, $incontext;
 	global $databases, $sourcedir, $modSettings, $user_info, $db_type, $boardurl;
+	global $auth_secret;
 
 	$incontext['page_title'] = $txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';

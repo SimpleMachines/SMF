@@ -363,7 +363,7 @@ function smf_main()
 		'modifycat' => array('ManageBoards.php', 'ModifyCat'),
 		'movetopic' => array('MoveTopic.php', 'MoveTopic'),
 		'movetopic2' => array('MoveTopic.php', 'MoveTopic2'),
-		'notify' => array('Notify.php', 'Notify'),
+		'notifyannouncements' => array('Notify.php', 'AnnouncementsNotify'),
 		'notifyboard' => array('Notify.php', 'BoardNotify'),
 		'notifytopic' => array('Notify.php', 'TopicNotify'),
 		'pm' => array('PersonalMessage.php', 'MessageMain'),
