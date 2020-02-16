@@ -3561,7 +3561,7 @@ function loadCacheAccelerator($overrideCache = [], $fallbackSMF = true)
 	elseif (is_null($cacheAPI))
 		$cacheAPI = false;
 
-	//	Autoload hasn't been called yet :/
+	// Autoload hasn't been called yet :/
 	require_once($cacheAPIdir .'/CacheApi.php');
 	require_once($cacheAPIdir .'/CacheApiInterface.php');
 
@@ -3599,7 +3599,8 @@ function loadCacheAccelerator($overrideCache = [], $fallbackSMF = true)
 		if (!$cache_api->isSupported())
 		{
 			// Can we save ourselves?
-			if (!empty($fallbackSMF) && is_null($overrideCache) && $cache_file_info['class_name'] != CacheApi::APIS_DEFAULT)
+			if (!empty($fallbackSMF) && is_null($overrideCache) &&
+				$cache_file_info['class_name'] != CacheApi::APIS_DEFAULT)
 				return loadCacheAccelerator(null, false);
 
 			return false;
