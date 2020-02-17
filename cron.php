@@ -271,7 +271,7 @@ function smf_error_handler_cron($error_level, $error_string, $file, $line)
 {
 	global $modSettings;
 
-	// Ignore errors if we're ignoring them or they are strict notices from PHP 5
+	// Ignore errors that should not be logged.
 	if (error_reporting() == 0)
 		return;
 
