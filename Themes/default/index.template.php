@@ -581,7 +581,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 				$value['id'] = $key;
 
 			$button = '
-				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>'.(!empty($value['icon']) ? '<span class="main_icons '.$value['icon'].'"></span>' : '').'' . $txt[$value['text']] . '</a>';
+				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>' . (!empty($value['icon']) ? '<span class="main_icons ' . $value['icon'] . '"></span>' : '') . '' . $txt[$value['text']] . '</a>';
 
 			if (!empty($value['sub_buttons']))
 			{
@@ -664,13 +664,13 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 	$list_item_format = function($li)
 	{
 		$html = '
-			<li' . (!empty($li['class']) ? ' class="' . $li['class'] . '"' : '') . (!empty($li['id']) ? ' id="' . $li['id'] . '"' : '') . (!empty($li['custom']) ? $li['custom'] : '') . '>';
+			<li' . (!empty($li['class']) ? ' class="' . $li['class'] . '"' : '') . (!empty($li['id']) ? ' id="' . $li['id'] . '"' : '') . (!empty($li['custom']) ? ' ' . $li['custom'] : '') . '>';
 
 		if (isset($li['content']))
 			$html .= $li['content'];
 		else
 			$html .= '
-				<a' . (!empty($li['href']) ? ' href="' . $li['href'] . '"' : '') . (!empty($li['javascript']) ? $li['javascript'] : '') . '>
+				<a' . (!empty($li['href']) ? ' href="' . $li['href'] . '"' : '') . (!empty($li['javascript']) ? ' ' . $li['javascript'] : '') . '>
 					' . (!empty($li['icon']) ? '<span class="main_icons ' . $li['icon'] . '"></span>' : '') . (!empty($li['label']) ? $li['label'] : '') . '
 				</a>';
 
