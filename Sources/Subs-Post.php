@@ -2555,6 +2555,9 @@ function approvePosts($msgs, $approve = true, $notify = true)
 		foreach ($member_post_changes as $id_member => $count_change)
 			updateMemberData($id_member, array('posts' => 'posts ' . ($approve ? '+' : '-') . ' ' . $count_change));
 
+	// In case an external CMS needs to know about this approval/unapproval.
+	call_integration_hook('integrate_after_approve_posts', array($approve, $msgs, $topic_changes, $member_post_changes));
+
 	return true;
 }
 
