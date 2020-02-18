@@ -97,7 +97,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$watched = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$groups = array_merge(array($row['id_group'], $row['id_post_group']), (empty($row['additional_groups']) ? array() : explode(',', $row['additional_groups'])));
+			$groups = array_merge(
+				array($row['id_group'], $row['id_post_group']),
+				(empty($row['additional_groups']) ? array() : explode(',', $row['additional_groups']))
+			);
 
 			if (!in_array(1, $groups) && count(array_intersect($groups, explode(',', $row['member_groups']))) == 0)
 				continue;
@@ -117,10 +120,13 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		if ($type == 'edit')
 		{
 			// Filter out members who have already been notified about this post's topic
-			$unnotified = array_filter($watched, function ($member)
-			{
-				return empty($member['sent']);
-			});
+			$unnotified = array_filter(
+				$watched,
+				function ($member)
+				{
+					return empty($member['sent']);
+				}
+			);
 			$members = array_intersect($members, array_keys($unnotified));
 			$quotedMembers = array_intersect_key($quotedMembers, $unnotified);
 			$msgOptions['mentioned_members'] = array_intersect_key($msgOptions['mentioned_members'], $unnotified);
@@ -260,7 +266,26 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				censorText($parsed_message[$localization]['body']);
 
 				$parsed_message[$localization]['subject'] = un_htmlspecialchars($parsed_message[$localization]['subject']);
-				$parsed_message[$localization]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($parsed_message[$localization]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\'', '</tr>' => "\n", '</td>' => "\t", '<hr>' => "\n---------------------------------------------------------------\n")))));
+				$parsed_message[$localization]['body'] = trim(
+					un_htmlspecialchars(
+						strip_tags(
+							strtr(
+								parse_bbc($parsed_message[$localization]['body'], false),
+								array(
+									'<br>' => "\n",
+									'</div>' => "\n",
+									'</li>' => "\n",
+									'&#91;' => '[',
+									'&#93;' => ']',
+									'&#39;' => '\'',
+									'</tr>' => "\n",
+									'</td>' => "\t",
+									'<hr>' => "\n---------------------------------------------------------------\n",
+								)
+							)
+						)
+					)
+				);
 			}
 
 			// Put $user_info back the way we found it.
@@ -288,7 +313,14 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				);
 
 				$emaildata = loadEmailTemplate($message_type, $replacements, $receiver_lang);
-				$mail_result = sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
+				$mail_result = sendmail(
+					$data['email_address'],
+					$emaildata['subject'],
+					$emaildata['body'],
+					null,
+					'm' . $topicOptions['id'],
+					$emaildata['is_html']
+				);
 
 				// We failed, don't trigger a alert as we don't have a way to attempt to resend just the email currently.
 				if ($mail_result === false)
@@ -308,10 +340,11 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $topicOptions['id'],
 					'content_action' => $type,
 					'is_read' => 0,
-					'extra' => $smcFunc['json_encode'](array(
-						'topic' => $topicOptions['id'],
-						'board' => $topicOptions['board'],
-						'content_subject' => $parsed_message[$localization]['subject'],
+					'extra' => $smcFunc['json_encode'](
+						array(
+							'topic' => $topicOptions['id'],
+							'board' => $topicOptions['board'],
+							'content_subject' => $parsed_message[$localization]['subject'],
 						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . (in_array($type, array('reply', 'topic')) ? '.new;topicseen#new' : '.0'),
 					)),
 				);
@@ -341,7 +374,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$smcFunc['db_insert']('',
 			'{db_prefix}log_digest',
 			array(
-				'id_topic' => 'int', 'id_msg' => 'int', 'note_type' => 'string', 'exclude' => 'int',
+				'id_topic' => 'int',
+				'id_msg' => 'int',
+				'note_type' => 'string',
+				'exclude' => 'int',
 			),
 			array($topicOptions['id'], $msgOptions['id'], $type, $posterOptions['id']),
 			array()
@@ -351,8 +387,17 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		if (!empty($alert_rows))
 			$smcFunc['db_insert']('',
 				'{db_prefix}user_alerts',
-				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
-					'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
+				array(
+					'alert_time' => 'int',
+					'id_member' => 'int',
+					'id_member_started' => 'int',
+					'member_name' => 'string',
+					'content_type' => 'string',
+					'content_id' => 'int',
+					'content_action' => 'string',
+					'is_read' => 'int',
+					'extra' => 'string',
+				),
 				$alert_rows,
 				array()
 			);
@@ -384,8 +429,20 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'CONTENTLINK' => $scripturl . '?msg=' . $msgOptions['id'],
 				);
 
-				$emaildata = loadEmailTemplate('msg_quote', $replacements, empty($member['lngfile']) || empty($modSettings['userLanguage']) ? $language : $member['lngfile']);
-				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_quote_' . $msgOptions['id'], $emaildata['is_html'], 2);
+				$emaildata = loadEmailTemplate(
+					'msg_quote',
+					$replacements,
+					empty($member['lngfile']) || empty($modSettings['userLanguage']) ? $language : $member['lngfile']
+				);
+				sendmail(
+					$member['email_address'],
+					$emaildata['subject'],
+					$emaildata['body'],
+					null,
+					'msg_quote_' . $msgOptions['id'],
+					$emaildata['is_html'],
+					2
+				);
 			}
 
 			// Bitwise check: Receiving a alert?
@@ -400,10 +457,12 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $msgOptions['id'],
 					'content_action' => 'quote',
 					'is_read' => 0,
-					'extra' => $smcFunc['json_encode'](array(
-						'content_subject' => $msgOptions['subject'],
-						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
-					)),
+					'extra' => $smcFunc['json_encode'](
+						array(
+							'content_subject' => $msgOptions['subject'],
+							'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
+						)
+					),
 				);
 			}
 		}
@@ -413,7 +472,12 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 	{
 		global $smcFunc;
 
-		$blocks = preg_split('/(\[quote.*?\]|\[\/quote\])/i', $msgOptions['body'], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+		$blocks = preg_split(
+			'/(\[quote.*?\]|\[\/quote\])/i',
+			$msgOptions['body'],
+			-1,
+			PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
+		);
 
 		$quote_level = 0;
 		$message = '';
@@ -495,8 +559,20 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'CONTENTLINK' => $scripturl . '?msg=' . $msgOptions['id'],
 				);
 
-				$emaildata = loadEmailTemplate('msg_mention', $replacements, empty($member['lngfile']) || empty($modSettings['userLanguage']) ? $language : $member['lngfile']);
-				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_mention_' . $msgOptions['id'], $emaildata['is_html'], 2);
+				$emaildata = loadEmailTemplate(
+					'msg_mention',
+					$replacements,
+					empty($member['lngfile']) || empty($modSettings['userLanguage']) ? $language : $member['lngfile']
+				);
+				sendmail(
+					$member['email_address'],
+					$emaildata['subject'],
+					$emaildata['body'],
+					null,
+					'msg_mention_' . $msgOptions['id'],
+					$emaildata['is_html'],
+					2
+				);
 			}
 
 			if ($prefs[$id]['msg_mention'] & self::RECEIVE_NOTIFY_ALERT)
@@ -510,10 +586,12 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $msgOptions['id'],
 					'content_action' => 'mention',
 					'is_read' => 0,
-					'extra' => $smcFunc['json_encode'](array(
-						'content_subject' => $msgOptions['subject'],
-						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
-					)),
+					'extra' => $smcFunc['json_encode'](
+						array(
+							'content_subject' => $msgOptions['subject'],
+							'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
+						)
+					),
 				);
 			}
 		}
