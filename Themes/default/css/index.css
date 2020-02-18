@@ -112,7 +112,7 @@ input, button, select {
 /* Number inputs don't support size nor width, so add some common ones here and set a default... */
 input[type="number"] {
 	padding-right: 0; /* Removes weird white space after arrows in some browsers */
-	width: calc(6ch + 15px + 0.8em);
+	width: calc(8ch + 2em);
 }
 select option {
 	padding: 0 4px;
