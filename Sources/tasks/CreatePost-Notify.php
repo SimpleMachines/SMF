@@ -254,39 +254,32 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				$user_info['time_offset'] = empty($data['time_offset']) ? 0 : $data['time_offset'];
 
 			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
-			$localization = implode('|', array($receiver_lang, $user_info['time_offset'], $user_info['time_format']));
-			if (empty($parsed_message[$localization]))
-			{
-				loadLanguage('index+Modifications', $receiver_lang, false);
+			loadLanguage('index+Modifications', $receiver_lang, false);
 
-				$parsed_message[$localization]['subject'] = $msgOptions['subject'];
-				$parsed_message[$localization]['body'] = $msgOptions['body'];
+			censorText($msgOptions['subject']);
+			censorText($msgOptions['body']);
 
-				censorText($parsed_message[$localization]['subject']);
-				censorText($parsed_message[$localization]['body']);
-
-				$parsed_message[$localization]['subject'] = un_htmlspecialchars($parsed_message[$localization]['subject']);
-				$parsed_message[$localization]['body'] = trim(
-					un_htmlspecialchars(
-						strip_tags(
-							strtr(
-								parse_bbc($parsed_message[$localization]['body'], false),
-								array(
-									'<br>' => "\n",
-									'</div>' => "\n",
-									'</li>' => "\n",
-									'&#91;' => '[',
-									'&#93;' => ']',
-									'&#39;' => '\'',
-									'</tr>' => "\n",
-									'</td>' => "\t",
-									'<hr>' => "\n---------------------------------------------------------------\n",
-								)
+			$msgOptions['subject'] = un_htmlspecialchars($msgOptions['subject']);
+			$msgOptions['body'] = trim(
+				un_htmlspecialchars(
+					strip_tags(
+						strtr(
+							parse_bbc($msgOptions['body'], false),
+							array(
+								'<br>' => "\n",
+								'</div>' => "\n",
+								'</li>' => "\n",
+								'&#91;' => '[',
+								'&#93;' => ']',
+								'&#39;' => '\'',
+								'</tr>' => "\n",
+								'</td>' => "\t",
+								'<hr>' => "\n---------------------------------------------------------------\n",
 							)
 						)
 					)
-				);
-			}
+				)
+			);
 
 			// Put $user_info back the way we found it.
 			if (isset($real_user_info))
@@ -305,10 +298,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				$token = createUnsubscribeToken($data['id_member'], $data['email_address'], $content_type, $itemID);
 
 				$replacements = array(
-					'TOPICSUBJECT' => $parsed_message[$localization]['subject'],
+					'TOPICSUBJECT' => $msgOptions['subject'],
 					'POSTERNAME' => un_htmlspecialchars($posterOptions['name']),
 					'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
-					'MESSAGE' => $parsed_message[$localization]['body'],
+					'MESSAGE' => $msgOptions['body'],
 					'UNSUBSCRIBELINK' => $scripturl . '?action=notify' . $content_type . ';' . $content_type . '=' . $itemID . ';sa=off;u=' . $data['id_member'] . ';token=' . $token,
 				);
 
@@ -344,9 +337,14 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 						array(
 							'topic' => $topicOptions['id'],
 							'board' => $topicOptions['board'],
-							'content_subject' => $parsed_message[$localization]['subject'],
-						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . (in_array($type, array('reply', 'topic')) ? '.new;topicseen#new' : '.0'),
-					)),
+							'content_subject' => $msgOptions['subject'],
+							'content_link' => sprintf(
+								'%s?topic=%d%s',
+								$scripturl,
+								$topicOptions['id'],
+								in_array($type, array('reply', 'topic')) ? '.new;topicseen#new' : '.0'
+							),
+						),
 				);
 
 				$receiving_members[] = $member;
