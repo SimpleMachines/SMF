@@ -325,7 +325,7 @@ function template_body_above()
 	echo '
 	<div id="header">
 		<h1 class="forumtitle">
-			', !empty($context['current_action']) || !empty($_GET) ? '<a id="top" href="' . $scripturl . '">' : '', empty($context['header_logo_url_html_safe']) ? $context['forum_name_html_safe'] : '<img src="' . $context['header_logo_url_html_safe'] . '" alt="' . $context['forum_name_html_safe'] . '">', !empty($context['current_action']) || !empty($_GET) ? '</a>' : '', '
+			<a id="top" href="', $scripturl, '">', empty($context['header_logo_url_html_safe']) ? $context['forum_name_html_safe'] : '<img src="' . $context['header_logo_url_html_safe'] . '" alt="' . $context['forum_name_html_safe'] . '">', '</a>
 		</h1>';
 
 	echo '
