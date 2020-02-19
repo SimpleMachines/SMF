@@ -268,7 +268,6 @@ function BanList()
 		'additional_rows' => array(
 			array(
 				'position' => 'top_of_list',
-				'class' => 'floatright',
 				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" class="button">',
 			),
 			array(
@@ -2114,7 +2113,6 @@ function BanLog()
 		'additional_rows' => array(
 			array(
 				'position' => 'top_of_list',
-				'class' => 'floatright',
 				'value' => '
 					<input type="submit" name="removeSelected" value="' . $txt['ban_log_remove_selected'] . '" data-confirm="' . $txt['ban_log_remove_selected_confirm'] . '" class="button you_sure">
 					<input type="submit" name="removeAll" value="' . $txt['ban_log_remove_all'] . '" data-confirm="' . $txt['ban_log_remove_all_confirm'] . '" class="button you_sure">',
