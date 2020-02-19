@@ -648,6 +648,11 @@ table.table_grid td {
 .additional_row {
 	padding: 6px 0 6px 0;
 }
+.additional_row::after {
+	content: "";
+	display: block;
+	clear: both;
+}
 img.sort, .sort {
 	margin-bottom: -4px;
 	margin-left: 4px;
