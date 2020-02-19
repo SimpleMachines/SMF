@@ -185,7 +185,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 			'text',
 			0,
 			'cache_'. $class_key .'',
-			'postinput' => $txt['cache_memcache_servers_subtext']);
+			'subtext' => $txt['cache_memcache_servers_subtext']);
 
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';
