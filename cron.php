@@ -306,7 +306,7 @@ function obExit_cron()
 abstract class SMF_BackgroundTask
 {
 	/**
-	 * Constants for notfication types.
+	 * Constants for notification types.
 	*/
 	const RECEIVE_NOTIFY_EMAIL = 0x02;
 	const RECEIVE_NOTIFY_ALERT = 0x01;
@@ -316,6 +316,8 @@ abstract class SMF_BackgroundTask
 	 */
 	protected $_details;
 
+	private $current_user_info = array();
+
 	/**
 	 * The constructor.
 	 *
@@ -323,7 +325,11 @@ abstract class SMF_BackgroundTask
 	 */
 	public function __construct($details)
 	{
+		global $user_info;
+
 		$this->_details = $details;
+
+		$this->current_user_info = $user_info;
 	}
 
 	/**
@@ -332,6 +338,26 @@ abstract class SMF_BackgroundTask
 	 * @return mixed
 	 */
 	abstract public function execute();
+
+	/**
+	 * Loads minimal info for the current incontext user
+	 *
+	 * @return array
+	 */
+	public function getIncontextUserInfo($userId = 0)
+	{
+		if (empty($userId))
+			return array();
+
+
+	}
+
+	public function __destruct()
+	{
+		global $user_info;
+
+		$user_info = $this->current_user_info;
+	}
 }
 
 ?>

@@ -35,8 +35,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 	const FREQUENCY_WEEKLY_DIGEST = 4;
 
 	/**
-     * This handles notifications when a new post is created - new topic, reply, quotes and mentions.
+	 * This handles notifications when a new post is created - new topic, reply, quotes and mentions.
 	 * @return bool Always returns true
+	 * @throws Exception
 	 */
 	public function execute()
 	{
