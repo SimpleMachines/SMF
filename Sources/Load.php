@@ -516,8 +516,21 @@ function loadUserSettings()
 			$user_settings = $smcFunc['db_fetch_assoc']($request);
 			$smcFunc['db_free_result']($request);
 
-			if (!empty($user_settings['avatar']))
-				$user_settings['avatar'] = get_proxied_url($user_settings['avatar']);
+			$user_settings['groups'] = array_merge(
+				array($user_settings['id_group'], $user_settings['id_post_group']),
+				explode(',', $user_settings['additional_groups'])
+			);
+
+			// Figure out the new time offset.
+			if (!empty($user_settings['timezone']))
+			{
+				// Get the offsets from UTC for the server, then for the user.
+				$tz_system = new DateTimeZone(@date_default_timezone_get());
+				$tz_user = new DateTimeZone($user_settings['timezone']);
+				$time_system = new DateTime('now', $tz_system);
+				$time_user = new DateTime('now', $tz_user);
+				$user_settings['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
+			}
 
 			if (!empty($cache_enable) && $cache_enable >= 2)
 				cache_put_data('user_settings-' . $id_member, $user_settings, 60);
@@ -605,6 +618,7 @@ function loadUserSettings()
 		// Are we forcing 2FA? Need to check if the user groups actually require 2FA
 		elseif ($force_tfasetup)
 		{
+			$total = 1;
 			if ($modSettings['tfa_mode'] == 2) //only do this if we are just forcing SOME membergroups
 			{
 				//Build an array of ALL user membergroups.
@@ -626,21 +640,86 @@ function loadUserSettings()
 						'full_groups' => $full_groups,
 					)
 				);
-				$row = $smcFunc['db_fetch_assoc']($request);
+				list ($total) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 			}
-			else
-				$row['total'] = 1; //simplifies logics in the next "if"
 
 			$area = !empty($_REQUEST['area']) ? $_REQUEST['area'] : '';
 			$action = !empty($_REQUEST['action']) ? $_REQUEST['action'] : '';
 
-			if ($row['total'] > 0 && !in_array($action, array('profile', 'logout')) || ($action == 'profile' && $area != 'tfasetup'))
+			if ($total > 0 && !in_array($action, array('profile', 'logout')) || ($action == 'profile' && $area != 'tfasetup'))
 				redirectexit('action=profile;area=tfasetup;forced');
 		}
 	}
 
+	// If the user is a guest, initialize all the critical user settings.
+	if ($id_member == 0)
+	{
+		if (isset($_COOKIE[$cookiename]) && empty($context['tfa_member']))
+			$_COOKIE[$cookiename] = '';
+
+		// Expire the 2FA cookie
+		if (isset($_COOKIE[$cookiename . '_tfa']) && empty($context['tfa_member']))
+		{
+			$tfa_data = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
+
+			list (,, $exp) = array_pad((array) $tfa_data, 3, 0);
+
+			if (time() > $exp)
+			{
+				$_COOKIE[$cookiename . '_tfa'] = '';
+				setTFACookie(-3600, 0, '');
+			}
+		}
+
+		// Create a login token if it doesn't exist yet.
+		if (!isset($_SESSION['token']['post-login']))
+			createToken('login');
+		else
+			list ($context['login_token_var'],,, $context['login_token']) = $_SESSION['token']['post-login'];
+
+		// Login Cookie times. Format: time => txt
+		$context['login_cookie_times'] = array(
+			3153600 => 'always_logged_in',
+			60 => 'one_hour',
+			1440 => 'one_day',
+			10080 => 'one_week',
+			43200 => 'one_month',
+		);
+
+		$user_settings = array();
+	}
+
 	// Found 'im, let's set up the variables.
+	updateLastLogin($id_member,  $user_settings);
+	$user_info = loadUserInfo($id_member, $user_settings);
+	$user_info['possibly_robot'] = loadRobotInfo($id_member);
+
+	// Allow the user to change their language.
+	if (!empty($modSettings['userLanguage']))
+	{
+		$languages = getLanguages();
+
+		// Is it valid?
+		if (!empty($_GET['language']) && isset($languages[strtr($_GET['language'], './\\:', '____')]))
+		{
+			$user_info['language'] = strtr($_GET['language'], './\\:', '____');
+
+			// Make it permanent for members.
+			if (!empty($user_info['id']))
+				updateMemberData($user_info['id'], array('lngfile' => $user_info['language']));
+			else
+				$_SESSION['language'] = $user_info['language'];
+		}
+		elseif (!empty($_SESSION['language']) && isset($languages[strtr($_SESSION['language'], './\\:', '____')]))
+			$user_info['language'] = strtr($_SESSION['language'], './\\:', '____');
+	}
+}
+
+function updateLastLogin($id_member, $user_settings)
+{
+	global $cache_enable, $smcFunc;
+
 	if ($id_member != 0)
 	{
 		// Let's not update the last visit time in these cases...
@@ -682,120 +761,58 @@ function loadUserSettings()
 		}
 		elseif (empty($_SESSION['id_msg_last_visit']))
 			$_SESSION['id_msg_last_visit'] = $user_settings['id_msg_last_visit'];
-
-		$username = $user_settings['member_name'];
-
-		if (empty($user_settings['additional_groups']))
-			$user_info = array(
-				'groups' => array($user_settings['id_group'], $user_settings['id_post_group'])
-			);
-		else
-			$user_info = array(
-				'groups' => array_merge(
-					array($user_settings['id_group'], $user_settings['id_post_group']),
-					explode(',', $user_settings['additional_groups'])
-				)
-			);
-
-		// Because history has proven that it is possible for groups to go bad - clean up in case.
-		$user_info['groups'] = array_map('intval', $user_info['groups']);
-
-		// This is a logged in user, so definitely not a spider.
-		$user_info['possibly_robot'] = false;
-
-		// Figure out the new time offset.
-		if (!empty($user_settings['timezone']))
-		{
-			// Get the offsets from UTC for the server, then for the user.
-			$tz_system = new DateTimeZone(@date_default_timezone_get());
-			$tz_user = new DateTimeZone($user_settings['timezone']);
-			$time_system = new DateTime('now', $tz_system);
-			$time_user = new DateTime('now', $tz_user);
-			$user_info['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
-		}
-		else
-		{
-			// !!! Compatibility.
-			$user_info['time_offset'] = empty($user_settings['time_offset']) ? 0 : $user_settings['time_offset'];
-		}
 	}
-	// If the user is a guest, initialize all the critical user settings.
-	else
+}
+
+function loadRobotInfo($id_member)
+{
+	global $modSettings, $sourcedir;
+
+	$possibly_robot = false;
+	if ($id_member == 0)
 	{
-		// This is what a guest's variables should be.
-		$username = '';
-		$user_info = array('groups' => array(-1));
-		$user_settings = array();
-
-		if (isset($_COOKIE[$cookiename]) && empty($context['tfa_member']))
-			$_COOKIE[$cookiename] = '';
-
-		// Expire the 2FA cookie
-		if (isset($_COOKIE[$cookiename . '_tfa']) && empty($context['tfa_member']))
-		{
-			$tfa_data = $smcFunc['json_decode']($_COOKIE[$cookiename . '_tfa'], true);
-
-			list (,, $exp) = array_pad((array) $tfa_data, 3, 0);
-
-			if (time() > $exp)
-			{
-				$_COOKIE[$cookiename . '_tfa'] = '';
-				setTFACookie(-3600, 0, '');
-			}
-		}
-
-		// Create a login token if it doesn't exist yet.
-		if (!isset($_SESSION['token']['post-login']))
-			createToken('login');
-		else
-			list ($context['login_token_var'],,, $context['login_token']) = $_SESSION['token']['post-login'];
-
 		// Do we perhaps think this is a search robot? Check every five minutes just in case...
 		if ((!empty($modSettings['spider_mode']) || !empty($modSettings['spider_group'])) && (!isset($_SESSION['robot_check']) || $_SESSION['robot_check'] < time() - 300))
 		{
 			require_once($sourcedir . '/ManageSearchEngines.php');
-			$user_info['possibly_robot'] = SpiderCheck();
+			$possibly_robot = SpiderCheck();
 		}
 		elseif (!empty($modSettings['spider_mode']))
-			$user_info['possibly_robot'] = isset($_SESSION['id_robot']) ? $_SESSION['id_robot'] : 0;
+			$possibly_robot = isset($_SESSION['id_robot']) ? $_SESSION['id_robot'] : 0;
 		// If we haven't turned on proper spider hunts then have a guess!
 		else
 		{
 			$ci_user_agent = strtolower($_SERVER['HTTP_USER_AGENT']);
-			$user_info['possibly_robot'] = (strpos($_SERVER['HTTP_USER_AGENT'], 'Mozilla') === false && strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') === false) || strpos($ci_user_agent, 'googlebot') !== false || strpos($ci_user_agent, 'slurp') !== false || strpos($ci_user_agent, 'crawl') !== false || strpos($ci_user_agent, 'bingbot') !== false || strpos($ci_user_agent, 'bingpreview') !== false || strpos($ci_user_agent, 'adidxbot') !== false || strpos($ci_user_agent, 'msnbot') !== false;
+			$possibly_robot = (strpos($_SERVER['HTTP_USER_AGENT'], 'Mozilla') === false && strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') === false) || strpos($ci_user_agent, 'googlebot') !== false || strpos($ci_user_agent, 'slurp') !== false || strpos($ci_user_agent, 'crawl') !== false || strpos($ci_user_agent, 'bingbot') !== false || strpos($ci_user_agent, 'bingpreview') !== false || strpos($ci_user_agent, 'adidxbot') !== false || strpos($ci_user_agent, 'msnbot') !== false;
 		}
-
-		// We don't know the offset...
-		$user_info['time_offset'] = 0;
 	}
 
-	// Login Cookie times. Format: time => txt
-	$context['login_cookie_times'] = array(
-		3153600 => 'always_logged_in',
-		60 => 'one_hour',
-		1440 => 'one_day',
-		10080 => 'one_week',
-		43200 => 'one_month',
-	);
+	return $possibly_robot;
+}
 
-	// Set up the $user_info array.
-	$user_info += array(
+function loadUserInfo($id_member, $user_settings)
+{
+	global $language, $modSettings;
+
+	$user_info = array(
 		'id' => $id_member,
-		'username' => $username,
+		'username' => isset($user_settings['member_name']) ? $user_settings['member_name'] : '',
 		'name' => isset($user_settings['real_name']) ? $user_settings['real_name'] : '',
 		'email' => isset($user_settings['email_address']) ? $user_settings['email_address'] : '',
 		'passwd' => isset($user_settings['passwd']) ? $user_settings['passwd'] : '',
 		'language' => empty($user_settings['lngfile']) || empty($modSettings['userLanguage']) ? $language : $user_settings['lngfile'],
 		'is_guest' => $id_member == 0,
-		'is_admin' => in_array(1, $user_info['groups']),
+		'groups' => isset($user_settings['groups']) ? array_map('intval', $user_settings['groups']) : [-1],
+		'is_admin' => isset($user_settings['groups']) && in_array(1, $user_settings['groups']),
 		'theme' => empty($user_settings['id_theme']) ? 0 : $user_settings['id_theme'],
 		'last_login' => empty($user_settings['last_login']) ? 0 : $user_settings['last_login'],
 		'ip' => $_SERVER['REMOTE_ADDR'],
 		'ip2' => $_SERVER['BAN_CHECK_IP'],
 		'posts' => empty($user_settings['posts']) ? 0 : $user_settings['posts'],
+		'time_offset' => empty($user_settings['time_offset']) ? 0 : $user_settings['time_offset'],
 		'time_format' => empty($user_settings['time_format']) ? $modSettings['time_format'] : $user_settings['time_format'],
 		'avatar' => array(
-			'url' => isset($user_settings['avatar']) ? $user_settings['avatar'] : '',
+			'url' => isset($user_settings['avatar']) ? get_proxied_url($user_settings['avatar']) : '',
 			'filename' => empty($user_settings['filename']) ? '' : $user_settings['filename'],
 			'custom_dir' => !empty($user_settings['attachment_type']) && $user_settings['attachment_type'] == 1,
 			'id_attach' => isset($user_settings['id_attach']) ? $user_settings['id_attach'] : 0
@@ -806,37 +823,12 @@ function loadUserSettings()
 		'alerts' => empty($user_settings['alerts']) ? 0 : $user_settings['alerts'],
 		'total_time_logged_in' => empty($user_settings['total_time_logged_in']) ? 0 : $user_settings['total_time_logged_in'],
 		'buddies' => !empty($modSettings['enable_buddylist']) && !empty($user_settings['buddy_list']) ? explode(',', $user_settings['buddy_list']) : array(),
-		'ignoreboards' => !empty($user_settings['ignore_boards']) && !empty($modSettings['allow_ignore_boards']) ? explode(',', $user_settings['ignore_boards']) : array(),
-		'ignoreusers' => !empty($user_settings['pm_ignore_list']) ? explode(',', $user_settings['pm_ignore_list']) : array(),
+		'ignoreboards' => !empty($user_settings['ignore_boards']) && !empty($modSettings['allow_ignore_boards']) ? array_filter(explode(',', $user_settings['ignore_boards'])) : array(),
+		'ignoreusers' => !empty($user_settings['pm_ignore_list']) ? array_filter(explode(',', $user_settings['pm_ignore_list'])) : array(),
 		'warning' => isset($user_settings['warning']) ? $user_settings['warning'] : 0,
 		'permissions' => array(),
 	);
-	$user_info['groups'] = array_unique($user_info['groups']);
 	$user_info['can_manage_boards'] = !empty($user_info['is_admin']) || (!empty($modSettings['board_manager_groups']) && count(array_intersect($user_info['groups'], explode(',', $modSettings['board_manager_groups']))) > 0);
-
-	// Make sure that the last item in the ignore boards array is valid. If the list was too long it could have an ending comma that could cause problems.
-	if (!empty($user_info['ignoreboards']) && empty($user_info['ignoreboards'][$tmp = count($user_info['ignoreboards']) - 1]))
-		unset($user_info['ignoreboards'][$tmp]);
-
-	// Allow the user to change their language.
-	if (!empty($modSettings['userLanguage']))
-	{
-		$languages = getLanguages();
-
-		// Is it valid?
-		if (!empty($_GET['language']) && isset($languages[strtr($_GET['language'], './\\:', '____')]))
-		{
-			$user_info['language'] = strtr($_GET['language'], './\\:', '____');
-
-			// Make it permanent for members.
-			if (!empty($user_info['id']))
-				updateMemberData($user_info['id'], array('lngfile' => $user_info['language']));
-			else
-				$_SESSION['language'] = $user_info['language'];
-		}
-		elseif (!empty($_SESSION['language']) && isset($languages[strtr($_SESSION['language'], './\\:', '____')]))
-			$user_info['language'] = strtr($_SESSION['language'], './\\:', '____');
-	}
 
 	$temp = build_query_board($user_info['id']);
 	$user_info['query_see_board'] = $temp['query_see_board'];
@@ -847,6 +839,8 @@ function loadUserSettings()
 	$user_info['query_wanna_see_topic_board'] = $temp['query_wanna_see_topic_board'];
 
 	call_integration_hook('integrate_user_info');
+
+	return $user_info;
 }
 
 /**
