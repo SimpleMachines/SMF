@@ -218,9 +218,9 @@ function summary($memID)
  * Fetch the alerts a member currently has.
  *
  * @param int $memID The ID of the member.
- * @param mixed $to_fetch Alerts to fetch: true/false for all/unread, or a list of one or more IDs.
- * @param array $limit Maximum number of alerts to fetch (0 for no limit).
- * @param array $offset Number of alerts to skip for pagination. Ignored if $to_fetch is a list of IDs.
+ * @param bool|int[] $to_fetch Alerts to fetch: true/false for all/unread, or a list of one or more IDs.
+ * @param int $limit Maximum number of alerts to fetch (0 for no limit).
+ * @param int $offset Number of alerts to skip for pagination. Ignored if $to_fetch is a list of IDs.
  * @param bool $with_avatar Whether to load the avatar of the alert sender.
  * @param bool $show_links Whether to show links in the constituent parts of the alert meessage.
  * @return array An array of information about the fetched alerts.
