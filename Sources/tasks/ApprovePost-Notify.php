@@ -88,8 +88,8 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 					'id_member' => $member,
 					'id_member_started' => $posterOptions['id'],
 					'member_name' => $posterOptions['name'],
-					'content_type' => 'topic',
-					'content_id' => $topicOptions['id'],
+					'content_type' => 'msg',
+					'content_id' => $msgOptions['id'],
 					'content_action' => 'unapproved_' . $type,
 					'is_read' => 0,
 					'extra' => $smcFunc['json_encode'](array(

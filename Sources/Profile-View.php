@@ -612,7 +612,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		if (!isset($txt[$string]))
 		{
 			if (strpos($alert['content_action'], 'unapproved_') === 0)
-				$string = 'alert_' . $alert['content_action'];
+				$string = 'alert_topic_' . $alert['content_action'];
 
 			if ($alert['content_type'] === 'member' && in_array($alert['content_action'], array('report', 'report_reply')))
 				$string = 'alert_profile_' . $alert['content_action'];
