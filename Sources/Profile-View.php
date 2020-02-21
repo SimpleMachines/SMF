@@ -319,7 +319,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 
 	// Look up member info of anyone we need it for.
 	if (!empty($profiles))
-		loadMemberData($profiles, 'minimal');
+		loadMemberData($profiles, false, 'minimal');
 
 	// Get the senders' avatars.
 	if ($with_avatar)
