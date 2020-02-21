@@ -373,15 +373,6 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	// For anything that needs more info and/or wants us to check board or topic access, let's do that.
 	if (!empty($possible_msgs))
 	{
-		$flipped_msgs = array();
-		foreach ($possible_msgs as $id_alert => $id_msg)
-		{
-			if (!isset($flipped_msgs[$id_msg]))
-				$flipped_msgs[$id_msg] = array();
-
-			$flipped_msgs[$id_msg][] = $id_alert;
-		}
-
 		$request = $smcFunc['db_query']('', '
 			SELECT m.id_msg, m.id_topic, m.subject, b.id_board, b.name AS board_name
 			FROM {db_prefix}messages AS m
@@ -395,25 +386,17 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			foreach ($flipped_msgs[$row['id_msg']] as $id_alert)
-			{
-				$alerts[$id_alert]['content_data'] = $row;
-				$alerts[$id_alert]['visible'] = true;
-			}
+			foreach ($possible_msgs as $id_alert => $id_msg)
+				if ($id_msg == $row['id_msg'])
+				{
+					$alerts[$id_alert]['content_data'] = $row;
+					$alerts[$id_alert]['visible'] = true;
+				}
 		}
 		$smcFunc['db_free_result']($request);
 	}
 	if (!empty($possible_topics))
 	{
-		$flipped_topics = array();
-		foreach ($possible_topics as $id_alert => $id_topic)
-		{
-			if (!isset($flipped_topics[$id_topic]))
-				$flipped_topics[$id_topic] = array();
-
-			$flipped_topics[$id_topic][] = $id_alert;
-		}
-
 		$request = $smcFunc['db_query']('', '
 			SELECT m.id_msg, t.id_topic, m.subject, b.id_board, b.name AS board_name
 			FROM {db_prefix}topics AS t
@@ -427,11 +410,12 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			foreach ($flipped_topics[$row['id_topic']] as $id_alert)
-			{
-				$alerts[$id_alert]['content_data'] = $row;
-				$alerts[$id_alert]['visible'] = true;
-			}
+			foreach ($possible_topics as $id_alert => $id_topic)
+				if ($id_topic == $row['id_topic'])
+				{
+					$alerts[$id_alert]['content_data'] = $row;
+					$alerts[$id_alert]['visible'] = true;
+				}
 		}
 		$smcFunc['db_free_result']($request);
 	}
