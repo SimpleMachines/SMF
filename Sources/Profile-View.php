@@ -558,58 +558,6 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		if (isset($alert['extra']['content_link']))
 			$alert['target_href'] = $alert['extra']['content_link'];
 
-		elseif (isset($alert['extra']['report_link']))
-			$alert['target_href'] = $scripturl . $alert['extra']['report_link'];
-
-		// Next, try determining the link based on the content action.
-		if (empty($alert['target_href']) && in_array($alert['content_action'], array('register_approval', 'group_request', 'buddy_request')))
-		{
-			switch ($alert['content_action'])
-			{
-				case 'register_approval':
-					$alert['target_href'] = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
-					break;
-
-				case 'group_request':
-					$alert['target_href'] = $scripturl . '?action=moderate;area=groups;sa=requests';
-					break;
-
-				case 'buddy_request':
-					if (!empty($alert['id_member_started']))
-						$alert['target_href'] = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
-					break;
-
-				default:
-					break;
-			}
-		}
-
-		// Or maybe we can determine the link based on the content type.
-		if (empty($alert['target_href']) && in_array($alert['content_type'], array('msg', 'member', 'event')))
-		{
-			switch ($alert['content_type'])
-			{
-				case 'msg':
-					if (!empty($alert['content_id']))
-						$alert['target_href'] = $scripturl . '?msg=' . $alert['content_id'];
-					break;
-
-				case 'member':
-					if (!empty($alert['id_member_started']))
-						$alert['target_href'] = $scripturl . '?action=profile;u=' . $alert['id_member_started'];
-					break;
-
-				case 'event':
-					if (!empty($alert['extra']['event_id']))
-						$alert['target_href'] = $scripturl . '?action=calendar;event=' . $alert['extra']['event_id'];
-					break;
-
-				default:
-					break;
-			}
-
-		}
-
 		// Finally, set this alert's text string.
 		$string = 'alert_' . $alert['content_type'] . '_' . $alert['content_action'];
 

@@ -69,7 +69,7 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 					'is_read' => 0,
 					'extra' => $smcFunc['json_encode'](
 						array(
-							'report_link' => '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'], // We don't put $scripturl in these!
+							'content_link' => '{SCRIPTURL}?action=moderate;area=reportedmembers;sa=details;rid={CONTENT_ID}',
 							'user_name' => $this->_details['user_name'],
 						)
 					),

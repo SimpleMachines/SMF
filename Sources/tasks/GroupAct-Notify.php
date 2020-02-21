@@ -111,11 +111,12 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 						'alert_time' => time(),
 						'id_member' => $user['member_id'],
 						'content_type' => 'groupr',
-						'content_id' => 0,
+						'content_id' => $user['rid'],
 						'content_action' => $pref_name,
 						'is_read' => 0,
 						'extra' => $smcFunc['json_encode'](
 							array(
+								'content_link' => '{SCRIPTURL}?action=moderate;area=reportedposts;sa=details;rid={CONTENT_ID}',
 								'group_name' => $user['group_name'],
 								'reason' => !empty($custom_reason) ? '<br><br>' . $custom_reason : '',
 							)

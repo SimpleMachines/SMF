@@ -41,7 +41,11 @@ class Buddy_Notify_Background extends SMF_BackgroundTask
 				'content_id' => $this->_details['id_member'],
 				'content_action' => 'buddy_request',
 				'is_read' => 0,
-				'extra' => '',
+				'extra' => $smcFunc['json_encode'](
+					array(
+						'content_link' => '{SCRIPTURL}?action=profile;u={CONTENT_ID}',
+					)
+				),
 			);
 
 			$smcFunc['db_insert'](

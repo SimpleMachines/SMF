@@ -79,10 +79,14 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 						'id_member_started' => $this->_details['id_member'],
 						'member_name' => $this->_details['member_name'],
 						'content_type' => 'member',
-						'content_id' => 0,
+						'content_id' => $this->_details['id_member'],
 						'content_action' => 'group_request',
 						'is_read' => 0,
-						'extra' => $smcFunc['json_encode'](array('group_name' => $this->_details['group_name'])),
+						'extra' => $smcFunc['json_encode'](
+							array(
+								'content_link' => '{SCRIPTURL}?action=profile;u={CONTENT_ID}',
+							)
+						),
 					);
 				}
 

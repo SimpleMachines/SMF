@@ -1400,6 +1400,7 @@ function scheduled_paid_subscriptions()
 				'content_action' => 'expiring',
 				'is_read' => 0,
 				'extra' => $smcFunc['json_encode'](array(
+					'content_link' => '{SCRIPTURL}?action=profile;area=subscriptions',
 					'subscription_name' => $row['name'],
 					'end_time' => $row['end_time'],
 				)),

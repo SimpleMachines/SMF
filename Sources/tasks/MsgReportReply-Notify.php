@@ -126,12 +126,12 @@ class MsgReportReply_Notify_Background extends SMF_BackgroundTask
 					'id_member_started' => $this->_details['sender_id'],
 					'member_name' => $this->_details['sender_name'],
 					'content_type' => 'msg',
-					'content_id' => $this->_details['msg_id'],
+					'content_id' => $this->_details['report_id'],
 					'content_action' => 'report_reply',
 					'is_read' => 0,
 					'extra' => $smcFunc['json_encode'](
 						array(
-							'report_link' => '?action=moderate;area=reportedposts;sa=details;rid=' . $this->_details['report_id'], // We don't put $scripturl in these!
+							'content_link' => '{SCRIPTURL}?action=moderate;area=reportedposts;sa=details;rid={CONTENT_ID}',
 						)
 					),
 				);

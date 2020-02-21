@@ -64,7 +64,11 @@ class Register_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $this->_details['new_member_id'],
 					'content_action' => 'register_' . $this->_details['notify_type'],
 					'is_read' => 0,
-					'extra' => '',
+					'extra' => $smcFunc['json_encode'](
+						array(
+							'content_link' => '{SCRIPTURL}?action=profile;u={CONTENT_ID}',
+						)
+					),
 				);
 			}
 

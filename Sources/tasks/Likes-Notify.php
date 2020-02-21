@@ -142,7 +142,11 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 				$this->_details['content_id'],
 				'like',
 				0,
-				'',
+				'extra' => $smcFunc['json_encode'](
+					array(
+						'content_link' => '{SCRIPTURL}?msg={CONTENT_ID}',
+					)
+				),
 			),
 			array('id_alert')
 		);
