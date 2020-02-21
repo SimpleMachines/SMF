@@ -104,13 +104,14 @@ function reloadSettings()
 	// Set a list of common functions.
 	$ent_list = '&(?:#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . '|quot|amp|lt|gt|nbsp);';
 	$ent_check = empty($modSettings['disableEntityCheck']) ? function($string)
-		{
-			$string = preg_replace_callback('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', $string);
-			return $string;
-		} : function($string)
-		{
-			return $string;
-		};
+	{
+		$string = preg_replace_callback('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', $string);
+
+		return $string;
+	} : function($string)
+	{
+		return $string;
+	};
 	$fix_utf8mb4 = function($string) use ($utf8, $smcFunc)
 	{
 		if (!$utf8 || $smcFunc['db_mb4'])
@@ -705,7 +706,7 @@ function loadUserSettings()
 	}
 
 	// Found 'im, let's set up the variables.
-	updateLastLogin($id_member,  $user_settings);
+	updateLastLogin($id_member, $user_settings);
 	$user_info = loadUserInfo($id_member, $user_settings);
 	$user_info['possibly_robot'] = loadRobotInfo($id_member);
 
@@ -773,7 +774,15 @@ function updateLastLogin($id_member, $user_settings)
 			// If it was *at least* five hours ago...
 			if ($visitTime < time() - 5 * 3600)
 			{
-				updateMemberData($id_member, array('id_msg_last_visit' => (int) $modSettings['maxMsgID'], 'last_login' => time(), 'member_ip' => $_SERVER['REMOTE_ADDR'], 'member_ip2' => $_SERVER['BAN_CHECK_IP']));
+				updateMemberData(
+					$id_member,
+					array(
+						'id_msg_last_visit' => (int) $modSettings['maxMsgID'],
+						'last_login' => time(),
+						'member_ip' => $_SERVER['REMOTE_ADDR'],
+						'member_ip2' => $_SERVER['BAN_CHECK_IP'],
+					)
+				);
 				$user_settings['last_login'] = time();
 
 				if (!empty($cache_enable) && $cache_enable >= 2)

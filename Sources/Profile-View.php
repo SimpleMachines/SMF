@@ -492,7 +492,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 
 		// Do we want to link to the topic in general or the new messages specifically?
 		if (isset($possible_topics[$id_alert]) && in_array($alert['content_action'], array('reply', 'topic', 'unapproved_reply')))
-				$alert['extra']['topic_suffix'] = 'new;topicseen#new';
+			$alert['extra']['topic_suffix'] = 'new;topicseen#new';
 		elseif (isset($alert['extra']['topic']))
 			$alert['extra']['topic_suffix'] = '0';
 
@@ -662,13 +662,13 @@ function showAlerts($memID)
 		$alerts = fetch_alerts($memID, $alert_id);
 		$alert = array_pop($alerts);
 
-		/* 
-		 * MOD AUTHORS: 
+		/*
+		 * MOD AUTHORS:
 		 * To control this redirect, use the 'integrate_fetch_alerts' hook to
 		 * set the value of $alert['extra']['content_link'], which will become
 		 * the value for $alert['target_href'].
 		 */
-		
+
 		// In case it failed to determine this alert's link
 		if (empty($alert['target_href']))
 			redirectexit('action=profile;area=showalerts');
@@ -696,7 +696,7 @@ function showAlerts($memID)
 	$toMark = false;
 	$action = '';
 
-	//  Are we using checkboxes?
+	// Are we using checkboxes?
 	$context['showCheckboxes'] = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1;
 
 	// Create the pagination.
