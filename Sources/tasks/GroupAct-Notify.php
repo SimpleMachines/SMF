@@ -19,10 +19,10 @@
  */
 class GroupAct_Notify_Background extends SMF_BackgroundTask
 {
-    /**
-     * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
-     * @return bool Always returns true
-     */
+	/**
+	 * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
+	 * @return bool Always returns true
+	 */
 	public function execute()
 	{
 		global $sourcedir, $smcFunc, $language, $modSettings;
@@ -114,7 +114,12 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 						'content_id' => 0,
 						'content_action' => $pref_name,
 						'is_read' => 0,
-						'extra' => $smcFunc['json_encode'](array('group_name' => $user['group_name'], 'reason' => !empty($custom_reason) ? '<br><br>' . $custom_reason : '')),
+						'extra' => $smcFunc['json_encode'](
+							array(
+								'group_name' => $user['group_name'],
+								'reason' => !empty($custom_reason) ? '<br><br>' . $custom_reason : '',
+							)
+						),
 					);
 				}
 
@@ -135,18 +140,32 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 
 					$emaildata = loadEmailTemplate($email_template_name, $replacements, $user['language']);
 
-					sendmail($user['email'], $emaildata['subject'], $emaildata['body'], null, $email_message_id_prefix . $user['rid'], $emaildata['is_html'], 2);
+					sendmail(
+						$user['email'],
+						$emaildata['subject'],
+						$emaildata['body'],
+						null,
+						$email_message_id_prefix . $user['rid'],
+						$emaildata['is_html'],
+						2
+					);
 				}
 			}
 
 			// Insert the alerts if any
 			if (!empty($alert_rows))
 			{
-				$smcFunc['db_insert']('',
+				$smcFunc['db_insert'](
+					'',
 					'{db_prefix}user_alerts',
 					array(
-						'alert_time' => 'int', 'id_member' => 'int', 'content_type' => 'string',
-						'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string',
+						'alert_time' => 'int',
+						'id_member' => 'int',
+						'content_type' => 'string',
+						'content_id' => 'int',
+						'content_action' => 'string',
+						'is_read' => 'int',
+						'extra' => 'string',
 					),
 					$alert_rows,
 					array()

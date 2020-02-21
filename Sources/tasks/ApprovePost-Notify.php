@@ -77,8 +77,19 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 					'LINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
 				);
 
-				$emaildata = loadEmailTemplate('alert_unapproved_post', $replacements, empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile']);
-				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
+				$emaildata = loadEmailTemplate(
+					'alert_unapproved_post',
+					$replacements,
+					empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile']
+				);
+				sendmail(
+					$data['email_address'],
+					$emaildata['subject'],
+					$emaildata['body'],
+					null,
+					'm' . $topicOptions['id'],
+					$emaildata['is_html']
+				);
 			}
 
 			if ($pref & self::RECEIVE_NOTIFY_ALERT)
@@ -92,12 +103,14 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $msgOptions['id'],
 					'content_action' => 'unapproved_' . $type,
 					'is_read' => 0,
-					'extra' => $smcFunc['json_encode'](array(
-						'topic' => $topicOptions['id'],
-						'board' => $topicOptions['board'],
-						'content_subject' => $msgOptions['subject'],
-						'content_link' => '{SCRIPTURL}?msg={CONTENT_ID}',
-					)),
+					'extra' => $smcFunc['json_encode'](
+						array(
+							'topic' => $topicOptions['id'],
+							'board' => $topicOptions['board'],
+							'content_subject' => $msgOptions['subject'],
+							'content_link' => '{SCRIPTURL}?msg={CONTENT_ID}',
+						)
+					),
 				);
 			}
 		}
@@ -105,10 +118,20 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 		// Insert the alerts if any
 		if (!empty($alert_rows))
 		{
-			$smcFunc['db_insert']('',
+			$smcFunc['db_insert'](
+				'',
 				'{db_prefix}user_alerts',
-				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
-					'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
+				array(
+					'alert_time' => 'int',
+					'id_member' => 'int',
+					'id_member_started' => 'int',
+					'member_name' => 'string',
+					'content_type' => 'string',
+					'content_id' => 'int',
+					'content_action' => 'string',
+					'is_read' => 'int',
+					'extra' => 'string',
+				),
 				$alert_rows,
 				array()
 			);

@@ -20,7 +20,7 @@
 class MemberReportReply_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
+	 * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
 	 * @return bool Always returns true.
 	 */
 	public function execute()
@@ -96,18 +96,28 @@ class MemberReportReply_Notify_Background extends SMF_BackgroundTask
 					'is_read' => 0,
 					'extra' => $smcFunc['json_encode'](
 						array(
-							'report_link' => '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'], // We don't put $scripturl in these!
+							'report_link' => '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'],
+							// We don't put $scripturl in these!
 							'user_name' => $this->_details['user_name'],
 						)
 					),
 				);
 			}
 
-			$smcFunc['db_insert']('insert',
+			$smcFunc['db_insert'](
+				'insert',
 				'{db_prefix}user_alerts',
-				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int',
-					'member_name' => 'string', 'content_type' => 'string', 'content_id' => 'int',
-					'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
+				array(
+					'alert_time' => 'int',
+					'id_member' => 'int',
+					'id_member_started' => 'int',
+					'member_name' => 'string',
+					'content_type' => 'string',
+					'content_id' => 'int',
+					'content_action' => 'string',
+					'is_read' => 'int',
+					'extra' => 'string',
+				),
 				$insert_rows,
 				array('id_alert')
 			);
@@ -152,11 +162,23 @@ class MemberReportReply_Notify_Background extends SMF_BackgroundTask
 					'REPORTLINK' => $scripturl . '?action=moderate;area=userreports;report=' . $this->_details['report_id'],
 				);
 
-				$emaildata = loadEmailTemplate('reply_to_user_reports', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
+				$emaildata = loadEmailTemplate(
+					'reply_to_user_reports',
+					$replacements,
+					empty($modSettings['userLanguage']) ? $language : $this_lang
+				);
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)
-					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, 'urptrpy' . $this->_details['comment_id'], $emaildata['is_html'], 3);
+					sendmail(
+						$email_address,
+						$emaildata['subject'],
+						$emaildata['body'],
+						null,
+						'urptrpy' . $this->_details['comment_id'],
+						$emaildata['is_html'],
+						3
+					);
 			}
 		}
 

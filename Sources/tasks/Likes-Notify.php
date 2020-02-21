@@ -46,7 +46,10 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 				// Before we assign the author, let's just check that the author can see the board this is in...
 				// as it'd suck to notify someone their post was liked when in a board they can't see.
 				// Use an empty array if additional_groups is blank to avoid a fringe case... (see https://github.com/SimpleMachines/SMF2.1/issues/2987)
-				$groups = array_merge(array($row['id_group'], $row['id_post_group']), (empty($row['additional_groups']) ? array() : explode(',', $row['additional_groups'])));
+				$groups = array_merge(
+					array($row['id_group'], $row['id_post_group']),
+					(empty($row['additional_groups']) ? array() : explode(',', $row['additional_groups']))
+				);
 				$allowed = explode(',', $row['member_groups']);
 				$ignored_members = explode(',', $row['pm_ignore_list']);
 
@@ -59,7 +62,10 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 		else
 		{
 			// This isn't something we know natively how to support. Call the hooks, if they're dealing with it, return false, otherwise return the user id.
-			$hook_results = call_integration_hook('integrate_find_like_author', array($this->_details['content_type'], $this->_details['content_id']));
+			$hook_results = call_integration_hook(
+				'integrate_find_like_author',
+				array($this->_details['content_type'], $this->_details['content_id'])
+			);
 			foreach ($hook_results as $result)
 				if (!empty($result))
 				{
@@ -113,12 +119,31 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 		$smcFunc['db_free_result']($request);
 
 		// Issue, update, move on.
-		$smcFunc['db_insert']('insert',
+		$smcFunc['db_insert'](
+			'insert',
 			'{db_prefix}user_alerts',
-			array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
-				'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
-			array($this->_details['time'], $author, $this->_details['sender_id'], $this->_details['sender_name'],
-				$this->_details['content_type'], $this->_details['content_id'], 'like', 0, ''),
+			array(
+				'alert_time' => 'int',
+				'id_member' => 'int',
+				'id_member_started' => 'int',
+				'member_name' => 'string',
+				'content_type' => 'string',
+				'content_id' => 'int',
+				'content_action' => 'string',
+				'is_read' => 'int',
+				'extra' => 'string',
+			),
+			array(
+				$this->_details['time'],
+				$author,
+				$this->_details['sender_id'],
+				$this->_details['sender_name'],
+				$this->_details['content_type'],
+				$this->_details['content_id'],
+				'like',
+				0,
+				'',
+			),
 			array('id_alert')
 		);
 

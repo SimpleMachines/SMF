@@ -19,12 +19,12 @@
 class Buddy_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the info, sets the alerts and loads up the email queue.
+	 * This executes the task - loads up the info, sets the alerts and loads up the email queue.
 	 * @return bool Always returns true
 	 */
 	public function execute()
- 	{
- 		global $smcFunc, $sourcedir;
+	{
+		global $smcFunc, $sourcedir;
 
 		// Figure out if the user wants to be notified.
 		require_once($sourcedir . '/Subs-Notify.php');
@@ -44,10 +44,22 @@ class Buddy_Notify_Background extends SMF_BackgroundTask
 				'extra' => '',
 			);
 
-			$smcFunc['db_insert']('insert', '{db_prefix}user_alerts',
-				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
-				'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
-				$alert_row, array()
+			$smcFunc['db_insert'](
+				'insert',
+				'{db_prefix}user_alerts',
+				array(
+					'alert_time' => 'int',
+					'id_member' => 'int',
+					'id_member_started' => 'int',
+					'member_name' => 'string',
+					'content_type' => 'string',
+					'content_id' => 'int',
+					'content_action' => 'string',
+					'is_read' => 'int',
+					'extra' => 'string',
+				),
+				$alert_row,
+				array()
 			);
 
 			updateMemberData($this->_details['receiver_id'], array('alerts' => '+'));

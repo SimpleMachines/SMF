@@ -19,7 +19,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 {
 	/**
 	 * Constants for reply types.
-	*/
+	 */
 	const NOTIFY_TYPE_REPLY_AND_MODIFY = 1;
 	const NOTIFY_TYPE_REPLY_AND_TOPIC_START_FOLLOWING = 2;
 	const NOTIFY_TYPE_ONLY_REPLIES = 3;
@@ -27,7 +27,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 	/**
 	 * Constants for frequencies.
-	*/
+	 */
 	const FREQUENCY_NOTHING = 0;
 	const FREQUENCY_EVERYTHING = 1;
 	const FREQUENCY_FIRST_UNREAD_MSG = 2;
@@ -35,7 +35,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 	const FREQUENCY_WEEKLY_DIGEST = 4;
 
 	/**
-     * This handles notifications when a new post is created - new topic, reply, quotes and mentions.
+	 * This handles notifications when a new post is created - new topic, reply, quotes and mentions.
 	 * @return bool Always returns true
 	 */
 	public function execute()

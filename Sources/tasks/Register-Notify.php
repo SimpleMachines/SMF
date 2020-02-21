@@ -19,7 +19,7 @@
 class Register_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
+	 * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
 	 * @return bool Always returns true.
 	 */
 	public function execute()
@@ -68,11 +68,20 @@ class Register_Notify_Background extends SMF_BackgroundTask
 				);
 			}
 
-			$smcFunc['db_insert']('insert',
+			$smcFunc['db_insert'](
+				'insert',
 				'{db_prefix}user_alerts',
-				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int',
-					'member_name' => 'string', 'content_type' => 'string', 'content_id' => 'int',
-					'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
+				array(
+					'alert_time' => 'int',
+					'id_member' => 'int',
+					'id_member_started' => 'int',
+					'member_name' => 'string',
+					'content_type' => 'string',
+					'content_id' => 'int',
+					'content_action' => 'string',
+					'is_read' => 'int',
+					'extra' => 'string',
+				),
 				$insert_rows,
 				array('id_alert')
 			);
@@ -112,22 +121,35 @@ class Register_Notify_Background extends SMF_BackgroundTask
 			{
 				$replacements = array(
 					'USERNAME' => $this->_details['new_member_name'],
-					'PROFILELINK' => $scripturl . '?action=profile;u=' . $this->_details['new_member_id']
+					'PROFILELINK' => $scripturl . '?action=profile;u=' . $this->_details['new_member_id'],
 				);
 				$emailtype = 'admin_notify';
 
 				// If they need to be approved add more info...
 				if ($this->_details['notify_type'] == 'approval')
 				{
-					$replacements['APPROVALLINK'] = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
+					$replacements['APPROVALLINK'] =
+						$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
 					$emailtype .= '_approval';
 				}
 
-				$emaildata = loadEmailTemplate($emailtype, $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
+				$emaildata = loadEmailTemplate(
+					$emailtype,
+					$replacements,
+					empty($modSettings['userLanguage']) ? $language : $this_lang
+				);
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)
-					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, 'newmember' . $this->_details['new_member_id'], $emaildata['is_html'], 0);
+					sendmail(
+						$email_address,
+						$emaildata['subject'],
+						$emaildata['body'],
+						null,
+						'newmember' . $this->_details['new_member_id'],
+						$emaildata['is_html'],
+						0
+					);
 			}
 		}
 

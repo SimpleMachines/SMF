@@ -20,12 +20,12 @@
 class EventNew_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
+	 * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
 	 * @return bool Always returns true
 	 */
 	public function execute()
- 	{
- 		global $sourcedir, $smcFunc, $user_profile;
+	{
+		global $sourcedir, $smcFunc, $user_profile;
 
 		// Get everyone who could be notified - those are the people who can see the calendar.
 		require_once($sourcedir . '/Subs-Members.php');
@@ -81,19 +81,28 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 					'content_action' => empty($this->_details['sender_id']) ? 'new_guest' : 'new',
 					'is_read' => 0,
 					'extra' => $smcFunc['json_encode'](
-					    array(
-					        "event_id" => $this->_details['event_id'],
-							"event_title" => $this->_details['event_title']
+						array(
+							"event_id" => $this->_details['event_id'],
+							"event_title" => $this->_details['event_title'],
 						)
 					),
 				);
 			}
 
-			$smcFunc['db_insert']('insert',
+			$smcFunc['db_insert'](
+				'insert',
 				'{db_prefix}user_alerts',
-				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int',
-					'member_name' => 'string', 'content_type' => 'string', 'content_id' => 'int',
-					'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
+				array(
+					'alert_time' => 'int',
+					'id_member' => 'int',
+					'id_member_started' => 'int',
+					'member_name' => 'string',
+					'content_type' => 'string',
+					'content_id' => 'int',
+					'content_action' => 'string',
+					'is_read' => 'int',
+					'extra' => 'string',
+				),
 				$insert_rows,
 				array('id_alert')
 			);

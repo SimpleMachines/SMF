@@ -18,12 +18,12 @@
  */
 class Birthday_Notify_Background extends SMF_BackgroundTask
 {
-    /**
-     * This executes the task. It loads up the birthdays, figures out the greeting, etc.
-     * @return bool Always returns true
-     */
+	/**
+	 * This executes the task. It loads up the birthdays, figures out the greeting, etc.
+	 * @return bool Always returns true
+	 */
 	public function execute()
- 	{
+	{
 		global $txt, $smcFunc, $txtBirthdayEmails, $modSettings, $sourcedir;
 
 		$greeting = isset($modSettings['birthday_email']) ? $modSettings['birthday_email'] : 'happy_birthday';
@@ -57,7 +57,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 				$birthdays[$row['lngfile']] = array();
 			$birthdays[$row['lngfile']][$row['id_member']] = array(
 				'name' => $row['real_name'],
-				'email' => $row['email_address']
+				'email' => $row['email_address'],
 			);
 		}
 		$smcFunc['db_free_result']($result);
@@ -109,7 +109,15 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 					if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 					{
 						$emaildata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
-						sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'birthday', $emaildata['is_html'], 4);
+						sendmail(
+							$member['email'],
+							$emaildata['subject'],
+							$emaildata['body'],
+							null,
+							'birthday',
+							$emaildata['is_html'],
+							4
+						);
 					}
 				}
 			}
@@ -120,11 +128,17 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 			// Insert the alerts if any
 			if (!empty($alert_rows))
 			{
-				$smcFunc['db_insert']('',
+				$smcFunc['db_insert'](
+					'',
 					'{db_prefix}user_alerts',
 					array(
-						'alert_time' => 'int', 'id_member' => 'int', 'content_type' => 'string',
-						'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string',
+						'alert_time' => 'int',
+						'id_member' => 'int',
+						'content_type' => 'string',
+						'content_id' => 'int',
+						'content_action' => 'string',
+						'is_read' => 'int',
+						'extra' => 'string',
 					),
 					$alert_rows,
 					array()

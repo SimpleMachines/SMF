@@ -20,7 +20,7 @@
 class MsgReportReply_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
+	 * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
 	 * @return bool Always returns true.
 	 */
 	public function execute()
@@ -200,11 +200,23 @@ class MsgReportReply_Notify_Background extends SMF_BackgroundTask
 					'REPORTLINK' => $scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $this->_details['report_id'],
 				);
 
-				$emaildata = loadEmailTemplate('reply_to_moderator', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
+				$emaildata = loadEmailTemplate(
+					'reply_to_moderator',
+					$replacements,
+					empty($modSettings['userLanguage']) ? $language : $this_lang
+				);
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)
-					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, 'rptrpy' . $this->_details['comment_id'], $emaildata['is_html'], 3);
+					sendmail(
+						$email_address,
+						$emaildata['subject'],
+						$emaildata['body'],
+						null,
+						'rptrpy' . $this->_details['comment_id'],
+						$emaildata['is_html'],
+						3
+					);
 			}
 		}
 
