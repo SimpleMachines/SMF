@@ -336,25 +336,27 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	// Some sprintf formats for generating links/strings.
 	// 'required' is an array of keys in $alert['extra'] that should be used to generate the message, ordered to match the sprintf formats.
 	// 'link' and 'text' are the sprintf formats that will be used when $alert['show_links'] is true or false, respectively.
-	$formats['msg_msg'] = array(
-		'required' => array('content_subject', 'topic', 'msg'),
-		'link' => '<a href="{scripturl}?topic=%2$d.msg%3$d#msg%3$d">%1$s</a>',
-		'text' => '<strong>%1$s</strong>',
-	);
-	$formats['topic_msg'] = array(
-		'required' => array('content_subject', 'topic', 'topic_suffix'),
-		'link' => '<a href="{scripturl}?topic=%2$d.%3$s">%1$s</a>',
-		'text' => '<strong>%1$s</strong>',
-	);
-	$formats['board_msg'] = array(
-		'required' => array('board_name', 'board'),
-		'link' => '<a href="{scripturl}?board=%2$d.0">%1$s</a>',
-		'text' => '<strong>%1$s</strong>',
-	);
-	$formats['profile_msg'] = array(
-		'required' => array('user_name', 'user_id'),
-		'link' => '<a href="{scripturl}?action=profile;u=%2$d">%1$s</a>',
-		'text' => '<strong>%1$s</strong>',
+	$formats = array(
+		'msg_msg' => array(
+			'required' => array('content_subject', 'topic', 'msg'),
+			'link' => '<a href="{scripturl}?topic=%2$d.msg%3$d#msg%3$d">%1$s</a>',
+			'text' => '<strong>%1$s</strong>',
+		),
+		'topic_msg' => array(
+			'required' => array('content_subject', 'topic', 'topic_suffix'),
+			'link' => '<a href="{scripturl}?topic=%2$d.%3$s">%1$s</a>',
+			'text' => '<strong>%1$s</strong>',
+		),
+		'board_msg' => array(
+			'required' => array('board_name', 'board'),
+			'link' => '<a href="{scripturl}?board=%2$d.0">%1$s</a>',
+			'text' => '<strong>%1$s</strong>',
+		),
+		'profile_msg' => array(
+			'required' => array('user_name', 'user_id'),
+			'link' => '<a href="{scripturl}?action=profile;u=%2$d">%1$s</a>',
+			'text' => '<strong>%1$s</strong>',
+		),
 	);
 
 	// Hooks might want to do something snazzy around their own content types - including enforcing permissions if appropriate.
@@ -365,10 +367,11 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		$format_type = str_replace('{scripturl}', $scripturl, $format_type);
 
 	// If we need to check board access, use the correct board access filter for the member in question.
+	$qb = array(
+		'query_see_board' => '{query_see_board}',
+	);
 	if ((!isset($user_info['query_see_board']) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
 		$qb = build_query_board($memID);
-	else
-		$qb['query_see_board'] = '{query_see_board}';
 
 	// For anything that needs more info and/or wants us to check board or topic access, let's do that.
 	if (!empty($possible_msgs))
