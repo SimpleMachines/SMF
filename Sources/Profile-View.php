@@ -293,19 +293,21 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		}
 
 		// For these types, we need to check whether they can actually see the content.
-		if ($row['content_type'] == 'msg')
+		switch ($row['content_type'])
 		{
-			$alerts[$id_alert]['visible'] = false;
-			$possible_msgs[$id_alert] = $row['content_id'];
+			case 'msg':
+				$alerts[$id_alert]['visible'] = false;
+				$possible_msgs[$id_alert] = $row['content_id'];
+				break;
+			case 'topic':
+			case 'board':
+				$alerts[$id_alert]['visible'] = false;
+				$possible_topics[$id_alert] = $row['content_id'];
+				break;
+			default:
+				$alerts[$id_alert]['visible'] = true;
+				break;
 		}
-		elseif (in_array($row['content_type'], array('topic', 'board')))
-		{
-			$alerts[$id_alert]['visible'] = false;
-			$possible_topics[$id_alert] = $row['content_id'];
-		}
-		// For the rest, they can always see it.
-		else
-			$alerts[$id_alert]['visible'] = true;
 
 		// Are we showing multiple links or one big main link ?
 		$alerts[$id_alert]['show_links'] = $show_links || (isset($row['extra']['show_links']) && $row['extra']['show_links']);
