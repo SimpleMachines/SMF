@@ -433,15 +433,29 @@ function reloadSettings()
 }
 
 /**
- * Load all the important user information.
- * What it does:
- * 	- sets up the $user_info array
- * 	- assigns $user_info['query_wanna_see_board'] for what boards the user can see.
- * 	- first checks for cookie or integration validation.
- * 	- uses the current session if no integration function or cookie is found.
- * 	- checks password length, if member is activated and the login span isn't over.
- * 		- if validation fails for the user, $id_member is set to 0.
- * 		- updates the last visit time when needed.
+ * Loads the user general details, including username, id, groups, and a few more things.
+ *
+ * - Check integrate_verify_user for a user id first, then the cookie.
+ * - Having established the user id, proceed to load the current member's
+ *   data (from cache as appropriate) and make sure it is cached.
+ * - Store the member data in $user_settings, ensure that it is
+ *   cached and verify that the password is right.
+ * - Check whether the user is attempting to flood the login with
+ *   requests, and deal with it as appropriate.
+ * - Assuming the member is correct, check and update the
+ *   last-visit information if appropriate.
+ * - Ensure the user groups are sanitized.
+ * - Perform 'is this a spider' checks.
+ * - Check their two factor authentication status, and require it where appropriate.
+ * - Populate $user_info with lots of useful information about the
+ *   user (id, username, email, password, language, whether they are
+ *   a guest or admin, post count, IP address, time format/offset,
+ *   avatar, smileys, PM counts, buddy list, ignore user/board
+ *   preferences, warning level, and user groups).
+ * - Establish board access rights based as an SQL clause (based
+ *   on user groups) in $user_info['query_see_board'], and a
+ *   subset of this to include ignore boards preferences
+ *   into $user_info['query_wanna_see_board'].
  */
 function loadUserSettings()
 {
@@ -716,6 +730,16 @@ function loadUserSettings()
 	}
 }
 
+/**
+ * Update the last visit time based on the time of their last message.
+ *
+ * - Don't do this while in SSI or if the user is still trying to log in.
+ * - RSS feeds and XMLHTTP requests don't count either.
+ * - Only update this if their last message was made at least 5 hours ago.
+ *
+ * @param int $id_member
+ * @param array $user_settings
+ */
 function updateLastLogin($id_member, $user_settings)
 {
 	global $cache_enable, $smcFunc;
@@ -764,6 +788,13 @@ function updateLastLogin($id_member, $user_settings)
 	}
 }
 
+/**
+ * Finds out if this is a spider or not.
+ *
+ * @param int $id_member
+ *
+ * @return bool|int
+ */
 function loadRobotInfo($id_member)
 {
 	global $modSettings, $sourcedir;
@@ -790,6 +821,14 @@ function loadRobotInfo($id_member)
 	return $possibly_robot;
 }
 
+/**
+ * Returns an array suitable for populating `$user_info` with.
+ *
+ * @param int $id_member
+ * @param array $user_settings
+ *
+ * @return array
+ */
 function loadUserInfo($id_member, $user_settings)
 {
 	global $language, $modSettings;
@@ -844,8 +883,9 @@ function loadUserInfo($id_member, $user_settings)
 }
 
 /**
- * Check for moderators and see if they have access to the board.
- * What it does:
+ * Validate whether we are dealing with a board, and whether
+ * the current user has access to that board.
+ *
  * - sets up the $board_info array for current board information.
  * - if cache is enabled, the $board_info array is stored in cache.
  * - redirects to appropriate post if only message id is requested.
@@ -3459,13 +3499,31 @@ function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
 			return $testAPI;
 	}
 }
-
 /**
- * Try to retrieve a cache entry. On failure, call the appropriate function.
+ * Load a cache entry, and if the cache entry could not be found, load
+ * a named file and call a function to get the relevant information.
+ *
+ * The cache-serving function must consist of an array,
+ * and contain some or all of the following:
+ *
+ * - `data`, required, the content of the item to be cached.
+ * - `expires`, required, the timestamp at which the item should expire
+ * - `refresh_eval`, optional, a string containing code to be evaluated that
+ *   returns a boolean that indicates whether or not to trigger a refresh.
+ * - `post_retri_eval`, optional, a string containing code to be
+ *   evaluated after the data has been updated and cached.
+ *
+ * Refresh the cache if either:
+ *
+ * - Caching is disabled.
+ * - The cache level isn't high enough.
+ * - The item has not been cached or the cached item expired.
+ * - The cached item has a custom expiration condition evaluating to true.
+ * - The expire time set in the cache item has passed (needed for Zend).
  *
  * @param string $key The key for this entry
  * @param string $file The file associated with this entry
- * @param string $function The function to call
+ * @param callable $function The function to call
  * @param array $params Parameters to be passed to the specified function
  * @param int $level The cache level
  * @return string The cached data
@@ -3550,6 +3608,7 @@ function cache_put_data($key, $value, $ttl = 120)
 
 /**
  * Gets the value from the cache specified by key, so long as it is not older than ttl seconds.
+ *
  * - It may often "miss", so shouldn't be depended on.
  * - It supports the same as cache_put_data().
  *
@@ -3628,6 +3687,7 @@ function clean_cache($type = '')
  * Helper function to set an array of data for an user's avatar.
  *
  * Makes assumptions based on the data provided, the following keys are required:
+ *
  * - avatar The raw "avatar" column in members table
  * - email The user's email. Used to get the gravatar info
  * - filename The attachment filename
