@@ -95,7 +95,7 @@ class CreateAttachment_Notify_Background extends SMF_BackgroundTask
 					'unapproved_attachment',
 					array(
 						'SUBJECT' => $subject,
-						'LINK' => $scripturl . '?topic=' . $id_topic . '.msg' . $id_msg . '#msg' . $id_msg,
+						'LINK' => $scripturl . '?msg' . $id_msg,
 					),
 					empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile']
 				);
@@ -125,7 +125,7 @@ class CreateAttachment_Notify_Background extends SMF_BackgroundTask
 							'topic' => $id_topic,
 							'board' => $id_board,
 							'content_subject' => $subject,
-							'content_link' => $scripturl . '?msg=' . $id_msg,
+							'content_link' => '{SCRIPTURL}?msg={CONTENT_ID}',
 						)
 					),
 				);

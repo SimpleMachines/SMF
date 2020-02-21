@@ -89,7 +89,7 @@ class ApproveReply_Notify_Background extends SMF_BackgroundTask
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
 						'content_subject' => $msgOptions['subject'],
-						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
+						'content_link' => '{SCRIPTURL}?msg={CONTENT_ID}',
 					)),
 				);
 			}

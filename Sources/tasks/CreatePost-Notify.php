@@ -300,13 +300,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 							'topic' => $topicOptions['id'],
 							'board' => $topicOptions['board'],
 							'content_subject' => $msgOptions['subject'],
-							'content_link' => sprintf(
-								'%s?topic=%d%s',
-								$scripturl,
-								$topicOptions['id'],
-								in_array($type, array('reply', 'topic')) ? '.new;topicseen#new' : '.0'
-							),
-						),
+							'content_link' => in_array($type, array('reply', 'topic')) ? '{SCRIPTURL}?topic={CONTENT_ID}.new;topicseen#new' : '{SCRIPTURL}?msg={CONTENT_ID}'
+						)
+					),
 				);
 
 				$receiving_members[] = $member;
@@ -420,7 +416,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'extra' => $smcFunc['json_encode'](
 						array(
 							'content_subject' => $msgOptions['subject'],
-							'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
+							'content_link' => '{SCRIPTURL}?msg={CONTENT_ID}',
 						)
 					),
 				);
@@ -549,7 +545,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'extra' => $smcFunc['json_encode'](
 						array(
 							'content_subject' => $msgOptions['subject'],
-							'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
+							'content_link' => '{SCRIPTURL}?msg={CONTENT_ID}',
 						)
 					),
 				);

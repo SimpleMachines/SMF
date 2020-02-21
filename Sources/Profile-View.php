@@ -453,6 +453,12 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		// For developer convenience.
 		$alert = &$alerts[$id_alert];
 
+		if (isset($alert['extra']['content_link']))
+			$alert['extra']['content_link'] = strtr($alert['extra']['content_link'], array(
+				'{SCRIPTURL}' => $scripturl,
+				'{CONTENT_ID}' => $alert['extra']['content_id'],
+			));
+
 		// The info in extra might outdated if the topic was moved, the message's subject was changed, etc.
 		if (!empty($alert['content_data']))
 		{
