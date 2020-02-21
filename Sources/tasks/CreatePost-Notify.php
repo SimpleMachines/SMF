@@ -76,10 +76,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		// Find the people interested in receiving notifications for this topic
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				ln.id_member, ln.id_board, ln.id_topic, ln.sent,
-				mem.email_address, mem.lngfile, mem.pm_ignore_list,
-				mem.id_group, mem.id_post_group, mem.additional_groups,
-				mem.time_format, mem.time_offset, mem.timezone,
+				mem.*, ln.id_board, ln.id_topic, ln.sent,
 				b.member_groups, t.id_member_started, t.id_member_updated
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}members AS mem ON (ln.id_member = mem.id_member)
@@ -99,7 +96,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		{
 			$groups = array_merge(
 				array($row['id_group'], $row['id_post_group']),
-				(empty($row['additional_groups']) ? array() : explode(',', $row['additional_groups']))
+				empty($row['additional_groups']) ? array() : explode(',', $row['additional_groups'])
 			);
 
 			if (!in_array(1, $groups) && count(array_intersect($groups, explode(',', $row['member_groups']))) == 0)
@@ -226,35 +223,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			else
 				continue;
 
-			$receiver_lang = empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile'];
+			$user_info = loadUserInfo($member, $data);
 
-			// We need to fake some of $user_info to make BBC parsing work correctly.
-			if (isset($user_info))
-				$real_user_info = $user_info;
-
-			$user_info = array(
-				'id' => $member,
-				'language' => $receiver_lang,
-				'groups' => $data['groups'],
-				'is_guest' => false,
-				'time_format' => empty($data['time_format']) ? $modSettings['time_format'] : $data['time_format'],
-			);
-			$user_info['is_admin'] = in_array(1, $user_info['groups']);
-
-			if (!empty($data['timezone']))
-			{
-				// Get the offsets from UTC for the server, then for the user.
-				$tz_system = new DateTimeZone(@date_default_timezone_get());
-				$tz_user = new DateTimeZone($data['timezone']);
-				$time_system = new DateTime('now', $tz_system);
-				$time_user = new DateTime('now', $tz_user);
-				$user_info['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
-			}
-			else
-				$user_info['time_offset'] = empty($data['time_offset']) ? 0 : $data['time_offset'];
-
-			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
-			loadLanguage('index+Modifications', $receiver_lang, false);
+			// Censor and parse BBC in the receiver's localization.
+			loadLanguage('index+Modifications', $user_info['language'], false);
 
 			censorText($msgOptions['subject']);
 			censorText($msgOptions['body']);
@@ -280,16 +252,6 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					)
 				)
 			);
-
-			// Put $user_info back the way we found it.
-			if (isset($real_user_info))
-			{
-				$user_info = $real_user_info;
-				unset($real_user_info);
-			}
-			else
-				$user_info = null;
-
 			// Bitwise check: Receiving a email notification?
 			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 			{
@@ -305,7 +267,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'UNSUBSCRIBELINK' => $scripturl . '?action=notify' . $content_type . ';' . $content_type . '=' . $itemID . ';sa=off;u=' . $data['id_member'] . ';token=' . $token,
 				);
 
-				$emaildata = loadEmailTemplate($message_type, $replacements, $receiver_lang);
+				$emaildata = loadEmailTemplate($message_type, $replacements, $user_info['language']);
 				$mail_result = sendmail(
 					$data['email_address'],
 					$emaildata['subject'],
