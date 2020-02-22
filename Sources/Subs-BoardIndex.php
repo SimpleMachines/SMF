@@ -133,6 +133,7 @@ function getBoardIndex($board_index_options)
 	// Start with an empty array.
 	if ($board_index_options['include_categories'])
 		$categories = array();
+
 	else
 		$this_category = array();
 
