@@ -502,6 +502,7 @@ function modifyBoard($board_id, &$boardOptions)
 			// People can be creative, in many ways...
 			if (isChildOf($id_parent, $board_id))
 				fatal_lang_error('mboards_parent_own_child_error', false);
+
 			elseif ($id_parent == $board_id)
 				fatal_lang_error('mboards_board_own_child_error', false);
 
@@ -533,8 +534,10 @@ function modifyBoard($board_id, &$boardOptions)
 		// See if there are changes that affect children.
 		$childUpdates = array();
 		$levelDiff = $child_level - $boards[$board_id]['level'];
+
 		if ($levelDiff != 0)
 			$childUpdates[] = 'child_level = child_level ' . ($levelDiff > 0 ? '+ ' : '') . '{int:level_diff}';
+
 		if ($id_cat != $boards[$board_id]['category'])
 			$childUpdates[] = 'id_cat = {int:category}';
 
@@ -1543,6 +1546,37 @@ function isChildOf($child, $parent)
 		return true;
 
 	return isChildOf($boards[$child]['parent'], $parent);
+}
+
+function setBoardParsedDescription($category_id = 0, $board_id = 0, $board_info = array())
+{
+	global $cache_enable, $context;
+
+	if (empty($cache_enable) || empty($category_id) || empty($board_id) || empty($board_info))
+		return null;
+
+	// Get the data we already parsed
+	$already_parsed_boards = getBoardsParsedDescription($category_id);
+
+	if (!empty($already_parsed_boards))
+		$already_parsed_boards[$category_id][$board_id] = array(
+			'name' => parse_bbc($board_info['name'], false, '', $context['description_allowed_tags']),
+			'description' => parse_bbc($board_info['description'], false, '', $context['description_allowed_tags']),
+		);
+
+	else
+	{
+		$already_parsed_boards = array();
+		$already_parsed_boards[$category_id] = array();
+		$already_parsed_boards[$category_id][$board_id] = array(
+			'name' => parse_bbc($board_info['name'], false, '', $context['description_allowed_tags']),
+			'description' => parse_bbc($board_info['description'], false, '', $context['description_allowed_tags']),
+		);
+	}
+
+	cache_put_data('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);
+
+	return $already_parsed_boards;
 }
 
 ?>
