@@ -175,27 +175,8 @@ function getBoardIndex($board_index_options)
 			// Haven't set this category yet.
 			if (empty($categories[$row_board['id_cat']]))
 			{
-				// Is this your lucky day?
-				if (!empty($parsed_descriptions) && !empty($parsed_descriptions[$row_board['id_cat']]))
-				{
-					$name = $parsed_descriptions[$row_board['id_cat']]['name'];
-					$description = $parsed_descriptions[$row_board['id_cat']]['description'];
-				}
-
-				// No? take one for the team then
-				else
-				{
-					$to_parse[$row_board['id_cat']] = array(
-						'name' => $row_board['cat_name'],
-						'description' => $row_board['cat_desc'],
-					);
-
-					if (!isset($to_parse[$row_board['id_cat']]['boards']))
-						$to_parse[$row_board['id_cat']]['boards'] = array();
-
-					$name = $row_board['cat_name'];
-					$description = $row_board['cat_desc'];
-				}
+				$name = parse_bbc($row_board['cat_name'], false, '', $context['description_allowed_tags']);
+				$description = parse_bbc($row_board['cat_desc'], false, '', $context['description_allowed_tags']);
 
 				$categories[$row_board['id_cat']] = array(
 					'id' => $row_board['id_cat'],
@@ -236,30 +217,8 @@ function getBoardIndex($board_index_options)
 				if (!isset($this_category[$row_board['id_board']]))
 					$this_category[$row_board['id_board']] = array();
 
-				$parsed_board_vars = $parsed_descriptions[$row_board['id_cat']]['boards'][$row_board['id_board']];
-
-				// Quid pro quo Clarice...
-				if (!empty($parsed_descriptions) && !empty($parsed_board_vars))
-				{
-					$board_name = $parsed_board_vars['name'];
-					$board_description = $parsed_board_vars['description'];
-				}
-
-				// Yes or no, Clarice? Poor little Catherine is waiting.
-				else
-				{
-					$board_name = $row_board['board_name'];
-					$board_description = $row_board['description'];
-
-					// Always buckle up your kids!
-					if (!isset($to_parse[$row_board['id_cat']]['boards']))
-						$to_parse[$row_board['id_cat']]['boards'] = array();
-
-					$to_parse[$row_board['id_cat']]['boards'][$row_board['id_board']] = array(
-						'name' => $board_name,
-						'description' => $board_description
-					);
-				}
+				$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
+				$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
 
 				$this_category[$row_board['id_board']] += array(
 					'new' => empty($row_board['is_read']),
@@ -322,27 +281,8 @@ function getBoardIndex($board_index_options)
 					'board_class' => 'off'
 				);
 
-			// Is this your lucky day?
-			if (!empty($parsed_descriptions) && !empty($parsed_descriptions[$row_board['id_cat']]))
-			{
-				$board_name = $parsed_descriptions[$row_board['id_cat']]['name'];
-				$board_description = $parsed_descriptions[$row_board['id_cat']]['description'];
-			}
-
-			// No? take one for the team then
-			else
-			{
-				$to_parse[$row_board['id_cat']] = array(
-					'name' => $row_board['cat_name'],
-					'description' => $row_board['cat_desc'],
-				);
-
-				if (!isset($to_parse[$row_board['id_cat']]['boards']))
-					$to_parse[$row_board['id_cat']]['boards'] = array();
-
-				$board_name = $row_board['cat_name'];
-				$board_description = $row_board['cat_desc'];
-			}
+			$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
+			$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
 
 			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']] = array(
 				'id' => $row_board['id_board'],
@@ -469,8 +409,8 @@ function getBoardIndex($board_index_options)
 		if (!$isChild && !empty($row_board['poster_time'])
 			&& (empty($this_category[$row_board['id_board']]['last_post']['timestamp'])
 				|| $this_category[$row_board['id_board']]['last_post']['timestamp'] < forum_time(true, $row_board['poster_time'])
-				)
 			)
+		)
 			$this_category[$row_board['id_board']]['last_post'] = $this_last_post;
 
 		// Just in the child...?
