@@ -276,6 +276,14 @@ function setCategoryParsedDescription($category_id = 0, $category_description = 
 	return $parsed_description;
 }
 
+function getCategoryParsedDescription($category_id = 0)
+{
+	global $cache_enable;
 
+	if (empty($category_id) || empty($cache_enable))
+		return null;
+
+	return cache_get_data('parsed_cat_description_' . $category_id, 864000);
+}
 
 ?>
