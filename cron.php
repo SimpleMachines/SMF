@@ -344,12 +344,12 @@ abstract class SMF_BackgroundTask
 	 *
 	 * @return array
 	 */
-	public function getIncontextUserInfo($userId = 0)
+	public function getIncontextUserInfo($user_id = 0)
 	{
 		if (empty($userId))
 			return array();
 
-
+		return loadMinUserSettings($user_id);
 	}
 
 	public function __destruct()

@@ -242,26 +242,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			if (isset($user_info))
 				$real_user_info = $user_info;
 
-			$user_info = array(
-				'id' => $member,
-				'language' => $receiver_lang,
-				'groups' => $data['groups'],
-				'is_guest' => false,
-				'time_format' => empty($data['time_format']) ? $modSettings['time_format'] : $data['time_format'],
-			);
-			$user_info['is_admin'] = in_array(1, $user_info['groups']);
-
-			if (!empty($data['timezone']))
-			{
-				// Get the offsets from UTC for the server, then for the user.
-				$tz_system = new DateTimeZone(@date_default_timezone_get());
-				$tz_user = new DateTimeZone($data['timezone']);
-				$time_system = new DateTime('now', $tz_system);
-				$time_user = new DateTime('now', $tz_user);
-				$user_info['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
-			}
-			else
-				$user_info['time_offset'] = empty($data['time_offset']) ? 0 : $data['time_offset'];
+			$user_info = $this->getIncontextUserInfo($member);
 
 			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
 			$localization = implode('|', array($receiver_lang, $user_info['time_offset'], $user_info['time_format']));
