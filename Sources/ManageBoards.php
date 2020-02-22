@@ -318,7 +318,6 @@ function EditCategory2()
 	validateToken('admin-bc-' . $_REQUEST['cat']);
 
 	require_once($sourcedir . '/Subs-Categories.php');
-	require_once($sourcedir . '/Subs-BoardIndex.php');
 	require_once($sourcedir . '/Subs-Editor.php');
 
 	$_POST['cat'] = (int) $_POST['cat'];
@@ -334,22 +333,6 @@ function EditCategory2()
 		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest, parse it on display
 		$catOptions['cat_name'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['cat_name'])));
 		$catOptions['cat_desc'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['cat_desc'])));
-
-		// Parse and cache the new category content
-		$parsed_descriptions = setParsedDescriptions(array(
-			$_POST['cat'] => array(
-				'name' => $_POST['cat_name'],
-				'description' => $_POST['cat_desc'],
-			),
-		));
-
-		foreach ($parsed_descriptions as $id_cat => $category)
-			if ($_POST['cat'] == $id_cat)
-			{
-				$catOptions['cat_name'] = $category['name'];
-				$catOptions['cat_desc'] = $category['description'];
-			}
-
 		$catOptions['is_collapsible'] = isset($_POST['collapse']);
 
 		if (isset($_POST['add']))
@@ -358,14 +341,12 @@ function EditCategory2()
 		else
 			modifyCategory($_POST['cat'], $catOptions);
 	}
-
 	// If they want to delete - first give them confirmation.
 	elseif (isset($_POST['delete']) && !isset($_POST['confirmation']) && !isset($_POST['empty']))
 	{
 		EditCategory();
 		return;
 	}
-
 	// Delete the category!
 	elseif (isset($_POST['delete']))
 	{
@@ -377,7 +358,6 @@ function EditCategory2()
 
 			deleteCategories(array($_POST['cat']), (int) $_POST['cat_to']);
 		}
-
 		else
 			deleteCategories(array($_POST['cat']));
 	}
@@ -688,25 +668,9 @@ function EditBoard2()
 		if (strlen(implode(',', $boardOptions['access_groups'])) > 255 || strlen(implode(',', $boardOptions['deny_groups'])) > 255)
 			fatal_lang_error('too_many_groups', false);
 
-		// Parse and cache the new content
-		$parsed_descriptions = setParsedDescriptions(array(
-			$boardOptions['target_category'] => array(
-				'boards' => array(
-					$_POST['boardid'] => array(
-						'name' => $_POST['board_name'],
-						'description' => $_POST['desc'],
-					)
-				)
-			),
-		));
-
-		foreach ($parsed_descriptions as $id_cat => $category)
-			foreach ($category['boards'] as $id_board => $board)
-				if ($_POST['boardid'] == $id_board)
-				{
-					$boardOptions['board_name'] = $board['name'];
-					$boardOptions['board_description'] = $board['description'];
-				}
+		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest, parse it on display
+		$boardOptions['board_name'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['board_name'])));
+		$boardOptions['board_description'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['desc'])));
 
 		$boardOptions['moderator_string'] = $_POST['moderators'];
 
