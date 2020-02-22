@@ -1579,7 +1579,6 @@ function setBoardParsedDescription($category_id = 0, $board_id = 0, $board_info 
 	return $already_parsed_boards;
 }
 
-
 function getBoardsParsedDescription($category_id = 0)
 {
 	global $cache_enable;
@@ -1588,5 +1587,21 @@ function getBoardsParsedDescription($category_id = 0)
 		return null;
 
 	return cache_get_data('parsed_boards_descriptions_' . $category_id, 864000);
+}
+
+function getBoardsParsedDescriptionById($category_id = 0, $board_id = 0)
+{
+	global $cache_enable;
+
+	if (empty($board_id) || empty($category_id) || empty($cache_enable))
+		return null;
+
+	// Get the data we already parsed
+	$already_parsed_boards = getBoardsParsedDescription($category_id);
+
+	if (null === $already_parsed_boards || !isset($already_parsed_boards[$category_id]) || !isset($already_parsed_boards[$category_id][$board_id]))
+		return null;
+
+	return $already_parsed_boards[$category_id][$board_id];
 }
 ?>
