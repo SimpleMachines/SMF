@@ -110,7 +110,7 @@ function getBoardIndex($board_index_options)
 	else
 		$result_boards = $smcFunc['db_query']('', '
 			SELECT' . ($board_index_options['include_categories'] ? '
-				c.id_cat, c.name AS cat_name, c.description AS cat_desc,' : 'b.id_cat,') . '
+				b.id_cat, c.name AS cat_name, c.description AS cat_desc,' : 'b.id_cat,') . '
 				' . (!empty($board_index_selects) ? implode(', ', $board_index_selects) : '') . ',
 				COALESCE(m.poster_time, 0) AS poster_time, COALESCE(mem.member_name, m.poster_name) AS poster_name,
 				m.subject, m.id_topic, COALESCE(mem.real_name, m.poster_name) AS real_name,
@@ -132,10 +132,20 @@ function getBoardIndex($board_index_options)
 
 	// Start with an empty array.
 	if ($board_index_options['include_categories'])
+	{
+		require_once $sourcedir . '/Subs-Categories.php';
+
 		$categories = array();
+		$parsed_categories_description = getCategoriesParsedDescription();
+		$to_parse_categories_description = array();
+	}
 
 	else
+	{
 		$this_category = array();
+		$parsed_categories_description = array();
+		$to_parse_categories_description = array();
+	}
 
 	$boards = array();
 	$boards_ids = array();
@@ -173,17 +183,26 @@ function getBoardIndex($board_index_options)
 
 		if ($board_index_options['include_categories'])
 		{
+			require_once $sourcedir . '/Subs-Categories.php';
+
 			// Haven't set this category yet.
 			if (empty($categories[$row_board['id_cat']]))
 			{
-				$name = parse_bbc($row_board['cat_name'], false, '', $context['description_allowed_tags']);
-				$description = parse_bbc($row_board['cat_desc'], false, '', $context['description_allowed_tags']);
+				$category_name = $row_board['cat_name'];
+				$category_description = $parsed_categories_description[$row_board['id_cat']];
+
+				if (!isset($category_description))
+				{
+					$to_parse_categories_description[$row_board['id_cat']] = $row_board['cat_desc'];
+					$category_description = $row_board['cat_desc'];
+				}
 
 				$categories[$row_board['id_cat']] = array(
 					'id' => $row_board['id_cat'],
-					'name' => $name,
-					'description' => $description,
-					'is_collapsed' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1 && !empty($options['collapse_category_' . $row_board['id_cat']]),
+					'name' => $category_name,
+					'description' => $category_description,
+					'is_collapsed' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1 &&
+						!empty($options['collapse_category_' . $row_board['id_cat']]),
 					'can_collapse' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1,
 					'href' => $scripturl . '#c' . $row_board['id_cat'],
 					'boards' => array(),
@@ -191,7 +210,8 @@ function getBoardIndex($board_index_options)
 					'css_class' => ''
 				);
 
-				$categories[$row_board['id_cat']]['link'] = '' . (!$context['user']['is_guest'] ? '<a href="' . $scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], $name) . '" id="c' . $row_board['id_cat'] . '">' . $name . '</a>' : '<span id="c' . $row_board['id_cat'] . '">' . $name . '</span>');
+				$categories[$row_board['id_cat']]['link'] = '<a id="c' . $row_board['id_cat'] . '"></a>' . (!$context['user']['is_guest'] ? '<a href="' . $scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], $category_name) . '">' . $category_name . '</a>' : $category_name);
+
 			}
 
 			// If this board has new posts in it (and isn't the recycle bin!) then the category is new.
@@ -214,19 +234,39 @@ function getBoardIndex($board_index_options)
 				// Not a child.
 				$isChild = false;
 
+				if (empty($boards_parsed_data))
+					$boards_parsed_data = getBoardsParsedDescription($row_board['id_cat']);
+
+				if (empty($to_parse_boards_info))
+					$to_parse_boards_info = array();
+
+				if (empty($to_parse_boards_info[$row_board['id_cat']]))
+					$to_parse_boards_info[$row_board['id_cat']] = array();
+
 				// We might or might not have already added this board, so...
 				if (!isset($this_category[$row_board['id_board']]))
 					$this_category[$row_board['id_board']] = array();
 
-				$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
-				$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
+				if (isset($boards_parsed_data[$row_board['id_board']]))
+					$board_parsed_info = $boards_parsed_data[$row_board['id_board']];
+
+				else
+				{
+					$board_parsed_info = array(
+						'name' => $row_board['board_name'],
+						'description' => $row_board['description']
+					);
+
+					$to_parse_boards_info[$row_board['id_cat']][$row_board['id_board']] = $board_parsed_info;
+				}
 
 				$this_category[$row_board['id_board']] += array(
+					'id_cat' => $row_board['id_cat'],
 					'new' => empty($row_board['is_read']),
 					'id' => $row_board['id_board'],
 					'type' => $row_board['is_redirect'] ? 'redirect' : 'board',
-					'name' => $board_name,
-					'description' => $board_description,
+					'name' => $board_parsed_info['name'],
+					'description' => $board_parsed_info['description'],
 					'moderators' => array(),
 					'moderator_groups' => array(),
 					'link_moderators' => array(),
@@ -241,7 +281,7 @@ function getBoardIndex($board_index_options)
 					'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
 					'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
 					'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
-					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $board_name . '</a>',
+					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $board_parsed_info['name'] . '</a>',
 					'board_class' => 'off',
 					'css_class' => ''
 				);
@@ -426,6 +466,22 @@ function getBoardIndex($board_index_options)
 			);
 	}
 
+	// There are some categories still unparsed.
+	if (!empty($to_parse_categories_description))
+	{
+		$already_parsed_categories = setCategoryParsedDescription($to_parse_categories_description);
+
+		foreach ($to_parse_categories_description as $category_id => $category_description)
+			$categories[$category_id]['description'] = $already_parsed_categories[$category_id];
+	}
+
+	// Some boards didn't get their info cached, it is done on a per category basis.
+	$boards_parsed_data = array();
+
+	if (!empty($to_parse_boards_info))
+		foreach ($to_parse_boards_info as $unparsed_category_id => $boards_unparsed_data)
+			$boards_parsed_data[$unparsed_category_id] = setBoardParsedDescription($unparsed_category_id, $boards_unparsed_data);
+
 	/* The board's and children's 'last_post's have:
 	time, timestamp (a number that represents the time.), id (of the post), topic (topic id.),
 	link, href, subject, start (where they should go for the first unread post.),
@@ -459,9 +515,16 @@ function getBoardIndex($board_index_options)
 					$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
 			}
 		}
+
 	else
 		foreach ($this_category as &$board)
 		{
+			if (isset($boards_parsed_data[$board['id_cat']][$board['id']]))
+			{
+				$board['name'] = $boards_parsed_data[$board['id_cat']][$board['id']]['name'];
+				$board['description'] = $boards_parsed_data[$board['id_cat']][$board['id']]['description'];
+			}
+
 			if (!empty($moderators[$board['id']]))
 			{
 				$board['moderators'] = $moderators[$board['id']];
@@ -485,6 +548,7 @@ function getBoardIndex($board_index_options)
 
 	if ($board_index_options['include_categories'])
 		sortCategories($categories);
+
 	else
 		sortBoards($this_category);
 
@@ -500,141 +564,15 @@ function getBoardIndex($board_index_options)
 
 	// I can't remember why but trying to make a ternary to get this all in one line is actually a Very Bad Idea.
 	if ($board_index_options['include_categories'])
-	{
-		$categories = appendCategoriesParsedDescriptions($categories, $parsed_descriptions);
 		call_integration_hook('integrate_getboardtree', array($board_index_options, &$categories));
-	}
 
 	else
-	{
-		$this_category = appendBoardsParsedDescriptions($this_category, $parsed_descriptions);
 		call_integration_hook('integrate_getboardtree', array($board_index_options, &$this_category));
-	}
 
 	// I took my time, I hurried up, the choice was mine I didn't think enough
 	setparsedDescriptions($to_parse);
 
 	return $board_index_options['include_categories'] ? $categories : $this_category;
-}
-
-/**
- * retrieves parsed names and descriptions for categories and its corresponding boards.
- *
- * @param array $cat_ids
- * @return array
- */
-function getParsedDescriptions($cat_ids = array())
-{
-	$parsed_results = array();
-
-	// Yield anyone? :(
-	foreach ($cat_ids as $cat_id)
-		$parsed_results[$cat_id] = cache_get_data('parsed_cat_description_'. $cat_id);
-
-	return $parsed_results;
-}
-
-/**
- * @param array $dataToParse
- * @return array Parsed data
- */
-function setParsedDescriptions($dataToParse = array())
-{
-	global $context;
-
-	if (empty($dataToParse))
-		return array();
-
-	$already_parsed_data = array();
-
-	// If you're here it means your data isn't cached... or so the theory dictates...
-	foreach ($dataToParse as $cat_id => $category)
-	{
-		$to_cache = array();
-
-		// Sometimes we just want to update boards
-		if (!empty($category['name']))
-			$to_cache[$cat_id] = array(
-				'name' => parse_bbc($category['name'], false, '', $context['description_allowed_tags']),
-				'description' => parse_bbc($category['description'], false, '', $context['description_allowed_tags']),
-				'boards' => array(),
-			);
-
-		if (!empty($category['boards']))
-			foreach ($category['boards'] as $board_id => $board)
-			{
-				$to_cache[$cat_id]['boards'][$board_id]['name'] = parse_bbc($board['name'], false, '', $context['description_allowed_tags']);
-				$to_cache[$cat_id]['boards'][$board_id]['description'] = parse_bbc($board['description'], false, '', $context['description_allowed_tags']);
-			}
-
-		// Let's have some fun shall we?
-		if (!empty($cat_id))
-		{
-			$already_parsed_data[$cat_id] = cache_get_data('parsed_cat_description_'. $cat_id);
-
-			foreach ($to_cache as $to_cache_cat_id => $to_cache_data)
-			{
-				// Append data!
-				$already_parsed_data[$cat_id] = array(
-					'name' => $category['name'],
-					'description' => $category['description'],
-					'boards' => array(),
-				);
-
-				if (!empty($category['boards']))
-					foreach ($category['boards'] as $board)
-						$already_parsed_data[$cat_id]['boards'] = array(
-							'name' => $board['name'],
-							'description' => $board['description'],
-						);
-
-				cache_put_data('parsed_cat_description_'. $cat_id, $already_parsed_data[$cat_id], 864000);
-			}
-		}
-	}
-
-	return $already_parsed_data;
-}
-
-/**
- * @param array $categories
- * @param array $parsed_descriptions
- *
- * @return array
- */
-function appendCategoriesParsedDescriptions($categories = array(), $parsed_descriptions = array())
-{
-	if (empty($categories) || empty($parsed_description))
-		return $categories;
-
-	foreach ($parsed_descriptions as $id_cat => $parsed_description)
-	{
-		$categories[$id_cat]['name'] = $parsed_description['name'];
-		$categories[$id_cat]['description'] = $parsed_description['description'];
-	}
-
-	return $categories;
-}
-
-/**
- * @param $this_category
- * @param $parsed_descriptions
- *
- * @return array
- */
-function appendBoardsParsedDescriptions($this_category = array(), $parsed_descriptions = array())
-{
-	if (empty($this_category) || empty($parsed_descriptions))
-		return $this_category;
-
-	foreach ($parsed_descriptions as $id_cat => $parsed_description)
-		foreach ($parsed_description['boards'] as $id_board => $board)
-		{
-			$this_category[$id_board]['name'] = $board['name'];
-			$this_category[$id_board]['description'] = $board['description'];
-		}
-
-	return $this_category;
 }
 
 ?>

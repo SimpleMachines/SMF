@@ -1595,7 +1595,7 @@ function getBoardsParsedDescription($category_id = 0)
 	return cache_get_data('parsed_boards_descriptions_' . $category_id, 864000);
 }
 
-function getBoardsParsedDescriptionById($category_id = 0, $board_id = 0)
+function getBoardParsedDescriptionById($category_id = 0, $board_id = 0)
 {
 	global $cache_enable;
 
