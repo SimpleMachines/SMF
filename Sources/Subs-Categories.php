@@ -57,8 +57,10 @@ function modifyCategory($category_id, $catOptions)
 		{
 			if ($row['id_cat'] != $category_id)
 				$cats[] = $row['id_cat'];
+
 			if ($row['id_cat'] == $catOptions['move_after'])
 				$cats[] = $category_id;
+
 			$cat_order[$row['id_cat']] = $row['cat_order'];
 		}
 		$smcFunc['db_free_result']($request);
@@ -91,6 +93,11 @@ function modifyCategory($category_id, $catOptions)
 	{
 		$catUpdates[] = 'description = {string:cat_desc}';
 		$catParameters['cat_desc'] = $catOptions['cat_desc'];
+
+		$parsed_description = getCategoryParsedDescription($category_id);
+
+		if (is_null($parsed_description))
+			setCategoryParsedDescription($category_id, $catOptions['cat_desc']);
 	}
 
 	// Can a user collapse this category or is it too important?
@@ -254,5 +261,21 @@ function deleteCategories($categories, $moveBoardsTo = null)
 	// Get all boards back into the right order.
 	reorderBoards();
 }
+
+function setCategoryParsedDescription($category_id = 0, $category_description = 0)
+{
+	global $cache_enable, $context;
+
+	if (empty($category_description) || empty($category_id) || empty($cache_enable))
+		return $category_description;
+
+	$parsed_description = parse_bbc($category_description, false, '', $context['description_allowed_tags']);
+
+	cache_put_data('parsed_cat_description_'. $category_id, $parsed_description, 864000);
+
+	return $parsed_description;
+}
+
+
 
 ?>
