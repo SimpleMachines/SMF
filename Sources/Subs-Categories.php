@@ -94,10 +94,7 @@ function modifyCategory($category_id, $catOptions)
 		$catUpdates[] = 'description = {string:cat_desc}';
 		$catParameters['cat_desc'] = $catOptions['cat_desc'];
 
-		$parsed_description = getCategoryParsedDescription($category_id);
-
-		if (null === $parsed_description)
-			setCategoryParsedDescription($category_id, $catOptions['cat_desc']);
+		setCategoryParsedDescription($category_id, $catOptions['cat_desc']);
 	}
 
 	// Can a user collapse this category or is it too important?

@@ -645,6 +645,11 @@ function modifyBoard($board_id, &$boardOptions)
 		$boardUpdateParameters['num_posts'] = (int) $boardOptions['num_posts'];
 	}
 
+	setBoardParsedDescription($boardOptions['target_category'], $board_id, array(
+		'name' => isset($boardOptions['board_name']) ? $boardOptions['board_name'] : '',
+		'description' => isset($boardOptions['board_description']) ? $boardOptions['board_description'] : ''
+	));
+
 	$id = $board_id;
 	call_integration_hook('integrate_modify_board', array($id, $boardOptions, &$boardUpdates, &$boardUpdateParameters));
 
@@ -1558,20 +1563,21 @@ function setBoardParsedDescription($category_id = 0, $board_id = 0, $board_info 
 	// Get the data we already parsed
 	$already_parsed_boards = getBoardsParsedDescription($category_id);
 
+	$parsed_board_info = array(
+		'name' => !empty($board_info['name']) ?
+			parse_bbc($board_info['name'], false, '', $context['description_allowed_tags']) : '',
+		'description' => !empty($board_info['description']) ?
+			parse_bbc($board_info['description'], false, '', $context['description_allowed_tags']) : '',
+	);
+
 	if (!empty($already_parsed_boards))
-		$already_parsed_boards[$category_id][$board_id] = array(
-			'name' => parse_bbc($board_info['name'], false, '', $context['description_allowed_tags']),
-			'description' => parse_bbc($board_info['description'], false, '', $context['description_allowed_tags']),
-		);
+		$already_parsed_boards[$category_id][$board_id] = $parsed_board_info;
 
 	else
 	{
 		$already_parsed_boards = array();
 		$already_parsed_boards[$category_id] = array();
-		$already_parsed_boards[$category_id][$board_id] = array(
-			'name' => parse_bbc($board_info['name'], false, '', $context['description_allowed_tags']),
-			'description' => parse_bbc($board_info['description'], false, '', $context['description_allowed_tags']),
-		);
+		$already_parsed_boards[$category_id][$board_id] = $parsed_board_info;
 	}
 
 	cache_put_data('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);
