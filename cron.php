@@ -319,6 +319,9 @@ abstract class SMF_BackgroundTask
 	 */
 	protected $_details;
 
+	/**
+	 * @var array Temp property to hold the current user info while tasks make use of $user_info
+	 */
 	private $current_user_info = array();
 
 	/**
@@ -345,11 +348,12 @@ abstract class SMF_BackgroundTask
 	/**
 	 * Loads minimal info for the current incontext user
 	 *
+	 * @param int $user_id
 	 * @return array
 	 */
 	public function getIncontextUserInfo($user_id = 0)
 	{
-		if (empty($userId))
+		if (empty($user_id))
 			return array();
 
 		return loadMinUserSettings($user_id);
