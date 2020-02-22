@@ -689,6 +689,7 @@ function loadUserSettings()
 			$user_info = array(
 				'groups' => array($user_settings['id_group'], $user_settings['id_post_group'])
 			);
+
 		else
 			$user_info = array(
 				'groups' => array_merge(
@@ -848,6 +849,54 @@ function loadUserSettings()
 
 	call_integration_hook('integrate_user_info');
 }
+
+function loadMinUserSettings($user_id = 0)
+{
+	global $smcFunc, $cache_enable, $modSettings, $language;
+
+	$user_settings_min = array();
+
+	if (empty($userId) || !is_int($userId))
+		return [];
+
+	if (empty($cache_enable) || ($user_settings_min = cache_get_data('user_settings_min-' . $user_id, 120)) == null)
+	{
+		$request = $smcFunc['db_query']('', '
+				SELECT time_offset, additional_groups, id_group, id_post_group, lngfile
+				FROM {db_prefix}members
+				WHERE id_member = {int:id_member}
+				LIMIT 1',
+			array(
+				'id_member' => $user_id,
+			)
+		);
+
+		$user_settings_min = $smcFunc['db_fetch_assoc']($request);
+
+		$smcFunc['db_free_result']($request);
+
+		$user_settings_min += array(
+			'id' => $user_id,
+			'language' => empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $user_settings_min['lngfile'],
+			'is_guest' => false,
+			'time_format' => empty($user_settings_min['time_format']) ? $modSettings['time_format'] : $user_settings_min['time_format'],
+			'is_admin' => in_array(1, $user_settings_min['groups'])
+		);
+
+		if (empty($user_settings_min['additional_groups']))
+			$user_settings_min['groups'] = array($user_settings_min['id_group'], $user_settings_min['id_post_group']);
+
+		else
+			$user_settings_min['groups'] = array_merge(
+				array($user_settings_min['id_group'], $user_settings_min['id_post_group']),
+				explode(',', $user_settings_min['additional_groups'])
+			);
+
+		if (!empty($cache_enable))
+			cache_put_data('user_settings_min-' . $user_id, $user_settings_min, 60);
+	}
+}
+
 
 /**
  * Check for moderators and see if they have access to the board.

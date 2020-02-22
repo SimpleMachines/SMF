@@ -173,19 +173,27 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			// Don't send a notification if the watching member ignored the member who made the action.
 			if (!empty($data['pm_ignore_list']) && in_array($data['id_member_updated'], explode(',', $data['pm_ignore_list'])))
 				continue;
+
 			if (!in_array($type, array('reply', 'topic')) && $notify_types == self::NOTIFY_TYPE_REPLY_AND_TOPIC_START_FOLLOWING && $member != $data['id_member_started'])
 				continue;
+
 			elseif (!in_array($type, array('reply', 'topic')) && $notify_types == self::NOTIFY_TYPE_ONLY_REPLIES)
 				continue;
+
 			elseif ($notify_types == self::NOTIFY_TYPE_NOTHING)
 				continue;
 
 			// Don't send a notification if they don't want any...
-			if (in_array($frequency, array(self::FREQUENCY_NOTHING, self::FREQUENCY_DAILY_DIGEST, self::FREQUENCY_WEEKLY_DIGEST)))
+			if (in_array($frequency, array(
+				self::FREQUENCY_NOTHING,
+				self::FREQUENCY_DAILY_DIGEST,
+				self::FREQUENCY_WEEKLY_DIGEST)))
 				continue;
+
 			// ... or if we already sent one and they don't want more...
 			elseif ($frequency == self::FREQUENCY_FIRST_UNREAD_MSG && $data['sent'])
 				continue;
+
 			// ... or if they aren't on the bouncer's list.
 			elseif (!empty($this->_details['members_only']) && !in_array($member, $this->_details['members_only']))
 				continue;
@@ -193,13 +201,16 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			// Watched topic?
 			if (!empty($data['id_topic']) && $type != 'topic' && !empty($prefs[$member]))
 			{
-				$pref = !empty($prefs[$member]['topic_notify_' . $topicOptions['id']]) ? $prefs[$member]['topic_notify_' . $topicOptions['id']] : (!empty($prefs[$member]['topic_notify']) ? $prefs[$member]['topic_notify'] : 0);
+				$pref = !empty($prefs[$member]['topic_notify_' . $topicOptions['id']]) ?
+					$prefs[$member]['topic_notify_' . $topicOptions['id']] :
+					(!empty($prefs[$member]['topic_notify']) ? $prefs[$member]['topic_notify'] : 0);
 				$message_type = 'notification_' . $type;
 
 				if ($type == 'reply')
 				{
 					if (!empty($prefs[$member]['msg_receive_body']))
 						$message_type .= '_body';
+
 					if (!empty($frequency))
 						$message_type .= '_once';
 				}
@@ -209,14 +220,18 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			// A new topic in a watched board then?
 			elseif ($type == 'topic')
 			{
-				$pref = !empty($prefs[$member]['board_notify_' . $topicOptions['board']]) ? $prefs[$member]['board_notify_' . $topicOptions['board']] : (!empty($prefs[$member]['board_notify']) ? $prefs[$member]['board_notify'] : 0);
+				$pref = !empty($prefs[$member]['board_notify_' . $topicOptions['board']]) ?
+					$prefs[$member]['board_notify_' . $topicOptions['board']] :
+					(!empty($prefs[$member]['board_notify']) ? $prefs[$member]['board_notify'] : 0);
 
 				$content_type = 'board';
 
 				$message_type = !empty($frequency) ? 'notify_boards_once' : 'notify_boards';
+
 				if (!empty($prefs[$member]['msg_receive_body']))
 					$message_type .= '_body';
 			}
+
 			// If neither of the above, this might be a redundant row due to the OR clause in our SQL query, skip
 			else
 				continue;
@@ -270,6 +285,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				$user_info = $real_user_info;
 				unset($real_user_info);
 			}
+
 			else
 				$user_info = null;
 
