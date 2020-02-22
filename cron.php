@@ -94,6 +94,9 @@ if (!FROM_CLI)
 		obExit_cron();
 }
 
+else
+	$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
+
 // Load the most important includes. In general, a background should be loading its own dependencies.
 require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
