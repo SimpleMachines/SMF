@@ -96,7 +96,7 @@ function modifyCategory($category_id, $catOptions)
 
 		$parsed_description = getCategoryParsedDescription($category_id);
 
-		if (is_null($parsed_description))
+		if (null === $parsed_description)
 			setCategoryParsedDescription($category_id, $catOptions['cat_desc']);
 	}
 
@@ -262,7 +262,7 @@ function deleteCategories($categories, $moveBoardsTo = null)
 	reorderBoards();
 }
 
-function setCategoryParsedDescription($category_id = 0, $category_description = 0)
+function setCategoryParsedDescription($category_id = 0, $category_description = '')
 {
 	global $cache_enable, $context;
 
