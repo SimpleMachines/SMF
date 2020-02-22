@@ -1579,4 +1579,14 @@ function setBoardParsedDescription($category_id = 0, $board_id = 0, $board_info 
 	return $already_parsed_boards;
 }
 
+
+function getBoardsParsedDescription($category_id = 0)
+{
+	global $cache_enable;
+
+	if (empty($category_id) || empty($cache_enable))
+		return null;
+
+	return cache_get_data('parsed_boards_descriptions_' . $category_id, 864000);
+}
 ?>
