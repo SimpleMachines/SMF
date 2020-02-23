@@ -1553,11 +1553,11 @@ function isChildOf($child, $parent)
 	return isChildOf($boards[$child]['parent'], $parent);
 }
 
-function setBoardParsedDescription($category_id = 0, $board_id = 0, $board_info = array())
+function setBoardParsedDescription($category_id = 0, $board_info = array())
 {
 	global $cache_enable, $context;
 
-	if (empty($cache_enable) || empty($category_id) || empty($board_id) || empty($board_info))
+	if (empty($category_id) || empty($board_info))
 		return array(
 			'name' => '',
 			'description' => '',
@@ -1583,7 +1583,8 @@ function setBoardParsedDescription($category_id = 0, $board_id = 0, $board_info 
 		$already_parsed_boards[$category_id][$board_id] = $parsed_board_info;
 	}
 
-	cache_put_data('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);
+	if(!empty($cache_enable))
+		cache_put_data('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);
 
 	return $parsed_board_info;
 }
