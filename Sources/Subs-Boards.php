@@ -645,7 +645,7 @@ function modifyBoard($board_id, &$boardOptions)
 		$boardUpdateParameters['num_posts'] = (int) $boardOptions['num_posts'];
 	}
 
-	setBoardParsedDescription($boardOptions['target_category'], $board_id, array(
+	setBoardParsedDescription((isset($id_cat) ? $id_cat : $boardOptions['old_id_cat']), $board_id, array(
 		'name' => isset($boardOptions['board_name']) ? $boardOptions['board_name'] : '',
 		'description' => isset($boardOptions['board_description']) ? $boardOptions['board_description'] : ''
 	));
@@ -1558,7 +1558,10 @@ function setBoardParsedDescription($category_id = 0, $board_id = 0, $board_info 
 	global $cache_enable, $context;
 
 	if (empty($cache_enable) || empty($category_id) || empty($board_id) || empty($board_info))
-		return null;
+		return array(
+			'name' => '',
+			'description' => '',
+		);;
 
 	// Get the data we already parsed
 	$already_parsed_boards = getBoardsParsedDescription($category_id);
@@ -1582,7 +1585,7 @@ function setBoardParsedDescription($category_id = 0, $board_id = 0, $board_info 
 
 	cache_put_data('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);
 
-	return $already_parsed_boards;
+	return $parsed_board_info;
 }
 
 function getBoardsParsedDescription($category_id = 0)

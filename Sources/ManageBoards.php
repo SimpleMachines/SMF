@@ -679,6 +679,7 @@ function EditBoard2()
 			$moderators = array();
 			foreach ($_POST['moderator_list'] as $moderator)
 				$moderators[(int) $moderator] = (int) $moderator;
+
 			$boardOptions['moderators'] = $moderators;
 		}
 
@@ -703,25 +704,29 @@ function EditBoard2()
 		if (!empty($_POST['boardid']))
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT redirect, num_posts
+				SELECT redirect, num_posts, id_cat
 				FROM {db_prefix}boards
 				WHERE id_board = {int:current_board}',
 				array(
 					'current_board' => $_POST['boardid'],
 				)
 			);
-			list ($oldRedirect, $numPosts) = $smcFunc['db_fetch_row']($request);
+			list ($oldRedirect, $numPosts, $old_id_cat) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
 			// If we're turning redirection on check the board doesn't have posts in it - if it does don't make it a redirection board.
 			if ($boardOptions['redirect'] && empty($oldRedirect) && $numPosts)
 				unset($boardOptions['redirect']);
+
 			// Reset the redirection count when switching on/off.
 			elseif (empty($boardOptions['redirect']) != empty($oldRedirect))
 				$boardOptions['num_posts'] = 0;
+
 			// Resetting the count?
 			elseif ($boardOptions['redirect'] && !empty($_POST['reset_redirect']))
 				$boardOptions['num_posts'] = 0;
+
+			$boardOptions['old_id_cat'] = $old_id_cat;
 		}
 
 		// Create a new board...
