@@ -496,6 +496,12 @@ function getBoardIndex($board_index_options)
 		{
 			foreach ($category['boards'] as &$board)
 			{
+				if (isset($boards_parsed_data[$category['id']][$board['id']]))
+				{
+					$board['name'] = $boards_parsed_data[$category['id']][$board['id']]['name'];
+					$board['description'] = $boards_parsed_data[$category['id']][$board['id']]['description'];
+				}
+
 				if (!empty($moderators[$board['id']]))
 				{
 					$board['moderators'] = $moderators[$board['id']];
