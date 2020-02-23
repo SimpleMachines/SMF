@@ -1724,6 +1724,46 @@ $(function() {
 			$(this).html($(this).attr('data-shrink-txt'));
 		}
 	});
+
+	// Expand quotes
+	$('blockquote').each(function(index, item) {
+		if (smf_quote_expand === 0)
+			return;
+
+		let full_quote = $(item).clone();
+		let cite = full_quote.find('cite');
+			$(item).find('cite').remove();
+		let quote_height = parseInt($(item).height());
+
+		if(quote_height < smf_quote_expand)
+			return;
+
+		let anchor = $('<a/>', {
+			text: ' [' + smf_txt_expand + ']',
+			class: 'expand'
+		});
+
+		cite.append(anchor);
+		$(item).html(cite);
+
+		$(item).on('click', 'a.expand', function(event) {
+			event.preventDefault();
+
+			if (smf_quote_expand < parseInt($(item).height()))
+			{
+				cite.find('a.expand').text(' ['+ smf_txt_expand +']');
+				$(item).html(cite);
+			}
+
+			else
+			{
+				cite.find('a.expand').text(' ['+ smf_txt_shrink +']');
+				$(item).append(full_quote.html());
+			}
+
+			return false;
+		});
+	});
 });
 
 function avatar_fallback(e) {
