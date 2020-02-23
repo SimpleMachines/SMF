@@ -1559,7 +1559,7 @@ function setBoardParsedDescription($category_id = 0, $boards_info = array())
 {
 	global $cache_enable, $context;
 
-	if (empty($category_id) || empty($board_info))
+	if (empty($category_id) || empty($boards_info))
 		return array();
 
 	// Get the data we already parsed
