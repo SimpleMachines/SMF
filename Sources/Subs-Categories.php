@@ -94,7 +94,9 @@ function modifyCategory($category_id, $catOptions)
 		$catUpdates[] = 'description = {string:cat_desc}';
 		$catParameters['cat_desc'] = $catOptions['cat_desc'];
 
-		setCategoryParsedDescription($category_id, $catOptions['cat_desc']);
+		setCategoryParsedDescription(array(
+			$category_id => $catOptions['cat_desc']
+		));
 	}
 
 	// Can a user collapse this category or is it too important?
@@ -259,28 +261,36 @@ function deleteCategories($categories, $moveBoardsTo = null)
 	reorderBoards();
 }
 
-function setCategoryParsedDescription($category_id = 0, $category_description = '')
+function setCategoryParsedDescription($category_info = array())
 {
 	global $cache_enable, $context;
 
-	if (empty($category_description) || empty($category_id) || empty($cache_enable))
-		return $category_description;
+	if (empty($cache_enable) || empty($category_info))
+		return array();
 
-	$parsed_description = parse_bbc($category_description, false, '', $context['description_allowed_tags']);
+	// Get the data we already parsed
+	$already_parsed_categories = getCategoriesParsedDescription();
 
-	cache_put_data('parsed_cat_description_'. $category_id, $parsed_description, 864000);
+	if (null === $already_parsed_categories)
+		$already_parsed_categories = array();
 
-	return $parsed_description;
+	foreach ($category_info as $category_id => $category_description)
+		$already_parsed_categories[$category_id] = !empty($category_description) ?
+				parse_bbc($category_description, false, '', $context['description_allowed_tags']) : '';
+
+	cache_put_data('parsed_category_descriptions', $already_parsed_categories, 864000);
+
+	return $already_parsed_categories;
 }
 
-function getCategoryParsedDescription($category_id = 0)
+function getCategoriesParsedDescription()
 {
 	global $cache_enable;
 
-	if (empty($category_id) || empty($cache_enable))
+	if (empty($cache_enable))
 		return null;
 
-	return cache_get_data('parsed_cat_description_' . $category_id, 864000);
+	return cache_get_data('parsed_category_descriptions', 864000);
 }
 
 ?>

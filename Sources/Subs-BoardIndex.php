@@ -110,7 +110,7 @@ function getBoardIndex($board_index_options)
 	else
 		$result_boards = $smcFunc['db_query']('', '
 			SELECT' . ($board_index_options['include_categories'] ? '
-				b.id_cat, c.name AS cat_name, c.description AS cat_desc,' : 'b.id_cat,') . '
+				c.id_cat, c.name AS cat_name, c.description AS cat_desc,' : 'b.id_cat,') . '
 				' . (!empty($board_index_selects) ? implode(', ', $board_index_selects) : '') . ',
 				COALESCE(m.poster_time, 0) AS poster_time, COALESCE(mem.member_name, m.poster_name) AS poster_name,
 				m.subject, m.id_topic, COALESCE(mem.real_name, m.poster_name) AS real_name,
