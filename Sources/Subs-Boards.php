@@ -645,9 +645,11 @@ function modifyBoard($board_id, &$boardOptions)
 		$boardUpdateParameters['num_posts'] = (int) $boardOptions['num_posts'];
 	}
 
-	setBoardParsedDescription((isset($id_cat) ? $id_cat : $boardOptions['old_id_cat']), $board_id, array(
-		'name' => isset($boardOptions['board_name']) ? $boardOptions['board_name'] : '',
-		'description' => isset($boardOptions['board_description']) ? $boardOptions['board_description'] : ''
+	setBoardParsedDescription((isset($id_cat) ? $id_cat : $boardOptions['old_id_cat']), array(
+		$board_id => array(
+			'name' => isset($boardOptions['board_name']) ? $boardOptions['board_name'] : '',
+			'description' => isset($boardOptions['board_description']) ? $boardOptions['board_description'] : ''
+		)
 	));
 
 	$id = $board_id;
