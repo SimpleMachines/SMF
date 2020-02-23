@@ -866,7 +866,7 @@ function loadMinUserSettings($user_id = 0)
 	if (empty($user_id) || !is_int($user_id))
 		return $user_settings_min;
 
-	if (empty($cache_enable) || null === ($user_settings_min = cache_get_data('user_settings_min-' . $user_id, 120)))
+	if (empty($cache_enable) || null === ($user_settings_min = cache_get_data('user_settings_min-' . $user_id, 1800)))
 	{
 		$request = $smcFunc['db_query']('', '
 				SELECT time_offset, additional_groups, id_group, id_post_group, lngfile, smiley_set, time_offset
@@ -883,7 +883,7 @@ function loadMinUserSettings($user_id = 0)
 		$smcFunc['db_free_result']($request);
 
 		if (!empty($cache_enable))
-			cache_put_data('user_settings_min-' . $user_id, $user_settings_min, 120);
+			cache_put_data('user_settings_min-' . $user_id, $user_settings_min, 1800);
 	}
 
 	$user_settings_min += array(
