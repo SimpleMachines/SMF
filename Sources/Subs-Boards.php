@@ -1613,4 +1613,5 @@ function getBoardParsedDescriptionById($category_id = 0, $board_id = 0)
 
 	return $already_parsed_boards[$category_id][$board_id];
 }
+
 ?>
