@@ -353,9 +353,6 @@ abstract class SMF_BackgroundTask
 	 */
 	public function getIncontextUserInfo($user_id = 0)
 	{
-		if (empty($user_id))
-			return array();
-
 		return loadMinUserSettings($user_id);
 	}
 

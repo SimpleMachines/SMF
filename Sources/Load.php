@@ -850,6 +850,13 @@ function loadUserSettings()
 	call_integration_hook('integrate_user_info');
 }
 
+/**
+ * Load minimal info from members table.
+ *
+ * @param int $user_id The incontext user ID to get the data from.
+ * @return array
+ * @throws Exception
+ */
 function loadMinUserSettings($user_id = 0)
 {
 	global $smcFunc, $cache_enable, $modSettings, $language;
