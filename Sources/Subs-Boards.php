@@ -1553,40 +1553,31 @@ function isChildOf($child, $parent)
 	return isChildOf($boards[$child]['parent'], $parent);
 }
 
-function setBoardParsedDescription($category_id = 0, $board_info = array())
+function setBoardParsedDescription($category_id = 0, $boards_info = array())
 {
 	global $cache_enable, $context;
 
 	if (empty($category_id) || empty($board_info))
-		return array(
-			'name' => '',
-			'description' => '',
-		);;
+		return array();
 
 	// Get the data we already parsed
 	$already_parsed_boards = getBoardsParsedDescription($category_id);
 
-	$parsed_board_info = array(
-		'name' => !empty($board_info['name']) ?
-			parse_bbc($board_info['name'], false, '', $context['description_allowed_tags']) : '',
-		'description' => !empty($board_info['description']) ?
-			parse_bbc($board_info['description'], false, '', $context['description_allowed_tags']) : '',
-	);
-
-	if (!empty($already_parsed_boards))
-		$already_parsed_boards[$category_id][$board_id] = $parsed_board_info;
-
-	else
-	{
+	if (null === $already_parsed_boards)
 		$already_parsed_boards = array();
-		$already_parsed_boards[$category_id] = array();
-		$already_parsed_boards[$category_id][$board_id] = $parsed_board_info;
-	}
+
+	foreach ($boards_info as $board_id => $board_data)
+		$already_parsed_boards[$board_id] = array(
+			'name' => !empty($board_data['name']) ?
+				parse_bbc($board_data['name'], false, '', $context['description_allowed_tags']) : '',
+			'description' => !empty($board_data['description']) ?
+				parse_bbc($board_data['description'], false, '', $context['description_allowed_tags']) : '',
+		);
 
 	if(!empty($cache_enable))
 		cache_put_data('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);
 
-	return $parsed_board_info;
+	return $already_parsed_boards;
 }
 
 function getBoardsParsedDescription($category_id = 0)
