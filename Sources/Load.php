@@ -864,9 +864,9 @@ function loadMinUserSettings($user_id = 0)
 	$user_settings_min = array();
 
 	if (empty($user_id) || !is_int($user_id))
-		return [];
+		return $user_settings_min;
 
-	if (empty($cache_enable) || ($user_settings_min = cache_get_data('user_settings_min-' . $user_id, 120)) == null)
+	if (empty($cache_enable) || null === ($user_settings_min = cache_get_data('user_settings_min-' . $user_id, 120)))
 	{
 		$request = $smcFunc['db_query']('', '
 				SELECT time_offset, additional_groups, id_group, id_post_group, lngfile, smiley_set, time_offset
