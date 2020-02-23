@@ -584,7 +584,7 @@ WHERE url = 'http://custom.simplemachines.org/packages/mods';
 
 ---# Add validation to Simple Machines Customize Site
 UPDATE {$db_prefix}package_servers
-SET validation_url = 'https://custom.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}'
+SET validation_url = 'https://custom.simplemachines.org/api.php?action=validate;version=v1;smf_version={SMF_VERSION}'
 WHERE url = 'https://custom.simplemachines.org/packages/mods';
 ---#
 
