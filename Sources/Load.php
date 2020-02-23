@@ -856,7 +856,7 @@ function loadMinUserSettings($user_id = 0)
 
 	$user_settings_min = array();
 
-	if (empty($userId) || !is_int($userId))
+	if (empty($user_id) || !is_int($user_id))
 		return [];
 
 	if (empty($cache_enable) || ($user_settings_min = cache_get_data('user_settings_min-' . $user_id, 120)) == null)
@@ -875,39 +875,39 @@ function loadMinUserSettings($user_id = 0)
 
 		$smcFunc['db_free_result']($request);
 
-		$user_settings_min += array(
-			'id' => $user_id,
-			'language' => empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $user_settings_min['lngfile'],
-			'is_guest' => false,
-			'time_format' => empty($user_settings_min['time_format']) ? $modSettings['time_format'] : $user_settings_min['time_format'],
-			'is_admin' => in_array(1, $user_settings_min['groups']),
-			'smiley_set' => empty($user_settings_min['time_format']) ? $modSettings['smiley_sets_default'] : $user_settings_min['time_format'],
-		);
-
-		if (empty($user_settings_min['additional_groups']))
-			$user_settings_min['groups'] = array($user_settings_min['id_group'], $user_settings_min['id_post_group']);
-
-		else
-			$user_settings_min['groups'] = array_merge(
-				array($user_settings_min['id_group'], $user_settings_min['id_post_group']),
-				explode(',', $user_settings_min['additional_groups'])
-			);
-
-		if (!empty($user_settings_min['timezone']))
-		{
-			$tz_system = new DateTimeZone(@date_default_timezone_get());
-			$tz_user = new DateTimeZone($data['timezone']);
-			$time_system = new DateTime('now', $tz_system);
-			$time_user = new DateTime('now', $tz_user);
-			$user_settings_min['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
-		}
-
-		else
-			$user_info['time_offset'] = empty($data['time_offset']) ? 0 : $data['time_offset'];
-
 		if (!empty($cache_enable))
 			cache_put_data('user_settings_min-' . $user_id, $user_settings_min, 120);
 	}
+
+	$user_settings_min += array(
+		'id' => $user_id,
+		'language' => empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $user_settings_min['lngfile'],
+		'is_guest' => false,
+		'time_format' => empty($user_settings_min['time_format']) ? $modSettings['time_format'] : $user_settings_min['time_format'],
+		'is_admin' => in_array(1, $user_settings_min['groups']),
+		'smiley_set' => empty($user_settings_min['time_format']) ? $modSettings['smiley_sets_default'] : $user_settings_min['time_format'],
+	);
+
+	if (empty($user_settings_min['additional_groups']))
+		$user_settings_min['groups'] = array($user_settings_min['id_group'], $user_settings_min['id_post_group']);
+
+	else
+		$user_settings_min['groups'] = array_merge(
+			array($user_settings_min['id_group'], $user_settings_min['id_post_group']),
+			explode(',', $user_settings_min['additional_groups'])
+		);
+
+	if (!empty($user_settings_min['timezone']))
+	{
+		$tz_system = new \DateTimeZone(@date_default_timezone_get());
+		$tz_user = new \DateTimeZone($user_settings_min['timezone']);
+		$time_system = new \DateTime('now', $tz_system);
+		$time_user = new \DateTime('now', $tz_user);
+		$user_settings_min['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
+	}
+
+	else
+		$user_info['time_offset'] = empty($data['time_offset']) ? 0 : $data['time_offset'];
 
 	call_integration_hook('integrate_load_min_user_settings', array(&$user_settings_min));
 
