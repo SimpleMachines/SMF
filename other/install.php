@@ -164,8 +164,12 @@ function initialize_inputs()
 	if (!isset($_SERVER['PHP_SELF']))
 		$_SERVER['PHP_SELF'] = isset($GLOBALS['HTTP_SERVER_VARS']['PHP_SELF']) ? $GLOBALS['HTTP_SERVER_VARS']['PHP_SELF'] : 'install.php';
 
-	// Enable error reporting for fatal errors.
-	error_reporting(E_ERROR | E_PARSE);
+	// In pre-release versions, report all errors.
+	if (strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION))
+		error_reporting(E_ALL);
+	// Otherwise, report all errors except for deprecation notices.
+	else
+		error_reporting(E_ALL & ~E_DEPRECATED);
 
 	// Fun.  Low PHP version...
 	if (!isset($_GET))
@@ -266,6 +270,9 @@ function initialize_inputs()
 
 		date_default_timezone_set($timezone_id);
 	}
+	header('X-Frame-Options: SAMEORIGIN');
+	header('X-XSS-Protection: 1');
+	header('X-Content-Type-Options: nosniff');
 
 	// Force an integer step, defaulting to 0.
 	$_GET['step'] = (int) @$_GET['step'];
@@ -528,6 +535,7 @@ function CheckFilesWritable()
 		'agreement.txt',
 		'Settings.php',
 		'Settings_bak.php',
+		'cache/db_last_error.php',
 	);
 
 	foreach ($incontext['detected_languages'] as $lang => $temp)
@@ -812,9 +820,9 @@ function DatabaseSettings()
 		}
 
 		// God I hope it saved!
-		if (!installer_updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
+		if (!installer_updateSettingsFile($vars))
 		{
-			$incontext['error'] = $txt['error_windows_chmod'];
+			$incontext['error'] = $txt['settings_error'];
 			return false;
 		}
 
@@ -1026,6 +1034,10 @@ function ForumSettings()
 		// Deal with different operating systems' directory structure...
 		$path = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', __DIR__), '/');
 
+		// Load the compatibility library if necessary.
+		if (!is_callable('random_bytes'))
+			require_once('Sources/random_compat/random.php');
+
 		// Save these variables.
 		$vars = array(
 			'boardurl' => $_POST['boardurl'],
@@ -1036,14 +1048,15 @@ function ForumSettings()
 			'tasksdir' => $path . '/Sources/tasks',
 			'mbname' => strtr($_POST['mbname'], array('\"' => '"')),
 			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),
-			'image_proxy_secret' => substr(sha1(mt_rand()), 0, 20),
+			'image_proxy_secret' => bin2hex(random_bytes(10)),
 			'image_proxy_enabled' => !empty($_POST['force_ssl']),
+			'auth_secret' => bin2hex(random_bytes(32)),
 		);
 
 		// Must save!
-		if (!installer_updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
+		if (!installer_updateSettingsFile($vars))
 		{
-			$incontext['error'] = $txt['error_windows_chmod'];
+			$incontext['error'] = $txt['settings_error'];
 			return false;
 		}
 
@@ -1641,7 +1654,7 @@ function AdminAccount()
 			if (!is_callable('random_int'))
 				require_once('Sources/random_compat/random.php');
 
-			$incontext['member_salt'] = substr(md5(random_int(0, PHP_INT_MAX)), 0, 4);
+			$incontext['member_salt'] = bin2hex(random_bytes(16));
 
 			// Format the username properly.
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
@@ -1716,6 +1729,7 @@ function DeleteInstall()
 {
 	global $smcFunc, $db_character_set, $context, $txt, $incontext;
 	global $databases, $sourcedir, $modSettings, $user_info, $db_type, $boardurl;
+	global $auth_secret;
 
 	$incontext['page_title'] = $txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';
@@ -1867,9 +1881,11 @@ function DeleteInstall()
 	return false;
 }
 
-function installer_updateSettingsFile($vars, $partial = true)
+function installer_updateSettingsFile($vars, $rebuild = false)
 {
-	global $sourcedir;
+	global $sourcedir, $context, $db_character_set, $txt;
+
+	$context['utf8'] = (isset($vars['db_character_set']) && $vars['db_character_set'] === 'utf8') || (!empty($db_character_set) && $db_character_set === 'utf8') || (!empty($txt) && $txt['lang_character_set'] === 'UTF-8');
 
 	if (empty($sourcedir))
 	{
@@ -1879,10 +1895,18 @@ function installer_updateSettingsFile($vars, $partial = true)
 			return false;
 	}
 
+	if (!is_writeable(dirname(__FILE__) . '/Settings.php'))
+	{
+		@chmod(dirname(__FILE__) . '/Settings.php', 0777);
+
+		if (!is_writeable(dirname(__FILE__) . '/Settings.php'))
+			return false;
+	}
+
 	require_once($sourcedir . '/Subs.php');
 	require_once($sourcedir . '/Subs-Admin.php');
 
-	return updateSettingsFile($vars, false, $partial);
+	return updateSettingsFile($vars, false, $rebuild);
 }
 
 // Create an .htaccess file to prevent mod_security. SMF has filtering built-in.

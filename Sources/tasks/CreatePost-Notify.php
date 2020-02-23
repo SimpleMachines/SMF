@@ -275,12 +275,16 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			// Bitwise check: Receiving a email notification?
 			if ($pref & self::RECEIVE_NOTIFY_EMAIL)
 			{
+				$itemID = $content_type == 'board' ? $topicOptions['board'] : $topicOptions['id'];
+
+				$token = createUnsubscribeToken($data['id_member'], $data['email_address'], $content_type, $itemID);
+
 				$replacements = array(
 					'TOPICSUBJECT' => $parsed_message[$localization]['subject'],
 					'POSTERNAME' => un_htmlspecialchars($posterOptions['name']),
 					'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
 					'MESSAGE' => $parsed_message[$localization]['body'],
-					'UNSUBSCRIBELINK' => $scripturl . '?action=notifyboard;board=' . $topicOptions['board'] . '.0',
+					'UNSUBSCRIBELINK' => $scripturl . '?action=notify' . $content_type . ';' . $content_type . '=' . $itemID . ';sa=off;u=' . $data['id_member'] . ';token=' . $token,
 				);
 
 				$emaildata = loadEmailTemplate($message_type, $replacements, $receiver_lang);
@@ -308,7 +312,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
 						'content_subject' => $parsed_message[$localization]['subject'],
-						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
+						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . (in_array($type, array('reply', 'topic')) ? '.new;topicseen#new' : '.0'),
 					)),
 				);
 

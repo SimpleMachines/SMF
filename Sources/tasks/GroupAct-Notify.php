@@ -84,27 +84,27 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			require_once($sourcedir . '/Subs-Notify.php');
 			$prefs = getNotifyPrefs($members, array('groupr_approved', 'groupr_rejected'), true);
 
-			// They are being approved?
-			if ($this->_details['status'] == 'approve')
-			{
-				$pref_name = 'approved';
-				$email_template_name = 'mc_group_approve';
-				$email_message_id_prefix = 'grpapp';
-			}
-			// Otherwise, they are getting rejected (With or without a reason).
-			else
-			{
-				$pref_name = 'rejected';
-				$email_template_name = empty($custom_reason) ? 'mc_group_reject' : 'mc_group_reject_reason';
-				$email_message_id_prefix = 'grprej';
-			}
-
 			// Same as for approving, kind of.
 			foreach ($affected_users as $user)
 			{
-				$pref = !empty($prefs[$user['member_id']]['groupr_' . $pref_name]) ? $prefs[$user['member_id']]['groupr_' . $pref_name] : 0;
 				$custom_reason = isset($this->_details['reason']) && isset($this->_details['reason'][$user['rid']]) ? $this->_details['reason'][$user['rid']] : '';
 
+				// They are being approved?
+				if ($this->_details['status'] == 'approve')
+				{
+					$pref_name = 'approved';
+					$email_template_name = 'mc_group_approve';
+					$email_message_id_prefix = 'grpapp';
+				}
+				// Otherwise, they are getting rejected (With or without a reason).
+				else
+				{
+					$pref_name = 'rejected';
+					$email_template_name = empty($custom_reason) ? 'mc_group_reject' : 'mc_group_reject_reason';
+					$email_message_id_prefix = 'grprej';
+				}
+
+				$pref = !empty($prefs[$user['member_id']]['groupr_' . $pref_name]) ? $prefs[$user['member_id']]['groupr_' . $pref_name] : 0;
 				if ($pref & self::RECEIVE_NOTIFY_ALERT)
 				{
 					$alert_rows[] = array(

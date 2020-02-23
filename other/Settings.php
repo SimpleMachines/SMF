@@ -131,14 +131,15 @@ $db_prefix = 'smf_';
 /**
  * Use a persistent database connection
  *
- * @var int|bool
+ * @var bool
  */
-$db_persist = 0;
+$db_persist = false;
 /**
+ * Send emails on database connection error
  *
- * @var int|bool
+ * @var bool
  */
-$db_error_send = 0;
+$db_error_send = false;
 /**
  * Override the default behavior of the database layer for mb4 handling
  * null keep the default behavior untouched
@@ -181,17 +182,15 @@ $cachedir = dirname(__FILE__) . '/cache';
 /**
  * Whether the proxy is enabled or not
  *
- * @var int|bool
+ * @var bool
  */
 $image_proxy_enabled = true;
-
 /**
  * Secret key to be used by the proxy
  *
  * @var string
  */
 $image_proxy_secret = 'smfisawesome';
-
 /**
  * Maximum file size (in KB) for individual files
  *
@@ -233,6 +232,8 @@ if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
 	$sourcedir = $boarddir . '/Sources';
 if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/tasks'))
 	$tasksdir = $sourcedir . '/tasks';
+if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
+	$packagesdir = $boarddir . '/Packages';
 if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
 
@@ -260,8 +261,11 @@ if (file_exists(dirname(__FILE__) . '/install.php'))
 	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
 		$secure = true;
 
-	header('location: http' . ($secure ? 's' : '') . '://' . (empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST']) . (strtr(dirname($_SERVER['PHP_SELF']), '\\', '/') == '/' ? '' : strtr(dirname($_SERVER['PHP_SELF']), '\\', '/')) . '/install.php');
-	exit;
+	if (basename($_SERVER['PHP_SELF']) != 'install.php')
+	{
+		header('location: http' . ($secure ? 's' : '') . '://' . (empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST']) . (strtr(dirname($_SERVER['PHP_SELF']), '\\', '/') == '/' ? '' : strtr(dirname($_SERVER['PHP_SELF']), '\\', '/')) . '/install.php');
+		exit;
+	}
 }
 
 ?>

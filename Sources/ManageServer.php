@@ -933,7 +933,7 @@ function prepareServerSettingsContext(&$config_vars)
 				'label' => $config_var[1],
 				'help' => isset($config_var[5]) ? $config_var[5] : '',
 				'type' => $config_var[3],
-				'size' => empty($config_var[4]) ? 0 : $config_var[4],
+				'size' => !empty($config_var[4]) && !is_array($config_var[4]) ? $config_var[4] : 0,
 				'data' => isset($config_var[4]) && is_array($config_var[4]) && $config_var[3] != 'select' ? $config_var[4] : array(),
 				'name' => $config_var[0],
 				'value' => $config_var[2] == 'file' ? $smcFunc['htmlspecialchars']($$varname) : (isset($modSettings[$config_var[0]]) ? $smcFunc['htmlspecialchars']($modSettings[$config_var[0]]) : (in_array($config_var[3], array('int', 'float')) ? 0 : '')),

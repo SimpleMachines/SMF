@@ -360,6 +360,7 @@ function upgradeExit($fallThrough = false)
 		$upcontext['user']['skip_db_substeps'] = !empty($upcontext['skip_db_substeps']);
 		$upcontext['debug'] = $is_debug;
 		$upgradeData = base64_encode(json_encode($upcontext['user']));
+		require_once($sourcedir . '/Subs.php');
 		require_once($sourcedir . '/Subs-Admin.php');
 		updateSettingsFile(array('upgradeData' => $upgradeData));
 		updateDbLastError(0);
@@ -623,11 +624,21 @@ function redirectLocation($location, $addForm = true)
 function loadEssentialData()
 {
 	global $db_server, $db_user, $db_passwd, $db_name, $db_connection;
-	global $db_prefix, $db_character_set, $db_type, $db_port;
+	global $db_prefix, $db_character_set, $db_type, $db_port, $db_show_debug;
 	global $db_mb4, $modSettings, $sourcedir, $smcFunc, $txt, $utf8;
 
-	error_reporting(E_ALL);
+	// Report all errors if admin wants them or this is a pre-release version.
+	if (!empty($db_show_debug) || strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION))
+		error_reporting(E_ALL);
+	// Otherwise, report all errors except for deprecation notices.
+	else
+		error_reporting(E_ALL & ~E_DEPRECATED);
+
+
 	define('SMF', 1);
+	header('X-Frame-Options: SAMEORIGIN');
+	header('X-XSS-Protection: 1');
+	header('X-Content-Type-Options: nosniff');
 
 	// Start the session.
 	if (@ini_get('session.save_handler') == 'user')
@@ -636,6 +647,8 @@ function loadEssentialData()
 
 	if (empty($smcFunc))
 		$smcFunc = array();
+
+	require_once($sourcedir . '/Subs.php');
 
 	$smcFunc['random_int'] = function($min = 0, $max = PHP_INT_MAX)
 	{
@@ -719,8 +732,6 @@ function loadEssentialData()
 	}
 	else
 		return throw_error(sprintf($txt['error_sourcefile_missing'], 'Subs-Db-' . $db_type . '.php'));
-
-	require_once($sourcedir . '/Subs.php');
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
 	if (file_exists($sourcedir . '/QueryString.php') && php_version_check())
@@ -906,6 +917,8 @@ function WelcomeLogin()
 
 	if (!file_exists($cachedir_temp))
 		return throw_error($txt['error_cache_not_found']);
+
+	quickFileWritable($cachedir_temp . '/db_last_error.php');
 
 	if (!file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php'))
 		return throw_error(sprintf($txt['error_lang_index_missing'], $upcontext['language'], $upgradeurl));
@@ -1160,6 +1173,8 @@ function UpgradeOptions()
 	$upcontext['karma_installed']['good'] = in_array('karma_good', $member_columns);
 	$upcontext['karma_installed']['bad'] = in_array('karma_bad', $member_columns);
 
+	$upcontext['migrate_settings_recommended'] = empty($modSettings['smfVersion']) || version_compare(strtolower($modSettings['smfVersion']), substr(SMF_VERSION, 0, strpos(SMF_VERSION, '.') + 1 + strspn(SMF_VERSION, '1234567890', strpos(SMF_VERSION, '.') + 1)) . ' foo', '<');
+
 	unset($member_columns);
 
 	// If we've not submitted then we're done.
@@ -1279,12 +1294,12 @@ function UpgradeOptions()
 	$changes = array();
 
 	// Add proxy settings.
+	if (!isset($GLOBALS['image_proxy_secret']) || $GLOBALS['image_proxy_secret'] == 'smfisawesome')
+		$changes['image_proxy_secret'] = substr(sha1(mt_rand()), 0, 20);
 	if (!isset($GLOBALS['image_proxy_maxsize']))
-		$changes += array(
-			'image_proxy_secret' => substr(sha1(mt_rand()), 0, 20),
-			'image_proxy_maxsize' => 5190,
-			'image_proxy_enabled' => 0,
-		);
+		$changes['image_proxy_maxsize'] = 5190;
+	if (!isset($GLOBALS['image_proxy_enabled']))
+		$changes['image_proxy_enabled'] = false;
 
 	// If $boardurl reflects https, set force_ssl
 	if (!function_exists('cache_put_data'))
@@ -1375,12 +1390,10 @@ function UpgradeOptions()
 	// Ensure this doesn't get lost in translation.
 	$changes['upgradeData'] = base64_encode(json_encode($upcontext['user']));
 
-	// Tell Settings.php to store db_last_error.php in the cache
-	move_db_last_error_to_cachedir();
-
-	// Update Settings.php with the new settings.
+	// Update Settings.php with the new settings, and rebuild if they selected that option.
+	require_once($sourcedir . '/Subs.php');
 	require_once($sourcedir . '/Subs-Admin.php');
-	updateSettingsFile($changes);
+	updateSettingsFile($changes, false, !empty($_POST['migrateSettings']));
 
 	if ($command_line)
 		echo ' Successful.' . "\n";
@@ -1628,7 +1641,7 @@ function DeleteUpgrade()
 
 	$changes = array(
 		'language' => (substr($language, -4) == '.lng' ? substr($language, 0, -4) : $language),
-		'db_error_send' => 1,
+		'db_error_send' => true,
 		'upgradeData' => null,
 	);
 
@@ -1647,6 +1660,7 @@ function DeleteUpgrade()
 	// Wipe this out...
 	$upcontext['user'] = array();
 
+	require_once($sourcedir . '/Subs.php');
 	require_once($sourcedir . '/Subs-Admin.php');
 	updateSettingsFile($changes);
 
@@ -3193,6 +3207,7 @@ function ConvertUtf8()
 
 		// Store it in Settings.php too because it's needed before db connection.
 		// Hopefully this works...
+		require_once($sourcedir . '/Subs.php');
 		require_once($sourcedir . '/Subs-Admin.php');
 		updateSettingsFile(array('db_character_set' => 'utf8'));
 
@@ -3544,43 +3559,6 @@ function serialize_to_json()
 	// If this fails we just move on to deleting the upgrade anyway...
 	$_GET['substep'] = 0;
 	return false;
-}
-
-/**
- * As of 2.1, we want to store db_last_error.php in the cache
- * To make that happen, Settings.php needs to ensure the $cachedir path is correct before trying to write to db_last_error.php
- */
-function move_db_last_error_to_cachedir()
-{
-	$settings = file_get_contents(dirname(__FILE__) . '/Settings.php');
-
-	$regex = <<<'EOT'
-(\s*#\s*Make\s+sure\s+the\s+paths\s+are\s+correct\.\.\.\s+at\s+least\s+try\s+to\s+fix\s+them\.\s+)?if\s*\(\!file_exists\(\$boarddir\)\s+&&\s+file_exists\(dirname\(__FILE__\)\s+\.\s+'/agreement\.txt'\)\)\s+\$boarddir\s*\=\s*dirname\(__FILE__\);\s+if\s*\(\!file_exists\(\$sourcedir\)\s+&&\s+file_exists\(\$boarddir\s*\.\s*'/Sources'\)\)\s+\$sourcedir\s*\=\s*\$boarddir\s*\.\s*'/Sources';\s+if\s*\(\!file_exists\(\$cachedir\)\s+&&\s+file_exists\(\$boarddir\s*\.\s*'/cache'\)\)\s+\$cachedir\s*\=\s*\$boarddir\s*\.\s*'/cache';
-EOT;
-
-	$replacement = <<<'EOT'
-# Make sure the paths are correct... at least try to fix them.
-if (!file_exists($boarddir) && file_exists(dirname(__FILE__) . '/agreement.txt'))
-	$boarddir = dirname(__FILE__);
-if (!file_exists($sourcedir) && file_exists($boarddir . '/Sources'))
-	$sourcedir = $boarddir . '/Sources';
-if (!file_exists($cachedir) && file_exists($boarddir . '/cache'))
-	$cachedir = $boarddir . '/cache';
-
-
-EOT;
-
-	if (preg_match('~' . $regex . '~', $settings) && preg_match('~(#+\s*Error-Catching\s*#+)~', $settings))
-	{
-		$settings = preg_replace('~' . $regex . '~', '', $settings);
-		$settings = preg_replace('~(#+\s*Error-Catching\s*#+)~', $replacement . '$1', $settings);
-		$settings = preg_replace('~dirname(__FILE__) . \'/db_last_error.php\'~', '(isset($cachedir) ? $cachedir : dirname(__FILE__)) . \'/db_last_error.php\'', $settings);
-
-		// Blank out the file - done to fix a oddity with some servers.
-		file_put_contents(dirname(__FILE__) . '/Settings.php', '');
-
-		file_put_contents(dirname(__FILE__) . '/Settings.php', $settings);
-	}
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -4130,6 +4108,12 @@ function template_upgrade_options()
 						<label for="stat">
 							', $txt['upgrade_stats_collection'], '<br>
 							<span class="smalltext">', sprintf($txt['upgrade_stats_info'], 'https://www.simplemachines.org/about/stats.php'), '</a></span>
+						</label>
+					</li>
+					<li>
+						<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty($upcontext['migrate_settings_recommended']) ? '' : ' checked="checked"', '>
+						<label for="migrateSettings">
+							', $txt['upgrade_migrate_settings_file'], '
 						</label>
 					</li>
 				</ul>

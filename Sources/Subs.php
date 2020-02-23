@@ -5549,6 +5549,98 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 }
 
 /**
+ * Attempts to determine the MIME type of some data or a file.
+ *
+ * @param string $data The data to check, or the path or URL of a file to check.
+ * @param string $is_path If true, $data is a path or URL to a file.
+ * @return string|bool A MIME type, or false if we cannot determine it.
+ */
+function get_mime_type($data, $is_path = false)
+{
+	global $cachedir;
+
+	$finfo_loaded = extension_loaded('fileinfo');
+	$exif_loaded = extension_loaded('exif') && function_exists('image_type_to_mime_type');
+
+	// Oh well. We tried.
+	if (!$finfo_loaded && !$exif_loaded)
+		return false;
+
+	// Start with the 'empty' MIME type.
+	$mime_type = 'application/x-empty';
+
+	if ($finfo_loaded)
+	{
+		// Just some nice, simple data to analyze.
+		if (empty($is_path))
+			$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+
+		// A file, or maybe a URL?
+		else
+		{
+			// Local file.
+			if (file_exists($data))
+				$mime_type = mime_content_type($data);
+
+			// URL.
+			elseif ($data = fetch_web_data($data))
+				$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+		}
+	}
+	// Workaround using Exif requires a local file.
+	else
+	{
+		// If $data is a URL to fetch, do so.
+		if (!empty($is_path) && !file_exists($data) && url_exists($data))
+		{
+			$data = fetch_web_data($data);
+			$is_path = false;
+		}
+
+		// If we don't have a local file, create one and use it.
+		if (empty($is_path))
+		{
+			$temp_file = tempnam($cachedir, md5($data));
+			file_put_contents($temp_file, $data);
+			$is_path = true;
+			$data = $temp_file;
+		}
+
+		$imagetype = @exif_imagetype($data);
+
+		if (isset($temp_file))
+			unlink($temp_file);
+
+		// Unfortunately, this workaround only works for image files.
+		if ($imagetype !== false)
+			$mime_type = image_type_to_mime_type($imagetype);
+	}
+
+	return $mime_type;
+}
+
+/**
+ * Checks whether a file or data has the expected MIME type.
+ *
+ * @param string $data The data to check, or the path or URL of a file to check.
+ * @param string $type_pattern A regex pattern to match the acceptable MIME types.
+ * @param string $is_path If true, $data is a path or URL to a file.
+ * @return int 1 if the detected MIME type matches the pattern, 0 if it doesn't, or 2 if we can't check.
+ */
+function check_mime_type($data, $type_pattern, $is_path = false)
+{
+	// Get the MIME type.
+	$mime_type = get_mime_type($data, $is_path);
+
+	// Couldn't determine it.
+	if ($mime_type === false)
+		return 2;
+
+	// Check whether the MIME type matches expectations.
+	return (int) @preg_match('~' . $type_pattern . '~', $mime_type);
+}
+
+/**
  * Prepares an array of "likes" info for the topic specified by $topic
  *
  * @param integer $topic The topic ID to fetch the info from.
@@ -6566,10 +6658,10 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		static $depth = 0;
 		$depth++;
 
-		$first = @$substr($string, 0, 1);
+		$first = (string) @$substr($string, 0, 1);
 
 		// No first character? That's no good.
-		if (empty($first))
+		if ($first === '')
 		{
 			// A nested array? Really? Ugh. Fine.
 			if (is_array($string) && $depth < 20)
@@ -6771,7 +6863,7 @@ function build_query_board($userid)
 	$query_part = array();
 
 	// If we come from cron, we can't have a $user_info.
-	if (isset($user_info['id']) && $user_info['id'] == $userid)
+	if (isset($user_info['id']) && $user_info['id'] == $userid && SMF != 'BACKGROUND')
 	{
 		$groups = $user_info['groups'];
 		$can_see_all_boards = $user_info['is_admin'] || $user_info['can_manage_boards'];

@@ -388,14 +388,17 @@ function trackStats($stats = array())
 }
 
 /**
- * This function logs an action in the respective log. (database log)
- * You should use {@link logActions()} instead.
+ * This function logs an action to the database. It is a
+ * thin wrapper around {@link logActions()}.
  *
  * @example logAction('remove', array('starter' => $id_member_started));
  *
- * @param string $action The action to log
- * @param array $extra = array() An array of additional data
- * @param string $log_type What type of log ('admin', 'moderate', etc.)
+ * @param string $action A code for the report; a list of such strings
+ * can be found in Modlog.{language}.php (modlog_ac_ strings)
+ * @param array $extra An associated array of parameters for the
+ * item being logged. Typically this will include 'topic' for the topic's id.
+ * @param string $log_type A string reflecting the type of log.
+ *
  * @return int The ID of the row containing the logged data
  */
 function logAction($action, $extra = array(), $log_type = 'moderate')
@@ -408,10 +411,19 @@ function logAction($action, $extra = array(), $log_type = 'moderate')
 }
 
 /**
- * Log changes to the forum, such as moderation events or administrative changes.
- * This behaves just like logAction() in SMF 2.0, except that it is designed to log multiple actions at once.
+ * Log changes to the forum, such as moderation events or administrative
+ * changes. This behaves just like {@link logAction()} in SMF 2.0, except
+ * that it is designed to log multiple actions at once.
+ *
+ * SMF uses three log types:
+ *
+ * - `user` for actions executed that aren't related to
+ *    moderation (e.g. signature or other changes from the profile);
+ * - `moderate` for moderation actions (e.g. topic changes);
+ * - `admin` for administrative actions.
  *
  * @param array $logs An array of log data
+ *
  * @return int The last logged ID
  */
 function logActions($logs)
@@ -482,7 +494,6 @@ function logActions($logs)
 			// Alright, if we get any result back, update open reports.
 			if ($smcFunc['db_num_rows']($request) > 0)
 			{
-				require_once($sourcedir . '/ModerationCenter.php');
 				require_once($sourcedir . '/Subs-ReportedContent.php');
 				updateSettings(array('last_mod_report_action' => time()));
 				recountOpenReports('posts');

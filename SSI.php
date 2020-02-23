@@ -28,9 +28,10 @@ define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m')
 // We're going to want a few globals... these are all set later.
 global $maintenance, $msubject, $mmessage, $mbname, $language;
 global $boardurl, $boarddir, $sourcedir, $webmaster_email, $cookiename;
-global $db_type, $db_server, $db_name, $db_user, $db_prefix, $db_persist, $db_error_send, $db_last_error;
+global $db_type, $db_server, $db_name, $db_user, $db_prefix, $db_persist, $db_error_send, $db_last_error, $db_show_debug;
 global $db_connection, $db_port, $modSettings, $context, $sc, $user_info, $topic, $board, $txt;
 global $smcFunc, $ssi_db_user, $scripturl, $ssi_db_passwd, $db_passwd, $cache_enable, $cachedir;
+global $auth_secret;
 
 if (!defined('TIME_START'))
 	define('TIME_START', microtime(true));
@@ -54,7 +55,7 @@ if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
 	}
 }
 
-$ssi_error_reporting = error_reporting(E_ALL);
+$ssi_error_reporting = error_reporting(!empty($db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
 /* Set this to one of three values depending on what you want to happen in the case of a fatal error.
 	false:	Default, will just load the error sub template and die - not putting any theme layers around it.
 	true:	Will load the error sub template AND put the SMF layers around it (Not useful if on total custom pages).
@@ -388,7 +389,7 @@ function ssi_recentPosts($num_recent = 8, $exclude_boards = null, $include_board
 	global $modSettings, $context;
 
 	// Excluding certain boards...
-	if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0)
+	if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']))
 		$exclude_boards = array($modSettings['recycle_board']);
 	else
 		$exclude_boards = empty($exclude_boards) ? array() : (is_array($exclude_boards) ? $exclude_boards : array($exclude_boards));
@@ -679,7 +680,7 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 		censorText($row['body']);
 
 		// Recycled icon
-		if (!empty($recycle_board) && $topics[$row['id_topic']]['id_board'])
+		if (!empty($recycle_board) && $topics[$row['id_topic']]['id_board'] == $recycle_board)
 			$row['icon'] = 'recycled';
 
 		if (!empty($modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
@@ -812,13 +813,13 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 			(COALESCE(lb.id_msg, 0) >= b.id_last_msg) AS is_read') . '
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
-		WHERE {query_wanna_see_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+		WHERE {query_wanna_see_board}' . (!empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? '
 			AND b.id_board != {int:recycle_board}' : '') . '
 		ORDER BY b.num_posts DESC
 		LIMIT ' . $num_top,
 		array(
 			'current_member' => $user_info['id'],
-			'recycle_board' => (int) $modSettings['recycle_board'],
+			'recycle_board' => !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : null,
 		)
 	);
 	$boards = array();
@@ -902,14 +903,14 @@ function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'ec
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 		WHERE {query_wanna_see_board}' . ($modSettings['postmod_active'] ? '
 			AND t.approved = {int:is_approved}' : '') . (!empty($topic_ids) ? '
-			AND t.id_topic IN ({array_int:topic_list})' : '') . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-			AND b.id_board != {int:recycle_enable}' : '') . '
+			AND t.id_topic IN ({array_int:topic_list})' : '') . (!empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? '
+			AND b.id_board != {int:recycle_board}' : '') . '
 		ORDER BY t.num_' . ($type != 'replies' ? 'views' : 'replies') . ' DESC
 		LIMIT {int:limit}',
 		array(
 			'topic_list' => $topic_ids,
 			'is_approved' => 1,
-			'recycle_enable' => $modSettings['recycle_board'],
+			'recycle_board' => !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : null,
 			'limit' => $num_topics,
 		)
 	);
@@ -1382,8 +1383,8 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 			AND (p.expire_time = {int:no_expiration} OR {int:current_time} < p.expire_time)
 			AND ' . ($user_info['is_guest'] ? 'p.guest_vote = {int:guest_vote_allowed}' : 'lp.id_choice IS NULL') . '
 			AND {query_wanna_see_board}' . (!in_array(0, $boardsAllowed) ? '
-			AND b.id_board IN ({array_int:boards_allowed_list})' : '') . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-			AND b.id_board != {int:recycle_enable}' : '') . '
+			AND b.id_board IN ({array_int:boards_allowed_list})' : '') . (!empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? '
+			AND b.id_board != {int:recycle_board}' : '') . '
 		ORDER BY ' . ($topPollInstead ? 'pc.votes' : 'p.id_poll') . ' DESC
 		LIMIT 1',
 		array(
@@ -1395,7 +1396,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 			'voting_opened' => 0,
 			'no_expiration' => 0,
 			'current_time' => time(),
-			'recycle_enable' => $modSettings['recycle_board'],
+			'recycle_board' => !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : null,
 		)
 	);
 	$row = $smcFunc['db_fetch_assoc']($request);

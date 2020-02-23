@@ -107,7 +107,7 @@ function template_alerts_popup()
 		foreach ($context['unread_alerts'] as $id_alert => $details)
 		{
 			echo '
-			<', !$details['show_links'] ? 'a href="' . $scripturl . '?action=profile;area=showalerts;alert=' . $id_alert . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="unread_notify">
+			<', !$details['show_links'] ? 'a href="' . $details['target_href'] . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="unread_notify">
 				<div class="unread_notify_image">
 					', empty($details['sender']['avatar']['image']) ? '' : $details['sender']['avatar']['image'] . '
 					', $details['icon'], '
@@ -1872,11 +1872,7 @@ function template_alert_configuration()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<dl class="settings">';
-
-	// Allow notification on announcements to be disabled?
-	if ($context['can_disable_announce'])
-		echo '
+				<dl class="settings">
 					<dt>
 						<label for="notify_announcements">', $txt['notify_important_email'], '</label>
 					</dt>
@@ -2612,7 +2608,7 @@ function template_deleteAccount()
 			if ($context['show_perma_delete'])
 				echo '
 					<br>
-					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1">', $txt['deleteAccount_permanent'], ':</label>';
+					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1">', $txt['deleteAccount_permanent'], '</label>';
 
 			echo '
 				</div>';

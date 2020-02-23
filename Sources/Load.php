@@ -448,6 +448,8 @@ function loadUserSettings()
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
 	global $cookiename, $user_info, $language, $context, $cache_enable;
 
+	require_once($sourcedir . '/Subs-Auth.php');
+
 	// Check first the integration, then the cookie, and last the session.
 	if (count($integration_ids = call_integration_hook('integrate_verify_user')) > 0)
 	{
@@ -480,7 +482,6 @@ function loadUserSettings()
 		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
 
 		// Make sure the cookie is set to the correct domain and path
-		require_once($sourcedir . '/Subs-Auth.php');
 		if (array($cookie_domain, $cookie_path) !== url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies'])))
 			setLoginCookie((int) $login_span - time(), $id_member);
 	}
@@ -493,7 +494,7 @@ function loadUserSettings()
 			$cookie_data = safe_unserialize($_SESSION['login_' . $cookiename]);
 
 		list($id_member, $password, $login_span) = array_pad((array) $cookie_data, 3, '');
-		$id_member = !empty($id_member) && strlen($password) == 128 && (int) $login_span > time() ? (int) $id_member : 0;
+		$id_member = !empty($id_member) && strlen($password) == 40 && (int) $login_span > time() ? (int) $id_member : 0;
 	}
 
 	// Only load this stuff if the user isn't a guest.
@@ -530,7 +531,7 @@ function loadUserSettings()
 				$check = true;
 			// SHA-512 hash should be 128 characters long.
 			elseif (strlen($password) == 128)
-				$check = hash_salt($user_settings['passwd'], $user_settings['password_salt']) == $password;
+				$check = hash_equals(hash_salt($user_settings['passwd'], $user_settings['password_salt']), $password);
 			else
 				$check = false;
 
@@ -586,7 +587,7 @@ function loadUserSettings()
 				}
 
 				// They didn't finish logging in before coming here? Then they're no one to us.
-				if (empty($tfasecret) || hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']) != $tfasecret)
+				if (empty($tfasecret) || !hash_equals(hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']), $tfasecret))
 				{
 					setLoginCookie(-3600, $id_member);
 					$id_member = 0;
@@ -935,6 +936,14 @@ function loadBoard()
 
 	if (empty($temp))
 	{
+		$custom_column_selects = [];
+		$custom_column_parameters = [
+			'current_topic' => $topic,
+			'board_link' => empty($topic) ? $smcFunc['db_quote']('{int:current_board}', array('current_board' => $board)) : 't.id_board',
+		];
+
+		call_integration_hook('integrate_load_board', array(&$custom_column_selects, &$custom_column_parameters));
+
 		$request = $smcFunc['db_query']('load_board_info', '
 			SELECT
 				c.id_cat, b.name AS bname, b.description, b.num_topics, b.member_groups, b.deny_member_groups,
@@ -943,6 +952,7 @@ function loadBoard()
 				mem.real_name' . (!empty($topic) ? ', b.id_board' : '') . ', b.child_level,
 				b.id_theme, b.override_theme, b.count_posts, b.id_profile, b.redirect,
 				b.unapproved_topics, b.unapproved_posts' . (!empty($topic) ? ', t.approved, t.id_member_started' : '') . '
+				' . (!empty($custom_column_selects) ? (', ' . implode(', ', $custom_column_selects)) : '') . '
 			FROM {db_prefix}boards AS b' . (!empty($topic) ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})' : '') . '
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
@@ -951,11 +961,9 @@ function loadBoard()
 				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = {raw:board_link})
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
 			WHERE b.id_board = {raw:board_link}',
-			array(
-				'current_topic' => $topic,
-				'board_link' => empty($topic) ? $smcFunc['db_quote']('{int:current_board}', array('current_board' => $board)) : 't.id_board',
-			)
+			$custom_column_parameters
 		);
+
 		// If there aren't any, skip.
 		if ($smcFunc['db_num_rows']($request) > 0)
 		{
@@ -996,6 +1004,8 @@ function loadBoard()
 			// Load the membergroups allowed, and check permissions.
 			$board_info['groups'] = $row['member_groups'] == '' ? array() : explode(',', $row['member_groups']);
 			$board_info['deny_groups'] = $row['deny_member_groups'] == '' ? array() : explode(',', $row['deny_member_groups']);
+
+			call_integration_hook('integrate_board_info', array(&$board_info, $row));
 
 			if (!empty($modSettings['board_manager_groups']))
 			{
@@ -1320,7 +1330,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			COALESCE(lo.log_time, 0) AS is_online, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type,
 			mem.signature, mem.personal_text, mem.avatar, mem.id_member, mem.member_name,
 			mem.real_name, mem.email_address, mem.date_registered, mem.website_title, mem.website_url,
-			mem.birthdate, mem.member_ip, mem.member_ip2, mem.posts, mem.last_login, mem.id_post_group, mem.lngfile, mem.id_group, mem.time_offset, mem.show_online,
+			mem.birthdate, mem.member_ip, mem.member_ip2, mem.posts, mem.last_login, mem.id_post_group, mem.lngfile, mem.id_group, mem.time_offset, mem.timezone, mem.show_online,
 			mg.online_color AS member_group_color, COALESCE(mg.group_name, {string:blank_string}) AS member_group,
 			pg.online_color AS post_group_color, COALESCE(pg.group_name, {string:blank_string}) AS post_group,
 			mem.is_activated, mem.warning, ' . (!empty($modSettings['titlesEnable']) ? 'mem.usertitle, ' : '') . '
@@ -3701,6 +3711,29 @@ function set_avatar_data($data = array())
 			'href' => '',
 			'url' => '',
 		);
+}
+
+/**
+ * Gets, and if necessary creates, the authentication secret to use for cookies, tokens, etc.
+ *
+ * Note: Never use the $auth_secret variable directly. Always call this function instead.
+ *
+ * @return string The authentication secret.
+ */
+function get_auth_secret()
+{
+	global $auth_secret, $sourcedir, $smcFunc;
+
+	if (empty($auth_secret))
+	{
+		$auth_secret = bin2hex($smcFunc['random_bytes'](32));
+
+		// It is important to store this in Settings.php, not the database.
+		require_once($sourcedir . '/Subs-Admin.php');
+		updateSettingsFile(array('auth_secret' => $auth_secret));
+	}
+
+	return $auth_secret;
 }
 
 ?>

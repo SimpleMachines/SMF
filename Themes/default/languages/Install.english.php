@@ -178,6 +178,7 @@ $txt['error_php_too_low'] = 'Warning!  You do not appear to have a version of PH
 $txt['error_missing_files'] = 'Unable to find crucial installation files in the directory of this script!<br><br>Please make sure you uploaded the entire installation package, including the sql file, and then try again.';
 $txt['error_session_save_path'] = 'Please inform your host that the <strong>session.save_path specified in php.ini</strong> is not valid!  It needs to be changed to a directory that <strong>exists</strong>, and is <strong>writable</strong> by the user PHP is running under.<br>';
 $txt['error_windows_chmod'] = 'You\'re on a windows server, and some crucial files are not writable. Please ask your host to give <strong>write permissions</strong> to the user PHP is running under for the files in your SMF installation. The following files or directories need to be writable:';
+$txt['settings_error'] = 'Your settings could not be saved to Settings.php.';
 $txt['error_ftp_no_connect'] = 'Unable to connect to FTP server with this combination of details.';
 $txt['error_db_file'] = 'Cannot find database source script! Please check file %1$s is within your forum source directory.';
 $txt['error_db_connect'] = 'Cannot connect to the database server with the supplied data.<br><br>If you are not sure about what to type in, please contact your host.';
@@ -285,6 +286,7 @@ $txt['upgrade_empty_errorlog'] = 'Empty error log before upgrading';
 $txt['upgrade_delete_karma'] = 'Delete all karma settings and info from the DB';
 $txt['upgrade_stats_collection'] = 'Allow Simple Machines to collect basic stats monthly.';
 $txt['upgrade_stats_info'] = 'If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="%1$s" target="_blank" rel="noopener">info page</a>.';
+$txt['upgrade_migrate_settings_file'] = 'Migrate to a new Settings file.';
 $txt['upgrade_db_changes'] = 'Executing database changes';
 $txt['upgrade_db_patient'] = 'Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made!';
 $txt['upgrade_db_complete'] = '1 Database Updates Complete! Click Continue to Proceed.';
