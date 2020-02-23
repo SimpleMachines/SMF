@@ -265,8 +265,8 @@ function setCategoryParsedDescription($category_info = array())
 {
 	global $cache_enable, $context;
 
-	if (empty($cache_enable) || empty($category_info))
-		return array();
+	if (empty($category_info))
+		return $category_info;
 
 	// Get the data we already parsed
 	$already_parsed_categories = getCategoriesParsedDescription();
@@ -278,7 +278,8 @@ function setCategoryParsedDescription($category_info = array())
 		$already_parsed_categories[$category_id] = !empty($category_description) ?
 				parse_bbc($category_description, false, '', $context['description_allowed_tags']) : '';
 
-	cache_put_data('parsed_category_descriptions', $already_parsed_categories, 864000);
+	if (!empty($cache_enable))
+		cache_put_data('parsed_category_descriptions', $already_parsed_categories, 864000);
 
 	return $already_parsed_categories;
 }
