@@ -2333,6 +2333,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'ajax_notification_text' => JavaScriptEscape($txt['ajax_in_progress']),
 		'help_popup_heading_text' => JavaScriptEscape($txt['help_popup']),
 		'banned_text' => JavaScriptEscape(sprintf($txt['your_ban'], $context['user']['name'])),
+		'smf_txt_expand' => JavaScriptEscape($txt['code_expand']),
+		'smf_txt_shrink' => JavaScriptEscape($txt['code_shrink']),
+		'smf_quote_expand' => !empty($modSettings['quote_expand']) ? $modSettings['quote_expand'] : '0',
 	);
 
 	// Add the JQuery library to the list of files to load.
