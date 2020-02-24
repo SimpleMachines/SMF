@@ -914,7 +914,7 @@ function loadMinUserSettings($user_id = 0)
 	}
 
 	else
-		$user_info['time_offset'] = empty($data['time_offset']) ? 0 : $data['time_offset'];
+		$user_settings_min['time_offset'] = empty($user_settings_min['time_offset']) ? 0 : $user_settings_min['time_offset'];
 
 	call_integration_hook('integrate_load_min_user_settings', array(&$user_settings_min));
 
