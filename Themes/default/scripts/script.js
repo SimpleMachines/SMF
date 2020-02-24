@@ -1730,7 +1730,7 @@ $(function() {
 		if (smf_quote_expand === 0)
 			return;
 
-		let cite = $(item).find('cite');
+		let cite = $(item).find('cite').first();
 		let quote_height = parseInt($(item).height());
 
 		if(quote_height < smf_quote_expand)
@@ -1746,7 +1746,7 @@ $(function() {
 			class: 'expand'
 		});
 
-		if (!cite.find('a.expand').length)
+		if (cite.length)
 			cite.append(anchor);
 
 		$(item).on('click', 'a.expand', function(event) {
@@ -1766,7 +1766,7 @@ $(function() {
 				cite.find('a.expand').text(' ['+ smf_txt_shrink +']');
 				$(item).css({
 					'overflow-y': 'visible',
-					'max-height': quote_height +'px'
+					'max-height': (quote_height + 10) +'px'
 				});
 			}
 
