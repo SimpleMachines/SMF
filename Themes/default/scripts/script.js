@@ -1730,21 +1730,24 @@ $(function() {
 		if (smf_quote_expand === 0)
 			return;
 
-		let full_quote = $(item).clone();
-		let cite = full_quote.find('cite');
-			$(item).find('cite').remove();
+		let cite = $(item).find('cite');
 		let quote_height = parseInt($(item).height());
 
 		if(quote_height < smf_quote_expand)
 			return;
+
+		$(item).css({
+			'overflow-y': 'hidden',
+			'max-height': smf_quote_expand +'px'
+		});
 
 		let anchor = $('<a/>', {
 			text: ' [' + smf_txt_expand + ']',
 			class: 'expand'
 		});
 
-		cite.append(anchor);
-		$(item).html(cite);
+		if (!cite.find('a.expand').length)
+			cite.append(anchor);
 
 		$(item).on('click', 'a.expand', function(event) {
 			event.preventDefault();
@@ -1752,13 +1755,19 @@ $(function() {
 			if (smf_quote_expand < parseInt($(item).height()))
 			{
 				cite.find('a.expand').text(' ['+ smf_txt_expand +']');
-				$(item).html(cite);
+				$(item).css({
+					'overflow-y': 'hidden',
+					'max-height': smf_quote_expand +'px'
+				});
 			}
 
 			else
 			{
 				cite.find('a.expand').text(' ['+ smf_txt_shrink +']');
-				$(item).append(full_quote.html());
+				$(item).css({
+					'overflow-y': 'visible',
+					'max-height': quote_height +'px'
+				});
 			}
 
 			return false;
