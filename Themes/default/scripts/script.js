@@ -1768,12 +1768,24 @@ $(function() {
 					'overflow-y': 'visible',
 					'max-height': (quote_height + 10) +'px'
 				});
+
+				expand_quote_parent($(item));
 			}
 
 			return false;
 		});
 	});
 });
+
+function expand_quote_parent(oElement)
+{
+	$.each(oElement.parentsUntil('div.inner'), function( index, value ) {
+		$(value).css({
+			'overflow-y': 'visible',
+			'max-height': '',
+		}).find('a.expand').first().text(' ['+ smf_txt_shrink +']');
+	});
+}
 
 function avatar_fallback(e) {
     var e = window.e || e;
