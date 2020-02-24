@@ -1726,55 +1726,56 @@ $(function() {
 	});
 
 	// Expand quotes
-	$('blockquote').each(function(index, item) {
-		if (smf_quote_expand === 0)
-			return;
+	if (smf_quote_expand)
+	{
+		$('blockquote').each(function(index, item) {
 
-		let cite = $(item).find('cite').first();
-		let quote_height = parseInt($(item).height());
+			let cite = $(item).find('cite').first();
+			let quote_height = parseInt($(item).height());
 
-		if(quote_height < smf_quote_expand)
-			return;
+			if(quote_height < smf_quote_expand)
+				return;
 
-		$(item).css({
-			'overflow-y': 'hidden',
-			'max-height': smf_quote_expand +'px'
+			$(item).css({
+				'overflow-y': 'hidden',
+				'max-height': smf_quote_expand +'px'
+			});
+
+			let anchor = $('<a/>', {
+				text: ' [' + smf_txt_expand + ']',
+				class: 'expand'
+			});
+
+			if (cite.length)
+				cite.append(anchor);
+
+			$(item).on('click', 'a.expand', function(event) {
+				event.preventDefault();
+
+				if (smf_quote_expand < parseInt($(item).height()))
+				{
+					cite.find('a.expand').text(' ['+ smf_txt_expand +']');
+					$(item).css({
+						'overflow-y': 'hidden',
+						'max-height': smf_quote_expand +'px'
+					});
+				}
+
+				else
+				{
+					cite.find('a.expand').text(' ['+ smf_txt_shrink +']');
+					$(item).css({
+						'overflow-y': 'visible',
+						'max-height': (quote_height + 10) +'px'
+					});
+
+					expand_quote_parent($(item));
+				}
+
+				return false;
+			});
 		});
-
-		let anchor = $('<a/>', {
-			text: ' [' + smf_txt_expand + ']',
-			class: 'expand'
-		});
-
-		if (cite.length)
-			cite.append(anchor);
-
-		$(item).on('click', 'a.expand', function(event) {
-			event.preventDefault();
-
-			if (smf_quote_expand < parseInt($(item).height()))
-			{
-				cite.find('a.expand').text(' ['+ smf_txt_expand +']');
-				$(item).css({
-					'overflow-y': 'hidden',
-					'max-height': smf_quote_expand +'px'
-				});
-			}
-
-			else
-			{
-				cite.find('a.expand').text(' ['+ smf_txt_shrink +']');
-				$(item).css({
-					'overflow-y': 'visible',
-					'max-height': (quote_height + 10) +'px'
-				});
-
-				expand_quote_parent($(item));
-			}
-
-			return false;
-		});
-	});
+	}
 });
 
 function expand_quote_parent(oElement)
