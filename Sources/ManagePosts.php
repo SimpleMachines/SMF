@@ -224,7 +224,7 @@ function ModifyPostSettings($return_config = false)
 		array('int', 'preview_characters', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['preview_characters_units']),
 
 		// Quote expand
-		array('int', 'quote_expand', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['quote_expand_pixes_units']),
+		array('int', 'quote_expand', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['quote_expand_pixels_units']),
 	);
 
 	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));
