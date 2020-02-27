@@ -4064,8 +4064,10 @@ function template_javascript($do_deferred = false)
 			{
 				if (!empty($js_file['options']['async']))
 					$toMinify['async'][] = $js_file;
+
 				elseif (!empty($js_file['options']['defer']))
 					$toMinify['defer'][] = $js_file;
+
 				else
 					$toMinify['standard'][] = $js_file;
 
@@ -4084,6 +4086,7 @@ function template_javascript($do_deferred = false)
 					{
 						if (is_bool($value))
 							echo !empty($value) ? ' ' . $key : '';
+
 						else
 							echo ' ', $key, '="', $value, '"';
 					}

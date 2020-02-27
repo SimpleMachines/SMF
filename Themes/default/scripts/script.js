@@ -1724,7 +1724,69 @@ $(function() {
 			$(this).html($(this).attr('data-shrink-txt'));
 		}
 	});
+
+	// Expand quotes
+	if (smf_quote_expand)
+	{
+		$('blockquote').each(function(index, item) {
+
+			let cite = $(item).find('cite').first();
+			let quote_height = parseInt($(item).height());
+
+			if(quote_height < smf_quote_expand)
+				return;
+
+			$(item).css({
+				'overflow-y': 'hidden',
+				'max-height': smf_quote_expand +'px'
+			});
+
+			let anchor = $('<a/>', {
+				text: ' [' + smf_txt_expand + ']',
+				class: 'expand'
+			});
+
+			if (cite.length)
+				cite.append(anchor);
+
+			$(item).on('click', 'a.expand', function(event) {
+				event.preventDefault();
+
+				if (smf_quote_expand < parseInt($(item).height()))
+				{
+					cite.find('a.expand').text(' ['+ smf_txt_expand +']');
+					$(item).css({
+						'overflow-y': 'hidden',
+						'max-height': smf_quote_expand +'px'
+					});
+				}
+
+				else
+				{
+					cite.find('a.expand').text(' ['+ smf_txt_shrink +']');
+					$(item).css({
+						'overflow-y': 'visible',
+						'max-height': (quote_height + 10) +'px'
+					});
+
+					expand_quote_parent($(item));
+				}
+
+				return false;
+			});
+		});
+	}
 });
+
+function expand_quote_parent(oElement)
+{
+	$.each(oElement.parentsUntil('div.inner'), function( index, value ) {
+		$(value).css({
+			'overflow-y': 'visible',
+			'max-height': '',
+		}).find('a.expand').first().text(' ['+ smf_txt_shrink +']');
+	});
+}
 
 function avatar_fallback(e) {
     var e = window.e || e;
