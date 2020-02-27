@@ -895,7 +895,7 @@ sceditor.formats.bbcode.set(
 			if (!element.css('float'))
 				return content;
 
-			side = (element.css('float').indexOf('left') == 0 ? 'left' : 'right');
+			side = (element[0].className == 'floatleft' ? 'left' : 'right');
 			max = ' max=' + (element.css('max-width') != "none" ? element.css('max-width') : '45%');
 
 			return '[float=' + side + max + ']' + content + '[/float]';
