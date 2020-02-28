@@ -115,7 +115,7 @@ function template_registration_form()
 						</dd>
 					</dl>
 					<dl class="register_form" id="password1_group">
-						<dt><strong><label for="smf_autov_pwmain">', ucwords($txt['choose_pass']), ':</label></strong></dt>
+						<dt><strong><label for="smf_autov_pwmain">', $txt['choose_pass'], ':</label></strong></dt>
 						<dd>
 							<input type="password" name="passwrd1" id="smf_autov_pwmain" size="50" tabindex="', $context['tabindex']++, '">
 							<span id="smf_autov_pwmain_div" style="display: none;">
@@ -125,7 +125,7 @@ function template_registration_form()
 					</dl>
 					<dl class="register_form" id="password2_group">
 						<dt>
-							<strong><label for="smf_autov_pwverify">', ucwords($txt['verify_pass']), ':</label></strong>
+							<strong><label for="smf_autov_pwverify">', $txt['verify_pass'], ':</label></strong>
 						</dt>
 						<dd>
 							<input type="password" name="passwrd2" id="smf_autov_pwverify" size="50" tabindex="', $context['tabindex']++, '">
