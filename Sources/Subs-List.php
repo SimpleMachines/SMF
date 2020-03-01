@@ -73,11 +73,18 @@ function createList($listOptions)
 	else
 	{
 		// First get an impression of how many items to expect.
-		if (isset($listOptions['get_count']['file']))
-			require_once($listOptions['get_count']['file']);
+		if (ctype_digit($listOptions['get_count']['function']))
+			$list_context['total_num_items'] = $listOptions['get_count']['function'];
 
-		$call = call_helper($listOptions['get_count']['function'], true);
-		$list_context['total_num_items'] = call_user_func_array($call, empty($listOptions['get_count']['params']) ? array() : $listOptions['get_count']['params']);
+		else
+		{
+			if (isset($listOptions['get_count']['file']))
+				require_once($listOptions['get_count']['file']);
+
+			$call = call_helper($listOptions['get_count']['function'], true);
+			$list_context['total_num_items'] = call_user_func_array($call, empty($listOptions['get_count']['params']) ? array() : $listOptions['get_count']['params']);
+		}
+
 
 		// Default the start to the beginning...sounds logical.
 		$list_context['start'] = isset($_REQUEST[$list_context['start_var_name']]) ? (int) $_REQUEST[$list_context['start_var_name']] : 0;
