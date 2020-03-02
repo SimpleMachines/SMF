@@ -27,7 +27,13 @@ function createList($listOptions)
 	assert(isset($listOptions['id']));
 	assert(isset($listOptions['columns']));
 	assert(is_array($listOptions['columns']));
-	assert((empty($listOptions['items_per_page']) || (isset($listOptions['get_count']['function'], $listOptions['base_href']) && is_numeric($listOptions['items_per_page']))));
+
+	if (!isset($listOptions['get_count']['value']) && !ctype_digit($listOptions['get_count']['value']))
+		assert((empty($listOptions['items_per_page']) ||
+			(isset($listOptions['get_count']['function'], $listOptions['base_href']) &&
+				is_numeric($listOptions['items_per_page']
+		))));
+
 	assert((empty($listOptions['default_sort_col']) || isset($listOptions['columns'][$listOptions['default_sort_col']])));
 	assert((!isset($listOptions['form']) || isset($listOptions['form']['href'])));
 
@@ -73,8 +79,8 @@ function createList($listOptions)
 	else
 	{
 		// First get an impression of how many items to expect.
-		if (ctype_digit($listOptions['get_count']['function']))
-			$list_context['total_num_items'] = $listOptions['get_count']['function'];
+		if (!empty($listOptions['get_count']['value']) && ctype_digit($listOptions['get_count']['value']))
+			$list_context['total_num_items'] = $listOptions['get_count']['value'];
 
 		else
 		{
