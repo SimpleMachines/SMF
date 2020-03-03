@@ -4601,6 +4601,10 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 {
 	global $smcFunc, $context;
 
+	// Upgrader may be working on old DBs...
+	if (!isset($context['utf8']))
+		$context['utf8'] = false;
+
 	// Step 1: Remove entities/things we don't consider words:
 	$words = preg_replace('~(?:[\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . ($context['utf8'] ? 'u' : ''), ' ', strtr($text, array('<br>' => ' ')));
 
