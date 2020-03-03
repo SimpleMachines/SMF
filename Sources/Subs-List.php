@@ -28,7 +28,7 @@ function createList($listOptions)
 	assert(isset($listOptions['columns']));
 	assert(is_array($listOptions['columns']));
 
-	if (!isset($listOptions['get_count']['value']) && !ctype_digit($listOptions['get_count']['value']))
+	if (!isset($listOptions['get_count']['value']))
 		assert((empty($listOptions['items_per_page']) ||
 			(isset($listOptions['get_count']['function'], $listOptions['base_href']) &&
 				is_numeric($listOptions['items_per_page']
