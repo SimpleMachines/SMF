@@ -1792,9 +1792,11 @@ function convertSettingsToTheme()
 		'linktree_link' => @$GLOBALS['curposlinks'],
 		'show_profile_buttons' => @$GLOBALS['profilebutton'],
 		'show_mark_read' => @$GLOBALS['showmarkread'],
+		'show_board_desc' => @$GLOBALS['ShowBDescrip'],
 		'newsfader_time' => @$GLOBALS['fadertime'],
 		'use_image_buttons' => empty($GLOBALS['MenuType']) ? 1 : 0,
 		'enable_news' => @$GLOBALS['enable_news'],
+		'linktree_inline' => @$modSettings['enableInlineLinks'],
 		'return_to_post' => @$modSettings['returnToPost'],
 	);
 
