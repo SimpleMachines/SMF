@@ -1917,12 +1917,14 @@ function parse_sql($filename)
 	db_extend('packages');
 
 	// Our custom error handler - does nothing but does stop public errors from XML!
+	// Note that php error suppression - @ - used heavily in the upgrader, calls the error handler
+	// but error_reporting() will return 0 as it does so.
 	set_error_handler(
 		function($errno, $errstr, $errfile, $errline) use ($support_js)
 		{
 			if ($support_js)
 				return true;
-			else
+			elseif (error_reporting() != 0)
 				echo 'Error: ' . $errstr . ' File: ' . $errfile . ' Line: ' . $errline;
 		}
 	);
