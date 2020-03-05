@@ -2600,7 +2600,7 @@ function nextSubstep($substep)
 function cmdStep0()
 {
 	global $boarddir, $sourcedir, $modSettings, $start_time, $cachedir, $databases, $db_type, $smcFunc, $upcontext;
-	global $is_debug;
+	global $is_debug, $boardurl;
 	$start_time = time();
 
 	ob_end_clean();
@@ -2727,6 +2727,27 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 
 		// Otherwise include it!
 		require_once($modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php');
+	}
+
+	// Do we need to add this setting?
+	$need_settings_update = empty($modSettings['custom_avatar_dir']);
+
+	$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] . '/custom_avatar';
+	$custom_av_url = !empty($modSettings['custom_avatar_url']) ? $modSettings['custom_avatar_url'] : $boardurl . '/custom_avatar';
+
+	// This little fellow has to cooperate...
+	quickFileWritable($custom_av_dir);
+
+	// Are we good now?
+	if (!is_writable($custom_av_dir))
+		return throw_error(sprintf($txt['error_dir_not_writable'], $custom_av_dir));
+	elseif ($need_settings_update)
+	{
+		if (!function_exists('cache_put_data'))
+			require_once($sourcedir . '/Load.php');
+
+		updateSettings(array('custom_avatar_dir' => $custom_av_dir));
+		updateSettings(array('custom_avatar_url' => $custom_av_url));
 	}
 
 	// Make sure we skip the HTML for login.
