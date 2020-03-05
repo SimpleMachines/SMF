@@ -49,7 +49,7 @@ function getMemberGroups()
 		return $member_groups;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT group_name, id_group
+		SELECT groupName, id_group
 		FROM {db_prefix}membergroups
 		WHERE id_group = {int:admin_group} OR id_group > {int:old_group}',
 		array(
