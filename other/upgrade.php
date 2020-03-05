@@ -2744,8 +2744,12 @@ function ConvertUtf8()
 
 	// Done it already?
 	if (!empty($_POST['utf8_done']))
-		return true;
-
+	{
+		if ($command_line)
+			return DeleteUpgrade();
+		else
+			return true;
+	}
 	// First make sure they aren't already on UTF-8 before we go anywhere...
 	if ($db_type == 'postgresql' || ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8'))
 	{
@@ -2756,7 +2760,10 @@ function ConvertUtf8()
 			array('variable')
 		);
 
-		return true;
+		if ($command_line)
+			return DeleteUpgrade();
+		else
+			return true;
 	}
 	else
 	{
@@ -3246,6 +3253,11 @@ function ConvertUtf8()
 			flush();
 		}
 	}
+
+	// Make sure we move on!
+	if ($command_line)
+		return DeleteUpgrade();
+
 	$_GET['substep'] = 0;
 	return false;
 }
