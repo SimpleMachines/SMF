@@ -2643,7 +2643,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				// See the comment at the end of the big loop - just eating whitespace ;).
 				$whitespace_regex = '';
 				if (!empty($tag['block_level']))
-					$whitespace_regex .= '(&nbsp;|\s)*(<br>)?';
+					$whitespace_regex .= '(&nbsp;|\s)*(<br\s*/?' . '>)?';
 				// Trim one line of whitespace after unnested tags, but all of it after nested ones
 				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
 					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
