@@ -373,7 +373,7 @@ function Post($post_errors = array())
 		}
 
 		loadDatePicker('#event_time_input .date_input');
-		loadTimePicker('#event_time_input .date_input', $time_string);
+		loadTimePicker('#event_time_input .time_input', $time_string);
 		loadDatePair('#event_time_input', 'date_input', 'time_input');
 		addInlineJavaScript('
 	$("#allday").click(function(){
