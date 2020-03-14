@@ -59,8 +59,8 @@ function template_view_package()
 	if (!empty($context['validation_tests']))
 	{
 		echo '
-		<div class="cat_bar">
-			<h3 class="catbg">Validation Results</h3>
+		<div class="title_bar">
+			<h3 class="titlebg">', $txt['package_validaiton_results'], '</h3>
 		</div>
 		<div id="package_validation">
 			<table class="table_grid">';

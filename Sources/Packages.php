@@ -206,7 +206,7 @@ function PackageInstallTest()
 		'file_name' => $packagesdir . '/' . $context['filename'],
 		'custom_id' => !empty($packageInfo['id']) ? $packageInfo['id'] : '',
 		'custom_type' => $context['extract_type']
-	), true);
+	));
 
 	// The mod isn't installed.... unless proven otherwise.
 	$context['is_installed'] = false;
