@@ -3245,6 +3245,7 @@ function package_validate_send($sendData)
 
 		$parsed_data = $smcFunc['json_decode']($results, true);
 		if (is_array($parsed_data) && isset($parsed_data['data']) && is_array($parsed_data['data']))
+		{
 			foreach ($parsed_data['data'] as $sha256_hash => $status)
 			{
 				if ((string) $status === 'blacklist')
@@ -3252,6 +3253,7 @@ function package_validate_send($sendData)
 
 				$return_data[$id_server][(string) $sha256_hash] = 'package_validation_status_' . ((string) $status);
 			}
+		}
 	}
 
 	return $return_data;

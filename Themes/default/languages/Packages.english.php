@@ -281,6 +281,7 @@ $txt['package_available_license_language'] = 'Available License Languages:';
 
 $txt['package_chmod_linux'] = 'If you have a shell account, the convenient below command can automatically correct permissions on these files';
 
+$txt['package_validaiton_results'] = 'Validation Results';
 $txt['package_validation_status_unknown'] = 'Unknown or Not Found';
 $txt['package_validation_status_clean'] = 'Found';
 $txt['package_validation_status_blacklist'] = 'Blacklisted';
