@@ -2198,7 +2198,7 @@ function sm_temp_dir()
 	$restriction = !empty(ini_get('open_basedir')) ? explode(':', ini_get('open_basedir')) : false;
 
 	// Prevent any errors as we search.
-	$old_error_reportig = 0;
+	$old_error_reporting = 0;
 
 	// First, check sys_get_temp_dir.
 	$possible_temp = rtrim(sys_get_temp_dir(), '/');
@@ -2260,7 +2260,7 @@ function sm_temp_dir()
 	$temp_dir = substr($temp_dir, -1) === '/' ? $temp_dir : $temp_dir . '/';
 
 	// Put things back.
-	error_reporting($old_error_reportig);
+	error_reporting($old_error_reporting);
 
 	return $temp_dir;
 }
