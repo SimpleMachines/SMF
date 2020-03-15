@@ -1667,7 +1667,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	 * PART 4: Check syntax before saving *
 	 **************************************/
 
-	$temp_sfile = tempnam(sys_get_temp_dir(), md5($prefix . 'Settings.php'));
+	$temp_sfile = tempnam(sm_temp_dir(), md5($prefix . 'Settings.php'));
 	file_put_contents($temp_sfile, $settingsText);
 
 	$result = get_current_settings(filemtime($temp_sfile), $temp_sfile);
@@ -1781,7 +1781,7 @@ function safe_file_write($file, $data, $backup_file = null, $mtime = null, $appe
 	if (!is_int($mtime))
 		$mtime = $_SERVER['REQUEST_TIME'];
 
-	$temp_dir = is_dir(@realpath($cachedir)) ? $cachedir : sys_get_temp_dir();
+	$temp_dir = sm_temp_dir();
 
 	// Our temp files.
 	$temp_sfile = tempnam($temp_dir, pathinfo($file, PATHINFO_FILENAME) . '.');
@@ -2179,6 +2179,90 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 			// Send off the email.
 			sendmail($recipient['email'], $emaildata['subject'], $emaildata['body'], null, $template, $emaildata['is_html'], 1);
 		}
+}
+
+/**
+ * Locates the most appropriate temp directory.
+ */
+function sm_temp_dir()
+{
+	global $cachedir;
+
+	static $temp_dir = null;
+
+	// Already did this.
+	if (!empty($temp_dir))
+		return $temp_dir;
+
+	// Determine if we should detect a restriction and what restrictions that may be.
+	$restriction = !empty(ini_get('open_basedir')) ? explode(':', ini_get('open_basedir')) : false;
+
+	// Prevent any errors as we search.
+	$old_error_reportig = 0;
+
+	// First, check sys_get_temp_dir.
+	$possible_temp = rtrim(sys_get_temp_dir(), '/');
+	if ($restriction)
+		foreach ($restriction as $dir)
+			if (strpos($possible_temp, $dir) !== false && is_writable($possible_temp))
+			{
+				$temp_dir = $possible_temp;
+				break;
+			}
+
+	// Search the upload_tmp_dir
+	if (empty($temp_dir))
+	{
+		$possible_temp = rtrim(ini_get('upload_tmp_dir'), '/');
+
+		if ($restriction)
+			foreach ($restriction as $dir)
+				if (strpos($possible_temp, $dir) !== false && is_writable($possible_temp))
+				{
+					$temp_dir = $possible_temp;
+					break;
+				}
+	}
+
+	// Try session.save_path
+	if (empty($temp_dir))
+	{
+		$possible_temp = rtrim(ini_get('session.save_path'), '/');
+
+		if ($restriction)
+			foreach ($restriction as $dir)
+				if (strpos($possible_temp, $dir) !== false && is_writable($possible_temp))
+				{
+					$temp_dir = $possible_temp;
+					break;
+				}
+	}
+
+	// Try the cachedir.
+	if (empty($temp_dir) && is_dir(realpath($cachedir)))
+	{
+		$possible_temp = rtrim($cachedir, '/');
+
+		if ($restriction)
+			foreach ($restriction as $dir)
+				if (strpos($possible_temp, $dir) !== false && is_writable($possible_temp))
+				{
+					$temp_dir = $possible_temp;
+					break;
+				}	
+	}
+
+	// Fall back to sys_get_temp_dir even though it won't work, so we have something.
+	if (empty($temp_dir))
+		$temp_dir = sys_get_temp_dir();
+
+	// Fix the path.
+	$temp_dir = substr($temp_dir, -1) === '/' ? $temp_dir : $temp_dir . '/';
+
+	// Put things back.
+	error_reporting($old_error_reportig);
+
+	return $temp_dir;
 }
 
 ?>
