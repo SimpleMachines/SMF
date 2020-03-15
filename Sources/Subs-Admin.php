@@ -2194,67 +2194,48 @@ function sm_temp_dir()
 	if (!empty($temp_dir))
 		return $temp_dir;
 
+	// Temp Directory options order.
+	$temp_dir_options = array(
+		0 => 'sys_get_temp_dir',
+		1 => 'upload_tmp_dir',
+		2 => 'session.save_path',
+		3 => 'cachedir'
+	);
+
 	// Determine if we should detect a restriction and what restrictions that may be.
 	$restriction = !empty(ini_get('open_basedir')) ? explode(':', ini_get('open_basedir')) : false;
 
 	// Prevent any errors as we search.
-	$old_error_reporting = 0;
+	$old_error_reporting = error_reporting(0);
 
-	// First, check sys_get_temp_dir.
-	$possible_temp = rtrim(sys_get_temp_dir(), '/');
-	if ($restriction)
-		foreach ($restriction as $dir)
-			if (strpos($possible_temp, $dir) !== false && is_writable($possible_temp))
+	// Search for a working temp directory.
+	foreach ($temp_dir_options as $id_temp => $temp_option)
+	{
+		$possible_temp = sm_temp_dir_option($temp_option);
+
+		// Check if we have a restriction preventing this from working.
+		if ($restriction)
+		{
+			foreach ($restriction as $dir)
 			{
-				$temp_dir = $possible_temp;
-				break;
+				if (strpos($possible_temp, $dir) !== false && is_writable($possible_temp))
+				{
+					$temp_dir = $possible_temp;
+					break;
+				}
 			}
-
-	// Search the upload_tmp_dir
-	if (empty($temp_dir))
-	{
-		$possible_temp = rtrim(ini_get('upload_tmp_dir'), '/');
-
-		if ($restriction)
-			foreach ($restriction as $dir)
-				if (strpos($possible_temp, $dir) !== false && is_writable($possible_temp))
-				{
-					$temp_dir = $possible_temp;
-					break;
-				}
-	}
-
-	// Try session.save_path
-	if (empty($temp_dir))
-	{
-		$possible_temp = rtrim(ini_get('session.save_path'), '/');
-
-		if ($restriction)
-			foreach ($restriction as $dir)
-				if (strpos($possible_temp, $dir) !== false && is_writable($possible_temp))
-				{
-					$temp_dir = $possible_temp;
-					break;
-				}
-	}
-
-	// Try the cachedir.
-	if (empty($temp_dir) && is_dir(realpath($cachedir)))
-	{
-		$possible_temp = rtrim($cachedir, '/');
-
-		if ($restriction)
-			foreach ($restriction as $dir)
-				if (strpos($possible_temp, $dir) !== false && is_writable($possible_temp))
-				{
-					$temp_dir = $possible_temp;
-					break;
-				}	
+		}
+		// No restrictions, but need to check for writable status.
+		elseif (is_writable($possible_temp))
+		{
+			$temp_dir = $possible_temp;
+			break;
+		}
 	}
 
 	// Fall back to sys_get_temp_dir even though it won't work, so we have something.
 	if (empty($temp_dir))
-		$temp_dir = sys_get_temp_dir();
+		$temp_dir = sm_temp_dir_option('default');
 
 	// Fix the path.
 	$temp_dir = substr($temp_dir, -1) === '/' ? $temp_dir : $temp_dir . '/';
@@ -2265,4 +2246,23 @@ function sm_temp_dir()
 	return $temp_dir;
 }
 
+/**
+ * Internal function for sm_temp_dir.
+ *
+ * @param string $option Which temp_dir option to use
+ */
+function sm_temp_dir_option($option = 'sys_get_temp_dir')
+{
+	global $cachedir;
+
+	if ($option === 'cachedir')
+		return rtrim($cachedir, '/');
+	elseif ($option === 'session.save_path')
+		return rtrim(ini_get('session.save_path'), '/');
+	elseif ($option === 'upload_tmp_dir')
+		return rtrim(ini_get('upload_tmp_dir'), '/');
+	// This is the default option.
+	else
+		return sys_get_temp_dir();
+}
 ?>
