@@ -2600,7 +2600,7 @@ function nextSubstep($substep)
 function cmdStep0()
 {
 	global $boarddir, $sourcedir, $modSettings, $start_time, $cachedir, $databases, $db_type, $smcFunc, $upcontext;
-	global $is_debug, $boardurl;
+	global $is_debug, $boardurl, $txt;
 	$start_time = time();
 
 	ob_end_clean();
@@ -2732,7 +2732,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	// Do we need to add this setting?
 	$need_settings_update = empty($modSettings['custom_avatar_dir']);
 
-	$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] . '/custom_avatar';
+	$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $boarddir . '/custom_avatar';
 	$custom_av_url = !empty($modSettings['custom_avatar_url']) ? $modSettings['custom_avatar_url'] : $boardurl . '/custom_avatar';
 
 	// This little fellow has to cooperate...
@@ -2740,7 +2740,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 
 	// Are we good now?
 	if (!is_writable($custom_av_dir))
-		return throw_error(sprintf($txt['error_dir_not_writable'], $custom_av_dir));
+		print_error(sprintf($txt['error_dir_not_writable'], $custom_av_dir));
 	elseif ($need_settings_update)
 	{
 		if (!function_exists('cache_put_data'))
