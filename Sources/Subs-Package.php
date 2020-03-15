@@ -3203,7 +3203,7 @@ function package_validate($packages)
 /**
  * Sending data off to validate packages.
  *
- * @param string $sendData Json encoded data to be sent to the validation servers.
+ * @param array $sendData Json encoded data to be sent to the validation servers.
  * @return array Results from the package validation.
  */
 function package_validate_send($sendData)
