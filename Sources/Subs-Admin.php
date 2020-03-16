@@ -2181,9 +2181,25 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 		}
 }
 
-/**
+/*
  * Locates the most appropriate temp directory.
- */
+ *
+ * Systems using `open_basedir` restrictions may receive errors with
+ * `sys_get_temp_dir()` due to misconfigurations on servers. Other
+ * cases sys_temp_dir may not be set to a safe value. Additionaly
+ * `sys_get_temp_dir` may use a readonly directory. This attempts to
+ * find a working temp directory that is accessible under the
+ * restrictions and is writable to the web service account.
+ *
+ * Directories cheked against `open_basedir`:
+ *
+ * - `sys_get_temp_dir()`
+ * - `upload_tmp_dir`
+ * - `session.save_path`
+ * - `$cachedir`
+ *
+ * @return string
+*/
 function sm_temp_dir()
 {
 	global $cachedir;
