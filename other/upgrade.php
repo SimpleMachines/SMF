@@ -1562,7 +1562,23 @@ function DatabaseChanges()
 			// Do we actually need to do this still?
 			if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < $file[1])
 			{
+				// Use STRICT mode on more recent steps
 				setSqlMode($file[3]);
+
+				// Reload modSettings to capture any adds/updates made along the way
+				$request = $smcFunc['db_query']('', '
+					SELECT variable, value
+					FROM {db_prefix}settings',
+					array(
+						'db_error_skip' => true,
+					)
+				);
+				$modSettings = array();
+				while ($row = $smcFunc['db_fetch_assoc']($request))
+					$modSettings[$row['variable']] = $row['value'];
+				$smcFunc['db_free_result']($request);
+
+				// Now process the file...
 				$nextFile = parse_sql(dirname(__FILE__) . '/' . $file[0]);
 				if ($nextFile)
 				{
