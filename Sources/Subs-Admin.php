@@ -544,6 +544,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			)),
 			'default' => null,
 			'auto_delete' => 1,
+			'type' => 'string',
 		),
 		'db_type' => array(
 			'text' => implode("\n", array(
