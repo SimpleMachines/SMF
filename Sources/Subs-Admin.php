@@ -2281,4 +2281,5 @@ function sm_temp_dir_option($option = 'sys_get_temp_dir')
 	else
 		return sys_get_temp_dir();
 }
+
 ?>
