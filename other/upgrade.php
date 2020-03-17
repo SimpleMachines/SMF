@@ -1515,7 +1515,7 @@ function backupTable($table)
 function DatabaseChanges()
 {
 	global $db_prefix, $modSettings, $smcFunc, $txt;
-	global $upcontext, $support_js, $db_type;
+	global $upcontext, $support_js, $db_type, $boarddir;
 
 	// Have we just completed this?
 	if (!empty($_POST['database_done']))
@@ -1577,6 +1577,35 @@ function DatabaseChanges()
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 					$modSettings[$row['variable']] = $row['value'];
 				$smcFunc['db_free_result']($request);
+
+				// Some theme settings are in $modSettings
+				// Note we still might be doing yabbse (no smf ver)
+				if (isset($modSettings['smfVersion']))
+				{
+					$request = $smcFunc['db_query']('', '
+						SELECT variable, value
+						FROM {db_prefix}themes
+						WHERE id_theme = {int:id_theme}
+							AND variable IN ({string:theme_url}, {string:theme_dir}, {string:images_url})',
+						array(
+							'id_theme' => 1,
+							'theme_url' => 'theme_url',
+							'theme_dir' => 'theme_dir',
+							'images_url' => 'images_url',
+							'db_error_skip' => true,
+						)
+					);
+					while ($row = $smcFunc['db_fetch_assoc']($request))
+						$modSettings[$row['variable']] = $row['value'];
+					$smcFunc['db_free_result']($request);
+				}
+
+				if (!isset($modSettings['theme_url']))
+				{
+					$modSettings['theme_dir'] = $boarddir . '/Themes/default';
+					$modSettings['theme_url'] = 'Themes/default';
+					$modSettings['images_url'] = 'Themes/default/images';
+				}
 
 				// Now process the file...
 				$nextFile = parse_sql(dirname(__FILE__) . '/' . $file[0]);
