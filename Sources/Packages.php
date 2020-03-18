@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -200,6 +200,13 @@ function PackageInstallTest()
 
 	// Set the type of extraction...
 	$context['extract_type'] = isset($packageInfo['type']) ? $packageInfo['type'] : 'modification';
+
+	// Get our validation info.
+	$context['validation_tests'] = package_validate_installtest(array(
+		'file_name' => $packagesdir . '/' . $context['filename'],
+		'custom_id' => !empty($packageInfo['id']) ? $packageInfo['id'] : '',
+		'custom_type' => $context['extract_type']
+	));
 
 	// The mod isn't installed.... unless proven otherwise.
 	$context['is_installed'] = false;
@@ -887,6 +894,7 @@ function PackageInstall()
 	if (!is_array($packageInfo))
 		fatal_lang_error($packageInfo);
 
+	$context['package_sha256_hash'] = hash_file('sha256', $packagesdir . '/' . $context['filename']);
 	$packageInfo['filename'] = $context['filename'];
 
 	// Set the type of extraction...
@@ -1101,7 +1109,7 @@ function PackageInstall()
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}log_packages
 					SET install_state = {int:not_installed}, member_removed = {string:member_name},
-						id_member_removed = {int:current_member}, time_removed = {int:current_time}
+						id_member_removed = {int:current_member}, time_removed = {int:current_time}, sha256_hash = {string:package_hash}
 					WHERE package_id = {string:package_id}
 						AND id_install = {int:install_id}',
 					array(
@@ -1111,6 +1119,7 @@ function PackageInstall()
 						'package_id' => $row['package_id'],
 						'member_name' => $user_info['name'],
 						'install_id' => $context['install_id'],
+						'package_hash' => $context['package_sha256_hash'],
 					)
 				);
 			}
@@ -1124,7 +1133,7 @@ function PackageInstall()
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}log_packages
 					SET install_state = {int:not_installed}, member_removed = {string:member_name},
-						id_member_removed = {int:current_member}, time_removed = {int:current_time}
+						id_member_removed = {int:current_member}, time_removed = {int:current_time}, sha256_hash = {string:package_hash}
 					WHERE package_id = {string:package_id}
 						AND version = {string:old_version}',
 					array(
@@ -1134,6 +1143,7 @@ function PackageInstall()
 						'package_id' => $row['package_id'],
 						'member_name' => $user_info['name'],
 						'old_version' => $old_version,
+						'package_hash' => $context['package_sha256_hash'],
 					)
 				);
 			}
@@ -1198,12 +1208,13 @@ function PackageInstall()
 					'id_member_installed' => 'int', 'member_installed' => 'string', 'time_installed' => 'int',
 					'install_state' => 'int', 'failed_steps' => 'string', 'themes_installed' => 'string',
 					'member_removed' => 'int', 'db_changes' => 'string', 'credits' => 'string',
+					'sha256_hash' => 'string',
 				),
 				array(
 					$package_filename, $package_name, $package_id, $package_version,
 					$user_info['id'], $user_info['name'], time(),
 					$is_upgrade ? 2 : 1, $failed_step_insert, $themes_installed,
-					0, $db_changes, $credits_tag,
+					0, $db_changes, $credits_tag, $context['package_sha256_hash']
 				),
 				array('id_install')
 			);
@@ -2413,7 +2424,7 @@ function fetchPerms__recursive($path, &$data, $level)
  */
 function PackagePermissionsAction()
 {
-	global $smcFunc, $context, $txt, $time_start, $package_ftp;
+	global $smcFunc, $context, $txt, $package_ftp;
 
 	umask(0);
 
@@ -2507,7 +2518,7 @@ function PackagePermissionsAction()
 			unset($context['to_process'][$path]);
 
 			// See if we're out of time?
-			if ((time() - $time_start) > $timeout_limit)
+			if ((time() - TIME_START) > $timeout_limit)
 			{
 				// Prepare template usage for to_process.
 				$context['to_process_encode'] = base64_encode($smcFunc['json_encode']($context['to_process']));
@@ -2620,7 +2631,7 @@ function PackagePermissionsAction()
 				}
 
 				// See if we're out of time?
-				if (!$dont_chmod && (time() - $time_start) > $timeout_limit)
+				if (!$dont_chmod && (time() - TIME_START) > $timeout_limit)
 				{
 					$dont_chmod = true;
 					// Don't do this again.
@@ -2647,7 +2658,7 @@ function PackagePermissionsAction()
 			unset($context['directory_list'][$path]);
 
 			// See if we're out of time?
-			if ((time() - $time_start) > $timeout_limit)
+			if ((time() - TIME_START) > $timeout_limit)
 			{
 				// Prepare this for usage on templates.
 				$context['directory_list_encode'] = base64_encode($smcFunc['json_encode']($context['directory_list']));

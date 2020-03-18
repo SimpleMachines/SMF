@@ -27,7 +27,7 @@ $txt['mc_notes'] = 'Moderator Notes';
 $txt['mc_notes_delete_own'] = 'You are only allowed to delete your own notes.';
 $txt['mc_cannot_connect_sm'] = 'You are unable to connect to simplemachines.org\'s latest news file.';
 
-$txt['mc_recent_reports_none'] = 'There are no outstanding reports';
+$txt['mc_recent_reports_none'] = 'There are no outstanding reports.';
 $txt['mc_watched_users_none'] = 'There are not currently any watches in place.';
 $txt['mc_group_requests_none'] = 'There are no open requests for group membership.';
 $txt['mc_reported_users_none'] = 'There are no pending profile reports.';
@@ -57,7 +57,7 @@ $txt['mc_reportedp_new_comment'] = 'Add a new comment';
 $txt['mc_reportedp_delete_confirm'] = 'Are you sure you wish to delete this message?';
 $txt['mc_reportedp_ban'] = 'Ban this user';
 // Do not use numeric entries in the below string.
-$txt['mc_reportedp_ignore_confirm'] = 'If you choose &quot;OK&quot;, then this forum will silently ignore and ignore all future attempts to report this post; moderators will not see any future reports about this post. Are you sure you wish to do this?';
+$txt['mc_reportedp_ignore_confirm'] = 'If you choose &quot;OK&quot;, then this forum will silently ignore all future attempts to report this post; moderators will not see any future reports about this post. Are you sure you wish to do this?';
 $txt['mc_reportedp_close_selected'] = 'Close Selected';
 
 $txt['mc_groupr_group'] = 'Membergroups';
@@ -100,8 +100,8 @@ $txt['mc_modreport_add_mod_comment'] = 'Add Comment';
 $txt['mc_modreport_edit_mod_comment'] = 'Edit Comment';
 
 $txt['mc_viewmemberreport'] = 'Report for profile of %1$s';
-$txt['mc_memberreport_summary'] = 'There have been %1$d report(s) concerning this member. The last report was %2$s.';
-$txt['mc_memberreport_whoreported_title'] = 'Members who have reported this member.';
+$txt['mc_memberreport_summary'] = 'There have been %1$d report(s) concerning this profile. The last report was %2$s.';
+$txt['mc_memberreport_whoreported_title'] = 'Members who have reported this profile.';
 
 $txt['show_notice'] = 'Notice Text';
 $txt['show_notice_subject'] = 'Subject';
@@ -147,7 +147,7 @@ $txt['report_action_message_delete_issue'] = 'The note you are trying to delete 
 $txt['report_action_ignore'] = 'The report was successfully ignored.';
 $txt['report_action_unignore'] = 'The report was successfully un-ignored.';
 $txt['report_action_close'] = 'The report was successfully closed.';
-$txt['report_action_open'] = 'The report was successfully open.';
+$txt['report_action_open'] = 'The report was successfully opened.';
 $txt['report_action_close_all'] = 'You successfully closed all selected reports.';
 
 $txt['mc_warning_template_desc'] = 'Use this page to fill in the details of the template. Note that the subject for the email is not part of the template. Note that as the notification is sent by PM you can use BBC within the template. Note if you use the {MESSAGE} variable then this template will not be available when issuing a generic warning (i.e. A warning not linked to a post).';
@@ -156,7 +156,7 @@ $txt['mc_warning_template_body_desc'] = 'The content of the notification message
 $txt['mc_warning_template_body_default'] = '{MEMBER},' . "\n\n" . 'You have received a warning for inappropriate activity. Please cease these activities and abide by the forum rules otherwise we will take further action.' . "\n\n" . '{REGARDS}';
 $txt['mc_warning_template_personal'] = 'Personal Template';
 $txt['mc_warning_template_personal_desc'] = 'If you select this option only you will be able to see, edit and use this template. If not selected all moderators will be able to use this template.';
-$txt['mc_warning_template_error_no_title'] = 'You must set title.';
+$txt['mc_warning_template_error_no_title'] = 'You must set a title.';
 $txt['mc_warning_template_error_no_body'] = 'You must set a notification body.';
 
 $txt['mc_settings'] = 'Change Settings';
@@ -171,7 +171,7 @@ $txt['mc_click_add_note'] = 'Add a new note';
 $txt['mc_add_note'] = 'Add';
 
 // Do not use numeric entries in the below string.
-$txt['mc_reportedm_ignore_confirm'] = 'Are you sure you wish to ignore further reports about this user\'s profile?\\n\\nThis will turn off further reports for everyone.';
+$txt['mc_reportedm_ignore_confirm'] = 'If you choose &quot;OK&quot;, all future reports about this user\'s profile will be ignored; moderators will not see any future reports about this user\'s profile . Are you sure you wish to do this?';
 $txt['mc_reported_members_title'] = 'Reported Members';
 $txt['mc_reported_members_desc'] = 'Allows you to view a list of all users whose profiles have been reported';
 

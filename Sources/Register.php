@@ -8,9 +8,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -128,12 +128,9 @@ function Register($reg_errors = array())
 		}
 	}
 
-	if (!empty($modSettings['allow_disableAnnounce']))
-	{
-		require_once($sourcedir . '/Subs-Notify.php');
-		$prefs = getNotifyPrefs(0, 'announcements');
-		$context['notify_announcements'] = !empty($prefs[0]['announcements']);
-	}
+	require_once($sourcedir . '/Subs-Notify.php');
+	$prefs = getNotifyPrefs(0, 'announcements');
+	$context['notify_announcements'] = !empty($prefs[0]['announcements']);
 
 	if (!empty($modSettings['userLanguage']))
 	{
@@ -305,7 +302,7 @@ function Register2()
 	// Collect all extra registration fields someone might have filled in.
 	$possible_strings = array(
 		'birthdate',
-		'time_format',
+		'timezone',
 		'buddy_list',
 		'pm_ignore_list',
 		'smiley_set',
@@ -513,18 +510,15 @@ function Register2()
 	// Do our spam protection now.
 	spamProtection('register');
 
-	// Do they want to recieve announcements?
-	if (!empty($modSettings['allow_disableAnnounce']))
-	{
-		require_once($sourcedir . '/Subs-Notify.php');
-		$prefs = getNotifyPrefs($memberID, 'announcements', true);
-		$var = !empty($_POST['notify_announcements']);
-		$pref = !empty($prefs[$memberID]['announcements']);
+	// Do they want to receive announcements?
+	require_once($sourcedir . '/Subs-Notify.php');
+	$prefs = getNotifyPrefs($memberID, 'announcements', true);
+	$var = !empty($_POST['notify_announcements']);
+	$pref = !empty($prefs[$memberID]['announcements']);
 
-		// Don't update if the default is the same.
-		if ($var != $pref)
-			setNotifyPrefs($memberID, array('announcements' => (int) !empty($_POST['notify_announcements'])));
-	}
+	// Don't update if the default is the same.
+	if ($var != $pref)
+		setNotifyPrefs($memberID, array('announcements' => (int) !empty($_POST['notify_announcements'])));
 
 	// We'll do custom fields after as then we get to use the helper function!
 	if (!empty($_POST['customfield']))
@@ -843,7 +837,7 @@ function VerificationCode()
 		elseif (isset($_REQUEST['letter']))
 		{
 			$_REQUEST['letter'] = (int) $_REQUEST['letter'];
-			if ($_REQUEST['letter'] > 0 && $_REQUEST['letter'] <= strlen($code) && !showLetterImage(strtolower($code{$_REQUEST['letter'] - 1})))
+			if ($_REQUEST['letter'] > 0 && $_REQUEST['letter'] <= strlen($code) && !showLetterImage(strtolower($code[$_REQUEST['letter'] - 1])))
 			{
 				header('content-type: image/gif');
 				die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");

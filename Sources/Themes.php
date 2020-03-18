@@ -23,9 +23,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -413,7 +413,7 @@ function SetThemeOptions()
 				$smcFunc['db_query']('substring', '
 					DELETE FROM {db_prefix}themes
 					WHERE id_theme = {int:default_theme}
-						AND id_member != {int:no_member}
+						AND id_member > {int:no_member}
 						AND variable = SUBSTRING({string:option}, 1, 255)',
 					array(
 						'default_theme' => 1,
@@ -472,7 +472,7 @@ function SetThemeOptions()
 				$smcFunc['db_query']('substring', '
 					DELETE FROM {db_prefix}themes
 					WHERE id_theme = {int:current_theme}
-						AND id_member != {int:no_member}
+						AND id_member > {int:no_member}
 						AND variable = SUBSTRING({string:option}, 1, 255)',
 					array(
 						'current_theme' => $_GET['th'],

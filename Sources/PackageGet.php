@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -227,6 +227,15 @@ function PackageGBrowse()
 		// If there is a relative link, append to the stored server url.
 		if (isset($_GET['relative']))
 			$url = $url . (substr($url, -1) == '/' ? '' : '/') . $_GET['relative'];
+
+		$the_version = SMF_VERSION;
+		if (!empty($_SESSION['version_emulate']))
+			$the_version = $_SESSION['version_emulate'];
+
+		// Sub out any variables we support in the url.
+		$url = strtr($url, array(
+			'{SMF_VERSION}' => urlencode($the_version)
+		));
 
 		// Clear any "absolute" URL.  Since "server" is present, "absolute" is garbage.
 		unset($_GET['absolute']);
@@ -561,6 +570,15 @@ function PackageDownload()
 		// If server does not exist then dump out.
 		if (empty($url))
 			fatal_lang_error('couldnt_connect', false);
+
+		$the_version = SMF_VERSION;
+		if (!empty($_SESSION['version_emulate']))
+			$the_version = $_SESSION['version_emulate'];
+
+		// Sub out any variables we support in the url.
+		$url = strtr($url, array(
+			'{SMF_VERSION}' => urlencode($the_version)
+		));
 
 		$url = $url . '/';
 	}

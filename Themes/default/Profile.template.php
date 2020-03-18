@@ -3,9 +3,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -107,7 +107,7 @@ function template_alerts_popup()
 		foreach ($context['unread_alerts'] as $id_alert => $details)
 		{
 			echo '
-			<', !$details['show_links'] ? 'a href="' . $scripturl . '?action=profile;area=showalerts;alert=' . $id_alert . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="unread_notify">
+			<', !$details['show_links'] ? 'a href="' . $details['target_href'] . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="unread_notify">
 				<div class="unread_notify_image">
 					', empty($details['sender']['avatar']['image']) ? '' : $details['sender']['avatar']['image'] . '
 					', $details['icon'], '
@@ -621,11 +621,11 @@ function template_showAlerts()
 			<div class="pagesection">
 				<div class="floatleft">
 					', $context['pagination'], '
-				</div>';
+				</div>
+				<div class="floatright">';
 
 		if ($context['showCheckboxes'])
 			echo '
-				<div class="floatright">
 					', $txt['check_all'], ': <input type="checkbox" name="select_all" id="select_all">
 					<select name="mark_as">
 						<option value="read">', $txt['quick_mod_markread'], '</option>
@@ -634,10 +634,11 @@ function template_showAlerts()
 					</select>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="start" value="', $context['start'], '">
-					<input type="submit" name="req" value="', $txt['quick_mod_go'], '" class="button you_sure">
-				</div>';
+					<input type="submit" name="req" value="', $txt['quick_mod_go'], '" class="button you_sure">';
 
 		echo '
+					<a href="', $context['alert_purge_link'], '" class="button you_sure">', $txt['alert_purge'], '</a>
+				</div>
 			</div>';
 
 		if ($context['showCheckboxes'])
@@ -1550,7 +1551,7 @@ function template_edit_options()
 					if (is_array($field['options']))
 						foreach ($field['options'] as $value => $name)
 							echo '
-							<option', (!empty($field['disabled_options']) && is_array($field['disabled_options']) && in_array($value, $field['disabled_options'], true) ? ' disabled' : ''), ' value="' . $value . '"', $value == $field['value'] ? ' selected' : '', '>', $name, '</option>';
+							<option value="' . $value . '"', (!empty($field['disabled_options']) && is_array($field['disabled_options']) && in_array($value, $field['disabled_options'], true) ? ' disabled' : ($value == $field['value'] ? ' selected' : '')), '>', $name, '</option>';
 				}
 
 				echo '
@@ -1871,11 +1872,7 @@ function template_alert_configuration()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<dl class="settings">';
-
-	// Allow notification on announcements to be disabled?
-	if ($context['can_disable_announce'])
-		echo '
+				<dl class="settings">
 					<dt>
 						<label for="notify_announcements">', $txt['notify_important_email'], '</label>
 					</dt>
@@ -2611,7 +2608,7 @@ function template_deleteAccount()
 			if ($context['show_perma_delete'])
 				echo '
 					<br>
-					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1">', $txt['deleteAccount_permanent'], ':</label>';
+					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1">', $txt['deleteAccount_permanent'], '</label>';
 
 			echo '
 				</div>';

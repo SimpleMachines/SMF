@@ -356,6 +356,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1') ON CONFLICT DO NOTHING;
 ---#
 
+---# Adding new "alerts_auto_purge" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('alerts_auto_purge', '30') ON CONFLICT DO NOTHING;
+---#
+
 ---# Adding new "minimize_files" setting
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('minimize_files', '1') ON CONFLICT DO NOTHING;
 ---#
@@ -703,11 +707,55 @@ CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_r
 ---#
 
 /******************************************************************************/
---- Adding support for <credits> tag in package manager
+--- Package Manager New Features
 /******************************************************************************/
----# Adding new columns to log_packages ..
+---# Adding support for <credits> tag in package manager
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN credits text NOT NULL;
+ADD COLUMN credits text NOT NULL,
+ADD COLUMN sha256_hash TEXT;
+---#
+
+---# Adding support for validation servers
+ALTER TABLE {$db_prefix}package_servers
+ADD COLUMN validation_url VARCHAR(255) DEFAULT '',
+ADD COLUMN extra TEXT;
+---#
+
+---# Add Package Validation to Downloads Site
+---{
+	$request = $smcFunc['db_query']('', '
+		SELECT id_server
+		FROM {db_prefix}package_servers
+		WHERE url LIKE {string:downloads_site}',
+		array(
+			'downloads_site' => 'https://download.simplemachines.org%',
+		)
+	);
+
+	if ($smcFunc['db_num_rows']($request) != 0)
+		list($downloads_server) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	if (empty($downloads_server))
+		$smcFunc['db_insert']('',
+			'{db_prefix}package_servers',
+			array('name' => 'string', 'url' => 'string', 'validation_url' => 'string'),
+			array('Simple Machines Download Site', 'https://download.simplemachines.org/browse.php?api=v1;smf_version={SMF_VERSION}', 'https://download.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}'),
+			array('id_server')
+		);
+---}
+---#
+
+---# Ensure The Simple Machines Customize Site is https
+UPDATE {$db_prefix}package_servers
+SET url = 'https://custom.simplemachines.org/packages/mods'
+WHERE url = 'http://custom.simplemachines.org/packages/mods';
+---#
+
+---# Add validation to Simple Machines Customize Site
+UPDATE {$db_prefix}package_servers
+SET validation_url = 'https://custom.simplemachines.org/api.php?action=validate;version=v1;smf_version={SMF_VERSION}'
+WHERE url = 'https://custom.simplemachines.org/packages/mods';
 ---#
 
 /******************************************************************************/
@@ -1097,10 +1145,10 @@ UPDATE {$db_prefix}user_alerts
 SET content_type = 'topic', content_action = 'unapproved_post'
 WHERE content_type = 'unapproved' AND content_action = 'post';
 
-UPDATE {$db_prefix}user_alerts AS a
-SET a.content_type = 'msg', a.content_action = 'unapproved_attachment', a.content_id = f.id_msg
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'msg', content_action = 'unapproved_attachment', content_id = f.id_msg
 FROM {$db_prefix}attachments AS f
-WHERE content_type = 'unapproved' AND content_action = 'attachment' AND f.id_attach = a.content_id;
+WHERE content_type = 'unapproved' AND content_action = 'attachment' AND f.id_attach = content_id;
 ---#
 
 /******************************************************************************/
@@ -1504,7 +1552,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enab
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1') ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7') ON CONFLICT DO NOTHING;
 
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_show_saved_enabled', '1') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, '1', 'drafts_show_saved_enabled', '1') ON CONFLICT DO NOTHING;
 ---#
 
 /******************************************************************************/
@@ -1633,7 +1681,7 @@ WHERE variable = 'avatar_action_too_large'
 
 ---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'log_ban_hits', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc', 'enable_unwatch', 'cache_memcached', 'cache_enable');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'log_ban_hits', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc', 'enable_unwatch', 'cache_memcached', 'cache_enable', 'cookie_no_auth_secret');
 ---#
 
 ---# Cleaning up old theme settings.
@@ -1759,7 +1807,7 @@ CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pat
 		WHERE comment_type = 'ver_test'");
 
 	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
-		$questions[] = array($language, $row['question'], serialize(array($row['answer'])));
+		$questions[] = array($upcontext['language'], $row['question'], serialize(array($row['answer'])));
 
 	$smcFunc['db_free_result']($get_questions);
 
@@ -2652,7 +2700,7 @@ VALUES
 	('cal_prev_next_links', '1'),
 	('cal_short_days', '0'),
 	('cal_short_months', '0'),
-	('cal_week_numbers', '0');
+	('cal_week_numbers', '0') ON CONFLICT DO NOTHING;
 ---#
 
 /******************************************************************************/
@@ -3209,6 +3257,21 @@ LANGUAGE 'sql';
 ---#
 
 /******************************************************************************/
+--- bigint versions of date functions
+/******************************************************************************/
+---# MONTH(bigint)
+CREATE OR REPLACE FUNCTION MONTH (bigint) RETURNS integer AS
+	'SELECT CAST (EXTRACT(MONTH FROM TO_TIMESTAMP($1)) AS integer) AS result'
+LANGUAGE 'sql';
+---#
+
+---# DAYOFMONTH(bigint)
+CREATE OR REPLACE FUNCTION DAYOFMONTH (bigint) RETURNS integer AS
+	'SELECT CAST (EXTRACT(DAY FROM TO_TIMESTAMP($1)) AS integer) AS result'
+LANGUAGE 'sql';
+---#
+
+/******************************************************************************/
 --- Update holidays
 /******************************************************************************/
 ---# Delete all the dates
@@ -3436,4 +3499,11 @@ VALUES ('Independence Day', '1004-07-04'),
 ---# Create new index on Attachments
 DROP INDEX IF EXISTS {$db_prefix}attachments_id_thumb;
 CREATE INDEX {$db_prefix}attachments_id_thumb ON {$db_prefix}attachments (id_thumb);
+---#
+
+/******************************************************************************/
+--- Update log_spider_stats
+/******************************************************************************/
+---# Allow for hyper aggressive crawlers
+ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN page_hits TYPE INT;
 ---#

@@ -93,7 +93,7 @@ $txt['header_logo_url_desc'] = 'Leave blank to show forum name or default logo.'
 $txt['number_recent_posts'] = 'Number of recent posts to display on board index';
 
 $txt['theme_adding_title'] = 'Obtaining Themes';
-$txt['theme_adding'] = 'You can always find new themes for your forum from the SMF themes area - <strong><a href="https://custom.simplemachines.org/themes/" target="_blank" rel="noopener">https://custom.simplemachines.org/themes/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br><br>If you run into any questions with themes, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
+$txt['theme_adding'] = 'You can always find new themes for your forum from the SMF themes area - <strong><a href="https://custom.simplemachines.org/themes/" target="_blank" rel="noopener">https://custom.simplemachines.org/themes/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br><br>If you run into any questions with themes, each theme published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
 
 $txt['theme_options_defaults'] = 'These are the default values for some member specific settings. Changing these will only affect new members and guests.';
 $txt['theme_options_title'] = 'Change or reset default options';
@@ -128,6 +128,7 @@ $txt['themeadmin_reset_options_info'] = 'The options below will reset options fo
 $txt['themeadmin_reset_options_change'] = 'Change';
 $txt['themeadmin_reset_options_none'] = 'Don\'t change';
 $txt['themeadmin_reset_options_default'] = 'Default';
+$txt['themeadmin_reset_options_title'] = 'Change or reset user options';
 
 $txt['themeadmin_edit_browse'] = 'Browse the templates and files in this theme.';
 $txt['themeadmin_edit_style'] = 'Edit this theme\'s stylesheets.';

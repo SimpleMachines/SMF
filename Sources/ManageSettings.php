@@ -7,9 +7,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -206,7 +206,6 @@ function ModifyBasicSettings($return_config = false)
 		array(
 			'float',
 			'time_offset',
-			'subtext' => $txt['setting_time_offset_note'],
 			6,
 			'postinput' => $txt['hours'],
 			'step' => 0.25,
@@ -228,12 +227,19 @@ function ModifyBasicSettings($return_config = false)
 		'',
 
 		// Option-ish things... miscellaneous sorta.
-		array('check', 'allow_disableAnnounce'),
 		array('check', 'disallow_sendBody'),
 		'',
 
 		// Alerts stuff
 		array('check', 'enable_ajax_alerts'),
+		array('select', 'alerts_auto_purge',
+			array(
+				'0' => $txt['alerts_auto_purge_0'],
+				'7' => $txt['alerts_auto_purge_7'],
+				'30' => $txt['alerts_auto_purge_30'],
+				'90' => $txt['alerts_auto_purge_90'],
+			),
+		),
 	);
 
 	// Get all the time zones.
@@ -690,6 +696,7 @@ function ModifyAntispamSettings($return_config = false)
 			'int',
 			'posts_require_captcha',
 			'subtext' => $txt['posts_require_captcha_desc'],
+			'min' => -1,
 			'onchange' => 'if (this.value > 0){ document.getElementById(\'guests_require_captcha\').checked = true; document.getElementById(\'guests_require_captcha\').disabled = true;} else {document.getElementById(\'guests_require_captcha\').disabled = false;}'
 		),
 		'',
@@ -1344,7 +1351,18 @@ function ModifySignatureSettings($return_config = false)
 	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=sig';
 	$context['settings_title'] = $txt['signature_settings'];
 
-	$context['settings_message'] = !empty($settings_applied) ? '<div class="infobox">' . $txt['signature_settings_applied'] . '</div>' : '<p class="centertext">' . sprintf($txt['signature_settings_warning'], $context['session_id'], $context['session_var']) . '</p>';
+	if (!empty($settings_applied))
+		$context['settings_message'] = array(
+			'label' => $txt['signature_settings_applied'],
+			'tag' => 'div',
+			'class' => 'infobox'
+		);
+	else
+		$context['settings_message'] = array(
+			'label' => sprintf($txt['signature_settings_warning'], $context['session_id'], $context['session_var']),
+			'tag' => 'div',
+			'class' => 'centertext'
+		);
 
 	prepareDBSettingContext($config_vars);
 }
@@ -1530,7 +1548,7 @@ function ShowCustomProfiles()
 				'data' => array(
 					'function' => function($rowData) use ($context, $txt, $scripturl)
 					{
-						$return = '<p class="centertext bold_text">' . $rowData['field_order'] . '<br>';
+						$return = '<p class="centertext bold_text">';
 
 						if ($rowData['field_order'] > 1)
 							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . $txt['custom_edit_order_move'] . ' ' . $txt['custom_edit_order_up'] . '"></span></a>';
@@ -2347,7 +2365,11 @@ function ModifyGeneralModSettings($return_config = false)
 	if (empty($config_vars))
 	{
 		$context['settings_save_dont_show'] = true;
-		$context['settings_message'] = '<div class="centertext">' . $txt['modification_no_misc_settings'] . '</div>';
+		$context['settings_message'] = array(
+			'label' => $txt['modification_no_misc_settings'],
+			'tag' => 'div',
+			'class' => 'centertext'
+		);
 
 		return prepareDBSettingContext($config_vars);
 	}
@@ -2383,7 +2405,6 @@ function ModifyAlertsSettings()
 	global $context, $modSettings, $sourcedir, $txt;
 
 	// Dummy settings for the template...
-	$modSettings['allow_disableAnnounce'] = false;
 	$context['user']['is_owner'] = false;
 	$context['member'] = array();
 	$context['id_member'] = 0;
@@ -2397,7 +2418,7 @@ function ModifyAlertsSettings()
 	loadLanguage('Profile');
 
 	include_once($sourcedir . '/Profile-Modify.php');
-	alert_configuration(0);
+	alert_configuration(0, true);
 
 	$context['page_title'] = $txt['notify_settings'];
 

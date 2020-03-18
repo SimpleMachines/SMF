@@ -13,9 +13,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -24,25 +24,48 @@
 define('SMF', 1);
 define('SMF_VERSION', '2.1 RC2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2019');
+define('SMF_SOFTWARE_YEAR', '2020');
 
+define('JQUERY_VERSION', '3.4.1');
+define('POSTGRE_TITLE', 'PostgreSQL');
+define('MYSQL_TITLE', 'MySQL');
+define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
+
+if (!defined('TIME_START'))
+	define('TIME_START', microtime(true));
+
+// If anything goes wrong loading Settings.php, make sure the admin knows it.
 error_reporting(E_ALL);
-$time_start = microtime(true);
 
 // This makes it so headers can be sent!
 ob_start();
 
 // Do some cleaning, just in case.
 foreach (array('db_character_set', 'cachedir') as $variable)
-	if (isset($GLOBALS[$variable]))
-		unset($GLOBALS[$variable], $GLOBALS[$variable]);
+	unset($GLOBALS[$variable]);
 
 // Load the settings...
 require_once(dirname(__FILE__) . '/Settings.php');
 
-// Make absolutely sure the cache directory is defined.
-if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
-	$cachedir = $boarddir . '/cache';
+// Devs want all error messages, but others don't.
+error_reporting(!empty($db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
+
+// Ensure there are no trailing slashes in these variables.
+foreach (array('boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'taskddir', 'cachedir') as $variable)
+	if (!empty($GLOBALS[$variable]))
+		$GLOBALS[$variable] = rtrim($GLOBALS[$variable], "\\/");
+
+// Make absolutely sure the cache directory is defined and writable.
+if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
+{
+	if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
+		$cachedir = $boarddir . '/cache';
+	else
+	{
+		$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
+		@mkdir($cachedir, 0750);
+	}
+}
 
 // Without those we can't go anywhere
 require_once($sourcedir . '/QueryString.php');
@@ -52,7 +75,7 @@ require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
 
 // If $maintenance is set specifically to 2, then we're upgrading or something.
-if (!empty($maintenance) && $maintenance == 2)
+if (!empty($maintenance) &&  2 === $maintenance)
 	display_maintenance_message();
 
 // Create a variable to store some SMF specific functions in.
@@ -80,7 +103,6 @@ if (isset($_GET['scheduled']))
 
 // And important includes.
 require_once($sourcedir . '/Session.php');
-require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Logging.php');
 require_once($sourcedir . '/Security.php');
 require_once($sourcedir . '/Class-BrowserDetect.php');
@@ -346,7 +368,7 @@ function smf_main()
 		'modifycat' => array('ManageBoards.php', 'ModifyCat'),
 		'movetopic' => array('MoveTopic.php', 'MoveTopic'),
 		'movetopic2' => array('MoveTopic.php', 'MoveTopic2'),
-		'notify' => array('Notify.php', 'Notify'),
+		'notifyannouncements' => array('Notify.php', 'AnnouncementsNotify'),
 		'notifyboard' => array('Notify.php', 'BoardNotify'),
 		'notifytopic' => array('Notify.php', 'TopicNotify'),
 		'pm' => array('PersonalMessage.php', 'MessageMain'),

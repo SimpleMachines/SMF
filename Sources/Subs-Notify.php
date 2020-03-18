@@ -4,9 +4,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -113,6 +113,71 @@ function deleteNotifyPrefs($memID, array $prefs)
 			'prefs' => $prefs,
 		)
 	);
+}
+
+/**
+ * Verifies a member's unsubscribe token, then returns some member info
+ *
+ * @param string $type The type of notification the token is for (e.g. 'board', 'topic', etc.)
+ * @return array The id and email address of the specified member
+ */
+function getMemberWithToken($type)
+{
+	global $smcFunc, $board, $topic, $modSettings;
+
+	// Keep it sanitary, folks
+	$id_member = !empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0;
+
+	// We can't do anything without these
+	if (empty($id_member) || empty($_REQUEST['token']))
+		fatal_lang_error('unsubscribe_invalid', false);
+
+	// Get the user info we need
+	$request = $smcFunc['db_query']('', '
+		SELECT id_member AS id, email_address AS email
+		FROM {db_prefix}members
+		WHERE id_member = {int:id_member}',
+		array(
+			'id_member' => $id_member,
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) == 0)
+		fatal_lang_error('unsubscribe_invalid', false);
+	$member_info = $smcFunc['db_fetch_assoc']($request);
+	$smcFunc['db_free_result']($request);
+
+	// What token are we expecting?
+	$expected_token = createUnsubscribeToken($member_info['id'], $member_info['email'], $type, in_array($type, array('board', 'topic')) && !empty($$type) ? $$type : 0);
+
+	// Don't do anything if the token they gave is wrong
+	if ($_REQUEST['token'] !== $expected_token)
+		fatal_lang_error('unsubscribe_invalid', false);
+
+	// At this point, we know we have a legitimate unsubscribe request
+	return $member_info;
+}
+
+/**
+ * Builds an unsubscribe token
+ *
+ * @param int $memID The id of the member that this token is for
+ * @param string $email The member's email address
+ * @param string $type The type of notification the token is for (e.g. 'board', 'topic', etc.)
+ * @param int $itemID The id of the notification item, if applicable.
+ * @return string The unsubscribe token
+ */
+function createUnsubscribeToken($memID, $email, $type = '', $itemID = 0)
+{
+	$token_items = implode(' ', array($memID, $email, $type, $itemID));
+
+	// When the message is public and the key is secret, an HMAC is the appropriate tool.
+	$token = hash_hmac('sha256', $token_items, get_auth_secret(), true);
+
+	// When using an HMAC, 80 bits (10 bytes) is plenty for security.
+	$token = substr($token, 0, 10);
+
+	// Use base64 (with URL-friendly characters) to make the token shorter.
+	return strtr(base64_encode($token), array('+' => '_', '/' => '-', '=' => ''));
 }
 
 ?>

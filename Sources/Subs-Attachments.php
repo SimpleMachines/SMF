@@ -7,9 +7,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -425,9 +425,9 @@ function processAttachments()
 		if (empty($errors))
 		{
 			// The reported MIME type of the attachment might not be reliable.
-			// Fortunately, PHP 5.3+ lets us easily verify the real MIME type.
-			if (function_exists('mime_content_type'))
-				$_FILES['attachment']['type'][$n] = mime_content_type($_FILES['attachment']['tmp_name'][$n]);
+			$detected_mime_type = get_mime_type($_FILES['attachment']['tmp_name'][$n], true);
+			if ($detected_mime_type !== false)
+				$_FILES['attachment']['type'][$n] = $detected_mime_type;
 
 			$_SESSION['temp_attachments'][$attachID] = array(
 				'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
@@ -513,7 +513,7 @@ function attachmentChecks($attachID)
 
 	// First, the dreaded security check. Sorry folks, but this shouldn't be avoided.
 	$size = @getimagesize($_SESSION['temp_attachments'][$attachID]['tmp_name']);
-	if (isset($context['valid_image_types'][$size[2]]))
+	if (is_array($size) && isset($size[2], $context['valid_image_types'][$size[2]]))
 	{
 		require_once($sourcedir . '/Subs-Graphics.php');
 		if (!checkImageContents($_SESSION['temp_attachments'][$attachID]['tmp_name'], !empty($modSettings['attachment_image_paranoid'])))
@@ -530,10 +530,7 @@ function attachmentChecks($attachID)
 			$old_format = $size[2];
 			$size = @getimagesize($_SESSION['temp_attachments'][$attachID]['tmp_name']);
 			if (!(empty($size)) && ($size[2] != $old_format))
-			{
-				if (isset($context['valid_image_types'][$size[2]]))
-					$_SESSION['temp_attachments'][$attachID]['type'] = 'image/' . $context['valid_image_types'][$size[2]];
-			}
+				$_SESSION['temp_attachments'][$attachID]['type'] = 'image/' . $context['valid_image_types'][$size[2]];
 		}
 	}
 
@@ -1171,6 +1168,7 @@ function loadAttachmentContext($id_msg, $attachments)
 				'is_approved' => $attachment['approved'],
 				'topic' => $attachment['topic'],
 				'board' => $attachment['board'],
+				'mime_type' => $attachment['mime_type'],
 			);
 
 			// If something is unapproved we'll note it so we can sort them.
@@ -1340,7 +1338,7 @@ function prepareAttachsByMsg($msgIDs)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board, m.id_member,
+				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board, m.id_member, a.mime_type,
 				a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
 				COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
 			FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '

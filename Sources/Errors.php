@@ -8,9 +8,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -245,9 +245,14 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 {
 	global $settings, $modSettings, $db_show_debug;
 
-	// Ignore errors if we're ignoring them or they are strict notices from PHP 5
+	// Error was suppressed with the @-operator.
 	if (error_reporting() == 0)
-		return;
+		return true;
+
+	// Ignore errors that should should not be logged.
+	$error_match = error_reporting() & $error_level;
+	if (empty($error_match) || empty($modSettings['enableErrorLogging']))
+		return false;
 
 	if (strpos($file, 'eval()') !== false && !empty($settings['current_include_filename']))
 	{

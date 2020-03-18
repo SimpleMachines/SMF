@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -89,45 +89,18 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 				list ($changes['latestRealName']) = $smcFunc['db_fetch_row']($result);
 				$smcFunc['db_free_result']($result);
 
-				if (!empty($modSettings['registration_method']))
-				{
-					// Are we using registration approval?
-					if ($modSettings['registration_method'] == 2 || !empty($modSettings['approveAccountDeletion']))
-					{
-						// Update the amount of members awaiting approval
-						$result = $smcFunc['db_query']('', '
-							SELECT COUNT(*)
-							FROM {db_prefix}members
-							WHERE is_activated IN ({array_int:activation_status})',
-							array(
-								'activation_status' => array(3, 4),
-							)
-						);
-						list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
-						$smcFunc['db_free_result']($result);
-					}
+				// Update the amount of members awaiting approval
+				$result = $smcFunc['db_query']('', '
+					SELECT COUNT(*)
+					FROM {db_prefix}members
+					WHERE is_activated IN ({array_int:activation_status})',
+					array(
+						'activation_status' => array(3, 4, 5),
+					)
+				);
 
-					// What about unapproved COPPA registrations?
-					if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 0)
-					{
-						$result = $smcFunc['db_query']('', '
-							SELECT COUNT(*)
-							FROM {db_prefix}members
-							WHERE is_activated = {int:coppa_approval}',
-							array(
-								'coppa_approval' => 5,
-							)
-						);
-						list ($coppa_approvals) = $smcFunc['db_fetch_row']($result);
-						$smcFunc['db_free_result']($result);
-
-						// Add this to the number of unapproved members
-						if (!empty($changes['unapprovedMembers']))
-							$changes['unapprovedMembers'] += $coppa_approvals;
-						else
-							$changes['unapprovedMembers'] = $coppa_approvals;
-					}
-				}
+				list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
+				$smcFunc['db_free_result']($result);
 			}
 			updateSettings($changes);
 			break;
@@ -375,17 +348,26 @@ function updateMemberData($members, $data)
 	$setString = '';
 	foreach ($data as $var => $val)
 	{
-		$type = 'string';
+		switch ($var)
+		{
+			case  'birthdate':
+				$type = 'date';
+				break;
+
+			case 'member_ip':
+			case 'member_ip2':
+				$type = 'inet';
+				break;
+
+			default:
+				$type = 'string';
+		}
+
 		if (in_array($var, $knownInts))
 			$type = 'int';
+
 		elseif (in_array($var, $knownFloats))
 			$type = 'float';
-		elseif ($var == 'birthdate')
-			$type = 'date';
-		elseif ($var == 'member_ip')
-			$type = 'inet';
-		elseif ($var == 'member_ip2')
-			$type = 'inet';
 
 		// Doing an increment?
 		if ($var == 'alerts' && ($val === '+' || $val === '-'))
@@ -396,12 +378,15 @@ function updateMemberData($members, $data)
 				$val = 'CASE ';
 				foreach ($members as $k => $v)
 					$val .= 'WHEN id_member = ' . $v . ' THEN '. alert_count($v, true) . ' ';
+
 				$val = $val . ' END';
 				$type = 'raw';
 			}
+
 			else
 				$val = alert_count($members, true);
 		}
+
 		elseif ($type == 'int' && ($val === '+' || $val === '-'))
 		{
 			$val = $var . ' ' . $val . ' 1';
@@ -415,6 +400,7 @@ function updateMemberData($members, $data)
 			{
 				if ($match[1] != '+ ')
 					$val = 'CASE WHEN ' . $var . ' <= ' . abs($match[2]) . ' THEN 0 ELSE ' . $val . ' END';
+
 				$type = 'raw';
 			}
 		}
@@ -1406,6 +1392,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'alt' => array('optional' => true),
 					'width' => array('optional' => true, 'match' => '(\d+)'),
 					'height' => array('optional' => true, 'match' => '(\d+)'),
+					'display' => array('optional' => true, 'match' => '(link|embed)'),
 				),
 				'content' => '$1',
 				'validate' => function(&$tag, &$data, $disabled, $params) use ($modSettings, $context, $sourcedir, $txt, $smcFunc)
@@ -1428,24 +1415,61 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (is_string($currentAttachment))
 						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
 
-					if (!empty($currentAttachment['is_image']) && (!isset($param['{type}']) || strpos($param['{type}'], 'image') === 0))
+					// We need a display mode.
+					if (empty($params['{display}']))
+					{
+						// Images, video, and audio are embedded by default.
+						if (!empty($currentAttachment['is_image']) || strpos($currentAttachment['mime_type'], 'video/') === 0 || strpos($currentAttachment['mime_type'], 'audio/') === 0)
+							$params['{display}'] = 'embed';
+						// Anything else shows a link by default.
+						else
+							$params['{display}'] = 'link';
+					}
+
+					// Embedded file.
+					if ($params['{display}'] == 'embed')
 					{
 						$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $currentAttachment['name']) . '"';
 						$title = !empty($data) ? ' title="' . $smcFunc['htmlspecialchars']($data) . '"' : '';
 
-						$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
-						$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
+						$width = !empty($params['{width}']) ? $params['{width}'] : (!empty($currentAttachment['width']) ? $currentAttachment['width'] : '');
+						$height = !empty($params['{height}']) ? $params['{height}'] : (!empty($currentAttachment['height']) ? $currentAttachment['height'] : '');
 
-						if (empty($width) && empty($height))
+						// Image.
+						if (!empty($currentAttachment['is_image']))
 						{
-							$width = ' width="' . $currentAttachment['width'] . '"';
-							$height = ' height="' . $currentAttachment['height'] . '"';
-						}
+							$width = !empty($width) ? ' width="' . $width . '"' : '';
+							$height = !empty($height) ? ' height="' . $height . '"' : '';
 
-						if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
-							$returnContext .= '<a href="' . $currentAttachment['href'] . ';image" id="link_' . $currentAttachment['id'] . '" onclick="' . $currentAttachment['thumbnail']['javascript'] . '"><img src="' . $currentAttachment['thumbnail']['href'] . '"' . $alt . $title . ' id="thumb_' . $currentAttachment['id'] . '" class="atc_img"></a>';
+							if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
+								$returnContext .= '<a href="' . $currentAttachment['href'] . ';image" id="link_' . $currentAttachment['id'] . '" onclick="' . $currentAttachment['thumbnail']['javascript'] . '"><img src="' . $currentAttachment['thumbnail']['href'] . '"' . $alt . $title . ' id="thumb_' . $currentAttachment['id'] . '" class="atc_img"></a>';
+							else
+								$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img"/>';
+						}
+						// Video.
+						elseif (strpos($currentAttachment['mime_type'], 'video/') === 0)
+						{
+							$width = !empty($width) ? ' width="' . $width . '"' : '';
+							$height = !empty($height) ? ' height="' . $height . '"' : '';
+
+							$returnContext .= '<div class="videocontainer"><div><video controls preload="none" src="'. $currentAttachment['href'] . '" playsinline' . $width . $height . ' style="object-fit:contain;"><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></video></div></div>' . (!empty($data) && $data != $currentAttachment['name'] ? '<div class="smalltext">' . $data . '</div>' : '');
+						}
+						// Audio.
+						elseif (strpos($currentAttachment['mime_type'], 'audio/') === 0)
+						{
+							$width = 'max-width:100%; width: ' . (!empty($width) ? $width : '400') . 'px;';
+							$height = !empty($height) ? 'height: ' . $height . 'px;' : '';
+
+							$returnContext .= (!empty($data) && $data != $currentAttachment['name'] ? $data . ' ' : '') . '<audio controls preload="none" src="'. $currentAttachment['href'] . '" class="bbc_audio" style="vertical-align:middle;' . $width . $height . '"><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></audio>';
+						}
+						// Anything else.
 						else
-							$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img"/>';
+						{
+							$width = !empty($width) ? ' width="' . $width . '"' : '';
+							$height = !empty($height) ? ' height="' . $height . '"' : '';
+
+							$returnContext .= '<object type="' . $currentAttachment['mime_type'] . '" data="' . $currentAttachment['href'] . '"' . $width . $height . ' typemustmatch><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></object>';
+						}
 					}
 
 					// No image. Show a link.
@@ -1705,23 +1729,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $user_info;
-
 					$data = strtr($data, array('<br>' => ''));
-					$scheme = parse_url($data, PHP_URL_SCHEME);
-					if ($image_proxy_enabled)
-					{
-						if (!empty($user_info['possibly_robot']))
-							return;
 
-						if (empty($scheme))
-							$data = 'http://' . ltrim($data, ':/');
-
-						if ($scheme != 'https')
-							$data = get_proxied_url($data);
-					}
-					elseif (empty($scheme))
+					if (parse_url($data, PHP_URL_SCHEME) === null)
 						$data = '//' . ltrim($data, ':/');
+					else
+						$data = get_proxied_url($data);
 				},
 				'disabled_content' => '($1)',
 			),
@@ -1731,23 +1744,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="" class="bbc_img">',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $user_info;
-
 					$data = strtr($data, array('<br>' => ''));
-					$scheme = parse_url($data, PHP_URL_SCHEME);
-					if ($image_proxy_enabled)
-					{
-						if (!empty($user_info['possibly_robot']))
-							return;
 
-						if (empty($scheme))
-							$data = 'http://' . ltrim($data, ':/');
-
-						if ($scheme != 'https')
-							$data = get_proxied_url($data);
-					}
-					elseif (empty($scheme))
+					if (parse_url($data, PHP_URL_SCHEME) === null)
 						$data = '//' . ltrim($data, ':/');
+					else
+						$data = get_proxied_url($data);
 				},
 				'disabled_content' => '($1)',
 			),
@@ -2641,7 +2643,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				// See the comment at the end of the big loop - just eating whitespace ;).
 				$whitespace_regex = '';
 				if (!empty($tag['block_level']))
-					$whitespace_regex .= '(&nbsp;|\s)*(<br>)?';
+					$whitespace_regex .= '(&nbsp;|\s)*(<br\s*/?' . '>)?';
 				// Trim one line of whitespace after unnested tags, but all of it after nested ones
 				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
 					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
@@ -3318,14 +3320,20 @@ function highlight_php_code($code)
  */
 function get_proxied_url($url)
 {
-	global $boardurl, $image_proxy_enabled, $image_proxy_secret;
+	global $boardurl, $image_proxy_enabled, $image_proxy_secret, $user_info;
 
-	// Only use the proxy if enabled and necessary
-	if (empty($image_proxy_enabled) || parse_url($url, PHP_URL_SCHEME) === 'https')
+	// Only use the proxy if enabled, and never for robots
+	if (empty($image_proxy_enabled) || !empty($user_info['possibly_robot']))
+		return $url;
+
+	$parsedurl = parse_url($url);
+
+	// Don't bother with HTTPS URLs, schemeless URLs, or obviously invalid URLs
+	if (empty($parsedurl['scheme']) || empty($parsedurl['host']) || empty($parsedurl['path']) || $parsedurl['scheme'] === 'https')
 		return $url;
 
 	// We don't need to proxy our own resources
-	if (strpos(strtr($url, array('http://' => 'https://')), strtr($boardurl, array('http://' => 'https://'))) === 0)
+	if ($parsedurl['host'] === parse_url($boardurl, PHP_URL_HOST))
 		return strtr($url, array('http://' => 'https://'));
 
 	// By default, use SMF's own image proxy script
@@ -3417,10 +3425,11 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 		$has_fatal_error = true;
 
 	// Clear out the stat cache.
-	trackStats();
+	if (function_exists('trackStats'))
+		trackStats();
 
 	// If we have mail to send, send it.
-	if (!empty($context['flush_mail']))
+	if (function_exists('AddMailQueue') && !empty($context['flush_mail']))
 		// @todo this relies on 'flush_mail' being only set in AddMailQueue itself... :\
 		AddMailQueue(true);
 
@@ -3541,7 +3550,7 @@ function url_image_size($url)
 		if ($fp != false)
 		{
 			// Send the HEAD request (since we don't have to worry about chunked, HTTP/1.1 is fine here.)
-			fwrite($fp, 'HEAD /' . $match[2] . ' HTTP/1.1' . "\r\n" . 'Host: ' . $match[1] . "\r\n" . 'User-Agent: PHP/SMF' . "\r\n" . 'Connection: close' . "\r\n\r\n");
+			fwrite($fp, 'HEAD /' . $match[2] . ' HTTP/1.1' . "\r\n" . 'Host: ' . $match[1] . "\r\n" . 'user-agent: '. SMF_USER_AGENT . "\r\n" . 'Connection: close' . "\r\n\r\n");
 
 			// Read in the HTTP/1.1 or whatever.
 			$test = substr(fgets($fp, 11), -1);
@@ -3600,6 +3609,7 @@ function setupThemeContext($forceload = false)
 	$context['in_maintenance'] = !empty($maintenance);
 	$context['current_time'] = timeformat(time(), false);
 	$context['current_action'] = isset($_GET['action']) ? $smcFunc['htmlspecialchars']($_GET['action']) : '';
+	$context['random_news_line'] = array();
 
 	// Get some news...
 	$context['news_lines'] = array_filter(explode("\n", str_replace("\r", '', trim(addslashes($modSettings['news'])))));
@@ -3611,7 +3621,8 @@ function setupThemeContext($forceload = false)
 		// Clean it up for presentation ;).
 		$context['news_lines'][$i] = parse_bbc(stripslashes(trim($context['news_lines'][$i])), true, 'news' . $i);
 	}
-	if (!empty($context['news_lines']))
+
+	if (!empty($context['news_lines']) && (!empty($modSettings['allow_guestAccess']) || $context['user']['is_logged']))
 		$context['random_news_line'] = $context['news_lines'][mt_rand(0, count($context['news_lines']) - 1)];
 
 	if (!$user_info['is_guest'])
@@ -3981,11 +3992,11 @@ function theme_copyright()
  */
 function template_footer()
 {
-	global $context, $modSettings, $time_start, $db_count;
+	global $context, $modSettings, $db_count;
 
 	// Show the load time?  (only makes sense for the footer.)
 	$context['show_load_time'] = !empty($modSettings['timeLoadPageEnable']);
-	$context['load_time'] = round(microtime(true) - $time_start, 3);
+	$context['load_time'] = round(microtime(true) - TIME_START, 3);
 	$context['load_queries'] = $db_count;
 
 	if (!empty($context['template_layers']) && is_array($context['template_layers']))
@@ -4053,8 +4064,10 @@ function template_javascript($do_deferred = false)
 			{
 				if (!empty($js_file['options']['async']))
 					$toMinify['async'][] = $js_file;
+
 				elseif (!empty($js_file['options']['defer']))
 					$toMinify['defer'][] = $js_file;
+
 				else
 					$toMinify['standard'][] = $js_file;
 
@@ -4073,6 +4086,7 @@ function template_javascript($do_deferred = false)
 					{
 						if (is_bool($value))
 							echo !empty($value) ? ' ' . $key : '';
+
 						else
 							echo ' ', $key, '="', $value, '"';
 					}
@@ -4607,7 +4621,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 				$encrypted = substr(crypt($word, 'uk'), 2, $max_chars);
 				$total = 0;
 				for ($i = 0; $i < $max_chars; $i++)
-					$total += $possible_chars[ord($encrypted{$i})] * pow(63, $i);
+					$total += $possible_chars[ord($encrypted[$i])] * pow(63, $i);
 				$returned_ints[] = $max_chars == 4 ? min($total, 16777215) : $total;
 			}
 		}
@@ -4831,19 +4845,12 @@ function setupMenuContext()
 						'is_last' => true,
 					),
 				),
+				'is_last' => !$context['right_to_left'] && (!$user_info['is_guest'] || !$context['can_register']),
 			),
 			'signup' => array(
 				'title' => $txt['register'],
 				'href' => $scripturl . '?action=signup',
 				'show' => $user_info['is_guest'] && $context['can_register'],
-				'sub_buttons' => array(
-				),
-				'is_last' => !$context['right_to_left'],
-			),
-			'logout' => array(
-				'title' => $txt['logout'],
-				'href' => $scripturl . '?action=logout;%1$s=%2$s',
-				'show' => !$user_info['is_guest'],
 				'sub_buttons' => array(
 				),
 				'is_last' => !$context['right_to_left'],
@@ -5315,7 +5322,7 @@ function call_helper($string, $return = false)
  */
 function load_file($string)
 {
-	global $sourcedir, $txt, $boarddir, $settings;
+	global $sourcedir, $txt, $boarddir, $settings, $context;
 
 	if (empty($string))
 		return false;
@@ -5344,7 +5351,7 @@ function load_file($string)
 				require_once($absPath);
 
 			// Sorry, can't do much for you at this point.
-			else
+			elseif (empty($context['uninstalling']))
 			{
 				loadLanguage('Errors');
 				log_error(sprintf($txt['hook_fail_loading_file'], $absPath), 'general');
@@ -5439,7 +5446,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 			{
 				fwrite($fp, 'GET ' . ($match[6] !== '/' ? str_replace(' ', '%20', $match[6]) : '') . ' HTTP/1.0' . "\r\n");
 				fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
-				fwrite($fp, 'user-agent: PHP/SMF' . "\r\n");
+				fwrite($fp, 'user-agent: '. SMF_USER_AGENT . "\r\n");
 				if ($keep_alive)
 					fwrite($fp, 'connection: Keep-Alive' . "\r\n\r\n");
 				else
@@ -5449,7 +5456,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 			{
 				fwrite($fp, 'POST ' . ($match[6] !== '/' ? $match[6] : '') . ' HTTP/1.0' . "\r\n");
 				fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
-				fwrite($fp, 'user-agent: PHP/SMF' . "\r\n");
+				fwrite($fp, 'user-agent: '. SMF_USER_AGENT . "\r\n");
 				if ($keep_alive)
 					fwrite($fp, 'connection: Keep-Alive' . "\r\n");
 				else
@@ -5542,6 +5549,98 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 	}
 
 	return $data;
+}
+
+/**
+ * Attempts to determine the MIME type of some data or a file.
+ *
+ * @param string $data The data to check, or the path or URL of a file to check.
+ * @param string $is_path If true, $data is a path or URL to a file.
+ * @return string|bool A MIME type, or false if we cannot determine it.
+ */
+function get_mime_type($data, $is_path = false)
+{
+	global $cachedir;
+
+	$finfo_loaded = extension_loaded('fileinfo');
+	$exif_loaded = extension_loaded('exif') && function_exists('image_type_to_mime_type');
+
+	// Oh well. We tried.
+	if (!$finfo_loaded && !$exif_loaded)
+		return false;
+
+	// Start with the 'empty' MIME type.
+	$mime_type = 'application/x-empty';
+
+	if ($finfo_loaded)
+	{
+		// Just some nice, simple data to analyze.
+		if (empty($is_path))
+			$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+
+		// A file, or maybe a URL?
+		else
+		{
+			// Local file.
+			if (file_exists($data))
+				$mime_type = mime_content_type($data);
+
+			// URL.
+			elseif ($data = fetch_web_data($data))
+				$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+		}
+	}
+	// Workaround using Exif requires a local file.
+	else
+	{
+		// If $data is a URL to fetch, do so.
+		if (!empty($is_path) && !file_exists($data) && url_exists($data))
+		{
+			$data = fetch_web_data($data);
+			$is_path = false;
+		}
+
+		// If we don't have a local file, create one and use it.
+		if (empty($is_path))
+		{
+			$temp_file = tempnam($cachedir, md5($data));
+			file_put_contents($temp_file, $data);
+			$is_path = true;
+			$data = $temp_file;
+		}
+
+		$imagetype = @exif_imagetype($data);
+
+		if (isset($temp_file))
+			unlink($temp_file);
+
+		// Unfortunately, this workaround only works for image files.
+		if ($imagetype !== false)
+			$mime_type = image_type_to_mime_type($imagetype);
+	}
+
+	return $mime_type;
+}
+
+/**
+ * Checks whether a file or data has the expected MIME type.
+ *
+ * @param string $data The data to check, or the path or URL of a file to check.
+ * @param string $type_pattern A regex pattern to match the acceptable MIME types.
+ * @param string $is_path If true, $data is a path or URL to a file.
+ * @return int 1 if the detected MIME type matches the pattern, 0 if it doesn't, or 2 if we can't check.
+ */
+function check_mime_type($data, $type_pattern, $is_path = false)
+{
+	// Get the MIME type.
+	$mime_type = get_mime_type($data, $is_path);
+
+	// Couldn't determine it.
+	if ($mime_type === false)
+		return 2;
+
+	// Check whether the MIME type matches expectations.
+	return (int) @preg_match('~' . $type_pattern . '~', $mime_type);
 }
 
 /**
@@ -5810,7 +5909,7 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $smcFunc, $modSettings, $tztxt, $txt;
+	global $smcFunc, $modSettings, $tztxt, $txt, $cur_profile;
 	static $timezones = null, $lastwhen = null;
 
 	// No point doing this over if we already did it once
@@ -5833,7 +5932,7 @@ function smf_list_timezones($when = 'now')
 
 	// We'll need these too
 	$date_when = date_create('@' . $when);
-	$later = (int) date_format(date_add($date_when, date_interval_create_from_date_string('1 year')), 'U');
+	$later = strtotime('@' . $when . ' + 1 year');
 
 	// Load up any custom time zone descriptions we might have
 	loadLanguage('Timezones');
@@ -5893,6 +5992,10 @@ function smf_list_timezones($when = 'now')
 		}
 		$offsets[$tzkey] = $tzinfo[0]['offset'];
 		$longitudes[$tzkey] = empty($longitudes[$tzkey]) ? $tzgeo['longitude'] : $longitudes[$tzkey];
+
+		// Remember this for later
+		if (isset($cur_profile['timezone']) && $cur_profile['timezone'] == $tzid)
+			$member_tzkey = $tzkey;
 	}
 
 	// Sort by offset then longitude
@@ -5919,6 +6022,10 @@ function smf_list_timezones($when = 'now')
 			$priority_timezones[$tzvalue['tzid']] = $desc;
 		else
 			$timezones[$tzvalue['tzid']] = $desc;
+
+		// Automatically fix orphaned timezones on the member profile page
+		if (isset($member_tzkey) && $member_tzkey == $tzkey)
+			$cur_profile['timezone'] = $tzvalue['tzid'];
 	}
 
 	if (!empty($priority_timezones))
@@ -5926,7 +6033,7 @@ function smf_list_timezones($when = 'now')
 
 	$timezones = array_merge(
 		$priority_timezones,
-		array('' => '(Forum Default)', 'UTC' => 'UTC - ' . $tztxt['UTC'], '-----'),
+		array('UTC' => 'UTC' . (!empty($tztxt['UTC']) ? ' - ' . $tztxt['UTC'] : ''), '-----'),
 		$timezones
 	);
 
@@ -5952,17 +6059,16 @@ function inet_ptod($ip_address)
  */
 function inet_dtop($bin)
 {
-	if (empty($bin))
-		return '';
-
 	global $db_type;
 
-	if ($db_type == 'postgresql')
+	if (empty($bin))
+		return '';
+	elseif ($db_type == 'postgresql')
 		return $bin;
-
-	$ip_address = inet_ntop($bin);
-
-	return $ip_address;
+	// Already a String?
+	elseif (isValidIP($bin))
+		return $bin;
+	return inet_ntop($bin);
 }
 
 /**
@@ -6527,7 +6633,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		return preg_quote(@strval($strings), $delim);
 
 	$regex_key = md5(json_encode(array($strings, $delim, $returnArray)));
-	
+
 	if (isset($regexes[$regex_key]))
 		return $regexes[$regex_key];
 
@@ -6555,10 +6661,10 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		static $depth = 0;
 		$depth++;
 
-		$first = @$substr($string, 0, 1);
+		$first = (string) @$substr($string, 0, 1);
 
 		// No first character? That's no good.
-		if (empty($first))
+		if ($first === '')
 		{
 			// A nested array? Really? Ugh. Fine.
 			if (is_array($string) && $depth < 20)
@@ -6760,7 +6866,7 @@ function build_query_board($userid)
 	$query_part = array();
 
 	// If we come from cron, we can't have a $user_info.
-	if (isset($user_info['id']) && $user_info['id'] == $userid)
+	if (isset($user_info['id']) && $user_info['id'] == $userid && SMF != 'BACKGROUND')
 	{
 		$groups = $user_info['groups'];
 		$can_see_all_boards = $user_info['is_admin'] || $user_info['can_manage_boards'];
@@ -6987,25 +7093,25 @@ function url_to_iri($url)
  */
 function check_cron()
 {
-	global $user_info, $modSettings, $smcFunc, $txt;
+	global $modSettings, $smcFunc, $txt;
 
-	if (empty($modSettings['cron_last_checked']))
-		$modSettings['cron_last_checked'] = 0;
-
-	if (!empty($modSettings['cron_is_real_cron']) && time() - $modSettings['cron_last_checked'] > 84600)
+	if (!empty($modSettings['cron_is_real_cron']) && time() - @intval($modSettings['cron_last_checked']) > 84600)
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT time_run
-			FROM {db_prefix}log_scheduled_tasks
-			ORDER BY id_log DESC
-			LIMIT 1',
-			array()
+			SELECT COUNT(*)
+			FROM {db_prefix}scheduled_tasks
+			WHERE disabled = {int:not_disabled}
+				AND next_time < {int:yesterday}',
+			array(
+				'not_disabled' => 0,
+				'yesterday' => time() - 84600,
+			)
 		);
-		list($time_run) = $smcFunc['db_fetch_row']($request);
+		list($overdue) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
-		// If it's been more than 24 hours since the last task ran, cron must not be working
-		if (!empty($time_run) && time() - $time_run > 84600)
+		// If we have tasks more than a day overdue, cron isn't doing its job.
+		if (!empty($overdue))
 		{
 			loadLanguage('ManageScheduledTasks');
 			log_error($txt['cron_not_working']);

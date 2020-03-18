@@ -7,9 +7,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -224,7 +224,7 @@ function Who()
 
 		// Keep the IP that came from the database.
 		$memberContext[$member['id']]['ip'] = $member['ip'];
-		$context['members'][$i]['action'] = isset($url_data[$i]) ? $url_data[$i] : $txt['who_hidden'];
+		$context['members'][$i]['action'] = isset($url_data[$i]) ? $url_data[$i] : array('label' => 'who_hidden', 'class' => 'em');
 		if ($member['id'] == 0 && isset($spiderContext[$member['id_spider']]))
 			$context['members'][$i] += $spiderContext[$member['id_spider']];
 		else
@@ -343,14 +343,14 @@ function determineActions($urls, $preferred_prefix = false)
 			if (isset($actions['topic']))
 			{
 				// Assume they can't view it, and queue it up for later.
-				$data[$k] = $txt['who_hidden'];
+				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 				$topic_ids[(int) $actions['topic']][$k] = $txt['who_topic'];
 			}
 			// It's a board!
 			elseif (isset($actions['board']))
 			{
 				// Hide first, show later.
-				$data[$k] = $txt['who_hidden'];
+				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 				$board_ids[$actions['board']][$k] = $txt['who_board'];
 			}
 			// It's the board index!!  It must be!
@@ -370,12 +370,12 @@ function determineActions($urls, $preferred_prefix = false)
 				if (empty($actions['u']))
 					$actions['u'] = $url[1];
 
-				$data[$k] = $txt['who_hidden'];
+				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 				$profile_ids[(int) $actions['u']][$k] = $actions['u'] == $url[1] ? $txt['who_viewownprofile'] : $txt['who_viewprofile'];
 			}
 			elseif (($actions['action'] == 'post' || $actions['action'] == 'post2') && empty($actions['topic']) && isset($actions['board']))
 			{
-				$data[$k] = $txt['who_hidden'];
+				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 				$board_ids[(int) $actions['board']][$k] = isset($actions['poll']) ? $txt['who_poll'] : $txt['who_post'];
 			}
 			// A subaction anyone can view... if the language string is there, show it.
@@ -390,7 +390,7 @@ function determineActions($urls, $preferred_prefix = false)
 				// Find out what topic they are accessing.
 				$topic = (int) (isset($actions['topic']) ? $actions['topic'] : (isset($actions['from']) ? $actions['from'] : 0));
 
-				$data[$k] = $txt['who_hidden'];
+				$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 				$topic_ids[$topic][$k] = $txt['whotopic_' . $actions['action']];
 			}
 			elseif (isset($txt['whopost_' . $actions['action']]))
@@ -416,7 +416,7 @@ function determineActions($urls, $preferred_prefix = false)
 				$smcFunc['db_free_result']($result);
 
 				if (empty($id_topic))
-					$data[$k] = $txt['who_hidden'];
+					$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 			}
 			// Viewable only by administrators.. (if it starts with whoadmin, it's admin only!)
 			elseif (allowedTo('moderate_forum') && isset($txt['whoadmin_' . $actions['action']]))
@@ -431,12 +431,12 @@ function determineActions($urls, $preferred_prefix = false)
 				elseif (in_array('admin_forum', $allowedActions[$actions['action']]))
 					$data[$k] = $txt['who_admin'];
 				else
-					$data[$k] = $txt['who_hidden'];
+					$data[$k] = array('label' => 'who_hidden', 'class' => 'em');
 			}
 			elseif (!empty($actions['action']))
 				$data[$k] = $txt['who_generic'] . ' ' . $actions['action'];
 			else
-				$data[$k] = $txt['who_unknown'];
+				$data[$k] = array('label' => 'who_unknown', 'class' => 'em');
 		}
 
 		if (isset($actions['error']))
@@ -602,6 +602,7 @@ function Credits($in_admin = false)
 						'Jessica "Suki" González',
 						'John "live627" Rayes',
 						'Jeremy "SleePy" Darwood',
+						'Shawn Bulen',
 
 						// Former Developers
 						'Aaron van Geffen',
@@ -635,13 +636,13 @@ function Credits($in_admin = false)
 						'Aleksi "Lex" Kilpinen',
 						// Support Specialists
 						'br360',
-						'Gary M. Gadsdon',
 						'GigaWatt',
 						'Will "Kindred" Wagner',
-						'Steve',
-						'shawnb61',
-						'ziycon',
+						'lurkalot',
+
 						// Former Support Specialists
+						'Steve',
+						'ziycon',
 						'Adam Tallon',
 						'Bigguy',
 						'Bruno "margarett" Alves',
@@ -669,13 +670,15 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
 						// Lead Customizer
-						'Gwenwyfar',
-						// Customizers
 						'Sami "SychO" Mazouz',
+						// Customizers
+						'Gary M. Gadsdon',
+						'Diego Andrés',
+						'Jonathan "vbgamer45" Valentin',
+
 						// Former Customizers
 						'Brannon "B" Hall',
-						'Diego Andrés',
-						'Gary M. Gadsdon',
+						'Gwenwyfar',
 						'Jack "akabugeyes" Thorsen',
 						'Jason "JBlaze" Clemons',
 						'Jessica "Suki" González',
@@ -708,8 +711,8 @@ function Credits($in_admin = false)
 						'Francisco "d3vcho" Domínguez',
 						// Localizers
 						'Nikola "Dzonny" Novaković',
-						'Robert Monden',
 						// Former Localizers
+						'Robert Monden',
 						'Relyana',
 					),
 				),
@@ -739,7 +742,7 @@ function Credits($in_admin = false)
 					'members' => array(
 						'Derek Schwab',
 						'Michael Johnson',
-						'Liroy "CoreISP" van Hoewijk',
+						'Liroy van Hoewijk',
 					),
 				),
 			),
@@ -797,6 +800,15 @@ function Credits($in_admin = false)
 					'Jeff Lewis',
 					'Joseph Fung',
 					'David Recordon',
+				),
+			),
+			array(
+				'title' => $txt['credits_in_memoriam'],
+				'members' => array(
+					'Crip',
+					'K@',
+					'metallica48423',
+					'Paul_Pauline',
 				),
 			),
 		),

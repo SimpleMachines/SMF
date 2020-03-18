@@ -7,12 +7,15 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
+
+// Set this to true to always log $_POST info received from payment gateways.
+$paid_debug = false;
 
 // Start things rolling by getting SMF alive...
 $ssi_guest_access = true;
@@ -285,18 +288,22 @@ else
 // In case we have anything specific to do.
 $gatewayClass->close();
 
+// Hidden setting to log the IPN info for debugging purposes.
+if ($paid_debug === true)
+	generateSubscriptionError($txt['subscription'], true);
+
 /**
  * Log an error then exit
  *
  * @param string $text The error to log
  * @return void
  */
-function generateSubscriptionError($text)
+function generateSubscriptionError($text, $debug = false)
 {
 	global $modSettings, $notify_users, $smcFunc;
 
 	// Send an email?
-	if (!empty($modSettings['paid_email']))
+	if (!empty($modSettings['paid_email']) && !$debug)
 	{
 		$replacements = array(
 			'ERROR' => $text,

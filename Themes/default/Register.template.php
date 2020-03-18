@@ -3,9 +3,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -133,11 +133,7 @@ function template_registration_form()
 								<span id="smf_autov_pwverify_img" class="main_icons valid"></span>
 							</span>
 						</dd>
-					</dl>';
-
-	// Allow notification on announcements to be disabled?
-	if (!empty($modSettings['allow_disableAnnounce']))
-		echo '
+					</dl>
 					<dl class="register_form" id="notify_announcements">
 						<dt>
 							<strong><label for="notify_announcements">', $txt['notify_announcements'], ':</label></strong>

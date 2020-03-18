@@ -4,9 +4,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -170,7 +170,7 @@ class paypal_payment
 			$_POST['business'] = $_POST['receiver_email'];
 
 		// Are we testing?
-		if (empty($modSettings['paidsubs_test']) && strtolower($modSettings['paypal_sandbox_email']) != strtolower($_POST['business']) && (empty($modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', strtolower($modSettings['paypal_additional_emails'])))))
+		if (!empty($modSettings['paidsubs_test']) && strtolower($modSettings['paypal_sandbox_email']) != strtolower($_POST['business']) && (empty($modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', strtolower($modSettings['paypal_additional_emails'])))))
 			return false;
 		elseif (strtolower($modSettings['paypal_email']) != strtolower($_POST['business']) && (empty($modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', $modSettings['paypal_additional_emails']))))
 			return false;
@@ -373,7 +373,7 @@ class paypal_payment
 	}
 
 	/**
-	 * Record the transaction reference and exit
+	 * Record the transaction reference to finish up.
 	 *
 	 */
 	public function close()
@@ -393,8 +393,6 @@ class paypal_payment
 				)
 			);
 		}
-
-		exit();
 	}
 
 	/**

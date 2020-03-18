@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function AutoTask()
 {
-	global $time_start, $smcFunc;
+	global $smcFunc;
 
 	// Special case for doing the mail queue.
 	if (isset($_GET['scheduled']) && $_GET['scheduled'] == 'mailq')
@@ -110,7 +110,7 @@ function AutoTask()
 				// Log that we did it ;)
 				if ($completed)
 				{
-					$total_time = round(microtime(true) - $time_start, 3);
+					$total_time = round(microtime(true) - TIME_START, 3);
 					$smcFunc['db_insert']('',
 						'{db_prefix}log_scheduled_tasks',
 						array(
@@ -250,6 +250,19 @@ function scheduled_daily_maintenance()
 		require_once($boarddir . '/proxy.php');
 		$proxy = new ProxyServer();
 		$proxy->housekeeping();
+	}
+
+	// Delete old alerts.
+	if (!empty($modSettings['alerts_auto_purge']))
+	{
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}user_alerts
+			WHERE is_read > 0
+				AND is_read < {int:purge_before}',
+			array(
+				'purge_before' => time() - 86400 * $modSettings['alerts_auto_purge'],
+			)
+		);
 	}
 
 	// Anyone else have something to do?
@@ -675,7 +688,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 
 	// Now we know how many we're sending, let's send them.
 	$request = $smcFunc['db_query']('', '
-		SELECT /*!40001 SQL_NO_CACHE */ id_mail, recipient, body, subject, headers, send_html, time_sent, private
+		SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private
 		FROM {db_prefix}mail_queue
 		ORDER BY priority ASC, id_mail ASC
 		LIMIT {int:limit}',

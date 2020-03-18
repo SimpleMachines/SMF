@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -187,8 +187,10 @@ function ModifyPostSettings($return_config = false)
 
 	// Make an inline conditional a little shorter...
 	$can_spell_check = false;
+
 	if (function_exists('pspell_new'))
 		$can_spell_check = true;
+
 	elseif (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv')))
 		$can_spell_check = true;
 
@@ -220,6 +222,9 @@ function ModifyPostSettings($return_config = false)
 
 		// First & Last message preview lengths
 		array('int', 'preview_characters', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['preview_characters_units']),
+
+		// Quote expand
+		array('int', 'quote_expand', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['quote_expand_pixels_units']),
 	);
 
 	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));

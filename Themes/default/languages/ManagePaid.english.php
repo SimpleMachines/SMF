@@ -45,7 +45,7 @@ $txt['paid_currency'] = 'Select Currency';
 $txt['paid_currency_code'] = 'Currency Code';
 $txt['paid_currency_code_desc'] = 'Code used by payment merchants';
 $txt['paid_currency_symbol'] = 'Symbol used by payment method';
-$txt['paid_currency_symbol_desc'] = 'Use \'%1.2f\' to specify where number goes, for example $%1.2f, %1.2fDM etc';
+$txt['paid_currency_symbol_desc'] = 'Use \'%1.2f\' to specify where number goes. For example $%1.2f, %1.2fDM etc';
 $txt['paid_settings_save'] = 'Save';
 
 $txt['paypal_email'] = 'PayPal email address';
@@ -159,18 +159,6 @@ $txt['paid_confirm_desc'] = 'To continue through to payment please check the det
 $txt['paypal'] = 'PayPal';
 $txt['paid_confirm_paypal'] = 'To pay using <a href="https://www.paypal.com">PayPal</a> please click the button below. You will be directed to the PayPal site for payment.';
 $txt['paid_paypal_order'] = 'Order with PayPal';
-$txt['worldpay'] = 'WorldPay';
-$txt['paid_confirm_worldpay'] = 'To pay using <a href="https://www.worldpay.com">WorldPay</a> please click the button below. You will be directed to the WorldPay site for payment.';
-$txt['paid_worldpay_order'] = 'Order with WorldPay';
-$txt['nochex'] = 'Nochex';
-$txt['paid_confirm_nochex'] = 'To pay using <a href="https://www.nochex.com">Nochex</a> please click the button below. You will be directed to the Nochex site for payment.';
-$txt['paid_nochex_order'] = 'Order with Nochex';
-$txt['authorize'] = 'Authorize.Net';
-$txt['paid_confirm_authorize'] = 'To pay using <a href="https://www.authorize.net">Authorize.Net</a> please click the button below. You will be directed to the Authorize.Net site for payment.';
-$txt['paid_authorize_order'] = 'Order with Authorize.Net';
-$txt['2co'] = '2checkout';
-$txt['paid_confirm_2co'] = 'To pay using <a href="https://www.2co.com">2co.com</a> please click the button below. You will be directed to the 2co.com site for payment.';
-$txt['paid_2co_order'] = 'Order with 2co.com';
 $txt['paid_done'] = 'Payment Complete';
 $txt['paid_done_desc'] = 'Thank you for your payment. Once the transaction has been verified the subscription will be activated.';
 $txt['paid_sub_return'] = 'Return to Subscriptions';
@@ -181,8 +169,8 @@ $txt['paid_not_set_currency'] = 'You have not setup your currency yet. Please do
 $txt['paid_no_cost_value'] = 'You must enter a cost and subscription length.';
 $txt['paid_invalid_duration'] = 'You must enter a valid duration for this subscription.';
 $txt['paid_invalid_duration_D'] = 'If putting in a subscription length measured in days, you can only use 1 to 90 days. If you want a subscription that long, you should use weeks, months or years.';
-$txt['paid_invalid_duration_W'] = 'If putting in a subscription length measured in weeks, you can only use 1 to 52 weeks. If you want a subscription that long, you should use months or years';
-$txt['paid_invalid_duration_M'] = 'If putting in a subscription length measured in months, you can only use 1 to 24 months. If you want a subscription that long, you should use years';
+$txt['paid_invalid_duration_W'] = 'If putting in a subscription length measured in weeks, you can only use 1 to 52 weeks. If you want a subscription that long, you should use months or years.';
+$txt['paid_invalid_duration_M'] = 'If putting in a subscription length measured in months, you can only use 1 to 24 months. If you want a subscription that long, you should use years.';
 $txt['paid_invalid_duration_Y'] = 'If putting in a subscription length measured in years, you can only use 1 to 5 years.';
 $txt['paid_all_freq_blank'] = 'You must enter a cost for at least one of the four durations.';
 

@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -23,6 +23,7 @@ function reloadSettings()
 {
 	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set;
 	global $cache_enable, $sourcedir, $context, $forum_version, $boardurl;
+	global $image_proxy_enabled;
 
 	// Most database systems have not set UTF-8 as their default input charset.
 	if (!empty($db_character_set))
@@ -92,8 +93,13 @@ function reloadSettings()
 	$modSettings['browser_cache'] = !empty($modSettings['browser_cache']) ? (int) $modSettings['browser_cache'] : 0;
 	$context['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower(SMF_FULL_VERSION)) . '_' . $modSettings['browser_cache'];
 
+	// Disable image proxy if we don't have SSL enabled
+	if (empty($modSettings['force_ssl']))
+		$image_proxy_enabled = false;
+
 	// UTF-8 ?
 	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
+	$context['utf8'] = $utf8;
 
 	// Set a list of common functions.
 	$ent_list = '&(?:#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . '|quot|amp|lt|gt|nbsp);';
@@ -325,6 +331,12 @@ function reloadSettings()
 		));
 	}
 
+	// Respect PHP's limits.
+	$post_max_kb = floor(memoryReturnBytes(ini_get('post_max_size')) / 1024);
+	$file_max_kb = floor(memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
+	$modSettings['attachmentPostLimit'] = empty($modSettings['attachmentPostLimit']) ? $post_max_kb : min($modSettings['attachmentPostLimit'], $post_max_kb);
+	$modSettings['attachmentSizeLimit'] = empty($modSettings['attachmentSizeLimit']) ? $file_max_kb : min($modSettings['attachmentSizeLimit'], $file_max_kb);
+
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
 	{
@@ -434,7 +446,9 @@ function reloadSettings()
 function loadUserSettings()
 {
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
-	global $cookiename, $user_info, $language, $context, $image_proxy_enabled, $cache_enable;
+	global $cookiename, $user_info, $language, $context, $cache_enable;
+
+	require_once($sourcedir . '/Subs-Auth.php');
 
 	// Check first the integration, then the cookie, and last the session.
 	if (count($integration_ids = call_integration_hook('integrate_verify_user')) > 0)
@@ -468,7 +482,6 @@ function loadUserSettings()
 		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
 
 		// Make sure the cookie is set to the correct domain and path
-		require_once($sourcedir . '/Subs-Auth.php');
 		if (array($cookie_domain, $cookie_path) !== url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies'])))
 			setLoginCookie((int) $login_span - time(), $id_member);
 	}
@@ -481,7 +494,7 @@ function loadUserSettings()
 			$cookie_data = safe_unserialize($_SESSION['login_' . $cookiename]);
 
 		list($id_member, $password, $login_span) = array_pad((array) $cookie_data, 3, '');
-		$id_member = !empty($id_member) && strlen($password) == 128 && (int) $login_span > time() ? (int) $id_member : 0;
+		$id_member = !empty($id_member) && strlen($password) == 40 && (int) $login_span > time() ? (int) $id_member : 0;
 	}
 
 	// Only load this stuff if the user isn't a guest.
@@ -503,7 +516,7 @@ function loadUserSettings()
 			$user_settings = $smcFunc['db_fetch_assoc']($request);
 			$smcFunc['db_free_result']($request);
 
-			if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($user_settings['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
+			if (!empty($user_settings['avatar']))
 				$user_settings['avatar'] = get_proxied_url($user_settings['avatar']);
 
 			if (!empty($cache_enable) && $cache_enable >= 2)
@@ -518,7 +531,7 @@ function loadUserSettings()
 				$check = true;
 			// SHA-512 hash should be 128 characters long.
 			elseif (strlen($password) == 128)
-				$check = hash_salt($user_settings['passwd'], $user_settings['password_salt']) == $password;
+				$check = hash_equals(hash_salt($user_settings['passwd'], $user_settings['password_salt']), $password);
 			else
 				$check = false;
 
@@ -574,7 +587,7 @@ function loadUserSettings()
 				}
 
 				// They didn't finish logging in before coming here? Then they're no one to us.
-				if (empty($tfasecret) || hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']) != $tfasecret)
+				if (empty($tfasecret) || !hash_equals(hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']), $tfasecret))
 				{
 					setLoginCookie(-3600, $id_member);
 					$id_member = 0;
@@ -754,16 +767,16 @@ function loadUserSettings()
 
 		// We don't know the offset...
 		$user_info['time_offset'] = 0;
-
-		// Login Cookie times. Format: time => txt
-		$context['login_cookie_times'] = array(
-			60 => 'one_hour',
-			1440 => 'one_day',
-			10080 => 'one_week',
-			43200 => 'one_month',
-			3153600 => 'always_logged_in',
-		);
 	}
+
+	// Login Cookie times. Format: time => txt
+	$context['login_cookie_times'] = array(
+		3153600 => 'always_logged_in',
+		60 => 'one_hour',
+		1440 => 'one_day',
+		10080 => 'one_week',
+		43200 => 'one_month',
+	);
 
 	// Set up the $user_info array.
 	$user_info += array(
@@ -923,6 +936,14 @@ function loadBoard()
 
 	if (empty($temp))
 	{
+		$custom_column_selects = [];
+		$custom_column_parameters = [
+			'current_topic' => $topic,
+			'board_link' => empty($topic) ? $smcFunc['db_quote']('{int:current_board}', array('current_board' => $board)) : 't.id_board',
+		];
+
+		call_integration_hook('integrate_load_board', array(&$custom_column_selects, &$custom_column_parameters));
+
 		$request = $smcFunc['db_query']('load_board_info', '
 			SELECT
 				c.id_cat, b.name AS bname, b.description, b.num_topics, b.member_groups, b.deny_member_groups,
@@ -931,6 +952,7 @@ function loadBoard()
 				mem.real_name' . (!empty($topic) ? ', b.id_board' : '') . ', b.child_level,
 				b.id_theme, b.override_theme, b.count_posts, b.id_profile, b.redirect,
 				b.unapproved_topics, b.unapproved_posts' . (!empty($topic) ? ', t.approved, t.id_member_started' : '') . '
+				' . (!empty($custom_column_selects) ? (', ' . implode(', ', $custom_column_selects)) : '') . '
 			FROM {db_prefix}boards AS b' . (!empty($topic) ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})' : '') . '
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
@@ -939,11 +961,9 @@ function loadBoard()
 				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = {raw:board_link})
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
 			WHERE b.id_board = {raw:board_link}',
-			array(
-				'current_topic' => $topic,
-				'board_link' => empty($topic) ? $smcFunc['db_quote']('{int:current_board}', array('current_board' => $board)) : 't.id_board',
-			)
+			$custom_column_parameters
 		);
+
 		// If there aren't any, skip.
 		if ($smcFunc['db_num_rows']($request) > 0)
 		{
@@ -984,6 +1004,8 @@ function loadBoard()
 			// Load the membergroups allowed, and check permissions.
 			$board_info['groups'] = $row['member_groups'] == '' ? array() : explode(',', $row['member_groups']);
 			$board_info['deny_groups'] = $row['deny_member_groups'] == '' ? array() : explode(',', $row['deny_member_groups']);
+
+			call_integration_hook('integrate_board_info', array(&$board_info, $row));
 
 			if (!empty($modSettings['board_manager_groups']))
 			{
@@ -1275,7 +1297,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $image_proxy_enabled, $user_info, $cache_enable;
+	global $user_info, $cache_enable;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1308,7 +1330,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			COALESCE(lo.log_time, 0) AS is_online, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type,
 			mem.signature, mem.personal_text, mem.avatar, mem.id_member, mem.member_name,
 			mem.real_name, mem.email_address, mem.date_registered, mem.website_title, mem.website_url,
-			mem.birthdate, mem.member_ip, mem.member_ip2, mem.posts, mem.last_login, mem.id_post_group, mem.lngfile, mem.id_group, mem.time_offset, mem.show_online,
+			mem.birthdate, mem.member_ip, mem.member_ip2, mem.posts, mem.last_login, mem.id_post_group, mem.lngfile, mem.id_group, mem.time_offset, mem.timezone, mem.show_online,
 			mg.online_color AS member_group_color, COALESCE(mg.group_name, {string:blank_string}) AS member_group,
 			pg.online_color AS post_group_color, COALESCE(pg.group_name, {string:blank_string}) AS post_group,
 			mem.is_activated, mem.warning, ' . (!empty($modSettings['titlesEnable']) ? 'mem.usertitle, ' : '') . '
@@ -1362,7 +1384,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			$row['avatar_original'] = !empty($row['avatar']) ? $row['avatar'] : '';
 
 			// Take care of proxying avatar if required, do this here for maximum reach
-			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
+			if (!empty($row['avatar']))
 				$row['avatar'] = get_proxied_url($row['avatar']);
 
 			// Keep track of the member's normal member group
@@ -1813,10 +1835,18 @@ function loadTheme($id_theme = 0, $initialize = true)
 {
 	global $user_info, $user_settings, $board_info, $boarddir, $maintenance;
 	global $txt, $boardurl, $scripturl, $mbname, $modSettings;
-	global $context, $settings, $options, $sourcedir, $smcFunc, $language, $board, $image_proxy_enabled, $cache_enable;
+	global $context, $settings, $options, $sourcedir, $smcFunc, $language, $board, $cache_enable;
 
 	if (empty($id_theme))
 	{
+		// The theme was specified by the board.
+		if (!empty($board_info['theme']))
+			$id_theme = $board_info['theme'];
+		// The theme is the forum's default.
+		else
+			$id_theme = $modSettings['theme_guests'];
+
+		// Sometimes the user can choose their own theme.
 		if (!empty($modSettings['theme_allow']) || allowedTo('admin_forum'))
 		{
 			// The theme was specified by REQUEST.
@@ -1832,12 +1862,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 			elseif (!empty($user_info['theme']))
 				$id_theme = $user_info['theme'];
 		}
-		// The theme was specified by the board.
-		elseif (!empty($board_info['theme']))
-			$id_theme = $board_info['theme'];
-		// The theme is the forum's default.
-		else
-			$id_theme = $modSettings['theme_guests'];
 
 		// Verify the id_theme... no foul play.
 		// Always allow the board specific theme, if they are overriding.
@@ -1860,10 +1884,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (empty($settings['theme_id']) || $settings['theme_id'] != $id_theme)
 	{
 		$member = empty($user_info['id']) ? -1 : $user_info['id'];
-
-		// Disable image proxy if we don't have SSL enabled
-		if (empty($modSettings['force_ssl']))
-			$image_proxy_enabled = false;
 
 		if (!empty($cache_enable) && $cache_enable >= 2 && ($temp = cache_get_data('theme_settings-' . $id_theme . ':' . $member, 60)) != null && time() - 60 > $modSettings['settings_updated'])
 		{
@@ -2238,7 +2258,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Set the character set from the template.
 	$context['character_set'] = empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set'];
-	$context['utf8'] = $context['character_set'] === 'UTF-8';
 	$context['right_to_left'] = !empty($txt['lang_rtl']);
 
 	// Guests may still need a name.
@@ -2315,21 +2334,24 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'ajax_notification_text' => JavaScriptEscape($txt['ajax_in_progress']),
 		'help_popup_heading_text' => JavaScriptEscape($txt['help_popup']),
 		'banned_text' => JavaScriptEscape(sprintf($txt['your_ban'], $context['user']['name'])),
+		'smf_txt_expand' => JavaScriptEscape($txt['code_expand']),
+		'smf_txt_shrink' => JavaScriptEscape($txt['code_shrink']),
+		'smf_quote_expand' => !empty($modSettings['quote_expand']) ? $modSettings['quote_expand'] : 'false',
 	);
 
 	// Add the JQuery library to the list of files to load.
 	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
-		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		loadJavaScriptFile('jquery-3.4.1.min.js', array('seed' => false), 'smf_jquery');
+		loadJavaScriptFile('jquery-' . JQUERY_VERSION . '.min.js', array('seed' => false), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
 		loadJavaScriptFile($modSettings['jquery_custom'], array('external' => true), 'smf_jquery');
 
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
-		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	// Queue our JQuery plugins!
 	loadJavaScriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
@@ -3414,7 +3436,7 @@ function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
 	require_once($sourcedir . '/Class-CacheAPI.php');
 
 	// What accelerator we are going to try.
-	$tryAccelerator = !empty($overrideCache) ? $overrideCache : !empty($cache_accelerator) ? $cache_accelerator : 'smf';
+	$tryAccelerator = !empty($overrideCache) ? $overrideCache : (!empty($cache_accelerator) ? $cache_accelerator : 'smf');
 	$tryAccelerator = strtolower($tryAccelerator);
 
 	// Do some basic tests.
@@ -3625,7 +3647,7 @@ function clean_cache($type = '')
  */
 function set_avatar_data($data = array())
 {
-	global $modSettings, $smcFunc, $image_proxy_enabled, $user_info;
+	global $modSettings, $smcFunc, $user_info;
 
 	// Come on!
 	if (empty($data))
@@ -3662,15 +3684,7 @@ function set_avatar_data($data = array())
 
 			// External url.
 			else
-			{
-				// Using ssl?
-				if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($data['avatar'], 'http://') !== false && empty($user_info['possibly_robot']))
-					$image = get_proxied_url($data['avatar']);
-
-				// Just a plain external url.
-				else
-					$image = (stristr($data['avatar'], 'http://') || stristr($data['avatar'], 'https://')) ? $data['avatar'] : $modSettings['avatar_url'] . '/' . $data['avatar'];
-			}
+				$image = parse_url($data['avatar'], PHP_URL_SCHEME) !== null ? get_proxied_url($data['avatar']) : $modSettings['avatar_url'] . '/' . $data['avatar'];
 		}
 
 		// Perhaps this user has an attachment as avatar...
@@ -3701,6 +3715,29 @@ function set_avatar_data($data = array())
 			'href' => '',
 			'url' => '',
 		);
+}
+
+/**
+ * Gets, and if necessary creates, the authentication secret to use for cookies, tokens, etc.
+ *
+ * Note: Never use the $auth_secret variable directly. Always call this function instead.
+ *
+ * @return string The authentication secret.
+ */
+function get_auth_secret()
+{
+	global $auth_secret, $sourcedir, $smcFunc;
+
+	if (empty($auth_secret))
+	{
+		$auth_secret = bin2hex($smcFunc['random_bytes'](32));
+
+		// It is important to store this in Settings.php, not the database.
+		require_once($sourcedir . '/Subs-Admin.php');
+		updateSettingsFile(array('auth_secret' => $auth_secret));
+	}
+
+	return $auth_secret;
 }
 
 ?>

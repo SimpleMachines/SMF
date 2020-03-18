@@ -165,6 +165,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1');
 ---#
 
+---# Adding new "alerts_auto_purge" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('alerts_auto_purge', '30');
+---#
+
 ---# Adding new "minimize_files" setting
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('minimize_files', '1');
 ---#
@@ -213,7 +217,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 		'{db_prefix}settings',
 		array('variable' => 'string', 'value' => 'string'),
 		$inserts,
-		array('id_theme', 'id_member', 'variable')
+		array('variable')
 	);
 ---}
 ---#
@@ -533,11 +537,55 @@ ADD INDEX `idx_id_member` (`id_member`, `id_group`);
 ---#
 
 /******************************************************************************/
---- Adding support for <credits> tag in package manager
+--- Package Manager New Features
 /******************************************************************************/
----# Adding new columns to log_packages ..
+---# Adding support for <credits> tag in package manager
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN credits TEXT NOT NULL;
+ADD COLUMN credits TEXT NOT NULL,
+ADD COLUMN sha256_hash TEXT;
+---#
+
+---# Adding support for validation servers
+ALTER TABLE {$db_prefix}package_servers
+ADD COLUMN validation_url VARCHAR(255) DEFAULT '',
+ADD COLUMN extra TEXT;
+---#
+
+---# Add Package Validation to Downloads Site
+---{
+	$request = $smcFunc['db_query']('', '
+		SELECT id_server
+		FROM {db_prefix}package_servers
+		WHERE url LIKE {string:downloads_site}',
+		array(
+			'downloads_site' => 'https://download.simplemachines.org%',
+		)
+	);
+
+	if ($smcFunc['db_num_rows']($request) != 0)
+		list($downloads_server) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	if (empty($downloads_server))
+		$smcFunc['db_insert']('',
+			'{db_prefix}package_servers',
+			array('name' => 'string', 'url' => 'string', 'validation_url' => 'string'),
+			array('Simple Machines Download Site', 'https://download.simplemachines.org/browse.php?api=v1;smf_version={SMF_VERSION}', 'https://download.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}'),
+			array('id_server')
+		);
+---}
+---#
+
+---# Ensure The Simple Machines Customize Site is https
+UPDATE {$db_prefix}package_servers
+SET url = 'https://custom.simplemachines.org/packages/mods'
+WHERE url = 'http://custom.simplemachines.org/packages/mods';
+---#
+
+---# Add validation to Simple Machines Customize Site
+UPDATE {$db_prefix}package_servers
+SET validation_url = 'https://custom.simplemachines.org/api.php?action=validate;version=v1;smf_version={SMF_VERSION}'
+WHERE url = 'https://custom.simplemachines.org/packages/mods';
 ---#
 
 /******************************************************************************/
@@ -1318,9 +1366,9 @@ VALUES
 	('drafts_keep_days', '7');
 
 INSERT INTO {$db_prefix}themes
-	(id_theme, variable, value)
+	(id_member, id_theme, variable, value)
 VALUES
-	('1', 'drafts_show_saved_enabled', '1');
+	(-1, '1', 'drafts_show_saved_enabled', '1');
 ---#
 
 /******************************************************************************/
@@ -1440,7 +1488,7 @@ WHERE variable = 'avatar_action_too_large'
 
 ---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_feature', 'log_ban_hits', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc', 'enable_unwatch', 'cache_memcached', 'cache_enable');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_feature', 'log_ban_hits', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc', 'enable_unwatch', 'cache_memcached', 'cache_enable', 'cookie_no_auth_secret');
 ---#
 
 ---# Cleaning up old theme settings.
@@ -1537,7 +1585,7 @@ $get_questions = upgrade_query("
 	WHERE comment_type = 'ver_test'");
 
 	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
-		$questions[] = array($language, $row['question'], serialize(array($row['answer'])));
+		$questions[] = array($upcontext['language'], $row['question'], serialize(array($row['answer'])));
 
 	$smcFunc['db_free_result']($get_questions);
 
@@ -3073,3 +3121,11 @@ while ($row = $smcFunc['db_fetch_assoc']($request))
 }
 ---}
 ---#
+
+/******************************************************************************/
+--- Update log_spider_stats
+/******************************************************************************/
+---# Allow for hyper aggressive crawlers
+ALTER TABLE {$db_prefix}log_spider_stats CHANGE page_hits page_hits INT NOT NULL DEFAULT '0';
+---#
+

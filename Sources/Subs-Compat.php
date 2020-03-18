@@ -9,9 +9,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -35,7 +35,7 @@ function sha1_smf($str)
 	$blks = array_pad(array(), $nblk * 16, 0);
 
 	for ($i = 0; $i < strlen($str); $i++)
-		$blks[$i >> 2] |= ord($str{$i}) << (24 - ($i % 4) * 8);
+		$blks[$i >> 2] |= ord($str[$i]) << (24 - ($i % 4) * 8);
 
 	$blks[$i >> 2] |= 0x80 << (24 - ($i % 4) * 8);
 

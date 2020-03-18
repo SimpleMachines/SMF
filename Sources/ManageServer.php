@@ -52,9 +52,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -112,9 +112,17 @@ function ModifySettings()
 	$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
 
 	if ($settings_not_writable)
-		$context['settings_message'] = '<div class="centertext"><strong>' . $txt['settings_not_writable'] . '</strong></div>';
+		$context['settings_message'] = array(
+			'label' => $txt['settings_not_writable'],
+			'tag' => 'div',
+			'class' => 'centertext strong'
+		);
 	elseif ($settings_backup_fail)
-		$context['settings_message'] = '<div class="centertext"><strong>' . $txt['admin_backup_fail'] . '</strong></div>';
+		$context['settings_message'] = array(
+			'label' => $txt['admin_backup_fail'],
+			'tag' => 'div',
+			'class' => 'centertext strong'
+		);
 
 	$context['settings_not_writable'] = $settings_not_writable;
 
@@ -258,7 +266,7 @@ function AlignURLsWithSSLSetting($new_force_ssl = 0)
 		$newval = strtr($boardurl, array('http://' => 'https://'));
 	else
 		$newval = strtr($boardurl, array('https://' => 'http://'));
-	updateSettingsFile(array('boardurl' => '\'' . addslashes($newval) . '\''));
+	updateSettingsFile(array('boardurl' => $newval));
 
 	$new_settings = array();
 
@@ -398,7 +406,7 @@ function ModifyDatabaseSettings($return_config = false)
 	);
 
 	// Add PG Stuff
-	if ($smcFunc['db_title'] == "PostgreSQL")
+	if ($smcFunc['db_title'] === POSTGRE_TITLE)
 	{
 		$request = $smcFunc['db_query']('', 'SELECT cfgname FROM pg_ts_config', array());
 		$fts_language = array();
@@ -458,7 +466,13 @@ function ModifyCookieSettings($return_config = false)
 	$config_vars = array(
 		// Cookies...
 		array('cookiename', $txt['cookie_name'], 'file', 'text', 20),
-		array('cookieTime', $txt['cookieTime'], 'db', 'int', 'postinput' => $txt['minutes']),
+		array('cookieTime', $txt['cookieTime'], 'db', 'select', array(
+			3153600 => $txt['always_logged_in'],
+			60 => $txt['one_hour'],
+			1440 => $txt['one_day'],
+			10080 => $txt['one_week'],
+			43200 => $txt['one_month'],
+		)),
 		array('localCookies', $txt['localCookies'], 'db', 'check', false, 'localCookies'),
 		array('globalCookies', $txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
 		array('globalCookiesDomain', $txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'),
@@ -675,13 +689,13 @@ function ModifyCacheSettings($return_config = false)
 	// set our values to show what, if anything, we found
 	if (empty($detected))
 	{
-		$txt['cache_settings_message'] = $txt['detected_no_caching'];
+		$txt['cache_settings_message'] = '<strong class="alert">' . $txt['detected_no_caching'] . '</strong>';
 		$cache_level = array($txt['cache_off']);
 		$detected['none'] = $txt['cache_off'];
 	}
 	else
 	{
-		$txt['cache_settings_message'] = sprintf($txt['detected_accelerators'], implode(', ', $detected));
+		$txt['cache_settings_message'] = '<strong class="success">' . sprintf($txt['detected_accelerators'], implode(', ', $detected)) . '</strong>';
 		$cache_level = array($txt['cache_off'], $txt['cache_level1'], $txt['cache_level2'], $txt['cache_level3']);
 	}
 
@@ -764,19 +778,19 @@ function ModifyLoadBalancingSettings($return_config = false)
 
 	// Setup a warning message, but disabled by default.
 	$disabled = true;
-	$context['settings_message'] = $txt['loadavg_disabled_conf'];
+	$context['settings_message'] = array('label' => $txt['loadavg_disabled_conf'], 'class' => 'error');
 
 	if (DIRECTORY_SEPARATOR === '\\')
 	{
-		$context['settings_message'] = $txt['loadavg_disabled_windows'];
+		$context['settings_message']['label'] = $txt['loadavg_disabled_windows'];
 		if (isset($_GET['save']))
-			$_SESSION['adm-save'] = $txt['loadavg_disabled_windows'];
+			$_SESSION['adm-save'] = $context['settings_message']['label'];
 	}
 	elseif (stripos(PHP_OS, 'darwin') === 0)
 	{
-		$context['settings_message'] = $txt['loadavg_disabled_osx'];
+		$context['settings_message']['label'] = $txt['loadavg_disabled_osx'];
 		if (isset($_GET['save']))
-			$_SESSION['adm-save'] = $txt['loadavg_disabled_osx'];
+			$_SESSION['adm-save'] = $context['settings_message']['label'];
 	}
 	else
 	{
@@ -790,7 +804,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 
 		if (!empty($modSettings['load_average']) || (isset($modSettings['load_average']) && $modSettings['load_average'] === 0.0))
 		{
-			$context['settings_message'] = sprintf($txt['loadavg_warning'], $modSettings['load_average']);
+			$context['settings_message']['label'] = sprintf($txt['loadavg_warning'], $modSettings['load_average']);
 			$disabled = false;
 		}
 	}
@@ -919,7 +933,7 @@ function prepareServerSettingsContext(&$config_vars)
 				'label' => $config_var[1],
 				'help' => isset($config_var[5]) ? $config_var[5] : '',
 				'type' => $config_var[3],
-				'size' => empty($config_var[4]) ? 0 : $config_var[4],
+				'size' => !empty($config_var[4]) && !is_array($config_var[4]) ? $config_var[4] : 0,
 				'data' => isset($config_var[4]) && is_array($config_var[4]) && $config_var[3] != 'select' ? $config_var[4] : array(),
 				'name' => $config_var[0],
 				'value' => $config_var[2] == 'file' ? $smcFunc['htmlspecialchars']($$varname) : (isset($modSettings[$config_var[0]]) ? $smcFunc['htmlspecialchars']($modSettings[$config_var[0]]) : (in_array($config_var[3], array('int', 'float')) ? 0 : '')),
@@ -1009,6 +1023,7 @@ function prepareDBSettingContext(&$config_vars)
 			// Special case for inline permissions
 			if ($config_var[0] == 'permissions' && allowedTo('manage_permissions'))
 				$inlinePermissions[] = $config_var[1];
+
 			elseif ($config_var[0] == 'permissions')
 				continue;
 
@@ -1079,6 +1094,7 @@ function prepareDBSettingContext(&$config_vars)
 				// Default to a min of 0 if one isn't set
 				if (isset($config_var['min']))
 					$context['config_vars'][$config_var[1]]['min'] = $config_var['min'];
+
 				else
 					$context['config_vars'][$config_var[1]]['min'] = 0;
 
@@ -1102,11 +1118,14 @@ function prepareDBSettingContext(&$config_vars)
 				// If it's associative
 				if (isset($config_var[2][0]) && is_array($config_var[2][0]))
 					$context['config_vars'][$config_var[1]]['data'] = $config_var[2];
+
 				else
 				{
 					foreach ($config_var[2] as $key => $item)
 						$context['config_vars'][$config_var[1]]['data'][] = array($key, $item);
 				}
+				if (empty($config_var['size']) && !empty($config_var['multiple']))
+					$context['config_vars'][$config_var[1]]['size'] = max(4, count($config_var[2]));
 			}
 
 			// Finally allow overrides - and some final cleanups.
@@ -1123,6 +1142,7 @@ function prepareDBSettingContext(&$config_vars)
 				// See if there are any other labels that might fit?
 				if (isset($txt['setting_' . $config_var[1]]))
 					$context['config_vars'][$config_var[1]]['label'] = $txt['setting_' . $config_var[1]];
+
 				elseif (isset($txt['groups_' . $config_var[1]]))
 					$context['config_vars'][$config_var[1]]['label'] = $txt['groups_' . $config_var[1]];
 			}
@@ -1256,6 +1276,7 @@ function saveSettings(&$config_vars)
 
 	// All the numeric variables.
 	$config_ints = array(
+		'db_port',
 		'cache_enable',
 		'image_proxy_maxsize',
 	);
@@ -1276,11 +1297,11 @@ function saveSettings(&$config_vars)
 		if (in_array($config_var, $config_passwords))
 		{
 			if (isset($_POST[$config_var][1]) && $_POST[$config_var][0] == $_POST[$config_var][1])
-				$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var][0], '\'\\') . '\'';
+				$new_settings[$config_var] = $_POST[$config_var][0];
 		}
 		elseif (in_array($config_var, $config_strs))
 		{
-			$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var], '\'\\') . '\'';
+			$new_settings[$config_var] = $_POST[$config_var];
 		}
 		elseif (in_array($config_var, $config_ints))
 		{
@@ -1297,9 +1318,9 @@ function saveSettings(&$config_vars)
 		elseif (in_array($config_var, $config_bools))
 		{
 			if (!empty($_POST[$config_var]))
-				$new_settings[$config_var] = '1';
+				$new_settings[$config_var] = 1;
 			else
-				$new_settings[$config_var] = '0';
+				$new_settings[$config_var] = 0;
 		}
 		else
 		{

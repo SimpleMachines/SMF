@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -338,7 +338,7 @@ function Destroy()
 function ConvertMsgBody()
 {
 	global $scripturl, $context, $txt, $db_type;
-	global $modSettings, $smcFunc, $time_start;
+	global $modSettings, $smcFunc;
 
 	// Show me your badge!
 	isAllowedTo('admin_forum');
@@ -410,7 +410,7 @@ function ConvertMsgBody()
 		while ($_REQUEST['start'] < $max_msgs)
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT /*!40001 SQL_NO_CACHE */ id_msg
+				SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_msg BETWEEN {int:start} AND {int:start} + {int:increment}
 					AND LENGTH(body) > 65535',
@@ -425,7 +425,7 @@ function ConvertMsgBody()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-convertMsg');
 				$context['continue_post_data'] = '
@@ -711,7 +711,7 @@ function ConvertEntities()
  */
 function OptimizeTables()
 {
-	global $db_prefix, $txt, $context, $smcFunc, $time_start;
+	global $db_prefix, $txt, $context, $smcFunc;
 
 	isAllowedTo('admin_forum');
 
@@ -757,7 +757,7 @@ function OptimizeTables()
 			break;
 
 		// Continue?
-		if (microtime(true) - $time_start > 10)
+		if (microtime(true) - TIME_START > 10)
 		{
 			$_REQUEST['start'] = $key;
 			$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;activity=optimize;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
@@ -809,8 +809,7 @@ function OptimizeTables()
  */
 function AdminBoardRecount()
 {
-	global $txt, $context, $modSettings, $sourcedir;
-	global $time_start, $smcFunc;
+	global $txt, $context, $modSettings, $sourcedir, $smcFunc;
 
 	isAllowedTo('admin_forum');
 	checkSession('request');
@@ -854,14 +853,14 @@ function AdminBoardRecount()
 		{
 			// Recount approved messages
 			$request = $smcFunc['db_query']('', '
-				SELECT /*!40001 SQL_NO_CACHE */ t.id_topic, MAX(t.num_replies) AS num_replies,
-					CASE WHEN COUNT(ma.id_msg) >= 1 THEN COUNT(ma.id_msg) - 1 ELSE 0 END AS real_num_replies
+				SELECT t.id_topic, MAX(t.num_replies) AS num_replies,
+					GREATEST(COUNT(ma.id_msg) - 1, 0) AS real_num_replies
 				FROM {db_prefix}topics AS t
 					LEFT JOIN {db_prefix}messages AS ma ON (ma.id_topic = t.id_topic AND ma.approved = {int:is_approved})
 				WHERE t.id_topic > {int:start}
 					AND t.id_topic <= {int:max_id}
 				GROUP BY t.id_topic
-				HAVING CASE WHEN COUNT(ma.id_msg) >= 1 THEN COUNT(ma.id_msg) - 1 ELSE 0 END != MAX(t.num_replies)',
+				HAVING GREATEST(COUNT(ma.id_msg) - 1, 0) != MAX(t.num_replies)',
 				array(
 					'is_approved' => 1,
 					'start' => $_REQUEST['start'],
@@ -882,7 +881,7 @@ function AdminBoardRecount()
 
 			// Recount unapproved messages
 			$request = $smcFunc['db_query']('', '
-				SELECT /*!40001 SQL_NO_CACHE */ t.id_topic, MAX(t.unapproved_posts) AS unapproved_posts,
+				SELECT t.id_topic, MAX(t.unapproved_posts) AS unapproved_posts,
 					COUNT(mu.id_msg) AS real_unapproved_posts
 				FROM {db_prefix}topics AS t
 					LEFT JOIN {db_prefix}messages AS mu ON (mu.id_topic = t.id_topic AND mu.approved = {int:not_approved})
@@ -910,7 +909,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -942,7 +941,7 @@ function AdminBoardRecount()
 		while ($_REQUEST['start'] < $max_topics)
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT /*!40001 SQL_NO_CACHE */ m.id_board, COUNT(*) AS real_num_posts
+				SELECT m.id_board, COUNT(*) AS real_num_posts
 				FROM {db_prefix}messages AS m
 				WHERE m.id_topic > {int:id_topic_min}
 					AND m.id_topic <= {int:id_topic_max}
@@ -968,7 +967,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -998,7 +997,7 @@ function AdminBoardRecount()
 		while ($_REQUEST['start'] < $max_topics)
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT /*!40001 SQL_NO_CACHE */ t.id_board, COUNT(*) AS real_num_topics
+				SELECT t.id_board, COUNT(*) AS real_num_topics
 				FROM {db_prefix}topics AS t
 				WHERE t.approved = {int:is_approved}
 					AND t.id_topic > {int:id_topic_min}
@@ -1024,7 +1023,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1054,7 +1053,7 @@ function AdminBoardRecount()
 		while ($_REQUEST['start'] < $max_topics)
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT /*!40001 SQL_NO_CACHE */ m.id_board, COUNT(*) AS real_unapproved_posts
+				SELECT m.id_board, COUNT(*) AS real_unapproved_posts
 				FROM {db_prefix}messages AS m
 				WHERE m.id_topic > {int:id_topic_min}
 					AND m.id_topic <= {int:id_topic_max}
@@ -1080,7 +1079,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1110,7 +1109,7 @@ function AdminBoardRecount()
 		while ($_REQUEST['start'] < $max_topics)
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT /*!40001 SQL_NO_CACHE */ t.id_board, COUNT(*) AS real_unapproved_topics
+				SELECT t.id_board, COUNT(*) AS real_unapproved_topics
 				FROM {db_prefix}topics AS t
 				WHERE t.approved = {int:is_approved}
 					AND t.id_topic > {int:id_topic_min}
@@ -1136,7 +1135,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1155,7 +1154,7 @@ function AdminBoardRecount()
 	if ($_REQUEST['step'] <= 5)
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT /*!40001 SQL_NO_CACHE */ mem.id_member, COUNT(pmr.id_pm) AS real_num,
+			SELECT mem.id_member, COUNT(pmr.id_pm) AS real_num,
 				MAX(mem.instant_messages) AS instant_messages
 			FROM {db_prefix}members AS mem
 				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (mem.id_member = pmr.id_member AND pmr.deleted = {int:is_not_deleted})
@@ -1170,7 +1169,7 @@ function AdminBoardRecount()
 		$smcFunc['db_free_result']($request);
 
 		$request = $smcFunc['db_query']('', '
-			SELECT /*!40001 SQL_NO_CACHE */ mem.id_member, COUNT(pmr.id_pm) AS real_num,
+			SELECT mem.id_member, COUNT(pmr.id_pm) AS real_num,
 				MAX(mem.unread_messages) AS unread_messages
 			FROM {db_prefix}members AS mem
 				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (mem.id_member = pmr.id_member AND pmr.deleted = {int:is_not_deleted} AND pmr.is_read = {int:is_not_read})
@@ -1185,7 +1184,7 @@ function AdminBoardRecount()
 			updateMemberData($row['id_member'], array('unread_messages' => $row['real_num']));
 		$smcFunc['db_free_result']($request);
 
-		if (microtime(true) - $time_start > 3)
+		if (microtime(true) - TIME_START > 3)
 		{
 			createToken('admin-boardrecount');
 			$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1203,7 +1202,7 @@ function AdminBoardRecount()
 		while ($_REQUEST['start'] < $modSettings['maxMsgID'])
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT /*!40001 SQL_NO_CACHE */ t.id_board, m.id_msg
+				SELECT t.id_board, m.id_msg
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic AND t.id_board != m.id_board)
 				WHERE m.id_msg > {int:id_msg_min}
@@ -1232,7 +1231,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1263,7 +1262,7 @@ function AdminBoardRecount()
 	$smcFunc['db_free_result']($request);
 
 	$request = $smcFunc['db_query']('', '
-		SELECT /*!40001 SQL_NO_CACHE */ id_board, id_parent, id_last_msg, child_level, id_msg_updated
+		SELECT id_board, id_parent, id_last_msg, child_level, id_msg_updated
 		FROM {db_prefix}boards',
 		array(
 		)
@@ -1740,7 +1739,7 @@ function MaintainRecountPosts()
 
 	// Lets get a group of members and determine their post count (from the boards that have post count enabled of course).
 	$request = $smcFunc['db_query']('', '
-		SELECT /*!40001 SQL_NO_CACHE */ m.id_member, COUNT(m.id_member) AS posts
+		SELECT m.id_member, COUNT(m.id_member) AS posts
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}boards AS b ON m.id_board = b.id_board
 		WHERE m.id_member != {int:zero}

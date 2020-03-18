@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -39,11 +39,13 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 			WHERE is_activated < 10
 				AND MONTH(birthdate) = {int:month}
 				AND DAYOFMONTH(birthdate) = {int:day}
-				AND YEAR(birthdate) > {int:year}',
+				AND YEAR(birthdate) > {int:year}
+				' . ($smcFunc['db_title'] === POSTGRE_TITLE ? 'AND indexable_month_day(birthdate) = indexable_month_day({date:bdate})' : ''),
 			array(
-				'year' => 1,
+				'year' => 1004,
 				'month' => $month,
 				'day' => $day,
+				'bdate' => '1004-' . $month . '-' . $day, // a random leap year is here needed
 			)
 		);
 

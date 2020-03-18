@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -255,9 +255,9 @@ class Attachments
 			if (empty($errors))
 			{
 				// The reported MIME type of the attachment might not be reliable.
-				// Fortunately, PHP 5.3+ lets us easily verify the real MIME type.
-				if (function_exists('mime_content_type'))
-					$_FILES['attachment']['type'][$n] = mime_content_type($_FILES['attachment']['tmp_name'][$n]);
+				$detected_mime_type = get_mime_type($_FILES['attachment']['tmp_name'][$n], true);
+				if ($detected_mime_type !== false)
+					$_FILES['attachment']['type'][$n] = $detected_mime_type;
 
 				$_SESSION['temp_attachments'][$attachID] = array(
 					'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),

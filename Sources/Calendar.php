@@ -7,9 +7,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -432,13 +432,32 @@ function CalendarPost()
 
 	// Need this so the user can select a timezone for the event.
 	$context['all_timezones'] = smf_list_timezones($context['event']['start_date']);
-	unset($context['all_timezones']['']);
 
-	// If the event's timezone is not in SMF's standard list of time zones, prepend it to the list
-	if (!in_array($context['event']['tz'], array_keys($context['all_timezones'])))
+	// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
+	if (!isset($context['all_timezones'][$context['event']['tz']]))
 	{
-		$d = date_create($context['event']['start_datetime'] . ' ' . $context['event']['tz']);
-		$context['all_timezones'] = array($context['event']['tz'] => '[UTC' . date_format($d, 'P') . '] - ' . $context['event']['tz']) + $context['all_timezones'];
+		$later = strtotime('@' . $context['event']['start_timestamp'] . ' + 1 year');
+		$tzinfo = timezone_transitions_get(timezone_open($context['event']['tz']), $context['event']['start_timestamp'], $later);
+
+		$found = false;
+		foreach ($context['all_timezones'] as $possible_tzid => $dummy)
+		{
+			$possible_tzinfo = timezone_transitions_get(timezone_open($possible_tzid), $context['event']['start_timestamp'], $later);
+
+			if ($tzinfo === $possible_tzinfo)
+			{
+				$context['event']['tz'] = $possible_tzid;
+				$found = true;
+				break;
+			}
+		}
+
+		// Hm. That's weird. Well, just prepend it to the list and let the user deal with it.
+		if (!$found)
+		{
+			$d = date_create($context['event']['start_datetime'] . ' ' . $context['event']['tz']);
+			$context['all_timezones'] = array($context['event']['tz'] => '[UTC' . date_format($d, 'P') . '] - ' . $context['event']['tz']) + $context['all_timezones'];
+		}
 	}
 
 	// Get list of boards that can be posted in.

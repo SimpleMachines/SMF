@@ -6,9 +6,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -23,7 +23,19 @@ if (!defined('SMF_FULL_VERSION'))
 	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 
 if (!defined('SMF_SOFTWARE_YEAR'))
-	define('SMF_SOFTWARE_YEAR', '2019');
+	define('SMF_SOFTWARE_YEAR', '2020');
+
+if (!defined('JQUERY_VERSION'))
+	define('JQUERY_VERSION', '3.4.1');
+
+if (!defined('POSTGRE_TITLE'))
+	define('POSTGRE_TITLE', 'PostgreSQL');
+
+if (!defined('MYSQL_TITLE'))
+	define('MYSQL_TITLE', 'MySQL');
+
+if (!defined('SMF_USER_AGENT'))
+	define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
 
 /**
  * Class ProxyServer
@@ -68,6 +80,18 @@ class ProxyServer
 
 		require_once(dirname(__FILE__) . '/Settings.php');
 		require_once($sourcedir . '/Subs.php');
+
+		// Make absolutely sure the cache directory is defined and writable.
+		if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
+		{
+			if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
+				$cachedir = $boarddir . '/cache';
+			else
+			{
+				$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
+				@mkdir($cachedir, 0750);
+			}
+		}
 
 		// Turn off all error reporting; any extra junk makes for an invalid image.
 		error_reporting(0);
@@ -232,7 +256,7 @@ class ProxyServer
 		$mime_type = finfo_buffer($finfo, $image);
 
 		// SVG needs a little extra care
-		if ($ext == 'svg' && $mime_type == 'text/plain')
+		if ($ext == 'svg' && in_array($mime_type, array('text/plain', 'text/xml')) && strpos($image, '<svg') !== false && strpos($image, '</svg>') !== false)
 			$mime_type = 'image/svg+xml';
 
 		// Make sure the url is returning an image
@@ -283,12 +307,8 @@ class ProxyServer
 		{
 			while (false !== ($file = readdir($handle)))
 			{
-				$filelastmodified = filemtime($path . $file);
-
-				if ((time() - $filelastmodified) > ($this->maxDays * 86400))
-				{
+				if (is_file($path . $file) && !in_array($file, array('index.php', '.htaccess')) && time() - filemtime($path . $file) > $this->maxDays * 86400)
 					unlink($path . $file);
-				}
 			}
 
 			closedir($handle);

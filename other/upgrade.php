@@ -4,9 +4,9 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC2
  */
@@ -14,9 +14,16 @@
 // Version information...
 define('SMF_VERSION', '2.1 RC2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2019');
+define('SMF_SOFTWARE_YEAR', '2020');
 define('SMF_LANG_VERSION', '2.1 RC2');
 define('SMF_INSTALLING', 1);
+
+define('JQUERY_VERSION', '3.4.1');
+define('POSTGRE_TITLE', 'PostgreSQL');
+define('MYSQL_TITLE', 'MySQL');
+define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
+if (!defined('TIME_START'))
+	define('TIME_START', microtime(true));
 
 /**
  * The minimum required PHP version.
@@ -205,6 +212,10 @@ require_once($sourcedir . '/Subs.php');
 require_once($sourcedir . '/LogInOut.php');
 require_once($sourcedir . '/Subs-Editor.php');
 
+// Don't do security check if on Yabbse
+if (!isset($modSettings['smfVersion']))
+	$disable_security = true;
+
 // This only exists if we're on SMF ;)
 if (isset($modSettings['smfVersion']))
 {
@@ -236,6 +247,14 @@ if (!isset($settings['default_theme_url']))
 	$settings['default_theme_url'] = $modSettings['theme_url'];
 if (!isset($settings['default_theme_dir']))
 	$settings['default_theme_dir'] = $modSettings['theme_dir'];
+
+// Old DBs won't have this
+if (!isset($modSettings['rand_seed']))
+{
+	if (!function_exists('cache_put_data'))
+		require_once($sourcedir . '/Load.php');
+	smf_seed_generator();
+}
 
 // This is needed in case someone invokes the upgrader using https when upgrading an http forum
 if (httpsOn())
@@ -341,8 +360,9 @@ function upgradeExit($fallThrough = false)
 		$upcontext['user']['skip_db_substeps'] = !empty($upcontext['skip_db_substeps']);
 		$upcontext['debug'] = $is_debug;
 		$upgradeData = base64_encode(json_encode($upcontext['user']));
+		require_once($sourcedir . '/Subs.php');
 		require_once($sourcedir . '/Subs-Admin.php');
-		updateSettingsFile(array('upgradeData' => '"' . $upgradeData . '"'));
+		updateSettingsFile(array('upgradeData' => $upgradeData));
 		updateDbLastError(0);
 	}
 
@@ -604,11 +624,21 @@ function redirectLocation($location, $addForm = true)
 function loadEssentialData()
 {
 	global $db_server, $db_user, $db_passwd, $db_name, $db_connection;
-	global $db_prefix, $db_character_set, $db_type, $db_port;
-	global $db_mb4, $modSettings, $sourcedir, $smcFunc, $txt;
+	global $db_prefix, $db_character_set, $db_type, $db_port, $db_show_debug;
+	global $db_mb4, $modSettings, $sourcedir, $smcFunc, $txt, $utf8;
 
-	error_reporting(E_ALL);
+	// Report all errors if admin wants them or this is a pre-release version.
+	if (!empty($db_show_debug) || strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION))
+		error_reporting(E_ALL);
+	// Otherwise, report all errors except for deprecation notices.
+	else
+		error_reporting(E_ALL & ~E_DEPRECATED);
+
+
 	define('SMF', 1);
+	header('X-Frame-Options: SAMEORIGIN');
+	header('X-XSS-Protection: 1');
+	header('X-Content-Type-Options: nosniff');
 
 	// Start the session.
 	if (@ini_get('session.save_handler') == 'user')
@@ -617,6 +647,8 @@ function loadEssentialData()
 
 	if (empty($smcFunc))
 		$smcFunc = array();
+
+	require_once($sourcedir . '/Subs.php');
 
 	$smcFunc['random_int'] = function($min = 0, $max = PHP_INT_MAX)
 	{
@@ -638,13 +670,15 @@ function loadEssentialData()
 	// Initialize everything...
 	initialize_inputs();
 
+	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
+
 	// Get the database going!
 	if (empty($db_type) || $db_type == 'mysqli')
 	{
 		$db_type = 'mysql';
 		// If overriding $db_type, need to set its settings.php entry too
 		$changes = array();
-		$changes['db_type'] = '\'mysql\'';
+		$changes['db_type'] = 'mysql';
 		require_once($sourcedir . '/Subs-Admin.php');
 		updateSettingsFile($changes);
 	}
@@ -698,8 +732,6 @@ function loadEssentialData()
 	}
 	else
 		return throw_error(sprintf($txt['error_sourcefile_missing'], 'Subs-Db-' . $db_type . '.php'));
-
-	require_once($sourcedir . '/Subs.php');
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
 	if (file_exists($sourcedir . '/QueryString.php') && php_version_check())
@@ -886,6 +918,8 @@ function WelcomeLogin()
 	if (!file_exists($cachedir_temp))
 		return throw_error($txt['error_cache_not_found']);
 
+	quickFileWritable($cachedir_temp . '/db_last_error.php');
+
 	if (!file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php'))
 		return throw_error(sprintf($txt['error_lang_index_missing'], $upcontext['language'], $upgradeurl));
 	elseif (!isset($_GET['skiplang']))
@@ -947,12 +981,8 @@ function checkLogin()
 	global $modSettings, $upcontext, $disable_security;
 	global $smcFunc, $db_type, $support_js, $sourcedir, $txt;
 
-	// Don't bother if the security is disabled.
-	if ($disable_security)
-		return true;
-
 	// Are we trying to login?
-	if (isset($_POST['contbutt']) && (!empty($_POST['user'])))
+	if (isset($_POST['contbutt']) && (!empty($_POST['user']) || $disable_security))
 	{
 		// If we've disabled security pick a suitable name!
 		if (empty($_POST['user']))
@@ -1023,13 +1053,16 @@ function checkLogin()
 		$upcontext['username'] = $_POST['user'];
 
 		// Track whether javascript works!
-		if (!empty($_POST['js_works']))
+		if (isset($_POST['js_works']))
 		{
-			$upcontext['upgrade_status']['js'] = 1;
-			$support_js = 1;
+			if (!empty($_POST['js_works']))
+			{
+				$upcontext['upgrade_status']['js'] = 1;
+				$support_js = 1;
+			}
+			else
+				$support_js = 0;
 		}
-		else
-			$support_js = 0;
 
 		// Note down the version we are coming from.
 		if (!empty($modSettings['smfVersion']) && empty($upcontext['user']['version']))
@@ -1140,10 +1173,9 @@ function UpgradeOptions()
 	$upcontext['karma_installed']['good'] = in_array('karma_good', $member_columns);
 	$upcontext['karma_installed']['bad'] = in_array('karma_bad', $member_columns);
 
-	unset($member_columns);
+	$upcontext['migrate_settings_recommended'] = empty($modSettings['smfVersion']) || version_compare(strtolower($modSettings['smfVersion']), substr(SMF_VERSION, 0, strpos(SMF_VERSION, '.') + 1 + strspn(SMF_VERSION, '1234567890', strpos(SMF_VERSION, '.') + 1)) . ' foo', '<');
 
-	// If these options are missing, we may need to migrate to a new Settings.php
-	$upcontext['migrateSettingsNeeded'] = detectSettingsFileMigrationNeeded();
+	unset($member_columns);
 
 	// If we've not submitted then we're done.
 	if (empty($_POST['upcont']))
@@ -1262,12 +1294,12 @@ function UpgradeOptions()
 	$changes = array();
 
 	// Add proxy settings.
+	if (!isset($GLOBALS['image_proxy_secret']) || $GLOBALS['image_proxy_secret'] == 'smfisawesome')
+		$changes['image_proxy_secret'] = substr(sha1(mt_rand()), 0, 20);
 	if (!isset($GLOBALS['image_proxy_maxsize']))
-		$changes += array(
-			'image_proxy_secret' => '\'' . substr(sha1(mt_rand()), 0, 20) . '\'',
-			'image_proxy_maxsize' => 5190,
-			'image_proxy_enabled' => 0,
-		);
+		$changes['image_proxy_maxsize'] = 5190;
+	if (!isset($GLOBALS['image_proxy_enabled']))
+		$changes['image_proxy_enabled'] = false;
 
 	// If $boardurl reflects https, set force_ssl
 	if (!function_exists('cache_put_data'))
@@ -1277,23 +1309,23 @@ function UpgradeOptions()
 
 	// If we're overriding the language follow it through.
 	if (isset($upcontext['lang']) && file_exists($modSettings['theme_dir'] . '/languages/index.' . $upcontext['lang'] . '.php'))
-		$changes['language'] = '\'' . $upcontext['lang'] . '\'';
+		$changes['language'] = $upcontext['lang'];
 
 	if (!empty($_POST['maint']))
 	{
-		$changes['maintenance'] = '2';
+		$changes['maintenance'] = 2;
 		// Remember what it was...
 		$upcontext['user']['main'] = $maintenance;
 
 		if (!empty($_POST['maintitle']))
 		{
-			$changes['mtitle'] = '\'' . addslashes($_POST['maintitle']) . '\'';
-			$changes['mmessage'] = '\'' . addslashes($_POST['mainmessage']) . '\'';
+			$changes['mtitle'] = $_POST['maintitle'];
+			$changes['mmessage'] = $_POST['mainmessage'];
 		}
 		else
 		{
-			$changes['mtitle'] = '\'' . addslashes($txt['mtitle']) . '\'';
-			$changes['mmessage'] = '\'' . addslashes($txt['mmessage']) . '\'';
+			$changes['mtitle'] = $txt['mtitle'];
+			$changes['mmessage'] = $txt['mmessage'];
 		}
 	}
 
@@ -1302,21 +1334,21 @@ function UpgradeOptions()
 
 	// Fix some old paths.
 	if (substr($boarddir, 0, 1) == '.')
-		$changes['boarddir'] = '\'' . fixRelativePath($boarddir) . '\'';
+		$changes['boarddir'] = fixRelativePath($boarddir);
 
 	if (substr($sourcedir, 0, 1) == '.')
-		$changes['sourcedir'] = '\'' . fixRelativePath($sourcedir) . '\'';
+		$changes['sourcedir'] = fixRelativePath($sourcedir);
 
 	if (empty($cachedir) || substr($cachedir, 0, 1) == '.')
-		$changes['cachedir'] = '\'' . fixRelativePath($boarddir) . '/cache\'';
+		$changes['cachedir'] = fixRelativePath($boarddir) . '/cache';
 
 	// Migrate cache settings.
 	// Accelerator setting didn't exist previously; use 'smf' file based caching as default if caching had been enabled.
 	if (!isset($GLOBALS['cache_enable']))
 		$changes += array(
-			'cache_accelerator' => !empty($modSettings['cache_enable']) ? '\'smf\'' : '\'\'',
+			'cache_accelerator' => !empty($modSettings['cache_enable']) ? 'smf' : '',
 			'cache_enable' => !empty($modSettings['cache_enable']) ? $modSettings['cache_enable'] : 0,
-			'cache_memcached' => !empty($modSettings['cache_memcached']) ? '\'' . $modSettings['cache_memcached'] . '\'' : '\'\'',
+			'cache_memcached' => !empty($modSettings['cache_memcached']) ? $modSettings['cache_memcached'] : '',
 		);
 
 	// If they have a "host:port" setup for the host, split that into separate values
@@ -1325,7 +1357,7 @@ function UpgradeOptions()
 	{
 		list ($db_server, $db_port) = explode(':', $db_server);
 
-		$changes['db_server'] = '\'' . $db_server . '\'';
+		$changes['db_server'] = $db_server;
 
 		// Only set this if we're not using the default port
 		if ($db_port != ini_get('mysqli.default_port'))
@@ -1343,35 +1375,25 @@ function UpgradeOptions()
 
 	// Maybe we haven't had this option yet?
 	if (empty($packagesdir))
-		$changes['packagesdir'] = '\'' . fixRelativePath($boarddir) . '/Packages\'';
+		$changes['packagesdir'] = fixRelativePath($boarddir) . '/Packages';
 
 	// Add support for $tasksdir var.
 	if (empty($tasksdir))
-		$changes['tasksdir'] = '\'' . fixRelativePath($sourcedir) . '/tasks\'';
+		$changes['tasksdir'] = fixRelativePath($sourcedir) . '/tasks';
 
 	// Make sure we fix the language as well.
 	if (stristr($language, '-utf8'))
-		$changes['language'] = '\'' . str_ireplace('-utf8', '', $language) . '\'';
+		$changes['language'] = str_ireplace('-utf8', '', $language);
 
 	// @todo Maybe change the cookie name if going to 1.1, too?
 
-	// If we are migrating the settings, get them ready.
-	if (!empty($_POST['migrateSettings']))
-	{
-		// Ensure this doesn't get lost in translation.
-		$changes['upgradeData'] = '"' . base64_encode(json_encode($upcontext['user'])) . '"';
+	// Ensure this doesn't get lost in translation.
+	$changes['upgradeData'] = base64_encode(json_encode($upcontext['user']));
 
-		migrateSettingsFile($changes);
-	}
-	else
-	{
-		// Update Settings.php with the new settings.
-		require_once($sourcedir . '/Subs-Admin.php');
-		updateSettingsFile($changes);
-
-		// Tell Settings.php to store db_last_error.php in the cache
-		move_db_last_error_to_cachedir();
-	}
+	// Update Settings.php with the new settings, and rebuild if they selected that option.
+	require_once($sourcedir . '/Subs.php');
+	require_once($sourcedir . '/Subs-Admin.php');
+	updateSettingsFile($changes, false, !empty($_POST['migrateSettings']));
 
 	if ($command_line)
 		echo ' Successful.' . "\n";
@@ -1504,11 +1526,12 @@ function DatabaseChanges()
 
 	// All possible files.
 	// Name, < version, insert_on_complete
+	// Last entry in array indicates whether to use sql_mode of STRICT or not.
 	$files = array(
-		array('upgrade_1-0.sql', '1.1', '1.1 RC0'),
-		array('upgrade_1-1.sql', '2.0', '2.0 a'),
-		array('upgrade_2-0_' . $db_type . '.sql', '2.1', '2.1 dev0'),
-		array('upgrade_2-1_' . $db_type . '.sql', '3.0', SMF_VERSION),
+		array('upgrade_1-0.sql', '1.1', '1.1 RC0', false),
+		array('upgrade_1-1.sql', '2.0', '2.0 a', false),
+		array('upgrade_2-0_' . $db_type . '.sql', '2.1', '2.1 dev0', false),
+		array('upgrade_2-1_' . $db_type . '.sql', '3.0', SMF_VERSION, true),
 	);
 
 	// How many files are there in total?
@@ -1539,6 +1562,7 @@ function DatabaseChanges()
 			// Do we actually need to do this still?
 			if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < $file[1])
 			{
+				setSqlMode($file[3]);
 				$nextFile = parse_sql(dirname(__FILE__) . '/' . $file[0]);
 				if ($nextFile)
 				{
@@ -1582,6 +1606,24 @@ function DatabaseChanges()
 	return false;
 }
 
+// Different versions of the files use different sql_modes
+function setSqlMode($strict = true)
+{
+	global $db_type, $db_connection;
+
+	if ($db_type != 'mysql')
+		return;
+
+	if ($strict)
+		$mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+	else
+		$mode = '';
+
+	mysqli_query($db_connection, 'SET SESSION sql_mode = \'' . $mode . '\'');
+
+	return;
+}
+
 // Delete the damn thing!
 function DeleteUpgrade()
 {
@@ -1598,9 +1640,9 @@ function DeleteUpgrade()
 	$endl = $command_line ? "\n" : '<br>' . "\n";
 
 	$changes = array(
-		'language' => '\'' . (substr($language, -4) == '.lng' ? substr($language, 0, -4) : $language) . '\'',
-		'db_error_send' => '1',
-		'upgradeData' => '\'\'',
+		'language' => (substr($language, -4) == '.lng' ? substr($language, 0, -4) : $language),
+		'db_error_send' => true,
+		'upgradeData' => null,
 	);
 
 	// Are we in maintenance mode?
@@ -1618,6 +1660,7 @@ function DeleteUpgrade()
 	// Wipe this out...
 	$upcontext['user'] = array();
 
+	require_once($sourcedir . '/Subs.php');
 	require_once($sourcedir . '/Subs-Admin.php');
 	updateSettingsFile($changes);
 
@@ -2129,7 +2172,7 @@ function upgrade_query($string, $unbuffered = false)
 	if ($db_type == 'mysql')
 	{
 		$mysqli_errno = mysqli_errno($db_connection);
-		$error_query = in_array(substr(trim($string), 0, 11), array('INSERT INTO', 'UPDATE IGNO', 'ALTER TABLE', 'DROP TABLE ', 'ALTER IGNOR'));
+		$error_query = in_array(substr(trim($string), 0, 11), array('INSERT INTO', 'UPDATE IGNO', 'ALTER TABLE', 'DROP TABLE ', 'ALTER IGNOR', 'INSERT IGNO'));
 
 		// Error numbers:
 		//    1016: Can't open file '....MYI'
@@ -2175,6 +2218,9 @@ function upgrade_query($string, $unbuffered = false)
 		elseif ($mysqli_errno == 1072)
 			return false;
 		elseif ($mysqli_errno == 1050 && substr(trim($string), 0, 12) == 'RENAME TABLE')
+			return false;
+		// Testing for legacy tables or columns? Needed for 1.0 & 1.1 scripts.
+		elseif (in_array($mysqli_errno, array(1054, 1146)) && in_array(substr(trim($string), 0, 7), array('SELECT ', 'SHOW CO')))
 			return false;
 	}
 	// If a table already exists don't go potty.
@@ -3161,8 +3207,9 @@ function ConvertUtf8()
 
 		// Store it in Settings.php too because it's needed before db connection.
 		// Hopefully this works...
+		require_once($sourcedir . '/Subs.php');
 		require_once($sourcedir . '/Subs-Admin.php');
-		updateSettingsFile(array('db_character_set' => '\'utf8\''));
+		updateSettingsFile(array('db_character_set' => 'utf8'));
 
 		// The conversion might have messed up some serialized strings. Fix them!
 		$request = $smcFunc['db_query']('', '
@@ -3512,43 +3559,6 @@ function serialize_to_json()
 	// If this fails we just move on to deleting the upgrade anyway...
 	$_GET['substep'] = 0;
 	return false;
-}
-
-/**
- * As of 2.1, we want to store db_last_error.php in the cache
- * To make that happen, Settings.php needs to ensure the $cachedir path is correct before trying to write to db_last_error.php
- */
-function move_db_last_error_to_cachedir()
-{
-	$settings = file_get_contents(dirname(__FILE__) . '/Settings.php');
-
-	$regex = <<<'EOT'
-(\s*#\s*Make\s+sure\s+the\s+paths\s+are\s+correct\.\.\.\s+at\s+least\s+try\s+to\s+fix\s+them\.\s+)?if\s*\(\!file_exists\(\$boarddir\)\s+&&\s+file_exists\(dirname\(__FILE__\)\s+\.\s+'/agreement\.txt'\)\)\s+\$boarddir\s*\=\s*dirname\(__FILE__\);\s+if\s*\(\!file_exists\(\$sourcedir\)\s+&&\s+file_exists\(\$boarddir\s*\.\s*'/Sources'\)\)\s+\$sourcedir\s*\=\s*\$boarddir\s*\.\s*'/Sources';\s+if\s*\(\!file_exists\(\$cachedir\)\s+&&\s+file_exists\(\$boarddir\s*\.\s*'/cache'\)\)\s+\$cachedir\s*\=\s*\$boarddir\s*\.\s*'/cache';
-EOT;
-
-	$replacement = <<<'EOT'
-# Make sure the paths are correct... at least try to fix them.
-if (!file_exists($boarddir) && file_exists(dirname(__FILE__) . '/agreement.txt'))
-	$boarddir = dirname(__FILE__);
-if (!file_exists($sourcedir) && file_exists($boarddir . '/Sources'))
-	$sourcedir = $boarddir . '/Sources';
-if (!file_exists($cachedir) && file_exists($boarddir . '/cache'))
-	$cachedir = $boarddir . '/cache';
-
-
-EOT;
-
-	if (preg_match('~' . $regex . '~', $settings) && preg_match('~(#+\s*Error-Catching\s*#+)~', $settings))
-	{
-		$settings = preg_replace('~' . $regex . '~', '', $settings);
-		$settings = preg_replace('~(#+\s*Error-Catching\s*#+)~', $replacement . '$1', $settings);
-		$settings = preg_replace('~dirname(__FILE__) . \'/db_last_error.php\'~', '(isset($cachedir) ? $cachedir : dirname(__FILE__)) . \'/db_last_error.php\'', $settings);
-
-		// Blank out the file - done to fix a oddity with some servers.
-		file_put_contents(dirname(__FILE__) . '/Settings.php', '');
-
-		file_put_contents(dirname(__FILE__) . '/Settings.php', $settings);
-	}
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3915,7 +3925,7 @@ function template_welcome_message()
 	echo '
 					<div class="errorbox', (file_exists($settings['default_theme_dir'] . '/scripts/script.js') ? ' hidden' : ''), '" id="js_script_missing_error">
 						<h3>', $txt['upgrade_critical_error'], '</h3>
-						', sprintf($txt['upgrade_error_script_js'], 'https://www.simplemachines.org'), '
+						', sprintf($txt['upgrade_error_script_js'], 'https://download.simplemachines.org/?tools'), '
 					</div>';
 
 	// Is there someone already doing this?
@@ -3925,7 +3935,7 @@ function template_welcome_message()
 		$ago_hours = floor($ago / 3600);
 		$ago_minutes = intval(($ago / 60) % 60);
 		$ago_seconds = intval($ago % 60);
-		$agoTxt = $ago < 60 ? 'upgrade_time_ago_s' : ($ago < 3600 ? 'upgrade_time_ago_ms' : 'upgrade_time_ago_hms');
+		$agoTxt = $ago < 60 ? 'upgrade_time_s' : ($ago < 3600 ? 'upgrade_time_ms' : 'upgrade_time_hms');
 
 		$updated = time() - $upcontext['updated'];
 		$updated_hours = floor($updated / 3600);
@@ -3947,9 +3957,12 @@ function template_welcome_message()
 		if ($updated > $upcontext['inactive_timeout'])
 			echo '
 						<p>', $txt['upgrade_run'], '</p>';
+		elseif ($upcontext['inactive_timeout'] > 120)
+			echo '
+						<p>', sprintf($txt['upgrade_script_timeout_minutes'], $upcontext['user']['name'], round($upcontext['inactive_timeout'] / 60, 1)), '</p>';
 		else
 			echo '
-						<p>', $txt['upgrade_script_timeout'], ' ', $upcontext['user']['name'], ' ', $txt['upgrade_script_timeout2'], ' ', ($upcontext['inactive_timeout'] > 120 ? round($upcontext['inactive_timeout'] / 60, 1) . ' minutes!' : $upcontext['inactive_timeout'] . ' seconds!'), '</p>';
+						<p>', sprintf($txt['upgrade_script_timeout_seconds'], $upcontext['user']['name'], $upcontext['inactive_timeout']), '</p>';
 
 		echo '
 					</div>';
@@ -4098,7 +4111,7 @@ function template_upgrade_options()
 						</label>
 					</li>
 					<li>
-						<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty($upcontext['migrateSettingsNeeded']) ? '' : ' checked="checked"', '>
+						<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty($upcontext['migrate_settings_recommended']) ? '' : ' checked="checked"', '>
 						<label for="migrateSettings">
 							', $txt['upgrade_migrate_settings_file'], '
 						</label>
@@ -4558,7 +4571,7 @@ console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes,
 							if (!attemptAgain)
 							{
 								document.getElementById("error_block").classList.remove("hidden");
-								setInnerHTML(document.getElementById("error_message"), "', sprintf($txt['upgrade_repondtime'], ($timeLimitThreshold * 10)), '" + "<a href=\"#\" onclick=\"retTimeout(true); return false;\">', $txt['upgrade_respondtime_clickhere'], '</a>");
+								setInnerHTML(document.getElementById("error_message"), "', sprintf($txt['upgrade_respondtime'], ($timeLimitThreshold * 10)), '" + "<a href=\"#\" onclick=\"retTimeout(true); return false;\">', $txt['upgrade_respondtime_clickhere'], '</a>");
 							}
 							else
 							{
@@ -5021,466 +5034,6 @@ function upgradeGetColumnInfo($targetTable, $column)
 		return $columns[$column];
 	else
 		return null;
-}
-
-/**
- * Takes the changes to be made during the upgradeOptions step, grabs all known Settings data from Settings.php, then runs
- * through a process to rebuild onto a brand new Settings template.  This should only be done if detection believes the
- * settings file isn't using any advanced configuration setups in the Settings.php file.  A copy is made as Settings_org.php
- * to preserve all changes prior to migration.
- *
- * @param array $config_vars An array of one or more variables to update
- *
- * @return void We either successfully update the Settings file, or throw a error here.
- */
-function migrateSettingsFile($changes)
-{
-	global $boarddir, $cachedir, $txt;
-
-	// Try to find all of these settings.
-	$settingsVars = array(
-		'maintenance' => 'int',
-		'mtitle' => 'string',
-		'mmessage' => 'string',
-		'mbname' => 'string',
-		'language' => 'string',
-		'boardurl' => 'string',
-		'webmaster_email' => 'string',
-		'cookiename' => 'string',
-		'db_type' => 'string',
-		'db_port' => 'int',
-		'db_server' => 'string_fatal',
-		'db_name' => 'string_fatal',
-		'db_user' => 'string_fatal',
-		'db_passwd' => 'string_fatal',
-		'ssi_db_user' => 'string',
-		'ssi_db_passwd' => 'string',
-		'db_prefix' => 'string_fatal',
-		'db_persist' => 'int',
-		'db_error_send' => 'int',
-		'db_mb4' => 'null',
-		'cache_accelerator' => 'string',
-		'cache_enable' => 'int',
-		'cache_memcached' => 'string',
-		'cachedir' => 'string',
-		'image_proxy_enabled' => 'bool',
-		'image_proxy_secret' => 'string',
-		'image_proxy_maxsize' => 'int',
-		'boarddir' => 'string',
-		'sourcedir' => 'string',
-		'packagesdir' => 'string',
-		'tasksdir' => 'string',
-		'db_character_set' => 'string',
-	);
-
-	// The Settings file, in an array as if it was handled by updateSettingsFile
-	$settingsArray = array(
-		'<' . '?' . 'php',
-		'',
-		'/**',
-		' * The settings file contains all of the basic settings that need to be present when a database/cache is not available.',
-		' *',
-		' * Simple Machines Forum (SMF)',
-		' *',
-		' * @package SMF',
-		' * @author Simple Machines http://www.simplemachines.org',
-		' * @copyright ' . SMF_SOFTWARE_YEAR . ' Simple Machines and individual contributors',
-		' * @license http://www.simplemachines.org/about/smf/license.php BSD',
-		' *',
-		' * @version ' . SMF_VERSION,
-		' */',
-		'',
-		'########## Maintenance ##########',
-		'/**',
-		' * The maintenance "mode"',
-		' * Set to 1 to enable Maintenance Mode, 2 to make the forum untouchable. (you\'ll have to make it 0 again manually!)',
-		' * 0 is default and disables maintenance mode.',
-		' * @var int 0, 1, 2',
-		' * @global int $maintenance',
-		' */',
-		'$maintenance = 0;',
-		'/**',
-		' * Title for the Maintenance Mode message.',
-		' * @var string',
-		' * @global int $mtitle',
-		' */',
-		'$mtitle = \'Maintenance Mode\';',
-		'/**',
-		' * Description of why the forum is in maintenance mode.',
-		' * @var string',
-		' * @global string $mmessage',
-		' */',
-		'$mmessage = \'Okay faithful users...we\\\'re attempting to restore an older backup of the database...news will be posted once we\\\'re back!\';',
-		'',
-		'########## Forum Info ##########',
-		'/**',
-		' * The name of your forum.',
-		' * @var string',
-		' */',
-		'$mbname = \'My Community\';',
-		'/**',
-		' * The default language file set for the forum.',
-		' * @var string',
-		' */',
-		'$language = \'english\';',
-		'/**',
-		' * URL to your forum\'s folder. (without the trailing /!)',
-		' * @var string',
-		' */',
-		'$boardurl = \'http://127.0.0.1/smf\';',
-		'/**',
-		' * Email address to send emails from. (like noreply@yourdomain.com.)',
-		' * @var string',
-		' */',
-		'$webmaster_email = \'noreply@myserver.com\';',
-		'/**',
-		' * Name of the cookie to set for authentication.',
-		' * @var string',
-		' */',
-		'$cookiename = \'SMFCookie21\';',
-		'',
-		'########## Database Info ##########',
-		'/**',
-		' * The database type',
-		' * Default options: mysql, postgresql',
-		' * @var string',
-		' */',
-		'$db_type = \'mysql\';',
-		'/**',
-		' * The database port',
-		' * 0 to use default port for the database type',
-		' * @var int',
-		' */',
-		'$db_port = 0;',
-		'/**',
-		' * The server to connect to (or a Unix socket)',
-		' * @var string',
-		' */',
-		'$db_server = \'localhost\';',
-		'/**',
-		' * The database name',
-		' * @var string',
-		' */',
-		'$db_name = \'smf\';',
-		'/**',
-		' * Database username',
-		' * @var string',
-		' */',
-		'$db_user = \'root\';',
-		'/**',
-		' * Database password',
-		' * @var string',
-		' */',
-		'$db_passwd = \'\';',
-		'/**',
-		' * Database user for when connecting with SSI',
-		' * @var string',
-		' */',
-		'$ssi_db_user = \'\';',
-		'/**',
-		' * Database password for when connecting with SSI',
-		' * @var string',
-		' */',
-		'$ssi_db_passwd = \'\';',
-		'/**',
-		' * A prefix to put in front of your table names.',
-		' * This helps to prevent conflicts',
-		' * @var string',
-		' */',
-		'$db_prefix = \'smf_\';',
-		'/**',
-		' * Use a persistent database connection',
-		' * @var int|bool',
-		' */',
-		'$db_persist = 0;',
-		'/**',
-		' *',
-		' * @var int|bool',
-		' */',
-		'$db_error_send = 0;',
-		'/**',
-		' * Override the default behavior of the database layer for mb4 handling',
-		' * null keep the default behavior untouched',
-		' * @var null|bool',
-		' */',
-		'$db_mb4 = null;',
-		'',
-		'########## Cache Info ##########',
-		'/**',
-		' * Select a cache system. You want to leave this up to the cache area of the admin panel for',
-		' * proper detection of apc, memcached, output_cache, smf, or xcache',
-		' * (you can add more with a mod).',
-		' * @var string',
-		' */',
-		'$cache_accelerator = \'\';',
-		'/**',
-		' * The level at which you would like to cache. Between 0 (off) through 3 (cache a lot).',
-		' * @var int',
-		' */',
-		'$cache_enable = 0;',
-		'/**',
-		' * This is only used for memcache / memcached. Should be a string of \'server:port,server:port\'',
-		' * @var array',
-		' */',
-		'$cache_memcached = \'\';',
-		'/**',
-		' * This is only for the \'smf\' file cache system. It is the path to the cache directory.',
-		' * It is also recommended that you place this in /tmp/ if you are going to use this.',
-		' * @var string',
-		' */',
-		'$cachedir = dirname(__FILE__) . \'/cache\';',
-		'',
-		'########## Image Proxy ##########',
-		'# This is done entirely in Settings.php to avoid loading the DB while serving the images',
-		'/**',
-		' * Whether the proxy is enabled or not',
-		' * @var bool',
-		' */',
-		'$image_proxy_enabled = true;',
-		'',
-		'/**',
-		' * Secret key to be used by the proxy',
-		' * @var string',
-		' */',
-		'$image_proxy_secret = \'smfisawesome\';',
-		'',
-		'/**',
-		' * Maximum file size (in KB) for individual files',
-		' * @var int',
-		' */',
-		'$image_proxy_maxsize = 5192;',
-		'',
-		'########## Directories/Files ##########',
-		'# Note: These directories do not have to be changed unless you move things.',
-		'/**',
-		' * The absolute path to the forum\'s folder. (not just \'.\'!)',
-		' * @var string',
-		' */',
-		'$boarddir = dirname(__FILE__);',
-		'/**',
-		' * Path to the Sources directory.',
-		' * @var string',
-		' */',
-		'$sourcedir = dirname(__FILE__) . \'/Sources\';',
-		'/**',
-		' * Path to the Packages directory.',
-		' * @var string',
-		' */',
-		'$packagesdir = dirname(__FILE__) . \'/Packages\';',
-		'/**',
-		' * Path to the tasks directory.',
-		' * @var string',
-		' */',
-		'$tasksdir = $sourcedir . \'/tasks\';',
-		'',
-		'# Make sure the paths are correct... at least try to fix them.',
-		'if (!file_exists($boarddir) && file_exists(dirname(__FILE__) . \'/agreement.txt\'))',
-		'	$boarddir = dirname(__FILE__);',
-		'if (!file_exists($sourcedir) && file_exists($boarddir . \'/Sources\'))',
-		'	$sourcedir = $boarddir . \'/Sources\';',
-		'if (!file_exists($cachedir) && file_exists($boarddir . \'/cache\'))',
-		'	$cachedir = $boarddir . \'/cache\';',
-		'',
-		'######### Legacy Settings #########',
-		'# UTF-8 is now the only character set supported in 2.1.',
-		'$db_character_set = \'utf8\';',
-		'',
-		'########## Error-Catching ##########',
-		'# Note: You shouldn\'t touch these settings.',
-		'if (file_exists((isset($cachedir) ? $cachedir : dirname(__FILE__)) . \'/db_last_error.php\'))',
-		'	include((isset($cachedir) ? $cachedir : dirname(__FILE__)) . \'/db_last_error.php\');',
-		'',
-		'if (!isset($db_last_error))',
-		'{',
-		'	// File does not exist so lets try to create it',
-		'	file_put_contents((isset($cachedir) ? $cachedir : dirname(__FILE__)) . \'/db_last_error.php\', \'<\' . \'?\' . "php\n" . \'$db_last_error = 0;\' . "\n" . \'?\' . \'>\');',
-		'	$db_last_error = 0;',
-		'}',
-		'',
-		'?' . '>',
-	);
-
-	// Now, find all of the original settings.  Mark those for the "change".
-	$original = array();
-	foreach ($settingsVars as $setVar => $setType)
-	{
-		global $$setVar;
-
-		// Find the setting.
-		if ($setType == 'string' || $setType == 'string_fatal')
-			$original[$setVar] = isset($$setVar) ? '\'' . addcslashes($$setVar, '\'\\') . '\'' : (strpos('fatal', $setType) ? null : '\'\'');
-		elseif ($setType == 'int' || $setType == 'int_fatal')
-			$original[$setVar] = isset($$setVar) ? (int) $$setVar : (strpos('fatal', $setType) ? null : 0);
-		elseif ($setType == 'bool' || $setType == 'bool_fatal')
-			$original[$setVar] = isset($$setVar) && in_array($$setVar, array(1, true)) ? 'true' : (strpos('fatal', $setType) ? null : 'false');
-		elseif ($setType == 'null' || $setType == 'null_fatal')
-			$original[$setVar] = isset($$setVar) && in_array($$setVar, array(1, true)) ? 'true' : (strpos('fatal', $setType) ? null : 'null');
-
-		// Well this isn't good.  Do we fix it or bail?
-		if (is_null($original) && $setType != 'null' && strpos('fatal', $setType) > -1)
-			return throw_error(sprintf($txt['error_settings_migration_no_var'], $setVar));
-	}
-
-	// Finally, merge the changes with the new ones.
-	$config_vars = $original;
-	foreach ($changes as $setVar => $value)
-	{
-		// Nothing needed here.
-		if ($setVar != 'upgradeData' && $config_vars[$setVar] == $changes[$setVar])
-			continue;
-
-		$config_vars[$setVar] = $value;
-	}
-
-	/*
-		It would be nice to call updateSettingsFile and be done with this. However the function doesn't support passing in the entire file. We also want to backup with a different name, just incase.
-	*/
-
-	// When was Settings.php last changed?
-	$last_settings_change = filemtime($boarddir . '/Settings.php');
-
-	// remove any \r's that made their way in here
-	foreach ($settingsArray as $k => $dummy)
-		$settingsArray[$k] = strtr($dummy, array("\r" => '')) . "\n";
-
-	// go line by line and see whats changing
-	for ($i = 0, $n = count($settingsArray); $i < $n; $i++)
-	{
-		// Don't trim or bother with it if it's not a variable.
-		if (substr($settingsArray[$i], 0, 1) != '$')
-			continue;
-
-		$settingsArray[$i] = trim($settingsArray[$i]) . "\n";
-
-		// Look through the variables to set....
-		foreach ($config_vars as $var => $val)
-		{
-			// be sure someone is not updating db_last_error this with a group
-			if ($var === 'db_last_error')
-				unset($config_vars[$var]);
-			elseif (strncasecmp($settingsArray[$i], '$' . $var, 1 + strlen($var)) == 0)
-			{
-				$comment = strstr(substr($settingsArray[$i], strpos($settingsArray[$i], ';')), '#');
-				$settingsArray[$i] = '$' . $var . ' = ' . $val . ';' . ($comment == '' ? '' : "\t\t" . rtrim($comment)) . "\n";
-
-				// This one's been 'used', so to speak.
-				unset($config_vars[$var]);
-			}
-		}
-
-		// End of the file ... maybe
-		if (substr(trim($settingsArray[$i]), 0, 2) == '?' . '>')
-			$end = $i;
-	}
-
-	// This should never happen, but apparently it is happening.
-	if (empty($end) || $end < 10)
-		$end = count($settingsArray) - 1;
-
-	// Still more variables to go?  Then lets add them at the end.
-	if (!empty($config_vars))
-	{
-		if (trim($settingsArray[$end]) == '?' . '>')
-			$settingsArray[$end++] = '';
-		else
-			$end++;
-
-		// Add in any newly defined vars that were passed
-		foreach ($config_vars as $var => $val)
-			$settingsArray[$end++] = '$' . $var . ' = ' . $val . ';' . "\n";
-
-		$settingsArray[$end] = '?' . '>';
-	}
-	else
-		$settingsArray[$end] = trim($settingsArray[$end]);
-
-	// Sanity error checking: the file needs to be at least 12 lines.
-	if (count($settingsArray) < 12)
-		return throw_error($txt['error_settings_migration_too_short']);
-
-	// Try to avoid a few pitfalls:
-	//  - like a possible race condition,
-	//  - or a failure to write at low diskspace
-	//
-	// Check before you act: if cache is enabled, we can do a simple write test
-	// to validate that we even write things on this filesystem.
-	if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
-		$cachedir = $boarddir . '/cache';
-
-	$test_fp = @fopen($cachedir . '/settings_update.tmp', "w+");
-	if ($test_fp !== false)
-	{
-		fclose($test_fp);
-		$written_bytes = file_put_contents($cachedir . '/settings_update.tmp', 'test', LOCK_EX);
-		@unlink($cachedir . '/settings_update.tmp');
-
-		// Oops. Low disk space, perhaps. Don't mess with Settings.php then.
-		// No means no. :P
-		if ($written_bytes !== 4)
-			return throw_error($txt['error_settings_migration_write_failed']);
-	}
-
-	// Protect me from what I want! :P
-	clearstatcache();
-	if (filemtime($boarddir . '/Settings.php') === $last_settings_change)
-	{
-		// save the old before we do anything
-		$settings_backup_fail = !@is_writable($boarddir . '/Settings_org.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_org.php');
-		$settings_backup_fail = !$settings_backup_fail ? (!file_exists($boarddir . '/Settings_org.php') || filesize($boarddir . '/Settings_org.php') === 0) : $settings_backup_fail;
-
-		// write out the new
-		$write_settings = implode('', $settingsArray);
-		$written_bytes = file_put_contents($boarddir . '/Settings.php', $write_settings, LOCK_EX);
-
-		// survey says ...
-		if ($written_bytes !== strlen($write_settings) && !$settings_backup_fail)
-		{
-			if (file_exists($boarddir . '/Settings_bak.php'))
-				@copy($boarddir . '/Settings_bak.php', $boarddir . '/Settings.php');
-
-			return throw_error($txt['error_settings_migration_general']);
-		}
-	}
-
-	// Even though on normal installations the filemtime should prevent this being used by the installer incorrectly
-	// it seems that there are times it might not. So let's MAKE it dump the cache.
-	if (function_exists('opcache_invalidate'))
-		opcache_invalidate($boarddir . '/Settings.php', true);
-}
-
-/**
- * Determine if we should auto select the migrate Settings file.  This is determined by a variety of missing settings.
- * Prior to checking these settings, we look for advanced setups such as integrations or if variables have been moved
- * to another file.  If these are detected, we abort.
- *
- * @param array $config_vars An array of one or more variables to update
- *
- * @return bool We either successfully update the Settings file, or throw a error here.
- */
-function detectSettingsFileMigrationNeeded()
-{
-	global $boarddir, $packagesdir, $tasksdir, $db_server, $db_type, $image_proxy_enabled, $db_show_debug;
-
-	// We should not migrate if db_show_debug is in there, some dev stuff going on here.
-	if (isset($db_show_debug))
-		return false;
-
-	$file_contents = file_get_contents($boarddir . '/Settings.php');
-
-	// Is there a include statement somewhere in there? Some advanced handling of the variables elsewhere?
-	// Try our best to stay away from the cachedir match.
-	if (preg_match('~\sinclude\((?:(?!\(isset\(\$cachedir))~im', $file_contents))
-		return false;
-
-	// If we find a mention of $GLOBALS, there may be a integration going on.
-	if (preg_match('~\$GLOBALS\[~im', $file_contents))
-		return false;
-
-	// If these are not set, it makes us a candidate to migrate.
-	if (!isset($packagesdir, $tasksdir, $db_server, $db_type, $image_proxy_enabled))
-		return true;
-
-	return false;
 }
 
 ?>
