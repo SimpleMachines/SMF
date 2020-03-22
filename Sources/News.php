@@ -69,7 +69,7 @@ function ShowXmlFeed()
 		$modSettings['xmlnews_enable'] = true;
 
 		// Batch mode builds a whole file and then sends it all when done.
-		if ($_GET['limit'] == 'all' && empty($_REQUEST['c']) && empty($_REQUEST['boards']) && empty($board))
+		if ($_GET['limit'] == 'all' && empty($_GET['c']) && empty($_GET['boards']) && empty($board))
 		{
 			$context['batch_mode'] = true;
 			$_GET['limit'] = 50;
@@ -122,20 +122,20 @@ function ShowXmlFeed()
 	$context['optimize_msg'] = array(
 		'highest' => 'm.id_msg <= b.id_last_msg',
 	);
-	if (!empty($_REQUEST['c']) && empty($board))
+	if (!empty($_GET['c']) && empty($board))
 	{
-		$_REQUEST['c'] = explode(',', $_REQUEST['c']);
-		foreach ($_REQUEST['c'] as $i => $c)
-			$_REQUEST['c'][$i] = (int) $c;
+		$_GET['c'] = explode(',', $_GET['c']);
+		foreach ($_GET['c'] as $i => $c)
+			$_GET['c'][$i] = (int) $c;
 
-		if (count($_REQUEST['c']) == 1)
+		if (count($_GET['c']) == 1)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT name
 				FROM {db_prefix}categories
 				WHERE id_cat = {int:current_category}',
 				array(
-					'current_category' => (int) $_REQUEST['c'][0],
+					'current_category' => (int) $_GET['c'][0],
 				)
 			);
 			list ($feed_meta['title']) = $smcFunc['db_fetch_row']($request);
@@ -150,7 +150,7 @@ function ShowXmlFeed()
 			WHERE b.id_cat IN ({array_int:current_category_list})
 				AND {query_see_board}',
 			array(
-				'current_category_list' => $_REQUEST['c'],
+				'current_category_list' => $_GET['c'],
 			)
 		);
 		$total_cat_posts = 0;
@@ -169,11 +169,11 @@ function ShowXmlFeed()
 		if ($total_cat_posts > 100 && $total_cat_posts > $modSettings['totalMessages'] / 15)
 			$context['optimize_msg']['lowest'] = 'm.id_msg >= ' . max(0, $modSettings['maxMsgID'] - 400 - $_GET['limit'] * 5);
 	}
-	elseif (!empty($_REQUEST['boards']))
+	elseif (!empty($_GET['boards']))
 	{
-		$_REQUEST['boards'] = explode(',', $_REQUEST['boards']);
-		foreach ($_REQUEST['boards'] as $i => $b)
-			$_REQUEST['boards'][$i] = (int) $b;
+		$_GET['boards'] = explode(',', $_GET['boards']);
+		foreach ($_GET['boards'] as $i => $b)
+			$_GET['boards'][$i] = (int) $b;
 
 		$request = $smcFunc['db_query']('', '
 			SELECT b.id_board, b.num_posts, b.name
@@ -182,8 +182,8 @@ function ShowXmlFeed()
 				AND {query_see_board}
 			LIMIT {int:limit}',
 			array(
-				'board_list' => $_REQUEST['boards'],
-				'limit' => count($_REQUEST['boards']),
+				'board_list' => $_GET['boards'],
+				'limit' => count($_GET['boards']),
 			)
 		);
 
@@ -244,8 +244,8 @@ function ShowXmlFeed()
 	// We only want some information, not all of it.
 	$cachekey = array($xml_format, $_GET['action'], $_GET['limit'], $_GET['sa'], $_GET['offset']);
 	foreach (array('board', 'boards', 'c') as $var)
-		if (isset($_REQUEST[$var]))
-			$cachekey[] = $var . '=' . implode(',', $_REQUEST[$var]);
+		if (isset($_GET[$var]))
+			$cachekey[] = $var . '=' . implode(',', $_GET[$var]);
 	$cachekey = md5($smcFunc['json_encode']($cachekey) . (!empty($query_this_board) ? $query_this_board : ''));
 	$cache_t = microtime(true);
 
@@ -964,7 +964,7 @@ function getXmlNews($xml_format)
 		if ($loops < 2 && $smcFunc['db_num_rows']($request) < $_GET['limit'])
 		{
 			$smcFunc['db_free_result']($request);
-			if (empty($_REQUEST['boards']) && empty($board))
+			if (empty($_GET['boards']) && empty($board))
 				unset($context['optimize_msg']['lowest']);
 			else
 				$context['optimize_msg']['lowest'] = 'm.id_msg >= t.id_first_msg';
@@ -1386,7 +1386,7 @@ function getXmlRecent($xml_format)
 		if ($loops < 2 && $smcFunc['db_num_rows']($request) < $_GET['limit'])
 		{
 			$smcFunc['db_free_result']($request);
-			if (empty($_REQUEST['boards']) && empty($board))
+			if (empty($_GET['boards']) && empty($board))
 				unset($context['optimize_msg']['lowest']);
 			else
 				$context['optimize_msg']['lowest'] = $loops ? 'm.id_msg >= t.id_first_msg' : 'm.id_msg >= (t.id_last_msg - t.id_first_msg) / 2';
