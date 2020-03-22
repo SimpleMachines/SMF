@@ -237,22 +237,6 @@ function ShowXmlFeed()
 	// Show in rss or proprietary format?
 	$xml_format = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf')) ? $_GET['type'] : 'rss2';
 
-	// @todo Birthdays?
-
-	// List all the different types of data they can pull.
-	$subActions = array(
-		'recent' => array('getXmlRecent', 'recent-post'),
-		'news' => array('getXmlNews', 'article'),
-		'members' => array('getXmlMembers', 'member'),
-		'profile' => array('getXmlProfile', null),
-	);
-
-	// Easy adding of sub actions
-	call_integration_hook('integrate_xmlfeeds', array(&$subActions));
-
-	if (empty($_GET['sa']) || !isset($subActions[$_GET['sa']]))
-		$_GET['sa'] = 'recent';
-
 	// We only want some information, not all of it.
 	$cachekey = array($xml_format, $_GET['action'], $_GET['limit'], $_GET['sa'], $_GET['offset']);
 	foreach (array('board', 'boards', 'c') as $var)
