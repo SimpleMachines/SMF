@@ -49,12 +49,12 @@ function ShowXmlFeed()
 
 	// List all the different types of data they can pull.
 	$subActions = array(
-		'recent' => array('getXmlRecent', 'recent-post'),
-		'news' => array('getXmlNews', 'article'),
-		'members' => array('getXmlMembers', 'member'),
-		'profile' => array('getXmlProfile', null),
-		'posts' => array('getXmlPosts', 'member-post'),
-		'pms' => array('getXmlPMs', 'personal-message'),
+		'recent' => 'getXmlRecent',
+		'news' => 'getXmlNews',
+		'members' => 'getXmlMembers',
+		'profile' => 'getXmlProfile',
+		'posts' => 'getXmlPosts',
+		'pms' => 'getXmlPMs',
 	);
 
 	// Easy adding of sub actions
@@ -256,7 +256,7 @@ function ShowXmlFeed()
 	}
 	if (empty($xml_data))
 	{
-		$call = call_helper($subActions[$_GET['sa']][0], true);
+		$call = call_helper($subActions[$_GET['sa']], true);
 
 		if (!empty($call))
 			$xml_data = call_user_func($call, $xml_format);
@@ -268,7 +268,7 @@ function ShowXmlFeed()
 
 	$feed_meta['title'] = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_meta['title']) ? $feed_meta['title'] : '');
 
-	buildXmlFeed($xml_format, $xml_data, $feed_meta, $_GET['sa'], $subActions[$_GET['sa']][1]);
+	buildXmlFeed($xml_format, $xml_data, $feed_meta, $_GET['sa']);
 
 	// Descriptive filenames = good
 	$xml_filename[] = preg_replace('/\s+/', '_', $feed_meta['title']);
@@ -479,7 +479,7 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction, $item_tag 
 		$context['feed']['header'] .= $extraFeedTags_string;
 
 		// Output all of the associative array, start indenting with 2 tabs, and name everything "item".
-		dumpTags($xml_data, 2, null, $xml_format, $forceCdataKeys, $nsKeys);
+		dumpTags($xml_data, 2, $xml_format, $forceCdataKeys, $nsKeys);
 
 		// Output the footer of the xml.
 		$context['feed']['footer'] = '
@@ -514,7 +514,7 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction, $item_tag 
 
 		$context['feed']['header'] .= $extraFeedTags_string;
 
-		dumpTags($xml_data, 1, null, $xml_format, $forceCdataKeys, $nsKeys);
+		dumpTags($xml_data, 1, $xml_format, $forceCdataKeys, $nsKeys);
 
 		$context['feed']['footer'] = '
 </feed>';
@@ -551,7 +551,7 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction, $item_tag 
 		</items>
 	</channel>';
 
-		dumpTags($xml_data, 1, null, $xml_format, $forceCdataKeys, $nsKeys);
+		dumpTags($xml_data, 1, $xml_format, $forceCdataKeys, $nsKeys);
 
 		$context['feed']['footer'] = '
 </rdf:RDF>';
@@ -566,7 +566,7 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction, $item_tag 
 		$context['feed']['header'] .= $extraFeedTags_string;
 
 		// Dump out that associative array.  Indent properly.... and use the right names for the base elements.
-		dumpTags($xml_data, 1, $item_tag, $xml_format, $forceCdataKeys, $nsKeys);
+		dumpTags($xml_data, 1, $xml_format, $forceCdataKeys, $nsKeys);
 
 		$context['feed']['footer'] = '
 </smf:xml-feed>';
@@ -686,12 +686,11 @@ function cdata_parse($data, $ns = '', $force = false)
  *
  * @param array $data The array to output as xml data
  * @param int $i The amount of indentation to use.
- * @param null|string $tag
  * @param string $xml_format The format to use ('atom', 'rss', 'rss2' or empty for plain XML)
  * @param array $forceCdataKeys A list of keys on which to force cdata wrapping (used by mods, maybe)
  * @param array $nsKeys Key-value pairs of namespace prefixes to pass to cdata_parse() (used by mods, maybe)
  */
-function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = array(), $nsKeys = array())
+function dumpTags($data, $i, $xml_format = '', $forceCdataKeys = array(), $nsKeys = array())
 {
 	global $context;
 
@@ -702,7 +701,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 	foreach ($data as $element)
 	{
 		// If a tag was passed, use it instead of the key.
-		$key = isset($tag) ? $tag : (isset($element['tag']) ? $element['tag'] : null);
+		$key = $element['tag'];
 		$val = isset($element['content']) ? $element['content'] : null;
 		$attrs = isset($element['attributes']) ? $element['attributes'] : null;
 
@@ -738,7 +737,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '', $forceCdataKeys = ar
 			if (is_array($val))
 			{
 				// An array.  Dump it, and then indent the tag.
-				dumpTags($val, $i + 1, null, $xml_format, $forceCdataKeys, $nsKeys);
+				dumpTags($val, $i + 1, $xml_format, $forceCdataKeys, $nsKeys);
 				$context['feed']['items'] .= "\n" . str_repeat("\t", $i);
 			}
 			// A string with returns in it.... show this as a multiline element.
