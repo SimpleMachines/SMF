@@ -99,6 +99,9 @@ function ShowXmlFeed()
 	$_GET['limit'] = empty($_GET['limit']) || (int) $_GET['limit'] < 1 ? 5 : min((int) $_GET['limit'], 255);
 	$_GET['offset'] = empty($_GET['offset']) || (int) $_GET['offset'] < 1 ? 0 : (int) $_GET['offset'];
 
+	// Show in rss or proprietary format?
+	$xml_format = $_GET['type'] = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf')) ? $_GET['type'] : 'rss2';
+
 	// Some general metadata for this feed. We'll change some of these values below.
 	$feed_meta = array(
 		'title' => '',
@@ -108,7 +111,11 @@ function ShowXmlFeed()
 		'rights' => '© ' . date('Y') . ' ' . $context['forum_name'],
 		'icon' => !empty($settings['og_image']) ? $settings['og_image'] : $boardurl . '/favicon.ico',
 		'language' => !empty($txt['lang_locale']) ? str_replace("_", "-", substr($txt['lang_locale'], 0, strcspn($txt['lang_locale'], "."))) : 'en',
+		'self' => $scripturl,
 	);
+	foreach (array('action', 'sa', 'type', 'board', 'boards', 'c', 'u', 'limit', 'offset') as $var)
+		if (isset($_GET[$var]))
+			$feed_meta['self'] .= ($feed_meta['self'] === $scripturl ? '?' : ';' ) . $var . '=' . $_GET[$var];
 
 	// Handle the cases where a board, boards, or category is asked for.
 	$query_this_board = 1;
@@ -234,20 +241,19 @@ function ShowXmlFeed()
 		$context['optimize_msg']['lowest'] = 'm.id_msg >= ' . max(0, $modSettings['maxMsgID'] - 100 - $_GET['limit'] * 5);
 	}
 
-	// Show in rss or proprietary format?
-	$xml_format = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf')) ? $_GET['type'] : 'rss2';
-
 	// We only want some information, not all of it.
 	$cachekey = array($xml_format, $_GET['action'], $_GET['limit'], $_GET['sa'], $_GET['offset']);
 	foreach (array('board', 'boards', 'c') as $var)
 		if (isset($_REQUEST[$var]))
-			$cachekey[] = $var . '=' . $_REQUEST[$var];
+			$cachekey[] = $var . '=' . implode(',', $_REQUEST[$var]);
 	$cachekey = md5($smcFunc['json_encode']($cachekey) . (!empty($query_this_board) ? $query_this_board : ''));
 	$cache_t = microtime(true);
 
 	// Get the associative array representing the xml.
 	if (!empty($cache_enable) && (!$user_info['is_guest'] || $cache_enable >= 3))
+	{
 		$xml_data = cache_get_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, 240);
+	}
 	if (empty($xml_data))
 	{
 		$call = call_helper($subActions[$_GET['sa']][0], true);
@@ -262,6 +268,115 @@ function ShowXmlFeed()
 
 	$feed_meta['title'] = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_meta['title']) ? $feed_meta['title'] : '');
 
+	buildXmlFeed($xml_format, $xml_data, $feed_meta, $_GET['sa'], $subActions[$_GET['sa']][1]);
+
+	// Descriptive filenames = good
+	$xml_filename[] = preg_replace('/\s+/', '_', $feed_meta['title']);
+	$xml_filename[] = $subaction;
+	if (in_array($_GET['sa'], array('profile', 'posts', 'pms')))
+		$xml_filename[] = 'u=' . (isset($_GET['u']) ? (int) $_GET['u'] : $user_info['id']);
+	if (!empty($boards))
+		$xml_filename[] = 'boards=' . implode(',', $boards);
+	elseif (!empty($board))
+		$xml_filename[] = 'board=' . $board;
+	$xml_filename[] = $xml_format;
+	$xml_filename = strtr(un_htmlspecialchars(implode('-', $xml_filename)), '"', '') ;
+
+	// Batch mode involves a lot of reading and writing to a temporary file
+	if (!empty($context['batch_mode']))
+	{
+		$xml_filepath = $cachedir . '/' . $xml_filename . '.xml';
+
+		// Append our current items to the output file
+		if (file_exists($xml_filepath))
+		{
+			$handle = fopen($xml_filepath, 'r+');
+
+			// Trim off the existing feed footer
+			ftruncate($handle, filesize($xml_filepath) - strlen($context['feed']['footer']));
+
+			// Add the new data
+			fseek($handle, 0, SEEK_END);
+			fwrite($handle, $context['feed']['items']);
+			fwrite($handle, $context['feed']['footer']);
+
+			fclose($handle);
+		}
+		else
+			file_put_contents($xml_filepath, implode('', $context['feed']));
+
+		if (!empty($context['batch_done']))
+		{
+			if (file_exists($xml_filepath))
+				$feed = file_get_contents($xml_filepath);
+			else
+				$feed = implode('', $context['feed']);
+
+			$_GET['download'] = true;
+			unlink($progress_file);
+			unlink($xml_filepath);
+		}
+		else
+		{
+			// This shouldn't interfere with normal feed reader operation, because the only way this
+			// can happen is when the user is logged into their account, which isn't possible when
+			// connecting via any normal feed reader.
+			loadTemplate('Admin');
+			loadLanguage('Admin');
+			$context['sub_template'] = 'not_done';
+			$context['continue_post_data'] = '';
+			$context['continue_countdown'] = 3;
+			$context['continue_percent'] = number_format(($context['batch_prev'] / $context['batch_total']) * 100, 1);
+			$context['continue_get_data'] = '?action=' . $_GET['action'] . ';sa=' . $_GET['sa'] . ';type=' . $xml_format . (!empty($_GET['u']) ? ';u=' . $_GET['u'] : '') . ';limit=all';
+
+			if ($context['batch_prev'] == $context['batch_total'])
+			{
+				$context['continue_countdown'] = 1;
+				$context['continue_post_data'] = '
+					<script>
+						var x = document.getElementsByName("cont");
+						var i;
+						for (i = 0; i < x.length; i++) {
+							x[i].disabled = true;
+						}
+					</script>';
+			}
+		}
+	}
+	// Keepin' it simple...
+	else
+		$feed = implode('', $context['feed']);
+
+	if (!empty($feed))
+	{
+		// This is an xml file....
+		ob_end_clean();
+		if (!empty($modSettings['enableCompressedOutput']))
+			@ob_start('ob_gzhandler');
+		else
+			ob_start();
+
+		if ($xml_format == 'smf' || isset($_GET['debug']))
+			header('content-type: text/xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
+		elseif ($xml_format == 'rss' || $xml_format == 'rss2')
+			header('content-type: application/rss+xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
+		elseif ($xml_format == 'atom')
+			header('content-type: application/atom+xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
+		elseif ($xml_format == 'rdf')
+			header('content-type: ' . (isBrowser('ie') ? 'text/xml' : 'application/rdf+xml') . '; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
+
+		header('content-disposition: ' . (isset($_GET['download']) ? 'attachment' : 'inline') . '; filename="' . $xml_filename . '.xml"');
+
+		echo $feed;
+
+		obExit(false);
+	}
+}
+
+function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction, $item_tag = null)
+{
+	global $smcFunc, $context, $user_info, $txt;
+
 	// Allow mods to add extra namespaces and tags to the feed/channel
 	$namespaces = array(
 		'rss' => array(),
@@ -273,11 +388,11 @@ function ShowXmlFeed()
 			'dc' => 'http://purl.org/dc/elements/1.1/',
 		),
 		'smf' => array(
-			'' => 'https://www.simplemachines.org/xml/' . $_GET['sa'],
+			'' => 'https://www.simplemachines.org/xml/' . $subaction,
 			'smf' => 'https://www.simplemachines.org/',
 		),
 	);
-	if ($_GET['sa'] == 'pms')
+	if ($subaction == 'pms')
 	{
 		$namespaces['rss']['smf'] = 'https://www.simplemachines.org/';
 		$namespaces['rss2']['smf'] = 'https://www.simplemachines.org/';
@@ -301,10 +416,10 @@ function ShowXmlFeed()
 
 	// If mods want to do somthing with this feed, let them do that now.
 	// Provide the feed's data, metadata, namespaces, extra feed-level tags, keys that need special handling, the feed format, and the requested subaction
-	call_integration_hook('integrate_xml_data', array(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $_GET['sa']));
+	call_integration_hook('integrate_xml_data', array(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction));
 
 	// These can't be empty
-	foreach (array('title', 'desc', 'source') as $mkey)
+	foreach (array('title', 'desc', 'source', 'self') as $mkey)
 		$feed_meta[$mkey] = !empty($feed_meta[$mkey]) ? $feed_meta[$mkey] : $orig_feed_meta[$mkey];
 
 	// Sanitize basic feed metadata values
@@ -326,29 +441,12 @@ function ShowXmlFeed()
 			$extraFeedTags_string .= "\n" . $indent . $extraTag;
 	}
 
-	// Descriptive filenames = good
-	$xml_filename[] = preg_replace('/\s+/', '_', $feed_meta['title']);
-	$xml_filename[] = $_GET['sa'];
-	if (in_array($_GET['sa'], array('profile', 'posts', 'pms')))
-		$xml_filename[] = 'u=' . (isset($_GET['u']) ? (int) $_GET['u'] : $user_info['id']);
-	if (!empty($boards))
-		$xml_filename[] = 'boards=' . implode(',', $boards);
-	elseif (!empty($board))
-		$xml_filename[] = 'board=' . $board;
-	$xml_filename[] = $xml_format;
-	$xml_filename = strtr(un_htmlspecialchars(implode('-', $xml_filename)), '"', '') ;
-
 	// First, output the xml header.
 	$context['feed']['header'] = '<?xml version="1.0" encoding="' . $context['character_set'] . '"?' . '>';
 
 	// Are we outputting an rss feed or one with more information?
 	if ($xml_format == 'rss' || $xml_format == 'rss2')
 	{
-		if ($xml_format == 'rss2')
-			foreach ($_REQUEST as $var => $val)
-				if (in_array($var, array('action', 'sa', 'type', 'board', 'boards', 'c', 'u', 'limit')))
-					$url_parts[] = $var . '=' . (is_array($val) ? implode(',', $val) : $val);
-
 		// Start with an RSS 2.0 header.
 		$context['feed']['header'] .= '
 <rss version=' . ($xml_format == 'rss2' ? '"2.0"' : '"0.92"') . ' xml:lang="' . strtr($txt['lang_locale'], '_', '-') . '"' . $ns_string . '>
@@ -376,7 +474,7 @@ function ShowXmlFeed()
 		// RSS2 calls for this.
 		if ($xml_format == 'rss2')
 			$context['feed']['header'] .= '
-		<atom:link rel="self" type="application/rss+xml" href="' . $scripturl . (!empty($url_parts) ? '?' . implode(';', $url_parts) : '') . '" />';
+		<atom:link rel="self" type="application/rss+xml" href="' . $feed_meta['self'] . '" />';
 
 		$context['feed']['header'] .= $extraFeedTags_string;
 
@@ -390,19 +488,15 @@ function ShowXmlFeed()
 	}
 	elseif ($xml_format == 'atom')
 	{
-		foreach ($_REQUEST as $var => $val)
-			if (in_array($var, array('action', 'sa', 'type', 'board', 'boards', 'c', 'u', 'limit', 'offset')))
-				$url_parts[] = $var . '=' . (is_array($val) ? implode(',', $val) : $val);
-
 		$context['feed']['header'] .= '
 <feed' . $ns_string . (!empty($feed_meta['language']) ? ' xml:lang="' . $feed_meta['language'] . '"' : '') . '>
 	<title>' . $feed_meta['title'] . '</title>
 	<link rel="alternate" type="text/html" href="' . $feed_meta['source'] . '" />
-	<link rel="self" type="application/atom+xml" href="' . $scripturl . (!empty($url_parts) ? '?' . implode(';', $url_parts) : '') . '" />
+	<link rel="self" type="application/atom+xml" href="' . $feed_meta['self'] . '" />
 	<updated>' . gmstrftime('%Y-%m-%dT%H:%M:%SZ') . '</updated>
 	<id>' . $feed_meta['source'] . '</id>
 	<subtitle>' . $feed_meta['desc'] . '</subtitle>
-	<generator uri="https://www.simplemachines.org" version="' . trim(strtr($forum_version, array('SMF' => ''))) . '">SMF</generator>';
+	<generator uri="https://www.simplemachines.org" version="' . SMF_VERSION . '">SMF</generator>';
 
 		if (!empty($feed_meta['icon']))
 			$context['feed']['header'] .= '
@@ -472,100 +566,10 @@ function ShowXmlFeed()
 		$context['feed']['header'] .= $extraFeedTags_string;
 
 		// Dump out that associative array.  Indent properly.... and use the right names for the base elements.
-		dumpTags($xml_data, 1, $subActions[$_GET['sa']][1], $xml_format, $forceCdataKeys, $nsKeys);
+		dumpTags($xml_data, 1, $item_tag, $xml_format, $forceCdataKeys, $nsKeys);
 
 		$context['feed']['footer'] = '
 </smf:xml-feed>';
-	}
-
-	// Batch mode involves a lot of reading and writing to a temporary file
-	if (!empty($context['batch_mode']))
-	{
-		$xml_filepath = $cachedir . '/' . $xml_filename . '.xml';
-
-		// Append our current items to the output file
-		if (file_exists($xml_filepath))
-		{
-			$handle = fopen($xml_filepath, 'r+');
-
-			// Trim off the existing feed footer
-			ftruncate($handle, filesize($xml_filepath) - strlen($context['feed']['footer']));
-
-			// Add the new data
-			fseek($handle, 0, SEEK_END);
-			fwrite($handle, $context['feed']['items']);
-			fwrite($handle, $context['feed']['footer']);
-
-			fclose($handle);
-		}
-		else
-			file_put_contents($xml_filepath, implode('', $context['feed']));
-
-		if (!empty($context['batch_done']))
-		{
-			if (file_exists($xml_filepath))
-				$feed = file_get_contents($xml_filepath);
-			else
-				$feed = implode('', $context['feed']);
-
-			$_REQUEST['download'] = true;
-			unlink($progress_file);
-			unlink($xml_filepath);
-		}
-		else
-		{
-			// This shouldn't interfere with normal feed reader operation, because the only way this
-			// can happen is when the user is logged into their account, which isn't possible when
-			// connecting via any normal feed reader.
-			loadTemplate('Admin');
-			loadLanguage('Admin');
-			$context['sub_template'] = 'not_done';
-			$context['continue_post_data'] = '';
-			$context['continue_countdown'] = 3;
-			$context['continue_percent'] = number_format(($context['batch_prev'] / $context['batch_total']) * 100, 1);
-			$context['continue_get_data'] = '?action=' . $_REQUEST['action'] . ';sa=' . $_GET['sa'] . ';type=' . $xml_format . (!empty($_GET['u']) ? ';u=' . $_GET['u'] : '') . ';limit=all';
-
-			if ($context['batch_prev'] == $context['batch_total'])
-			{
-				$context['continue_countdown'] = 1;
-				$context['continue_post_data'] = '
-					<script>
-						var x = document.getElementsByName("cont");
-						var i;
-						for (i = 0; i < x.length; i++) {
-							x[i].disabled = true;
-						}
-					</script>';
-			}
-		}
-	}
-	// Keepin' it simple...
-	else
-		$feed = implode('', $context['feed']);
-
-	if (!empty($feed))
-	{
-		// This is an xml file....
-		ob_end_clean();
-		if (!empty($modSettings['enableCompressedOutput']))
-			@ob_start('ob_gzhandler');
-		else
-			ob_start();
-
-		if ($xml_format == 'smf' || isset($_REQUEST['debug']))
-			header('content-type: text/xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
-		elseif ($xml_format == 'rss' || $xml_format == 'rss2')
-			header('content-type: application/rss+xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
-		elseif ($xml_format == 'atom')
-			header('content-type: application/atom+xml; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
-		elseif ($xml_format == 'rdf')
-			header('content-type: ' . (isBrowser('ie') ? 'text/xml' : 'application/rdf+xml') . '; charset=' . (empty($context['character_set']) ? 'UTF-8' : $context['character_set']));
-
-		header('content-disposition: ' . (isset($_REQUEST['download']) ? 'attachment' : 'inline') . '; filename="' . $xml_filename . '.xml"');
-
-		echo $feed;
-
-		obExit(false);
 	}
 }
 
