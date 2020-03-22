@@ -140,8 +140,6 @@ function ShowXmlFeed()
 			);
 			list ($feed_meta['title']) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
-
-			$feed_meta['title'] = ' - ' . strip_tags($feed_meta['title']);
 		}
 
 		$request = $smcFunc['db_query']('', '
@@ -197,7 +195,7 @@ function ShowXmlFeed()
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			if ($num_boards == 1)
-				$feed_meta['title'] = ' - ' . strip_tags($row['name']);
+				$feed_meta['title'] = $row['name'];
 
 			$boards[] = $row['id_board'];
 			$total_posts += $row['num_posts'];
@@ -225,7 +223,7 @@ function ShowXmlFeed()
 		list ($total_posts) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
-		$feed_meta['title'] = ' - ' . strip_tags($board_info['name']);
+		$feed_meta['title'] = $board_info['name'];
 		$feed_meta['source'] .= '?board=' . $board . '.0';
 
 		$query_this_board = 'b.id_board = ' . $board;
@@ -240,6 +238,12 @@ function ShowXmlFeed()
 			AND b.id_board != ' . $modSettings['recycle_board'] : '');
 		$context['optimize_msg']['lowest'] = 'm.id_msg >= ' . max(0, $modSettings['maxMsgID'] - 100 - $_GET['limit'] * 5);
 	}
+
+	$feed_meta['title'] .= (!empty($feed_meta['title']) ? ' - ' : '') . $context['forum_name'];
+
+	// Sanitize feed metadata values
+	foreach ($feed_meta as $mkey => $mvalue)
+		$feed_meta[$mkey] = strip_tags($mvalue);
 
 	// We only want some information, not all of it.
 	$cachekey = array($xml_format, $_GET['action'], $_GET['limit'], $_GET['sa'], $_GET['offset']);
@@ -265,8 +269,6 @@ function ShowXmlFeed()
 		|| (!$user_info['is_guest'] && (microtime(true) - $cache_t > 0.2))))
 			cache_put_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, $xml_data, 240);
 	}
-
-	$feed_meta['title'] = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_meta['title']) ? $feed_meta['title'] : '');
 
 	buildXmlFeed($xml_format, $xml_data, $feed_meta, $_GET['sa']);
 
@@ -422,9 +424,9 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction, $item_tag 
 	foreach (array('title', 'desc', 'source', 'self') as $mkey)
 		$feed_meta[$mkey] = !empty($feed_meta[$mkey]) ? $feed_meta[$mkey] : $orig_feed_meta[$mkey];
 
-	// Sanitize basic feed metadata values
+	// Sanitize feed metadata values
 	foreach ($feed_meta as $mkey => $mvalue)
-		$feed_meta[$mkey] = cdata_parse(strip_tags(fix_possible_url($feed_meta[$mkey])));
+		$feed_meta[$mkey] = cdata_parse(fix_possible_url($mvalue));
 
 	$ns_string = '';
 	if (!empty($namespaces[$xml_format]))
