@@ -661,6 +661,17 @@ function loadEssentialData()
 		return random_int($min, $max);
 	};
 
+	// This is now needed for loadUserSettings()
+	$smcFunc['random_bytes'] = function($bytes)
+	{
+		global $sourcedir;
+
+		if (!is_callable('random_bytes'))
+			require_once($sourcedir . '/random_compat/random.php');
+
+		return random_bytes($bytes);
+	};
+
 	// We need this for authentication and some upgrade code
 	require_once($sourcedir . '/Subs-Auth.php');
 	require_once($sourcedir . '/Class-Package.php');
