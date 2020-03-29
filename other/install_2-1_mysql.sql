@@ -847,7 +847,7 @@ CREATE TABLE {$db_prefix}package_servers (
 	name VARCHAR(255) NOT NULL DEFAULT '',
 	url VARCHAR(255) NOT NULL DEFAULT '',
 	validation_url VARCHAR(255) NOT NULL DEFAULT '',
-	extra TEXT
+	extra TEXT,
 	PRIMARY KEY (id_server)
 ) ENGINE={$engine};
 
