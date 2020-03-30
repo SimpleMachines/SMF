@@ -149,7 +149,6 @@ $txt['unwatch_topic'] = 'Stop watching Topic';
 $txt['watching_this_topic'] = 'You are watching this topic, and will receive notifications about it.';
 $txt['notify'] = 'Notify';
 $txt['unnotify'] = 'Unnotify';
-$txt['notify_request'] = 'Do you want a notification email if someone replies to this topic?';
 // Use numeric entities in the below string.
 $txt['regards_team'] = "Regards,\nThe " . $context['forum_name'] . ' Team.';
 $txt['notify_replies'] = 'Notify of replies';
@@ -213,7 +212,6 @@ $txt['welcome_newest_member'] = 'Please welcome %1$s, our newest member.';
 $txt['admin_center'] = 'Administration Center';
 $txt['last_edit_by'] = '<span class="lastedit">Last Edit</span>: %1$s by %2$s';
 $txt['last_edit_reason'] = '<span id="reason" class="lastedit">Reason</span>: %1$s';
-$txt['notify_deactivate'] = 'Would you like to deactivate notification on this topic?';
 
 $txt['recent_posts'] = 'Recent posts';
 
@@ -716,9 +714,6 @@ $txt['total_time_logged_m'] = 'm';
 
 $txt['approve_members_waiting'] = 'Member Approvals';
 
-$txt['notifyboard_turnon'] = 'Do you want a notification email when someone posts a new topic in this board?';
-$txt['notifyboard_turnoff'] = 'Are you sure you do not want to receive new topic notifications for this board?';
-
 $txt['activate_code'] = 'Your activation code is';
 
 $txt['find_members'] = 'Find Members';
@@ -883,6 +878,18 @@ $txt['notify_board_3'] = 'Receive Emails and Alerts';
 $txt['notify_board_1_desc'] = 'You will not receive any emails or alerts for new topics';
 $txt['notify_board_2_desc'] = 'You will receive alerts for this board.';
 $txt['notify_board_3_desc'] = 'You will receive both alerts and e-mails for this board.';
+
+$txt['notify_board_prompt'] = 'Do you want a notification email when someone posts a new topic in this board?';
+$txt['notify_board_subscribed'] = '%1$s has been subscribed to new topic notifications for this board.';
+$txt['notify_board_unsubscribed'] = '%1$s has been unsubscribed from new topic notifications for this board.';
+
+$txt['notify_topic_prompt'] = 'Do you want a notification email if someone replies to this topic?';
+$txt['notify_topic_subscribed'] = '%1$s has been subscribed to new reply notifications for this topic.';
+$txt['notify_topic_unsubscribed'] = '%1$s has been unsubscribed from new reply notifications for this topic.';
+
+$txt['notify_announcements_prompt'] = 'Do you want to receive forum newsletters, announcements and important notifications by email?';
+$txt['notify_announcements_subscribed'] = '%1$s has been subscribed to forum newsletters, announcements and important notifications.';
+$txt['notify_announcements_unsubscribed'] = '%1$s has been unsubscribed from forum newsletters, announcements and important notifications.';
 
 // Mobile Actions
 $txt['mobile_action'] = 'User actions';

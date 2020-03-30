@@ -846,6 +846,8 @@ CREATE TABLE {$db_prefix}package_servers (
 	id_server SMALLINT UNSIGNED AUTO_INCREMENT,
 	name VARCHAR(255) NOT NULL DEFAULT '',
 	url VARCHAR(255) NOT NULL DEFAULT '',
+	validation_url VARCHAR(255) NOT NULL DEFAULT '',
+	extra TEXT,
 	PRIMARY KEY (id_server)
 ) ENGINE={$engine};
 
@@ -1851,8 +1853,9 @@ VALUES (1, 1, 1, 1, UNIX_TIMESTAMP(), '{$default_topic_subject}', 'Simple Machin
 #
 
 INSERT INTO {$db_prefix}package_servers
-	(name, url)
-VALUES ('Simple Machines Third-party Mod Site', 'https://custom.simplemachines.org/packages/mods');
+	(name, url, validation_url)
+VALUES ('Simple Machines Third-party Mod Site', 'https://custom.simplemachines.org/packages/mods', 'https://custom.simplemachines.org/api.php?action=validate;version=v1;smf_version={SMF_VERSION}'),
+		('Simple Machines Downloads Site', 'https://download.simplemachines.org/browse.php?api=v1;smf_version={SMF_VERSION}', 'https://download.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}');
 # --------------------------------------------------------
 
 #
@@ -1976,7 +1979,6 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('mostOnline', '1'),
 	('mostOnlineToday', '1'),
 	('mostDate', UNIX_TIMESTAMP()),
-	('allow_disableAnnounce', '1'),
 	('trackStats', '1'),
 	('userLanguage', '1'),
 	('titlesEnable', '1'),

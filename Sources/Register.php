@@ -128,12 +128,9 @@ function Register($reg_errors = array())
 		}
 	}
 
-	if (!empty($modSettings['allow_disableAnnounce']))
-	{
-		require_once($sourcedir . '/Subs-Notify.php');
-		$prefs = getNotifyPrefs(0, 'announcements');
-		$context['notify_announcements'] = !empty($prefs[0]['announcements']);
-	}
+	require_once($sourcedir . '/Subs-Notify.php');
+	$prefs = getNotifyPrefs(0, 'announcements');
+	$context['notify_announcements'] = !empty($prefs[0]['announcements']);
 
 	if (!empty($modSettings['userLanguage']))
 	{
@@ -513,18 +510,15 @@ function Register2()
 	// Do our spam protection now.
 	spamProtection('register');
 
-	// Do they want to recieve announcements?
-	if (!empty($modSettings['allow_disableAnnounce']))
-	{
-		require_once($sourcedir . '/Subs-Notify.php');
-		$prefs = getNotifyPrefs($memberID, 'announcements', true);
-		$var = !empty($_POST['notify_announcements']);
-		$pref = !empty($prefs[$memberID]['announcements']);
+	// Do they want to receive announcements?
+	require_once($sourcedir . '/Subs-Notify.php');
+	$prefs = getNotifyPrefs($memberID, 'announcements', true);
+	$var = !empty($_POST['notify_announcements']);
+	$pref = !empty($prefs[$memberID]['announcements']);
 
-		// Don't update if the default is the same.
-		if ($var != $pref)
-			setNotifyPrefs($memberID, array('announcements' => (int) !empty($_POST['notify_announcements'])));
-	}
+	// Don't update if the default is the same.
+	if ($var != $pref)
+		setNotifyPrefs($memberID, array('announcements' => (int) !empty($_POST['notify_announcements'])));
 
 	// We'll do custom fields after as then we get to use the helper function!
 	if (!empty($_POST['customfield']))
