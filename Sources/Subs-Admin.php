@@ -877,7 +877,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				'}',
 			)),
 			// Designed to match both 2.0 and 2.1 versions of this code.
-			'search_pattern' => '~\n?#+ Error.Catching #+.*?\$db_last_error = 0;(?' . '>\s*})?(?=\n|\?' . '>|$)~s',
+			'search_pattern' => '~\n?#+ Error.Catching #+\n[^\n]*?settings\.\n(?:\$db_last_error = \d{1,11};|if \(file_exists.*?\$db_last_error = 0;(?' . '>\s*}))(?=\n|\?' . '>|$)~s',
 		),
 		// Temporary variable used during the upgrade process.
 		'upgradeData' => array(
