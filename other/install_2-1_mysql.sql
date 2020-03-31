@@ -464,6 +464,7 @@ CREATE TABLE {$db_prefix}log_packages (
 	themes_installed VARCHAR(255) NOT NULL DEFAULT '',
 	db_changes TEXT NOT NULL,
 	credits TEXT NOT NULL,
+	sha256_hash TEXT,
 	PRIMARY KEY (id_install),
 	INDEX idx_filename (filename(15))
 ) ENGINE={$engine};
