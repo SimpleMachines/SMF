@@ -1487,7 +1487,8 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
  *
  * @param int $user The ID of a user previously loaded by {@link loadMemberData()}
  * @param bool $display_custom_fields Whether or not to display custom profile fields
- * @return boolean Whether or not the data was loaded successfully
+ * @return boolean|array  False if the data wasn't loaded or the loaded data.
+ * @throws Exception
  */
 function loadMemberContext($user, $display_custom_fields = false)
 {
