@@ -583,4 +583,19 @@ $txt['theme_opt_posting'] = 'Posting';
 $txt['theme_opt_moderation'] = 'Moderation';
 $txt['theme_opt_personal_messages'] = 'Personal Messages';
 
+$txt['export_profile_data'] = 'Download profile data';
+$txt['export_profile_data_desc'] = 'This section allows you to export a copy of your forum profile data to a downloadable file, optionally including your posts and personal messages.<br>Please note:<ul class="bbc_list">%1$s</ul>';
+$txt['export_profile_data_desc_list'] = array('It may take some time for the system to finish compiling your data.', 'A download link will appear on this page once the export process is complete.', 'expiry' => 'Old export files are deleted after %1$d days.');
+$txt['active_exports'] = 'Exports currently in progress';
+$txt['completed_exports'] = 'Completed exports';
+$txt['export_settings'] = 'Export settings';
+$txt['export_include_profile'] = 'Include basic profile data';
+$txt['export_include_posts'] = 'Include posts';
+$txt['export_include_personal_messages'] = 'Include personal messages';
+$txt['export_format'] = 'File format for exported data';
+$txt['export_begin'] = 'Begin export';
+$txt['export_restart'] = 'Restart export';
+$txt['export_restart_confirm'] = 'This will delete the current profile export and start over using the new settings. Are you sure you want to do this?';
+$txt['export_cancel'] = 'Cancel';
+
 ?>

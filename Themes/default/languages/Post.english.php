@@ -216,4 +216,8 @@ $txt['avatars_no_write'] = 'The avatars upload directory is not writable. Your a
 $txt['attachments_no_create'] = 'Unable to create a new attachment directory. Your attachment or avatar cannot be saved.';
 $txt['attachments_limit_per_post'] = 'You may not upload more than %1$d attachments per post';
 
+$txt['approval_status'] = 'Approval status';
+$txt['approval_status_1'] = 'Approved';
+$txt['approval_status_0'] = 'Awaiting approval';
+
 ?>

@@ -99,6 +99,7 @@ function ModifySettings()
 		'cookie' => 'ModifyCookieSettings',
 		'security' => 'ModifyGeneralSecuritySettings',
 		'cache' => 'ModifyCacheSettings',
+		'export' => 'ModifyExportSettings',
 		'loads' => 'ModifyLoadBalancingSettings',
 		'phpinfo' => 'ShowPHPinfoSettings',
 	);
@@ -764,6 +765,55 @@ function ModifyCacheSettings($return_config = false)
 
 	// Prepare the template.
 	prepareServerSettingsContext($config_vars);
+}
+
+/**
+ * Controls settings for data export functionality
+ *
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
+ */
+function ModifyExportSettings($return_config = false)
+{
+	global $context, $scripturl, $txt, $modSettings, $boarddir, $sourcedir;
+
+	// Fill in a default value for this if it is missing.
+	if (empty($modSettings['export_dir']))
+		$modSettings['export_dir'] = $boarddir . DIRECTORY_SEPARATOR . 'exports';
+
+	$context['settings_message'] = $txt['export_settings_description'];
+
+	$config_vars = array(
+		array('text', 'export_dir', 40),
+		array('int', 'export_expiry', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['days_word']),
+		array('int', 'export_min_diskspace_pct', 'postinput' => '%'),
+	);
+
+	call_integration_hook('integrate_export_settings', array(&$config_vars));
+
+	if ($return_config)
+		return $config_vars;
+
+	if (isset($_REQUEST['save']))
+	{
+		saveDBSettings($config_vars);
+
+		if (!file_exists($modSettings['export_dir']))
+		{
+			require_once($sourcedir . '/Profile-Actions.php');
+			create_export_dir();
+		}
+
+		call_integration_hook('integrate_save_export_settings');
+
+		$_SESSION['adm-save'] = true;
+		redirectexit('action=admin;area=serversettings;sa=export;' . $context['session_var'] . '=' . $context['session_id']);
+	}
+
+	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=export;save';
+	$context['settings_title'] = $txt['export_settings'];
+
+	prepareDBSettingContext($config_vars);
 }
 
 /**

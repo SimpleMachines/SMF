@@ -424,4 +424,9 @@ $txt['tfa_mode_enabled'] = 'Enabled';
 $txt['tfa_mode_disabled'] = 'Disabled';
 $txt['tfa_mode_subtext'] = 'Allows users to have a second layer of security while logging in, users would need an app like Google Authenticator paired with their account';
 
+$txt['export_settings_description'] = 'Members can export copies of their profile data, optionally including their posts and personal messages.<br>To avoid overtaxing server resources, SMF slowly compiles the exported data to a downloadable file stored in a secured directory.';
+$txt['export_dir'] = 'Directory for profile data export files';
+$txt['export_expiry'] = 'Automatically delete profile data export files after';
+$txt['export_min_diskspace_pct'] = 'Pause exports if free space on disk is less than';
+
 ?>

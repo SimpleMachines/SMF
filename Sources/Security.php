@@ -1231,7 +1231,7 @@ function secureDirectory($paths, $attachments = false)
 	// Work with arrays
 	$paths = (array) $paths;
 
-	if (empty($path))
+	if (empty($paths))
 		$errors[] = 'empty_path';
 
 	if (!empty($errors))

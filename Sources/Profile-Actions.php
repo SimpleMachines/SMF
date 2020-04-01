@@ -967,4 +967,593 @@ function subscriptions($memID)
 		$context['sub_template'] = 'user_subscription';
 }
 
+/**
+ * Exports a member's profile, posts, and personal messages to a file.
+ *
+ * @todo Add HTML, CSV, JSON as other possible export formats besides XML?
+ *
+ * @param int $memID The ID of the member whose data we're exporting.
+ */
+function export_profile_data($memID)
+{
+	global $context, $smcFunc, $txt, $modSettings, $query_this_board, $sourcedir;
+
+	if (empty($modSettings['export_enabled']))
+		redirectexit('action=profile;u=' . $memID);
+
+	if (!isset($context['token_check']))
+		$context['token_check'] = 'profile-ex' . $memID;
+
+	$context['export_formats'] = array(
+		'XML' => array('extension' => 'xml', 'mime' => 'application/xml'),
+		// 'CSV' => array('extension' => 'csv', 'mime' => 'text/csv'),
+		// 'JSON' => array('extension' => 'json', 'mime' => 'application/json'),
+		// 'HTML' => array('extension' => 'html', 'mime' => 'text/html'),
+	);
+
+	// This lists the types of data we can export and info for doing so.
+	$context['export_datatypes'] = array(
+		'profile' => array(
+			'label' => $txt['export_include_profile'],
+			'total' => 1,
+			'latest' => 1,
+			// Instructions to pass to ExportProfileData background task:
+			'XML' => array(
+				'func' => 'getXmlProfile',
+				'langfile' => 'Profile',
+			),
+		),
+		'posts' => array(
+			'label' => $txt['export_include_posts'],
+			'total' => $context['member']['real_posts'],
+			'latest' => function($memID)
+			{
+				global $smcFunc, $modSettings;
+
+				static $latest_post;
+
+				if (isset($latest_post))
+					return $latest_post;
+
+				$query_this_board = !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? 'b.id_board != ' . $modSettings['recycle_board'] : '1=1';
+
+				$request = $smcFunc['db_query']('', '
+					SELECT m.id_msg
+					FROM {db_prefix}messages as m
+						INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
+					WHERE id_member = {int:uid}
+						AND ' . $query_this_board . '
+					ORDER BY id_msg DESC
+					LIMIT {int:limit}',
+					array(
+						'limit' => 1,
+						'uid' => $memID,
+					)
+				);
+				list($latest_post) = $smcFunc['db_fetch_row']($request);
+				$smcFunc['db_free_result']($request);
+
+				return $latest_post;
+			},
+			// Instructions to pass to ExportProfileData background task:
+			'XML' => array(
+				'func' => 'getXmlPosts',
+				'langfile' => 'Post',
+			),
+		),
+		'personal_messages' => array(
+			'label' => $txt['export_include_personal_messages'],
+			'total' => function($memID)
+			{
+				global $smcFunc;
+
+				static $total_pms;
+
+				if (isset($total_pms))
+					return $total_pms;
+
+				$request = $smcFunc['db_query']('', '
+					SELECT COUNT(*)
+					FROM {db_prefix}personal_messages AS pm
+						INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
+					WHERE (pm.id_member_from = {int:uid} OR pmr.id_member = {int:uid})
+					GROUP BY pm.id_pm',
+					array(
+						'uid' => $memID,
+					)
+				);
+				list($total_pms) = $smcFunc['db_fetch_row']($request);
+				$smcFunc['db_free_result']($request);
+
+				return $total_pms;
+			},
+			'latest' => function($memID)
+			{
+				global $smcFunc;
+
+				static $latest_pm;
+
+				if (isset($latest_pm))
+					return $latest_pm;
+
+				$request = $smcFunc['db_query']('', '
+					SELECT pm.id_pm
+					FROM {db_prefix}personal_messages AS pm
+						INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
+					WHERE (pm.id_member_from = {int:uid} OR pmr.id_member = {int:uid})
+					GROUP BY pm.id_pm
+					ORDER BY pm.id_pm DESC
+					LIMIT {int:limit}',
+					array(
+						'limit' => 1,
+						'uid' => $memID,
+					)
+				);
+				list($latest_pm) = $smcFunc['db_fetch_row']($request);
+				$smcFunc['db_free_result']($request);
+
+				return $latest_pm;
+			},
+			// Instructions to pass to ExportProfileData background task:
+			'XML' => array(
+				'func' => 'getXmlPMs',
+				'langfile' => 'PersonalMessage',
+			),
+		),
+	);
+
+	if (empty($modSettings['export_dir']))
+		create_export_dir();
+
+	$realfilename = hash_hmac('sha1', $memID, get_auth_secret());
+
+	$dltoken = hash_hmac('sha1', $realfilename, get_auth_secret());
+
+	$query_this_board = !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? 'b.id_board != ' . $modSettings['recycle_board'] : '1=1';
+
+	$context['completed_exports'] = array();
+	$context['active_exports'] = array();
+	$latest = array();
+
+	foreach ($context['export_formats'] as $format => $format_settings)
+	{
+		$done = null;
+
+		$realbasename = $realfilename . '.' . $format_settings['extension'];
+		$realfilepath = $modSettings['export_dir'] . '/' . $realbasename;
+		$tempfilepath = $realfilepath . '.tmp';
+		$progressfile = $realfilepath . '.progress.json';
+
+		// If requested by the user, delete any existing export files and background tasks.
+		if (isset($_POST['delete']) && isset($_POST['format']) && $_POST['format'] === $format && isset($_POST['t']) && $_POST['t'] === $dltoken)
+		{
+			$smcFunc['db_query']('', '
+				DELETE FROM {db_prefix}background_tasks
+				WHERE task_class = {string:class}
+					AND task_data LIKE {string:details}',
+				array(
+					'class' => 'ExportProfileData_Background',
+					'details' => substr($smcFunc['json_encode'](array('format' => $format, 'uid' => $memID)), 0, -1) . '%',
+				)
+			);
+
+			foreach(array($realfilepath, $tempfilepath, $progressfile) as $fpath)
+				@unlink($fpath);
+		}
+
+		$progress = file_exists($progressfile) ? $smcFunc['json_decode'](file_get_contents($progressfile), true) : array();
+
+		if (!empty($progress))
+			$selected_datatypes = array_keys($progress);
+		else
+			$selected_datatypes = array_intersect(array_keys($context['export_datatypes']), array_keys($_POST));
+
+		$dlfilename = array($context['forum_name'], $context['member']['username']);
+		foreach ($selected_datatypes as $datatype)
+			$dlfilename[] = $txt[$datatype];
+		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}\-]+/', '_', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('-', $dlfilename)))));
+		$dlbasename = $dlfilename . '.' . $format_settings['extension'];
+
+		if (file_exists($realfilepath) && !empty($progress))
+		{
+			// It looks like we're done.
+			$done = true;
+
+			// But let's check whether any recently created content should be added.
+			foreach ($context['export_datatypes'] as $datatype => $datatype_settings)
+			{
+				if (!isset($progress[$datatype]))
+					continue;
+
+				if (!isset($latest[$datatype]))
+					$latest[$datatype] = is_callable($datatype_settings['latest']) ? $datatype_settings['latest']($memID) : $datatype_settings['latest'];
+
+				if ($latest[$datatype] > $progress[$datatype])
+				{
+					$done = false;
+					$_POST[$datatype] = true;
+					$start[$datatype] = $progress[$datatype];
+
+					if (!isset($current_datatype))
+						$current_datatype = $datatype;
+				}
+			}
+			if ($done === false)
+			{
+				$_POST['export_begin'] = true;
+				$_POST['format'] = $format;
+				$context['token_check'] = 'profile-ex' . $memID;
+				createToken('profile-ex' . $memID, 'post');
+
+				@unlink($tempfilepath);
+				rename($realfilepath, $tempfilepath);
+			}
+		}
+		elseif (file_exists($tempfilepath) || isset($_POST['export_begin']))
+			$done = false;
+
+		if ($done === true)
+		{
+			$size = filesize($realfilepath) / 1024;
+			$units = array('KB', 'MB', 'GB', 'TB');
+			$unitkey = 0;
+			while ($size > 1024)
+			{
+				$size = $size / 1024;
+				$unitkey++;
+			}
+			$size = round($size, 2) . $units[$unitkey];
+
+			$context['completed_exports'][$realbasename] = array(
+				'dlbasename' => $dlbasename,
+				'dltoken' => $dltoken,
+				'format' => $format,
+				'mtime' => timeformat(filemtime($realfilepath)),
+				'size' => $size,
+			);
+		}
+		elseif ($done === false)
+		{
+			$context['active_exports'][$realbasename] = array(
+				'dlbasename' => $dlbasename,
+				'dltoken' => $dltoken,
+				'format' => $format,
+			);
+		}
+	}
+
+	if (isset($_POST['export_begin']))
+	{
+		checkSession();
+		validateToken($context['token_check'], 'post');
+
+		$format = isset($_POST['format']) ? $_POST['format'] : 'XML';
+
+		$included = array();
+		foreach ($context['export_datatypes'] as $datatype => $datatype_settings)
+		{
+			if (!empty($_POST[$datatype]))
+			{
+				$included[$datatype] = $datatype_settings[$format];
+				$start[$datatype] = !empty($start[$datatype]) ? $start[$datatype] : 0;
+
+				if (!isset($latest[$datatype]))
+					$latest[$datatype] = is_callable($datatype_settings['latest']) ? $datatype_settings['latest']($memID) : $datatype_settings['latest'];
+			}
+		}
+
+		if (empty($included))
+			unset($context['active_exports'][$realfilename . $context['export_formats'][$format]['extension']]);
+		else
+		{
+			$data = $smcFunc['json_encode'](array(
+				'format' => $format,
+				'uid' => $memID,
+				'lang' => $context['member']['language'],
+				'included' => $included,
+				'start' => $start,
+				'latest' => $latest,
+				'datatype' => isset($current_datatype) ? $current_datatype : 'profile',
+			));
+
+			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
+				array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $data, 0),
+				array()
+			);
+
+			// So the user can see that we've started.
+			if (!file_exists($realfilepath) && !file_exists($tempfilepath) && !file_exists($progressfile))
+			{
+				require_once($sourcedir . '/News.php');
+
+				$feed_meta = array_fill_keys(array('title', 'desc', 'source', 'self'), '');
+
+				buildXmlFeed($format, array(), $feed_meta, 'profile');
+				file_put_contents($tempfilepath, implode('', array($context['feed']['header'], $context['feed']['footer'])));
+
+				file_put_contents($progressfile, $smcFunc['json_encode'](array_fill_keys(array_keys($included), 0)));
+			}
+		}
+	}
+
+	createToken($context['token_check'], 'post');
+
+	$context['page_title'] = $txt['export_profile_data'];
+
+	if (empty($modSettings['export_expiry']))
+		unset($txt['export_profile_data_desc_list']['expiry']);
+	else
+		$txt['export_profile_data_desc_list']['expiry'] = sprintf($txt['export_profile_data_desc_list']['expiry'], $modSettings['export_expiry']);
+
+	$context['export_profile_data_desc'] = sprintf($txt['export_profile_data_desc'], '<li>' . implode('</li><li>', $txt['export_profile_data_desc_list']) . '</li>');
+}
+
+/**
+ * Downloads exported profile data file.
+ */
+function download_export_file($memID)
+{
+	global $modSettings, $maintenance, $context, $txt;
+
+	if (empty($modSettings['export_enabled']))
+		redirectexit('action=profile;u=' . $memID);
+
+	$export_formats = array(
+		'XML' => array('extension' => 'xml', 'mime' => 'application/xml'),
+		// 'CSV' => array('extension' => 'csv', 'mime' => 'text/csv'),
+		// 'JSON' => array('extension' => 'json', 'mime' => 'application/json'),
+		// 'HTML' => array('extension' => 'html', 'mime' => 'text/html'),
+	);
+
+	// This is done to clear any output that was made before now.
+	ob_end_clean();
+
+	if (!empty($modSettings['enableCompressedOutput']) && !headers_sent() && ob_get_length() == 0)
+	{
+		if (@ini_get('zlib.output_compression') == '1' || @ini_get('output_handler') == 'ob_gzhandler')
+			$modSettings['enableCompressedOutput'] = 0;
+
+		else
+			ob_start('ob_gzhandler');
+	}
+
+	if (empty($modSettings['enableCompressedOutput']))
+	{
+		ob_start();
+		header('content-encoding: none');
+	}
+
+	// No access in strict maintenance mode.
+	if (!empty($maintenance) && $maintenance == 2)
+	{
+		send_http_status(404);
+		exit;
+	}
+
+	// We can't give them anything without these.
+	if (empty($_GET['t']) || empty($_GET['format']) || !isset($export_formats[$_GET['format']]))
+	{
+		send_http_status(400);
+		exit;
+	}
+
+	$extension = $export_formats[$_GET['format']]['extension'];
+
+	// The filename (with and without extension) on disk.
+	$realfilename = hash_hmac('sha1', $memID, get_auth_secret());
+	$realbasename = $realfilename . '.' . $extension;
+
+	// Make sure they gave the correct authentication token.
+	// We do it this way so the user can download without logging in, as required by the GDPR.
+	$dltoken = hash_hmac('sha1', $realfilename, get_auth_secret());
+
+	if ($_GET['t'] !== $dltoken)
+	{
+		send_http_status(403);
+		exit;
+	}
+
+	// We can't do anything without the export directory.
+	if ($modSettings['export_dir'] === false)
+	{
+		send_http_status(404);
+		exit;
+	}
+
+	$filepath = $modSettings['export_dir'] . '/' . $realbasename;
+	if (!file_exists($filepath))
+	{
+		send_http_status(404);
+		exit;
+	}
+
+	// Figure out the filename we'll tell the browser.
+	$dlfilename[] = $context['forum_name'];
+	$dlfilename[] = $context['member']['username'];
+	if (file_exists($filepath . '.progress.json'))
+	{
+		$datatype_strings = array_keys($smcFunc['json_decode'](file_get_contents($filepath . '.progress.json'), true));
+		foreach ($datatype_strings as &$datatype_string)
+			$datatype_string = $txt[$datatype_string];
+		$dlfilename[] = implode('+', $datatype_strings);
+	}
+	else
+		$dlfilename[] = $txt['profile'];
+	$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}\-]+/', '_', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('-', $dlfilename)))));
+	$dlbasename = $dlfilename . '.' . $extension;
+
+	$mtime = filemtime($filepath);
+	$size = filesize($filepath);
+
+	// If it hasn't been modified since the last time it was retrieved, there's no need to serve it again.
+	if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']))
+	{
+		list($modified_since) = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
+		if (strtotime($modified_since) >= $mtime)
+		{
+			ob_end_clean();
+
+			// Answer the question - no, it hasn't been modified ;).
+			send_http_status(304);
+			exit;
+		}
+	}
+
+	// Check whether the ETag was sent back, and cache based on that...
+	$eTag = md5(implode(' ', array($dlbasename, $size, $mtime)));
+	if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
+	{
+		ob_end_clean();
+
+		send_http_status(304);
+		exit;
+	}
+
+	// If this is a partial download, we need to determine what data range to send
+	$range = 0;
+	if (isset($_SERVER['HTTP_RANGE']))
+	{
+		list($a, $range) = explode("=", $_SERVER['HTTP_RANGE'], 2);
+		list($range) = explode(",", $range, 2);
+		list($range, $range_end) = explode("-", $range);
+		$range = intval($range);
+		$range_end = !$range_end ? $size - 1 : intval($range_end);
+		$new_length = $range_end - $range + 1;
+	}
+
+	header('pragma: ');
+
+	if (!isBrowser('gecko'))
+		header('content-transfer-encoding: binary');
+
+	header('expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
+	header('last-modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
+	header('accept-ranges: bytes');
+	header('connection: close');
+	header('etag: ' . $eTag);
+	header('content-type: ' . $export_formats[$_GET['format']]['mime']);
+
+	// Convert the file to UTF-8, cuz most browsers dig that.
+	$utf8name = !$context['utf8'] && function_exists('iconv') ? iconv($context['character_set'], 'UTF-8', $dlbasename) : (!$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($dlbasename, 'UTF-8', $context['character_set']) : $dlbasename);
+
+	// Different browsers like different standards...
+	if (isBrowser('firefox'))
+		header('content-disposition: attachment; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)));
+
+	elseif (isBrowser('opera'))
+		header('content-disposition: attachment; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name) . '"');
+
+	elseif (isBrowser('ie'))
+		header('content-disposition: attachment; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)) . '"');
+
+	else
+		header('content-disposition: attachment; filename="' . $utf8name . '"');
+
+	header('cache-control: max-age=' . (525600 * 60) . ', private');
+
+	// Multipart and resuming support
+	if (isset($_SERVER['HTTP_RANGE']))
+	{
+		send_http_status(206);
+		header("content-length: $new_length");
+		header("content-range: bytes $range-$range_end/$size");
+	}
+	else
+		header("content-length: $size");
+
+	// Try to buy some time...
+	@set_time_limit(600);
+
+	// For multipart/resumable downloads, send the requested chunk(s) of the file
+	if (isset($_SERVER['HTTP_RANGE']))
+	{
+		while (@ob_get_level() > 0)
+			@ob_end_clean();
+
+		// 40 kilobytes is a good-ish amount
+		$chunksize = 40 * 1024;
+		$bytes_sent = 0;
+
+		$fp = fopen($filepath, 'rb');
+
+		fseek($fp, $range);
+
+		while (!feof($fp) && (!connection_aborted()) && ($bytes_sent < $new_length))
+		{
+			$buffer = fread($fp, $chunksize);
+			echo($buffer);
+			flush();
+			$bytes_sent += strlen($buffer);
+		}
+		fclose($fp);
+	}
+
+	// Since we don't do output compression for files this large...
+	elseif ($size > 4194304)
+	{
+		// Forcibly end any output buffering going on.
+		while (@ob_get_level() > 0)
+			@ob_end_clean();
+
+		$fp = fopen($filepath, 'rb');
+		while (!feof($fp))
+		{
+			echo fread($fp, 8192);
+			flush();
+		}
+		fclose($fp);
+	}
+
+	// On some of the less-bright hosts, readfile() is disabled.  It's just a faster, more byte safe, version of what's in the if.
+	elseif (@readfile($filepath) === null)
+		echo file_get_contents($filepath);
+
+	exit;
+}
+
+/**
+ * Returns the path to a secure directory for storing exported profile data.
+ *
+ * The directory is created if it does not yet exist, and is secured using the
+ * same method that we use to secure attachment directories. Files in this
+ * directory can only be downloaded via the download_export_file() function.
+ *
+ * @return string|bool The path to the directory, or false on error.
+ */
+function create_export_dir()
+{
+	global $boarddir, $modSettings;
+
+	// Automatically set it to default if it is missing.
+	if (empty($modSettings['export_dir']))
+		updateSettings(array('export_dir' => $boarddir . DIRECTORY_SEPARATOR .  'exports'));
+
+	// Make sure the directory exists.
+	if (!file_exists($modSettings['export_dir']))
+		@mkdir($modSettings['export_dir'], null, true);
+
+	// Make sure the directory has the correct permissions.
+	if (!is_dir($modSettings['export_dir']) || !smf_chmod($modSettings['export_dir']))
+	{
+		loadLanguage('Errors');
+
+		// Try again using the default location.
+		if ($modSettings['export_dir'] != $boarddir . DIRECTORY_SEPARATOR . 'exports')
+		{
+			log_error($txt['export_dir_forced_change'], $modSettings['export_dir'], $boarddir . DIRECTORY_SEPARATOR . 'exports');
+			updateSettings(array('export_dir' => $boarddir . DIRECTORY_SEPARATOR . 'exports'));
+			create_export_dir();
+		}
+		// Default location failed.
+		else
+		{
+			log_error($txt['export_dir_not_writable']);
+			return false;
+		}
+	}
+
+	return secureDirectory(array($modSettings['export_dir']), true);
+}
+
 ?>

@@ -415,6 +415,29 @@ function ModifyProfile($post_errors = array())
 						'any' => array('moderate_forum'),
 					),
 				),
+				'getprofiledata' => array(
+					'label' => $txt['export_profile_data'],
+					'file' => 'Profile-Actions.php',
+					'function' => 'export_profile_data',
+					'icon' => 'packages',
+					// 'token' => 'profile-ex%u', // This is not checked here. We do it in the function itself - but if it was checked, this is what it'd be.
+					'permission' => array(
+						'own' => array('profile_view_own'),
+						'any' => array('moderate_forum'),
+					),
+				),
+				'download' => array(
+					'label' => $txt['export_profile_data'],
+					'file' => 'Profile-Actions.php',
+					'function' => 'download_export_file',
+					'icon' => 'packages',
+					'hidden' => true,
+					'select' => 'getprofiledata',
+					'permission' => array(
+						'own' => array('profile_view_own'),
+						'any' => array('moderate_forum'),
+					),
+				),
 				'deleteaccount' => array(
 					'label' => $txt['deleteAccount'],
 					'file' => 'Profile-Actions.php',

@@ -252,6 +252,19 @@ function scheduled_daily_maintenance()
 		$proxy->housekeeping();
 	}
 
+	// Delete old profile exports
+	if (!empty($modSettings['exports_expiry']) && file_exists($modSettings['exports_dir']) && is_dir($modSettings['exports_dir']))
+	{
+		$expiry_date = round(TIME_START - $modSettings['export_expiry'] * 86400);
+		$export_files = glob(rtrim($modSettings['exports_dir'], '/\\') . DIRECTORY_SEPARATOR . '*');
+
+		foreach ($export_files as $export_file)
+		{
+			if (!in_array(basename($export_file), array('index.php', '.htaccess')) && filemtime($export_file) <= $expiry_date)
+				@unlink($export_file);
+		}
+	}
+
 	// Delete old alerts.
 	if (!empty($modSettings['alerts_auto_purge']))
 	{
@@ -1006,6 +1019,7 @@ function loadEssentialThemeData()
 
 	// Assume we want this.
 	$context['forum_name'] = $mbname;
+	$context['forum_name_html_safe'] = $smcFunc['htmlspecialchars']($context['forum_name']);
 
 	// Check loadLanguage actually exists!
 	if (!function_exists('loadLanguage'))
