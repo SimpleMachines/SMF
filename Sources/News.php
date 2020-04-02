@@ -2521,8 +2521,12 @@ function getXmlPMs($xml_format, $ascending = false)
 	if (empty($context['xmlnews_uid']) || ($context['xmlnews_uid'] != $user_info['id']))
 		return array();
 
+	$select_id_members_to = $smcFunc['db_title'] === POSTGRE_TITLE ? "string_agg(pmr.id_member, ',')" : 'GROUP_CONCAT(pmr.id_member)';
+
+	$select_to_names = $smcFunc['db_title'] === POSTGRE_TITLE ? "string_agg(COALESCE(mem.real_name, mem.member_name), ',')" : 'GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name))';
+
 	$request = $smcFunc['db_query']('', '
-		SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, pm.from_name, GROUP_CONCAT(pmr.id_member) AS id_members_to, GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name)) AS to_names
+		SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, pm.from_name, ' . $select_id_members_to . ' AS id_members_to, ' . $select_to_names . ' AS to_names
 		FROM {db_prefix}personal_messages AS pm
 			INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = pmr.id_member)
