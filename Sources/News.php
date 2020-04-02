@@ -2072,7 +2072,7 @@ function getXmlPosts($xml_format, $ascending = false)
 
 	$request = $smcFunc['db_query']('', '
 		SELECT m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_name, m.poster_email, m.poster_ip, m.poster_time, m.subject,
-			modified_time, m.modified_name, m.modified_reason, m.body, m.likes, m.approved, m.smileys_enabled
+			modified_time, m.modified_name, m.modified_reason, m.body, m.likes, m.approved, m.smileys_enabled, b.name AS bname
 		FROM {db_prefix}messages as m
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 		WHERE id_member = {int:uid}
