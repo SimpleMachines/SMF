@@ -278,7 +278,6 @@ function AdminMain()
 					'subsections' => array(
 						'all' => array($txt['view_all_members']),
 						'search' => array($txt['mlist_search']),
-						'settings' => array($txt['settings'], 'admin_forum'),
 					),
 				),
 				'membergroups' => array(
@@ -317,6 +316,7 @@ function AdminMain()
 						'register' => array($txt['admin_browse_register_new'], 'moderate_forum'),
 						'agreement' => array($txt['registration_agreement'], 'admin_forum'),
 						'reservednames' => array($txt['admin_reserved_set'], 'admin_forum'),
+						'settings' => array($txt['settings'], 'admin_forum'),
 					),
 				),
 				'warnings' => array(

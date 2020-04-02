@@ -35,12 +35,9 @@ if (!defined('SMF'))
  *
  * Accessed via ?action=.xml.
  *
- * Does not use any templates, sub templates, or template layers...
- * ...except when requesting all the user's own posts or PMs. Then we show a template indicating
- * our progress compiling the info. This template will auto-refresh until the all the info is
- * compiled, at which point we emit the full XML feed as a downloadable file.
+ * Does not use any templates, sub templates, or template layers.
  *
- * @uses Stats language file, and in special cases the Admin template and language file.
+ * @uses Stats, Profile, Post, and PersonalMessage language files.
  */
 function ShowXmlFeed()
 {
@@ -1923,7 +1920,7 @@ function getXmlProfile($xml_format)
 			),
 			array(
 				'tag' => 'post-group',
-				'attributes' => array('label' => $txt['membergroups_group_type_post']),
+				'attributes' => array('label' => $txt['post_based_membergroup']),
 				'content' => $profile['post_group'],
 				'cdata' => true,
 			),

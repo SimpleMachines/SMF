@@ -18,8 +18,10 @@
 class ExportProfileData_Background extends SMF_BackgroundTask
 {
 	/**
-     * This <does stuff>.
-     *
+	 * This is the main dispatcher for the class.
+	 * It calls the correct private function based on the information stored in
+	 * the task details.
+	 *
 	 * @return bool Always returns true
 	 */
 	public function execute()
