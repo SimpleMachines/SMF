@@ -253,10 +253,10 @@ function scheduled_daily_maintenance()
 	}
 
 	// Delete old profile exports
-	if (!empty($modSettings['exports_expiry']) && file_exists($modSettings['exports_dir']) && is_dir($modSettings['exports_dir']))
+	if (!empty($modSettings['export_expiry']) && file_exists($modSettings['export_dir']) && is_dir($modSettings['export_dir']))
 	{
 		$expiry_date = round(TIME_START - $modSettings['export_expiry'] * 86400);
-		$export_files = glob(rtrim($modSettings['exports_dir'], '/\\') . DIRECTORY_SEPARATOR . '*');
+		$export_files = glob(rtrim($modSettings['export_dir'], '/\\') . DIRECTORY_SEPARATOR . '*');
 
 		foreach ($export_files as $export_file)
 		{
