@@ -978,9 +978,6 @@ function export_profile_data($memID)
 {
 	global $context, $smcFunc, $txt, $modSettings, $query_this_board, $sourcedir;
 
-	if (empty($modSettings['export_enabled']))
-		redirectexit('action=profile;u=' . $memID);
-
 	if (!isset($context['token_check']))
 		$context['token_check'] = 'profile-ex' . $memID;
 
@@ -1295,9 +1292,6 @@ function export_profile_data($memID)
 function download_export_file($memID)
 {
 	global $modSettings, $maintenance, $context, $txt;
-
-	if (empty($modSettings['export_enabled']))
-		redirectexit('action=profile;u=' . $memID);
 
 	$export_formats = array(
 		'XML' => array('extension' => 'xml', 'mime' => 'application/xml'),
