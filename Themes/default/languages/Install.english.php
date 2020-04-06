@@ -18,17 +18,17 @@ $txt['installer_language'] = 'Language';
 $txt['installer_language_set'] = 'Set';
 $txt['congratulations'] = 'Congratulations, the installation process is complete!';
 $txt['congratulations_help'] = 'If at any time you need support, or SMF fails to work properly, please remember that <a href="https://www.simplemachines.org/community/index.php" target="_blank" rel="noopener">help is available</a> if you need it.';
-$txt['still_writable'] = 'Your installation directory is still writable. It\'s a good idea to chmod it so that it is not writable for security reasons.';
+$txt['still_writable'] = 'Your installation directory is still writable. It is a good idea to chmod it, so that it is not writable for security reasons.';
 $txt['delete_installer'] = 'Click here to delete this install.php file now.';
-$txt['delete_installer_maybe'] = '<em>(doesn\'t work on all servers.)</em>';
+$txt['delete_installer_maybe'] = '<em>(does not work on all servers.)</em>';
 $txt['go_to_your_forum'] = 'Now you can see <a href="%1$s">your newly installed forum</a> and begin to use it. You should first make sure you are logged in, after which you will be able to access the administration center.';
 $txt['good_luck'] = 'Good luck!<br>Simple Machines';
 
 $txt['install_welcome'] = 'Welcome';
-$txt['install_welcome_desc'] = 'Welcome to SMF. This script will guide you through the process for installing %1$s. We\'ll gather a few details about your forum over the next few steps, and after a couple of minutes your forum will be ready for use.';
-$txt['install_no_https'] = 'Your environment does not support https streams.  Certain functions, e.g., receiving updates from SimpleMachines.org, will not work.';
+$txt['install_welcome_desc'] = 'Welcome to SMF. This script will guide you through the process for installing %1$s. We will gather a few details about your forum over the next few steps, and after a couple of minutes your forum will be ready for use.';
+$txt['install_no_https'] = 'Your environment does not support https streams.  Certain functions, e.g., receiving updates from simplemachines.org, will not work.';
 $txt['install_no_mbstring'] = 'Your environment does not support the required mbstring library.  Please enable mbstring and try again.';
-$txt['install_all_lovely'] = 'We\'ve completed some initial tests on your server and everything appears to be in order. Simply click the &quot;Continue&quot; button below to get started.';
+$txt['install_all_lovely'] = 'We have completed some initial tests on your server and everything appears to be in order. Simply click the &quot;Continue&quot; button below to get started.';
 
 $txt['user_refresh_install'] = 'Forum Refreshed';
 $txt['user_refresh_install_desc'] = 'While installing, the installer found that (with the details you provided) one or more of the tables this installer might create already existed.<br>Any missing tables in your installation have been recreated with the default data, but no data was deleted from existing tables.';
@@ -100,11 +100,11 @@ $txt['install_settings_reg_mode_info'] = 'This field allows you to change the mo
 $txt['install_settings_compress'] = 'Gzip Output';
 $txt['install_settings_compress_title'] = 'Compress output to save bandwidth.';
 // In this string, you can translate the word "PASS" to change what it says when the test passes.
-$txt['install_settings_compress_info'] = 'This function does not work properly on all servers, but can save you a lot of bandwidth.<br>Click <a href="install.php?obgz=1&amp;pass_string=PASS" onclick="return reqWin(this.href, 200, 60);" target="_blank" rel="noopener">here</a> to test it. (it should just say "PASS".)';
+$txt['install_settings_compress_info'] = 'This function does not work properly on all servers, but it can save you a lot of bandwidth.<br>Click <a href="install.php?obgz=1&amp;pass_string=PASS" onclick="return reqWin(this.href, 200, 60);" target="_blank" rel="noopener">here</a> to test it. (it should just say "PASS".)';
 $txt['install_settings_dbsession'] = 'Database Sessions';
 $txt['install_settings_dbsession_title'] = 'Use the database for sessions instead of using files.';
 $txt['install_settings_dbsession_info1'] = 'This feature is almost always for the best, as it makes sessions more dependable.';
-$txt['install_settings_dbsession_info2'] = 'This feature is generally a good idea, but may not work properly on this server.';
+$txt['install_settings_dbsession_info2'] = 'This feature is generally a good idea, but it may not work properly on this server.';
 $txt['install_settings_utf8'] = 'UTF-8 Character Set';
 $txt['install_settings_utf8_title'] = 'Use UTF-8 as default character set';
 $txt['install_settings_utf8_info'] = 'This feature lets both the database and the forum use an international character set, UTF-8. This can be useful when working with multiple languages that use different character sets.';
@@ -114,15 +114,15 @@ $txt['install_settings_stats_info'] = 'If enabled, this will allow Simple Machin
 $txt['install_settings_proceed'] = 'Proceed';
 
 $txt['db_settings'] = 'Database Server Settings';
-$txt['db_settings_info'] = 'These are the settings to use for your database server. If you don\'t know the values, you should ask your host what they are.';
+$txt['db_settings_info'] = 'These are the settings to use for your database server. If you do not know the values, you should ask your host what they are.';
 $txt['db_settings_type'] = 'Database type';
-$txt['db_settings_type_info'] = 'Multiple supported database types were detected - which do you wish to use. Please note that running pre-SMF 2.0 RC3 along with newer SMF versions in the same PostgreSQL database is not supported. You need to upgrade your older installations in that case.';
+$txt['db_settings_type_info'] = 'Multiple supported database types were detected, which do you wish to use? Please note that running pre-SMF 2.0 RC3 along with newer SMF versions in the same PostgreSQL database is not supported. You need to upgrade your older installations in that case.';
 $txt['db_settings_server'] = 'Server name';
-$txt['db_settings_server_info'] = 'This is nearly always localhost - so if you don\'t know, try localhost.';
+$txt['db_settings_server_info'] = 'This is nearly always localhost, so if you do not know, try localhost.';
 $txt['db_settings_username'] = 'Username';
-$txt['db_settings_username_info'] = 'Fill in the username you need to connect to your database here.<br>If you don\'t know what it is, try the username of your ftp account, most of the time they are the same.';
+$txt['db_settings_username_info'] = 'Fill in the username you need to connect to your database here.<br>If you do not know what it is, try the username of your ftp account, most of the time they are the same.';
 $txt['db_settings_password'] = 'Password';
-$txt['db_settings_password_info'] = 'Here, put the password you need to connect to your database.<br>If you don\'t know this, you should try the password to your ftp account.';
+$txt['db_settings_password_info'] = 'Put the password you need to connect to your database here.<br>If you do not know this, you should try the password to your ftp account.';
 $txt['db_settings_database'] = 'Database name';
 $txt['db_settings_database_info'] = 'Fill in the name of the database you want to use for SMF to store its data in.';
 $txt['db_settings_database_info_note'] = 'If this database does not exist, this installer will try to create it.';
