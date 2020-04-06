@@ -541,7 +541,11 @@ ADD INDEX `idx_id_member` (`id_member`, `id_group`);
 /******************************************************************************/
 ---# Adding support for <credits> tag in package manager
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN credits TEXT NOT NULL,
+ADD COLUMN credits TEXT NOT NULL;
+---#
+
+---# Adding support for package hashes
+ALTER TABLE {$db_prefix}log_packages
 ADD COLUMN sha256_hash TEXT;
 ---#
 
