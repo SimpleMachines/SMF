@@ -2186,24 +2186,22 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
  *
  * Systems using `open_basedir` restrictions may receive errors with
  * `sys_get_temp_dir()` due to misconfigurations on servers. Other
- * cases sys_temp_dir may not be set to a safe value. Additionaly
+ * cases sys_temp_dir may not be set to a safe value. Additionally
  * `sys_get_temp_dir` may use a readonly directory. This attempts to
  * find a working temp directory that is accessible under the
  * restrictions and is writable to the web service account.
  *
- * Directories cheked against `open_basedir`:
+ * Directories checked against `open_basedir`:
  *
  * - `sys_get_temp_dir()`
  * - `upload_tmp_dir`
  * - `session.save_path`
- * - `$cachedir`
+ * - `cachedir`
  *
  * @return string
 */
 function sm_temp_dir()
 {
-	global $cachedir;
-
 	static $temp_dir = null;
 
 	// Already did this.
@@ -2219,7 +2217,8 @@ function sm_temp_dir()
 	);
 
 	// Determine if we should detect a restriction and what restrictions that may be.
-	$restriction = !empty(ini_get('open_basedir')) ? explode(':', ini_get('open_basedir')) : false;
+	$open_base_dir = ini_get('open_basedir');
+	$restriction = !empty($open_base_dir) ? explode(':', $open_base_dir) : false;
 
 	// Prevent any errors as we search.
 	$old_error_reporting = error_reporting(0);
@@ -2266,6 +2265,7 @@ function sm_temp_dir()
  * Internal function for sm_temp_dir.
  *
  * @param string $option Which temp_dir option to use
+ * @return string
  */
 function sm_temp_dir_option($option = 'sys_get_temp_dir')
 {
@@ -2273,10 +2273,13 @@ function sm_temp_dir_option($option = 'sys_get_temp_dir')
 
 	if ($option === 'cachedir')
 		return rtrim($cachedir, '/');
+
 	elseif ($option === 'session.save_path')
 		return rtrim(ini_get('session.save_path'), '/');
+
 	elseif ($option === 'upload_tmp_dir')
 		return rtrim(ini_get('upload_tmp_dir'), '/');
+
 	// This is the default option.
 	else
 		return sys_get_temp_dir();
