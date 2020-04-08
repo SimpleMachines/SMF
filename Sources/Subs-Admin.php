@@ -2219,7 +2219,8 @@ function sm_temp_dir()
 	);
 
 	// Determine if we should detect a restriction and what restrictions that may be.
-	$restriction = !empty(ini_get('open_basedir')) ? explode(':', ini_get('open_basedir')) : false;
+	$open_base_dir = ini_get('open_basedir');
+	$restriction = !empty($open_base_dir) ? explode(':', $open_base_dir) : false;
 
 	// Prevent any errors as we search.
 	$old_error_reporting = error_reporting(0);
