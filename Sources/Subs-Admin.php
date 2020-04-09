@@ -1806,10 +1806,6 @@ function safe_file_write($file, $data, $backup_file = null, $mtime = null, $appe
 			$failed = !smf_chmod($sf);
 	}
 
-	// Is there enough free space on the disk?
-	if (!$failed && disk_free_space(dirname($file)) < (strlen($data) + filesize($file) + (!empty($backup_file) ? filesize($backup_file) : 0)))
-		$failed = true;
-
 	// Now let's see if writing to a temp file succeeds.
 	if (!$failed && file_put_contents($temp_sfile, $data, LOCK_EX) !== strlen($data))
 		$failed = true;
