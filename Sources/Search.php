@@ -427,53 +427,58 @@ function PlushSearch2()
 				unset($possible_users[$k]);
 		}
 
-		// Create a list of database-escaped search names.
-		$realNameMatches = array();
-		foreach ($possible_users as $possible_user)
-			$realNameMatches[] = $smcFunc['db_quote'](
-				'{string:possible_user}',
-				array(
-					'possible_user' => $possible_user
-				)
-			);
-
-		// Retrieve a list of possible members.
-		$request = $smcFunc['db_query']('', '
-			SELECT id_member
-			FROM {db_prefix}members
-			WHERE {raw:match_possible_users}',
-			array(
-				'match_possible_users' => 'real_name LIKE ' . implode(' OR real_name LIKE ', $realNameMatches),
-			)
-		);
-		// Simply do nothing if there're too many members matching the criteria.
-		if ($smcFunc['db_num_rows']($request) > $maxMembersToSearch)
+		if (empty($possible_users))
 			$userQuery = '';
-		elseif ($smcFunc['db_num_rows']($request) == 0)
-		{
-			$userQuery = $smcFunc['db_quote'](
-				'm.id_member = {int:id_member_guest} AND ({raw:match_possible_guest_names})',
-				array(
-					'id_member_guest' => 0,
-					'match_possible_guest_names' => 'm.poster_name LIKE ' . implode(' OR m.poster_name LIKE ', $realNameMatches),
-				)
-			);
-		}
 		else
 		{
-			$memberlist = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-				$memberlist[] = $row['id_member'];
-			$userQuery = $smcFunc['db_quote'](
-				'(m.id_member IN ({array_int:matched_members}) OR (m.id_member = {int:id_member_guest} AND ({raw:match_possible_guest_names})))',
+			// Create a list of database-escaped search names.
+			$realNameMatches = array();
+			foreach ($possible_users as $possible_user)
+				$realNameMatches[] = $smcFunc['db_quote'](
+					'{string:possible_user}',
+					array(
+						'possible_user' => $possible_user
+					)
+				);
+
+			// Retrieve a list of possible members.
+			$request = $smcFunc['db_query']('', '
+				SELECT id_member
+				FROM {db_prefix}members
+				WHERE {raw:match_possible_users}',
 				array(
-					'matched_members' => $memberlist,
-					'id_member_guest' => 0,
-					'match_possible_guest_names' => 'm.poster_name LIKE ' . implode(' OR m.poster_name LIKE ', $realNameMatches),
+					'match_possible_users' => 'real_name LIKE ' . implode(' OR real_name LIKE ', $realNameMatches),
 				)
 			);
+			// Simply do nothing if there're too many members matching the criteria.
+			if ($smcFunc['db_num_rows']($request) > $maxMembersToSearch)
+				$userQuery = '';
+			elseif ($smcFunc['db_num_rows']($request) == 0)
+			{
+				$userQuery = $smcFunc['db_quote'](
+					'm.id_member = {int:id_member_guest} AND ({raw:match_possible_guest_names})',
+					array(
+						'id_member_guest' => 0,
+						'match_possible_guest_names' => 'm.poster_name LIKE ' . implode(' OR m.poster_name LIKE ', $realNameMatches),
+					)
+				);
+			}
+			else
+			{
+				$memberlist = array();
+				while ($row = $smcFunc['db_fetch_assoc']($request))
+					$memberlist[] = $row['id_member'];
+				$userQuery = $smcFunc['db_quote'](
+					'(m.id_member IN ({array_int:matched_members}) OR (m.id_member = {int:id_member_guest} AND ({raw:match_possible_guest_names})))',
+					array(
+						'matched_members' => $memberlist,
+						'id_member_guest' => 0,
+						'match_possible_guest_names' => 'm.poster_name LIKE ' . implode(' OR m.poster_name LIKE ', $realNameMatches),
+					)
+				);
+			}
+			$smcFunc['db_free_result']($request);
 		}
-		$smcFunc['db_free_result']($request);
 	}
 
 	// If the boards were passed by URL (params=), temporarily put them back in $_REQUEST.
