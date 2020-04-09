@@ -2347,6 +2347,10 @@ if ($doChange)
 ALTER TABLE {$db_prefix}log_floodcontrol ADD COLUMN ip VARBINARY(16);
 ---#
 
+---# Modify log_type size
+ALTER TABLE {$db_prefix}log_floodcontrol MODIFY log_type VARCHAR(30) NOT NULL DEFAULT 'post';
+---#
+
 ---# Create primary key for floodcontrol
 ALTER TABLE {$db_prefix}log_floodcontrol ADD PRIMARY KEY (ip,log_type);
 ---#

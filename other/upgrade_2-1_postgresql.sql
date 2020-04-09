@@ -2577,6 +2577,10 @@ ALTER TABLE {$db_prefix}log_floodcontrol
 	ALTER ip TYPE inet USING migrate_inet(ip);
 ---#
 
+---# Modify log_type size
+ALTER TABLE {$db_prefix}log_floodcontrol ALTER COLUMN log_type TYPE varchar(30);
+---#
+
 ---# add pk
 ALTER TABLE {$db_prefix}log_floodcontrol
   ADD CONSTRAINT {$db_prefix}log_floodcontrol_pkey PRIMARY KEY(ip, log_type);
