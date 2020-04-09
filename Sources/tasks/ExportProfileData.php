@@ -131,7 +131,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		// Append the string (assuming there's enough disk space).
 		$diskspace = disk_free_space($modSettings['export_dir']);
-		$minspace = empty($modSettings['export_min_diskspace_pct']) ? 0 : disk_total_space($modSettings['export_dir']) * $modSettings['export_min_diskspace'] / 100;
+		$minspace = empty($modSettings['export_min_diskspace_pct']) ? 0 : disk_total_space($modSettings['export_dir']) * $modSettings['export_min_diskspace_pct'] / 100;
 		if ($diskspace > $minspace && $diskspace > strlen($context['feed']['items']))
 		{
 			$handle = fopen($tempfilepath, 'r+');
