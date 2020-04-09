@@ -1584,9 +1584,11 @@ function DatabaseChanges()
 						'db_error_skip' => true,
 					)
 				);
+
 				$modSettings = array();
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 					$modSettings[$row['variable']] = $row['value'];
+
 				$smcFunc['db_free_result']($request);
 
 				// Some theme settings are in $modSettings
@@ -1606,8 +1608,10 @@ function DatabaseChanges()
 							'db_error_skip' => true,
 						)
 					);
+
 					while ($row = $smcFunc['db_fetch_assoc']($request))
 						$modSettings[$row['variable']] = $row['value'];
+
 					$smcFunc['db_free_result']($request);
 				}
 
