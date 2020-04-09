@@ -1099,7 +1099,7 @@ function export_profile_data($memID)
 		),
 	);
 
-	if (empty($modSettings['export_dir']))
+	if (empty($modSettings['export_dir']) || !file_exists($modSettings['export_dir']))
 		create_export_dir();
 
 	$realfilename = hash_hmac('sha1', $memID, get_auth_secret());
