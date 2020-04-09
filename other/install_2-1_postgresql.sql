@@ -606,7 +606,7 @@ CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
 CREATE UNLOGGED TABLE {$db_prefix}log_floodcontrol (
 	ip inet,
 	log_time bigint NOT NULL DEFAULT '0',
-	log_type varchar(8) NOT NULL DEFAULT 'post',
+	log_type varchar(30) NOT NULL DEFAULT 'post',
 	PRIMARY KEY (ip, log_type)
 );
 
