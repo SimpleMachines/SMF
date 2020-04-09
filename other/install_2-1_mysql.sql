@@ -370,7 +370,7 @@ CREATE TABLE {$db_prefix}log_floodcontrol (
 	ip VARBINARY(16),
 	log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	log_type VARCHAR(30) DEFAULT 'post',
-	PRIMARY KEY (ip, log_type(30))
+	PRIMARY KEY (ip, log_type)
 ) ENGINE={$memory};
 
 #
