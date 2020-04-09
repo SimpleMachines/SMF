@@ -1291,7 +1291,7 @@ function export_profile_data($memID)
  */
 function download_export_file($memID)
 {
-	global $modSettings, $maintenance, $context, $txt;
+	global $modSettings, $maintenance, $context, $txt, $smcFunc;
 
 	$export_formats = array(
 		'XML' => array('extension' => 'xml', 'mime' => 'application/xml'),
