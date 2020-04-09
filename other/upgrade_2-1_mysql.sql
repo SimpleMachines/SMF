@@ -2352,7 +2352,7 @@ ALTER TABLE {$db_prefix}log_floodcontrol MODIFY log_type VARCHAR(30) NOT NULL DE
 ---#
 
 ---# Create primary key for floodcontrol
-ALTER TABLE {$db_prefix}log_floodcontrol ADD PRIMARY KEY (ip(16),log_type(30));
+ALTER TABLE {$db_prefix}log_floodcontrol ADD PRIMARY KEY (ip,log_type);
 ---#
 
 /******************************************************************************/
