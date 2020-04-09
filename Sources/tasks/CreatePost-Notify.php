@@ -239,8 +239,6 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			else
 				continue;
 
-			$receiver_lang = empty($member_data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $member_data['lngfile'];
-
 			// We need to fake some of $user_info to make BBC parsing work correctly.
 			if (isset($user_info))
 				$real_user_info = $user_info;
@@ -248,10 +246,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			$user_info = $members_info[$member_id];
 
 			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
-			$localization = implode('|', array($receiver_lang, $user_info['time_offset'], $user_info['time_format']));
+			$localization = implode('|', array($member_data['lngfile'], $user_info['time_offset'], $user_info['time_format']));
 			if (empty($parsed_message[$localization]))
 			{
-				loadLanguage('index+Modifications', $receiver_lang, false);
+				loadLanguage('index+Modifications', $member_data['lngfile'], false);
 
 				$parsed_message[$localization]['subject'] = $msgOptions['subject'];
 				$parsed_message[$localization]['body'] = $msgOptions['body'];
@@ -288,7 +286,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'UNSUBSCRIBELINK' => $scripturl . '?action=notify' . $content_type . ';' . $content_type . '=' . $itemID . ';sa=off;u=' . $member_data['id_member'] . ';token=' . $token,
 				);
 
-				$emaildata = loadEmailTemplate($message_type, $replacements, $receiver_lang);
+				$emaildata = loadEmailTemplate($message_type, $replacements, $member_data['lngfile']);
 				$mail_result = sendmail($member_data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
 
 				// We failed, don't trigger a alert as we don't have a way to attempt to resend just the email currently.
