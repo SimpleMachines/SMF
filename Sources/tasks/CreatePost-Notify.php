@@ -134,6 +134,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			return true;
 
 		$members = array_unique($members);
+		$members_info = $this->getMinUserInfo($members);
+
 		$prefs = getNotifyPrefs($members, '', true);
 
 		// May as well disable these, since they'll be stripped out anyway.
@@ -242,7 +244,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			if (isset($user_info))
 				$real_user_info = $user_info;
 
-			$user_info = $this->getIncontextUserInfo($member);
+			$user_info = $members_info[$member];
 
 			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
 			$localization = implode('|', array($receiver_lang, $user_info['time_offset'], $user_info['time_format']));
