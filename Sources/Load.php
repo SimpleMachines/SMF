@@ -851,9 +851,9 @@ function loadUserSettings()
 }
 
 /**
- * Load minimal info from members table.
+ * Load minimal user settings from members table.
  *
- * @param array $users_ids The incontext users IDs to get the data from.
+ * @param array $users_ids The users IDs to get the data from.
  * @return array
  * @throws Exception
  */
@@ -866,12 +866,26 @@ function loadMinUserSettings($users_ids = [])
 	if (empty($users_ids))
 		return $user_settings_min;
 
+	$columns_to_load = array(
+		'id_member',
+		'time_offset',
+		'additional_groups',
+		'id_group',
+		'id_post_group',
+		'lngfile',
+		'smiley_set',
+		'time_offset'
+	);
+
+	call_integration_hook('integrate_load_min_user_settings_columns', array(&$columns_to_load));
+
 	$request = $smcFunc['db_query']('', '
-		SELECT id_member, time_offset, additional_groups, id_group, id_post_group, lngfile, smiley_set, time_offset
+		SELECT {raw:columns}
 		FROM {db_prefix}members
 		WHERE id_member IN ({array_int:users_ids})',
 		array(
 			'users_ids' => array_map('intval', $users_ids),
+			'columns' => implode(',', $columns_to_load)
 		)
 	);
 
@@ -879,7 +893,7 @@ function loadMinUserSettings($users_ids = [])
 	{
 		$user_settings_min[$row['id_member']] = array(
 			'id' => $row['id_member'],
-			'language' => empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'],
+			'language' => (empty($row['lngfile']) || empty($modSettings['userLanguage'])) ? $language : $row['lngfile'],
 			'is_guest' => false,
 			'time_format' => empty($row['time_format']) ? $modSettings['time_format'] : $row['time_format'],
 			'is_admin' => in_array(1, $row['groups']),
@@ -901,16 +915,15 @@ function loadMinUserSettings($users_ids = [])
 			$tz_user = new \DateTimeZone($row['timezone']);
 			$time_system = new \DateTime('now', $tz_system);
 			$time_user = new \DateTime('now', $tz_user);
-			$user_settings_min[$row['id_member']]['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
+			$user_settings_min[$row['id_member']]['time_offset'] = ($tz_user->getOffset($time_user) -
+					$tz_system->getOffset($time_system)) / 3600;
 		}
 
 		else
 			$user_settings_min[$row['id_member']]['time_offset'] = empty($row['time_offset']) ? 0 : $row['time_offset'];
 	}
 
-
 	$smcFunc['db_free_result']($request);
-
 
 	call_integration_hook('integrate_load_min_user_settings', array(&$user_settings_min));
 
