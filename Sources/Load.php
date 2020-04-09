@@ -853,22 +853,20 @@ function loadUserSettings()
 /**
  * Load minimal info from members table.
  *
- * @param int $user_id The incontext user ID to get the data from.
+ * @param array $users_ids The incontext users IDs to get the data from.
  * @return array
  * @throws Exception
  */
-function loadMinUserSettings($user_id = 0)
+function loadMinUserSettings($users_ids = [])
 {
-	global $smcFunc, $cache_enable, $modSettings, $language;
+	global $smcFunc, $modSettings, $language;
 
 	$user_settings_min = array();
 
-	if (empty($user_id) || !is_int($user_id))
+	if (empty($users_ids))
 		return $user_settings_min;
 
-	if (empty($cache_enable) || null === ($user_settings_min = cache_get_data('user_settings_min-' . $user_id, 1800)))
-	{
-		$request = $smcFunc['db_query']('', '
+	$request = $smcFunc['db_query']('', '
 				SELECT time_offset, additional_groups, id_group, id_post_group, lngfile, smiley_set, time_offset
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}
@@ -878,13 +876,10 @@ function loadMinUserSettings($user_id = 0)
 			)
 		);
 
-		$user_settings_min = $smcFunc['db_fetch_assoc']($request);
+	$user_settings_min = $smcFunc['db_fetch_assoc']($request);
 
-		$smcFunc['db_free_result']($request);
+	$smcFunc['db_free_result']($request);
 
-		if (!empty($cache_enable))
-			cache_put_data('user_settings_min-' . $user_id, $user_settings_min, 1800);
-	}
 
 	$user_settings_min += array(
 		'id' => $user_id,
