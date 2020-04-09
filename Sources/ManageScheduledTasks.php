@@ -635,6 +635,12 @@ function list_getNumTaskLogEntries()
 	return $num_entries;
 }
 
+/**
+ * This handles settings related to scheduled tasks
+ *
+ * @param bool $return_config Whether or not to return the config vars. Used in the admin search.
+ * @return void|array If return_config is true, returns the array of $config_vars
+ */
 function TaskSettings($return_config = false)
 {
 	global $sourcedir, $txt, $context, $scripturl;

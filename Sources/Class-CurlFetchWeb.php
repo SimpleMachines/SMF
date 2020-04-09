@@ -326,7 +326,7 @@ class curl_fetch_web_data
 	 * Callback function to parse returned headers
 	 *  - lowercases everything to make it consistent
 	 *
-	 * @param type $cr Not sure what this is used for?
+	 * @param curl_fetch_web_data $cr The curl request
 	 * @param string $header The header
 	 * @return int The length of the header
 	 */

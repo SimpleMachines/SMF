@@ -1,7 +1,5 @@
 <?php
 
-namespace TOTP;
-
 /**
  * A class for generating the codes compatible with the Google Authenticator and similar TOTP
  * clients.
@@ -22,6 +20,8 @@ namespace TOTP;
  *
  * @version 2.1 RC2
  */
+
+namespace TOTP;
 
 /**
  * Class Auth

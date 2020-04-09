@@ -157,16 +157,16 @@ function sha1_raw($text)
 	return sha1($text, true);
 }
 
-/**
- * Compatibility function.
- * crc32 doesn't work as expected on 64-bit functions - make our own.
- * https://php.net/crc32#79567
- *
- * @param string $number
- * @return string The crc32 polynomial of $number
- */
 if (!function_exists('smf_crc32'))
 {
+	/**
+	 * Compatibility function.
+	 * crc32 doesn't work as expected on 64-bit functions - make our own.
+	 * https://php.net/crc32#79567
+	 *
+	 * @param string $number
+	 * @return string The crc32 polynomial of $number
+	 */
 	function smf_crc32($number)
 	{
 		$crc = crc32($number);
