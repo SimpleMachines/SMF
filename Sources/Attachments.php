@@ -34,7 +34,7 @@ class Attachments
 	protected $_board = null;
 
 	/**
-	 * @var string|bool An array of info about attachment upload directories or false
+	 * @var string|bool $_attachmentUploadDir An array of info about attachment upload directories or false
 	 */
 	protected $_attachmentUploadDir = false;
 
@@ -59,7 +59,7 @@ class Attachments
 	protected $_generalErrors = array();
 
 	/**
-	 * @var $_initialError mixed Not used?
+	 * @var mixed $_initialError Not used?
 	 */
 	protected $_initialError;
 
