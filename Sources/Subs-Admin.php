@@ -2262,11 +2262,7 @@ function sm_temp_dir()
  * Internal function for sm_temp_dir.
  *
  * @param string $option Which temp_dir option to use
-<<<<<<< HEAD
  * @return string The path to the temp directory
-=======
- * @return string
->>>>>>> 0e892c6a52502557c1b8fcc766f0fecb428805c7
  */
 function sm_temp_dir_option($option = 'sys_get_temp_dir')
 {
