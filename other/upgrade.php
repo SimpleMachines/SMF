@@ -661,6 +661,17 @@ function loadEssentialData()
 		return random_int($min, $max);
 	};
 
+	// This is now needed for loadUserSettings()
+	$smcFunc['random_bytes'] = function($bytes)
+	{
+		global $sourcedir;
+
+		if (!is_callable('random_bytes'))
+			require_once($sourcedir . '/random_compat/random.php');
+
+		return random_bytes($bytes);
+	};
+
 	// We need this for authentication and some upgrade code
 	require_once($sourcedir . '/Subs-Auth.php');
 	require_once($sourcedir . '/Class-Package.php');
@@ -1515,7 +1526,7 @@ function backupTable($table)
 function DatabaseChanges()
 {
 	global $db_prefix, $modSettings, $smcFunc, $txt;
-	global $upcontext, $support_js, $db_type;
+	global $upcontext, $support_js, $db_type, $boarddir;
 
 	// Have we just completed this?
 	if (!empty($_POST['database_done']))
@@ -1562,7 +1573,56 @@ function DatabaseChanges()
 			// Do we actually need to do this still?
 			if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < $file[1])
 			{
+				// Use STRICT mode on more recent steps
 				setSqlMode($file[3]);
+
+				// Reload modSettings to capture any adds/updates made along the way
+				$request = $smcFunc['db_query']('', '
+					SELECT variable, value
+					FROM {db_prefix}settings',
+					array(
+						'db_error_skip' => true,
+					)
+				);
+
+				$modSettings = array();
+				while ($row = $smcFunc['db_fetch_assoc']($request))
+					$modSettings[$row['variable']] = $row['value'];
+
+				$smcFunc['db_free_result']($request);
+
+				// Some theme settings are in $modSettings
+				// Note we still might be doing yabbse (no smf ver)
+				if (isset($modSettings['smfVersion']))
+				{
+					$request = $smcFunc['db_query']('', '
+						SELECT variable, value
+						FROM {db_prefix}themes
+						WHERE id_theme = {int:id_theme}
+							AND variable IN ({string:theme_url}, {string:theme_dir}, {string:images_url})',
+						array(
+							'id_theme' => 1,
+							'theme_url' => 'theme_url',
+							'theme_dir' => 'theme_dir',
+							'images_url' => 'images_url',
+							'db_error_skip' => true,
+						)
+					);
+
+					while ($row = $smcFunc['db_fetch_assoc']($request))
+						$modSettings[$row['variable']] = $row['value'];
+
+					$smcFunc['db_free_result']($request);
+				}
+
+				if (!isset($modSettings['theme_url']))
+				{
+					$modSettings['theme_dir'] = $boarddir . '/Themes/default';
+					$modSettings['theme_url'] = 'Themes/default';
+					$modSettings['images_url'] = 'Themes/default/images';
+				}
+
+				// Now process the file...
 				$nextFile = parse_sql(dirname(__FILE__) . '/' . $file[0]);
 				if ($nextFile)
 				{
@@ -1792,9 +1852,11 @@ function convertSettingsToTheme()
 		'linktree_link' => @$GLOBALS['curposlinks'],
 		'show_profile_buttons' => @$GLOBALS['profilebutton'],
 		'show_mark_read' => @$GLOBALS['showmarkread'],
+		'show_board_desc' => @$GLOBALS['ShowBDescrip'],
 		'newsfader_time' => @$GLOBALS['fadertime'],
 		'use_image_buttons' => empty($GLOBALS['MenuType']) ? 1 : 0,
 		'enable_news' => @$GLOBALS['enable_news'],
+		'linktree_inline' => @$modSettings['enableInlineLinks'],
 		'return_to_post' => @$modSettings['returnToPost'],
 	);
 
@@ -1915,12 +1977,14 @@ function parse_sql($filename)
 	db_extend('packages');
 
 	// Our custom error handler - does nothing but does stop public errors from XML!
+	// Note that php error suppression - @ - used heavily in the upgrader, calls the error handler
+	// but error_reporting() will return 0 as it does so.
 	set_error_handler(
 		function($errno, $errstr, $errfile, $errline) use ($support_js)
 		{
 			if ($support_js)
 				return true;
-			else
+			elseif (error_reporting() != 0)
 				echo 'Error: ' . $errstr . ' File: ' . $errfile . ' Line: ' . $errline;
 		}
 	);
@@ -2596,7 +2660,7 @@ function nextSubstep($substep)
 function cmdStep0()
 {
 	global $boarddir, $sourcedir, $modSettings, $start_time, $cachedir, $databases, $db_type, $smcFunc, $upcontext;
-	global $is_debug;
+	global $is_debug, $boardurl, $txt;
 	$start_time = time();
 
 	ob_end_clean();
@@ -2725,6 +2789,27 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		require_once($modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php');
 	}
 
+	// Do we need to add this setting?
+	$need_settings_update = empty($modSettings['custom_avatar_dir']);
+
+	$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $boarddir . '/custom_avatar';
+	$custom_av_url = !empty($modSettings['custom_avatar_url']) ? $modSettings['custom_avatar_url'] : $boardurl . '/custom_avatar';
+
+	// This little fellow has to cooperate...
+	quickFileWritable($custom_av_dir);
+
+	// Are we good now?
+	if (!is_writable($custom_av_dir))
+		print_error(sprintf($txt['error_dir_not_writable'], $custom_av_dir));
+	elseif ($need_settings_update)
+	{
+		if (!function_exists('cache_put_data'))
+			require_once($sourcedir . '/Load.php');
+
+		updateSettings(array('custom_avatar_dir' => $custom_av_dir));
+		updateSettings(array('custom_avatar_url' => $custom_av_url));
+	}
+
 	// Make sure we skip the HTML for login.
 	$_POST['upcont'] = true;
 	$upcontext['current_step'] = 1;
@@ -2740,8 +2825,12 @@ function ConvertUtf8()
 
 	// Done it already?
 	if (!empty($_POST['utf8_done']))
-		return true;
-
+	{
+		if ($command_line)
+			return DeleteUpgrade();
+		else
+			return true;
+	}
 	// First make sure they aren't already on UTF-8 before we go anywhere...
 	if ($db_type == 'postgresql' || ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8'))
 	{
@@ -2752,7 +2841,10 @@ function ConvertUtf8()
 			array('variable')
 		);
 
-		return true;
+		if ($command_line)
+			return DeleteUpgrade();
+		else
+			return true;
 	}
 	else
 	{
@@ -3242,6 +3334,11 @@ function ConvertUtf8()
 			flush();
 		}
 	}
+
+	// Make sure we move on!
+	if ($command_line)
+		return DeleteUpgrade();
+
 	$_GET['substep'] = 0;
 	return false;
 }
@@ -4875,7 +4972,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 {
 	global $smcFunc, $step_progress;
 
-	$current_substep = $_GET['substep'];
+	$current_substep = !isset($_GET['substep']) ? 0 : (int) $_GET['substep'];
 
 	if (empty($_GET['a']))
 		$_GET['a'] = 0;
@@ -4930,7 +5027,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 		$smcFunc['db_free_result']($request);
 
 		// Special case, null ip could keep us in a loop.
-		if (is_null($arIp[0]))
+		if (!isset($arIp[0]))
 			unset($arIp[0]);
 
 		if (empty($arIp))
