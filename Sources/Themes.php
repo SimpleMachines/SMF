@@ -117,8 +117,8 @@ function ThemesMain()
  *  - requires the admin_forum permission.
  *  - accessed with ?action=admin;area=theme;sa=admin.
  *
- * @uses Themes template
- * @uses Admin language file
+ * Uses Themes template
+ * Uses Admin language file
  */
 function ThemeAdmin()
 {
@@ -1814,7 +1814,7 @@ function EditTheme()
 /**
  * Makes a copy of a template file in a new location
  *
- * @uses Themes template, copy_template sub-template.
+ * @uses template_copy_template()
  */
 function CopyTemplate()
 {

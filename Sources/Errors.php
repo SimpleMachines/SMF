@@ -319,10 +319,11 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 /**
  * It is called by {@link fatal_error()} and {@link fatal_lang_error()}.
  *
- * @uses Errors template, fatal_error sub template.
+ * @uses template_fatal_error()
  *
  * @param string $error_message The error message
  * @param string $error_code An error code
+ * @return void|false Normally doesn't return anything, but returns false if a recursive loop is detected
  */
 function setup_fatal_error_context($error_message, $error_code = null)
 {

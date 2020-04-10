@@ -25,7 +25,7 @@ if (!defined('SMF'))
  * - Requires the view_mlist permission.
  * - Accessed via ?action=mlist.
  *
- * @uses Memberlist template, main sub template.
+ * Uses Memberlist template, main sub template.
  */
 function Memberlist()
 {
