@@ -346,14 +346,15 @@ abstract class SMF_BackgroundTask
 	abstract public function execute();
 
 	/**
-	 * Loads minimal info for the current incontext user
+	 * Loads minimal info for the previously loaded user ids
 	 *
-	 * @param int $user_id
+	 * @param array $users_ids
 	 * @return array
+	 * @throws Exception
 	 */
-	public function getIncontextUserInfo($user_id = 0)
+	public function getMinUserInfo($users_ids = [])
 	{
-		return loadMinUserSettings($user_id);
+		return loadMinUserSettings($users_ids);
 	}
 
 	public function __destruct()

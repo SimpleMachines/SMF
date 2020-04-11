@@ -851,70 +851,79 @@ function loadUserSettings()
 }
 
 /**
- * Load minimal info from members table.
+ * Load minimal user settings from members table.
  *
- * @param int $user_id The incontext user ID to get the data from.
+ * @param array $users_ids The users IDs to get the data from.
  * @return array
  * @throws Exception
  */
-function loadMinUserSettings($user_id = 0)
+function loadMinUserSettings($users_ids = [])
 {
-	global $smcFunc, $cache_enable, $modSettings, $language;
+	global $smcFunc, $modSettings, $language;
 
 	$user_settings_min = array();
 
-	if (empty($user_id) || !is_int($user_id))
+	if (empty($users_ids))
 		return $user_settings_min;
 
-	if (empty($cache_enable) || null === ($user_settings_min = cache_get_data('user_settings_min-' . $user_id, 1800)))
-	{
-		$request = $smcFunc['db_query']('', '
-				SELECT time_offset, additional_groups, id_group, id_post_group, lngfile, smiley_set, time_offset
-				FROM {db_prefix}members
-				WHERE id_member = {int:id_member}
-				LIMIT 1',
-			array(
-				'id_member' => $user_id,
-			)
-		);
-
-		$user_settings_min = $smcFunc['db_fetch_assoc']($request);
-
-		$smcFunc['db_free_result']($request);
-
-		if (!empty($cache_enable))
-			cache_put_data('user_settings_min-' . $user_id, $user_settings_min, 1800);
-	}
-
-	$user_settings_min += array(
-		'id' => $user_id,
-		'language' => empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $user_settings_min['lngfile'],
-		'is_guest' => false,
-		'time_format' => empty($user_settings_min['time_format']) ? $modSettings['time_format'] : $user_settings_min['time_format'],
-		'is_admin' => in_array(1, $user_settings_min['groups']),
-		'smiley_set' => empty($user_settings_min['time_format']) ? $modSettings['smiley_sets_default'] : $user_settings_min['time_format'],
+	$columns_to_load = array(
+		'id_member',
+		'time_offset',
+		'additional_groups',
+		'id_group',
+		'id_post_group',
+		'lngfile',
+		'smiley_set',
+		'time_offset'
 	);
 
-	if (empty($user_settings_min['additional_groups']))
-		$user_settings_min['groups'] = array($user_settings_min['id_group'], $user_settings_min['id_post_group']);
+	call_integration_hook('integrate_load_min_user_settings_columns', array(&$columns_to_load));
 
-	else
-		$user_settings_min['groups'] = array_merge(
-			array($user_settings_min['id_group'], $user_settings_min['id_post_group']),
-			explode(',', $user_settings_min['additional_groups'])
+	$request = $smcFunc['db_query']('', '
+		SELECT {raw:columns}
+		FROM {db_prefix}members
+		WHERE id_member IN ({array_int:users_ids})',
+		array(
+			'users_ids' => array_map('intval', $users_ids),
+			'columns' => implode(',', $columns_to_load)
+		)
+	);
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$user_settings_min[$row['id_member']] = array(
+			'id' => $row['id_member'],
+			'language' => (empty($row['lngfile']) || empty($modSettings['userLanguage'])) ? $language : $row['lngfile'],
+			'is_guest' => false,
+			'time_format' => empty($row['time_format']) ? $modSettings['time_format'] : $row['time_format'],
+			'is_admin' => in_array(1, $row['groups']),
+			'smiley_set' => empty($row['time_format']) ? $modSettings['smiley_sets_default'] : $row['time_format'],
 		);
 
-	if (!empty($user_settings_min['timezone']))
-	{
-		$tz_system = new \DateTimeZone(@date_default_timezone_get());
-		$tz_user = new \DateTimeZone($user_settings_min['timezone']);
-		$time_system = new \DateTime('now', $tz_system);
-		$time_user = new \DateTime('now', $tz_user);
-		$user_settings_min['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
+		if (empty($row['additional_groups']))
+			$user_settings_min[$row['id_member']]['groups'] = array($row['id_group'], $row['id_post_group']);
+
+		else
+			$user_settings_min[$row['id_member']]['groups'] = array_merge(
+				array($row['id_group'], $row['id_post_group']),
+				explode(',', $row['additional_groups'])
+			);
+
+		if (!empty($row['timezone']))
+		{
+			$tz_system = new \DateTimeZone(@date_default_timezone_get());
+			$tz_user = new \DateTimeZone($row['timezone']);
+			$time_system = new \DateTime('now', $tz_system);
+			$time_user = new \DateTime('now', $tz_user);
+			$user_settings_min[$row['id_member']]['time_offset'] = ($tz_user->getOffset($time_user) -
+					$tz_system->getOffset($time_system)) / 3600;
+		}
+
+		else
+			$user_settings_min[$row['id_member']]['time_offset'] = empty($row['time_offset']) ? 0 : $row['time_offset'];
 	}
 
-	else
-		$user_settings_min['time_offset'] = empty($user_settings_min['time_offset']) ? 0 : $user_settings_min['time_offset'];
+	$smcFunc['db_free_result']($request);
 
 	call_integration_hook('integrate_load_min_user_settings', array(&$user_settings_min));
 
