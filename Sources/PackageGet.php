@@ -228,6 +228,15 @@ function PackageGBrowse()
 		if (isset($_GET['relative']))
 			$url = $url . (substr($url, -1) == '/' ? '' : '/') . $_GET['relative'];
 
+		$the_version = SMF_VERSION;
+		if (!empty($_SESSION['version_emulate']))
+			$the_version = $_SESSION['version_emulate'];
+
+		// Sub out any variables we support in the url.
+		$url = strtr($url, array(
+			'{SMF_VERSION}' => urlencode($the_version)
+		));
+
 		// Clear any "absolute" URL.  Since "server" is present, "absolute" is garbage.
 		unset($_GET['absolute']);
 	}
@@ -561,6 +570,15 @@ function PackageDownload()
 		// If server does not exist then dump out.
 		if (empty($url))
 			fatal_lang_error('couldnt_connect', false);
+
+		$the_version = SMF_VERSION;
+		if (!empty($_SESSION['version_emulate']))
+			$the_version = $_SESSION['version_emulate'];
+
+		// Sub out any variables we support in the url.
+		$url = strtr($url, array(
+			'{SMF_VERSION}' => urlencode($the_version)
+		));
 
 		$url = $url . '/';
 	}

@@ -369,8 +369,8 @@ CREATE TABLE {$db_prefix}log_errors (
 CREATE TABLE {$db_prefix}log_floodcontrol (
 	ip VARBINARY(16),
 	log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
-	log_type VARCHAR(8) DEFAULT 'post',
-	PRIMARY KEY (ip, log_type(8))
+	log_type VARCHAR(30) DEFAULT 'post',
+	PRIMARY KEY (ip, log_type)
 ) ENGINE={$memory};
 
 #
@@ -464,6 +464,7 @@ CREATE TABLE {$db_prefix}log_packages (
 	themes_installed VARCHAR(255) NOT NULL DEFAULT '',
 	db_changes TEXT NOT NULL,
 	credits TEXT NOT NULL,
+	sha256_hash TEXT,
 	PRIMARY KEY (id_install),
 	INDEX idx_filename (filename(15))
 ) ENGINE={$engine};
@@ -846,6 +847,8 @@ CREATE TABLE {$db_prefix}package_servers (
 	id_server SMALLINT UNSIGNED AUTO_INCREMENT,
 	name VARCHAR(255) NOT NULL DEFAULT '',
 	url VARCHAR(255) NOT NULL DEFAULT '',
+	validation_url VARCHAR(255) NOT NULL DEFAULT '',
+	extra TEXT,
 	PRIMARY KEY (id_server)
 ) ENGINE={$engine};
 
@@ -1851,8 +1854,9 @@ VALUES (1, 1, 1, 1, UNIX_TIMESTAMP(), '{$default_topic_subject}', 'Simple Machin
 #
 
 INSERT INTO {$db_prefix}package_servers
-	(name, url)
-VALUES ('Simple Machines Third-party Mod Site', 'https://custom.simplemachines.org/packages/mods');
+	(name, url, validation_url)
+VALUES ('Simple Machines Third-party Mod Site', 'https://custom.simplemachines.org/packages/mods', 'https://custom.simplemachines.org/api.php?action=validate;version=v1;smf_version={SMF_VERSION}'),
+		('Simple Machines Downloads Site', 'https://download.simplemachines.org/browse.php?api=v1;smf_version={SMF_VERSION}', 'https://download.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}');
 # --------------------------------------------------------
 
 #

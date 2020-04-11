@@ -2643,7 +2643,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				// See the comment at the end of the big loop - just eating whitespace ;).
 				$whitespace_regex = '';
 				if (!empty($tag['block_level']))
-					$whitespace_regex .= '(&nbsp;|\s)*(<br>)?';
+					$whitespace_regex .= '(&nbsp;|\s)*(<br\s*/?' . '>)?';
 				// Trim one line of whitespace after unnested tags, but all of it after nested ones
 				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
 					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
@@ -4064,8 +4064,10 @@ function template_javascript($do_deferred = false)
 			{
 				if (!empty($js_file['options']['async']))
 					$toMinify['async'][] = $js_file;
+
 				elseif (!empty($js_file['options']['defer']))
 					$toMinify['defer'][] = $js_file;
+
 				else
 					$toMinify['standard'][] = $js_file;
 
@@ -4084,6 +4086,7 @@ function template_javascript($do_deferred = false)
 					{
 						if (is_bool($value))
 							echo !empty($value) ? ' ' . $key : '';
+
 						else
 							echo ' ', $key, '="', $value, '"';
 					}
@@ -4597,6 +4600,10 @@ function host_from_ip($ip)
 function text2words($text, $max_chars = 20, $encrypt = false)
 {
 	global $smcFunc, $context;
+
+	// Upgrader may be working on old DBs...
+	if (!isset($context['utf8']))
+		$context['utf8'] = false;
 
 	// Step 1: Remove entities/things we don't consider words:
 	$words = preg_replace('~(?:[\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . ($context['utf8'] ? 'u' : ''), ' ', strtr($text, array('<br>' => ' ')));

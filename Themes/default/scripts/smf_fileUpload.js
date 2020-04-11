@@ -66,7 +66,7 @@ function smf_fileUpload(oOptions) {
 
 			var currentlyUsedKB = myDropzone.options.currentUsedSize / 1024,
 				totalKB = myDropzone.options.maxTotalSize,
-				fileKB = myDropzone.options.maxFileSize,
+				fileKB = myDropzone.options.maxFilesize,
 				uploadedFileKB = file.size / 1024;
 
 			// Check against the max amount of files setting.
