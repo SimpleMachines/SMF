@@ -42,7 +42,7 @@ if (!defined('SMF'))
 function ShowXmlFeed()
 {
 	global $board, $board_info, $context, $scripturl, $boardurl, $txt, $modSettings, $user_info;
-	global $query_this_board, $smcFunc, $forum_version, $settings, $cachedir;
+	global $query_this_board, $smcFunc, $forum_version, $settings, $cache_enable, $cachedir;
 
 	// List all the different types of data they can pull.
 	$subActions = array(
@@ -286,7 +286,7 @@ function ShowXmlFeed()
 
 function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction, $item_tag = null)
 {
-	global $smcFunc, $context, $user_info, $txt;
+	global $smcFunc, $context, $user_info, $txt, $scripturl;
 
 	// Allow mods to add extra namespaces and tags to the feed/channel
 	$namespaces = array(
