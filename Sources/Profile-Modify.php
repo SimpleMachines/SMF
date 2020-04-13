@@ -304,7 +304,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'passwrd1' => array(
 			'type' => 'password',
-			'label' => ucwords($txt['choose_pass']),
+			'label' => $txt['choose_pass'],
 			'subtext' => $txt['password_strength'],
 			'size' => 20,
 			'value' => '',
@@ -337,7 +337,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'passwrd2' => array(
 			'type' => 'password',
-			'label' => ucwords($txt['verify_pass']),
+			'label' => $txt['verify_pass'],
 			'size' => 20,
 			'value' => '',
 			'permission' => 'profile_password',
