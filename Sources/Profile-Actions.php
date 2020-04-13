@@ -1250,7 +1250,7 @@ function export_profile_data($memID)
 				'included' => $included,
 				'start' => $start,
 				'latest' => $latest,
-				'datatype' => isset($current_datatype) ? $current_datatype : 'profile',
+				'datatype' => isset($current_datatype) ? $current_datatype : key($included),
 			));
 
 			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
