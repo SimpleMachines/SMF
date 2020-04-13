@@ -3313,7 +3313,7 @@ function template_export_profile_data()
 			echo '
 				<li>
 					<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '">
-						<a href="', $scripturl, '?action=profile;area=download;u=', $context['id_member'], ';f=', $file['format'], ';t=', $file['dltoken'], '" class="bbc_link">', $file['dlbasename'], '</a> (', $file['size'], ', ', $file['mtime'], ')
+						<a href="', $scripturl, '?action=profile;area=download;u=', $context['id_member'], ';format=', $file['format'], ';t=', $file['dltoken'], '" class="bbc_link">', $file['dlbasename'], '</a> (', $file['size'], ', ', $file['mtime'], ')
 						<input type="submit" name="delete" value="', $txt['delete'], '" class="button you_sure">
 						<input type="hidden" name="format" value="', $file['format'], '">
 						<input type="hidden" name="t" value="', $file['dltoken'], '">
