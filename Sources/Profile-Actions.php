@@ -1240,7 +1240,7 @@ function export_profile_data($memID)
 		}
 
 		if (empty($included))
-			unset($context['active_exports'][$realfilename . $context['export_formats'][$format]['extension']]);
+			unset($context['active_exports'][$realfilename . '.' . $context['export_formats'][$format]['extension']]);
 		else
 		{
 			$data = $smcFunc['json_encode'](array(
