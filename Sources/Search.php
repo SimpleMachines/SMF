@@ -413,8 +413,7 @@ function PlushSearch2()
 		$userQuery = '';
 	else
 	{
-		$userString = strtr($smcFunc['htmlspecialchars']($search_params['userspec'], ENT_QUOTES), array('&quot;' => '"'));
-		$userString = strtr($userString, array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_'));
+		$userString = strtr($smcFunc['htmlspecialchars']($search_params['userspec'], ENT_QUOTES), array('&quot;' => '"', '%' => '\%', '_' => '\_', '*' => '%', '?' => '_'));
 
 		preg_match_all('~"([^"]+)"~', $userString, $matches);
 		$possible_users = array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $userString)));
@@ -428,11 +427,14 @@ function PlushSearch2()
 		}
 
 		if (empty($possible_users))
+		{
 			$userQuery = '';
+		}
 		else
 		{
 			// Create a list of database-escaped search names.
 			$realNameMatches = array();
+
 			foreach ($possible_users as $possible_user)
 				$realNameMatches[] = $smcFunc['db_quote'](
 					'{string:possible_user}',
@@ -450,9 +452,12 @@ function PlushSearch2()
 					'match_possible_users' => 'real_name LIKE ' . implode(' OR real_name LIKE ', $realNameMatches),
 				)
 			);
+
 			// Simply do nothing if there're too many members matching the criteria.
 			if ($smcFunc['db_num_rows']($request) > $maxMembersToSearch)
+			{
 				$userQuery = '';
+			}
 			elseif ($smcFunc['db_num_rows']($request) == 0)
 			{
 				$userQuery = $smcFunc['db_quote'](
@@ -466,8 +471,10 @@ function PlushSearch2()
 			else
 			{
 				$memberlist = array();
+
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 					$memberlist[] = $row['id_member'];
+
 				$userQuery = $smcFunc['db_quote'](
 					'(m.id_member IN ({array_int:matched_members}) OR (m.id_member = {int:id_member_guest} AND ({raw:match_possible_guest_names})))',
 					array(
@@ -489,15 +496,19 @@ function PlushSearch2()
 	if ((!empty($_REQUEST['brd']) && !is_array($_REQUEST['brd'])) || (!empty($_REQUEST['search_selection']) && $_REQUEST['search_selection'] == 'board'))
 	{
 		if (!empty($_REQUEST['brd']))
+		{
 			$_REQUEST['brd'] = strpos($_REQUEST['brd'], ',') !== false ? explode(',', $_REQUEST['brd']) : array($_REQUEST['brd']);
+		}
 		else
 			$_REQUEST['brd'] = isset($_REQUEST['sd_brd']) ? array($_REQUEST['sd_brd']) : array();
 	}
 
 	// Make sure all boards are integers.
 	if (!empty($_REQUEST['brd']))
+	{
 		foreach ($_REQUEST['brd'] as $id => $brd)
 			$_REQUEST['brd'][$id] = (int) $brd;
+	}
 
 	// Special case for boards: searching just one topic?
 	if (!empty($search_params['topic']))
@@ -524,10 +535,13 @@ function PlushSearch2()
 	}
 	// Select all boards you've selected AND are allowed to see.
 	elseif ($user_info['is_admin'] && (!empty($search_params['advanced']) || !empty($_REQUEST['brd'])))
+	{
 		$search_params['brd'] = empty($_REQUEST['brd']) ? array() : $_REQUEST['brd'];
+	}
 	else
 	{
 		$see_board = empty($search_params['advanced']) ? 'query_wanna_see_board' : 'query_see_board';
+
 		$request = $smcFunc['db_query']('', '
 			SELECT b.id_board
 			FROM {db_prefix}boards AS b
@@ -542,9 +556,12 @@ function PlushSearch2()
 				'recycle_board_id' => $modSettings['recycle_board'],
 			)
 		);
+
 		$search_params['brd'] = array();
+
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$search_params['brd'][] = $row['id_board'];
+
 		$smcFunc['db_free_result']($request);
 
 		// This error should pro'bly only happen for hackers.
@@ -566,13 +583,19 @@ function PlushSearch2()
 				'empty_string' => '',
 			)
 		);
+
 		list ($num_boards) = $smcFunc['db_fetch_row']($request);
+
 		$smcFunc['db_free_result']($request);
 
 		if (count($search_params['brd']) == $num_boards)
+		{
 			$boardQuery = '';
+		}
 		elseif (count($search_params['brd']) == $num_boards - 1 && !empty($modSettings['recycle_board']) && !in_array($modSettings['recycle_board'], $search_params['brd']))
+		{
 			$boardQuery = '!= ' . $modSettings['recycle_board'];
+		}
 		else
 			$boardQuery = 'IN (' . implode(', ', $search_params['brd']) . ')';
 	}
@@ -580,6 +603,7 @@ function PlushSearch2()
 		$boardQuery = '';
 
 	$search_params['show_complete'] = !empty($search_params['show_complete']) || !empty($_REQUEST['show_complete']);
+
 	$search_params['subject_only'] = !empty($search_params['subject_only']) || !empty($_REQUEST['subject_only']);
 
 	$context['compact'] = !$search_params['show_complete'];
@@ -590,10 +614,16 @@ function PlushSearch2()
 		'num_replies',
 		'id_msg',
 	);
+
 	call_integration_hook('integrate_search_sort_columns', array(&$sort_columns));
+
 	if (empty($search_params['sort']) && !empty($_REQUEST['sort']))
+	{
 		list ($search_params['sort'], $search_params['sort_dir']) = array_pad(explode('|', $_REQUEST['sort']), 2, '');
+	}
+
 	$search_params['sort'] = !empty($search_params['sort']) && in_array($search_params['sort'], $sort_columns) ? $search_params['sort'] : 'relevance';
+
 	if (!empty($search_params['topic']) && $search_params['sort'] === 'num_replies')
 		$search_params['sort'] = 'id_msg';
 
@@ -614,6 +644,7 @@ function PlushSearch2()
 	 * @todo Maybe only blacklist if they are the only word, or "any" is used?
 	 */
 	$blacklisted_words = array('img', 'url', 'quote', 'www', 'http', 'the', 'is', 'it', 'are', 'if');
+
 	call_integration_hook('integrate_search_blacklisted_words', array(&$blacklisted_words));
 
 	// What are we searching for?
@@ -621,15 +652,19 @@ function PlushSearch2()
 	{
 		if (isset($_GET['search']))
 			$search_params['search'] = un_htmlspecialchars($_GET['search']);
+
 		elseif (isset($_POST['search']))
 			$search_params['search'] = $_POST['search'];
+
 		else
 			$search_params['search'] = '';
 	}
 
 	// Nothing??
 	if (!isset($search_params['search']) || $search_params['search'] == '')
+	{
 		$context['search_errors']['invalid_search_string'] = true;
+	}
 	// Too long?
 	elseif ($smcFunc['strlen']($search_params['search']) > $context['search_string_limit'])
 	{
@@ -650,10 +685,12 @@ function PlushSearch2()
 
 	// Extract phrase parts first (e.g. some words "this is a phrase" some more words.)
 	preg_match_all('/(?:^|\s)([-]?)"([^"]+)"(?:$|\s)/', $stripped_query, $matches, PREG_PATTERN_ORDER);
+
 	$phraseArray = $matches[2];
 
 	// Remove the phrase parts and extract the words.
 	$wordArray = preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
+
 	$wordArray = explode(' ', $smcFunc['htmlspecialchars'](un_htmlspecialchars($wordArray), ENT_QUOTES));
 
 	// A minus sign in front of a word excludes the word.... so...
@@ -680,6 +717,7 @@ function PlushSearch2()
 		{
 			if (($word = trim($word, '-_\' ')) !== '' && !in_array($word, $blacklisted_words))
 				$excludedWords[] = $word;
+
 			unset($wordArray[$index]);
 		}
 	}
@@ -693,7 +731,9 @@ function PlushSearch2()
 	{
 		// Skip anything practically empty.
 		if (($searchArray[$index] = trim($value, '-_\' ')) === '')
+		{
 			unset($searchArray[$index]);
+		}
 		// Skip blacklisted words. Make sure to note we skipped them in case we end up with nothing.
 		elseif (in_array($searchArray[$index], $blacklisted_words))
 		{
@@ -711,6 +751,7 @@ function PlushSearch2()
 
 	// Create an array of replacements for highlighting.
 	$context['mark'] = array();
+
 	foreach ($searchArray as $word)
 		$context['mark'][$word] = '<strong class="highlight">' . $word . '</strong>';
 
@@ -720,18 +761,25 @@ function PlushSearch2()
 
 	// Make sure at least one word is being searched for.
 	if (empty($searchArray))
+	{
 		$context['search_errors']['invalid_search_string' . (!empty($foundBlackListedWords) ? '_blacklist' : '')] = true;
+	}
 	// All words/sentences must match.
 	elseif (empty($search_params['searchtype']))
+	{
 		$orParts[0] = $searchArray;
+	}
 	// Any word/sentence must match.
 	else
+	{
 		foreach ($searchArray as $index => $value)
 			$orParts[$index] = array($value);
+	}
 
 	// Don't allow duplicate error messages if one string is too short.
 	if (isset($context['search_errors']['search_string_small_words'], $context['search_errors']['invalid_search_string']))
 		unset($context['search_errors']['invalid_search_string']);
+
 	// Make sure the excluded words are in all or-branches.
 	foreach ($orParts as $orIndex => $andParts)
 		foreach ($excludedWords as $word)
@@ -837,6 +885,7 @@ function PlushSearch2()
 				// Search is case insensitive.
 				if ($smcFunc['strtolower']($s) == $smcFunc['strtolower']($word))
 					unset($suggestions[$i]);
+
 				// Plus, don't suggest something the user thinks is rude!
 				elseif ($suggestions[$i] != censorText($s))
 					unset($suggestions[$i]);
@@ -861,6 +910,7 @@ function PlushSearch2()
 		{
 			// Don't spell check excluded words, but add them still...
 			$temp_excluded = array('search' => array(), 'display' => array());
+
 			foreach ($excludedWords as $word)
 			{
 				if (preg_match('~^\w+$~', $word) == 0)
@@ -880,11 +930,15 @@ function PlushSearch2()
 
 			$temp_params = $search_params;
 			$temp_params['search'] = implode(' ', $did_you_mean['search']);
+
 			if (isset($temp_params['brd']))
 				$temp_params['brd'] = implode(',', $temp_params['brd']);
+
 			$context['params'] = array();
+
 			foreach ($temp_params as $k => $v)
 				$context['did_you_mean_params'][] = $k . '|\'|' . $v;
+
 			$context['did_you_mean_params'] = base64_encode(implode('|"|', $context['did_you_mean_params']));
 			$context['did_you_mean'] = implode(' ', $did_you_mean['display']);
 		}
@@ -892,8 +946,10 @@ function PlushSearch2()
 
 	// Let the user adjust the search query, should they wish?
 	$context['search_params'] = $search_params;
+
 	if (isset($context['search_params']['search']))
 		$context['search_params']['search'] = $smcFunc['htmlspecialchars']($context['search_params']['search']);
+
 	if (isset($context['search_params']['userspec']))
 		$context['search_params']['userspec'] = $smcFunc['htmlspecialchars']($context['search_params']['userspec']);
 
@@ -901,9 +957,11 @@ function PlushSearch2()
 	if ($user_info['is_guest'] && !empty($modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']) && (empty($_SESSION['last_ss']) || $_SESSION['last_ss'] != $search_params['search']))
 	{
 		require_once($sourcedir . '/Subs-Editor.php');
+
 		$verificationOptions = array(
 			'id' => 'search',
 		);
+
 		$context['require_verification'] = create_control_verification($verificationOptions, true);
 
 		if (is_array($context['require_verification']))
@@ -922,7 +980,9 @@ function PlushSearch2()
 	$temp_params = $search_params;
 	if (isset($temp_params['brd']))
 		$temp_params['brd'] = implode(',', $temp_params['brd']);
+
 	$context['params'] = array();
+
 	foreach ($temp_params as $k => $v)
 		$context['params'][] = $k . '|\'|' . $v;
 
@@ -930,9 +990,11 @@ function PlushSearch2()
 	{
 		// Due to old IE's 2083 character limit, we have to compress long search strings
 		$params = @gzcompress(implode('|"|', $context['params']));
+
 		// Gzcompress failed, use try non-gz
 		if (empty($params))
 			$params = implode('|"|', $context['params']);
+
 		// Base64 encode, then replace +/= with uri safe ones that can be reverted
 		$context['params'] = str_replace(array('+', '/', '='), array('-', '_', '.'), base64_encode($params));
 	}
@@ -960,6 +1022,7 @@ function PlushSearch2()
 	// Spam me not, Spam-a-lot?
 	if (empty($_SESSION['last_ss']) || $_SESSION['last_ss'] != $search_params['search'])
 		spamProtection('search');
+
 	// Store the last search string to allow pages of results to be browsed.
 	$_SESSION['last_ss'] = $search_params['search'];
 
@@ -983,6 +1046,7 @@ function PlushSearch2()
 	else
 	{
 		$update_cache = empty($_SESSION['search_cache']) || ($_SESSION['search_cache']['params'] != $context['params']);
+
 		// Are the result fresh?
 		if (!$update_cache && !empty($_SESSION['search_cache']['id_search']))
 		{
@@ -1004,8 +1068,10 @@ function PlushSearch2()
 		{
 			// Increase the pointer...
 			$modSettings['search_pointer'] = empty($modSettings['search_pointer']) ? 0 : (int) $modSettings['search_pointer'];
+
 			// ...and store it right off.
 			updateSettings(array('search_pointer' => $modSettings['search_pointer'] >= 255 ? 0 : $modSettings['search_pointer'] + 1));
+
 			// As long as you don't change the parameters, the cache result is yours.
 			$_SESSION['search_cache'] = array(
 				'id_search' => $modSettings['search_pointer'],
@@ -1026,6 +1092,7 @@ function PlushSearch2()
 			{
 				// We do this to try and avoid duplicate keys on databases not supporting INSERT IGNORE.
 				$inserts = array();
+
 				foreach ($searchWords as $orIndex => $words)
 				{
 					$subject_query_params = array();
@@ -1042,20 +1109,26 @@ function PlushSearch2()
 					$numTables = 0;
 					$prev_join = 0;
 					$numSubjectResults = 0;
+
 					foreach ($words['subject_words'] as $subjectWord)
 					{
 						$numTables++;
+
 						if (in_array($subjectWord, $excludedSubjectWords))
 						{
 							$subject_query['left_join'][] = '{db_prefix}log_search_subjects AS subj' . $numTables . ' ON (subj' . $numTables . '.word ' . (empty($modSettings['search_match_words']) ? 'LIKE {string:subject_words_' . $numTables . '_wild}' : '= {string:subject_words_' . $numTables . '}') . ' AND subj' . $numTables . '.id_topic = t.id_topic)';
+
 							$subject_query['where'][] = '(subj' . $numTables . '.word IS NULL)';
 						}
 						else
 						{
 							$subject_query['inner_join'][] = '{db_prefix}log_search_subjects AS subj' . $numTables . ' ON (subj' . $numTables . '.id_topic = ' . ($prev_join === 0 ? 't' : 'subj' . $prev_join) . '.id_topic)';
+
 							$subject_query['where'][] = 'subj' . $numTables . '.word ' . (empty($modSettings['search_match_words']) ? 'LIKE {string:subject_words_' . $numTables . '_wild}' : '= {string:subject_words_' . $numTables . '}');
+
 							$prev_join = $numTables;
 						}
+
 						$subject_query_params['subject_words_' . $numTables] = $subjectWord;
 						$subject_query_params['subject_words_' . $numTables . '_wild'] = '%' . $subjectWord . '%';
 					}
@@ -1066,39 +1139,53 @@ function PlushSearch2()
 						{
 							$subject_query['inner_join'][] = '{db_prefix}messages AS m ON (m.id_topic = t.id_topic)';
 						}
+
 						$subject_query['where'][] = $userQuery;
 					}
+
 					if (!empty($search_params['topic']))
 						$subject_query['where'][] = 't.id_topic = ' . $search_params['topic'];
+
 					if (!empty($minMsgID))
 						$subject_query['where'][] = 't.id_first_msg >= ' . $minMsgID;
+
 					if (!empty($maxMsgID))
 						$subject_query['where'][] = 't.id_last_msg <= ' . $maxMsgID;
+
 					if (!empty($boardQuery))
 						$subject_query['where'][] = 't.id_board ' . $boardQuery;
+
 					if (!empty($excludedPhrases))
 					{
 						if ($subject_query['from'] != '{db_prefix}messages AS m')
 						{
 							$subject_query['inner_join'][] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
 						}
+
 						$count = 0;
+
 						foreach ($excludedPhrases as $phrase)
 						{
 							$subject_query['where'][] = 'm.subject NOT ' . (empty($modSettings['search_match_words']) || $no_regexp ? ' LIKE ' : ' RLIKE ') . '{string:excluded_phrases_' . $count . '}';
+
 							$subject_query_params['excluded_phrases_' . $count++] = empty($modSettings['search_match_words']) || $no_regexp ? '%' . strtr($phrase, array('_' => '\\_', '%' => '\\%')) . '%' : '[[:<:]]' . addcslashes(preg_replace(array('/([\[\]$.+*?|{}()])/'), array('[$1]'), $phrase), '\\\'') . '[[:>:]]';
 						}
 					}
+
 					call_integration_hook('integrate_subject_only_search_query', array(&$subject_query, &$subject_query_params));
 
 					$relevance = '1000 * (';
+
 					foreach ($weight_factors as $type => $value)
 					{
 						$relevance .= $weight[$type];
+
 						if (!empty($value['results']))
 							$relevance .= ' * ' . $value['results'];
+
 						$relevance .= ' + ';
 					}
+
 					$relevance = substr($relevance, 0, -3) . ') / ' . $weight_total . ' AS relevance';
 
 					$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_results_subject',
