@@ -1136,6 +1136,9 @@ function export_profile_data($memID)
 
 			foreach(array($realfilepath, $tempfilepath, $progressfile) as $fpath)
 				@unlink($fpath);
+
+			if (empty($_POST['export_begin']))
+				redirectexit('action=profile;area=getprofiledata;u=' . $memID);
 		}
 
 		$progress = file_exists($progressfile) ? $smcFunc['json_decode'](file_get_contents($progressfile), true) : array();
@@ -1271,6 +1274,8 @@ function export_profile_data($memID)
 
 				file_put_contents($progressfile, $smcFunc['json_encode'](array_fill_keys(array_keys($included), 0)));
 			}
+
+			redirectexit('action=profile;area=getprofiledata;u=' . $memID);
 		}
 	}
 
