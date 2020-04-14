@@ -202,11 +202,14 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$smileys = false;
 		$cache_id = '';
 
+		if (!isset($modSettings['disabledBBC']))
+			$modSettings['disabledBBC'] = '';
+
 		$context['real_disabledBBC'] = $modSettings['disabledBBC'];
 
 		// "O, that way madness lies; let me shun that; No more of that."
 		if (strpos($modSettings['disabledBBC'], 'attach') === false)
-			$modSettings['disabledBBC'] = implode(',', array_merge(explode(',', $modSettings['disabledBBC']), array('attach')));
+			$modSettings['disabledBBC'] = implode(',', array_merge(array_filter(explode(',', $modSettings['disabledBBC'])), array('attach')));
 	}
 
 	public static function post_parsebbc(&$message, &$smileys, &$cache_id, &$parse_tags)
