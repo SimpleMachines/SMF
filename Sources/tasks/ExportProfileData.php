@@ -49,7 +49,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 	protected static function exportXml($uid, $lang, $included, $start, $latest, $datatype)
 	{
-		global $smcFunc, $sourcedir, $context, $mbname, $modSettings, $txt, $user_info, $settings;
+		global $smcFunc, $sourcedir, $context, $modSettings, $user_info, $settings;
 		global $query_this_board;
 
 		if (!isset($included[$datatype]['func']) || !isset($included[$datatype]['langfile']))
