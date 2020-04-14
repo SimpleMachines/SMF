@@ -1360,7 +1360,7 @@ function download_export_file($memID)
 		exit;
 	}
 
-	$filepath = $modSettings['export_dir'] . '/' . $realbasename;
+	$filepath = $modSettings['export_dir'] . DIRECTORY_SEPARATOR . $realbasename;
 	if (!file_exists($filepath))
 	{
 		send_http_status(404);
@@ -1520,13 +1520,17 @@ function download_export_file($memID)
  *
  * @return string|bool The path to the directory, or false on error.
  */
-function create_export_dir()
+function create_export_dir($fallback = '')
 {
 	global $boarddir, $modSettings;
 
-	// Automatically set it to default if it is missing.
+	// No supplied fallback, so use the default location.
+	if (empty($fallback))
+		$fallback = $boarddir . DIRECTORY_SEPARATOR . 'exports';
+
+	// Automatically set it to the fallback if it is missing.
 	if (empty($modSettings['export_dir']))
-		updateSettings(array('export_dir' => $boarddir . DIRECTORY_SEPARATOR .  'exports'));
+		updateSettings(array('export_dir' => $fallback));
 
 	// Make sure the directory exists.
 	if (!file_exists($modSettings['export_dir']))
@@ -1537,14 +1541,16 @@ function create_export_dir()
 	{
 		loadLanguage('Errors');
 
-		// Try again using the default location.
-		if ($modSettings['export_dir'] != $boarddir . DIRECTORY_SEPARATOR . 'exports')
+		// Try again at the fallback location.
+		if ($modSettings['export_dir'] != $fallback)
 		{
-			log_error($txt['export_dir_forced_change'], $modSettings['export_dir'], $boarddir . DIRECTORY_SEPARATOR . 'exports');
-			updateSettings(array('export_dir' => $boarddir . DIRECTORY_SEPARATOR . 'exports'));
+			log_error($txt['export_dir_forced_change'], $modSettings['export_dir'], $fallback);
+			updateSettings(array('export_dir' => $fallback));
+
+			// Secondary fallback will be the default location, so no parameter this time.
 			create_export_dir();
 		}
-		// Default location failed.
+		// Uh-oh. Even the default location failed.
 		else
 		{
 			log_error($txt['export_dir_not_writable']);

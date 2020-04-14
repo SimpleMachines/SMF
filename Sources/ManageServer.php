@@ -796,12 +796,29 @@ function ModifyExportSettings($return_config = false)
 
 	if (isset($_REQUEST['save']))
 	{
+		$prev_export_dir = file_exists($modSettings['export_dir']) ? rtrim($modSettings['export_dir'], '/\\') : '';
+
+		if (!empty($_POST['export_dir']))
+			$_POST['export_dir'] = rtrim($_POST['export_dir'], '/\\');
+
 		saveDBSettings($config_vars);
 
-		if (!file_exists($modSettings['export_dir']))
+		// Create the new directory, but revert to the previous one if anything goes wrong.
+		require_once($sourcedir . '/Profile-Actions.php');
+		create_export_dir($prev_export_dir);
+
+		// Ensure we don't lose track of any existing export files.
+		if (!empty($prev_export_dir) && $prev_export_dir != $modSettings['export_dir'])
 		{
-			require_once($sourcedir . '/Profile-Actions.php');
-			create_export_dir();
+			$export_files = glob($prev_export_dir . DIRECTORY_SEPARATOR . '*');
+
+			foreach ($export_files as $export_file)
+			{
+				if (!in_array(basename($export_file), array('index.php', '.htaccess')))
+				{
+					rename($export_file, $modSettings['export_dir'] . DIRECTORY_SEPARATOR . basename($export_file));
+				}
+			}
 		}
 
 		call_integration_hook('integrate_save_export_settings');
