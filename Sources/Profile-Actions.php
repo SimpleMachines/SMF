@@ -1269,7 +1269,7 @@ function export_profile_data($memID)
 
 				$feed_meta = array_fill_keys(array('title', 'desc', 'source', 'self'), '');
 
-				buildXmlFeed($format, array(), $feed_meta, 'profile');
+				buildXmlFeed('smf', array(), $feed_meta, 'profile');
 				file_put_contents($tempfilepath, implode('', array($context['feed']['header'], $context['feed']['footer'])));
 
 				file_put_contents($progressfile, $smcFunc['json_encode'](array_fill_keys(array_keys($included), 0)));
