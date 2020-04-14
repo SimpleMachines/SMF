@@ -2691,7 +2691,7 @@ function getXmlPMs($xml_format, $ascending = false)
 
 			$item = array(
 				'tag' => 'personal-message',
-				'attributes' => array('label' => $txt['personal_message']),
+				'attributes' => array('label' => $txt['pm']),
 				'content' => array(
 					array(
 						'tag' => 'id',
