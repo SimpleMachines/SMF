@@ -1753,7 +1753,7 @@ function getXmlRecent($xml_format)
  */
 function getXmlProfile($xml_format)
 {
-	global $scripturl, $memberContext, $user_profile, $user_info, $txt, $context;
+	global $scripturl, $memberContext, $user_info, $txt, $context;
 
 	// You must input a valid user, and you must be allowed to view that user's profile.
 	if (empty($context['xmlnews_uid']) || ($context['xmlnews_uid'] != $user_info['id'] && !allowedTo('profile_view')) || !loadMemberData($context['xmlnews_uid']))
@@ -1768,7 +1768,7 @@ function getXmlProfile($xml_format)
 	array_walk_recursive($profile, 'cleanXml');
 
 	// Create a GUID for this member using the tag URI scheme
-	$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $user_profile[$profile['id']]['date_registered']) . ':member=' . $profile['id'];
+	$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
 
 	if ($xml_format == 'rss' || $xml_format == 'rss2')
 	{
@@ -1795,7 +1795,7 @@ function getXmlProfile($xml_format)
 				),
 				array(
 					'tag' => 'pubDate',
-					'content' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['date_registered']),
+					'content' => gmdate('D, d M Y H:i:s \G\M\T', $profile['registered_timestamp']),
 				),
 				array(
 					'tag' => 'guid',
@@ -1878,11 +1878,11 @@ function getXmlProfile($xml_format)
 				),
 				array(
 					'tag' => 'published',
-					'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $user_profile[$profile['id']]['date_registered']),
+					'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['registered_timestamp']),
 				),
 				array(
 					'tag' => 'updated',
-					'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $user_profile[$profile['id']]['last_login']),
+					'content' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['last_login_timestamp']),
 				),
 				array(
 					'tag' => 'id',
@@ -1932,13 +1932,13 @@ function getXmlProfile($xml_format)
 			),
 			array(
 				'tag' => 'last-login',
-				'attributes' => array('label' => $txt['lastLoggedIn']),
-				'content' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['last_login']),
+				'attributes' => array('label' => $txt['lastLoggedIn'], 'UTC' => gmstrftime('%F %T', $profile['last_login_timestamp'])),
+				'content' => timeformat($profile['last_login_timestamp'], false, 'forum'),
 			),
 			array(
 				'tag' => 'registered',
-				'attributes' => array('label' => $txt['date_registered'], 'UTC' => gmstrftime('%F %T', $user_profile[$profile['id']]['date_registered'])),
-				'content' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['date_registered']),
+				'attributes' => array('label' => $txt['date_registered'], 'UTC' => gmstrftime('%F %T', $profile['registered_timestamp'])),
+				'content' => timeformat($profile['registered_timestamp'], false, 'forum'),
 			),
 			array(
 				'tag' => 'avatar',
@@ -1976,7 +1976,7 @@ function getXmlProfile($xml_format)
 			),
 			array(
 				'tag' => 'website',
-				'attributes' => array('label' => $txt['website']),
+				'attributes' => empty($profile['website']['url']) ? null : array('label' => $txt['website']),
 				'content' => empty($profile['website']['url']) ? null : array(
 					array(
 						'tag' => 'title',
@@ -1993,7 +1993,7 @@ function getXmlProfile($xml_format)
 			array(
 				'tag' => 'online',
 				'attributes' => !empty($profile['online']['is_online']) ? array('label' => $txt['online']) : null,
-				'content' => !empty($profile['online']['is_online']) ? '' : null,
+				'content' => !empty($profile['online']['is_online']) ? 'true' : null,
 			),
 			array(
 				'tag' => 'ip_addresses',
@@ -2025,7 +2025,7 @@ function getXmlProfile($xml_format)
 			);
 			$data[] = array(
 				'tag' => 'birthdate',
-				'attributes' => array('label' => $txt['dob']),
+				'attributes' => array('label' => $txt['dob'], 'UTC' => gmstrftime('%F %T', $profile['birth_date'])),
 				'content' => $profile['birth_date'],
 			);
 		}
