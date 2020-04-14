@@ -860,18 +860,13 @@ function loadUserSettings()
 function loadMinUserSettings($users_ids = [])
 {
 	global $smcFunc, $modSettings, $language;
-	static $user_settings_min;
-
-	if (empty($user_settings_min))
-		$user_settings_min = array();
+	static $user_settings_min = array();
 
 	if (empty($users_ids))
 		return array();
 
 	// Already loaded?
-	foreach ($users_ids as $key => $user_id)
-		if (!empty($user_settings_min[$user_id]))
-			unset($users_ids[$key]);
+	$users_ids = array_diff($users_ids, array_keys($user_settings_min));
 
 	$columns_to_load = array(
 		'id_member',
