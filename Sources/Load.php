@@ -863,7 +863,7 @@ function loadMinUserSettings($users_ids = [])
 	static $user_settings_min = array();
 
 	if (empty($users_ids))
-		return array();
+		return $user_settings_min;
 
 	// Already loaded?
 	$users_ids = array_diff($users_ids, array_keys($user_settings_min));
