@@ -1151,7 +1151,7 @@ function export_profile_data($memID)
 		$dlfilename = array($context['forum_name'], $context['member']['username']);
 		foreach ($selected_datatypes as $datatype)
 			$dlfilename[] = $txt[$datatype];
-		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}\-]+/', '_', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('-', $dlfilename)))));
+		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
 		$dlbasename = $dlfilename . '.' . $format_settings['extension'];
 
 		if (file_exists($realfilepath) && !empty($progress))
@@ -1372,14 +1372,13 @@ function download_export_file($memID)
 	$dlfilename[] = $context['member']['username'];
 	if (file_exists($filepath . '.progress.json'))
 	{
-		$datatype_strings = array_keys($smcFunc['json_decode'](file_get_contents($filepath . '.progress.json'), true));
-		foreach ($datatype_strings as &$datatype_string)
-			$datatype_string = $txt[$datatype_string];
-		$dlfilename[] = implode('+', $datatype_strings);
+		$datatypes = array_keys($smcFunc['json_decode'](file_get_contents($filepath . '.progress.json'), true));
+		foreach ($datatypes as $datatype)
+			$dlfilename[] = $txt[$datatype];
 	}
 	else
 		$dlfilename[] = $txt['profile'];
-	$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}\-]+/', '_', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('-', $dlfilename)))));
+	$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
 	$dlbasename = $dlfilename . '.' . $extension;
 
 	$mtime = filemtime($filepath);
