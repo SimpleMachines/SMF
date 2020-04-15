@@ -216,8 +216,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	{
 		global $modSettings, $context;
 
-		$modSettings['disabledBBC'] = $context['real_disabledBBC'];
-		unset($context['real_disabledBBC']);
+		if (isset($context['real_disabledBBC']))
+			$modSettings['disabledBBC'] = $context['real_disabledBBC'];
 	}
 }
 
