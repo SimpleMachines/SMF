@@ -976,7 +976,7 @@ function subscriptions($memID)
  */
 function export_profile_data($memID)
 {
-	global $context, $smcFunc, $txt, $modSettings, $query_this_board, $sourcedir;
+	global $context, $smcFunc, $txt, $modSettings, $query_this_board, $sourcedir, $scripturl;
 
 	if (!isset($context['token_check']))
 		$context['token_check'] = 'profile-ex' . $memID;
@@ -1267,7 +1267,17 @@ function export_profile_data($memID)
 			{
 				require_once($sourcedir . '/News.php');
 
-				$feed_meta = array_fill_keys(array('title', 'desc', 'source', 'self'), '');
+				$desc = array();
+				foreach (array_keys($included) as $datatype)
+					$desc[] = $txt[$datatype];
+
+				$feed_meta = array(
+					'title' => sprintf($txt['profile_of_username'], $context['member']['username']),
+					'desc' => sentence_list($desc),
+					'author' => $context['forum_name'],
+					'source' => $scripturl . '?action=profile;u=' . $memID,
+					'self' => $scripturl . '?action=profile;area=download;u=' . $memID . ';t=' . $dltoken,
+				);
 
 				buildXmlFeed('smf', array(), $feed_meta, 'profile');
 				file_put_contents($tempfilepath, implode('', array($context['feed']['header'], $context['feed']['footer'])));
