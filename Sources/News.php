@@ -2025,7 +2025,7 @@ function getXmlProfile($xml_format)
 			);
 			$data[] = array(
 				'tag' => 'birthdate',
-				'attributes' => array('label' => $txt['dob'], 'UTC' => gmstrftime('%F %T', $profile['birth_date'])),
+				'attributes' => array('label' => $txt['dob']),
 				'content' => $profile['birth_date'],
 			);
 		}
