@@ -853,20 +853,20 @@ function loadUserSettings()
 /**
  * Load minimal user settings from members table.
  *
- * @param array $users_ids The users IDs to get the data from.
+ * @param array $user_ids The users IDs to get the data from.
  * @return array
  * @throws Exception
  */
-function loadMinUserSettings($users_ids = [])
+function loadMinUserSettings($user_ids = array())
 {
 	global $smcFunc, $modSettings, $language;
 	static $user_settings_min = array();
 
-	if (empty($users_ids))
+	if (empty($user_ids))
 		return $user_settings_min;
 
 	// Already loaded?
-	$users_ids = array_diff($users_ids, array_keys($user_settings_min));
+	$user_ids = array_diff($user_ids, array_keys($user_settings_min));
 
 	$columns_to_load = array(
 		'id_member',
@@ -898,8 +898,7 @@ function loadMinUserSettings($users_ids = [])
 			'language' => (empty($row['lngfile']) || empty($modSettings['userLanguage'])) ? $language : $row['lngfile'],
 			'is_guest' => false,
 			'time_format' => empty($row['time_format']) ? $modSettings['time_format'] : $row['time_format'],
-			'is_admin' => in_array(1, $row['groups']),
-			'smiley_set' => empty($row['time_format']) ? $modSettings['smiley_sets_default'] : $row['time_format'],
+			'smiley_set' => empty($row['smiley_set']) ? $modSettings['smiley_sets_default'] : $row['smiley_set'],
 		);
 
 		if (empty($row['additional_groups']))
@@ -910,6 +909,8 @@ function loadMinUserSettings($users_ids = [])
 				array($row['id_group'], $row['id_post_group']),
 				explode(',', $row['additional_groups'])
 			);
+
+		$user_settings_min[$row['id_member']]['is_admin'] = in_array(1, $user_settings_min[$row['id_member']]['groups']);
 
 		if (!empty($row['timezone']))
 		{
@@ -1785,6 +1786,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 				'title' => !empty($custom['title']) ? $custom['title'] : $custom['col_name'],
 				'col_name' => $custom['col_name'],
 				'value' => un_htmlspecialchars($value),
+				'raw' => $profile['options'][$custom['col_name']],
 				'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
 			);
 		}

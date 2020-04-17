@@ -348,13 +348,13 @@ abstract class SMF_BackgroundTask
 	/**
 	 * Loads minimal info for the previously loaded user ids
 	 *
-	 * @param array $users_ids
+	 * @param array $user_ids
 	 * @return array
 	 * @throws Exception
 	 */
-	public function getMinUserInfo($users_ids = [])
+	public function getMinUserInfo($user_ids = [])
 	{
-		return loadMinUserSettings($users_ids);
+		return loadMinUserSettings($user_ids);
 	}
 
 	public function __destruct()
