@@ -6045,6 +6045,8 @@ function smf_list_timezones($when = 'now')
 }
 
 /**
+ * Converts an IP address into binary
+ *
  * @param string $ip_address An IP address in IPv4, IPv6 or decimal notation
  * @return string|false The IP address in binary or false
  */
@@ -6058,6 +6060,8 @@ function inet_ptod($ip_address)
 }
 
 /**
+ * Converts a binary version of an IP address into a readable format
+ *
  * @param string $bin An IP address in IPv4, IPv6 (Either string (postgresql) or binary (other databases))
  * @return string|false The IP address in presentation format or false on error
  */

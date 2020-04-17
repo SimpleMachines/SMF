@@ -296,6 +296,7 @@ if ($paid_debug === true)
  * Log an error then exit
  *
  * @param string $text The error to log
+ * @param bool $debug If true, won't send an email if $modSettings['paid_email'] isn't set
  * @return void
  */
 function generateSubscriptionError($text, $debug = false)

@@ -333,7 +333,7 @@ function Destroy()
  * This action is linked from the maintenance screen (if it's applicable).
  * Accessed by ?action=admin;area=maintain;sa=database;activity=convertmsgbody.
  *
- * @uses the convert_msgbody sub template of the Admin template.
+ * @uses template_convert_msgbody()
  */
 function ConvertMsgBody()
 {
@@ -478,7 +478,7 @@ function ConvertMsgBody()
  * This action is linked from the maintenance screen (if applicable).
  * It is accessed by ?action=admin;area=maintain;sa=database;activity=convertentities.
  *
- * @uses Admin template, convert_entities sub-template.
+ * @uses template_convert_entities()
  */
 function ConvertEntities()
 {
@@ -707,7 +707,7 @@ function ConvertEntities()
  * It is accessed from ?action=admin;area=maintain;sa=database;activity=optimize.
  * It also updates the optimize scheduled task such that the tables are not automatically optimized again too soon.
  *
- * @uses the optimize sub template
+ * @uses template_optimize()
  */
 function OptimizeTables()
 {
@@ -1329,7 +1329,7 @@ function AdminBoardRecount()
  * Uses the view_versions admin area.
  * Accessed through ?action=admin;area=maintain;sa=routine;activity=version.
  *
- * @uses Admin template, view_versions sub-template.
+ * @uses template_view_versions()
  */
 function VersionDetail()
 {
@@ -1531,7 +1531,7 @@ function MaintainRemoveOldDrafts()
 /**
  * Moves topics from one board to another.
  *
- * @uses not_done template to pause the process.
+ * @uses template_not_done() to pause the process.
  */
 function MaintainMassMoveTopics()
 {

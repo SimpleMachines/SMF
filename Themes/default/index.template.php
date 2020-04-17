@@ -625,6 +625,8 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
  *
  * @param array $list_items An array with info for displaying the strip
  * @param string $list_class Used for integration hooks and as a class name
+ * @param string $output_method The output method. If 'echo', simply displays the buttons, otherwise returns the HTML for them
+ * @return void|string Returns nothing unless output_method is something other than 'echo'
  */
 function template_quickbuttons($list_items, $list_class = null, $output_method = 'echo')
 {

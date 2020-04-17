@@ -2178,7 +2178,7 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 		}
 }
 
-/*
+/**
  * Locates the most appropriate temp directory.
  *
  * Systems using `open_basedir` restrictions may receive errors with
@@ -2262,7 +2262,7 @@ function sm_temp_dir()
  * Internal function for sm_temp_dir.
  *
  * @param string $option Which temp_dir option to use
- * @return string
+ * @return string The path to the temp directory
  */
 function sm_temp_dir_option($option = 'sys_get_temp_dir')
 {

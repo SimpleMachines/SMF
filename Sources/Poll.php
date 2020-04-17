@@ -25,7 +25,7 @@ if (!defined('SMF'))
  * Upon successful completion of action will direct user back to topic.
  * Accessed via ?action=vote.
  *
- * @uses Post language file.
+ * Uses Post language file.
  */
 function Vote()
 {
@@ -296,8 +296,8 @@ function LockVoting()
  * permission for editing, or be topic starter with poll_add_any permission for adding.
  * Accessed via ?action=editpoll.
  *
- * @uses Post language file.
- * @uses Poll template, main sub-template.
+ * Uses Post language file.
+ * Uses Poll template, main sub-template.
  */
 function EditPoll()
 {

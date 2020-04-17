@@ -24,9 +24,9 @@ if (!defined('SMF'))
  * and it calls a function based on the sub-action.
  * It requires the manage_attachments permission.
  *
- * @uses ManageAttachments template.
- * @uses Admin language file.
- * @uses template layer 'manage_files' for showing the tab bar.
+ * Uses ManageAttachments template.
+ * Uses Admin language file.
+ * Uses template layer 'manage_files' for showing the tab bar.
  *
  */
 function ManageAttachments()
@@ -80,10 +80,10 @@ function ManageAttachments()
  * Allows to show/change attachment settings.
  * This is the default sub-action of the 'Attachments and Avatars' center.
  * Called by index.php?action=admin;area=manageattachments;sa=attachments.
+ * Uses 'attachments' sub template.
  *
  * @param bool $return_config Whether to return the array of config variables (used for admin search)
  * @return void|array If $return_config is true, simply returns the config_vars array, otherwise returns nothing
- * @uses 'attachments' sub template.
  */
 
 function ManageAttachmentSettings($return_config = false)
@@ -260,7 +260,6 @@ function ManageAttachmentSettings($return_config = false)
  *
  * @param bool $return_config Whether to return the config_vars array (used for admin search)
  * @return void|array Returns the config_vars array if $return_config is true, otherwise returns nothing
- * @uses 'avatars' sub template.
  */
 function ManageAvatarSettings($return_config = false)
 {
@@ -710,7 +709,7 @@ function list_getNumFiles($browse_type)
  * Calculates file statistics (total file size, number of attachments,
  * number of avatars, attachment space available).
  *
- * @uses the 'maintain' sub template.
+ * @uses template_maintenance()
  */
 function MaintainFiles()
 {

@@ -196,6 +196,9 @@ function template_print_below()
 </html>';
 }
 
+/**
+ * Displays the print page options
+ */
 function template_print_options()
 {
 	global $scripturl, $topic, $txt;

@@ -24,8 +24,8 @@ if (!defined('SMF'))
  * It is enabled with the who_enabled setting.
  * It is accessed via ?action=who.
  *
- * @uses Who template, main sub-template
- * @uses Who language file.
+ * Uses Who template, main sub-template
+ * Uses Who language file.
  */
 function Who()
 {

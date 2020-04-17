@@ -2267,7 +2267,9 @@ function template_load_warning_variables()
 			$context['current_warning_mode'] = $warning;
 }
 
-// Show all warnings of a user?
+/**
+ * Template for viewing a user's warnings
+ */
 function template_viewWarning()
 {
 	global $context, $txt;
@@ -2316,7 +2318,9 @@ function template_viewWarning()
 	template_show_list('view_warnings');
 }
 
-// Show a lovely interface for issuing warnings.
+/**
+ * Template for issuing warnings
+ */
 function template_issueWarning()
 {
 	global $context, $scripturl, $txt;
