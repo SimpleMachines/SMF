@@ -884,9 +884,9 @@ function loadMinUserSettings($user_ids = array())
 	$request = $smcFunc['db_query']('', '
 		SELECT {raw:columns}
 		FROM {db_prefix}members
-		WHERE id_member IN ({array_int:users_ids})',
+		WHERE id_member IN ({array_int:user_ids})',
 		array(
-			'users_ids' => array_map('intval', array_unique($users_ids)),
+			'user_ids' => array_map('intval', array_unique($user_ids)),
 			'columns' => implode(', ', $columns_to_load)
 		)
 	);
