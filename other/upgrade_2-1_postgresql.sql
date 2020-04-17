@@ -372,6 +372,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_c
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems', '15') ON CONFLICT DO NOTHING;
 ---#
 
+---# Adding new "disableRegisterCheck" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('disableRegisterCheck', '0') ON CONFLICT DO NOTHING;
+---#
+
 ---# Adding new "loginHistoryDays" setting
 ---{
 	if (!isset($modSettings['loginHistoryDays']))

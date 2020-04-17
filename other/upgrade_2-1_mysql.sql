@@ -181,6 +181,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_c
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems', '15');
 ---#
 
+---# Adding new "disableRegisterCheck" setting
+INSERT IGNORE INTO {$db_prefix}settings (variable, value) VALUES ('disableRegisterCheck', '0');
+---#
+
 ---# Adding new "loginHistoryDays" setting
 ---{
 	if (!isset($modSettings['loginHistoryDays']))

@@ -82,6 +82,7 @@ $txt['setting_registration_standard'] = 'Immediate Registration';
 $txt['setting_registration_activate'] = 'Email Activation';
 $txt['setting_registration_approval'] = 'Admin Approval';
 $txt['setting_send_welcomeEmail'] = 'Send welcome email to new members';
+$txt['setting_disableRegisterCheck'] = 'Disable blocking people from registering from the same device';
 
 $txt['setting_coppaAge'] = 'Age below which to apply registration restrictions';
 $txt['setting_coppaType'] = 'Action to take when a user below minimum age registers';

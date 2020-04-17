@@ -299,6 +299,7 @@ function ModifyRegistrationSettings($return_config = false)
 	$config_vars = array(
 		array('select', 'registration_method', array($txt['setting_registration_standard'], $txt['setting_registration_activate'], $txt['setting_registration_approval'], $txt['setting_registration_disabled'])),
 		array('check', 'send_welcomeEmail'),
+		array('check', 'disableRegisterCheck'),
 		'',
 
 		array('int', 'coppaAge', 'subtext' => $txt['zero_to_disable'], 'onchange' => 'checkCoppa();', 'onkeyup' => 'checkCoppa();'),

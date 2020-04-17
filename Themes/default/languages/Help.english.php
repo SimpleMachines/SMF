@@ -443,6 +443,7 @@ $helptxt['send_validation_onChange'] = 'When this setting is checked all members
 $helptxt['approveAccountDeletion'] = 'When this setting is checked, any user request to delete his own account has to be approved by an administrator';
 
 $helptxt['send_welcomeEmail'] = 'When this setting is enabled all new members will be sent an email welcoming them to your community';
+$helptxt['disableRegisterCheck'] = 'When this setting is disabled will allow multiple people to register from the same device';
 $helptxt['password_strength'] = 'This setting determines the strength required for passwords selected by your forum users. The stronger the password, the harder it should be to compromise member\'s accounts.
 	Its possible settings are:
 	<ul class="normallist">
