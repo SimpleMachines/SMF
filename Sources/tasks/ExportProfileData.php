@@ -36,18 +36,30 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$latest = $this->_details['latest'];
 		$datatype = $this->_details['datatype'];
 
+		// For exports only, members can always see their own posts, even in boards that they can no longer access.
+		$member_info = $this->getMinUserInfo(array($uid));
+		$member_info = array_merge($member_info[$uid], array(
+			'buddies' => array(),
+			'query_see_board' => '1=1',
+			'query_see_message_board' => '1=1',
+			'query_see_topic_board' => '1=1',
+			'query_wanna_see_board' => '1=1',
+			'query_wanna_see_message_board' => '1=1',
+			'query_wanna_see_topic_board' => '1=1',
+		));
+
 		// Use some temporary integration hooks to manipulate BBC parsing during export.
 		add_integration_function('integrate_pre_parsebbc', 'ExportProfileData_Background::pre_parsebbc', false);
 		add_integration_function('integrate_post_parsebbc', 'ExportProfileData_Background::post_parsebbc', false);
 
 		// For now, XML is the only export format we support.
 		if ($this->_details['format'] == 'XML')
-			self::exportXml($uid, $lang, $included, $start, $latest, $datatype);
+			self::exportXml($uid, $lang, $included, $start, $latest, $datatype, $member_info);
 
 		return true;
 	}
 
-	protected static function exportXml($uid, $lang, $included, $start, $latest, $datatype)
+	protected static function exportXml($uid, $lang, $included, $start, $latest, $datatype, $member_info)
 	{
 		global $smcFunc, $sourcedir, $context, $modSettings, $user_info, $settings;
 		global $query_this_board;
@@ -73,20 +85,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$datatypes = array_keys($included);
 
 		// Fake a wee bit of $user_info so that loading the member data & language doesn't choke.
-		$user_info = array(
-			'id' => $uid,
-			'is_guest' => false,
-			'is_admin' => false,
-			'time_offset' => 0,
-			'buddies' => array(),
-			'groups' => array(0),
-			'query_see_board' => '1=1',
-			'query_see_message_board' => '1=1',
-			'query_see_topic_board' => '1=1',
-			'query_wanna_see_board' => '1=1',
-			'query_wanna_see_message_board' => '1=1',
-			'query_wanna_see_topic_board' => '1=1',
-		);
+		$user_info = $member_info;
+
 		loadEssentialThemeData();
 		$settings['actual_theme_dir'] = $settings['theme_dir'];
 		$context['user']['language'] = $lang;
