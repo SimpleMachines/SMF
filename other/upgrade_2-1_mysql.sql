@@ -260,6 +260,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_dir', '{$boarddir}/exports');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_expiry', '7');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_min_diskspace_pct', '5');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_rate', '250');
 ---#
 
 /******************************************************************************/
