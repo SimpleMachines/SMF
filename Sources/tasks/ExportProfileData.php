@@ -189,7 +189,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $data, 0),
+				array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $data, time() - MAX_CLAIM_THRESHOLD),
 				array()
 			);
 		}
