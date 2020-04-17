@@ -94,6 +94,9 @@ if (!FROM_CLI)
 		obExit_cron();
 }
 
+else
+	$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
+
 // Load the most important includes. In general, a background should be loading its own dependencies.
 require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
@@ -306,7 +309,7 @@ function obExit_cron()
 abstract class SMF_BackgroundTask
 {
 	/**
-	 * Constants for notfication types.
+	 * Constants for notification types.
 	*/
 	const RECEIVE_NOTIFY_EMAIL = 0x02;
 	const RECEIVE_NOTIFY_ALERT = 0x01;
@@ -317,13 +320,22 @@ abstract class SMF_BackgroundTask
 	protected $_details;
 
 	/**
+	 * @var array Temp property to hold the current user info while tasks make use of $user_info
+	 */
+	private $current_user_info = array();
+
+	/**
 	 * The constructor.
 	 *
 	 * @param array $details The details for the task
 	 */
 	public function __construct($details)
 	{
+		global $user_info;
+
 		$this->_details = $details;
+
+		$this->current_user_info = $user_info;
 	}
 
 	/**
@@ -332,6 +344,25 @@ abstract class SMF_BackgroundTask
 	 * @return mixed
 	 */
 	abstract public function execute();
+
+	/**
+	 * Loads minimal info for the previously loaded user ids
+	 *
+	 * @param array $users_ids
+	 * @return array
+	 * @throws Exception
+	 */
+	public function getMinUserInfo($users_ids = [])
+	{
+		return loadMinUserSettings($users_ids);
+	}
+
+	public function __destruct()
+	{
+		global $user_info;
+
+		$user_info = $this->current_user_info;
+	}
 }
 
 ?>

@@ -548,7 +548,11 @@ ADD INDEX `idx_id_member` (`id_member`, `id_group`);
 /******************************************************************************/
 ---# Adding support for <credits> tag in package manager
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN credits TEXT NOT NULL,
+ADD COLUMN credits TEXT NOT NULL;
+---#
+
+---# Adding support for package hashes
+ALTER TABLE {$db_prefix}log_packages
 ADD COLUMN sha256_hash TEXT;
 ---#
 
@@ -654,7 +658,7 @@ VALUES
 			)
 		);
 
-		list($task_disabled) = $smcFunc['db_fetch_assoc']($get_info);
+		list($task_disabled) = $smcFunc['db_fetch_row']($get_info);
 		$smcFunc['db_free_result']($get_info);
 
 		$smcFunc['db_insert']('replace',
@@ -867,6 +871,7 @@ if (in_array('notify_regularity', $results))
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
 	list($maxMembers) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
 
 	while (!$is_done)
 	{
@@ -886,13 +891,13 @@ if (in_array('notify_regularity', $results))
 		);
 		if ($smcFunc['db_num_rows']($request) != 0)
 		{
-			while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
+			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
 				$inserts[] = array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0);
 				$inserts[] = array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']);
 				$inserts[] = array($row['id_member'], 'msg_notify_type', $row['notify_types']);
 			}
-			$smcFunc['db_free_result']($existing_notify);
+			$smcFunc['db_free_result']($request);
 		}
 
 		$smcFunc['db_insert']('ignore',
@@ -1291,7 +1296,7 @@ ALTER TABLE `{$db_prefix}members`
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('displayFields', json_encode($fields)),
-			array('id_theme', 'id_member', 'variable')
+			array('variable')
 		);
 	}
 ---}
@@ -2347,6 +2352,10 @@ if ($doChange)
 
 ---# Add the new floodcontrol ip column
 ALTER TABLE {$db_prefix}log_floodcontrol ADD COLUMN ip VARBINARY(16);
+---#
+
+---# Modify log_type size
+ALTER TABLE {$db_prefix}log_floodcontrol MODIFY log_type VARCHAR(30) NOT NULL DEFAULT 'post';
 ---#
 
 ---# Create primary key for floodcontrol

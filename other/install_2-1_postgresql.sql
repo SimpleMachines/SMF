@@ -606,7 +606,7 @@ CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
 CREATE UNLOGGED TABLE {$db_prefix}log_floodcontrol (
 	ip inet,
 	log_time bigint NOT NULL DEFAULT '0',
-	log_type varchar(8) NOT NULL DEFAULT 'post',
+	log_type varchar(30) NOT NULL DEFAULT 'post',
 	PRIMARY KEY (ip, log_type)
 );
 
@@ -734,6 +734,7 @@ CREATE TABLE {$db_prefix}log_packages (
 	themes_installed varchar(255) NOT NULL DEFAULT '',
 	db_changes text NOT NULL,
 	credits text NOT NULL,
+	sha256_hash TEXT,
 	PRIMARY KEY (id_install)
 );
 
@@ -2409,7 +2410,7 @@ VALUES (1, 1, 1, 1, {$current_time}, '{$default_topic_subject}', 'Simple Machine
 #
 
 INSERT INTO {$db_prefix}package_servers
-	(name, url)
+	(name, url, validation_url)
 VALUES ('Simple Machines Third-party Mod Site', 'https://custom.simplemachines.org/packages/mods', 'https://custom.simplemachines.org/api.php?action=validate;version=v1;smf_version={SMF_VERSION}'),
 		('Simple Machines Downloads Site', 'https://download.simplemachines.org/browse.php?api=v1;smf_version={SMF_VERSION}', 'https://download.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}');
 # --------------------------------------------------------

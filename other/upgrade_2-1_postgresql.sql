@@ -718,7 +718,11 @@ CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_r
 /******************************************************************************/
 ---# Adding support for <credits> tag in package manager
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN credits text NOT NULL,
+ADD COLUMN credits TEXT NOT NULL;
+---#
+
+---# Adding support for package hashes
+ALTER TABLE {$db_prefix}log_packages
 ADD COLUMN sha256_hash TEXT;
 ---#
 
@@ -845,7 +849,7 @@ VALUES
 			)
 		);
 
-		list($task_disabled) = $smcFunc['db_fetch_assoc']($get_info);
+		list($task_disabled) = $smcFunc['db_fetch_row']($get_info);
 		$smcFunc['db_free_result']($get_info);
 
 		$smcFunc['db_insert']('replace',
@@ -1073,6 +1077,7 @@ if (in_array('notify_regularity', $results))
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
 	list($maxMembers) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
 
 	while (!$is_done)
 	{
@@ -1092,13 +1097,13 @@ if (in_array('notify_regularity', $results))
 		);
 		if ($smcFunc['db_num_rows']($request) != 0)
 		{
-			while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
+			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
 				$inserts[] = array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0);
 				$inserts[] = array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']);
 				$inserts[] = array($row['id_member'], 'msg_notify_type', $row['notify_types']);
 			}
-			$smcFunc['db_free_result']($existing_notify);
+			$smcFunc['db_free_result']($request);
 		}
 
 		$smcFunc['db_insert']('ignore',
@@ -1473,7 +1478,7 @@ ALTER TABLE {$db_prefix}members
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('displayFields', json_encode($fields)),
-			array('id_theme', 'id_member', 'variable')
+			array('variable')
 		);
 	}
 ---}
@@ -2577,6 +2582,10 @@ ALTER TABLE {$db_prefix}log_floodcontrol DROP CONSTRAINT {$db_prefix}log_floodco
 ALTER TABLE {$db_prefix}log_floodcontrol
 	ALTER ip DROP default,
 	ALTER ip TYPE inet USING migrate_inet(ip);
+---#
+
+---# Modify log_type size
+ALTER TABLE {$db_prefix}log_floodcontrol ALTER COLUMN log_type TYPE varchar(30);
 ---#
 
 ---# add pk

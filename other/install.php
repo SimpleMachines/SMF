@@ -1729,7 +1729,7 @@ function DeleteInstall()
 {
 	global $smcFunc, $db_character_set, $context, $txt, $incontext;
 	global $databases, $sourcedir, $modSettings, $user_info, $db_type, $boardurl;
-	global $auth_secret;
+	global $auth_secret, $cookiename;
 
 	$incontext['page_title'] = $txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';

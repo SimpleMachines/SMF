@@ -689,6 +689,7 @@ function loadUserSettings()
 			$user_info = array(
 				'groups' => array($user_settings['id_group'], $user_settings['id_post_group'])
 			);
+
 		else
 			$user_info = array(
 				'groups' => array_merge(
@@ -848,6 +849,89 @@ function loadUserSettings()
 
 	call_integration_hook('integrate_user_info');
 }
+
+/**
+ * Load minimal user settings from members table.
+ *
+ * @param array $users_ids The users IDs to get the data from.
+ * @return array
+ * @throws Exception
+ */
+function loadMinUserSettings($users_ids = [])
+{
+	global $smcFunc, $modSettings, $language;
+	static $user_settings_min = array();
+
+	if (empty($users_ids))
+		return $user_settings_min;
+
+	// Already loaded?
+	$users_ids = array_diff($users_ids, array_keys($user_settings_min));
+
+	$columns_to_load = array(
+		'id_member',
+		'time_offset',
+		'additional_groups',
+		'id_group',
+		'id_post_group',
+		'lngfile',
+		'smiley_set',
+		'time_offset'
+	);
+
+	call_integration_hook('integrate_load_min_user_settings_columns', array(&$columns_to_load));
+
+	$request = $smcFunc['db_query']('', '
+		SELECT {raw:columns}
+		FROM {db_prefix}members
+		WHERE id_member IN ({array_int:users_ids})',
+		array(
+			'users_ids' => array_map('intval', array_unique($users_ids)),
+			'columns' => implode(', ', $columns_to_load)
+		)
+	);
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$user_settings_min[$row['id_member']] = array(
+			'id' => $row['id_member'],
+			'language' => (empty($row['lngfile']) || empty($modSettings['userLanguage'])) ? $language : $row['lngfile'],
+			'is_guest' => false,
+			'time_format' => empty($row['time_format']) ? $modSettings['time_format'] : $row['time_format'],
+			'is_admin' => in_array(1, $row['groups']),
+			'smiley_set' => empty($row['time_format']) ? $modSettings['smiley_sets_default'] : $row['time_format'],
+		);
+
+		if (empty($row['additional_groups']))
+			$user_settings_min[$row['id_member']]['groups'] = array($row['id_group'], $row['id_post_group']);
+
+		else
+			$user_settings_min[$row['id_member']]['groups'] = array_merge(
+				array($row['id_group'], $row['id_post_group']),
+				explode(',', $row['additional_groups'])
+			);
+
+		if (!empty($row['timezone']))
+		{
+			$tz_system = new \DateTimeZone(@date_default_timezone_get());
+			$tz_user = new \DateTimeZone($row['timezone']);
+			$time_system = new \DateTime('now', $tz_system);
+			$time_user = new \DateTime('now', $tz_user);
+			$user_settings_min[$row['id_member']]['time_offset'] = ($tz_user->getOffset($time_user) -
+					$tz_system->getOffset($time_system)) / 3600;
+		}
+
+		else
+			$user_settings_min[$row['id_member']]['time_offset'] = empty($row['time_offset']) ? 0 : $row['time_offset'];
+	}
+
+	$smcFunc['db_free_result']($request);
+
+	call_integration_hook('integrate_load_min_user_settings', array(&$user_settings_min));
+
+	return $user_settings_min;
+}
+
 
 /**
  * Check for moderators and see if they have access to the board.
@@ -1487,7 +1571,8 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
  *
  * @param int $user The ID of a user previously loaded by {@link loadMemberData()}
  * @param bool $display_custom_fields Whether or not to display custom profile fields
- * @return boolean Whether or not the data was loaded successfully
+ * @return boolean|array  False if the data wasn't loaded or the loaded data.
+ * @throws Exception
  */
 function loadMemberContext($user, $display_custom_fields = false)
 {
@@ -1707,7 +1792,8 @@ function loadMemberContext($user, $display_custom_fields = false)
 	}
 
 	call_integration_hook('integrate_member_context', array(&$memberContext[$user], $user, $display_custom_fields));
-	return true;
+
+	return $memberContext;
 }
 
 /**

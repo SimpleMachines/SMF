@@ -55,7 +55,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 				require_once($sourcedir . '/Security.php');
 				$user_info['permissions'] = array();
 
-				// For the moddlog
+				// For the modlog
 				$user_info['id'] = $this->_details['member_id'];
 				$user_info['ip'] = $this->_details['member_ip'];
 
@@ -82,6 +82,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 		if (!empty($affected_users))
 		{
 			require_once($sourcedir . '/Subs-Notify.php');
+
 			$prefs = getNotifyPrefs($members, array('groupr_approved', 'groupr_rejected'), true);
 
 			// Same as for approving, kind of.
@@ -96,6 +97,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 					$email_template_name = 'mc_group_approve';
 					$email_message_id_prefix = 'grpapp';
 				}
+
 				// Otherwise, they are getting rejected (With or without a reason).
 				else
 				{

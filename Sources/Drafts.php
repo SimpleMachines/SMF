@@ -684,6 +684,7 @@ function showPMDrafts($memID = -1)
 
 	// init
 	$draft_type = 1;
+	$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
 	// If just deleting a draft, do it and then redirect back.
 	if (!empty($_REQUEST['delete']))
