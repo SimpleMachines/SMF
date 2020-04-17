@@ -786,7 +786,7 @@ function ModifyExportSettings($return_config = false)
 	$config_vars = array(
 		array('text', 'export_dir', 40),
 		array('int', 'export_expiry', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['days_word']),
-		array('int', 'export_min_diskspace_pct', 'postinput' => '%'),
+		array('int', 'export_min_diskspace_pct', 'postinput' => '%', 'max' => 80),
 		array('int', 'export_rate', 'min' => 50, 'max' => 5000, 'step' => 50, 'subtext' => $txt['export_rate_desc']),
 	);
 
