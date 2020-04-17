@@ -37,7 +37,7 @@ if (!defined('SMF'))
  *
  * Does not use any templates, sub templates, or template layers.
  *
- * @uses Stats, Profile, Post, and PersonalMessage language files.
+ * Uses Stats, Profile, Post, and PersonalMessage language files.
  */
 function ShowXmlFeed()
 {
