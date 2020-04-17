@@ -175,28 +175,37 @@ function reloadSettings()
 		},
 		'strpos' => function($haystack, $needle, $offset = 0) use ($utf8, $ent_check, $ent_list, $modSettings)
 		{
-			$haystack_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : ''), $ent_check($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-			if (strlen($needle) === 1)
-			{
-				$result = array_search($needle, array_slice($haystack_arr, $offset));
-				return is_int($result) ? $result + $offset : false;
-			}
-			else
-			{
-				$needle_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-				$needle_size = count($needle_arr);
-
-				$result = array_search($needle_arr[0], array_slice($haystack_arr, $offset));
-				while ((int) $result === $result)
-				{
-					$offset += $result;
-					if (array_slice($haystack_arr, $offset, $needle_size) === $needle_arr)
-						return $offset;
-					$result = array_search($needle_arr[0], array_slice($haystack_arr, ++$offset));
-				}
+			if (strlen($haystack) < abs($offset))
 				return false;
+
+			$neg_offset = $offset < 0;
+
+			$needle_pos = false;
+			while (strlen($haystack) > 0)
+			{
+				$real_pos = $neg_offset ? strrpos($haystack, $needle) : strpos($haystack, $needle, $offset);
+
+				if ($real_pos === false)
+					return false;
+
+				$spn = substr($haystack, 0, $real_pos);
+				$spn = preg_replace('~' . $ent_list . '~' . ($utf8 ? 'u' : ''), ' ', $spn);
+
+				if ($neg_offset && strlen($haystack) - $real_pos < abs($offset))
+				{
+					$needle_pos = strlen($spn);
+					break;
+				}
+				elseif (!$neg_offset && $real_pos >= $offset)
+				{
+					$needle_pos = strlen($spn);
+					break;
+				}
+				else
+					$haystack = $neg_offset ? substr($haystack, $real_pos + strlen($needle)) : substr($haystack, 0, $real_pos + strlen($needle));
 			}
+
+			return $needle_pos;
 		},
 		'substr' => function($string, $start, $length = null) use ($utf8, $ent_check, $ent_list, $modSettings)
 		{
