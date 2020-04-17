@@ -50,6 +50,9 @@ function template_pm_below()
 	</div><!-- #personal_messages -->';
 }
 
+/**
+ * Displays a popup with information about your personal messages
+ */
 function template_pm_popup()
 {
 	global $context, $txt, $scripturl;

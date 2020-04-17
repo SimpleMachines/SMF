@@ -20,8 +20,8 @@ if (!defined('SMF'))
  * Sets and call a function based on the given subaction. Acts as a dispatcher function.
  * It requires the moderate_forum permission.
  *
- * @uses ModerationCenter template.
- * @uses ModerationCenter language file.
+ * Uses ModerationCenter template.
+ * Uses ModerationCenter language file.
  *
  */
 function ReportedContent()

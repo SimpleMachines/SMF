@@ -951,6 +951,12 @@ function hash_benchmark($hashTime = 0.2)
 // https://www.php.net/manual/en/function.hash-equals.php#119576
 if (!function_exists('hash_equals'))
 {
+	/**
+	 * A compatibility function for when PHP's "hash_equals" function isn't available
+	 * @param string $known_string A known hash
+	 * @param string $user_string The hash of the user string
+	 * @return bool Whether or not the two are equal
+	 */
 	function hash_equals($known_string, $user_string)
 	{
 		$ret = 0;

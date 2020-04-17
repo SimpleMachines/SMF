@@ -22,8 +22,8 @@ if (!defined('SMF'))
  * Must be called with a topic specified.
  * Accessed via ?action=printpage.
  *
- * @uses Printpage template, main sub-template.
- * @uses print_above/print_below later without the main layer.
+ * Uses Printpage template, main sub-template.
+ * Uses print_above/print_below later without the main layer.
  */
 
 function PrintTopic()

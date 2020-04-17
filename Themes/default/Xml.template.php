@@ -11,7 +11,7 @@
  */
 
 /**
- *
+ * This defines the XML for sending the body of a message
  */
 function template_sendbody()
 {

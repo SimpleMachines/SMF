@@ -1077,7 +1077,9 @@ function template_show_custom_profile()
 	template_show_list('custom_profile_fields');
 }
 
-// Edit a profile field?
+/**
+ * Template for editing a custom profile field
+ */
 function template_edit_profile_field()
 {
 	global $context, $txt, $scripturl;
@@ -1612,7 +1614,7 @@ function template_php_info()
 }
 
 /**
- *
+ * Content shown above the clean cache button
  */
 function template_clean_cache_button_above()
 {

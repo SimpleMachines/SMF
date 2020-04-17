@@ -408,6 +408,11 @@ template_ssi_above();
 
 template_ssi_below();
 
+/**
+ * Displays the header for this file
+ *
+ * @return void
+ */
 function template_ssi_above()
 {
 	global $settings, $context, $scripturl;
@@ -511,6 +516,11 @@ function template_ssi_above()
 					<div id="liftup" class="flow_auto">';
 }
 
+/**
+ * Displays the footer for this file
+ *
+ * @return void
+ */
 function template_ssi_below()
 {
 	echo '
@@ -533,6 +543,12 @@ function template_ssi_below()
 </html>';
 }
 
+/**
+ * Displays a sample homepage to give you an idea of what's possible using SSI functions
+ *
+ * @param string $method If 'source', simply returns the source code, otherwise displays it
+ * @return string|void Returns the HTML source if $method is 'source', otherwise displays it
+ */
 function template_homepage_sample1($method = 'source')
 {
 	global $user_info, $boarddir;
@@ -593,6 +609,11 @@ function template_homepage_sample1($method = 'source')
 
 }
 
+/**
+ * Generates the sample homepage. Used with template_homepage_sample1 if $method isn't 'source'.
+ *
+ * @return void
+ */
 function template_homepage_sample1_php()
 {
 	global $txt;
@@ -630,6 +651,11 @@ function template_homepage_sample1_php()
 
 }
 
+/**
+ * Generates the HTML for the homepage sample. Used in conjunction with template_homepage_sample1 if method is 'source'
+ *
+ * @return string The HTML code for the sample homepage
+ */
 function template_homepage_sample1_html()
 {
 	$result = '

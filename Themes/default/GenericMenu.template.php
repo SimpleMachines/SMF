@@ -63,6 +63,11 @@ function template_generic_menu_dropdown_below()
 				</div><!-- #admin_content -->';
 }
 
+/**
+ * The template for displaying a menu
+ *
+ * @param array $menu_context An array of menu information
+ */
 function template_generic_menu(&$menu_context)
 {
 	global $context;

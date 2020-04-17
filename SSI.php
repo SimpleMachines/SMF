@@ -265,6 +265,9 @@ function ssi_shutdown()
 
 /**
  * Show the SMF version.
+ *
+ * @param string $output_method If 'echo', displays the version, otherwise returns it
+ * @return void|string Returns nothing if output_method is 'echo', otherwise returns the version
  */
 function ssi_version($output_method = 'echo')
 {
@@ -276,6 +279,9 @@ function ssi_version($output_method = 'echo')
 
 /**
  * Show the full SMF version string.
+ *
+ * @param string $output_method If 'echo', displays the full version string, otherwise returns it
+ * @return void|string Returns nothing if output_method is 'echo', otherwise returns the version string
  */
 function ssi_full_version($output_method = 'echo')
 {
@@ -287,6 +293,9 @@ function ssi_full_version($output_method = 'echo')
 
 /**
  * Show the SMF software year.
+ *
+ * @param string $output_method If 'echo', displays the software year, otherwise returns it
+ * @return void|string Returns nothing if output_method is 'echo', otherwise returns the software year
  */
 function ssi_software_year($output_method = 'echo')
 {
@@ -298,6 +307,9 @@ function ssi_software_year($output_method = 'echo')
 
 /**
  * Show the forum copyright. Only used in our ssi_examples files.
+ *
+ * @param string $output_method If 'echo', displays the forum copyright, otherwise returns it
+ * @return void|string Returns nothing if output_method is 'echo', otherwise returns the copyright string
  */
 function ssi_copyright($output_method = 'echo')
 {
@@ -1909,6 +1921,8 @@ function ssi_todaysHolidays($output_method = 'echo')
 }
 
 /**
+ * Shows today's events.
+ *
  * @param string $output_method The output method. If 'echo', displays a list of events, otherwise returns an array of info about them.
  * @return void|array Displays a list of events or returns an array of info about them depending on output_method
  */

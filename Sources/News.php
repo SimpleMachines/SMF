@@ -29,7 +29,7 @@ if (!defined('SMF'))
  * Accessed via ?action=.xml.
  * Does not use any templates, sub templates, or template layers.
  *
- * @uses Stats language file.
+ * Uses Stats language file.
  */
 function ShowXmlFeed()
 {

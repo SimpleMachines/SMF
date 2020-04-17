@@ -148,6 +148,9 @@ class paypal_display
  */
 class paypal_payment
 {
+	/**
+	 * @var string $return_data The data to return
+	 */
 	private $return_data;
 
 	/**

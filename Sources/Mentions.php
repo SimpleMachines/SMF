@@ -18,6 +18,9 @@
  */
 class Mentions
 {
+	/**
+	 * @var string The character used for mentioning users
+	 */
 	protected static $char = '@';
 
 	/**

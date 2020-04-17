@@ -399,7 +399,7 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
  * It saves the new image to destination_filename, as preferred_format
  * if possible, default is jpeg.
  *
- * @uses Imagemagick (IMagick or MagickWand extension) or GD
+ * Uses Imagemagick (IMagick or MagickWand extension) or GD
  *
  * @param resource $src_img The source image
  * @param string $destName The path to the destination image

@@ -84,7 +84,7 @@ function template_move()
 /**
  * Redirection topic options
  *
- * @var string $type What type of topic this is for - currently 'merge' or 'move'. Used to display appropriate text strings...
+ * @param string $type What type of topic this is for - currently 'merge' or 'move'. Used to display appropriate text strings...
  */
 function template_redirect_options($type)
 {

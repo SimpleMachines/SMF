@@ -54,6 +54,9 @@ function template_notify_board()
 		</div>';
 }
 
+/**
+ *
+ */
 function template_notify_announcements()
 {
 	global $context, $settings, $options, $txt, $scripturl;
@@ -73,6 +76,9 @@ function template_notify_announcements()
 		</div>';
 }
 
+/**
+ * Displays a message indicating the user's notification preferences were successfully changed
+ */
 function template_notify_pref_changed()
 {
 	global $context, $settings, $options, $txt, $scripturl;
