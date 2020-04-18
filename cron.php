@@ -352,7 +352,7 @@ abstract class SMF_BackgroundTask
 	 * @return array
 	 * @throws Exception
 	 */
-	public function getMinUserInfo($user_ids = [])
+	public function getMinUserInfo($user_ids = array())
 	{
 		return loadMinUserSettings($user_ids);
 	}
