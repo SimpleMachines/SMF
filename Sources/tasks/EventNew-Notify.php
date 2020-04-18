@@ -43,7 +43,7 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 		// If a guest creates the event, we wouldn't be capturing a username or anything.
 		if (!empty($this->_details['sender_id']) && empty($this->_details['sender_name']))
 		{
-			loadMemberData($this->_details['sender_id'], 'minimal');
+			loadMemberData($this->_details['sender_id'], false, 'minimal');
 			if (!empty($user_profile[$this->_details['sender_id']]))
 				$this->_details['sender_name'] = $user_profile[$this->_details['sender_id']]['real_name'];
 			else
