@@ -284,9 +284,9 @@ function ShowXmlFeed()
 	obExit(false);
 }
 
-function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction, $item_tag = null)
+function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 {
-	global $smcFunc, $context, $user_info, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	// Allow mods to add extra namespaces and tags to the feed/channel
 	$namespaces = array(
