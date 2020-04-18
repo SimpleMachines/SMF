@@ -852,8 +852,9 @@ function loadUserSettings()
 
 /**
  * Load minimal user settings from members table.
+ * Intended for use by background tasks that need to populate $user_info.
  *
- * @param array $user_ids The users IDs to get the data from.
+ * @param int|array $user_ids The users IDs to get the data for.
  * @return array
  * @throws Exception
  */
@@ -862,11 +863,14 @@ function loadMinUserSettings($user_ids = array())
 	global $smcFunc, $modSettings, $language;
 	static $user_settings_min = array();
 
-	if (empty($user_ids))
-		return $user_settings_min;
+	$user_ids = (array) $user_ids;
 
 	// Already loaded?
-	$user_ids = array_diff($user_ids, array_keys($user_settings_min));
+	if (!empty($user_ids))
+		$user_ids = array_diff($user_ids, array_keys($user_settings_min));
+
+	if (empty($user_ids))
+		return $user_settings_min;
 
 	$columns_to_load = array(
 		'id_member',
@@ -876,7 +880,7 @@ function loadMinUserSettings($user_ids = array())
 		'id_post_group',
 		'lngfile',
 		'smiley_set',
-		'time_offset'
+		'timezone',
 	);
 
 	call_integration_hook('integrate_load_min_user_settings_columns', array(&$columns_to_load));
