@@ -1130,7 +1130,7 @@ function export_profile_data($memID)
 					AND task_data LIKE {string:details}',
 				array(
 					'class' => 'ExportProfileData_Background',
-					'details' => substr($smcFunc['json_encode'](array('format' => $format, 'uid' => $memID)), 0, -1) . '%',
+					'details' => substr($smcFunc['json_encode'](array('format' => $format, 'uid' => $memID)), 0, -1) . ',%',
 				)
 			);
 
