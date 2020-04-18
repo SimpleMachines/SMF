@@ -136,13 +136,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		{
 			$handle = fopen($tempfilepath, 'r+');
 
-			// Trim off the existing feed footer
+			// Insert the new data before the feed footer.
 			fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);
-			$truncate_position = ftell($handle);
-			ftruncate($handle, $truncate_position);
-
-			// Add the new data
-			fseek($handle, 0, SEEK_END);
 			fwrite($handle, $context['feed']['items']);
 			fwrite($handle, $context['feed']['footer']);
 
