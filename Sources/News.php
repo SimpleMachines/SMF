@@ -354,6 +354,8 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 			$extraFeedTags_string .= "\n" . $indent . $extraTag;
 	}
 
+	$context['feed'] = array();
+
 	// First, output the xml header.
 	$context['feed']['header'] = '<?xml version="1.0" encoding="' . $context['character_set'] . '"?' . '>';
 
