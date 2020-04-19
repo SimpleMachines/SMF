@@ -168,6 +168,7 @@ div.sceditor-grip {
 	display: flex;
 	-ms-flex-direction: column;
 	flex-direction: column;
+	position: relative;
 	background: #fff;
 	border: 1px solid #d9d9d9;
 	font-size: 13px;
