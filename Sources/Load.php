@@ -1588,7 +1588,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 	// If this person's data is already loaded, skip it.
 	if (isset($dataLoaded[$user]))
-		return true;
+		return $dataLoaded[$user];
 
 	// We can't load guests or members not loaded by loadMemberData()!
 	if ($user == 0)
@@ -1655,6 +1655,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			$time_user = new DateTime('now', $tz_user);
 			$profile['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
 		}
+
 		else
 		{
 			// !!! Compatibility.
@@ -1723,15 +1724,16 @@ function loadMemberContext($user, $display_custom_fields = false)
 		{
 			// So it's stored in the member table?
 			if (!empty($profile['avatar']))
-			{
 				$image = (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://')) ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'];
-			}
+
 			elseif (!empty($profile['filename']))
 				$image = $modSettings['custom_avatar_url'] . '/' . $profile['filename'];
+
 			// Right... no avatar...use the default one
 			else
 				$image = $modSettings['avatar_url'] . '/default.png';
 		}
+
 		if (!empty($image))
 			$memberContext[$user]['avatar'] = array(
 				'name' => $profile['avatar'],
@@ -1798,7 +1800,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 	call_integration_hook('integrate_member_context', array(&$memberContext[$user], $user, $display_custom_fields));
 
-	return $memberContext;
+	return $memberContext[$user];
 }
 
 /**
