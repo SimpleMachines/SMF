@@ -184,8 +184,6 @@
 			 * Only resize the text areas instead.
 			 */
 			document.querySelector(".sceditor-container").removeAttribute("style");
-			instance.getContentAreaContainer().style.minHeight = options.height;
-			document.querySelector(".sceditor-container textarea").style.minHeight = options.height;
 
 			isPatched = true;
 		}
