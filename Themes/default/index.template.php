@@ -97,7 +97,7 @@ function template_html_above()
 
 	*	Short example:
 			- CSS: loadCSSFile('filename.css', array('minimize' => true));
-			- JS:  loadJavaScriptFile('filename.css', array('minimize' => true));
+			- JS:  loadJavaScriptFile('filename.js', array('minimize' => true));
 			You can also read more detailed usages of the parameters for these
 			functions on the SMF wiki.
 
