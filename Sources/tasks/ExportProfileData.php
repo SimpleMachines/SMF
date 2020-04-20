@@ -158,7 +158,13 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 				if (!$done)
 					$datatype = $datatypes[$datatype_key + 1];
 			}
+
+			// All went well, so no need for an artificial delay.
+			$delay = 0;
 		}
+		// Not enough disk space, so pause for a day to give the admin a chance to fix it.
+		else
+			$delay = 86400;
 
 		// Remove the .tmp extension so the system knows that the file is ready for download.
 		if (!empty($done))
@@ -188,7 +194,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $data, time() - MAX_CLAIM_THRESHOLD),
+				array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $data, time() - MAX_CLAIM_THRESHOLD + $delay),
 				array()
 			);
 		}
