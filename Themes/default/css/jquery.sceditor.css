@@ -14,140 +14,140 @@
 	background-repeat: no-repeat;
 	width: 16px;
 	height: 16px;
- }
+}
  .sceditor-button-flash div {
 	background-position: 0px -712px;
- }
+}
  .sceditor-button-youtube div {
 	background-position: 0px 0px;
- }
+}
  .sceditor-button-link div {
 	background-position: 0px -16px;
- }
+}
  .sceditor-button-unlink div {
 	background-position: 0px -32px;
- }
+}
  .sceditor-button-underline div {
 	background-position: 0px -48px;
- }
+}
  .sceditor-button-time div {
 	background-position: 0px -64px;
- }
+}
  .sceditor-button-table div {
 	background-position: 0px -80px;
- }
+}
  .sceditor-button-superscript div {
 	background-position: 0px -96px;
- }
+}
  .sceditor-button-subscript div {
 	background-position: 0px -112px;
- }
+}
  .sceditor-button-strike div {
 	background-position: 0px -128px;
- }
+}
  .sceditor-button-source div {
 	background-position: 0px -144px;
- }
+}
  .sceditor-button-size div {
 	background-position: 0px -160px;
- }
+}
  .sceditor-button-rtl div {
 	background-position: 0px -176px;
- }
+}
  .sceditor-button-right div {
 	background-position: 0px -192px;
- }
+}
  .sceditor-button-removeformat div {
 	background-position: 0px -208px;
- }
+}
  .sceditor-button-quote div {
 	background-position: 0px -224px;
- }
+}
  .sceditor-button-print div {
 	background-position: 0px -240px;
- }
+}
  .sceditor-button-pastetext div {
 	background-position: 0px -256px;
- }
+}
  .sceditor-button-paste div {
 	background-position: 0px -272px;
- }
+}
  .sceditor-button-outdent div {
 	background-position: 0px -288px;
- }
+}
  .sceditor-button-orderedlist div {
 	background-position: 0px -304px;
- }
+}
  .sceditor-button-maximize div {
 	background-position: 0px -320px;
- }
+}
  .sceditor-button-ltr div {
 	background-position: 0px -336px;
- }
+}
  .sceditor-button-left div {
 	background-position: 0px -352px;
- }
+}
  .sceditor-button-justify div {
 	background-position: 0px -368px;
- }
+}
  .sceditor-button-italic div {
 	background-position: 0px -384px;
- }
+}
  .sceditor-button-indent div {
 	background-position: 0px -400px;
- }
+}
  .sceditor-button-image div {
 	background-position: 0px -416px;
- }
+}
  .sceditor-button-horizontalrule div {
 	background-position: 0px -432px;
- }
+}
  .sceditor-button-format div {
 	background-position: 0px -448px;
- }
+}
  .sceditor-button-font div {
 	background-position: 0px -464px;
- }
+}
  .sceditor-button-emoticon div {
 	background-position: 0px -480px;
- }
+}
  .sceditor-button-email div {
 	background-position: 0px -496px;
- }
+}
  .sceditor-button-date div {
 	background-position: 0px -512px;
- }
+}
  .sceditor-button-cut div {
 	background-position: 0px -528px;
- }
+}
  .sceditor-button-copy div {
 	background-position: 0px -544px;
- }
+}
  .sceditor-button-color div {
 	background-position: 0px -560px;
- }
+}
  .sceditor-button-code div {
 	background-position: 0px -576px;
- }
+}
  .sceditor-button-center div {
 	background-position: 0px -592px;
- }
+}
  .sceditor-button-bulletlist div {
 	background-position: 0px -608px;
- }
+}
  .sceditor-button-bold div {
 	background-position: 0px -624px;
- }
+}
  div.sceditor-grip {
 	background-position: 0px -640px;
 	width: 10px;
 	height: 10px;
- }
+}
  .rtl div.sceditor-grip {
 	background-position: 0px -650px;
 	width: 10px;
 	height: 10px;
- }
+}
  /**
   * SCEditor
   * https://www.sceditor.com/
@@ -181,14 +181,14 @@
 	min-width: 100%;
 	max-width: 100%;
 	min-height: 307px;
- }
+}
  .sceditor-container *,
  .sceditor-container *::before,
  .sceditor-container *::after {
 	-webkit-box-sizing: content-box;
 	-moz-box-sizing: content-box;
 	box-sizing: content-box;
- }
+}
  .sceditor-container,
  .sceditor-container div,
  div.sceditor-dropdown,
@@ -196,7 +196,7 @@
 	padding: 0;
 	margin: 0;
 	z-index: 3;
- }
+}
  .sceditor-container iframe,
  .sceditor-container textarea {
 	line-height: normal;
@@ -215,13 +215,13 @@
 	max-width: 100%;
 	height: auto !important;
 	min-height: 1px;
- }
+}
  .sceditor-container iframe {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
- }
+}
  .sceditor-container textarea {
 	font-family: "DejaVu Sans Mono", Monaco, Consolas, monospace;
- }
+}
  div.sceditor-dnd-cover {
 	position: absolute;
 	top: 0;
@@ -234,12 +234,12 @@
 	font-size: 2em;
 	text-align: center;
 	color: #aaa;
- }
+}
  div.sceditor-dnd-cover p {
 	position: relative;
 	top: 45%;
 	pointer-events: none;
- }
+}
  div.sceditor-resize-cover {
 	position: absolute;
 	top: 0;
@@ -249,7 +249,7 @@
 	height: 100%;
 	z-index: 10;
 	opacity: 0.3;
- }
+}
  div.sceditor-grip {
 	overflow: hidden;
 	width: 10px;
@@ -260,10 +260,10 @@
 	right: 0;
 	z-index: 3;
 	line-height: 0;
- }
+}
  div.sceditor-grip.has-icon {
 	background-image: none;
- }
+}
  .sceditor-maximize {
 	position: fixed;
 	top: 0;
@@ -273,7 +273,7 @@
 	border-radius: 0;
 	background-clip: padding-box;
 	z-index: 2000;
- }
+}
  html.sceditor-maximize,
  body.sceditor-maximize {
 	height: 100%;
@@ -281,17 +281,17 @@
 	padding: 0;
 	margin: 0;
 	overflow: hidden;
- }
+}
  .ie6.sceditor-maximize {
 	position: absolute;
- }
+}
  .sceditor-maximize div.sceditor-grip {
 	display: none;
- }
+}
  .sceditor-maximize div.sceditor-toolbar {
 	border-radius: 0;
 	background-clip: padding-box;
- }
+}
  div.sceditor-smileyPopup, div.sceditor-dropdown {
 	border: 1px solid #ccc;
 	background: #fff;
@@ -302,7 +302,7 @@
 	border-radius: 2px;
 	background-clip: padding-box;
 	box-shadow: 1px 2px 4px rgba(0, 0, 0, .2);
- }
+}
  @media screen and (min-width: 1024px) {
 	div.sceditor-smileyPopup {
 		height: 50%;
@@ -316,13 +316,13 @@
 		height: 90%;
 		overflow: auto;
 	}
- }
+}
  @media screen and (max-width: 1024px) {
 	div.sceditor-smileyPopup {
 		width: 90%;
 		position: absolute;
 	}
- }
+}
  /**
 	 * Dropdown styleing
 	 */
@@ -337,20 +337,20 @@
 	border-radius: 2px;
 	background-clip: padding-box;
 	box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
- }
+}
  div.sceditor-dropdown a,
  div.sceditor-dropdown a:link {
 	color: #333;
- }
+}
  div.sceditor-dropdown form {
 	margin: 0;
- }
+}
  div.sceditor-dropdown label {
 	display: block;
 	font-weight: bold;
 	color: #3c3c3c;
 	padding: 4px 0;
- }
+}
  div.sceditor-dropdown input,
  div.sceditor-dropdown textarea {
 	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
@@ -361,16 +361,16 @@
 	margin: 0 0 .75em;
 	border-radius: 1px;
 	background-clip: padding-box;
- }
+}
  div.sceditor-dropdown textarea {
 	padding: 6px;
- }
+}
  div.sceditor-dropdown input:focus,
  div.sceditor-dropdown textarea:focus {
 	border-color: #aaa;
 	border-top-color: #666;
 	box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.1);
- }
+}
  div.sceditor-dropdown .button {
 	font-weight: bold;
 	color: #444;
@@ -381,39 +381,39 @@
 	background-clip: padding-box;
 	cursor: pointer;
 	margin: .3em 0 0;
- }
+}
  div.sceditor-dropdown .button:hover {
 	background: #f3f3f3;
 	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
- }
+}
  div.sceditor-font-picker,
  div.sceditor-fontsize-picker,
  div.sceditor-format {
 	padding: 6px 0;
- }
+}
  div.sceditor-emoticons,
  div.sceditor-more-emoticons,
  div.sceditor-color-picker {
 	padding: 0;
- }
+}
  .sceditor-pastetext textarea {
 	border: 1px solid #bbb;
 	width: 20em;
- }
+}
  .sceditor-emoticons img,
  .sceditor-more-emoticons img {
 	padding: 0;
 	cursor: pointer;
 	margin: 2px;
- }
+}
  .sceditor-insertemoticon {
 	padding: 4px !important;
- }
+}
  
  .sceditor-insertemoticon > div, .sceditor-insertemoticon > center {
 	display: inline-block;
 	vertical-align: middle;
- }
+}
  .sceditor-more {
 	border-top: 1px solid #bbb;
 	display: inline-block;
@@ -421,10 +421,10 @@
 	font-weight: bold;
 	padding: 0 4px !important;
 	margin-top: 4px !important;
- }
+}
  .sceditor-dropdown a:hover {
 	background: #eee;
- }
+}
  .sceditor-fontsize-option,
  .sceditor-font-option,
  .sceditor-format a {
@@ -433,13 +433,13 @@
 	cursor: pointer;
 	text-decoration: none;
 	color: #222;
- }
+}
  .sceditor-fontsize-option {
 	padding: 7px 13px;
- }
+}
  .sceditor-color-column {
 	float: left;
- }
+}
  .sceditor-color-option {
 	display: block;
 	border: 1px solid #fff;
@@ -448,7 +448,7 @@
 	overflow: hidden;
 	display: inline-block;
 	border: 1px solid #fff;
- }
+}
  @media screen and (min-width: 1024px) {
 	.sceditor-color-option {
 		height: 24px;
@@ -457,7 +457,7 @@
 	.sceditor-color-picker {
 		width: 131px;
 	}
- }
+}
  @media screen and (max-width: 1024px) {
 	.sceditor-color-option {
 		height: 48px;
@@ -466,10 +466,10 @@
 	.sceditor-color-picker {
 		width: 251px;
 	}
- }
+}
  .sceditor-color-option:hover {
 	border: 1px solid #333;
- }
+}
  /**
 	 * Toolbar styleing
 	 */
@@ -485,7 +485,7 @@
 	border-radius: 3px 3px 0 0;
 	background-clip: padding-box;
 	margin: 0 0 5px;
- }
+}
  div.sceditor-group {
 	display: inline-block;
 	background: #ddd;
@@ -494,7 +494,7 @@
 	border-bottom: 1px solid #aaa;
 	border-radius: 3px;
 	background-clip: padding-box;
- }
+}
  .sceditor-button {
 	float: left;
 	cursor: pointer;
@@ -503,27 +503,27 @@
 	height: 20px;
 	border-radius: 3px;
 	background-clip: padding-box;
- }
+}
  .sceditor-button:hover,
  .sceditor-button:active,
  .sceditor-button.active {
 	background: #fff;
 	box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.3), inset -1px 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
- }
+}
  
  .sceditor-button:active {
 	background: #fff;
 	box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.3), inset -1px 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.2), inset 0 0 8px rgba(0, 0, 0, 0.3);
- }
+}
  .sceditor-button.disabled:hover {
 	background: inherit;
 	cursor: default;
 	box-shadow: none;
- }
+}
  .sceditor-button,
  .sceditor-button div {
 	display: block;
- }
+}
  .sceditor-button svg {
 	display: inline-block;
 	height: 16px;
@@ -532,10 +532,10 @@
 	fill: #111;
 	pointer-events: none;
 	line-height: 1;
- }
+}
  .sceditor-button.disabled svg {
 	fill: #888;
- }
+}
  .sceditor-button div {
 	margin: 2px 0;
 	padding: 0;
@@ -543,13 +543,13 @@
 	line-height: 0;
 	font-size: 0;
 	color: transparent;
- }
+}
  .sceditor-button.has-icon div {
 	display: none;
- }
+}
  .sceditor-button.disabled div {
 	opacity: 0.3;
- }
+}
  .text .sceditor-button,
  .text .sceditor-button div,
  .sceditor-button.text,
@@ -564,49 +564,49 @@
 	font-size: 1em;
 	color: inherit;
 	text-indent: 0;
- }
+}
  .text-icon .sceditor-button.has-icon div,
  .sceditor-button.has-icon div,
  .text .sceditor-button div,
  .sceditor-button.text div {
 	padding: 0 2px;
 	background: none;
- }
+}
  .text .sceditor-button svg,
  .sceditor-button.text svg {
 	display: none;
- }
+}
  .text-icon .sceditor-button div,
  .sceditor-button.text-icon div {
 	padding: 0 2px 0 20px;
- }
+}
  .rtl div.sceditor-toolbar {
 	text-align: right;
- }
+}
  .rtl .sceditor-button {
 	float: right;
- }
+}
  .rtl div.sceditor-grip {
 	right: auto;
 	left: 0;
- }
+}
  
  /* SMF buttons styles */
  .sceditor-button-pre div {
 	background-position: 0 -696px;
- }
+}
  .sceditor-button-floatleft div {
 	background-position: 0px -680px;
- }
+}
  .sceditor-button-floatright div {
 	background-position: 0px -664px;
- }
+}
  .sceditor-insertemoticon img,
  .sceditor-smileyPopup img {
 	margin: 6px 7px 0 0;
- }
+}
  .sceditor-insertemoticon img,
  div.sceditor-dropdown img,
  .sceditor-smileyPopup img {
 	cursor: pointer;
- }
+}
