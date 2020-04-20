@@ -180,6 +180,7 @@
 	 background-clip: padding-box;
 	 min-width: 100%;
 	 max-width: 100%;
+	 min-height: 307px;
  }
  .sceditor-container *,
  .sceditor-container *::before,
@@ -198,20 +199,18 @@
  }
  .sceditor-container iframe,
  .sceditor-container textarea {
-	 display: block;
-	 -ms-flex: 1 1 0%;
-	 flex: 1 1 0%;
 	 line-height: normal;
 	 border: 0;
 	 outline: none;
 	 font-size: 14px;
 	 color: #111;
 	 box-sizing: border-box;
-	 padding: 5px;
+	 padding: 0 5px;
 	 margin: 0px;
 	 resize: none;
 	 background: #fff;
-	 display: block;
+	 display: flex;
+	 flex-basis: 150px;
 	 min-width: 100%;
 	 max-width: 100%;
 	 height: auto !important;
@@ -485,6 +484,7 @@
 	 user-select: none;
 	 border-radius: 3px 3px 0 0;
 	 background-clip: padding-box;
+	 margin: 0 0 5px;
  }
  div.sceditor-group {
 	 display: inline-block;
