@@ -184,6 +184,7 @@
 			 * Only resize the text areas instead.
 			 */
 			document.querySelector(".sceditor-container").removeAttribute("style");
+			document.querySelector(".sceditor-container textarea").style.flexBasis = options.height;
 
 			isPatched = true;
 		}
