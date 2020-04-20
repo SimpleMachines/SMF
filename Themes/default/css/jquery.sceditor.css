@@ -9,7 +9,7 @@
  *	https://opensource.org/licenses/mit-license.php
  */
 div.sceditor-grip,
-.sceditor-buttondiv {
+.sceditor-button div {
 	background-image: url("../images/icons/editor_sprite.png");
 	background-repeat: no-repeat;
 	width: 16px;
@@ -303,7 +303,7 @@ div.sceditor-smileyPopup, div.sceditor-dropdown {
 	background-clip: padding-box;
 	box-shadow: 1px 2px 4px rgba(0, 0, 0, .2);
 }
- @media screen and (min-width: 1024px) {
+@media screen and (min-width: 1024px) {
 	div.sceditor-smileyPopup {
 		height: 50%;
 		width: 50%;
@@ -317,13 +317,13 @@ div.sceditor-smileyPopup, div.sceditor-dropdown {
 		overflow: auto;
 	}
 }
- @media screen and (max-width: 1024px) {
+@media screen and (max-width: 1024px) {
 	div.sceditor-smileyPopup {
 		width: 90%;
 		position: absolute;
 	}
 }
- /**
+/**
 	 * Dropdown styleing
 	 */
 div.sceditor-dropdown {
@@ -409,7 +409,7 @@ div.sceditor-color-picker {
 .sceditor-insertemoticon {
 	padding: 4px !important;
 }
- 
+
 .sceditor-insertemoticon > div, .sceditor-insertemoticon > center {
 	display: inline-block;
 	vertical-align: middle;
@@ -449,7 +449,7 @@ div.sceditor-color-picker {
 	display: inline-block;
 	border: 1px solid #fff;
 }
- @media screen and (min-width: 1024px) {
+@media screen and (min-width: 1024px) {
 	.sceditor-color-option {
 		height: 24px;
 		width: 24px;
@@ -458,7 +458,7 @@ div.sceditor-color-picker {
 		width: 131px;
 	}
 }
- @media screen and (max-width: 1024px) {
+@media screen and (max-width: 1024px) {
 	.sceditor-color-option {
 		height: 48px;
 		width: 48px;
@@ -470,7 +470,7 @@ div.sceditor-color-picker {
 .sceditor-color-option:hover {
 	border: 1px solid #333;
 }
- /**
+/**
 	 * Toolbar styleing
 	 */
 div.sceditor-toolbar {
@@ -510,7 +510,7 @@ div.sceditor-group {
 	background: #fff;
 	box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.3), inset -1px 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
 }
- 
+
 .sceditor-button:active {
 	background: #fff;
 	box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.3), inset -1px 0 rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.2), inset 0 0 8px rgba(0, 0, 0, 0.3);
@@ -565,10 +565,10 @@ div.sceditor-group {
 	color: inherit;
 	text-indent: 0;
 }
- .text-icon .sceditor-button.has-icon div,
- .sceditor-button.has-icon div,
- .text .sceditor-button div,
- .sceditor-button.text div {
+.text-icon .sceditor-button.has-icon div,
+.sceditor-button.has-icon div,
+.text .sceditor-button div,
+.sceditor-button.text div {
 	padding: 0 2px;
 	background: none;
 }
@@ -590,7 +590,7 @@ div.sceditor-group {
 	right: auto;
 	left: 0;
 }
- 
+
 /* SMF buttons styles */
 .sceditor-button-pre div {
 	background-position: 0 -696px;
