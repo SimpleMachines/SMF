@@ -180,7 +180,7 @@ div.sceditor-grip {
 	background-clip: padding-box;
 	min-width: 100%;
 	max-width: 100%;
-	min-height: 307px;
+	min-height: 332px;
 }
 .sceditor-container *,
 .sceditor-container *::before,
@@ -210,10 +210,10 @@ div.sceditor-dropdown div {
 	resize: none;
 	background: #fff;
 	display: flex;
-	flex-basis: 150px;
+	flex-basis: auto;
 	min-width: 100%;
 	max-width: 100%;
-	height: auto !important;
+	height: 100%;
 	min-height: 1px;
 }
 .sceditor-container iframe {
