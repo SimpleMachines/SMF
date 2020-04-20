@@ -109,15 +109,17 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$tempfilepath = $realfilepath. '.tmp';
 		$progressfile = $realfilepath . '.progress.json';
 
-		// If the file is missing, create one with just the header and footer.
-		if (!file_exists($tempfilepath))
+		// If a necessary file is missing, we need to start over.
+		if (!file_exists($progressfile) || !file_exists($tempfilepath))
 		{
+			foreach(array($realfilepath, $tempfilepath, $progressfile) as $fpath)
+				@unlink($fpath);
+
 			buildXmlFeed('smf', array(), $feed_meta, 'profile');
 			file_put_contents($tempfilepath, implode('', array($context['feed']['header'], $context['feed']['footer'])));
-
-			$progress = array_fill_keys($datatypes, 0);
-			file_put_contents($progressfile, $smcFunc['json_encode']($progress));
 		}
+
+		$progress = file_exists($progressfile) ? $smcFunc['json_decode'](file_get_contents($progressfile), true) : array_fill_keys($datatypes, 0);
 
 		// Get the data, always in ascending order.
 		$xml_data = call_user_func($included[$datatype]['func'], 'smf', true);
@@ -144,13 +146,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			fclose($handle);
 
 			// Track progress by ID where appropriate, and by time otherwise.
-			if (!isset($progress))
-				$progress = $smcFunc['json_decode'](file_get_contents($progressfile), true);
-
 			$progress[$datatype] = !isset($last_id) ? time() : $last_id;
 			$datatype_done = !isset($last_id) ? true : $last_id >= $latest[$datatype];
-
-			file_put_contents($progressfile, $smcFunc['json_encode']($progress));
 
 			// Decide what to do next.
 			if ($datatype_done)
@@ -159,20 +156,25 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 				$done = !isset($datatypes[$datatype_key + 1]);
 
 				if (!$done)
-				{
 					$datatype = $datatypes[$datatype_key + 1];
-					$context[$datatype . '_start'] = 0;
-				}
 			}
-			else
-				$context[$datatype . '_start'] = $progress[$datatype];
 		}
 
+		// Remove the .tmp extension so the system knows that the file is ready for download.
 		if (!empty($done))
 			rename($tempfilepath, $realfilepath);
+
+		// Oops. Apparently some sneaky monkey cancelled the export while we weren't looking.
+		elseif (!file_exists($progressfile))
+		{
+			@unlink($tempfilepath);
+			return;
+		}
+
+		// We have more work to do again later.
 		else
 		{
-			$start[$datatype] = $context[$datatype . '_start'];
+			$start[$datatype] = $progress[$datatype];
 
 			$data = $smcFunc['json_encode'](array(
 				'format' => 'XML',
@@ -190,6 +192,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 				array()
 			);
 		}
+
+		file_put_contents($progressfile, $smcFunc['json_encode']($progress));
 	}
 
 	public static function pre_parsebbc(&$message, &$smileys, &$cache_id, &$parse_tags)

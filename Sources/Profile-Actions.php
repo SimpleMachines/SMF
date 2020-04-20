@@ -1154,7 +1154,7 @@ function export_profile_data($memID)
 		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
 		$dlbasename = $dlfilename . '.' . $format_settings['extension'];
 
-		if (file_exists($realfilepath) && !empty($progress))
+		if (file_exists($realfilepath))
 		{
 			// It looks like we're done.
 			$done = true;
@@ -1189,7 +1189,7 @@ function export_profile_data($memID)
 				rename($realfilepath, $tempfilepath);
 			}
 		}
-		elseif (file_exists($tempfilepath) || isset($_POST['export_begin']))
+		elseif (isset($_POST['export_begin']) || (file_exists($tempfilepath) && file_exists($progressfile)))
 			$done = false;
 
 		if ($done === true)
