@@ -976,7 +976,8 @@ function subscriptions($memID)
  */
 function export_profile_data($memID)
 {
-	global $context, $smcFunc, $txt, $modSettings, $query_this_board, $sourcedir, $scripturl;
+	global $context, $smcFunc, $txt, $modSettings, $sourcedir, $scripturl;
+	global $query_this_board;
 
 	if (!isset($context['token_check']))
 		$context['token_check'] = 'profile-ex' . $memID;
@@ -1102,9 +1103,10 @@ function export_profile_data($memID)
 	if (empty($modSettings['export_dir']) || !file_exists($modSettings['export_dir']))
 		create_export_dir();
 
-	$realfilename = hash_hmac('sha1', $memID, get_auth_secret());
+	$export_dir_slash = $modSettings['export_dir'] . DIRECTORY_SEPARATOR;
 
-	$dltoken = hash_hmac('sha1', $realfilename, get_auth_secret());
+	$idhash = hash_hmac('sha1', $memID, get_auth_secret());
+	$dltoken = hash_hmac('sha1', $idhash, get_auth_secret());
 
 	$query_this_board = !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? 'b.id_board != ' . $modSettings['recycle_board'] : '1=1';
 
@@ -1116,10 +1118,16 @@ function export_profile_data($memID)
 	{
 		$done = null;
 
-		$realbasename = $realfilename . '.' . $format_settings['extension'];
-		$realfilepath = $modSettings['export_dir'] . '/' . $realbasename;
-		$tempfilepath = $realfilepath . '.tmp';
-		$progressfile = $realfilepath . '.progress.json';
+		$idhash_ext = $idhash . '.' . $format_settings['extension'];
+
+		// $realfile needs to be the highest numbered one, or 1_*** if none exist.
+		$filenum = 1;
+		$realfile = $export_dir_slash . $filenum . '_' . $idhash_ext;
+		while (file_exists($export_dir_slash . ($filenum + 1) . '_' . $idhash_ext))
+			$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
+
+		$tempfile = $export_dir_slash . $idhash_ext . '.tmp';
+		$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
 
 		// If requested by the user, delete any existing export files and background tasks.
 		if (isset($_POST['delete']) && isset($_POST['format']) && $_POST['format'] === $format && isset($_POST['t']) && $_POST['t'] === $dltoken)
@@ -1134,7 +1142,7 @@ function export_profile_data($memID)
 				)
 			);
 
-			foreach(array($realfilepath, $tempfilepath, $progressfile) as $fpath)
+			foreach (array_merge(array($tempfile, $progressfile), glob($export_dir_slash . '*_' . $idhash_ext)) as $fpath)
 				@unlink($fpath);
 
 			if (empty($_POST['export_begin']))
@@ -1144,17 +1152,18 @@ function export_profile_data($memID)
 		$progress = file_exists($progressfile) ? $smcFunc['json_decode'](file_get_contents($progressfile), true) : array();
 
 		if (!empty($progress))
-			$selected_datatypes = array_keys($progress);
+			$included = array_keys($progress);
 		else
-			$selected_datatypes = array_intersect(array_keys($context['export_datatypes']), array_keys($_POST));
+			$included = array_intersect(array_keys($context['export_datatypes']), array_keys($_POST));
 
-		$dlfilename = array($context['forum_name'], $context['member']['username']);
-		foreach ($selected_datatypes as $datatype)
-			$dlfilename[] = $txt[$datatype];
+		$included_desc = array();
+		foreach ($included as $datatype)
+			$included_desc[] = $txt[$datatype];
+
+		$dlfilename = array_merge(array($context['forum_name'], $context['member']['username']), $included_desc);
 		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
-		$dlbasename = $dlfilename . '.' . $format_settings['extension'];
 
-		if (file_exists($realfilepath))
+		if (file_exists($realfile))
 		{
 			// It looks like we're done.
 			$done = true;
@@ -1185,38 +1194,50 @@ function export_profile_data($memID)
 				$context['token_check'] = 'profile-ex' . $memID;
 				createToken('profile-ex' . $memID, 'post');
 
-				@unlink($tempfilepath);
-				rename($realfilepath, $tempfilepath);
+				@unlink($tempfile);
+				rename($realfile, $tempfile);
 			}
 		}
-		elseif (isset($_POST['export_begin']) || (file_exists($tempfilepath) && file_exists($progressfile)))
+		elseif (isset($_POST['export_begin']) || (file_exists($tempfile) && file_exists($progressfile)))
 			$done = false;
 
 		if ($done === true)
 		{
-			$size = filesize($realfilepath) / 1024;
-			$units = array('KB', 'MB', 'GB', 'TB');
-			$unitkey = 0;
-			while ($size > 1024)
-			{
-				$size = $size / 1024;
-				$unitkey++;
-			}
-			$size = round($size, 2) . $units[$unitkey];
+			$exportfilepaths = glob($export_dir_slash . '*_' . $idhash_ext);
 
-			$context['completed_exports'][$realbasename] = array(
-				'dlbasename' => $dlbasename,
-				'dltoken' => $dltoken,
-				'format' => $format,
-				'mtime' => timeformat(filemtime($realfilepath)),
-				'size' => $size,
-			);
+			foreach ($exportfilepaths as $exportfilepath)
+			{
+				$exportbasename = basename($exportfilepath);
+
+				$part = substr($exportbasename, 0, strcspn($exportbasename, '_'));
+				$suffix = count($exportfilepaths) == 1 ? '' : '_' . $part;
+
+				$size = filesize($exportfilepath) / 1024;
+				$units = array('KB', 'MB', 'GB', 'TB');
+				$unitkey = 0;
+				while ($size > 1024)
+				{
+					$size = $size / 1024;
+					$unitkey++;
+				}
+				$size = round($size, 2) . $units[$unitkey];
+
+				$context['completed_exports'][$idhash_ext][$part] = array(
+					'realname' => $exportbasename,
+					'dlbasename' => $dlfilename . $suffix . '.' . $format_settings['extension'],
+					'dltoken' => $dltoken,
+					'included' => sentence_list($included_desc),
+					'format' => $format,
+					'mtime' => timeformat(filemtime($exportfilepath)),
+					'size' => $size,
+				);
+			}
 		}
 		elseif ($done === false)
 		{
-			$context['active_exports'][$realbasename] = array(
-				'dlbasename' => $dlbasename,
+			$context['active_exports'][$idhash_ext] = array(
 				'dltoken' => $dltoken,
+				'included' => sentence_list($included_desc),
 				'format' => $format,
 			);
 		}
@@ -1243,7 +1264,7 @@ function export_profile_data($memID)
 		}
 
 		if (empty($included))
-			unset($context['active_exports'][$realfilename . '.' . $context['export_formats'][$format]['extension']]);
+			unset($context['active_exports'][$idhash . '.' . $context['export_formats'][$format]['extension']]);
 		else
 		{
 			$data = $smcFunc['json_encode'](array(
@@ -1263,7 +1284,7 @@ function export_profile_data($memID)
 			);
 
 			// So the user can see that we've started.
-			if (!file_exists($realfilepath) && !file_exists($tempfilepath) && !file_exists($progressfile))
+			if (!file_exists($realfile) && !file_exists($tempfile) && !file_exists($progressfile))
 			{
 				require_once($sourcedir . '/News.php');
 
@@ -1280,7 +1301,7 @@ function export_profile_data($memID)
 				);
 
 				buildXmlFeed('smf', array(), $feed_meta, 'profile');
-				file_put_contents($tempfilepath, implode('', array($context['feed']['header'], $context['feed']['footer'])));
+				file_put_contents($tempfile, implode('', array($context['feed']['header'], $context['feed']['footer'])));
 
 				file_put_contents($progressfile, $smcFunc['json_encode'](array_fill_keys(array_keys($included), 0)));
 			}
@@ -1347,49 +1368,41 @@ function download_export_file($memID)
 		exit;
 	}
 
+	$export_dir_slash = $modSettings['export_dir'] . DIRECTORY_SEPARATOR;
+
+	$idhash = hash_hmac('sha1', $memID, get_auth_secret());
+	$part = isset($_GET['part']) ? (int) $_GET['part'] : 1;
 	$extension = $export_formats[$_GET['format']]['extension'];
 
-	// The filename (with and without extension) on disk.
-	$realfilename = hash_hmac('sha1', $memID, get_auth_secret());
-	$realbasename = $realfilename . '.' . $extension;
+	$filepath = $export_dir_slash . $part . '_' . $idhash . '.' . $extension;
+	$progressfile = $export_dir_slash . $idhash . '.' . $extension . '.progress.json';
 
 	// Make sure they gave the correct authentication token.
-	// We do it this way so the user can download without logging in, as required by the GDPR.
-	$dltoken = hash_hmac('sha1', $realfilename, get_auth_secret());
-
+	// We use these tokens so the user can download without logging in, as required by the GDPR.
+	$dltoken = hash_hmac('sha1', $idhash, get_auth_secret());
 	if ($_GET['t'] !== $dltoken)
 	{
 		send_http_status(403);
 		exit;
 	}
 
-	// We can't do anything without the export directory.
-	if ($modSettings['export_dir'] === false)
-	{
-		send_http_status(404);
-		exit;
-	}
-
-	$filepath = $modSettings['export_dir'] . DIRECTORY_SEPARATOR . $realbasename;
-	if (!file_exists($filepath))
+	// Obviously we can't give what we don't have.
+	if (empty($modSettings['export_dir']) || !file_exists($filepath))
 	{
 		send_http_status(404);
 		exit;
 	}
 
 	// Figure out the filename we'll tell the browser.
-	$dlfilename[] = $context['forum_name'];
-	$dlfilename[] = $context['member']['username'];
-	if (file_exists($filepath . '.progress.json'))
-	{
-		$datatypes = array_keys($smcFunc['json_decode'](file_get_contents($filepath . '.progress.json'), true));
-		foreach ($datatypes as $datatype)
-			$dlfilename[] = $txt[$datatype];
-	}
-	else
-		$dlfilename[] = $txt['profile'];
+	$datatypes = file_exists($progressfile) ? array_keys($smcFunc['json_decode'](file_get_contents($progressfile), true)) : array('profile');
+	$included_desc = array_map(function ($datatype) use ($txt) { return $txt[$datatype]; }, $datatypes);
+
+	$dlfilename = array_merge(array($context['forum_name'], $context['member']['username']), $included_desc);
 	$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
-	$dlbasename = $dlfilename . '.' . $extension;
+
+	$suffix = ($part > 1 || file_exists($export_dir_slash . '2_' . $idhash . '.' . $extension)) ? '_' . $part : '';
+
+	$dlbasename = $dlfilename . $suffix . '.' . $extension;
 
 	$mtime = filemtime($filepath);
 	$size = filesize($filepath);

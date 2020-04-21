@@ -598,5 +598,6 @@ $txt['export_begin'] = 'Begin export';
 $txt['export_restart'] = 'Restart export';
 $txt['export_restart_confirm'] = 'This will delete the current profile export and start over using the new settings. Are you sure you want to do this?';
 $txt['export_cancel'] = 'Cancel';
+$txt['export_file_desc'] = 'Included data: %1$s. File format: %2$s.';
 
 ?>

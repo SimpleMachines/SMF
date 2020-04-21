@@ -3309,23 +3309,32 @@ function template_export_profile_data()
 		<div class="title_bar">
 			<h3 class="titlebg">', $txt['completed_exports'], '</h3>
 		</div>
-		<div class="windowbg noup">
-			<ul class="bbc_list">';
+		<div class="windowbg noup">';
 
-
-		foreach ($context['completed_exports'] as $file)
+		foreach ($context['completed_exports'] as $basehash_ext => $parts)
+		{
 			echo '
-				<li>
-					<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '">
-						<a href="', $scripturl, '?action=profile;area=download;u=', $context['id_member'], ';format=', $file['format'], ';t=', $file['dltoken'], '" class="bbc_link">', $file['dlbasename'], '</a> (', $file['size'], ', ', $file['mtime'], ')
-						<input type="submit" name="delete" value="', $txt['delete'], '" class="button you_sure">
-						<input type="hidden" name="format" value="', $file['format'], '">
-						<input type="hidden" name="t" value="', $file['dltoken'], '">
-					</form>
-				</li>';
+			<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '"', count($context['completed_exports']) > 1 ? ' class="descbox"' : '', '>
+				<p class="padding">', sprintf($txt['export_file_desc'], $parts[1]['included'], $parts[1]['format']), '</p>
+				<ul class="bbc_list">';
+
+			foreach ($parts as $part => $file)
+				echo '
+					<li>
+						<a href="', $scripturl, '?action=profile;area=download;u=', $context['id_member'], ';format=', $file['format'], ';part=', $part, ';t=', $file['dltoken'], '" class="bbc_link">', $file['dlbasename'], '</a> (', $file['size'], ', ', $file['mtime'], ')
+					</li>';
+
+			echo '
+				</ul>
+				<div class="righttext">
+					<input type="submit" name="delete" value="', $txt['delete'], '" class="button you_sure">
+					<input type="hidden" name="format" value="', $parts[1]['format'], '">
+					<input type="hidden" name="t" value="', $parts[1]['dltoken'], '">
+				</div>
+			</form>';
+		}
 
 		echo '
-			</ul>
 		</div>';
 	}
 
@@ -3335,22 +3344,20 @@ function template_export_profile_data()
 		<div class="title_bar">
 			<h3 class="titlebg">', $txt['active_exports'], '</h3>
 		</div>
-		<div class="windowbg noup">
-			<ul class="bbc_list">';
+		<div class="windowbg noup">';
 
 		foreach ($context['active_exports'] as $file)
 			echo '
-				<li>
-					<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '">
-						', $file['dlbasename'], '
-						<input type="submit" name="delete" value="', $txt['export_cancel'], '" class="button you_sure">
-						<input type="hidden" name="format" value="', $file['format'], '">
-						<input type="hidden" name="t" value="', $file['dltoken'], '">
-					</form>
-				</li>';
+			<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '"', count($context['active_exports']) > 1 ? ' class="descbox"' : '', '>
+				<p class="padding">', sprintf($txt['export_file_desc'], $file['included'], $file['format']), '</p>
+				<div class="righttext">
+					<input type="submit" name="delete" value="', $txt['export_cancel'], '" class="button you_sure">
+					<input type="hidden" name="format" value="', $file['format'], '">
+					<input type="hidden" name="t" value="', $file['dltoken'], '">
+				</div>
+			</form>';
 
 		echo '
-			</ul>
 		</div>';
 	}
 
