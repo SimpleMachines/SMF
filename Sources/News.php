@@ -535,14 +535,14 @@ function cdata_parse($data, $ns = '', $force = false)
 
 	// @todo If we drop the obsolete $ns parameter, this whole loop could be replaced with a simple `str_replace(']]>', ']]]]><[CDATA[>', $data)`
 
-	for ($pos = 0, $n = $smcFunc['strlen']($data); $pos < $n; null)
+	for ($pos = 0, $n = strlen($data); $pos < $n; null)
 	{
 		$positions = array(
-			$smcFunc['strpos']($data, '&', $pos),
-			$smcFunc['strpos']($data, ']]>', $pos),
+			strpos($data, '&', $pos),
+			strpos($data, ']]>', $pos),
 		);
 		if ($ns != '')
-			$positions[] = $smcFunc['strpos']($data, '<', $pos);
+			$positions[] = strpos($data, '<', $pos);
 		foreach ($positions as $k => $dummy)
 		{
 			if ($dummy === false)
@@ -553,37 +553,37 @@ function cdata_parse($data, $ns = '', $force = false)
 		$pos = empty($positions) ? $n : min($positions);
 
 		if ($pos - $old > 0)
-			$cdata .= $smcFunc['substr']($data, $old, $pos - $old);
+			$cdata .= substr($data, $old, $pos - $old);
 		if ($pos >= $n)
 			break;
 
-		if ($smcFunc['substr']($data, $pos, 1) == '<')
+		if (substr($data, $pos, 1) == '<')
 		{
-			$pos2 = $smcFunc['strpos']($data, '>', $pos);
+			$pos2 = strpos($data, '>', $pos);
 			if ($pos2 === false)
 				$pos2 = $n;
-			if ($smcFunc['substr']($data, $pos + 1, 1) == '/')
-				$cdata .= ']]></' . $ns . ':' . $smcFunc['substr']($data, $pos + 2, $pos2 - $pos - 1) . '<![CDATA[';
+			if (substr($data, $pos + 1, 1) == '/')
+				$cdata .= ']]></' . $ns . ':' . substr($data, $pos + 2, $pos2 - $pos - 1) . '<![CDATA[';
 			else
-				$cdata .= ']]><' . $ns . ':' . $smcFunc['substr']($data, $pos + 1, $pos2 - $pos) . '<![CDATA[';
+				$cdata .= ']]><' . $ns . ':' . substr($data, $pos + 1, $pos2 - $pos) . '<![CDATA[';
 			$pos = $pos2 + 1;
 		}
-		elseif ($smcFunc['substr']($data, $pos, 3) == ']]>')
+		elseif (substr($data, $pos, 3) == ']]>')
 		{
 			$cdata .= ']]]]><![CDATA[>';
 			$pos = $pos + 3;
 		}
-		elseif ($smcFunc['substr']($data, $pos, 1) == '&')
+		elseif (substr($data, $pos, 1) == '&')
 		{
-			$pos2 = $smcFunc['strpos']($data, ';', $pos);
+			$pos2 = strpos($data, ';', $pos);
 			if ($pos2 === false)
 				$pos2 = $n;
-			$ent = $smcFunc['substr']($data, $pos + 1, $pos2 - $pos - 1);
+			$ent = substr($data, $pos + 1, $pos2 - $pos - 1);
 
-			if ($smcFunc['substr']($data, $pos + 1, 1) == '#')
-				$cdata .= ']]>' . $smcFunc['substr']($data, $pos, $pos2 - $pos + 1) . '<![CDATA[';
+			if (substr($data, $pos + 1, 1) == '#')
+				$cdata .= ']]>' . substr($data, $pos, $pos2 - $pos + 1) . '<![CDATA[';
 			elseif (in_array($ent, array('amp', 'lt', 'gt', 'quot')))
-				$cdata .= ']]>' . $smcFunc['substr']($data, $pos, $pos2 - $pos + 1) . '<![CDATA[';
+				$cdata .= ']]>' . substr($data, $pos, $pos2 - $pos + 1) . '<![CDATA[';
 
 			$pos = $pos2 + 1;
 		}
