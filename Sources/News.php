@@ -288,6 +288,19 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 {
 	global $context, $txt, $scripturl;
 
+	/* Important: Do NOT change this to an HTTPS address!
+	 *
+	 * Why? Because XML namespace names must be both unique and invariant
+	 * once defined. They look like URLs merely because that's a convenient
+	 * way to ensure uniqueness, but they are not used as URLs. They are
+	 * used as case-sensitive identifier strings. If the string changes in
+	 * any way, XML processing software (including PHP's own XML functions)
+	 * will interpret the two versions of the string as entirely different
+	 * namespaces, which could cause it to mangle the XML horrifically
+	 * during processing.
+	 */
+	$smf_ns = 'htt'.'p:/'.'/ww'.'w.simple'.'machines.o'.'rg/xml/' . $subaction;
+
 	// Allow mods to add extra namespaces and tags to the feed/channel
 	$namespaces = array(
 		'rss' => array(),
@@ -299,15 +312,14 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 			'dc' => 'http://purl.org/dc/elements/1.1/',
 		),
 		'smf' => array(
-			'' => 'https://www.simplemachines.org/xml/' . $subaction,
-			'smf' => 'https://www.simplemachines.org/',
+			'smf' => $smf_ns,
 		),
 	);
 	if (in_array($subaction, array('profile', 'posts', 'pms')))
 	{
-		$namespaces['rss']['smf'] = 'https://www.simplemachines.org/';
-		$namespaces['rss2']['smf'] = 'https://www.simplemachines.org/';
-		$namespaces['atom']['smf'] = 'https://www.simplemachines.org/';
+		$namespaces['rss']['smf'] = $smf_ns;
+		$namespaces['rss2']['smf'] = $smf_ns;
+		$namespaces['atom']['smf'] = $smf_ns;
 	}
 
 	$extraFeedTags = array(
