@@ -163,26 +163,31 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 			// Insert the new data before the feed footer.
 			$handle = fopen($tempfile, 'r+');
-			fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);
-			fwrite($handle, $context['feed']['items'] . $context['feed']['footer']);
-			fclose($handle);
-
-			// Track progress by ID where appropriate, and by time otherwise.
-			$progress[$datatype] = !isset($last_id) ? time() : $last_id;
-			$datatype_done = !isset($last_id) ? true : $last_id >= $latest[$datatype];
-
-			// Decide what to do next.
-			if ($datatype_done)
+			if (is_resource($handle))
 			{
-				$datatype_key = array_search($datatype, $datatypes);
-				$done = !isset($datatypes[$datatype_key + 1]);
+				fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);
+				fwrite($handle, $context['feed']['items'] . $context['feed']['footer']);
+				fclose($handle);
 
-				if (!$done)
-					$datatype = $datatypes[$datatype_key + 1];
+				// Track progress by ID where appropriate, and by time otherwise.
+				$progress[$datatype] = !isset($last_id) ? time() : $last_id;
+				$datatype_done = !isset($last_id) ? true : $last_id >= $latest[$datatype];
+
+				// Decide what to do next.
+				if ($datatype_done)
+				{
+					$datatype_key = array_search($datatype, $datatypes);
+					$done = !isset($datatypes[$datatype_key + 1]);
+
+					if (!$done)
+						$datatype = $datatypes[$datatype_key + 1];
+				}
+
+				// All went well, so no need for an artificial delay.
+				$delay = 0;
 			}
-
-			// All went well, so no need for an artificial delay.
-			$delay = 0;
+			else
+				$delay = MAX_CLAIM_THRESHOLD;
 		}
 		// Not enough disk space, so pause for a day to give the admin a chance to fix it.
 		else
