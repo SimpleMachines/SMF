@@ -487,7 +487,7 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 	else
 	{
 		$context['feed']['header'] .= '
-<smf:xml-feed xml:lang="' . strtr($txt['lang_locale'], '_', '-') . '"' . $ns_string . ' version="' . SMF_VERSION . '" forum-name="' . $context['forum_name'] . '" forum-url="' . $scripturl . '"' . (!empty($feed_meta['title']) && $feed_meta['title'] != $context['forum_name'] ? ' title="' . $feed_meta['title'] . '"' : '') . (!empty($feed_meta['desc']) ? ' description="' . $feed_meta['desc'] . '"' : '') . ' source="' . $feed_meta['source'] . '" generated-date-localized="' . timeformat(time()) . '" generated-date-UTC="' . gmstrftime('%F %T') . '">';
+<smf:xml-feed xml:lang="' . strtr($txt['lang_locale'], '_', '-') . '"' . $ns_string . ' version="' . SMF_VERSION . '" forum-name="' . $context['forum_name'] . '" forum-url="' . $scripturl . '"' . (!empty($feed_meta['title']) && $feed_meta['title'] != $context['forum_name'] ? ' title="' . $feed_meta['title'] . '"' : '') . (!empty($feed_meta['desc']) ? ' description="' . $feed_meta['desc'] . '"' : '') . ' source="' . $feed_meta['source'] . '" generated-date-localized="' . strip_tags(timeformat(time(), false, 'forum')) . '" generated-date-UTC="' . gmstrftime('%F %T') . '">';
 
 		// Hard to imagine anyone wanting to add these for the proprietary format, but just in case...
 		$context['feed']['header'] .= $extraFeedTags_string;
@@ -817,7 +817,7 @@ function getXmlMembers($xml_format, $ascending = false)
 					array(
 						'tag' => 'time',
 						'attributes' => array('label' => $txt['date_registered'], 'UTC' => gmstrftime('%F %T', $row['date_registered'])),
-						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['date_registered']))),
+						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['date_registered'], false, 'forum'))),
 					),
 					array(
 						'tag' => 'id',
@@ -1186,7 +1186,7 @@ function getXmlNews($xml_format, $ascending = false)
 					array(
 						'tag' => 'time',
 						'attributes' => array('label' => $txt['date'], 'UTC' => gmstrftime('%F %T', $row['poster_time'])),
-						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
+						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time'], false, 'forum'))),
 					),
 					array(
 						'tag' => 'id',
@@ -1638,7 +1638,7 @@ function getXmlRecent($xml_format)
 					array(
 						'tag' => 'time',
 						'attributes' => array('label' => $txt['date'], 'UTC' => gmstrftime('%F %T', $row['poster_time'])),
-						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
+						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time'], false, 'forum'))),
 					),
 					array(
 						'tag' => 'id',
@@ -2475,12 +2475,12 @@ function getXmlPosts($xml_format, $ascending = false)
 					array(
 						'tag' => 'time',
 						'attributes' => array('label' => $txt['date'], 'UTC' => gmstrftime('%F %T', $row['poster_time'])),
-						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
+						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time'], false, 'forum'))),
 					),
 					array(
 						'tag' => 'modified_time',
 						'attributes' => !empty($row['modified_time']) ? array('label' => $txt['modified_time'], 'UTC' => gmstrftime('%F %T', $row['modified_time'])) : null,
-						'content' => !empty($row['modified_time']) ? $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['modified_time']))) : null,
+						'content' => !empty($row['modified_time']) ? $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['modified_time'], false, 'forum'))) : null,
 					),
 					array(
 						'tag' => 'modified_by',
@@ -2714,7 +2714,7 @@ function getXmlPMs($xml_format, $ascending = false)
 					array(
 						'tag' => 'sent-date',
 						'attributes' => array('label' => $txt['date'], 'UTC' => gmstrftime('%F %T', $row['msgtime'])),
-						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['msgtime']))),
+						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['msgtime'], false, 'forum'))),
 					),
 					array(
 						'tag' => 'subject',
