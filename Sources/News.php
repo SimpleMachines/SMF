@@ -25,7 +25,7 @@ if (!defined('SMF'))
  *  'members' for recently registered members,
  *  'profile' for a member's profile.
  *  'posts' for a member's posts.
- *  'pms' for a member's personal messages.
+ *  'personal_messages' for a member's personal messages.
  *
  * When displaying a member's profile or posts, the u parameter identifies which member. Defaults
  * to the current user's id.
@@ -51,7 +51,7 @@ function ShowXmlFeed()
 		'members' => 'getXmlMembers',
 		'profile' => 'getXmlProfile',
 		'posts' => 'getXmlPosts',
-		'pms' => 'getXmlPMs',
+		'personal_messages' => 'getXmlPMs',
 	);
 
 	// Easy adding of sub actions
@@ -67,7 +67,7 @@ function ShowXmlFeed()
 	$context['xmlnews_offset'] = empty($_GET['offset']) || (int) $_GET['offset'] < 1 ? 0 : (int) $_GET['offset'];
 
 	// Users can always export their own profile data
-	if (in_array($subaction, array('profile', 'posts', 'pms')) && !$user_info['is_guest'] && $context['xmlnews_uid'] == $user_info['id'])
+	if (in_array($subaction, array('profile', 'posts', 'personal_messages')) && !$user_info['is_guest'] && $context['xmlnews_uid'] == $user_info['id'])
 		$modSettings['xmlnews_enable'] = true;
 
 	// If it's not enabled, die.
@@ -252,7 +252,7 @@ function ShowXmlFeed()
 	// Descriptive filenames = good
 	$filename[] = $feed_meta['title'];
 	$filename[] = $subaction;
-	if (in_array($subaction, array('profile', 'posts', 'pms')))
+	if (in_array($subaction, array('profile', 'posts', 'personal_messages')))
 		$filename[] = 'u=' . $context['xmlnews_uid'];
 	if (!empty($boards))
 		$filename[] = 'boards=' . implode(',', $boards);
@@ -315,7 +315,7 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 			'smf' => $smf_ns,
 		),
 	);
-	if (in_array($subaction, array('profile', 'posts', 'pms')))
+	if (in_array($subaction, array('profile', 'posts', 'personal_messages')))
 	{
 		$namespaces['rss']['smf'] = $smf_ns;
 		$namespaces['rss2']['smf'] = $smf_ns;
