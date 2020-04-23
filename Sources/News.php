@@ -2551,8 +2551,8 @@ function getXmlPMs($xml_format, $ascending = false)
 		LIMIT {int:limit} OFFSET {int:offset}',
 		array(
 			'limit' => $context['xmlnews_limit'],
-			'offset' => !empty($context['pms_start']) ? 0 : $context['xmlnews_offset'],
-			'start_after' => !empty($context['pms_start']) ? $context['pms_start'] : 0,
+			'offset' => !empty($context['personal_messages_start']) ? 0 : $context['xmlnews_offset'],
+			'start_after' => !empty($context['personal_messages_start']) ? $context['personal_messages_start'] : 0,
 			'uid' => $context['xmlnews_uid'],
 			'ascdesc' => !empty($ascending) ? 'ASC' : 'DESC',
 		)
@@ -2560,7 +2560,7 @@ function getXmlPMs($xml_format, $ascending = false)
 	$data = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$context['pms_start'] = $row['id_pm'];
+		$context['personal_messages_start'] = $row['id_pm'];
 
 		// If any control characters slipped in somehow, kill the evil things
 		array_walk($row, 'cleanXml');
