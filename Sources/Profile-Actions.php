@@ -1054,10 +1054,11 @@ function export_profile_data($memID)
 					SELECT COUNT(*)
 					FROM {db_prefix}personal_messages AS pm
 						INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
-					WHERE (pm.id_member_from = {int:uid} OR pmr.id_member = {int:uid})
-					GROUP BY pm.id_pm',
+					WHERE (pm.id_member_from = {int:uid} AND pm.deleted_by_sender = {int:not_deleted})
+						OR (pmr.id_member = {int:uid} AND pmr.deleted = {int:not_deleted})',
 					array(
 						'uid' => $memID,
+						'not_deleted' => 0,
 					)
 				);
 				list($total_pms) = $smcFunc['db_fetch_row']($request);
@@ -1078,13 +1079,14 @@ function export_profile_data($memID)
 					SELECT pm.id_pm
 					FROM {db_prefix}personal_messages AS pm
 						INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
-					WHERE (pm.id_member_from = {int:uid} OR pmr.id_member = {int:uid})
-					GROUP BY pm.id_pm
+					WHERE (pm.id_member_from = {int:uid} AND pm.deleted_by_sender = {int:not_deleted})
+						OR (pmr.id_member = {int:uid} AND pmr.deleted = {int:not_deleted})
 					ORDER BY pm.id_pm DESC
 					LIMIT {int:limit}',
 					array(
 						'limit' => 1,
 						'uid' => $memID,
+						'not_deleted' => 0,
 					)
 				);
 				list($latest_pm) = $smcFunc['db_fetch_row']($request);

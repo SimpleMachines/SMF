@@ -2544,8 +2544,11 @@ function getXmlPMs($xml_format, $ascending = false)
 		FROM {db_prefix}personal_messages AS pm
 			INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = pmr.id_member)
-		WHERE (pm.id_member_from = {int:uid} OR pmr.id_member = {int:uid})
-			AND pm.id_pm > {int:start_after}
+		WHERE pm.id_pm > {int:start_after}
+			AND (
+				(pm.id_member_from = {int:uid} AND pm.deleted_by_sender = {int:not_deleted})
+				OR (pmr.id_member = {int:uid} AND pmr.deleted = {int:not_deleted})
+			)
 		GROUP BY pm.id_pm
 		ORDER BY pm.id_pm {raw:ascdesc}
 		LIMIT {int:limit} OFFSET {int:offset}',
@@ -2554,6 +2557,7 @@ function getXmlPMs($xml_format, $ascending = false)
 			'offset' => !empty($context['personal_messages_start']) ? 0 : $context['xmlnews_offset'],
 			'start_after' => !empty($context['personal_messages_start']) ? $context['personal_messages_start'] : 0,
 			'uid' => $context['xmlnews_uid'],
+			'not_deleted' => 0,
 			'ascdesc' => !empty($ascending) ? 'ASC' : 'DESC',
 		)
 	);
