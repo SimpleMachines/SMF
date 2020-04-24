@@ -1165,7 +1165,11 @@ function export_profile_data($memID)
 		$dlfilename = array_merge(array($context['forum_name'], $context['member']['username']), $included_desc);
 		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
 
-		if (file_exists($realfile))
+		if (isset($_POST['export_begin']) || (file_exists($tempfile) && file_exists($progressfile)))
+		{
+			$done = false;
+		}
+		elseif (file_exists($realfile))
 		{
 			// It looks like we're done.
 			$done = true;
@@ -1193,15 +1197,12 @@ function export_profile_data($memID)
 			{
 				$_POST['export_begin'] = true;
 				$_POST['format'] = $format;
-				$context['token_check'] = 'profile-ex' . $memID;
 				createToken('profile-ex' . $memID, 'post');
 
 				@unlink($tempfile);
 				rename($realfile, $tempfile);
 			}
 		}
-		elseif (isset($_POST['export_begin']) || (file_exists($tempfile) && file_exists($progressfile)))
-			$done = false;
 
 		if ($done === true)
 		{
