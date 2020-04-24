@@ -596,6 +596,8 @@ function cdata_parse($data, $ns = '', $force = false)
 				$cdata .= ']]>' . substr($data, $pos, $pos2 - $pos + 1) . '<![CDATA[';
 			elseif (in_array($ent, array('amp', 'lt', 'gt', 'quot')))
 				$cdata .= ']]>' . substr($data, $pos, $pos2 - $pos + 1) . '<![CDATA[';
+			else
+				$cdata .= substr($data, $pos, $pos2 - $pos + 1);
 
 			$pos = $pos2 + 1;
 		}
