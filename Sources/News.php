@@ -2463,6 +2463,10 @@ function getXmlPosts($xml_format, $ascending = false)
 								'content' => $row['id_board'],
 							),
 							array(
+								'tag' => 'name',
+								'content' => $row['bname'],
+							),
+							array(
 								'tag' => 'link',
 								'attributes' => array('label' => $txt['url']),
 								'content' => $scripturl . '?board=' . $row['id_board'] . '.0',
