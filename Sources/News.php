@@ -587,19 +587,19 @@ function cdata_parse($data, $ns = '', $force = false)
 		}
 		elseif (substr($data, $pos, 1) == '&')
 		{
-			$pos2 = strpos($data, ';', $pos);
-			if ($pos2 === false)
-				$pos2 = $n;
-			$ent = substr($data, $pos + 1, $pos2 - $pos - 1);
+			// We only want to match XML entities here, not HTML ones.
+			preg_match('~\G(&(?:amp|lt|gt|quot|apos|#(?:\d{1,7}|x[0-9a-fA-F]{1,6}));)~', $data, $matches, null, $pos);
 
-			if (substr($data, $pos + 1, 1) == '#')
-				$cdata .= ']]>' . substr($data, $pos, $pos2 - $pos + 1) . '<![CDATA[';
-			elseif (in_array($ent, array('amp', 'lt', 'gt', 'quot')))
-				$cdata .= ']]>' . substr($data, $pos, $pos2 - $pos + 1) . '<![CDATA[';
+			if (!empty($matches[1]))
+			{
+				$cdata .= ']]>' . $matches[1] . '<![CDATA[';
+				$pos = $pos + strlen($matches[1]);
+			}
 			else
-				$cdata .= substr($data, $pos, $pos2 - $pos + 1);
-
-			$pos = $pos2 + 1;
+			{
+				$cdata .= '&';
+				$pos++;
+			}
 		}
 	}
 
