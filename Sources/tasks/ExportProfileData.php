@@ -147,10 +147,21 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		if (isset($last_item['content'][0]['content']) && $last_item['content'][0]['tag'] === 'id')
 			$last_id = $last_item['content'][0]['content'];
 
+		// Some paranoid hosts disable or hamstring the disk space functions in an attempt at security via obscurity.
+		$diskspace = function_exists('disk_free_space') ? @disk_free_space($modSettings['export_dir']) : false;
+		if (!is_int($diskspace))
+			$diskspace = PHP_INT_MAX;
+
+		if (empty($modSettings['export_min_diskspace_pct']))
+			$minspace = 0;
+		else
+		{
+			$totalspace = function_exists('disk_total_space') ? @disk_total_space($modSettings['export_dir']) : false;
+			$minspace = intval($totalspace) < 1440 ? 0 : $totalspace * $modSettings['export_min_diskspace_pct'] / 100;
+		}
+
 		// Append the string (assuming there's enough disk space).
-		$diskspace = disk_free_space($modSettings['export_dir']);
-		$minspace = empty($modSettings['export_min_diskspace_pct']) ? 0 : disk_total_space($modSettings['export_dir']) * $modSettings['export_min_diskspace_pct'] / 100;
-		if ($diskspace > $minspace && $diskspace > strlen($context['feed']['items']))
+		if ($diskspace - $minspace > strlen($context['feed']['items']))
 		{
 			// If the temporary file has grown to 250MB, save it and start a new one.
 			if (file_exists($tempfile) && (filesize($tempfile) + strlen($context['feed']['items'])) >= 1024 * 1024 * 250)
@@ -166,15 +177,33 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			if (is_resource($handle))
 			{
 				fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);
-				fwrite($handle, $context['feed']['items'] . $context['feed']['footer']);
-				fclose($handle);
 
+				$bytes_written = fwrite($handle, $context['feed']['items'] . $context['feed']['footer']);
+
+				// If we couldn't write everything, revert the changes and consider the write to have failed.
+				if ($bytes_written > 0 && $bytes_written < strlen($context['feed']['items'] . $context['feed']['footer']))
+				{
+					fseek($handle, $bytes_written * -1, SEEK_END);
+					$pointer_pos = ftell($handle);
+					ftruncate($handle, $pointer_pos);
+					rewind($handle);
+					fseek($handle, 0, SEEK_END);
+					fwrite($handle, $context['feed']['footer']);
+
+					$bytes_written = false;
+				}
+
+				fclose($handle);
+			}
+
+			// All went well.
+			if (!empty($bytes_written))
+			{
 				// Track progress by ID where appropriate, and by time otherwise.
 				$progress[$datatype] = !isset($last_id) ? time() : $last_id;
-				$datatype_done = !isset($last_id) ? true : $last_id >= $latest[$datatype];
 
 				// Decide what to do next.
-				if ($datatype_done)
+				if (!isset($last_id) || $last_id >= $latest[$datatype])
 				{
 					$datatype_key = array_search($datatype, $datatypes);
 					$done = !isset($datatypes[$datatype_key + 1]);
@@ -183,9 +212,9 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 						$datatype = $datatypes[$datatype_key + 1];
 				}
 
-				// All went well, so no need for an artificial delay.
 				$delay = 0;
 			}
+			// Write failed. We'll try again next time.
 			else
 				$delay = MAX_CLAIM_THRESHOLD;
 		}
