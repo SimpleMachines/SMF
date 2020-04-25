@@ -1230,6 +1230,8 @@ function export_profile_data($memID)
 					'size' => $size,
 				);
 			}
+
+			ksort($context['completed_exports'][$idhash_ext], SORT_NUMERIC);
 		}
 		elseif ($done === false)
 		{
