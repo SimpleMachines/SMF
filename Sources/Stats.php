@@ -161,7 +161,7 @@ function DisplayStats()
 		if (($context['gender'] = cache_get_data('stats_gender', 240)) == null)
 		{
 			$result = $smcFunc['db_query']('', '
-				SELECT COUNT(id_member) AS total_members, value AS gender
+				SELECT COUNT(*) AS total_members, value AS gender
 				FROM {db_prefix}themes
 				WHERE variable = {string:gender_var} AND id_theme = {int:default_theme}
 				GROUP BY value',

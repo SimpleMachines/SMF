@@ -4137,7 +4137,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 	if ($context['can_manage_membergroups'] && !allowedTo('admin_forum'))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(permission)
+			SELECT COUNT(*)
 			FROM {db_prefix}permissions
 			WHERE id_group = {int:selected_group}
 				AND permission = {string:admin_forum}
