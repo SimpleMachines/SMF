@@ -982,12 +982,7 @@ function export_profile_data($memID)
 	if (!isset($context['token_check']))
 		$context['token_check'] = 'profile-ex' . $memID;
 
-	$context['export_formats'] = array(
-		'XML' => array('extension' => 'xml', 'mime' => 'application/xml'),
-		// 'CSV' => array('extension' => 'csv', 'mime' => 'text/csv'),
-		// 'JSON' => array('extension' => 'json', 'mime' => 'application/json'),
-		// 'HTML' => array('extension' => 'html', 'mime' => 'text/html'),
-	);
+	$context['export_formats'] = get_export_formats();
 
 	// This lists the types of data we can export and info for doing so.
 	$context['export_datatypes'] = array(
@@ -1332,12 +1327,7 @@ function download_export_file($memID)
 {
 	global $modSettings, $maintenance, $context, $txt, $smcFunc;
 
-	$export_formats = array(
-		'XML' => array('extension' => 'xml', 'mime' => 'application/xml'),
-		// 'CSV' => array('extension' => 'csv', 'mime' => 'text/csv'),
-		// 'JSON' => array('extension' => 'json', 'mime' => 'application/json'),
-		// 'HTML' => array('extension' => 'html', 'mime' => 'text/html'),
-	);
+	$export_formats = get_export_formats();
 
 	// This is done to clear any output that was made before now.
 	ob_end_clean();
@@ -1534,6 +1524,21 @@ function download_export_file($memID)
 		echo file_get_contents($filepath);
 
 	exit;
+}
+
+/**
+ * Helper function that defines data export formats in a single location.
+ *
+ * @return array Information about supported data formats for profile exports.
+ */
+function get_export_formats()
+{
+	return array(
+		'XML' => array('extension' => 'xml', 'mime' => 'application/xml'),
+		// 'HTML' => array('extension' => 'html', 'mime' => 'text/html'),
+		// 'CSV' => array('extension' => 'csv', 'mime' => 'text/csv'),
+		// 'JSON' => array('extension' => 'json', 'mime' => 'application/json'),
+	);
 }
 
 /**
