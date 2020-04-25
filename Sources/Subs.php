@@ -1432,8 +1432,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $currentAttachment['name']) . '"';
 						$title = !empty($data) ? ' title="' . $smcFunc['htmlspecialchars']($data) . '"' : '';
 
-						$width = !empty($params['{width}']) ? $params['{width}'] : (!empty($currentAttachment['width']) ? $currentAttachment['width'] : '');
-						$height = !empty($params['{height}']) ? $params['{height}'] : (!empty($currentAttachment['height']) ? $currentAttachment['height'] : '');
+						if (empty($params['{width}']) && empty($params['{height}']))
+						{
+							$width = !empty($currentAttachment['width']) ? $currentAttachment['width'] : '';
+							$height = !empty($currentAttachment['height']) ? $currentAttachment['height'] : '';
+						}
+						else
+						{
+							$width = !empty($params['{width}']) ? $params['{width}'] : '';
+							$height = !empty($params['{height}']) ? $params['{height}'] : '';
+						}
 
 						// Image.
 						if (!empty($currentAttachment['is_image']))
@@ -1452,7 +1460,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							$width = !empty($width) ? ' width="' . $width . '"' : '';
 							$height = !empty($height) ? ' height="' . $height . '"' : '';
 
-							$returnContext .= '<div class="videocontainer"><div><video controls preload="none" src="'. $currentAttachment['href'] . '" playsinline' . $width . $height . ' style="object-fit:contain;"><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></video></div></div>' . (!empty($data) && $data != $currentAttachment['name'] ? '<div class="smalltext">' . $data . '</div>' : '');
+							$returnContext .= '<div class="videocontainer"><video controls preload="metadata" src="'. $currentAttachment['href'] . '" playsinline' . $width . $height . '><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></video></div>' . (!empty($data) && $data != $currentAttachment['name'] ? '<div class="smalltext">' . $data . '</div>' : '');
 						}
 						// Audio.
 						elseif (strpos($currentAttachment['mime_type'], 'audio/') === 0)
@@ -1787,13 +1795,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'justify',
-				'before' => '<div style="text-align: justify;">',
+				'before' => '<div class="justifytext">',
 				'after' => '</div>',
 				'block_level' => true,
 			),
 			array(
 				'tag' => 'left',
-				'before' => '<div style="text-align: left;">',
+				'before' => '<div class="lefttext">',
 				'after' => '</div>',
 				'block_level' => true,
 			),
@@ -1941,7 +1949,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'right',
-				'before' => '<div style="text-align: right;">',
+				'before' => '<div class="righttext">',
 				'after' => '</div>',
 				'block_level' => true,
 			),
