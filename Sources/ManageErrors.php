@@ -353,13 +353,17 @@ function deleteErrors()
 		);
 	// Deleting all with a filter?
 	elseif (isset($_POST['delall']) && isset($filter))
+	{
+		// ip need a different placeholder type
+		$filter_type = $filter['value']['sql'] == 'ip'? 'inet' : 'string';
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_errors
-			WHERE ' . $filter['variable'] . ' LIKE {string:filter}',
+			WHERE ' . $filter['variable'] . ' LIKE {' . $filter_type . ':filter}',
 			array(
 				'filter' => $filter['value']['sql'],
 			)
 		);
+	}
 	// Just specific errors?
 	elseif (!empty($_POST['delete']))
 	{
