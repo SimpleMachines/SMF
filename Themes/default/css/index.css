@@ -303,6 +303,9 @@ h3.largetext {
 	margin-right: auto;
 	text-align: left;
 }
+.justifytext {
+	text-align: justify;
+}
 .double_height {
 	line-height: 2em;
 }
@@ -4045,7 +4048,17 @@ tr[id^='list_news_lists_'] textarea {
 .videocontainer {
 	max-width: 560px;
 }
-.videocontainer div {
+.centertext .videocontainer,
+.justifytext .videocontainer {
+	margin: 0 auto;
+}
+.righttext .videocontainer {
+	margin: 0 0 0 auto;
+}
+.lefttext .videocontainer {
+	margin: 0 auto 0 0;
+}
+.videocontainer > div {
 	position: relative;
 	padding-bottom: 56.25%;
 }
@@ -4055,6 +4068,10 @@ tr[id^='list_news_lists_'] textarea {
 	left: 0;
 	width: 100% !important;
 	height: 100% !important;
+}
+.videocontainer video {
+	object-fit: contain;
+	background: black;
 }
 
 .backtrace:not(:last-child) {
