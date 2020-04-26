@@ -28,7 +28,7 @@ if (!defined('SMF'))
  */
 function BoardNotify()
 {
-	global $board, $user_info, $context, $smcFunc, $sourcedir;
+	global $board, $user_info, $context, $smcFunc, $sourcedir, $scripturl, $txt;
 
 	require_once($sourcedir . '/Subs-Notify.php');
 
@@ -163,7 +163,7 @@ function BoardNotify()
  */
 function TopicNotify()
 {
-	global $smcFunc, $user_info, $topic, $sourcedir, $context;
+	global $smcFunc, $user_info, $topic, $sourcedir, $context, $scripturl, $txt;
 
 	require_once($sourcedir . '/Subs-Notify.php');
 
@@ -330,7 +330,7 @@ function TopicNotify()
  */
 function AnnouncementsNotify()
 {
-	global $scripturl, $txt, $board, $user_info, $context, $smcFunc;
+	global $scripturl, $txt, $board, $user_info, $context, $smcFunc, $sourcedir;
 
 	require_once($sourcedir . '/Subs-Notify.php');
 
