@@ -3135,7 +3135,7 @@ span.postby {
 	overflow: hidden;
 }
 #topic_container .lastpost, #topic_header .lastpost {
-	width: 28ex;
+	width: 20%;
 }
 #topic_container .lastpost, #topic_container .board_stats {
 	flex-shrink: 0;
