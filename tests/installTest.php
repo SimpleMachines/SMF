@@ -16,7 +16,7 @@
 
 define('SMFPHPUNIT',TRUE);
 use PHPUnit\Framework\TestCase;
-require_once('.\install.php');
+require_once('./install.php');
 
 final class InstallTest extends TestCase
 {
