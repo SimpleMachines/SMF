@@ -134,7 +134,7 @@ $incontext['overall_percent'] = 0;
 
 foreach ($incontext['steps'] as $num => $step)
 {
-	if ($num >= $incontext['current_step'])
+	if ($num >= $incontext['current_step'] && !defined('SMFPHPUNIT'))
 	{
 		// The current weight of this step in terms of overall progress.
 		$incontext['step_weight'] = $step[3];
@@ -154,7 +154,7 @@ foreach ($incontext['steps'] as $num => $step)
 }
 
 // Actually do the template stuff.
-installExit();
+installExit(defined('SMFPHPUNIT'));
 
 function initialize_inputs()
 {
@@ -432,7 +432,7 @@ function installExit($fallThrough = false)
 	}
 
 	// Bang - gone!
-	die();
+	if (!defined('SMFPHPUNIT')) die();
 }
 
 function Welcome()
