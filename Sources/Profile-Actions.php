@@ -1153,6 +1153,12 @@ function export_profile_data($memID)
 		else
 			$included = array_intersect(array_keys($context['export_datatypes']), array_keys($_POST));
 
+		// If we're starting a new export in this format, we're done here.
+		if (!empty($_POST['export_begin']) && $_POST['format'] === $format)
+			break;
+
+		// The rest of this loop deals with current exports, if any.
+
 		$included_desc = array();
 		foreach ($included as $datatype)
 			$included_desc[] = $txt[$datatype];
@@ -1160,7 +1166,7 @@ function export_profile_data($memID)
 		$dlfilename = array_merge(array($context['forum_name'], $context['member']['username']), $included_desc);
 		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
 
-		if (isset($_POST['export_begin']) || (file_exists($tempfile) && file_exists($progressfile)))
+		if (file_exists($tempfile) && file_exists($progressfile))
 		{
 			$done = false;
 		}
