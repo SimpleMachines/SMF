@@ -3376,7 +3376,7 @@ function template_export_profile_data()
 						<strong><label for="', $datatype, '">', $datatype_settings['label'], '</label></strong>
 					</dt>
 					<dd>
-						<input type="checkbox" id="', $datatype, '" name="', $datatype, '"', ($datatype == 'profile' ? ' checked readonly' : ''), '>
+						<input type="checkbox" id="', $datatype, '" name="', $datatype, '"', ($datatype == 'profile' ? ' checked' : ''), '>
 					</dd>';
 	}
 
@@ -3389,15 +3389,17 @@ function template_export_profile_data()
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['export_format'], '</strong>
-					</dt>';
+					</dt>
+					<dd>
+						<select name="format">';
 
 		foreach ($context['export_formats'] as $format => $format_settings)
 			echo '
-					<dd>
-						<input type="radio" name="format"', $format == 'XML' ? ' checked' : '', '><label for="format">', $format, '</label>
-					</dd>';
+							<option value="', $format, '">', $format, '</option>';
 
 		echo '
+						</select>
+					</dd>
 				</dl>';
 	}
 	else

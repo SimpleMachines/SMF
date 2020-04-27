@@ -2468,6 +2468,7 @@ function getXmlPosts($xml_format, $ascending = false)
 							array(
 								'tag' => 'name',
 								'content' => $row['bname'],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'link',

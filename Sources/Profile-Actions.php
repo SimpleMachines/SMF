@@ -995,6 +995,12 @@ function export_profile_data($memID)
 				'func' => 'getXmlProfile',
 				'langfile' => 'Profile',
 			),
+			'HTML' => array(
+				'func' => 'getXmlProfile',
+				'langfile' => 'Profile',
+			),
+			// 'CSV' => array(),
+			// 'JSON' => array(),
 		),
 		'posts' => array(
 			'label' => $txt['export_include_posts'],
@@ -1033,6 +1039,12 @@ function export_profile_data($memID)
 				'func' => 'getXmlPosts',
 				'langfile' => 'Post',
 			),
+			'HTML' => array(
+				'func' => 'getXmlPosts',
+				'langfile' => 'Post',
+			),
+			// 'CSV' => array(),
+			// 'JSON' => array(),
 		),
 		'personal_messages' => array(
 			'label' => $txt['export_include_personal_messages'],
@@ -1094,6 +1106,12 @@ function export_profile_data($memID)
 				'func' => 'getXmlPMs',
 				'langfile' => 'PersonalMessage',
 			),
+			'HTML' => array(
+				'func' => 'getXmlPMs',
+				'langfile' => 'PersonalMessage',
+			),
+			// 'CSV' => array(),
+			// 'JSON' => array(),
 		),
 	);
 
@@ -1139,7 +1157,7 @@ function export_profile_data($memID)
 				)
 			);
 
-			foreach (array_merge(array($tempfile, $progressfile), glob($export_dir_slash . '*_' . $idhash_ext)) as $fpath)
+			foreach (glob($export_dir_slash . '*' . $idhash_ext . '*') as $fpath)
 				@unlink($fpath);
 
 			if (empty($_POST['export_begin']))
@@ -1200,8 +1218,31 @@ function export_profile_data($memID)
 				$_POST['format'] = $format;
 				createToken('profile-ex' . $memID, 'post');
 
-				@unlink($tempfile);
-				rename($realfile, $tempfile);
+				// For plain XML format, we can try appending directly to the existing file.
+				if ($format === 'XML')
+				{
+					@unlink($tempfile);
+					rename($realfile, $tempfile);
+				}
+				// For HTML format, things are a bit more complicated...
+				elseif ($format === 'HTML')
+				{
+					// If we have a backup of the last version of the XML, use it.
+					if (file_exists($tempfile . '.bak'))
+					{
+						@unlink($realfile);
+						rename($tempfile . '.bak', $tempfile);
+					}
+					// Otherwise, we have no choice but to make a supplementary file.
+					else
+						$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
+				}
+				// elseif ($format === 'CSV')
+				// {
+				// }
+				// elseif ($format === 'JSON')
+				// {
+				// }
 			}
 		}
 
@@ -1249,12 +1290,12 @@ function export_profile_data($memID)
 		}
 	}
 
-	if (isset($_POST['export_begin']))
+	if (!empty($_POST['export_begin']))
 	{
 		checkSession();
 		validateToken($context['token_check'], 'post');
 
-		$format = isset($_POST['format']) ? $_POST['format'] : 'XML';
+		$format = isset($context['export_formats'][$_POST['format']]) ? $_POST['format'] : 'XML';
 
 		$included = array();
 		foreach ($context['export_datatypes'] as $datatype => $datatype_settings)
@@ -1281,6 +1322,7 @@ function export_profile_data($memID)
 				'start' => $start,
 				'latest' => $latest,
 				'datatype' => isset($current_datatype) ? $current_datatype : key($included),
+				'format_settings' => $context['export_formats'][$format],
 			));
 
 			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
@@ -1541,12 +1583,18 @@ function download_export_file($memID)
  */
 function get_export_formats()
 {
-	return array(
+	$export_formats = array(
+		'HTML' => array('extension' => 'html', 'mime' => 'text/html'),
 		'XML' => array('extension' => 'xml', 'mime' => 'application/xml'),
-		// 'HTML' => array('extension' => 'html', 'mime' => 'text/html'),
 		// 'CSV' => array('extension' => 'csv', 'mime' => 'text/csv'),
 		// 'JSON' => array('extension' => 'json', 'mime' => 'application/json'),
 	);
+
+	// If these are missing, the "HTML" file will actually be XML with embedded XSLT.
+	if (!class_exists('DOMDocument') || !class_exists('XSLTProcessor'))
+		$export_formats['HTML'] = array('extension' => 'html.xml', 'mime' => 'application/xml');
+
+	return $export_formats;
 }
 
 /**
