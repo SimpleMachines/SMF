@@ -71,3 +71,5 @@ final class InstallTest extends TestCase
         $this->assertEquals(true,$var);
     }
 }
+
+?>
