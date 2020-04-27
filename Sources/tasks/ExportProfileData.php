@@ -29,16 +29,9 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		if (!defined('EXPORTING'))
 			define('EXPORTING', 1);
 
-		$uid = $this->_details['uid'];
-		$lang = $this->_details['lang'];
-		$included = $this->_details['included'];
-		$start = $this->_details['start'];
-		$latest = $this->_details['latest'];
-		$datatype = $this->_details['datatype'];
-
 		// For exports only, members can always see their own posts, even in boards that they can no longer access.
-		$member_info = $this->getMinUserInfo(array($uid));
-		$member_info = array_merge($member_info[$uid], array(
+		$member_info = $this->getMinUserInfo(array($this->_details['uid']));
+		$member_info = array_merge($member_info[$this->_details['uid']], array(
 			'buddies' => array(),
 			'query_see_board' => '1=1',
 			'query_see_message_board' => '1=1',
@@ -54,15 +47,26 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		// For now, XML is the only export format we support.
 		if ($this->_details['format'] == 'XML')
-			self::exportXml($uid, $lang, $included, $start, $latest, $datatype, $member_info);
+			$this->exportXml($member_info);
 
 		return true;
 	}
 
-	protected static function exportXml($uid, $lang, $included, $start, $latest, $datatype, $member_info)
+	/**
+	 * The workhorse of this class. Compiles profile data to XML files.
+	 */
+	protected function exportXml($member_info)
 	{
 		global $smcFunc, $sourcedir, $context, $modSettings, $settings, $user_info, $mbname;
 		global $user_profile, $txt, $scripturl, $query_this_board;
+
+		// For convenience...
+		$uid = $this->_details['uid'];
+		$lang = $this->_details['lang'];
+		$included = $this->_details['included'];
+		$start = $this->_details['start'];
+		$latest = $this->_details['latest'];
+		$datatype = $this->_details['datatype'];
 
 		if (!isset($included[$datatype]['func']) || !isset($included[$datatype]['langfile']))
 			return;
@@ -239,7 +243,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			$start[$datatype] = $progress[$datatype];
 
 			$data = $smcFunc['json_encode'](array(
-				'format' => 'XML',
+				'format' => $this->_details['format'],
 				'uid' => $uid,
 				'lang' => $lang,
 				'included' => $included,
