@@ -99,6 +99,7 @@ function ModifySettings()
 		'cookie' => 'ModifyCookieSettings',
 		'security' => 'ModifyGeneralSecuritySettings',
 		'cache' => 'ModifyCacheSettings',
+		'export' => 'ModifyExportSettings',
 		'loads' => 'ModifyLoadBalancingSettings',
 		'phpinfo' => 'ShowPHPinfoSettings',
 	);
@@ -764,6 +765,84 @@ function ModifyCacheSettings($return_config = false)
 
 	// Prepare the template.
 	prepareServerSettingsContext($config_vars);
+}
+
+/**
+ * Controls settings for data export functionality
+ *
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
+ */
+function ModifyExportSettings($return_config = false)
+{
+	global $context, $scripturl, $txt, $modSettings, $boarddir, $sourcedir;
+
+	// Fill in a default value for this if it is missing.
+	if (empty($modSettings['export_dir']))
+		$modSettings['export_dir'] = $boarddir . DIRECTORY_SEPARATOR . 'exports';
+
+	/* Some paranoid hosts worry that the disk space functions pose a security risk. Usually these
+	 * hosts just disable the functions and move on, which is fine. A rare few, however, are not
+	 * only paranoid, but also think it'd be a "clever" security move to overload the disk space
+	 * functions with custom code that intentionally delivers false information, which is idiotic
+	 * and evil. At any rate, if the functions are unavailable or if they report obviously insane
+	 * values, it's not possible to track disk usage correctly. */
+	$diskspace_disabled = (!function_exists('disk_free_space') || !function_exists('disk_total_space') || intval(@disk_total_space(file_exists($modSettings['export_dir']) ? $modSettings['export_dir'] : $boarddir)) < 1440);
+
+	$context['settings_message'] = $txt['export_settings_description'];
+
+	$config_vars = array(
+		array('text', 'export_dir', 40),
+		array('int', 'export_expiry', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['days_word']),
+		array('int', 'export_min_diskspace_pct', 'postinput' => '%', 'max' => 80, 'disabled' => $diskspace_disabled),
+		array('int', 'export_rate', 'min' => 50, 'max' => 5000, 'step' => 50, 'subtext' => $txt['export_rate_desc']),
+	);
+
+	call_integration_hook('integrate_export_settings', array(&$config_vars));
+
+	if ($return_config)
+		return $config_vars;
+
+	if (isset($_REQUEST['save']))
+	{
+		$prev_export_dir = file_exists($modSettings['export_dir']) ? rtrim($modSettings['export_dir'], '/\\') : '';
+
+		if (!empty($_POST['export_dir']))
+			$_POST['export_dir'] = rtrim($_POST['export_dir'], '/\\');
+
+		if ($diskspace_disabled)
+			$_POST['export_min_diskspace_pct'] = 0;
+
+		saveDBSettings($config_vars);
+
+		// Create the new directory, but revert to the previous one if anything goes wrong.
+		require_once($sourcedir . '/Profile-Actions.php');
+		create_export_dir($prev_export_dir);
+
+		// Ensure we don't lose track of any existing export files.
+		if (!empty($prev_export_dir) && $prev_export_dir != $modSettings['export_dir'])
+		{
+			$export_files = glob($prev_export_dir . DIRECTORY_SEPARATOR . '*');
+
+			foreach ($export_files as $export_file)
+			{
+				if (!in_array(basename($export_file), array('index.php', '.htaccess')))
+				{
+					rename($export_file, $modSettings['export_dir'] . DIRECTORY_SEPARATOR . basename($export_file));
+				}
+			}
+		}
+
+		call_integration_hook('integrate_save_export_settings');
+
+		$_SESSION['adm-save'] = true;
+		redirectexit('action=admin;area=serversettings;sa=export;' . $context['session_var'] . '=' . $context['session_id']);
+	}
+
+	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=export;save';
+	$context['settings_title'] = $txt['export_settings'];
+
+	prepareDBSettingContext($config_vars);
 }
 
 /**

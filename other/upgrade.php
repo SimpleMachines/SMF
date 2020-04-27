@@ -1947,7 +1947,7 @@ function fixRelativePath($path)
 function parse_sql($filename)
 {
 	global $db_prefix, $db_collation, $boarddir, $boardurl, $command_line, $file_steps, $step_progress, $custom_warning;
-	global $upcontext, $support_js, $is_debug, $db_type, $db_character_set;
+	global $upcontext, $support_js, $is_debug, $db_type, $db_character_set, $smcFunc;
 
 /*
 	Failure allowed on:
@@ -2161,7 +2161,8 @@ function parse_sql($filename)
 					continue;
 				}
 
-				$current_data = strtr(substr(rtrim($current_data), 0, -1), array('{$db_prefix}' => $db_prefix, '{$boarddir}' => $boarddir, '{$sboarddir}' => addslashes($boarddir), '{$boardurl}' => $boardurl, '{$db_collation}' => $db_collation));
+				// {$sboarddir} is deprecated, but blah blah backward compatibility blah...
+				$current_data = strtr(substr(rtrim($current_data), 0, -1), array('{$db_prefix}' => $db_prefix, '{$boarddir}' => $smcFunc['db_escape_string']($boarddir), '{$sboarddir}' => $smcFunc['db_escape_string']($boarddir), '{$boardurl}' => $boardurl, '{$db_collation}' => $db_collation));
 
 				upgrade_query($current_data);
 

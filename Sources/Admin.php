@@ -369,6 +369,7 @@ function AdminMain()
 						'cookie' => array($txt['cookies_sessions_settings']),
 						'security' => array($txt['security_settings']),
 						'cache' => array($txt['caching_settings']),
+						'export' => array($txt['export_settings']),
 						'loads' => array($txt['load_balancing_settings']),
 						'phpinfo' => array($txt['phpinfo_settings']),
 					),

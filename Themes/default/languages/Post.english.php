@@ -43,6 +43,8 @@ $txt['reset_votes'] = 'Reset vote count';
 $txt['reset_votes_check'] = 'Check this if you want to reset all vote counts to 0.';
 $txt['votes'] = 'votes';
 $txt['attach'] = 'Attach';
+$txt['attachment'] = 'Attachment';
+$txt['attachments'] = 'Attachments';
 $txt['clean_attach'] = 'Clear attachment';
 $txt['attached'] = 'Attached';
 $txt['allowed_types'] = 'Allowed file types';
@@ -213,5 +215,9 @@ $txt['attachments_no_write'] = 'The attachments upload directory is not writable
 $txt['avatars_no_write'] = 'The avatars upload directory is not writable. Your avatar cannot be saved.';
 $txt['attachments_no_create'] = 'Unable to create a new attachment directory. Your attachment or avatar cannot be saved.';
 $txt['attachments_limit_per_post'] = 'You may not upload more than %1$d attachments per post';
+
+$txt['approval_status'] = 'Approval status';
+$txt['approval_status_1'] = 'Approved';
+$txt['approval_status_0'] = 'Awaiting approval';
 
 ?>

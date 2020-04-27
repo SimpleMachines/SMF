@@ -425,6 +425,13 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 ---}
 ---#
 
+---# Adding new profile data export settings
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_dir', '{$boarddir}/exports');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_expiry', '7');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_min_diskspace_pct', '5');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_rate', '250');
+---#
+
 /******************************************************************************/
 --- Updating legacy attachments...
 /******************************************************************************/
