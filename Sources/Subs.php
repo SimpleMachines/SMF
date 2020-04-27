@@ -6813,6 +6813,8 @@ function ssl_cert_found($url)
 
 	// First, strip the subfolder from the passed url, if any
 	$parsedurl = parse_url($url);
+	if ($parsedurl === false) return false;
+	
 	$url = 'ssl://' . $parsedurl['host'] . ':443';
 
 	// Next, check the ssl stream context for certificate info
