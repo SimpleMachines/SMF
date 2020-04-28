@@ -304,12 +304,12 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 	// Allow mods to add extra namespaces and tags to the feed/channel
 	$namespaces = array(
 		'rss' => array(),
-		'rss2' => array('atom' => 'http://www.w3.org/2005/Atom'),
-		'atom' => array('' => 'http://www.w3.org/2005/Atom'),
+		'rss2' => array('atom' => 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/2005/Atom'),
+		'atom' => array('' => 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/2005/Atom'),
 		'rdf' => array(
-			'' => 'http://purl.org/rss/1.0/',
-			'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-			'dc' => 'http://purl.org/dc/elements/1.1/',
+			'' => 'htt'.'p:/'.'/purl.o'.'rg/rss/1.0/',
+			'rdf' => 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/02/22-rdf-syntax-ns#',
+			'dc' => 'htt'.'p:/'.'/purl.o'.'rg/dc/elements/1.1/',
 		),
 		'smf' => array(
 			'smf' => $smf_ns,
