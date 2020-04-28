@@ -1164,7 +1164,7 @@ function export_profile_data($memID)
 			$included_desc[] = $txt[$datatype];
 
 		$dlfilename = array_merge(array($context['forum_name'], $context['member']['username']), $included_desc);
-		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
+		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
 
 		if (file_exists($tempfile) && file_exists($progressfile))
 		{
@@ -1399,7 +1399,7 @@ function download_export_file($memID)
 	$included_desc = array_map(function ($datatype) use ($txt) { return $txt[$datatype]; }, $datatypes);
 
 	$dlfilename = array_merge(array($context['forum_name'], $context['member']['username']), $included_desc);
-	$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
+	$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
 
 	$suffix = ($part > 1 || file_exists($export_dir_slash . '2_' . $idhash . '.' . $extension)) ? '_' . $part : '';
 
