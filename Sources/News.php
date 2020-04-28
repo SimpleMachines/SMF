@@ -2561,7 +2561,7 @@ function getXmlPMs($xml_format, $ascending = false)
 				)
 			GROUP BY pm2.id_pm
 			LIMIT {int:limit} OFFSET {int:offset}
-		) nis ON nis.id_pm = pm.id_pm
+		) AS nis ON nis.id_pm = pm.id_pm
 		ORDER BY pm.id_pm {raw:ascdesc}',
 		array(
 			'limit' => $context['xmlnews_limit'],
