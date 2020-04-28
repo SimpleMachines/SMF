@@ -2546,18 +2546,23 @@ function getXmlPMs($xml_format, $ascending = false)
 	$select_to_names = $smcFunc['db_title'] === POSTGRE_TITLE ? "string_agg(COALESCE(mem.real_name, mem.member_name), ',')" : 'GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name))';
 
 	$request = $smcFunc['db_query']('', '
-		SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, pm.from_name, ' . $select_id_members_to . ' AS id_members_to, ' . $select_to_names . ' AS to_names
+		SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, pm.from_name, nis.id_members_to, nis.to_names
 		FROM {db_prefix}personal_messages AS pm
-			INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
-			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = pmr.id_member)
-		WHERE pm.id_pm > {int:start_after}
-			AND (
-				(pm.id_member_from = {int:uid} AND pm.deleted_by_sender = {int:not_deleted})
-				OR (pmr.id_member = {int:uid} AND pmr.deleted = {int:not_deleted})
-			)
-		GROUP BY pm.id_pm
-		ORDER BY pm.id_pm {raw:ascdesc}
-		LIMIT {int:limit} OFFSET {int:offset}',
+		INNER JOIN
+		(
+			SELECT pm2.id_pm, ' . $select_id_members_to . ' AS id_members_to, ' . $select_to_names . ' AS to_names
+			FROM {db_prefix}personal_messages AS pm2
+				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm2.id_pm = pmr.id_pm)
+				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = pmr.id_member)
+			WHERE pm2.id_pm > {int:start_after}
+				AND (
+					(pm2.id_member_from = {int:uid} AND pm2.deleted_by_sender = {int:not_deleted})
+					OR (pmr.id_member = {int:uid} AND pmr.deleted = {int:not_deleted})
+				)
+			GROUP BY pm2.id_pm
+			LIMIT {int:limit} OFFSET {int:offset}
+		) nis ON nis.id_pm = pm.id_pm
+		ORDER BY pm.id_pm {raw:ascdesc}',
 		array(
 			'limit' => $context['xmlnews_limit'],
 			'offset' => !empty($context['personal_messages_start']) ? 0 : $context['xmlnews_offset'],
