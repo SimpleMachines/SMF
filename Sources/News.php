@@ -334,12 +334,15 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 	$forceCdataKeys = array();
 	$nsKeys = array();
 
+	// Maybe someone needs to insert a DOCTYPE declaration?
+	$dtd = '';
+
 	// Remember this, just in case...
 	$orig_feed_meta = $feed_meta;
 
 	// If mods want to do somthing with this feed, let them do that now.
 	// Provide the feed's data, metadata, namespaces, extra feed-level tags, keys that need special handling, the feed format, and the requested subaction
-	call_integration_hook('integrate_xml_data', array(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction));
+	call_integration_hook('integrate_xml_data', array(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$dtd));
 
 	// These can't be empty
 	foreach (array('title', 'desc', 'source', 'self') as $mkey)
@@ -369,7 +372,7 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 	$context['feed'] = array();
 
 	// First, output the xml header.
-	$context['feed']['header'] = '<?xml version="1.0" encoding="' . $context['character_set'] . '"?' . '>';
+	$context['feed']['header'] = '<?xml version="1.0" encoding="' . $context['character_set'] . '"?' . '>' . ($dtd !== '' ? "\n" . trim($dtd) : '');
 
 	// Are we outputting an rss feed or one with more information?
 	if ($xml_format == 'rss' || $xml_format == 'rss2')
