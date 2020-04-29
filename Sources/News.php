@@ -226,7 +226,7 @@ function ShowXmlFeed()
 	$cachekey = array($xml_format, $_GET['action'], $context['xmlnews_limit'], $subaction, $context['xmlnews_offset']);
 	foreach (array('board', 'boards', 'c') as $var)
 		if (isset($_GET[$var]))
-			$cachekey[] = $var . '=' . implode(',', $_GET[$var]);
+			$cachekey[] = $var . '=' . implode(',', (array) $_GET[$var]);
 	$cachekey = md5($smcFunc['json_encode']($cachekey) . (!empty($query_this_board) ? $query_this_board : ''));
 	$cache_t = microtime(true);
 
