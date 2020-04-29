@@ -2096,10 +2096,9 @@ function getXmlPosts($xml_format, $ascending = false)
 			AND ' . $query_this_board . ($modSettings['postmod_active'] && !$show_all ? '
 			AND approved = {int:is_approved}' : '') . '
 		ORDER BY id_msg {raw:ascdesc}
-		LIMIT {int:limit} OFFSET {int:offset}',
+		LIMIT {int:limit}',
 		array(
 			'limit' => $context['xmlnews_limit'],
-			'offset' => !empty($context['posts_start']) ? 0 : $context['xmlnews_offset'],
 			'start_after' => !empty($context['posts_start']) ? $context['posts_start'] : 0,
 			'uid' => $context['xmlnews_uid'],
 			'is_approved' => 1,
@@ -2560,12 +2559,12 @@ function getXmlPMs($xml_format, $ascending = false)
 					OR (pmr.id_member = {int:uid} AND pmr.deleted = {int:not_deleted})
 				)
 			GROUP BY pm2.id_pm
-			LIMIT {int:limit} OFFSET {int:offset}
+			ORDER BY pm2.id_pm {raw:ascdesc}
+			LIMIT {int:limit}
 		) AS nis ON nis.id_pm = pm.id_pm
 		ORDER BY pm.id_pm {raw:ascdesc}',
 		array(
 			'limit' => $context['xmlnews_limit'],
-			'offset' => !empty($context['personal_messages_start']) ? 0 : $context['xmlnews_offset'],
 			'start_after' => !empty($context['personal_messages_start']) ? $context['personal_messages_start'] : 0,
 			'uid' => $context['xmlnews_uid'],
 			'not_deleted' => 0,
