@@ -29,7 +29,7 @@ final class InstallTest extends TestCase
     public function testDBSettings() {
         $_POST['db_type'] = 'postgresql';
         $_POST['db_prefix'] = 'smf_';
-        $_POST['db_name'] = 'travis_ci_test';
+        $_POST['db_name'] = 'postgres';
         $_POST['db_user'] = 'postgres';
         $_POST['db_passwd'] = '';
         $_POST['db_server'] = 'localhost';
