@@ -64,7 +64,6 @@ function ShowXmlFeed()
 
 	// Default to latest 5.  No more than 255, please.
 	$context['xmlnews_limit'] = empty($_GET['limit']) || (int) $_GET['limit'] < 1 ? 5 : min((int) $_GET['limit'], 255);
-	$context['xmlnews_offset'] = empty($_GET['offset']) || (int) $_GET['offset'] < 1 ? 0 : (int) $_GET['offset'];
 
 	// Users can always export their own profile data
 	if (in_array($subaction, array('profile', 'posts', 'personal_messages')) && !$user_info['is_guest'] && $context['xmlnews_uid'] == $user_info['id'])
@@ -223,7 +222,7 @@ function ShowXmlFeed()
 		$feed_meta[$mkey] = strip_tags($mvalue);
 
 	// We only want some information, not all of it.
-	$cachekey = array($xml_format, $_GET['action'], $context['xmlnews_limit'], $subaction, $context['xmlnews_offset']);
+	$cachekey = array($xml_format, $_GET['action'], $context['xmlnews_limit'], $subaction);
 	foreach (array('board', 'boards', 'c') as $var)
 		if (isset($_GET[$var]))
 			$cachekey[] = $var . '=' . implode(',', $_GET[$var]);
@@ -706,10 +705,9 @@ function getXmlMembers($xml_format, $ascending = false)
 		SELECT id_member, member_name, real_name, date_registered, last_login
 		FROM {db_prefix}members
 		ORDER BY id_member {raw:ascdesc}
-		LIMIT {int:limit} OFFSET {int:offset}',
+		LIMIT {int:limit}',
 		array(
 			'limit' => $context['xmlnews_limit'],
-			'offset' => $context['xmlnews_offset'],
 			'ascdesc' => !empty($ascending) ? 'ASC' : 'DESC',
 		)
 	);
@@ -879,12 +877,11 @@ function getXmlNews($xml_format, $ascending = false)
 				AND t.id_board = {int:current_board}') . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY t.id_first_msg {raw:ascdesc}
-			LIMIT {int:limit} OFFSET {int:offset}',
+			LIMIT {int:limit}',
 			array(
 				'current_board' => $board,
 				'is_approved' => 1,
 				'limit' => $context['xmlnews_limit'],
-				'offset' => $context['xmlnews_offset'],
 				'optimize_msg' => $optimize_msg,
 				'ascdesc' => !empty($ascending) ? 'ASC' : 'DESC',
 			)
@@ -1300,10 +1297,9 @@ function getXmlRecent($xml_format)
 				AND m.id_board = {int:current_board}') . ($modSettings['postmod_active'] ? '
 				AND m.approved = {int:is_approved}' : '') . '
 			ORDER BY m.id_msg DESC
-			LIMIT {int:limit} OFFSET {int:offset}',
+			LIMIT {int:limit}',
 			array(
 				'limit' => $context['xmlnews_limit'],
-				'offset' => $context['xmlnews_offset'],
 				'current_board' => $board,
 				'is_approved' => 1,
 				'optimize_msg' => $optimize_msg,
