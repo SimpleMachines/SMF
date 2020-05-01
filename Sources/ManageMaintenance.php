@@ -2076,16 +2076,16 @@ function get_integration_hooks_data($start, $per_page, $sort)
 
 						if (substr($hook, -8) === '_include')
 						{
-							$hook_status[$hook][$hookParsedData['pureFunc']]['exists'] = file_exists(strtr(trim($rawFunc), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
+							$hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['exists'] = file_exists(strtr(trim($rawFunc), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
 							// I need to know if there is at least one function called in this file.
 							$temp_data['include'][$hookParsedData['pureFunc']] = array('hook' => $hook, 'function' => $hookParsedData['pureFunc']);
 							unset($temp_hooks[$hook][$rawFunc]);
 						}
 						elseif (strpos(str_replace(' (', '(', $fc), 'function ' . trim($hookParsedData['pureFunc']) . '(') !== false)
 						{
-							$hook_status[$hook][$hookParsedData['pureFunc']] = $hookParsedData;
-							$hook_status[$hook][$hookParsedData['pureFunc']]['exists'] = true;
-							$hook_status[$hook][$hookParsedData['pureFunc']]['in_file'] = (!empty($file['name']) ? $file['name'] : (!empty($hookParsedData['hookFile']) ? $hookParsedData['hookFile'] : ''));
+							$hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']] = $hookParsedData;
+							$hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['exists'] = true;
+							$hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['in_file'] = (!empty($hookParsedData['hookFile']) ? $hookParsedData['hookFile'] : (!empty($file['name']) ? $file['name'] : ''));
 
 							// Does the hook has its own file?
 							if (!empty($hookParsedData['hookFile']))
@@ -2138,7 +2138,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 				// Get the hook info.
 				$hookParsedData = get_hook_info_from_raw($rawFunc);
 
-				$hook_exists = !empty($hook_status[$hook][$hookParsedData['pureFunc']]['exists']);
+				$hook_exists = !empty($hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['exists']);
 				$sort[] = $sort_options[0];
 
 				$temp_data[] = array(
@@ -2147,13 +2147,13 @@ function get_integration_hooks_data($start, $per_page, $sort)
 					'function_name' => $hookParsedData['rawData'],
 					'real_function' => $hookParsedData['pureFunc'],
 					'included_file' => !empty($hookParsedData['absPath']) ? $hookParsedData['absPath'] : '',
-					'file_name' => (isset($hook_status[$hook][$hookParsedData['pureFunc']]['in_file']) ? $hook_status[$hook][$hookParsedData['pureFunc']]['in_file'] : (!empty($hookParsedData['hookFile']) ? $hookParsedData['hookFile'] : '')),
+					'file_name' => (isset($hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['in_file']) ? $hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['in_file'] : (!empty($hookParsedData['hookFile']) ? $hookParsedData['hookFile'] : '')),
 					'instance' => $hookParsedData['object'],
 					'hook_exists' => $hook_exists,
 					'status' => $hook_exists ? ($hookParsedData['enabled'] ? 'allow' : 'moderate') : 'deny',
 					'img_text' => $txt['hooks_' . ($hook_exists ? ($hookParsedData['enabled'] ? 'active' : 'disabled') : 'missing')],
 					'enabled' => $hookParsedData['enabled'],
-					'can_be_disabled' => !isset($hook_status[$hook][$hookParsedData['pureFunc']]['enabled']),
+					'can_be_disabled' => !isset($hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['enabled']),
 				);
 			}
 		}
