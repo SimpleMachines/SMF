@@ -2062,6 +2062,36 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (!$initialize)
 		return;
 
+	// Perhaps we've changed the agreement or privacy policy? Only redirect if:
+	// 1. They're not a guest or admin
+	// 2. This isn't called from SSI
+	// 3. This isn't an XML request
+	// 4. They're not trying to do any of the following actions:
+	// 4a. View or accept the agreement and/or policy
+	// 4b. Login or logout
+	// 4c. Get a feed (RSS, ATOM, etc.)
+	if (!$user_info['is_guest'] && !$user_info['is_admin'] && SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('agreement', 'acceptagreement', 'login2', 'logout', '.xml'))))
+	{
+		$agreement_lang = !empty($modSettings['agreement_updated_' . $user_info['language']]) ? $user_info['language'] : 'default';
+		$policy_lang = !empty($modSettings['policy_' . $user_info['language']]) ? $user_info['language'] : $language;
+
+		// Do they need to accept the latest registration agreement?
+		if (!empty($modSettings['requireAgreement']) && !empty($modSettings['agreement_updated_' . $agreement_lang]) && (empty($options['agreement_accepted']) || $modSettings['agreement_updated_' . $agreement_lang] > $options['agreement_accepted']))
+		{
+			$agreement_subaction = 'agreement';
+		}
+
+		// Do they need to consent to the latest privacy policy?
+		if (!empty($modSettings['requirePolicyAgreement']) && !empty($modSettings['policy_updated_' . $policy_lang]) && (empty($options['policy_accepted']) || $modSettings['policy_updated_' . $policy_lang] > $options['policy_accepted']))
+		{
+			$agreement_subaction = !empty($agreement_subaction) ? 'both' : 'policy';
+		}
+
+		// Send them to the right place
+		if (!empty($agreement_subaction))
+			redirectexit('action=agreement;sa=' . $agreement_subaction);
+	}
+
 	// Check to see if we're forcing SSL
 	if (!empty($modSettings['force_ssl']) && empty($maintenance) &&
 		!httpsOn() && SMF != 'SSI')

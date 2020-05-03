@@ -50,13 +50,14 @@ function Register($reg_errors = array())
 	$context['require_agreement'] = !empty($modSettings['requireAgreement']);
 	$context['registration_passed_agreement'] = !empty($_SESSION['registration_agreed']);
 	$context['show_coppa'] = !empty($modSettings['coppaAge']);
+	$context['require_policy_agreement'] = !empty($modSettings['requirePolicyAgreement']);
 
 	// Under age restrictions?
 	if ($context['show_coppa'])
 	{
 		$context['skip_coppa'] = false;
-		$context['coppa_agree_above'] = sprintf($txt[($context['require_agreement'] ? 'agreement_' : '') . 'agree_coppa_above'], $modSettings['coppaAge']);
-		$context['coppa_agree_below'] = sprintf($txt[($context['require_agreement'] ? 'agreement_' : '') . 'agree_coppa_below'], $modSettings['coppaAge']);
+		$context['coppa_agree_above'] = sprintf($txt['agreement' . ($context['require_policy_agreement'] ? '_policy' : '') . '_agree_coppa_above'], $modSettings['coppaAge']);
+		$context['coppa_agree_below'] = sprintf($txt['agreement' . ($context['require_policy_agreement'] ? '_policy' : '') . '_agree_coppa_below'], $modSettings['coppaAge']);
 	}
 
 	// What step are we at?
@@ -151,6 +152,21 @@ function Register($reg_errors = array())
 		}
 	}
 
+	// If you have to agree to the privacy policy, it needs to be loaded from the database.
+	if ($context['require_policy_agreement'])
+	{
+		// Have we got a localized one?
+		if (!empty($modSettings['policy_' . $user_info['language']]))
+			$context['policy'] = parse_bbc($modSettings['policy_' . $user_info['language']]);
+		elseif (!empty($modSettings['policy_' . $language]))
+			$context['policy'] = parse_bbc($modSettings['policy_' . $language]);
+		else
+		{
+			loadLanguage('Errors');
+			$context['policy'] = $txt['error_no_privacy_policy'];
+		}
+	}
+
 	// Any custom fields we want filled in?
 	require_once($sourcedir . '/Profile.php');
 	loadCustomFields(0, 'register');
@@ -209,6 +225,9 @@ function Register($reg_errors = array())
 		'notify_announcements' => !empty($_POST['notify_announcements']) ? 1 : 0,
 	);
 
+	$context['announcements_ask'] = true;
+	$context['notify_announcements'] = isset($_POST['notify_announcements']) ? (bool) $_POST['notify_announcements'] : !empty($modSettings['announcements_default']);
+	
 	// Were there any errors?
 	$context['registration_errors'] = array();
 	if (!empty($reg_errors))
@@ -240,7 +259,7 @@ function Register2()
 		fatal_lang_error('registration_disabled', false);
 
 	// Well, if you don't agree, you can't register.
-	if (!empty($modSettings['requireAgreement']) && empty($_SESSION['registration_agreed']))
+	if ((!empty($modSettings['requireAgreement']) || !empty($modSettings['requirePolicyAgreement'])) && empty($_SESSION['registration_agreed']))
 		redirectexit();
 
 	// Make sure they came from *somewhere*, have a session.
@@ -428,6 +447,9 @@ function Register2()
 	if (isset($_POST['default_options']))
 		$_POST['options'] = isset($_POST['options']) ? $_POST['options'] + $_POST['default_options'] : $_POST['default_options'];
 	$regOptions['theme_vars'] = isset($_POST['options']) && is_array($_POST['options']) ? $_POST['options'] : array();
+
+	// Note when they accepted the agreement and privacy policy
+	$regOptions['theme_vars']['agreement_accepted'] = $regOptions['theme_vars']['policy_accepted'] = time();
 
 	// Make sure they are clean, dammit!
 	$regOptions['theme_vars'] = htmlspecialchars__recursive($regOptions['theme_vars']);

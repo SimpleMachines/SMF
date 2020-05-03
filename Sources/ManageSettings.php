@@ -54,6 +54,7 @@ function ModifyFeatureSettings()
 	loadLanguage('ManageSettings');
 
 	$context['page_title'] = $txt['modSettings_title'];
+	$context['show_privacy_policy_warning'] = empty($modSettings['policy_' . $language]);
 
 	$subActions = array(
 		'basic' => 'ModifyBasicSettings',
@@ -227,6 +228,7 @@ function ModifyBasicSettings($return_config = false)
 		'',
 
 		// Option-ish things... miscellaneous sorta.
+		array('check', 'notify_tokens', 'disabled' => 1),
 		array('check', 'disallow_sendBody'),
 		'',
 

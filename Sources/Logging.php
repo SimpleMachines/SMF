@@ -501,6 +501,10 @@ function logActions($logs)
 			$smcFunc['db_free_result']($request);
 		}
 
+		$always_log = array('agreement_accepted', 'policy_accepted', 'agreement_updated', 'policy_updated');
+		if ((empty($modSettings['modlog_enabled']) && !in_array($action, $always_log)) || !isset($log_types[$log_type]))
+				return false;
+
 		if (isset($log['extra']['member']) && !is_numeric($log['extra']['member']))
 			trigger_error('logActions(): data\'s member is not a number', E_USER_NOTICE);
 
