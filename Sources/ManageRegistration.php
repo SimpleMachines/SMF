@@ -92,7 +92,7 @@ function RegCenter()
  */
 function AdminRegister()
 {
-	global $txt, $context, $sourcedir, $scripturl, $smcFunc, $modSettings;
+	global $txt, $context, $sourcedir, $scripturl, $smcFunc;
 
 	// Are there any custom profile fields required during registration?
 	require_once($sourcedir . '/Profile.php');
@@ -228,12 +228,18 @@ function EditAgreement()
 	if (isset($_POST['agreement']) && str_replace("\r", '', $_POST['agreement']) != $context['agreement'])
 	{
 		checkSession();
+		validateToken('admin-rega');
 
 		// Off it goes to the agreement file.
 		$to_write = str_replace("\r", '', $_POST['agreement']);
 		$bytes = file_put_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt', $to_write, LOCK_EX);
 
 		$agreement_settings['agreement_updated_' . $agreement_lang] = time();
+
+		if ($bytes == strlen($to_write))
+			$context['saved_successful'] = true;
+		else
+			$context['could_not_save'] = true;
 
 		// Writing it counts as agreeing to it, right?
 		$smcFunc['db_insert']('replace',
@@ -257,6 +263,8 @@ function EditAgreement()
 
 	$context['sub_template'] = 'edit_agreement';
 	$context['page_title'] = $txt['registration_agreement'];
+
+	createToken('admin-rega');
 }
 
 /**
@@ -423,6 +431,7 @@ function EditPrivacyPolicy()
 	if (isset($_POST['policy']))
 	{
 		checkSession();
+		validateToken('admin-regp');
 
 		// Make sure there are no creepy-crawlies in it
 		$policy_text = $smcFunc['htmlspecialchars'](str_replace("\r", '', $_POST['policy']));
@@ -452,6 +461,8 @@ function EditPrivacyPolicy()
 
 	$context['sub_template'] = 'edit_privacy_policy';
 	$context['page_title'] = $txt['privacy_policy'];
+
+	createToken('admin-regp');
 }
 
 ?>
