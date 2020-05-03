@@ -782,6 +782,7 @@ function template_edit_privacy_policy()
 						<input type="hidden" name="policy_lang" value="', $context['current_policy_lang'], '" />
 						<input type="hidden" name="sa" value="policy" />
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-regp_token_var'], '" value="', $context['admin-regp_token'], '" />
 						<script>
 							function resetPolicyConfirm()
 							{
