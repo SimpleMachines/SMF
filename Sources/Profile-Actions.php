@@ -1372,6 +1372,8 @@ function export_profile_data($memID)
 
 /**
  * Downloads exported profile data file.
+ *
+ * @param int $memID The ID of the member whose data we're exporting.
  */
 function download_export_file($memID)
 {
@@ -1574,6 +1576,65 @@ function download_export_file($memID)
 		echo file_get_contents($filepath);
 
 	exit;
+}
+
+/**
+ * Allows a member to export their attachments.
+ * Mostly just a wrapper for showAttachment() but with a few tweaks.
+ *
+ * @param int $memID The ID of the member whose data we're exporting.
+ */
+function export_attachment($memID)
+{
+	global $sourcedir, $context, $smcFunc;
+
+	$idhash = hash_hmac('sha1', $memID, get_auth_secret());
+	$dltoken = hash_hmac('sha1', $idhash, get_auth_secret());
+	if (!isset($_GET['t']) || $_GET['t'] !== $dltoken)
+	{
+		send_http_status(403);
+		exit;
+	}
+
+	$attachId = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
+	if (empty($attachId))
+	{
+		send_http_status(404, 'File Not Found');
+		die('404 File Not Found');
+	}
+
+	// Does this attachment belong to this member?
+	$request = $smcFunc['db_query']('', '
+		SELECT m.id_topic
+		FROM {db_prefix}messages AS m
+			INNER JOIN {db_prefix}attachments AS a ON (m.id_msg = a.id_msg)
+		WHERE m.id_member = {int:uid}
+			AND a.id_attach = {int:attachId}',
+		array(
+			'uid' => $memID,
+			'attachId' => $attachId,
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) == 0)
+	{
+		$smcFunc['db_free_result']($request);
+		send_http_status(403);
+		exit;
+	}
+
+	// We need the topic.
+	list ($_REQUEST['topic']) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	// This doesn't count as a normal download.
+	$context['skip_downloads_increment'] = true;
+
+	// Try to avoid collisons when attachment names are not unique.
+	$context['prepend_attachment_id'] = true;
+
+	// We should now have what we need to serve the file.
+	require_once($sourcedir . '/ShowAttachments.php');
+	showAttachment();
 }
 
 /**

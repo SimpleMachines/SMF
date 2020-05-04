@@ -49,6 +49,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		add_integration_function('integrate_pre_parsebbc', 'ExportProfileData_Background::pre_parsebbc', false);
 		add_integration_function('integrate_post_parsebbc', 'ExportProfileData_Background::post_parsebbc', false);
 		add_integration_function('integrate_bbc_codes', 'ExportProfileData_Background::bbc_codes', false);
+		add_integration_function('integrate_post_parseAttachBBC', 'ExportProfileData_Background::post_parseAttachBBC', false);
+		add_integration_function('integrate_attach_bbc_validate', 'ExportProfileData_Background::attach_bbc_validate', false);
 
 		// We currently support exporting to XML and HTML
 		if ($this->_details['format'] == 'XML')
@@ -397,10 +399,12 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		if ($context['export_format'] == 'HTML')
 		{
-			if (isset($modSettings['smileys_url']))
-				$context['real_smileys_url'] = $modSettings['smileys_url'];
+			foreach (array('smileys_url', 'attachmentThumbnails') as $var)
+				if (isset($modSettings[$var]))
+					$context['real_modSettings'][$var] = $modSettings[$var];
 
 			$modSettings['smileys_url'] = '.';
+			$modSettings['attachmentThumbnails'] = false;
 		}
 		else
 		{
@@ -410,7 +414,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 				$modSettings['disabledBBC'] = 'attach';
 			else
 			{
-				$context['real_disabledBBC'] = $modSettings['disabledBBC'];
+				$context['real_modSettings']['disabledBBC'] = $modSettings['disabledBBC'];
 
 				if (strpos($modSettings['disabledBBC'], 'attach') === false)
 					$modSettings['disabledBBC'] = implode(',', array_merge(array_filter(explode(',', $modSettings['disabledBBC'])), array('attach')));
@@ -425,11 +429,9 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	{
 		global $modSettings, $context;
 
-		foreach (array('disabledBBC', 'smileys_url') as $var)
-		{
-			if (isset($context['real_' . $var]))
-				$modSettings[$var] = $context['real_' . $var];
-		}
+		foreach (array('disabledBBC', 'smileys_url', 'attachmentThumbnails') as $var)
+			if (isset($context['real_modSettings'][$var]))
+				$modSettings[$var] = $context['real_modSettings'][$var];
 	}
 
 	/**
@@ -442,8 +444,96 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			// To make the "Select" link work we'd need to embed a bunch more JS. Not worth it.
 			if ($code['tag'] === 'code')
 				$code['content'] = preg_replace('~<a class="codeoperation\b.*?</a>~', '', $code['content']);
+		}
+	}
 
-			// @todo Alter the attach BBC when exporting to HTML. The idea will be to have attachment links point to local copies of the attachments that the user will download. To make it really work, though, we'll also need a way to bulk download attachments.
+	/**
+	 * Adjusts the attachment download URL for the special case of exports.
+	 */
+	public static function post_parseAttachBBC(&$attachContext)
+	{
+		global $scripturl, $context;
+		static $dltokens;
+
+		if (empty($dltokens[$context['xmlnews_uid']]))
+		{
+			$idhash = hash_hmac('sha1', $context['xmlnews_uid'], get_auth_secret());
+			$dltokens[$context['xmlnews_uid']] = hash_hmac('sha1', $idhash, get_auth_secret());
+		}
+
+		$attachContext['orig_href'] = $scripturl . '?action=profile;area=dlattach;u=' . $context['xmlnews_uid'] . ';attach=' . $attachContext['id'] . ';t=' . $dltokens[$context['xmlnews_uid']];
+		$attachContext['href'] = rawurlencode($attachContext['id'] . ' - ' . html_entity_decode($attachContext['name']));
+	}
+
+	/**
+	 * Adjusts the format of the HTML produced by the attach BBCode.
+	 */
+	public static function attach_bbc_validate(&$returnContext, $currentAttachment, $tag, $data, $disabled, $params)
+	{
+		global $smcFunc, $txt;
+
+		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . $txt['export_download_original'] . '</a>';
+		$hidden_orig_link = ' <a href="' . $currentAttachment['orig_href'] . '" class="bbc_link dlattach_' . $currentAttachment['id'] . '" style="display:none; flex: 1 0 auto; margin: auto;">' . $txt['export_download_original'] . '</a>';
+
+		if ($params['{display}'] == 'link')
+		{
+			$returnContext = ' (' . $orig_link . ')';
+		}
+		elseif (!empty($currentAttachment['is_image']))
+		{
+			$returnContext = '<span style="display: inline-flex; justify-content: center; align-items: center; position: relative;">' . preg_replace(
+				array(
+					'thumbnail_toggle' => '~</?a\b[^>]*>~',
+					'src' => '~src="' . preg_quote($currentAttachment['href'], '~') . ';image"~',
+				),
+				array(
+					'thumbnail_toggle' => '',
+					'src' => 'src="' . $currentAttachment['href'] . '" onerror="$(\'.dlattach_' . $currentAttachment['id'] . '\').show(); $(\'.dlattach_' . $currentAttachment['id'] . '\').css({\'position\': \'absolute\'});"',
+				),
+				$returnContext
+			) . $hidden_orig_link . '</span>' ;
+		}
+		elseif (strpos($currentAttachment['mime_type'], 'video/') === 0)
+		{
+			$returnContext = preg_replace(
+				array(
+					'src' => '~src="' . preg_quote($currentAttachment['href'], '~') . '"~',
+					'opening_tag' => '~^<div class="videocontainer"~',
+					'closing_tag' => '~</div>$~',
+				),
+				array(
+					'src' => '$0 onerror="$(this).fadeTo(0, 0.2); $(\'.dlattach_' . $currentAttachment['id'] . '\').show(); $(\'.dlattach_' . $currentAttachment['id'] . '\').css({\'position\': \'absolute\'});"',
+					'opening_tag' => '<div class="videocontainer" style="display: flex; justify-content: center; align-items: center; position: relative;"',
+					'closing_tag' =>  $hidden_orig_link . '</div>',
+				),
+				$returnContext
+			);
+		}
+		elseif (strpos($currentAttachment['mime_type'], 'audio/') === 0)
+		{
+			$returnContext = '<span style="display: inline-flex; justify-content: center; align-items: center; position: relative;">' . preg_replace(
+				array(
+					'opening_tag' => '~^<audio\b~',
+				),
+				array(
+					'opening_tag' => '<audio onerror="$(this).fadeTo(0, 0); $(\'.dlattach_' . $currentAttachment['id'] . '\').show(); $(\'.dlattach_' . $currentAttachment['id'] . '\').css({\'position\': \'absolute\'});"',
+				),
+				$returnContext
+			) . $hidden_orig_link . '</span>';
+		}
+		else
+		{
+			$returnContext = '<span style="display: inline-flex; justify-content: center; align-items: center; position: relative;">' . preg_replace(
+				array(
+					'obj_opening' => '~^<object\b~',
+					'link' => '~<a href="' . preg_quote($currentAttachment['href'], '~') . '" class="bbc_link">([^<]*)</a>~',
+				),
+				array(
+					'obj_opening' => '<object onerror="$(this).fadeTo(0, 0.2); $(\'.dlattach_' . $currentAttachment['id'] . '\').show(); $(\'.dlattach_' . $currentAttachment['id'] . '\').css({\'position\': \'absolute\'});"~',
+					'link' => '$0 (' . $orig_link . ')',
+				),
+				$returnContext
+			) . $hidden_orig_link . '</span>';
 		}
 	}
 
@@ -488,6 +578,9 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 				'themeurl' => array(
 					'value' => $settings['default_theme_url'],
 				),
+				'member-id' => array(
+					'value' => $context['xmlnews_uid'],
+				),
 				'copyright' => array(
 					'value' => sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR),
 				),
@@ -503,8 +596,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 				'txt-view-source-button' => array(
 					'value' => $txt['export_view_source_button'],
 				),
-				'txt-original-url' => array(
-					'value' => $txt['export_original_url'],
+				'txt-download-original' => array(
+					'value' => $txt['export_download_original'],
 				),
 				'txt-help' => array(
 					'value' => $txt['help'],
@@ -519,6 +612,11 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 			// Let mods adjust the XSLT variables.
 			call_integration_hook('integrate_export_xslt_variables', array(&$xslt_variables, $format, $embedded));
+
+			$idhash = hash_hmac('sha1', $context['xmlnews_uid'], get_auth_secret());
+			$xslt_variables['dltoken'] = array(
+				'value' => hash_hmac('sha1', $idhash, get_auth_secret())
+			);
 
 			if ($embedded)
 			{
@@ -1035,13 +1133,9 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			<xsl:template match="attachment">
 				<div class="attached">
 					<div class="attachments_bot">
-						',
-
-						// The following will be used once bulk downloads of attachments are possible
-						/*
-						'<a>
+						<a>
 							<xsl:attribute name="href">
-								<xsl:value-of select="concat(\'attachments/\', id, \'/\', name)"/>
+								<xsl:value-of select="concat(id, \' - \', name)"/>
 							</xsl:attribute>
 							<img class="centericon" alt="*">
 								<xsl:attribute name="src">
@@ -1051,30 +1145,15 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 							<xsl:text> </xsl:text>
 							<xsl:value-of select="name"/>
 						</a>
-						<xsl:text> (</xsl:text>
+						<br/>
+						<xsl:text>(</xsl:text>
 						<a class="bbc_link">
 							<xsl:attribute name="href">
-								<xsl:value-of select="link"/>
+								<xsl:value-of select="concat($scripturl, \'?action=profile;area=dlattach;u=\', $member-id, \';attach=\', id, \';t=\', $dltoken)"/>
 							</xsl:attribute>
-							<xsl:value-of select="$txt-original-url"/>
+							<xsl:value-of select="$txt-download-original"/>
 						</a>
-						<xsl:text>)</xsl:text>',
-						*/
-
-						// In the meantime, we use this version of the download link
-						'<a>
-							<xsl:attribute name="href">
-								<xsl:value-of select="link"/>
-							</xsl:attribute>
-							<img class="centericon" alt="*">
-								<xsl:attribute name="src">
-									<xsl:value-of select="concat($themeurl, \'/images/icons/clip.png\')"/>
-								</xsl:attribute>
-							</img>
-							<xsl:value-of select="name"/>
-						</a>',
-
-						'
+						<xsl:text>)</xsl:text>
 						<br/>
 						<xsl:value-of select="size/@label"/>
 						<xsl:text>: </xsl:text>

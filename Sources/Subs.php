@@ -1484,6 +1484,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					else
 						$returnContext .= '<a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a>';
 
+					// Use this hook to adjust the HTML output of the attach BBCode.
+					// If you want to work with the attachment data itself, use one of these:
+					// - integrate_pre_parseAttachBBC
+					// - integrate_post_parseAttachBBC
+					call_integration_hook('integrate_attach_bbc_validate', array(&$returnContext, $currentAttachment, $tag, $data, $disabled, $params));
+
 					// Gotta append what we just did.
 					$data = $returnContext;
 				},

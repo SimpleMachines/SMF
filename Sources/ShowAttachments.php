@@ -54,7 +54,7 @@ function showAttachment()
 	}
 
 	// Better handling.
-	$attachId = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) (isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0);
+	$attachId = $_REQUEST['attach'] = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) (isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0);
 
 	// We need a valid ID.
 	if (empty($attachId))
@@ -240,7 +240,7 @@ function showAttachment()
 	}
 
 	// Update the download counter (unless it's a thumbnail or resuming an incomplete download).
-	if ($file['attachment_type'] != 3 && empty($showThumb) && $range === 0)
+	if ($file['attachment_type'] != 3 && empty($showThumb) && $range === 0 && empty($context['skip_downloads_increment']))
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}attachments
 			SET downloads = downloads + 1
@@ -279,6 +279,9 @@ function showAttachment()
 
 	// Convert the file to UTF-8, cuz most browsers dig that.
 	$utf8name = !$context['utf8'] && function_exists('iconv') ? iconv($context['character_set'], 'UTF-8', $file['filename']) : (!$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($file['filename'], 'UTF-8', $context['character_set']) : $file['filename']);
+
+	if (!empty($context['prepend_attachment_id']))
+		$utf8name = $_REQUEST['attach'] . ' - ' . $utf8name;
 
 	// On mobile devices, audio and video should be served inline so the browser can play them.
 	if (isset($_REQUEST['image']) || (isBrowser('is_mobile') && (strpos($file['mime_type'], 'audio/') !== 0 || strpos($file['mime_type'], 'video/') !== 0)))

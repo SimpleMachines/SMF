@@ -438,6 +438,18 @@ function ModifyProfile($post_errors = array())
 						'any' => array('moderate_forum'),
 					),
 				),
+				'dlattach' => array(
+					'label' => $txt['export_profile_data'],
+					'file' => 'Profile-Actions.php',
+					'function' => 'export_attachment',
+					'icon' => 'packages',
+					'hidden' => true,
+					'select' => 'getprofiledata',
+					'permission' => array(
+						'own' => array('profile_view_own'),
+						'any' => array(),
+					),
+				),
 				'deleteaccount' => array(
 					'label' => $txt['deleteAccount'],
 					'file' => 'Profile-Actions.php',
