@@ -342,7 +342,7 @@ function ModifyRegistrationSettings($return_config = false)
 		array('check', 'requirePolicyAgreement', 'text_label' => $txt['admin_privacy_policy'], 'value' => 1, 'disabled' => 1),
 		array('warning', empty($policy) ? 'error_no_privacy_policy' : ''),
 	'',
-		array('int', 'coppaAge', 'subtext' => $txt['setting_coppaAge_desc'], 'onchange' => 'checkCoppa();'),
+		array('int', 'coppaAge', 'subtext' => $txt['zero_to_disable'], 'onchange' => 'checkCoppa();'),
 		array('select', 'coppaType', array($txt['setting_coppaType_reject'], $txt['setting_coppaType_approval']), 'onchange' => 'checkCoppa();'),
 		array('large_text', 'coppaPost', 'subtext' => $txt['setting_coppaPost_desc']),
 		array('text', 'coppaFax'),
