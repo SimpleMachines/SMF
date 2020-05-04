@@ -899,7 +899,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			// Template for printing a single post
 			$stylesheet['member_post'] = '
 			<xsl:template match="member-post" mode="posts">
-				<div class="windowbg">
+				<div>
 					<xsl:attribute name="id">
 						<xsl:value-of select="concat(\'member-post-\', id)"/>
 					</xsl:attribute>
@@ -1326,8 +1326,6 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 					$stylesheet['css_js'] .= '
 					</link>';
-
-					$stylesheet['css_js'] .= $css_js_part;
 				}
 			}
 
