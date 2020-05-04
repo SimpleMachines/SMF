@@ -88,6 +88,7 @@ $txt['setting_registration_approval'] = 'Admin Approval';
 $txt['setting_send_welcomeEmail'] = 'Send welcome email to new members';
 
 $txt['setting_coppaAge'] = 'Age below which to apply registration restrictions';
+$txt['setting_coppaAge_desc'] = '(Set to 0 to disable)';
 $txt['setting_coppaType'] = 'Action to take when a user below minimum age registers';
 $txt['setting_coppaType_reject'] = 'Reject their registration';
 $txt['setting_coppaType_approval'] = 'Require parent/guardian approval';

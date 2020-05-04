@@ -792,9 +792,7 @@ function template_edit_privacy_policy()
 					</div>
 				</form>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
-		<br class="clear" />';
 }
 
 ?>

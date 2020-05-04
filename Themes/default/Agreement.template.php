@@ -30,14 +30,14 @@ function template_main()
 		if ($context['can_accept_agreement'])
 		{
 			echo '
-		<p class="description">
+		<div class="description">
 			', $txt['agreement_updated_desc'], '
 		</p>';
 		}
 		elseif (!empty($context['agreement_accepted_date']))
 		{
 			echo '
-		<p class="description">
+		<div class="description">
 			', sprintf($txt['agreement_accepted'], timeformat($context['agreement_accepted_date'], false)), '
 		</p>';
 		}
@@ -50,9 +50,6 @@ function template_main()
 
 	if (!empty($context['policy']))
 	{
-		if (!empty($context['agreement']))
-			echo '<br />';
-
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['privacy_policy' . ($context['can_accept_privacy_policy'] ? '_updated' : '')], '</h3>
@@ -61,14 +58,14 @@ function template_main()
 		if ($context['can_accept_privacy_policy'])
 		{
 			echo '
-		<p class="description">
+		<div class="description">
 			', $txt['privacy_policy_updated_desc'], '
 		</p>';
 		}
 		elseif (!empty($context['privacy_policy_accepted_date']))
 		{
 			echo '
-		<p class="description">
+		<div class="description">
 			', sprintf($txt['privacy_policy_accepted'], timeformat($context['privacy_policy_accepted_date'], false)), '
 		</p>';
 		}
