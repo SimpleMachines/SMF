@@ -32,14 +32,14 @@ function template_main()
 			echo '
 		<div class="description">
 			', $txt['agreement_updated_desc'], '
-		</p>';
+		</div>';
 		}
 		elseif (!empty($context['agreement_accepted_date']))
 		{
 			echo '
 		<div class="description">
 			', sprintf($txt['agreement_accepted'], timeformat($context['agreement_accepted_date'], false)), '
-		</p>';
+		</div>';
 		}
 
 		echo '
@@ -60,14 +60,14 @@ function template_main()
 			echo '
 		<div class="description">
 			', $txt['privacy_policy_updated_desc'], '
-		</p>';
+		</div>';
 		}
 		elseif (!empty($context['privacy_policy_accepted_date']))
 		{
 			echo '
 		<div class="description">
 			', sprintf($txt['privacy_policy_accepted'], timeformat($context['privacy_policy_accepted_date'], false)), '
-		</p>';
+		</div>';
 		}
 
 		echo '
