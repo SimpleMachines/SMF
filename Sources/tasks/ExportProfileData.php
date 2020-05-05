@@ -1111,7 +1111,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			</xsl:template>';
 
 			// A couple of templates to handle attachments
-			$stylesheet['attachments'] = implode('', array('
+			$stylesheet['attachments'] = '
 			<xsl:template match="attachments">
 				<xsl:param name="post-id"/>
 				<xsl:if test="attachment">
@@ -1157,8 +1157,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 						<xsl:value-of select="downloads"/>
 					</div>
 				</div>
-			</xsl:template>',
-			));
+			</xsl:template>';
 
 			// Helper template for printing the user's own info next to the post or personal message.
 			$stylesheet['own_user_info'] = '
@@ -1197,8 +1196,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 						<xsl:value-of select="/*/blurb"/>
 					</li>
 				</xsl:if>
-			</xsl:template>
-			';
+			</xsl:template>';
 
 			// Helper template for printing the quickbuttons
 			$stylesheet['quickbuttons'] = '
