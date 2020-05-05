@@ -333,8 +333,6 @@ function ModifyRegistrationSettings($return_config = false)
 
 	$config_vars = array(
 		array('select', 'registration_method', array($txt['setting_registration_standard'], $txt['setting_registration_activate'], $txt['setting_registration_approval'], $txt['setting_registration_disabled'])),
-		array('check', 'enableOpenID'),
-		array('check', 'notify_new_registration'),
 		array('check', 'send_welcomeEmail'),
 	'',
 		array('check', 'requireAgreement', 'text_label' => $txt['admin_agreement'], 'value' => 1, 'disabled' => 1),
@@ -347,8 +345,6 @@ function ModifyRegistrationSettings($return_config = false)
 		array('large_text', 'coppaPost', 'subtext' => $txt['setting_coppaPost_desc']),
 		array('text', 'coppaFax'),
 		array('text', 'coppaPhone'),
-	'',
-		array('check', 'announcements_default', 'disabled' => 1, 'value' => 0),
 	);
 
 	call_integration_hook('integrate_modify_registration_settings', array(&$config_vars));
@@ -370,11 +366,6 @@ function ModifyRegistrationSettings($return_config = false)
 
 		// Post needs to take into account line breaks.
 		$_POST['coppaPost'] = str_replace("\n", '<br>', empty($_POST['coppaPost']) ? '' : $_POST['coppaPost']);
-
-		// GDPR requires these settings to have certain values
-		$_POST['requireAgreement'] = 1;
-		$_POST['requirePolicyAgreement'] = 1;
-		$_POST['announcements_default'] = 0;
 
 		call_integration_hook('integrate_save_registration_settings');
 

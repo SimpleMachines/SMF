@@ -538,8 +538,6 @@ $txt['trackEdit_action_additional_groups'] = 'Additional Membergroups';
 $txt['trackEdit_action_agreement_accepted'] = 'Accepted the registration agreement';
 $txt['trackEdit_action_policy_accepted'] = 'Accepted the privacy policy';
 
-$txt['export_profile_data'] = 'Download profile data';
-
 $txt['trackGroupRequests'] = 'Group Requests';
 $txt['trackGroupRequests_title'] = 'Group Requests for %1$s';
 $txt['requested_group'] = 'Requested Group';

@@ -165,15 +165,6 @@ function template_registration_form()
 				</fieldset>
 			</div><!-- .roundframe -->';
 
-	if (!empty($context['announcements_ask']))
-		echo '
-					<dl class="register_form" id="notify_announcements_group">
-						<dt><strong><label for="notify_announcements">', $txt['notify_announcements'], ':</label></strong></dt>
-						<dd>
-							<input type="checkbox" name="notify_announcements" id="notify_announcements" tabindex="', $context['tabindex']++, '" class="input_check"', (!empty($context['notify_announcements']) ? ' checked="checked"' : ''), ' />
-						</dd>
-					</dl>';
-
 	// If we have either of these, show the extra group.
 	if (!empty($context['profile_fields']) || !empty($context['custom_fields']))
 		echo '
@@ -567,18 +558,6 @@ function template_admin_register()
 						</dt>
 						<dd>
 							<input type="checkbox" name="emailActivate" id="emailActivate_check" tabindex="', $context['tabindex']++, '"', !empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1 ? ' checked' : '', ' onclick="onCheckChange();">
-						</dd>
-						<dt>
-							<strong><label for="requireAgreement">', $txt['admin_register_require_agreement'], ':</label></strong>
-						</dt>
-						<dd>
-							<input type="checkbox" name="requireAgreement" id="requireAgreement_check" tabindex="', $context['tabindex']++, '" checked="checked" disabled="disabled" class="input_check" /><input type="hidden" name="requireAgreement" value=1>
-						</dd>
-						<dt>
-							<strong><label for="requirePolicyAgreement">', $txt['admin_register_require_policy'], ':</label></strong>
-						</dt>
-						<dd>
-							<input type="checkbox" name="requirePolicyAgreement" id="requirePolicyAgreement_check" tabindex="', $context['tabindex']++, '" checked="checked" disabled="disabled" class="input_check" /><input type="hidden" name="requirePolicyAgreement" value=1>
 						</dd>
 					</dl>
 					<div class="flow_auto">

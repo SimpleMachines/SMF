@@ -95,7 +95,6 @@ $txt['setting_coppaPost'] = 'Postal address to which approval forms should be se
 $txt['setting_coppaPost_desc'] = 'Only applies if age restriction is in place';
 $txt['setting_coppaFax'] = 'Fax number to which approval forms should be faxed';
 $txt['setting_coppaPhone'] = 'Contact number for parents to contact with age restriction queries';
-$txt['setting_announcements_default'] = 'Enable "' . $txt['notify_announcements'] . '" by default.';
 
 $txt['admin_register'] = 'Registration of new member';
 $txt['admin_register_desc'] = 'From here you can register new members into the forum, and if desired, email them their details.';
@@ -112,8 +111,6 @@ $txt['admin_register_group'] = 'Primary Membergroup';
 $txt['admin_register_group_desc'] = 'Primary membergroup new member will belong to';
 $txt['admin_register_group_none'] = '(no primary membergroup)';
 $txt['admin_register_done'] = 'Member %1$s has been registered successfully!';
-$txt['admin_register_require_agreement'] = 'Require user to accept the registration agreement';
-$txt['admin_register_require_policy'] = 'Require user to accept the privacy policy';
 
 $txt['coppa_title'] = 'Age restricted Forum';
 // argument(s): $context['forum_name_html_safe']

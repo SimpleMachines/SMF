@@ -225,9 +225,6 @@ function Register($reg_errors = array())
 		'notify_announcements' => !empty($_POST['notify_announcements']) ? 1 : 0,
 	);
 
-	$context['announcements_ask'] = true;
-	$context['notify_announcements'] = isset($_POST['notify_announcements']) ? (bool) $_POST['notify_announcements'] : !empty($modSettings['announcements_default']);
-	
 	// Were there any errors?
 	$context['registration_errors'] = array();
 	if (!empty($reg_errors))
@@ -449,7 +446,10 @@ function Register2()
 	$regOptions['theme_vars'] = isset($_POST['options']) && is_array($_POST['options']) ? $_POST['options'] : array();
 
 	// Note when they accepted the agreement and privacy policy
-	$regOptions['theme_vars']['agreement_accepted'] = $regOptions['theme_vars']['policy_accepted'] = time();
+	if (!empty($modSettings['requireAgreement']))
+		$regOptions['theme_vars']['agreement_accepted'] = time();
+	if (!empty($modSettings['requirePolicyAgreement']))
+		$regOptions['theme_vars']['policy_accepted'] = time();
 
 	// Make sure they are clean, dammit!
 	$regOptions['theme_vars'] = htmlspecialchars__recursive($regOptions['theme_vars']);

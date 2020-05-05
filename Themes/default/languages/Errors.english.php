@@ -464,7 +464,4 @@ $txt['json_JSON_ERROR_INF_OR_NAN'] = 'JSON decode error: One or more NAN or INF 
 $txt['json_JSON_ERROR_UNSUPPORTED_TYPE'] = 'JSON decode error: A value of a type that cannot be encoded was given';
 $txt['json_unknown'] = 'Unknown error';
 
-// Unsubscribe
-$txt['unsubscribe_invalid'] = 'The unsubscribe link that brought you here does not appear to be valid.';
-
 ?>
