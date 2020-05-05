@@ -85,10 +85,6 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		require_once($sourcedir . DIRECTORY_SEPARATOR . 'News.php');
 		require_once($sourcedir . DIRECTORY_SEPARATOR . 'ScheduledTasks.php');
 
-		// Make sure this has been loaded for use in News.php.
-		if (!function_exists('cleanXml'))
-			require_once($sourcedir . DIRECTORY_SEPARATOR . 'QueryString.php');
-
 		// Setup.
 		$done = false;
 		$func = $included[$datatype]['func'];
@@ -302,9 +298,6 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	protected function exportHtml($member_info)
 	{
 		global $modSettings, $context, $smcFunc, $sourcedir;
-
-		if (!function_exists('JavaScriptEscape'))
-			require_once($sourcedir . DIRECTORY_SEPARATOR . 'QueryString.php');
 
 		$embedded = !class_exists('DOMDocument') || !class_exists('XSLTProcessor');
 

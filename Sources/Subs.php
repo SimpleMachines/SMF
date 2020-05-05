@@ -7300,4 +7300,45 @@ function array_length($array, $deep = 3)
     return $length;
 }
 
+/**
+ * Clean up the XML to make sure it doesn't contain invalid characters.
+ * What it does:
+ * - removes invalid XML characters to assure the input string being
+ * - parsed properly.
+ *
+ * @param string $string The string to clean
+ * @return string The cleaned string
+ */
+function cleanXml($string)
+{
+	global $context;
+
+	// https://www.w3.org/TR/2000/REC-xml-20001006#NT-Char
+	return preg_replace('~[\x00-\x08\x0B\x0C\x0E-\x19' . ($context['utf8'] ? '\x{FFFE}\x{FFFF}' : '') . ']~' . ($context['utf8'] ? 'u' : ''), '', $string);
+}
+
+/**
+ * Escapes (replaces) characters in strings to make them safe for use in javascript
+ *
+ * @param string $string The string to escape
+ * @return string The escaped string
+ */
+function JavaScriptEscape($string)
+{
+	global $scripturl;
+
+	return '\'' . strtr($string, array(
+		"\r" => '',
+		"\n" => '\\n',
+		"\t" => '\\t',
+		'\\' => '\\\\',
+		'\'' => '\\\'',
+		'</' => '<\' + \'/',
+		'<script' => '<scri\'+\'pt',
+		'<body>' => '<bo\'+\'dy>',
+		'<a href' => '<a hr\'+\'ef',
+		$scripturl => '\' + smf_scripturl + \'',
+	)) . '\'';
+}
+
 ?>
