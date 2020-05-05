@@ -61,7 +61,8 @@ function ViewModlog()
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_actions
 			WHERE id_log = {int:moderate_log}
-			AND action NOT IN ({array_string:uneditable})'),
+			AND action NOT IN ({array_string:uneditable})',
+
 			array(
 				'moderate_log' => $context['log_type'],
 				'uneditable' => $context['uneditable_actions'],
