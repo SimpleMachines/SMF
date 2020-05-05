@@ -771,7 +771,7 @@ function template_edit_privacy_policy()
 					</div>
 				</form>
 			</div>
-		</div>
+		</div>';
 }
 
 ?>
