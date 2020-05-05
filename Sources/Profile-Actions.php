@@ -1334,23 +1334,7 @@ function export_profile_data($memID)
 			// So the user can see that we've started.
 			if (!file_exists($realfile) && !file_exists($tempfile) && !file_exists($progressfile))
 			{
-				require_once($sourcedir . '/News.php');
-
-				$desc = array();
-				foreach (array_keys($included) as $datatype)
-					$desc[] = $txt[$datatype];
-
-				$feed_meta = array(
-					'title' => sprintf($txt['profile_of_username'], $context['member']['username']),
-					'desc' => sentence_list($desc),
-					'author' => $context['forum_name'],
-					'source' => $scripturl . '?action=profile;u=' . $memID,
-					'self' => $scripturl . '?action=profile;area=download;u=' . $memID . ';t=' . $dltoken,
-				);
-
-				buildXmlFeed('smf', array(), $feed_meta, 'profile');
-				file_put_contents($tempfile, implode('', array($context['feed']['header'], $context['feed']['footer'])));
-
+				touch($tempfile);
 				file_put_contents($progressfile, $smcFunc['json_encode'](array_fill_keys(array_keys($included), 0)));
 			}
 

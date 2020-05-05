@@ -138,7 +138,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		);
 
 		// If a necessary file is missing, we need to start over.
-		if (!file_exists($progressfile) || !file_exists($tempfile))
+		if (!file_exists($tempfile) || filesize($tempfile) == 0 || !file_exists($progressfile) || filesize($progressfile) == 0)
 		{
 			foreach (array_merge(array($tempfile, $progressfile), glob($export_dir_slash . '*_' . $idhash_ext)) as $fpath)
 				@unlink($fpath);
@@ -378,7 +378,9 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	 */
 	public static function add_dtd(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$dtd)
 	{
-		list($stylesheet, $dtd) = self::getXsltStylesheet($this->_details['format'], true);
+		global $context;
+
+		list($stylesheet, $dtd) = self::getXsltStylesheet($context['export_format'], true);
 	}
 
 	/**
