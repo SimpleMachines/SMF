@@ -64,7 +64,6 @@ function ShowXmlFeed()
 
 	// Default to latest 5.  No more than 255, please.
 	$context['xmlnews_limit'] = empty($_GET['limit']) || (int) $_GET['limit'] < 1 ? 5 : min((int) $_GET['limit'], 255);
-	$context['xmlnews_offset'] = empty($_GET['offset']) || (int) $_GET['offset'] < 1 ? 0 : (int) $_GET['offset'];
 
 	// Users can always export their own profile data
 	if (in_array($subaction, array('profile', 'posts', 'personal_messages')) && !$user_info['is_guest'] && $context['xmlnews_uid'] == $user_info['id'])
@@ -223,7 +222,7 @@ function ShowXmlFeed()
 		$feed_meta[$mkey] = strip_tags($mvalue);
 
 	// We only want some information, not all of it.
-	$cachekey = array($xml_format, $_GET['action'], $context['xmlnews_limit'], $subaction, $context['xmlnews_offset']);
+	$cachekey = array($xml_format, $_GET['action'], $context['xmlnews_limit'], $subaction);
 	foreach (array('board', 'boards', 'c') as $var)
 		if (isset($_GET[$var]))
 			$cachekey[] = $var . '=' . implode(',', (array) $_GET[$var]);
@@ -706,10 +705,9 @@ function getXmlMembers($xml_format, $ascending = false)
 		SELECT id_member, member_name, real_name, date_registered, last_login
 		FROM {db_prefix}members
 		ORDER BY id_member {raw:ascdesc}
-		LIMIT {int:limit} OFFSET {int:offset}',
+		LIMIT {int:limit}',
 		array(
 			'limit' => $context['xmlnews_limit'],
-			'offset' => $context['xmlnews_offset'],
 			'ascdesc' => !empty($ascending) ? 'ASC' : 'DESC',
 		)
 	);
@@ -879,12 +877,11 @@ function getXmlNews($xml_format, $ascending = false)
 				AND t.id_board = {int:current_board}') . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY t.id_first_msg {raw:ascdesc}
-			LIMIT {int:limit} OFFSET {int:offset}',
+			LIMIT {int:limit}',
 			array(
 				'current_board' => $board,
 				'is_approved' => 1,
 				'limit' => $context['xmlnews_limit'],
-				'offset' => $context['xmlnews_offset'],
 				'optimize_msg' => $optimize_msg,
 				'ascdesc' => !empty($ascending) ? 'ASC' : 'DESC',
 			)
@@ -1300,10 +1297,9 @@ function getXmlRecent($xml_format)
 				AND m.id_board = {int:current_board}') . ($modSettings['postmod_active'] ? '
 				AND m.approved = {int:is_approved}' : '') . '
 			ORDER BY m.id_msg DESC
-			LIMIT {int:limit} OFFSET {int:offset}',
+			LIMIT {int:limit}',
 			array(
 				'limit' => $context['xmlnews_limit'],
-				'offset' => $context['xmlnews_offset'],
 				'current_board' => $board,
 				'is_approved' => 1,
 				'optimize_msg' => $optimize_msg,
@@ -2096,10 +2092,9 @@ function getXmlPosts($xml_format, $ascending = false)
 			AND ' . $query_this_board . ($modSettings['postmod_active'] && !$show_all ? '
 			AND approved = {int:is_approved}' : '') . '
 		ORDER BY id_msg {raw:ascdesc}
-		LIMIT {int:limit} OFFSET {int:offset}',
+		LIMIT {int:limit}',
 		array(
 			'limit' => $context['xmlnews_limit'],
-			'offset' => !empty($context['posts_start']) ? 0 : $context['xmlnews_offset'],
 			'start_after' => !empty($context['posts_start']) ? $context['posts_start'] : 0,
 			'uid' => $context['xmlnews_uid'],
 			'is_approved' => 1,
@@ -2546,21 +2541,26 @@ function getXmlPMs($xml_format, $ascending = false)
 	$select_to_names = $smcFunc['db_title'] === POSTGRE_TITLE ? "string_agg(COALESCE(mem.real_name, mem.member_name), ',')" : 'GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name))';
 
 	$request = $smcFunc['db_query']('', '
-		SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, pm.from_name, ' . $select_id_members_to . ' AS id_members_to, ' . $select_to_names . ' AS to_names
+		SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, pm.from_name, nis.id_members_to, nis.to_names
 		FROM {db_prefix}personal_messages AS pm
-			INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
-			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = pmr.id_member)
-		WHERE pm.id_pm > {int:start_after}
-			AND (
-				(pm.id_member_from = {int:uid} AND pm.deleted_by_sender = {int:not_deleted})
-				OR (pmr.id_member = {int:uid} AND pmr.deleted = {int:not_deleted})
-			)
-		GROUP BY pm.id_pm
-		ORDER BY pm.id_pm {raw:ascdesc}
-		LIMIT {int:limit} OFFSET {int:offset}',
+		INNER JOIN
+		(
+			SELECT pm2.id_pm, ' . $select_id_members_to . ' AS id_members_to, ' . $select_to_names . ' AS to_names
+			FROM {db_prefix}personal_messages AS pm2
+				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm2.id_pm = pmr.id_pm)
+				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = pmr.id_member)
+			WHERE pm2.id_pm > {int:start_after}
+				AND (
+					(pm2.id_member_from = {int:uid} AND pm2.deleted_by_sender = {int:not_deleted})
+					OR (pmr.id_member = {int:uid} AND pmr.deleted = {int:not_deleted})
+				)
+			GROUP BY pm2.id_pm
+			ORDER BY pm2.id_pm {raw:ascdesc}
+			LIMIT {int:limit}
+		) AS nis ON nis.id_pm = pm.id_pm
+		ORDER BY pm.id_pm {raw:ascdesc}',
 		array(
 			'limit' => $context['xmlnews_limit'],
-			'offset' => !empty($context['personal_messages_start']) ? 0 : $context['xmlnews_offset'],
 			'start_after' => !empty($context['personal_messages_start']) ? $context['personal_messages_start'] : 0,
 			'uid' => $context['xmlnews_uid'],
 			'not_deleted' => 0,

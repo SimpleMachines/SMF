@@ -83,7 +83,6 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$func = $included[$datatype]['func'];
 		$context['xmlnews_uid'] = $uid;
 		$context['xmlnews_limit'] = !empty($modSettings['export_rate']) ? $modSettings['export_rate'] : 250;
-		$context['xmlnews_offset'] = 0;
 		$context[$datatype . '_start'] = $start[$datatype];
 		$datatypes = array_keys($included);
 
