@@ -33,8 +33,20 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	 */
 	public function execute()
 	{
+		global $sourcedir;
+
 		if (!defined('EXPORTING'))
 			define('EXPORTING', 1);
+
+		// This could happen if the user manually changed the URL params of the export request.
+		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor')))
+		{
+			require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
+			$export_formats = get_export_formats();
+
+			$this->_details['format'] = 'XML_XSLT';
+			$this->_details['format_settings'] = $export_formats['XML_XSLT'];
+		}
 
 		// Inform static functions of the export format, etc.
 		self::$export_details = $this->_details;
@@ -63,6 +75,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			$this->exportXml($member_info);
 		elseif ($this->_details['format'] == 'HTML')
 			$this->exportHtml($member_info);
+		elseif ($this->_details['format'] == 'XML_XSLT')
+			$this->exportXmlXslt($member_info);
 
 		return true;
 	}
@@ -246,8 +260,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		// Remove the .tmp extension so the system knows that the file is ready for download.
 		if (!empty($done))
 		{
-			// For plain XML exports, things are easy.
-			if ($this->_details['format'] == 'XML')
+			// For XML exports, things are easy.
+			if (in_array($this->_details['format'], array('XML', 'XML_XSLT')))
 				rename($tempfile, $realfile);
 
 			// For other formats, keep a copy of tempfile in case we need to append more data later.
@@ -294,25 +308,14 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	/**
 	 * Compiles profile data to HTML.
 	 *
-	 * Internally calls exportXml() and then uses XSLT to transform the XML
-	 * files into HTML.
-	 *
-	 * If the local PHP installation doesn't have XSLT support enabled, a
-	 * fallback approach is used to embed the XSLT stylesheet directly into the
-	 * XML file so that the user's browser can apply it locally when the export
-	 * file is opened.
+	 * Internally calls exportXml() and then uses an XSLT stylesheet to
+	 * transform the XML files into HTML.
 	 *
 	 * @param array $member_info Minimal $user_info about the relevant member.
 	 */
 	protected function exportHtml($member_info)
 	{
 		global $modSettings, $context, $smcFunc, $sourcedir;
-
-		$embedded = !class_exists('DOMDocument') || !class_exists('XSLTProcessor');
-
-		// Embedded XSLT requires adding a special DTD in the main XML document.
-		if ($embedded)
-			add_integration_function('integrate_xml_data', 'ExportProfileData_Background::add_dtd', false);
 
 		// Perform the export to XML.
 		$this->exportXml($member_info);
@@ -333,65 +336,90 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		// We have work to do, so get the XSLT.
 		require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
-		list($stylesheet, $dtd) = get_xslt_stylesheet($this->_details['format'], $embedded);
+		list($stylesheet, $dtd) = get_xslt_stylesheet($this->_details['format']);
 
-		// Transforming on the server is pretty straightforward.
-		if (!$embedded)
+		// Set up the XSLT processor.
+		$xslt = new DOMDocument();
+		$xslt->loadXML($stylesheet);
+		$xsltproc = new XSLTProcessor();
+		$xsltproc->importStylesheet($xslt);
+
+		// Transform the files to HTML.
+		$xmldoc = new DOMDocument();
+		foreach ($files_to_transform as $exportfilepath)
 		{
-			// Set up the XSLT processor.
-			$xslt = new DOMDocument();
-			$xslt->loadXML($stylesheet);
-			$xsltproc = new XSLTProcessor();
-			$xsltproc->importStylesheet($xslt);
-
-			// Transform the files to HTML.
-			$xmldoc = new DOMDocument();
-			foreach ($files_to_transform as $exportfilepath)
-			{
-				$xmldoc->load($exportfilepath);
-				$xsltproc->transformToURI($xmldoc, $exportfilepath);
-			}
+			$xmldoc->load($exportfilepath);
+			$xsltproc->transformToURI($xmldoc, $exportfilepath);
 		}
+	}
+
+	/**
+	 * Compiles profile data to XML with embedded XSLT.
+	 *
+	 * Internally calls exportXml() and then embeds an XSLT stylesheet into
+	 * the XML so that it can be processed by the client.
+	 *
+	 * @param array $member_info Minimal $user_info about the relevant member.
+	 */
+	protected function exportXmlXslt($member_info)
+	{
+		global $modSettings, $context, $smcFunc, $sourcedir;
+
+		// Embedded XSLT requires adding a special DTD and processing instruction in the main XML document.
+		add_integration_function('integrate_xml_data', 'ExportProfileData_Background::add_dtd', false);
+
+		// Perform the export to XML.
+		$this->exportXml($member_info);
+
+		// Find the completed files, if any.
+		$export_dir_slash = $modSettings['export_dir'] . DIRECTORY_SEPARATOR;
+		$idhash = hash_hmac('sha1', $this->_details['uid'], get_auth_secret());
+		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
+
+		$completed_files = glob($export_dir_slash . '*_' . $idhash_ext);
+		if (empty($completed_files))
+			return;
+
+		// We have work to do, so get the XSLT.
+		require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
+		list($stylesheet, $dtd) = get_xslt_stylesheet($this->_details['format']);
+
 		// Embedding the XSLT means writing to the file yet again.
-		else
+		foreach ($completed_files as $exportfilepath)
 		{
-			foreach ($files_to_transform as $exportfilepath)
+			$handle = fopen($exportfilepath, 'r+');
+			if (is_resource($handle))
 			{
-				$handle = fopen($exportfilepath, 'r+');
-				if (is_resource($handle))
+				fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);
+
+				$bytes_written = fwrite($handle, $stylesheet . $context['feed']['footer']);
+
+				// If we couldn't write everything, revert the changes.
+				if ($bytes_written > 0 && $bytes_written < strlen($stylesheet . $context['feed']['footer']))
 				{
-					fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);
-
-					$bytes_written = fwrite($handle, $stylesheet . $context['feed']['footer']);
-
-					// If we couldn't write everything, revert the changes and consider the write to have failed.
-					if ($bytes_written > 0 && $bytes_written < strlen($stylesheet . $context['feed']['footer']))
-					{
-						fseek($handle, $bytes_written * -1, SEEK_END);
-						$pointer_pos = ftell($handle);
-						ftruncate($handle, $pointer_pos);
-						rewind($handle);
-						fseek($handle, 0, SEEK_END);
-						fwrite($handle, $context['feed']['footer']);
-
-						$bytes_written = false;
-					}
-
-					fclose($handle);
+					fseek($handle, $bytes_written * -1, SEEK_END);
+					$pointer_pos = ftell($handle);
+					ftruncate($handle, $pointer_pos);
+					rewind($handle);
+					fseek($handle, 0, SEEK_END);
+					fwrite($handle, $context['feed']['footer']);
 				}
+
+				fclose($handle);
 			}
 		}
 	}
 
 	/**
-	 * Adds a DOCTYPE declaration and XSLT processing instruction to the main XML file header.
+	 * Adds a custom DOCTYPE definition and an XSLT processing instruction to
+	 * the main XML file's header.
 	 */
 	public static function add_dtd(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$dtd)
 	{
 		global $sourcedir;
 
 		require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
-		list($stylesheet, $dtd) = get_xslt_stylesheet(self::$export_details['format'], true);
+		list($stylesheet, $dtd) = get_xslt_stylesheet(self::$export_details['format']);
 	}
 
 	/**
@@ -403,7 +431,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		$cache_id = '';
 
-		if (self::$export_details['format'] == 'HTML')
+		if (in_array(self::$export_details['format'], array('HTML', 'XML_XSLT')))
 		{
 			foreach (array('smileys_url', 'attachmentThumbnails') as $var)
 				if (isset($modSettings[$var]))
@@ -441,7 +469,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	}
 
 	/**
-	 * Adjusts the behaviour of certain BBCodes for the special case of exports.
+	 * Adjusts certain BBCodes for the special case of exports.
 	 */
 	public static function bbc_codes(&$codes, &$no_autolink_tags)
 	{

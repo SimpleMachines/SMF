@@ -50,6 +50,10 @@ function export_profile_data($uid)
 				'func' => 'getXmlProfile',
 				'langfile' => 'Profile',
 			),
+			'XML_XSLT' => array(
+				'func' => 'getXmlProfile',
+				'langfile' => 'Profile',
+			),
 			// 'CSV' => array(),
 			// 'JSON' => array(),
 		),
@@ -91,6 +95,10 @@ function export_profile_data($uid)
 				'langfile' => 'Post',
 			),
 			'HTML' => array(
+				'func' => 'getXmlPosts',
+				'langfile' => 'Post',
+			),
+			'XML_XSLT' => array(
 				'func' => 'getXmlPosts',
 				'langfile' => 'Post',
 			),
@@ -158,6 +166,10 @@ function export_profile_data($uid)
 				'langfile' => 'PersonalMessage',
 			),
 			'HTML' => array(
+				'func' => 'getXmlPMs',
+				'langfile' => 'PersonalMessage',
+			),
+			'XML_XSLT' => array(
 				'func' => 'getXmlPMs',
 				'langfile' => 'PersonalMessage',
 			),
@@ -287,6 +299,40 @@ function export_profile_data($uid)
 					// Otherwise, we have no choice but to make a supplementary file.
 					else
 						$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
+				}
+				// For XML with embedded XSLT, the complication level goes up one more notch.
+				elseif ($format === 'XML_XSLT')
+				{
+					@unlink($tempfile);
+					rename($realfile, $tempfile);
+
+					list($stylesheet, $dtd) = get_xslt_stylesheet($format);
+
+					require_once($sourcedir . DIRECTORY_SEPARATOR . 'News.php');
+					buildXmlFeed('smf', array(), array_fill_keys(array(), 'foo'), 'profile');
+
+					$stylesheet_length = strlen($stylesheet);
+					$feedfooter_length = strlen($context['feed']['footer']);
+
+					$handle = fopen($tempfile, 'r+');
+					if (is_resource($handle))
+					{
+						fseek($handle, ($stylesheet_length + $feedfooter_length) * -1, SEEK_END);
+
+						$found_stylesheet = fread($handle, $stylesheet_length);
+
+						if ($found_stylesheet == $stylesheet)
+						{
+							fseek($handle, ($stylesheet_length + $feedfooter_length) * -1, SEEK_END);
+							$pointer_pos = ftell($handle);
+							ftruncate($handle, $pointer_pos);
+							rewind($handle);
+							fseek($handle, 0, SEEK_END);
+							fwrite($handle, $context['feed']['footer']);
+						}
+
+						fclose($handle);
+					}
 				}
 				// elseif ($format === 'CSV')
 				// {
@@ -682,6 +728,11 @@ function get_export_formats()
 	global $txt;
 
 	$export_formats = array(
+		'XML_XSLT' => array(
+			'extension' => 'styled.xml',
+			'mime' => 'text/xml',
+			'description' => $txt['export_format_xml_xslt'],
+		),
 		'HTML' => array(
 			'extension' => 'html',
 			'mime' => 'text/html',
@@ -765,11 +816,10 @@ function create_export_dir($fallback = '')
  * Provides an XSLT stylesheet to transform an XML-based profile export file
  * into the desired output format.
  *
- * @param string $format The desired output format. Currently only accepts 'HTML'.
- * @param bool $embedded Whether the XSLT will be embedded in the output. Default false.
- * @return array The XSLT stylesheet and possibly a DTD to insert into the source document.
+ * @param string $format The desired output format. Currently accepts 'HTML' and 'XML_XSLT'.
+ * @return array The XSLT stylesheet and a (possibly empty) DTD to insert into the XML document.
  */
-function get_xslt_stylesheet($format, $embedded = false)
+function get_xslt_stylesheet($format)
 {
 	global $context, $txt, $settings, $modSettings, $sourcedir, $forum_copyright;
 
@@ -777,12 +827,15 @@ function get_xslt_stylesheet($format, $embedded = false)
 
 	$stylesheet = array();
 
+	// Do not change any of these to HTTPS URLs. For explanation, see comments in the buildXmlFeed() function.
 	$smf_ns = 'htt'.'p:/'.'/ww'.'w.simple'.'machines.o'.'rg/xml/profile';
 	$xslt_ns = 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/XSL/Transform';
 	$html_ns = 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/xhtml';
 
-	if ($format == 'HTML')
+	if (in_array($format, array('HTML', 'XML_XSLT')))
 	{
+		$embedded = $format == 'XML_XSLT' || !class_exists('DOMDocument') || !class_exists('XSLTProcessor');
+
 		/* Notes:
 		 * 1. Values can be simple strings or raw XML, including other XSLT
 		 *    statements or even calls to entire XSLT templates.

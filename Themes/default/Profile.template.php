@@ -3315,7 +3315,7 @@ function template_export_profile_data()
 		{
 			echo '
 			<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '"', count($context['completed_exports']) > 1 ? ' class="descbox"' : '', '>
-				<p class="padding">', sprintf($txt['export_file_desc'], $parts[1]['included'], $parts[1]['format']), '</p>
+				<p class="padding">', sprintf($txt['export_file_desc'], $parts[1]['included'], $context['export_formats'][$parts[1]['format']]['description']), '</p>
 				<ul class="bbc_list">';
 
 			foreach ($parts as $part => $file)
@@ -3349,7 +3349,7 @@ function template_export_profile_data()
 		foreach ($context['active_exports'] as $file)
 			echo '
 			<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '"', count($context['active_exports']) > 1 ? ' class="descbox"' : '', '>
-				<p class="padding">', sprintf($txt['export_file_desc'], $file['included'], $file['format']), '</p>
+				<p class="padding">', sprintf($txt['export_file_desc'], $file['included'], $context['export_formats'][$file['format']]['description']), '</p>
 				<div class="righttext">
 					<input type="submit" name="delete" value="', $txt['export_cancel'], '" class="button you_sure">
 					<input type="hidden" name="format" value="', $file['format'], '">
@@ -3395,7 +3395,7 @@ function template_export_profile_data()
 
 		foreach ($context['export_formats'] as $format => $format_settings)
 			echo '
-							<option value="', $format, '">', $format, '</option>';
+							<option value="', $format, '">', $format_settings['description'], '</option>';
 
 		echo '
 						</select>
