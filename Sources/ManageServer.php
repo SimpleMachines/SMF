@@ -816,7 +816,7 @@ function ModifyExportSettings($return_config = false)
 		saveDBSettings($config_vars);
 
 		// Create the new directory, but revert to the previous one if anything goes wrong.
-		require_once($sourcedir . '/Profile-Actions.php');
+		require_once($sourcedir . '/Profile-Export.php');
 		create_export_dir($prev_export_dir);
 
 		// Ensure we don't lose track of any existing export files.

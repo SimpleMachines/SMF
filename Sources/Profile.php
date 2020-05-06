@@ -417,7 +417,7 @@ function ModifyProfile($post_errors = array())
 				),
 				'getprofiledata' => array(
 					'label' => $txt['export_profile_data'],
-					'file' => 'Profile-Actions.php',
+					'file' => 'Profile-Export.php',
 					'function' => 'export_profile_data',
 					'icon' => 'packages',
 					// 'token' => 'profile-ex%u', // This is not checked here. We do it in the function itself - but if it was checked, this is what it'd be.
@@ -428,7 +428,7 @@ function ModifyProfile($post_errors = array())
 				),
 				'download' => array(
 					'label' => $txt['export_profile_data'],
-					'file' => 'Profile-Actions.php',
+					'file' => 'Profile-Export.php',
 					'function' => 'download_export_file',
 					'icon' => 'packages',
 					'hidden' => true,
@@ -440,7 +440,7 @@ function ModifyProfile($post_errors = array())
 				),
 				'dlattach' => array(
 					'label' => $txt['export_profile_data'],
-					'file' => 'Profile-Actions.php',
+					'file' => 'Profile-Export.php',
 					'function' => 'export_attachment',
 					'icon' => 'packages',
 					'hidden' => true,
