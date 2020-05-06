@@ -762,24 +762,11 @@ function createToken($action, $type = 'post')
  * @param string $action The action to validate the token for
  * @param string $type The type of request (get, request, or post)
  * @param bool $reset Whether to reset the token and display an error if validation fails
- * @return bool|string If the action is login, returns the token for the action, otherwise returns whether the validation was successful
+ * @return bool returns whether the validation was successful
  */
 function validateToken($action, $type = 'post', $reset = true)
 {
 	$type = $type == 'get' || $type == 'request' ? $type : 'post';
-
-	// Logins are special: the token is used to has the password with javascript before POST it
-	if ($action == 'login')
-	{
-		if (isset($_SESSION['token'][$type . '-' . $action]))
-		{
-			$return = $_SESSION['token'][$type . '-' . $action][3];
-			unset($_SESSION['token'][$type . '-' . $action]);
-			return $return;
-		}
-		else
-			return '';
-	}
 
 	// This nasty piece of code validates a token.
 	/*
