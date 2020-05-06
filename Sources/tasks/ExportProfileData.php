@@ -18,6 +18,12 @@
 class ExportProfileData_Background extends SMF_BackgroundTask
 {
 	/**
+	 * A couple of private variables to help the static functions in this class.
+	 */
+	private static $export_details = array();
+	private static $real_modSettings = array();
+
+	/**
 	 * This is the main dispatcher for the class.
 	 * It calls the correct private function based on the information stored in
 	 * the task details.
@@ -26,12 +32,11 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	 */
 	public function execute()
 	{
-		global $context;
-
 		if (!defined('EXPORTING'))
 			define('EXPORTING', 1);
 
-		$context['export_format'] = $this->_details['format'];
+		// Inform static functions of the export format, etc.
+		self::$export_details = $this->_details;
 
 		// For exports only, members can always see their own posts, even in boards that they can no longer access.
 		$member_info = $this->getMinUserInfo(array($this->_details['uid']));
@@ -378,9 +383,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	 */
 	public static function add_dtd(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$dtd)
 	{
-		global $context;
-
-		list($stylesheet, $dtd) = self::getXsltStylesheet($context['export_format'], true);
+		list($stylesheet, $dtd) = self::getXsltXtylesheet(self::$export_details['format'], true);
 	}
 
 	/**
@@ -392,11 +395,11 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		$cache_id = '';
 
-		if ($context['export_format'] == 'HTML')
+		if (self::$export_details['format'] == 'HTML')
 		{
 			foreach (array('smileys_url', 'attachmentThumbnails') as $var)
 				if (isset($modSettings[$var]))
-					$context['real_modSettings'][$var] = $modSettings[$var];
+					self::$real_modSettings[$var] = $modSettings[$var];
 
 			$modSettings['smileys_url'] = '.';
 			$modSettings['attachmentThumbnails'] = false;
@@ -409,7 +412,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 				$modSettings['disabledBBC'] = 'attach';
 			else
 			{
-				$context['real_modSettings']['disabledBBC'] = $modSettings['disabledBBC'];
+				self::$real_modSettings['disabledBBC'] = $modSettings['disabledBBC'];
 
 				if (strpos($modSettings['disabledBBC'], 'attach') === false)
 					$modSettings['disabledBBC'] = implode(',', array_merge(array_filter(explode(',', $modSettings['disabledBBC'])), array('attach')));
@@ -425,8 +428,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		global $modSettings, $context;
 
 		foreach (array('disabledBBC', 'smileys_url', 'attachmentThumbnails') as $var)
-			if (isset($context['real_modSettings'][$var]))
-				$modSettings[$var] = $context['real_modSettings'][$var];
+			if (isset(self::$real_modSettings[$var]))
+				$modSettings[$var] = self::$real_modSettings[$var];
 	}
 
 	/**
