@@ -789,7 +789,7 @@ function validateToken($action, $type = 'post', $reset = true)
 		4. Match that result against what is in the session.
 		5. If it matches, success, otherwise we fallout.
 	*/
-	if (isset($_SESSION['token'][$type . '-' . $action], $GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action][0]]) && md5($GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action][0]] . $_SERVER['HTTP_USER_AGENT']) == $_SESSION['token'][$type . '-' . $action][1])
+	if (isset($_SESSION['token'][$type . '-' . $action], $GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action][0]]) && md5($GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action][0]] . $_SERVER['HTTP_USER_AGENT']) === $_SESSION['token'][$type . '-' . $action][1])
 	{
 		// Invalidate this token now.
 		unset($_SESSION['token'][$type . '-' . $action]);
