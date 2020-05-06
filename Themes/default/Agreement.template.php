@@ -30,21 +30,21 @@ function template_main()
 		if ($context['can_accept_agreement'])
 		{
 			echo '
-		<div class="description">
+		<div class="information">
 			', $txt['agreement_updated_desc'], '
 		</div>';
 		}
 		elseif (!empty($context['agreement_accepted_date']))
 		{
 			echo '
-		<div class="description">
+		<div class="information noup">
 			', sprintf($txt['agreement_accepted'], timeformat($context['agreement_accepted_date'], false)), '
 		</div>';
 		}
 
 		echo '
-		<div class="roundframe">
-			<div>', $context['agreement'], '</div>
+		<div class="windowbg">
+			', $context['agreement'], '
 		</div>';
 	}
 
@@ -58,29 +58,29 @@ function template_main()
 		if ($context['can_accept_privacy_policy'])
 		{
 			echo '
-		<div class="description">
+		<div class="information">
 			', $txt['privacy_policy_updated_desc'], '
 		</div>';
 		}
 		elseif (!empty($context['privacy_policy_accepted_date']))
 		{
 			echo '
-		<div class="description">
+		<div class="information noup">
 			', sprintf($txt['privacy_policy_accepted'], timeformat($context['privacy_policy_accepted_date'], false)), '
 		</div>';
 		}
 
 		echo '
-		<div class="roundframe">
-			<div>', $context['policy'], '</div>
+		<div class="windowbg">
+			', $context['policy'], '
 		</div>';
 	}
 
 	if (!empty($context['accept_doc']))
 		echo '
-		<div id="confirm_buttons">
-			<input type="submit" value="', $txt['agree'], '" class="button" />
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+		<div class="righttext">
+			<input type="submit" value="', $txt['agree'], '" class="button">
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</div>
 	</form>';
 }

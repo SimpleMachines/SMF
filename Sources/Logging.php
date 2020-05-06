@@ -502,7 +502,7 @@ function logActions($logs)
 		}
 
 		$always_log = array('agreement_accepted', 'policy_accepted', 'agreement_updated', 'policy_updated');
-		if ((empty($modSettings['modlog_enabled']) && !in_array($action, $always_log)) || !isset($log_types[$log_type]))
+		if ((empty($modSettings['modlog_enabled']) && !in_array($action, $always_log)) || !isset($log['log_type']))
 				return false;
 
 		if (isset($log['extra']['member']) && !is_numeric($log['extra']['member']))
