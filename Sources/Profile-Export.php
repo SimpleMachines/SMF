@@ -35,6 +35,9 @@ function export_profile_data($uid)
 
 	$context['export_formats'] = get_export_formats();
 
+	if (isset($_POST['format']) && !isset($context['export_formats'][$_POST['format']]))
+		unset($_POST['format']);
+
 	// This lists the types of data we can export and info for doing so.
 	$context['export_datatypes'] = array(
 		'profile' => array(
@@ -235,7 +238,7 @@ function export_profile_data($uid)
 			$included = array_intersect(array_keys($context['export_datatypes']), array_keys($_POST));
 
 		// If we're starting a new export in this format, we're done here.
-		if (!empty($_POST['export_begin']) && $_POST['format'] === $format)
+		if (!empty($_POST['export_begin']) && isset($_POST['format']) && $_POST['format'] === $format)
 			break;
 
 		// The rest of this loop deals with current exports, if any.
