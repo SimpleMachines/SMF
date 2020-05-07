@@ -632,8 +632,7 @@ function dumpTags($data, $i, $xml_format = '', $forceCdataKeys = array(), $nsKey
 	// For every array in the data...
 	foreach ($data as $element)
 	{
-		// If a tag was passed, use it instead of the key.
-		$key = $element['tag'];
+		$key = isset($element['tag']) ? $element['tag'] : null;
 		$val = isset($element['content']) ? $element['content'] : null;
 		$attrs = isset($element['attributes']) ? $element['attributes'] : null;
 
