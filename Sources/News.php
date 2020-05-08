@@ -2089,7 +2089,7 @@ function getXmlPosts($xml_format, $ascending = false)
 	require_once($sourcedir . '/Subs-Attachments.php');
 
 	$request = $smcFunc['db_query']('', '
-		SELECT m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_name, m.poster_email, m.poster_ip, m.poster_time, m.subject,
+		SELECT m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_email, m.poster_ip, m.poster_time, m.subject,
 			modified_time, m.modified_name, m.modified_reason, m.body, m.likes, m.approved, m.smileys_enabled, b.name AS bname
 		FROM {db_prefix}messages as m
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -2297,7 +2297,7 @@ function getXmlPosts($xml_format, $ascending = false)
 						'content' => array(
 							array(
 								'tag' => 'name',
-								'content' => $row['poster_name'],
+								'content' => !empty($user_info['name']) ? $user_info['name'] : $user_info['username'],
 								'cdata' => true,
 							),
 							array(
@@ -2417,7 +2417,7 @@ function getXmlPosts($xml_format, $ascending = false)
 							array(
 								'tag' => 'name',
 								'attributes' => array('label' => $txt['name']),
-								'content' => $row['poster_name'],
+								'content' => !empty($user_info['name']) ? $user_info['name'] : $user_info['username'],
 								'cdata' => true,
 							),
 							array(
@@ -2549,10 +2549,11 @@ function getXmlPMs($xml_format, $ascending = false)
 	$select_to_names = $smcFunc['db_title'] === POSTGRE_TITLE ? "string_agg(COALESCE(mem.real_name, mem.member_name), ',')" : 'GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name))';
 
 	$request = $smcFunc['db_query']('', '
-		SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, pm.from_name, ' . $select_id_members_to . ' AS id_members_to, ' . $select_to_names . ' AS to_names
+		SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, COALESCE(memf.real_name, pm.from_name) AS from_name, ' . $select_id_members_to . ' AS id_members_to, ' . $select_to_names . ' AS to_names
 		FROM {db_prefix}personal_messages AS pm
 			INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = pmr.id_member)
+			LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = pm.id_member_from)
 		WHERE pm.id_pm > {int:start_after}
 			AND (
 				(pm.id_member_from = {int:uid} AND pm.deleted_by_sender = {int:not_deleted})
