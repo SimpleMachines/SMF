@@ -395,7 +395,7 @@ function export_profile_data($uid)
 		checkSession();
 		validateToken($context['token_check'], 'post');
 
-		$format = isset($context['export_formats'][$_POST['format']]) ? $_POST['format'] : 'XML';
+		$format = isset($_POST['format']) && isset($context['export_formats'][$_POST['format']]) ? $_POST['format'] : 'XML';
 
 		$included = array();
 		foreach ($context['export_datatypes'] as $datatype => $datatype_settings)
