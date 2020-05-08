@@ -4247,7 +4247,7 @@ function template_backup_database()
 					<h3 id="current_tab">
 						', $txt['upgrade_current_table'], ' &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;
 					</h3>
-					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">Backup Complete! Click Continue to Proceed.</p>';
+					<p id="commess" class="', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline_block' : 'hidden', '">', $txt['upgrade_backup_complete'], '</p>';
 
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;

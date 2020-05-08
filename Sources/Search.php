@@ -1779,22 +1779,17 @@ function PlushSearch2()
 			}
 		}
 
+		$approve_query = '';
 		if (!empty($modSettings['postmod_active']))
 		{
-			$approve_boards = boardsAllowedTo('approve_posts');
-
-			// Can approve everywhere, so search all topics.
-			if ($approve_boards === array(0))
-		 		$approve_query = '';
-
-		 	// Can't approve anywhere, so search ony their own topics and approved topics.
-		 	elseif (empty($approve_boards))
-		 		$approve_query = '
+			// Exclude unapproved topics, but show ones they started.
+			if (empty($user_info['mod_cache']['ap']))
+				$approve_query = '
 				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})';
 
-		 	// Can approve in some boards, so search own, approved, and approvable topics.
-		 	else
-		 		$approve_query = '
+			// Show unapproved topics in boards they have access to.
+			elseif ($user_info['mod_cache']['ap'] !== array(0))
+				$approve_query = '
 				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member} OR t.id_board IN ({array_int:approve_boards}))';
 		}
 
@@ -1815,7 +1810,7 @@ function PlushSearch2()
 				'max' => $modSettings['search_results_per_page'],
 				'is_approved' => 1,
 				'current_member' => $user_info['id'],
-				'approve_boards' => !empty($approve_boards) ? $approve_boards : array(0),
+				'approve_boards' => !empty($modSettings['postmod_active']) ? $user_info['mod_cache']['ap'] : array(),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -1840,9 +1835,6 @@ function PlushSearch2()
 		if (!empty($options['display_quick_mod']))
 			$perms = array_merge($perms, array('lock_any', 'lock_own', 'make_sticky', 'move_any', 'move_own', 'remove_any', 'remove_own', 'merge_any'));
 
-		if (!empty($modSettings['postmod_active']) && !isset($approve_boards))
-			$perms[] = 'approve_posts';
-
 		$boards_can = boardsAllowedTo($perms, true, false);
 
 		// How's about some quick moderation?
@@ -1855,20 +1847,15 @@ function PlushSearch2()
 			$context['can_merge'] = in_array(0, $boards_can['merge_any']);
 		}
 
+		$approve_query = '';
 		if (!empty($modSettings['postmod_active']))
 		{
-			if (!isset($approve_boards))
-				$approve_boards = $boards_can['approve_posts'];
-
-			if ($approve_boards === array(0))
-		 		$approve_query = '';
-
-		 	elseif (empty($approve_boards))
-		 		$approve_query = '
+			if (empty($user_info['mod_cache']['ap']))
+				$approve_query = '
 				AND (m.approved = {int:is_approved} OR m.id_member = {int:current_member})';
 
-		 	else
-		 		$approve_query = '
+			elseif ($user_info['mod_cache']['ap'] !== array(0))
+				$approve_query = '
 				AND (m.approved = {int:is_approved} OR m.id_member = {int:current_member} OR m.id_board IN ({array_int:approve_boards}))';
 		}
 
@@ -1924,7 +1911,7 @@ function PlushSearch2()
 				'message_list' => $msg_list,
 				'is_approved' => 1,
 				'current_member' => $user_info['id'],
-				'approve_boards' => !empty($approve_boards) ? $approve_boards : array(0),
+				'approve_boards' => !empty($modSettings['postmod_active']) ? $user_info['mod_cache']['ap'] : array(),
 				'limit' => count($context['topics']),
 			)
 		);
