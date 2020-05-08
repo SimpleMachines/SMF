@@ -354,7 +354,7 @@ abstract class SMF_BackgroundTask
 	 */
 	public function getMinUserInfo($user_ids = array())
 	{
-		return loadMinUserSettings($user_ids);
+		return loadMinUserInfo($user_ids);
 	}
 
 	public function __destruct()

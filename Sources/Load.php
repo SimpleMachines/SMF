@@ -851,29 +851,31 @@ function loadUserSettings()
 }
 
 /**
- * Load minimal user settings from members table.
+ * Load minimal user info from members table.
  * Intended for use by background tasks that need to populate $user_info.
  *
  * @param int|array $user_ids The users IDs to get the data for.
  * @return array
  * @throws Exception
  */
-function loadMinUserSettings($user_ids = array())
+function loadMinUserInfo($user_ids = array())
 {
 	global $smcFunc, $modSettings, $language;
-	static $user_settings_min = array();
+	static $user_info_min = array();
 
 	$user_ids = (array) $user_ids;
 
 	// Already loaded?
 	if (!empty($user_ids))
-		$user_ids = array_diff($user_ids, array_keys($user_settings_min));
+		$user_ids = array_diff($user_ids, array_keys($user_info_min));
 
 	if (empty($user_ids))
-		return $user_settings_min;
+		return $user_info_min;
 
 	$columns_to_load = array(
 		'id_member',
+		'member_name',
+		'real_name',
 		'time_offset',
 		'additional_groups',
 		'id_group',
@@ -897,8 +899,10 @@ function loadMinUserSettings($user_ids = array())
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$user_settings_min[$row['id_member']] = array(
+		$user_info_min[$row['id_member']] = array(
 			'id' => $row['id_member'],
+			'username' => $row['member_name'],
+			'name' => isset($row['real_name']) ? $row['real_name'] : '',
 			'language' => (empty($row['lngfile']) || empty($modSettings['userLanguage'])) ? $language : $row['lngfile'],
 			'is_guest' => false,
 			'time_format' => empty($row['time_format']) ? $modSettings['time_format'] : $row['time_format'],
@@ -906,15 +910,15 @@ function loadMinUserSettings($user_ids = array())
 		);
 
 		if (empty($row['additional_groups']))
-			$user_settings_min[$row['id_member']]['groups'] = array($row['id_group'], $row['id_post_group']);
+			$user_info_min[$row['id_member']]['groups'] = array($row['id_group'], $row['id_post_group']);
 
 		else
-			$user_settings_min[$row['id_member']]['groups'] = array_merge(
+			$user_info_min[$row['id_member']]['groups'] = array_merge(
 				array($row['id_group'], $row['id_post_group']),
 				explode(',', $row['additional_groups'])
 			);
 
-		$user_settings_min[$row['id_member']]['is_admin'] = in_array(1, $user_settings_min[$row['id_member']]['groups']);
+		$user_info_min[$row['id_member']]['is_admin'] = in_array(1, $user_info_min[$row['id_member']]['groups']);
 
 		if (!empty($row['timezone']))
 		{
@@ -922,21 +926,20 @@ function loadMinUserSettings($user_ids = array())
 			$tz_user = new \DateTimeZone($row['timezone']);
 			$time_system = new \DateTime('now', $tz_system);
 			$time_user = new \DateTime('now', $tz_user);
-			$user_settings_min[$row['id_member']]['time_offset'] = ($tz_user->getOffset($time_user) -
+			$user_info_min[$row['id_member']]['time_offset'] = ($tz_user->getOffset($time_user) -
 					$tz_system->getOffset($time_system)) / 3600;
 		}
 
 		else
-			$user_settings_min[$row['id_member']]['time_offset'] = empty($row['time_offset']) ? 0 : $row['time_offset'];
+			$user_info_min[$row['id_member']]['time_offset'] = empty($row['time_offset']) ? 0 : $row['time_offset'];
 	}
 
 	$smcFunc['db_free_result']($request);
 
-	call_integration_hook('integrate_load_min_user_settings', array(&$user_settings_min));
+	call_integration_hook('integrate_load_min_user_settings', array(&$user_info_min));
 
-	return $user_settings_min;
+	return $user_info_min;
 }
-
 
 /**
  * Check for moderators and see if they have access to the board.
