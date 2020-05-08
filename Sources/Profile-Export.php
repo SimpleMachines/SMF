@@ -309,7 +309,7 @@ function export_profile_data($uid)
 					@unlink($tempfile);
 					rename($realfile, $tempfile);
 
-					list($stylesheet, $dtd) = get_xslt_stylesheet($format);
+					list($stylesheet, $dtd) = get_xslt_stylesheet($format, $uid);
 
 					require_once($sourcedir . DIRECTORY_SEPARATOR . 'News.php');
 					buildXmlFeed('smf', array(), array_fill_keys(array(), 'foo'), 'profile');
@@ -820,20 +820,25 @@ function create_export_dir($fallback = '')
  * into the desired output format.
  *
  * @param string $format The desired output format. Currently accepts 'HTML' and 'XML_XSLT'.
+ * @param int $uid The ID of the member whose data we're exporting.
  * @return array The XSLT stylesheet and a (possibly empty) DTD to insert into the XML document.
  */
-function get_xslt_stylesheet($format)
+function get_xslt_stylesheet($format, $uid)
 {
-	global $context, $txt, $settings, $modSettings, $sourcedir, $forum_copyright;
+	global $context, $txt, $settings, $modSettings, $sourcedir, $forum_copyright, $smcFunc;
 
-	require_once($sourcedir . DIRECTORY_SEPARATOR . 'News.php');
+	static $xslts = array();
 
+	$dtd = '';
 	$stylesheet = array();
+	$xslt_variables = array();
 
 	// Do not change any of these to HTTPS URLs. For explanation, see comments in the buildXmlFeed() function.
 	$smf_ns = 'htt'.'p:/'.'/ww'.'w.simple'.'machines.o'.'rg/xml/profile';
 	$xslt_ns = 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/XSL/Transform';
 	$html_ns = 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/xhtml';
+
+	require_once($sourcedir . DIRECTORY_SEPARATOR . 'News.php');
 
 	if (in_array($format, array('HTML', 'XML_XSLT')))
 	{
@@ -859,7 +864,7 @@ function get_xslt_stylesheet($format)
 				'value' => $settings['default_theme_url'],
 			),
 			'member-id' => array(
-				'value' => $context['xmlnews_uid'],
+				'value' => $uid,
 			),
 			'copyright' => array(
 				'value' => sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR),
@@ -893,10 +898,15 @@ function get_xslt_stylesheet($format)
 		// Let mods adjust the XSLT variables.
 		call_integration_hook('integrate_export_xslt_variables', array(&$xslt_variables, $format));
 
-		$idhash = hash_hmac('sha1', $context['xmlnews_uid'], get_auth_secret());
+		$idhash = hash_hmac('sha1', $uid, get_auth_secret());
 		$xslt_variables['dltoken'] = array(
 			'value' => hash_hmac('sha1', $idhash, get_auth_secret())
 		);
+
+		// Efficiency = good.
+		$xslt_key = $smcFunc['json_encode'](array($format, $uid, $xslt_variables));
+		if (isset($xslts[$xslt_key]))
+			return $xslts[$xslt_key];
 
 		if ($embedded)
 		{
@@ -912,7 +922,8 @@ function get_xslt_stylesheet($format)
 			));
 
 			$stylesheet['header'] = "\n" . implode("\n", array(
-				'<xsl:stylesheet version="1.0" xmlns:xsl="' . $xslt_ns . '" xmlns:html="' . $html_ns . '" xmlns:smf="' . $smf_ns . '" exclude-result-prefixes="smf html" id="stylesheet">',
+				'',
+				"\t" . '<xsl:stylesheet version="1.0" xmlns:xsl="' . $xslt_ns . '" xmlns:html="' . $html_ns . '" xmlns:smf="' . $smf_ns . '" exclude-result-prefixes="smf html" id="stylesheet">',
 				'',
 				"\t\t" . '<xsl:template match="xsl:stylesheet"/>',
 				"\t\t" . '<xsl:template match="xsl:stylesheet" mode="detailedinfo"/>',
@@ -1672,13 +1683,17 @@ function get_xslt_stylesheet($format)
 		</xsl:template>';
 
 		// End of the XSLT stylesheet
-		$stylesheet['footer'] = '</xsl:stylesheet>';
+		$stylesheet['footer'] = ($embedded? "\t" : '') . '</xsl:stylesheet>';
 	}
 
 	// Let mods adjust the XSLT stylesheet.
 	call_integration_hook('integrate_export_xslt_stylesheet', array(&$stylesheet, $format));
 
-	return array(implode("\n", (array) $stylesheet), $dtd);
+	// Remember for later.
+	$xslt_key = isset($xslt_key) ? $xslt_key : $smcFunc['json_encode'](array($format, $uid, $xslt_variables));
+	$xslts[$xslt_key] = array('stylesheet' => implode("\n", (array) $stylesheet), 'dtd' => $dtd);
+
+	return $xslts[$xslt_key];
 }
 
 /**

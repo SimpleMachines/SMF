@@ -19,10 +19,11 @@
 class ExportProfileData_Background extends SMF_BackgroundTask
 {
 	/**
-	 * A couple of private variables to help the static functions in this class.
+	 * Some private variables to help the static functions in this class.
 	 */
 	private static $export_details = array();
 	private static $real_modSettings = array();
+	private static $xslt_info = array();
 
 	/**
 	 * This is the main dispatcher for the class.
@@ -336,11 +337,11 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		// We have work to do, so get the XSLT.
 		require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
-		list($stylesheet, $dtd) = get_xslt_stylesheet($this->_details['format']);
+		self::$xslt_info = get_xslt_stylesheet($this->_details['format'], $this->_details['uid']);
 
 		// Set up the XSLT processor.
 		$xslt = new DOMDocument();
-		$xslt->loadXML($stylesheet);
+		$xslt->loadXML(self::$xslt_info['stylesheet']);
 		$xsltproc = new XSLTProcessor();
 		$xsltproc->importStylesheet($xslt);
 
@@ -382,7 +383,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		// We have work to do, so get the XSLT.
 		require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
-		list($stylesheet, $dtd) = get_xslt_stylesheet($this->_details['format']);
+		self::$xslt_info = get_xslt_stylesheet($this->_details['format'], $this->_details['uid']);
 
 		// Embedding the XSLT means writing to the file yet again.
 		foreach ($completed_files as $exportfilepath)
@@ -392,10 +393,10 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			{
 				fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);
 
-				$bytes_written = fwrite($handle, $stylesheet . $context['feed']['footer']);
+				$bytes_written = fwrite($handle, self::$xslt_info['stylesheet'] . $context['feed']['footer']);
 
 				// If we couldn't write everything, revert the changes.
-				if ($bytes_written > 0 && $bytes_written < strlen($stylesheet . $context['feed']['footer']))
+				if ($bytes_written > 0 && $bytes_written < strlen(self::$xslt_info['stylesheet'] . $context['feed']['footer']))
 				{
 					fseek($handle, $bytes_written * -1, SEEK_END);
 					$pointer_pos = ftell($handle);
@@ -419,7 +420,9 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		global $sourcedir;
 
 		require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
-		list($stylesheet, $dtd) = get_xslt_stylesheet(self::$export_details['format']);
+		self::$xslt_info = get_xslt_stylesheet(self::$export_details['format'], self::$export_details['uid']);
+
+		$dtd = self::$xslt_info['dtd'];
 	}
 
 	/**
