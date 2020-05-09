@@ -41,7 +41,7 @@ function export_profile_data($uid)
 	// This lists the types of data we can export and info for doing so.
 	$context['export_datatypes'] = array(
 		'profile' => array(
-			'label' => $txt['export_include_profile'],
+			'label' => null,
 			'total' => 1,
 			'latest' => 1,
 			// Instructions to pass to ExportProfileData background task:
@@ -400,7 +400,7 @@ function export_profile_data($uid)
 		$included = array();
 		foreach ($context['export_datatypes'] as $datatype => $datatype_settings)
 		{
-			if (!empty($_POST[$datatype]))
+			if ($datatype == 'profile' || !empty($_POST[$datatype]))
 			{
 				$included[$datatype] = $datatype_settings[$format];
 				$start[$datatype] = !empty($start[$datatype]) ? $start[$datatype] : 0;
@@ -410,36 +410,30 @@ function export_profile_data($uid)
 			}
 		}
 
-		if (empty($included))
-			unset($context['active_exports'][$idhash . '.' . $context['export_formats'][$format]['extension']]);
-		else
-		{
-			$data = $smcFunc['json_encode'](array(
-				'format' => $format,
-				'uid' => $uid,
-				'lang' => $context['member']['language'],
-				'included' => $included,
-				'start' => $start,
-				'latest' => $latest,
-				'datatype' => isset($current_datatype) ? $current_datatype : key($included),
-				'format_settings' => $context['export_formats'][$format],
-			));
+		$data = $smcFunc['json_encode'](array(
+			'format' => $format,
+			'uid' => $uid,
+			'lang' => $context['member']['language'],
+			'included' => $included,
+			'start' => $start,
+			'latest' => $latest,
+			'datatype' => isset($current_datatype) ? $current_datatype : key($included),
+			'format_settings' => $context['export_formats'][$format],
+		));
 
-			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
-				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $data, 0),
-				array()
-			);
+		$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+			array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
+			array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $data, 0),
+			array()
+		);
 
-			// So the user can see that we've started.
-			if (!file_exists($realfile) && !file_exists($tempfile) && !file_exists($progressfile))
-			{
-				touch($tempfile);
-				file_put_contents($progressfile, $smcFunc['json_encode'](array_fill_keys(array_keys($included), 0)));
-			}
+		// So the user can see that we've started.
+		if (!file_exists($tempfile))
+			touch($tempfile);
+		if (!file_exists($progressfile))
+			file_put_contents($progressfile, $smcFunc['json_encode'](array_fill_keys(array_keys($included), 0)));
 
-			redirectexit('action=profile;area=getprofiledata;u=' . $uid);
-		}
+		redirectexit('action=profile;area=getprofiledata;u=' . $uid);
 	}
 
 	createToken($context['token_check'], 'post');
@@ -735,26 +729,31 @@ function get_export_formats()
 			'extension' => 'styled.xml',
 			'mime' => 'text/xml',
 			'description' => $txt['export_format_xml_xslt'],
+			'per_page' => 500,
 		),
 		'HTML' => array(
 			'extension' => 'html',
 			'mime' => 'text/html',
 			'description' => $txt['export_format_html'],
+			'per_page' => 500,
 		),
 		'XML' => array(
 			'extension' => 'xml',
 			'mime' => 'text/xml',
 			'description' => $txt['export_format_xml'],
+			'per_page' => 2000,
 		),
 		// 'CSV' => array(
 		// 	'extension' => 'csv',
 		// 	'mime' => 'text/csv',
 		// 	'description' => $txt['export_format_csv'],
+		//	'per_page' => 2000,
 		// ),
 		// 'JSON' => array(
 		// 	'extension' => 'json',
 		// 	'mime' => 'application/json',
 		// 	'description' => $txt['export_format_json'],
+		//	'per_page' => 2000,
 		// ),
 	);
 
@@ -1279,7 +1278,6 @@ function get_xslt_stylesheet($format, $uid)
 										<xsl:when test="contains(body/text(), \'[html]\')">
 											<xsl:call-template name="bbc_html_splitter">
 												<xsl:with-param name="bbc_string" select="body/text()"/>
-												<xsl:with-param name="inside_outside" select="outside"/>
 											</xsl:call-template>
 										</xsl:when>
 										<xsl:otherwise>
@@ -1384,7 +1382,6 @@ function get_xslt_stylesheet($format, $uid)
 								<div class="inner monospace" style="display:none;">
 									<xsl:call-template name="bbc_html_splitter">
 										<xsl:with-param name="bbc_string" select="body/text()"/>
-										<xsl:with-param name="inside_outside" select="outside"/>
 									</xsl:call-template>
 								</div>
 							</div>
@@ -1547,7 +1544,7 @@ function get_xslt_stylesheet($format, $uid)
 		$stylesheet['bbc_html'] = '
 		<xsl:template name="bbc_html_splitter">
 			<xsl:param name="bbc_string"/>
-			<xsl:param name="inside_outside"/>
+			<xsl:param name="inside_outside" select="outside"/>
 			<xsl:choose>
 				<xsl:when test="$inside_outside = \'outside\'">
 					<xsl:choose>

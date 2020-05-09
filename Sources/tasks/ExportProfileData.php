@@ -108,6 +108,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		// Setup.
 		$done = false;
+		$delay = 0;
 		$func = $included[$datatype]['func'];
 		$context['xmlnews_uid'] = $uid;
 		$context['xmlnews_limit'] = !empty($modSettings['export_rate']) ? $modSettings['export_rate'] : 250;
@@ -154,17 +155,25 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			'desc' => sentence_list(array_map(function ($datatype) use ($txt) { return $txt[$datatype]; }, array_keys($included))),
 			'author' => $mbname,
 			'source' => $scripturl . '?action=profile;u=' . $uid,
-			'self' => $scripturl . '?action=profile;area=download;u=' . $uid . ';t=' . hash_hmac('sha1', $idhash, get_auth_secret()),
+			'self' => '', // Unused, but can't be null.
+			'page' => &$filenum,
 		);
 
+		// Some paranoid hosts disable or hamstring the disk space functions in an attempt at security via obscurity.
+		$check_diskspace = !empty($modSettings['export_min_diskspace_pct']) && function_exists('disk_free_space') && function_exists('disk_total_space') && intval(@disk_total_space($modSettings['export_dir']) >= 1440);
+		$minspace = $check_diskspace ? ceil(disk_total_space($modSettings['export_dir']) * $modSettings['export_min_diskspace_pct'] / 100) : 0;
+
 		// If a necessary file is missing, we need to start over.
-		if (!file_exists($tempfile) || filesize($tempfile) == 0 || !file_exists($progressfile) || filesize($progressfile) == 0)
+		if (!file_exists($tempfile) || !file_exists($progressfile) || filesize($progressfile) == 0)
 		{
 			foreach (array_merge(array($tempfile, $progressfile), glob($export_dir_slash . '*_' . $idhash_ext)) as $fpath)
 				@unlink($fpath);
 
+			$filenum = 1;
+			$realfile = $export_dir_slash . $filenum . '_' . $idhash_ext;
+
 			buildXmlFeed('smf', array(), $feed_meta, 'profile');
-			file_put_contents($tempfile, implode('', array($context['feed']['header'], $context['feed']['footer'])));
+			file_put_contents($tempfile, implode('', $context['feed']));
 
 			$progress = array_fill_keys($datatypes, 0);
 			file_put_contents($progressfile, $smcFunc['json_encode']($progress));
@@ -172,99 +181,167 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		else
 			$progress = $smcFunc['json_decode'](file_get_contents($progressfile), true);
 
+		// If the temporary file has grown enormous, save it so we can start a new one.
+		// Under normal circumstances this should never happen.
+		if (file_exists($tempfile) && filesize($tempfile) >= 1024 * 1024 * 250)
+		{
+			rename($tempfile, $realfile);
+			$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
+		}
+
 		// Get the data, always in ascending order.
 		$xml_data = call_user_func($included[$datatype]['func'], 'smf', true);
 
-		// Build the XML string from the data.
-		buildXmlFeed('smf', $xml_data, $feed_meta, $datatype);
+		// No data retrived? Just move on then.
+		if (empty($xml_data))
+			$datatype_done = true;
 
-		$last_item = end($xml_data);
-		if (isset($last_item['content'][0]['content']) && $last_item['content'][0]['tag'] === 'id')
-			$last_id = $last_item['content'][0]['content'];
-
-		// Some paranoid hosts disable or hamstring the disk space functions in an attempt at security via obscurity.
-		$diskspace = function_exists('disk_free_space') ? @disk_free_space($modSettings['export_dir']) : false;
-		if (!is_int($diskspace))
-			$diskspace = PHP_INT_MAX;
-
-		if (empty($modSettings['export_min_diskspace_pct']))
-			$minspace = 0;
-		else
+		// Basic profile data is quick and easy.
+		elseif ($datatype == 'profile')
 		{
-			$totalspace = function_exists('disk_total_space') ? @disk_total_space($modSettings['export_dir']) : false;
-			$minspace = intval($totalspace) < 1440 ? 0 : $totalspace * $modSettings['export_min_diskspace_pct'] / 100;
+			buildXmlFeed('smf', $xml_data, $feed_meta, 'profile');
+			file_put_contents($tempfile, implode('', $context['feed']));
+
+			$progress[$datatype] = time();
+			$datatype_done = true;
+
+			// Cache for subsequent reuse.
+			$profile_basic_items = $context['feed']['items'];
+			cache_put_data('export_profile_basic-' . $uid, $profile_basic_items, MAX_CLAIM_THRESHOLD);
 		}
 
-		// Append the string (assuming there's enough disk space).
-		if ($diskspace - $minspace > strlen($context['feed']['items']))
+		// Posts and PMs...
+		else
 		{
-			// If the temporary file has grown to 250MB, save it and start a new one.
-			if (file_exists($tempfile) && (filesize($tempfile) + strlen($context['feed']['items'])) >= 1024 * 1024 * 250)
+			// We need the basic profile data in every export file.
+			$profile_basic_items = cache_get_data('export_profile_basic-' . $uid, MAX_CLAIM_THRESHOLD);
+			if (empty($profile_basic_items))
 			{
-				rename($tempfile, $realfile);
-				$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
-
-				file_put_contents($tempfile, implode('', array($context['feed']['header'], $context['feed']['footer'])));
+				$profile_data = call_user_func($included['profile']['func'], 'smf', true);
+				buildXmlFeed('smf', $profile_data, $feed_meta, 'profile');
+				$profile_basic_items = $context['feed']['items'];
+				cache_put_data('export_profile_basic-' . $uid, $profile_basic_items, MAX_CLAIM_THRESHOLD);
+				unset($context['feed']);
 			}
 
-			// Insert the new data before the feed footer.
-			$handle = fopen($tempfile, 'r+');
-			if (is_resource($handle))
+			$per_page = $this->_details['format_settings']['per_page'];
+			$prev_item_count = empty($this->_details['item_count']) ? 0 : $this->_details['item_count'];
+
+			// Remember the last item so we know where to start next time.
+			$last_item = end($xml_data);
+			if (isset($last_item['content'][0]['content']) && $last_item['content'][0]['tag'] === 'id')
+				$last_id = $last_item['content'][0]['content'];
+
+			// Split $xml_data into reasonably sized chunks.
+			if (empty($prev_item_count))
 			{
-				fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);
-
-				$bytes_written = fwrite($handle, $context['feed']['items'] . $context['feed']['footer']);
-
-				// If we couldn't write everything, revert the changes and consider the write to have failed.
-				if ($bytes_written > 0 && $bytes_written < strlen($context['feed']['items'] . $context['feed']['footer']))
-				{
-					fseek($handle, $bytes_written * -1, SEEK_END);
-					$pointer_pos = ftell($handle);
-					ftruncate($handle, $pointer_pos);
-					rewind($handle);
-					fseek($handle, 0, SEEK_END);
-					fwrite($handle, $context['feed']['footer']);
-
-					$bytes_written = false;
-				}
-
-				fclose($handle);
+				$xml_data = array_chunk($xml_data, $per_page);
 			}
-
-			// All went well.
-			if (!empty($bytes_written))
-			{
-				// Track progress by ID where appropriate, and by time otherwise.
-				$progress[$datatype] = !isset($last_id) ? time() : $last_id;
-
-				// Decide what to do next.
-				if (!isset($last_id) || $last_id >= $latest[$datatype])
-				{
-					$datatype_key = array_search($datatype, $datatypes);
-					$done = !isset($datatypes[$datatype_key + 1]);
-
-					if (!$done)
-						$datatype = $datatypes[$datatype_key + 1];
-				}
-
-				$delay = 0;
-			}
-			// Write failed. We'll try again next time.
 			else
-				$delay = MAX_CLAIM_THRESHOLD;
-		}
-		// Not enough disk space, so pause for a day to give the admin a chance to fix it.
-		else
-			$delay = 86400;
+			{
+				$first_chunk = array_splice($xml_data, 0, $per_page - $prev_item_count);
+				$xml_data = array_merge(array($first_chunk), array_chunk($xml_data, $per_page));
+				unset($first_chunk);
+			}
 
-		// Remove the .tmp extension so the system knows that the file is ready for download.
+			foreach ($xml_data as $chunk => $items)
+			{
+				unset($new_item_count);
+
+				// Build the XML string from the data.
+				buildXmlFeed('smf', $items, $feed_meta, 'profile');
+
+				// If disk space is insufficient, pause for a day so the admin can fix it.
+				if ($check_diskspace && disk_free_space($modSettings['export_dir']) - $minspace <= strlen($context['feed']['items']))
+				{
+					loadLanguage('Errors');
+					log_error(sprintf($txt['export_low_diskspace'], $modSettings['export_min_diskspace_pct']));
+
+					$delay = 86400;
+				}
+				else
+				{
+					// We need a file to write to, of course.
+					if (!file_exists($tempfile))
+						file_put_contents($tempfile, implode('', array($context['feed']['header'], $profile_basic_items, $context['feed']['footer'])));
+
+					// Insert the new data before the feed footer.
+					$handle = fopen($tempfile, 'r+');
+					if (is_resource($handle))
+					{
+						fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);
+
+						$bytes_written = fwrite($handle, $context['feed']['items'] . $context['feed']['footer']);
+
+						// If we couldn't write everything, revert the changes and consider the write to have failed.
+						if ($bytes_written > 0 && $bytes_written < strlen($context['feed']['items'] . $context['feed']['footer']))
+						{
+							fseek($handle, $bytes_written * -1, SEEK_END);
+							$pointer_pos = ftell($handle);
+							ftruncate($handle, $pointer_pos);
+							rewind($handle);
+							fseek($handle, 0, SEEK_END);
+							fwrite($handle, $context['feed']['footer']);
+
+							$bytes_written = false;
+						}
+
+						fclose($handle);
+					}
+
+					// Write failed. We'll try again next time.
+					if (empty($bytes_written))
+					{
+						$delay = MAX_CLAIM_THRESHOLD;
+						break;
+					}
+
+					// All went well.
+					else
+					{
+						// Track progress by ID where appropriate, and by time otherwise.
+						$progress[$datatype] = !isset($last_id) ? time() : $last_id;
+
+						// Are we done with this datatype yet?
+						if (!isset($last_id) || (count($items) < $per_page && $last_id >= $latest[$datatype]))
+							$datatype_done = true;
+
+						// Finished the file for this chunk, so move on to the next one.
+						if (count($items) >= $per_page - $prev_item_count)
+						{
+							rename($tempfile, $realfile);
+							$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
+
+							$prev_item_count = $new_item_count = 0;
+						}
+						// This was the last chunk.
+						else
+						{
+							// Should we append more items to this file next time?
+							$new_item_count = isset($last_id) ? $prev_item_count + count($items) : 0;
+						}
+					}
+				}
+			}
+		}
+
+		if (!empty($datatype_done))
+		{
+			$datatype_key = array_search($datatype, $datatypes);
+			$done = !isset($datatypes[$datatype_key + 1]);
+
+			if (!$done)
+				$datatype = $datatypes[$datatype_key + 1];
+		}
+
+		// Remove the .tmp extension from the final tempfile so the system knows it's done.
 		if (!empty($done))
 		{
 			// For XML exports, things are easy.
 			if (in_array($this->_details['format'], array('XML', 'XML_XSLT')))
 				rename($tempfile, $realfile);
 
-			// For other formats, keep a copy of tempfile in case we need to append more data later.
+			// For other formats, back up tempfile in case we need to append more data later.
 			else
 			{
 				copy($tempfile, $realfile);
@@ -284,7 +361,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		{
 			$start[$datatype] = $progress[$datatype];
 
-			$data = $smcFunc['json_encode'](array(
+			$new_details = array(
 				'format' => $this->_details['format'],
 				'uid' => $uid,
 				'lang' => $lang,
@@ -293,13 +370,21 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 				'latest' => $latest,
 				'datatype' => $datatype,
 				'format_settings' => $this->_details['format_settings'],
-			));
+			);
+			if (!empty($new_item_count))
+				$new_details['item_count'] = $new_item_count;
 
 			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $data, time() - MAX_CLAIM_THRESHOLD + $delay),
+				array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $smcFunc['json_encode']($new_details), time() - MAX_CLAIM_THRESHOLD + $delay),
 				array()
 			);
+
+			if (!file_exists($tempfile))
+			{
+				buildXmlFeed('smf', array(), $feed_meta, 'profile');
+				file_put_contents($tempfile, implode('', array($context['feed']['header'], !empty($profile_basic_items) ? $profile_basic_items : '', $context['feed']['footer'])));
+			}
 		}
 
 		file_put_contents($progressfile, $smcFunc['json_encode']($progress));
@@ -325,16 +410,21 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$idhash = hash_hmac('sha1', $this->_details['uid'], get_auth_secret());
 		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
 
-		$files_to_transform = array();
+		$new_exportfiles = array();
 		foreach (glob($export_dir_slash . '*_' . $idhash_ext) as $completed_file)
 		{
 			if (file_get_contents($completed_file, false, null, 0, 6) == '<?xml ')
-				$files_to_transform[] = $completed_file;
+				$new_exportfiles[] = $completed_file;
 		}
-		if (empty($files_to_transform))
+		if (empty($new_exportfiles))
 			return;
 
-		// We have work to do, so get the XSLT.
+		// Just in case...
+		@set_time_limit(MAX_CLAIM_THRESHOLD * 2);
+		if (function_exists('apache_reset_timeout'))
+			@apache_reset_timeout();
+
+		// Get the XSLT stylesheet.
 		require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
 		self::$xslt_info = get_xslt_stylesheet($this->_details['format'], $this->_details['uid']);
 
@@ -346,10 +436,10 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		// Transform the files to HTML.
 		$xmldoc = new DOMDocument();
-		foreach ($files_to_transform as $exportfilepath)
+		foreach ($new_exportfiles as $exportfile)
 		{
-			$xmldoc->load($exportfilepath);
-			$xsltproc->transformToURI($xmldoc, $exportfilepath);
+			$xmldoc->load($exportfile);
+			$xsltproc->transformToURI($xmldoc, $exportfile);
 		}
 	}
 
@@ -371,23 +461,38 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		// Perform the export to XML.
 		$this->exportXml($member_info);
 
-		// Find the completed files, if any.
+		// Make sure we have everything we need.
+		if (empty(self::$xslt_info['stylesheet']))
+		{
+			require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
+			self::$xslt_info = get_xslt_stylesheet($this->_details['format'], $this->_details['uid']);
+		}
+		if (empty($context['feed']['footer']))
+		{
+			require_once($sourcedir . DIRECTORY_SEPARATOR . 'News.php');
+			buildXmlFeed('smf', array(), array_fill_keys(array('title', 'desc', 'source', 'self'), ''), 'profile');
+		}
+
+		// Find any completed files that don't yet have the stylesheet embedded in them.
 		$export_dir_slash = $modSettings['export_dir'] . DIRECTORY_SEPARATOR;
 		$idhash = hash_hmac('sha1', $this->_details['uid'], get_auth_secret());
 		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
 
-		$completed_files = glob($export_dir_slash . '*_' . $idhash_ext);
-		if (empty($completed_files))
+		$test_length = strlen(self::$xslt_info['stylesheet']) + strlen($context['feed']['footer']);
+
+		$new_exportfiles = array();
+		foreach (glob($export_dir_slash . '*_' . $idhash_ext) as $completed_file)
+		{
+			if (filesize($completed_file) < $test_length || file_get_contents($completed_file, false, null, $test_length * -1) !== self::$xslt_info['stylesheet'] . $context['feed']['footer'])
+				$new_exportfiles[] = $completed_file;
+		}
+		if (empty($new_exportfiles))
 			return;
 
-		// We have work to do, so get the XSLT.
-		require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
-		self::$xslt_info = get_xslt_stylesheet($this->_details['format'], $this->_details['uid']);
-
 		// Embedding the XSLT means writing to the file yet again.
-		foreach ($completed_files as $exportfilepath)
+		foreach ($new_exportfiles as $exportfile)
 		{
-			$handle = fopen($exportfilepath, 'r+');
+			$handle = fopen($exportfile, 'r+');
 			if (is_resource($handle))
 			{
 				fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);

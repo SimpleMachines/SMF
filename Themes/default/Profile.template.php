@@ -3371,12 +3371,13 @@ function template_export_profile_data()
 
 	foreach ($context['export_datatypes'] as $datatype => $datatype_settings)
 	{
-		echo '
+		if (!empty($datatype_settings['label']))
+			echo '
 					<dt>
 						<strong><label for="', $datatype, '">', $datatype_settings['label'], '</label></strong>
 					</dt>
 					<dd>
-						<input type="checkbox" id="', $datatype, '" name="', $datatype, '"', ($datatype == 'profile' ? ' checked' : ''), '>
+						<input type="checkbox" id="', $datatype, '" name="', $datatype, '">
 					</dd>';
 	}
 
