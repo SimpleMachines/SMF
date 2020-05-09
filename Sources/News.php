@@ -1632,7 +1632,7 @@ function getXmlRecent($xml_format)
 				$attachments = null;
 
 			$data[] = array(
-				'tag' => 'recent-post',
+				'tag' => 'recent-post', // Hyphen rather than underscore for backward compatibility reasons
 				'attributes' => array('label' => $txt['post']),
 				'content' => array(
 					array(
@@ -2368,7 +2368,7 @@ function getXmlPosts($xml_format, $ascending = false)
 								'content' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
 							),
 							array(
-								'tag' => 'approval-status',
+								'tag' => 'approval_status',
 								'attributes' => $show_all ? array('label' => $txt['approval_status']) : null,
 								'content' => $show_all ? $attachment['approved'] : null,
 							),
@@ -2380,7 +2380,7 @@ function getXmlPosts($xml_format, $ascending = false)
 				$attachments = null;
 
 			$data[] = array(
-				'tag' => 'member-post',
+				'tag' => 'member_post',
 				'attributes' => array('label' => $txt['post']),
 				'content' => array(
 					array(
@@ -2504,7 +2504,7 @@ function getXmlPosts($xml_format, $ascending = false)
 						'content' => $row['likes'],
 					),
 					array(
-						'tag' => 'approval-status',
+						'tag' => 'approval_status',
 						'attributes' => $show_all ? array('label' => $txt['approval_status']) : null,
 						'content' => $show_all ? $row['approved'] : null,
 					),
@@ -2718,7 +2718,7 @@ function getXmlPMs($xml_format, $ascending = false)
 			loadLanguage('PersonalMessage');
 
 			$item = array(
-				'tag' => 'personal-message',
+				'tag' => 'personal_message',
 				'attributes' => array('label' => $txt['pm']),
 				'content' => array(
 					array(
@@ -2726,7 +2726,7 @@ function getXmlPMs($xml_format, $ascending = false)
 						'content' => $row['id_pm'],
 					),
 					array(
-						'tag' => 'sent-date',
+						'tag' => 'sent_date',
 						'attributes' => array('label' => $txt['date'], 'UTC' => gmstrftime('%F %T', $row['msgtime'])),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['msgtime'], false, 'forum'))),
 					),

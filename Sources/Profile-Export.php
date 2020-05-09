@@ -863,34 +863,34 @@ function get_xslt_stylesheet($format, $uid)
 			'themeurl' => array(
 				'value' => $settings['default_theme_url'],
 			),
-			'member-id' => array(
+			'member_id' => array(
 				'value' => $uid,
 			),
-			'copyright' => array(
+			'forum_copyright' => array(
 				'value' => sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR),
 			),
-			'txt-summary-heading' => array(
+			'txt_summary_heading' => array(
 				'value' => $txt['summary'],
 			),
-			'txt-posts-heading' => array(
+			'txt_posts_heading' => array(
 				'value' => $txt['posts'],
 			),
-			'txt-personal-messages-heading' => array(
+			'txt_personal_messages_heading' => array(
 				'value' => $txt['personal_messages'],
 			),
-			'txt-view-source-button' => array(
+			'txt_view_source_button' => array(
 				'value' => $txt['export_view_source_button'],
 			),
-			'txt-download-original' => array(
+			'txt_download_original' => array(
 				'value' => $txt['export_download_original'],
 			),
-			'txt-help' => array(
+			'txt_help' => array(
 				'value' => $txt['help'],
 			),
-			'txt-terms-rules' => array(
+			'txt_terms_rules' => array(
 				'value' => $txt['terms_and_rules'],
 			),
-			'txt-go-up' => array(
+			'txt_go_up' => array(
 				'value' => $txt['go_up'],
 			),
 		);
@@ -1003,23 +1003,23 @@ function get_xslt_stylesheet($format, $uid)
 										<xsl:attribute name="href">
 											<xsl:value-of select="concat($scripturl, \'?action=help\')"/>
 										</xsl:attribute>
-										<xsl:value-of select="$txt-help"/>
+										<xsl:value-of select="$txt_help"/>
 									</a>
 									<xsl:text> | </xsl:text>
 									<a>
 										<xsl:attribute name="href">
 											<xsl:value-of select="concat($scripturl, \'?action=help;sa=rules\')"/>
 										</xsl:attribute>
-										<xsl:value-of select="$txt-terms-rules"/>
+										<xsl:value-of select="$txt_terms_rules"/>
 									</a>
 									<xsl:text> | </xsl:text>
 									<a href="#top">
-										<xsl:value-of select="$txt-go-up"/>
+										<xsl:value-of select="$txt_go_up"/>
 										<xsl:text> &#9650;</xsl:text>
 									</a>
 								</li>
 								<li class="copyright">
-									<xsl:value-of select="$copyright" disable-output-escaping="yes"/>
+									<xsl:value-of select="$forum_copyright" disable-output-escaping="yes"/>
 								</li>
 							</ul>
 						</div>
@@ -1048,7 +1048,7 @@ function get_xslt_stylesheet($format, $uid)
 					<xsl:if test="username">
 						<div class="cat_bar">
 							<h3 class="catbg">
-								<xsl:value-of select="$txt-summary-heading"/>
+								<xsl:value-of select="$txt_summary_heading"/>
 							</h3>
 						</div>
 						<div id="profileview" class="roundframe flow_auto noup">
@@ -1056,25 +1056,25 @@ function get_xslt_stylesheet($format, $uid)
 						</div>
 					</xsl:if>
 
-					<xsl:if test="member-post">
+					<xsl:if test="member_post">
 						<div class="cat_bar">
 							<h3 class="catbg">
-								<xsl:value-of select="$txt-posts-heading"/>
+								<xsl:value-of select="$txt_posts_heading"/>
 							</h3>
 						</div>
 						<div id="posts" class="roundframe flow_auto noup">
-							<xsl:apply-templates select="member-post" mode="posts"/>
+							<xsl:apply-templates select="member_post" mode="posts"/>
 						</div>
 					</xsl:if>
 
-					<xsl:if test="personal-message">
+					<xsl:if test="personal_message">
 						<div class="cat_bar">
 							<h3 class="catbg">
-								<xsl:value-of select="$txt-personal-messages-heading"/>
+								<xsl:value-of select="$txt_personal_messages_heading"/>
 							</h3>
 						</div>
 						<div id="personal_messages" class="roundframe flow_auto noup">
-							<xsl:apply-templates select="personal-message" mode="pms"/>
+							<xsl:apply-templates select="personal_message" mode="pms"/>
 						</div>
 					</xsl:if>
 
@@ -1101,7 +1101,7 @@ function get_xslt_stylesheet($format, $uid)
 									<xsl:value-of select="position"/>
 								</xsl:when>
 								<xsl:otherwise>
-									<xsl:value-of select="post-group"/>
+									<xsl:value-of select="post_group"/>
 								</xsl:otherwise>
 							</xsl:choose>
 						</span>
@@ -1185,18 +1185,18 @@ function get_xslt_stylesheet($format, $uid)
 		</xsl:template>';
 
 		$stylesheet['detail_not_included'] = '
-		<xsl:template match="name|link|avatar|online|member-post|personal-message" mode="detailedinfo"/>';
+		<xsl:template match="name|link|avatar|online|member_post|personal_message" mode="detailedinfo"/>';
 
 		// Template for printing a single post
 		$stylesheet['member_post'] = '
-		<xsl:template match="member-post" mode="posts">
+		<xsl:template match="member_post" mode="posts">
 			<div>
 				<xsl:attribute name="id">
-					<xsl:value-of select="concat(\'member-post-\', id)"/>
+					<xsl:value-of select="concat(\'member_post_\', id)"/>
 				</xsl:attribute>
 				<xsl:attribute name="class">
 					<xsl:choose>
-						<xsl:when test="approval-status = 1">
+						<xsl:when test="approval_status = 1">
 							<xsl:text>windowbg</xsl:text>
 						</xsl:when>
 						<xsl:otherwise>
@@ -1216,8 +1216,8 @@ function get_xslt_stylesheet($format, $uid)
 							</a>
 						</h4>
 						<ul class="user_info">
-							<xsl:if test="poster/id = $member-id">
-								<xsl:call-template name="own-user-info"/>
+							<xsl:if test="poster/id = $member_id">
+								<xsl:call-template name="own_user_info"/>
 							</xsl:if>
 							<li>
 								<xsl:value-of select="poster/email"/>
@@ -1277,9 +1277,9 @@ function get_xslt_stylesheet($format, $uid)
 								<div class="inner monospace" style="display:none;">
 									<xsl:choose>
 										<xsl:when test="contains(body/text(), \'[html]\')">
-											<xsl:call-template name="bbc-html-splitter">
-												<xsl:with-param name="bbc-string" select="body/text()"/>
-												<xsl:with-param name="inside-outside" select="outside"/>
+											<xsl:call-template name="bbc_html_splitter">
+												<xsl:with-param name="bbc_string" select="body/text()"/>
+												<xsl:with-param name="inside_outside" select="outside"/>
 											</xsl:call-template>
 										</xsl:when>
 										<xsl:otherwise>
@@ -1290,7 +1290,7 @@ function get_xslt_stylesheet($format, $uid)
 							</div>
 
 							<xsl:apply-templates select="attachments">
-								<xsl:with-param name="post-id" select="id"/>
+								<xsl:with-param name="post_id" select="id"/>
 							</xsl:apply-templates>
 
 							<div class="under_message">
@@ -1305,7 +1305,7 @@ function get_xslt_stylesheet($format, $uid)
 									</xsl:if>
 								</ul>
 								<xsl:call-template name="quickbuttons">
-									<xsl:with-param name="toggle-target" select="concat(\'member-post-\', id)"/>
+									<xsl:with-param name="toggle_target" select="concat(\'member_post_\', id)"/>
 								</xsl:call-template>
 							</div>
 
@@ -1313,7 +1313,7 @@ function get_xslt_stylesheet($format, $uid)
 					</div>
 
 					<div class="moderatorbar">
-						<xsl:if test="poster/id = $member-id">
+						<xsl:if test="poster/id = $member_id">
 							<xsl:call-template name="signature"/>
 						</xsl:if>
 					</div>
@@ -1324,10 +1324,10 @@ function get_xslt_stylesheet($format, $uid)
 
 		// Template for printing a single PM
 		$stylesheet['personal_message'] = '
-		<xsl:template match="personal-message" mode="pms">
+		<xsl:template match="personal_message" mode="pms">
 			<div class="windowbg">
 				<xsl:attribute name="id">
-					<xsl:value-of select="concat(\'personal-message-\', id)"/>
+					<xsl:value-of select="concat(\'personal_message_\', id)"/>
 				</xsl:attribute>
 
 				<div class="post_wrapper">
@@ -1341,8 +1341,8 @@ function get_xslt_stylesheet($format, $uid)
 							</a>
 						</h4>
 						<ul class="user_info">
-							<xsl:if test="sender/id = $member-id">
-								<xsl:call-template name="own-user-info"/>
+							<xsl:if test="sender/id = $member_id">
+								<xsl:call-template name="own_user_info"/>
 							</xsl:if>
 						</ul>
 					</div>
@@ -1366,13 +1366,13 @@ function get_xslt_stylesheet($format, $uid)
 								<br/>
 								<span class="smalltext">
 									<strong>
-										<xsl:value-of select="concat(sent-date/@label, \': \')"/>
+										<xsl:value-of select="concat(sent_date/@label, \': \')"/>
 									</strong>
 									<time>
 										<xsl:attribute name="datetime">
-											<xsl:value-of select="sent-date/@UTC"/>
+											<xsl:value-of select="sent_date/@UTC"/>
 										</xsl:attribute>
-										<xsl:value-of select="normalize-space(sent-date)"/>
+										<xsl:value-of select="normalize-space(sent_date)"/>
 									</time>
 								</span>
 							</div>
@@ -1382,16 +1382,16 @@ function get_xslt_stylesheet($format, $uid)
 									<xsl:value-of select="body_html" disable-output-escaping="yes"/>
 								</div>
 								<div class="inner monospace" style="display:none;">
-									<xsl:call-template name="bbc-html-splitter">
-										<xsl:with-param name="bbc-string" select="body/text()"/>
-										<xsl:with-param name="inside-outside" select="outside"/>
+									<xsl:call-template name="bbc_html_splitter">
+										<xsl:with-param name="bbc_string" select="body/text()"/>
+										<xsl:with-param name="inside_outside" select="outside"/>
 									</xsl:call-template>
 								</div>
 							</div>
 
 							<div class="under_message">
 								<xsl:call-template name="quickbuttons">
-									<xsl:with-param name="toggle-target" select="concat(\'personal-message-\', id)"/>
+									<xsl:with-param name="toggle_target" select="concat(\'personal_message_\', id)"/>
 								</xsl:call-template>
 							</div>
 
@@ -1399,7 +1399,7 @@ function get_xslt_stylesheet($format, $uid)
 					</div>
 
 					<div class="moderatorbar">
-						<xsl:if test="sender/id = $member-id">
+						<xsl:if test="sender/id = $member_id">
 							<xsl:call-template name="signature"/>
 						</xsl:if>
 					</div>
@@ -1411,11 +1411,11 @@ function get_xslt_stylesheet($format, $uid)
 		// A couple of templates to handle attachments
 		$stylesheet['attachments'] = '
 		<xsl:template match="attachments">
-			<xsl:param name="post-id"/>
+			<xsl:param name="post_id"/>
 			<xsl:if test="attachment">
 				<div class="attachments">
 					<xsl:attribute name="id">
-						<xsl:value-of select="concat(\'msg_\', $post-id, \'_footer\')"/>
+						<xsl:value-of select="concat(\'msg_\', $post_id, \'_footer\')"/>
 					</xsl:attribute>
 					<xsl:apply-templates/>
 				</div>
@@ -1440,9 +1440,9 @@ function get_xslt_stylesheet($format, $uid)
 					<xsl:text>(</xsl:text>
 					<a class="bbc_link">
 						<xsl:attribute name="href">
-							<xsl:value-of select="concat($scripturl, \'?action=profile;area=dlattach;u=\', $member-id, \';attach=\', id, \';t=\', $dltoken)"/>
+							<xsl:value-of select="concat($scripturl, \'?action=profile;area=dlattach;u=\', $member_id, \';attach=\', id, \';t=\', $dltoken)"/>
 						</xsl:attribute>
-						<xsl:value-of select="$txt-download-original"/>
+						<xsl:value-of select="$txt_download_original"/>
 					</a>
 					<xsl:text>)</xsl:text>
 					<br/>
@@ -1459,7 +1459,7 @@ function get_xslt_stylesheet($format, $uid)
 
 		// Helper template for printing the user's own info next to the post or personal message.
 		$stylesheet['own_user_info'] = '
-		<xsl:template name="own-user-info">
+		<xsl:template name="own_user_info">
 			<xsl:if test="/*/avatar">
 				<li class="avatar">
 					<a>
@@ -1483,7 +1483,7 @@ function get_xslt_stylesheet($format, $uid)
 				</li>
 			</xsl:if>
 			<li class="postgroup">
-				<xsl:value-of select="/*/post-group"/>
+				<xsl:value-of select="/*/post_group"/>
 			</li>
 			<li class="postcount">
 				<xsl:value-of select="concat(/*/posts/@label, \': \')"/>
@@ -1499,16 +1499,16 @@ function get_xslt_stylesheet($format, $uid)
 		// Helper template for printing the quickbuttons
 		$stylesheet['quickbuttons'] = '
 		<xsl:template name="quickbuttons">
-			<xsl:param name="toggle-target"/>
+			<xsl:param name="toggle_target"/>
 			<ul class="quickbuttons quickbuttons_post sf-js-enabled sf-arrows" style="touch-action: pan-y;">
 				<li>
 					<a>
 						<xsl:attribute name="onclick">
 							<xsl:text>$(\'#</xsl:text>
-							<xsl:value-of select="$toggle-target"/>
+							<xsl:value-of select="$toggle_target"/>
 							<xsl:text> .inner\').toggle();</xsl:text>
 						</xsl:attribute>
-						<xsl:value-of select="$txt-view-source-button"/>
+						<xsl:value-of select="$txt_view_source_button"/>
 					</a>
 				</li>
 			</ul>
@@ -1545,43 +1545,43 @@ function get_xslt_stylesheet($format, $uid)
 
 		// Helper template for special handling of the contents of the [html] BBCode
 		$stylesheet['bbc_html'] = '
-		<xsl:template name="bbc-html-splitter">
-			<xsl:param name="bbc-string"/>
-			<xsl:param name="inside-outside"/>
+		<xsl:template name="bbc_html_splitter">
+			<xsl:param name="bbc_string"/>
+			<xsl:param name="inside_outside"/>
 			<xsl:choose>
-				<xsl:when test="$inside-outside = \'outside\'">
+				<xsl:when test="$inside_outside = \'outside\'">
 					<xsl:choose>
-						<xsl:when test="contains($bbc-string, \'[html]\')">
-							<xsl:variable name="following-string">
-								<xsl:value-of select="substring-after($bbc-string, \'[html]\')" disable-output-escaping="yes"/>
+						<xsl:when test="contains($bbc_string, \'[html]\')">
+							<xsl:variable name="following_string">
+								<xsl:value-of select="substring-after($bbc_string, \'[html]\')" disable-output-escaping="yes"/>
 							</xsl:variable>
-							<xsl:value-of select="substring-before($bbc-string, \'[html]\')" disable-output-escaping="yes"/>
+							<xsl:value-of select="substring-before($bbc_string, \'[html]\')" disable-output-escaping="yes"/>
 							<xsl:text>[html]</xsl:text>
-							<xsl:call-template name="bbc-html-splitter">
-								<xsl:with-param name="bbc-string" select="$following-string"/>
-								<xsl:with-param name="inside-outside" select="inside"/>
+							<xsl:call-template name="bbc_html_splitter">
+								<xsl:with-param name="bbc_string" select="$following_string"/>
+								<xsl:with-param name="inside_outside" select="inside"/>
 							</xsl:call-template>
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:value-of select="$bbc-string" disable-output-escaping="yes"/>
+							<xsl:value-of select="$bbc_string" disable-output-escaping="yes"/>
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:choose>
-						<xsl:when test="contains($bbc-string, \'[/html]\')">
-							<xsl:variable name="following-string">
-								<xsl:value-of select="substring-after($bbc-string, \'[/html]\')" disable-output-escaping="yes"/>
+						<xsl:when test="contains($bbc_string, \'[/html]\')">
+							<xsl:variable name="following_string">
+								<xsl:value-of select="substring-after($bbc_string, \'[/html]\')" disable-output-escaping="yes"/>
 							</xsl:variable>
-							<xsl:value-of select="substring-before($bbc-string, \'[/html]\')" disable-output-escaping="no"/>
+							<xsl:value-of select="substring-before($bbc_string, \'[/html]\')" disable-output-escaping="no"/>
 							<xsl:text>[/html]</xsl:text>
-							<xsl:call-template name="bbc-html-splitter">
-								<xsl:with-param name="bbc-string" select="$following-string"/>
-								<xsl:with-param name="inside-outside" select="outside"/>
+							<xsl:call-template name="bbc_html_splitter">
+								<xsl:with-param name="bbc_string" select="$following_string"/>
+								<xsl:with-param name="inside_outside" select="outside"/>
 							</xsl:call-template>
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:value-of select="$bbc-string" disable-output-escaping="no"/>
+							<xsl:value-of select="$bbc_string" disable-output-escaping="no"/>
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:otherwise>
