@@ -1216,7 +1216,7 @@ function get_xslt_stylesheet($format, $uid)
 							</a>
 						</h4>
 						<ul class="user_info">
-							<xsl:if test="poster/link = /*/@source">
+							<xsl:if test="poster/id = $member-id">
 								<xsl:call-template name="own-user-info"/>
 							</xsl:if>
 							<li>
@@ -1313,7 +1313,7 @@ function get_xslt_stylesheet($format, $uid)
 					</div>
 
 					<div class="moderatorbar">
-						<xsl:if test="poster/link = /*/@source">
+						<xsl:if test="poster/id = $member-id">
 							<xsl:call-template name="signature"/>
 						</xsl:if>
 					</div>
@@ -1341,7 +1341,7 @@ function get_xslt_stylesheet($format, $uid)
 							</a>
 						</h4>
 						<ul class="user_info">
-							<xsl:if test="sender/link = /*/@source">
+							<xsl:if test="sender/id = $member-id">
 								<xsl:call-template name="own-user-info"/>
 							</xsl:if>
 						</ul>
@@ -1399,7 +1399,7 @@ function get_xslt_stylesheet($format, $uid)
 					</div>
 
 					<div class="moderatorbar">
-						<xsl:if test="sender/link = /*/@source">
+						<xsl:if test="sender/id = $member-id">
 							<xsl:call-template name="signature"/>
 						</xsl:if>
 					</div>
