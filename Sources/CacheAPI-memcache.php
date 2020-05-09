@@ -33,7 +33,7 @@ class memcache_cache extends cache_api
 	{
 		global $cache_memcached;
 
-		$supported = class_exists('memcache');
+		$supported = class_exists('Memcache');
 
 		if ($test)
 			return $supported;
@@ -103,7 +103,7 @@ class memcache_cache extends cache_api
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
-		return $this->memcache->set($key, $value, 0, $ttl);
+		return $this->memcache->set($key, $value, 0, $ttl !== null ? $ttl : $this->ttl);
 	}
 
 	/**
