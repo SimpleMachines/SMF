@@ -19,23 +19,47 @@ if (!defined('SMF'))
  * Properly redirects even with safe mode and basedir restrictions
  * Can provide simple post options to a page
  *
- * Load class
+ * ### Load class
  * Initiate as
- *  - $fetch_data = new cURL_fetch_web_data();
- *	- optionally pass an array of cURL options and redirect count
- *	- cURL_fetch_web_data(cURL options array, Max redirects);
- *  - $fetch_data = new cURL_fetch_web_data(array(CURLOPT_SSL_VERIFYPEER => 1), 5);
+ * ```
+ * $fetch_data = new cURL_fetch_web_data();
+ * ```
+ * Optionally pass an array of cURL options and redirect count
+ * ```
+ * $fetch_data = new cURL_fetch_web_data(array(CURLOPT_SSL_VERIFYPEER => 1), 5);
+ * ```
  *
- * Make the call
- *  - $fetch_data('https://www.simplemachines.org'); // fetch a page
- *  - $fetch_data('https://www.simplemachines.org', array('user' => 'name', 'password' => 'password')); // post to a page
- *  - $fetch_data('https://www.simplemachines.org', parameter1&parameter2&parameter3); // post to a page
+ * ### Make the call
+ * Fetch a page
+ * ```
+ * $fetch_data->get_url_data('https://www.simplemachines.org');
+ * ```
+ * Post to a page providing an array
+ * ```
+ * $fetch_data->get_url_data('https://www.simplemachines.org', array('user' => 'name', 'password' => 'password'));
+ * ```
+ * Post to a page providing a string
+ * ```
+ * $fetch_data->get_url_data('https://www.simplemachines.org', parameter1&parameter2&parameter3);
+ * ```
  *
- * Get the data
- *  - $fetch_data->result('body'); // just the page content
- *  - $fetch_data->result(); // an array of results, body, header, http result codes
- *  - $fetch_data->result_raw(); // show all results of all calls (in the event of a redirect)
- *  - $fetch_data->result_raw(0); // show all results of call x
+ * ### Get the data
+ * Just the page content
+ * ```
+ * $fetch_data->result('body');
+ * ```
+ * An array of results, body, header, http result codes
+ * ```
+ * $fetch_data->result();
+ * ```
+ * Show all results of all calls (in the event of a redirect)
+ * ```
+ * $fetch_data->result_raw();
+ * ```
+ * Show the results of a specific call (in the event of a redirect)
+ * ```
+ * $fetch_data->result_raw(0);
+ * ```
  */
 class curl_fetch_web_data
 {
