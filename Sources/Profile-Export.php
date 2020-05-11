@@ -35,8 +35,8 @@ function export_profile_data($uid)
 
 	$context['export_formats'] = get_export_formats();
 
-	if (isset($_POST['format']) && !isset($context['export_formats'][$_POST['format']]))
-		unset($_POST['format']);
+	if (!isset($_POST['format']) || !isset($context['export_formats'][$_POST['format']]))
+		unset($_POST['format'], $_POST['delete'], $_POST['export_begin']);
 
 	// This lists the types of data we can export and info for doing so.
 	$context['export_datatypes'] = array(
