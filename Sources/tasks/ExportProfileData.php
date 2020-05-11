@@ -370,6 +370,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 				'latest' => $latest,
 				'datatype' => $datatype,
 				'format_settings' => $this->_details['format_settings'],
+				'last_page' => $this->_details['last_page'],
+				'dlfilename' => $this->_details['dlfilename'],
 			);
 			if (!empty($new_item_count))
 				$new_details['item_count'] = $new_item_count;
@@ -401,6 +403,9 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	protected function exportHtml($member_info)
 	{
 		global $modSettings, $context, $smcFunc, $sourcedir;
+
+		$context['export_last_page'] = $this->_details['last_page'];
+		$context['export_dlfilename'] = $this->_details['dlfilename'];
 
 		// Perform the export to XML.
 		$this->exportXml($member_info);
@@ -454,6 +459,9 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	protected function exportXmlXslt($member_info)
 	{
 		global $modSettings, $context, $smcFunc, $sourcedir;
+
+		$context['export_last_page'] = $this->_details['last_page'];
+		$context['export_dlfilename'] = $this->_details['dlfilename'];
 
 		// Embedded XSLT requires adding a special DTD and processing instruction in the main XML document.
 		add_integration_function('integrate_xml_data', 'ExportProfileData_Background::add_dtd', false);

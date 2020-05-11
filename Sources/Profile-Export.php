@@ -42,7 +42,7 @@ function export_profile_data($uid)
 	$context['export_datatypes'] = array(
 		'profile' => array(
 			'label' => null,
-			'total' => 1,
+			'total' => 0,
 			'latest' => 1,
 			// Instructions to pass to ExportProfileData background task:
 			'XML' => array(
@@ -309,6 +309,16 @@ function export_profile_data($uid)
 					@unlink($tempfile);
 					rename($realfile, $tempfile);
 
+					$context['export_dlfilename'] = $dlfilename;
+					foreach ($context['export_datatypes'] as $datatype => $datatype_settings)
+					{
+						if (!isset($total[$datatype]))
+						{
+							$total[$datatype] = is_callable($datatype_settings['total']) ? $datatype_settings['total']($uid) : $datatype_settings['total'];
+						}
+					}
+					$context['export_last_page'] = ceil(array_sum($total) / $context['export_formats'][$format]['per_page']);
+
 					list($stylesheet, $dtd) = get_xslt_stylesheet($format, $uid);
 
 					require_once($sourcedir . DIRECTORY_SEPARATOR . 'News.php');
@@ -398,17 +408,28 @@ function export_profile_data($uid)
 		$format = isset($_POST['format']) && isset($context['export_formats'][$_POST['format']]) ? $_POST['format'] : 'XML';
 
 		$included = array();
+		$included_desc = array();
 		foreach ($context['export_datatypes'] as $datatype => $datatype_settings)
 		{
 			if ($datatype == 'profile' || !empty($_POST[$datatype]))
 			{
 				$included[$datatype] = $datatype_settings[$format];
+				$included_desc[] = $txt[$datatype];
+
 				$start[$datatype] = !empty($start[$datatype]) ? $start[$datatype] : 0;
 
 				if (!isset($latest[$datatype]))
 					$latest[$datatype] = is_callable($datatype_settings['latest']) ? $datatype_settings['latest']($uid) : $datatype_settings['latest'];
+
+				if (!isset($total[$datatype]))
+					$total[$datatype] = is_callable($datatype_settings['total']) ? $datatype_settings['total']($uid) : $datatype_settings['total'];
 			}
 		}
+
+		$dlfilename = array_merge(array($context['forum_name'], $context['member']['username']), $included_desc);
+		$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
+
+		$last_page = ceil(array_sum($total) / $context['export_formats'][$format]['per_page']);
 
 		$data = $smcFunc['json_encode'](array(
 			'format' => $format,
@@ -419,6 +440,8 @@ function export_profile_data($uid)
 			'latest' => $latest,
 			'datatype' => isset($current_datatype) ? $current_datatype : key($included),
 			'format_settings' => $context['export_formats'][$format],
+			'last_page' => $last_page,
+			'dlfilename' => $dlfilename,
 		));
 
 		$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
@@ -841,12 +864,25 @@ function get_xslt_stylesheet($format, $uid)
 
 	if (in_array($format, array('HTML', 'XML_XSLT')))
 	{
-		$embedded = $format == 'XML_XSLT' || !class_exists('DOMDocument') || !class_exists('XSLTProcessor');
+		if (!class_exists('DOMDocument') || !class_exists('XSLTProcessor'))
+			$format = 'XML_XSLT';
+
+		$export_formats = get_export_formats();
 
 		/* Notes:
-		 * 1. Values can be simple strings or raw XML, including other XSLT
-		 *    statements or even calls to entire XSLT templates.
+		 * 1. The 'value' can be one of the following:
+		 *    - an integer or string
+		 *    - an XPath expression
+		 *    - raw XML, which may or not not include other XSLT statements.
+		 *
 		 * 2. Always set 'no_cdata_parse' to true when the value is raw XML.
+		 *
+		 * 3. Set 'xpath' to true if the value is an XPath expression. When this
+		 *    is true, the value will be placed in the 'select' attribute of the
+		 *    <xsl:variable> element rather than in a child node.
+		 *
+		 * 4. Set 'param' to true in order to create an <xsl:param> instead
+		 *    of an <xsl:variable>.
 		 *
 		 * A word to PHP coders: Do not let the term "variable" mislead you.
 		 * XSLT variables are roughly equivalent to PHP constants rather
@@ -856,14 +892,26 @@ function get_xslt_stylesheet($format, $uid)
 		 */
 		$xslt_variables = array(
 			'scripturl' => array(
-				'value' => '<xsl:value-of select="/*/@forum-url"/>',
-				'no_cdata_parse' => true,
+				'value' => '/*/@forum-url',
+				'xpath' => true,
 			),
 			'themeurl' => array(
 				'value' => $settings['default_theme_url'],
 			),
 			'member_id' => array(
 				'value' => $uid,
+			),
+			'last_page' => array(
+				'param' => true,
+				'value' => !empty($context['export_last_page']) ? $context['export_last_page'] : 1,
+				'xpath' => true,
+			),
+			'dlfilename' => array(
+				'param' => true,
+				'value' => !empty($context['export_dlfilename']) ? $context['export_dlfilename'] : '',
+			),
+			'ext' => array(
+				'value' => $export_formats[$format]['extension'],
 			),
 			'forum_copyright' => array(
 				'value' => sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR),
@@ -892,6 +940,9 @@ function get_xslt_stylesheet($format, $uid)
 			'txt_go_up' => array(
 				'value' => $txt['go_up'],
 			),
+			'txt_pages' => array(
+				'value' => $txt['pages'],
+			),
 		);
 
 		// Let mods adjust the XSLT variables.
@@ -907,7 +958,7 @@ function get_xslt_stylesheet($format, $uid)
 		if (isset($xslts[$xslt_key]))
 			return $xslts[$xslt_key];
 
-		if ($embedded)
+		if ($format == 'XML_XSLT')
 		{
 			$dtd = implode("\n", array(
 				'<!--',
@@ -944,10 +995,17 @@ function get_xslt_stylesheet($format, $uid)
 
 		// Insert the XSLT variables.
 		$stylesheet['variables'] = '';
+
 		foreach ($xslt_variables as $name => $var)
 		{
-			$stylesheet['variables'] .= '
-			<xsl:variable name="' . $name . '">' . (!empty($var['no_cdata_parse']) ? $var['value'] : cdata_parse($var['value'])) . '</xsl:variable>';
+			$element = !empty($var['param']) ? 'param' : 'variable';
+
+			$stylesheet['variables'] .= "\n\t\t" . '<xsl:' . $element . ' name="' . $name . '"';
+
+			if (isset($var['xpath']))
+				$stylesheet['variables'] .= ' select="' . $var['value'] . '"/>';
+			else
+				$stylesheet['variables'] .= '>' . (!empty($var['no_cdata_parse']) ? $var['value'] : cdata_parse($var['value'])) . '</xsl:' . $element . '>';
 		}
 
 		// The top-level template. Creates the shell of the HTML document.
@@ -1055,6 +1113,8 @@ function get_xslt_stylesheet($format, $uid)
 						</div>
 					</xsl:if>
 
+					<xsl:call-template name="page_index"/>
+
 					<xsl:if test="member_post">
 						<div class="cat_bar">
 							<h3 class="catbg">
@@ -1076,6 +1136,8 @@ function get_xslt_stylesheet($format, $uid)
 							<xsl:apply-templates select="personal_message" mode="pms"/>
 						</div>
 					</xsl:if>
+
+					<xsl:call-template name="page_index"/>
 
 				</div>
 			</div>
@@ -1585,6 +1647,91 @@ function get_xslt_stylesheet($format, $uid)
 			</xsl:choose>
 		</xsl:template>';
 
+		// Helper templates to build a page index
+		$stylesheet['page_index'] = '
+		<xsl:template name="page_index">
+			<xsl:variable name="current_page" select="/*/@page"/>
+			<xsl:variable name="prev_page" select="/*/@page - 1"/>
+			<xsl:variable name="next_page" select="/*/@page + 1"/>
+
+			<div class="pagesection">
+				<div class="pagelinks floatleft">
+
+					<span class="pages">
+						<xsl:value-of select="$txt_pages"/>
+					</span>
+
+					<xsl:if test="$current_page &gt; 1">
+						<a class="nav_page">
+							<xsl:attribute name="href">
+								<xsl:value-of select="concat($dlfilename, \'_\', $prev_page, \'.\', $ext)"/>
+							</xsl:attribute>
+							<span class="main_icons previous_page"></span>
+						</a>
+					</xsl:if>
+
+					<xsl:call-template name="page_links"/>
+
+					<xsl:if test="$current_page &lt; $last_page">
+						<a class="nav_page">
+							<xsl:attribute name="href">
+								<xsl:value-of select="concat($dlfilename, \'_\', $next_page, \'.\', $ext)"/>
+							</xsl:attribute>
+							<span class="main_icons next_page"></span>
+						</a>
+					</xsl:if>
+				</div>
+			</div>
+		</xsl:template>
+
+		<xsl:template name="page_links">
+			<xsl:param name="page_num" select="1"/>
+			<xsl:variable name="current_page" select="/*/@page"/>
+			<xsl:variable name="prev_page" select="/*/@page - 1"/>
+			<xsl:variable name="next_page" select="/*/@page + 1"/>
+
+			<xsl:choose>
+				<xsl:when test="$page_num = $current_page">
+					<span class="current_page">
+						<xsl:value-of select="$page_num"/>
+					</span>
+				</xsl:when>
+				<xsl:when test="$page_num = 1 or $page_num = ($current_page - 1) or $page_num = ($current_page + 1) or $page_num = $last_page">
+					<a class="nav_page">
+						<xsl:attribute name="href">
+							<xsl:value-of select="concat($dlfilename, \'_\', $page_num, \'.\', $ext)"/>
+						</xsl:attribute>
+						<xsl:value-of select="$page_num"/>
+					</a>
+				</xsl:when>
+				<xsl:when test="$page_num = 2 or $page_num = ($current_page + 2)">
+					<span class="expand_pages" onclick="$(\'.nav_page\').removeClass(\'hidden\'); $(\'.expand_pages\').hide();"> ... </span>
+					<a class="nav_page hidden">
+						<xsl:attribute name="href">
+							<xsl:value-of select="concat($dlfilename, \'_\', $page_num, \'.\', $ext)"/>
+						</xsl:attribute>
+						<xsl:value-of select="$page_num"/>
+					</a>
+				</xsl:when>
+				<xsl:otherwise>
+					<a class="nav_page hidden">
+						<xsl:attribute name="href">
+							<xsl:value-of select="concat($dlfilename, \'_\', $page_num, \'.\', $ext)"/>
+						</xsl:attribute>
+						<xsl:value-of select="$page_num"/>
+					</a>
+				</xsl:otherwise>
+			</xsl:choose>
+
+			<xsl:text> </xsl:text>
+
+			<xsl:if test="$page_num &lt; $last_page">
+				<xsl:call-template name="page_links">
+					<xsl:with-param name="page_num" select="$page_num + 1"/>
+				</xsl:call-template>
+			</xsl:if>
+		</xsl:template>';
+
 		// Template to insert CSS and JavaScript
 		$stylesheet['css_js'] = '
 		<xsl:template name="css_js">';
@@ -1680,7 +1827,7 @@ function get_xslt_stylesheet($format, $uid)
 		</xsl:template>';
 
 		// End of the XSLT stylesheet
-		$stylesheet['footer'] = ($embedded? "\t" : '') . '</xsl:stylesheet>';
+		$stylesheet['footer'] = ($format == 'XML_XSLT' ? "\t" : '') . '</xsl:stylesheet>';
 	}
 
 	// Let mods adjust the XSLT stylesheet.
