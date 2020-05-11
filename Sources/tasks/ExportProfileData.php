@@ -626,7 +626,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		if ($params['{display}'] == 'link')
 		{
-			$returnContext = ' (' . $orig_link . ')';
+			$returnContext .= ' (' . $orig_link . ')';
 		}
 		elseif (!empty($currentAttachment['is_image']))
 		{
