@@ -3314,7 +3314,25 @@ function template_export_profile_data()
 		foreach ($context['completed_exports'] as $basehash_ext => $parts)
 		{
 			echo '
-			<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '"', count($context['completed_exports']) > 1 ? ' class="descbox"' : '', '>
+			<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '"', count($context['completed_exports']) > 1 ? ' class="descbox"' : '', '>';
+
+			if (!empty($context['outdated_exports'][$basehash_ext]))
+			{
+				echo '
+				<div class="noticebox">
+					<p>', $txt['export_outdated_warning'], '</p>
+					<ul class="bbc_list">';
+
+				foreach ($context['outdated_exports'][$basehash_ext] as $datatype)
+					echo '
+						<li>', $txt[$datatype], '</li>';
+
+				echo '
+					</ul>
+				</div>';
+			}
+
+			echo '
 				<p class="padding">', sprintf($txt['export_file_desc'], $parts[1]['included'], $context['export_formats'][$parts[1]['format']]['description']), '</p>
 				<ul class="bbc_list">';
 

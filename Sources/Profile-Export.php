@@ -197,9 +197,10 @@ function export_profile_data($uid)
 
 	foreach ($context['export_formats'] as $format => $format_settings)
 	{
-		$done = null;
-
 		$idhash_ext = $idhash . '.' . $format_settings['extension'];
+
+		$done = null;
+		$context['outdated_exports'][$idhash_ext] = array();
 
 		// $realfile needs to be the highest numbered one, or 1_*** if none exist.
 		$filenum = 1;
@@ -259,7 +260,7 @@ function export_profile_data($uid)
 			// It looks like we're done.
 			$done = true;
 
-			// But let's check whether any recently created content should be added.
+			// But let's check whether it's outdated.
 			foreach ($context['export_datatypes'] as $datatype => $datatype_settings)
 			{
 				if (!isset($progress[$datatype]))
@@ -269,90 +270,7 @@ function export_profile_data($uid)
 					$latest[$datatype] = is_callable($datatype_settings['latest']) ? $datatype_settings['latest']($uid) : $datatype_settings['latest'];
 
 				if ($latest[$datatype] > $progress[$datatype])
-				{
-					$done = false;
-					$_POST[$datatype] = true;
-					$start[$datatype] = $progress[$datatype];
-
-					if (!isset($current_datatype))
-						$current_datatype = $datatype;
-				}
-			}
-			if ($done === false)
-			{
-				$_POST['export_begin'] = true;
-				$_POST['format'] = $format;
-				createToken('profile-ex' . $uid, 'post');
-
-				// For plain XML format, we can try appending directly to the existing file.
-				if ($format === 'XML')
-				{
-					@unlink($tempfile);
-					rename($realfile, $tempfile);
-				}
-				// For HTML format, things are a bit more complicated...
-				elseif ($format === 'HTML')
-				{
-					// If we have a backup of the last version of the XML, use it.
-					if (file_exists($tempfile . '.bak'))
-					{
-						@unlink($realfile);
-						rename($tempfile . '.bak', $tempfile);
-					}
-					// Otherwise, we have no choice but to make a supplementary file.
-					else
-						$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
-				}
-				// For XML with embedded XSLT, the complication level goes up one more notch.
-				elseif ($format === 'XML_XSLT')
-				{
-					@unlink($tempfile);
-					rename($realfile, $tempfile);
-
-					$context['export_dlfilename'] = $dlfilename;
-					foreach ($context['export_datatypes'] as $datatype => $datatype_settings)
-					{
-						if (!isset($total[$datatype]))
-						{
-							$total[$datatype] = is_callable($datatype_settings['total']) ? $datatype_settings['total']($uid) : $datatype_settings['total'];
-						}
-					}
-					$context['export_last_page'] = ceil(array_sum($total) / $context['export_formats'][$format]['per_page']);
-
-					list($stylesheet, $dtd) = get_xslt_stylesheet($format, $uid);
-
-					require_once($sourcedir . DIRECTORY_SEPARATOR . 'News.php');
-					buildXmlFeed('smf', array(), array_fill_keys(array(), 'foo'), 'profile');
-
-					$stylesheet_length = strlen($stylesheet);
-					$feedfooter_length = strlen($context['feed']['footer']);
-
-					$handle = fopen($tempfile, 'r+');
-					if (is_resource($handle))
-					{
-						fseek($handle, ($stylesheet_length + $feedfooter_length) * -1, SEEK_END);
-
-						$found_stylesheet = fread($handle, $stylesheet_length);
-
-						if ($found_stylesheet == $stylesheet)
-						{
-							fseek($handle, ($stylesheet_length + $feedfooter_length) * -1, SEEK_END);
-							$pointer_pos = ftell($handle);
-							ftruncate($handle, $pointer_pos);
-							rewind($handle);
-							fseek($handle, 0, SEEK_END);
-							fwrite($handle, $context['feed']['footer']);
-						}
-
-						fclose($handle);
-					}
-				}
-				// elseif ($format === 'CSV')
-				// {
-				// }
-				// elseif ($format === 'JSON')
-				// {
-				// }
+					$context['outdated_exports'][$idhash_ext][] = $datatype;
 			}
 		}
 

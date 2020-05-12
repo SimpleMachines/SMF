@@ -589,6 +589,7 @@ $txt['export_profile_data_desc'] = 'This section allows you to export a copy of 
 $txt['export_profile_data_desc_list'] = array('It may take some time for the system to finish compiling your data.', 'A download link will appear on this page once the export process is complete.', 'expiry' => 'Old export files are deleted after %1$d days.');
 $txt['active_exports'] = 'Exports currently in progress';
 $txt['completed_exports'] = 'Completed exports';
+$txt['export_outdated_warning'] = 'This export is out of date. It is missing your most recent data of the following types:';
 $txt['export_settings'] = 'Export settings';
 $txt['export_include_posts'] = 'Include posts';
 $txt['export_include_personal_messages'] = 'Include personal messages';
