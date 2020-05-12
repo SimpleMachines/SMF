@@ -3293,6 +3293,7 @@ function template_export_profile_data()
 	global $context, $scripturl, $txt;
 
 	$exports_exist = !empty($context['completed_exports']) || !empty($context['active_exports']);
+	$default_settings = array('included' => array(), 'format' => '');
 
 	// The main containing header.
 	echo '
@@ -3333,14 +3334,21 @@ function template_export_profile_data()
 			}
 
 			echo '
-				<p class="padding">', sprintf($txt['export_file_desc'], $parts[1]['included'], $context['export_formats'][$parts[1]['format']]['description']), '</p>
-				<ul class="bbc_list">';
+				<p class="padding">', sprintf($txt['export_file_desc'], $parts[1]['included_desc'], $context['export_formats'][$parts[1]['format']]['description']), '</p>
+				<ul class="bbc_list" id="', $parts[1]['format'], '_export_files">';
 
 			foreach ($parts as $part => $file)
+			{
+				if (empty($default_settings['included']))
+					$default_settings['included'] = $file['included'];
+				if (empty($default_settings['format']))
+					$default_settings['format'] = $file['format'];
+
 				echo '
 					<li>
-						<a href="', $scripturl, '?action=profile;area=download;u=', $context['id_member'], ';format=', $file['format'], ';part=', $part, ';t=', $file['dltoken'], '" class="bbc_link">', $file['dlbasename'], '</a> (', $file['size'], ', ', $file['mtime'], ')
+						<a href="', $scripturl, '?action=profile;area=download;u=', $context['id_member'], ';format=', $file['format'], ';part=', $part, ';t=', $file['dltoken'], '" class="bbc_link" download>', $file['dlbasename'], '</a> (', $file['size'], ', ', $file['mtime'], ')
 					</li>';
+			}
 
 			echo '
 				</ul>
@@ -3348,6 +3356,7 @@ function template_export_profile_data()
 					<input type="submit" name="delete" value="', $txt['delete'], '" class="button you_sure">
 					<input type="hidden" name="format" value="', $parts[1]['format'], '">
 					<input type="hidden" name="t" value="', $parts[1]['dltoken'], '">
+					<button type="button" class="button export_download_all" style="display:none" onclick="export_download_all(\'', $parts[1]['format'], '\');">', $txt['export_download_all'], '</button>
 				</div>
 			</form>';
 		}
@@ -3365,15 +3374,22 @@ function template_export_profile_data()
 		<div class="windowbg noup">';
 
 		foreach ($context['active_exports'] as $file)
+		{
+			if (empty($default_settings['included']))
+				$default_settings['included'] = $file['included'];
+			if (empty($default_settings['format']))
+				$default_settings['format'] = $file['format'];
+
 			echo '
 			<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '"', count($context['active_exports']) > 1 ? ' class="descbox"' : '', '>
-				<p class="padding">', sprintf($txt['export_file_desc'], $file['included'], $context['export_formats'][$file['format']]['description']), '</p>
+				<p class="padding">', sprintf($txt['export_file_desc'], $file['included_desc'], $context['export_formats'][$file['format']]['description']), '</p>
 				<div class="righttext">
 					<input type="submit" name="delete" value="', $txt['export_cancel'], '" class="button you_sure">
 					<input type="hidden" name="format" value="', $file['format'], '">
 					<input type="hidden" name="t" value="', $file['dltoken'], '">
 				</div>
 			</form>';
+		}
 
 		echo '
 		</div>';
@@ -3395,49 +3411,37 @@ function template_export_profile_data()
 						<strong><label for="', $datatype, '">', $datatype_settings['label'], '</label></strong>
 					</dt>
 					<dd>
-						<input type="checkbox" id="', $datatype, '" name="', $datatype, '">
+						<input type="checkbox" id="', $datatype, '" name="', $datatype, '"', in_array($datatype, $default_settings['included']) ? ' checked' : '', '>
 					</dd>';
 	}
 
 	echo '
-				</dl>';
-
-	if (count($context['export_formats']) > 1)
-	{
-		echo '
+				</dl>
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['export_format'], '</strong>
 					</dt>
 					<dd>
-						<select name="format">';
+						<select id="export_format_select" name="format">';
 
-		foreach ($context['export_formats'] as $format => $format_settings)
-			echo '
-							<option value="', $format, '">', $format_settings['description'], '</option>';
-
+	foreach ($context['export_formats'] as $format => $format_settings)
 		echo '
+							<option value="', $format, '"', $format == $default_settings['format'] ? ' selected' : '', '>', $format_settings['description'], '</option>';
+
+	echo '
 						</select>
 					</dd>
-				</dl>';
-	}
-	else
-		echo '
-				<input type="hidden" name="format" value="', key($context['export_formats']), '">';
+				</dl>
+				<div class="righttext">
+					<div id="export_begin"', ($exports_exist ? ' style="display:none"' : ''), '>
+						<input type="submit" name="export_begin" value="', $txt['export_begin'], '" class="button">
+					</div>
+					<div id="export_restart"', (!$exports_exist ? ' style="display:none"' : ''), '>
+						<input type="submit" name="export_begin" value="', $txt['export_restart'], '" class="button you_sure" data-confirm="', $txt['export_restart_confirm'], '"', (!$exports_exist ? ' disabled' : ''), '>
+						<input type="hidden" name="delete"', (!$exports_exist ? ' disabled' : ''), '>
+						<input type="hidden" name="t" value="', $file['dltoken'], '"', (!$exports_exist ? ' disabled' : ''), '>
+					</div>
 
-	echo '
-				<div class="righttext">';
-
-	if (!$exports_exist)
-		echo '
-					<input type="submit" name="export_begin" value="', $txt['export_begin'], '" class="button">';
-	else
-		echo '
-					<input type="submit" name="export_begin" value="', $txt['export_restart'], '" class="button you_sure" data-confirm="', $txt['export_restart_confirm'], '">
-					<input type="hidden" name="delete">
-					<input type="hidden" name="t" value="', $file['dltoken'], '">';
-
-	echo '
 					<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</div>

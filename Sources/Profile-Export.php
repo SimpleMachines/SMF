@@ -193,6 +193,7 @@ function export_profile_data($uid)
 
 	$context['completed_exports'] = array();
 	$context['active_exports'] = array();
+	$existing_export_formats = array();
 	$latest = array();
 
 	foreach ($context['export_formats'] as $format => $format_settings)
@@ -299,7 +300,8 @@ function export_profile_data($uid)
 					'realname' => $exportbasename,
 					'dlbasename' => $dlfilename . $suffix . '.' . $format_settings['extension'],
 					'dltoken' => $dltoken,
-					'included' => sentence_list($included_desc),
+					'included' => $included,
+					'included_desc' => sentence_list($included_desc),
 					'format' => $format,
 					'mtime' => timeformat(filemtime($exportfilepath)),
 					'size' => $size,
@@ -307,14 +309,19 @@ function export_profile_data($uid)
 			}
 
 			ksort($context['completed_exports'][$idhash_ext], SORT_NUMERIC);
+
+			$existing_export_formats[] = $format;
 		}
 		elseif ($done === false)
 		{
 			$context['active_exports'][$idhash_ext] = array(
 				'dltoken' => $dltoken,
-				'included' => sentence_list($included_desc),
+				'included' => $included,
+				'included_desc' => sentence_list($included_desc),
 				'format' => $format,
 			);
+
+			$existing_export_formats[] = $format;
 		}
 	}
 
@@ -387,6 +394,8 @@ function export_profile_data($uid)
 		$txt['export_profile_data_desc_list']['expiry'] = sprintf($txt['export_profile_data_desc_list']['expiry'], $modSettings['export_expiry']);
 
 	$context['export_profile_data_desc'] = sprintf($txt['export_profile_data_desc'], '<li>' . implode('</li><li>', $txt['export_profile_data_desc_list']) . '</li>');
+
+	addJavaScriptVar('completed_formats', '[\'' . implode('\', \'', array_unique($existing_export_formats)) . '\']', false);
 }
 
 /**
