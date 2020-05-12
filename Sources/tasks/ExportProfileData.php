@@ -23,7 +23,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	 */
 	private static $export_details = array();
 	private static $real_modSettings = array();
-	private static $xslt_info = array();
+	private static $xslt_info = array('stylesheet' => '', 'dtd' => '');
 
 	/**
 	 * This is the main dispatcher for the class.
@@ -252,7 +252,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 				buildXmlFeed('smf', $items, $feed_meta, 'profile');
 
 				// If disk space is insufficient, pause for a day so the admin can fix it.
-				if ($check_diskspace && disk_free_space($modSettings['export_dir']) - $minspace <= strlen($context['feed']['items']))
+				if ($check_diskspace && disk_free_space($modSettings['export_dir']) - $minspace <= strlen(implode('', $context['feed']) . self::$xslt_info['stylesheet']))
 				{
 					loadLanguage('Errors');
 					log_error(sprintf($txt['export_low_diskspace'], $modSettings['export_min_diskspace_pct']));
