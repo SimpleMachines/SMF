@@ -3315,7 +3315,7 @@ function template_export_profile_data()
 		foreach ($context['completed_exports'] as $basehash_ext => $parts)
 		{
 			echo '
-			<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '"', count($context['completed_exports']) > 1 ? ' class="descbox"' : '', '>';
+			<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '" class="', count($context['completed_exports']) > 1 ? 'descbox' : 'padding', '">';
 
 			if (!empty($context['outdated_exports'][$basehash_ext]))
 			{
@@ -3334,7 +3334,14 @@ function template_export_profile_data()
 			}
 
 			echo '
-				<p class="padding">', sprintf($txt['export_file_desc'], $parts[1]['included_desc'], $context['export_formats'][$parts[1]['format']]['description']), '</p>
+				<p>', sprintf($txt['export_file_desc'], $parts[1]['included_desc'], $context['export_formats'][$parts[1]['format']]['description']), '</p>';
+
+			if (count($parts) > 10)
+				echo '
+				<details>
+					<summary>', sprintf($txt['export_file_count'], count($parts)), '</summary>';
+
+			echo '
 				<ul class="bbc_list" id="', $parts[1]['format'], '_export_files">';
 
 			foreach ($parts as $part => $file)
@@ -3351,7 +3358,13 @@ function template_export_profile_data()
 			}
 
 			echo '
-				</ul>
+				</ul>';
+
+			if (count($parts) > 10)
+				echo '
+				</details>';
+
+			echo '
 				<div class="righttext">
 					<input type="submit" name="delete" value="', $txt['delete'], '" class="button you_sure">
 					<input type="hidden" name="format" value="', $parts[1]['format'], '">
