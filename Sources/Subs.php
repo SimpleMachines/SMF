@@ -7239,65 +7239,96 @@ function sentence_list($list)
  */
 function truncate_array($array, $max_length = 1900, $deep = 3)
 {
-    $array = (array) $array;
+	$array = (array) $array;
 
-    $curr_length = array_length($array, $deep);
+	$curr_length = array_length($array, $deep);
 
-    if ($curr_length <= $max_length)
-        return $array;
+	if ($curr_length <= $max_length)
+		return $array;
 
-    else
-    {
-        // Truncate each element's value to a reasonable length
-        $param_max = floor($max_length / count($array));
+	else
+	{
+		// Truncate each element's value to a reasonable length
+		$param_max = floor($max_length / count($array));
 
-        $current_deep = $deep - 1;
+		$current_deep = $deep - 1;
 
-        foreach ($array as $key => &$value)
-        {
-            if (is_array($value))
-                if ($current_deep > 0)
-                    $value = truncate_array($value, $current_deep);
+		foreach ($array as $key => &$value)
+		{
+			if (is_array($value))
+				if ($current_deep > 0)
+					$value = truncate_array($value, $current_deep);
 
-            else
-                $value = substr($value, 0, $param_max - strlen($key) - 5);
-        }
+			else
+				$value = substr($value, 0, $param_max - strlen($key) - 5);
+		}
 
-        return $array;
-    }
+		return $array;
+	}
 }
 
 /**
  * array_length Recursive
- * @param $array
+ * @param array $array
  * @param int $deep How many levels should the function
  * @return int
  */
 function array_length($array, $deep = 3)
 {
-    // Work with arrays
-    $array = (array) $array;
-    $length = 0;
+	// Work with arrays
+	$array = (array) $array;
+	$length = 0;
 
-    $deep_count = $deep - 1;
+	$deep_count = $deep - 1;
 
-    foreach ($array as $value)
-    {
-        // Recursive?
-        if (is_array($value))
-        {
-            // No can't do
-            if ($deep_count <= 0)
-                continue;
+	foreach ($array as $value)
+	{
+		// Recursive?
+		if (is_array($value))
+		{
+			// No can't do
+			if ($deep_count <= 0)
+				continue;
 
-            $length += array_length($value, $deep_count);
-        }
+			$length += array_length($value, $deep_count);
+		}
+		else
+			$length += strlen($value);
+	}
 
-        else
-            $length += strlen($value);
-    }
+	return $length;
+}
 
-    return $length;
+/**
+ * Compares existance request variables against an array.
+ *
+ * The input array is associative, where keys denote accepted values
+ * in a request variable denoted by `$req_val`. Values can be:
+ *
+ * - another associative array where at least one key must be found
+ *   in the request and their values are accepted request values.
+ * - A scalar value, in which case no furthur checks are done.
+ *
+ * @param array $array
+ * @param string $req_var request variable
+ *
+ * @return bool whether ALL the criteria was satisfied
+ */
+function is_filtered_request(array $array, $req_var)
+{
+	$matched = false;
+	if (isset($_REQUEST[$req_var], $array[$_REQUEST[$req_var]]))
+	{
+		if (is_array($array[$_REQUEST[$req_var]]))
+		{
+			foreach ($array[$_REQUEST[$req_var]] as $subtype => $subnames)
+				$matched |= isset($_REQUEST[$subtype]) && in_array($_REQUEST[$subtype], $subnames);
+		}
+		else
+			$matched = true;
+	}
+
+	return (bool) $matched;
 }
 
 /**
