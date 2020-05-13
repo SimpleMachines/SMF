@@ -3292,8 +3292,8 @@ function template_export_profile_data()
 {
 	global $context, $scripturl, $txt;
 
-	$exports_exist = !empty($context['completed_exports']) || !empty($context['active_exports']);
 	$default_settings = array('included' => array(), 'format' => '');
+	$dltoken = '';
 
 	// The main containing header.
 	echo '
@@ -3346,6 +3346,7 @@ function template_export_profile_data()
 
 			foreach ($parts as $part => $file)
 			{
+				$dltoken = $file['dltoken'];
 				if (empty($default_settings['included']))
 					$default_settings['included'] = $file['included'];
 				if (empty($default_settings['format']))
@@ -3353,7 +3354,7 @@ function template_export_profile_data()
 
 				echo '
 					<li>
-						<a href="', $scripturl, '?action=profile;area=download;u=', $context['id_member'], ';format=', $file['format'], ';part=', $part, ';t=', $file['dltoken'], '" class="bbc_link" download>', $file['dlbasename'], '</a> (', $file['size'], ', ', $file['mtime'], ')
+						<a href="', $scripturl, '?action=profile;area=download;u=', $context['id_member'], ';format=', $file['format'], ';part=', $part, ';t=', $dltoken, '" class="bbc_link" download>', $file['dlbasename'], '</a> (', $file['size'], ', ', $file['mtime'], ')
 					</li>';
 			}
 
@@ -3368,7 +3369,7 @@ function template_export_profile_data()
 				<div class="righttext">
 					<input type="submit" name="delete" value="', $txt['delete'], '" class="button you_sure">
 					<input type="hidden" name="format" value="', $parts[1]['format'], '">
-					<input type="hidden" name="t" value="', $parts[1]['dltoken'], '">
+					<input type="hidden" name="t" value="', $dltoken, '">
 					<button type="button" class="button export_download_all" style="display:none" onclick="export_download_all(\'', $parts[1]['format'], '\');">', $txt['export_download_all'], '</button>
 				</div>
 			</form>';
@@ -3388,6 +3389,7 @@ function template_export_profile_data()
 
 		foreach ($context['active_exports'] as $file)
 		{
+			$dltoken = $file['dltoken'];
 			if (empty($default_settings['included']))
 				$default_settings['included'] = $file['included'];
 			if (empty($default_settings['format']))
@@ -3399,7 +3401,7 @@ function template_export_profile_data()
 				<div class="righttext">
 					<input type="submit" name="delete" value="', $txt['export_cancel'], '" class="button you_sure">
 					<input type="hidden" name="format" value="', $file['format'], '">
-					<input type="hidden" name="t" value="', $file['dltoken'], '">
+					<input type="hidden" name="t" value="', $dltoken, '">
 				</div>
 			</form>';
 		}
@@ -3445,16 +3447,29 @@ function template_export_profile_data()
 						</select>
 					</dd>
 				</dl>
-				<div class="righttext">
-					<div id="export_begin"', ($exports_exist ? ' style="display:none"' : ''), '>
+				<div class="righttext">';
+
+	// At least one active or completed export exists.
+	if (!empty($dltoken))
+	{
+		echo '
+					<div id="export_begin" style="display:none">
 						<input type="submit" name="export_begin" value="', $txt['export_begin'], '" class="button">
 					</div>
-					<div id="export_restart"', (!$exports_exist ? ' style="display:none"' : ''), '>
-						<input type="submit" name="export_begin" value="', $txt['export_restart'], '" class="button you_sure" data-confirm="', $txt['export_restart_confirm'], '"', (!$exports_exist ? ' disabled' : ''), '>
-						<input type="hidden" name="delete"', (!$exports_exist ? ' disabled' : ''), '>
-						<input type="hidden" name="t" value="', $file['dltoken'], '"', (!$exports_exist ? ' disabled' : ''), '>
-					</div>
+					<div id="export_restart">
+						<input type="submit" name="export_begin" value="', $txt['export_restart'], '" class="button you_sure" data-confirm="', $txt['export_restart_confirm'], '">
+						<input type="hidden" name="delete">
+						<input type="hidden" name="t" value="', $dltoken, '">
+					</div>';
+	}
+	// No existing exports.
+	else
+	{
+		echo '
+					<input type="submit" name="export_begin" value="', $txt['export_begin'], '" class="button">';
+	}
 
+	echo '
 					<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</div>
