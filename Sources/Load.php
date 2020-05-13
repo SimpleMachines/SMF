@@ -2070,7 +2070,18 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// 4a. View or accept the agreement and/or policy
 	// 4b. Login or logout
 	// 4c. Get a feed (RSS, ATOM, etc.)
-	if (!$user_info['is_guest'] && !$user_info['is_admin'] && SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('agreement', 'acceptagreement', 'login2', 'logout', '.xml'))))
+	$agreement_actions = array(
+		'agreement' => true,
+		'acceptagreement' => true,
+		'login2' => true,
+		'logintfa' => true,
+		'logout' => true,
+		'pm' => array('sa' => array('popup')),
+		'profile' => array('area' => array('popup', 'alerts_popup')),
+		'xmlhttp' => true,
+		'.xml' => true,
+	);
+	if (!$user_info['is_guest'] && !$user_info['is_admin'] && SMF != 'SSI' && !isset($_REQUEST['xml']) && !is_filtered_request($agreement_actions, 'action')))
 	{
 		$agreement_lang = !empty($modSettings['agreement_updated_' . $user_info['language']]) ? $user_info['language'] : 'default';
 		$policy_lang = !empty($modSettings['policy_' . $user_info['language']]) ? $user_info['language'] : $language;
