@@ -118,14 +118,20 @@ function createList($listOptions)
 	$list_context['num_columns'] = count($listOptions['columns']);
 	$list_context['width'] = isset($listOptions['width']) ? $listOptions['width'] : '0';
 
-	// Get the file with the function for the item list.
-	if (isset($listOptions['get_items']['file']))
-		require_once($listOptions['get_items']['file']);
-
 	// Call the function and include which items we want and in what order.
-	$call = call_helper($listOptions['get_items']['function'], true);
-	$list_items = call_user_func_array($call, array_merge(array($list_context['start'], $list_context['items_per_page'], $sort), empty($listOptions['get_items']['params']) ? array() : $listOptions['get_items']['params']));
-	$list_items = empty($list_items) ? array() : $list_items;
+	if (!empty($listOptions['get_items']['value']) && is_array($listOptions['get_items']['value']))
+		$list_items = $listOptions['get_items']['value'];
+
+	else
+	{
+		// Get the file with the function for the item list.
+		if (isset($listOptions['get_items']['file']))
+			require_once($listOptions['get_items']['file']);
+
+		$call = call_helper($listOptions['get_items']['function'], true);
+		$list_items = call_user_func_array($call, array_merge(array($list_context['start'], $list_context['items_per_page'], $sort), empty($listOptions['get_items']['params']) ? array() : $listOptions['get_items']['params']));
+		$list_items = empty($list_items) ? array() : $list_items;
+	}
 
 	// Loop through the list items to be shown and construct the data values.
 	$list_context['rows'] = array();
