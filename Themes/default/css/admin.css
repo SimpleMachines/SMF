@@ -618,9 +618,10 @@ h3.grid_header {
 	margin-right: 5px;
 }
 #error_log span.error_message, #backtrace span.error_message {
-	overflow: scroll;
+	overflow: auto;
 	display: block;
 	white-space: pre-wrap;
+	word-wrap: break-word;
 }
 
 /* Styles for the Report generation */
