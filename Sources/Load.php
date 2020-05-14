@@ -1376,11 +1376,13 @@ function loadPermissions()
 }
 
 /**
- * Loads an array of users' data by ID or member_name.
+ * Loads user data, either by id or member_name, and can load one or many users' data together.
  *
- * @param array|string $users An array of users by id or name or a single username/id
- * @param bool $is_name Whether $users contains names
- * @param string $set What kind of data to load (normal, profile, minimal)
+ * User data is loaded with minimal processing into the global `$user_profiles` array, keyed by user id.
+ *
+ * @param mixed $users This can be either a single value or an array, representing a single user or multiple users.
+ * @param bool $is_name If this parameter is true, treat the value(s) in `$users` as user names, otherwise they are numeric user ids.
+ * @param string $set Complexity of data to load, from `minimal`, `normal`, `profile`, each successively increasing in complexity.
  * @return array The ids of the members loaded
  */
 function loadMemberData($users, $is_name = false, $set = 'normal')
@@ -1572,12 +1574,13 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 }
 
 /**
- * Loads the user's basic values... meant for template/theme usage.
+ * Processes all the data previously loaded by {@link loadMemberData()} into a form more readily usable for SMF.
+ *
+ * The results are stored in the global `$memberContext` array, keyed by user id.
  *
  * @param int $user The ID of a user previously loaded by {@link loadMemberData()}
  * @param bool $display_custom_fields Whether or not to display custom profile fields
- * @return boolean|array  False if the data wasn't loaded or the loaded data.
- * @throws Exception
+ * @return bool Whether or not the data was loaded successfully
  */
 function loadMemberContext($user, $display_custom_fields = false)
 {
@@ -1588,7 +1591,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 	// If this person's data is already loaded, skip it.
 	if (isset($dataLoaded[$user]))
-		return $dataLoaded[$user];
+		return true;
 
 	// We can't load guests or members not loaded by loadMemberData()!
 	if ($user == 0)
@@ -1655,7 +1658,6 @@ function loadMemberContext($user, $display_custom_fields = false)
 			$time_user = new DateTime('now', $tz_user);
 			$profile['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
 		}
-
 		else
 		{
 			// !!! Compatibility.
@@ -1724,16 +1726,15 @@ function loadMemberContext($user, $display_custom_fields = false)
 		{
 			// So it's stored in the member table?
 			if (!empty($profile['avatar']))
+			{
 				$image = (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://')) ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'];
-
+			}
 			elseif (!empty($profile['filename']))
 				$image = $modSettings['custom_avatar_url'] . '/' . $profile['filename'];
-
 			// Right... no avatar...use the default one
 			else
 				$image = $modSettings['avatar_url'] . '/default.png';
 		}
-
 		if (!empty($image))
 			$memberContext[$user]['avatar'] = array(
 				'name' => $profile['avatar'],
@@ -1799,8 +1800,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 	}
 
 	call_integration_hook('integrate_member_context', array(&$memberContext[$user], $user, $display_custom_fields));
-
-	return $memberContext[$user];
+	return true;
 }
 
 /**
