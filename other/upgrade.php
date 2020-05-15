@@ -383,7 +383,7 @@ function upgradeExit($fallThrough = false)
 			if (function_exists('debug_print_backtrace'))
 				debug_print_backtrace();
 
-			printf($txt['error_unexpected_template_call'], isset($upcontext['sub_template']) ? $upcontext['sub_template'] : '');
+			printf("\n" . $txt['error_unexpected_template_call'], isset($upcontext['sub_template']) ? $upcontext['sub_template'] : '');
 			flush();
 			die();
 		}
