@@ -2818,7 +2818,7 @@ function loadEmailTemplate($template, $replacements = array(), $lang = '', $load
 		'THEMEURL' => $settings['theme_url'],
 		'IMAGESURL' => $settings['images_url'],
 		'DEFAULT_THEMEURL' => $settings['default_theme_url'],
-		'REGARDS' => $txt['regards_team'],
+		'REGARDS' => sprintf($txt['regards_team'], $context['forum_name']),
 	);
 
 	// Split the replacements up into two arrays, for use with str_replace
