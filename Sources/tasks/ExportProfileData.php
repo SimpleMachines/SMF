@@ -337,16 +337,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		// Remove the .tmp extension from the final tempfile so the system knows it's done.
 		if (!empty($done))
 		{
-			// For XML exports, things are easy.
-			if (in_array($this->_details['format'], array('XML', 'XML_XSLT')))
-				rename($tempfile, $realfile);
-
-			// For other formats, back up tempfile in case we need to append more data later.
-			else
-			{
-				copy($tempfile, $realfile);
-				rename($tempfile, $tempfile . '.bak');
-			}
+			rename($tempfile, $realfile);
 		}
 
 		// Oops. Apparently some sneaky monkey cancelled the export while we weren't looking.
