@@ -1583,12 +1583,12 @@ function loadMemberContext($user, $display_custom_fields = false)
 {
 	global $memberContext, $user_profile, $txt, $scripturl, $user_info;
 	global $context, $modSettings, $settings, $smcFunc;
-	static $dataLoaded = array();
+	static $dcf = array();
 	static $loadedLanguages = array();
 
 	// If this person's data is already loaded, skip it.
-	if (isset($dataLoaded[$user]))
-		return $dataLoaded[$user];
+	if (!empty($memberContext[$user]) && !empty($dcf[$user]) >= $display_custom_fields)
+		return $memberContext[$user];
 
 	// We can't load guests or members not loaded by loadMemberData()!
 	if ($user == 0)
@@ -1600,7 +1600,6 @@ function loadMemberContext($user, $display_custom_fields = false)
 	}
 
 	// Well, it's loaded now anyhow.
-	$dataLoaded[$user] = true;
 	$profile = $user_profile[$user];
 
 	// Censor everything.
@@ -1799,6 +1798,8 @@ function loadMemberContext($user, $display_custom_fields = false)
 	}
 
 	call_integration_hook('integrate_member_context', array(&$memberContext[$user], $user, $display_custom_fields));
+
+	$dcf[$user] = !empty($dcf[$user]) | $display_custom_fields;
 
 	return $memberContext[$user];
 }
