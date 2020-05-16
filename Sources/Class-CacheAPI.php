@@ -23,8 +23,8 @@ interface cache_api_interface
 	 * Checks whether we can use the cache method performed by this API.
 	 *
 	 * @access public
-	 * @param boolean $test Test if this is supported or enabled.
-	 * @return boolean Whether or not the cache is supported
+	 * @param bool $test Test if this is supported or enabled.
+	 * @return bool Whether or not the cache is supported
 	 */
 	public function isSupported($test = false);
 
@@ -32,7 +32,7 @@ interface cache_api_interface
 	 * Connects to the cache method. This defines our $key. If this fails, we return false, otherwise we return true.
 	 *
 	 * @access public
-	 * @return boolean Whether or not the cache method was connected to.
+	 * @return bool Whether or not the cache method was connected to.
 	 */
 	public function connect();
 
@@ -41,7 +41,7 @@ interface cache_api_interface
 	 *
 	 * @access public
 	 * @param string $key The key to use
-	 * @return boolean If this was successful or not.
+	 * @return bool If this was successful or not.
 	 */
 	public function setPrefix($key = '');
 
@@ -58,7 +58,7 @@ interface cache_api_interface
 	 *
 	 * @access public
 	 * @param int $ttl The default TTL
-	 * @return boolean If this was successful or not.
+	 * @return bool If this was successful or not.
 	 */
 	public function setDefaultTTL($ttl = 120);
 
@@ -66,28 +66,33 @@ interface cache_api_interface
 	 * Gets the TTL as defined from set or the default.
 	 *
 	 * @access public
-	 * @return string the value of $ttl.
+	 * @return int the value of $ttl.
 	 */
 	public function getDefaultTTL();
 
 	/**
-	 * Gets data from the cache.
+	 * Retrieves an item from the cache.
 	 *
 	 * @access public
 	 * @param string $key The key to use, the prefix is applied to the key name.
-	 * @param string $ttl Overrides the default TTL.
+	 * @param int    $ttl Overrides the default TTL. Not really used anymore,
+	 *                    but is kept for backwards compatibility.
 	 * @return mixed The result from the cache, if there is no data or it is invalid, we return null.
+	 * @todo Seperate existence checking into its own method
 	 */
 	public function getData($key, $ttl = null);
 
 	/**
-	 * Saves to data the cache.
+	 * Stores a value, regardless of whether or not the key already exists (in
+	 * which case it will overwrite the existing value for that key).
 	 *
 	 * @access public
-	 * @param string $key The key to use, the prefix is applied to the key name.
-	 * @param mixed $value The data we wish to save.
-	 * @param string $ttl Overrides the default TTL.
+	 * @param string $key   The key to use, the prefix is applied to the key name.
+	 * @param mixed  $value The data we wish to save. Use null to delete.
+	 * @param int    $ttl   How long (in seconds) the data should be cached for.
+	 *                      The default TTL will be used if this is null.
 	 * @return bool Whether or not we could save this to the cache.
+	 * @todo Seperate deletion into its own method
 	 */
 	public function putData($key, $value, $ttl = null);
 
@@ -110,7 +115,7 @@ interface cache_api_interface
 	 * Closes connections to the cache method.
 	 *
 	 * @access public
-	 * @return bool Whether or not we could close connections.
+	 * @return bool Whether the connections were closed.
 	 */
 	public function quit();
 
@@ -119,7 +124,6 @@ interface cache_api_interface
 	 *
 	 * @access public
 	 * @param array $config_vars Additional config_vars, see ManageSettings.php for usage.
-	 * @return void No return is needed.
 	 */
 	public function cacheSettings(array &$config_vars);
 
@@ -189,7 +193,7 @@ abstract class cache_api implements cache_api_interface
 	 */
 	public function __construct()
 	{
-		$this->setPrefix('');
+		$this->setPrefix();
 	}
 
 	/**
@@ -209,6 +213,7 @@ abstract class cache_api implements cache_api_interface
 	 */
 	public function connect()
 	{
+		return true;
 	}
 
 	/**
@@ -262,27 +267,6 @@ abstract class cache_api implements cache_api_interface
 	}
 
 	/**
-	 * {@inheritDoc}
-	 */
-	public function getData($key, $ttl = null)
-	{
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function putData($key, $value, $ttl = null)
-	{
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function cleanCache($type = '')
-	{
-	}
-
-	/**
 	 * Invalidate all cached data.
 	 *
 	 * @return bool Whether or not we could invalidate the cache.
@@ -304,6 +288,7 @@ abstract class cache_api implements cache_api_interface
 	 */
 	public function quit()
 	{
+		return true;
 	}
 
 	/**

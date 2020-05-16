@@ -31,11 +31,6 @@ class sqlite_cache extends cache_api
 	 */
 	private $cacheDB = null;
 
-	/**
-	 * @var int
-	 */
-	private $cacheTime = 0;
-
 	public function __construct()
 	{
 		parent::__construct();
@@ -57,7 +52,6 @@ class sqlite_cache extends cache_api
 			$this->cacheDB->exec('CREATE TABLE cache (key text unique, value blob, ttl int);');
 			$this->cacheDB->exec('CREATE INDEX ttls ON cache(ttl);');
 		}
-		$this->cacheTime = time();
 	}
 
 	/**
@@ -78,8 +72,7 @@ class sqlite_cache extends cache_api
 	 */
 	public function getData($key, $ttl = null)
 	{
-		$ttl = time() - $ttl;
-		$query = 'SELECT value FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\' AND ttl >= ' . $ttl . ' LIMIT 1';
+		$query = 'SELECT value FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\' AND ttl >= ' . time() . ' LIMIT 1';
 		$result = $this->cacheDB->query($query);
 
 		$value = null;
@@ -94,8 +87,11 @@ class sqlite_cache extends cache_api
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		$ttl = $this->cacheTime + $ttl;
-		$query = 'REPLACE INTO cache VALUES (\'' . $this->cacheDB->escapeString($key) . '\', \'' . $this->cacheDB->escapeString($value) . '\', ' . $this->cacheDB->escapeString($ttl) . ');';
+		$ttl = time() + (int) ($ttl !== null ? $ttl : $this->ttl);
+		if ($value === null)
+			$query = 'DELETE FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\';';
+		else
+			$query = 'REPLACE INTO cache VALUES (\'' . $this->cacheDB->escapeString($key) . '\', \'' . $this->cacheDB->escapeString($value) . '\', ' . $ttl . ');';
 		$result = $this->cacheDB->exec($query);
 
 		return $result;

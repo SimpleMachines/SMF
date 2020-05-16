@@ -27,7 +27,13 @@ function createList($listOptions)
 	assert(isset($listOptions['id']));
 	assert(isset($listOptions['columns']));
 	assert(is_array($listOptions['columns']));
-	assert((empty($listOptions['items_per_page']) || (isset($listOptions['get_count']['function'], $listOptions['base_href']) && is_numeric($listOptions['items_per_page']))));
+
+	if (!isset($listOptions['get_count']['value']))
+		assert((empty($listOptions['items_per_page']) ||
+			(isset($listOptions['get_count']['function'], $listOptions['base_href']) &&
+				is_numeric($listOptions['items_per_page']
+		))));
+
 	assert((empty($listOptions['default_sort_col']) || isset($listOptions['columns'][$listOptions['default_sort_col']])));
 	assert((!isset($listOptions['form']) || isset($listOptions['form']['href'])));
 
@@ -73,11 +79,18 @@ function createList($listOptions)
 	else
 	{
 		// First get an impression of how many items to expect.
-		if (isset($listOptions['get_count']['file']))
-			require_once($listOptions['get_count']['file']);
+		if (!empty($listOptions['get_count']['value']) && ctype_digit($listOptions['get_count']['value']))
+			$list_context['total_num_items'] = $listOptions['get_count']['value'];
 
-		$call = call_helper($listOptions['get_count']['function'], true);
-		$list_context['total_num_items'] = call_user_func_array($call, empty($listOptions['get_count']['params']) ? array() : $listOptions['get_count']['params']);
+		else
+		{
+			if (isset($listOptions['get_count']['file']))
+				require_once($listOptions['get_count']['file']);
+
+			$call = call_helper($listOptions['get_count']['function'], true);
+			$list_context['total_num_items'] = call_user_func_array($call, empty($listOptions['get_count']['params']) ? array() : $listOptions['get_count']['params']);
+		}
+
 
 		// Default the start to the beginning...sounds logical.
 		$list_context['start'] = isset($_REQUEST[$list_context['start_var_name']]) ? (int) $_REQUEST[$list_context['start_var_name']] : 0;
@@ -105,14 +118,20 @@ function createList($listOptions)
 	$list_context['num_columns'] = count($listOptions['columns']);
 	$list_context['width'] = isset($listOptions['width']) ? $listOptions['width'] : '0';
 
-	// Get the file with the function for the item list.
-	if (isset($listOptions['get_items']['file']))
-		require_once($listOptions['get_items']['file']);
-
 	// Call the function and include which items we want and in what order.
-	$call = call_helper($listOptions['get_items']['function'], true);
-	$list_items = call_user_func_array($call, array_merge(array($list_context['start'], $list_context['items_per_page'], $sort), empty($listOptions['get_items']['params']) ? array() : $listOptions['get_items']['params']));
-	$list_items = empty($list_items) ? array() : $list_items;
+	if (!empty($listOptions['get_items']['value']) && is_array($listOptions['get_items']['value']))
+		$list_items = $listOptions['get_items']['value'];
+
+	else
+	{
+		// Get the file with the function for the item list.
+		if (isset($listOptions['get_items']['file']))
+			require_once($listOptions['get_items']['file']);
+
+		$call = call_helper($listOptions['get_items']['function'], true);
+		$list_items = call_user_func_array($call, array_merge(array($list_context['start'], $list_context['items_per_page'], $sort), empty($listOptions['get_items']['params']) ? array() : $listOptions['get_items']['params']));
+		$list_items = empty($list_items) ? array() : $list_items;
+	}
 
 	// Loop through the list items to be shown and construct the data values.
 	$list_context['rows'] = array();

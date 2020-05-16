@@ -24,7 +24,7 @@ if (!defined('SMF'))
  */
 function getServerVersions($checkFor)
 {
-	global $txt, $db_connection, $_PHPA, $smcFunc, $cache_accelerator, $cache_memcached, $cacheAPI, $modSettings;
+	global $txt, $db_connection, $sourcedir, $smcFunc, $modSettings;
 
 	loadLanguage('Admin');
 
@@ -66,34 +66,39 @@ function getServerVersions($checkFor)
 			trigger_error('getServerVersions(): you need to be connected to the database in order to get its server version', E_USER_NOTICE);
 		else
 		{
-			$versions['db_engine'] = array('title' => sprintf($txt['support_versions_db_engine'], $smcFunc['db_title']), 'version' => '');
-			$versions['db_engine']['version'] = $smcFunc['db_get_vendor']();
-
-			$versions['db_server'] = array('title' => sprintf($txt['support_versions_db'], $smcFunc['db_title']), 'version' => '');
-			$versions['db_server']['version'] = $smcFunc['db_get_version']();
+			$versions['db_engine'] = array(
+				'title' => sprintf($txt['support_versions_db_engine'], $smcFunc['db_title']),
+				'version' => $smcFunc['db_get_vendor'](),
+			);
+			$versions['db_server'] = array(
+				'title' => sprintf($txt['support_versions_db'], $smcFunc['db_title']),
+				'version' => $smcFunc['db_get_version'](),
+			);
 		}
 	}
 
-	// If we're using memcache we need the server info.
-	$memcache_version = '???';
-	if (!empty($cache_accelerator) && ($cache_accelerator == 'memcached' || $cache_accelerator == 'memcache') && !empty($cache_memcached) && !empty($cacheAPI))
-		$memcache_version = $cacheAPI->getVersion();
-
-	// Check to see if we have any accelerators installed...
-	if (in_array('phpa', $checkFor) && isset($_PHPA))
-		$versions['phpa'] = array('title' => 'ionCube PHP-Accelerator', 'version' => $_PHPA['VERSION']);
-	if (in_array('apc', $checkFor) && extension_loaded('apc'))
-		$versions['apc'] = array('title' => 'Alternative PHP Cache', 'version' => phpversion('apc'));
-	if (in_array('memcache', $checkFor) && function_exists('memcache_set'))
-		$versions['memcache'] = array('title' => 'Memcached', 'version' => $memcache_version);
-	if (in_array('xcache', $checkFor) && function_exists('xcache_set'))
-		$versions['xcache'] = array('title' => 'XCache', 'version' => XCACHE_VERSION);
+	// Check to see if we have any accelerators installed.
+	require_once($sourcedir . '/ManageServer.php');
+	$detected = loadCacheAPIs();
+	foreach ($detected as $api => $object)
+		if (in_array($api, $checkFor))
+			$versions[$api] = array(
+				'title' => isset($txt[$api . '_cache']) ? $txt[$api . '_cache'] : $api,
+				'version' => $detected[$api]->getVersion(),
+			);
 
 	if (in_array('php', $checkFor))
-		$versions['php'] = array('title' => 'PHP', 'version' => PHP_VERSION, 'more' => '?action=admin;area=serversettings;sa=phpinfo');
+		$versions['php'] = array(
+			'title' => 'PHP',
+			'version' => PHP_VERSION,
+			'more' => '?action=admin;area=serversettings;sa=phpinfo',
+		);
 
 	if (in_array('server', $checkFor))
-		$versions['server'] = array('title' => $txt['support_versions_server'], 'version' => $_SERVER['SERVER_SOFTWARE']);
+		$versions['server'] = array(
+			'title' => $txt['support_versions_server'],
+			'version' => $_SERVER['SERVER_SOFTWARE'],
+		);
 
 	return $versions;
 }

@@ -495,8 +495,8 @@ function url_exists($url)
 
 /**
  * Loads and returns an array of installed packages.
- * - returns the array of data.
- * - default sort order is package_installed time
+ *
+ *  default sort order is package_installed time
  *
  * @return array An array of info about installed packages
  */
