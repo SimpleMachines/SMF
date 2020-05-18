@@ -150,7 +150,7 @@ $txt['watching_this_topic'] = 'You are watching this topic, and will receive not
 $txt['notify'] = 'Notify';
 $txt['unnotify'] = 'Unnotify';
 // Use numeric entities in the below string.
-$txt['regards_team'] = 'Regards,' . "\n" . 'The %1$s Team.';
+$txt['regards_team'] = "Regards,\nThe %1$s Team.";
 $txt['notify_replies'] = 'Notify of replies';
 $txt['move_topic'] = 'Move Topic';
 $txt['move_to'] = 'Move to';
