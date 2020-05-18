@@ -238,7 +238,7 @@ $txt['welcome_guest_register'] = 'Welcome to <strong>%2$s</strong>. Please <a hr
 
 $txt['please_login'] = 'Please <a href="' . $scripturl . '?action=login">login</a>.';
 $txt['login_or_register'] = 'Please <a href="' . $scripturl . '?action=login">login</a> or <a href="' . $scripturl . '?action=signup">signup</a>.';
-$txt['welcome_guest_activate'] = '<br>Did you miss your <a href="' . $scripturl . '?action=activate">activation email</a>?';
+$txt['welcome_guest_activate'] = '<br>Did you miss your <a href="%1$s?action=activate">activation email</a>?';
 // @todo the following to sprintf
 $txt['hello_member'] = 'Hey,';
 // Use numeric entities in the below string.
