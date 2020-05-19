@@ -3980,7 +3980,7 @@ function theme_copyright()
 		return;
 
 	// Put in the version...
-	printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR);
+	printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl);
 }
 
 /**
