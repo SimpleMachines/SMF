@@ -1,8 +1,7 @@
 <?php
 
 /**
- * The main purpose of this file is to show a list of all errors that were
- * logged on the forum, and allow filtering and deleting them.
+ * This is the PHPUnit for the installation of SMF
  *
  * Simple Machines Forum (SMF)
  *
