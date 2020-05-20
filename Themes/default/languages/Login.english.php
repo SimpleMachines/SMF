@@ -55,7 +55,7 @@ $txt['invalid_activation_known'] = 'If you already know your activation code, pl
 $txt['invalid_activation_retry'] = 'Activation code';
 $txt['invalid_activation_submit'] = 'Activate';
 
-$txt['coppa_no_concent'] = 'The administrator has still not received parent/guardian consent for your account.';
+$txt['coppa_no_consent'] = 'The administrator has still not received parent/guardian consent for your account.';
 $txt['coppa_need_more_details'] = 'Need more details?';
 
 $txt['awaiting_delete_account'] = 'Your account has been marked for deletion!<br>If you wish to restore your account, please check the &quot;Reactivate my account&quot; box, and login again.';
