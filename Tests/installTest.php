@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This is the PHPUnit for the installation of SMF
+ * This is the PHPUnit test for SMF's installation process.
  *
  * Simple Machines Forum (SMF)
  *
