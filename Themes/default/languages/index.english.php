@@ -694,7 +694,7 @@ $txt['merge_check'] = 'Merge?';
 $txt['merge_no_poll'] = 'No poll';
 $txt['merge_why'] = 'Please enter a brief description as to why these topics are being merged.';
 $txt['merged_subject'] = '[MERGED] %1$s';
-$txt['mergetopic_default'] = 'This topic has been merged into %1$s.';
+$txt['mergetopic_default'] = 'This topic has been merged into %2$s.';
 
 $txt['response_prefix'] = 'Re: ';
 $txt['current_icon'] = 'Current Icon';

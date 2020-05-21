@@ -99,18 +99,8 @@ function template_redirect_options($type)
 							<dt>
 								', $txt[$type . '_why'], '
 							</dt>
-							<dd>';
-	if ($type == 'move')
-	{
-		echo '
-								<textarea name="reason">', sprintf($txt[$type . 'topic_default'], $txt['movetopic_auto_board'], $txt['movetopic_auto_topic']), '</textarea>';
-	}
-	elseif ($type == 'merge')
-	{
-		echo '
-								<textarea name="reason">', sprintf($txt[$type . 'topic_default'], $txt['movetopic_auto_topic']), '</textarea>';
-	}
-	echo '
+							<dd>
+								<textarea name="reason">', sprintf($txt[$type . 'topic_default'], $txt['movetopic_auto_board'], $txt['movetopic_auto_topic']), '</textarea>
 							</dd>
 							<dt>
 								<label for="redirect_topic">', $txt[$type . 'topic_redirect'], '</label>
