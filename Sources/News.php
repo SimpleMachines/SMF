@@ -717,7 +717,7 @@ function getXmlMembers($xml_format, $ascending = false)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If any control characters slipped in somehow, kill the evil things
-		array_walk($row, 'cleanXml');
+		$row = filter_var($row, FILTER_CALLBACK, ['options' => 'cleanXml']);
 
 		// Create a GUID for each member using the tag URI scheme
 		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
@@ -906,7 +906,7 @@ function getXmlNews($xml_format, $ascending = false)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If any control characters slipped in somehow, kill the evil things
-		array_walk($row, 'cleanXml');
+		$row = filter_var($row, FILTER_CALLBACK, ['options' => 'cleanXml']);
 
 		// Limit the length of the message, if the option is set.
 		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br>', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
@@ -1356,7 +1356,7 @@ function getXmlRecent($xml_format)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If any control characters slipped in somehow, kill the evil things
-		array_walk($row, 'cleanXml');
+		$row = filter_var($row, FILTER_CALLBACK, ['options' => 'cleanXml']);
 
 		// Limit the length of the message, if the option is set.
 		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br>', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
@@ -1779,7 +1779,8 @@ function getXmlProfile($xml_format)
 
 	$profile = &$memberContext[$context['xmlnews_uid']];
 
-	array_walk_recursive($profile, 'cleanXml');
+	// If any control characters slipped in somehow, kill the evil things
+	$profile = filter_var($profile, FILTER_CALLBACK, ['options' => 'cleanXml']);
 
 	// Create a GUID for this member using the tag URI scheme
 	$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
@@ -2112,7 +2113,7 @@ function getXmlPosts($xml_format, $ascending = false)
 		$row['poster_ip'] = inet_dtop($row['poster_ip']);
 
 		// If any control characters slipped in somehow, kill the evil things
-		array_walk($row, 'cleanXml');
+		$row = filter_var($row, FILTER_CALLBACK, ['options' => 'cleanXml']);
 
 		// If using our own format, we want both the raw and the parsed content.
 		$row[$xml_format === 'smf' ? 'body_html' : 'body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
@@ -2577,7 +2578,7 @@ function getXmlPMs($xml_format, $ascending = false)
 		$context['personal_messages_start'] = $row['id_pm'];
 
 		// If any control characters slipped in somehow, kill the evil things
-		array_walk($row, 'cleanXml');
+		$row = filter_var($row, FILTER_CALLBACK, ['options' => 'cleanXml']);
 
 		// If using our own format, we want both the raw and the parsed content.
 		$row[$xml_format === 'smf' ? 'body_html' : 'body'] = parse_bbc($row['body']);
