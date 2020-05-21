@@ -2698,8 +2698,16 @@ function template_error_message()
 
 		// Cycle through each error and display an error message.
 		foreach ($context['post_errors'] as $error)
-			echo '
+			if ($error == 'password_short')
+			{
+				echo '
+				<li>', isset($txt['profile_error_' . $error]) ? sprintf($txt['profile_error_' . $error], (empty($modSettings['password_strength']) ? 4 : 8)) : $error, '</li>';
+			}
+			else
+			{
+				echo '
 				<li>', isset($txt['profile_error_' . $error]) ? $txt['profile_error_' . $error] : $error, '</li>';
+			}
 
 		echo '
 			</ul>';
