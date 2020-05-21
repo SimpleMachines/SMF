@@ -290,8 +290,6 @@ $txt['to_ask_password'] = 'to ask for your authentication details';
 $txt['user_email'] = 'Username/Email';
 
 // Use numeric entities in the below two strings.
-$txt['reminder_subject'] = 'New password for ' . $context['forum_name'];
-$txt['reminder_mail'] = 'This mail was sent because the \'forgot password\' function has been applied to your account. To set a new password, click the following link';
 $txt['reminder_sent'] = 'A mail has been sent to your email address. Click the link in that mail to set a new password.';
 $txt['reminder_set_password'] = 'Set Password';
 $txt['reminder_password_set'] = 'Password successfully set';
