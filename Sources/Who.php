@@ -412,7 +412,7 @@ function determineActions($urls, $preferred_prefix = false)
 					)
 				);
 				list ($id_topic, $subject) = $smcFunc['db_fetch_row']($result);
-				$data[$k] = sprintf($txt['whopost_' . $actions['action']], $id_topic, $subject);
+				$data[$k] = sprintf($txt['whopost_' . $actions['action']], $id_topic, $subject, $scripturl);
 				$smcFunc['db_free_result']($result);
 
 				if (empty($id_topic))
@@ -495,7 +495,7 @@ function determineActions($urls, $preferred_prefix = false)
 		{
 			// Show the topic's subject for each of the actions.
 			foreach ($topic_ids[$row['id_topic']] as $k => $session_text)
-				$data[$k] = sprintf($session_text, $row['id_topic'], censorText($row['subject']));
+				$data[$k] = sprintf($session_text, $row['id_topic'], censorText($row['subject']), $scripturl);
 		}
 		$smcFunc['db_free_result']($result);
 	}
@@ -518,7 +518,7 @@ function determineActions($urls, $preferred_prefix = false)
 		{
 			// Put the board name into the string for each member...
 			foreach ($board_ids[$row['id_board']] as $k => $session_text)
-				$data[$k] = sprintf($session_text, $row['id_board'], $row['name']);
+				$data[$k] = sprintf($session_text, $row['id_board'], $row['name'], $scripturl);
 		}
 		$smcFunc['db_free_result']($result);
 	}
@@ -545,7 +545,7 @@ function determineActions($urls, $preferred_prefix = false)
 
 			// Set their action on each - session/text to sprintf.
 			foreach ($profile_ids[$row['id_member']] as $k => $session_text)
-				$data[$k] = sprintf($session_text, $row['id_member'], $row['real_name']);
+				$data[$k] = sprintf($session_text, $row['id_member'], $row['real_name'], $scripturl);
 		}
 		$smcFunc['db_free_result']($result);
 	}
