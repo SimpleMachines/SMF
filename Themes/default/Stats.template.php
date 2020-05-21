@@ -72,7 +72,7 @@ function template_main()
 				<dd>';
 
 		foreach ($context['gender'] as $g => $n)
-			echo $g, ': ', $n, '<br>';
+			echo $g, ': ', $n, '<br />';
 
 		echo '
 				</dd>';

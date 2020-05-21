@@ -217,7 +217,7 @@ function template_addsmiley()
 					<label for="method-upload"><input type="radio" onclick="switchType();" name="method" id="method-upload" value="upload"> ', $txt['smileys_add_upload'], '</label>
 				</li>
 			</ul>
-			<br>
+			<br />
 			<fieldset id="ex_settings">
 				<dl class="settings">
 					<dt>
@@ -352,7 +352,7 @@ function template_setorder()
 			', $location['description'], '
 		</div>
 		<div class="move_smileys windowbg noup">
-			<strong>', empty($context['move_smiley']) ? $txt['smileys_move_select_smiley'] : $txt['smileys_move_select_destination'], '...</strong><br>';
+			<strong>', empty($context['move_smiley']) ? $txt['smileys_move_select_smiley'] : $txt['smileys_move_select_destination'], '...</strong><br />';
 
 		foreach ($location['rows'] as $row)
 		{
@@ -372,7 +372,7 @@ function template_setorder()
 			}
 
 			echo '
-			<br>';
+			<br />';
 		}
 		if (!empty($context['move_smiley']))
 			echo '
@@ -420,7 +420,7 @@ function template_editicon()
 
 	echo '
 				<dt>
-					<strong><label for="icon_filename">', $txt['smileys_filename'], '</label>: </strong><br><span class="smalltext">', $txt['icons_filename_all_png'], '</span>
+					<strong><label for="icon_filename">', $txt['smileys_filename'], '</label>: </strong><br /><span class="smalltext">', $txt['icons_filename_all_png'], '</span>
 				</dt>
 				<dd>
 					<input type="text" name="icon_filename" id="icon_filename" value="', !empty($context['icon']['filename']) ? $context['icon']['filename'] . '.png' : '', '">

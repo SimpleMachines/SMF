@@ -252,7 +252,7 @@ function EditNews()
 						<tr class="windowbg') . ' + (last_preview % 2 == 0 ? \'\' : \'2\') + ' . javaScriptEscape('">
 							<td style="width: 50%;">
 									<textarea id="data_') . ' + last_preview + ' . javaScriptEscape('" rows="3" cols="65" name="news[]" style="width: 95%;"></textarea>
-									<br>
+									<br />
 									<div class="floatleft" id="preview_') . ' + last_preview + ' . javaScriptEscape('"></div>
 							</td>
 							<td style="width: 45%;">
@@ -835,7 +835,7 @@ function SendMailing($clean_only = false)
 	{
 		// Prepare the message for HTML.
 		if (!empty($_POST['parse_html']))
-			$_POST['message'] = str_replace(array("\n", '  '), array('<br>' . "\n", '&nbsp; '), $_POST['message']);
+			$_POST['message'] = str_replace(array("\n", '  '), array('<br />' . "\n", '&nbsp; '), $_POST['message']);
 
 		// This is here to prevent spam filters from tagging this as spam.
 		if (preg_match('~\<html~i', $_POST['message']) == 0)

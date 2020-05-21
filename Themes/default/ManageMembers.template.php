@@ -206,7 +206,7 @@ function template_search_members()
 					</tr>
 				</tbody>
 			</table>
-			<br>
+			<br />
 			<input type="submit" value="', $txt['search'], '" class="button">
 		</form>';
 }
@@ -224,7 +224,7 @@ function template_admin_browse()
 	if ($context['approve_list']['total_num_items'] > 20)
 	{
 		echo '
-		<br>
+		<br />
 		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=viewmembers" method="post" accept-charset="', $context['character_set'], '" name="postFormOutstanding" id="postFormOutstanding" onsubmit="return onOutstandingSubmit();">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['admin_browse_outstanding'], '</h3>

@@ -33,17 +33,17 @@ function template_email_members()
 			<div class="windowbg noup">
 				<dl class="settings">
 					<dt>
-						<strong>', $txt['admin_news_select_group'], ':</strong><br>
+						<strong>', $txt['admin_news_select_group'], ':</strong><br />
 						<span class="smalltext">', $txt['admin_news_select_group_desc'], '</span>
 					</dt>
 					<dd>';
 
 	foreach ($context['groups'] as $group)
 		echo '
-						<label for="groups_', $group['id'], '"><input type="checkbox" name="groups[', $group['id'], ']" id="groups_', $group['id'], '" value="', $group['id'], '" checked> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em><br>';
+						<label for="groups_', $group['id'], '"><input type="checkbox" name="groups[', $group['id'], ']" id="groups_', $group['id'], '" value="', $group['id'], '" checked> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em><br />';
 
 	echo '
-						<br>
+						<br />
 						<label for="checkAllGroups"><input type="checkbox" id="checkAllGroups" checked onclick="invertAll(this, this.form, \'groups\');"> <em>', $txt['check_all'], '</em></label>
 					</dd>
 				</dl>
@@ -56,14 +56,14 @@ function template_email_members()
 				<div id="advanced_panel_div" class="padding">
 					<dl class="settings">
 						<dt>
-							<strong>', $txt['admin_news_select_email'], ':</strong><br>
+							<strong>', $txt['admin_news_select_email'], ':</strong><br />
 							<span class="smalltext">', $txt['admin_news_select_email_desc'], '</span>
 						</dt>
 						<dd>
 							<textarea name="emails" rows="5" cols="30" style="width: 98%;"></textarea>
 						</dd>
 						<dt>
-							<strong>', $txt['admin_news_select_members'], ':</strong><br>
+							<strong>', $txt['admin_news_select_members'], ':</strong><br />
 							<span class="smalltext">', $txt['admin_news_select_members_desc'], '</span>
 						</dt>
 						<dd>
@@ -74,21 +74,21 @@ function template_email_members()
 					<hr class="bordercolor">
 					<dl class="settings">
 						<dt>
-							<strong>', $txt['admin_news_select_excluded_groups'], ':</strong><br>
+							<strong>', $txt['admin_news_select_excluded_groups'], ':</strong><br />
 							<span class="smalltext">', $txt['admin_news_select_excluded_groups_desc'], '</span>
 						</dt>
 						<dd>';
 
 	foreach ($context['groups'] as $group)
 		echo '
-							<label for="exclude_groups_', $group['id'], '"><input type="checkbox" name="exclude_groups[', $group['id'], ']" id="exclude_groups_', $group['id'], '" value="', $group['id'], '"> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em><br>';
+							<label for="exclude_groups_', $group['id'], '"><input type="checkbox" name="exclude_groups[', $group['id'], ']" id="exclude_groups_', $group['id'], '" value="', $group['id'], '"> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em><br />';
 
 	echo '
-							<br>
-							<label for="checkAllGroupsExclude"><input type="checkbox" id="checkAllGroupsExclude" onclick="invertAll(this, this.form, \'exclude_groups\');"> <em>', $txt['check_all'], '</em></label><br>
+							<br />
+							<label for="checkAllGroupsExclude"><input type="checkbox" id="checkAllGroupsExclude" onclick="invertAll(this, this.form, \'exclude_groups\');"> <em>', $txt['check_all'], '</em></label><br />
 						</dd>
 						<dt>
-							<strong>', $txt['admin_news_select_excluded_members'], ':</strong><br>
+							<strong>', $txt['admin_news_select_excluded_members'], ':</strong><br />
 							<span class="smalltext">', $txt['admin_news_select_excluded_members_desc'], '</span>
 						</dt>
 							<dd>
@@ -99,7 +99,7 @@ function template_email_members()
 					<hr class="bordercolor">
 					<dl class="settings">
 						<dt>
-							<label for="email_force"><strong>', $txt['admin_news_select_override_notify'], ':</strong></label><br>
+							<label for="email_force"><strong>', $txt['admin_news_select_override_notify'], ':</strong></label><br />
 							<span class="smalltext">', $txt['email_force'], '</span>
 						</dt>
 						<dd>
@@ -107,7 +107,7 @@ function template_email_members()
 						</dd>
 					</dl>
 				</div><!-- #advanced_panel_div -->
-				<br>
+				<br />
 				<input type="submit" value="', $txt['admin_next'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div><!-- .windowbg -->
@@ -186,11 +186,11 @@ function template_email_members_compose()
 		</div>
 		<div class="windowbg">
 			<div class="post" id="preview_body">
-				', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
+				', empty($context['preview_message']) ? '<br />' : $context['preview_message'], '
 			</div>
 		</div>
 	</div>
-	<br>';
+	<br />';
 
 	echo '
 		<form name="newsmodify" action="', $scripturl, '?action=admin;area=news;sa=mailingsend" method="post" accept-charset="', $context['character_set'], '">
@@ -209,7 +209,7 @@ function template_email_members_compose()
 							<strong id="error_serious">', $txt['error_while_submitting'], '</strong>
 						</dt>
 						<dd class="error" id="error_list">
-							', empty($context['post_error']['messages']) ? '' : implode('<br>', $context['post_error']['messages']), '
+							', empty($context['post_error']['messages']) ? '' : implode('<br />', $context['post_error']['messages']), '
 						</dd>
 					</dl>
 				</div>
@@ -330,7 +330,7 @@ function template_email_members_compose()
 					for (var i = 0, numErrors = errors.getElementsByTagName(\'error\').length; i < numErrors; i++)
 						errorList[errorList.length] = errors.getElementsByTagName(\'error\')[i].firstChild.nodeValue;
 					document.getElementById(\'errors\').style.display = numErrors == 0 ? \'none\' : \'\';
-					setInnerHTML(document.getElementById(\'error_list\'), numErrors == 0 ? \'\' : errorList.join(\'<br>\'));
+					setInnerHTML(document.getElementById(\'error_list\'), numErrors == 0 ? \'\' : errorList.join(\'<br />\'));
 
 					// Adjust the color of captions if the given data is erroneous.
 					var captions = errors.getElementsByTagName(\'caption\');

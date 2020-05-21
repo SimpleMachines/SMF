@@ -169,7 +169,7 @@ function template_select_search_method()
 							<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_fulltext_cannot_create'];
 		else
 			echo '
-							<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_already_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removefulltext;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_method_fulltext_remove'], '</a>]<br>
+							<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_already_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removefulltext;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_method_fulltext_remove'], '</a>]<br />
 							<strong>', $txt['search_index_size'], ':</strong> ', $context['table_info']['fulltext_length'];
 		echo '
 						</span>
@@ -186,12 +186,12 @@ function template_select_search_method()
 
 	if ($context['custom_index'])
 		echo '
-							<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_already_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removecustom;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_remove'], '</a>]<br>
+							<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_already_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removecustom;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_remove'], '</a>]<br />
 							<strong>', $txt['search_index_size'], ':</strong> ', $context['table_info']['custom_index_length'];
 
 	elseif ($context['partial_custom_index'])
 		echo '
-							<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_partial'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removecustom;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_remove'], '</a>] [<a href="', $scripturl, '?action=admin;area=managesearch;sa=createmsgindex;resume;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_resume'], '</a>]<br>
+							<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_partial'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removecustom;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_remove'], '</a>] [<a href="', $scripturl, '?action=admin;area=managesearch;sa=createmsgindex;resume;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_resume'], '</a>]<br />
 							<strong>', $txt['search_index_size'], ':</strong> ', $context['table_info']['custom_index_length'];
 	else
 		echo '
@@ -223,7 +223,7 @@ function template_select_search_method()
 			</fieldset>
 			<fieldset class="search_settings floatright">
 			<legend>', $txt['search_method'], '</legend>
-				<input type="checkbox" name="search_force_index" id="search_force_index_check" value="1"', empty($modSettings['search_force_index']) ? '' : ' checked', '><label for="search_force_index_check">', $txt['search_force_index'], '</label><br>
+				<input type="checkbox" name="search_force_index" id="search_force_index_check" value="1"', empty($modSettings['search_force_index']) ? '' : ' checked', '><label for="search_force_index_check">', $txt['search_force_index'], '</label><br />
 				<input type="checkbox" name="search_match_words" id="search_match_words_check" value="1"', empty($modSettings['search_match_words']) ? '' : ' checked', '><label for="search_match_words_check">', $txt['search_match_words'], '</label>
 			</fieldset>
 			<br class="clear">
@@ -351,21 +351,21 @@ function template_spider_edit()
 		<div class="windowbg noup">
 			<dl class="settings">
 				<dt>
-					<strong><label for="spider_name">', $txt['spider_name'], ':</label></strong><br>
+					<strong><label for="spider_name">', $txt['spider_name'], ':</label></strong><br />
 					<span class="smalltext">', $txt['spider_name_desc'], '</span>
 				</dt>
 				<dd>
 					<input type="text" name="spider_name" id="spider_name" value="', $context['spider']['name'], '">
 				</dd>
 				<dt>
-					<strong><label for="spider_agent">', $txt['spider_agent'], ':</label></strong><br>
+					<strong><label for="spider_agent">', $txt['spider_agent'], ':</label></strong><br />
 					<span class="smalltext">', $txt['spider_agent_desc'], '</span>
 				</dt>
 				<dd>
 					<input type="text" name="spider_agent" id="spider_agent" value="', $context['spider']['agent'], '">
 				</dd>
 				<dt>
-					<strong><label for="spider_ip">', $txt['spider_ip_info'], ':</label></strong><br>
+					<strong><label for="spider_ip">', $txt['spider_ip_info'], ':</label></strong><br />
 					<span class="smalltext">', $txt['spider_ip_info_desc'], '</span>
 				</dt>
 				<dd>
@@ -430,7 +430,7 @@ function template_show_spider_stats()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-ss_token_var'], '" value="', $context['admin-ss_token'], '">
 				<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button">
-				<br>
+				<br />
 			</div>
 		</form>';
 }

@@ -29,8 +29,8 @@ function template_popup()
 	</head>
 	<body id="help_popup">
 		<div class="windowbg description">
-			', $context['help_text'], '<br>
-			<br>
+			', $context['help_text'], '<br />
+			<br />
 			<a href="javascript:self.close();">', $txt['close_window'], '</a>
 		</div>
 	</body>
@@ -81,16 +81,16 @@ function template_find_members()
 					<h3 class="catbg">', $txt['find_members'], '</h3>
 				</div>
 				<div class="padding">
-					<strong>', $txt['find_username'], ':</strong><br>
-					<input type="text" name="search" id="search" value="', isset($context['last_search']) ? $context['last_search'] : '', '" style="margin-top: 4px; width: 96%;"><br>
-					<span class="smalltext"><em>', $txt['find_wildcards'], '</em></span><br>';
+					<strong>', $txt['find_username'], ':</strong><br />
+					<input type="text" name="search" id="search" value="', isset($context['last_search']) ? $context['last_search'] : '', '" style="margin-top: 4px; width: 96%;"><br />
+					<span class="smalltext"><em>', $txt['find_wildcards'], '</em></span><br />';
 
 	// Only offer to search for buddies if we have some!
 	if (!empty($context['show_buddies']))
 		echo '
 					<span class="smalltext">
 						<label for="buddies"><input type="checkbox" name="buddies" id="buddies"', !empty($context['buddy_search']) ? ' checked' : '', '> ', $txt['find_buddies'], '</label>
-					</span><br>';
+					</span><br />';
 
 	echo '
 					<div class="padding righttext">
@@ -99,7 +99,7 @@ function template_find_members()
 					</div>
 				</div><!-- .padding -->
 			</div><!-- .roundframe -->
-			<br>
+			<br />
 			<div class="roundframe">
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['find_results'], '</h3>

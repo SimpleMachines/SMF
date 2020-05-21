@@ -73,7 +73,7 @@ function template_permission_index()
 
 		if (!empty($group['children']))
 			echo '
-							<br>
+							<br />
 							<span class="smalltext">', $txt['permissions_includes_inherited'], ': &quot;', implode('&quot;, &quot;', $group['children']), '&quot;</span>';
 
 		echo '
@@ -105,7 +105,7 @@ function template_permission_index()
 	echo '
 				</tbody>
 			</table>
-			<br>';
+			<br />';
 
 	// Advanced stuff...
 	if ($context['can_modify'])
@@ -418,7 +418,7 @@ function template_edit_profiles()
 				<input type="submit" name="delete" value="', $txt['quickmod_delete_selected'], '" class="button" ', !empty($context['show_rename_boxes']) ? ' style="display:none"' : '', '>
 			</div>
 		</form>
-		<br>
+		<br />
 		<form action="', $scripturl, '?action=admin;area=permissions;sa=profiles" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['permissions_profile_new'], '</h3>
@@ -510,7 +510,7 @@ function template_modify_group()
 	if ($context['permission_type'] == 'membergroup')
 	{
 		echo '
-			<br>
+			<br />
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['permissions_board'], '</h3>
 			</div>
@@ -595,7 +595,7 @@ function template_modify_group_display($type)
 								', $permission['show_help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . $txt['help'] . '"></span></a>' : '', '
 							</td>
 							<td class="lefttext full_width">
-								', $permission['name'], (!empty($permission['note']) ? '<br>
+								', $permission['name'], (!empty($permission['note']) ? '<br />
 								<strong class="smalltext">' . $permission['note'] . '</strong>' : ''), '
 							</td>
 							<td>';
@@ -796,7 +796,7 @@ function template_postmod_permissions()
 									<li><span class="main_icons post_moderation_deny"></span>', $txt['permissions_post_moderation_disallow'], '</li>
 								</ul>
 								<p class="righttext floatright block">
-									<br><br><br>
+									<br /><br /><br />
 									', $txt['permissions_post_moderation_select'], ':
 									<select name="pid" onchange="document.forms.postmodForm.submit();">';
 
@@ -866,7 +866,7 @@ function template_postmod_permissions()
 
 			if (!empty($group['children']))
 				echo '
-											<br>
+											<br />
 											<span class="smalltext">', $txt['permissions_includes_inherited'], ': &quot;', implode('&quot;, &quot;', $group['children']), '&quot;</span>';
 
 			echo '

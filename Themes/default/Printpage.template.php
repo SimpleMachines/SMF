@@ -158,7 +158,7 @@ function template_main()
 	{
 		echo '
 			<div class="postheader">
-				', $txt['title'], ': <strong>', $post['subject'], '</strong><br>
+				', $txt['title'], ': <strong>', $post['subject'], '</strong><br />
 				', $txt['post_by'], ': <strong>', $post['member'], '</strong> ', $txt['search_on'], ' <strong>', $post['time'], '</strong>
 			</div>
 			<div class="postbody">

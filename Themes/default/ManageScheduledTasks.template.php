@@ -75,7 +75,7 @@ function template_edit_scheduled_tasks()
 						<strong>', $txt['scheduled_tasks_name'], ':</strong>
 					</dt>
 					<dd>
-						', $context['task']['name'], '<br>
+						', $context['task']['name'], '<br />
 						<span class="smalltext">', $context['task']['desc'], '</span>
 					</dd>
 					<dt>
@@ -92,7 +92,7 @@ function template_edit_scheduled_tasks()
 						</select>
 					</dd>
 					<dt>
-						<strong><label for="start_time">', $txt['scheduled_task_edit_start_time'], ':</label></strong><br>
+						<strong><label for="start_time">', $txt['scheduled_task_edit_start_time'], ':</label></strong><br />
 						<span class="smalltext">', $txt['scheduled_task_edit_start_time_desc'], '</span>
 					</dt>
 					<dd>

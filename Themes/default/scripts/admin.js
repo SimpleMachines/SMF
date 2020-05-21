@@ -381,7 +381,7 @@ function updateInputBoxes()
 
 function addOption()
 {
-	setOuterHTML(document.getElementById("addopt"), '<br><input type="radio" name="default_select" value="' + startOptID + '" id="' + startOptID + '"><input type="text" name="select_option[' + startOptID + ']" value=""><span id="addopt"></span>');
+	setOuterHTML(document.getElementById("addopt"), '<br /><input type="radio" name="default_select" value="' + startOptID + '" id="' + startOptID + '"><input type="text" name="select_option[' + startOptID + ']" value=""><span id="addopt"></span>');
 	startOptID++;
 }
 

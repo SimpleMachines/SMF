@@ -175,7 +175,7 @@ function template_main()
 				echo ' <a href="' . $event['export_href'] . '"><span class="main_icons calendar_export" title="', $txt['calendar_export'], '"></span></a>';
 
 			echo '
-					<br>';
+					<br />';
 
 			if (!empty($event['allday']))
 			{
@@ -213,7 +213,7 @@ function template_main()
 
 			if (!empty($event['location']))
 				echo '
-					<br>', $event['location'];
+					<br />', $event['location'];
 
 			echo '
 				</li>';
@@ -389,7 +389,7 @@ function template_main()
 					sTemplateBodyEdit: ', JavaScriptEscape('
 						<div id="quick_edit_body_container">
 							<div id="error_box" class="error"></div>
-							<textarea class="editor" name="message" rows="12" tabindex="' . $context['tabindex']++ . '">%body%</textarea><br>
+							<textarea class="editor" name="message" rows="12" tabindex="' . $context['tabindex']++ . '">%body%</textarea><br />
 							<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 							<input type="hidden" name="topic" value="' . $context['current_topic'] . '">
 							<input type="hidden" name="msg" value="%msg_id%">
@@ -797,7 +797,7 @@ function template_single_post($message)
 				echo '
 											[<a href="', $scripturl, '?action=attachapprove;sa=approve;aid=', $attachment['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['approve'], '</a>] [<a href="', $scripturl, '?action=attachapprove;sa=reject;aid=', $attachment['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['delete'], '</a>] ';
 			echo '
-											<br>', $attachment['size'], ($attachment['is_image'] ? ', ' . $attachment['real_width'] . 'x' . $attachment['real_height'] . '<br>' . sprintf($txt['attach_viewed'], $attachment['downloads']) : '<br>' . sprintf($txt['attach_downloaded'], $attachment['downloads'])), '
+											<br />', $attachment['size'], ($attachment['is_image'] ? ', ' . $attachment['real_width'] . 'x' . $attachment['real_height'] . '<br />' . sprintf($txt['attach_viewed'], $attachment['downloads']) : '<br />' . sprintf($txt['attach_downloaded'], $attachment['downloads'])), '
 										</div><!-- .attachments_bot -->';
 
 			echo '
@@ -806,7 +806,7 @@ function template_single_post($message)
 			// Next attachment line ?
 			if (++$i % $attachments_per_line === 0)
 				echo '
-									<br>';
+									<br />';
 		}
 
 		// If we had unapproved attachments clean up.

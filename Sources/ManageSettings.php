@@ -410,7 +410,7 @@ function ModifyLayoutSettings($return_config = false)
 			'int',
 			'compactTopicPagesContiguous',
 			null,
-			$txt['contiguous_page_display'] . '<div class="smalltext">' . str_replace(' ', '&nbsp;', '"3" ' . $txt['to_display'] . ': <strong>1 ... 4 [5] 6 ... 9</strong>') . '<br>' . str_replace(' ', '&nbsp;', '"5" ' . $txt['to_display'] . ': <strong>1 ... 3 4 [5] 6 7 ... 9</strong>') . '</div>'
+			$txt['contiguous_page_display'] . '<div class="smalltext">' . str_replace(' ', '&nbsp;', '"3" ' . $txt['to_display'] . ': <strong>1 ... 4 [5] 6 ... 9</strong>') . '<br />' . str_replace(' ', '&nbsp;', '"5" ' . $txt['to_display'] . ': <strong>1 ... 3 4 [5] 6 7 ... 9</strong>') . '</div>'
 		),
 		array('int', 'defaultMaxMembers'),
 		'',
@@ -977,9 +977,9 @@ function ModifyAntispamSettings($return_config = false)
 
 	// Show the image itself, or text saying we can't.
 	if ($context['use_graphic_library'])
-		$config_vars['vv']['postinput'] = '<br><img src="' . $context['verification_image_href'] . ';type=' . (empty($modSettings['visual_verification_type']) ? 0 : $modSettings['visual_verification_type']) . '" alt="' . $txt['setting_image_verification_sample'] . '" id="verification_image"><br>';
+		$config_vars['vv']['postinput'] = '<br /><img src="' . $context['verification_image_href'] . ';type=' . (empty($modSettings['visual_verification_type']) ? 0 : $modSettings['visual_verification_type']) . '" alt="' . $txt['setting_image_verification_sample'] . '" id="verification_image"><br />';
 	else
-		$config_vars['vv']['postinput'] = '<br><span class="smalltext">' . $txt['setting_image_verification_nogd'] . '</span>';
+		$config_vars['vv']['postinput'] = '<br /><span class="smalltext">' . $txt['setting_image_verification_nogd'] . '</span>';
 
 	// Hack for PM spam settings.
 	list ($modSettings['max_pm_recipients'], $modSettings['pm_posts_verification'], $modSettings['pm_posts_per_hour']) = explode(',', $modSettings['pm_spam_settings']);
@@ -1094,7 +1094,7 @@ function ModifySignatureSettings($return_config = false)
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
 				// Apply all the rules we can realistically do.
-				$sig = strtr($row['signature'], array('<br>' => "\n"));
+				$sig = strtr($row['signature'], array('<br />' => "\n"));
 
 				// Max characters...
 				if (!empty($sig_limits[1]))
@@ -1140,7 +1140,7 @@ function ModifySignatureSettings($return_config = false)
 					$replaces = array();
 					$img_count = 0;
 					// Get all BBC tags...
-					preg_match_all('~\[img(\s+width=([\d]+))?(\s+height=([\d]+))?(\s+width=([\d]+))?\s*\](?:<br>)*([^<">]+?)(?:<br>)*\[/img\]~i', $sig, $matches);
+					preg_match_all('~\[img(\s+width=([\d]+))?(\s+height=([\d]+))?(\s+width=([\d]+))?\s*\](?:<br />)*([^<">]+?)(?:<br />)*\[/img\]~i', $sig, $matches);
 					// ... and all HTML ones.
 					preg_match_all('~&lt;img\s+src=(?:&quot;)?((?:http://|ftp://|https://|ftps://).+?)(?:&quot;)?(?:\s+alt=(?:&quot;)?(.*?)(?:&quot;)?)?(?:\s?/)?&gt;~i', $sig, $matches2, PREG_PATTERN_ORDER);
 					// And stick the HTML in the BBC.
@@ -1259,7 +1259,7 @@ function ModifySignatureSettings($return_config = false)
 					$sig = preg_replace('~\[/(?:' . implode('|', $disabledTags) . ')\]~i', '', $sig);
 				}
 
-				$sig = strtr($sig, array("\n" => '<br>'));
+				$sig = strtr($sig, array("\n" => '<br />'));
 				call_integration_hook('integrate_apply_signature_settings', array(&$sig, $sig_limits, $disabledTags));
 				if ($sig != $row['signature'])
 					$changes[$row['id_member']] = $sig;

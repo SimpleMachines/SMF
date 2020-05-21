@@ -18,7 +18,7 @@ function template_main()
 	global $context, $txt, $scripturl;
 
 	echo '
-	<br>
+	<br />
 	<form action="', $scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', $context['character_set'], '">
 		<div class="tborder login">
 			<div class="cat_bar">
@@ -47,7 +47,7 @@ function template_reminder_pick()
 	global $context, $txt, $scripturl;
 
 	echo '
-	<br>
+	<br />
 	<form action="', $scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', $context['character_set'], '">
 		<div class="tborder login">
 			<div class="cat_bar">
@@ -82,7 +82,7 @@ function template_sent()
 	global $context;
 
 	echo '
-		<br>
+		<br />
 		<div class="tborder login" id="reminder_sent">
 			<div class="cat_bar">
 				<h3 class="catbg">' . $context['page_title'] . '</h3>
@@ -99,7 +99,7 @@ function template_set_password()
 	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
-	<br>
+	<br />
 	<form action="', $scripturl, '?action=reminder;sa=setpassword2" name="reminder_form" id="reminder_form" method="post" accept-charset="', $context['character_set'], '">
 		<div class="tborder login">
 			<div class="cat_bar">
@@ -152,7 +152,7 @@ function template_ask()
 	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
-	<br>
+	<br />
 	<form action="', $scripturl, '?action=reminder;sa=secret2" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 		<div class="tborder login">
 			<div class="cat_bar">

@@ -23,7 +23,7 @@ function template_main()
 	if (!empty($context['search_errors']))
 		echo '
 		<div class="errorbox">
-			', implode('<br>', $context['search_errors']['messages']), '
+			', implode('<br />', $context['search_errors']['messages']), '
 		</div>';
 
 	if (!empty($context['search_ignored']))
@@ -48,7 +48,7 @@ function template_main()
 
 	if (empty($modSettings['search_simple_fulltext']))
 		echo '
-					<br><em class="smalltext">', $txt['search_example'], '</em>';
+					<br /><em class="smalltext">', $txt['search_example'], '</em>';
 
 	echo '
 				</dd>
@@ -343,7 +343,7 @@ function template_results()
 
 						if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
 							echo '
-					<br>';
+					<br />';
 
 						if ($topic['quick_mod']['sticky'])
 							echo '

@@ -1914,7 +1914,7 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 	document.getElementById(this.opts.sErrorsContainerID).style.display = numErrors == 0 ? 'none' : '';
 	document.getElementById(this.opts.sErrorsContainerID).className = errors.getAttribute('serious') == 1 ? 'errorbox' : 'noticebox';
 	document.getElementById(this.opts.sErrorsSeriousContainerID).style.display = numErrors == 0 ? 'none' : '';
-	setInnerHTML(document.getElementById(this.opts.sErrorsListContainerID), numErrors == 0 ? '' : errorList.join('<br>'));
+	setInnerHTML(document.getElementById(this.opts.sErrorsListContainerID), numErrors == 0 ? '' : errorList.join('<br />'));
 
 	// Adjust the color of captions if the given data is erroneous.
 	var captions = errors.getElementsByTagName('caption');

@@ -5,10 +5,10 @@
 	</head>
 	<body style="font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt;">
 			<h1>SMF SSI.php Functions</h1>
-			Current Version <!--#include virtual="./SSI.php?ssi_function=version" --><br>
-			<br>
-			This file is used to demonstrate the capabilities of SSI.php using SHTML include functions.<br>
-			The examples the include tag, then the results of it. Examples are separated by horizontal rules.<br>
+			Current Version <!--#include virtual="./SSI.php?ssi_function=version" --><br />
+			<br />
+			This file is used to demonstrate the capabilities of SSI.php using SHTML include functions.<br />
+			The examples the include tag, then the results of it. Examples are separated by horizontal rules.<br />
 
 		<hr>
 
@@ -147,13 +147,13 @@
 
 		<hr>
 
-		<br>
-		<br>
+		<br />
+		<br />
 		<span class="smalltext">
 			<!--#include virtual="./SSI.php?ssi_function=copyright" -->
 		</span>
-		<br>
-		<br>
+		<br />
+		<br />
 		<span class="smalltext" style="color: #CCCCCC;">
 			*ssi_examples.shtml last modified on <!--#config timefmt="%F" --><!--#echo var="LAST_MODIFIED" -->
 		</span>

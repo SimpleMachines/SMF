@@ -2910,7 +2910,7 @@ div#manage_boards dl dd textarea[name=desc] {
 	font-weight: bold;
 }
 
-/* Profile > This needed for responsive (get rid of <br>) */
+/* Profile > This needed for responsive (get rid of <br />) */
 .infolinks {
 	display: block;
 }

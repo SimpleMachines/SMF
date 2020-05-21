@@ -78,10 +78,10 @@ function template_main()
 					</h3>
 				</div>
 				<div id="preview_body" class="windowbg">
-					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
+					', empty($context['preview_message']) ? '<br />' : $context['preview_message'], '
 				</div>
 			</div>
-			<br>';
+			<br />';
 
 	if ($context['make_event'] && (!$context['event']['new'] || !empty($context['current_board'])))
 		echo '
@@ -104,7 +104,7 @@ function template_main()
 								<strong id="error_serious">', $txt['error_while_submitting'], '</strong>
 							</dt>
 							<dd class="error" id="error_list">
-								', empty($context['post_error']) ? '' : implode('<br>', $context['post_error']), '
+								', empty($context['post_error']) ? '' : implode('<br />', $context['post_error']), '
 							</dd>
 						</dl>
 					</div>';
@@ -255,7 +255,7 @@ function template_main()
 									<input type="text" name="poll_max_votes" id="poll_max_votes" size="2" value="', $context['poll_options']['max_votes'], '">
 								</dd>
 								<dt>
-									<label for="poll_expire">', $txt['poll_run'], ':</label><br>
+									<label for="poll_expire">', $txt['poll_run'], ':</label><br />
 									<em class="smalltext">', $txt['poll_run_limit'], '</em>
 								</dt>
 								<dd>
@@ -282,8 +282,8 @@ function template_main()
 									', $txt['poll_results_visibility'], ':
 								</dt>
 								<dd>
-									<input type="radio" name="poll_hide" id="poll_results_anyone" value="0"', $context['poll_options']['hide'] == 0 ? ' checked' : '', '> <label for="poll_results_anyone">', $txt['poll_results_anyone'], '</label><br>
-									<input type="radio" name="poll_hide" id="poll_results_voted" value="1"', $context['poll_options']['hide'] == 1 ? ' checked' : '', '> <label for="poll_results_voted">', $txt['poll_results_voted'], '</label><br>
+									<input type="radio" name="poll_hide" id="poll_results_anyone" value="0"', $context['poll_options']['hide'] == 0 ? ' checked' : '', '> <label for="poll_results_anyone">', $txt['poll_results_anyone'], '</label><br />
+									<input type="radio" name="poll_hide" id="poll_results_voted" value="1"', $context['poll_options']['hide'] == 1 ? ' checked' : '', '> <label for="poll_results_voted">', $txt['poll_results_voted'], '</label><br />
 									<input type="radio" name="poll_hide" id="poll_results_expire" value="2"', $context['poll_options']['hide'] == 2 ? ' checked' : '', empty($context['poll_options']['expire']) ? ' disabled' : '', '> <label for="poll_results_expire">', $txt['poll_results_after'], '</label>
 								</dd>
 							</dl>
@@ -477,19 +477,19 @@ function template_main()
 		// Show some useful information such as allowed extensions, maximum size and amount of attachments allowed.
 		if (!empty($modSettings['attachmentCheckExtensions']))
 			echo '
-								', $txt['allowed_types'], ': ', $context['allowed_extensions'], '<br>';
+								', $txt['allowed_types'], ': ', $context['allowed_extensions'], '<br />';
 
 		if (!empty($context['attachment_restrictions']))
 			echo '
-								', $txt['attach_restrictions'], ' ', implode(', ', $context['attachment_restrictions']), '<br>';
+								', $txt['attach_restrictions'], ' ', implode(', ', $context['attachment_restrictions']), '<br />';
 
 		if ($context['num_allowed_attachments'] == 0)
 			echo '
-								', $txt['attach_limit_nag'], '<br>';
+								', $txt['attach_limit_nag'], '<br />';
 
 		if (!$context['can_post_attachment_unapproved'])
 			echo '
-								<span class="alert">', $txt['attachment_requires_approval'], '</span>', '<br>';
+								<span class="alert">', $txt['attachment_requires_approval'], '</span>', '<br />';
 
 		echo '
 							</dd>
@@ -817,11 +817,11 @@ function template_spellcheck()
 			<table width="100%">
 				<tr class="windowbg">
 					<td style="width: 50%; vertical-align: top">
-						', $txt['spellcheck_change_to'], '<br>
+						', $txt['spellcheck_change_to'], '<br />
 						<input type="text" name="changeto" style="width: 98%;">
 					</td>
 					<td style="width: 50%">
-						', $txt['spellcheck_suggest'], '<br>
+						', $txt['spellcheck_suggest'], '<br />
 						<select name="suggestions" style="width: 98%;" size="5" onclick="if (this.selectedIndex != -1) this.form.changeto.value = this.options[this.selectedIndex].text;" ondblclick="replaceWord();">
 						</select>
 					</td>
@@ -937,7 +937,7 @@ function template_announce()
 			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #announcement -->
-	<br>';
+	<br />';
 }
 
 /**
@@ -972,7 +972,7 @@ function template_announcement_send()
 			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #announcement -->
-	<br>
+	<br />
 	<script>
 		var countdown = 2;
 		doAutoSubmit();

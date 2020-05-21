@@ -198,7 +198,7 @@ function template_modify_language_entries()
 				<div>
 					', $txt['edit_language_entries_desc'], '
 				</div>
-				<br>
+				<br />
 				<div id="taskpad" class="floatright">
 					', $txt['edit_language_entries_file'], ':
 					<select name="tfid" onchange="if (this.value != -1) document.forms.entry_form.submit();">
@@ -337,7 +337,7 @@ function template_add_language()
 	if (!empty($context['smf_error']))
 		echo '
 					<div>
-						<br>
+						<br />
 						<p class="errorbox">', $txt['add_language_error_' . $context['smf_error']], '</p>
 					</div>';
 
@@ -345,7 +345,7 @@ function template_add_language()
 				</fieldset>
 				', isBrowser('is_ie') ? '<input type="text" name="ie_fix" style="display: none;"> ' : '', '
 				<input type="submit" name="smf_add_sub" value="', $txt['search'], '" class="button">
-				<br>
+				<br />
 			</div><!-- .windowbg -->';
 
 	// Had some results?

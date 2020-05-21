@@ -191,7 +191,7 @@ function template_folder()
 		template_subject_list();
 
 		echo '
-			<div class="clear_right"><br></div>';
+			<div class="clear_right"><br /></div>';
 	}
 
 	// Got some messages to display?
@@ -252,14 +252,14 @@ function template_folder()
 		}
 
 		echo '
-			<br>';
+			<br />';
 	}
 
 	// Individual messages = buttom list!
 	if ($context['display_mode'] == 1)
 	{
 		template_subject_list();
-		echo '<br>';
+		echo '<br />';
 	}
 
 	echo '
@@ -488,11 +488,11 @@ function template_single_pm($message)
 
 	// If we're in the sent items, show who it was sent to besides the "To:" people.
 	if (!empty($message['recipients']['bcc']))
-		echo '<br>
+		echo '<br />
 						<span class="smalltext">&#171; <strong> ', $txt['pm_bcc'], ':</strong> ', implode(', ', $message['recipients']['bcc']), ' &#187;</span>';
 
 	if (!empty($message['is_replied_to']))
-		echo '<br>
+		echo '<br />
 						<span class="smalltext">&#171; ', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' &#187;</span>';
 
 	echo '
@@ -743,7 +743,7 @@ function template_search()
 	if (!empty($context['search_errors']))
 		echo '
 		<div class="errorbox">
-			', implode('<br>', $context['search_errors']['messages']), '
+			', implode('<br />', $context['search_errors']['messages']), '
 		</div>';
 
 	echo '
@@ -795,7 +795,7 @@ function template_search()
 				<dd class="options">
 					<label for="show_complete">
 						<input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty($context['search_params']['show_complete']) ? ' checked' : '', '> ', $txt['pm_search_show_complete'], '
-					</label><br>
+					</label><br />
 					<label for="subject_only">
 						<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked' : '', '> ', $txt['pm_search_subject_only'], '
 					</label>
@@ -971,16 +971,16 @@ function template_send()
 		if (!empty($context['send_log']['sent']))
 			foreach ($context['send_log']['sent'] as $log_entry)
 				echo '
-			<span class="error">', $log_entry, '</span><br>';
+			<span class="error">', $log_entry, '</span><br />';
 
 		if (!empty($context['send_log']['failed']))
 			foreach ($context['send_log']['failed'] as $log_entry)
 				echo '
-			<span class="error">', $log_entry, '</span><br>';
+			<span class="error">', $log_entry, '</span><br />';
 
 		echo '
 		</div>
-		<br>';
+		<br />';
 	}
 
 	// Show the preview of the personal message.
@@ -993,7 +993,7 @@ function template_send()
 			</div>
 			<div class="windowbg">
 				<div class="post" id="preview_body">
-					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
+					', empty($context['preview_message']) ? '<br />' : $context['preview_message'], '
 				</div>
 			</div>
 			<br class="clear">
@@ -1017,7 +1017,7 @@ function template_send()
 							<strong id="error_serious">', $txt['error_while_submitting'], '</strong>
 						</dt>
 						<dd class="error" id="error_list">
-							', empty($context['post_error']['messages']) ? '' : implode('<br>', $context['post_error']['messages']), '
+							', empty($context['post_error']['messages']) ? '' : implode('<br />', $context['post_error']['messages']), '
 						</dd>
 					</dl>
 				</div>';
@@ -1204,7 +1204,7 @@ function template_send()
 				for (var i = 0, numErrors = errors.getElementsByTagName(\'error\').length; i < numErrors; i++)
 					errorList[errorList.length] = errors.getElementsByTagName(\'error\')[i].firstChild.nodeValue;
 				document.getElementById(\'errors\').style.display = numErrors == 0 ? \'none\' : \'\';
-				setInnerHTML(document.getElementById(\'error_list\'), numErrors == 0 ? \'\' : errorList.join(\'<br>\'));
+				setInnerHTML(document.getElementById(\'error_list\'), numErrors == 0 ? \'\' : errorList.join(\'<br />\'));
 
 				// Adjust the color of captions if the given data is erroneous.
 				var captions = errors.getElementsByTagName(\'caption\');
@@ -1255,7 +1255,7 @@ function template_send()
 	// Show the message you're replying to.
 	if ($context['reply'])
 		echo '
-		<br><br>
+		<br /><br />
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['subject'], ': ', $context['quoted_message']['subject'], '</h3>
 		</div>
@@ -1329,7 +1329,7 @@ function template_ask_delete()
 		</div>
 		<div class="windowbg">
 			<p>', $txt['delete_all_confirm'], '</p>
-			<br>
+			<br />
 			<strong><a href="', $scripturl, '?action=pm;sa=removeall2;f=', $context['folder'], ';', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';', $context['session_var'], '=', $context['session_id'], '">', $txt['yes'], '</a> - <a href="javascript:history.go(-1);">', $txt['no'], '</a></strong>
 		</div>';
 }
@@ -1445,7 +1445,7 @@ function template_labels()
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 	</form>
-	<br>';
+	<br />';
 }
 
 /**
@@ -1630,7 +1630,7 @@ function template_add_rule()
 			if (criteriaNum++ >= ', $context['rule_limiters']['criteria'], ')
 				return false;
 
-			setOuterHTML(document.getElementById("criteriaAddHere"), \'<br><select name="ruletype[\' + criteriaNum + \']" id="ruletype\' + criteriaNum + \'" onchange="updateRuleDef(\' + criteriaNum + \'); rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_criteria_pick']), ':<\' + \'/option><option value="mid">', addslashes($txt['pm_rule_mid']), '<\' + \'/option><option value="gid">', addslashes($txt['pm_rule_gid']), '<\' + \'/option><option value="sub">', addslashes($txt['pm_rule_sub']), '<\' + \'/option><option value="msg">', addslashes($txt['pm_rule_msg']), '<\' + \'/option><option value="bud">', addslashes($txt['pm_rule_bud']), '<\' + \'/option><\' + \'/select>&nbsp;<span id="defdiv\' + criteriaNum + \'" style="display: none;"><input type="text" name="ruledef[\' + criteriaNum + \']" id="ruledef\' + criteriaNum + \'" onkeyup="rebuildRuleDesc();" value=""><\' + \'/span><span id="defseldiv\' + criteriaNum + \'" style="display: none;"><select name="ruledefgroup[\' + criteriaNum + \']" id="ruledefgroup\' + criteriaNum + \'" onchange="rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_sel_group']), '<\' + \'/option>';
+			setOuterHTML(document.getElementById("criteriaAddHere"), \'<br /><select name="ruletype[\' + criteriaNum + \']" id="ruletype\' + criteriaNum + \'" onchange="updateRuleDef(\' + criteriaNum + \'); rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_criteria_pick']), ':<\' + \'/option><option value="mid">', addslashes($txt['pm_rule_mid']), '<\' + \'/option><option value="gid">', addslashes($txt['pm_rule_gid']), '<\' + \'/option><option value="sub">', addslashes($txt['pm_rule_sub']), '<\' + \'/option><option value="msg">', addslashes($txt['pm_rule_msg']), '<\' + \'/option><option value="bud">', addslashes($txt['pm_rule_bud']), '<\' + \'/option><\' + \'/select>&nbsp;<span id="defdiv\' + criteriaNum + \'" style="display: none;"><input type="text" name="ruledef[\' + criteriaNum + \']" id="ruledef\' + criteriaNum + \'" onkeyup="rebuildRuleDesc();" value=""><\' + \'/span><span id="defseldiv\' + criteriaNum + \'" style="display: none;"><select name="ruledefgroup[\' + criteriaNum + \']" id="ruledefgroup\' + criteriaNum + \'" onchange="rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_sel_group']), '<\' + \'/option>';
 
 	foreach ($context['groups'] as $id => $group)
 		echo '<option value="', $id, '">', strtr($group, array("'" => "\'")), '<\' + \'/option>';
@@ -1652,7 +1652,7 @@ function template_add_rule()
 				if (actionNum++ >= ', $context['rule_limiters']['actions'], ')
 					return false;
 
-				setOuterHTML(document.getElementById("actionAddHere"), \'<br><select name="acttype[\' + actionNum + \']" id="acttype\' + actionNum + \'" onchange="updateActionDef(\' + actionNum + \'); rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_sel_action']), ':<\' + \'/option><option value="lab">', addslashes($txt['pm_rule_label']), '<\' + \'/option><option value="del">', addslashes($txt['pm_rule_delete']), '<\' + \'/option><\' + \'/select>&nbsp;<span id="labdiv\' + actionNum + \'" style="display: none;"><select name="labdef[\' + actionNum + \']" id="labdef\' + actionNum + \'" onchange="rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_sel_label']), '<\' + \'/option>';
+				setOuterHTML(document.getElementById("actionAddHere"), \'<br /><select name="acttype[\' + actionNum + \']" id="acttype\' + actionNum + \'" onchange="updateActionDef(\' + actionNum + \'); rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_sel_action']), ':<\' + \'/option><option value="lab">', addslashes($txt['pm_rule_label']), '<\' + \'/option><option value="del">', addslashes($txt['pm_rule_delete']), '<\' + \'/option><\' + \'/select>&nbsp;<span id="labdiv\' + actionNum + \'" style="display: none;"><select name="labdef[\' + actionNum + \']" id="labdef\' + actionNum + \'" onchange="rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_sel_label']), '<\' + \'/option>';
 
 	foreach ($context['labels'] as $label)
 		if ($label['id'] != -1)
@@ -1756,7 +1756,7 @@ function template_add_rule()
 		<div class="windowbg">
 			<dl class="addrules">
 				<dt class="floatleft">
-					<strong>', $txt['pm_rule_name'], ':</strong><br>
+					<strong>', $txt['pm_rule_name'], ':</strong><br />
 					<span class="smalltext">', $txt['pm_rule_name_desc'], '</span>
 				</dt>
 				<dd class="floatleft">
@@ -1777,7 +1777,7 @@ function template_add_rule()
 			echo '<div id="removeonjs1">';
 
 		elseif (!$isFirst)
-			echo '<br>';
+			echo '<br />';
 
 		echo '
 				<select name="ruletype[', $k, ']" id="ruletype', $k, '" onchange="updateRuleDef(', $k, '); rebuildRuleDesc();">
@@ -1812,9 +1812,9 @@ function template_add_rule()
 	}
 
 	echo '
-				<span id="criteriaAddHere"></span><br>
+				<span id="criteriaAddHere"></span><br />
 				<a href="#" onclick="addCriteriaOption(); return false;" id="addonjs1" style="display: none;">(', $txt['pm_rule_criteria_add'], ')</a>
-				<br><br>
+				<br /><br />
 				', $txt['pm_rule_logic'], ':
 				<select name="rule_logic" id="logic" onchange="rebuildRuleDesc();">
 					<option value="and"', $context['rule']['logic'] == 'and' ? ' selected' : '', '>', $txt['pm_rule_logic_and'], '</option>
@@ -1834,7 +1834,7 @@ function template_add_rule()
 		if (!$isFirst && $action['t'] == '')
 			echo '<div id="removeonjs2">';
 		elseif (!$isFirst)
-			echo '<br>';
+			echo '<br />';
 
 		echo '
 				<select name="acttype[', $k, ']" id="acttype', $k, '" onchange="updateActionDef(', $k, '); rebuildRuleDesc();">
@@ -1863,7 +1863,7 @@ function template_add_rule()
 	}
 
 	echo '
-				<span id="actionAddHere"></span><br>
+				<span id="actionAddHere"></span><br />
 				<a href="#" onclick="addActionOption(); return false;" id="addonjs2" style="display: none;">(', $txt['pm_rule_add_action'], ')</a>
 			</fieldset>
 			<div class="cat_bar">
@@ -1956,7 +1956,7 @@ function template_showPMDrafts()
 				<h5>
 					<strong>', $draft['subject'], '</strong>
 				</h5>
-				<span class="smalltext">&#171;&nbsp;<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '&#187;</span><br>
+				<span class="smalltext">&#171;&nbsp;<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '&#187;</span><br />
 			</div>
 			<div class="list_posts">
 				', $draft['body'], '

@@ -17,9 +17,9 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * The main admin handling function.<br>
- * It initialises all the basic context required for the admin center.<br>
- * It passes execution onto the relevant admin section.<br>
+ * The main admin handling function.<br />
+ * It initialises all the basic context required for the admin center.<br />
+ * It passes execution onto the relevant admin section.<br />
  * If the passed section is not found it shows the admin home page.
  */
 function AdminMain()

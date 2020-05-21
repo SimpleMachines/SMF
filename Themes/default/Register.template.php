@@ -30,8 +30,8 @@ function template_registration_agreement()
 	// Age restriction in effect?
 	if ($context['show_coppa'])
 		echo '
-				<input type="submit" name="accept_agreement" value="', $context['coppa_agree_above'], '" class="button"><br>
-				<br>
+				<input type="submit" name="accept_agreement" value="', $context['coppa_agree_above'], '" class="button"><br />
+				<br />
 				<input type="submit" name="accept_agreement_coppa" value="', $context['coppa_agree_below'], '" class="button">';
 	else
 		echo '
@@ -295,8 +295,8 @@ function template_registration_form()
 	// Age restriction in effect?
 	if (!$context['require_agreement'] && $context['show_coppa'])
 		echo '
-				<input type="submit" name="accept_agreement" value="', $context['coppa_agree_above'], '" class="button"><br>
-				<br>
+				<input type="submit" name="accept_agreement" value="', $context['coppa_agree_above'], '" class="button"><br />
+				<br />
 				<input type="submit" name="accept_agreement_coppa" value="', $context['coppa_agree_below'], '" class="button">';
 	else
 		echo '
@@ -401,16 +401,16 @@ function template_coppa_form()
 			</tr>
 			<tr>
 				<td class="righttext">
-					<em>', $txt['coppa_form_address'], '</em>: ', $context['ul'], '<br>
-					', $context['ul'], '<br>
-					', $context['ul'], '<br>
+					<em>', $txt['coppa_form_address'], '</em>: ', $context['ul'], '<br />
+					', $context['ul'], '<br />
+					', $context['ul'], '<br />
 					', $context['ul'], '
 				</td>
 			</tr>
 			<tr>
 				<td class="righttext">
 					<em>', $txt['coppa_form_date'], '</em>: ', $context['ul'], '
-					<br><br>
+					<br /><br />
 				</td>
 			</tr>
 			<tr>
@@ -419,7 +419,7 @@ function template_coppa_form()
 				</td>
 			</tr>
 		</table>
-		<br>';
+		<br />';
 }
 
 /**
@@ -460,10 +460,10 @@ function template_verification_sound()
 			</audio>';
 
 	echo '
-			<br>
-			<a href="', $context['verification_sound_href'], ';sound" rel="nofollow">', $txt['visual_verification_sound_again'], '</a><br>
-			<a href="', $context['verification_sound_href'], '" rel="nofollow">', $txt['visual_verification_sound_direct'], '</a><br><br>
-			<a href="javascript:self.close();">', $txt['visual_verification_sound_close'], '</a><br>
+			<br />
+			<a href="', $context['verification_sound_href'], ';sound" rel="nofollow">', $txt['visual_verification_sound_again'], '</a><br />
+			<a href="', $context['verification_sound_href'], '" rel="nofollow">', $txt['visual_verification_sound_direct'], '</a><br /><br />
+			<a href="javascript:self.close();">', $txt['visual_verification_sound_close'], '</a><br />
 		</div><!-- .description -->
 	</body>
 </html>';

@@ -49,7 +49,7 @@ function template_modify_subscription()
 					<input type="checkbox" name="repeatable" id="repeatable_check"', empty($context['sub']['repeatable']) ? '' : ' checked', '>
 				</dd>
 				<dt>
-					<label for="activated_check">', $txt['paid_mod_active'], '</label>:<br><span class="smalltext">', $txt['paid_mod_active_desc'], '</span>
+					<label for="activated_check">', $txt['paid_mod_active'], '</label>:<br /><span class="smalltext">', $txt['paid_mod_active_desc'], '</span>
 				</dt>
 				<dd>
 					<input type="checkbox" name="active" id="activated_check"', empty($context['sub']['active']) ? '' : ' checked', '>
@@ -58,7 +58,7 @@ function template_modify_subscription()
 			<hr>
 			<dl class="settings">
 				<dt>
-					', $txt['paid_mod_prim_group'], ':<br>
+					', $txt['paid_mod_prim_group'], ':<br />
 					<span class="smalltext">', $txt['paid_mod_prim_group_desc'], '</span>
 				</dt>
 				<dd>
@@ -74,7 +74,7 @@ function template_modify_subscription()
 					</select>
 				</dd>
 				<dt>
-					', $txt['paid_mod_add_groups'], ':<br>
+					', $txt['paid_mod_add_groups'], ':<br />
 					<span class="smalltext">', $txt['paid_mod_add_groups_desc'], '</span>
 				</dt>
 				<dd>';
@@ -85,19 +85,19 @@ function template_modify_subscription()
 					<label for="addgroup_', $id, '">
 						<input type="checkbox" id="addgroup_', $id, '" name="addgroup[', $id, ']"', in_array($id, $context['sub']['add_groups']) ? ' checked' : '', !empty($context['disable_groups']) ? ' disabled' : '', '>
 						<span class="smalltext">', $name, '</span>
-					</label><br>';
+					</label><br />';
 
 	echo '
 				</dd>
 				<dt>
-					', $txt['paid_mod_reminder'], ':<br>
+					', $txt['paid_mod_reminder'], ':<br />
 					<span class="smalltext">', $txt['paid_mod_reminder_desc'], ' ', $txt['zero_to_disable'], '</span>
 				</dt>
 				<dd>
 					<input type="number" name="reminder" value="', $context['sub']['reminder'], '" size="6">
 				</dd>
 				<dt>
-					', $txt['paid_mod_email'], ':<br>
+					', $txt['paid_mod_email'], ':<br />
 					<span class="smalltext">', $txt['paid_mod_email_desc'], '</span>
 				</dt>
 				<dd>
@@ -107,7 +107,7 @@ function template_modify_subscription()
 			<hr>
 			<input type="radio" name="duration_type" id="duration_type_fixed" value="fixed"', empty($context['sub']['duration']) || $context['sub']['duration'] == 'fixed' ? ' checked' : '', ' onclick="toggleDuration(\'fixed\');">
 			<strong><label for="duration_type_fixed">', $txt['paid_mod_fixed_price'], '</label></strong>
-			<br>
+			<br />
 			<div id="fixed_area" ', empty($context['sub']['duration']) || $context['sub']['duration'] == 'fixed' ? '' : 'style="display: none;"', '>
 				<fieldset>
 					<dl class="settings">
@@ -134,13 +134,13 @@ function template_modify_subscription()
 			</div><!-- #fixed_area -->
 			<input type="radio" name="duration_type" id="duration_type_flexible" value="flexible"', !empty($context['sub']['duration']) && $context['sub']['duration'] == 'flexible' ? ' checked' : '', ' onclick="toggleDuration(\'flexible\');">
 			<strong><label for="duration_type_flexible">', $txt['paid_mod_flexible_price'], '</label></strong>
-			<br>
+			<br />
 			<div id="flexible_area" ', !empty($context['sub']['duration']) && $context['sub']['duration'] == 'flexible' ? '' : 'style="display: none;"', '>
 				<fieldset>';
 
 	echo '
 					<div class="information">
-						<strong>', $txt['paid_mod_price_breakdown'], '</strong><br>
+						<strong>', $txt['paid_mod_price_breakdown'], '</strong><br />
 						', $txt['paid_mod_price_breakdown_desc'], '
 					</div>
 					<dl class="settings">
@@ -233,7 +233,7 @@ function template_modify_user_subscription()
 	if ($context['action_type'] == 'add')
 		echo '
 				<dt>
-					<strong>', $txt['paid_username'], ':</strong><br>
+					<strong>', $txt['paid_username'], ':</strong><br />
 					<span class="smalltext">', $txt['one_username'], '</span>
 				</dt>
 				<dd>
@@ -541,7 +541,7 @@ function template_choose_payment()
 			<h3 class="catbg">', $gateway['title'], '</h3>
 		</div>
 		<div class="windowbg">
-			', $gateway['desc'], '<br>
+			', $gateway['desc'], '<br />
 			<form action="', $gateway['form'], '" method="post">';
 
 		if (!empty($gateway['javascript']))
@@ -555,7 +555,7 @@ function template_choose_payment()
 				<input type="hidden" id="', $gateway['id'], '_', $name, '" name="', $name, '" value="', $value, '">';
 
 		echo '
-				<br>
+				<br />
 				<input type="submit" value="', $gateway['submit'], '" class="button">
 			</form>
 		</div>';
@@ -580,7 +580,7 @@ function template_paid_done()
 		</div>
 		<div class="windowbg">
 			<p>', $txt['paid_done_desc'], '</p>
-			<br>
+			<br />
 			<a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=subscriptions">', $txt['paid_sub_return'], '</a>
 		</div>
 	</div>';

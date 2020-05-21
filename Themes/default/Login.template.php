@@ -30,8 +30,8 @@ function template_login()
 	// Did they make a mistake last time?
 	if (!empty($context['login_errors']))
 		echo '
-					<div class="errorbox">', implode('<br>', $context['login_errors']), '</div>
-					<br>';
+					<div class="errorbox">', implode('<br />', $context['login_errors']), '</div>
+					<br />';
 
 	// Or perhaps there's some special description for this time?
 	if (isset($context['description']))
@@ -127,7 +127,7 @@ function template_login()
 	// It is a long story as to why we have this when we're clearly not going to use it.
 	if (!empty($context['from_ajax']))
 		echo '
-				<br>
+				<br />
 				<a href="javascript:self.close();"></a>';
 
 	echo '
@@ -232,7 +232,7 @@ function template_kick_guest()
 	// Show the message or default message.
 	echo '
 			<p class="information centertext">
-				', empty($context['kick_message']) ? $txt['only_members_can_access'] : $context['kick_message'], '<br>';
+				', empty($context['kick_message']) ? $txt['only_members_can_access'] : $context['kick_message'], '<br />';
 
 	if ($context['can_register'])
 		echo sprintf($txt['login_below_or_register'], $scripturl . '?action=signup', $context['forum_name_html_safe']);
@@ -358,7 +358,7 @@ function template_admin_login()
 	echo '
 				<strong>', $txt['password'], ':</strong>
 				<input type="password" name="', $context['sessionCheckType'], '_pass" size="24">
-				<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a><br>
+				<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a><br />
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '">
 				<input type="submit" value="', $txt['login'], '" class="button">';

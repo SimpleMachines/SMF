@@ -53,7 +53,7 @@ function template_move()
 					</dl>
 					<label for="reset_subject">
 						<input type="checkbox" name="reset_subject" id="reset_subject" onclick="document.getElementById(\'subjectArea\').classList.toggle(\'hidden\');"> ', $txt['movetopic_change_subject'], '.
-					</label><br>
+					</label><br />
 					<fieldset id="subjectArea" class="hidden">
 						<dl class="settings">
 							<dt><strong>', $txt['movetopic_new_subject'], ':</strong></dt>
@@ -149,7 +149,7 @@ function template_merge_done()
 			</div>
 			<div class="windowbg">
 				<p>', $txt['merge_successful'], '</p>
-				<br>
+				<br />
 				<ul>
 					<li>
 						<a href="', $scripturl, '?board=', $context['target_board'], '.0">', $txt['message_index'], '</a>
@@ -188,7 +188,7 @@ function template_merge()
 					</dd>
 				</dl>
 			</div>
-			<br>
+			<br />
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['target_topic'], '</h3>
 			</div>
@@ -257,7 +257,7 @@ function template_merge()
 				<div class="windowbg">', $txt['topic_alert_none'], '</div>';
 
 	echo '
-				<br>
+				<br />
 				<div class="title_bar">
 					<h4 class="titlebg">', $txt['target_id'], '</h4>
 				</div>
@@ -314,11 +314,11 @@ function template_merge_extra_options()
 							<a href="' . $scripturl . '?topic=' . $topic['id'] . '.0" target="_blank" rel="noopener">' . $topic['subject'] . '</a>
 						</td>
 						<td>
-							', $topic['started']['link'], '<br>
+							', $topic['started']['link'], '<br />
 							<span class="smalltext">', $topic['started']['time'], '</span>
 						</td>
 						<td>
-							' . $topic['updated']['link'] . '<br>
+							' . $topic['updated']['link'] . '<br />
 							<span class="smalltext">', $topic['updated']['time'], '</span>
 						</td>
 						<td>
@@ -328,7 +328,7 @@ function template_merge_extra_options()
 	echo '
 				</tbody>
 			</table>
-			<br>
+			<br />
 			<div class="windowbg">
 				<fieldset id="merge_subject" class="merge_options">
 					<legend>', $txt['merge_select_subject'], '</legend>
@@ -340,8 +340,8 @@ function template_merge_extra_options()
 	echo '
 						<option value="0">', $txt['merge_custom_subject'], ':</option>
 					</select>
-					<br>
-					<input type="text" name="custom_subject" size="60" id="custom_subject" class="custom_subject" style="display: none;"><br>
+					<br />
+					<input type="text" name="custom_subject" size="60" id="custom_subject" class="custom_subject" style="display: none;"><br />
 					<label for="enforce_subject"><input type="checkbox" name="enforce_subject" id="enforce_subject" value="1"> ', $txt['movetopic_change_all_subjects'], '</label>
 				</fieldset>';
 

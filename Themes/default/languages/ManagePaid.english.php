@@ -55,15 +55,15 @@ $txt['paypal_additional_emails_desc'] = 'If different (for business account)';
 $txt['paypal_sandbox_email'] = 'PayPal sandbox email address';
 $txt['paypal_sandbox_email_desc'] = 'Can be left blank if test mode is disabled or not using PayPal.';
 
-$txt['paid_note'] = '<strong class="alert">Note:</strong><br>
-SMF currently supports <strong>PayPal</strong> as the installed payment method.<br>
-	&nbsp;&nbsp;&bull;&nbsp;&nbsp;It is not necessary to enable IPN in your PayPal account; but if you do, the forum will receive payment notifications for all payments made to your account, and this will generate Paid Subscriptions errors for payments that are not subscription related.<br>
-	&nbsp;&nbsp;&bull;&nbsp;&nbsp;You must have a business or premier account to use recurring payments.<br>
-	&nbsp;&nbsp;&bull;&nbsp;&nbsp;You must provide your primary PayPal email address for validation purposes.<br><br>
+$txt['paid_note'] = '<strong class="alert">Note:</strong><br />
+SMF currently supports <strong>PayPal</strong> as the installed payment method.<br />
+	&nbsp;&nbsp;&bull;&nbsp;&nbsp;It is not necessary to enable IPN in your PayPal account; but if you do, the forum will receive payment notifications for all payments made to your account, and this will generate Paid Subscriptions errors for payments that are not subscription related.<br />
+	&nbsp;&nbsp;&bull;&nbsp;&nbsp;You must have a business or premier account to use recurring payments.<br />
+	&nbsp;&nbsp;&bull;&nbsp;&nbsp;You must provide your primary PayPal email address for validation purposes.<br /><br />
 
-If you install a different payment gateway, you may need to set up a return URL for payment notification.   For all payment types, this return URL should be set as:<br><br>
-	&nbsp;&nbsp;&bull;&nbsp;&nbsp;<strong>' . $boardurl . '/subscriptions.php</strong><br><br>
-You can normally find it in your customer panels, usually under the term &quot;Return URL&quot; or &quot;Callback URL&quot;.<br><br><br>';
+If you install a different payment gateway, you may need to set up a return URL for payment notification.   For all payment types, this return URL should be set as:<br /><br />
+	&nbsp;&nbsp;&bull;&nbsp;&nbsp;<strong>' . $boardurl . '/subscriptions.php</strong><br /><br />
+You can normally find it in your customer panels, usually under the term &quot;Return URL&quot; or &quot;Callback URL&quot;.<br /><br /><br />';
 
 // View subscription strings.
 $txt['paid_name'] = 'Name';
@@ -112,7 +112,7 @@ $txt['paid_mod_add_groups'] = 'Additional Groups upon Subscription';
 $txt['paid_mod_add_groups_desc'] = 'Additional groups to add the user to after subscription.';
 $txt['paid_mod_no_group'] = 'Don\'t Change';
 $txt['paid_mod_edit_note'] = 'Note that as this group has existing subscribers the group settings cannot be changed!';
-$txt['paid_mod_delete_warning'] = '<strong>WARNING</strong><br><br>If you delete this subscription all users currently subscribed will lose any access rights granted by the subscription. Unless you are sure you want to do this it is recommended that you simply deactivate a subscription rather than delete it.<br>';
+$txt['paid_mod_delete_warning'] = '<strong>WARNING</strong><br /><br />If you delete this subscription all users currently subscribed will lose any access rights granted by the subscription. Unless you are sure you want to do this it is recommended that you simply deactivate a subscription rather than delete it.<br />';
 $txt['paid_mod_repeatable'] = 'Allow user to auto-renew this subscription';
 $txt['paid_mod_fixed_price'] = 'Subscription for fixed price and period';
 $txt['paid_mod_flexible_price'] = 'Subscription price varies on duration ordered';

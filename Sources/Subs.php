@@ -1517,7 +1517,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'br',
 				'type' => 'closed',
-				'content' => '<br>',
+				'content' => '<br />',
 			),
 			array(
 				'tag' => 'center',
@@ -1613,7 +1613,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				// @todo Should this respect guest_hideContacts?
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = strtr($data, array('<br>' => ''));
+					$data = strtr($data, array('<br />' => ''));
 				},
 			),
 			array(
@@ -1665,7 +1665,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = strtr($data, array('<br>' => ''));
+					$data = strtr($data, array('<br />' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if (empty($scheme))
 						$data = 'ftp://' . ltrim($data, ':/');
@@ -1737,7 +1737,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = strtr($data, array('<br>' => ''));
+					$data = strtr($data, array('<br />' => ''));
 
 					if (parse_url($data, PHP_URL_SCHEME) === null)
 						$data = '//' . ltrim($data, ':/');
@@ -1752,7 +1752,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="" class="bbc_img">',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = strtr($data, array('<br>' => ''));
+					$data = strtr($data, array('<br />' => ''));
 
 					if (parse_url($data, PHP_URL_SCHEME) === null)
 						$data = '//' . ltrim($data, ':/');
@@ -1767,7 +1767,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = strtr($data, array('<br>' => ''));
+					$data = strtr($data, array('<br />' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
@@ -1813,7 +1813,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'require_parents' => array('list'),
 				'block_level' => true,
 				'disabled_before' => '',
-				'disabled_after' => '<br>',
+				'disabled_after' => '<br />',
 			),
 			array(
 				'tag' => 'list',
@@ -1848,7 +1848,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'quoted' => 'optional',
 				'block_level' => true,
 				'disabled_before' => '/me ',
-				'disabled_after' => '<br>',
+				'disabled_after' => '<br />',
 			),
 			array(
 				'tag' => 'member',
@@ -2077,7 +2077,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = strtr($data, array('<br>' => ''));
+					$data = strtr($data, array('<br />' => ''));
 					$scheme = parse_url($data, PHP_URL_SCHEME);
 					if (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
@@ -2245,7 +2245,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	}
 
 	$open_tags = array();
-	$message = strtr($message, array("\n" => '<br>'));
+	$message = strtr($message, array("\n" => '<br />'));
 
 	if (!empty($parse_tags))
 	{
@@ -2291,7 +2291,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			{
 				$data = preg_replace('~&lt;a\s+href=((?:&quot;)?)((?:https?://|ftps?://|mailto:|tel:)\S+?)\\1&gt;(.*?)&lt;/a&gt;~i', '[url=&quot;$2&quot;]$3[/url]', $data);
 
-				// <br> should be empty.
+				// <br /> should be empty.
 				$empty_tags = array('br', 'hr');
 				foreach ($empty_tags as $tag)
 					$data = str_replace(array('&lt;' . $tag . '&gt;', '&lt;' . $tag . '/&gt;', '&lt;' . $tag . ' /&gt;'), '<' . $tag . '>', $data);
@@ -2642,7 +2642,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$whitespace_regex .= '(&nbsp;|\s)*(<br\s*/?' . '>)?';
 				// Trim one line of whitespace after unnested tags, but all of it after nested ones
 				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
-					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
+					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br />|&nbsp;|\s)*';
 
 				if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
@@ -2873,11 +2873,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$pos += strlen($code) - 1 + 2;
 
 			// Next, find the next break (if any.)  If there's more itemcode after it, keep it going - otherwise close!
-			$pos2 = strpos($message, '<br>', $pos);
+			$pos2 = strpos($message, '<br />', $pos);
 			$pos3 = strpos($message, '[/', $pos);
 			if ($pos2 !== false && ($pos2 <= $pos3 || $pos3 === false))
 			{
-				preg_match('~^(<br>|&nbsp;|\s|\[)+~', substr($message, $pos2 + 4), $matches);
+				preg_match('~^(<br />|&nbsp;|\s|\[)+~', substr($message, $pos2 + 4), $matches);
 				$message = substr($message, 0, $pos2) . (!empty($matches[0]) && substr($matches[0], -1) == '[' ? '[/li]' : '[/li][/list]') . substr($message, $pos2);
 
 				$open_tags[count($open_tags) - 2]['after'] = '</ul>';
@@ -2949,9 +2949,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				// Trim or eat trailing stuff... see comment at the end of the big loop.
 				$whitespace_regex = '';
 				if (!empty($tag['block_level']))
-					$whitespace_regex .= '(&nbsp;|\s)*(<br>)?';
+					$whitespace_regex .= '(&nbsp;|\s)*(<br />)?';
 				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
-					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
+					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br />|&nbsp;|\s)*';
 				if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
 
@@ -2978,7 +2978,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			$data = substr($message, $pos1, $pos2 - $pos1);
 
-			if (!empty($tag['block_level']) && substr($data, 0, 4) == '<br>')
+			if (!empty($tag['block_level']) && substr($data, 0, 4) == '<br />')
 				$data = substr($data, 4);
 
 			if (isset($tag['validate']))
@@ -3019,7 +3019,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				substr($message, $pos1, $pos2 - $pos1)
 			);
 
-			if (!empty($tag['block_level']) && substr($data[0], 0, 4) == '<br>')
+			if (!empty($tag['block_level']) && substr($data[0], 0, 4) == '<br />')
 				$data[0] = substr($data[0], 4);
 
 			// Validation for my parking, please!
@@ -3126,11 +3126,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		}
 
 		// If this is block level, eat any breaks after it.
-		if (!empty($tag['block_level']) && substr($message, $pos + 1, 4) == '<br>')
+		if (!empty($tag['block_level']) && substr($message, $pos + 1, 4) == '<br />')
 			$message = substr($message, 0, $pos + 1) . substr($message, $pos + 5);
 
 		// Are we trimming outside this tag?
-		if (!empty($tag['trim']) && $tag['trim'] != 'outside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($message, $pos + 1), $matches) != 0)
+		if (!empty($tag['trim']) && $tag['trim'] != 'outside' && preg_match('~(<br />|&nbsp;|\s)*~', substr($message, $pos + 1), $matches) != 0)
 			$message = substr($message, 0, $pos + 1) . substr($message, $pos + 1 + strlen($matches[0]));
 	}
 
@@ -3156,7 +3156,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		$message = '&nbsp;' . substr($message, 1);
 
 	// Cleanup whitespace.
-	$message = strtr($message, array('  ' => ' &nbsp;', "\r" => '', "\n" => '<br>', '<br> ' => '<br>&nbsp;', '&#13;' => "\n"));
+	$message = strtr($message, array('  ' => ' &nbsp;', "\r" => '', "\n" => '<br />', '<br /> ' => '<br />&nbsp;', '&#13;' => "\n"));
 
 	// Allow mods access to what parse_bbc created
 	call_integration_hook('integrate_post_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
@@ -3291,7 +3291,7 @@ function parsesmileys(&$message)
 function highlight_php_code($code)
 {
 	// Remove special characters.
-	$code = un_htmlspecialchars(strtr($code, array('<br />' => "\n", '<br>' => "\n", "\t" => 'SMF_TAB();', '&#91;' => '[')));
+	$code = un_htmlspecialchars(strtr($code, array('<br />' => "\n", '<br />' => "\n", "\t" => 'SMF_TAB();', '&#91;' => '[')));
 
 	$oldlevel = error_reporting(0);
 
@@ -3923,20 +3923,20 @@ function template_header()
 				foreach ($securityFiles as $securityFile)
 				{
 					echo '
-				', $txt['not_removed'], '<strong>', $securityFile, '</strong>!<br>';
+				', $txt['not_removed'], '<strong>', $securityFile, '</strong>!<br />';
 
 					if ($securityFile == 'Settings.php~' || $securityFile == 'Settings_bak.php~')
 						echo '
-				', sprintf($txt['not_removed_extra'], $securityFile, substr($securityFile, 0, -1)), '<br>';
+				', sprintf($txt['not_removed_extra'], $securityFile, substr($securityFile, 0, -1)), '<br />';
 				}
 
 				if (!empty($cache_enable) && !is_writable($cachedir))
 					echo '
-				<strong>', $txt['cache_writable'], '</strong><br>';
+				<strong>', $txt['cache_writable'], '</strong><br />';
 
 				if (!empty($agreement))
 					echo '
-				<strong>', $txt['agreement_missing'], '</strong><br>';
+				<strong>', $txt['agreement_missing'], '</strong><br />';
 
 				echo '
 			</p>
@@ -4386,7 +4386,7 @@ function deleteAllMinified()
 	if (!empty($not_deleted))
 	{
 		loadLanguage('Errors');
-		log_error(sprintf($txt['unlink_minimized_fail'], implode('<br>', $not_deleted)), 'general');
+		log_error(sprintf($txt['unlink_minimized_fail'], implode('<br />', $not_deleted)), 'general');
 	}
 }
 
@@ -4602,7 +4602,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 		$context['utf8'] = false;
 
 	// Step 1: Remove entities/things we don't consider words:
-	$words = preg_replace('~(?:[\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . ($context['utf8'] ? 'u' : ''), ' ', strtr($text, array('<br>' => ' ')));
+	$words = preg_replace('~(?:[\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . ($context['utf8'] ? 'u' : ''), ' ', strtr($text, array('<br />' => ' ')));
 
 	// Step 2: Entities we left to letters, where applicable, lowercase.
 	$words = un_htmlspecialchars($smcFunc['strtolower']($words));

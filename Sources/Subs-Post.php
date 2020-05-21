@@ -251,7 +251,7 @@ function preparsecode(&$message, $previewing = false)
 
 	// Restore white space entities
 	if (!$previewing)
-		$message = strtr($message, array('  ' => '&nbsp; ', "\n" => '<br>', $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
+		$message = strtr($message, array('  ' => '&nbsp; ', "\n" => '<br />', $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
 	else
 		$message = strtr($message, array('  ' => '&nbsp; ', $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
 
@@ -293,7 +293,7 @@ function un_preparsecode($message)
 
 	$message = preg_replace_callback('~\[html\](.+?)\[/html\]~i', function($m) use ($smcFunc)
 	{
-		return "[html]" . strtr($smcFunc['htmlspecialchars']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
+		return "[html]" . strtr($smcFunc['htmlspecialchars']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br />", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
 	}, $message);
 
 	if (strpos($message, '[cowsay') !== false && !allowedTo('bbc_cowsay'))
@@ -571,7 +571,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	if ($hotmail_fix && !$send_html)
 	{
 		$send_html = true;
-		$message = strtr($message, array($line_break => '<br>' . $line_break));
+		$message = strtr($message, array($line_break => '<br />' . $line_break));
 		$message = preg_replace('~(' . preg_quote($scripturl, '~') . '(?:[?/][\w\-_%\.,\?&;=#]+)?)~', '<a href="$1">$1</a>', $message);
 	}
 
@@ -1174,7 +1174,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 				censorText($notification_texts[$lang]['body']);
 
-				$notification_texts[$lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($smcFunc['htmlspecialchars']($notification_texts[$lang]['body']), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+				$notification_texts[$lang]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($smcFunc['htmlspecialchars']($notification_texts[$lang]['body']), false), array('<br />' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 			}
 			else
 				$notification_texts[$lang]['body'] = '';

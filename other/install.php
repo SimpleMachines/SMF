@@ -503,7 +503,7 @@ function Welcome()
 
 	// Mod_security blocks everything that smells funny. Let SMF handle security.
 	if (!fixModSecurity() && !isset($_GET['overmodsecurity']))
-		$incontext['error'] = $txt['error_mod_security'] . '<br><br><a href="' . $installurl . '?overmodsecurity=true">' . $txt['error_message_click'] . '</a> ' . $txt['error_message_bad_try_again'];
+		$incontext['error'] = $txt['error_mod_security'] . '<br /><br /><a href="' . $installurl . '?overmodsecurity=true">' . $txt['error_message_click'] . '</a> ' . $txt['error_message_bad_try_again'];
 
 	// Confirm mbstring is loaded...
 	if (!extension_loaded('mbstring'))
@@ -2179,8 +2179,8 @@ function template_chmod_files()
 	if (!empty($incontext['ftp_errors']))
 		echo '
 		<div class="error_message">
-			', $txt['error_ftp_no_connect'], '<br><br>
-			<code>', implode('<br>', $incontext['ftp_errors']), '</code>
+			', $txt['error_ftp_no_connect'], '<br /><br />
+			<code>', implode('<br />', $incontext['ftp_errors']), '</code>
 		</div>';
 
 	echo '
@@ -2540,7 +2540,7 @@ function template_delete_install()
 
 	echo '
 		<p>', sprintf($txt['go_to_your_forum'], $boardurl . '/index.php'), '</p>
-		<br>
+		<br />
 		', $txt['good_luck'];
 }
 

@@ -27,7 +27,7 @@ function template_fatal_error()
 		echo '
 	<strong>
 		', $context['error_title'], '
-	</strong><br>
+	</strong><br />
 	<div ', $context['error_code'], 'class="padding">
 		', $context['error_message'], '
 	</div>';
@@ -124,9 +124,9 @@ function template_error_log()
 					<td colspan="2">
 						<div class="error_info">
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_member'], '"><span class="main_icons filter centericon"></span></a>
-							<strong>', $error['member']['link'], '</strong><br>
+							<strong>', $error['member']['link'], '</strong><br />
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? '' : ';desc', $context['has_filter'] ? $context['filter']['href'] : '', '" title="', $txt['reverse_direction'], '"><span class="main_icons sort_' . $context['sort_direction'] . '"></span></a>
-							', $error['time'], '<br>';
+							', $error['time'], '<br />';
 
 		if (!empty($error['member']['ip']))
 			echo '
@@ -135,9 +135,9 @@ function template_error_log()
 
 		if ($error['member']['session'] != '')
 			echo '
-							<br>
+							<br />
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '"><span class="main_icons filter centericon"></span></a>
-							', $error['member']['session'], '<br>';
+							', $error['member']['session'], '<br />';
 
 		echo '
 							<strong><a href ="', $scripturl, '?action=admin;area=logs;sa=errorlog;backtrace=', $error['id'], '" onclick="return reqWin(this.href, 600, 480, false);"><span class="main_icons details"></span>', $txt['backtrace_title'], '</a></strong>
@@ -146,7 +146,7 @@ function template_error_log()
 
 		echo '
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_type'], '"><span class="main_icons filter centericon"></span></a>
-							', $txt['error_type'], ': ', $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name'], '<br>
+							', $txt['error_type'], ': ', $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name'], '<br />
 							<a class="error_message" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_message'], '"><span class="main_icons filter"></span></a>
 							<span class="error_message">', $error['message']['html'], '</span>
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_url'], '"><span class="main_icons filter"></span></a>

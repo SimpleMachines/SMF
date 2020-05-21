@@ -249,10 +249,10 @@ function template_attachment_repair()
 			if (!empty($number))
 				echo '
 				<input type="checkbox" name="to_fix[]" id="', $error, '" value="', $error, '">
-				<label for="', $error, '">', sprintf($txt['attach_repair_' . $error], $number), '</label><br>';
+				<label for="', $error, '">', sprintf($txt['attach_repair_' . $error], $number), '</label><br />';
 
 		echo '
-				<br>
+				<br />
 				<input type="submit" value="', $txt['repair_attachments_continue'], '" class="button">
 				<input type="submit" name="cancel" value="', $txt['repair_attachments_cancel'], '" class="button">
 			</div>

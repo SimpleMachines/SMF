@@ -44,7 +44,7 @@
 		},
 		appendEmoticon: function (code, emoticon, description) {
 			if (emoticon == '')
-				line.append($('<br>'));
+				line.append($('<br />'));
 			else
 				line.append($('<img>')
 					.attr({

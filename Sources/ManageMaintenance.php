@@ -1922,7 +1922,7 @@ function list_integration_hooks()
 						$instance = (!empty($data['instance']) ? '<span class="main_icons news" title="' . $txt['hooks_field_function_method'] . '"></span> ' : '');
 
 						if (!empty($data['included_file']))
-							return $instance . $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'];
+							return $instance . $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br />' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'];
 
 						else
 							return $instance . $data['real_function'];
@@ -1971,7 +1971,7 @@ function list_integration_hooks()
 		'additional_rows' => array(
 			array(
 				'position' => 'after_title',
-				'value' => $txt['hooks_disable_instructions'] . '<br>
+				'value' => $txt['hooks_disable_instructions'] . '<br />
 					' . $txt['hooks_disable_legend'] . ':
 				<ul style="list-style: none;">
 					<li><span class="main_icons post_moderation_allow"></span> ' . $txt['hooks_disable_legend_exists'] . '</li>

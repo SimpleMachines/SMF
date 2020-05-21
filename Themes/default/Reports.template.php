@@ -219,7 +219,7 @@ function template_print()
 		echo '
 			</table>
 		</div>
-		<br>';
+		<br />';
 	}
 }
 

@@ -115,7 +115,7 @@ $txt['filter_only_type'] = 'Only show the errors of this type';
 $txt['filter_only_file'] = 'Only show the errors from this file';
 $txt['apply_filter_of_type'] = 'Apply filter of type';
 $txt['backtrace_title'] = 'Backtrace information';
-$txt['backtrace_info'] = '<b>#%1$d</b>: %2$s()<br>Called from <a href="' . $scripturl . '?action=admin;area=logs;sa=errorlog;file=%5$s;line=%4$d" onclick="return reqWin(this.href, 600, 480, false);">%3$s on line %4$d</a>';
+$txt['backtrace_info'] = '<b>#%1$d</b>: %2$s()<br />Called from <a href="' . $scripturl . '?action=admin;area=logs;sa=errorlog;file=%5$s;line=%4$d" onclick="return reqWin(this.href, 600, 480, false);">%3$s on line %4$d</a>';
 
 $txt['errortype_all'] = 'All errors';
 $txt['errortype_general'] = 'General';
@@ -231,7 +231,7 @@ $txt['reattribute_cannot_find_member'] = 'Could not find member to attribute pos
 $txt['maintain_recountposts'] = 'Recount User Posts';
 $txt['maintain_recountposts_info'] = 'Run this maintenance task to update your users total post count. It will recount all (countable) posts made by each user and then update their profile post count totals';
 
-$txt['safe_mode_enabled'] = '<a href="https://php.net/manual/en/features.safe-mode.php">safe_mode</a> is enabled on your server!<br>The backup done with this tool cannot be considered reliable!';
+$txt['safe_mode_enabled'] = '<a href="https://php.net/manual/en/features.safe-mode.php">safe_mode</a> is enabled on your server!<br />The backup done with this tool cannot be considered reliable!';
 $txt['use_external_tool'] = 'Please consider using an external tool to backup your database, any backup created with this utility cannot be considered 100% reliable.';
 $txt['zipped_file'] = 'If you want you can create a compressed (zipped) backup.';
 $txt['plain_text'] = 'The best method to backup your database is to create a plain text file, a compressed package may not be completely reliable.';

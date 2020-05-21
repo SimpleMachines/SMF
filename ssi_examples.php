@@ -43,7 +43,7 @@ template_ssi_above();
 			<h2>Some notes on usage</h2>
 			<p>All the functions have an output method parameter.  This can either be &quot;echo&quot; (the default) or &quot;array&quot;</p>
 			<p>If it is &quot;echo&quot;, the function will act normally - otherwise, it will return an array containing information about the requested task. For example, it might return a list of topics for ssi_recentTopics.</p>
-			<p onclick="if (getInnerHTML(this).indexOf('Bird') == -1) setInnerHTML(this, getInnerHTML(this) + '<br><img src=&quot;https://www.simplemachines.org/images/chocobo.jpg&quot; title=&quot;Bird-san&quot; alt=&quot;Chocobo!&quot;>'); return false;">This functionality can be used to allow you to present the information in any way you wish.</p>
+			<p onclick="if (getInnerHTML(this).indexOf('Bird') == -1) setInnerHTML(this, getInnerHTML(this) + '<br /><img src=&quot;https://www.simplemachines.org/images/chocobo.jpg&quot; title=&quot;Bird-san&quot; alt=&quot;Chocobo!&quot;>'); return false;">This functionality can be used to allow you to present the information in any way you wish.</p>
 
 			<h2>Additional Guides &amp; FAQ</h2>
 			<p>Need more information on using SSI.php? Check out <a href="https://wiki.simplemachines.org/smf/Category:SSI">Using SSI.php article</a>.</p>
@@ -510,7 +510,7 @@ function template_ssi_above()
 			<img id="smflogo" src="Themes/default/images/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">
 		</div>
 		<div id="wrapper">
-			<div id="upper_section"><p><br></p></div>
+			<div id="upper_section"><p><br /></p></div>
 			<div id="content_section">
 				<div id="main_content_section">
 					<div id="liftup" class="flow_auto">';
@@ -628,7 +628,7 @@ function template_homepage_sample1_php()
 
 	echo '
 
-		</ul><br>
+		</ul><br />
 
 		<h3>Online Users</h3>';
 		ssi_logOnline();
@@ -640,7 +640,7 @@ function template_homepage_sample1_php()
 
 		ssi_welcome();
 	echo '
-		<br><br>
+		<br /><br />
 
 		<h2>News</h2>';
 
@@ -674,12 +674,12 @@ foreach ($topics as $topic)
 
 unset($topics);
 ?>
-		</ul><br>
+		</ul><br />
 		<h3>Online Users</h3>
 		<?php ssi_logOnline(); ?>
 	</div>
 	<div id="content">
-		<?php ssi_welcome(); ?><br><br>
+		<?php ssi_welcome(); ?><br /><br />
 		<h2>News</h2>
 		<?php ssi_boardNews(); ?>
 	</div>';

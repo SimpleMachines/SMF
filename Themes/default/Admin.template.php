@@ -47,16 +47,16 @@ function template_admin()
 								</div>
 								<div class="windowbg nopadding">
 									<div id="version_details" class="padding">
-										<strong>', $txt['support_versions'], ':</strong><br>
+										<strong>', $txt['support_versions'], ':</strong><br />
 										', $txt['support_versions_forum'], ':
-										<em id="yourVersion">', $context['forum_version'], '</em><br>
+										<em id="yourVersion">', $context['forum_version'], '</em><br />
 										', $txt['support_versions_current'], ':
-										<em id="smfVersion">??</em><br>
-										', $context['can_admin'] ? '<a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>';
+										<em id="smfVersion">??</em><br />
+										', $context['can_admin'] ? '<a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br />';
 
 	// Display all the members who can administrate the forum.
 	echo '
-										<br>
+										<br />
 										<strong>', $txt['administrators'], ':</strong>
 										', implode(', ', $context['administrators']);
 
@@ -164,11 +164,11 @@ function template_credits()
 						</div>
 						<div class="padding">
 							<img src="', $settings['images_url'], '/smflogo.svg" class="floatright" alt="">
-							<strong>', $txt['support_versions'], ':</strong><br>
+							<strong>', $txt['support_versions'], ':</strong><br />
 								', $txt['support_versions_forum'], ':
-							<em id="yourVersion">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>
+							<em id="yourVersion">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br />
 								', $txt['support_versions_current'], ':
-							<em id="smfVersion">??</em><br>';
+							<em id="smfVersion">??</em><br />';
 
 	// Display all the variables we have server information for.
 	foreach ($context['current_versions'] as $version)
@@ -182,7 +182,7 @@ function template_credits()
 			echo
 							' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
 		echo '
-							<br>';
+							<br />';
 	}
 
 	echo '
@@ -594,7 +594,7 @@ function template_edit_censored()
 								</div>
 								<div id="moreCensoredWords"></div>
 								<div class="block hidden" id="moreCensoredWords_link">
-									<a class="button" href="#" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br>
+									<a class="button" href="#" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br />
 								</div>
 								<script>
 									document.getElementById("moreCensoredWords_link").classList.remove(\'hidden\');
@@ -853,7 +853,7 @@ function template_show_settings()
 				// Some quick helpers...
 				$javascript = $config_var['javascript'];
 				$disabled = !empty($config_var['disabled']) ? ' disabled' : '';
-				$subtext = !empty($config_var['subtext']) ? '<br><span class="smalltext"> ' . $config_var['subtext'] . '</span>' : '';
+				$subtext = !empty($config_var['subtext']) ? '<br /><span class="smalltext"> ' . $config_var['subtext'] . '</span>' : '';
 
 				// Various HTML5 input types that are basically enhanced textboxes
 				$text_types = array('color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time');
@@ -864,7 +864,7 @@ function template_show_settings()
 										<a id="setting_', $config_var['name'], '_help" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', $txt['help'], '"></span></a> ';
 
 				echo '
-										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label for="', $config_var['name'], '">', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
+										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label for="', $config_var['name'], '">', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br /><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
 									</dt>
 									<dd', (!empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '_dd"' : ''), '>',
 										$config_var['preinput'];
@@ -876,7 +876,7 @@ function template_show_settings()
 				// Escape (via htmlspecialchars.) the text box.
 				elseif ($config_var['type'] == 'password')
 					echo '
-										<input type="password"', $disabled, $javascript, ' name="', $config_var['name'], '[0]"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), ' value="*#fakepass#*" onfocus="this.value = \'\'; this.form.', $config_var['name'], '.disabled = false;"><br>
+										<input type="password"', $disabled, $javascript, ' name="', $config_var['name'], '[0]"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), ' value="*#fakepass#*" onfocus="this.value = \'\'; this.form.', $config_var['name'], '.disabled = false;"><br />
 										<input type="password" disabled id="', $config_var['name'], '" name="', $config_var['name'], '[1]"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), '>';
 				// Show a selection box.
 				elseif ($config_var['type'] == 'select')
@@ -1075,7 +1075,7 @@ function template_show_custom_profile()
 							if (document.forms.standardProfileFields[i].id.indexOf(\'reg_\') == 0)
 								document.forms.standardProfileFields[i].disabled = document.forms.standardProfileFields[i].disabled || !document.getElementById(\'active_\' + document.forms.standardProfileFields[i].id.substr(4)).checked;
 					</script>
-					<br>';
+					<br />';
 
 	// Custom fields.
 	template_show_list('custom_profile_fields');
@@ -1129,7 +1129,7 @@ function template_edit_profile_field()
 											<textarea name="field_desc" id="field_desc" rows="3" cols="40">', $context['field']['desc'], '</textarea>
 										</dd>
 										<dt>
-											<strong><label for="profile_area">', $txt['custom_edit_profile'], ':</label></strong><br>
+											<strong><label for="profile_area">', $txt['custom_edit_profile'], ':</label></strong><br />
 											<span class="smalltext">', $txt['custom_edit_profile_desc'], '</span>
 										</dt>
 										<dd>
@@ -1178,7 +1178,7 @@ function template_edit_profile_field()
 										</dd>
 										<dt>
 											<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
-											<strong><label for="enclose">', $txt['custom_edit_enclose'], ':</label></strong><br>
+											<strong><label for="enclose">', $txt['custom_edit_enclose'], ':</label></strong><br />
 											<span class="smalltext">', $txt['custom_edit_enclose_desc'], '</span>
 										</dt>
 										<dd>
@@ -1203,7 +1203,7 @@ function template_edit_profile_field()
 											</select>
 										</dd>
 										<dt id="max_length_dt">
-											<strong><label for="max_length_dd">', $txt['custom_edit_max_length'], ':</label></strong><br>
+											<strong><label for="max_length_dd">', $txt['custom_edit_max_length'], ':</label></strong><br />
 											<span class="smalltext">', $txt['custom_edit_max_length_desc'], '</span>
 										</dt>
 										<dd>
@@ -1224,14 +1224,14 @@ function template_edit_profile_field()
 										</dd>
 										<dt id="options_dt">
 											<a href="', $scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
-											<strong><label for="options_dd">', $txt['custom_edit_options'], ':</label></strong><br>
+											<strong><label for="options_dd">', $txt['custom_edit_options'], ':</label></strong><br />
 											<span class="smalltext">', $txt['custom_edit_options_desc'], '</span>
 										</dt>
 										<dd id="options_dd">';
 
 	foreach ($context['field']['options'] as $k => $option)
 		echo '
-											', $k == 0 ? '' : '<br>', '<input type="radio" name="default_select" value="', $k, '"', $context['field']['default_select'] == $option ? ' checked' : '', '><input type="text" name="select_option[', $k, ']" value="', $option, '">';
+											', $k == 0 ? '' : '<br />', '<input type="radio" name="default_select" value="', $k, '"', $context['field']['default_select'] == $option ? ' checked' : '', '><input type="text" name="select_option[', $k, ']" value="', $option, '">';
 
 	echo '
 											<span id="addopt"></span>
@@ -1250,7 +1250,7 @@ function template_edit_profile_field()
 									<dl class="settings">
 										<dt id="mask_dt">
 											<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
-											<strong><label for="mask">', $txt['custom_edit_mask'], ':</label></strong><br>
+											<strong><label for="mask">', $txt['custom_edit_mask'], ':</label></strong><br />
 											<span class="smalltext">', $txt['custom_edit_mask_desc'], '</span>
 										</dt>
 										<dd>
@@ -1260,7 +1260,7 @@ function template_edit_profile_field()
 												<option value="number"', $context['field']['mask'] == 'number' ? ' selected' : '', '>', $txt['custom_edit_mask_number'], '</option>
 												<option value="regex"', strpos($context['field']['mask'], 'regex') === 0 ? ' selected' : '', '>', $txt['custom_edit_mask_regex'], '</option>
 											</select>
-											<br>
+											<br />
 											<span id="regex_div">
 												<input type="text" name="regex" value="', $context['field']['regex'], '" size="30">
 											</span>
@@ -1278,14 +1278,14 @@ function template_edit_profile_field()
 											</select>
 										</dd>
 										<dt id="can_search_dt">
-											<strong><label for="can_search_dd">', $txt['custom_edit_can_search'], ':</label></strong><br>
+											<strong><label for="can_search_dd">', $txt['custom_edit_can_search'], ':</label></strong><br />
 											<span class="smalltext">', $txt['custom_edit_can_search_desc'], '</span>
 										</dt>
 										<dd>
 											<input type="checkbox" name="can_search" id="can_search_dd"', $context['field']['can_search'] ? ' checked' : '', '>
 										</dd>
 										<dt>
-											<strong><label for="can_search_check">', $txt['custom_edit_active'], ':</label></strong><br>
+											<strong><label for="can_search_check">', $txt['custom_edit_active'], ':</label></strong><br />
 											<span class="smalltext">', $txt['custom_edit_active_desc'], '</span>
 										</dt>
 										<dd>
@@ -1610,7 +1610,7 @@ function template_php_info()
 		echo '
 							</tbody>
 						</table>
-						<br>';
+						<br />';
 	}
 
 	echo '

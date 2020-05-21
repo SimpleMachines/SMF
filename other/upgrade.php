@@ -504,7 +504,7 @@ function load_lang_file()
 		elseif (!isset($modSettings['theme_dir']))
 		{
 			// Define a few essential strings for now.
-			$txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
+			$txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br /><br />Please check that the database info variables are correct in Settings.php.';
 			$txt['error_sourcefile_missing'] = 'Unable to find the Sources/%1$s file. Please make sure it was uploaded properly, and then try again.';
 
 			$txt['warning_lang_old'] = 'The language files for your selected language, %1$s, have not been updated to the latest version. Upgrade will continue with the forum default, %2$s.';
@@ -960,7 +960,7 @@ function WelcomeLogin()
 	// We're going to check that their board dir setting is right in case they've been moving stuff around.
 	if (strtr($boarddir, array('/' => '', '\\' => '')) != strtr(dirname(__FILE__), array('/' => '', '\\' => '')))
 		$upcontext['warning'] = '
-			' . sprintf($txt['upgrade_boarddir_settings'], $boarddir, dirname(__FILE__)) . '<br>
+			' . sprintf($txt['upgrade_boarddir_settings'], $boarddir, dirname(__FILE__)) . '<br />
 			<ul>
 				<li>' . $txt['upgrade_boarddir'] . '  ' . $boarddir . '</li>
 				<li>' . $txt['upgrade_sourcedir'] . '  ' . $boarddir . '</li>
@@ -1697,7 +1697,7 @@ function DeleteUpgrade()
 	$upcontext['sub_template'] = 'upgrade_complete';
 	$upcontext['page_title'] = $txt['upgrade_complete'];
 
-	$endl = $command_line ? "\n" : '<br>' . "\n";
+	$endl = $command_line ? "\n" : '<br />' . "\n";
 
 	$changes = array(
 		'language' => (substr($language, -4) == '.lng' ? substr($language, 0, -4) : $language),
@@ -1996,7 +1996,7 @@ function parse_sql($filename)
 	else
 		$db_collation = '';
 
-	$endl = $command_line ? "\n" : '<br>' . "\n";
+	$endl = $command_line ? "\n" : '<br />' . "\n";
 
 	$lines = file($filename);
 
@@ -2326,7 +2326,7 @@ function upgrade_query($string, $unbuffered = false)
 
 	// Otherwise we have to display this somewhere appropriate if possible.
 	$upcontext['forced_error_message'] = '
-			<strong>' . $txt['upgrade_unsuccessful'] . '</strong><br>
+			<strong>' . $txt['upgrade_unsuccessful'] . '</strong><br />
 
 			<div style="margin: 2ex;">
 				' . $txt['upgrade_thisquery'] . '
@@ -3706,7 +3706,7 @@ function template_chmod()
 					content.write(\'<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
 					content.write(\'<title>', $txt['upgrade_ftp_warning'], '</title>\n\t\t<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
 					content.write(\'<div class="windowbg description">\n\t\t\t<h4>', $txt['upgrade_ftp_files'], '</h4>\n\t\t\t\');
-					content.write(\'<p>', implode('<br>\n\t\t\t', $upcontext['chmod']['files']), '</p>\n\t\t\t\');';
+					content.write(\'<p>', implode('<br />\n\t\t\t', $upcontext['chmod']['files']), '</p>\n\t\t\t\');';
 
 	if (isset($upcontext['systemos']) && $upcontext['systemos'] == 'linux')
 		echo '
@@ -3885,7 +3885,7 @@ function template_upgrade_below()
 
 	if (!empty($upcontext['pause']))
 		echo '
-							<em>', $txt['upgrade_incomplete'], '.</em><br>
+							<em>', $txt['upgrade_incomplete'], '.</em><br />
 
 							<h2 style="margin-top: 2ex;">', $txt['upgrade_not_quite_done'], '</h2>
 							<h3>
@@ -3979,7 +3979,7 @@ function template_error_message()
 	echo '
 	<div class="error">
 		', $upcontext['error_msg'], '
-		<br>
+		<br />
 		<a href="', $_SERVER['PHP_SELF'], '">Click here to try again.</a>
 	</div>';
 }
@@ -4178,9 +4178,9 @@ function template_upgrade_options()
 						<label for="maint">', $txt['upgrade_maintenance'], '</label>
 						<span class="smalltext">(<a href="javascript:void(0)" onclick="document.getElementById(\'mainmess\').classList.toggle(\'hidden\')">', $txt['upgrade_customize'], '</a>)</span>
 						<div id="mainmess" class="hidden">
-							<strong class="smalltext">', $txt['upgrade_maintenance_title'], ' </strong><br>
-							<input type="text" name="maintitle" size="30" value="', htmlspecialchars($mtitle), '"><br>
-							<strong class="smalltext">', $txt['upgrade_maintenance_message'], ' </strong><br>
+							<strong class="smalltext">', $txt['upgrade_maintenance_title'], ' </strong><br />
+							<input type="text" name="maintitle" size="30" value="', htmlspecialchars($mtitle), '"><br />
+							<strong class="smalltext">', $txt['upgrade_maintenance_message'], ' </strong><br />
 							<textarea name="mainmessage" rows="3" cols="50">', htmlspecialchars($mmessage), '</textarea>
 						</div>
 					</li>
@@ -4204,7 +4204,7 @@ function template_upgrade_options()
 					<li>
 						<input type="checkbox" name="stats" id="stats" value="1"', empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']) ? '' : ' checked="checked"', '>
 						<label for="stat">
-							', $txt['upgrade_stats_collection'], '<br>
+							', $txt['upgrade_stats_collection'], '<br />
 							<span class="smalltext">', sprintf($txt['upgrade_stats_info'], 'https://www.simplemachines.org/about/stats.php'), '</a></span>
 						</label>
 					</li>
@@ -4241,7 +4241,7 @@ function template_backup_database()
 	if (!empty($upcontext['previous_tables']))
 		foreach ($upcontext['previous_tables'] as $table)
 			echo '
-					<br>', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
+					<br />', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 
 	echo '
 					<h3 id="current_tab">
@@ -4282,7 +4282,7 @@ function template_backup_database()
 		// If debug flood the screen.
 		if ($is_debug)
 			echo '
-							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br />Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
 
 							if (document.getElementById(\'debug_section\').scrollHeight)
 								document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
@@ -4336,7 +4336,7 @@ function template_database_changes()
 		{
 			if ($num != 0)
 				echo ' Successful!';
-			echo '<br>' . $item;
+			echo '<br />' . $item;
 		}
 
 		// Only tell deubbers how much time they wasted waiting for the upgrade because they don't have javascript.
@@ -4349,10 +4349,10 @@ function template_database_changes()
 				$minutes = intval(($active / 60) % 60);
 				$seconds = intval($active % 60);
 
-				echo '', sprintf($txt['upgrade_success_time_db'], $seconds, $minutes, $hours), '<br>';
+				echo '', sprintf($txt['upgrade_success_time_db'], $seconds, $minutes, $hours), '<br />';
 			}
 			else
-				echo '', $txt['upgrade_success'], '<br>';
+				echo '', $txt['upgrade_success'], '<br />';
 
 			echo '
 					<p id="commess">', $txt['upgrade_db_complete'], '</p>';
@@ -4589,7 +4589,7 @@ console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes,
 
 		if ($is_debug)
 			echo '
-								setOuterHTML(document.getElementById(\'debuginfo\'), \'Moving to next script file...done<br><span id="debuginfo"><\' + \'/span>\');';
+								setOuterHTML(document.getElementById(\'debuginfo\'), \'Moving to next script file...done<br /><span id="debuginfo"><\' + \'/span>\');';
 
 		echo '
 								getNextItem();
@@ -4611,9 +4611,9 @@ console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes,
 							iLastSubStepProgress = iSubStepProgress;
 
 							if (bIsComplete && bSkipped)
-								setOuterHTML(document.getElementById(\'debuginfo\'), \'skipped<br><span id="debuginfo"><\' + \'/span>\');
+								setOuterHTML(document.getElementById(\'debuginfo\'), \'skipped<br /><span id="debuginfo"><\' + \'/span>\');
 							else if (bIsComplete)
-								setOuterHTML(document.getElementById(\'debuginfo\'), \'done<br><span id="debuginfo"><\' + \'/span>\');
+								setOuterHTML(document.getElementById(\'debuginfo\'), \'done<br /><span id="debuginfo"><\' + \'/span>\');
 							else
 								setOuterHTML(document.getElementById(\'debuginfo\'), \'...<span id="debuginfo"><\' + \'/span>\');
 
@@ -4730,7 +4730,7 @@ function template_convert_utf8()
 	if (!empty($upcontext['previous_tables']))
 		foreach ($upcontext['previous_tables'] as $table)
 			echo '
-					<br>', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
+					<br />', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 
 	echo '
 					<h3 id="current_tab">
@@ -4779,7 +4779,7 @@ function template_convert_utf8()
 		// If debug flood the screen.
 		if ($is_debug)
 			echo '
-						setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+						setOuterHTML(document.getElementById(\'debuginfo\'), \'<br />Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
 
 						if (document.getElementById(\'debug_section\').scrollHeight)
 							document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
@@ -4831,7 +4831,7 @@ function template_serialize_json()
 	if (!empty($upcontext['previous_tables']))
 		foreach ($upcontext['previous_tables'] as $table)
 			echo '
-					<br>', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
+					<br />', $txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 
 	echo '
 					<h3 id="current_tab">
@@ -4877,7 +4877,7 @@ function template_serialize_json()
 		// If debug flood the screen.
 		if ($is_debug)
 			echo '
-							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>', $txt['upgrade_completed_table'], ' &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br />', $txt['upgrade_completed_table'], ' &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
 
 							if (document.getElementById(\'debug_section\').scrollHeight)
 								document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
@@ -4930,7 +4930,7 @@ function template_upgrade_complete()
 							theCheck.disabled = true;
 						}
 					</script>
-					<img src="', $settings['default_theme_url'], '/images/blank.png" alt="" id="delete_upgrader"><br>';
+					<img src="', $settings['default_theme_url'], '/images/blank.png" alt="" id="delete_upgrader"><br />';
 
 	// Show Upgrade time in debug mode when we completed the upgrade process totally
 	if ($is_debug)
@@ -4951,8 +4951,8 @@ function template_upgrade_complete()
 	echo '
 					<p>
 						', sprintf($txt['upgrade_problems'], 'http://simplemachines.org'), '
-						<br>
-						', $txt['upgrade_luck'], '<br>
+						<br />
+						', $txt['upgrade_luck'], '<br />
 						Simple Machines
 					</p>';
 }

@@ -122,7 +122,7 @@ function ViewQuery()
 		<div id="qq', $q, '" style="margin-bottom: 2ex;">
 			<a', $is_select_query ? ' href="' . $scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '"' : '', ' style="font-weight: bold; text-decoration: none;">
 				', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', $smcFunc['htmlspecialchars']($query_data['q']))), '
-			</a><br>';
+			</a><br />';
 
 		if (!empty($query_data['f']) && !empty($query_data['l']))
 			echo sprintf($txt['debug_query_in_line'], $query_data['f'], $query_data['l']);

@@ -32,14 +32,14 @@ function template_view_package()
 
 	if ($context['is_installed'])
 		echo '
-			<strong>', $txt['package_installed_warning1'], '</strong><br>
-			<br>
-			', $txt['package_installed_warning2'], '<br>
-			<br>';
+			<strong>', $txt['package_installed_warning1'], '</strong><br />
+			<br />
+			', $txt['package_installed_warning2'], '<br />
+			<br />';
 
 	echo $txt['package_installed_warning3'], '
 		</div>
-		<br>';
+		<br />';
 
 	if (!empty($context['package_blacklist_found']))
 		echo '
@@ -50,9 +50,9 @@ function template_view_package()
 	if ($context['has_failure'])
 		echo '
 		<div class="errorbox">
-			', sprintf($txt['package_will_fail_title'], $txt['package_' . ($context['uninstalling'] ? 'uninstall' : 'install')]), '<br>
+			', sprintf($txt['package_will_fail_title'], $txt['package_' . ($context['uninstalling'] ? 'uninstall' : 'install')]), '<br />
 			', sprintf($txt['package_will_fail_warning'], $txt['package_' . ($context['uninstalling'] ? 'uninstall' : 'install')]),
-			!empty($context['failure_details']) ? '<br><br><strong>' . $context['failure_details'] . '</strong>' : '', '
+			!empty($context['failure_details']) ? '<br /><br /><strong>' . $context['failure_details'] . '</strong>' : '', '
 		</div>';
 
 	// Validation info?
@@ -77,7 +77,7 @@ function template_view_package()
 		echo '
 			</table>
 		</div>
-		<br>';
+		<br />';
 	}
 
 	// Display the package readme if one exists
@@ -100,7 +100,7 @@ function template_view_package()
 				</select>
 			</span>
 		</div>
-		<br>';
+		<br />';
 	}
 
 	// Did they specify a license to display?
@@ -122,7 +122,7 @@ function template_view_package()
 				</select>
 			</span>
 		</div>
-		<br>';
+		<br />';
 	}
 
 	echo '
@@ -159,7 +159,7 @@ function template_view_package()
 
 	if (empty($context['actions']) && empty($context['database_changes']))
 		echo '
-				<br>
+				<br />
 				<div class="errorbox">
 					', $txt['corrupt_compatible'], '
 				</div>
@@ -169,7 +169,7 @@ function template_view_package()
 		echo '
 				', $txt['perform_actions'], '
 			</div><!-- .information -->
-			<br>
+			<br />
 			<table class="table_grid">
 				<thead>
 					<tr class="title_bar">
@@ -246,7 +246,7 @@ function template_view_package()
 		if (!empty($context['theme_actions']))
 		{
 			echo '
-			<br>
+			<br />
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $context['uninstalling'] ? $txt['package_other_themes_uninstall'] : $txt['package_other_themes'], '
@@ -431,7 +431,7 @@ function template_extract_package()
 	// If we are going to redirect we have a slightly different agenda.
 	if (!empty($context['redirect_url']))
 		echo '
-			', $context['redirect_text'], '<br><br>
+			', $context['redirect_text'], '<br /><br />
 			<a href="', $context['redirect_url'], '">', $txt['package_installed_redirect_go_now'], '</a><span id="countdown" class="hidden"> (5) </span> | <a href="', $scripturl, '?action=admin;area=packages;sa=browse">', $txt['package_installed_redirect_cancel'], '</a>
 			<script>
 				var countdown = ', $context['redirect_timeout'], ';
@@ -481,7 +481,7 @@ function template_extract_package()
 	// Show the "restore permissions" screen?
 	if (function_exists('template_show_list') && !empty($context['restore_file_permissions']['rows']))
 	{
-		echo '<br>';
+		echo '<br />';
 		template_show_list('restore_file_permissions');
 	}
 }
@@ -509,7 +509,7 @@ function template_list()
 
 	echo '
 			</ol>
-			<br>
+			<br />
 			<a href="', $scripturl, '?action=admin;area=packages">[ ', $txt['back'], ' ]</a>
 		</div>';
 }
@@ -605,7 +605,7 @@ function template_browse()
 				template_show_list('packages_lists_' . $type);
 
 		echo '
-		<br>';
+		<br />';
 	}
 
 	// The advanced (emulation) box, collapsed by default
@@ -624,7 +624,7 @@ function template_browse()
 					</p>
 					<dl class="settings">
 						<dt>
-							<strong>', $txt['package_emulate'], ':</strong><br>
+							<strong>', $txt['package_emulate'], ':</strong><br />
 							<span class="smalltext">
 								<a href="#" onclick="return revert();">', $txt['package_emulate_revert'], '</a>
 							</span>
@@ -824,7 +824,7 @@ function template_servers()
 								<strong>', $txt['package_download_filename'], ':</strong>
 							</dt>
 							<dd>
-								<input type="text" name="filename" size="44"><br>
+								<input type="text" name="filename" size="44"><br />
 								<span class="smalltext">', $txt['package_download_filename_info'], '</span>
 							</dd>
 						</dl>
@@ -1057,7 +1057,7 @@ function template_downloaded()
 					<span class="package_server floatright">', $context['package']['install']['link'], '</span>
 				</li>
 			</ul>
-			<br><br>
+			<br /><br />
 			<p><a href="', $scripturl, '?action=admin;area=packages;get', (isset($context['package_server']) ? ';sa=browse;server=' . $context['package_server'] : ''), '">[ ', $txt['back'], ' ]</a></p>
 		</div>';
 }
@@ -1137,7 +1137,7 @@ function template_control_chmod()
 	if (empty($context['package_ftp']['form_elements_only']))
 	{
 		echo '
-				', sprintf($txt['package_ftp_why'], 'document.getElementById(\'need_writable_list\').style.display = \'\'; return false;'), '<br>
+				', sprintf($txt['package_ftp_why'], 'document.getElementById(\'need_writable_list\').style.display = \'\'; return false;'), '<br />
 				<div id="need_writable_list" class="smalltext">
 					', $txt['package_ftp_why_file_list'], '
 					<ul style="display: inline;">';
@@ -1153,7 +1153,7 @@ function template_control_chmod()
 		if (!$context['server']['is_windows'])
 			echo '
 					<hr>
-					', $txt['package_chmod_linux'], '<br>
+					', $txt['package_chmod_linux'], '<br />
 					<samp># chmod a+w ', implode(' ', $context['notwritable_files']), '</samp>';
 
 		echo '
@@ -1613,7 +1613,7 @@ function template_file_permissions()
 	echo '
 			</tbody>
 		</table>
-		<br>
+		<br />
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_file_perms_change'], '</h3>
 		</div>
@@ -1664,7 +1664,7 @@ function template_file_permissions()
 
 	echo '
 	</form>
-	<br>';
+	<br />';
 }
 
 /**
@@ -1782,7 +1782,7 @@ function template_action_permissions()
 	echo '
 			<div class="windowbg">
 				<div>
-					<strong>', $progress_message, '</strong><br>
+					<strong>', $progress_message, '</strong><br />
 					<div class="progress_bar progress_blue">
 						<span>', $progress_percent, '%</span>
 						<div class="bar" style="width: ', $progress_percent, '%;"></div>
@@ -1796,9 +1796,9 @@ function template_action_permissions()
 		$file_progress_percent = round($context['file_offset'] / $context['total_files'] * 100, 1);
 
 		echo '
-				<br>
+				<br />
 				<div>
-					<strong>', $file_progress_message, '</strong><br>
+					<strong>', $file_progress_message, '</strong><br />
 					<div class="progress_bar">
 						<span>', $file_progress_percent, '%</span>
 						<div class="bar" style="width: ', $file_progress_percent, '%;"></div>
@@ -1807,7 +1807,7 @@ function template_action_permissions()
 	}
 
 	echo '
-				<br>';
+				<br />';
 
 	// Put out the right hidden data.
 	if ($context['method'] == 'individual')

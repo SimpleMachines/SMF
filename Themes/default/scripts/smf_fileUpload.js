@@ -214,7 +214,7 @@ function smf_fileUpload(oOptions) {
 						error: function (xhr, textStatus, errorThrown) {
 
 							// Tell the user something horrible happen!
-							_innerElement.find('span.error').append(textStatus.error.join('<br>')).css({
+							_innerElement.find('span.error').append(textStatus.error.join('<br />')).css({
 								'text-decoration': 'none'
 							});
 
@@ -326,7 +326,7 @@ function smf_fileUpload(oOptions) {
 
 		// There is a general error.
 		if (responseText.generalErrors) {
-			_thisElement.find('span.error').append(responseText.generalErrors.join('<br>'));
+			_thisElement.find('span.error').append(responseText.generalErrors.join('<br />'));
 			return;
 		}
 
@@ -347,7 +347,7 @@ function smf_fileUpload(oOptions) {
 			_thisElement.addClass('errorbox').removeClass('descbox');
 
 			// Show the server error.
-			_thisElement.find('span.error').append(response.errors.join('<br>'));
+			_thisElement.find('span.error').append(response.errors.join('<br />'));
 			return;
 		}
 

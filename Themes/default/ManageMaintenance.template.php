@@ -289,7 +289,7 @@ function template_maintain_members()
 
 	foreach ($context['membergroups'] as $group)
 		echo '
-					<label for="groups', $group['id'], '"><input type="checkbox" name="groups[', $group['id'], ']" id="groups', $group['id'], '" checked> ', $group['name'], '</label><br>';
+					<label for="groups', $group['id'], '"><input type="checkbox" name="groups[', $group['id'], ']" id="groups', $group['id'], '" checked> ', $group['name'], '</label><br />';
 
 	echo '
 				</div>
@@ -380,12 +380,12 @@ function template_maintain_topics()
 						<a id="rotLink"></a>', $txt['maintain_old_since_days1'], '<input type="number" name="maxdays" value="30" size="3">', $txt['maintain_old_since_days2'], '
 					</p>
 					<p>
-						<label for="delete_type_nothing"><input type="radio" name="delete_type" id="delete_type_nothing" value="nothing"> ', $txt['maintain_old_nothing_else'], '</label><br>
-						<label for="delete_type_moved"><input type="radio" name="delete_type" id="delete_type_moved" value="moved" checked> ', $txt['maintain_old_are_moved'], '</label><br>
-						<label for="delete_type_locked"><input type="radio" name="delete_type" id="delete_type_locked" value="locked"> ', $txt['maintain_old_are_locked'], '</label><br>
+						<label for="delete_type_nothing"><input type="radio" name="delete_type" id="delete_type_nothing" value="nothing"> ', $txt['maintain_old_nothing_else'], '</label><br />
+						<label for="delete_type_moved"><input type="radio" name="delete_type" id="delete_type_moved" value="moved" checked> ', $txt['maintain_old_are_moved'], '</label><br />
+						<label for="delete_type_locked"><input type="radio" name="delete_type" id="delete_type_locked" value="locked"> ', $txt['maintain_old_are_locked'], '</label><br />
 					</p>
 					<p>
-						<label for="delete_old_not_sticky"><input type="checkbox" name="delete_old_not_sticky" id="delete_old_not_sticky" checked> ', $txt['maintain_old_are_not_stickied'], '</label><br>
+						<label for="delete_old_not_sticky"><input type="checkbox" name="delete_old_not_sticky" id="delete_old_not_sticky" checked> ', $txt['maintain_old_are_not_stickied'], '</label><br />
 					</p>
 					<p>
 						<a href="#rotLink" onclick="swapRot();"><img src="', $settings['images_url'], '/selected.png" alt="+" id="rotIcon"></a> <a href="#rotLink" onclick="swapRot();" id="rotText" style="font-weight: bold;">', $txt['maintain_old_all'], '</a>
@@ -497,8 +497,8 @@ function template_maintain_topics()
 					', $txt['manageposts_days'], ' (', $txt['move_zero_all'], ')
 				</p>
 				<p>
-					<label for="move_type_locked"><input type="checkbox" name="move_type_locked" id="move_type_locked" checked> ', $txt['move_type_locked'], '</label><br>
-					<label for="move_type_sticky"><input type="checkbox" name="move_type_sticky" id="move_type_sticky"> ', $txt['move_type_sticky'], '</label><br>
+					<label for="move_type_locked"><input type="checkbox" name="move_type_locked" id="move_type_locked" checked> ', $txt['move_type_locked'], '</label><br />
+					<label for="move_type_sticky"><input type="checkbox" name="move_type_sticky" id="move_type_sticky"> ', $txt['move_type_sticky'], '</label><br />
 				</p>
 				<input type="submit" value="', $txt['move_topics_now'], '" onclick="if (document.getElementById(\'id_board_from\').options[document.getElementById(\'id_board_from\').selectedIndex].disabled || document.getElementById(\'id_board_from\').options[document.getElementById(\'id_board_to\').selectedIndex].disabled) return false; var confirmText = \'', $txt['move_topics_confirm'] . '\'; return confirm(confirmText.replace(/%board_from%/, document.getElementById(\'id_board_from\').options[document.getElementById(\'id_board_from\').selectedIndex].text.replace(/^=+&gt;&nbsp;/, \'\')).replace(/%board_to%/, document.getElementById(\'id_board_to\').options[document.getElementById(\'id_board_to\').selectedIndex].text.replace(/^=+&gt;&nbsp;/, \'\')));" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -522,17 +522,17 @@ function template_optimize()
 		</div>
 		<div class="windowbg">
 			<p>
-				', $txt['database_numb_tables'], '<br>
-				', $txt['database_optimize_attempt'], '<br>';
+				', $txt['database_numb_tables'], '<br />
+				', $txt['database_optimize_attempt'], '<br />';
 
 	// List each table being optimized...
 	foreach ($context['optimized_tables'] as $table)
 		echo '
-				', sprintf($txt['database_optimizing'], $table['name'], $table['data_freed']), '<br>';
+				', sprintf($txt['database_optimizing'], $table['name'], $table['data_freed']), '<br />';
 
 	// How did we go?
 	echo '
-				<br>
+				<br />
 				', $context['num_tables_optimized'] == 0 ? $txt['database_already_optimized'] : $context['num_tables_optimized'] . ' ' . $txt['database_optimized'];
 
 	echo '

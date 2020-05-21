@@ -208,7 +208,7 @@ function ModerationMain($dont_call = false)
 		'help' => '',
 		'description' => '
 			<strong>' . $txt['hello_guest'] . ' ' . $context['user']['name'] . '!</strong>
-			<br><br>
+			<br /><br />
 			' . $txt['mc_description']);
 
 	// What a pleasant shortcut - even tho we're not *really* on the admin screen who cares...
@@ -1939,7 +1939,7 @@ function ModifyWarningTemplate()
 			// Clean up BBC.
 			preparsecode($_POST['template_body']);
 			// But put line breaks back!
-			$_POST['template_body'] = strtr($_POST['template_body'], array('<br>' => "\n"));
+			$_POST['template_body'] = strtr($_POST['template_body'], array('<br />' => "\n"));
 
 			// Is this personal?
 			$recipient_id = !empty($_POST['make_personal']) ? $user_info['id'] : 0;

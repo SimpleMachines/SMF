@@ -42,7 +42,7 @@ function template_main()
 		</div>
 		<div class="windowbg">
 			<div class="post" id="preview_body">
-				', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
+				', empty($context['preview_message']) ? '<br />' : $context['preview_message'], '
 			</div>
 		</div>
 	</div>';

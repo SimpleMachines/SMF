@@ -52,7 +52,7 @@ function template_reported_posts()
 			</div>
 			<hr>
 			', $report['body'], '
-			<br>';
+			<br />';
 
 		// Reported post options
 		template_quickbuttons($report['quickbuttons'], 'reported_posts');
@@ -206,7 +206,7 @@ function template_viewmodreport()
 			<div class="windowbg">
 				', $context['report']['body'], '
 			</div>
-			<br>
+			<br />
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mc_modreport_whoreported_title'], '</h3>
 			</div>';
@@ -221,7 +221,7 @@ function template_viewmodreport()
 			</div>';
 
 	echo '
-			<br>
+			<br />
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mc_modreport_mod_comments'], '</h3>
 			</div>
@@ -262,7 +262,7 @@ function template_viewmodreport()
 					<input type="hidden" name="', $context['mod-reportC-add_token_var'], '" value="', $context['mod-reportC-add_token'], '">
 				</div>
 			</div>
-			<br>';
+			<br />';
 
 	template_show_list('moderation_actions_list');
 
@@ -282,7 +282,7 @@ function template_edit_comment()
 	echo '
 	<div id="modcenter">
 		<form action="', $scripturl, '?action=moderate;area=reported', $context['report_type'], ';sa=editcomment;mid=', $context['comment_id'], ';rid=', $context['report_id'], ';save" method="post" accept-charset="', $context['character_set'], '">
-			<br>
+			<br />
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mc_modreport_edit_mod_comment'], '</h3>
 			</div>
@@ -292,7 +292,7 @@ function template_edit_comment()
 					<input type="submit" name="edit_comment" value="', $txt['mc_modreport_edit_mod_comment'], '" class="button">
 				</div>
 			</div>
-			<br>
+			<br />
 			<input type="hidden" name="', $context['mod-reportC-edit_token_var'], '" value="', $context['mod-reportC-edit_token'], '">
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
@@ -483,7 +483,7 @@ function template_viewmemberreport()
 	echo '
 				</h3>
 			</div>
-			<br>
+			<br />
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mc_memberreport_whoreported_title'], '</h3>
 			</div>';
@@ -498,7 +498,7 @@ function template_viewmemberreport()
 			</div>';
 
 	echo '
-			<br>
+			<br />
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mc_modreport_mod_comments'], '</h3>
 			</div>
@@ -537,7 +537,7 @@ function template_viewmemberreport()
 					<input type="hidden" name="', $context['mod-reportC-add_token_var'], '" value="', $context['mod-reportC-add_token'], '">
 				</div>
 			</div>
-			<br>';
+			<br />';
 
 	template_show_list('moderation_actions_list');
 

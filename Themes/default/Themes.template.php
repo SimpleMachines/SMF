@@ -53,7 +53,7 @@ function template_main()
 
 	foreach ($context['themes'] as $theme)
 		echo '
-							<label for="options-known_themes_', $theme['id'], '"><input type="checkbox" name="options[known_themes][]" id="options-known_themes_', $theme['id'], '" value="', $theme['id'], '"', $theme['known'] ? ' checked' : '', '> ', $theme['name'], '</label><br>';
+							<label for="options-known_themes_', $theme['id'], '"><input type="checkbox" name="options[known_themes][]" id="options-known_themes_', $theme['id'], '" value="', $theme['id'], '"', $theme['known'] ? ' checked' : '', '> ', $theme['name'], '</label><br />';
 
 	echo '
 						</div>
@@ -200,7 +200,7 @@ function template_list_themes()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['theme_settings'], '</h3>
 			</div>
-			<br>';
+			<br />';
 
 	// Show each theme.... with X for delete, an enable/disable link and a link to their own settings page.
 	foreach ($context['themes'] as $theme)
@@ -380,7 +380,7 @@ function template_set_options()
 
 		if (isset($setting['description']))
 			echo '
-						<br>
+						<br />
 						<span class="smalltext">', $setting['description'], '</span>';
 		echo '
 					</dt>';
@@ -593,7 +593,7 @@ function template_set_settings()
 						<label for="', $setting['id'], '">', !$titled_section ? '<strong>' : '', $setting['label'], !$titled_section ? '</strong>' : '', '</label>:';
 
 		if (isset($setting['description']))
-			echo '<br>
+			echo '<br />
 						<span class="smalltext">', $setting['description'], '</span>';
 
 		echo '
@@ -732,11 +732,11 @@ function template_pick()
 		}
 
 		echo '
-					<br>
+					<br />
 					<p>
 						<em class="smalltext">', $theme['num_users'], ' ', ($theme['num_users'] == 1 ? $txt['theme_user'] : $txt['theme_users']), '</em>
 					</p>
-					<br>
+					<br />
 					<ul>
 						<li class="lower_padding">
 							<input type="submit" name="save[', $theme['id'], ']" value="', $txt['theme_set'], '" class="button">
@@ -1058,11 +1058,11 @@ function template_edit_style()
 
 	if (!$context['allow_save'])
 		echo '
-				', $txt['theme_edit_no_save'], ': ', $context['allow_save_filename'], '<br>';
+				', $txt['theme_edit_no_save'], ': ', $context['allow_save_filename'], '<br />';
 
 	echo '
 				<textarea class="edit_file" name="entire_file" cols="80" rows="20" onkeyup="setPreviewTimeout();" onchange="refreshPreview(true);">', $context['entire_file'], '</textarea>
-				<br>
+				<br />
 				<div class="padding righttext">
 					<input type="submit" name="save" value="', $txt['theme_edit_save'], '"', $context['allow_save'] ? '' : ' disabled', ' class="button">
 					<input type="button" value="', $txt['themeadmin_edit_preview'], '" onclick="refreshPreview(false);" class="button">
@@ -1110,11 +1110,11 @@ function template_edit_template()
 
 	if (!$context['allow_save'])
 		echo '
-				', $txt['theme_edit_no_save'], ': ', $context['allow_save_filename'], '<br>';
+				', $txt['theme_edit_no_save'], ': ', $context['allow_save_filename'], '<br />';
 
 	foreach ($context['file_parts'] as $part)
 		echo '
-				<label for="on_line', $part['line'], '">', $txt['themeadmin_edit_on_line'], ' ', $part['line'], '</label>:<br>
+				<label for="on_line', $part['line'], '">', $txt['themeadmin_edit_on_line'], ' ', $part['line'], '</label>:<br />
 				<div class="centertext">
 					<textarea id="on_line', $part['line'], '" name="entire_file[]" cols="80" rows="', $part['lines'] > 14 ? '14' : $part['lines'], '" class="edit_file">', $part['data'], '</textarea>
 				</div>';
@@ -1163,7 +1163,7 @@ function template_edit_file()
 				<h3 class="catbg">', $txt['theme_edit'], ' - ', $context['edit_filename'], '</h3>
 			</div>
 			<div class="windowbg">
-				<textarea name="entire_file" id="entire_file" cols="80" rows="20" class="edit_file">', $context['entire_file'], '</textarea><br>
+				<textarea name="entire_file" id="entire_file" cols="80" rows="20" class="edit_file">', $context['entire_file'], '</textarea><br />
 				<input type="submit" name="save" value="', $txt['theme_edit_save'], '"', $context['allow_save'] ? '' : ' disabled', ' class="button">
 				<input type="hidden" name="filename" value="', $context['edit_filename'], '">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">';

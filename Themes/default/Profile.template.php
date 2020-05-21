@@ -250,7 +250,7 @@ function template_summary()
 	// Can they add this member as a buddy?
 	if (!empty($context['can_have_buddy']) && !$context['user']['is_owner'])
 		echo '
-				<br>
+				<br />
 				<a href="', $scripturl, '?action=buddy;u=', $context['id_member'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['buddy_' . ($context['member']['is_buddy'] ? 'remove' : 'add')], '</a>';
 
 	echo '
@@ -391,7 +391,7 @@ function template_summary()
 
 			foreach ($context['member']['bans'] as $ban)
 				echo '
-					<br>
+					<br />
 					<span class="smalltext">', $ban['explanation'], '</span>';
 
 			echo '
@@ -975,7 +975,7 @@ function template_trackActivity()
 			<dl class="settings noborder">
 				<dt>
 					', $txt['most_recent_ip'], ':
-					', (empty($context['last_ip2']) ? '' : '<br>
+					', (empty($context['last_ip2']) ? '' : '<br />
 					<span class="smalltext">(<a href="' . $scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . $txt['why_two_ip_address'] . '</a>)</span>'), '
 				</dt>
 				<dd>
@@ -1039,7 +1039,7 @@ function template_trackIP()
 				<input type="submit" value="', $txt['trackIP'], '" class="button">
 			</form>
 		</div>
-		<br>';
+		<br />';
 
 	// The table inbetween the first and second table shows links to the whois server for every region.
 	if ($context['single_ip'])
@@ -1052,10 +1052,10 @@ function template_trackIP()
 
 		foreach ($context['whois_servers'] as $server)
 			echo '
-			<a href="', $server['url'], '" target="_blank" rel="noopener"', '>', $server['name'], '</a><br>';
+			<a href="', $server['url'], '" target="_blank" rel="noopener"', '>', $server['name'], '</a><br />';
 		echo '
 		</div>
-		<br>';
+		<br />';
 	}
 
 	// The second table lists all the members who have been logged as using this IP address.
@@ -1096,11 +1096,11 @@ function template_trackIP()
 	}
 
 	echo '
-		<br>';
+		<br />';
 
 	template_show_list('track_message_list');
 
-	echo '<br>';
+	echo '<br />';
 
 	template_show_list('track_user_list');
 
@@ -1109,7 +1109,7 @@ function template_trackIP()
 	{
 		foreach ($context['additional_track_lists'] as $list)
 		{
-			echo '<br>';
+			echo '<br />';
 
 			template_show_list($list);
 		}
@@ -1147,7 +1147,7 @@ function template_showPermissions()
 				<h3 class="catbg">', $txt['showPermissions_restricted_boards'], '</h3>
 			</div>
 			<div class="windowbg smalltext">
-				', $txt['showPermissions_restricted_boards_desc'], ':<br>';
+				', $txt['showPermissions_restricted_boards_desc'], ':<br />';
 
 			foreach ($context['no_access_boards'] as $no_access_board)
 				echo '
@@ -1198,7 +1198,7 @@ function template_showPermissions()
 					</tbody>
 				</table>
 			</div><!-- .tborder -->
-			<br>';
+			<br />';
 		}
 		else
 			echo '
@@ -1500,7 +1500,7 @@ function template_edit_options()
 			// Does it have any subtext to show?
 			if (!empty($field['subtext']))
 				echo '
-						<br>
+						<br />
 						<span class="smalltext">', $field['subtext'], '</span>';
 
 			echo '
@@ -1585,7 +1585,7 @@ function template_edit_options()
 		foreach ($context['custom_fields'] as $field)
 			echo '
 					<dt>
-						<strong>', $field['name'], ': </strong><br>
+						<strong>', $field['name'], ': </strong><br />
 						<span class="smalltext">', $field['desc'], '</span>
 					</dt>
 					<dd>
@@ -1606,7 +1606,7 @@ function template_edit_options()
 		echo '
 				<dl class="settings">
 					<dt>
-						<strong', isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : '', '><label for="oldpasswrd">', $txt['current_password'], ': </label></strong><br>
+						<strong', isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : '', '><label for="oldpasswrd">', $txt['current_password'], ': </label></strong><br />
 						<span class="smalltext">', $txt['required_security_reasons'], '</span>
 					</dt>
 					<dd>
@@ -1795,7 +1795,7 @@ function template_profile_theme_settings()
 
 		if (isset($setting['description']))
 			echo '
-						<br>
+						<br />
 						<span class="smalltext">', $setting['description'], '</span>';
 		echo '
 					</dt>
@@ -1994,7 +1994,7 @@ function template_alert_configuration()
 
 	echo '
 			</table>
-			<br>
+			<br />
 			<div>
 				<input id="notify_submit" type="submit" name="notify_submit" value="', $txt['notify_save'], '" class="button">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">', !empty($context['token_check']) ? '
@@ -2003,7 +2003,7 @@ function template_alert_configuration()
 				<input type="hidden" name="sa" value="', $context['menu_item_selected'], '">
 			</div>
 		</form>
-		<br>';
+		<br />';
 }
 
 /**
@@ -2021,7 +2021,7 @@ function template_alert_notifications_topics()
 			</h3>
 		</div>
 		<p class="information">', $txt['watched_topics_desc'], '</p>
-		<br>';
+		<br />';
 
 	template_show_list('topic_notification_list');
 }
@@ -2040,7 +2040,7 @@ function template_alert_notifications_boards()
 			</h3>
 		</div>
 		<p class="information">', $txt['watched_boards_desc'], '</p>
-		<br>';
+		<br />';
 
 	template_show_list('board_notification_list');
 }
@@ -2107,7 +2107,7 @@ function template_groupMembership()
 					<input type="radio" name="primary" id="primary_', $group['id'], '" value="', $group['id'], '"', $group['is_primary'] ? ' checked' : '', ' onclick="highlightSelected(\'primdiv_' . $group['id'] . '\');"', $group['can_be_primary'] ? '' : ' disabled', '>';
 
 			echo '
-					<label for="primary_', $group['id'], '"><strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br><span class="smalltext">' . $group['desc'] . '</span>' : ''), '</label>';
+					<label for="primary_', $group['id'], '"><strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br /><span class="smalltext">' . $group['desc'] . '</span>' : ''), '</label>';
 
 			// Can they leave their group?
 			if ($group['can_leave'])
@@ -2136,7 +2136,7 @@ function template_groupMembership()
 			{
 				echo '
 				<div class="windowbg">
-					<strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br><span class="smalltext">' . $group['desc'] . '</span>' : ''), '';
+					<strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br /><span class="smalltext">' . $group['desc'] . '</span>' : ''), '';
 
 				if ($group['type'] == 3)
 					echo '
@@ -2242,7 +2242,7 @@ function template_ignoreboards()
 	echo '
 		</div><!-- .windowbg -->
 	</form>
-	<br>';
+	<br />';
 }
 
 /**
@@ -2404,7 +2404,7 @@ function template_issueWarning()
 	// Is there only so much they can apply?
 	if ($context['warning_limit'])
 		echo '
-					<br>
+					<br />
 					<span class="smalltext">', sprintf($txt['profile_warning_limit_attribute'], $context['warning_limit']), '</span>';
 
 	echo '
@@ -2420,7 +2420,7 @@ function template_issueWarning()
 	{
 		echo '
 				<dt>
-					<strong>', $txt['profile_warning_reason'], ':</strong><br>
+					<strong>', $txt['profile_warning_reason'], ':</strong><br />
 					<span class="smalltext">', $txt['profile_warning_reason_desc'], '</span>
 				</dt>
 				<dd>
@@ -2467,7 +2467,7 @@ function template_issueWarning()
 		echo '
 					</select>
 					<span class="smalltext" id="new_template_link" style="display: none;">[<a href="', $scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=0" target="_blank" rel="noopener">', $txt['profile_warning_new_template'], '</a>]</span>
-					<br>
+					<br />
 					<textarea name="warn_body" id="warn_body" cols="40" rows="8">', $context['warning_data']['notify_body'], '</textarea>
 				</dd>';
 	}
@@ -2600,7 +2600,7 @@ function template_deleteAccount()
 				<div>
 					<label for="deleteVotes">
 						<input type="checkbox" name="deleteVotes" id="deleteVotes" value="1"> ', $txt['deleteAccount_votes'], ':
-					</label><br>
+					</label><br />
 					<label for="deletePosts">
 						<input type="checkbox" name="deletePosts" id="deletePosts" value="1"> ', $txt['deleteAccount_posts'], ':
 					</label>
@@ -2611,7 +2611,7 @@ function template_deleteAccount()
 
 			if ($context['show_perma_delete'])
 				echo '
-					<br>
+					<br />
 					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1">', $txt['deleteAccount_permanent'], '</label>';
 
 			echo '
@@ -2637,7 +2637,7 @@ function template_deleteAccount()
 	}
 	echo '
 			</div><!-- .windowbg -->
-			<br>
+			<br />
 		</form>';
 }
 
@@ -2657,7 +2657,7 @@ function template_profile_save()
 		echo '
 					<dl class="settings">
 						<dt>
-							<strong', isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : '', '>', $txt['current_password'], ': </strong><br>
+							<strong', isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : '', '>', $txt['current_password'], ': </strong><br />
 							<span class="smalltext">', $txt['required_security_reasons'], '</span>
 						</dt>
 						<dd>
@@ -2718,7 +2718,7 @@ function template_profile_group_manage()
 
 	echo '
 							<dt>
-								<strong>', $txt['primary_membergroup'], ': </strong><br>
+								<strong>', $txt['primary_membergroup'], ': </strong><br />
 								<span class="smalltext"><a href="', $scripturl, '?action=helpadmin;help=moderator_why_missing" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ', $txt['moderator_why_missing'], '</a></span>
 							</dt>
 							<dd>
@@ -2746,7 +2746,7 @@ function template_profile_group_manage()
 	foreach ($context['member_groups'] as $member_group)
 		if ($member_group['can_be_additional'])
 			echo '
-									<label for="additional_groups-', $member_group['id'], '"><input type="checkbox" name="additional_groups[]" value="', $member_group['id'], '" id="additional_groups-', $member_group['id'], '"', $member_group['is_additional'] ? ' checked' : '', '> ', $member_group['name'], '</label><br>';
+									<label for="additional_groups-', $member_group['id'], '"><input type="checkbox" name="additional_groups[]" value="', $member_group['id'], '" id="additional_groups-', $member_group['id'], '"', $member_group['is_additional'] ? ' checked' : '', '> ', $member_group['name'], '</label><br />';
 
 	echo '
 								</span>
@@ -2769,7 +2769,7 @@ function template_profile_birthdate()
 	// Just show the pretty box!
 	echo '
 							<dt>
-								<strong>', $txt['dob'], ':</strong><br>
+								<strong>', $txt['dob'], ':</strong><br />
 								<span class="smalltext">', $txt['dob_year'], ' - ', $txt['dob_month'], ' - ', $txt['dob_day'], '</span>
 							</dt>
 							<dd>
@@ -2802,9 +2802,9 @@ function template_profile_signature_modify()
 							</dd>
 
 							<dt>
-								<strong>', $txt['signature'], ':</strong><br>
-								<span class="smalltext">', $txt['sig_info'], '</span><br>
-								<br>';
+								<strong>', $txt['signature'], ':</strong><br />
+								<span class="smalltext">', $txt['sig_info'], '</span><br />
+								<br />';
 
 	if ($context['show_spellchecking'])
 		echo '
@@ -2813,12 +2813,12 @@ function template_profile_signature_modify()
 	echo '
 							</dt>
 							<dd>
-								<textarea class="editor" onkeyup="calcCharLeft();" id="signature" name="signature" rows="5" cols="50">', $context['member']['signature'], '</textarea><br>';
+								<textarea class="editor" onkeyup="calcCharLeft();" id="signature" name="signature" rows="5" cols="50">', $context['member']['signature'], '</textarea><br />';
 
 	// If there is a limit at all!
 	if (!empty($context['signature_limits']['max_length']))
 		echo '
-								<span class="smalltext">', sprintf($txt['max_sig_characters'], $context['signature_limits']['max_length']), ' <span id="signatureLeft">', $context['signature_limits']['max_length'], '</span></span><br>';
+								<span class="smalltext">', sprintf($txt['max_sig_characters'], $context['signature_limits']['max_length']), ' <span id="signatureLeft">', $context['signature_limits']['max_length'], '</span></span><br />';
 
 	if (!empty($context['show_preview_button']))
 		echo '
@@ -2862,28 +2862,28 @@ function template_profile_avatar_select()
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_none" value="none"' . ($context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_none"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									' . $txt['no_avatar'] . '
-								</label><br>';
+								</label><br />';
 
 	if (!empty($context['member']['avatar']['allow_server_stored']))
 		echo '
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_server_stored" value="server_stored"' . ($context['member']['avatar']['choice'] == 'server_stored' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_server_stored"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									', $txt['choose_avatar_gallery'], '
-								</label><br>';
+								</label><br />';
 
 	if (!empty($context['member']['avatar']['allow_external']))
 		echo '
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_external" value="external"' . ($context['member']['avatar']['choice'] == 'external' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_external"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									', $txt['my_own_pic'], '
-								</label><br>';
+								</label><br />';
 
 	if (!empty($context['member']['avatar']['allow_upload']))
 		echo '
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_upload" value="upload"' . ($context['member']['avatar']['choice'] == 'upload' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_upload"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
 									', $txt['avatar_will_upload'], '
-								</label><br>';
+								</label><br />';
 
 	if (!empty($context['member']['avatar']['allow_gravatar']))
 		echo '
@@ -2951,7 +2951,7 @@ function template_profile_avatar_select()
 								<div id="avatar_upload">
 									', $context['member']['avatar']['choice'] == 'upload' ? '<div class="edit_avatar_img"><img src="' . $context['member']['avatar']['href'] . '" alt=""></div>' : '', '
 									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onchange="readfromUpload(this)"  onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" accept="image/gif, image/jpeg, image/jpg, image/png">', template_max_size('upload'), '
-									', (!empty($context['member']['avatar']['id_attach']) ? '<br><img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt="" id="attached_image"><input type="hidden" name="id_attach" value="' . $context['member']['avatar']['id_attach'] . '">' : ''), '
+									', (!empty($context['member']['avatar']['id_attach']) ? '<br /><img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt="" id="attached_image"><input type="hidden" name="id_attach" value="' . $context['member']['avatar']['id_attach'] . '">' : ''), '
 								</div>';
 
 	// if the user is able to use Gravatar avatars show then the image preview
@@ -3058,7 +3058,7 @@ function template_profile_timeformat_modify()
 
 	echo '
 							<dt>
-								<strong><label for="easyformat">', $txt['time_format'], ':</label></strong><br>
+								<strong><label for="easyformat">', $txt['time_format'], ':</label></strong><br />
 								<a href="', $scripturl, '?action=helpadmin;help=time_format" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 								<span class="smalltext">
 									<label for="time_format">', $txt['date_format'], '</label>
@@ -3151,7 +3151,7 @@ function template_tfasetup()
 					<div class="floatleft">
 						<form action="', $scripturl, '?action=profile;area=tfasetup" method="post">
 							<div class="block">
-								<strong>', $txt['tfa_step1'], '</strong><br>';
+								<strong>', $txt['tfa_step1'], '</strong><br />';
 
 	if (!empty($context['tfa_pass_error']))
 		echo '
@@ -3168,7 +3168,7 @@ function template_tfasetup()
 								<div class="tfacode">', $context['tfa_secret'], '</div>
 							</div>
 							<div class="block">
-								<strong>', $txt['tfa_step3'], '</strong><br>';
+								<strong>', $txt['tfa_step3'], '</strong><br />';
 
 	if (!empty($context['tfa_error']))
 		echo '
@@ -3193,7 +3193,7 @@ function template_tfasetup()
 
 	if (!empty($context['from_ajax']))
 		echo '
-					<br>
+					<br />
 					<a href="javascript:self.close();"></a>';
 
 	echo '
@@ -3218,7 +3218,7 @@ function template_tfadisable()
 	if ($context['user']['is_owner'])
 		echo '
 					<div class="block">
-						<strong', (isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : ''), '>', $txt['current_password'], ': </strong><br>
+						<strong', (isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : ''), '>', $txt['current_password'], ': </strong><br />
 						<input type="password" name="oldpasswrd" size="20">
 					</div>';
 	else
@@ -3264,7 +3264,7 @@ function template_profile_tfa()
 
 	echo '
 							<dt>
-								<strong>', $txt['tfa_profile_label'], ':</strong><br>
+								<strong>', $txt['tfa_profile_label'], ':</strong><br />
 								<div class="smalltext">', $txt['tfa_profile_desc'], '</div>
 							</dt>
 							<dd>';

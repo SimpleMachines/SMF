@@ -149,7 +149,7 @@ function template_unread()
 						<div class="board_stats centertext">
 							<p>
 								', $topic['replies'], ' ', $txt['replies'], '
-								<br>
+								<br />
 								', $topic['views'], ' ', $txt['views'], '
 							</p>
 						</div>
@@ -300,7 +300,7 @@ function template_replies()
 						<div class="board_stats centertext">
 							<p>
 								', $topic['replies'], ' ', $txt['replies'], '
-								<br>
+								<br />
 								', $topic['views'], ' ', $txt['views'], '
 							</p>
 						</div>

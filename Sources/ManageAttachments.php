@@ -528,7 +528,7 @@ function BrowseFiles()
 
 						// Add a link to the topic in case of an attachment.
 						if ($context['browse_type'] !== 'avatars')
-							$date .= sprintf('<br>%1$s <a href="%2$s?topic=%3$d.msg%4$d#msg%4$d">%5$s</a>', $txt['in'], $scripturl, $rowData['id_topic'], $rowData['id_msg'], $rowData['subject']);
+							$date .= sprintf('<br />%1$s <a href="%2$s?topic=%3$d.msg%4$d#msg%4$d">%5$s</a>', $txt['in'], $scripturl, $rowData['id_topic'], $rowData['id_msg'], $rowData['subject']);
 
 						return $date;
 					},
@@ -792,7 +792,7 @@ function MaintainFiles()
 	$context['checked'] = isset($_SESSION['checked']) ? $_SESSION['checked'] : true;
 	if (!empty($_SESSION['results']))
 	{
-		$context['results'] = implode('<br>', $_SESSION['results']);
+		$context['results'] = implode('<br />', $_SESSION['results']);
 		unset($_SESSION['results']);
 	}
 }
@@ -828,7 +828,7 @@ function RemoveAttachmentByAge()
 				WHERE id_msg IN ({array_int:messages})',
 				array(
 					'messages' => $messages,
-					'notice' => '<br><br>' . $_POST['notice'],
+					'notice' => '<br /><br />' . $_POST['notice'],
 				)
 			);
 	}
@@ -864,7 +864,7 @@ function RemoveAttachmentBySize()
 			WHERE id_msg IN ({array_int:messages})',
 			array(
 				'messages' => $messages,
-				'notice' => '<br><br>' . $_POST['notice'],
+				'notice' => '<br /><br />' . $_POST['notice'],
 			)
 		);
 
@@ -909,7 +909,7 @@ function RemoveAttachment()
 					WHERE id_msg IN ({array_int:messages_affected})',
 					array(
 						'messages_affected' => $messages,
-						'deleted_message' => '<br><br>' . $txt['attachment_delete_admin'],
+						'deleted_message' => '<br /><br />' . $txt['attachment_delete_admin'],
 					)
 				);
 				loadLanguage('index', $user_info['language'], true);
@@ -945,7 +945,7 @@ function RemoveAllAttachments()
 			WHERE id_msg IN ({array_int:messages})',
 			array(
 				'messages' => $messages,
-				'deleted_message' => '<br><br>' . $_POST['notice'],
+				'deleted_message' => '<br /><br />' . $_POST['notice'],
 			)
 		);
 
@@ -2339,7 +2339,7 @@ function ManageAttachmentPaths()
 				'class' => 'information'
 			) : array(
 				'position' => 'top_of_list',
-				'value' => $txt['attach_dir_save_problem'] . '<br>' . implode('<br>', $errors['dir']),
+				'value' => $txt['attach_dir_save_problem'] . '<br />' . implode('<br />', $errors['dir']),
 				'style' => 'padding-left: 35px;',
 				'class' => 'noticebox',
 			),
@@ -2417,7 +2417,7 @@ function ManageAttachmentPaths()
 					'class' => 'windowbg smalltext'
 				) : array(
 					'position' => 'top_of_list',
-					'value' => $txt['attach_dir_save_problem'] . '<br>' . implode('<br>', $errors['base']),
+					'value' => $txt['attach_dir_save_problem'] . '<br />' . implode('<br />', $errors['base']),
 					'style' => 'padding-left: 35px',
 					'class' => 'noticebox',
 				),
@@ -2494,7 +2494,7 @@ function list_getAttachDirs()
 			'path' => $dir,
 			'current_size' => !empty($expected_size[$id]) ? comma_format($expected_size[$id] / 1024, 0) : 0,
 			'num_files' => comma_format($expected_files[$id] - $sub_dirs, 0) . ($sub_dirs > 0 ? ' (' . $sub_dirs . ')' : ''),
-			'status' => ($is_base_dir ? $txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . sprintf($txt['attach_dir_' . $status], $context['session_id'], $context['session_var']) . ($error ? '</div>' : ''),
+			'status' => ($is_base_dir ? $txt['attach_dir_basedir'] . '<br />' : '') . ($error ? '<div class="error">' : '') . sprintf($txt['attach_dir_' . $status], $context['session_id'], $context['session_var']) . ($error ? '</div>' : ''),
 		);
 	}
 

@@ -491,7 +491,7 @@ function template_user_watch_post_callback($post)
 	$output_html .= '
 						</div>
 					</div>
-					<br>
+					<br />
 					<div class="smalltext">
 						&#171; ' . $txt['mc_watched_users_posted'] . ': ' . $post['poster_time'] . ' &#187;
 					</div>
@@ -581,7 +581,7 @@ function template_warn_template()
 							<strong id="error_serious">', $txt['error_while_submitting'], '</strong>
 						</dt>
 						<dd class="error" id="error_list">
-							', empty($context['warning_errors']) ? '' : implode('<br>', $context['warning_errors']), '
+							', empty($context['warning_errors']) ? '' : implode('<br />', $context['warning_errors']), '
 						</dd>
 					</dl>
 				</div>
@@ -603,7 +603,7 @@ function template_warn_template()
 						<input type="text" id="template_title" name="template_title" value="', $context['template_data']['title'], '" size="30">
 					</dd>
 					<dt>
-						<strong><label for="template_body">', $txt['profile_warning_notify_body'], '</label>:</strong><br>
+						<strong><label for="template_body">', $txt['profile_warning_notify_body'], '</label>:</strong><br />
 						<span class="smalltext">', $txt['mc_warning_template_body_desc'], '</span>
 					</dt>
 					<dd>
@@ -650,7 +650,7 @@ function template_warn_template()
 						$("#errors").css({display:""});
 						var errors_html = \'\';
 						var errors = $(request).find(\'error\').each(function() {
-							errors_html += $(this).text() + \'<br>\';
+							errors_html += $(this).text() + \'<br />\';
 						});
 
 						$(document).find("#error_list").html(errors_html);

@@ -111,7 +111,7 @@ function template_show_upcoming_list($grid_name)
 					echo ' <a href="' . $event['export_href'] . '"><span class="main_icons calendar_export" title="', $txt['calendar_export'], '"></span></a>';
 
 				echo '
-						<br>';
+						<br />';
 
 				if (!empty($event['allday']))
 				{
@@ -148,7 +148,7 @@ function template_show_upcoming_list($grid_name)
 				}
 
 				if (!empty($event['location']))
-					echo '<br>', $event['location'];
+					echo '<br />', $event['location'];
 
 				echo '
 					</li>';
@@ -391,7 +391,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 							// 9...10! Let's stop there.
 							if ($birthday_count == 10 && $use_js_hide)
 								// !!TODO - Inline CSS and JavaScript should be moved.
-								echo '<span class="hidelink" id="bdhidelink_', $day['day'], '">...<br><a href="', $scripturl, '?action=calendar;month=', $calendar_data['current_month'], ';year=', $calendar_data['current_year'], ';showbd" onclick="document.getElementById(\'bdhide_', $day['day'], '\').classList.remove(\'hidden\'); document.getElementById(\'bdhidelink_', $day['day'], '\').classList.add(\'hidden\'); return false;">(', sprintf($txt['calendar_click_all'], count($day['birthdays'])), ')</a></span><span id="bdhide_', $day['day'], '" class="hidden">, ';
+								echo '<span class="hidelink" id="bdhidelink_', $day['day'], '">...<br /><a href="', $scripturl, '?action=calendar;month=', $calendar_data['current_month'], ';year=', $calendar_data['current_year'], ';showbd" onclick="document.getElementById(\'bdhide_', $day['day'], '\').classList.remove(\'hidden\'); document.getElementById(\'bdhidelink_', $day['day'], '\').classList.add(\'hidden\'); return false;">(', sprintf($txt['calendar_click_all'], count($day['birthdays'])), ')</a></span><span id="bdhide_', $day['day'], '" class="hidden">, ';
 
 							++$birthday_count;
 						}
@@ -416,7 +416,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 
 						echo '
 						<div class="smalltext lefttext">
-							<span class="event">', $txt['events'], '</span><br>';
+							<span class="event">', $txt['events'], '</span><br />';
 
 						/* The events are made up of:
 							title, href, is_last, can_edit (are they allowed to?), and modify_href. */
@@ -426,7 +426,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 
 							echo '
 							<div class="event_wrapper', $event['starts_today'] == true ? ' event_starts_today' : '', $event['ends_today'] == true ? ' event_ends_today' : '', $event['allday'] == true ? ' allday' : '', $event['is_selected'] ? ' sel_event' : '', '">
-								', $event['link'], '<br>
+								', $event['link'], '<br />
 								<span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
 
 							if (!empty($event['start_time_local']) && $event['starts_today'] == true)
@@ -441,7 +441,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 
 							if (!empty($event['location']))
 								echo '
-								<br>
+								<br />
 								<span class="event_location', empty($event_icons_needed) ? ' floatright' : '', '">' . $event['location'] . '</span>';
 
 							if ($event['can_edit'] || $event['can_export'])
@@ -613,7 +613,7 @@ function template_show_week_grid($grid_name)
 
 					$event_icons_needed = ($event['can_edit'] || $event['can_export']) ? true : false;
 
-					echo $event['link'], '<br>
+					echo $event['link'], '<br />
 								<span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
 
 					if (!empty($event['start_time_local']))
@@ -625,7 +625,7 @@ function template_show_week_grid($grid_name)
 								</span>';
 
 					if (!empty($event['location']))
-						echo '<br>
+						echo '<br />
 								<span class="event_location', empty($event_icons_needed) ? ' floatright' : '', '">' . $event['location'] . '</span>';
 
 					if (!empty($event_icons_needed))
@@ -677,7 +677,7 @@ function template_show_week_grid($grid_name)
 
 			// Show any holidays!
 			if (!empty($day['holidays']))
-				echo implode('<br>', $day['holidays']);
+				echo implode('<br />', $day['holidays']);
 
 			echo '
 						</td>
@@ -690,7 +690,7 @@ function template_show_week_grid($grid_name)
 					echo '
 							<a href="', $scripturl, '?action=profile;u=', $member['id'], '">', $member['name'], '</a>
 							', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '
-							', $member['is_last'] ? '' : '<br>';
+							', $member['is_last'] ? '' : '<br />';
 			}
 			echo '
 						</td>
@@ -773,7 +773,7 @@ function template_event_post()
 							', $context['error_type'] == 'serious' ? '<strong>' . $txt['error_while_submitting'] . '</strong>' : '', '
 						</dt>
 						<dt class="error">
-							', implode('<br>', $context['post_error']['messages']), '
+							', implode('<br />', $context['post_error']['messages']), '
 						</dt>
 					</dl>
 				</div>';
@@ -895,7 +895,7 @@ function template_bcd()
 
 		foreach ($v as $i)
 			echo '
-					<img src="', $context['offimg'], '" alt="" id="', $t, '_', $i, '"><br>';
+					<img src="', $context['offimg'], '" alt="" id="', $t, '_', $i, '"><br />';
 
 		echo '
 				</td>';

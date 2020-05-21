@@ -92,9 +92,9 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 					if ($pref & self::RECEIVE_NOTIFY_ALERT)
 					{
 						$alertdata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
-						// For the alerts, we need to replace \n line breaks with <br> line breaks.
+						// For the alerts, we need to replace \n line breaks with <br /> line breaks.
 						// For space saving sake, we'll be removing extra line breaks
-						$alertdata['body'] = preg_replace("~\s*[\r\n]+\s*~", '<br>', $alertdata['body']);
+						$alertdata['body'] = preg_replace("~\s*[\r\n]+\s*~", '<br />', $alertdata['body']);
 						$alert_rows[] = array(
 							'alert_time' => time(),
 							'id_member' => $member_id,
