@@ -1791,7 +1791,7 @@ function forumProfile($memID)
 		loadCustomFields($memID, 'forumprofile');
 
 	$context['sub_template'] = 'edit_options';
-	$context['page_desc'] = $txt['forumProfile_info'];
+	$context['page_desc'] = sprintf($txt['forumProfile_info'], $context['forum_name_html_safe']);
 	$context['show_preview_button'] = true;
 
 	setupProfileContext(
