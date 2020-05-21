@@ -29,7 +29,16 @@ function template_popup()
 	</head>
 	<body id="help_popup">
 		<div class="windowbg description">
-			', $context['help_text'], '<br>
+			';
+
+	if ($_GET['help'] == 'cal_short_months')
+		echo sprintf($context['help_text'], $txt['months_short'][1], $txt['months_titles'][1]);
+	elseif ($_GET['help'] == 'cal_short_days')
+		echo sprintf($context['help_text'], $txt['days_short'][1], $txt['days'][1]);
+	else
+		echo $context['help_text'];
+
+	echo '<br>
 			<br>
 			<a href="javascript:self.close();">', $txt['close_window'], '</a>
 		</div>
