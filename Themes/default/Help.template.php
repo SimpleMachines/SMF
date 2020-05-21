@@ -36,7 +36,7 @@ function template_popup()
 	elseif ($_GET['help'] == 'cal_short_days')
 		echo sprintf($context['help_text'], $txt['days_short'][1], $txt['days'][1]);
 	elseif ($_GET['help'] == 'enableSpellChecking')
-		echo sprintf($context['help_text'], ((function_exists('pspell_new') || function_exists('enchant_broker_init')) ? $helptxt['enableSpellCheckingSupported'] : $helptxt['enableSpellCheckingUnsupported']))
+		echo sprintf($context['help_text'], ((function_exists('pspell_new') || function_exists('enchant_broker_init')) ? $helptxt['enableSpellCheckingSupported'] : $helptxt['enableSpellCheckingUnsupported']));
 	else
 		echo $context['help_text'];
 
