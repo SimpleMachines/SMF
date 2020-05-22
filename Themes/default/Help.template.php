@@ -15,7 +15,7 @@
  */
 function template_popup()
 {
-	global $context, $settings, $txt, $modSettings, $scripturl;
+	global $context, $settings, $txt, $modSettings, $scripturl, $boarddir, $boardurl;
 
 	// Since this is a popup of its own we need to start the html, etc.
 	echo '<!DOCTYPE html>
@@ -35,6 +35,8 @@ function template_popup()
 		echo sprintf($context['help_text'], $txt['months_short'][1], $txt['months_titles'][1]);
 	elseif ($_GET['help'] == 'cal_short_days')
 		echo sprintf($context['help_text'], $txt['days_short'][1], $txt['days'][1]);
+	elseif ($_GET['help'] == 'cron_is_real_cron')
+		echo sprintf($context['help_text'], $boarddir, $boardurl);
 	elseif ($_GET['help'] == 'enableSpellChecking')
 		echo sprintf($context['help_text'], ((function_exists('pspell_new') || function_exists('enchant_broker_init')) ? $helptxt['enableSpellCheckingSupported'] : $helptxt['enableSpellCheckingUnsupported']));
 	elseif ($_GET['help'] == 'pgFulltextSearch')
