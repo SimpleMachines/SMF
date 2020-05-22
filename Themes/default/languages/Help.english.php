@@ -195,7 +195,9 @@ $helptxt['cal_disable_prev_next'] = 'If this setting is checked, the three month
 $helptxt['cal_display_type'] = 'This setting allows you to change the display type of the calendar.<br><br><strong>Comfortable:</strong> makes the rows of the calendar big.<br><strong>Compact:</strong> makes the rows of the calendar small.';
 $helptxt['cal_week_links'] = 'If this setting is checked, links will be added alongside each week in the calendar.';
 $helptxt['cal_prev_next_links'] = 'If this setting is checked, previous month and next month links will be added to the top of each month for easy navigation.';
+// argument(s): $txt['months_short'][1], $txt['months_titles'][1]
 $helptxt['cal_short_months'] = 'If this setting is checked, month names within the calendar will be shortened.<br><br><strong>Enabled:</strong> %1$s 1<br><strong>Disabled:</strong> %2$s 1';
+// argument(s): $txt['days_short'][1], $txt['days'][1]
 $helptxt['cal_short_days'] = 'If this setting is checked, day names within the calendar will be shortened.<br><br><strong>Enabled:</strong> %1$s<br><strong>Disabled:</strong> %2$s';
 
 $helptxt['serversettings'] = '<strong>Server Settings</strong><br>
