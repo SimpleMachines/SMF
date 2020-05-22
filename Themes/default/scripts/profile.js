@@ -258,7 +258,7 @@ function readfromUpload(input) {
 			var tempImage = new Image();
 				tempImage.src = e.target.result;
 
-			var uploadedImage = $('<img />', {
+			var uploadedImage = $('<img>', {
 				id: 'attached_image_new',
 				src: e.target.result,
 				image: tempImage.width,

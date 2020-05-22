@@ -378,7 +378,7 @@ function template_main()
 							</div>
 							<div id="au-template">
 								<div class="attach-preview">
-									<img data-dz-thumbnail />
+									<img data-dz-thumbnail >
 								</div>
 								<div class="attachment_info">
 									<div>
