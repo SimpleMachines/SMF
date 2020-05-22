@@ -756,7 +756,7 @@ function CoppaForm()
 			$context['template_layers'] = array();
 			$context['sub_template'] = 'coppa_form';
 			$context['page_title'] = sprintf($txt['coppa_form_title'], $context['forum_name_html_safe']);
-			$context['coppa_body'] = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}'), array($context['ul'], $context['ul'], $username), $txt['coppa_form_body']);
+			$context['coppa_body'] = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}'), array($context['ul'], $context['ul'], $username), sprintf($txt['coppa_form_body'], $context['forum_name_html_safe']));
 		}
 		// Downloading.
 		else
@@ -764,7 +764,7 @@ function CoppaForm()
 			// The data.
 			$ul = '                ';
 			$crlf = "\r\n";
-			$data = $context['forum_contacts'] . $crlf . $txt['coppa_form_address'] . ':' . $crlf . $txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf . $txt['coppa_form_body'];
+			$data = $context['forum_contacts'] . $crlf . $txt['coppa_form_address'] . ':' . $crlf . $txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf . sprintf($txt['coppa_form_body'], $context['forum_name_html_safe']);
 			$data = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}', '<br>', '<br>'), array($ul, $ul, $username, $crlf, $crlf), $data);
 
 			// Send the headers.

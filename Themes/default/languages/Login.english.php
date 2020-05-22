@@ -124,7 +124,8 @@ $txt['coppa_send_by_phone'] = 'Alternatively, arrange for them to phone the admi
 $txt['coppa_form_title'] = 'Permission form for registration at %1$s';
 $txt['coppa_form_address'] = 'Address';
 $txt['coppa_form_date'] = 'Date';
-$txt['coppa_form_body'] = 'I {PARENT_NAME},<br><br>Give permission for {CHILD_NAME} (child name) to become a fully registered member of the forum: ' . $context['forum_name_html_safe'] . ', with the username: {USER_NAME}.<br><br>I understand that certain personal information entered by {USER_NAME} may be shown to other users of the forum.<br><br>Signed:<br>{PARENT_NAME} (Parent/Guardian).';
+// argument(s): $context['forum_name_html_safe']
+$txt['coppa_form_body'] = 'I {PARENT_NAME},<br><br>Give permission for {CHILD_NAME} (child name) to become a fully registered member of the forum: %1$s, with the username: {USER_NAME}.<br><br>I understand that certain personal information entered by {USER_NAME} may be shown to other users of the forum.<br><br>Signed:<br>{PARENT_NAME} (Parent/Guardian).';
 
 $txt['visual_verification_sound_again'] = 'Play again';
 $txt['visual_verification_sound_close'] = 'Close window';
