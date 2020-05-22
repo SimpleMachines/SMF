@@ -41,6 +41,8 @@ function template_popup()
 		echo sprintf($context['help_text'], $scripturl);
 	elseif ($_GET['help'] == 'queryless_urls')
 		echo sprintf($context['help_text'], (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? '' : $helptxt['queryless_urls_not']));
+	elseif ($_GET['help'] == 'who_enabled')
+		echo sprintf($context['help_text'], $scripturl);
 	else
 		echo $context['help_text'];
 
