@@ -755,7 +755,7 @@ function CoppaForm()
 			$context['ul'] = '<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>';
 			$context['template_layers'] = array();
 			$context['sub_template'] = 'coppa_form';
-			$context['page_title'] = $txt['coppa_form_title'];
+			$context['page_title'] = sprintf($txt['coppa_form_title'], $context['forum_name_html_safe']);
 			$context['coppa_body'] = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}'), array($context['ul'], $context['ul'], $username), $txt['coppa_form_body']);
 		}
 		// Downloading.
