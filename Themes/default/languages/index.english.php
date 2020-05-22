@@ -496,6 +496,7 @@ $txt['status'] = 'Status';
 $txt['go_up'] = 'Go Up';
 $txt['go_down'] = 'Go Down';
 
+// argument(s): SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl
 $forum_copyright = '<a href="%3$s?action=credits" title="License" target="_blank" rel="noopener">%1$s &copy; %2$s</a>, <a href="http://www.simplemachines.org" title="Simple Machines" target="_blank" rel="noopener">Simple Machines</a>';
 
 $txt['birthdays'] = 'Birthdays:';
