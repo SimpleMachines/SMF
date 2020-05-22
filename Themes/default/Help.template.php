@@ -39,6 +39,8 @@ function template_popup()
 		echo sprintf($context['help_text'], ((function_exists('pspell_new') || function_exists('enchant_broker_init')) ? $helptxt['enableSpellCheckingSupported'] : $helptxt['enableSpellCheckingUnsupported']));
 	elseif ($_GET['help'] == 'pgFulltextSearch')
 		echo sprintf($context['help_text'], $scripturl);
+	elseif ($_GET['help'] == 'queryless_urls')
+		echo sprintf($context['help_text'], (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? '' : $helptxt['queryless_urls_not']));
 	else
 		echo $context['help_text'];
 
