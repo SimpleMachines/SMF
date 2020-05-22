@@ -1457,12 +1457,12 @@ while ($_GET['m'] < $totalActions)
 		LIMIT $_GET[m], 500");
 	while($row = smf_mysql_fetch_assoc($request))
 	{
-		preg_match('~<br />(%1\$s: )?([\w\. \\\\/\-_:]+)<br />(%2\$s: )?([\d]+)~', $row['message'], $matches);
+		preg_match('~<br>(%1\$s: )?([\w\. \\\\/\-_:]+)<br>(%2\$s: )?([\d]+)~', $row['message'], $matches);
 		if (!empty($matches[2]) && !empty($matches[4]) && empty($row['file']) && empty($row['line']))
 		{
 			$row['file'] = addslashes(str_replace('\\', '/', $matches[2]));
 			$row['line'] = (int) $matches[4];
-			$row['message'] = addslashes(preg_replace('~<br />(%1\$s: )?([\w\. \\\\/\-_:]+)<br />(%2\$s: )?([\d]+)~', '', $row['message']));
+			$row['message'] = addslashes(preg_replace('~<br>(%1\$s: )?([\w\. \\\\/\-_:]+)<br>(%2\$s: )?([\d]+)~', '', $row['message']));
 		}
 		else
 			continue;
