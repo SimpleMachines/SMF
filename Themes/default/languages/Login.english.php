@@ -109,7 +109,8 @@ $txt['admin_register_group_none'] = '(no primary membergroup)';
 $txt['admin_register_done'] = 'Member %1$s has been registered successfully!';
 
 $txt['coppa_title'] = 'Age restricted Forum';
-$txt['coppa_after_registration'] = 'Thank you for signing up with ' . $context['forum_name_html_safe'] . '.<br><br>Because you fall under the age of {MINIMUM_AGE}, it is a legal requirement
+// argument(s): $context['forum_name_html_safe']
+$txt['coppa_after_registration'] = 'Thank you for signing up with %1$s.<br><br>Because you fall under the age of {MINIMUM_AGE}, it is a legal requirement
 	to obtain your parent or guardian\'s permission before you may begin to use your account. To arrange for account activation please print off the form below:';
 $txt['coppa_form_link_popup'] = 'Load Form in new Window';
 $txt['coppa_form_link_download'] = 'Download Form as text file';

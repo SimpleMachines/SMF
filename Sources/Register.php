@@ -785,7 +785,7 @@ function CoppaForm()
 		);
 
 		$context['coppa'] = array(
-			'body' => str_replace('{MINIMUM_AGE}', $modSettings['coppaAge'], $txt['coppa_after_registration']),
+			'body' => str_replace('{MINIMUM_AGE}', $modSettings['coppaAge'], sprintf($txt['coppa_after_registration'], $context['forum_name_html_safe'])),
 			'many_options' => !empty($modSettings['coppaPost']) && !empty($modSettings['coppaFax']),
 			'post' => empty($modSettings['coppaPost']) ? '' : $modSettings['coppaPost'],
 			'fax' => empty($modSettings['coppaFax']) ? '' : $modSettings['coppaFax'],
