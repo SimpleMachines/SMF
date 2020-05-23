@@ -3763,7 +3763,7 @@ function template_chmod()
 					</dt>
 					<dd>
 						<input type="text" size="30" name="ftp_path" id="ftp_path" value="', isset($upcontext['chmod']['path']) ? $upcontext['chmod']['path'] : '', '">
-						<div class="smalltext">', !empty($upcontext['chmod']['path']) ? $txt['ftp_path_found_info'] : sprintf($txt['ftp_path_info'], $_SERVER['PHP_SELF']), '</div>
+						<div class="smalltext">', !empty($upcontext['chmod']['path']) ? $txt['ftp_path_found_info'] : $txt['ftp_path_info'], '</div>
 					</dd>
 				</dl>
 
