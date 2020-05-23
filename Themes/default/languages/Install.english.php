@@ -214,7 +214,6 @@ $txt['ftp_username_info'] = 'The username to login with. <em>This will not be sa
 $txt['ftp_password'] = 'Password';
 $txt['ftp_password_info'] = 'The password to login with. <em>This will not be saved anywhere.</em>';
 $txt['ftp_path'] = 'Install Path';
-// argument(s): PHP_SELF
 $txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP client.';
 $txt['ftp_path_found_info'] = 'The path in the box above was automatically detected.';
 $txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to your FTP client. It commonly starts with &quot;<pre>www</pre>&quot;, &quot;<pre>public_html</pre>&quot;, or &quot;<pre>httpdocs</pre>&quot; - but it should include the directory SMF is in too, such as &quot;/public_html/forum&quot;. It is different from your URL and full path.<br><br>Files in this path may be overwritten, so make sure it\'s correct.';
