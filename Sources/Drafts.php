@@ -650,7 +650,8 @@ function showProfileDrafts($memID, $draft_type = 0)
 				'delete' => array(
 					'label' => $txt['draft_delete'],
 					'href' => $scripturl.'?action=profile;u='.$context['member']['id'].';area=showdrafts;delete='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
-					'javascript' => 'data-confirm="'.$txt['draft_remove'].'" class="you_sure"',
+					'javascript' => 'data-confirm="'.$txt['draft_remove'].'"',
+					'class' => 'you_sure',
 					'icon' => 'remove_button'
 				),
 			),
@@ -842,7 +843,8 @@ function showPMDrafts($memID = -1)
 				'delete' => array(
 					'label' => $txt['draft_delete'],
 					'href' => $scripturl.'?action=pm;sa=showpmdrafts;delete='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
-					'javascript' => 'data-confirm="'.$txt['draft_remove'].'?" class="you_sure"',
+					'javascript' => 'data-confirm="'.$txt['draft_remove'].'?"',
+					'class' => 'you_sure',
 					'icon' => 'remove_button'
 				),
 			),
