@@ -669,7 +669,7 @@ function CheckFilesWritable()
 				'port' => isset($_POST['ftp_port']) ? $_POST['ftp_port'] : '21',
 				'username' => isset($_POST['ftp_username']) ? $_POST['ftp_username'] : '',
 				'path' => isset($_POST['ftp_path']) ? $_POST['ftp_path'] : '/',
-				'path_msg' => !empty($found_path) ? $txt['ftp_path_found_info'] : $txt['ftp_path_info'],
+				'path_msg' => !empty($found_path) ? $txt['ftp_path_found_info'] : sprintf($txt['ftp_path_info'], $_SERVER['PHP_SELF']),
 			);
 
 			return false;
@@ -709,7 +709,7 @@ function CheckFilesWritable()
 
 				// Set the username etc, into context.
 				$incontext['ftp'] = $_SESSION['installer_temp_ftp'] += array(
-					'path_msg' => $txt['ftp_path_info'],
+					'path_msg' => sprintf($txt['ftp_path_info'], $_SERVER['PHP_SELF']),
 				);
 
 				return false;

@@ -160,7 +160,6 @@ $txt['ftp_checking_writable'] = 'Checking Files are Writable';
 $txt['ftp_setup'] = 'FTP Connection Information';
 $txt['ftp_setup_info'] = 'This installer can connect via FTP to fix the files that need to be writable and are not. If this doesn\'t work for you, you will have to go in manually and make the files writable. Please note that this doesn\'t support SSL right now.';
 $txt['ftp_server_info'] = 'This should be the server and port for your FTP server.';
-$txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP server.';
 $txt['ftp_setup_why'] = 'What is this step for?';
 $txt['ftp_setup_why_info'] = 'Some files need to be writable for SMF to work properly. This step allows you to let the installer make them writable for you. However, in some cases it won\'t work - in that case, please make the following files 777 (writable, 755 on some hosts):';
 $txt['ftp_setup_again'] = 'to test if these files are writable again.';
@@ -215,7 +214,8 @@ $txt['ftp_username_info'] = 'The username to login with. <em>This will not be sa
 $txt['ftp_password'] = 'Password';
 $txt['ftp_password_info'] = 'The password to login with. <em>This will not be saved anywhere.</em>';
 $txt['ftp_path'] = 'Install Path';
-$txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP client <a href="' . $_SERVER['PHP_SELF'] . '?ftphelp" onclick="window.open(this.href, \'\', \'width=450,height=250\');return false;" target="_blank" rel="noopener">(more help)</a>.';
+// argument(s): PHP_SELF
+$txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP client <a href="%1$s?ftphelp" onclick="window.open(this.href, \'\', \'width=450,height=250\');return false;" target="_blank" rel="noopener">(more help)</a>.';
 $txt['ftp_path_found_info'] = 'The path in the box above was automatically detected.';
 $txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to your FTP client. It commonly starts with &quot;<pre>www</pre>&quot;, &quot;<pre>public_html</pre>&quot;, or &quot;<pre>httpdocs</pre>&quot; - but it should include the directory SMF is in too, such as &quot;/public_html/forum&quot;. It is different from your URL and full path.<br><br>Files in this path may be overwritten, so make sure it\'s correct.';
 $txt['ftp_path_help_close'] = 'Close';
