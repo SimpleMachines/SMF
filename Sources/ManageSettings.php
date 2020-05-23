@@ -48,7 +48,7 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = nu
  */
 function ModifyFeatureSettings()
 {
-	global $context, $txt, $settings;
+	global $context, $txt, $settings, $scripturl;
 
 	loadLanguage('Help');
 	loadLanguage('ManageSettings');
@@ -71,7 +71,7 @@ function ModifyFeatureSettings()
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['modSettings_title'],
 		'help' => 'featuresettings',
-		'description' => sprintf($txt['modSettings_desc'], $settings['theme_id'], $context['session_id'], $context['session_var']),
+		'description' => sprintf($txt['modSettings_desc'], $settings['theme_id'], $context['session_id'], $context['session_var'], $scripturl),
 		'tabs' => array(
 			'basic' => array(
 			),
