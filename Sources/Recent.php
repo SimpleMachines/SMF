@@ -480,7 +480,8 @@ function RecentPosts()
 			'delete' => array(
 				'label' => $txt['remove'],
 				'href' => $scripturl.'?action=deletemsg;msg='.$post['id'].';topic='.$post['topic'].';recent;'.$context['session_var'].'='.$context['session_id'],
-				'javascript' => 'data-confirm="'.$txt['remove_message'].'" class="you_sure"',
+				'javascript' => 'data-confirm="'.$txt['remove_message'].'"',
+				'class' => 'you_sure',
 				'icon' => 'remove_button',
 				'show' => $post['can_delete']
 			),
