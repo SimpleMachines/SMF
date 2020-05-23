@@ -1359,7 +1359,7 @@ function ModifySignatureSettings($return_config = false)
 		);
 	else
 		$context['settings_message'] = array(
-			'label' => sprintf($txt['signature_settings_warning'], $context['session_id'], $context['session_var']),
+			'label' => sprintf($txt['signature_settings_warning'], $context['session_id'], $context['session_var'], $scripturl),
 			'tag' => 'div',
 			'class' => 'centertext'
 		);
