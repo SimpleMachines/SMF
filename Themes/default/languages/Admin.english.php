@@ -124,7 +124,7 @@ $txt['member_id'] = 'ID';
 
 $txt['unknown'] = 'unknown';
 // argument(s): HTTP_REFERER (if applicable), HTTP_USER_AGENT, ip address
-$txt['security_wrong'] = "Administration login attempt!\nReferrer: %1$s\nUser agent: %2$s\nIP: %3$s";
+$txt['security_wrong'] = "Administration login attempt!\nReferrer: %1\$s\nUser agent: %2\$s\nIP: %3\$s";
 
 $txt['email_as_html'] = 'Send in HTML format. (with this you can put normal HTML in the email.)';
 $txt['email_parsed_html'] = 'Add &lt;br&gt;s and &amp;nbsp;s to this message.';
