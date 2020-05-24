@@ -3973,7 +3973,7 @@ function template_header()
  */
 function theme_copyright()
 {
-	global $forum_copyright;
+	global $forum_copyright, $scripturl;
 
 	// Don't display copyright for things like SSI.
 	if (SMF !== 1)
