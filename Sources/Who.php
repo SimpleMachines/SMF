@@ -565,7 +565,7 @@ function determineActions($urls, $preferred_prefix = false)
  */
 function Credits($in_admin = false)
 {
-	global $context, $smcFunc, $forum_copyright, $txt, $user_info;
+	global $context, $smcFunc, $forum_copyright, $txt, $user_info, $scripturl;
 
 	// Don't blink. Don't even blink. Blink and you're dead.
 	loadLanguage('Who');
