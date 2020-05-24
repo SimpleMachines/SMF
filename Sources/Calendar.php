@@ -442,6 +442,10 @@ function CalendarPost()
 		$found = false;
 		foreach ($context['all_timezones'] as $possible_tzid => $dummy)
 		{
+			// Ignore the "-----" option
+			if (empty($possible_tzid))
+				continue;
+
 			$possible_tzinfo = timezone_transitions_get(timezone_open($possible_tzid), $context['event']['start_timestamp'], $later);
 
 			if ($tzinfo === $possible_tzinfo)
