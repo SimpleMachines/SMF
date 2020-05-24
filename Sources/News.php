@@ -191,11 +191,16 @@ function ShowXmlFeed()
 			SELECT num_posts
 			FROM {db_prefix}boards
 			WHERE id_board = {int:current_board}
+				AND {query_see_board}
 			LIMIT 1',
 			array(
 				'current_board' => $board,
 			)
 		);
+
+		if ($smcFunc['db_num_rows']($request) == 0)
+			fatal_lang_error('no_board');
+
 		list ($total_posts) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
@@ -2534,7 +2539,7 @@ function getXmlPosts($xml_format, $ascending = false)
 function getXmlPMs($xml_format, $ascending = false)
 {
 	global $scripturl, $modSettings, $board, $txt, $context, $user_info;
-	global $query_this_board, $smcFunc, $sourcedir, $cachedir;
+	global $smcFunc, $sourcedir, $cachedir;
 
 	// Personal messages are supposed to be private
 	if (empty($context['xmlnews_uid']) || ($context['xmlnews_uid'] != $user_info['id']))
