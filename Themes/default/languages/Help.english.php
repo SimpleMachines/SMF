@@ -384,11 +384,11 @@ $helptxt['preview_characters'] = 'This setting sets the number of available char
 $helptxt['quote_expand'] = 'This setting allows large quotes to be cutoff and expanded to their full length by the user. The setting indicates the minimum height a quote needs to have for it to be collapsed. Quotes smaller than this setting won\'t be affected';
 $helptxt['posts_require_captcha'] = 'This setting will force users to pass anti-spam bot verification each time they make a post to a board. Only users with a post count below the number set will need to enter the code - this should help combat automated spamming scripts.';
 // argument(s): either $helptxt['enableSpellCheckingSupported'] or $helptxt['enableSpellCheckingUnsupported'], depending on whether the server supports one of the libs
-$helptxt['enableSpellChecking'] = 'Enable spell checking. You MUST have the pspell or enchant library installed on your server and your PHP configuration set up to use the installed library. Your server %1$s appear to have this set up.';
+$helptxt['enableSpellChecking'] = 'Enable spell checking. You MUST have the pspell or enchant library installed on your server and your PHP configuration set up to use the installed library. %1$s';
 // is conditionally used as part of $helptxt['enableSpellChecking']
-$helptxt['enableSpellCheckingSupported'] = 'DOES';
+$helptxt['enableSpellCheckingSupported'] = 'Your server DOES appear to have this set up.';
 // is conditionally used as part of $helptxt['enableSpellChecking']
-$helptxt['enableSpellCheckingUnsupported'] = 'DOES NOT';
+$helptxt['enableSpellCheckingUnsupported'] = 'Your server DOES NOT appear to have this set up.';
 $helptxt['disable_wysiwyg'] = 'This setting disallows all users from using the WYSIWYG (&quot;What You See Is What You Get&quot;) editor on the post page.';
 $helptxt['lastActive'] = 'Set the number of minutes to show people are active in X number of minutes on the board index. Default is 15 minutes.';
 
