@@ -543,7 +543,7 @@ $txt['move_topic_unapproved_js'] = 'Warning! This topic has not yet been approve
 $txt['movetopic_auto_board'] = '[BOARD]';
 $txt['movetopic_auto_topic'] = '[TOPIC LINK]';
 // argument(s): $txt['movetopic_auto_board'], $txt['movetopic_auto_topic']
-$txt['movetopic_default'] = "This topic has been moved to %1$s.\n\n%2$s";
+$txt['movetopic_default'] = "This topic has been moved to %1\$s.\n\n%2\$s";
 $txt['movetopic_redirect'] = 'Redirect to the moved topic';
 
 $txt['post_redirection'] = 'Post a redirection topic';
