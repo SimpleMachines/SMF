@@ -633,7 +633,7 @@ function PackageDownload()
 	if (!isset($context['package']['type']))
 		$context['package']['install']['link'] = '';
 	else
-		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['install_' . $context['package']['type']] . ' ]</a>';
+		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . (isset($txt['install_' . $context['package']['type']]) ? $txt['install_' . $context['package']['type']] : $txt['install_unknown']) . ' ]</a>';
 
 	// Does a 3rd party hook want to do some additional changes?
 	call_integration_hook('integrate_package_download');
@@ -723,7 +723,7 @@ function PackageUpload()
 	if (!isset($context['package']['type']))
 		$context['package']['install']['link'] = '';
 	else
-		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['install_' . $context['package']['type']] . ' ]</a>';
+		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . (isset($txt['install_' . $context['package']['type']]) ? $txt['install_' . $context['package']['type']] : $txt['install_unknown']) . ' ]</a>';
 
 	// Does a 3rd party hook want to do some additional changes?
 	call_integration_hook('integrate_package_upload');
