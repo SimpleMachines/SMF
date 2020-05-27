@@ -388,7 +388,7 @@ function template_results()
 
 				if ($message['body_highlighted'] != '')
 					echo '
-				<div class="list_posts double_height">', $message['body_highlighted'], '</div>';
+				<div class="list_posts double_height word_break">', $message['body_highlighted'], '</div>';
 			}
 
 			echo '
