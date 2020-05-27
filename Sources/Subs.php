@@ -7302,9 +7302,8 @@ function array_length($array, $deep = 3)
 
 /**
  * Clean up the XML to make sure it doesn't contain invalid characters.
- * What it does:
- * - removes invalid XML characters to assure the input string being
- * - parsed properly.
+ *
+ * See https://www.w3.org/TR/xml/#charsets
  *
  * @param string $string The string to clean
  * @return string The cleaned string
@@ -7313,8 +7312,24 @@ function cleanXml($string)
 {
 	global $context;
 
-	// https://www.w3.org/TR/xml/#NT-Char
-	return preg_replace('~[\x00-\x08\x0B\x0C\x0E-\x1F' . ($context['utf8'] ? '\xD800-\DFFF\x{FFFE}\x{FFFF}' : '') . ']~' . ($context['utf8'] ? 'u' : ''), '', $string);
+	$illegal_chars = array(
+		// Remove all ASCII control characters except \t, \n, and \r.
+		"\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08",
+		"\x0B", "\x0C", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13", "\x14",
+		"\x15", "\x16", "\x17", "\x18", "\x19", "\x1A", "\x1B", "\x1C", "\x1D",
+		"\x1E", "\x1F",
+		// Remove \xFFFE and \xFFFF
+		"\xEF\xBF\xBE", "\xEF\xBF\xBF",
+	);
+
+	$string = str_replace($illegal_chars, '', $string);
+
+	// The Unicode surrogate pair code points should never be present in our
+	// strings to begin with, but if any snuck in, they need to be removed.
+	if (!empty($context['utf8']) && strpos($string, "\xED") !== false)
+		$string = preg_replace('/\xED[\xA0-\xBF][\xA0-\xBF][\x80-\xBF]/', '', $string);
+
+	return $string;
 }
 
 /**
