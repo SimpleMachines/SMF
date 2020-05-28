@@ -297,7 +297,7 @@ function changeVariant(iThemeId, el)
 
 $(document).on('change', '#export_format_select', function() {
 	var selected_format = $('#export_format_select').val();
-	if (completed_formats.includes(selected_format))
+	if (completed_formats.indexOf(selected_format) > -1)
 	{
 		$('#export_begin').hide();
 		$('#export_begin input').prop('disabled', true);
