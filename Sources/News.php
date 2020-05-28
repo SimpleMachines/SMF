@@ -339,14 +339,14 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 	$nsKeys = array();
 
 	// Maybe someone needs to insert a DOCTYPE declaration?
-	$dtd = '';
+	$doctype = '';
 
 	// Remember this, just in case...
 	$orig_feed_meta = $feed_meta;
 
 	// If mods want to do somthing with this feed, let them do that now.
 	// Provide the feed's data, metadata, namespaces, extra feed-level tags, keys that need special handling, the feed format, and the requested subaction
-	call_integration_hook('integrate_xml_data', array(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$dtd));
+	call_integration_hook('integrate_xml_data', array(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$doctype));
 
 	// These can't be empty
 	foreach (array('title', 'desc', 'source', 'self') as $mkey)
@@ -376,7 +376,7 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 	$context['feed'] = array();
 
 	// First, output the xml header.
-	$context['feed']['header'] = '<?xml version="1.0" encoding="' . $context['character_set'] . '"?' . '>' . ($dtd !== '' ? "\n" . trim($dtd) : '');
+	$context['feed']['header'] = '<?xml version="1.0" encoding="' . $context['character_set'] . '"?' . '>' . ($doctype !== '' ? "\n" . trim($doctype) : '');
 
 	// Are we outputting an rss feed or one with more information?
 	if ($xml_format == 'rss' || $xml_format == 'rss2')
@@ -722,7 +722,7 @@ function getXmlMembers($xml_format, $ascending = false)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If any control characters slipped in somehow, kill the evil things
-		$row = filter_var($row, FILTER_CALLBACK, ['options' => 'cleanXml']);
+		$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// Create a GUID for each member using the tag URI scheme
 		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
@@ -911,7 +911,7 @@ function getXmlNews($xml_format, $ascending = false)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If any control characters slipped in somehow, kill the evil things
-		$row = filter_var($row, FILTER_CALLBACK, ['options' => 'cleanXml']);
+		$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// Limit the length of the message, if the option is set.
 		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br>', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
@@ -1361,7 +1361,7 @@ function getXmlRecent($xml_format)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If any control characters slipped in somehow, kill the evil things
-		$row = filter_var($row, FILTER_CALLBACK, ['options' => 'cleanXml']);
+		$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// Limit the length of the message, if the option is set.
 		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br>', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
@@ -1785,7 +1785,7 @@ function getXmlProfile($xml_format)
 	$profile = &$memberContext[$context['xmlnews_uid']];
 
 	// If any control characters slipped in somehow, kill the evil things
-	$profile = filter_var($profile, FILTER_CALLBACK, ['options' => 'cleanXml']);
+	$profile = filter_var($profile, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 	// Create a GUID for this member using the tag URI scheme
 	$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
@@ -2118,7 +2118,7 @@ function getXmlPosts($xml_format, $ascending = false)
 		$row['poster_ip'] = inet_dtop($row['poster_ip']);
 
 		// If any control characters slipped in somehow, kill the evil things
-		$row = filter_var($row, FILTER_CALLBACK, ['options' => 'cleanXml']);
+		$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// If using our own format, we want both the raw and the parsed content.
 		$row[$xml_format === 'smf' ? 'body_html' : 'body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
@@ -2583,7 +2583,7 @@ function getXmlPMs($xml_format, $ascending = false)
 		$context['personal_messages_start'] = $row['id_pm'];
 
 		// If any control characters slipped in somehow, kill the evil things
-		$row = filter_var($row, FILTER_CALLBACK, ['options' => 'cleanXml']);
+		$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// If using our own format, we want both the raw and the parsed content.
 		$row[$xml_format === 'smf' ? 'body_html' : 'body'] = parse_bbc($row['body']);

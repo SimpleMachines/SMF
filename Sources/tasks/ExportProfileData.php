@@ -23,7 +23,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	 */
 	private static $export_details = array();
 	private static $real_modSettings = array();
-	private static $xslt_info = array('stylesheet' => '', 'dtd' => '');
+	private static $xslt_info = array('stylesheet' => '', 'doctype' => '');
 
 	/**
 	 * This is the main dispatcher for the class.
@@ -518,14 +518,14 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	 * Adds a custom DOCTYPE definition and an XSLT processing instruction to
 	 * the main XML file's header.
 	 */
-	public static function add_dtd(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$dtd)
+	public static function add_dtd(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$doctype)
 	{
 		global $sourcedir;
 
 		require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
 		self::$xslt_info = get_xslt_stylesheet(self::$export_details['format'], self::$export_details['uid']);
 
-		$dtd = self::$xslt_info['dtd'];
+		$doctype = self::$xslt_info['doctype'];
 	}
 
 	/**

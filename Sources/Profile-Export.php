@@ -778,7 +778,7 @@ function get_xslt_stylesheet($format, $uid)
 
 	static $xslts = array();
 
-	$dtd = '';
+	$doctype = '';
 	$stylesheet = array();
 	$xslt_variables = array();
 
@@ -887,7 +887,7 @@ function get_xslt_stylesheet($format, $uid)
 
 		if ($format == 'XML_XSLT')
 		{
-			$dtd = implode("\n", array(
+			$doctype = implode("\n", array(
 				'<!--',
 				"\t" . $txt['export_open_in_browser'],
 				'-->',
@@ -908,7 +908,7 @@ function get_xslt_stylesheet($format, $uid)
 		}
 		else
 		{
-			$dtd = '';
+			$doctype = '';
 			$stylesheet['header'] = implode("\n", array(
 				'<?xml version="1.0" encoding="' . $context['character_set'] . '"?' . '>',
 				'<xsl:stylesheet version="1.0" xmlns:xsl="' . $xslt_ns . '" xmlns:html="' . $html_ns . '" xmlns:smf="' . $smf_ns . '" exclude-result-prefixes="smf html">',
@@ -1762,7 +1762,7 @@ function get_xslt_stylesheet($format, $uid)
 
 	// Remember for later.
 	$xslt_key = isset($xslt_key) ? $xslt_key : $smcFunc['json_encode'](array($format, $uid, $xslt_variables));
-	$xslts[$xslt_key] = array('stylesheet' => implode("\n", (array) $stylesheet), 'dtd' => $dtd);
+	$xslts[$xslt_key] = array('stylesheet' => implode("\n", (array) $stylesheet), 'doctype' => $doctype);
 
 	return $xslts[$xslt_key];
 }
