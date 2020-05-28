@@ -7327,7 +7327,7 @@ function cleanXml($string)
 	// The Unicode surrogate pair code points should never be present in our
 	// strings to begin with, but if any snuck in, they need to be removed.
 	if (!empty($context['utf8']) && strpos($string, "\xED") !== false)
-		$string = preg_replace('/\xED[\xA0-\xBF][\xA0-\xBF][\x80-\xBF]/', '', $string);
+		$string = preg_replace('/\xED[\xA0-\xBF][\x80-\xBF]/', '', $string);
 
 	return $string;
 }
