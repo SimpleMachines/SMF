@@ -2091,10 +2091,15 @@ function getXmlPosts($xml_format, $ascending = false)
 	require_once($sourcedir . '/Subs-Attachments.php');
 
 	$request = $smcFunc['db_query']('', '
-		SELECT m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_email, m.poster_ip, m.poster_time, m.subject,
-			m.modified_time, m.modified_name, m.modified_reason, m.body, m.likes, m.approved, m.smileys_enabled, b.name AS bname
+		SELECT
+			m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_email, m.poster_ip,
+			m.poster_time, m.subject, m.modified_time, m.modified_name, m.modified_reason, m.body,
+			m.likes, m.approved, m.smileys_enabled, b.name AS bname, ' .
+			($user_info['id'] != $context['xmlnews_uid'] ? 'COALESCE(mem.real_name, mem.member_name)' : '{string:own_name}') . ' AS poster_name
 		FROM {db_prefix}messages AS m
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)' .
+			($user_info['id'] != $context['xmlnews_uid'] ? '
+			INNER JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)' : '') . '
 		WHERE m.id_member = {int:uid}
 			AND m.id_msg > {int:start_after}
 			AND ' . $query_this_board . ($modSettings['postmod_active'] && !$show_all ? '
@@ -2105,6 +2110,7 @@ function getXmlPosts($xml_format, $ascending = false)
 			'limit' => $context['xmlnews_limit'],
 			'start_after' => !empty($context['posts_start']) ? $context['posts_start'] : 0,
 			'uid' => $context['xmlnews_uid'],
+			'own_name' => !empty($user_info['name']) ? $user_info['name'] : $user_info['username'],
 			'is_approved' => 1,
 			'ascdesc' => !empty($ascending) ? 'ASC' : 'DESC',
 		)
@@ -2298,7 +2304,7 @@ function getXmlPosts($xml_format, $ascending = false)
 						'content' => array(
 							array(
 								'tag' => 'name',
-								'content' => !empty($user_info['name']) ? $user_info['name'] : $user_info['username'],
+								'content' => $row['poster_name'],
 								'cdata' => true,
 							),
 							array(
@@ -2418,7 +2424,7 @@ function getXmlPosts($xml_format, $ascending = false)
 							array(
 								'tag' => 'name',
 								'attributes' => array('label' => $txt['name']),
-								'content' => !empty($user_info['name']) ? $user_info['name'] : $user_info['username'],
+								'content' => $row['poster_name'],
 								'cdata' => true,
 							),
 							array(
