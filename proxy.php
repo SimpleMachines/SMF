@@ -26,7 +26,7 @@ if (!defined('SMF_SOFTWARE_YEAR'))
 	define('SMF_SOFTWARE_YEAR', '2020');
 
 if (!defined('JQUERY_VERSION'))
-	define('JQUERY_VERSION', '3.4.1');
+	define('JQUERY_VERSION', '3.5.1');
 
 if (!defined('POSTGRE_TITLE'))
 	define('POSTGRE_TITLE', 'PostgreSQL');
