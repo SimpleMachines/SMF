@@ -1643,14 +1643,13 @@ function loadCacheAPIs()
 	$loadedApis = array();
 	$apis_dir = $cacheAPIdir .'/'. CacheApi::APIS_FOLDER;
 
-	$api_classes = new GlobIterator($apis_dir . '/CacheAPI-*.php', FilesystemIterator::NEW_CURRENT_AND_KEY);
+	$api_classes = new GlobIterator($apis_dir . '/*.php', FilesystemIterator::NEW_CURRENT_AND_KEY);
 
 	foreach ($api_classes as $file_path => $file_info)
 	{
-		$class_name = strtolower(explode('-', $file_info->getBasename('.php'))[1]);
-
 		require_once($apis_dir . '/' . $file_path);
 
+		$class_name = $file_info->getBasename('.php');
 		$fully_qualified_class_name = CacheApi::APIS_NAMESPACE . $class_name;
 
 		/* @var CacheApiInterface $cache_api */
