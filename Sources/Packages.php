@@ -1466,7 +1466,7 @@ function PackageBrowse()
 						'value' => '',
 					),
 					'data' => array(
-						'function' => function($package) use ($context, $scripturl, $txt)
+						'function' => function($package) use ($context, $scripturl, $txt, $type)
 						{
 							$return = '';
 
