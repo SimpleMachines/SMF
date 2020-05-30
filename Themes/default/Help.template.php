@@ -29,26 +29,7 @@ function template_popup()
 	</head>
 	<body id="help_popup">
 		<div class="windowbg description">
-			';
-
-	if ($_GET['help'] == 'cal_short_months')
-		echo sprintf($context['help_text'], $txt['months_short'][1], $txt['months_titles'][1]);
-	elseif ($_GET['help'] == 'cal_short_days')
-		echo sprintf($context['help_text'], $txt['days_short'][1], $txt['days'][1]);
-	elseif ($_GET['help'] == 'cron_is_real_cron')
-		echo sprintf($context['help_text'], $boarddir, $boardurl);
-	elseif ($_GET['help'] == 'enableSpellChecking')
-		echo sprintf($context['help_text'], ((function_exists('pspell_new') || function_exists('enchant_broker_init')) ? $helptxt['enableSpellCheckingSupported'] : $helptxt['enableSpellCheckingUnsupported']));
-	elseif ($_GET['help'] == 'pgFulltextSearch')
-		echo sprintf($context['help_text'], $scripturl);
-	elseif ($_GET['help'] == 'queryless_urls')
-		echo sprintf($context['help_text'], (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? '' : $helptxt['queryless_urls_not']));
-	elseif ($_GET['help'] == 'who_enabled')
-		echo sprintf($context['help_text'], $scripturl);
-	else
-		echo $context['help_text'];
-
-	echo '<br>
+			', $context['help_text'], '<br>
 			<br>
 			<a href="javascript:self.close();">', $txt['close_window'], '</a>
 		</div>
