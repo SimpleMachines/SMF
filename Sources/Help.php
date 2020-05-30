@@ -177,7 +177,6 @@ function ShowAdminHelp()
 		$context['help_text'] = printf($context['help_text'], (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? '' : $helptxt['queryless_urls_not']));
 	elseif ($_GET['help'] == 'who_enabled')
 		$context['help_text'] = printf($context['help_text'], $scripturl);
-	endif
 
 	// Does this text contain a link that we should fill in?
 	if (preg_match('~%([0-9]+\$)?s\?~', $context['help_text'], $match))
