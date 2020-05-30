@@ -3568,23 +3568,17 @@ function loadCacheAccelerator($overrideCache = [], $fallbackSMF = true)
 	$apis_dir = $cacheAPIdir .'/'. CacheApi::APIS_FOLDER;
 
 	// What accelerator we are going to try.
-	$cache_file_info = !empty($overrideCache) ? $overrideCache : (!empty($cache_accelerator) ?
-		smf_json_decode($cache_accelerator, true) : array(
-			'class_name' => CacheApi::APIS_DEFAULT,
-			'file_info' => array(
-				'basename' => CacheApi::APIS_DEFAULT .'.php',
-			),
-			'txt_key' => strtolower(CacheApi::APIS_DEFAULT),
-		));
+	$cache_class_name = !empty($cache_accelerator) ? $cache_accelerator : CacheApi::APIS_DEFAULT;
 
-	$file_to_load = $apis_dir . '/' . $cache_file_info['file_info']['basename'];
+	$file_to_load = $apis_dir . '/' . sprintf(CacheApi::APIS_BASENAME, $cache_class_name);
 
 	// Do some basic tests.
 	if (file_exists($file_to_load))
 	{
 		require_once($file_to_load);
 
-		$fully_qualified_class_name = CacheApi::APIS_NAMESPACE . $cache_file_info['class_name'];
+		$fully_qualified_class_name = !empty($overrideCache) ? $overrideCache :
+			CacheApi::APIS_NAMESPACE . $cache_class_name;
 
 		/* @var CacheApiInterface $cache_api */
 		$cache_api = new $fully_qualified_class_name();
@@ -3598,7 +3592,7 @@ function loadCacheAccelerator($overrideCache = [], $fallbackSMF = true)
 		{
 			// Can we save ourselves?
 			if (!empty($fallbackSMF) && is_null($overrideCache) &&
-				$cache_file_info['class_name'] != CacheApi::APIS_DEFAULT)
+				$cache_class_name !== CacheApi::APIS_DEFAULT)
 				return loadCacheAccelerator(null, false);
 
 			return false;
