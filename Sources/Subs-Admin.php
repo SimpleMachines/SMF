@@ -85,13 +85,17 @@ function getServerVersions($checkFor)
 	$detected = loadCacheAPIs();
 
 	/* @var CacheApiInterface $cache_api */
-	foreach ($detected as $class_name_txt_key => $cache_api)
+	foreach ($detected as $class_name => $cache_api)
+	{
+		$class_name_txt_key = $cache_api->getImplementationClassKeyName();
+
 		if (in_array($class_name_txt_key, $checkFor))
 			$versions[$class_name_txt_key] = array(
 				'title' => isset($txt[$class_name_txt_key . '_cache']) ?
-					$txt[$class_name_txt_key . '_cache'] : $class_name_txt_key,
+					$txt[$class_name_txt_key . '_cache'] : $class_name,
 				'version' => $cache_api->getVersion(),
 			);
+	}
 
 	if (in_array('php', $checkFor))
 		$versions['php'] = array(

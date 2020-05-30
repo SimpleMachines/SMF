@@ -64,6 +64,14 @@ interface CacheApiInterface
 	 * @return bool Whether or not we could clean the cache.
 	 */
 	public function cleanCache($type = '');
+
+	/**
+	 * Gets the class identifier of the current caching API implementation.
+	 *
+	 * @access public
+	 * @return string the unique identifier for the current class implementation.
+	 */
+	public function getImplementationClassKeyName();
 }
 
 ?>

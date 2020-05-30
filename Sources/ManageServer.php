@@ -691,9 +691,14 @@ function ModifyCacheSettings($return_config = false)
 	$detectedCacheApis = loadCacheAPIs();
 	$apis_names = array();
 
-	foreach ($detectedCacheApis as $class_name_txt_key => $cache_api)
+	/* @var CacheApiInterface $cache_api */
+	foreach ($detectedCacheApis as $class_name => $cache_api)
+	{
+		$class_name_txt_key = $cache_api->getImplementationClassKeyName();
+
 		$apis_names[$class_name_txt_key] = isset($txt[$class_name_txt_key . '_cache']) ?
-			$txt[$class_name_txt_key . '_cache'] : $class_name_txt_key;
+			$txt[$class_name_txt_key . '_cache'] : $class_name;
+	}
 
 	// set our values to show what, if anything, we found
 	if (empty($detectedCacheApis))
@@ -1645,6 +1650,7 @@ function loadCacheAPIs()
 		/* @var CacheApiInterface $cache_api */
 		$cache_api = new $fully_qualified_class_name();
 
+		// Deal with it!
 		if (!($cache_api instanceof CacheApiInterface) || !($cache_api instanceof CacheApi))
 			continue;
 
@@ -1652,9 +1658,7 @@ function loadCacheAPIs()
 		if (!$cache_api->isSupported(true))
 			continue;
 
-		$class_name_txt_key = strtolower($class_name);
-
-		$loadedApis[$class_name_txt_key] = $cache_api;
+		$loadedApis[$class_name] = $cache_api;
 	}
 
 	call_integration_hook('integrate_load_cache_apis', array(&$loadedApis));
