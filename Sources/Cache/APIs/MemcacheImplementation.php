@@ -13,6 +13,7 @@
 
 namespace SMF\Cache\APIs;
 
+use Memcache;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 
@@ -29,7 +30,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	const CLASS_KEY = 'cache_memcached';
 
 	/**
-	 * @var \Memcache The memcache instance.
+	 * @var Memcache The memcache instance.
 	 */
 	private $memcache = null;
 
@@ -55,6 +56,8 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	{
 		global $db_persist, $cache_memcached;
 
+		$this->memcache = new Memcache();
+
 		$servers = explode(',', $cache_memcached);
 		$port = 0;
 
@@ -66,7 +69,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 		while (!$connected && $level < count($servers))
 		{
 			++$level;
-			$this->memcache = new \Memcache();
+
 			$server = trim($servers[array_rand($servers)]);
 
 			// No server, can't connect to this.
