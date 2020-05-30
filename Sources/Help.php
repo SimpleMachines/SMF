@@ -163,20 +163,29 @@ function ShowAdminHelp()
 	else
 		$context['help_text'] = $_GET['help'];
 
-	if ($_GET['help'] == 'cal_short_months')
-		$context['help_text'] = printf($context['help_text'], $txt['months_short'][1], $txt['months_titles'][1]);
-	elseif ($_GET['help'] == 'cal_short_days')
-		$context['help_text'] = printf($context['help_text'], $txt['days_short'][1], $txt['days'][1]);
-	elseif ($_GET['help'] == 'cron_is_real_cron')
-		$context['help_text'] = printf($context['help_text'], $boarddir, $boardurl);
-	elseif ($_GET['help'] == 'enableSpellChecking')
-		$context['help_text'] = printf($context['help_text'], ((function_exists('pspell_new') || function_exists('enchant_broker_init')) ? $helptxt['enableSpellCheckingSupported'] : $helptxt['enableSpellCheckingUnsupported']));
-	elseif ($_GET['help'] == 'pgFulltextSearch')
-		$context['help_text'] = printf($context['help_text'], $scripturl);
-	elseif ($_GET['help'] == 'queryless_urls')
-		$context['help_text'] = printf($context['help_text'], (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? '' : $helptxt['queryless_urls_not']));
-	elseif ($_GET['help'] == 'who_enabled')
-		$context['help_text'] = printf($context['help_text'], $scripturl);
+	switch ($_GET['help']) {
+		case 'cal_short_months':
+			$context['help_text'] = printf($context['help_text'], $txt['months_short'][1], $txt['months_titles'][1]);
+			break;
+		case 'cal_short_days':
+			$context['help_text'] = printf($context['help_text'], $txt['days_short'][1], $txt['days'][1]);
+			break;
+		case 'cron_is_real_cron':
+			$context['help_text'] = printf($context['help_text'], $boarddir, $boardurl);
+			break;
+		case 'enableSpellChecking':
+			$context['help_text'] = printf($context['help_text'], ((function_exists('pspell_new') || function_exists('enchant_broker_init')) ? $helptxt['enableSpellCheckingSupported'] : $helptxt['enableSpellCheckingUnsupported']));
+			break;
+		case 'pgFulltextSearch':
+			$context['help_text'] = printf($context['help_text'], $scripturl);
+			break;
+		case 'queryless_urls':
+			$context['help_text'] = printf($context['help_text'], (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? '' : $helptxt['queryless_urls_not']));
+			break;
+		case 'who_enabled':
+			$context['help_text'] = printf($context['help_text'], $scripturl);
+			break;
+	}
 
 	// Does this text contain a link that we should fill in?
 	if (preg_match('~%([0-9]+\$)?s\?~', $context['help_text'], $match))
