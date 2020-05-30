@@ -13,6 +13,7 @@
 
 namespace SMF\Cache\APIs;
 
+use Memcached;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 
@@ -26,6 +27,8 @@ if (!defined('SMF'))
  */
 class MemcachedImplementation extends CacheApi implements CacheApiInterface
 {
+	const CLASS_KEY = 'cache_memcached';
+
 	/** @var Memcached The memcache instance. */
 	private $memcached = null;
 
@@ -181,7 +184,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 
 		$config_vars[] = $txt['cache_'. $class_name_txt_key .'_settings'];
 		$config_vars[] = array(
-			'cache_'. $class_name,
+			self::CLASS_KEY,
 			$txt['cache_'. $class_name_txt_key .'_servers'],
 			'file',
 			'text',
@@ -195,7 +198,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
-				$("#cache_'. $class_name .'").prop("disabled", cache_type != "'. $class_name .'");
+				$("#'. self::CLASS_KEY .'").prop("disabled", cache_type != "'. $class_name .'");
 			});';
 	}
 

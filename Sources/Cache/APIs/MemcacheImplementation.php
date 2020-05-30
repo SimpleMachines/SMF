@@ -26,6 +26,8 @@ if (!defined('SMF'))
  */
 class MemcacheImplementation extends CacheApi implements CacheApiInterface
 {
+	const CLASS_KEY = 'cache_memcached';
+
 	/**
 	 * @var \Memcache The memcache instance.
 	 */
@@ -149,7 +151,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 
 		$config_vars[] = $txt['cache_'. $class_name_txt_key .'_settings'];
 		$config_vars[] = array(
-			'cache_'. $class_name,
+			self::CLASS_KEY,
 			$txt['cache_'. $class_name_txt_key .'_servers'],
 			'file',
 			'text',
@@ -163,7 +165,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
-				$("#cache_'. $class_name .'").prop("disabled", cache_type != "'. $class_name .'");
+				$("#'. self::CLASS_KEY .'").prop("disabled", cache_type != "'. $class_name .'");
 			});';
 	}
 
