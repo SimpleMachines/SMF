@@ -689,10 +689,11 @@ function ModifyCacheSettings($return_config = false)
 
 	// Detect all available optimizers
 	$detectedCacheApis = loadCacheAPIs();
+	$apis_names = array();
 
-	$apis_names = array_map(function ($cacheInfo) use ($txt){
-		return isset($txt[$cacheInfo['txt_key'] . '_cache']) ? $txt[$cacheInfo['txt_key'] . '_cache'] : $cacheInfo['txt_key'];
-	}, $detectedCacheApis);
+	foreach ($detectedCacheApis as $class_name_txt_key => $cache_api)
+		$apis_names[$class_name_txt_key] = isset($txt[$class_name_txt_key . '_cache']) ?
+			$txt[$class_name_txt_key . '_cache'] : $class_name_txt_key;
 
 	// set our values to show what, if anything, we found
 	if (empty($detectedCacheApis))
@@ -704,7 +705,9 @@ function ModifyCacheSettings($return_config = false)
 
 	else
 	{
-		$txt['cache_settings_message'] = '<strong class="success">' . sprintf($txt['detected_accelerators'], implode(', ', $apis_names)) . '</strong>';
+		$txt['cache_settings_message'] = '<strong class="success">' .
+			sprintf($txt['detected_accelerators'], implode(', ', $apis_names)) . '</strong>';
+
 		$cache_level = array($txt['cache_off'], $txt['cache_level1'], $txt['cache_level2'], $txt['cache_level3']);
 	}
 
@@ -726,20 +729,10 @@ function ModifyCacheSettings($return_config = false)
 
 	// Maybe we have some additional settings from the selected accelerator.
 	if (!empty($detectedCacheApis))
-		foreach ($detectedCacheApis as $class_key => $class_info)
-		{
-			// No autoload :(
-			$class_name = CacheApi::APIS_NAMESPACE . $class_info['class_name'];
-
-			// loadCacheAPIs has already included the file, just see if we can't add the settings in.
-			if (is_callable(array($class_name, 'cacheSettings')))
-			{
-				/* @var CacheApiInterface $cache_api */
-				$cache_api = new $class_name();
-
+		/* @var CacheApiInterface $cache_api */
+		foreach ($detectedCacheApis as $class_name_txt_key => $cache_api)
+			if (is_callable(array($cache_api, 'cacheSettings')))
 				$cache_api->cacheSettings($config_vars);
-			}
-		}
 
 	if ($return_config)
 		return $config_vars;
@@ -748,9 +741,6 @@ function ModifyCacheSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		call_integration_hook('integrate_save_cache_settings');
-
-		// Save the selected cache info.
-		$_POST['cache_accelerator'] = json_encode($detectedCacheApis[$_POST['cache_accelerator']]);
 
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
