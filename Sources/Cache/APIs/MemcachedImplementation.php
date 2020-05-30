@@ -176,16 +176,18 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	{
 		global $context, $txt;
 
-		$class_key = $this->getImplementationClassKeyName();
+		$class_name = $this->getImplementationClassKeyName();
+		$class_name_txt_key = strtolower($class_name);
 
-		$config_vars[] = $txt['cache_'. $class_key .'_settings'];
+		$config_vars[] = $txt['cache_'. $class_name_txt_key .'_settings'];
 		$config_vars[] = array(
-			'cache_'. $class_key, $txt['cache_'. $class_key .'_servers'],
+			'cache_'. $class_name,
+			$txt['cache_'. $class_name_txt_key .'_servers'],
 			'file',
 			'text',
 			0,
-			'cache_'. $class_key,
-			'subtext' => $txt['cache_'. $class_key .'_servers_subtext']);
+			'cache_'. $class_name_txt_key,
+			'subtext' => $txt['cache_'. $class_name_txt_key .'_servers_subtext']);
 
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';
@@ -193,7 +195,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
-				$("#cache_'. $class_key .'").prop("disabled", cache_type != "'. $class_key .'");
+				$("#cache_'. $class_name .'").prop("disabled", cache_type != "'. $class_name .'");
 			});';
 	}
 

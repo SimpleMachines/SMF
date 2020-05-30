@@ -131,10 +131,17 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	{
 		global $context, $txt;
 
-		$class_key = $this->getImplementationClassKeyName();
+		$class_name = $this->getImplementationClassKeyName();
+		$class_name_txt_key = strtolower($class_name);
 
-		$config_vars[] = $txt['cache_'. $class_key .'_settings'];
-		$config_vars[] = array('cachedir_'. $class_key, $txt['cachedir_'. $class_key], 'file', 'text', 36, 'cache_'. $class_key .'_cachedir');
+		$config_vars[] = $txt['cache_'. $class_name_txt_key .'_settings'];
+		$config_vars[] = array(
+			'cachedir_'. $class_name,
+			$txt['cachedir_'. $class_name_txt_key],
+			'file',
+			'text',
+			36,
+			'cache_'. $class_name_txt_key .'_cachedir');
 
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';
@@ -142,7 +149,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
-				$("#cachedir_'. $class_key .'").prop("disabled", cache_type != "'. $class_key .'");
+				$("#cachedir_'. $class_name .'").prop("disabled", cache_type != "'. $class_name .'");
 			});';
 	}
 

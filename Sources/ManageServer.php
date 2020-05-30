@@ -694,9 +694,9 @@ function ModifyCacheSettings($return_config = false)
 	/* @var CacheApiInterface $cache_api */
 	foreach ($detectedCacheApis as $class_name => $cache_api)
 	{
-		$class_name_txt_key = $cache_api->getImplementationClassKeyName();
+		$class_name_txt_key = strtolower($cache_api->getImplementationClassKeyName());
 
-		$apis_names[$class_name_txt_key] = isset($txt[$class_name_txt_key . '_cache']) ?
+		$apis_names[$class_name] = isset($txt[$class_name_txt_key . '_cache']) ?
 			$txt[$class_name_txt_key . '_cache'] : $class_name;
 	}
 
