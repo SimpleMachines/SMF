@@ -412,7 +412,9 @@ $txt['use_subdirectories_for_attachments'] = 'Create new directories within a ba
 $txt['use_subdirectories_for_attachments_note'] = 'Otherwise any new directories will be created within the forum\'s main directory.';
 $txt['basedirectory_for_attachments'] = 'Set a base directory for attachments';
 $txt['basedirectory_for_attachments_current'] = 'Current base directory';
+// argument(s): scripturl
 $txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. <br>(<a href="%1$s?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
+// argument(s): scripturl
 $txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. <br>(<a href="%1$s?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
 
 $txt['attachment_transfer'] = 'Transfer Attachments';
