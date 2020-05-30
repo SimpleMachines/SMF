@@ -29,6 +29,7 @@ function getServerVersions($checkFor)
 	global $txt, $db_connection, $sourcedir, $smcFunc, $modSettings;
 
 	loadLanguage('Admin');
+	loadLanguage('ManageSettings');
 
 	$versions = array();
 
