@@ -1664,11 +1664,7 @@ function loadCacheAPIs()
 
 		$class_name_txt_key = strtolower($class_name);
 
-		$loadedApis[$class_name_txt_key] = array(
-			'class_name' => $class_name,
-			'file_info' => $file_info,
-			'txt_key' => $class_name_txt_key,
-		);
+		$loadedApis[$class_name_txt_key] = $cache_api;
 	}
 
 	call_integration_hook('integrate_load_cache_apis', array(&$loadedApis));

@@ -13,6 +13,8 @@
  * @version 2.1 RC3
  */
 
+use SMF\Cache\CacheApiInterface;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -80,11 +82,14 @@ function getServerVersions($checkFor)
 	// Check to see if we have any accelerators installed.
 	require_once($sourcedir . '/ManageServer.php');
 	$detected = loadCacheAPIs();
-	foreach ($detected as $api => $object)
-		if (in_array($api, $checkFor))
-			$versions[$api] = array(
-				'title' => isset($txt[$api . '_cache']) ? $txt[$api . '_cache'] : $api,
-				'version' => $detected[$api]->getVersion(),
+
+	/* @var CacheApiInterface $cache_api */
+	foreach ($detected as $class_name_txt_key => $cache_api)
+		if (in_array($class_name_txt_key, $checkFor))
+			$versions[$class_name_txt_key] = array(
+				'title' => isset($txt[$class_name_txt_key . '_cache']) ?
+					$txt[$class_name_txt_key . '_cache'] : $class_name_txt_key,
+				'version' => $cache_api->getVersion(),
 			);
 
 	if (in_array('php', $checkFor))
