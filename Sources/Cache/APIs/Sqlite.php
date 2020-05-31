@@ -15,6 +15,7 @@ namespace SMF\Cache\APIs;
 
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
+use SQLite3;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -132,7 +133,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 
 		$config_vars[] = $txt['cache_'. $class_name_txt_key .'_settings'];
 		$config_vars[] = array(
-			'cachedir_'. $class_name,
+			'cachedir_'. $class_name_txt_key,
 			$txt['cachedir_'. $class_name_txt_key],
 			'file',
 			'text',
@@ -145,7 +146,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
-				$("#cachedir_'. $class_name .'").prop("disabled", cache_type != "'. $class_name .'");
+				$("#cachedir_'. $class_name_txt_key .'").prop("disabled", cache_type != "'. $class_name .'");
 			});';
 	}
 
