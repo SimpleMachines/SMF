@@ -176,14 +176,8 @@ function ShowAdminHelp()
 		case 'enableSpellChecking':
 			$context['help_text'] = printf($context['help_text'], ((function_exists('pspell_new') || function_exists('enchant_broker_init')) ? $helptxt['enableSpellCheckingSupported'] : $helptxt['enableSpellCheckingUnsupported']));
 			break;
-		case 'pgFulltextSearch':
-			$context['help_text'] = printf($context['help_text'], $scripturl);
-			break;
 		case 'queryless_urls':
 			$context['help_text'] = printf($context['help_text'], (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? '' : $helptxt['queryless_urls_not']));
-			break;
-		case 'who_enabled':
-			$context['help_text'] = printf($context['help_text'], $scripturl);
 			break;
 	}
 
