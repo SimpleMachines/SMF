@@ -261,7 +261,7 @@ function Who()
  */
 function determineActions($urls, $preferred_prefix = false)
 {
-	global $txt, $user_info, $modSettings, $smcFunc, $scripturl;
+	global $txt, $user_info, $modSettings, $smcFunc, $scripturl, $context;
 
 	if (!allowedTo('who_view'))
 		return array();
@@ -355,11 +355,11 @@ function determineActions($urls, $preferred_prefix = false)
 			}
 			// It's the board index!!  It must be!
 			else
-				$data[$k] = $txt['who_index'];
+				$data[$k] = sprintf($txt['who_index'], $scripturl, $context['forum_name_html_safe']);
 		}
 		// Probably an error or some goon?
 		elseif ($actions['action'] == '')
-			$data[$k] = $txt['who_index'];
+			$data[$k] = sprintf($txt['who_index'], $scripturl, $context['forum_name_html_safe']);
 		// Some other normal action...?
 		else
 		{
