@@ -50,16 +50,13 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	public function connect()
 	{
 		$database = $this->cachedir . '/' . 'SQLite3Cache.db3';
-		$this->cacheDB = new \SQLite3($database);
+		$this->cacheDB = new SQLite3($database);
 		$this->cacheDB->busyTimeout(1000);
-
-		if (0 == filesize($database))
+		if (filesize($database) == 0)
 		{
 			$this->cacheDB->exec('CREATE TABLE cache (key text unique, value blob, ttl int);');
 			$this->cacheDB->exec('CREATE INDEX ttls ON cache(ttl);');
 		}
-
-		$this->cacheTime = time();
 	}
 
 	/**
@@ -112,7 +109,6 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	{
 		if ($type == 'expired')
 			$query = 'DELETE FROM cache WHERE ttl >= ' . time() . ';';
-
 		else
 			$query = 'DELETE FROM cache;';
 
@@ -168,18 +164,12 @@ class Sqlite extends CacheApi implements CacheApiInterface
 
 		// If its invalid, use SMF's.
 		if (is_null($dir) || !is_writable($dir))
-		{
 			if (is_null($cachedir_sqlite) || !is_writable($cachedir_sqlite))
 				$this->cachedir = $cachedir;
-
 			else
 				$this->cachedir = $cachedir_sqlite;
-		}
-
 		else
 			$this->cachedir = $dir;
-
-		return !is_null($this->cachedir);
 	}
 
 	/**
@@ -188,7 +178,6 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	public function getVersion()
 	{
 		$temp = $this->cacheDB->version();
-
 		return $temp['versionString'];
 	}
 
