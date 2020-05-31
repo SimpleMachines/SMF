@@ -3555,7 +3555,7 @@ function loadDatabase()
  * @param bool $fallbackSMF Use the default SMF method if the accelerator fails.
  * @return object|false A object of $cacheAPI, or False on failure.
  */
-function loadCacheAccelerator($overrideCache = [], $fallbackSMF = true)
+function loadCacheAccelerator($overrideCache = array(), $fallbackSMF = true)
 {
 	global $cacheAPI, $cache_accelerator, $cache_enable, $cacheAPIdir;
 
