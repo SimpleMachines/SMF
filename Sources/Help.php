@@ -128,7 +128,7 @@ function HelpRules()
  */
 function ShowAdminHelp()
 {
-	global $txt, $helptxt, $context, $scripturl;
+	global $txt, $helptxt, $context, $scripturl, $boarddir, $boardurl;
 
 	if (!isset($_GET['help']) || !is_string($_GET['help']))
 		fatal_lang_error('no_access', false);
