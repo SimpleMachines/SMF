@@ -403,7 +403,7 @@ $helptxt['autoFixDatabase'] = 'This will automatically fix broken tables and res
 // argument(s): scripturl
 $helptxt['pgFulltextSearch'] = 'This setting defines the language to use for PostgreSQL\'s fulltext search. Choose the language that most closely matches the language your forum actually uses. If your forum\'s language is not listed, or if your forum is multi-lingual, choose the "simple" option. <br>
 This setting is independent of your main SMF language settings and not related to the installed language for SMF. <br>
-When you change this setting you need to [url=%1$s?action=admin;area=managesearch;sa=method]rebuild the fulltext search index[/url].<br>
+When you change this setting you need to <a href="%1$s?action=admin;area=managesearch;sa=method" target="_blank" rel="noopener">rebuild the fulltext search index</a>.<br>
 If a language you need is not listed, ask your database admin to install PostgreSQL language support for that language.';
 
 $helptxt['enableParticipation'] = 'This shows a little icon on the topics the user has posted in.';
