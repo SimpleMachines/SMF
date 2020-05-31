@@ -77,8 +77,6 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function connect()
 	{
-		// memcached does not remove servers from the list upon completing the
-		// script under modes like FastCGI. So check to see if servers exist or not.
 		$this->memcached = new Memcached;
 
 		return $this->addServers();
@@ -97,15 +95,6 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 		$retVal = !empty($currentServers);
 		foreach ($this->servers as $server)
 		{
-			if (strpos($server, '/') !== false)
-				$tempServer = array($server, 0);
-
-			else
-			{
-				$server = explode(':', $server);
-				$tempServer = array($server[0], isset($server[1]) ? $server[1] : 11211);
-			}
-
 			// Figure out if we have this server or not
 			$foundServer = false;
 			foreach ($currentServers as $currentServer)
@@ -113,7 +102,6 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 				if ($server[0] == $currentServer['host'] && $server[1] == $currentServer['port'])
 				{
 					$foundServer = true;
-
 					break;
 				}
 			}
