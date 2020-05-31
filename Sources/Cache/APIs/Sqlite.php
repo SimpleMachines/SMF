@@ -178,8 +178,10 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	 */
 	public function getVersion()
 	{
-		$temp = $this->cacheDB->version();
-		return $temp['versionString'];
+		if (null == $this->cacheDB)
+			$this->connect();
+
+		return $this->cacheDB->version()['versionString'];
 	}
 
 	/**
