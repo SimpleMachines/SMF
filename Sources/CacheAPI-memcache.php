@@ -73,9 +73,9 @@ class memcache_cache extends cache_api
 
 			// Don't wait too long: yes, we want the server, but we might be able to run the query faster!
 			if (empty($db_persist))
-				$connected = $this->memcache->connect($host, $port);
+				$connected = @$this->memcache->connect($host, $port);
 			else
-				$connected = $this->memcache->pconnect($host, $port);
+				$connected = @$this->memcache->pconnect($host, $port);
 		}
 
 		return $connected;
