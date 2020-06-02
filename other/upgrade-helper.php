@@ -480,11 +480,5 @@ function upgradeCacheSettings()
 
 	$current_cache = !empty($GLOBALS['cache_accelerator']) ? $GLOBALS['cache_accelerator'] : 'smf';
 
-	return json_encode(array(
-		'class_name' => $cache_options[$current_cache],
-		'file_info' => array(
-			'basename' => $cache_options[$current_cache] .'.php'
-		),
-		'txt_key' => strtolower($cache_options[$current_cache]),
-	));
+	return $cache_options[$current_cache];
 }
