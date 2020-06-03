@@ -164,7 +164,7 @@ function ViewModlog()
 		'get_items' => array(
 			'function' => 'list_getModLogEntries',
 			'params' => array(
-				(!empty($search_params['string']) ? ' INSTR({raw:sql_type}, {string:search_string})' : ''),
+				(!empty($search_params['string']) ? ' INSTR({raw:sql_type}, {string:search_string}) > 0' : ''),
 				array('sql_type' => $search_params_column, 'search_string' => $search_params['string']),
 				$context['log_type'],
 			),
@@ -172,7 +172,7 @@ function ViewModlog()
 		'get_count' => array(
 			'function' => 'list_getModLogEntryCount',
 			'params' => array(
-				(!empty($search_params['string']) ? ' INSTR({raw:sql_type}, {string:search_string})' : ''),
+				(!empty($search_params['string']) ? ' INSTR({raw:sql_type}, {string:search_string}) > 0' : ''),
 				array('sql_type' => $search_params_column, 'search_string' => $search_params['string']),
 				$context['log_type'],
 			),
