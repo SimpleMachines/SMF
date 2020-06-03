@@ -283,9 +283,7 @@ $txt['avatar_max_size_h'] = 'Max size: %2$spx high';
 
 // Use numeric entities in the below three strings.
 $txt['no_reminder_email'] = 'Unable to send reminder email.';
-$txt['send_email'] = 'Send an email to';
-$txt['to_ask_password'] = 'to ask for your authentication details';
-
+$txt['send_email_to_webmaster'] = 'Send an email to <a href="mailto:%1$s">webmaster</a> to ask for your authentication details.';
 $txt['user_email'] = 'Username/Email';
 
 // Use numeric entities in the below two strings.
