@@ -425,7 +425,7 @@ function determineActions($urls, $preferred_prefix = false)
 			elseif (isset($allowedActions[$actions['action']]))
 			{
 				if (allowedTo($allowedActions[$actions['action']]) && !empty($txt['whoallow_' . $actions['action']]))
-					$data[$k] = $txt['whoallow_' . $actions['action']];
+					$data[$k] = sprintf($txt['whoallow_' . $actions['action']], $scripturl);
 				elseif (in_array('moderate_forum', $allowedActions[$actions['action']]))
 					$data[$k] = $txt['who_moderate'];
 				elseif (in_array('admin_forum', $allowedActions[$actions['action']]))
