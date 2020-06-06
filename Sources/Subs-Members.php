@@ -801,9 +801,10 @@ function registerMember(&$regOptions, $return_errors = false)
 				'ACTIVATIONLINKWITHOUTCODE' => $scripturl . '?action=activate;u=' . $memberID,
 				'ACTIVATIONCODE' => $validation_code,
 			);
+
 		else
 			$replacements += array(
-				'COPPALINK' => $scripturl . '?action=coppa;u=' . $memberID,
+				'COPPALINK' => $scripturl . '?action=coppa;member=' . $memberID,
 			);
 
 		$emaildata = loadEmailTemplate('register_' . ($regOptions['require'] == 'activation' ? 'activate' : 'coppa'), $replacements);
