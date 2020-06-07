@@ -128,7 +128,7 @@ function HelpRules()
  */
 function ShowAdminHelp()
 {
-	global $txt, $helptxt, $context, $scripturl;
+	global $txt, $helptxt, $context, $scripturl, $boarddir, $boardurl;
 
 	if (!isset($_GET['help']) || !is_string($_GET['help']))
 		fatal_lang_error('no_access', false);
@@ -162,6 +162,24 @@ function ShowAdminHelp()
 		$context['help_text'] = $txt[$_GET['help']];
 	else
 		$context['help_text'] = $_GET['help'];
+
+	switch ($_GET['help']) {
+		case 'cal_short_months':
+			$context['help_text'] = sprintf($context['help_text'], $txt['months_short'][1], $txt['months_titles'][1]);
+			break;
+		case 'cal_short_days':
+			$context['help_text'] = sprintf($context['help_text'], $txt['days_short'][1], $txt['days'][1]);
+			break;
+		case 'cron_is_real_cron':
+			$context['help_text'] = sprintf($context['help_text'], $boarddir, $boardurl);
+			break;
+		case 'enableSpellChecking':
+			$context['help_text'] = sprintf($context['help_text'], ((function_exists('pspell_new') || function_exists('enchant_broker_init')) ? $helptxt['enableSpellCheckingSupported'] : $helptxt['enableSpellCheckingUnsupported']));
+			break;
+		case 'queryless_urls':
+			$context['help_text'] = sprintf($context['help_text'], (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? $helptxt['queryless_urls_supported'] : $helptxt['queryless_urls_unsupported']));
+			break;
+	}
 
 	// Does this text contain a link that we should fill in?
 	if (preg_match('~%([0-9]+\$)?s\?~', $context['help_text'], $match))

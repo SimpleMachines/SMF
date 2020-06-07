@@ -196,7 +196,7 @@ function template_modify_language_entries()
 			</div>
 			<div class="information">
 				<div>
-					', $txt['edit_language_entries_desc'], '
+					', sprintf($txt['edit_language_entries_desc'], $scripturl, $txt['themeadmin_edit_title']), '
 				</div>
 				<br>
 				<div id="taskpad" class="floatright">

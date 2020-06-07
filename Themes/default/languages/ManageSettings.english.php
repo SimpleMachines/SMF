@@ -3,7 +3,8 @@
 
 global $scripturl;
 
-$txt['modSettings_desc'] = 'This page allows you to change the settings of features and basic options in your forum. Please see the <a href="' . $scripturl . '?action=admin;area=theme;sa=list;th=%1$s;%3$s=%2$s">theme settings</a> for more options. Click the help icons for more information about a setting.';
+// argument(s): theme_id, session_id, session_var, $scripturl
+$txt['modSettings_desc'] = 'This page allows you to change the settings of features and basic options in your forum. Please see the <a href="%4$s?action=admin;area=theme;sa=list;th=%1$s;%3$s=%2$s">theme settings</a> for more options. Click the help icons for more information about a setting.';
 $txt['modification_settings_desc'] = 'This page contains settings added by any modifications to your forum';
 
 $txt['modification_no_misc_settings'] = 'There are no modifications installed that have added any settings to this area yet.';
@@ -231,7 +232,8 @@ $txt['setting_view_warning_own'] = 'Users who can see their own warning status';
 
 $txt['signature_settings'] = 'Signature Settings';
 $txt['signature_settings_desc'] = 'Use the settings on this page to decide how member signatures should be treated in SMF.';
-$txt['signature_settings_warning'] = 'Note that settings are not applied to existing signatures by default. <a href="' . $scripturl . '?action=admin;area=featuresettings;sa=sig;apply;%2$s=%1$s">Apply changes now</a>';
+// argument(s): session_id, session_var, scripturl
+$txt['signature_settings_warning'] = 'Note that settings are not applied to existing signatures by default. <a href="%3$s?action=admin;area=featuresettings;sa=sig;apply;%2$s=%1$s">Apply changes now</a>';
 $txt['signature_settings_applied'] = 'The updated rules have been applied to the existing signatures.';
 $txt['signature_enable'] = 'Enable signatures';
 $txt['signature_max_length'] = 'Maximum allowed characters';
@@ -356,7 +358,8 @@ $txt['add_language_smf_version'] = 'Version';
 
 $txt['edit_language_entries_primary'] = 'Below are the primary language settings for this language pack.';
 $txt['edit_language_entries'] = 'Edit Language Entries';
-$txt['edit_language_entries_desc'] = 'You can customize the individual text entries for this language. Select a file to load its entries, and then edit them below.<br><br>When you edit (or remove) an entry, a commented out version of the original is preserved in the file. If you ever need to restore your edited strings to their original state, or if you need more advanced access to these language files, go to <a href="' . $scripturl . '?action=admin;area=theme;sa=edit">' . $txt['themeadmin_edit_title'] . '</a>, browse to the file you are looking for, and then edit it directly using SMF\'s built-in text editor.';
+// argument(s): $scripturl, $txt['themeadmin_edit_title']
+$txt['edit_language_entries_desc'] = 'You can customize the individual text entries for this language. Select a file to load its entries, and then edit them below.<br><br>When you edit (or remove) an entry, a commented out version of the original is preserved in the file. If you ever need to restore your edited strings to their original state, or if you need more advanced access to these language files, go to <a href="%1$s?action=admin;area=theme;sa=edit">%2$s</a>, browse to the file you are looking for, and then edit it directly using SMF\'s built-in text editor.';
 $txt['edit_language_entries_file'] = 'Select entries to edit';
 $txt['languages_dictionary'] = 'Dictionary';
 $txt['languages_spelling'] = 'Spelling';

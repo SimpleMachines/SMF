@@ -86,7 +86,7 @@ function ManagePaidSubscriptions()
  */
 function ModifySubscriptionSettings($return_config = false)
 {
-	global $context, $txt, $modSettings, $sourcedir, $smcFunc, $scripturl;
+	global $context, $txt, $modSettings, $sourcedir, $smcFunc, $scripturl, $boardurl;
 
 	if (!empty($modSettings['paid_enabled']))
 	{
@@ -169,7 +169,7 @@ function ModifySubscriptionSettings($return_config = false)
 			}
 		}
 
-		$context['settings_message'] = $txt['paid_note'];
+		$context['settings_message'] = sprintf($txt['paid_note'], $boardurl);
 		$context[$context['admin_menu_name']]['current_subsection'] = 'settings';
 		$context['settings_title'] = $txt['settings'];
 

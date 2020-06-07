@@ -115,7 +115,8 @@ $txt['filter_only_type'] = 'Only show the errors of this type';
 $txt['filter_only_file'] = 'Only show the errors from this file';
 $txt['apply_filter_of_type'] = 'Apply filter of type';
 $txt['backtrace_title'] = 'Backtrace information';
-$txt['backtrace_info'] = '<b>#%1$d</b>: %2$s()<br>Called from <a href="' . $scripturl . '?action=admin;area=logs;sa=errorlog;file=%5$s;line=%4$d" onclick="return reqWin(this.href, 600, 480, false);">%3$s on line %4$d</a>';
+// argument(s): error message, function, filename, line nr, filehash, $scripturl
+$txt['backtrace_info'] = '<b>#%1$d</b>: %2$s()<br>Called from <a href="%6$s?action=admin;area=logs;sa=errorlog;file=%5$s;line=%4$d" onclick="return reqWin(this.href, 600, 480, false);">%3$s on line %4$d</a>';
 
 $txt['errortype_all'] = 'All errors';
 $txt['errortype_general'] = 'General';

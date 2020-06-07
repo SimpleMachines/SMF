@@ -504,7 +504,7 @@ function ComposeMailing()
 	$context['sub_template'] = 'email_members_compose';
 
 	$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : $smcFunc['htmlspecialchars']($context['forum_name'] . ': ' . $txt['subject']);
-	$context['message'] = !empty($_POST['message']) ? $_POST['message'] : $smcFunc['htmlspecialchars']($txt['message'] . "\n\n" . $txt['regards_team'] . "\n\n" . '{$board_url}');
+	$context['message'] = !empty($_POST['message']) ? $_POST['message'] : $smcFunc['htmlspecialchars']($txt['message'] . "\n\n" . sprintf($txt['regards_team'], $context['forum_name']) . "\n\n" . '{$board_url}');
 
 	// Needed for the WYSIWYG editor.
 	require_once($sourcedir . '/Subs-Editor.php');
