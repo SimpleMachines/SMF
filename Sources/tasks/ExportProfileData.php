@@ -181,14 +181,6 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		else
 			$progress = $smcFunc['json_decode'](file_get_contents($progressfile), true);
 
-		// If the temporary file has grown enormous, save it so we can start a new one.
-		// Under normal circumstances this should never happen.
-		if (file_exists($tempfile) && filesize($tempfile) >= 1024 * 1024 * 250)
-		{
-			rename($tempfile, $realfile);
-			$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
-		}
-
 		// Get the data, always in ascending order.
 		$xml_data = call_user_func($included[$datatype]['func'], 'smf', true);
 
@@ -227,10 +219,20 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			$per_page = $this->_details['format_settings']['per_page'];
 			$prev_item_count = empty($this->_details['item_count']) ? 0 : $this->_details['item_count'];
 
-			// Remember the last item so we know where to start next time.
-			$last_item = end($xml_data);
-			if (isset($last_item['content'][0]['content']) && $last_item['content'][0]['tag'] === 'id')
-				$last_id = $last_item['content'][0]['content'];
+			// If the temp file has grown enormous, save it so we can start a new one.
+			clearstatcache();
+			if (file_exists($tempfile) && filesize($tempfile) >= 1024 * 1024 * 250)
+			{
+				rename($tempfile, $realfile);
+				$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
+
+				if (empty($context['feed']['header']))
+					buildXmlFeed('smf', array(), $feed_meta, 'profile');
+
+				file_put_contents($tempfile, implode('', array($context['feed']['header'], $profile_basic_items, $context['feed']['footer'])));
+
+				$prev_item_count = 0;
+			}
 
 			// Split $xml_data into reasonably sized chunks.
 			if (empty($prev_item_count))
@@ -246,7 +248,12 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 			foreach ($xml_data as $chunk => $items)
 			{
-				unset($new_item_count);
+				unset($new_item_count, $last_id);
+
+				// Remember the last item so we know where to start next time.
+				$last_item = end($items);
+				if (isset($last_item['content'][0]['content']) && $last_item['content'][0]['tag'] === 'id')
+					$last_id = $last_item['content'][0]['content'];
 
 				// Build the XML string from the data.
 				buildXmlFeed('smf', $items, $feed_meta, 'profile');
@@ -301,6 +308,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 					{
 						// Track progress by ID where appropriate, and by time otherwise.
 						$progress[$datatype] = !isset($last_id) ? time() : $last_id;
+						file_put_contents($progressfile, $smcFunc['json_encode']($progress));
 
 						// Are we done with this datatype yet?
 						if (!isset($last_id) || (count($items) < $per_page && $last_id >= $latest[$datatype]))
@@ -311,6 +319,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 						{
 							rename($tempfile, $realfile);
 							$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
+
+							file_put_contents($tempfile, implode('', array($context['feed']['header'], $profile_basic_items, $context['feed']['footer'])));
 
 							$prev_item_count = $new_item_count = 0;
 						}
