@@ -126,7 +126,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		loadLanguage(implode('+', array_unique(array('index', 'Modifications', 'Stats', 'Profile', $included[$datatype]['langfile']))), $lang);
 
 		// @todo Ask lawyers whether the GDPR requires us to include posts in the recycle bin.
-		$query_this_board = '{query_see_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? ' AND b.id_board != ' . $modSettings['recycle_board'] : '');
+		$query_this_board = '{query_see_message_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? ' AND m.id_board != ' . $modSettings['recycle_board'] : '');
 
 		// We need a valid export directory.
 		if (empty($modSettings['export_dir']) || !file_exists($modSettings['export_dir']))

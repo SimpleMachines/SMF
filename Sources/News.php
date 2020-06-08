@@ -2088,21 +2088,49 @@ function getXmlPosts($xml_format, $ascending = false)
 
 	$show_all = !empty($user_info['is_admin']) || defined('EXPORTING');
 
+	$query_this_message_board = str_replace(array('{query_see_board}', 'b.'), array('{query_see_message_board}', 'm.'), $query_this_board);
+
 	require_once($sourcedir . '/Subs-Attachments.php');
+
+	/* MySQL can choke if we use joins in the main query when the user has
+	 * massively long posts. To avoid that, we get the names of the boards
+	 * and the user's displayed name in separate queries.
+	 */
+	$boardnames = array();
+	$request = $smcFunc['db_query']('', '
+		SELECT id_board, name
+		FROM {db_prefix}boards',
+		array()
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$boardnames[$row['id_board']] = $row['name'];
+	$smcFunc['db_free_result']($request);
+
+	if ($context['xmlnews_uid'] == $user_info['id'])
+		$poster_name = $user_info['name'];
+	else
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT COALESCE(real_name, member_name) AS poster_name
+			FROM {db_prefix}members
+			WHERE id_member = {int:uid}',
+			array(
+				'uid' => $context['xmlnews_uid'],
+			)
+		);
+		list($poster_name) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+	}
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_email, m.poster_ip,
 			m.poster_time, m.subject, m.modified_time, m.modified_name, m.modified_reason, m.body,
-			m.likes, m.approved, m.smileys_enabled, b.name AS bname, ' .
-			($user_info['id'] != $context['xmlnews_uid'] ? 'COALESCE(mem.real_name, mem.member_name)' : '{string:own_name}') . ' AS poster_name
+			m.likes, m.approved, m.smileys_enabled
 		FROM {db_prefix}messages AS m
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)' .
-			($user_info['id'] != $context['xmlnews_uid'] ? '
-			INNER JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)' : '') . '
 		WHERE m.id_member = {int:uid}
 			AND m.id_msg > {int:start_after}
-			AND ' . $query_this_board . ($modSettings['postmod_active'] && !$show_all ? '
+			AND ' . $query_this_message_board . ($modSettings['postmod_active'] && !$show_all ? '
 			AND m.approved = {int:is_approved}' : '') . '
 		ORDER BY m.id_msg {raw:ascdesc}
 		LIMIT {int:limit}',
@@ -2110,7 +2138,6 @@ function getXmlPosts($xml_format, $ascending = false)
 			'limit' => $context['xmlnews_limit'],
 			'start_after' => !empty($context['posts_start']) ? $context['posts_start'] : 0,
 			'uid' => $context['xmlnews_uid'],
-			'own_name' => !empty($user_info['name']) ? $user_info['name'] : $user_info['username'],
 			'is_approved' => 1,
 			'ascdesc' => !empty($ascending) ? 'ASC' : 'DESC',
 		)
@@ -2210,7 +2237,7 @@ function getXmlPosts($xml_format, $ascending = false)
 					),
 					array(
 						'tag' => 'category',
-						'content' => $row['bname'],
+						'content' => $boardnames[$row['id_board']],
 					),
 					array(
 						'tag' => 'comments',
@@ -2304,7 +2331,7 @@ function getXmlPosts($xml_format, $ascending = false)
 						'content' => array(
 							array(
 								'tag' => 'name',
-								'content' => $row['poster_name'],
+								'content' => $poster_name,
 								'cdata' => true,
 							),
 							array(
@@ -2424,7 +2451,7 @@ function getXmlPosts($xml_format, $ascending = false)
 							array(
 								'tag' => 'name',
 								'attributes' => array('label' => $txt['name']),
-								'content' => $row['poster_name'],
+								'content' => $poster_name,
 								'cdata' => true,
 							),
 							array(
@@ -2473,7 +2500,7 @@ function getXmlPosts($xml_format, $ascending = false)
 							),
 							array(
 								'tag' => 'name',
-								'content' => $row['bname'],
+								'content' => $boardnames[$row['id_board']],
 								'cdata' => true,
 							),
 							array(
