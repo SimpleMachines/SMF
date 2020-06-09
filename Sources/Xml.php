@@ -288,7 +288,7 @@ function warning_preview()
 				$user_info['name'],
 				$mbname,
 				$scripturl,
-				$txt['regards_team'],
+				sprintf($txt['regards_team'], $context['forum_name']),
 			);
 			$warning_body = str_replace($find, $replace, $warning_body);
 		}

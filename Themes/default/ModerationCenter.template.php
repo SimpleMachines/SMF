@@ -469,7 +469,8 @@ function template_user_watch_post_callback($post)
 		'delete' => array(
 			'label' => $txt['remove_message'],
 			'href' => $scripturl.'?action=moderate;area=userwatch;sa=post;delete='.$post['id'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'],
-			'javascript' => 'data-confirm="' . $txt['mc_watched_users_delete_post'] . '" class="you_sure"',
+			'javascript' => 'data-confirm="' . $txt['mc_watched_users_delete_post'] . '"',
+			'class' => 'you_sure',
 			'icon' => 'remove_button',
 			'show' => $post['can_delete']
 		),

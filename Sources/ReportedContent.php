@@ -94,7 +94,8 @@ function ReportedContent()
 				'ignore' => array(
 					'label' => $report['ignore'] ? $txt['mc_reportedp_unignore'] : $txt['mc_reportedp_ignore'],
 					'href' => $scripturl.'?action=moderate;area=reported'.$context['report_type'].';sa=handle;ignore='.(int)!$report['ignore'].';rid='.$report['id'].';start='.$context['start'].';'.$context['session_var'].'='.$context['session_id'].';'.$context['mod-report-ignore_token_var'].'='.$context['mod-report-ignore_token'],
-					'javascript' => !$report['ignore'] ? ' class="you_sure" data-confirm="' . $txt['mc_reportedp_ignore_confirm'] . '"' : '',
+					'javascript' => !$report['ignore'] ? ' data-confirm="' . $txt['mc_reportedp_ignore_confirm'] . '"' : '',
+					'class' => 'you_sure',
 					'icon' => 'ignore'
 				),
 				'close' => array(
@@ -109,7 +110,8 @@ function ReportedContent()
 				$context['reports'][$key]['quickbuttons']['delete'] = array(
 					'label' => $txt['mc_reportedp_delete'],
 					'href' => $scripturl.'?action=deletemsg;topic='.$report['topic']['id'].'.0;msg='.$report['topic']['id_msg'].';modcenter;'.$context['session_var'].'='.$context['session_id'],
-					'javascript' => 'data-confirm="'.$txt['mc_reportedp_delete_confirm'].'" class="you_sure"',
+					'javascript' => 'data-confirm="'.$txt['mc_reportedp_delete_confirm'].'"',
+					'class' => 'you_sure',
 					'icon' => 'delete',
 					'show' => !$report['closed'] && (is_array($context['report_remove_any_boards']) && in_array($report['topic']['id_board'], $context['report_remove_any_boards']))
 				);

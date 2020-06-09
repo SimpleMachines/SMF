@@ -630,6 +630,9 @@ function PlushSearch2()
 	// Sorting direction: descending unless stated otherwise.
 	$search_params['sort_dir'] = !empty($search_params['sort_dir']) && $search_params['sort_dir'] == 'asc' ? 'asc' : 'desc';
 
+	// Remember current sort type and sort direction
+	$context['current_sorting'] = $search_params['sort'] . '|' . $search_params['sort_dir'];
+
 	// Determine some values needed to calculate the relevance.
 	$minMsg = (int) ((1 - $recentPercentage) * $modSettings['maxMsgID']);
 	$recentMsg = $modSettings['maxMsgID'] - $minMsg;

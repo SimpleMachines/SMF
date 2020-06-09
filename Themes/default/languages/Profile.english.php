@@ -77,7 +77,6 @@ $txt['secret_ask'] = 'Ask me my question';
 $txt['cant_retrieve'] = 'You can\'t retrieve your password, but you can set a new one by following a link sent to you by email. You also have the option of setting a new password by answering your secret question.';
 $txt['incorrect_answer'] = 'Sorry, but you did not specify a valid combination of Secret Question and Answer in your profile. Please click on the back button, and use the default method of obtaining your password.';
 $txt['enter_new_password'] = 'Please enter the answer to your question, and the password you would like to use. Your password will be changed to the one you select provided you answer the question correctly.';
-$txt['password_success'] = 'Your password was changed successfully.<br>Click <a href="' . $scripturl . '?action=login">here</a> to login.';
 $txt['secret_why_blank'] = 'why is this blank?';
 
 $txt['authentication_reminder'] = 'Authentication Reminder';
@@ -234,7 +233,8 @@ $txt['trackIP'] = 'IP Address';
 $txt['trackLogins'] = 'Logins';
 
 $txt['account_info'] = 'These are your account settings. This page holds all critical information that identifies you on this forum. For security reasons, you will need to enter your (current) password to make changes to this information.';
-$txt['forumProfile_info'] = 'You can change your personal information on this page. This information will be displayed throughout ' . $context['forum_name_html_safe'] . '. If you aren\'t comfortable with sharing some information, simply skip it - nothing here is required.';
+// argument(s): forum name
+$txt['forumProfile_info'] = 'You can change your personal information on this page. This information will be displayed throughout %1$s. If you aren\'t comfortable with sharing some information, simply skip it - nothing here is required.';
 $txt['theme_info'] = 'This section allows you to customize the look and layout of the forum.';
 $txt['notification'] = 'Notifications';
 $txt['notification_info'] = 'SMF allows you to be notified of replies to posts, newly posted topics, and forum announcements. You can change those settings here, or oversee the topics and boards you are currently receiving notifications for.';
@@ -284,6 +284,7 @@ $txt['avatar_max_size_h'] = 'Max size: %2$spx high';
 // Use numeric entities in the below three strings.
 $txt['no_reminder_email'] = 'Unable to send reminder email.';
 $txt['send_email'] = 'Send an email to';
+$txt['webmaster'] = 'webmaster';
 $txt['to_ask_password'] = 'to ask for your authentication details';
 
 $txt['user_email'] = 'Username/Email';
@@ -465,8 +466,10 @@ $txt['profile_warning_notify_subject'] = 'Notification Subject';
 $txt['profile_warning_notify_body'] = 'Notification Message';
 $txt['profile_warning_notify_template_subject'] = 'You have received a warning';
 // Use numeric entities in below string.
-$txt['profile_warning_notify_template_outline'] = '{MEMBER},' . "\n\n" . 'You have received a warning for %1$s. Please cease these activities and abide by the forum rules otherwise we will take further action.' . "\n\n" . '{REGARDS}';
-$txt['profile_warning_notify_template_outline_post'] = '{MEMBER},' . "\n\n" . 'You have received a warning for %1$s in regards to the message:' . "\n" . '{MESSAGE}.' . "\n\n" . 'Please cease these activities and abide by the forum rules otherwise we will take further action.' . "\n\n" . '{REGARDS}';
+// argument(s): one of the reasons defined in $txt['profile_warning_notify_for_*']
+$txt['profile_warning_notify_template_outline'] = "{MEMBER},\n\nYou have received a warning for %1\$s. Please cease these activities and abide by the forum rules otherwise we will take further action.\n\n{REGARDS}";
+// argument(s): one of the reasons defined in $txt['profile_warning_notify_for_*']
+$txt['profile_warning_notify_template_outline_post'] = "{MEMBER},\n\nYou have received a warning for %1\$s in regards to the message:\n{MESSAGE}.\n\nPlease cease these activities and abide by the forum rules otherwise we will take further action.\n\n{REGARDS}";
 $txt['profile_warning_notify_for_spamming'] = 'spamming';
 $txt['profile_warning_notify_title_spamming'] = 'Spamming';
 $txt['profile_warning_notify_for_offence'] = 'posting offensive material';
@@ -550,13 +553,13 @@ $txt['notification_remove_pref'] = 'Use default preference';
 
 $txt['tfadisable'] = 'Disable Two-Factor Authentication';
 $txt['tfa_profile_label'] = 'Two-Factor Authentication';
-$txt['tfa_profile_desc'] = 'TFA allows you to have a secondary layer of security by assigning a dedicated device without which no one would be able to log into your account even if they have your username and password';
+$txt['tfa_profile_desc'] = '2FA allows you to have a secondary layer of security by assigning a dedicated device without which no one would be able to log into your account even if they have your username and password';
 $txt['tfa_profile_enable'] = 'Enable Two-Factor Authentication';
 $txt['tfa_profile_enabled'] = 'Two-Factor Authentication is enabled. <a href="%s">Disable</a>';
 $txt['tfa_profile_disabled'] = 'Two-Factor Authentication is disabled';
 $txt['tfa_title'] = 'Enable Two-Factor Authentication via compatible application';
-$txt['tfa_desc'] = 'In order to have two-factor authentication, you would need a compatible app such as Google Authenticator on your device. Once you have enabled TFA for your account, you will be required to enter a code from the paired device alongside your username and password in order to successfully login. After you have enabled TFA, a backup code will be provided in case you lose your paired device.';
-$txt['tfa_forced_desc'] = 'The administrator requires two-factor authentication to be enabled on all accounts. Please enable TFA here in order to resume.';
+$txt['tfa_desc'] = 'In order to have two-factor authentication, you would need a compatible app such as Google Authenticator on your device. Once you have enabled 2FA for your account, you will be required to enter a code from the paired device alongside your username and password in order to successfully login. After you have enabled 2FA, a backup code will be provided in case you lose your paired device.';
+$txt['tfa_forced_desc'] = 'The administrator requires two-factor authentication to be enabled on all accounts. Please enable 2FA here in order to resume.';
 $txt['tfa_step1'] = '1. Enter your current password';
 $txt['tfa_step2'] = '2. Enter the secret';
 $txt['tfa_step2_desc'] = 'In order to setup the app, either scan the QR code on the right side or enter the following code manually: ';
@@ -567,7 +570,7 @@ $txt['tfa_pass_invalid'] = 'Entered password is invalid, please try again.';
 $txt['tfa_code_invalid'] = 'Entered code is invalid, please try again.';
 $txt['tfa_backup_invalid'] = 'Entered backup code is invalid, please try again.';
 $txt['tfa_backup_title'] = 'Save this Two-Factor Authentication backup code somewhere safe!';
-$txt['tfa_backup_used_desc'] = 'Your backup code has been successfully entered and two-factor authentication details have been reset, if you wish to use TFA again you need to enable it from here';
+$txt['tfa_backup_used_desc'] = 'Your backup code has been successfully entered and two-factor authentication details have been reset, if you wish to use 2FA again you need to enable it from here';
 $txt['tfa_login_desc'] = 'Enter the code generated by the authenticating application on your paired device below.';
 $txt['tfa_backup'] = 'Or use backup code';
 $txt['tfa_code'] = 'Code';

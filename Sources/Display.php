@@ -1686,14 +1686,16 @@ function prepareDisplayContext($reset = false)
 			'remove_topic' => array(
 				'label' => $txt['remove_topic'],
 				'href' => $scripturl.'?action=removetopic2;topic='.$context['current_topic'].'.'.$context['start'].';'.$context['session_var'].'='.$context['session_id'],
-				'javascript' => 'data-confirm="'.$txt['are_sure_remove_topic'].'" class="you_sure"',
+				'javascript' => 'data-confirm="'.$txt['are_sure_remove_topic'].'"',
+				'class' => 'you_sure',
 				'icon' => 'remove_button',
 				'show' => $context['can_delete'] && ($context['topic_first_message'] == $output['id'])
 			),
 			'remove' => array(
 				'label' => $txt['remove'],
 				'href' => $scripturl.'?action=deletemsg;topic='.$context['current_topic'].'.'.$context['start'].';msg='.$output['id'].';'.$context['session_var'].'='.$context['session_id'],
-				'javascript' => 'data-confirm="'.$txt['remove_message_question'].'" class="you_sure"',
+				'javascript' => 'data-confirm="'.$txt['remove_message_question'].'"',
+				'class' => 'you_sure',
 				'icon' => 'remove_button',
 				'show' => $output['can_remove'] && ($context['topic_first_message'] != $output['id'])
 			),

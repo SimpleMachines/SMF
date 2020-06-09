@@ -755,8 +755,8 @@ function CoppaForm()
 			$context['ul'] = '<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>';
 			$context['template_layers'] = array();
 			$context['sub_template'] = 'coppa_form';
-			$context['page_title'] = $txt['coppa_form_title'];
-			$context['coppa_body'] = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}'), array($context['ul'], $context['ul'], $username), $txt['coppa_form_body']);
+			$context['page_title'] = sprintf($txt['coppa_form_title'], $context['forum_name_html_safe']);
+			$context['coppa_body'] = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}'), array($context['ul'], $context['ul'], $username), sprintf($txt['coppa_form_body'], $context['forum_name_html_safe']));
 		}
 		// Downloading.
 		else
@@ -764,7 +764,7 @@ function CoppaForm()
 			// The data.
 			$ul = '                ';
 			$crlf = "\r\n";
-			$data = $context['forum_contacts'] . $crlf . $txt['coppa_form_address'] . ':' . $crlf . $txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf . $txt['coppa_form_body'];
+			$data = $context['forum_contacts'] . $crlf . $txt['coppa_form_address'] . ':' . $crlf . $txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf . sprintf($txt['coppa_form_body'], $context['forum_name_html_safe']);
 			$data = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}', '<br>', '<br>'), array($ul, $ul, $username, $crlf, $crlf), $data);
 
 			// Send the headers.
@@ -785,7 +785,7 @@ function CoppaForm()
 		);
 
 		$context['coppa'] = array(
-			'body' => str_replace('{MINIMUM_AGE}', $modSettings['coppaAge'], $txt['coppa_after_registration']),
+			'body' => str_replace('{MINIMUM_AGE}', $modSettings['coppaAge'], sprintf($txt['coppa_after_registration'], $context['forum_name_html_safe'])),
 			'many_options' => !empty($modSettings['coppaPost']) && !empty($modSettings['coppaFax']),
 			'post' => empty($modSettings['coppaPost']) ? '' : $modSettings['coppaPost'],
 			'fax' => empty($modSettings['coppaFax']) ? '' : $modSettings['coppaFax'],

@@ -26,7 +26,7 @@ function template_view_package()
 
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt[($context['uninstalling'] ? 'un' : '') . 'install_mod'], '</h3>
+			<h3 class="catbg">', $txt[($context['uninstalling'] ? 'uninstall' : ('install_' . $context['extract_type']))], '</h3>
 		</div>
 		<div class="information">';
 
@@ -90,7 +90,7 @@ function template_view_package()
 		<div class="windowbg">
 			', $context['package_readme'], '
 			<span class="floatright">', $txt['package_available_readme_language'], '
-				<select name="readme_language" id="readme_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', ';package=', $context['filename'], ';readme=\' + this.options[this.selectedIndex].value + \';license=\' + get_selected(\'license_language\'));">';
+				<select name="readme_language" id="readme_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', ';package=', $context['filename'], ';license=\' + this.options[this.selectedIndex].value + \';readme=\' + get_selected(\'readme_language\'));">';
 
 		foreach ($context['readmes'] as $a => $b)
 			echo '
@@ -113,7 +113,7 @@ function template_view_package()
 		<div class="windowbg">
 			', $context['package_license'], '
 			<span class="floatright">', $txt['package_available_license_language'], '
-				<select name="license_language" id="license_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=install', ';package=', $context['filename'], ';license=\' + this.options[this.selectedIndex].value + \';readme=\' + get_selected(\'readme_language\'));">';
+				<select name="license_language" id="license_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=install', ';package=', $context['filename'], ';readme=\' + this.options[this.selectedIndex].value + \';license=\' + get_selected(\'license_language\'));">';
 
 		foreach ($context['licenses'] as $a => $b)
 			echo '

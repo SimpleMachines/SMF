@@ -1122,7 +1122,8 @@ function prepareMessageContext($type = 'subject', $reset = false)
 		'delete' => array(
 			'label' => $txt['delete'],
 			'href' => $scripturl . '?action=pm;sa=pmactions;pm_actions%5b' . $output['id'] . '%5D=delete;f=' . $context['folder'] . ';start=' . $context['start'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'],
-			'javascript' => 'data-confirm="' . JavaScriptEscape($txt['remove_message_question']) . '" class="you_sure"',
+			'javascript' => 'data-confirm="' . JavaScriptEscape($txt['remove_message_question']) . '"',
+			'class' => 'you_sure',
 			'icon' => 'remove_button',
 		),
 		'more' => array(
@@ -1771,7 +1772,8 @@ function MessageSearch2()
 					'delete' => array(
 						'label' => $txt['delete'],
 						'href' => $scripturl . '?action=pm;sa=pmactions;pm_actions%5b' . $row['id_pm'] . '%5D=delete;f=' . $context['folder'] . ';start=' . $context['start'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'],
-						'javascript' => 'data-confirm="' . JavaScriptEscape($txt['remove_message_question']) . '" class="you_sure"',
+						'javascript' => 'data-confirm="' . JavaScriptEscape($txt['remove_message_question']) . '"',
+						'class' => 'you_sure',
 						'icon' => 'remove_button',
 					),
 					'more' => array(

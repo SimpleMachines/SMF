@@ -630,14 +630,10 @@ function PackageDownload()
 	if (!is_array($context['package']))
 		fatal_lang_error('package_cant_download', false);
 
-	if ($context['package']['type'] == 'modification')
-		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['install_mod'] . ' ]</a>';
-	elseif ($context['package']['type'] == 'avatar')
-		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['use_avatars'] . ' ]</a>';
-	elseif ($context['package']['type'] == 'language')
-		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['add_languages'] . ' ]</a>';
-	else
+	if (!isset($context['package']['type']))
 		$context['package']['install']['link'] = '';
+	else
+		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . (isset($txt['install_' . $context['package']['type']]) ? $txt['install_' . $context['package']['type']] : $txt['install_unknown']) . ' ]</a>';
 
 	// Does a 3rd party hook want to do some additional changes?
 	call_integration_hook('integrate_package_download');
@@ -724,14 +720,10 @@ function PackageUpload()
 		closedir($dir);
 	}
 
-	if ($context['package']['type'] == 'modification')
-		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['install_mod'] . ' ]</a>';
-	elseif ($context['package']['type'] == 'avatar')
-		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['use_avatars'] . ' ]</a>';
-	elseif ($context['package']['type'] == 'language')
-		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['add_languages'] . ' ]</a>';
-	else
+	if (!isset($context['package']['type']))
 		$context['package']['install']['link'] = '';
+	else
+		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . (isset($txt['install_' . $context['package']['type']]) ? $txt['install_' . $context['package']['type']] : $txt['install_unknown']) . ' ]</a>';
 
 	// Does a 3rd party hook want to do some additional changes?
 	call_integration_hook('integrate_package_upload');

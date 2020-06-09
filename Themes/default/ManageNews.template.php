@@ -200,7 +200,7 @@ function template_email_members_compose()
 				</h3>
 			</div>
 			<div class="information noup">
-				', $txt['email_variables'], '
+				', sprintf($txt['email_variables'], $scripturl), '
 			</div>
 			<div class="windowbg noup">
 				<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">

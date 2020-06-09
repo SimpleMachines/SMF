@@ -195,8 +195,10 @@ $helptxt['cal_disable_prev_next'] = 'If this setting is checked, the three month
 $helptxt['cal_display_type'] = 'This setting allows you to change the display type of the calendar.<br><br><strong>Comfortable:</strong> makes the rows of the calendar big.<br><strong>Compact:</strong> makes the rows of the calendar small.';
 $helptxt['cal_week_links'] = 'If this setting is checked, links will be added alongside each week in the calendar.';
 $helptxt['cal_prev_next_links'] = 'If this setting is checked, previous month and next month links will be added to the top of each month for easy navigation.';
-$helptxt['cal_short_months'] = 'If this setting is checked, month names within the calendar will be shortened.<br><br><strong>Enabled:</strong> ' . $txt['months_short'][1] . ' 1<br><strong>Disabled:</strong> ' . $txt['months_titles'][1] . ' 1';
-$helptxt['cal_short_days'] = 'If this setting is checked, day names within the calendar will be shortened.<br><br><strong>Enabled:</strong> ' . $txt['days_short'][1] . '<br><strong>Disabled:</strong> ' . $txt['days'][1];
+// argument(s): $txt['months_short'][1], $txt['months_titles'][1]
+$helptxt['cal_short_months'] = 'If this setting is checked, month names within the calendar will be shortened.<br><br><strong>Enabled:</strong> %1$s 1<br><strong>Disabled:</strong> %2$s 1';
+// argument(s): $txt['days_short'][1], $txt['days'][1]
+$helptxt['cal_short_days'] = 'If this setting is checked, day names within the calendar will be shortened.<br><br><strong>Enabled:</strong> %1$s<br><strong>Disabled:</strong> %2$s';
 
 $helptxt['serversettings'] = '<strong>Server Settings</strong><br>
 	Here you can perform some core configuration for your forum. This page includes the database and URL settings, as well as other
@@ -381,7 +383,12 @@ $helptxt['edit_disable_time'] = 'The number of minutes allowed to pass before a 
 $helptxt['preview_characters'] = 'This setting sets the number of available characters for the first and last message topic preview.';
 $helptxt['quote_expand'] = 'This setting allows large quotes to be cutoff and expanded to their full length by the user. The setting indicates the minimum height a quote needs to have for it to be collapsed. Quotes smaller than this setting won\'t be affected';
 $helptxt['posts_require_captcha'] = 'This setting will force users to pass anti-spam bot verification each time they make a post to a board. Only users with a post count below the number set will need to enter the code - this should help combat automated spamming scripts.';
-$helptxt['enableSpellChecking'] = 'Enable spell checking. You MUST have the pspell or enchant library installed on your server and your PHP configuration set up to use the installed library. Your server ' . ((function_exists('pspell_new') || function_exists('enchant_broker_init')) ? 'DOES' : 'DOES NOT') . ' appear to have this set up.';
+// argument(s): either $helptxt['enableSpellCheckingSupported'] or $helptxt['enableSpellCheckingUnsupported'], depending on whether the server supports one of the libs
+$helptxt['enableSpellChecking'] = 'Enable spell checking. You MUST have the pspell or enchant library installed on your server and your PHP configuration set up to use the installed library. %1$s';
+// is conditionally used as part of $helptxt['enableSpellChecking']
+$helptxt['enableSpellCheckingSupported'] = 'Your server DOES appear to have this set up.';
+// is conditionally used as part of $helptxt['enableSpellChecking']
+$helptxt['enableSpellCheckingUnsupported'] = 'Your server DOES NOT appear to have this set up.';
 $helptxt['disable_wysiwyg'] = 'This setting disallows all users from using the WYSIWYG (&quot;What You See Is What You Get&quot;) editor on the post page.';
 $helptxt['lastActive'] = 'Set the number of minutes to show people are active in X number of minutes on the board index. Default is 15 minutes.';
 
@@ -393,9 +400,10 @@ $helptxt['customoptions'] = 'This defines the options that a user may choose fro
 	</ul>';
 
 $helptxt['autoFixDatabase'] = 'This will automatically fix broken tables and resume as if nothing happened. It does email you when this happens.<br>If you choose to disable this option, your forum will be down until you notice and manually fix the problem.';
+// argument(s): scripturl
 $helptxt['pgFulltextSearch'] = 'This setting defines the language to use for PostgreSQL\'s fulltext search. Choose the language that most closely matches the language your forum actually uses. If your forum\'s language is not listed, or if your forum is multi-lingual, choose the "simple" option. <br>
 This setting is independent of your main SMF language settings and not related to the installed language for SMF. <br>
-When you change this setting you need to [url=' . $scripturl . '?action=admin;area=managesearch;sa=method]rebuild the fulltext search index[/url].<br>
+When you change this setting you need to <a href="%1$s?action=admin;area=managesearch;sa=method" target="_blank" rel="noopener">rebuild the fulltext search index</a>.<br>
 If a language you need is not listed, ask your database admin to install PostgreSQL language support for that language.';
 
 $helptxt['enableParticipation'] = 'This shows a little icon on the topics the user has posted in.';
@@ -404,14 +412,20 @@ $helptxt['db_persist'] = 'This keeps the connection active to increase performan
 If this option is disabled, you may need to enable the mysqli.allow_persistent or pgsql.allow_persistent setting in your php.ini file.';
 $helptxt['ssi_db_user'] = 'Optional setting to use a different database user and password when you are using SSI.php.';
 
-$helptxt['queryless_urls'] = 'This changes the format of URLs a little so search engines will like them better. They will look like index.php/topic,1.0.html.<br><br>This feature will ' . (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? '' : 'not') . ' work on your server.';
+// argument(s): either $helptxt['queryless_urls_supported'] or $helptxt['queryless_urls_unsupported'], depending on whether the server uses a supported webserver
+$helptxt['queryless_urls'] = 'This changes the format of URLs a little so search engines will like them better. They will look like index.php/topic,1.0.html.<br><br>%1$s';
+// is conditionally used as part of $helptxt['queryless_urls']
+$helptxt['queryless_urls_supported'] = 'This feature will work on your server.';
+// is conditionally used as part of $helptxt['queryless_urls']
+$helptxt['queryless_urls_unsupported'] = 'This feature will not work on your server.';
 $helptxt['minimize_files'] = 'This option will minimize the CSS and JavaScript files used by your forum, reducing the request calls to your server and speeding up load times for your users.<br><br>You should normally leave this option enabled. The only time you might want to disable it temporarily is while you are in the process of altering the CSS or JavaScript files used on your site (for example, when editing your theme files or developing a modification).';
 $helptxt['boardindex_max_depth'] = 'This setting controls how many sub-board levels SMF will check when looking for new posts in sub-boards. It also affects which boards are included when the "Count sub-board\'s posts in parent\'s totals" option is enabled.<br><br>For example, if this is set to 1, a sub-board will only be marked "new" on the index page if the sub-board itself contains a new post. If it is set to 2, the sub-board will be marked "new" if there is a new post in the sub-board or in a sub-sub-board. If it is set to 10, the sub-board will be marked "new" if there is a new post in the sub-board, a sub-sub-board, a sub-sub-sub-board, etc., up to 10 levels deep.<br><br>Large, active forums may want to set this value to a low number in order to conserve server resources.';
 $helptxt['countChildPosts'] = 'Checking this setting means that posts and topics in a board\'s sub-board will count toward its totals on the index page.<br><br>This means that a parent board with no posts in it won\'t show \'0\' if there are any posts in its sub-boards.';
 $helptxt['allow_ignore_boards'] = 'Checking this setting will allow users to select boards they wish to ignore.';
 $helptxt['deny_boards_access'] = 'Checking this setting will allow you to deny access to certain boards based on membergroup access';
 
-$helptxt['who_enabled'] = 'This setting allows you to turn on or off the <a href="' . $scripturl . '?action=who" target="_blank" rel="noopener">Who\'s Online</a> page, which shows who is browsing the forum and what they are doing.';
+// argument(s): scripturl
+$helptxt['who_enabled'] = 'This setting allows you to turn on or off the <a href="%1$s?action=who" target="_blank" rel="noopener">Who\'s Online</a> page, which shows who is browsing the forum and what they are doing.';
 
 $helptxt['recycle_enable'] = '&quot;Recycles&quot; deleted topics and posts to the specified board.';
 
@@ -619,7 +633,8 @@ $helptxt['enable_sm_stats'] = 'If enabled, this will allow Simple Machines to vi
 
 $helptxt['field_reg_require'] = 'If this field is required during registration, it will also be required on profile changes.';
 
-$helptxt['cron_is_real_cron'] = 'By default, SMF adds to every page a small bit of JavaScript that prompts the user\'s browser to trigger SMF\'s cron.php in the background. This approach allows SMF to execute its scheduled tasks on a regular basis without requiring the admin to do any extra server configuration. However, some admins might prefer to configure their servers to directly execute cron.php on a regular basis. If you have done this, you can disable the JavaScript method.<br><br><strong>Note:</strong> Configuring your server to run scheduled tasks this way cannot be done from within SMF. You will need to use your server configuration software to do so. Typical tools for this purpose include <code>cron</code> (for Linux servers), <code>schtasks.exe</code> (for Windows servers), and <code>launchd</code> (for macOS servers). Most web hosting companies provide some sort of control panel interface to allow their customers to access these tools.<br><br>The path and URL for your forum\'s cron.php are:<br>Path: ' . $boarddir . '/cron.php<br>URL: ' . $boardurl . '/cron.php';
+// argument(s): $boarddir, $boardurl
+$helptxt['cron_is_real_cron'] = 'By default, SMF adds to every page a small bit of JavaScript that prompts the user\'s browser to trigger SMF\'s cron.php in the background. This approach allows SMF to execute its scheduled tasks on a regular basis without requiring the admin to do any extra server configuration. However, some admins might prefer to configure their servers to directly execute cron.php on a regular basis. If you have done this, you can disable the JavaScript method.<br><br><strong>Note:</strong> Configuring your server to run scheduled tasks this way cannot be done from within SMF. You will need to use your server configuration software to do so. Typical tools for this purpose include <code>cron</code> (for Linux servers), <code>schtasks.exe</code> (for Windows servers), and <code>launchd</code> (for macOS servers). Most web hosting companies provide some sort of control panel interface to allow their customers to access these tools.<br><br>The path and URL for your forum\'s cron.php are:<br>Path: %1$s/cron.php<br>URL: %2$s/cron.php';
 
 $helptxt['languages_txt'] = 'These language entries are used throughout SMF to define localized versions of text for different languages.<br><br>If you see a value like <code>&#37;1$s</code> in an entry, it is a placeholder that SMF fills in with a real value at runtime. Make sure to keep such placeholders in your customized text.';
 $helptxt['languages_helptxt'] = 'These language entries are used to show floating help text popups (like this one).';

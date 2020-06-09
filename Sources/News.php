@@ -81,7 +81,7 @@ function ShowXmlFeed()
 	// Some general metadata for this feed. We'll change some of these values below.
 	$feed_meta = array(
 		'title' => '',
-		'desc' => $txt['xml_rss_desc'],
+		'desc' => sprintf($txt['xml_rss_desc'], $context['forum_name']),
 		'author' => $context['forum_name'],
 		'source' => $scripturl,
 		'rights' => '© ' . date('Y') . ' ' . $context['forum_name'],

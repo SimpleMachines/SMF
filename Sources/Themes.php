@@ -1089,7 +1089,7 @@ function PickTheme()
 			$txt['theme_description'] = '';
 		}
 
-		$context['available_themes'][$id_theme]['thumbnail_href'] = $txt['theme_thumbnail_href'];
+		$context['available_themes'][$id_theme]['thumbnail_href'] = sprintf($txt['theme_thumbnail_href'], $settings['images_url']);
 		$context['available_themes'][$id_theme]['description'] = $txt['theme_description'];
 
 		// Are there any variants?

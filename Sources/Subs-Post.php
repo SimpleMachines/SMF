@@ -2796,7 +2796,7 @@ function adminNotify($type, $memberID, $member_name = null)
  */
 function loadEmailTemplate($template, $replacements = array(), $lang = '', $loadLang = true)
 {
-	global $txt, $mbname, $scripturl, $settings;
+	global $txt, $mbname, $scripturl, $settings, $context;
 
 	// First things first, load up the email templates language file, if we need to.
 	if ($loadLang)
@@ -2818,7 +2818,7 @@ function loadEmailTemplate($template, $replacements = array(), $lang = '', $load
 		'THEMEURL' => $settings['theme_url'],
 		'IMAGESURL' => $settings['images_url'],
 		'DEFAULT_THEMEURL' => $settings['default_theme_url'],
-		'REGARDS' => $txt['regards_team'],
+		'REGARDS' => sprintf($txt['regards_team'], $context['forum_name']),
 	);
 
 	// Split the replacements up into two arrays, for use with str_replace

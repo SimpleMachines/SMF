@@ -55,6 +55,7 @@ $txt['paypal_additional_emails_desc'] = 'If different (for business account)';
 $txt['paypal_sandbox_email'] = 'PayPal sandbox email address';
 $txt['paypal_sandbox_email_desc'] = 'Can be left blank if test mode is disabled or not using PayPal.';
 
+// argument(s): $boardurl
 $txt['paid_note'] = '<strong class="alert">Note:</strong><br>
 SMF currently supports <strong>PayPal</strong> as the installed payment method.<br>
 	&nbsp;&nbsp;&bull;&nbsp;&nbsp;It is not necessary to enable IPN in your PayPal account; but if you do, the forum will receive payment notifications for all payments made to your account, and this will generate Paid Subscriptions errors for payments that are not subscription related.<br>
@@ -62,7 +63,7 @@ SMF currently supports <strong>PayPal</strong> as the installed payment method.<
 	&nbsp;&nbsp;&bull;&nbsp;&nbsp;You must provide your primary PayPal email address for validation purposes.<br><br>
 
 If you install a different payment gateway, you may need to set up a return URL for payment notification.   For all payment types, this return URL should be set as:<br><br>
-	&nbsp;&nbsp;&bull;&nbsp;&nbsp;<strong>' . $boardurl . '/subscriptions.php</strong><br><br>
+	&nbsp;&nbsp;&bull;&nbsp;&nbsp;<strong>%1$s/subscriptions.php</strong><br><br>
 You can normally find it in your customer panels, usually under the term &quot;Return URL&quot; or &quot;Callback URL&quot;.<br><br><br>';
 
 // View subscription strings.

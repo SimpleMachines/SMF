@@ -100,7 +100,7 @@ function template_redirect_options($type)
 								', $txt[$type . '_why'], '
 							</dt>
 							<dd>
-								<textarea name="reason">', $txt[$type . 'topic_default'], '</textarea>
+								<textarea name="reason">', sprintf($txt[$type . 'topic_default'], $txt['movetopic_auto_board'], $txt['movetopic_auto_topic']), '</textarea>
 							</dd>
 							<dt>
 								<label for="redirect_topic">', $txt[$type . 'topic_redirect'], '</label>
