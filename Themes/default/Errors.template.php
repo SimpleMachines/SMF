@@ -78,104 +78,100 @@ function template_error_log()
 					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']), '" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']), '" class="button you_sure">
 				</div>
 			</div>
-			<table class="table_grid" id="error_log">
-				<tr class="title_bar">
-					<td colspan="3">
-						', $txt['apply_filter_of_type'], ':';
+			<div class="title_bar">
+				<div style="padding: 6px 12px 5px 12px">
+					', $txt['apply_filter_of_type'], ':';
 
 	$error_types = array();
 
 	foreach ($context['error_types'] as $type => $details)
-		$error_types[] = ($details['is_selected'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt=""> ' : '') . '<a href="' . $details['url'] . '" ' . ($details['is_selected'] ? 'style="font-weight: bold;"' : '') . ' title="' . $details['description'] . '">' . ($details['error_type'] === 'critical' ? '<span class="error">' . $details['label'] . '</span>' : $details['label']) . '</a>';
+		$error_types[] = ($details['is_selected'] ? '<span class="main_icons right_arrow"></span> ' : '') . '<a href="' . $details['url'] . '" ' . ($details['is_selected'] ? 'style="font-weight: bold;"' : '') . ' title="' . $details['description'] . '">' . ($details['error_type'] === 'critical' ? '<span class="error">' . $details['label'] . '</span>' : $details['label']) . '</a>';
 
 	echo '
-						', implode(' | ', $error_types), '
-					</td>
-				</tr>';
+					', implode(' | ', $error_types), '
+				</div>
+			</div>';
 
 	if ($context['has_filter'])
 		echo '
-				<tr>
-					<td colspan="3" class="windowbg">
-						<strong>', $txt['applying_filter'], ':</strong> ', $context['filter']['entity'], ' ', $context['filter']['value']['html'], ' [<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', '">', $txt['clear_filter'], '</a>]
-					</td>
-				</tr>';
-
-	echo '
-				<tr>
-					<td colspan="3" class="righttext">
-						<label for="check_all1"><strong>', $txt['check_all'], '</strong></label>
-						<input type="checkbox" id="check_all1" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all2.checked = this.checked;">
-					</td>
-				</tr>';
+			<div class="information">
+				<strong>', $txt['applying_filter'], ':</strong> ', $context['filter']['entity'], ' ', $context['filter']['value']['html'], ' [<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', '">', $txt['clear_filter'], '</a>]
+			</div>';
 
 	// No errors, then show a message
 	if (count($context['errors']) == 0)
+	{
 		echo '
-				<tr class="windowbg">
-					<td class="centertext" colspan="2">', $txt['errorlog_no_entries'], '</td>
-				</tr>';
+			<div class="information">', $txt['errorlog_no_entries'], '</div>';
+	}
+	else
+	{
+		echo '
+			<div class="righttext">
+				<label for="check_all1"><strong>', $txt['check_all'], '</strong></label>
+				<input type="checkbox" id="check_all1" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all2.checked = this.checked;">
+			</div>';
+	}
 
 	// We have some errors, must be some mods installed :P
 	foreach ($context['errors'] as $error)
 	{
 		echo '
-				<tr class="windowbg">
-					<td colspan="2">
-						<div class="error_info">
-							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_member'], '"><span class="main_icons filter centericon"></span></a>
-							<strong>', $error['member']['link'], '</strong><br>
-							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? '' : ';desc', $context['has_filter'] ? $context['filter']['href'] : '', '" title="', $txt['reverse_direction'], '"><span class="main_icons sort_' . $context['sort_direction'] . '"></span></a>
-							', $error['time'], '<br>';
+			<div class="windowbg">
+				<div class="counter">', $error['id'], '</div>
+				<div class="topic_details">
+					<h5>
+						<span class="floatright">
+							<input type="checkbox" name="delete[]" value="', $error['id'], '">
+						</span>
+						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? '' : ';desc', $context['has_filter'] ? $context['filter']['href'] : '', '" title="', $txt['reverse_direction'], '"><span class="main_icons sort_' . $context['sort_direction'] . '"></span></a> ', $error['time'], '<br class="clear">
+						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_member'], '"><span class="main_icons filter"></span></a>
+						<strong>', $error['member']['link'], '</strong>
+						<strong class="floatright">
+							<span class="main_icons details"></span> <a class="bbc_link" href="', $scripturl, '?action=admin;area=logs;sa=errorlog;backtrace=', $error['id'], '" onclick="return reqWin(this.href, 600, 480, false);">', $txt['backtrace_title'], '</a>
+						</strong>
+					</h5>
+					<div class="smalltext">';
 
 		if (!empty($error['member']['ip']))
 			echo '
-							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=ip;value=', $error['member']['ip'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_ip'], '"><span class="main_icons filter centericon"></span></a>
-							<strong><a href="', $scripturl, '?action=trackip;searchip=', $error['member']['ip'], '">', $error['member']['ip'], '</a></strong>';
+						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=ip;value=', $error['member']['ip'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_ip'], '">
+							<span class="main_icons filter"></span>
+						</a>
+						<strong><a href="', $scripturl, '?action=trackip;searchip=', $error['member']['ip'], '">', $error['member']['ip'], '</a></strong>';
 
 		if ($error['member']['session'] != '')
 			echo '
-							<br>
-							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '"><span class="main_icons filter centericon"></span></a>
-							', $error['member']['session'], '<br>';
+						<span class="floatright">
+							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '">
+								<span class="main_icons filter"></span> ', $error['member']['session'], '
+							</a>
+						</span>';
 
 		echo '
-							<strong><a href ="', $scripturl, '?action=admin;area=logs;sa=errorlog;backtrace=', $error['id'], '" onclick="return reqWin(this.href, 600, 480, false);"><span class="main_icons details"></span>', $txt['backtrace_title'], '</a></strong>
-						</div>
-						<div class="error_info">';
+					</div>
+				</div>
+				<div class="post">
+					<div class="inner">
+						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_type'], '"><span class="main_icons filter"></span></a>
+						', $txt['error_type'], ': ', $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name'], '<br>
+						<a class="error_message" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_message'], '"><span class="main_icons filter floatleft"></span></a>
+						<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . $txt['code_shrink'] . '" data-expand-txt="' . $txt['code_expand'] . '">' . $txt['code_expand'] . '</a></div><code class="bbc_code" style="white-space: pre-line">', $error['message']['html'], '</code>
+						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_url'], '"><span class="main_icons filter"></span></a>
+						<a href="', $error['url']['html'], '" class="bbc_link">', $error['url']['html'], '</a>';
 
+	if (!empty($error['file']))
 		echo '
-							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_type'], '"><span class="main_icons filter centericon"></span></a>
-							', $txt['error_type'], ': ', $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name'], '<br>
-							<a class="error_message" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_message'], '"><span class="main_icons filter"></span></a>
-							<span class="error_message">', $error['message']['html'], '</span>
-							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_url'], '"><span class="main_icons filter"></span></a>
-							<a href="', $error['url']['html'], '" class="word_break">', $error['url']['html'], '</a>';
+						<br>
+						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_file'], '"><span class="main_icons filter"></span></a> ', $error['file']['link'], ' (', $txt['line'], ' ', $error['file']['line'], ')';
 
-		if (!empty($error['file']))
-			echo '
-							<div>
-								<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_file'], '">'
-				. '					<span class="main_icons filter"></span></a> ', $error['file']['link'], ' (', $txt['line'], ' ', $error['file']['line'], ')
-							</div>';
-
-		echo '
-						</div>
-					</td>
-					<td class="checkbox_column">
-						<input type="checkbox" name="delete[]" value="', $error['id'], '">
-					</td>
-				</tr>';
+	echo '
+					</div>
+				</div>
+			</div>';
 	}
 
 	echo '
-				<tr>
-					<td colspan="3" class="righttext">
-						<label for="check_all2"><strong>', $txt['check_all'], '</strong></label>
-						<input type="checkbox" id="check_all2" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all1.checked = this.checked;">
-					</td>
-				</tr>
-			</table>
 			<div class="pagesection">
 				<div class="floatleft">
 					', $context['page_index'], '
@@ -266,7 +262,7 @@ function template_attachment_errors()
  */
 function template_show_backtrace()
 {
-	global $context, $settings, $modSettings, $txt;
+	global $context, $settings, $modSettings, $txt, $scripturl;
 
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
@@ -334,7 +330,7 @@ function template_show_backtrace()
 				$value->line = -1;
 
 			echo '
-					<li class="backtrace">', sprintf($txt['backtrace_info'], $key, $value->function, $value->file, $value->line, base64_encode($value->file)), '</li>';
+					<li class="backtrace">', sprintf($txt['backtrace_info'], $key, $value->function, $value->file, $value->line, base64_encode($value->file), $scripturl), '</li>';
 		}
 
 		echo '
