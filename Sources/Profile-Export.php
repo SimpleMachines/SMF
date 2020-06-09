@@ -851,6 +851,9 @@ function get_xslt_stylesheet($format, $uid)
 			'txt_personal_messages_heading' => array(
 				'value' => $txt['personal_messages'],
 			),
+			'txt_id' => array(
+				'value' => $txt['export_id'],
+			),
 			'txt_view_source_button' => array(
 				'value' => $txt['export_view_source_button'],
 			),
@@ -1236,6 +1239,14 @@ function get_xslt_stylesheet($format, $uid)
 											<xsl:value-of select="subject"/>
 										</a>
 									</strong>
+									<span class="page_number floatright">
+										<a>
+											<xsl:attribute name="href">
+												<xsl:value-of select="link"/>
+											</xsl:attribute>
+											<xsl:value-of select="concat($txt_id, \': \', id)"/>
+										</a>
+									</span>
 								</h5>
 								<span class="smalltext"><xsl:value-of select="time"/></span>
 								<xsl:if test="modified_time">
@@ -1342,6 +1353,14 @@ function get_xslt_stylesheet($format, $uid)
 										<xsl:value-of select="concat(\'subject_\', id)"/>
 									</xsl:attribute>
 									<xsl:value-of select="subject"/>
+									<span class="page_number floatright">
+										<a>
+											<xsl:attribute name="href">
+												<xsl:value-of select="link"/>
+											</xsl:attribute>
+											<xsl:value-of select="concat($txt_id, \': \', id)"/>
+										</a>
+									</span>
 								</h5>
 								<span class="smalltext">
 									<strong>
