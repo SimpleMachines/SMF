@@ -774,7 +774,7 @@ function create_export_dir($fallback = '')
  */
 function get_xslt_stylesheet($format, $uid)
 {
-	global $context, $txt, $settings, $modSettings, $sourcedir, $forum_copyright, $smcFunc;
+	global $context, $txt, $settings, $modSettings, $sourcedir, $forum_copyright, $scripturl, $smcFunc;
 
 	static $xslts = array();
 
@@ -819,8 +819,7 @@ function get_xslt_stylesheet($format, $uid)
 		 */
 		$xslt_variables = array(
 			'scripturl' => array(
-				'value' => '/*/@forum-url',
-				'xpath' => true,
+				'value' => $scripturl,
 			),
 			'themeurl' => array(
 				'value' => $settings['default_theme_url'],
@@ -841,7 +840,7 @@ function get_xslt_stylesheet($format, $uid)
 				'value' => $export_formats[$format]['extension'],
 			),
 			'forum_copyright' => array(
-				'value' => sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR),
+				'value' => sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl),
 			),
 			'txt_summary_heading' => array(
 				'value' => $txt['summary'],
