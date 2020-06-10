@@ -901,6 +901,9 @@ $txt['notify_announcements_prompt'] = 'Do you want to receive forum newsletters,
 $txt['notify_announcements_subscribed'] = '%1$s has been subscribed to forum newsletters, announcements and important notifications.';
 $txt['notify_announcements_unsubscribed'] = '%1$s has been unsubscribed from forum newsletters, announcements and important notifications.';
 
+$txt['unsubscribe_announcements_plain'] = 'To unsubscribe from forum newsletters, announcements and important notifications, follow this link:<br />%1$s';
+$txt['unsubscribe_announcements_html'] = '<span style="font-size:small"><a href="%1$s">Unsubscribe</a> from forum newsletters, announcements and important notifications.</span>';
+
 // Mobile Actions
 $txt['mobile_action'] = 'User actions';
 $txt['mobile_moderation'] = 'Moderation';
