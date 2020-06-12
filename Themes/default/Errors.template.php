@@ -131,8 +131,9 @@ function template_error_log()
 					<h5>
 						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? '' : ';desc', $context['has_filter'] ? $context['filter']['href'] : '', '" title="', $txt['reverse_direction'], '"><span class="main_icons sort_' . $context['sort_direction'] . '"></span></a> ', $error['time'], '
 					</h5>
+					<hr class="clear">
 				</div>
-				<div class="clear">
+				<div>
 					<div class="half_content">
 						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_member'], '"><span class="main_icons filter"></span></a>
 						<strong>', $error['member']['link'], '</strong>';
@@ -160,18 +161,18 @@ function template_error_log()
 
 		echo '
 					</div>
-					<div class="half_content" style="vertical-align: bottom">
+					<div class="half_content">
 						<strong class="floatright">
 							<span class="main_icons details"></span> <a class="bbc_link" href="', $scripturl, '?action=admin;area=logs;sa=errorlog;backtrace=', $error['id'], '" onclick="return reqWin(this.href, 600, 480, false);">', $txt['backtrace_title'], '</a>
 						</strong>
 					</div>
 				</div>
 				<div class="post">
-					<div class="inner">
-						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_type'], '"><span class="main_icons filter"></span></a>', $txt['error_type'], ': ', $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name'], '<br>
-						<a class="error_message" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_message'], '"><span class="main_icons filter floatleft"></span></a>
-						<div class="codeheader"><span class="code floatleft">' . $txt['error_message'] . '</span> <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . $txt['code_shrink'] . '" data-expand-txt="' . $txt['code_expand'] . '">' . $txt['code_expand'] . '</a></div><code class="bbc_code" style="white-space: pre-line; overflow-y: auto">', $error['message']['html'], '</code>
-					</div>
+					<br class="clear">
+					<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_type'], '"><span class="main_icons filter"></span></a>', $txt['error_type'], ': ', $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name'], '<br>
+					<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_message'], '"><span class="main_icons filter floatleft"></span></a>
+					<div class="codeheader"><span class="code floatleft">' . $txt['error_message'] . '</span> <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . $txt['code_shrink'] . '" data-expand-txt="' . $txt['code_expand'] . '">' . $txt['code_expand'] . '</a>
+					</div><code class="bbc_code" style="white-space: pre-line; overflow-y: auto">', $error['message']['html'], '</code>
 				</div>
 			</div>';
 	}
@@ -278,7 +279,7 @@ function template_show_backtrace()
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="', $context['character_set'], '">
-		<title>Backtrace</title>';
+		<title>', $txt['backtrace_title'], '</title>';
 	template_css();
 	echo '
 	</head>
@@ -293,30 +294,57 @@ function template_show_backtrace()
 				</h3>
 			</div>
 			<div class="windowbg" id="backtrace">
-				<ul class="padding">';
+				<table class="table_grid centertext">
+					<tbody>';
 
 		if (!empty($context['error_info']['error_type']))
 			echo '
-					<li>', $txt['error_type'], ': ', ucfirst($context['error_info']['error_type']), '</li>';
+						<tr class="title_bar">
+							<td><strong>', $txt['error_type'], '</strong></td>
+						</tr>
+						<tr class="windowbg">
+							<td>', ucfirst($context['error_info']['error_type']), '</td>
+						</tr>';
 
 		if (!empty($context['error_info']['message']))
 			echo '
-					<li>', $txt['error_message'], ': <span class = "error_message">', $context['error_info']['message'], '</span></li>';
+						<tr class="title_bar">
+							<td><strong>', $txt['error_message'], '</strong></td>
+						</tr>
+						<tr class="windowbg lefttext">
+							<td><code class="bbc_code" style="white-space: pre-line; overflow-y: auto">', $context['error_info']['message'], '</code></td>
+						</tr>';
 
 		if (!empty($context['error_info']['file']))
 			echo '
-					<li>', $txt['error_file'], ': ', $context['error_info']['file'], '</li>';
+						<tr class="title_bar">
+							<td><strong>', $txt['error_file'], '</strong></td>
+						</tr>
+						<tr class="windowbg">
+							<td>', $context['error_info']['file'], '</td>
+						</tr>';
 
 		if (!empty($context['error_info']['line']))
 			echo '
-					<li>', $txt['error_line'], ': ', $context['error_info']['line'], '</li>';
+						<tr class="title_bar">
+							<td><strong>', $txt['error_line'], '</strong></td>
+						</tr>
+						<tr class="windowbg">
+							<td>', $context['error_info']['line'], '</td>
+						</tr>';
 
 		if (!empty($context['error_info']['url']))
 			echo '
-					<li>', $txt['error_url'], ': ', $context['error_info']['url'], '</li>';
+						<tr class="title_bar">
+							<td><strong>', $txt['error_url'], '</strong></td>
+						</tr>
+						<tr class="windowbg">
+							<td>', $context['error_info']['url'], '</td>
+						</tr>';
 
 		echo '
-				</ul>
+					</tbody>
+				</table>
 			</div>';
 	}
 
