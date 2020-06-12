@@ -2652,6 +2652,71 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 }
 
 /**
+ * Loads and returns an XSLT stylesheet.
+ *
+ * The components of the XSLT stylesheet are loaded from Xslt.template.php
+ * based on the values of $source_format and $result_format. If no XSLT
+ * templates have been defined for the given combination, a basic stylesheet
+ * will be returned.
+ *
+ * The $context['xslt_settings'] array controls various aspects of the result.
+ *
+ * @param string $source_format The type of the source XML document (e.g. 'export')
+ * @param string $result_format The type of document we want to produce (e.g. 'html')
+ * @return string The XSLT stylesheet.
+ */
+function loadXslt($source_format, $result_format)
+{
+	global $sourcedir, $context;
+
+	// We'll need the cdata_parse() function.
+	require_once($sourcedir . DIRECTORY_SEPARATOR . 'News.php');
+
+	// Let mods adjust $context['xslt_settings']
+	call_integration_hook('integrate_xslt_settings', array($source_format, $result_format));
+
+	loadTemplate('Xslt');
+
+	// The function name prefix for the stylesheet we are interested in.
+	$func_prefix = 'xslt_' . $source_format . '_' . $result_format . '_';
+
+	// Define this now so that it will be first in the returned array.
+	$stylesheet['header'] = '';
+
+	$all_funcs = get_defined_functions();
+	foreach ($all_funcs['user'] as $func)
+	{
+		// We want the footer to be last.
+		if ($func == 'xslt_generic_footer')
+			continue;
+
+		if (strpos($func, 'xslt_generic_') === 0 || strpos($func, $func_prefix) === 0)
+		{
+			$template_found = true;
+			$stylesheet[str_replace(array($func_prefix, 'xslt_generic_'), '', $func)] = call_user_func($func);
+		}
+	}
+
+	// If no templates exist for this source + result combination, fall back to
+	// the "identity transform" template. When this is the only template in the
+	// stylesheet, the result document will be identical to the source.
+	if (empty($template_found))
+		$stylesheet['identity_transform'] = '
+		<xsl:template match="@*|node()">
+			<xsl:copy>
+				<xsl:apply-templates select="@*|node()"/>
+			</xsl:copy>
+		</xsl:template>';
+
+	$stylesheet['footer'] = xslt_generic_footer();
+
+	// Let mods adjust the XSLT stylesheet.
+	call_integration_hook('integrate_xslt_stylesheet', array(&$stylesheet, $source_format, $result_format));
+
+	return implode("\n", $stylesheet);
+}
+
+/**
  * Add a CSS file for output later
  *
  * @param string $fileName The name of the file to load
