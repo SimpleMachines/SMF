@@ -4703,13 +4703,13 @@ function setupMenuContext()
 	// There is some menu stuff we need to do if we're coming at this from a non-guest perspective.
 	if (!$context['user']['is_guest'])
 	{
-		addInlineJavaScript('
-	var user_menus = new smc_PopupMenu();
-	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");
-	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u=' . $context['user']['id'] . '");', true);
-		if ($context['allow_pm'])
-			addInlineJavaScript('
-	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
+	// REMOVED 	addInlineJavaScript('
+	// REMOVED var user_menus = new smc_PopupMenu();
+	// REMOVED user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");
+	// REMOVED user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u=' . $context['user']['id'] . '");', true);
+	// REMOVED 	if ($context['allow_pm'])
+	// REMOVED 		addInlineJavaScript('
+	// REMOVED user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
 
 		if (!empty($modSettings['enable_ajax_alerts']))
 		{

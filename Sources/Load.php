@@ -2368,7 +2368,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	loadCSSFile('index.css', array('minimize' => true, 'order_pos' => 1), 'smf_index');
 
 	// Here is my luvly Responsive CSS
-	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true, 'order_pos' => 9000), 'smf_responsive');
+	// REMOVED loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true, 'order_pos' => 9000), 'smf_responsive');
 
 	if ($context['right_to_left'])
 		loadCSSFile('rtl.css', array('order_pos' => 4000), 'smf_rtl');
@@ -2447,12 +2447,12 @@ function loadTheme($id_theme = 0, $initialize = true)
 		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	// Queue our JQuery plugins!
-	loadJavaScriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
-	if (!$user_info['is_guest'])
-	{
-		loadJavaScriptFile('jquery.custom-scrollbar.js', array('minimize' => true), 'smf_jquery_scrollbar');
-		loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true), 'smf_scrollbar');
-	}
+	// REMOVED loadJavaScriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
+	// REMOVED if (!$user_info['is_guest'])
+	// REMOVED {
+	// REMOVED 	loadJavaScriptFile('jquery.custom-scrollbar.js', array('minimize' => true), 'smf_jquery_scrollbar');
+	// REMOVED 	loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true), 'smf_scrollbar');
+	// REMOVED }
 
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
 	loadJavaScriptFile('script.js', array('defer' => false, 'minimize' => true), 'smf_script');
