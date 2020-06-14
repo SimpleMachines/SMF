@@ -245,12 +245,12 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 			$user_info = $members_info[$member_id];
 
+			loadLanguage('index+Modifications', $member_data['lngfile'], false);
+
 			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
 			$localization = implode('|', array($member_data['lngfile'], $user_info['time_offset'], $user_info['time_format']));
 			if (empty($parsed_message[$localization]))
 			{
-				loadLanguage('index+Modifications', $member_data['lngfile'], false);
-
 				$parsed_message[$localization]['subject'] = $msgOptions['subject'];
 				$parsed_message[$localization]['body'] = $msgOptions['body'];
 
