@@ -245,9 +245,6 @@ $txt['welcome_guest_activate'] = '<br>Did you miss your <a href="%1$s?action=act
 $txt['hello_member'] = 'Hey,';
 // Use numeric entities in the below string.
 $txt['hello_guest'] = 'Welcome,';
-$txt['welmsg_hey'] = 'Hey,';
-$txt['welmsg_welcome'] = 'Welcome,';
-$txt['welmsg_please'] = 'Please';
 $txt['select_destination'] = 'Please select a destination';
 
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
