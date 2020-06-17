@@ -173,10 +173,10 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			$realfile = $export_dir_slash . $filenum . '_' . $idhash_ext;
 
 			buildXmlFeed('smf', array(), $feed_meta, 'profile');
-			file_put_contents($tempfile, implode('', $context['feed']));
+			file_put_contents($tempfile, implode('', $context['feed']), LOCK_EX);
 
 			$progress = array_fill_keys($datatypes, 0);
-			file_put_contents($progressfile, $smcFunc['json_encode']($progress));
+			file_put_contents($progressfile, $smcFunc['json_encode']($progress), LOCK_EX);
 		}
 		else
 			$progress = $smcFunc['json_decode'](file_get_contents($progressfile), true);
@@ -192,7 +192,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		elseif ($datatype == 'profile')
 		{
 			buildXmlFeed('smf', $xml_data, $feed_meta, 'profile');
-			file_put_contents($tempfile, implode('', $context['feed']));
+			file_put_contents($tempfile, implode('', $context['feed']), LOCK_EX);
 
 			$progress[$datatype] = time();
 			$datatype_done = true;
@@ -229,7 +229,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 				if (empty($context['feed']['header']))
 					buildXmlFeed('smf', array(), $feed_meta, 'profile');
 
-				file_put_contents($tempfile, implode('', array($context['feed']['header'], $profile_basic_items, $context['feed']['footer'])));
+				file_put_contents($tempfile, implode('', array($context['feed']['header'], $profile_basic_items, $context['feed']['footer'])), LOCK_EX);
 
 				$prev_item_count = 0;
 			}
@@ -270,12 +270,14 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 				{
 					// We need a file to write to, of course.
 					if (!file_exists($tempfile))
-						file_put_contents($tempfile, implode('', array($context['feed']['header'], $profile_basic_items, $context['feed']['footer'])));
+						file_put_contents($tempfile, implode('', array($context['feed']['header'], $profile_basic_items, $context['feed']['footer'])), LOCK_EX);
 
 					// Insert the new data before the feed footer.
 					$handle = fopen($tempfile, 'r+');
 					if (is_resource($handle))
 					{
+						flock($sfhandle, LOCK_EX);
+
 						fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);
 
 						$bytes_written = fwrite($handle, $context['feed']['items'] . $context['feed']['footer']);
@@ -293,6 +295,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 							$bytes_written = false;
 						}
 
+						flock($sfhandle, LOCK_UN);
 						fclose($handle);
 					}
 
@@ -308,7 +311,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 					{
 						// Track progress by ID where appropriate, and by time otherwise.
 						$progress[$datatype] = !isset($last_id) ? time() : $last_id;
-						file_put_contents($progressfile, $smcFunc['json_encode']($progress));
+						file_put_contents($progressfile, $smcFunc['json_encode']($progress), LOCK_EX);
 
 						// Are we done with this datatype yet?
 						if (!isset($last_id) || (count($items) < $per_page && $last_id >= $latest[$datatype]))
@@ -320,7 +323,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 							rename($tempfile, $realfile);
 							$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
 
-							file_put_contents($tempfile, implode('', array($context['feed']['header'], $profile_basic_items, $context['feed']['footer'])));
+							file_put_contents($tempfile, implode('', array($context['feed']['header'], $profile_basic_items, $context['feed']['footer'])), LOCK_EX);
 
 							$prev_item_count = $new_item_count = 0;
 						}
@@ -386,11 +389,11 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			if (!file_exists($tempfile))
 			{
 				buildXmlFeed('smf', array(), $feed_meta, 'profile');
-				file_put_contents($tempfile, implode('', array($context['feed']['header'], !empty($profile_basic_items) ? $profile_basic_items : '', $context['feed']['footer'])));
+				file_put_contents($tempfile, implode('', array($context['feed']['header'], !empty($profile_basic_items) ? $profile_basic_items : '', $context['feed']['footer'])), LOCK_EX);
 			}
 		}
 
-		file_put_contents($progressfile, $smcFunc['json_encode']($progress));
+		file_put_contents($progressfile, $smcFunc['json_encode']($progress), LOCK_EX);
 	}
 
 	/**
