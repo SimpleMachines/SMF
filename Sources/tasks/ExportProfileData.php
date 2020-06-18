@@ -276,7 +276,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 					$handle = fopen($tempfile, 'r+');
 					if (is_resource($handle))
 					{
-						flock($sfhandle, LOCK_EX);
+						flock($handle, LOCK_EX);
 
 						fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);
 
@@ -295,7 +295,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 							$bytes_written = false;
 						}
 
-						flock($sfhandle, LOCK_UN);
+						flock($handle, LOCK_UN);
 						fclose($handle);
 					}
 
@@ -507,6 +507,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			$handle = fopen($exportfile, 'r+');
 			if (is_resource($handle))
 			{
+				flock($handle, LOCK_EX);
+
 				fseek($handle, strlen($context['feed']['footer']) * -1, SEEK_END);
 
 				$bytes_written = fwrite($handle, self::$xslt_info['stylesheet'] . $context['feed']['footer']);
@@ -522,6 +524,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 					fwrite($handle, $context['feed']['footer']);
 				}
 
+				flock($handle, LOCK_UN);
 				fclose($handle);
 			}
 		}
