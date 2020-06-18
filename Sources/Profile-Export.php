@@ -770,15 +770,24 @@ function create_export_dir($fallback = '')
  *
  * @param string $format The desired output format. Currently accepts 'HTML' and 'XML_XSLT'.
  * @param int $uid The ID of the member whose data we're exporting.
- * @return array The XSLT stylesheet and a (possibly empty) DTD to insert into the source XML document.
+ * @return array The XSLT stylesheet and a (possibly empty) DTD to insert into the XML document.
  */
 function get_xslt_stylesheet($format, $uid)
 {
 	global $context, $txt, $settings, $modSettings, $sourcedir, $forum_copyright, $scripturl, $smcFunc;
 
+	static $xslts = array();
+
 	$doctype = '';
 	$stylesheet = array();
-	$context['xslt_settings'] = array();
+	$xslt_variables = array();
+
+	// Do not change any of these to HTTPS URLs. For explanation, see comments in the buildXmlFeed() function.
+	$smf_ns = 'htt'.'p:/'.'/ww'.'w.simple'.'machines.o'.'rg/xml/profile';
+	$xslt_ns = 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/XSL/Transform';
+	$html_ns = 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/xhtml';
+
+	require_once($sourcedir . DIRECTORY_SEPARATOR . 'News.php');
 
 	if (in_array($format, array('HTML', 'XML_XSLT')))
 	{
@@ -787,23 +796,7 @@ function get_xslt_stylesheet($format, $uid)
 
 		$export_formats = get_export_formats();
 
-		$context['xslt_settings'] = array(
-			// Do not change any of these to HTTPS URLs. For explanation, see comments in the buildXmlFeed() function.
-			'namespaces' => array(
-				'xsl' => 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/XSL/Transform',
-				'smf' => 'htt'.'p:/'.'/ww'.'w.simple'.'machines.o'.'rg/xml/profile',
-				'html' => 'htt'.'p:/'.'/ww'.'w.w3.o'.'rg/1999/xhtml',
-			),
-			'exclude-result-prefixes' => array('smf', 'html'),
-			'output' => array(
-				'method' => 'html',
-				'encoding' => $context['character_set'],
-				'indent' => 'yes',
-			),
-			'whitespace' => array('strip' => '*'),
-		);
-
-		/* Notes about the XSLT variables array:
+		/* Notes:
 		 * 1. The 'value' can be one of the following:
 		 *    - an integer or string
 		 *    - an XPath expression
@@ -824,7 +817,7 @@ function get_xslt_stylesheet($format, $uid)
 		 * Keeping this in mind may spare you from some confusion and
 		 * frustration while working with XSLT.
 		 */
-		$context['xslt_settings']['variables'] = array(
+		$xslt_variables = array(
 			'scripturl' => array(
 				'value' => $scripturl,
 			),
@@ -858,9 +851,6 @@ function get_xslt_stylesheet($format, $uid)
 			'txt_personal_messages_heading' => array(
 				'value' => $txt['personal_messages'],
 			),
-			'txt_id' => array(
-				'value' => $txt['export_id'],
-			),
 			'txt_view_source_button' => array(
 				'value' => $txt['export_view_source_button'],
 			),
@@ -879,10 +869,20 @@ function get_xslt_stylesheet($format, $uid)
 			'txt_pages' => array(
 				'value' => $txt['pages'],
 			),
-			'dltoken' => array(
-				'value' => hash_hmac('sha1', hash_hmac('sha1', $uid, get_auth_secret()), get_auth_secret()),
-			),
 		);
+
+		// Let mods adjust the XSLT variables.
+		call_integration_hook('integrate_export_xslt_variables', array(&$xslt_variables, $format));
+
+		$idhash = hash_hmac('sha1', $uid, get_auth_secret());
+		$xslt_variables['dltoken'] = array(
+			'value' => hash_hmac('sha1', $idhash, get_auth_secret())
+		);
+
+		// Efficiency = good.
+		$xslt_key = $smcFunc['json_encode'](array($format, $uid, $xslt_variables));
+		if (isset($xslts[$xslt_key]))
+			return $xslts[$xslt_key];
 
 		if ($format == 'XML_XSLT')
 		{
@@ -897,24 +897,873 @@ function get_xslt_stylesheet($format, $uid)
 				']>',
 			));
 
-			$context['xslt_settings'] += array(
-				'no_xml_declaration' => true,
-				'preamble' => "\n\n\t",
-				'id' => 'stylesheet',
-				'custom' => array(
-					'<xsl:template match="xsl:stylesheet"/>',
-					'<xsl:template match="xsl:stylesheet" mode="detailedinfo"/>',
-				),
-				'before_footer' => "\n\t",
-			);
+			$stylesheet['header'] = "\n" . implode("\n", array(
+				'',
+				"\t" . '<xsl:stylesheet version="1.0" xmlns:xsl="' . $xslt_ns . '" xmlns:html="' . $html_ns . '" xmlns:smf="' . $smf_ns . '" exclude-result-prefixes="smf html" id="stylesheet">',
+				'',
+				"\t\t" . '<xsl:template match="xsl:stylesheet"/>',
+				"\t\t" . '<xsl:template match="xsl:stylesheet" mode="detailedinfo"/>',
+			));
 		}
+		else
+		{
+			$doctype = '';
+			$stylesheet['header'] = implode("\n", array(
+				'<?xml version="1.0" encoding="' . $context['character_set'] . '"?' . '>',
+				'<xsl:stylesheet version="1.0" xmlns:xsl="' . $xslt_ns . '" xmlns:html="' . $html_ns . '" xmlns:smf="' . $smf_ns . '" exclude-result-prefixes="smf html">',
+			));
+		}
+
+		// Output control settings.
+		$stylesheet['output_control'] = '
+		<xsl:output method="html" encoding="utf-8" indent="yes"/>
+		<xsl:strip-space elements="*"/>';
+
+		// Insert the XSLT variables.
+		$stylesheet['variables'] = '';
+
+		foreach ($xslt_variables as $name => $var)
+		{
+			$element = !empty($var['param']) ? 'param' : 'variable';
+
+			$stylesheet['variables'] .= "\n\t\t" . '<xsl:' . $element . ' name="' . $name . '"';
+
+			if (isset($var['xpath']))
+				$stylesheet['variables'] .= ' select="' . $var['value'] . '"/>';
+			else
+				$stylesheet['variables'] .= '>' . (!empty($var['no_cdata_parse']) ? $var['value'] : cdata_parse($var['value'])) . '</xsl:' . $element . '>';
+		}
+
+		// The top-level template. Creates the shell of the HTML document.
+		$stylesheet['html'] = '
+		<xsl:template match="/*">
+			<xsl:text disable-output-escaping="yes">&lt;!DOCTYPE html&gt;</xsl:text>
+			<html>
+				<head>
+					<title>
+						<xsl:value-of select="@title"/>
+					</title>
+					<xsl:call-template name="css_js"/>
+				</head>
+				<body>
+					<div id="footerfix">
+						<div id="header">
+							<h1 class="forumtitle">
+								<a id="top">
+									<xsl:attribute name="href">
+										<xsl:value-of select="$scripturl"/>
+									</xsl:attribute>
+									<xsl:value-of select="@forum-name"/>
+								</a>
+							</h1>
+						</div>
+						<div id="wrapper">
+							<div id="upper_section">
+								<div id="inner_section">
+									<div id="inner_wrap">
+										<div class="user">
+											<time>
+												<xsl:attribute name="datetime">
+													<xsl:value-of select="@generated-date-UTC"/>
+												</xsl:attribute>
+												<xsl:value-of select="@generated-date-localized"/>
+											</time>
+										</div>
+										<hr class="clear"/>
+									</div>
+								</div>
+							</div>
+
+							<xsl:call-template name="content_section"/>
+
+						</div>
+					</div>
+					<div id="footer">
+						<div class="inner_wrap">
+							<ul>
+								<li class="floatright">
+									<a>
+										<xsl:attribute name="href">
+											<xsl:value-of select="concat($scripturl, \'?action=help\')"/>
+										</xsl:attribute>
+										<xsl:value-of select="$txt_help"/>
+									</a>
+									<xsl:text> | </xsl:text>
+									<a>
+										<xsl:attribute name="href">
+											<xsl:value-of select="concat($scripturl, \'?action=help;sa=rules\')"/>
+										</xsl:attribute>
+										<xsl:value-of select="$txt_terms_rules"/>
+									</a>
+									<xsl:text> | </xsl:text>
+									<a href="#top">
+										<xsl:value-of select="$txt_go_up"/>
+										<xsl:text> &#9650;</xsl:text>
+									</a>
+								</li>
+								<li class="copyright">
+									<xsl:value-of select="$forum_copyright" disable-output-escaping="yes"/>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</body>
+			</html>
+		</xsl:template>';
+
+		// Template to show the content of the export file.
+		$stylesheet['content_section'] = '
+		<xsl:template name="content_section">
+			<div id="content_section">
+				<div id="main_content_section">
+
+					<div class="cat_bar">
+						<h3 class="catbg">
+							<xsl:value-of select="@title"/>
+						</h3>
+					</div>
+					<div class="information">
+						<h2 class="display_title">
+							<xsl:value-of select="@description"/>
+						</h2>
+					</div>
+
+					<xsl:if test="username">
+						<div class="cat_bar">
+							<h3 class="catbg">
+								<xsl:value-of select="$txt_summary_heading"/>
+							</h3>
+						</div>
+						<div id="profileview" class="roundframe flow_auto noup">
+							<xsl:call-template name="summary"/>
+						</div>
+					</xsl:if>
+
+					<xsl:call-template name="page_index"/>
+
+					<xsl:if test="member_post">
+						<div class="cat_bar">
+							<h3 class="catbg">
+								<xsl:value-of select="$txt_posts_heading"/>
+							</h3>
+						</div>
+						<div id="posts" class="roundframe flow_auto noup">
+							<xsl:apply-templates select="member_post" mode="posts"/>
+						</div>
+					</xsl:if>
+
+					<xsl:if test="personal_message">
+						<div class="cat_bar">
+							<h3 class="catbg">
+								<xsl:value-of select="$txt_personal_messages_heading"/>
+							</h3>
+						</div>
+						<div id="personal_messages" class="roundframe flow_auto noup">
+							<xsl:apply-templates select="personal_message" mode="pms"/>
+						</div>
+					</xsl:if>
+
+					<xsl:call-template name="page_index"/>
+
+				</div>
+			</div>
+		</xsl:template>';
+
+		// Template for user profile summary
+		$stylesheet['summary'] = '
+		<xsl:template name="summary">
+			<div id="basicinfo">
+				<div class="username clear">
+					<h4>
+						<a>
+							<xsl:attribute name="href">
+								<xsl:value-of select="link"/>
+							</xsl:attribute>
+							<xsl:value-of select="name"/>
+						</a>
+						<xsl:text> </xsl:text>
+						<span class="position">
+							<xsl:choose>
+								<xsl:when test="position">
+									<xsl:value-of select="position"/>
+								</xsl:when>
+								<xsl:otherwise>
+									<xsl:value-of select="post_group"/>
+								</xsl:otherwise>
+							</xsl:choose>
+						</span>
+					</h4>
+				</div>
+				<img class="avatar">
+					<xsl:attribute name="src">
+						<xsl:value-of select="avatar"/>
+					</xsl:attribute>
+				</img>
+			</div>
+
+			<div id="detailedinfo">
+				<dl class="settings noborder">
+					<xsl:apply-templates mode="detailedinfo"/>
+				</dl>
+			</div>
+		</xsl:template>';
+
+		// Some helper templates for details inside the summary.
+		$stylesheet['detail_default'] = '
+		<xsl:template match="*" mode="detailedinfo">
+			<dt>
+				<xsl:value-of select="concat(@label, \':\')"/>
+			</dt>
+			<dd>
+				<xsl:value-of select="." disable-output-escaping="yes"/>
+			</dd>
+		</xsl:template>';
+
+		$stylesheet['detail_email'] = '
+		<xsl:template match="email" mode="detailedinfo">
+			<dt>
+				<xsl:value-of select="concat(@label, \':\')"/>
+			</dt>
+			<dd>
+				<a>
+					<xsl:attribute name="href">
+						<xsl:text>mailto:</xsl:text>
+						<xsl:value-of select="."/>
+					</xsl:attribute>
+					<xsl:value-of select="."/>
+				</a>
+			</dd>
+		</xsl:template>';
+
+		$stylesheet['detail_website'] = '
+		<xsl:template match="website" mode="detailedinfo">
+			<dt>
+				<xsl:value-of select="concat(@label, \':\')"/>
+			</dt>
+			<dd>
+				<a>
+					<xsl:attribute name="href">
+						<xsl:value-of select="link"/>
+					</xsl:attribute>
+					<xsl:value-of select="title"/>
+				</a>
+			</dd>
+		</xsl:template>';
+
+		$stylesheet['detail_ip'] = '
+		<xsl:template match="ip_addresses" mode="detailedinfo">
+			<dt>
+				<xsl:value-of select="concat(@label, \':\')"/>
+			</dt>
+			<dd>
+				<ul class="nolist">
+					<xsl:apply-templates mode="ip_address"/>
+				</ul>
+			</dd>
+		</xsl:template>
+		<xsl:template match="*" mode="ip_address">
+			<li>
+				<xsl:value-of select="."/>
+				<xsl:if test="@label and following-sibling">
+					<xsl:text> </xsl:text>
+					<span>(<xsl:value-of select="@label"/>)</span>
+				</xsl:if>
+			</li>
+		</xsl:template>';
+
+		$stylesheet['detail_not_included'] = '
+		<xsl:template match="name|link|avatar|online|member_post|personal_message" mode="detailedinfo"/>';
+
+		// Template for printing a single post
+		$stylesheet['member_post'] = '
+		<xsl:template match="member_post" mode="posts">
+			<div>
+				<xsl:attribute name="id">
+					<xsl:value-of select="concat(\'member_post_\', id)"/>
+				</xsl:attribute>
+				<xsl:attribute name="class">
+					<xsl:choose>
+						<xsl:when test="approval_status = 1">
+							<xsl:text>windowbg</xsl:text>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:text>approvebg</xsl:text>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:attribute>
+
+				<div class="post_wrapper">
+					<div class="poster">
+						<h4>
+							<a>
+								<xsl:attribute name="href">
+									<xsl:value-of select="poster/link"/>
+								</xsl:attribute>
+								<xsl:value-of select="poster/name"/>
+							</a>
+						</h4>
+						<ul class="user_info">
+							<xsl:if test="poster/id = $member_id">
+								<xsl:call-template name="own_user_info"/>
+							</xsl:if>
+							<li>
+								<xsl:value-of select="poster/email"/>
+							</li>
+							<li class="poster_ip">
+								<xsl:value-of select="concat(poster/ip/@label, \': \')"/>
+								<xsl:value-of select="poster/ip"/>
+							</li>
+						</ul>
+					</div>
+
+					<div class="postarea">
+						<div class="flow_hidden">
+
+							<div class="keyinfo">
+								<h5>
+									<strong>
+										<a>
+											<xsl:attribute name="href">
+												<xsl:value-of select="board/link"/>
+											</xsl:attribute>
+											<xsl:value-of select="board/name"/>
+										</a>
+										<xsl:text> / </xsl:text>
+										<a>
+											<xsl:attribute name="href">
+												<xsl:value-of select="link"/>
+											</xsl:attribute>
+											<xsl:value-of select="subject"/>
+										</a>
+									</strong>
+								</h5>
+								<span class="smalltext"><xsl:value-of select="time"/></span>
+								<xsl:if test="modified_time">
+									<span class="smalltext modified floatright mvisible em">
+										<xsl:attribute name="id">
+											<xsl:value-of select="concat(\'modified_\', id)"/>
+										</xsl:attribute>
+										<span class="lastedit">
+											<xsl:value-of select="modified_time/@label"/>
+										</span>
+										<xsl:text>: </xsl:text>
+										<xsl:value-of select="modified_time"/>
+										<xsl:text>. </xsl:text>
+										<xsl:value-of select="modified_by/@label"/>
+										<xsl:text>: </xsl:text>
+										<xsl:value-of select="modified_by"/>
+										<xsl:text>. </xsl:text>
+									</span>
+								</xsl:if>
+							</div>
+
+							<div class="post">
+								<div class="inner">
+									<xsl:value-of select="body_html" disable-output-escaping="yes"/>
+								</div>
+								<div class="inner monospace" style="display:none;">
+									<xsl:choose>
+										<xsl:when test="contains(body/text(), \'[html]\')">
+											<xsl:call-template name="bbc_html_splitter">
+												<xsl:with-param name="bbc_string" select="body/text()"/>
+											</xsl:call-template>
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:value-of select="body" disable-output-escaping="yes"/>
+										</xsl:otherwise>
+									</xsl:choose>
+								</div>
+							</div>
+
+							<xsl:apply-templates select="attachments">
+								<xsl:with-param name="post_id" select="id"/>
+							</xsl:apply-templates>
+
+							<div class="under_message">
+								<ul class="floatleft">
+									<xsl:if test="likes > 0">
+										<li class="smflikebutton">
+											<xsl:attribute name="id">
+												<xsl:value-of select="concat(\'msg_\', id, \'_likes\')"/>
+											</xsl:attribute>
+											<span><span class="main_icons like"></span> <xsl:value-of select="likes"/></span>
+										</li>
+									</xsl:if>
+								</ul>
+								<xsl:call-template name="quickbuttons">
+									<xsl:with-param name="toggle_target" select="concat(\'member_post_\', id)"/>
+								</xsl:call-template>
+							</div>
+
+						</div>
+					</div>
+
+					<div class="moderatorbar">
+						<xsl:if test="poster/id = $member_id">
+							<xsl:call-template name="signature"/>
+						</xsl:if>
+					</div>
+
+				</div>
+			</div>
+		</xsl:template>';
+
+		// Template for printing a single PM
+		$stylesheet['personal_message'] = '
+		<xsl:template match="personal_message" mode="pms">
+			<div class="windowbg">
+				<xsl:attribute name="id">
+					<xsl:value-of select="concat(\'personal_message_\', id)"/>
+				</xsl:attribute>
+
+				<div class="post_wrapper">
+					<div class="poster">
+						<h4>
+							<a>
+								<xsl:attribute name="href">
+									<xsl:value-of select="sender/link"/>
+								</xsl:attribute>
+								<xsl:value-of select="sender/name"/>
+							</a>
+						</h4>
+						<ul class="user_info">
+							<xsl:if test="sender/id = $member_id">
+								<xsl:call-template name="own_user_info"/>
+							</xsl:if>
+						</ul>
+					</div>
+
+					<div class="postarea">
+						<div class="flow_hidden">
+
+							<div class="keyinfo">
+								<h5>
+									<xsl:attribute name="id">
+										<xsl:value-of select="concat(\'subject_\', id)"/>
+									</xsl:attribute>
+									<xsl:value-of select="subject"/>
+								</h5>
+								<span class="smalltext">
+									<strong>
+										<xsl:value-of select="concat(recipient[1]/@label, \': \')"/>
+									</strong>
+									<xsl:apply-templates select="recipient"/>
+								</span>
+								<br/>
+								<span class="smalltext">
+									<strong>
+										<xsl:value-of select="concat(sent_date/@label, \': \')"/>
+									</strong>
+									<time>
+										<xsl:attribute name="datetime">
+											<xsl:value-of select="sent_date/@UTC"/>
+										</xsl:attribute>
+										<xsl:value-of select="normalize-space(sent_date)"/>
+									</time>
+								</span>
+							</div>
+
+							<div class="post">
+								<div class="inner">
+									<xsl:value-of select="body_html" disable-output-escaping="yes"/>
+								</div>
+								<div class="inner monospace" style="display:none;">
+									<xsl:call-template name="bbc_html_splitter">
+										<xsl:with-param name="bbc_string" select="body/text()"/>
+									</xsl:call-template>
+								</div>
+							</div>
+
+							<div class="under_message">
+								<xsl:call-template name="quickbuttons">
+									<xsl:with-param name="toggle_target" select="concat(\'personal_message_\', id)"/>
+								</xsl:call-template>
+							</div>
+
+						</div>
+					</div>
+
+					<div class="moderatorbar">
+						<xsl:if test="sender/id = $member_id">
+							<xsl:call-template name="signature"/>
+						</xsl:if>
+					</div>
+
+				</div>
+			</div>
+		</xsl:template>';
+
+		// A couple of templates to handle attachments
+		$stylesheet['attachments'] = '
+		<xsl:template match="attachments">
+			<xsl:param name="post_id"/>
+			<xsl:if test="attachment">
+				<div class="attachments">
+					<xsl:attribute name="id">
+						<xsl:value-of select="concat(\'msg_\', $post_id, \'_footer\')"/>
+					</xsl:attribute>
+					<xsl:apply-templates/>
+				</div>
+			</xsl:if>
+		</xsl:template>
+		<xsl:template match="attachment">
+			<div class="attached">
+				<div class="attachments_bot">
+					<a>
+						<xsl:attribute name="href">
+							<xsl:value-of select="concat(id, \' - \', name)"/>
+						</xsl:attribute>
+						<img class="centericon" alt="*">
+							<xsl:attribute name="src">
+								<xsl:value-of select="concat($themeurl, \'/images/icons/clip.png\')"/>
+							</xsl:attribute>
+						</img>
+						<xsl:text> </xsl:text>
+						<xsl:value-of select="name"/>
+					</a>
+					<br/>
+					<xsl:text>(</xsl:text>
+					<a class="bbc_link">
+						<xsl:attribute name="href">
+							<xsl:value-of select="concat($scripturl, \'?action=profile;area=dlattach;u=\', $member_id, \';attach=\', id, \';t=\', $dltoken)"/>
+						</xsl:attribute>
+						<xsl:value-of select="$txt_download_original"/>
+					</a>
+					<xsl:text>)</xsl:text>
+					<br/>
+					<xsl:value-of select="size/@label"/>
+					<xsl:text>: </xsl:text>
+					<xsl:value-of select="size"/>
+					<br/>
+					<xsl:value-of select="downloads/@label"/>
+					<xsl:text>: </xsl:text>
+					<xsl:value-of select="downloads"/>
+				</div>
+			</div>
+		</xsl:template>';
+
+		// Helper template for printing the user's own info next to the post or personal message.
+		$stylesheet['own_user_info'] = '
+		<xsl:template name="own_user_info">
+			<xsl:if test="/*/avatar">
+				<li class="avatar">
+					<a>
+						<xsl:attribute name="href">
+							<xsl:value-of select="/*/link"/>
+						</xsl:attribute>
+						<img class="avatar">
+							<xsl:attribute name="src">
+								<xsl:value-of select="/*/avatar"/>
+							</xsl:attribute>
+						</img>
+					</a>
+				</li>
+			</xsl:if>
+			<li class="membergroup">
+				<xsl:value-of select="/*/position"/>
+			</li>
+			<xsl:if test="/*/title">
+				<li class="title">
+					<xsl:value-of select="/*/title"/>
+				</li>
+			</xsl:if>
+			<li class="postgroup">
+				<xsl:value-of select="/*/post_group"/>
+			</li>
+			<li class="postcount">
+				<xsl:value-of select="concat(/*/posts/@label, \': \')"/>
+				<xsl:value-of select="/*/posts"/>
+			</li>
+			<xsl:if test="/*/blurb">
+				<li class="blurb">
+					<xsl:value-of select="/*/blurb"/>
+				</li>
+			</xsl:if>
+		</xsl:template>';
+
+		// Helper template for printing the quickbuttons
+		$stylesheet['quickbuttons'] = '
+		<xsl:template name="quickbuttons">
+			<xsl:param name="toggle_target"/>
+			<ul class="quickbuttons quickbuttons_post sf-js-enabled sf-arrows" style="touch-action: pan-y;">
+				<li>
+					<a>
+						<xsl:attribute name="onclick">
+							<xsl:text>$(\'#</xsl:text>
+							<xsl:value-of select="$toggle_target"/>
+							<xsl:text> .inner\').toggle();</xsl:text>
+						</xsl:attribute>
+						<xsl:value-of select="$txt_view_source_button"/>
+					</a>
+				</li>
+			</ul>
+		</xsl:template>';
+
+		// Helper template for printing a signature
+		$stylesheet['signature'] = '
+		<xsl:template name="signature">
+			<xsl:if test="/*/signature">
+				<div class="signature">
+					<xsl:value-of select="/*/signature" disable-output-escaping="yes"/>
+				</div>
+			</xsl:if>
+		</xsl:template>';
+
+		// Helper template for printing a list of PM recipients
+		$stylesheet['recipient'] = '
+		<xsl:template match="recipient">
+			<a>
+				<xsl:attribute name="href">
+					<xsl:value-of select="link"/>
+				</xsl:attribute>
+				<xsl:value-of select="name"/>
+			</a>
+			<xsl:choose>
+				<xsl:when test="following-sibling::recipient">
+					<xsl:text>, </xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:text>. </xsl:text>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:template>';
+
+		// Helper template for special handling of the contents of the [html] BBCode
+		$stylesheet['bbc_html'] = '
+		<xsl:template name="bbc_html_splitter">
+			<xsl:param name="bbc_string"/>
+			<xsl:param name="inside_outside" select="outside"/>
+			<xsl:choose>
+				<xsl:when test="$inside_outside = \'outside\'">
+					<xsl:choose>
+						<xsl:when test="contains($bbc_string, \'[html]\')">
+							<xsl:variable name="following_string">
+								<xsl:value-of select="substring-after($bbc_string, \'[html]\')" disable-output-escaping="yes"/>
+							</xsl:variable>
+							<xsl:value-of select="substring-before($bbc_string, \'[html]\')" disable-output-escaping="yes"/>
+							<xsl:text>[html]</xsl:text>
+							<xsl:call-template name="bbc_html_splitter">
+								<xsl:with-param name="bbc_string" select="$following_string"/>
+								<xsl:with-param name="inside_outside" select="inside"/>
+							</xsl:call-template>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="$bbc_string" disable-output-escaping="yes"/>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:choose>
+						<xsl:when test="contains($bbc_string, \'[/html]\')">
+							<xsl:variable name="following_string">
+								<xsl:value-of select="substring-after($bbc_string, \'[/html]\')" disable-output-escaping="yes"/>
+							</xsl:variable>
+							<xsl:value-of select="substring-before($bbc_string, \'[/html]\')" disable-output-escaping="no"/>
+							<xsl:text>[/html]</xsl:text>
+							<xsl:call-template name="bbc_html_splitter">
+								<xsl:with-param name="bbc_string" select="$following_string"/>
+								<xsl:with-param name="inside_outside" select="outside"/>
+							</xsl:call-template>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="$bbc_string" disable-output-escaping="no"/>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:template>';
+
+		// Helper templates to build a page index
+		$stylesheet['page_index'] = '
+		<xsl:template name="page_index">
+			<xsl:variable name="current_page" select="/*/@page"/>
+			<xsl:variable name="prev_page" select="/*/@page - 1"/>
+			<xsl:variable name="next_page" select="/*/@page + 1"/>
+
+			<div class="pagesection">
+				<div class="pagelinks floatleft">
+
+					<span class="pages">
+						<xsl:value-of select="$txt_pages"/>
+					</span>
+
+					<xsl:if test="$current_page &gt; 1">
+						<a class="nav_page">
+							<xsl:attribute name="href">
+								<xsl:value-of select="concat($dlfilename, \'_\', $prev_page, \'.\', $ext)"/>
+							</xsl:attribute>
+							<span class="main_icons previous_page"></span>
+						</a>
+					</xsl:if>
+
+					<xsl:call-template name="page_links"/>
+
+					<xsl:if test="$current_page &lt; $last_page">
+						<a class="nav_page">
+							<xsl:attribute name="href">
+								<xsl:value-of select="concat($dlfilename, \'_\', $next_page, \'.\', $ext)"/>
+							</xsl:attribute>
+							<span class="main_icons next_page"></span>
+						</a>
+					</xsl:if>
+				</div>
+			</div>
+		</xsl:template>
+
+		<xsl:template name="page_links">
+			<xsl:param name="page_num" select="1"/>
+			<xsl:variable name="current_page" select="/*/@page"/>
+			<xsl:variable name="prev_page" select="/*/@page - 1"/>
+			<xsl:variable name="next_page" select="/*/@page + 1"/>
+
+			<xsl:choose>
+				<xsl:when test="$page_num = $current_page">
+					<span class="current_page">
+						<xsl:value-of select="$page_num"/>
+					</span>
+				</xsl:when>
+				<xsl:when test="$page_num = 1 or $page_num = ($current_page - 1) or $page_num = ($current_page + 1) or $page_num = $last_page">
+					<a class="nav_page">
+						<xsl:attribute name="href">
+							<xsl:value-of select="concat($dlfilename, \'_\', $page_num, \'.\', $ext)"/>
+						</xsl:attribute>
+						<xsl:value-of select="$page_num"/>
+					</a>
+				</xsl:when>
+				<xsl:when test="$page_num = 2 or $page_num = ($current_page + 2)">
+					<span class="expand_pages" onclick="$(\'.nav_page\').removeClass(\'hidden\'); $(\'.expand_pages\').hide();"> ... </span>
+					<a class="nav_page hidden">
+						<xsl:attribute name="href">
+							<xsl:value-of select="concat($dlfilename, \'_\', $page_num, \'.\', $ext)"/>
+						</xsl:attribute>
+						<xsl:value-of select="$page_num"/>
+					</a>
+				</xsl:when>
+				<xsl:otherwise>
+					<a class="nav_page hidden">
+						<xsl:attribute name="href">
+							<xsl:value-of select="concat($dlfilename, \'_\', $page_num, \'.\', $ext)"/>
+						</xsl:attribute>
+						<xsl:value-of select="$page_num"/>
+					</a>
+				</xsl:otherwise>
+			</xsl:choose>
+
+			<xsl:text> </xsl:text>
+
+			<xsl:if test="$page_num &lt; $last_page">
+				<xsl:call-template name="page_links">
+					<xsl:with-param name="page_num" select="$page_num + 1"/>
+				</xsl:call-template>
+			</xsl:if>
+		</xsl:template>';
+
+		// Template to insert CSS and JavaScript
+		$stylesheet['css_js'] = '
+		<xsl:template name="css_js">';
 
 		export_load_css_js();
 
-		$stylesheet = loadXslt('export', 'html');
+		if (!empty($context['export_css_files']))
+		{
+			foreach ($context['export_css_files'] as $css_file)
+			{
+				$stylesheet['css_js'] .= '
+				<link rel="stylesheet">
+					<xsl:attribute name="href">
+						<xsl:text>' . $css_file['fileUrl'] . '</xsl:text>
+					</xsl:attribute>';
+
+				if (!empty($css_file['options']['attributes']))
+				{
+					foreach ($css_file['options']['attributes'] as $key => $value)
+						$stylesheet['css_js'] .= '
+					<xsl:attribute name="' . $key . '">
+						<xsl:text>' . (is_bool($value) ? $key : $value) . '</xsl:text>
+					</xsl:attribute>';
+				}
+
+				$stylesheet['css_js'] .= '
+				</link>';
+			}
+		}
+
+		if (!empty($context['export_css_header']))
+		{
+			$stylesheet['css_js'] .=  '
+			<style><![CDATA[' . "\n" . implode("\n", $context['export_css_header']) . "\n" . ']]>
+			</style>';
+		}
+
+		if (!empty($context['export_javascript_vars']))
+		{
+			$stylesheet['css_js'] .=  '
+			<script><![CDATA[';
+
+			foreach ($context['export_javascript_vars'] as $var => $val)
+				$stylesheet['css_js'] .= "\nvar " . $var . (!empty($val) ? ' = ' . $val : '') . ';';
+
+			$stylesheet['css_js'] .= "\n" . ']]>
+			</script>';
+		}
+
+		if (!empty($context['export_javascript_files']))
+		{
+			foreach ($context['export_javascript_files'] as $js_file)
+			{
+				$stylesheet['css_js'] .= '
+				<script>
+					<xsl:attribute name="src">
+						<xsl:text>' . $js_file['fileUrl'] . '</xsl:text>
+					</xsl:attribute>';
+
+				if (!empty($js_file['options']['attributes']))
+				{
+					foreach ($js_file['options']['attributes'] as $key => $value)
+						$stylesheet['css_js'] .= '
+					<xsl:attribute name="' . $key . '">
+						<xsl:text>' . (is_bool($value) ? $key : $value) . '</xsl:text>
+					</xsl:attribute>';
+				}
+
+				$stylesheet['css_js'] .= '
+				</script>';
+			}
+		}
+
+		if (!empty($context['export_javascript_inline']['standard']))
+		{
+			$stylesheet['css_js'] .=  '
+			<script><![CDATA[' . "\n" . implode("\n", $context['export_javascript_inline']['standard']) . "\n" . ']]>
+			</script>';
+		}
+
+		if (!empty($context['export_javascript_inline']['defer']))
+		{
+			$stylesheet['css_js'] .= '
+			<script><![CDATA[' . "\n" . 'window.addEventListener("DOMContentLoaded", function() {';
+
+			$stylesheet['css_js'] .= "\n\t" . str_replace("\n", "\n\t", implode("\n", $context['export_javascript_inline']['defer']));
+
+			$stylesheet['css_js'] .= "\n" . '});'. "\n" . ']]>
+			</script>';
+		}
+
+		$stylesheet['css_js'] .= '
+		</xsl:template>';
+
+		// End of the XSLT stylesheet
+		$stylesheet['footer'] = ($format == 'XML_XSLT' ? "\t" : '') . '</xsl:stylesheet>';
 	}
 
-	return array('stylesheet' => $stylesheet, 'doctype' => $doctype);
+	// Let mods adjust the XSLT stylesheet.
+	call_integration_hook('integrate_export_xslt_stylesheet', array(&$stylesheet, $format));
+
+	// Remember for later.
+	$xslt_key = isset($xslt_key) ? $xslt_key : $smcFunc['json_encode'](array($format, $uid, $xslt_variables));
+	$xslts[$xslt_key] = array('stylesheet' => implode("\n", (array) $stylesheet), 'doctype' => $doctype);
+
+	return $xslts[$xslt_key];
 }
 
 /**
@@ -923,10 +1772,6 @@ function get_xslt_stylesheet($format, $uid)
 function export_load_css_js()
 {
 	global $context, $modSettings, $sourcedir, $smcFunc, $user_info;
-
-	// Avoid unnecessary repetition.
-	if (isset($context['export_javascript_inline']))
-		return;
 
 	// If we're not running a background task, we need to preserve any existing CSS and JavaScript.
 	if (SMF != 'BACKGROUND')

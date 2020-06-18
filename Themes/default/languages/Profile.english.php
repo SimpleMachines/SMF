@@ -611,6 +611,5 @@ $txt['export_file_desc'] = 'Included data: %1$s. File format: %2$s.';
 $txt['export_download_original'] = 'Download original';
 $txt['export_view_source_button'] = 'Toggle source view';
 $txt['export_open_in_browser'] = 'Please open this file in a web browser to see a human readable version.';
-$txt['export_id'] = 'ID';
 
 ?>
