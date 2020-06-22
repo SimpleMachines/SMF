@@ -24,7 +24,12 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	private static $export_details = array();
 	private static $real_modSettings = array();
 	private static $xslt_info = array('stylesheet' => '', 'doctype' => '');
-	private static $next_task = array();
+
+	/**
+	 * Keep track of some other things on a per-instance basis.
+	 */
+	private $next_task = array();
+	private $time_limit = 30;
 
 	/**
 	 * This is the main dispatcher for the class.
@@ -42,7 +47,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		// Avoid leaving files in an inconsistent state.
 		ignore_user_abort(true);
-		@set_time_limit(MAX_CLAIM_THRESHOLD);
+
+		$this->time_limit = (ini_get('safe_mode') === false && @set_time_limit(MAX_CLAIM_THRESHOLD) !== false) ? MAX_CLAIM_THRESHOLD : ini_get('max_execution_time');
 
 		// This could happen if the user manually changed the URL params of the export request.
 		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor')))
@@ -85,11 +91,11 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			$this->exportXmlXslt($member_info);
 
 		// If necessary, create a new background task to continue the export process.
-		if (!empty(self::$next_task))
+		if (!empty($this->next_task))
 		{
 			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-				self::$next_task,
+				$this->next_task,
 				array()
 			);
 		}
@@ -193,7 +199,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			file_put_contents($tempfile, implode('', $context['feed']), LOCK_EX);
 
 			$progress = array_fill_keys($datatypes, 0);
-			file_put_contents($progressfile, $smcFunc['json_encode']($progress), LOCK_EX);
+			file_put_contents($progressfile, $smcFunc['json_encode']($progress));
 		}
 		else
 			$progress = $smcFunc['json_decode'](file_get_contents($progressfile), true);
@@ -328,7 +334,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 					{
 						// Track progress by ID where appropriate, and by time otherwise.
 						$progress[$datatype] = !isset($last_id) ? time() : $last_id;
-						file_put_contents($progressfile, $smcFunc['json_encode']($progress), LOCK_EX);
+						file_put_contents($progressfile, $smcFunc['json_encode']($progress));
 
 						// Are we done with this datatype yet?
 						if (!isset($last_id) || (count($items) < $per_page && $last_id >= $latest[$datatype]))
@@ -397,7 +403,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			if (!empty($new_item_count))
 				$new_details['item_count'] = $new_item_count;
 
-			self::$next_task = array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $smcFunc['json_encode']($new_details), time() - MAX_CLAIM_THRESHOLD + $delay);
+			$this->next_task = array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $smcFunc['json_encode']($new_details), time() - MAX_CLAIM_THRESHOLD + $delay);
 
 			if (!file_exists($tempfile))
 			{
@@ -406,7 +412,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			}
 		}
 
-		file_put_contents($progressfile, $smcFunc['json_encode']($progress), LOCK_EX);
+		file_put_contents($progressfile, $smcFunc['json_encode']($progress));
 	}
 
 	/**
@@ -452,16 +458,39 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$xsltproc->importStylesheet($xslt);
 
 		// Transform the files to HTML.
+		$i = 0;
+		$num_files = count($new_exportfiles);
+		$max_transform_time = 0;
 		$xmldoc = new DOMDocument();
 		foreach ($new_exportfiles as $exportfile)
 		{
-			// Just in case...
-			@set_time_limit(MAX_CLAIM_THRESHOLD);
 			if (function_exists('apache_reset_timeout'))
 				@apache_reset_timeout();
 
+			$started = microtime(true);
 			$xmldoc->load($exportfile);
 			$xsltproc->transformToURI($xmldoc, $exportfile);
+			$finished = microtime(true);
+
+			$max_transform_time = max($max_transform_time, $finished - $started);
+
+			// When deadlines loom, sometimes the best solution is procrastination.
+			if (++$i < $num_files && TIME_STARTED + $this->time_limit < $finished + $max_transform_time * 2)
+			{
+				// After all, there's always next time.
+				if (empty($this->next_task))
+				{
+					$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
+
+					$new_details = $this->_details;
+					$new_details['start'] = $smcFunc['json_decode'](file_get_contents($progressfile), true);
+
+					$this->next_task = array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $smcFunc['json_encode']($new_details), time() - MAX_CLAIM_THRESHOLD);
+				}
+
+				// So let's just relax and take a well deserved...
+				break;
+			}
 		}
 	}
 
