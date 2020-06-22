@@ -42,6 +42,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		// Avoid leaving files in an inconsistent state.
 		ignore_user_abort(true);
+		@set_time_limit(MAX_CLAIM_THRESHOLD);
 
 		// This could happen if the user manually changed the URL params of the export request.
 		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor')))
@@ -455,7 +456,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		foreach ($new_exportfiles as $exportfile)
 		{
 			// Just in case...
-			@set_time_limit(MAX_CRON_TIME);
+			@set_time_limit(MAX_CLAIM_THRESHOLD);
 			if (function_exists('apache_reset_timeout'))
 				@apache_reset_timeout();
 
