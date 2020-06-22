@@ -24,6 +24,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	private static $export_details = array();
 	private static $real_modSettings = array();
 	private static $xslt_info = array('stylesheet' => '', 'doctype' => '');
+	private static $next_task = array();
 
 	/**
 	 * This is the main dispatcher for the class.
@@ -34,10 +35,13 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 	 */
 	public function execute()
 	{
-		global $sourcedir;
+		global $sourcedir, $smcFunc;
 
 		if (!defined('EXPORTING'))
 			define('EXPORTING', 1);
+
+		// Avoid leaving files in an inconsistent state.
+		ignore_user_abort(true);
 
 		// This could happen if the user manually changed the URL params of the export request.
 		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor')))
@@ -78,6 +82,18 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			$this->exportHtml($member_info);
 		elseif ($this->_details['format'] == 'XML_XSLT')
 			$this->exportXmlXslt($member_info);
+
+		// If necessary, create a new background task to continue the export process.
+		if (!empty(self::$next_task))
+		{
+			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
+				self::$next_task,
+				array()
+			);
+		}
+
+		ignore_user_abort(false);
 
 		return true;
 	}
@@ -380,11 +396,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			if (!empty($new_item_count))
 				$new_details['item_count'] = $new_item_count;
 
-			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
-				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $smcFunc['json_encode']($new_details), time() - MAX_CLAIM_THRESHOLD + $delay),
-				array()
-			);
+			self::$next_task = array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $smcFunc['json_encode']($new_details), time() - MAX_CLAIM_THRESHOLD + $delay);
 
 			if (!file_exists($tempfile))
 			{
@@ -428,11 +440,6 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		if (empty($new_exportfiles))
 			return;
 
-		// Just in case...
-		@set_time_limit(MAX_CLAIM_THRESHOLD * 2);
-		if (function_exists('apache_reset_timeout'))
-			@apache_reset_timeout();
-
 		// Get the XSLT stylesheet.
 		require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
 		self::$xslt_info = get_xslt_stylesheet($this->_details['format'], $this->_details['uid']);
@@ -447,6 +454,11 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$xmldoc = new DOMDocument();
 		foreach ($new_exportfiles as $exportfile)
 		{
+			// Just in case...
+			@set_time_limit(MAX_CRON_TIME);
+			if (function_exists('apache_reset_timeout'))
+				@apache_reset_timeout();
+
 			$xmldoc->load($exportfile);
 			$xsltproc->transformToURI($xmldoc, $exportfile);
 		}
@@ -490,7 +502,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$idhash = hash_hmac('sha1', $this->_details['uid'], get_auth_secret());
 		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
 
-		$test_length = strlen(self::$xslt_info['stylesheet']) + strlen($context['feed']['footer']);
+		$test_length = strlen(self::$xslt_info['stylesheet'] . $context['feed']['footer']);
 
 		$new_exportfiles = array();
 		foreach (glob($export_dir_slash . '*_' . $idhash_ext) as $completed_file)
