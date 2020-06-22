@@ -557,7 +557,6 @@ function cdata_parse($data, $ns = '', $force = false)
 	for ($pos = 0, $n = strlen($data); $pos < $n; null)
 	{
 		$positions = array(
-			strpos($data, '&', $pos),
 			strpos($data, ']]>', $pos),
 		);
 		if ($ns != '')
@@ -591,22 +590,6 @@ function cdata_parse($data, $ns = '', $force = false)
 		{
 			$cdata .= ']]]]><![CDATA[>';
 			$pos = $pos + 3;
-		}
-		elseif (substr($data, $pos, 1) == '&')
-		{
-			// We only want to match XML entities here, not HTML ones.
-			preg_match('~\G(&(?:amp|lt|gt|quot|apos|#(?:\d{1,7}|x[0-9a-fA-F]{1,6}));)~', $data, $matches, null, $pos);
-
-			if (!empty($matches[1]))
-			{
-				$cdata .= ']]>' . $matches[1] . '<![CDATA[';
-				$pos = $pos + strlen($matches[1]);
-			}
-			else
-			{
-				$cdata .= '&';
-				$pos++;
-			}
 		}
 	}
 
