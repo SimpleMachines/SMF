@@ -458,11 +458,11 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$xsltproc->importStylesheet($xslt);
 
 		$libxml_options = 0;
-		if (LIBXML_VERSION >= 20621 && defined(LIBXML_COMPACT))
+		if (LIBXML_VERSION >= 20621 && defined('LIBXML_COMPACT'))
 			$libxml_options = $libxml_options | LIBXML_COMPACT;
-		if (LIBXML_VERSION >= 20700 && defined(LIBXML_PARSEHUGE))
+		if (LIBXML_VERSION >= 20700 && defined('LIBXML_PARSEHUGE'))
 			$libxml_options = $libxml_options | LIBXML_PARSEHUGE;
-		if (LIBXML_VERSION >= 20900 && defined(LIBXML_BIGLINES))
+		if (LIBXML_VERSION >= 20900 && defined('LIBXML_BIGLINES'))
 			$libxml_options = $libxml_options | LIBXML_BIGLINES;
 
 		// Transform the files to HTML.
