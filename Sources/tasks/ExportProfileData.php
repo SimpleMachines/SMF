@@ -19,16 +19,38 @@
 class ExportProfileData_Background extends SMF_BackgroundTask
 {
 	/**
-	 * Some private variables to help the static functions in this class.
+	 * @var array A copy of $this->_details for access by the static functions
+	 * called from integration hooks.
+	 *
+	 * Even though this info is unique to a specific instance of this class, we
+	 * can get away with making this variable static because only one instance
+	 * of this class exists at a time.
 	 */
 	private static $export_details = array();
+
+	/**
+	 * @var array Temporary backup of the $modSettings array
+	 */
 	private static $real_modSettings = array();
+
+	/**
+	 * @var array The XSLT stylesheet used to transform the XML into HTML and
+	 * a (possibly empty) DOCTYPE declaration to insert into the source XML.
+	 *
+	 * Even though this info is unique to a specific instance of this class, we
+	 * can get away with making this variable static because only one instance
+	 * of this class exists at a time.
+	 */
 	private static $xslt_info = array('stylesheet' => '', 'doctype' => '');
 
 	/**
-	 * Keep track of some other things on a per-instance basis.
+	 * @var array Info to create a follow-up background task, if necessary.
 	 */
 	private $next_task = array();
+
+	/**
+	 * @var array Used to ensure we exit long running tasks cleanly.
+	 */
 	private $time_limit = 30;
 
 	/**
@@ -76,17 +98,16 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		));
 
 		// Use some temporary integration hooks to manipulate BBC parsing during export.
-		add_integration_function('integrate_pre_parsebbc', 'ExportProfileData_Background::pre_parsebbc', false);
-		add_integration_function('integrate_post_parsebbc', 'ExportProfileData_Background::post_parsebbc', false);
-		add_integration_function('integrate_bbc_codes', 'ExportProfileData_Background::bbc_codes', false);
-		add_integration_function('integrate_post_parseAttachBBC', 'ExportProfileData_Background::post_parseAttachBBC', false);
-		add_integration_function('integrate_attach_bbc_validate', 'ExportProfileData_Background::attach_bbc_validate', false);
+		foreach (array('pre_parsebbc', 'post_parsebbc', 'bbc_codes', 'post_parseAttachBBC', 'attach_bbc_validate') as $hook)
+			add_integration_function('integrate_' . $hook, 'ExportProfileData_Background::' . $hook, false);
 
-		// We currently support exporting to XML and HTML
+		// Perform the export.
 		if ($this->_details['format'] == 'XML')
 			$this->exportXml($member_info);
+
 		elseif ($this->_details['format'] == 'HTML')
 			$this->exportHtml($member_info);
+
 		elseif ($this->_details['format'] == 'XML_XSLT')
 			$this->exportXmlXslt($member_info);
 
@@ -132,7 +153,6 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		// Setup.
 		$done = false;
 		$delay = 0;
-		$func = $included[$datatype]['func'];
 		$context['xmlnews_uid'] = $uid;
 		$context['xmlnews_limit'] = !empty($modSettings['export_rate']) ? $modSettings['export_rate'] : 250;
 		$context[$datatype . '_start'] = $start[$datatype];
@@ -458,12 +478,9 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$xsltproc->importStylesheet($xslt);
 
 		$libxml_options = 0;
-		if (LIBXML_VERSION >= 20621 && defined('LIBXML_COMPACT'))
-			$libxml_options = $libxml_options | LIBXML_COMPACT;
-		if (LIBXML_VERSION >= 20700 && defined('LIBXML_PARSEHUGE'))
-			$libxml_options = $libxml_options | LIBXML_PARSEHUGE;
-		if (LIBXML_VERSION >= 20900 && defined('LIBXML_BIGLINES'))
-			$libxml_options = $libxml_options | LIBXML_BIGLINES;
+		foreach (array('LIBXML_COMPACT', 'LIBXML_PARSEHUGE', 'LIBXML_BIGLINES') as $libxml_option)
+			if (defined($libxml_option))
+				$libxml_options = $libxml_options | constant($libxml_option);
 
 		// Transform the files to HTML.
 		$i = 0;
