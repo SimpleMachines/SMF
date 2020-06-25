@@ -34,17 +34,7 @@ function db_search_init()
 
 	db_extend();
 
-	//pg 9.5 got ignore support
-	$version = $smcFunc['db_get_version']();
-	// if we got a Beta Version
-	if (stripos($version, 'beta') !== false)
-		$version = substr($version, 0, stripos($version, 'beta')) . '.0';
-	// or RC
-	if (stripos($version, 'rc') !== false)
-		$version = substr($version, 0, stripos($version, 'rc')) . '.0';
-
-	if (version_compare($version, '9.5.0', '>='))
-		$smcFunc['db_support_ignore'] = true;
+	$smcFunc['db_support_ignore'] = true;
 }
 
 /**
