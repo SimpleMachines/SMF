@@ -982,7 +982,7 @@ CREATE TABLE {$db_prefix}poll_choices (
 
 CREATE TABLE {$db_prefix}qanda (
 	id_question SMALLINT UNSIGNED AUTO_INCREMENT,
-	lngfile VARCHAR(30) NOT NULL DEFAULT '',
+	lngfile VARCHAR(255) NOT NULL DEFAULT '',
 	question VARCHAR(255) NOT NULL DEFAULT '',
 	answers TEXT NOT NULL,
 	PRIMARY KEY (id_question),

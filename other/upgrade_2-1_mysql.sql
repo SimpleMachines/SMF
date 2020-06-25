@@ -1580,7 +1580,7 @@ $smcFunc['db_free_result']($file_check);
 ---# Creating qanda table
 CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 	id_question SMALLINT(5) UNSIGNED AUTO_INCREMENT,
-	lngfile VARCHAR(30) NOT NULL DEFAULT '',
+	lngfile VARCHAR(255) NOT NULL DEFAULT '',
 	question VARCHAR(255) NOT NULL DEFAULT '',
 	answers TEXT NOT NULL,
 	PRIMARY KEY (id_question),
