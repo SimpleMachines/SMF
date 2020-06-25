@@ -543,6 +543,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$test_length = strlen(self::$xslt_info['stylesheet'] . $context['feed']['footer']);
 
 		$new_exportfiles = array();
+		clearstatcache();
 		foreach (glob($export_dir_slash . '*_' . $idhash_ext) as $completed_file)
 		{
 			if (filesize($completed_file) < $test_length || file_get_contents($completed_file, false, null, $test_length * -1) !== self::$xslt_info['stylesheet'] . $context['feed']['footer'])
