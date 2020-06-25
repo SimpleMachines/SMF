@@ -483,7 +483,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 			$max_transform_time = max($max_transform_time, $finished - $started);
 
 			// When deadlines loom, sometimes the best solution is procrastination.
-			if (++$i < $num_files && TIME_STARTED + $this->time_limit < $finished + $max_transform_time * 2)
+			if (++$i < $num_files && TIME_START + $this->time_limit < $finished + $max_transform_time * 2)
 			{
 				// After all, there's always next time.
 				if (empty($this->next_task))
