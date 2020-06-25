@@ -992,26 +992,7 @@ function smf_db_custom_order($field, $array_values, $desc = false)
  */
 function smf_db_native_replace()
 {
-	global $smcFunc;
-	static $pg_version;
-	static $replace_support;
-
-	if (empty($pg_version))
-	{
-		db_extend();
-		//pg 9.5 got replace support
-		$pg_version = $smcFunc['db_get_version']();
-		// if we got a Beta Version
-		if (stripos($pg_version, 'beta') !== false)
-			$pg_version = substr($pg_version, 0, stripos($pg_version, 'beta')) . '.0';
-		// or RC
-		if (stripos($pg_version, 'rc') !== false)
-			$pg_version = substr($pg_version, 0, stripos($pg_version, 'rc')) . '.0';
-
-		$replace_support = (version_compare($pg_version, '9.5.0', '>=') ? true : false);
-	}
-
-	return $replace_support;
+	return true;
 }
 
 /**
