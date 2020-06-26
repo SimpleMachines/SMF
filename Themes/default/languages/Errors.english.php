@@ -28,6 +28,7 @@ $txt['avatars_no_write'] = 'The avatars directory is not writable';
 $txt['attachment_not_created'] = 'The attachment could not be created';
 $txt['export_dir_not_writable'] = 'The export directory is not writable';
 $txt['export_dir_forced_change'] = '%1$s is not writable. Retrying at %2$s';
+$txt['export_low_diskspace'] = 'Insufficient disk space to continue member profile export. Current minimum disk space is set to %1$d%%. The export process will automatically attempt to resume tomorrow.';
 
 $txt['didnt_select_vote'] = 'You didn\'t select a vote option.';
 $txt['poll_error'] = 'Either that poll doesn\'t exist, the poll has been locked, or you tried to vote twice.';

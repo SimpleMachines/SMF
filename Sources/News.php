@@ -191,11 +191,16 @@ function ShowXmlFeed()
 			SELECT num_posts
 			FROM {db_prefix}boards
 			WHERE id_board = {int:current_board}
+				AND {query_see_board}
 			LIMIT 1',
 			array(
 				'current_board' => $board,
 			)
 		);
+
+		if ($smcFunc['db_num_rows']($request) == 0)
+			fatal_lang_error('no_board');
+
 		list ($total_posts) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
@@ -333,12 +338,15 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 	$forceCdataKeys = array();
 	$nsKeys = array();
 
+	// Maybe someone needs to insert a DOCTYPE declaration?
+	$doctype = '';
+
 	// Remember this, just in case...
 	$orig_feed_meta = $feed_meta;
 
 	// If mods want to do somthing with this feed, let them do that now.
 	// Provide the feed's data, metadata, namespaces, extra feed-level tags, keys that need special handling, the feed format, and the requested subaction
-	call_integration_hook('integrate_xml_data', array(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction));
+	call_integration_hook('integrate_xml_data', array(&$xml_data, &$feed_meta, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$doctype));
 
 	// These can't be empty
 	foreach (array('title', 'desc', 'source', 'self') as $mkey)
@@ -368,7 +376,7 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 	$context['feed'] = array();
 
 	// First, output the xml header.
-	$context['feed']['header'] = '<?xml version="1.0" encoding="' . $context['character_set'] . '"?' . '>';
+	$context['feed']['header'] = '<?xml version="1.0" encoding="' . $context['character_set'] . '"?' . '>' . ($doctype !== '' ? "\n" . trim($doctype) : '');
 
 	// Are we outputting an rss feed or one with more information?
 	if ($xml_format == 'rss' || $xml_format == 'rss2')
@@ -486,7 +494,7 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 	else
 	{
 		$context['feed']['header'] .= '
-<smf:xml-feed xml:lang="' . strtr($txt['lang_locale'], '_', '-') . '"' . $ns_string . ' version="' . SMF_VERSION . '" forum-name="' . $context['forum_name'] . '" forum-url="' . $scripturl . '"' . (!empty($feed_meta['title']) && $feed_meta['title'] != $context['forum_name'] ? ' title="' . $feed_meta['title'] . '"' : '') . (!empty($feed_meta['desc']) ? ' description="' . $feed_meta['desc'] . '"' : '') . ' source="' . $feed_meta['source'] . '" generated-date-localized="' . strip_tags(timeformat(time(), false, 'forum')) . '" generated-date-UTC="' . gmstrftime('%F %T') . '">';
+<smf:xml-feed xml:lang="' . strtr($txt['lang_locale'], '_', '-') . '"' . $ns_string . ' version="' . SMF_VERSION . '" forum-name="' . $context['forum_name'] . '" forum-url="' . $scripturl . '"' . (!empty($feed_meta['title']) && $feed_meta['title'] != $context['forum_name'] ? ' title="' . $feed_meta['title'] . '"' : '') . (!empty($feed_meta['desc']) ? ' description="' . $feed_meta['desc'] . '"' : '') . ' source="' . $feed_meta['source'] . '" generated-date-localized="' . strip_tags(timeformat(time(), false, 'forum')) . '" generated-date-UTC="' . gmstrftime('%F %T') . '"' . (!empty($feed_meta['page']) ? ' page="' . $feed_meta['page'] . '"' : '') . '>';
 
 		// Hard to imagine anyone wanting to add these for the proprietary format, but just in case...
 		$context['feed']['header'] .= $extraFeedTags_string;
@@ -549,7 +557,6 @@ function cdata_parse($data, $ns = '', $force = false)
 	for ($pos = 0, $n = strlen($data); $pos < $n; null)
 	{
 		$positions = array(
-			strpos($data, '&', $pos),
 			strpos($data, ']]>', $pos),
 		);
 		if ($ns != '')
@@ -584,22 +591,6 @@ function cdata_parse($data, $ns = '', $force = false)
 			$cdata .= ']]]]><![CDATA[>';
 			$pos = $pos + 3;
 		}
-		elseif (substr($data, $pos, 1) == '&')
-		{
-			// We only want to match XML entities here, not HTML ones.
-			preg_match('~\G(&(?:amp|lt|gt|quot|apos|#(?:\d{1,7}|x[0-9a-fA-F]{1,6}));)~', $data, $matches, null, $pos);
-
-			if (!empty($matches[1]))
-			{
-				$cdata .= ']]>' . $matches[1] . '<![CDATA[';
-				$pos = $pos + strlen($matches[1]);
-			}
-			else
-			{
-				$cdata .= '&';
-				$pos++;
-			}
-		}
 	}
 
 	$cdata .= ']]>';
@@ -628,8 +619,7 @@ function dumpTags($data, $i, $xml_format = '', $forceCdataKeys = array(), $nsKey
 	// For every array in the data...
 	foreach ($data as $element)
 	{
-		// If a tag was passed, use it instead of the key.
-		$key = $element['tag'];
+		$key = isset($element['tag']) ? $element['tag'] : null;
 		$val = isset($element['content']) ? $element['content'] : null;
 		$attrs = isset($element['attributes']) ? $element['attributes'] : null;
 
@@ -715,7 +705,7 @@ function getXmlMembers($xml_format, $ascending = false)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If any control characters slipped in somehow, kill the evil things
-		array_walk($row, 'cleanXml');
+		$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// Create a GUID for each member using the tag URI scheme
 		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
@@ -904,7 +894,7 @@ function getXmlNews($xml_format, $ascending = false)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If any control characters slipped in somehow, kill the evil things
-		array_walk($row, 'cleanXml');
+		$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// Limit the length of the message, if the option is set.
 		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br>', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
@@ -1354,7 +1344,7 @@ function getXmlRecent($xml_format)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If any control characters slipped in somehow, kill the evil things
-		array_walk($row, 'cleanXml');
+		$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// Limit the length of the message, if the option is set.
 		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br>', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
@@ -1630,7 +1620,7 @@ function getXmlRecent($xml_format)
 				$attachments = null;
 
 			$data[] = array(
-				'tag' => 'recent-post',
+				'tag' => 'recent-post', // Hyphen rather than underscore for backward compatibility reasons
 				'attributes' => array('label' => $txt['post']),
 				'content' => array(
 					array(
@@ -1777,7 +1767,8 @@ function getXmlProfile($xml_format)
 
 	$profile = &$memberContext[$context['xmlnews_uid']];
 
-	array_walk_recursive($profile, 'cleanXml');
+	// If any control characters slipped in somehow, kill the evil things
+	$profile = filter_var($profile, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 	// Create a GUID for this member using the tag URI scheme
 	$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
@@ -2080,18 +2071,51 @@ function getXmlPosts($xml_format, $ascending = false)
 
 	$show_all = !empty($user_info['is_admin']) || defined('EXPORTING');
 
+	$query_this_message_board = str_replace(array('{query_see_board}', 'b.'), array('{query_see_message_board}', 'm.'), $query_this_board);
+
 	require_once($sourcedir . '/Subs-Attachments.php');
 
+	/* MySQL can choke if we use joins in the main query when the user has
+	 * massively long posts. To avoid that, we get the names of the boards
+	 * and the user's displayed name in separate queries.
+	 */
+	$boardnames = array();
 	$request = $smcFunc['db_query']('', '
-		SELECT m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_name, m.poster_email, m.poster_ip, m.poster_time, m.subject,
-			modified_time, m.modified_name, m.modified_reason, m.body, m.likes, m.approved, m.smileys_enabled, b.name AS bname
-		FROM {db_prefix}messages as m
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-		WHERE id_member = {int:uid}
-			AND id_msg > {int:start_after}
-			AND ' . $query_this_board . ($modSettings['postmod_active'] && !$show_all ? '
-			AND approved = {int:is_approved}' : '') . '
-		ORDER BY id_msg {raw:ascdesc}
+		SELECT id_board, name
+		FROM {db_prefix}boards',
+		array()
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$boardnames[$row['id_board']] = $row['name'];
+	$smcFunc['db_free_result']($request);
+
+	if ($context['xmlnews_uid'] == $user_info['id'])
+		$poster_name = $user_info['name'];
+	else
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT COALESCE(real_name, member_name) AS poster_name
+			FROM {db_prefix}members
+			WHERE id_member = {int:uid}',
+			array(
+				'uid' => $context['xmlnews_uid'],
+			)
+		);
+		list($poster_name) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+	}
+
+	$request = $smcFunc['db_query']('', '
+		SELECT
+			m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_email, m.poster_ip,
+			m.poster_time, m.subject, m.modified_time, m.modified_name, m.modified_reason, m.body,
+			m.likes, m.approved, m.smileys_enabled
+		FROM {db_prefix}messages AS m
+		WHERE m.id_member = {int:uid}
+			AND m.id_msg > {int:start_after}
+			AND ' . $query_this_message_board . ($modSettings['postmod_active'] && !$show_all ? '
+			AND m.approved = {int:is_approved}' : '') . '
+		ORDER BY m.id_msg {raw:ascdesc}
 		LIMIT {int:limit}',
 		array(
 			'limit' => $context['xmlnews_limit'],
@@ -2110,7 +2134,7 @@ function getXmlPosts($xml_format, $ascending = false)
 		$row['poster_ip'] = inet_dtop($row['poster_ip']);
 
 		// If any control characters slipped in somehow, kill the evil things
-		array_walk($row, 'cleanXml');
+		$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// If using our own format, we want both the raw and the parsed content.
 		$row[$xml_format === 'smf' ? 'body_html' : 'body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
@@ -2196,7 +2220,7 @@ function getXmlPosts($xml_format, $ascending = false)
 					),
 					array(
 						'tag' => 'category',
-						'content' => $row['bname'],
+						'content' => $boardnames[$row['id_board']],
 					),
 					array(
 						'tag' => 'comments',
@@ -2290,7 +2314,7 @@ function getXmlPosts($xml_format, $ascending = false)
 						'content' => array(
 							array(
 								'tag' => 'name',
-								'content' => $row['poster_name'],
+								'content' => $poster_name,
 								'cdata' => true,
 							),
 							array(
@@ -2366,7 +2390,7 @@ function getXmlPosts($xml_format, $ascending = false)
 								'content' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
 							),
 							array(
-								'tag' => 'approval-status',
+								'tag' => 'approval_status',
 								'attributes' => $show_all ? array('label' => $txt['approval_status']) : null,
 								'content' => $show_all ? $attachment['approved'] : null,
 							),
@@ -2378,7 +2402,7 @@ function getXmlPosts($xml_format, $ascending = false)
 				$attachments = null;
 
 			$data[] = array(
-				'tag' => 'member-post',
+				'tag' => 'member_post',
 				'attributes' => array('label' => $txt['post']),
 				'content' => array(
 					array(
@@ -2410,7 +2434,7 @@ function getXmlPosts($xml_format, $ascending = false)
 							array(
 								'tag' => 'name',
 								'attributes' => array('label' => $txt['name']),
-								'content' => $row['poster_name'],
+								'content' => $poster_name,
 								'cdata' => true,
 							),
 							array(
@@ -2459,7 +2483,8 @@ function getXmlPosts($xml_format, $ascending = false)
 							),
 							array(
 								'tag' => 'name',
-								'content' => $row['bname'],
+								'content' => $boardnames[$row['id_board']],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'link',
@@ -2501,7 +2526,7 @@ function getXmlPosts($xml_format, $ascending = false)
 						'content' => $row['likes'],
 					),
 					array(
-						'tag' => 'approval-status',
+						'tag' => 'approval_status',
 						'attributes' => $show_all ? array('label' => $txt['approval_status']) : null,
 						'content' => $show_all ? $row['approved'] : null,
 					),
@@ -2530,7 +2555,7 @@ function getXmlPosts($xml_format, $ascending = false)
 function getXmlPMs($xml_format, $ascending = false)
 {
 	global $scripturl, $modSettings, $board, $txt, $context, $user_info;
-	global $query_this_board, $smcFunc, $sourcedir, $cachedir;
+	global $smcFunc, $sourcedir, $cachedir;
 
 	// Personal messages are supposed to be private
 	if (empty($context['xmlnews_uid']) || ($context['xmlnews_uid'] != $user_info['id']))
@@ -2541,14 +2566,15 @@ function getXmlPMs($xml_format, $ascending = false)
 	$select_to_names = $smcFunc['db_title'] === POSTGRE_TITLE ? "string_agg(COALESCE(mem.real_name, mem.member_name), ',')" : 'GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name))';
 
 	$request = $smcFunc['db_query']('', '
-		SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, pm.from_name, nis.id_members_to, nis.to_names
+		SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, nis.from_name, nis.id_members_to, nis.to_names
 		FROM {db_prefix}personal_messages AS pm
 		INNER JOIN
 		(
-			SELECT pm2.id_pm, ' . $select_id_members_to . ' AS id_members_to, ' . $select_to_names . ' AS to_names
+			SELECT pm2.id_pm, COALESCE(memf.real_name, pm2.from_name) AS from_name, ' . $select_id_members_to . ' AS id_members_to, ' . $select_to_names . ' AS to_names
 			FROM {db_prefix}personal_messages AS pm2
 				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm2.id_pm = pmr.id_pm)
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = pmr.id_member)
+				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = pm2.id_member_from)
 			WHERE pm2.id_pm > {int:start_after}
 				AND (
 					(pm2.id_member_from = {int:uid} AND pm2.deleted_by_sender = {int:not_deleted})
@@ -2573,7 +2599,7 @@ function getXmlPMs($xml_format, $ascending = false)
 		$context['personal_messages_start'] = $row['id_pm'];
 
 		// If any control characters slipped in somehow, kill the evil things
-		array_walk($row, 'cleanXml');
+		$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// If using our own format, we want both the raw and the parsed content.
 		$row[$xml_format === 'smf' ? 'body_html' : 'body'] = parse_bbc($row['body']);
@@ -2714,7 +2740,7 @@ function getXmlPMs($xml_format, $ascending = false)
 			loadLanguage('PersonalMessage');
 
 			$item = array(
-				'tag' => 'personal-message',
+				'tag' => 'personal_message',
 				'attributes' => array('label' => $txt['pm']),
 				'content' => array(
 					array(
@@ -2722,7 +2748,7 @@ function getXmlPMs($xml_format, $ascending = false)
 						'content' => $row['id_pm'],
 					),
 					array(
-						'tag' => 'sent-date',
+						'tag' => 'sent_date',
 						'attributes' => array('label' => $txt['date'], 'UTC' => gmstrftime('%F %T', $row['msgtime'])),
 						'content' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['msgtime'], false, 'forum'))),
 					),

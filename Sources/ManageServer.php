@@ -797,7 +797,7 @@ function ModifyExportSettings($return_config = false)
 		array('text', 'export_dir', 40),
 		array('int', 'export_expiry', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['days_word']),
 		array('int', 'export_min_diskspace_pct', 'postinput' => '%', 'max' => 80, 'disabled' => $diskspace_disabled),
-		array('int', 'export_rate', 'min' => 50, 'max' => 5000, 'step' => 50, 'subtext' => $txt['export_rate_desc']),
+		array('int', 'export_rate', 'min' => 5, 'max' => 500, 'step' => 5, 'subtext' => $txt['export_rate_desc']),
 	);
 
 	call_integration_hook('integrate_export_settings', array(&$config_vars));
@@ -815,10 +815,12 @@ function ModifyExportSettings($return_config = false)
 		if ($diskspace_disabled)
 			$_POST['export_min_diskspace_pct'] = 0;
 
+		$_POST['export_rate'] = max(5, min($_POST['export_rate'], 500));
+
 		saveDBSettings($config_vars);
 
 		// Create the new directory, but revert to the previous one if anything goes wrong.
-		require_once($sourcedir . '/Profile-Actions.php');
+		require_once($sourcedir . '/Profile-Export.php');
 		create_export_dir($prev_export_dir);
 
 		// Ensure we don't lose track of any existing export files.

@@ -343,7 +343,7 @@ function ModifyBBCSettings($return_config = false)
 	$extra = '';
 	if (isset($_REQUEST['cowsay']))
 	{
-		$config_vars[] = array('permissions', 'bbc_cowsay', 'text_label' => sprintf($txt['groups_can_use'], 'cowsay'));
+		$config_vars[] = array('permissions', 'bbc_cowsay', 'text_label' => sprintf($txt['groups_can_use'], '[cowsay]'));
 		$extra = ';cowsay';
 	}
 

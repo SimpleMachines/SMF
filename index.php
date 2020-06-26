@@ -231,7 +231,7 @@ function smf_main()
 		'loadeditorlocale' => true,
 		'modifycat' => true,
 		'pm' => array('sa' => array('popup')),
-		'profile' => array('area' => array('popup', 'alerts_popup')),
+		'profile' => array('area' => array('popup', 'alerts_popup', 'download', 'dlattach')),
 		'requestmembers' => true,
 		'smstats' => true,
 		'suggest' => true,
