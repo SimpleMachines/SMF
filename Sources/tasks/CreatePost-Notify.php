@@ -1,6 +1,9 @@
 <?php
+
 /**
- * This file contains background notification code for any create post action
+ * This file contains code used to notify people when a new post is created that
+ * is relevant to them in some way: new topics in boards they watch, replies to
+ * topics they watch, posts that mention them, and/or posts that quote them.
  *
  * Simple Machines Forum (SMF)
  *
@@ -35,7 +38,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 	const FREQUENCY_WEEKLY_DIGEST = 4;
 
 	/**
-	 * This handles notifications when a new post is created - new topic, reply, quotes and mentions.
+	 * This executes the task: loads up the info, puts the email in the queue
+	 * and inserts any alerts as needed.
+	 *
 	 * @return bool Always returns true
 	 * @throws Exception
 	 */

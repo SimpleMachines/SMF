@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This task handles notifying users when someone new signs up.
+ * This file contains code used to notify people when a new member new signs up.
  *
  * Simple Machines Forum (SMF)
  *
@@ -19,7 +19,9 @@
 class Register_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
+	 * This executes the task: loads up the info, puts the email in the queue
+	 * and inserts any alerts as needed.
+	 *
 	 * @return bool Always returns true.
 	 */
 	public function execute()

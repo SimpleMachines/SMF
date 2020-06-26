@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file contains background notification code
+ * This file contains code used to send out "Happy Birthday" emails.
  *
  * Simple Machines Forum (SMF)
  *
@@ -18,12 +18,14 @@
  */
 class Birthday_Notify_Background extends SMF_BackgroundTask
 {
-    /**
-     * This executes the task. It loads up the birthdays, figures out the greeting, etc.
-     * @return bool Always returns true
-     */
+	/**
+	 * This executes the task: loads up the info, puts the email in the queue
+	 * and inserts any alerts as needed.
+	 *
+	 * @return bool Always returns true
+	 */
 	public function execute()
- 	{
+	{
 		global $txt, $smcFunc, $txtBirthdayEmails, $modSettings, $sourcedir;
 
 		$greeting = isset($modSettings['birthday_email']) ? $modSettings['birthday_email'] : 'happy_birthday';

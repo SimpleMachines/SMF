@@ -1,7 +1,8 @@
 <?php
 
 /**
- * This file incrementally exports a member's profile data to a downloadable file.
+ * This file contains code used to incrementally export a member's profile data
+ * to one or more downloadable files.
  *
  * Simple Machines Forum (SMF)
  *

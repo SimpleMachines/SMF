@@ -1,7 +1,8 @@
 <?php
+
 /**
- * This file contains background notification code for members to
- * reply to posts made by moderators in their own unapproved topics.
+ * This file contains code used to notify a member when a moderator replied to
+ * the member's own unapproved topic.
  *
  * Simple Machines Forum (SMF)
  *
@@ -19,7 +20,9 @@
 class ApproveReply_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-	 * This executes the task - loads up the information, puts the email in the queue and inserts alerts.
+	 * This executes the task: loads up the info, puts the email in the queue
+	 * and inserts any alerts as needed.
+	 *
 	 * @return bool Always returns true.
 	 */
 	public function execute()

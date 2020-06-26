@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This taks handles notifying someone that a new event has been
+ * This file contains code used to notify people that a new event has been
  * added to the calendar - but only when no topic has been created.
  *
  * Simple Machines Forum (SMF)
@@ -20,12 +20,14 @@
 class EventNew_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
+	 * This executes the task: loads up the info, puts the email in the queue
+	 * and inserts any alerts as needed.
+	 *
 	 * @return bool Always returns true
 	 */
 	public function execute()
- 	{
- 		global $sourcedir, $smcFunc, $user_profile;
+	{
+		global $sourcedir, $smcFunc, $user_profile;
 
 		// Get everyone who could be notified - those are the people who can see the calendar.
 		require_once($sourcedir . '/Subs-Members.php');
@@ -81,8 +83,8 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 					'content_action' => empty($this->_details['sender_id']) ? 'new_guest' : 'new',
 					'is_read' => 0,
 					'extra' => $smcFunc['json_encode'](
-					    array(
-					        "event_id" => $this->_details['event_id'],
+						array(
+							"event_id" => $this->_details['event_id'],
 							"event_title" => $this->_details['event_title']
 						)
 					),
