@@ -14,6 +14,13 @@
  */
 
 /**
+ * @todo Find a way to throttle the export rate dynamically when dealing with
+ * truly enormous amounts of data. Specifically, if the dataset contains lots
+ * of posts that are ridiculously large, one or another part of the system
+ * might choke.
+ */
+
+/**
  * Class ExportProfileData_Background
  */
 class ExportProfileData_Background extends SMF_BackgroundTask
