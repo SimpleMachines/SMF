@@ -199,6 +199,7 @@ function MLAll()
 				'last_update' => time(),
 				'num_members' => $smcFunc['db_num_rows']($request),
 				'index' => array(),
+				'max_offset' => 0,
 			);
 
 			for ($i = 0, $n = $smcFunc['db_num_rows']($request); $i < $n; $i += $cache_step_size)
@@ -209,6 +210,10 @@ function MLAll()
 			$smcFunc['db_data_seek']($request, $memberlist_cache['num_members'] - 1);
 			list ($memberlist_cache['index'][$i]) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
+
+			// Need to know the highest index value so we don't navigate past it...
+			if (!empty($memberlist_cache['index']))
+				$memberlist_cache['max_offset'] = max(array_keys($memberlist_cache['index']));
 
 			// Now we've got the cache...store it.
 			updateSettings(array('memberlist_cache' => $smcFunc['json_encode']($memberlist_cache)));
@@ -304,7 +309,11 @@ function MLAll()
 	if ($use_cache && $_REQUEST['sort'] === 'real_name' && !isset($_REQUEST['desc']))
 	{
 		$first_offset = $_REQUEST['start'] - ($_REQUEST['start'] % $cache_step_size);
+		if ($first_offset < 0)
+			$first_offset = 0;
 		$second_offset = ceil(($_REQUEST['start'] + $modSettings['defaultMaxMembers']) / $cache_step_size) * $cache_step_size;
+		if ($second_offset > $memberlist_cache['max_offset'])
+			$second_offset = $memberlist_cache['max_offset'];
 
 		$where = 'mem.real_name BETWEEN {string:real_name_low} AND {string:real_name_high}';
 		$query_parameters['real_name_low'] = $memberlist_cache['index'][$first_offset];
@@ -319,6 +328,8 @@ function MLAll()
 		if ($first_offset < 0)
 			$first_offset = 0;
 		$second_offset = ceil(($memberlist_cache['num_members'] - $_REQUEST['start']) / $cache_step_size) * $cache_step_size;
+		if ($second_offset > $memberlist_cache['max_offset'])
+			$second_offset = $memberlist_cache['max_offset'];
 
 		$where = 'mem.real_name BETWEEN {string:real_name_low} AND {string:real_name_high}';
 		$query_parameters['real_name_low'] = $memberlist_cache['index'][$first_offset];
