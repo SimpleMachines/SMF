@@ -663,64 +663,31 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	{
 		$key_str = '';
 		$col_str = '';
-		$replace_support = $smcFunc['db_native_replace']();
 
 		$count = 0;
-		$where = '';
 		$count_pk = 0;
 
-		If ($replace_support)
+		foreach ($columns as $columnName => $type)
 		{
-			foreach ($columns as $columnName => $type)
+			//check pk fiel
+			IF (in_array($columnName, $keys))
 			{
-				//check pk fiel
-				IF (in_array($columnName, $keys))
-				{
-					$key_str .= ($count_pk > 0 ? ',' : '');
-					$key_str .= $columnName;
-					$count_pk++;
-				}
-				elseif ($method == 'replace') //normal field
-				{
-					$col_str .= ($count > 0 ? ',' : '');
-					$col_str .= $columnName . ' = EXCLUDED.' . $columnName;
-					$count++;
-				}
+				$key_str .= ($count_pk > 0 ? ',' : '');
+				$key_str .= $columnName;
+				$count_pk++;
 			}
-			if ($method == 'replace')
-				$replace = ' ON CONFLICT (' . $key_str . ') DO UPDATE SET ' . $col_str;
-			else
-				$replace = ' ON CONFLICT (' . $key_str . ') DO NOTHING';
-		}
-		elseif ($method == 'replace')
-		{
-			foreach ($columns as $columnName => $type)
+			elseif ($method == 'replace') //normal field
 			{
-				// Are we restricting the length?
-				if (strpos($type, 'string-') !== false)
-					$actualType = sprintf($columnName . ' = SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . '), ', $count);
-				else
-					$actualType = sprintf($columnName . ' = {%1$s:%2$s}, ', $type, $count);
-
-				// A key? That's what we were looking for.
-				if (in_array($columnName, $keys))
-					$where .= (empty($where) ? '' : ' AND ') . substr($actualType, 0, -2);
+				$col_str .= ($count > 0 ? ',' : '');
+				$col_str .= $columnName . ' = EXCLUDED.' . $columnName;
 				$count++;
 			}
-
-			// Make it so.
-			if (!empty($where) && !empty($data))
-			{
-				foreach ($data as $k => $entry)
-				{
-					$smcFunc['db_query']('', '
-						DELETE FROM ' . $table .
-						' WHERE ' . $where,
-						$entry, $connection
-					);
-				}
-			}
 		}
+		if ($method == 'replace')
+			$replace = ' ON CONFLICT (' . $key_str . ') DO UPDATE SET ' . $col_str;
+		else
+			$replace = ' ON CONFLICT (' . $key_str . ') DO NOTHING';
+		
 	}
 
 	$returning = '';
