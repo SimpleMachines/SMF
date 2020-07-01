@@ -1522,7 +1522,9 @@ function populateDuplicateMembers(&$members)
  */
 function generateValidationCode()
 {
-	return bin2hex(random_bytes(5));
+	global $smcFunc;
+
+	return bin2hex($smcFunc['random_bytes'](5));
 }
 
 ?>
