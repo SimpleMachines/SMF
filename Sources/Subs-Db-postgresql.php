@@ -330,9 +330,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Special queries that need processing.
 	$replacements = array(
-		'get_random_number' => array(
-			'~RAND~' => 'RANDOM',
-		),
 		'insert_log_search_topics' => array(
 			'~NOT RLIKE~' => '!~',
 		),
