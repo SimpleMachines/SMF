@@ -908,10 +908,14 @@ function ModifyLanguage()
 			);
 		}
 		$dir->close();
-		usort($context['possible_files'][$theme]['files'], function($val1, $val2)
+
+		if (!empty($context['possible_files'][$theme]['files']))
 		{
-			return strcmp($val1['name'], $val2['name']);
-		});
+			usort($context['possible_files'][$theme]['files'], function($val1, $val2)
+			{
+				return strcmp($val1['name'], $val2['name']);
+			});
+		}
 	}
 
 	// We no longer wish to speak this language.
