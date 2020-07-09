@@ -264,7 +264,7 @@ function MLAll()
 	// Sort out the column information.
 	foreach ($context['columns'] as $col => $column_details)
 	{
-		$context['columns'][$col]['href'] = $scripturl . '?action=mlist;sort=' . $col . ';start=0';
+		$context['columns'][$col]['href'] = $scripturl . '?action=mlist;sort=' . $col . ';start=' . $_REQUEST['start'];
 
 		if ((!isset($_REQUEST['desc']) && $col == $_REQUEST['sort']) || ($col != $_REQUEST['sort'] && !empty($column_details['default_sort_rev'])))
 			$context['columns'][$col]['href'] .= ';desc';
@@ -426,7 +426,7 @@ function MLSearch()
 		// Build the column link / sort information.
 		foreach ($context['columns'] as $col => $column_details)
 		{
-			$context['columns'][$col]['href'] = $scripturl . '?action=mlist;sa=search;start=0;sort=' . $col;
+			$context['columns'][$col]['href'] = $scripturl . '?action=mlist;sa=search;start=' . (int) $_REQUEST['start'] . ';sort=' . $col;
 
 			if ((!isset($_REQUEST['desc']) && $col == $_REQUEST['sort']) || ($col != $_REQUEST['sort'] && !empty($column_details['default_sort_rev'])))
 				$context['columns'][$col]['href'] .= ';desc';
