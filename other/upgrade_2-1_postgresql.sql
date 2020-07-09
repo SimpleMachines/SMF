@@ -1797,7 +1797,7 @@ CREATE SEQUENCE {$db_prefix}qanda_seq;
 
 CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 	id_question smallint DEFAULT nextval('{$db_prefix}qanda_seq'),
-	lngfile VARCHAR(30) NOT NULL DEFAULT '',
+	lngfile varchar(30) NOT NULL DEFAULT '',
 	question varchar(255) NOT NULL DEFAULT '',
 	answers text NOT NULL,
 	PRIMARY KEY (id_question)
