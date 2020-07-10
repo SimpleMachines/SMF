@@ -1584,7 +1584,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 	question VARCHAR(255) NOT NULL DEFAULT '',
 	answers TEXT NOT NULL,
 	PRIMARY KEY (id_question),
-	INDEX idx_lngfile (lngfile)
+	INDEX idx_lngfile (lngfile(30))
 ) ENGINE=MyISAM;
 ---#
 
