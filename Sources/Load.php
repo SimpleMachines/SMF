@@ -2703,14 +2703,12 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 				$fileUrl = $settings['default_theme_url'] . '/css/' . $fileName;
 				$filePath = $settings['default_theme_dir'] . '/css/' . $fileName;
 			}
-
 			else
 			{
 				$fileUrl = false;
 				$filePath = false;
 			}
 		}
-
 		else
 		{
 			$fileUrl = $settings[$themeRef . '_url'] . '/css/' . $fileName;
@@ -2718,7 +2716,6 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 			$mtime = @filemtime($filePath);
 		}
 	}
-
 	// An external file doesn't have a filepath. Mock one for simplicity.
 	else
 	{
@@ -2729,7 +2726,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	$mtime = empty($mtime) ? 0 : $mtime;
 
 	// Add it to the array for use in the template
-	if (!empty($fileName))
+	if (!empty($fileName) && !empty($fileUrl))
 	{
 		// find a free number/position
 		while (isset($context['css_files_order'][$params['order_pos']]))
@@ -2818,14 +2815,12 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName;
 				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName;
 			}
-
 			else
 			{
 				$fileUrl = false;
 				$filePath = false;
 			}
 		}
-
 		else
 		{
 			$fileUrl = $settings[$themeRef . '_url'] . '/scripts/' . $fileName;
@@ -2833,7 +2828,6 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 			$mtime = @filemtime($filePath);
 		}
 	}
-
 	// An external file doesn't have a filepath. Mock one for simplicity.
 	else
 	{
@@ -2844,7 +2838,7 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 	$mtime = empty($mtime) ? 0 : $mtime;
 
 	// Add it to the array for use in the template
-	if (!empty($fileName))
+	if (!empty($fileName) && !empty($fileUrl))
 		$context['javascript_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params, 'mtime' => $mtime);
 
 	if ($mtime > $modSettings['browser_cache'])
