@@ -2387,7 +2387,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 			$_SESSION['id_variant'] = $_REQUEST['variant'];
 		// User selection?
 		if (empty($settings['disable_user_variant']) || allowedTo('admin_forum'))
-			$context['theme_variant'] = !empty($_SESSION['id_variant']) ? $_SESSION['id_variant'] : (!empty($options['theme_variant']) ? $options['theme_variant'] : '');
+			$context['theme_variant'] = !empty($_SESSION['id_variant']) && in_array($_SESSION['id_variant'], $settings['theme_variants']) ? $_SESSION['id_variant'] : (!empty($options['theme_variant']) && in_array($options['theme_variant'], $settings['theme_variants']) ? $options['theme_variant'] : '');
 		// If not a user variant, select the default.
 		if ($context['theme_variant'] == '' || !in_array($context['theme_variant'], $settings['theme_variants']))
 			$context['theme_variant'] = !empty($settings['default_variant']) && in_array($settings['default_variant'], $settings['theme_variants']) ? $settings['default_variant'] : $settings['theme_variants'][0];
