@@ -866,7 +866,7 @@ if (in_array('notify_regularity', $results))
 	$step_progress['name'] = 'Upgrading post notification settings';
 	$step_progress['current'] = $_GET['a'];
 
-	$limit = 100000;
+	$limit = 50000;
 	$is_done = false;
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
