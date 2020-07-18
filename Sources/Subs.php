@@ -4156,7 +4156,7 @@ function template_css()
 	$toMinify = array();
 	$normal = array();
 
-	usort($context['css_files'], function ($a, $b)
+	uasort($context['css_files'], function ($a, $b)
 	{
 		return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
 	});
