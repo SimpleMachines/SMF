@@ -484,8 +484,7 @@ if ($custom_av_dir != $GLOBALS['boarddir'] .'/custom_avatar')
 
 $request = upgrade_query("
 	SELECT COUNT(*)
-	FROM {$db_prefix}attachments
-	WHERE attachment_type != 1");
+	FROM {$db_prefix}attachments");
 list ($step_progress['total']) = $smcFunc['db_fetch_row']($request);
 $smcFunc['db_free_result']($request);
 
@@ -508,9 +507,8 @@ while (!$is_done)
 	nextSubStep($substep);
 
 	$request = upgrade_query("
-		SELECT id_attach, id_member, id_folder, filename, file_hash, mime_type
+		SELECT attachment_type, id_attach, id_member, id_folder, filename, file_hash, mime_type
 		FROM {$db_prefix}attachments
-		WHERE attachment_type != 1
 		LIMIT $_GET[a], 100");
 
 	// Finished?
@@ -519,6 +517,11 @@ while (!$is_done)
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		//This attachment has already been converted to the new style.
+		if($row['attachment_type'] == 1)
+		{
+			continue;
+		}
 		// The current folder.
 		$currentFolder = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['attachmentUploadDir'][$row['id_folder']] : $modSettings['attachmentUploadDir'];
 
@@ -1072,7 +1075,7 @@ if (in_array('notify_regularity', $results))
 	$step_progress['name'] = 'Upgrading post notification settings';
 	$step_progress['current'] = $_GET['a'];
 
-	$limit = 100000;
+	$limit = 50000;
 	$is_done = false;
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
