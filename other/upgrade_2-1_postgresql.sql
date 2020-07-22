@@ -511,6 +511,7 @@ while (!$is_done)
 		SELECT id_attach, id_member, id_folder, filename, file_hash, mime_type
 		FROM {$db_prefix}attachments
 		WHERE attachment_type != 1
+		ORDER BY id_attach
 		LIMIT $_GET[a], 100");
 
 	// Finished?
@@ -1088,6 +1089,7 @@ if (in_array('notify_regularity', $results))
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, notify_regularity, notify_send_body, notify_types
 			FROM {db_prefix}members
+			ORDER BY id_member
 			LIMIT {int:start}, {int:limit}',
 			array(
 				'db_error_skip' => true,
