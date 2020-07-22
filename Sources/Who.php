@@ -450,6 +450,9 @@ function determineActions($urls, $preferred_prefix = false)
 			else
 				$error_message = str_replace('"', '&quot;', $actions['error']);
 
+			if (is_array($error_message))
+				$error_message = implode(';',$error_message);
+
 			if (!empty($error_message))
 				$data[$k] .= ' <span class="main_icons error" title="' . $error_message . '"></span>';
 		}
