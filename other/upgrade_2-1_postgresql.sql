@@ -1079,6 +1079,8 @@ if (in_array('notify_regularity', $results))
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
 	list($maxMembers) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
+	
+	$last_id_member = null;
 
 	while (!$is_done)
 	{
@@ -1086,17 +1088,32 @@ if (in_array('notify_regularity', $results))
 		$inserts = array();
 
 		// Skip errors here so we don't croak if the columns don't exist...
-		$request = $smcFunc['db_query']('', '
-			SELECT id_member, notify_regularity, notify_send_body, notify_types
-			FROM {db_prefix}members
-			ORDER BY id_member
-			LIMIT {int:start}, {int:limit}',
-			array(
-				'db_error_skip' => true,
-				'start' => $_GET['a'],
-				'limit' => $limit,
-			)
-		);
+		if (isset($last_id_member))
+			$request = $smcFunc['db_query']('', '
+				SELECT id_member, notify_regularity, notify_send_body, notify_types
+				FROM {db_prefix}members
+				WHERE id_member > {int:last_id_member}
+				ORDER BY id_member
+				LIMIT {int:limit}',
+				array(
+					'db_error_skip' => true,
+					'limit' => $limit,
+					'last_id_member' => $last_id_member,
+				)
+			);
+		else
+			$request = $smcFunc['db_query']('', '
+				SELECT id_member, notify_regularity, notify_send_body, notify_types
+				FROM {db_prefix}members
+				ORDER BY id_member
+				LIMIT {int:start}, {int:limit}',
+				array(
+					'db_error_skip' => true,
+					'start' => $_GET['a'],
+					'limit' => $limit,
+				)
+			);
+
 		if ($smcFunc['db_num_rows']($request) != 0)
 		{
 			while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -1105,6 +1122,7 @@ if (in_array('notify_regularity', $results))
 				$inserts[] = array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']);
 				$inserts[] = array($row['id_member'], 'msg_notify_type', $row['notify_types']);
 			}
+			$last_id_member = $row['id_member'];
 			$smcFunc['db_free_result']($request);
 		}
 
