@@ -189,7 +189,7 @@ function ShowXmlFeed()
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT num_posts
-			FROM {db_prefix}boards
+			FROM {db_prefix}boards AS b
 			WHERE id_board = {int:current_board}
 				AND {query_see_board}
 			LIMIT 1',
