@@ -84,7 +84,7 @@ function template_main()
 
 			echo '
 								<', $tag, !empty($member['action']['class']) ? ' class="' . $member['action']['class'] . '"' : '', '>
-									', $txt[$member['action']['label']], '
+									', $txt[$member['action']['label']], (!empty($member['action']['error_message']) ? $member['action']['error_message'] : ''), '
 								</', $tag, '>';
 		}
 		else
