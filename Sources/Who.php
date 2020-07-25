@@ -619,7 +619,6 @@ function Credits($in_admin = false)
 						'Michael "Oldiesmann" Eshom',
 						'Michael "Thantos" Miller',
 						'Norv',
-						'Peter "Arantor" Spicer',
 						'Selman "[SiNaN]" Eser',
 						'Shitiz "Dragooon" Garg',
 						// 'Spuds', // Doesn't want to be listed here
