@@ -727,7 +727,6 @@ function Credits($in_admin = false)
 						'Adish "(F.L.A.M.E.R)" Patel',
 						'Bryan "Runic" Deakin',
 						'Marcus "cσσкιє мσηѕтєя" Forsberg',
-						'Mert "Antes" Alınbay',
 						'Ralph "[n3rve]" Otowo',
 					),
 				),
