@@ -678,7 +678,6 @@ function Credits($in_admin = false)
 
 						// Former Customizers
 						'Brannon "B" Hall',
-						'Gwenwyfar',
 						'Jack "akabugeyes" Thorsen',
 						'Jason "JBlaze" Clemons',
 						'Jessica "Suki" González',
