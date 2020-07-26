@@ -2081,7 +2081,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'xmlhttp' => true,
 		'.xml' => true,
 	);
-	if (!$user_info['is_guest'] && !$user_info['is_admin'] && SMF != 'SSI' && !isset($_REQUEST['xml']) && !is_filtered_request($agreement_actions, 'action')))
+	if (empty($user_info['is_guest']) && empty($user_info['is_admin']) && SMF != 'SSI' && !isset($_REQUEST['xml']) && !is_filtered_request($agreement_actions, 'action')))
 	{
 		$agreement_lang = !empty($modSettings['agreement_updated_' . $user_info['language']]) ? $user_info['language'] : 'default';
 		$policy_lang = !empty($modSettings['policy_' . $user_info['language']]) ? $user_info['language'] : $language;

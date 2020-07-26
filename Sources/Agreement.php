@@ -41,7 +41,7 @@ function prepareAgreementContext()
 {
 	global $boarddir, $context, $modSettings, $user_info, $language;
 
-	if ($context['show_agreement'])
+	if (!empty($context['show_agreement']))
 	{
 		// Grab the agreement.
 		// Have we got a localized one?
@@ -66,7 +66,7 @@ function prepareAgreementContext()
 		}
 	}
 
-	if ($context['show_privacy_policy'])
+	if (!empty($context['show_privacy_policy']))
 	{
 		// Have we got a localized policy?
 		if (!empty($modSettings['policy_' . $user_info['language']]))
@@ -81,7 +81,7 @@ function prepareAgreementContext()
 	}
 
 	// Nothing to show? That's no good.
-	if (!$context['show_agreement'] && !$context['show_privacy_policy'])
+	if (empty($context['show_agreement']) && empty($context['show_privacy_policy']))
 		fatal_lang_error('no_agreement', false);
 }
 
@@ -90,7 +90,7 @@ function canRequireAgreement()
 	global $modSettings, $options, $user_info, $context;
 
 	// Guests can't agree
-	if ($user_info['is_guest'] || empty($modSettings['requireAgreement']))
+	if (!empty($user_info['is_guest']) || empty($modSettings['requireAgreement']))
 		return false;
 
 	$agreement_lang = strpos($context['agreement_file'], 'agreement.' . $user_info['language'] . '.txt') !== false ? $user_info['language'] : 'default';
@@ -108,7 +108,7 @@ function canRequirePrivacyPolicy()
 {
 	global $modSettings, $options, $user_info, $language, $context;
 
-	if ($user_info['is_guest'] || empty($modSettings['requirePolicyAgreement']))
+	if (!empty($user_info['is_guest']) || empty($modSettings['requirePolicyAgreement']))
 		return false;
 
 	$policy_lang = !empty($modSettings['policy_' . $user_info['language']]) ? $user_info['language'] : $language;
@@ -137,25 +137,25 @@ function Agreement()
 	prepareAgreementContext();
 
 	// What, if anything, do they need to accept?
-	$context['can_accept_agreement'] = $context['show_agreement'] && canRequireAgreement();
-	$context['can_accept_privacy_policy'] = $context['show_privacy_policy'] && canRequirePrivacyPolicy();
+	$context['can_accept_agreement'] = !empty($context['show_agreement']) && canRequireAgreement();
+	$context['can_accept_privacy_policy'] = !empty($context['show_privacy_policy']) && canRequirePrivacyPolicy();
 
 	// The form will need to tell us what they are accepting
-	if ($context['can_accept_agreement'] && $context['can_accept_privacy_policy'])
+	if (!empty($context['can_accept_agreement']) && !empty($context['can_accept_privacy_policy']))
 		$context['accept_doc'] = 'both';
-	elseif ($context['can_accept_agreement'])
+	elseif (!empty($context['can_accept_agreement']))
 		$context['accept_doc'] = 'agreement';
-	elseif ($context['can_accept_privacy_policy'])
+	elseif (!empty($context['can_accept_privacy_policy']))
 		$context['accept_doc'] = 'policy';
 
 	loadLanguage('Agreement');
 	loadTemplate('Agreement');
 
-	if ($context['show_agreement'] && $context['show_privacy_policy'])
+	if (!empty($context['show_agreement']) && !empty($context['show_privacy_policy']))
 		$page_title = $txt['agreement_and_privacy_policy'];
-	elseif ($context['show_agreement'])
+	elseif (!empty($context['show_agreement']))
 		$page_title = $txt['agreement'];
-	elseif ($context['show_privacy_policy'])
+	elseif (!empty($context['show_privacy_policy']))
 		$page_title = $txt['privacy_policy'];
 
 	if (isset($_SESSION['old_url']))
@@ -189,9 +189,9 @@ function AcceptAgreement()
 	prepareAgreementContext();
 
 	// Can they agree to what they are trying to agree to?
-	if ($context['show_agreement'] && !canRequireAgreement())
+	if (!empty($context['show_agreement']) && !canRequireAgreement())
 		redirectexit('action=agreement');
-	if ($context['show_privacy_policy'] && !canRequirePrivacyPolicy())
+	if (!empty($context['show_privacy_policy']) && !canRequirePrivacyPolicy())
 		redirectexit('action=agreement');
 
 	checkSession();

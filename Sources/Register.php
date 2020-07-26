@@ -56,8 +56,8 @@ function Register($reg_errors = array())
 	if ($context['show_coppa'])
 	{
 		$context['skip_coppa'] = false;
-		$context['coppa_agree_above'] = sprintf($txt['agreement' . ($context['require_policy_agreement'] ? '_policy' : '') . '_agree_coppa_above'], $modSettings['coppaAge']);
-		$context['coppa_agree_below'] = sprintf($txt['agreement' . ($context['require_policy_agreement'] ? '_policy' : '') . '_agree_coppa_below'], $modSettings['coppaAge']);
+		$context['coppa_agree_above'] = sprintf($txt['agreement' . (!empty($context['require_policy_agreement']) ? '_policy' : '') . '_agree_coppa_above'], $modSettings['coppaAge']);
+		$context['coppa_agree_below'] = sprintf($txt['agreement' . (!empty($context['require_policy_agreement']) ? '_policy' : '') . '_agree_coppa_below'], $modSettings['coppaAge']);
 	}
 
 	// What step are we at?
@@ -153,7 +153,7 @@ function Register($reg_errors = array())
 	}
 
 	// If you have to agree to the privacy policy, it needs to be loaded from the database.
-	if ($context['require_policy_agreement'])
+	if (!empty($context['require_policy_agreement']))
 	{
 		// Have we got a localized one?
 		if (!empty($modSettings['policy_' . $user_info['language']]))

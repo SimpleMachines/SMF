@@ -24,10 +24,10 @@ function template_main()
 	{
 		echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['agreement' . ($context['can_accept_agreement'] ? '_updated' : '')], '</h3>
+			<h3 class="catbg">', $txt['agreement' . (!empty($context['can_accept_agreement']) ? '_updated' : '')], '</h3>
 		</div>';
 
-		if ($context['can_accept_agreement'])
+		if (!empty($context['can_accept_agreement']))
 		{
 			echo '
 		<div class="information">
@@ -52,10 +52,10 @@ function template_main()
 	{
 		echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['privacy_policy' . ($context['can_accept_privacy_policy'] ? '_updated' : '')], '</h3>
+			<h3 class="catbg">', $txt['privacy_policy' . (!empty($context['can_accept_privacy_policy']) ? '_updated' : '')], '</h3>
 		</div>';
 
-		if ($context['can_accept_privacy_policy'])
+		if (!empty($context['can_accept_privacy_policy']))
 		{
 			echo '
 		<div class="information">

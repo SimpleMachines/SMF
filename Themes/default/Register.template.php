@@ -313,7 +313,7 @@ function template_registration_form()
 				<input type="submit" name="accept_agreement_coppa" value="', $context['coppa_agree_below'], '" class="button">';
 	else
 		echo '
-				<input type="submit" name="regSubmit" value="', $txt['agreement' . ($context['require_policy_agreement'] ? '_policy' : '') . '_agree'], '" class="button" />';
+				<input type="submit" name="regSubmit" value="', $txt['agreement' . (!empty($context['require_policy_agreement']) ? '_policy' : '') . '_agree'], '" class="button" />';
 
 	echo '
 			</div>
