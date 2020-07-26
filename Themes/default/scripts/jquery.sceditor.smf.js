@@ -204,10 +204,10 @@ sceditor.command.set(
 	'email', {
 		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('@') > -1 ? null : selected,
-				email	= prompt(this._("Enter the e-mail address:"), (display ? '' : selected));
+				email = prompt(this._("Enter the e-mail address:"), (display ? '' : selected));
 			if (email)
 			{
-				var text	= prompt(this._("Enter the displayed text:"), display || email) || email;
+				var text = prompt(this._("Enter the displayed text:"), display || email) || email;
 				this.insertText("[email=" + email + "]" + text + "[/email]");
 			}
 		}
@@ -217,10 +217,10 @@ sceditor.command.set(
 	'link', {
 		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('http://') > -1 ? null : selected,
-				url	= prompt(this._("Enter URL:"), (display ? 'http://' : selected));
+				url = prompt(this._("Enter URL:"), (display ? 'http://' : selected));
 			if (url)
 			{
-				var text	= prompt(this._("Enter the displayed text:"), display || url) || url;
+				var text = prompt(this._("Enter the displayed text:"), display || url) || url;
 				this.insertText("[url=\"" + url + "\"]" + text + "[/url]");
 			}
 		},
@@ -311,6 +311,18 @@ sceditor.command.set(
 		exec: function () {
 			this.wysiwygEditorInsertHtml('<div class="floatright">', '</div>');
 		}
+	}
+);
+
+sceditor.command.set(
+	'maximize', {
+		shortcut: ''
+	}
+);
+
+sceditor.command.set(
+	'source', {
+		shortcut: ''
 	}
 );
 
