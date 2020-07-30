@@ -1956,7 +1956,7 @@ function notification($memID)
  */
 function alert_configuration($memID, $defaultSettings = false)
 {
-	global $txt, $context, $modSettings, $smcFunc, $sourcedir;
+	global $txt, $context, $modSettings, $smcFunc, $sourcedir, $user_profile;
 
 	if (!isset($context['token_check']))
 		$context['token_check'] = 'profile-nt' . $memID;
@@ -2107,6 +2107,10 @@ function alert_configuration($memID, $defaultSettings = false)
 		if (!($perms_cache['manage_membergroups'] || $can_mod != 0))
 			unset($alert_types['members']['request_group']);
 
+		$user_groups = explode(',', $user_profile[$memID]['additional_groups']);
+		$user_groups[] = $user_profile[$memID]['id_group'];
+		$user_groups[] = $user_profile[$memID]['id_post_group'];
+
 		foreach ($alert_types as $group => $items)
 		{
 			foreach ($items as $alert_key => $alert_value)
@@ -2116,8 +2120,8 @@ function alert_configuration($memID, $defaultSettings = false)
 				if (!isset($perms_cache[$alert_value['permission']['name']]))
 				{
 					$in_board = !empty($alert_value['permission']['is_board']) ? 0 : null;
-					$members = membersAllowedTo($alert_value['permission']['name'], $in_board);
-					$perms_cache[$alert_value['permission']['name']] = in_array($memID, $members);
+					$member_groups = groupsAllowedTo($alert_value['permission']['name'], $in_board);
+					$perms_cache[$alert_value['permission']['name']] = count(array_intersect($user_groups, $member_groups['allowed'])) != 0;
 				}
 
 				if (!$perms_cache[$alert_value['permission']['name']])
