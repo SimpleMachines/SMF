@@ -2086,32 +2086,10 @@ function alert_configuration($memID, $defaultSettings = false)
 	if (!empty($memID))
 	{
 		require_once($sourcedir . '/Subs-Membergroups.php');
-		require_once($sourcedir . '/Subs-Members.php');
-		$perms_cache = array();
-		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}group_moderators
-			WHERE id_member = {int:memID}',
-			array(
-				'memID' => $memID,
-			)
-		);
-
-		list ($can_mod) = $smcFunc['db_fetch_row']($request);
-
-		if (!isset($perms_cache['manage_membergroups']))
-		{
-			$members = membersAllowedTo('manage_membergroups');
-			$perms_cache['manage_membergroups'] = in_array($memID, $members);
-		}
-
-		if (!($perms_cache['manage_membergroups'] || $can_mod != 0))
-			unset($alert_types['members']['request_group']);
-
 		$user_groups = explode(',', $user_profile[$memID]['additional_groups']);
 		$user_groups[] = $user_profile[$memID]['id_group'];
 		$user_groups[] = $user_profile[$memID]['id_post_group'];
-		$group_permissions = array();
+		$group_permissions = array('manage_membergroups');
 		$board_permissions = array();
 
 		foreach ($alert_types as $group => $items)
@@ -2124,6 +2102,23 @@ function alert_configuration($memID, $defaultSettings = false)
 						$board_permissions[] = $alert_value['permission']['name'];
 				}
 		$member_groups = getGroupsWithPermissions($group_permissions, $board_permissions);
+
+		if (empty($member_groups['manage_membergroups']['allowed']))
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT COUNT(*)
+				FROM {db_prefix}group_moderators
+				WHERE id_member = {int:memID}',
+				array(
+					'memID' => $memID,
+				)
+			);
+
+			list ($is_group_moderator) = $smcFunc['db_fetch_row']($request);
+
+			if (empty($is_group_moderator))
+				unset($alert_types['members']['request_group']);
+		}
 
 		foreach ($alert_types as $group => $items)
 		{
