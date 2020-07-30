@@ -830,4 +830,70 @@ function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 	return $groups;
 }
 
+/**
+ * Retrieves a list of membergroups with the given permissions.
+ *
+ * @param array $group_permissions
+ * @param array $board_permissions
+ * @param int   $profile_id
+ *
+ * @return array An array containing two arrays - 'allowed', which has which groups are allowed to do it and 'denied' which has the groups that are denied
+ */
+function getGroupsWithPermissions(array $group_permissions = array(), array $board_permissions = array(), $profile_id = 1)
+{
+	global $smcFunc;
+
+	$member_groups = array();
+	if (!empty($group_permissions))
+	{
+		foreach ($group_permissions as $group_permission)
+			// Admins are allowed to do anything.
+			$member_groups[$group_permission] = array(
+				'allowed' => array(1),
+				'denied' => array(),
+			);
+
+		$request = $smcFunc['db_query']('', '
+			SELECT id_group, permission, add_deny
+			FROM {db_prefix}permissions
+			WHERE permission IN ({array_string:group_permissions})',
+			array(
+				'group_permissions' => $group_permissions,
+			)
+		);
+		while (list ($id_group, $permission, $add_deny) = $smcFunc['db_fetch_row']($request))
+			$member_groups[$permission][$add_deny === '1' ? 'allowed' : 'denied'][] = $id_group;
+		$smcFunc['db_free_result']($request);
+	}
+
+	if (!empty($board_permissions))
+	{
+		foreach ($board_permissions as $board_permission)
+			$member_groups[$board_permission] = array(
+				'allowed' => array(1),
+				'denied' => array(),
+			);
+
+		$request = $smcFunc['db_query']('', '
+			SELECT id_group, permission, add_deny
+			FROM {db_prefix}board_permissions
+			WHERE permission IN ({array_string:board_permissions})
+				AND id_profile = {int:profile_id}',
+			array(
+				'profile_id' => $profile_id,
+				'board_permissions' => $board_permissions,
+			)
+		);
+		while (list ($id_group, $permission, $add_deny) = $smcFunc['db_fetch_row']($request))
+			$member_groups[$permission][$add_deny === '1' ? 'allowed' : 'denied'][] = $id_group;
+		$smcFunc['db_free_result']($request);
+	}
+
+	// Denied is never allowed.
+	foreach ($member_groups as $permission => $groups)
+		$member_groups[$permission]['allowed'] = array_diff($member_groups[$permission]['allowed'], $member_groups[$permission]['denied']);
+
+	return $member_groups;
+}
+
 ?>

@@ -2085,6 +2085,7 @@ function alert_configuration($memID, $defaultSettings = false)
 	// Now we have to do some permissions testing - but only if we're not loading this from the admin center
 	if (!empty($memID))
 	{
+		require_once($sourcedir . '/Subs-Membergroups.php');
 		require_once($sourcedir . '/Subs-Members.php');
 		$perms_cache = array();
 		$request = $smcFunc['db_query']('', '
@@ -2110,26 +2111,35 @@ function alert_configuration($memID, $defaultSettings = false)
 		$user_groups = explode(',', $user_profile[$memID]['additional_groups']);
 		$user_groups[] = $user_profile[$memID]['id_group'];
 		$user_groups[] = $user_profile[$memID]['id_post_group'];
+		$group_permissions = array();
+		$board_permissions = array();
+
+		foreach ($alert_types as $group => $items)
+			foreach ($items as $alert_key => $alert_value)
+				if (isset($alert_value['permission']))
+				{
+					if (empty($alert_value['permission']['is_board']))
+						$group_permissions[] = $alert_value['permission']['name'];
+					else
+						$board_permissions[] = $alert_value['permission']['name'];
+				}
+		$member_groups = getGroupsWithPermissions($group_permissions, $board_permissions);
 
 		foreach ($alert_types as $group => $items)
 		{
 			foreach ($items as $alert_key => $alert_value)
 			{
-				if (!isset($alert_value['permission']))
-					continue;
-				if (!isset($perms_cache[$alert_value['permission']['name']]))
+				if (isset($alert_value['permission']))
 				{
-					$in_board = !empty($alert_value['permission']['is_board']) ? 0 : null;
-					$member_groups = groupsAllowedTo($alert_value['permission']['name'], $in_board);
-					$perms_cache[$alert_value['permission']['name']] = count(array_intersect($user_groups, $member_groups['allowed'])) != 0;
-				}
+					$allowed = count(array_intersect($user_groups, $member_groups[$alert_value['permission']['name']]['allowed'])) != 0;
 
-				if (!$perms_cache[$alert_value['permission']['name']])
-					unset ($alert_types[$group][$alert_key]);
+					if (!$allowed)
+						unset($alert_types[$group][$alert_key]);
+				}
 			}
 
 			if (empty($alert_types[$group]))
-				unset ($alert_types[$group]);
+				unset($alert_types[$group]);
 		}
 	}
 
