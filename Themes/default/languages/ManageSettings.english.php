@@ -115,7 +115,6 @@ $txt['caching_information'] = 'SMF supports caching through the use of accelerat
 	<li>SQLite3</li>
 	<li>PostgreSQL</li>
 	<li>Zend Platform/Performance Suite (Not Zend Optimizer)</li>
-	<li>XCache</li>
 </ul>
 Caching will work best if you have PHP compiled with one of the above optimizers, or have memcached available. If you do not have any optimizer installed SMF will do file based caching.';
 $txt['detected_no_caching'] = 'SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.';
@@ -134,7 +133,6 @@ $txt['cachedir_sqlite'] = 'SQLite3 database cache directory';
 $txt['apcu_cache'] = 'APCu';
 $txt['memcacheimplementation_cache'] = 'Memcache';
 $txt['memcachedimplementation_cache'] = 'Memcached';
-$txt['xcache_cache'] = 'XCache';
 $txt['zend_cache'] = 'Zend Platform/Performance Suite';
 $txt['cache_filebased_settings'] = 'SMF file based caching settings';
 $txt['cache_sqlite_settings'] = 'SQLite3 database caching settings';
@@ -144,9 +142,6 @@ $txt['cache_memcachedimplementation_servers_subtext'] = 'Example: 127.0.0.1:1121
 $txt['cache_memcacheimplementation_settings'] = 'Memcache settings';
 $txt['cache_memcacheimplementation_servers'] = 'Memcache servers';
 $txt['cache_memcacheimplementation_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
-$txt['cache_xcache_settings'] = 'XCache settings';
-$txt['cache_xcache_adminuser'] = 'XCache Admin User';
-$txt['cache_xcache_adminpass'] = 'XCache Admin Password';
 
 $txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>%01.2f</strong>';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';

@@ -468,13 +468,13 @@ function upgradeCacheSettings()
 {
 	$cache_options = array(
 		'smf' => 'FileBase',
-		'apc' => 'Apc',
+		'apc' => 'FileBase',
 		'apcu' => 'Apcu',
 		'memcache' => 'MemcacheImplementation',
 		'memcached' => 'MemcachedImplementation',
 		'postgres' => 'Postgres',
 		'sqlite' => 'Sqlite',
-		'xcache' => 'Xcache',
+		'xcache' => 'FileBase',
 		'zend' => 'Zend',
 	);
 
