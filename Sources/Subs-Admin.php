@@ -21,7 +21,7 @@ if (!defined('SMF'))
 /**
  * Get a list of versions that are currently installed on the server.
  *
- * @param array $checkFor An array of what to check versions for - can contain one or more of 'gd', 'imagemagick', 'db_server', 'phpa', 'memcache', 'xcache', 'apc', 'php' or 'server'
+ * @param array $checkFor An array of what to check versions for - can contain one or more of 'gd', 'imagemagick', 'db_server', 'phpa', 'memcache', 'xcache', 'php' or 'server'
  * @return array An array of versions (keys are same as what was in $checkFor, values are the versions)
  */
 function getServerVersions($checkFor)
@@ -710,7 +710,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				'########## Cache Info ##########',
 				'/**',
 				' * Select a cache system. You want to leave this up to the cache area of the admin panel for',
-				' * proper detection of apc, memcached, output_cache, smf, or xcache',
+				' * proper detection of memcached, output_cache, smf, or xcache',
 				' * (you can add more with a mod).',
 				' *',
 				' * @var string',
