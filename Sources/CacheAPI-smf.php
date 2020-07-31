@@ -69,7 +69,13 @@ class smf_cache extends cache_api
 				@apc_delete_file($cachedir . '/data_' . $key . '.php');
 
 			// php will cache file_exists et all, we can't 100% depend on its results so proceed with caution
-			@include($cachedir . '/data_' . $key . '.php');
+			$cached = file_get_contents($cachedir . '/data_' . $key . '.php');
+			if (!empty($cached) && (substr($cached, 0, 6) === '<' . '?' . 'php ') && (substr($cached, -2, 2) === '?' . '>'))
+			{
+				$cached = substr($cached, 6, strlen($cached) - 8);
+				eval($cached);
+			}
+
 			if (!empty($expired) && isset($value))
 			{
 				@unlink($cachedir . '/data_' . $key . '.php');
