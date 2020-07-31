@@ -543,7 +543,6 @@ function AdminHome()
 		'memcachedimplementation',
 		'postgres',
 		'sqlite',
-		'xcache',
 		'zend',
 		'filebased',
 		'php',
