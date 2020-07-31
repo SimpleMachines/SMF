@@ -538,7 +538,6 @@ function AdminHome()
 		'gd',
 		'imagemagick',
 		'db_server',
-		'apc',
 		'apcu',
 		'memcacheimplementation',
 		'memcachedimplementation',

@@ -151,7 +151,7 @@ $db_mb4 = null;
 ########## Cache Info ##########
 /**
  * Select a cache system. You want to leave this up to the cache area of the admin panel for
- * proper detection of apc, memcached, output_cache, smf, or xcache
+ * proper detection of memcached, output_cache, smf, or xcache
  * (you can add more with a mod).
  *
  * @var string

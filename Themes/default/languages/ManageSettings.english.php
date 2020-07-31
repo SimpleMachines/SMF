@@ -110,7 +110,6 @@ $txt['enable_mentions'] = 'Enable Mentions';
 
 $txt['caching_information'] = 'SMF supports caching through the use of accelerators. The currently supported accelerators include:
 <ul class="normallist">
-	<li>APC</li>
 	<li>APCu</li>
 	<li>Memcached</li>
 	<li>SQLite3</li>
@@ -132,7 +131,6 @@ $txt['filebased_cache'] = 'SMF file based caching';
 $txt['sqlite_cache'] = 'SQLite3 database based caching';
 $txt['postgres_cache'] = 'PostgreSQL caching';
 $txt['cachedir_sqlite'] = 'SQLite3 database cache directory';
-$txt['apc_cache'] = 'APC';
 $txt['apcu_cache'] = 'APCu';
 $txt['memcacheimplementation_cache'] = 'Memcache';
 $txt['memcachedimplementation_cache'] = 'Memcached';
