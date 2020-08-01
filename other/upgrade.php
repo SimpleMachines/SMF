@@ -878,6 +878,26 @@ function WelcomeLogin()
 	if (!$create || !$alter || !$drop)
 		return throw_error(sprintf($txt['error_db_privileges'], $databases[$db_type]['name']));
 
+	// Check for duplicate userdata in members table
+	$request = $smcFunc['db_query']('',
+		'select member_name, count(*) from {db_prefix}members group by member_name having count(*) > 1');
+	
+	if ($smcFunc['db_num_rows']($request) != 0)
+		$duplicateName = true;
+		
+	$smcFunc['db_free_result']($request);
+	
+	$request = $smcFunc['db_query']('',
+		'select email_address, count(*) from {db_prefix}members group by email_address having count(*) > 1');
+	
+	if ($smcFunc['db_num_rows']($request) != 0)
+		$duplicateMail = true;
+	
+	if (isset($duplicateName) || isset($duplicateMail)){
+		global $db_prefix;
+		return throw_error(sprintf($txt['error_duplicate_members'], $db_prefix));
+	}
+
 	// Do a quick version spot check.
 	$temp = substr(@implode('', @file($boarddir . '/index.php')), 0, 4096);
 	preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $temp, $match);

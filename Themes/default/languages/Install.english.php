@@ -371,6 +371,14 @@ $txt['error_dir_not_writable'] = 'The directory: %1$s has to be writable to cont
 $txt['error_cache_not_found'] = 'The cache directory could not be found.<br><br>Please make sure you have a directory called &quot;cache&quot; in your forum directory before continuing.';
 $txt['error_agreement_not_writable'] = 'The upgrader was unable to obtain write access to agreement.txt.<br><br>If you are using a linux or unix based server, please ensure that the file is chmod\'d to 777, or if it does not exist that the directory this upgrader is in is 777.<br>If your server is running Windows, please ensure that the internet guest account has the proper permissions on it or its folder.';
 $txt['error_not_admin'] = 'You need to be an admin to perform an upgrade!';
+$txt['error_duplicate_members'] = 'Found multiple username or mail address in members table, please use this database queries to find and solve them: <br> select * from %1$smembers as a
+<br> join (select member_name, count(*) from %1$smembers group by member_name having count(*) > 1) as b on (a.member_name = b.member_name)
+<br> order by a.member_name
+<br> <br> or for mail address:<br>
+select * from %1$smembers as a
+<br> join (select email_address, count(*) from %1$smembers group by email_address having count(*) > 1) as b on (a.email_address = b.email_address)
+<br> order by a.email_address
+';
 
 $txt['warning_lang_old'] = 'The language files for your selected language, %1$s, have not been updated to the latest version. Upgrade will continue with the forum default, %2$s.';
 $txt['warning_lang_missing'] = 'The upgrader could not find the &quot;Install&quot; language file for your selected language, %1$s. Upgrade will continue with the forum default, %2$s.';
