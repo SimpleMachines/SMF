@@ -3146,3 +3146,21 @@ while ($row = $smcFunc['db_fetch_assoc']($request))
 ALTER TABLE {$db_prefix}log_spider_stats CHANGE page_hits page_hits INT NOT NULL DEFAULT '0';
 ---#
 
+/******************************************************************************/
+--- Update add unique index to members table
+/******************************************************************************/
+---# remove member_name index
+ALTER TABLE {$db_prefix}members DROP INDEX idx_member_name;
+---#
+
+---# add member_name unique index
+ALTER TABLE {$db_prefix}members ADD UNIQUE INDEX idx_member_name (member_name);
+---#
+
+---# removde email_address index
+ALTER TABLE {$db_prefix}members DROP INDEX idx_email_address;
+---#
+
+---# add email_address unique index
+ALTER TABLE {$db_prefix}members ADD UNIQUE INDEX idx_email_address (email_address);
+---#
