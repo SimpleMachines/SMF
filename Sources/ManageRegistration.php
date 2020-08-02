@@ -443,6 +443,9 @@ function EditPrivacyPolicy()
 		logAction('policy_updated', array('language' => $context['editable_policies'][$context['current_policy_lang']]), 'admin');
 		logAction('policy_accepted', array('applicator' => $user_info['id']), 'user');
 
+		if ($context['policy'] !== $policy_text)
+			$context['saved_successful'] = true;
+
 		updateSettings($policy_settings);
 
 		$context['policy'] = $policy_text;

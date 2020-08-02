@@ -725,6 +725,10 @@ function template_edit_privacy_policy()
 {
 	global $context, $settings, $options, $scripturl, $txt;
 
+	if (!empty($context['saved_successful']))
+		echo '
+		<div class="infobox">', $txt['settings_saved'], '</div>';
+
 	// Just a big box to edit the text file ;).
 	echo '
 		<div class="cat_bar">
