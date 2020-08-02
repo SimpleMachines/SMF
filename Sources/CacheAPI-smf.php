@@ -69,17 +69,18 @@ class smf_cache extends cache_api
 				@apc_delete_file($cachedir . '/data_' . $key . '.php');
 
 			// php will cache file_exists et all, we can't 100% depend on its results so proceed with caution
-			$cached = file_get_contents($cachedir . '/data_' . $key . '.php');
-			if (!empty($cached) && (substr($cached, 0, 6) === '<' . '?' . 'php ') && (substr($cached, -2, 2) === '?' . '>'))
+			$cached = json_decode(file_get_contents($cachedir . '/data_' . $key . '.php'), TRUE);
+			if (!empty($cached['expired']) && isset($cached['value']))
 			{
-				$cached = substr($cached, 6, strlen($cached) - 8);
-				eval($cached);
-			}
-
-			if (!empty($expired) && isset($value))
-			{
-				@unlink($cachedir . '/data_' . $key . '.php');
-				unset($value);
+				if ($cached['expired'] < time())
+				{
+					@unlink($cachedir . '/data_' . $key . '.php');
+					unset($value);
+				}
+				else
+				{
+					$value = $cached['value'];
+				}
 			}
 		}
 
@@ -108,7 +109,9 @@ class smf_cache extends cache_api
 			@unlink($cachedir . '/data_' . $key . '.php');
 		else
 		{
-			$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, "\0" . '\\\'') . '\';}' . '?' . '>';
+			$cache_data = json_encode(array('expired' => time() + $ttl, 'value' => $value));
+			if ($cache_data === false)
+				return false;
 
 			// Write out the cache file, check that the cache write was successful; all the data must be written
 			// If it fails due to low diskspace, or other, remove the cache file
