@@ -506,7 +506,12 @@ function registerMember(&$regOptions, $return_errors = false)
 
 		// Password isn't legal?
 		if ($passwordError != null)
-			$reg_errors[] = array('lang', 'profile_error_password_' . $passwordError);
+		{
+			$errorCode = array('lang', 'profile_error_password_' . $passwordError, false);
+			if($passwordError == 'short')
+				$errorCode[] = array(empty($modSettings['password_strength']) ? 4 : 8);
+			$reg_errors[] = $errorCode;
+		}
 	}
 
 	// You may not be allowed to register this email.
