@@ -645,7 +645,7 @@ function Activate()
 	$smcFunc['db_free_result']($request);
 
 	// Change their email address? (they probably tried a fake one first :P.)
-	if (!empty($_POST['new_email']) &&!empty($_REQUEST['passwd']) && hash_verify_password($row['member_name'], $_REQUEST['passwd'], $row['passwd']) && ($row['is_activated'] == 0 || $row['is_activated'] == 2))
+	if (!empty($_POST['new_email']) && !empty($_REQUEST['passwd']) && hash_verify_password($row['member_name'], $_REQUEST['passwd'], $row['passwd']) && ($row['is_activated'] == 0 || $row['is_activated'] == 2))
 	{
 		if (empty($modSettings['registration_method']) || $modSettings['registration_method'] == 3)
 			fatal_lang_error('no_access', false);
