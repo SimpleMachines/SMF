@@ -1062,7 +1062,7 @@ function checkLogin()
 				foreach ($groups as $k => $v)
 					$groups[$k] = (int) $v;
 
-				$sha_passwd = sha1(strtolower($name) . un_htmlspecialchars($_REQUEST['passwrd']));
+				$sha_passwd = sha1(strtolower($name) . $_REQUEST['passwrd']);
 
 				// We don't use "-utf8" anymore...
 				$user_language = str_ireplace('-utf8', '', $user_language);
