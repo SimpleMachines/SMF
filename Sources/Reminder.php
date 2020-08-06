@@ -386,7 +386,7 @@ function SecretAnswer2()
 
 	// Invalid?
 	if ($passwordError != null)
-		if($passwordError == 'short')
+		if ($passwordError == 'short')
 			fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty($modSettings['password_strength']) ? 4 : 8));
 		else
 			fatal_lang_error('profile_error_password_' . $passwordError, false);
