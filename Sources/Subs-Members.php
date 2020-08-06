@@ -508,7 +508,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		if ($passwordError != null)
 		{
 			$errorCode = array('lang', 'profile_error_password_' . $passwordError, false);
-			if($passwordError == 'short')
+			if ($passwordError == 'short')
 				$errorCode[] = array(empty($modSettings['password_strength']) ? 4 : 8);
 			$reg_errors[] = $errorCode;
 		}
