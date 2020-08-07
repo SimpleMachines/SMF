@@ -199,7 +199,7 @@ function setPassword()
  */
 function setPassword2()
 {
-	global $context, $txt, $smcFunc, $sourcedir;
+	global $context, $modSettings, $txt, $smcFunc, $sourcedir;
 
 	checkSession();
 	validateToken('remind-sp');
@@ -245,7 +245,10 @@ function setPassword2()
 
 	// What - it's not?
 	if ($passwordError != null)
-		fatal_lang_error('profile_error_password_' . $passwordError, false);
+		if ($passwordError == 'short')
+			fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty($modSettings['password_strength']) ? 4 : 8));
+		else
+			fatal_lang_error('profile_error_password_' . $passwordError, false);
 
 	require_once($sourcedir . '/LogInOut.php');
 
@@ -330,7 +333,7 @@ function SecretAnswerInput()
  */
 function SecretAnswer2()
 {
-	global $txt, $context, $smcFunc, $sourcedir;
+	global $txt, $context, $modSettings, $smcFunc, $sourcedir;
 
 	checkSession();
 	validateToken('remind-sai');
@@ -383,7 +386,10 @@ function SecretAnswer2()
 
 	// Invalid?
 	if ($passwordError != null)
-		fatal_lang_error('profile_error_password_' . $passwordError, false);
+		if ($passwordError == 'short')
+			fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty($modSettings['password_strength']) ? 4 : 8));
+		else
+			fatal_lang_error('profile_error_password_' . $passwordError, false);
 
 	// Alright, so long as 'yer sure.
 	updateMemberData($row['id_member'], array('passwd' => hash_password($row['member_name'], $_POST['passwrd1'])));
