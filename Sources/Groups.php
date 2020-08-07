@@ -397,10 +397,10 @@ function MembergroupMembers()
 	);
 	list ($context['total_members']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
-	$context['total_members'] = comma_format($context['total_members']);
 
 	// Create the page index.
 	$context['page_index'] = constructPageIndex($scripturl . '?action=' . ($context['group']['can_moderate'] ? 'moderate;area=viewgroups' : 'groups') . ';sa=members;group=' . $_REQUEST['group'] . ';sort=' . $context['sort_by'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], $context['total_members'], $modSettings['defaultMaxMembers']);
+	$context['total_members'] = comma_format($context['total_members']);
 	$context['start'] = $_REQUEST['start'];
 	$context['can_moderate_forum'] = allowedTo('moderate_forum');
 
