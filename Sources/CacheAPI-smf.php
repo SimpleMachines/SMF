@@ -60,16 +60,8 @@ class smf_cache extends cache_api
 		// SMF Data returns $value and $expired.  $expired has a unix timestamp of when this expires.
 		if (file_exists($cachedir . '/data_' . $key . '.php') && filesize($cachedir . '/data_' . $key . '.php') > 10)
 		{
-			// Work around Zend's opcode caching (PHP 5.5+), they would cache older files for a couple of seconds
-			// causing newer files to take effect a while later.
-			if (function_exists('opcache_invalidate'))
-				opcache_invalidate($cachedir . '/data_' . $key . '.php', true);
-
-			if (function_exists('apc_delete_file'))
-				@apc_delete_file($cachedir . '/data_' . $key . '.php');
-
 			// php will cache file_exists et all, we can't 100% depend on its results so proceed with caution
-			$cached = json_decode(file_get_contents($cachedir . '/data_' . $key . '.php'), TRUE);
+			$cached = json_decode($this->readFile($cachedir . '/data_' . $key . '.php'), TRUE);
 			if (!empty($cached['expired']) && isset($cached['value']))
 			{
 				if ($cached['expired'] < time())
@@ -90,19 +82,27 @@ class smf_cache extends cache_api
 	/**
 	 * {@inheritDoc}
 	 */
+	public function readFile($file)
+	{
+		// Turns out that file_get_contents does not honor locking, but we need it to.
+		// This can be accomplished by placing a small wrapper around it:
+		$tmp = fopen($file, 'rb');
+		@flock($tmp, LOCK_SH);
+		$cached = file_get_contents($file);
+		@flock($tmp, LOCK_UN);
+		fclose($tmp);
+
+		return $cached;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function putData($key, $value, $ttl = null)
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 		$cachedir = $this->cachedir;
 		$ttl = $ttl !== null ? $ttl : $this->ttl;
-
-		// Work around Zend's opcode caching (PHP 5.5+), they would cache older files for a couple of seconds
-		// causing newer files to take effect a while later.
-		if (function_exists('opcache_invalidate'))
-			opcache_invalidate($cachedir . '/data_' . $key . '.php', true);
-
-		if (function_exists('apc_delete_file'))
-			@apc_delete_file($cachedir . '/data_' . $key . '.php');
 
 		// Otherwise custom cache?
 		if ($value === null)
