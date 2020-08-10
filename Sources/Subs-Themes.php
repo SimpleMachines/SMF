@@ -132,17 +132,19 @@ function get_all_themes($enable_only = false)
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$context['themes'][$row['id_theme']]['id'] = (int) $row['id_theme'];
+		if (!isset($context['themes'][$row['id_theme']]))
+			$context['themes'][$row['id_theme']] = array(
+				'id' => (int) $row['id_theme'],
+				'known' => in_array($row['id_theme'], $knownThemes),
+				'enable' => in_array($row['id_theme'], $enableThemes)
+			);
 
 		// Fix the path and tell if its a valid one.
 		if ($row['variable'] == 'theme_dir')
 		{
-			$context['themes'][$row['id_theme']][$row['variable']] = realpath($row['value']);
-			$context['themes'][$row['id_theme']]['valid_path'] = file_exists(realpath($row['value'])) && is_dir(realpath($row['value']));
+			$row['value'] = realpath($row['value']);
+			$context['themes'][$row['id_theme']]['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
 		}
-
-		$context['themes'][$row['id_theme']]['known'] = in_array($row['id_theme'], $knownThemes);
-		$context['themes'][$row['id_theme']]['enable'] = in_array($row['id_theme'], $enableThemes);
 		$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
 	}
 
@@ -196,17 +198,19 @@ function get_installed_themes()
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$context['themes'][$row['id_theme']]['id'] = (int) $row['id_theme'];
+		if (!isset($context['themes'][$row['id_theme']]))
+			$context['themes'][$row['id_theme']] = array(
+				'id' => (int) $row['id_theme'],
+				'known' => in_array($row['id_theme'], $knownThemes),
+				'enable' => in_array($row['id_theme'], $enableThemes)
+			);
 
 		// Fix the path and tell if its a valid one.
 		if ($row['variable'] == 'theme_dir')
 		{
-			$context['themes'][$row['id_theme']][$row['variable']] = realpath($row['value']);
-			$context['themes'][$row['id_theme']]['valid_path'] = file_exists(realpath($row['value'])) && is_dir(realpath($row['value']));
+			$row['value'] = realpath($row['value']);
+			$context['themes'][$row['id_theme']]['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
 		}
-
-		$context['themes'][$row['id_theme']]['known'] = in_array($row['id_theme'], $knownThemes);
-		$context['themes'][$row['id_theme']]['enable'] = in_array($row['id_theme'], $enableThemes);
 		$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
 	}
 
