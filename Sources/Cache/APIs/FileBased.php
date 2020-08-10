@@ -59,7 +59,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	{
 		if (($fp = fopen($file, 'rb')) !== false)
 		{
-			if (!flock($fp, LOCK_SH | LOCK_NB))
+			if (!flock($fp, LOCK_SH))
 			{
 				fclose($fp);
 				return false;
@@ -81,7 +81,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	{
 		if (($fp = fopen($file, 'cb')) !== false)
 		{
-			if (!flock($fp, LOCK_EX | LOCK_NB))
+			if (!flock($fp, LOCK_EX))
 			{
 				fclose($fp);
 				return false;
@@ -184,7 +184,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 		$files = new GlobIterator($this->cachedir . '/' . $type . '*.cache', FilesystemIterator::NEW_CURRENT_AND_KEY);
 
 		foreach ($files as $file => $info)
-			@unlink($this->cachedir . '/' . $file);
+			unlink($this->cachedir . '/' . $file);
 
 		// Make this invalid.
 		$this->invalidateCache();
