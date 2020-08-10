@@ -277,8 +277,7 @@ function get_theme_info($path)
 		fatal_lang_error('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
 	}
 
-	$theme_info_xml = $theme_info_xml->path('theme-info[0]');
-	$theme_info_xml = $theme_info_xml->to_array();
+	$theme_info_xml = $theme_info_xml->to_array('theme-info[0]');
 
 	$xml_elements = array(
 		'theme_layers' => 'layers',
