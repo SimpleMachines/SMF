@@ -321,7 +321,7 @@ function theme_install($to_install = array())
 	global $settings, $explicit_images;
 
 	// External use? no problem!
-	if ($to_install)
+	if (!empty($to_install))
 		$context['to_install'] = $to_install;
 
 	// One last check.
@@ -332,45 +332,43 @@ function theme_install($to_install = array())
 	if (!empty($context['to_install']['version']))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT id_theme, variable, value
+			SELECT id_theme
 			FROM {db_prefix}themes
 			WHERE id_member = {int:no_member}
-				AND variable = {string:name}
+				AND variable = {literal:name}
 				AND value LIKE {string:name_value}
 			LIMIT 1',
 			array(
 				'no_member' => 0,
-				'name' => 'name',
-				'version' => 'version',
 				'name_value' => '%' . $context['to_install']['name'] . '%',
 			)
 		);
 
-		$to_update = $smcFunc['db_fetch_assoc']($request);
+		list ($id_to_update) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
+		$to_update = get_single_theme($id_to_update, array('version'));
 
 		// Got something, lets figure it out what to do next.
-		if (!empty($to_update) && !empty($to_update['version']))
+		if (!empty($id_to_update) && !empty($to_update['version']))
 			switch (compareVersions($context['to_install']['version'], $to_update['version']))
 			{
 				case 1: // Got a newer version, update the old entry.
 					$smcFunc['db_query']('', '
 						UPDATE {db_prefix}themes
 						SET value = {string:new_value}
-						WHERE variable = {string:version}
+						WHERE variable = {literal:version}
 							AND id_theme = {int:id_theme}',
 						array(
 							'new_value' => $context['to_install']['version'],
-							'version' => 'version',
-							'id_theme' => $to_update['id_theme'],
+							'id_theme' => $id_to_update,
 						)
 					);
 
 					// Done with the update, tell the user about it.
 					$context['to_install']['updated'] = true;
 
-					return $to_update['id_theme'];
-					break; // Just for reference.
+					return $id_to_update;
+
 				case 0: // This is exactly the same theme.
 				case -1: // The one being installed is older than the one already installed.
 				default: // Any other possible result.
@@ -406,26 +404,12 @@ function theme_install($to_install = array())
 				)
 			);
 
-			$based_on = $smcFunc['db_fetch_assoc']($request);
+			list ($id_based_on) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
-
-			$request = $smcFunc['db_query']('', '
-				SELECT variable, value
-				FROM {db_prefix}themes
-				WHERE variable IN ({array_string:theme_values})
-					AND id_theme = ({int:based_on})
-				LIMIT 1',
-				array(
-					'no_member' => 0,
-					'theme__values' => array('theme_url', 'images_url', 'theme_dir',),
-					'based_on' => $based_on['id_theme'],
-				)
-			);
-			$temp = $smcFunc['db_fetch_assoc']($request);
-			$smcFunc['db_free_result']($request);
+			$temp = get_single_theme($id_based_on, array('theme_dir', 'images_url', 'theme_url'));
 
 			// Found the based on theme info, add it to the current one being installed.
-			if (is_array($temp))
+			if (!empty($temp))
 			{
 				$context['to_install']['base_theme_url'] = $temp['theme_url'];
 				$context['to_install']['base_theme_dir'] = $temp['theme_dir'];
