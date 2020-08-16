@@ -121,12 +121,6 @@ function AdminRegister()
 			'memberGroup' => empty($_POST['group']) || !allowedTo('manage_membergroups') ? 0 : (int) $_POST['group'],
 		);
 
-		if (empty($_POST['requireAgreement']))
-			$regOptions['theme_vars']['agreement_accepted'] = time();
-
-		if (empty($_POST['requirePolicyAgreement']))
-			$regOptions['theme_vars']['policy_accepted'] = time();
-
 		require_once($sourcedir . '/Subs-Members.php');
 		$memberID = registerMember($regOptions);
 		if (!empty($memberID))
