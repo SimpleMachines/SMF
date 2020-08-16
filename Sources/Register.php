@@ -46,7 +46,7 @@ function Register($reg_errors = array())
 	loadLanguage('Login');
 	loadTemplate('Register');
 
-	// Do we need them to agree to the registration agreement, first?
+	// Do we need them to agree to the registration agreement and/or privacy policy agreement, first?
 	$context['require_agreement'] = !empty($modSettings['requireAgreement']);
 	$context['registration_passed_agreement'] = !empty($_SESSION['registration_agreed']);
 	$context['show_coppa'] = !empty($modSettings['coppaAge']);
@@ -61,7 +61,7 @@ function Register($reg_errors = array())
 	}
 
 	// What step are we at?
-	$current_step = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : ($context['require_agreement'] ? 1 : 2);
+	$current_step = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : ($context['require_agreement'] || $context['require_policy_agreement'] ? 1 : 2);
 
 	// Does this user agree to the registation agreement?
 	if ($current_step == 1 && (isset($_POST['accept_agreement']) || isset($_POST['accept_agreement_coppa'])))
@@ -83,7 +83,7 @@ function Register($reg_errors = array())
 		}
 	}
 	// Make sure they don't squeeze through without agreeing.
-	elseif ($current_step > 1 && $context['require_agreement'] && !$context['registration_passed_agreement'])
+	elseif ($current_step > 1 && ($context['require_agreement'] || $context['require_policy_agreement']) && !$context['registration_passed_agreement'])
 		$current_step = 1;
 
 	// Show the user the right form.
