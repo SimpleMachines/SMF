@@ -3732,10 +3732,10 @@ function setupThemeContext($forceload = false)
 
 	// This looks weird, but it's because BoardIndex.php references the variable.
 	$context['common_stats']['latest_member'] = array(
-		'id' => $modSettings['latestMember'],
-		'name' => $modSettings['latestRealName'],
-		'href' => $scripturl . '?action=profile;u=' . $modSettings['latestMember'],
-		'link' => '<a href="' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . '">' . $modSettings['latestRealName'] . '</a>',
+		'id' => !empty($modSettings['latestMember']) ? $modSettings['latestMember'] : '',
+		'name' => !empty($modSettings['latestRealName']) ? $modSettings['latestRealName'] : '',
+		'href' => !empty($modSettings['latestMember']) ? $scripturl . '?action=profile;u=' . $modSettings['latestMember'] : '',
+		'link' => !empty($modSettings['latestMember']) ? '<a href="' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . '">' . $modSettings['latestRealName'] . '</a>' : '',
 	);
 	$context['common_stats'] = array(
 		'total_posts' => comma_format($modSettings['totalMessages']),
