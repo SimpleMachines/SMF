@@ -334,7 +334,7 @@ function template_replies()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg centertext">
-					', $context['showing_all_topics'] ? $txt['topic_alert_none'] : sprintf($txt['updated_topics_visit_none'], $scripturl), '
+					', $context['showing_all_topics'] ? $txt['topic_alert_none'] : $txt['updated_topics_visit_none'], '
 				</h3>
 			</div>';
 
