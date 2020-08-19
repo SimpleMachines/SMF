@@ -3146,3 +3146,42 @@ while ($row = $smcFunc['db_fetch_assoc']($request))
 ALTER TABLE {$db_prefix}log_spider_stats CHANGE page_hits page_hits INT NOT NULL DEFAULT '0';
 ---#
 
+/******************************************************************************/
+--- Update policy settings
+/******************************************************************************/
+---# Strip -utf8 from policy settings
+---{
+$utf8_policy_settings = array_filter($modSettings, function($v, $k)
+		{
+			return (substr($k, 0, 7) === 'policy_') && (substr($k, -5) === '-utf8');
+		}, ARRAY_FILTER_USE_BOTH
+	);
+$adds = array();
+$deletes = array();
+foreach($utf8_policy_settings AS $var => $val)
+{
+	// Note this works on the policy_updated_ strings as well...
+	$language = substr($var, 7, strlen($var) - 12);
+	if (!array_key_exists('policy_' . $language, $modSettings))
+	{
+		$adds[] =  '(\'policy_' . $language . '\', \'' . $val . '\')';
+		$deletes[] = '\'policy_' . $language . '-utf8\'';
+	}
+}
+if (!empty($adds))
+{
+	upgrade_query("
+		INSERT INTO {$db_prefix}settings (variable, value)
+			VALUES " . implode(', ', $adds)
+	);
+}
+if (!empty($deletes))
+{
+	upgrade_query("
+		DELETE FROM {$db_prefix}settings
+			WHERE variable IN (" . implode(', ', $deletes) . ")
+	");
+}
+
+---}
+---#

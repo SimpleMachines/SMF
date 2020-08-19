@@ -3549,3 +3549,43 @@ CREATE INDEX {$db_prefix}attachments_id_thumb ON {$db_prefix}attachments (id_thu
 ---# Allow for hyper aggressive crawlers
 ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN page_hits TYPE INT;
 ---#
+
+/******************************************************************************/
+--- Update policy settings
+/******************************************************************************/
+---# Strip -utf8 from policy settings
+---{
+$utf8_policy_settings = array_filter($modSettings, function($v, $k)
+		{
+			return (substr($k, 0, 7) === 'policy_') && (substr($k, -5) === '-utf8');
+		}, ARRAY_FILTER_USE_BOTH
+	);
+$adds = array();
+$deletes = array();
+foreach($utf8_policy_settings AS $var => $val)
+{
+	// Note this works on the policy_updated_ strings as well...
+	$language = substr($var, 7, strlen($var) - 12);
+	if (!array_key_exists('policy_' . $language, $modSettings))
+	{
+		$adds[] =  '(\'policy_' . $language . '\', \'' . $val . '\')';
+		$deletes[] = '\'policy_' . $language . '-utf8\'';
+	}
+}
+if (!empty($adds))
+{
+	upgrade_query("
+		INSERT INTO {$db_prefix}settings (variable, value)
+			VALUES " . implode(', ', $adds)
+	);
+}
+if (!empty($deletes))
+{
+	upgrade_query("
+		DELETE FROM {$db_prefix}settings
+			WHERE variable IN (" . implode(', ', $deletes) . ")
+	");
+}
+
+---}
+---#
