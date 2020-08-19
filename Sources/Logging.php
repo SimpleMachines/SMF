@@ -436,6 +436,7 @@ function logActions($logs)
 		'user' => 2,
 		'admin' => 3,
 	);
+	$always_log = array('agreement_accepted', 'policy_accepted', 'agreement_updated', 'policy_updated');
 
 	// Make sure this particular log is enabled first...
 	if (empty($modSettings['modlog_enabled']))
@@ -449,7 +450,7 @@ function logActions($logs)
 
 	foreach ($logs as $log)
 	{
-		if (!isset($log_types[$log['log_type']]) && !in_array($log['action'], $always_log))
+		if (!isset($log_types[$log['log_type']]) || !in_array($log['action'], $always_log))
 			return false;
 
 		if (!is_array($log['extra']))
