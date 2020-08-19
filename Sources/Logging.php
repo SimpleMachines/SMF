@@ -446,7 +446,7 @@ function logActions($logs)
 	if (empty($modSettings['adminlog_enabled']))
 		unset($log_types['admin']);
 
-	call_integration_hook('integrate_log_types', array(&$log_types));
+	call_integration_hook('integrate_log_types', array(&$log_types, &$always_log));
 
 	foreach ($logs as $log)
 	{
