@@ -7312,7 +7312,7 @@ function array_length($array, $deep = 3)
  * @param array $array
  * @param string $req_var request variable
  *
- * @return bool whether ALL the criteria was satisfied
+ * @return bool whether any of the criteria was satisfied
  */
 function is_filtered_request(array $array, $req_var)
 {
