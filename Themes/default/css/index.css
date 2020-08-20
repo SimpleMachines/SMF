@@ -3626,10 +3626,12 @@ h3.catbg .main_icons::before, h3.catbg .icon {
 	margin-top: -1px;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
-	margin: 0 0 1.5em 0; /* For some reason if we end up having blocks after blocks ... keep the social distancing */
 }
 .cat_bar + .title_bar {
 	margin-top: 0;
+}
+.cat_bar:not(:first-of-type) {
+	margin: 10px 0 0 0;
 }
 /* Roundframe */
 .roundframe {

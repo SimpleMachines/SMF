@@ -30,7 +30,7 @@ function template_main()
 		if (!empty($context['can_accept_agreement']))
 		{
 			echo '
-		<div class="information">
+		<div class="information noup">
 			', $txt['agreement_updated_desc'], '
 		</div>';
 		}
@@ -43,7 +43,7 @@ function template_main()
 		}
 
 		echo '
-		<div class="windowbg">
+		<div class="windowbg noup">
 			', $context['agreement'], '
 		</div>';
 	}
@@ -58,7 +58,7 @@ function template_main()
 		if (!empty($context['can_accept_privacy_policy']))
 		{
 			echo '
-		<div class="information">
+		<div class="information noup">
 			', $txt['privacy_policy_updated_desc'], '
 		</div>';
 		}
@@ -71,7 +71,7 @@ function template_main()
 		}
 
 		echo '
-		<div class="windowbg">
+		<div class="windowbg noup">
 			', $context['policy'], '
 		</div>';
 	}
