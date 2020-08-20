@@ -2083,24 +2083,12 @@ function loadTheme($id_theme = 0, $initialize = true)
 	);
 	if (empty($user_info['is_guest']) && empty($user_info['is_admin']) && SMF != 'SSI' && !isset($_REQUEST['xml']) && !is_filtered_request($agreement_actions, 'action'))
 	{
-		$agreement_lang = !empty($modSettings['agreement_updated_' . $user_info['language']]) ? $user_info['language'] : 'default';
-		$policy_lang = !empty($modSettings['policy_' . $user_info['language']]) ? $user_info['language'] : $language;
+		require_once($sourcedir . '/Agreement.php');
+		$can_accept_agreement = !empty($modSettings['requireAgreement']) && canRequireAgreement();
+		$can_accept_privacy_policy = !empty($modSettings['requirePolicyAgreement']) && canRequirePrivacyPolicy();
 
-		// Do they need to accept the latest registration agreement?
-		if (!empty($modSettings['requireAgreement']) && !empty($modSettings['agreement_updated_' . $agreement_lang]) && (empty($options['agreement_accepted']) || $modSettings['agreement_updated_' . $agreement_lang] > $options['agreement_accepted']))
-		{
-			$agreement_subaction = 'agreement';
-		}
-
-		// Do they need to consent to the latest privacy policy?
-		if (!empty($modSettings['requirePolicyAgreement']) && !empty($modSettings['policy_updated_' . $policy_lang]) && (empty($options['policy_accepted']) || $modSettings['policy_updated_' . $policy_lang] > $options['policy_accepted']))
-		{
-			$agreement_subaction = !empty($agreement_subaction) ? 'both' : 'policy';
-		}
-
-		// Send them to the right place
-		if (!empty($agreement_subaction))
-			redirectexit('action=agreement;sa=' . $agreement_subaction);
+		if ($can_accept_agreement || $can_accept_privacy_policy)
+			redirectexit('action=agreement');
 	}
 
 	// Check to see if we're forcing SSL
