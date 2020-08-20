@@ -48,7 +48,7 @@ function template_main()
 		</div>';
 	}
 
-	if (!empty($context['policy']))
+	if (!empty($context['privacy_policy']))
 	{
 		echo '
 		<div class="cat_bar">
@@ -72,7 +72,7 @@ function template_main()
 
 		echo '
 		<div class="windowbg noup">
-			', $context['policy'], '
+			', $context['privacy_policy'], '
 		</div>';
 	}
 

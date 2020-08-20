@@ -411,7 +411,7 @@ function EditPrivacyPolicy()
 			$context['current_policy_lang'] = $lang['filename'];
 	}
 
-	$context['policy'] = empty($modSettings['policy_' . $context['current_policy_lang']]) ? '' : $modSettings['policy_' . $context['current_policy_lang']];
+	$context['privacy_policy'] = empty($modSettings['policy_' . $context['current_policy_lang']]) ? '' : $modSettings['policy_' . $context['current_policy_lang']];
 
 	if (isset($_POST['policy']))
 	{
@@ -437,15 +437,15 @@ function EditPrivacyPolicy()
 		logAction('policy_updated', array('language' => $context['editable_policies'][$context['current_policy_lang']]), 'admin');
 		logAction('policy_accepted', array('applicator' => $user_info['id']), 'user');
 
-		if ($context['policy'] !== $policy_text)
+		if ($context['privacy_policy'] !== $policy_text)
 			$context['saved_successful'] = true;
 
 		updateSettings($policy_settings);
 
-		$context['policy'] = $policy_text;
+		$context['privacy_policy'] = $policy_text;
 	}
 
-	$context['policy_info'] = sprintf($txt['admin_agreement_info'], empty($modSettings['policy_updated_' . $context['current_policy_lang']]) ? $txt['never'] : timeformat($modSettings['policy_updated_' . $context['current_policy_lang']]));
+	$context['privacy_policy_info'] = sprintf($txt['admin_agreement_info'], empty($modSettings['policy_updated_' . $context['current_policy_lang']]) ? $txt['never'] : timeformat($modSettings['policy_updated_' . $context['current_policy_lang']]));
 
 	$context['sub_template'] = 'edit_privacy_policy';
 	$context['page_title'] = $txt['privacy_policy'];

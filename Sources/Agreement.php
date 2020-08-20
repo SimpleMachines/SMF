@@ -70,9 +70,9 @@ function prepareAgreementContext()
 	{
 		// Have we got a localized policy?
 		if (!empty($modSettings['policy_' . $user_info['language']]))
-			$context['policy'] = parse_bbc($modSettings['policy_' . $user_info['language']]);
+			$context['privacy_policy'] = parse_bbc($modSettings['policy_' . $user_info['language']]);
 		elseif (!empty($modSettings['policy_' . $language]))
-			$context['policy'] = parse_bbc($modSettings['policy_' . $language]);
+			$context['privacy_policy'] = parse_bbc($modSettings['policy_' . $language]);
 		// Then I guess we've got nothing
 		elseif ($_REQUEST['sa'] == 'both')
 			$context['show_privacy_policy'] = false;

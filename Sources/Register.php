@@ -157,13 +157,13 @@ function Register($reg_errors = array())
 	{
 		// Have we got a localized one?
 		if (!empty($modSettings['policy_' . $user_info['language']]))
-			$context['policy'] = parse_bbc($modSettings['policy_' . $user_info['language']]);
+			$context['privacy_policy'] = parse_bbc($modSettings['policy_' . $user_info['language']]);
 		elseif (!empty($modSettings['policy_' . $language]))
-			$context['policy'] = parse_bbc($modSettings['policy_' . $language]);
+			$context['privacy_policy'] = parse_bbc($modSettings['policy_' . $language]);
 		else
 		{
 			loadLanguage('Errors');
-			$context['policy'] = $txt['error_no_privacy_policy'];
+			$context['privacy_policy'] = $txt['error_no_privacy_policy'];
 		}
 	}
 

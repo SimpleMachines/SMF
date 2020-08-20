@@ -29,13 +29,13 @@ function template_registration_agreement()
 				<div>', $context['agreement'], '</div>
 			</div>';
 
-	if (!empty($context['policy']))
+	if (!empty($context['privacy_policy']))
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['privacy_policy'], '</h3>
 			</div>
 			<div class="roundframe">
-				<div>', $context['policy'], '</div>
+				<div>', $context['privacy_policy'], '</div>
 			</div>';
 
 		echo '
@@ -765,8 +765,8 @@ function template_edit_privacy_policy()
 
 	// Show the actual policy in an oversized text box.
 	echo '
-			<textarea cols="70" rows="20" name="policy" id="agreement">', $context['policy'], '</textarea>
-				<div class="information">', $context['policy_info'], '</div>
+			<textarea cols="70" rows="20" name="policy" id="agreement">', $context['privacy_policy'], '</textarea>
+				<div class="information">', $context['privacy_policy_info'], '</div>
 				<div class="righttext">
 					<input type="submit" value="', $txt['save'], '" tabindex="', $context['tabindex']++, '" class="button" onclick="return resetPolicyConfirm()" />
 					<input type="hidden" name="policy_lang" value="', $context['current_policy_lang'], '" />
