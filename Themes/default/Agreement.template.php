@@ -78,7 +78,7 @@ function template_main()
 
 	if (!empty($context['accept_doc']))
 		echo '
-		<div class="righttext">
+		<div id="confirm_buttons">
 			<input type="submit" value="', $txt['agree'], '" class="button">
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</div>

@@ -39,7 +39,7 @@ function template_registration_agreement()
 			</div>';
 
 		echo '
-			<div class="righttext">';
+			<div id="confirm_buttons">';
 	// Age restriction in effect?
 	if ($context['show_coppa'])
 		echo '
