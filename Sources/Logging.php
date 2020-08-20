@@ -450,7 +450,7 @@ function logActions($logs)
 
 	foreach ($logs as $log)
 	{
-		if (!isset($log_types[$log['log_type']]) || !in_array($log['action'], $always_log))
+		if (!isset($log_types[$log['log_type']]) && !in_array($log['action'], $always_log))
 			return false;
 
 		if (!is_array($log['extra']))
