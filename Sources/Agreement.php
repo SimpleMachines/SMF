@@ -54,14 +54,14 @@ function prepareAgreementContext()
 			$context['agreement_file'] = $boarddir . '/agreement.' . $user_info['language'] . '.txt';
 		elseif (file_exists($boarddir . '/agreement.txt'))
 			$context['agreement_file'] = $boarddir . '/agreement.txt';
-		elseif ($context['can_accept_agreement'])
-			fatal_lang_error('no_agreement', false);
 
 		if (!empty($context['agreement_file']))
 		{
 			$cache_id = strtr($context['agreement_file'], array($boarddir => '', '.txt' => '', '.' => '_'));
 			$context['agreement'] = parse_bbc(file_get_contents($context['agreement_file']), true, $cache_id);
 		}
+		elseif ($context['can_accept_agreement'])
+			fatal_lang_error('error_no_agreement', false);
 	}
 
 	if (!$context['accept_doc'] || $context['can_accept_privacy_policy'])
@@ -73,7 +73,7 @@ function prepareAgreementContext()
 			$context['privacy_policy'] = parse_bbc($modSettings['policy_' . $language]);
 		// Then I guess we've got nothing
 		elseif ($context['can_accept_privacy_policy'])
-			fatal_lang_error('no_privacy_policy', false);
+			fatal_lang_error('error_no_privacy_policy', false);
 	}
 }
 
