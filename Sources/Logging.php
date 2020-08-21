@@ -438,19 +438,11 @@ function logActions($logs)
 	);
 	$always_log = array('agreement_accepted', 'policy_accepted', 'agreement_updated', 'policy_updated');
 
-	// Make sure this particular log is enabled first...
-	if (empty($modSettings['modlog_enabled']))
-		unset($log_types['moderate']);
-	if (empty($modSettings['userlog_enabled']))
-		unset($log_types['user']);
-	if (empty($modSettings['adminlog_enabled']))
-		unset($log_types['admin']);
-
 	call_integration_hook('integrate_log_types', array(&$log_types, &$always_log));
 
 	foreach ($logs as $log)
 	{
-		if (!isset($log_types[$log['log_type']]) && !in_array($log['action'], $always_log))
+		if ((empty($modSettings['modlog_enabled']) || empty($modSettings['userlog_enabled']) || empty($modSettings['adminlog_enabled'])) && !in_array($log['action'], $always_log))
 			return false;
 
 		if (!is_array($log['extra']))
