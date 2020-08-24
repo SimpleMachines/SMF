@@ -3146,3 +3146,33 @@ while ($row = $smcFunc['db_fetch_assoc']($request))
 ALTER TABLE {$db_prefix}log_spider_stats CHANGE page_hits page_hits INT NOT NULL DEFAULT '0';
 ---#
 
+/******************************************************************************/
+--- Fixing old policy acceptance records...
+/******************************************************************************/
+
+---# Fixing missing values in log_actions
+---{
+// Find the missing id_members
+$request = upgrade_query("
+	SELECT id_action, extra
+		FROM {$db_prefix}log_actions
+		WHERE id_member = 0
+		AND action IN ('policy_accepted', 'agreement_accepted')");
+
+// Fortunately they're in the extra field
+while ($row = mysqli_fetch_assoc($request))
+{
+	$extra = @unserialize($row['extra']);
+	if ($extra === false)
+		continue;
+	if (!empty($extra['applicator']))
+	{
+		upgrade_query("
+			UPDATE {$db_prefix}log_actions
+				SET id_member = " . $extra['applicator'] . "
+				WHERE id_action = " . $row['id_action']);
+	}
+}
+
+---}
+---#

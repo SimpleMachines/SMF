@@ -3549,3 +3549,34 @@ CREATE INDEX {$db_prefix}attachments_id_thumb ON {$db_prefix}attachments (id_thu
 ---# Allow for hyper aggressive crawlers
 ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN page_hits TYPE INT;
 ---#
+
+/******************************************************************************/
+--- Fixing old policy acceptance records...
+/******************************************************************************/
+
+---# Fixing missing values in log_actions
+---{
+// Find the missing id_members
+$request = upgrade_query("
+	SELECT id_action, extra
+		FROM {$db_prefix}log_actions
+		WHERE id_member = 0
+		AND action IN ('policy_accepted', 'agreement_accepted')");
+
+// Fortunately they're in the extra field
+while ($row = mysqli_fetch_assoc($request))
+{
+	$extra = @unserialize($row['extra']);
+	if ($extra === false)
+		continue;
+	if (!empty($extra['applicator']))
+	{
+		upgrade_query("
+			UPDATE {$db_prefix}log_actions
+				SET id_member = " . $extra['applicator'] . "
+				WHERE id_action = " . $row['id_action']);
+	}
+}
+
+---}
+---#
