@@ -48,7 +48,7 @@ function template_registration_agreement()
 				<input type="submit" name="accept_agreement_coppa" value="', $context['coppa_agree_below'], '" class="button">';
 	else
 		echo '
-				<input type="submit" name="regSubmit" value="', $txt['agreement' . (!empty($context['require_policy_agreement']) ? '_policy' : '') . '_agree'], '" class="button" />';
+				<input type="submit" name="accept_agreement" value="', $txt['agreement' . (!empty($context['require_policy_agreement']) ? '_policy' : '') . '_agree'], '" class="button" />';
 
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -313,7 +313,7 @@ function template_registration_form()
 				<input type="submit" name="accept_agreement_coppa" value="', $context['coppa_agree_below'], '" class="button">';
 	else
 		echo '
- 				<input type="submit" name="regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button">';
+ 				<input type="submit" name="accept_agreement" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button">';
 
 	echo '
 			</div>
