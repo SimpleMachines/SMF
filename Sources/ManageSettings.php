@@ -228,7 +228,6 @@ function ModifyBasicSettings($return_config = false)
 		'',
 
 		// Option-ish things... miscellaneous sorta.
-		array('check', 'notify_tokens', 'disabled' => 1),
 		array('check', 'disallow_sendBody'),
 		'',
 
