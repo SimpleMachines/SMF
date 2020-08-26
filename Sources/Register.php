@@ -162,8 +162,9 @@ function Register($reg_errors = array())
 			$context['privacy_policy'] = parse_bbc($modSettings['policy_' . $language]);
 		else
 		{
-			loadLanguage('Errors');
-			$context['privacy_policy'] = $txt['error_no_privacy_policy'];
+			// None was found; log the error so the admin knows there is a problem!
+			log_error($txt['error_no_privacy_policy'], 'critical');
+			fatal_lang_error('registration_disabled', false);
 		}
 	}
 
