@@ -3630,9 +3630,6 @@ h3.catbg .main_icons::before, h3.catbg .icon {
 .cat_bar + .title_bar {
 	margin-top: 0;
 }
-.cat_bar:not(:first-of-type) {
-	margin: 10px 0 0 0;
-}
 /* Roundframe */
 .roundframe {
 	margin: 10px 0 0 0;
