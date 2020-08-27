@@ -56,7 +56,6 @@ function template_registration_agreement()
 				<input type="hidden" name="step" value="1">
 			</div>
 		</form>';
-
 }
 
 /**

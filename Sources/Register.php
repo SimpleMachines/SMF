@@ -47,21 +47,28 @@ function Register($reg_errors = array())
 	loadTemplate('Register');
 
 	// Do we need them to agree to the registration agreement and/or privacy policy agreement, first?
-	$context['require_agreement'] = !empty($modSettings['requireAgreement']);
 	$context['registration_passed_agreement'] = !empty($_SESSION['registration_agreed']);
 	$context['show_coppa'] = !empty($modSettings['coppaAge']);
-	$context['require_policy_agreement'] = !empty($modSettings['requirePolicyAgreement']);
+
+	$agree_txt_key = '';
+	if (!empty($modSettings['requireAgreement']) && !empty($modSettings['requirePolicyAgreement']))
+		$agree_txt_key = 'agreement_policy_agree';
+	elseif (!empty($modSettings['requireAgreement']))
+		$agree_txt_key = 'agreement_agree';
+	elseif (!empty($modSettings['requirePolicyAgreement']))
+		$agree_txt_key = 'policy_agree';
+	$context['agree'] = $txt[$agree_txt_key];
 
 	// Under age restrictions?
 	if ($context['show_coppa'])
 	{
 		$context['skip_coppa'] = false;
-		$context['coppa_agree_above'] = sprintf($txt['agreement' . (!empty($context['require_policy_agreement']) ? '_policy' : '') . '_agree_coppa_above'], $modSettings['coppaAge']);
-		$context['coppa_agree_below'] = sprintf($txt['agreement' . (!empty($context['require_policy_agreement']) ? '_policy' : '') . '_agree_coppa_below'], $modSettings['coppaAge']);
+		$context['coppa_agree_above'] = sprintf($txt[$agree_txt_key . '_coppa_above'], $modSettings['coppaAge']);
+		$context['coppa_agree_below'] = sprintf($txt[$agree_txt_key . '_coppa_below'], $modSettings['coppaAge']);
 	}
 
 	// What step are we at?
-	$current_step = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : ($context['require_agreement'] || $context['require_policy_agreement'] ? 1 : 2);
+	$current_step = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : (!empty($modSettings['requireAgreement']) || !empty($modSettings['requirePolicyAgreement']) ? 1 : 2);
 
 	// Does this user agree to the registation agreement?
 	if ($current_step == 1 && (isset($_POST['accept_agreement']) || isset($_POST['accept_agreement_coppa'])))
@@ -83,7 +90,7 @@ function Register($reg_errors = array())
 		}
 	}
 	// Make sure they don't squeeze through without agreeing.
-	elseif ($current_step > 1 && ($context['require_agreement'] || $context['require_policy_agreement']) && !$context['registration_passed_agreement'])
+	elseif ($current_step > 1 && (!empty($modSettings['requireAgreement']) || !empty($modSettings['requirePolicyAgreement'])) && !$context['registration_passed_agreement'])
 		$current_step = 1;
 
 	// Show the user the right form.
@@ -110,7 +117,7 @@ function Register($reg_errors = array())
 		$_SESSION['register']['timenow'] = time();
 
 	// If you have to agree to the agreement, it needs to be fetched from the file.
-	if ($context['require_agreement'])
+	if (!empty($modSettings['requireAgreement']))
 	{
 		// Have we got a localized one?
 		if (file_exists($boarddir . '/agreement.' . $user_info['language'] . '.txt'))
@@ -153,7 +160,7 @@ function Register($reg_errors = array())
 	}
 
 	// If you have to agree to the privacy policy, it needs to be loaded from the database.
-	if (!empty($context['require_policy_agreement']))
+	if (!empty(!empty($modSettings['requirePolicyAgreement'])))
 	{
 		// Have we got a localized one?
 		if (!empty($modSettings['policy_' . $user_info['language']]))
