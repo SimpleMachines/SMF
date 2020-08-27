@@ -46,29 +46,33 @@ function Register($reg_errors = array())
 	loadLanguage('Login');
 	loadTemplate('Register');
 
+	// How many steps have we done so far today?
+	$current_step = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : (!empty($modSettings['requireAgreement']) || !empty($modSettings['requirePolicyAgreement']) ? 1 : 2);
+
 	// Do we need them to agree to the registration agreement and/or privacy policy agreement, first?
 	$context['registration_passed_agreement'] = !empty($_SESSION['registration_agreed']);
 	$context['show_coppa'] = !empty($modSettings['coppaAge']);
 
 	$agree_txt_key = '';
-	if (!empty($modSettings['requireAgreement']) && !empty($modSettings['requirePolicyAgreement']))
-		$agree_txt_key = 'agreement_policy_agree';
-	elseif (!empty($modSettings['requireAgreement']))
-		$agree_txt_key = 'agreement_agree';
-	elseif (!empty($modSettings['requirePolicyAgreement']))
-		$agree_txt_key = 'policy_agree';
-	$context['agree'] = $txt[$agree_txt_key];
+	if ($current_step == 1)
+	{
+		if (!empty($modSettings['requireAgreement']) && !empty($modSettings['requirePolicyAgreement']))
+			$agree_txt_key = 'agreement_policy_';
+		elseif (!empty($modSettings['requireAgreement']))
+			$agree_txt_key = 'agreement_';
+		elseif (!empty($modSettings['requirePolicyAgreement']))
+			$agree_txt_key = 'policy_';
+	}
 
 	// Under age restrictions?
 	if ($context['show_coppa'])
 	{
 		$context['skip_coppa'] = false;
-		$context['coppa_agree_above'] = sprintf($txt[$agree_txt_key . '_coppa_above'], $modSettings['coppaAge']);
-		$context['coppa_agree_below'] = sprintf($txt[$agree_txt_key . '_coppa_below'], $modSettings['coppaAge']);
+		$context['coppa_agree_above'] = sprintf($txt[$agree_txt_key . 'agree_coppa_above'], $modSettings['coppaAge']);
+		$context['coppa_agree_below'] = sprintf($txt[$agree_txt_key . 'agree_coppa_below'], $modSettings['coppaAge']);
 	}
-
-	// What step are we at?
-	$current_step = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : (!empty($modSettings['requireAgreement']) || !empty($modSettings['requirePolicyAgreement']) ? 1 : 2);
+	elseif ($agree_txt_key != '')
+		$context['agree'] = $txt[$agree_txt_key . 'agree'];
 
 	// Does this user agree to the registation agreement?
 	if ($current_step == 1 && (isset($_POST['accept_agreement']) || isset($_POST['accept_agreement_coppa'])))
@@ -271,9 +275,10 @@ function Register2()
 	if (!isset($_SESSION['old_url']))
 		redirectexit('action=signup');
 
-	// If we don't require an agreement, we need a extra check for coppa.
-	if (empty($modSettings['requireAgreement']) && !empty($modSettings['coppaAge']))
+	// If we require neither an agreement nor a privacy policy, we need a extra check for coppa.
+	if (empty($modSettings['requireAgreement']) && empty($modSettings['requirePolicyAgreement']) && !empty($modSettings['coppaAge']))
 		$_SESSION['skip_coppa'] = !empty($_POST['accept_agreement']);
+
 	// Are they under age, and under age users are banned?
 	if (!empty($modSettings['coppaAge']) && empty($modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
 	{
@@ -917,7 +922,6 @@ function RegisterCheckUsername()
 
 /**
  * It doesn't actually send anything, this action just shows a message for a guest.
- *
  */
 function SendActivation()
 {
@@ -934,7 +938,7 @@ function SendActivation()
 	$context['title'] = $txt['activate_changed_email_title'];
 	$context['description'] = $txt['activate_changed_email_desc'];
 
-	// We're gone!
+	// Aaand we're gone!
 	obExit();
 }
 

@@ -40,6 +40,7 @@ function template_registration_agreement()
 
 		echo '
 			<div id="confirm_buttons">';
+
 	// Age restriction in effect?
 	if ($context['show_coppa'])
 		echo '
@@ -48,7 +49,7 @@ function template_registration_agreement()
 				<input type="submit" name="accept_agreement_coppa" value="', $context['coppa_agree_below'], '" class="button">';
 	else
 		echo '
-				<input type="submit" name="accept_agreement" value="', $txt['agreement' . (!empty($context['require_policy_agreement']) ? '_policy' : '') . '_agree'], '" class="button" />';
+				<input type="submit" name="accept_agreement" value="', $context['agree'], '" class="button" />';
 
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -305,14 +306,14 @@ function template_registration_form()
 			<div id="confirm_buttons" class="flow_auto">';
 
 	// Age restriction in effect?
-	if (!$context['require_agreement'] && $context['show_coppa'])
+	if (empty($context['agree']) && $context['show_coppa'])
 		echo '
 				<input type="submit" name="accept_agreement" value="', $context['coppa_agree_above'], '" class="button"><br>
 				<br>
 				<input type="submit" name="accept_agreement_coppa" value="', $context['coppa_agree_below'], '" class="button">';
 	else
 		echo '
- 				<input type="submit" name="accept_agreement" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button">';
+				<input type="submit" name=" regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button">';
 
 	echo '
 			</div>
