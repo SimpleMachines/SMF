@@ -837,9 +837,7 @@ function showPosts($memID)
 	);
 
 	if ($context['user']['is_owner'])
-	{
 		$title['unwatchedtopics'] = 'Unwatched';
-	}
 
 	// Set the page title
 	if (isset($_GET['sa']) && array_key_exists($_GET['sa'], $title))
