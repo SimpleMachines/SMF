@@ -833,9 +833,13 @@ function showPosts($memID)
 	// Shortcut used to determine which $txt['show*'] string to use for the title, based on the SA
 	$title = array(
 		'attach' => 'Attachments',
-		'unwatchedtopics' => 'Unwatched',
 		'topics' => 'Topics'
 	);
+	
+	if($context['user']['is_owner'])
+	{
+		$title['unwatchedtopics'] = 'Unwatched';
+	}
 
 	// Set the page title
 	if (isset($_GET['sa']) && array_key_exists($_GET['sa'], $title))
@@ -853,7 +857,7 @@ function showPosts($memID)
 	if (isset($_GET['sa']) && $_GET['sa'] == 'attach')
 		return showAttachments($memID);
 	// Instead, if we're dealing with unwatched topics (and the feature is enabled) use that other function.
-	elseif (isset($_GET['sa']) && $_GET['sa'] == 'unwatchedtopics')
+	elseif (isset($_GET['sa']) && $_GET['sa'] == 'unwatchedtopics' && $context['user']['is_owner'])
 		return showUnwatched($memID);
 
 	// Are we just viewing topics?
