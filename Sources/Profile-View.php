@@ -835,8 +835,8 @@ function showPosts($memID)
 		'attach' => 'Attachments',
 		'topics' => 'Topics'
 	);
-	
-	if($context['user']['is_owner'])
+
+	if ($context['user']['is_owner'])
 	{
 		$title['unwatchedtopics'] = 'Unwatched';
 	}
