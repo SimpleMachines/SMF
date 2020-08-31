@@ -3147,7 +3147,7 @@ ALTER TABLE {$db_prefix}log_spider_stats CHANGE page_hits page_hits INT NOT NULL
 ---#
 
 /******************************************************************************/
---- Update policy settings
+--- Update policy & agreement settings
 /******************************************************************************/
 ---# Strip -utf8 from policy settings
 ---{
@@ -3165,7 +3165,7 @@ foreach($utf8_policy_settings AS $var => $val)
 	if (!array_key_exists('policy_' . $language, $modSettings))
 	{
 		$adds[] =  '(\'policy_' . $language . '\', \'' . $val . '\')';
-		$deletes[] = '\'policy_' . $language . '-utf8\'';
+		$deletes[] = '\'' . $var . '\'';
 	}
 }
 if (!empty($adds))
@@ -3186,11 +3186,21 @@ if (!empty($deletes))
 ---}
 ---#
 
-/******************************************************************************/
---- Fixing old policy acceptance records...
-/******************************************************************************/
+---# Strip -utf8 from agreement file names
+---{
+$files = glob($boarddir . '/agreement.*-utf8.txt');
+foreach($files AS $filename)
+{
+	$newfile = substr($filename, 0, strlen($filename) - 9) . '.txt';
+	// Do not overwrite existing files
+	if (!file_exists($newfile))
+		@rename($filename, $newfile);
+}
 
----# Fixing missing values in log_actions
+---}
+---#
+
+---# Fix missing values in log_actions
 ---{
 // Find the missing id_members
 $request = upgrade_query("
