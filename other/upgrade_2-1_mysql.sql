@@ -3151,11 +3151,12 @@ ALTER TABLE {$db_prefix}log_spider_stats CHANGE page_hits page_hits INT NOT NULL
 /******************************************************************************/
 ---# Strip -utf8 from policy settings
 ---{
-$utf8_policy_settings = array_filter($modSettings, function($v, $k)
-		{
-			return (substr($k, 0, 7) === 'policy_') && (substr($k, -5) === '-utf8');
-		}, ARRAY_FILTER_USE_BOTH
-	);
+$utf8_policy_settings = array();
+foreach($modSettings AS $k => $v)
+{
+	if ((substr($k, 0, 7) === 'policy_') && (substr($k, -5) === '-utf8'))
+		$utf8_policy_settings[$k] = $v;
+}
 $adds = array();
 $deletes = array();
 foreach($utf8_policy_settings AS $var => $val)
