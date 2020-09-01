@@ -596,7 +596,6 @@ function Credits($in_admin = false)
 					'members' => array(
 						'Michele "Illori" Davis',
 						// Former Project Managers
-						'Jessica "Suki" González',
 						'Will "Kindred" Wagner',
 					),
 				),
@@ -687,7 +686,6 @@ function Credits($in_admin = false)
 						'Brannon "B" Hall',
 						'Jack "akabugeyes" Thorsen',
 						'Jason "JBlaze" Clemons',
-						'Jessica "Suki" González',
 						'Joey "Tyrsson" Smith',
 						'Kays',
 						'NanoSector',
