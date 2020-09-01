@@ -1,5 +1,5 @@
 <?php
-// Version: SMF 2.1 RC2; Agreement
+// Version: 2.1 RC3; Agreement
 
 $txt['agreement'] = 'Registration Agreement';
 $txt['agreement_updated'] = 'Updated Registration Agreement';
