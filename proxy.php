@@ -17,7 +17,7 @@ if (!defined('SMF'))
 	define('SMF', 'PROXY');
 
 if (!defined('SMF_VERSION'))
-	define('SMF_VERSION', '2.1 RC2');
+	define('SMF_VERSION', '2.1 RC3');
 
 if (!defined('SMF_FULL_VERSION'))
 	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
