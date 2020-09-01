@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; Help
+// Version: 2.1 RC3; Help
 
 global $helptxt, $scripturl;
 
