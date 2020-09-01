@@ -21,7 +21,7 @@
  */
 
 define('SMF', 'BACKGROUND');
-define('SMF_VERSION', '2.1 RC2');
+define('SMF_VERSION', '2.1 RC3');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2020');
 define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
