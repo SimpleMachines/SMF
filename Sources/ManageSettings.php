@@ -48,12 +48,13 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = nu
  */
 function ModifyFeatureSettings()
 {
-	global $context, $txt, $settings, $scripturl;
+	global $context, $txt, $settings, $scripturl, $modSettings, $language;
 
 	loadLanguage('Help');
 	loadLanguage('ManageSettings');
 
 	$context['page_title'] = $txt['modSettings_title'];
+	$context['show_privacy_policy_warning'] = empty($modSettings['policy_' . $language]);
 
 	$subActions = array(
 		'basic' => 'ModifyBasicSettings',

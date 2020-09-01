@@ -2062,6 +2062,35 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (!$initialize)
 		return;
 
+	// Perhaps we've changed the agreement or privacy policy? Only redirect if:
+	// 1. They're not a guest or admin
+	// 2. This isn't called from SSI
+	// 3. This isn't an XML request
+	// 4. They're not trying to do any of the following actions:
+	// 4a. View or accept the agreement and/or policy
+	// 4b. Login or logout
+	// 4c. Get a feed (RSS, ATOM, etc.)
+	$agreement_actions = array(
+		'agreement' => true,
+		'acceptagreement' => true,
+		'login2' => true,
+		'logintfa' => true,
+		'logout' => true,
+		'pm' => array('sa' => array('popup')),
+		'profile' => array('area' => array('popup', 'alerts_popup')),
+		'xmlhttp' => true,
+		'.xml' => true,
+	);
+	if (empty($user_info['is_guest']) && empty($user_info['is_admin']) && SMF != 'SSI' && !isset($_REQUEST['xml']) && !is_filtered_request($agreement_actions, 'action'))
+	{
+		require_once($sourcedir . '/Agreement.php');
+		$can_accept_agreement = !empty($modSettings['requireAgreement']) && canRequireAgreement();
+		$can_accept_privacy_policy = !empty($modSettings['requirePolicyAgreement']) && canRequirePrivacyPolicy();
+
+		if ($can_accept_agreement || $can_accept_privacy_policy)
+			redirectexit('action=agreement');
+	}
+
 	// Check to see if we're forcing SSL
 	if (!empty($modSettings['force_ssl']) && empty($maintenance) &&
 		!httpsOn() && SMF != 'SSI')

@@ -37,6 +37,7 @@ function RegCenter()
 	$subActions = array(
 		'register' => array('AdminRegister', 'moderate_forum'),
 		'agreement' => array('EditAgreement', 'admin_forum'),
+		'policy' => array('EditPrivacyPolicy', 'admin_forum'),
 		'reservednames' => array('SetReserved', 'admin_forum'),
 		'settings' => array('ModifyRegistrationSettings', 'admin_forum'),
 	);
@@ -62,6 +63,9 @@ function RegCenter()
 			),
 			'agreement' => array(
 				'description' => $txt['registration_agreement_desc'],
+			),
+			'policy' => array(
+				'description' => $txt['privacy_policy_desc'],
 			),
 			'reservednames' => array(
 				'description' => $txt['admin_reserved_desc'],
@@ -186,7 +190,7 @@ function AdminRegister()
 function EditAgreement()
 {
 	// I hereby agree not to be a lazy bum.
-	global $txt, $boarddir, $context, $modSettings, $smcFunc;
+	global $txt, $boarddir, $context, $modSettings, $smcFunc, $user_info;
 
 	// By default we look at agreement.txt.
 	$context['current_agreement'] = '';
@@ -211,7 +215,11 @@ function EditAgreement()
 		}
 	}
 
-	if (isset($_POST['agreement']))
+	$agreement_lang = empty($context['current_agreement']) ? 'default' : substr($context['current_agreement'], 1);
+
+	$context['agreement'] = file_exists($boarddir . '/agreement' . $context['current_agreement'] . '.txt') ? str_replace("\r", '', file_get_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt')) : '';
+
+	if (isset($_POST['agreement']) && str_replace("\r", '', $_POST['agreement']) != $context['agreement'])
 	{
 		checkSession();
 		validateToken('admin-rega');
@@ -220,20 +228,36 @@ function EditAgreement()
 		$to_write = str_replace("\r", '', $_POST['agreement']);
 		$bytes = file_put_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt', $to_write, LOCK_EX);
 
-		updateSettings(array('requireAgreement' => !empty($_POST['requireAgreement'])));
+		$agreement_settings['agreement_updated_' . $agreement_lang] = time();
 
 		if ($bytes == strlen($to_write))
 			$context['saved_successful'] = true;
 		else
 			$context['could_not_save'] = true;
+
+		// Writing it counts as agreeing to it, right?
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}themes',
+			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
+			array($user_info['id'], 1, 'agreement_accepted', time()),
+			array('id_member', 'id_theme', 'variable')
+		);
+		logAction('agreement_updated', array('language' => $context['editable_agreements'][$context['current_agreement']]), 'admin');
+		logAction('agreement_accepted', array('applicator' => $user_info['id']), 'user');
+
+		updateSettings($agreement_settings);
+
+		$context['agreement'] = str_replace("\r", '', $_POST['agreement']);
 	}
 
-	$context['agreement'] = file_exists($boarddir . '/agreement' . $context['current_agreement'] . '.txt') ? $smcFunc['htmlspecialchars'](file_get_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt')) : '';
+	$context['agreement_info'] = sprintf($txt['admin_agreement_info'], empty($modSettings['agreement_updated_' . $agreement_lang]) ? $txt['never'] : timeformat($modSettings['agreement_updated_' . $agreement_lang]));
+
+	$context['agreement'] = $smcFunc['htmlspecialchars']($context['agreement']);
 	$context['warning'] = is_writable($boarddir . '/agreement' . $context['current_agreement'] . '.txt') ? '' : $txt['agreement_not_writable'];
-	$context['require_agreement'] = !empty($modSettings['requireAgreement']);
 
 	$context['sub_template'] = 'edit_agreement';
 	$context['page_title'] = $txt['registration_agreement'];
+
 	createToken('admin-rega');
 }
 
@@ -292,16 +316,25 @@ function SetReserved()
 function ModifyRegistrationSettings($return_config = false)
 {
 	global $txt, $context, $scripturl, $modSettings, $sourcedir;
+	global $language, $boarddir;
 
 	// This is really quite wanting.
 	require_once($sourcedir . '/ManageServer.php');
 
+	// Do we have at least default versions of the agreement and privacy policy?
+	$agreement = file_exists($boarddir . '/agreement.' . $language . '.txt') || file_exists($boarddir . '/agreement.txt');
+	$policy = !empty($modSettings['policy_' . $language]);
+
 	$config_vars = array(
 		array('select', 'registration_method', array($txt['setting_registration_standard'], $txt['setting_registration_activate'], $txt['setting_registration_approval'], $txt['setting_registration_disabled'])),
 		array('check', 'send_welcomeEmail'),
-		'',
-
-		array('int', 'coppaAge', 'subtext' => $txt['zero_to_disable'], 'onchange' => 'checkCoppa();', 'onkeyup' => 'checkCoppa();'),
+	'',
+		array('check', 'requireAgreement', 'text_label' => $txt['admin_agreement'], 'value' => !empty($modSettings['requireAgreement'])),
+		array('warning', empty($agreement) ? 'error_no_agreement' : ''),
+		array('check', 'requirePolicyAgreement', 'text_label' => $txt['admin_privacy_policy'], 'value' => !empty($modSettings['requirePolicyAgreement'])),
+		array('warning', empty($policy) ? 'error_no_privacy_policy' : ''),
+	'',
+		array('int', 'coppaAge', 'subtext' => $txt['zero_to_disable'], 'onchange' => 'checkCoppa();'),
 		array('select', 'coppaType', array($txt['setting_coppaType_reject'], $txt['setting_coppaType_approval']), 'onchange' => 'checkCoppa();'),
 		array('large_text', 'coppaPost', 'subtext' => $txt['setting_coppaPost_desc']),
 		array('text', 'coppaFax'),
@@ -356,6 +389,68 @@ function ModifyRegistrationSettings($return_config = false)
 	$modSettings['coppaPost'] = !empty($modSettings['coppaPost']) ? preg_replace('~<br ?/?' . '>~', "\n", $modSettings['coppaPost']) : '';
 
 	prepareDBSettingContext($config_vars);
+}
+
+// Sure, you can sell my personal info for profit (...or not)
+function EditPrivacyPolicy()
+{
+	global $txt, $boarddir, $context, $modSettings, $smcFunc, $user_info;
+
+	// By default, edit the current language's policy
+	$context['current_policy_lang'] = $user_info['language'];
+
+	// We need a policy for every language
+	getLanguages();
+
+	foreach ($context['languages'] as $lang)
+	{
+		$context['editable_policies'][$lang['filename']] = $lang['name'];
+
+		// Are we editing this one?
+		if (isset($_POST['policy_lang']) && $_POST['policy_lang'] == $lang['filename'])
+			$context['current_policy_lang'] = $lang['filename'];
+	}
+
+	$context['privacy_policy'] = empty($modSettings['policy_' . $context['current_policy_lang']]) ? '' : $modSettings['policy_' . $context['current_policy_lang']];
+
+	if (isset($_POST['policy']))
+	{
+		checkSession();
+		validateToken('admin-regp');
+
+		// Make sure there are no creepy-crawlies in it
+		$policy_text = $smcFunc['htmlspecialchars'](str_replace("\r", '', $_POST['policy']));
+
+		$policy_settings = array(
+			'policy_' . $context['current_policy_lang'] => $policy_text,
+		);
+
+		$policy_settings['policy_updated_' . $context['current_policy_lang']] = time();
+
+		// Writing it counts as agreeing to it, right?
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}themes',
+			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
+			array($user_info['id'], 1, 'policy_accepted', time()),
+			array('id_member', 'id_theme', 'variable')
+		);
+		logAction('policy_updated', array('language' => $context['editable_policies'][$context['current_policy_lang']]), 'admin');
+		logAction('policy_accepted', array('applicator' => $user_info['id']), 'user');
+
+		if ($context['privacy_policy'] !== $policy_text)
+			$context['saved_successful'] = true;
+
+		updateSettings($policy_settings);
+
+		$context['privacy_policy'] = $policy_text;
+	}
+
+	$context['privacy_policy_info'] = sprintf($txt['admin_agreement_info'], empty($modSettings['policy_updated_' . $context['current_policy_lang']]) ? $txt['never'] : timeformat($modSettings['policy_updated_' . $context['current_policy_lang']]));
+
+	$context['sub_template'] = 'edit_privacy_policy';
+	$context['page_title'] = $txt['privacy_policy'];
+
+	createToken('admin-regp');
 }
 
 ?>

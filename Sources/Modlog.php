@@ -49,6 +49,8 @@ function ViewModlog()
 
 	// The number of entries to show per page of log file.
 	$context['displaypage'] = 30;
+	// Actions whose log entries cannot be deleted.
+	$context['uneditable_actions'] = array('agreement_updated', 'policy_updated');
 
 	// Handle deletion...
 	if (isset($_POST['removeall']) && $context['can_delete'])
@@ -58,9 +60,12 @@ function ViewModlog()
 
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_actions
-			WHERE id_log = {int:moderate_log}',
+			WHERE id_log = {int:moderate_log}
+			AND action NOT IN ({array_string:uneditable})',
+
 			array(
 				'moderate_log' => $context['log_type'],
+				'uneditable' => $context['uneditable_actions'],
 			)
 		);
 
@@ -77,10 +82,12 @@ function ViewModlog()
 			DELETE FROM {db_prefix}log_actions
 			WHERE id_log = {int:moderate_log}
 				AND id_action IN ({array_string:delete_actions})
-				AND action NOT LIKE {string:clearlog}',
+				AND action NOT LIKE {string:clearlog}
+				AND action NOT IN ({array_string:uneditable})',
 			array(
 				'delete_actions' => array_unique($_POST['delete']),
 				'moderate_log' => $context['log_type'],
+				'uneditable' => $context['uneditable_actions'],
 				'clearlog' => 'clearlog_%',
 			)
 		);
@@ -364,9 +371,12 @@ function list_getModLogEntryCount($query_string = '', $query_params = array(), $
  */
 function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '', $query_params = array(), $log_type = 1, $ignore_boards = false)
 {
-	global $scripturl, $txt, $smcFunc, $user_info;
+	global $scripturl, $txt, $smcFunc, $user_info, $context;
 
 	$modlog_query = allowedTo('admin_forum') || $user_info['mod_cache']['bq'] == '1=1' ? '1=1' : (($user_info['mod_cache']['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr($user_info['mod_cache']['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr($user_info['mod_cache']['bq'], array('id_board' => 't.id_board'))));
+
+	if (!isset($context['uneditable_actions']))
+		$context['uneditable_actions'] = array();
 
 	// Can they see the IP address?
 	$seeIP = allowedTo('moderate_forum');
@@ -483,7 +493,7 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 			'moderator_link' => $row['id_member'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? ($txt['guest'] . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
 			'time' => timeformat($row['log_time']),
 			'timestamp' => forum_time(true, $row['log_time']),
-			'editable' => substr($row['action'], 0, 8) !== 'clearlog',
+			'editable' => substr($row['action'], 0, 8) !== 'clearlog' && !in_array($row['action'], $context['uneditable_actions']),
 			'extra' => $row['extra'],
 			'action' => $row['action'],
 			'action_text' => isset($row['action_text']) ? $row['action_text'] : '',

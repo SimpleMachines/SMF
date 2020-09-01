@@ -740,6 +740,11 @@ function registerMember(&$regOptions, $return_errors = false)
 		);
 	}
 
+	// Log their acceptance of the agreement and privacy policy, for future reference.
+	foreach (array('agreement_accepted', 'policy_accepted') as $key)
+		if (!empty($theme_vars[$key]))
+			logAction($key, array('member_affected' => $memberID, 'applicator' => $memberID), 'user');
+
 	// If it's enabled, increase the registrations for today.
 	trackStats(array('registers' => '+'));
 

@@ -534,6 +534,10 @@ $txt['trackEdit_action_email_address'] = 'Email address';
 $txt['trackEdit_action_id_group'] = 'Primary Membergroup';
 $txt['trackEdit_action_additional_groups'] = 'Additional Membergroups';
 
+// Registration Agreement
+$txt['trackEdit_action_agreement_accepted'] = 'Accepted the registration agreement';
+$txt['trackEdit_action_policy_accepted'] = 'Accepted the privacy policy';
+
 $txt['trackGroupRequests'] = 'Group Requests';
 $txt['trackGroupRequests_title'] = 'Group Requests for %1$s';
 $txt['requested_group'] = 'Requested Group';

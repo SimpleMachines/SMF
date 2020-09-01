@@ -243,23 +243,7 @@ function smf_main()
 	);
 	call_integration_hook('integrate_pre_log_stats', array(&$no_stat_actions));
 
-	$should_log = true;
-	if (isset($_REQUEST['action']) && isset($no_stat_actions[$_REQUEST['action']]))
-	{
-		if (is_array($no_stat_actions[$_REQUEST['action']]))
-		{
-			foreach ($no_stat_actions[$_REQUEST['action']] as $subtype => $subnames)
-			{
-				if (isset($_REQUEST[$subtype]) && in_array($_REQUEST[$subtype], $subnames))
-				{
-					$should_log = false;
-					break;
-				}
-			}
-		}
-		else
-			$should_log = empty($no_stat_actions[$_REQUEST['action']]);
-	}
+	$should_log = !is_filtered_request($no_stat_actions, 'action');
 	if ($should_log)
 	{
 		// Log this user as online.
@@ -334,6 +318,8 @@ function smf_main()
 
 	// Here's the monstrous $_REQUEST['action'] array - $_REQUEST['action'] => array($file, $function).
 	$actionArray = array(
+		'agreement' => array('Agreement.php', 'Agreement'),
+		'acceptagreement' => array('Agreement.php', 'AcceptAgreement'),
 		'activate' => array('Register.php', 'Activate'),
 		'admin' => array('Admin.php', 'AdminMain'),
 		'announce' => array('Post.php', 'AnnounceTopic'),
