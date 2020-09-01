@@ -164,7 +164,7 @@ function Register($reg_errors = array())
 	}
 
 	// If you have to agree to the privacy policy, it needs to be loaded from the database.
-	if (!empty(!empty($modSettings['requirePolicyAgreement'])))
+	if (!empty($modSettings['requirePolicyAgreement']))
 	{
 		// Have we got a localized one?
 		if (!empty($modSettings['policy_' . $user_info['language']]))
