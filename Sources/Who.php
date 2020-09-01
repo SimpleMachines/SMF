@@ -596,7 +596,6 @@ function Credits($in_admin = false)
 					'members' => array(
 						'Michele "Illori" Davis',
 						// Former Project Managers
-						'Will "Kindred" Wagner',
 					),
 				),
 				array(
