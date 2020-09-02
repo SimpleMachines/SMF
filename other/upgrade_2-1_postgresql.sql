@@ -3615,7 +3615,7 @@ $request = upgrade_query("
 		AND action IN ('policy_accepted', 'agreement_accepted')");
 
 // Fortunately they're in the extra field
-while ($row = mysqli_fetch_assoc($request))
+while ($row = $smcFunc['db_fetch_assoc']($request))
 {
 	$extra = @unserialize($row['extra']);
 	if ($extra === false)
