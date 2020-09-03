@@ -425,11 +425,19 @@ function display_maintenance_message()
  */
 function display_db_error()
 {
-	global $mbname, $modSettings, $maintenance;
+	global $mbname, $modSettings, $maintenance, $smcFunc;
 	global $db_connection, $webmaster_email, $db_last_error, $db_error_send, $smcFunc, $sourcedir, $cache_enable;
 
 	require_once($sourcedir . '/Logging.php');
 	set_fatal_error_headers();
+
+	// Get error info...  Recast just in case we get false or 0...
+	$error_message = $smcFunc['db_connect_error']();
+	if (empty($error_message))
+		$error_message = '';
+	$error_number = $smcFunc['db_connect_errno']();
+	if (empty($error_number))
+		$error_number = '';
 
 	// For our purposes, we're gonna want this on if at all possible.
 	$cache_enable = '1';
@@ -458,8 +466,9 @@ function display_db_error()
 	</head>
 	<body>
 		<h3>Connection Problems</h3>
-		Sorry, SMF was unable to connect to the database.  This may be caused by the server being busy.  Please try again later.
-	</body>
+		Sorry, SMF was unable to connect to the database.  This may be caused by the server being busy.  Please try again later.<br><br>' .
+		(!empty($error_number) ? $error_number . ': ' : '') . $error_message . '<br>' .
+	'</body>
 </html>';
 
 	die();

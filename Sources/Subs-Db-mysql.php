@@ -64,6 +64,8 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_custom_order'			=> 'smf_db_custom_order',
 			'db_native_replace'			=> 'smf_db_native_replace',
 			'db_cte_support'			=> 'smf_db_cte_support',
+			'db_connect_error'			=> 'mysqli_connect_error',
+			'db_connect_errno'			=> 'mysqli_connect_errno',
 		);
 
 	if (!empty($db_options['persist']))
