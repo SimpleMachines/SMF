@@ -878,6 +878,15 @@ function DatabaseSettings()
 		// Still no connection?  Big fat error message :P.
 		if (!$db_connection)
 		{
+			// Get error info...  Recast just in case we get false or 0...
+			$error_message = $smcFunc['db_connect_error']();
+			if (empty($error_message))
+				$error_message = '';
+			$error_number = $smcFunc['db_connect_errno']();
+			if (empty($error_number))
+				$error_number = '';
+			$db_error = (!empty($error_number) ? $error_number . ': ' : '') . $error_message;
+
 			$incontext['error'] = $txt['error_db_connect'] . '<div class="error_content"><strong>' . $db_error . '</strong></div>';
 			return false;
 		}
