@@ -862,19 +862,6 @@ function DatabaseSettings()
 
 		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
 
-		// No dice?  Let's try adding the prefix they specified, just in case they misread the instructions ;)
-		if ($db_connection == null)
-		{
-			$db_error = @$smcFunc['db_error']();
-
-			$db_connection = smf_db_initiate($db_server, $db_name, $_POST['db_prefix'] . $db_user, $db_passwd, $db_prefix, $options);
-			if ($db_connection != null)
-			{
-				$db_user = $_POST['db_prefix'] . $db_user;
-				installer_updateSettingsFile(array('db_user' => $db_user));
-			}
-		}
-
 		// Still no connection?  Big fat error message :P.
 		if (!$db_connection)
 		{
