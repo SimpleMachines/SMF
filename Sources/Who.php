@@ -606,7 +606,6 @@ function Credits($in_admin = false)
 						// Developers
 						'Jessica "Suki" González',
 						'John "live627" Rayes',
-						'Jeremy "SleePy" Darwood',
 						'Shawn Bulen',
 
 						// Former Developers
@@ -640,12 +639,12 @@ function Credits($in_admin = false)
 						// Lead Support Specialist
 						'Aleksi "Lex" Kilpinen',
 						// Support Specialists
-						'br360',
-						'GigaWatt',
 						'Will "Kindred" Wagner',
 						'lurkalot',
 
 						// Former Support Specialists
+						'br360',
+						'GigaWatt',
 						'Steve',
 						'ziycon',
 						'Adam Tallon',
@@ -663,7 +662,6 @@ function Credits($in_admin = false)
 						'Krash',
 						'Mashby',
 						'Michael Colin Blaber',
-						'Michele "Illori" Davis',
 						'Old Fossil',
 						'S-Ace',
 						'Storman™',
@@ -675,13 +673,14 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
 						// Lead Customizer
-						'Sami "SychO" Mazouz',
-						// Customizers
 						'Gary M. Gadsdon',
+						// Customizers
 						'Diego Andrés',
 						'Jonathan "vbgamer45" Valentin',
+						'Mick.',
 
 						// Former Customizers
+						'Sami "SychO" Mazouz',
 						'Brannon "B" Hall',
 						'Jack "akabugeyes" Thorsen',
 						'Jason "JBlaze" Clemons',
@@ -714,6 +713,7 @@ function Credits($in_admin = false)
 						'Francisco "d3vcho" Domínguez',
 						// Localizers
 						'Nikola "Dzonny" Novaković',
+						'm4z',
 						// Former Localizers
 						'Robert Monden',
 						'Relyana',
