@@ -354,7 +354,7 @@ function template_add_language()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['add_language_found_title'], '</div>
-				<div class="information">', $txt['add_language_smf_found'], '
+				<div class="information">', $txt['add_language_smf_found'], '</div>
 			</div>';
 
 		template_show_list('smf_languages');
