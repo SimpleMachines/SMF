@@ -258,7 +258,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('loginHistoryDays', '30'),
-			array()
+			array('variable')
 		);
 ---}
 ---#
@@ -321,16 +321,26 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('securityDisable_moderate', '1'),
-			array()
+			array('variable')
 		);
 ---}
 ---#
 
 ---# Adding new profile data export settings
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_dir', '{$boarddir}/exports');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_expiry', '7');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_min_diskspace_pct', '5');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_rate', '250');
+---{
+	$inserts = array(
+		'export_dir' => '{$boarddir}/exports',
+		'export_expiry' => '7',
+		'export_min_diskspace_pct' => '5',
+		'export_rate' => '250'
+		);
+	$smcFunc['db_insert']('ignore',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		$inserts,
+		array('variable')
+	);
+---}
 ---#
 
 ---# Adding settings for marking boards as read
