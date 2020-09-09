@@ -43,11 +43,11 @@ function template_login()
 					<dl>
 						<dt>', $txt['username'], ':</dt>
 						<dd>
-							<input type="text" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', $context['default_username'], '">
+							<input type="text" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', $context['default_username'], '" required>
 						</dd>
 						<dt>', $txt['password'], ':</dt>
 						<dd>
-							<input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20">
+							<input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20" required>
 						</dd>
 					</dl>
 					<dl>
