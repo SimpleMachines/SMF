@@ -517,7 +517,7 @@ function template_admin_register()
 							<span class="smalltext">', $txt['admin_register_email_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="email" id="email_input" tabindex="', $context['tabindex']++, '" size="50">
+							<input type="email" name="email" id="email_input" tabindex="', $context['tabindex']++, '" size="50">
 						</dd>
 						<dt>
 							<strong><label for="password_input">', $txt['admin_register_password'], ':</label></strong>
