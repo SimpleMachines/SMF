@@ -456,12 +456,12 @@ function upgradeExit($fallThrough = false)
 // Load the list of language files, and the current language file.
 function load_lang_file()
 {
-	global $txt, $upcontext, $language, $modSettings;
+	global $txt, $upcontext, $language, $modSettings, $upgrade_path, $command_line;
 
 	static $lang_dir = '', $detected_languages = array(), $loaded_langfile = '';
 
 	// Do we know where to look for the language files, or shall we just guess for now?
-	$temp = isset($modSettings['theme_dir']) ? $modSettings['theme_dir'] . '/languages' : dirname(__FILE__) . '/Themes/default/languages';
+	$temp = isset($modSettings['theme_dir']) ? $modSettings['theme_dir'] . '/languages' : $upgrade_path . '/Themes/default/languages';
 
 	if ($lang_dir != $temp)
 	{
@@ -471,11 +471,20 @@ function load_lang_file()
 
 	// Override the language file?
 	if (isset($upcontext['language']))
+	{
 		$_SESSION['upgrader_langfile'] = 'Install.' . $upcontext['language'] . '.php';
+		$_SESSION['upgrader_langfile_index'] = 'index.' . $upcontext['language'] . '.php';
+	}
 	elseif (isset($upcontext['lang']))
+	{
 		$_SESSION['upgrader_langfile'] = 'Install.' . $upcontext['lang'] . '.php';
+		$_SESSION['upgrader_langfile_index'] = 'index.' . $upcontext['lang'] . '.php';
+	}
 	elseif (isset($language))
+	{
 		$_SESSION['upgrader_langfile'] = 'Install.' . $language . '.php';
+		$_SESSION['upgrader_langfile_index'] = 'index.' . $language . '.php';
+	}
 
 	// Avoid pointless repetition
 	if (isset($_SESSION['upgrader_langfile']) && $loaded_langfile == $lang_dir . '/' . $_SESSION['upgrader_langfile'])
@@ -517,7 +526,7 @@ function load_lang_file()
 	// Didn't find any, show an error message!
 	if (empty($detected_languages))
 	{
-		$from = explode('/', $_SERVER['PHP_SELF']);
+		$from = explode('/', $command_line ? $upgrade_path : $_SERVER['PHP_SELF']);
 		$to = explode('/', $lang_dir);
 		$relPath = $to;
 
@@ -539,6 +548,16 @@ function load_lang_file()
 			}
 		}
 		$relPath = implode(DIRECTORY_SEPARATOR, $relPath);
+
+		// Command line?
+		if ($command_line)
+		{
+			echo 'This upgrader was unable to find the upgrader\'s language file or files.  They should be found under:', "\n",
+				$relPath, "\n",
+				'In some cases, FTP clients do not properly upload files with this many folders. Please double check to make sure you have uploaded all the files in the distribution', "\n",
+				'If that doesn\'t help, please make sure this upgrade.php file is in the same place as the Themes folder.', "\n";
+			die;
+		}
 
 		// Let's not cache this message, eh?
 		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
@@ -588,9 +607,13 @@ function load_lang_file()
 
 	// For backup we load English at first, then the second language will overwrite it.
 	if ($_SESSION['upgrader_langfile'] != 'Install.english.php')
+	{
+		require_once($lang_dir . '/index.english.php');
 		require_once($lang_dir . '/Install.english.php');
+	}
 
 	// And now include the actual language file itself.
+	require_once($lang_dir . '/' . $_SESSION['upgrader_langfile_index']);
 	require_once($lang_dir . '/' . $_SESSION['upgrader_langfile']);
 
 	// Remember what we've done
@@ -757,7 +780,7 @@ function loadEssentialData()
 
 function initialize_inputs()
 {
-	global $start_time, $db_type;
+	global $start_time, $db_type, $upgrade_path;
 
 	$start_time = time();
 
@@ -790,20 +813,20 @@ function initialize_inputs()
 
 		// Legacy files while we're at it. NOTE: We only touch files we KNOW shouldn't be there.
 		// 1.1 Sources files not in 2.0+
-		@unlink(dirname(__FILE__) . '/Sources/ModSettings.php');
+		@unlink($upgrade_path . '/Sources/ModSettings.php');
 		// 1.1 Templates that don't exist any more (e.g. renamed)
-		@unlink(dirname(__FILE__) . '/Themes/default/Combat.template.php');
-		@unlink(dirname(__FILE__) . '/Themes/default/Modlog.template.php');
+		@unlink($upgrade_path . '/Themes/default/Combat.template.php');
+		@unlink($upgrade_path . '/Themes/default/Modlog.template.php');
 		// 1.1 JS files were stored in the main theme folder, but in 2.0+ are in the scripts/ folder
-		@unlink(dirname(__FILE__) . '/Themes/default/fader.js');
-		@unlink(dirname(__FILE__) . '/Themes/default/script.js');
-		@unlink(dirname(__FILE__) . '/Themes/default/spellcheck.js');
-		@unlink(dirname(__FILE__) . '/Themes/default/xml_board.js');
-		@unlink(dirname(__FILE__) . '/Themes/default/xml_topic.js');
+		@unlink($upgrade_path . '/Themes/default/fader.js');
+		@unlink($upgrade_path . '/Themes/default/script.js');
+		@unlink($upgrade_path . '/Themes/default/spellcheck.js');
+		@unlink($upgrade_path . '/Themes/default/xml_board.js');
+		@unlink($upgrade_path . '/Themes/default/xml_topic.js');
 
 		// 2.0 Sources files not in 2.1+
-		@unlink(dirname(__FILE__) . '/Sources/DumpDatabase.php');
-		@unlink(dirname(__FILE__) . '/Sources/LockTopic.php');
+		@unlink($upgrade_path . '/Sources/DumpDatabase.php');
+		@unlink($upgrade_path . '/Sources/LockTopic.php');
 
 		header('location: http://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
 		exit;
@@ -827,7 +850,7 @@ function initialize_inputs()
 function WelcomeLogin()
 {
 	global $boarddir, $sourcedir, $modSettings, $cachedir, $upgradeurl, $upcontext;
-	global $smcFunc, $db_type, $databases, $boardurl;
+	global $smcFunc, $db_type, $databases, $boardurl, $upgrade_path;
 
 	// We global $txt here so that the language files can add to them. This variable is NOT unused.
 	global $txt;
@@ -958,9 +981,9 @@ function WelcomeLogin()
 	}
 
 	// We're going to check that their board dir setting is right in case they've been moving stuff around.
-	if (strtr($boarddir, array('/' => '', '\\' => '')) != strtr(dirname(__FILE__), array('/' => '', '\\' => '')))
+	if (strtr($boarddir, array('/' => '', '\\' => '')) != strtr($upgrade_path, array('/' => '', '\\' => '')))
 		$upcontext['warning'] = '
-			' . sprintf($txt['upgrade_boarddir_settings'], $boarddir, dirname(__FILE__)) . '<br>
+			' . sprintf($txt['upgrade_boarddir_settings'], $boarddir, $upgrade_path) . '<br>
 			<ul>
 				<li>' . $txt['upgrade_boarddir'] . '  ' . $boarddir . '</li>
 				<li>' . $txt['upgrade_sourcedir'] . '  ' . $boarddir . '</li>
@@ -1411,10 +1434,15 @@ function UpgradeOptions()
 	// Update Settings.php with the new settings, and rebuild if they selected that option.
 	require_once($sourcedir . '/Subs.php');
 	require_once($sourcedir . '/Subs-Admin.php');
-	updateSettingsFile($changes, false, !empty($_POST['migrateSettings']));
+	$res = updateSettingsFile($changes, false, !empty($_POST['migrateSettings']));
 
-	if ($command_line)
+	if ($command_line && $res)
 		echo ' Successful.' . "\n";
+	elseif ($command_line && !$res)
+	{
+		echo ' FAILURE.' . "\n";
+		die;
+	}
 
 	// Are we doing debug?
 	if (isset($_POST['debug']))
@@ -2691,6 +2719,12 @@ function cmdStep0()
 			$is_debug = true;
 		elseif ($arg == '--backup')
 			$_POST['backup'] = 1;
+		elseif ($arg == '--rebuild-settings')
+			$_POST['migrateSettings'] = 1;
+		elseif ($arg == '--reset-auth')
+			$_POST['resetAuthSecret'] = 1;
+		elseif ($arg == '--allow-stats')
+			$_POST['stats'] = 1;
 		elseif ($arg == '--template' && (file_exists($boarddir . '/template.php') || file_exists($boarddir . '/template.html') && !file_exists($modSettings['theme_dir'] . '/converted')))
 			$_GET['conv'] = 1;
 		elseif ($i != 0)
@@ -2698,10 +2732,14 @@ function cmdStep0()
 			echo 'SMF Command-line Upgrader
 Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 
+	--path=/path/to/SMF     Specify custom SMF root directory.
 	--language=LANG         Reset the forum\'s language to LANG.
 	--no-maintenance        Don\'t put the forum into maintenance mode.
 	--debug                 Output debugging information.
-	--backup                Create backups of tables with "backup_" prefix.';
+	--backup                Create backups of tables with "backup_" prefix.
+	--allow-stats           Allow Simple Machines stat collection
+	--rebuild-settings		Rebuild the Settings.php file
+	--reset-auth			Reset the auth_secret';
 			echo "\n";
 			exit;
 		}
