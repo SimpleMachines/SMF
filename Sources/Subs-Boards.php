@@ -1219,9 +1219,9 @@ function getTreeOrder()
 
 	$request = $smcFunc['db_query']('', '
 		SELECT b.id_board, b.id_cat
-		FROM {db_prefix}boards AS b
-		ORDER BY b.board_order',
-		array()
+		FROM {db_prefix}categories AS c
+			JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
+		ORDER BY c.cat_order, b.board_order'
 	);
 
 	foreach ($smcFunc['db_fetch_all']($request) as $row)
