@@ -3865,7 +3865,7 @@ function get_auth_secret()
 			if (empty($db_last_error) || ($db_last_error + 60*15) <= time())
 			{
 				updateDbLastError(time());
-				loadLanguageErrors();
+				loadLanguage('Errors');
 				log_error($txt['secret_auth_missing'], 'critical');
 			}
 		}

@@ -2052,8 +2052,8 @@ function strip_php_comments($code_str, $line_ending = null)
  * - If it fails Settings.php will assume 0
  *
  * @param int $time The timestamp of the last DB error
- * @param bool If we should update the current db_last_error context as well.  This may be useful in cases where the current context needs to know a error was logged since the last check.
- * @return bool If we could succesfully put the file or not.
+ * @param bool True If we should update the current db_last_error context as well.  This may be useful in cases where the current context needs to know a error was logged since the last check.
+ * @return bool True If we could succesfully put the file or not.
  */
 function updateDbLastError($time, $update = true)
 {
