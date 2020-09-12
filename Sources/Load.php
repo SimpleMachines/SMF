@@ -3862,7 +3862,7 @@ function get_auth_secret()
 			$auth_secret = 'none';
 
 			// Set the last error to now, but only every 15 minutes.  Don't need to flood the logs.
-			if (empty($db_last_error) || ($db_last_error + 60*60*15) <= time())
+			if (empty($db_last_error) || ($db_last_error + 60*15) <= time())
 			{
 				updateDbLastError(time());
 				loadLanguageErrors();
