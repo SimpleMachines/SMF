@@ -2738,8 +2738,8 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	--debug                 Output debugging information.
 	--backup                Create backups of tables with "backup_" prefix.
 	--allow-stats           Allow Simple Machines stat collection
-	--rebuild-settings		Rebuild the Settings.php file
-	--reset-auth			Reset the auth_secret';
+	--rebuild-settings      Rebuild the Settings.php file
+	--reset-auth            Reset the auth_secret';
 			echo "\n";
 			exit;
 		}
