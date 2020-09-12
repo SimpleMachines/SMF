@@ -1173,6 +1173,7 @@ function UpgradeOptions()
 {
 	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir, $tasksdir, $language, $txt, $db_port;
 	global $boarddir, $boardurl, $sourcedir, $maintenance, $cachedir, $upcontext, $db_type, $db_server, $image_proxy_enabled;
+	global $auth_secret;
 
 	$upcontext['sub_template'] = 'upgrade_options';
 	$upcontext['page_title'] = $txt['upgrade_options'];
@@ -1185,6 +1186,8 @@ function UpgradeOptions()
 	$upcontext['karma_installed']['bad'] = in_array('karma_bad', $member_columns);
 
 	$upcontext['migrate_settings_recommended'] = empty($modSettings['smfVersion']) || version_compare(strtolower($modSettings['smfVersion']), substr(SMF_VERSION, 0, strpos(SMF_VERSION, '.') + 1 + strspn(SMF_VERSION, '1234567890', strpos(SMF_VERSION, '.') + 1)) . ' foo', '<');
+
+	$upcontext['auth_secret_update_recommended'] = empty($auth_secret);
 
 	unset($member_columns);
 
@@ -1400,6 +1403,10 @@ function UpgradeOptions()
 
 	// Ensure this doesn't get lost in translation.
 	$changes['upgradeData'] = base64_encode(json_encode($upcontext['user']));
+
+	// Update $auth_secret?
+	if (!empty($_POST['resetAuthSecret']))
+		$changes['auth_secret'] = bin2hex($smcFunc['random_bytes'](32));
 
 	// Update Settings.php with the new settings, and rebuild if they selected that option.
 	require_once($sourcedir . '/Subs.php');
@@ -4212,6 +4219,12 @@ function template_upgrade_options()
 						<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty($upcontext['migrate_settings_recommended']) ? '' : ' checked="checked"', '>
 						<label for="migrateSettings">
 							', $txt['upgrade_migrate_settings_file'], '
+						</label>
+					</li>
+					<li>
+						<input type="checkbox" name="resetAuthSecret" id="resetAuthSecret" value="1"', empty($upcontext['auth_secret_update_recommended']) ? '' : ' checked="checked"', '>
+						<label for="resetAuthSecret">
+							', $txt['upgrade_reset_auth_secret'], '
 						</label>
 					</li>
 				</ul>

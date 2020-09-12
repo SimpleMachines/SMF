@@ -3846,7 +3846,7 @@ function set_avatar_data($data = array())
  */
 function get_auth_secret()
 {
-	global $auth_secret, $sourcedir, $smcFunc;
+	global $context, $auth_secret, $sourcedir, $smcFunc, $db_last_error, $txt;
 
 	if (empty($auth_secret))
 	{
@@ -3854,8 +3854,23 @@ function get_auth_secret()
 
 		// It is important to store this in Settings.php, not the database.
 		require_once($sourcedir . '/Subs-Admin.php');
-		updateSettingsFile(array('auth_secret' => $auth_secret));
+
+		// Did this fail?  If so, we should alert, log and set a static value.
+		if (!updateSettingsFile(array('auth_secret' => $auth_secret)))
+		{
+			$context['auth_secret_missing'] = true;
+			$auth_secret = 'none';
+
+			// Set the last error to now, but only every 15 minutes.  Don't need to flood the logs.
+			if (empty($db_last_error) || ($db_last_error + 60*60*15) <= time())
+			{
+				updateDbLastError(time());
+				loadLanguageErrors();
+				log_error($txt['secret_auth_missing'], 'critical');
+			}
+		}
 	}
+
 
 	return $auth_secret;
 }
