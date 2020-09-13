@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -330,9 +330,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Special queries that need processing.
 	$replacements = array(
-		'get_random_number' => array(
-			'~RAND~' => 'RANDOM',
-		),
 		'insert_log_search_topics' => array(
 			'~NOT RLIKE~' => '!~',
 		),

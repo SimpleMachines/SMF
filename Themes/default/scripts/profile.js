@@ -294,3 +294,31 @@ function changeVariant(iThemeId, el)
 	document.getElementById('theme_thumb_preview_' + iThemeId).href = el.form.action + ';theme=' + iThemeId + ';variant=' + el.value;
 	document.getElementById('theme_preview_' + iThemeId).href = el.form.action + ';theme=' + iThemeId + ';variant=' + el.value;
 }
+
+$(document).on('change', '#export_format_select', function() {
+	var selected_format = $('#export_format_select').val();
+	if (completed_formats.indexOf(selected_format) > -1)
+	{
+		$('#export_begin').hide();
+		$('#export_begin input').prop('disabled', true);
+		$('#export_restart').show();
+		$('#export_restart input').prop('disabled', false);
+	} else {
+		$('#export_begin').show();
+		$('#export_begin input').prop('disabled', false);
+		$('#export_restart').hide();
+		$('#export_restart input').prop('disabled', true);
+	}
+});
+
+$(document).ready(function() {
+	$(".export_download_all").show();
+});
+
+function export_download_all(format)
+{
+	var export_file_links = $('#' + format + '_export_files a');
+
+	for (var i = 0; i < export_file_links.length; i++)
+		export_file_links[i].click();
+}

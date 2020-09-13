@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; Errors
+// Version: 2.1 RC3; Errors
 
 global $scripturl, $modSettings;
 
@@ -13,7 +13,6 @@ $txt['topic_locked'] = 'This topic is locked, you are not allowed to post or mod
 $txt['no_password'] = 'Password field empty';
 $txt['already_a_user'] = 'The username you tried to use already exists.';
 $txt['cant_move'] = 'You are not allowed to move topics.';
-$txt['login_to_post'] = 'To post you must be logged in. If you don\'t have an account yet, please <a href="' . $scripturl . '?action=signup">sign up</a>.';
 $txt['passwords_dont_match'] = 'Passwords aren\'t the same.';
 $txt['register_to_use'] = 'Sorry, you must sign up before using this feature.';
 $txt['password_invalid_character'] = 'Invalid character used in password.';
@@ -29,6 +28,7 @@ $txt['avatars_no_write'] = 'The avatars directory is not writable';
 $txt['attachment_not_created'] = 'The attachment could not be created';
 $txt['export_dir_not_writable'] = 'The export directory is not writable';
 $txt['export_dir_forced_change'] = '%1$s is not writable. Retrying at %2$s';
+$txt['export_low_diskspace'] = 'Insufficient disk space to continue member profile export. Current minimum disk space is set to %1$d%%. The export process will automatically attempt to resume tomorrow.';
 
 $txt['didnt_select_vote'] = 'You didn\'t select a vote option.';
 $txt['poll_error'] = 'Either that poll doesn\'t exist, the poll has been locked, or you tried to vote twice.';
@@ -344,7 +344,8 @@ $txt['profile_error_bad_avatar_invalid_url'] = 'The URL you specified is invalid
 $txt['profile_error_bad_avatar_url_too_long'] = 'The avatar URL you specified is too long, please use a shorter URL.';
 $txt['profile_error_bad_avatar_too_large'] = 'The image you are trying to use surpasses the max width/height settings, please use a smaller one.';
 $txt['profile_error_bad_avatar_fail_reencode'] = 'The image you uploaded was corrupted and the attempt to recover it failed.';
-$txt['profile_error_password_short'] = 'Your password must be at least ' . (empty($modSettings['password_strength']) ? 4 : 8) . ' characters long.';
+// argument(s): the minimum length of user passwords as stored in the settings
+$txt['profile_error_password_short'] = 'Your password must be at least %1$s characters long.';
 $txt['profile_error_password_restricted_words'] = 'Your password must not contain your username, email address or other commonly used words.';
 $txt['profile_error_password_chars'] = 'Your password must contain a mix of upper and lower case letters, as well as digits.';
 $txt['profile_error_already_requested_group'] = 'You already have an outstanding request for this group!';
@@ -426,6 +427,13 @@ $txt['email_no_template'] = 'The email template &quot;%1$s&quot; could not be fo
 $txt['search_api_missing'] = 'The search API could not be found. Please contact the admin to check they have uploaded the correct files.';
 $txt['search_api_not_compatible'] = 'The selected search API the forum is using is out of date - falling back to standard search. Please check file %1$s.';
 
+// Registration Agreement
+$txt['error_no_agreement'] = 'There is no registration agreement to display!';
+$txt['error_no_privacy_policy'] = 'A privacy policy has not been created for this forum.';
+
+// Unsubscribe
+$txt['unsubscribe_invalid'] = 'The unsubscribe link that brought you here does not appear to be valid.';
+
 // Handling hook calls
 $txt['hook_fail_loading_file'] = 'Hook call: The file at path: %s could not be loaded.';
 $txt['hook_fail_call_to'] = 'Hook call: function "%1$s" in file %2$s could not be called.';
@@ -455,8 +463,5 @@ $txt['json_JSON_ERROR_RECURSION'] = 'JSON decode error: One or more recursive re
 $txt['json_JSON_ERROR_INF_OR_NAN'] = 'JSON decode error: One or more NAN or INF values in the value to be encoded';
 $txt['json_JSON_ERROR_UNSUPPORTED_TYPE'] = 'JSON decode error: A value of a type that cannot be encoded was given';
 $txt['json_unknown'] = 'Unknown error';
-
-// Unsubscribe
-$txt['unsubscribe_invalid'] = 'The unsubscribe link that brought you here does not appear to be valid.';
 
 ?>

@@ -8,7 +8,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 // Don't do anything if SMF is already loaded.
@@ -16,7 +16,7 @@ if (defined('SMF'))
 	return true;
 
 define('SMF', 'SSI');
-define('SMF_VERSION', '2.1 RC2');
+define('SMF_VERSION', '2.1 RC3');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2020');
 define('JQUERY_VERSION', '3.5.1');
@@ -313,12 +313,12 @@ function ssi_software_year($output_method = 'echo')
  */
 function ssi_copyright($output_method = 'echo')
 {
-	global $forum_copyright;
+	global $forum_copyright, $scripturl;
 
 	if ($output_method == 'echo')
-		printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR);
+		printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl);
 	else
-		return sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR);
+		return sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl);
 }
 
 /**

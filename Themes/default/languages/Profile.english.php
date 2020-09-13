@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; Profile
+// Version: 2.1 RC3; Profile
 
 global $scripturl, $context;
 
@@ -77,7 +77,6 @@ $txt['secret_ask'] = 'Ask me my question';
 $txt['cant_retrieve'] = 'You can\'t retrieve your password, but you can set a new one by following a link sent to you by email. You also have the option of setting a new password by answering your secret question.';
 $txt['incorrect_answer'] = 'Sorry, but you did not specify a valid combination of Secret Question and Answer in your profile. Please click on the back button, and use the default method of obtaining your password.';
 $txt['enter_new_password'] = 'Please enter the answer to your question, and the password you would like to use. Your password will be changed to the one you select provided you answer the question correctly.';
-$txt['password_success'] = 'Your password was changed successfully.<br>Click <a href="' . $scripturl . '?action=login">here</a> to login.';
 $txt['secret_why_blank'] = 'why is this blank?';
 
 $txt['authentication_reminder'] = 'Authentication Reminder';
@@ -234,7 +233,8 @@ $txt['trackIP'] = 'IP Address';
 $txt['trackLogins'] = 'Logins';
 
 $txt['account_info'] = 'These are your account settings. This page holds all critical information that identifies you on this forum. For security reasons, you will need to enter your (current) password to make changes to this information.';
-$txt['forumProfile_info'] = 'You can change your personal information on this page. This information will be displayed throughout ' . $context['forum_name_html_safe'] . '. If you aren\'t comfortable with sharing some information, simply skip it - nothing here is required.';
+// argument(s): forum name
+$txt['forumProfile_info'] = 'You can change your personal information on this page. This information will be displayed throughout %1$s. If you aren\'t comfortable with sharing some information, simply skip it - nothing here is required.';
 $txt['theme_info'] = 'This section allows you to customize the look and layout of the forum.';
 $txt['notification'] = 'Notifications';
 $txt['notification_info'] = 'SMF allows you to be notified of replies to posts, newly posted topics, and forum announcements. You can change those settings here, or oversee the topics and boards you are currently receiving notifications for.';
@@ -284,13 +284,12 @@ $txt['avatar_max_size_h'] = 'Max size: %2$spx high';
 // Use numeric entities in the below three strings.
 $txt['no_reminder_email'] = 'Unable to send reminder email.';
 $txt['send_email'] = 'Send an email to';
+$txt['webmaster'] = 'webmaster';
 $txt['to_ask_password'] = 'to ask for your authentication details';
 
 $txt['user_email'] = 'Username/Email';
 
 // Use numeric entities in the below two strings.
-$txt['reminder_subject'] = 'New password for ' . $context['forum_name'];
-$txt['reminder_mail'] = 'This mail was sent because the \'forgot password\' function has been applied to your account. To set a new password, click the following link';
 $txt['reminder_sent'] = 'A mail has been sent to your email address. Click the link in that mail to set a new password.';
 $txt['reminder_set_password'] = 'Set Password';
 $txt['reminder_password_set'] = 'Password successfully set';
@@ -465,8 +464,10 @@ $txt['profile_warning_notify_subject'] = 'Notification Subject';
 $txt['profile_warning_notify_body'] = 'Notification Message';
 $txt['profile_warning_notify_template_subject'] = 'You have received a warning';
 // Use numeric entities in below string.
-$txt['profile_warning_notify_template_outline'] = '{MEMBER},' . "\n\n" . 'You have received a warning for %1$s. Please cease these activities and abide by the forum rules otherwise we will take further action.' . "\n\n" . '{REGARDS}';
-$txt['profile_warning_notify_template_outline_post'] = '{MEMBER},' . "\n\n" . 'You have received a warning for %1$s in regards to the message:' . "\n" . '{MESSAGE}.' . "\n\n" . 'Please cease these activities and abide by the forum rules otherwise we will take further action.' . "\n\n" . '{REGARDS}';
+// argument(s): one of the reasons defined in $txt['profile_warning_notify_for_*']
+$txt['profile_warning_notify_template_outline'] = "{MEMBER},\n\nYou have received a warning for %1\$s. Please cease these activities and abide by the forum rules otherwise we will take further action.\n\n{REGARDS}";
+// argument(s): one of the reasons defined in $txt['profile_warning_notify_for_*']
+$txt['profile_warning_notify_template_outline_post'] = "{MEMBER},\n\nYou have received a warning for %1\$s in regards to the message:\n{MESSAGE}.\n\nPlease cease these activities and abide by the forum rules otherwise we will take further action.\n\n{REGARDS}";
 $txt['profile_warning_notify_for_spamming'] = 'spamming';
 $txt['profile_warning_notify_title_spamming'] = 'Spamming';
 $txt['profile_warning_notify_for_offence'] = 'posting offensive material';
@@ -533,6 +534,10 @@ $txt['trackEdit_action_email_address'] = 'Email address';
 $txt['trackEdit_action_id_group'] = 'Primary Membergroup';
 $txt['trackEdit_action_additional_groups'] = 'Additional Membergroups';
 
+// Registration Agreement
+$txt['trackEdit_action_agreement_accepted'] = 'Accepted the registration agreement';
+$txt['trackEdit_action_policy_accepted'] = 'Accepted the privacy policy';
+
 $txt['trackGroupRequests'] = 'Group Requests';
 $txt['trackGroupRequests_title'] = 'Group Requests for %1$s';
 $txt['requested_group'] = 'Requested Group';
@@ -589,15 +594,24 @@ $txt['export_profile_data_desc'] = 'This section allows you to export a copy of 
 $txt['export_profile_data_desc_list'] = array('It may take some time for the system to finish compiling your data.', 'A download link will appear on this page once the export process is complete.', 'expiry' => 'Old export files are deleted after %1$d days.');
 $txt['active_exports'] = 'Exports currently in progress';
 $txt['completed_exports'] = 'Completed exports';
+$txt['export_outdated_warning'] = 'This export is out of date. It is missing your most recent data of the following types:';
+$txt['export_file_count'] = '%1$d files.';
+$txt['export_download_all'] = 'Download all';
 $txt['export_settings'] = 'Export settings';
-$txt['export_include_profile'] = 'Include basic profile data';
 $txt['export_include_posts'] = 'Include posts';
 $txt['export_include_personal_messages'] = 'Include personal messages';
 $txt['export_format'] = 'File format for exported data';
+$txt['export_format_desc'] = 'File format for exported data';
+$txt['export_format_xml_xslt'] = 'Styled XML (human and machine friendly)';
+$txt['export_format_html'] = 'HTML (human friendly)';
+$txt['export_format_xml'] = 'XML (machine friendly)';
 $txt['export_begin'] = 'Begin export';
 $txt['export_restart'] = 'Restart export';
 $txt['export_restart_confirm'] = 'This will delete the current profile export and start over using the new settings. Are you sure you want to do this?';
 $txt['export_cancel'] = 'Cancel';
 $txt['export_file_desc'] = 'Included data: %1$s. File format: %2$s.';
+$txt['export_download_original'] = 'Download original';
+$txt['export_view_source_button'] = 'Toggle source view';
+$txt['export_open_in_browser'] = 'Please open this file in a web browser to see a human readable version.';
 
 ?>

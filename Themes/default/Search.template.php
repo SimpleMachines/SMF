@@ -7,7 +7,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -276,6 +276,24 @@ function template_results()
 
 	if ($context['compact'])
 	{
+		echo '
+	<form id="new_search" name="new_search" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
+		<input type="hidden" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40">
+		<input type="hidden" name="searchtype" value="', !empty($context['search_params']['searchtype']) ? $context['search_params']['searchtype'] : 0, '">
+		<input type="hidden" name="userspec" value="', !empty($context['search_params']['userspec']) ? $context['search_params']['userspec'] : '', '">
+		<input type="hidden" name="show_complete" value="', !empty($context['search_params']['show_complete']) ? 1 : 0, '">
+		<input type="hidden" name="subject_only" value="', !empty($context['search_params']['subject_only']) ? 1 : 0, '">
+		<input type="hidden" name="minage" value="', !empty($context['search_params']['minage']) ? $context['search_params']['minage'] : '0', '">
+		<input type="hidden" name="maxage" value="', !empty($context['search_params']['maxage']) ? $context['search_params']['maxage'] : '9999', '">';
+
+		if (!empty($context['search_params']['brd']))
+			foreach ($context['search_params']['brd'] as $board_id)
+				echo '
+		<input type="hidden" name="brd[', $board_id, ']" value="', $board_id, '">';
+
+		echo '
+	</form>';
+
 		// Quick moderation set to checkboxes? Oh, how fun :/
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
 			echo '
@@ -300,6 +318,13 @@ function template_results()
 			echo '
 		<div class="pagesection">
 			<span>', $context['page_index'], '</span>
+			<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()">
+				<option value="relevance|desc">', $txt['search_orderby_relevant_first'], '</option>
+				<option value="num_replies|desc"', $context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', $txt['search_orderby_large_first'], '</option>
+				<option value="num_replies|asc"', $context['current_sorting'] == 'num_replies|asc' ? ' selected' : '', '>', $txt['search_orderby_small_first'], '</option>
+				<option value="id_msg|desc"', $context['current_sorting'] == 'id_msg|desc' ? ' selected' : '', '>', $txt['search_orderby_recent_first'], '</option>
+				<option value="id_msg|asc"', $context['current_sorting'] == 'id_msg|asc' ? ' selected' : '', '>', $txt['search_orderby_old_first'], '</option>
+			</select>
 		</div>';
 
 		else
@@ -363,7 +388,7 @@ function template_results()
 
 				if ($message['body_highlighted'] != '')
 					echo '
-				<div class="list_posts double_height">', $message['body_highlighted'], '</div>';
+				<div class="list_posts double_height word_break">', $message['body_highlighted'], '</div>';
 			}
 
 			echo '

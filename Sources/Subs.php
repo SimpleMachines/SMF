@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -1483,6 +1483,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					// No image. Show a link.
 					else
 						$returnContext .= '<a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a>';
+
+					// Use this hook to adjust the HTML output of the attach BBCode.
+					// If you want to work with the attachment data itself, use one of these:
+					// - integrate_pre_parseAttachBBC
+					// - integrate_post_parseAttachBBC
+					call_integration_hook('integrate_attach_bbc_validate', array(&$returnContext, $currentAttachment, $tag, $data, $disabled, $params));
 
 					// Gotta append what we just did.
 					$data = $returnContext;
@@ -3679,7 +3685,7 @@ function setupThemeContext($forceload = false)
 		$context['user']['popup_messages'] = false;
 
 		if (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1)
-			$txt['welcome_guest'] .= $txt['welcome_guest_activate'];
+			$txt['welcome_guest'] .= sprintf($txt['welcome_guest_activate'], $scripturl);
 
 		// If we've upgraded recently, go easy on the passwords.
 		if (!empty($modSettings['disableHashTime']) && ($modSettings['disableHashTime'] == 1 || time() < $modSettings['disableHashTime']))
@@ -3973,14 +3979,14 @@ function template_header()
  */
 function theme_copyright()
 {
-	global $forum_copyright;
+	global $forum_copyright, $scripturl;
 
 	// Don't display copyright for things like SSI.
 	if (SMF !== 1)
 		return;
 
 	// Put in the version...
-	printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR);
+	printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl);
 }
 
 /**
@@ -4150,7 +4156,7 @@ function template_css()
 	$toMinify = array();
 	$normal = array();
 
-	usort($context['css_files'], function ($a, $b)
+	uasort($context['css_files'], function ($a, $b)
 	{
 		return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
 	});
@@ -7233,65 +7239,152 @@ function sentence_list($list)
  */
 function truncate_array($array, $max_length = 1900, $deep = 3)
 {
-    $array = (array) $array;
+	$array = (array) $array;
 
-    $curr_length = array_length($array, $deep);
+	$curr_length = array_length($array, $deep);
 
-    if ($curr_length <= $max_length)
-        return $array;
+	if ($curr_length <= $max_length)
+		return $array;
 
-    else
-    {
-        // Truncate each element's value to a reasonable length
-        $param_max = floor($max_length / count($array));
+	else
+	{
+		// Truncate each element's value to a reasonable length
+		$param_max = floor($max_length / count($array));
 
-        $current_deep = $deep - 1;
+		$current_deep = $deep - 1;
 
-        foreach ($array as $key => &$value)
-        {
-            if (is_array($value))
-                if ($current_deep > 0)
-                    $value = truncate_array($value, $current_deep);
+		foreach ($array as $key => &$value)
+		{
+			if (is_array($value))
+				if ($current_deep > 0)
+					$value = truncate_array($value, $current_deep);
 
-            else
-                $value = substr($value, 0, $param_max - strlen($key) - 5);
-        }
+			else
+				$value = substr($value, 0, $param_max - strlen($key) - 5);
+		}
 
-        return $array;
-    }
+		return $array;
+	}
 }
 
 /**
  * array_length Recursive
- * @param $array
+ * @param array $array
  * @param int $deep How many levels should the function
  * @return int
  */
 function array_length($array, $deep = 3)
 {
-    // Work with arrays
-    $array = (array) $array;
-    $length = 0;
+	// Work with arrays
+	$array = (array) $array;
+	$length = 0;
 
-    $deep_count = $deep - 1;
+	$deep_count = $deep - 1;
 
-    foreach ($array as $value)
-    {
-        // Recursive?
-        if (is_array($value))
-        {
-            // No can't do
-            if ($deep_count <= 0)
-                continue;
+	foreach ($array as $value)
+	{
+		// Recursive?
+		if (is_array($value))
+		{
+			// No can't do
+			if ($deep_count <= 0)
+				continue;
 
-            $length += array_length($value, $deep_count);
-        }
+			$length += array_length($value, $deep_count);
+		}
+		else
+			$length += strlen($value);
+	}
 
-        else
-            $length += strlen($value);
-    }
+	return $length;
+}
 
-    return $length;
+/**
+ * Compares existance request variables against an array.
+ *
+ * The input array is associative, where keys denote accepted values
+ * in a request variable denoted by `$req_val`. Values can be:
+ *
+ * - another associative array where at least one key must be found
+ *   in the request and their values are accepted request values.
+ * - A scalar value, in which case no furthur checks are done.
+ *
+ * @param array $array
+ * @param string $req_var request variable
+ *
+ * @return bool whether any of the criteria was satisfied
+ */
+function is_filtered_request(array $array, $req_var)
+{
+	$matched = false;
+	if (isset($_REQUEST[$req_var], $array[$_REQUEST[$req_var]]))
+	{
+		if (is_array($array[$_REQUEST[$req_var]]))
+		{
+			foreach ($array[$_REQUEST[$req_var]] as $subtype => $subnames)
+				$matched |= isset($_REQUEST[$subtype]) && in_array($_REQUEST[$subtype], $subnames);
+		}
+		else
+			$matched = true;
+	}
+
+	return (bool) $matched;
+}
+
+/**
+ * Clean up the XML to make sure it doesn't contain invalid characters.
+ *
+ * See https://www.w3.org/TR/xml/#charsets
+ *
+ * @param string $string The string to clean
+ * @return string The cleaned string
+ */
+function cleanXml($string)
+{
+	global $context;
+
+	$illegal_chars = array(
+		// Remove all ASCII control characters except \t, \n, and \r.
+		"\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08",
+		"\x0B", "\x0C", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13", "\x14",
+		"\x15", "\x16", "\x17", "\x18", "\x19", "\x1A", "\x1B", "\x1C", "\x1D",
+		"\x1E", "\x1F",
+		// Remove \xFFFE and \xFFFF
+		"\xEF\xBF\xBE", "\xEF\xBF\xBF",
+	);
+
+	$string = str_replace($illegal_chars, '', $string);
+
+	// The Unicode surrogate pair code points should never be present in our
+	// strings to begin with, but if any snuck in, they need to be removed.
+	if (!empty($context['utf8']) && strpos($string, "\xED") !== false)
+		$string = preg_replace('/\xED[\xA0-\xBF][\x80-\xBF]/', '', $string);
+
+	return $string;
+}
+
+/**
+ * Escapes (replaces) characters in strings to make them safe for use in javascript
+ *
+ * @param string $string The string to escape
+ * @return string The escaped string
+ */
+function JavaScriptEscape($string)
+{
+	global $scripturl;
+
+	return '\'' . strtr($string, array(
+		"\r" => '',
+		"\n" => '\\n',
+		"\t" => '\\t',
+		'\\' => '\\\\',
+		'\'' => '\\\'',
+		'</' => '<\' + \'/',
+		'<script' => '<scri\'+\'pt',
+		'<body>' => '<bo\'+\'dy>',
+		'<a href' => '<a hr\'+\'ef',
+		$scripturl => '\' + smf_scripturl + \'',
+	)) . '\'';
 }
 
 ?>

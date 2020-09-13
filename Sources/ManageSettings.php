@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -48,12 +48,13 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = nu
  */
 function ModifyFeatureSettings()
 {
-	global $context, $txt, $settings;
+	global $context, $txt, $settings, $scripturl, $modSettings, $language;
 
 	loadLanguage('Help');
 	loadLanguage('ManageSettings');
 
 	$context['page_title'] = $txt['modSettings_title'];
+	$context['show_privacy_policy_warning'] = empty($modSettings['policy_' . $language]);
 
 	$subActions = array(
 		'basic' => 'ModifyBasicSettings',
@@ -71,7 +72,7 @@ function ModifyFeatureSettings()
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['modSettings_title'],
 		'help' => 'featuresettings',
-		'description' => sprintf($txt['modSettings_desc'], $settings['theme_id'], $context['session_id'], $context['session_var']),
+		'description' => sprintf($txt['modSettings_desc'], $settings['theme_id'], $context['session_id'], $context['session_var'], $scripturl),
 		'tabs' => array(
 			'basic' => array(
 			),
@@ -343,7 +344,7 @@ function ModifyBBCSettings($return_config = false)
 	$extra = '';
 	if (isset($_REQUEST['cowsay']))
 	{
-		$config_vars[] = array('permissions', 'bbc_cowsay', 'text_label' => sprintf($txt['groups_can_use'], 'cowsay'));
+		$config_vars[] = array('permissions', 'bbc_cowsay', 'text_label' => sprintf($txt['groups_can_use'], '[cowsay]'));
 		$extra = ';cowsay';
 	}
 
@@ -1359,7 +1360,7 @@ function ModifySignatureSettings($return_config = false)
 		);
 	else
 		$context['settings_message'] = array(
-			'label' => sprintf($txt['signature_settings_warning'], $context['session_id'], $context['session_var']),
+			'label' => sprintf($txt['signature_settings_warning'], $context['session_id'], $context['session_var'], $scripturl),
 			'tag' => 'div',
 			'class' => 'centertext'
 		);

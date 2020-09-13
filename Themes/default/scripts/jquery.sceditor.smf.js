@@ -6,7 +6,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 (function ($) {
@@ -184,8 +184,8 @@
 			 * Only resize the text areas instead.
 			 */
 			document.querySelector(".sceditor-container").removeAttribute("style");
-			instance.getContentAreaContainer().style.minHeight = options.height;
-			document.querySelector(".sceditor-container textarea").style.minHeight = options.height;
+			document.querySelector(".sceditor-container textarea").style.height = options.height;
+			document.querySelector(".sceditor-container textarea").style.flexBasis = options.height;
 
 			isPatched = true;
 		}
@@ -204,10 +204,10 @@ sceditor.command.set(
 	'email', {
 		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('@') > -1 ? null : selected,
-				email	= prompt(this._("Enter the e-mail address:"), (display ? '' : selected));
+				email = prompt(this._("Enter the e-mail address:"), (display ? '' : selected));
 			if (email)
 			{
-				var text	= prompt(this._("Enter the displayed text:"), display || email) || email;
+				var text = prompt(this._("Enter the displayed text:"), display || email) || email;
 				this.insertText("[email=" + email + "]" + text + "[/email]");
 			}
 		}
@@ -217,10 +217,10 @@ sceditor.command.set(
 	'link', {
 		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('http://') > -1 ? null : selected,
-				url	= prompt(this._("Enter URL:"), (display ? 'http://' : selected));
+				url = prompt(this._("Enter URL:"), (display ? 'http://' : selected));
 			if (url)
 			{
-				var text	= prompt(this._("Enter the displayed text:"), display || url) || url;
+				var text = prompt(this._("Enter the displayed text:"), display || url) || url;
 				this.insertText("[url=\"" + url + "\"]" + text + "[/url]");
 			}
 		},
@@ -311,6 +311,18 @@ sceditor.command.set(
 		exec: function () {
 			this.wysiwygEditorInsertHtml('<div class="floatright">', '</div>');
 		}
+	}
+);
+
+sceditor.command.set(
+	'maximize', {
+		shortcut: ''
+	}
+);
+
+sceditor.command.set(
+	'source', {
+		shortcut: ''
 	}
 );
 

@@ -142,6 +142,9 @@ fieldset legend {
 	box-shadow: none;
 	border: none;
 }
+summary {
+	margin: 5px 0;
+}
 
 /* Define strong as bold, and em as italics */
 /* Note: in some particular places, strong has been redefined as font-weight: 600; */

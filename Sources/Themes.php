@@ -27,7 +27,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -1089,7 +1089,7 @@ function PickTheme()
 			$txt['theme_description'] = '';
 		}
 
-		$context['available_themes'][$id_theme]['thumbnail_href'] = $txt['theme_thumbnail_href'];
+		$context['available_themes'][$id_theme]['thumbnail_href'] = sprintf($txt['theme_thumbnail_href'], $settings['images_url']);
 		$context['available_themes'][$id_theme]['description'] = $txt['theme_description'];
 
 		// Are there any variants?

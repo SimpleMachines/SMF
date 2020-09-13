@@ -8,7 +8,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -72,10 +72,13 @@ class memcache_cache extends cache_api
 			}
 
 			// Don't wait too long: yes, we want the server, but we might be able to run the query faster!
-			if (empty($db_persist))
-				$connected = @$this->memcache->connect($host, $port);
-			else
-				$connected = @$this->memcache->pconnect($host, $port);
+			if (function_exists('memcache_get_server_status') && function_exists('memcache_connect') && @fsockopen($host, $port))
+			{
+				if (empty($db_persist))
+					$connected = $this->memcache->connect($host, $port);
+				else
+					$connected = $this->memcache->pconnect($host, $port);
+			}
 		}
 
 		return $connected;

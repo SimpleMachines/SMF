@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -30,7 +30,6 @@ function ShowHelp()
 
 	$subActions = array(
 		'index' => 'HelpIndex',
-		'rules' => 'HelpRules',
 	);
 
 	// CRUD $subActions as needed.
@@ -79,44 +78,6 @@ function HelpIndex()
 }
 
 /**
- * Displays forum rules
- */
-function HelpRules()
-{
-	global $context, $txt, $boarddir, $user_info, $scripturl;
-
-	// Build the link tree.
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=help',
-		'name' => $txt['help'],
-	);
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=help;sa=rules',
-		'name' => $txt['terms_and_rules'],
-	);
-
-	// Have we got a localized one?
-	if (file_exists($boarddir . '/agreement.' . $user_info['language'] . '.txt'))
-		$context['agreement'] = parse_bbc(file_get_contents($boarddir . '/agreement.' . $user_info['language'] . '.txt'), true, 'agreement_' . $user_info['language']);
-	elseif (file_exists($boarddir . '/agreement.txt'))
-		$context['agreement'] = parse_bbc(file_get_contents($boarddir . '/agreement.txt'), true, 'agreement');
-	else
-		$context['agreement'] = '';
-
-	// Nothing to show, so let's get out of here
-	if (empty($context['agreement']))
-	{
-		// No file found or a blank file! Just leave...
-		redirectexit();
-	}
-
-	$context['canonical_url'] = $scripturl . '?action=help;sa=rules';
-
-	$context['page_title'] = $txt['terms_and_rules'];
-	$context['sub_template'] = 'terms';
-}
-
-/**
  * Show some of the more detailed help to give the admin an idea...
  * It shows a popup for administrative or user help.
  * It uses the help parameter to decide what string to display and where to get
@@ -128,7 +89,7 @@ function HelpRules()
  */
 function ShowAdminHelp()
 {
-	global $txt, $helptxt, $context, $scripturl;
+	global $txt, $helptxt, $context, $scripturl, $boarddir, $boardurl;
 
 	if (!isset($_GET['help']) || !is_string($_GET['help']))
 		fatal_lang_error('no_access', false);
@@ -162,6 +123,24 @@ function ShowAdminHelp()
 		$context['help_text'] = $txt[$_GET['help']];
 	else
 		$context['help_text'] = $_GET['help'];
+
+	switch ($_GET['help']) {
+		case 'cal_short_months':
+			$context['help_text'] = sprintf($context['help_text'], $txt['months_short'][1], $txt['months_titles'][1]);
+			break;
+		case 'cal_short_days':
+			$context['help_text'] = sprintf($context['help_text'], $txt['days_short'][1], $txt['days'][1]);
+			break;
+		case 'cron_is_real_cron':
+			$context['help_text'] = sprintf($context['help_text'], $boarddir, $boardurl);
+			break;
+		case 'enableSpellChecking':
+			$context['help_text'] = sprintf($context['help_text'], ((function_exists('pspell_new') || function_exists('enchant_broker_init')) ? $helptxt['enableSpellCheckingSupported'] : $helptxt['enableSpellCheckingUnsupported']));
+			break;
+		case 'queryless_urls':
+			$context['help_text'] = sprintf($context['help_text'], (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? $helptxt['queryless_urls_supported'] : $helptxt['queryless_urls_unsupported']));
+			break;
+	}
 
 	// Does this text contain a link that we should fill in?
 	if (preg_match('~%([0-9]+\$)?s\?~', $context['help_text'], $match))

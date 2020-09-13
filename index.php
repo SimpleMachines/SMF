@@ -17,12 +17,12 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 // Get everything started up...
 define('SMF', 1);
-define('SMF_VERSION', '2.1 RC2');
+define('SMF_VERSION', '2.1 RC3');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2020');
 
@@ -231,7 +231,7 @@ function smf_main()
 		'loadeditorlocale' => true,
 		'modifycat' => true,
 		'pm' => array('sa' => array('popup')),
-		'profile' => array('area' => array('popup', 'alerts_popup')),
+		'profile' => array('area' => array('popup', 'alerts_popup', 'download', 'dlattach')),
 		'requestmembers' => true,
 		'smstats' => true,
 		'suggest' => true,
@@ -243,23 +243,7 @@ function smf_main()
 	);
 	call_integration_hook('integrate_pre_log_stats', array(&$no_stat_actions));
 
-	$should_log = true;
-	if (isset($_REQUEST['action']) && isset($no_stat_actions[$_REQUEST['action']]))
-	{
-		if (is_array($no_stat_actions[$_REQUEST['action']]))
-		{
-			foreach ($no_stat_actions[$_REQUEST['action']] as $subtype => $subnames)
-			{
-				if (isset($_REQUEST[$subtype]) && in_array($_REQUEST[$subtype], $subnames))
-				{
-					$should_log = false;
-					break;
-				}
-			}
-		}
-		else
-			$should_log = empty($no_stat_actions[$_REQUEST['action']]);
-	}
+	$should_log = !is_filtered_request($no_stat_actions, 'action');
 	if ($should_log)
 	{
 		// Log this user as online.
@@ -334,6 +318,8 @@ function smf_main()
 
 	// Here's the monstrous $_REQUEST['action'] array - $_REQUEST['action'] => array($file, $function).
 	$actionArray = array(
+		'agreement' => array('Agreement.php', 'Agreement'),
+		'acceptagreement' => array('Agreement.php', 'AcceptAgreement'),
 		'activate' => array('Register.php', 'Activate'),
 		'admin' => array('Admin.php', 'AdminMain'),
 		'announce' => array('Post.php', 'AnnounceTopic'),

@@ -8,7 +8,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 // Special thanks to Spaceman-Spiff for his contributions to this page.
@@ -108,7 +108,6 @@ template_ssi_above();
 						<li><a href="#" onclick="toggleVisibleByClass('ssi_preview', true); return false;">Hide all examples</a></li>
 					</ul>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 
 	<div id="preview" class="windowbg">
@@ -401,7 +400,6 @@ template_ssi_above();
 				<iframe src="?view=home1" style="width:99%; height:300px;"></iframe>
 			</div>
 		</div>
-		<span class="botslice"><span></span></span>
 	</div>
 
 <?php

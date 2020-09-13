@@ -1,8 +1,8 @@
 <?php
 
 /**
- * This taks handles notifying someone that a user has
- * requested to join a group they moderate.
+ * This file contains code used to notify a member when a group moderator has
+ * taken action on that member's request to join a group.
  *
  * Simple Machines Forum (SMF)
  *
@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -19,10 +19,12 @@
  */
 class GroupAct_Notify_Background extends SMF_BackgroundTask
 {
-    /**
-     * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
-     * @return bool Always returns true
-     */
+	/**
+	 * This executes the task: loads up the info, puts the email in the queue
+	 * and inserts any alerts as needed.
+	 *
+	 * @return bool Always returns true
+	 */
 	public function execute()
 	{
 		global $sourcedir, $smcFunc, $language, $modSettings;

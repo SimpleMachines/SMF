@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -261,7 +261,7 @@ function Who()
  */
 function determineActions($urls, $preferred_prefix = false)
 {
-	global $txt, $user_info, $modSettings, $smcFunc;
+	global $txt, $user_info, $modSettings, $smcFunc, $scripturl, $context;
 
 	if (!allowedTo('who_view'))
 		return array();
@@ -355,11 +355,11 @@ function determineActions($urls, $preferred_prefix = false)
 			}
 			// It's the board index!!  It must be!
 			else
-				$data[$k] = $txt['who_index'];
+				$data[$k] = sprintf($txt['who_index'], $scripturl, $context['forum_name_html_safe']);
 		}
 		// Probably an error or some goon?
 		elseif ($actions['action'] == '')
-			$data[$k] = $txt['who_index'];
+			$data[$k] = sprintf($txt['who_index'], $scripturl, $context['forum_name_html_safe']);
 		// Some other normal action...?
 		else
 		{
@@ -380,10 +380,10 @@ function determineActions($urls, $preferred_prefix = false)
 			}
 			// A subaction anyone can view... if the language string is there, show it.
 			elseif (isset($actions['sa']) && isset($txt['whoall_' . $actions['action'] . '_' . $actions['sa']]))
-				$data[$k] = $preferred_prefix && isset($txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']]) ? $txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']] : $txt['whoall_' . $actions['action'] . '_' . $actions['sa']];
+				$data[$k] = $preferred_prefix && isset($txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']]) ? $txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']] : sprintf($txt['whoall_' . $actions['action'] . '_' . $actions['sa']], $scripturl);
 			// An action any old fellow can look at. (if ['whoall_' . $action] exists, we know everyone can see it.)
 			elseif (isset($txt['whoall_' . $actions['action']]))
-				$data[$k] = $preferred_prefix && isset($txt[$preferred_prefix . $actions['action']]) ? $txt[$preferred_prefix . $actions['action']] : $txt['whoall_' . $actions['action']];
+				$data[$k] = $preferred_prefix && isset($txt[$preferred_prefix . $actions['action']]) ? $txt[$preferred_prefix . $actions['action']] : sprintf($txt['whoall_' . $actions['action']], $scripturl);
 			// Viewable if and only if they can see the board...
 			elseif (isset($txt['whotopic_' . $actions['action']]))
 			{
@@ -412,7 +412,7 @@ function determineActions($urls, $preferred_prefix = false)
 					)
 				);
 				list ($id_topic, $subject) = $smcFunc['db_fetch_row']($result);
-				$data[$k] = sprintf($txt['whopost_' . $actions['action']], $id_topic, $subject);
+				$data[$k] = sprintf($txt['whopost_' . $actions['action']], $id_topic, $subject, $scripturl);
 				$smcFunc['db_free_result']($result);
 
 				if (empty($id_topic))
@@ -420,12 +420,12 @@ function determineActions($urls, $preferred_prefix = false)
 			}
 			// Viewable only by administrators.. (if it starts with whoadmin, it's admin only!)
 			elseif (allowedTo('moderate_forum') && isset($txt['whoadmin_' . $actions['action']]))
-				$data[$k] = $txt['whoadmin_' . $actions['action']];
+				$data[$k] = sprintf($txt['whoadmin_' . $actions['action']], $scripturl);
 			// Viewable by permission level.
 			elseif (isset($allowedActions[$actions['action']]))
 			{
 				if (allowedTo($allowedActions[$actions['action']]) && !empty($txt['whoallow_' . $actions['action']]))
-					$data[$k] = $txt['whoallow_' . $actions['action']];
+					$data[$k] = sprintf($txt['whoallow_' . $actions['action']], $scripturl);
 				elseif (in_array('moderate_forum', $allowedActions[$actions['action']]))
 					$data[$k] = $txt['who_moderate'];
 				elseif (in_array('admin_forum', $allowedActions[$actions['action']]))
@@ -444,14 +444,21 @@ function determineActions($urls, $preferred_prefix = false)
 			loadLanguage('Errors');
 
 			if (isset($txt[$actions['error']]))
-				$error_message = str_replace('"', '&quot;', empty($actions['who_error_params']) ? $txt[$actions['error']] : vsprintf($txt[$actions['error']], $actions['who_error_params']));
+				$error_message = str_replace('"', '&quot;', empty($actions['error_params']) ? $txt[$actions['error']] : vsprintf($txt[$actions['error']], $actions['error_params']));
 			elseif ($actions['error'] == 'guest_login')
 				$error_message = str_replace('"', '&quot;', $txt['who_guest_login']);
 			else
 				$error_message = str_replace('"', '&quot;', $actions['error']);
 
 			if (!empty($error_message))
-				$data[$k] .= ' <span class="main_icons error" title="' . $error_message . '"></span>';
+			{
+				$error_message = ' <span class="main_icons error" title="' . $error_message . '"></span>';
+
+				if (is_array($data[$k]))
+					$data[$k]['error_message'] = $error_message;
+				else
+					$data[$k] .= $error_message;
+			}
 		}
 
 		// Maybe the action is integrated into another system?
@@ -495,7 +502,7 @@ function determineActions($urls, $preferred_prefix = false)
 		{
 			// Show the topic's subject for each of the actions.
 			foreach ($topic_ids[$row['id_topic']] as $k => $session_text)
-				$data[$k] = sprintf($session_text, $row['id_topic'], censorText($row['subject']));
+				$data[$k] = sprintf($session_text, $row['id_topic'], censorText($row['subject']), $scripturl);
 		}
 		$smcFunc['db_free_result']($result);
 	}
@@ -518,7 +525,7 @@ function determineActions($urls, $preferred_prefix = false)
 		{
 			// Put the board name into the string for each member...
 			foreach ($board_ids[$row['id_board']] as $k => $session_text)
-				$data[$k] = sprintf($session_text, $row['id_board'], $row['name']);
+				$data[$k] = sprintf($session_text, $row['id_board'], $row['name'], $scripturl);
 		}
 		$smcFunc['db_free_result']($result);
 	}
@@ -545,7 +552,7 @@ function determineActions($urls, $preferred_prefix = false)
 
 			// Set their action on each - session/text to sprintf.
 			foreach ($profile_ids[$row['id_member']] as $k => $session_text)
-				$data[$k] = sprintf($session_text, $row['id_member'], $row['real_name']);
+				$data[$k] = sprintf($session_text, $row['id_member'], $row['real_name'], $scripturl);
 		}
 		$smcFunc['db_free_result']($result);
 	}
@@ -565,7 +572,7 @@ function determineActions($urls, $preferred_prefix = false)
  */
 function Credits($in_admin = false)
 {
-	global $context, $smcFunc, $forum_copyright, $txt, $user_info;
+	global $context, $smcFunc, $forum_copyright, $txt, $user_info, $scripturl;
 
 	// Don't blink. Don't even blink. Blink and you're dead.
 	loadLanguage('Who');
@@ -589,8 +596,6 @@ function Credits($in_admin = false)
 					'members' => array(
 						'Michele "Illori" Davis',
 						// Former Project Managers
-						'Jessica "Suki" González',
-						'Will "Kindred" Wagner',
 					),
 				),
 				array(
@@ -601,7 +606,6 @@ function Credits($in_admin = false)
 						// Developers
 						'Jessica "Suki" González',
 						'John "live627" Rayes',
-						'Jeremy "SleePy" Darwood',
 						'Shawn Bulen',
 
 						// Former Developers
@@ -635,12 +639,12 @@ function Credits($in_admin = false)
 						// Lead Support Specialist
 						'Aleksi "Lex" Kilpinen',
 						// Support Specialists
-						'br360',
-						'GigaWatt',
 						'Will "Kindred" Wagner',
 						'lurkalot',
 
 						// Former Support Specialists
+						'br360',
+						'GigaWatt',
 						'Steve',
 						'ziycon',
 						'Adam Tallon',
@@ -658,7 +662,6 @@ function Credits($in_admin = false)
 						'Krash',
 						'Mashby',
 						'Michael Colin Blaber',
-						'Michele "Illori" Davis',
 						'Old Fossil',
 						'S-Ace',
 						'Storman™',
@@ -670,18 +673,17 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
 						// Lead Customizer
-						'Sami "SychO" Mazouz',
-						// Customizers
 						'Gary M. Gadsdon',
+						// Customizers
 						'Diego Andrés',
 						'Jonathan "vbgamer45" Valentin',
+						'Mick.',
 
 						// Former Customizers
+						'Sami "SychO" Mazouz',
 						'Brannon "B" Hall',
-						'Gwenwyfar',
 						'Jack "akabugeyes" Thorsen',
 						'Jason "JBlaze" Clemons',
-						'Jessica "Suki" González',
 						'Joey "Tyrsson" Smith',
 						'Kays',
 						'NanoSector',
@@ -711,6 +713,7 @@ function Credits($in_admin = false)
 						'Francisco "d3vcho" Domínguez',
 						// Localizers
 						'Nikola "Dzonny" Novaković',
+						'm4z',
 						// Former Localizers
 						'Robert Monden',
 						'Relyana',
@@ -727,7 +730,6 @@ function Credits($in_admin = false)
 						'Adish "(F.L.A.M.E.R)" Patel',
 						'Bryan "Runic" Deakin',
 						'Marcus "cσσкιє мσηѕтєя" Forsberg',
-						'Mert "Antes" Alınbay',
 						'Ralph "[n3rve]" Otowo',
 					),
 				),
@@ -877,7 +879,7 @@ function Credits($in_admin = false)
 	$context['credits_modifications'] = $mods;
 
 	$context['copyrights'] = array(
-		'smf' => sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR),
+		'smf' => sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl),
 		/* Modification Authors:  You may add a copyright statement to this array for your mods.
 			Copyright statements should be in the form of a value only without a array key.  I.E.:
 				'Some Mod by Thantos © 2010',

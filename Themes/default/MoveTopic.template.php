@@ -7,7 +7,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -100,7 +100,7 @@ function template_redirect_options($type)
 								', $txt[$type . '_why'], '
 							</dt>
 							<dd>
-								<textarea name="reason">', $txt[$type . 'topic_default'], '</textarea>
+								<textarea name="reason">', sprintf($txt[$type . 'topic_default'], $txt['movetopic_auto_board'], $txt['movetopic_auto_topic']), '</textarea>
 							</dd>
 							<dt>
 								<label for="redirect_topic">', $txt[$type . 'topic_redirect'], '</label>

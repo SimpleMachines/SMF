@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -851,29 +851,31 @@ function loadUserSettings()
 }
 
 /**
- * Load minimal user settings from members table.
+ * Load minimal user info from members table.
  * Intended for use by background tasks that need to populate $user_info.
  *
  * @param int|array $user_ids The users IDs to get the data for.
  * @return array
  * @throws Exception
  */
-function loadMinUserSettings($user_ids = array())
+function loadMinUserInfo($user_ids = array())
 {
 	global $smcFunc, $modSettings, $language;
-	static $user_settings_min = array();
+	static $user_info_min = array();
 
 	$user_ids = (array) $user_ids;
 
 	// Already loaded?
 	if (!empty($user_ids))
-		$user_ids = array_diff($user_ids, array_keys($user_settings_min));
+		$user_ids = array_diff($user_ids, array_keys($user_info_min));
 
 	if (empty($user_ids))
-		return $user_settings_min;
+		return $user_info_min;
 
 	$columns_to_load = array(
 		'id_member',
+		'member_name',
+		'real_name',
 		'time_offset',
 		'additional_groups',
 		'id_group',
@@ -897,8 +899,10 @@ function loadMinUserSettings($user_ids = array())
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$user_settings_min[$row['id_member']] = array(
+		$user_info_min[$row['id_member']] = array(
 			'id' => $row['id_member'],
+			'username' => $row['member_name'],
+			'name' => isset($row['real_name']) ? $row['real_name'] : '',
 			'language' => (empty($row['lngfile']) || empty($modSettings['userLanguage'])) ? $language : $row['lngfile'],
 			'is_guest' => false,
 			'time_format' => empty($row['time_format']) ? $modSettings['time_format'] : $row['time_format'],
@@ -906,15 +910,15 @@ function loadMinUserSettings($user_ids = array())
 		);
 
 		if (empty($row['additional_groups']))
-			$user_settings_min[$row['id_member']]['groups'] = array($row['id_group'], $row['id_post_group']);
+			$user_info_min[$row['id_member']]['groups'] = array($row['id_group'], $row['id_post_group']);
 
 		else
-			$user_settings_min[$row['id_member']]['groups'] = array_merge(
+			$user_info_min[$row['id_member']]['groups'] = array_merge(
 				array($row['id_group'], $row['id_post_group']),
 				explode(',', $row['additional_groups'])
 			);
 
-		$user_settings_min[$row['id_member']]['is_admin'] = in_array(1, $user_settings_min[$row['id_member']]['groups']);
+		$user_info_min[$row['id_member']]['is_admin'] = in_array(1, $user_info_min[$row['id_member']]['groups']);
 
 		if (!empty($row['timezone']))
 		{
@@ -922,21 +926,20 @@ function loadMinUserSettings($user_ids = array())
 			$tz_user = new \DateTimeZone($row['timezone']);
 			$time_system = new \DateTime('now', $tz_system);
 			$time_user = new \DateTime('now', $tz_user);
-			$user_settings_min[$row['id_member']]['time_offset'] = ($tz_user->getOffset($time_user) -
+			$user_info_min[$row['id_member']]['time_offset'] = ($tz_user->getOffset($time_user) -
 					$tz_system->getOffset($time_system)) / 3600;
 		}
 
 		else
-			$user_settings_min[$row['id_member']]['time_offset'] = empty($row['time_offset']) ? 0 : $row['time_offset'];
+			$user_info_min[$row['id_member']]['time_offset'] = empty($row['time_offset']) ? 0 : $row['time_offset'];
 	}
 
 	$smcFunc['db_free_result']($request);
 
-	call_integration_hook('integrate_load_min_user_settings', array(&$user_settings_min));
+	call_integration_hook('integrate_load_min_user_settings', array(&$user_info_min));
 
-	return $user_settings_min;
+	return $user_info_min;
 }
-
 
 /**
  * Check for moderators and see if they have access to the board.
@@ -1583,12 +1586,12 @@ function loadMemberContext($user, $display_custom_fields = false)
 {
 	global $memberContext, $user_profile, $txt, $scripturl, $user_info;
 	global $context, $modSettings, $settings, $smcFunc;
-	static $dataLoaded = array();
+	static $already_loaded_custom_fields = array();
 	static $loadedLanguages = array();
 
 	// If this person's data is already loaded, skip it.
-	if (isset($dataLoaded[$user]))
-		return $dataLoaded[$user];
+	if (!empty($memberContext[$user]) && !empty($already_loaded_custom_fields[$user]) >= $display_custom_fields)
+		return $memberContext[$user];
 
 	// We can't load guests or members not loaded by loadMemberData()!
 	if ($user == 0)
@@ -1600,7 +1603,6 @@ function loadMemberContext($user, $display_custom_fields = false)
 	}
 
 	// Well, it's loaded now anyhow.
-	$dataLoaded[$user] = true;
 	$profile = $user_profile[$user];
 
 	// Censor everything.
@@ -1799,6 +1801,8 @@ function loadMemberContext($user, $display_custom_fields = false)
 	}
 
 	call_integration_hook('integrate_member_context', array(&$memberContext[$user], $user, $display_custom_fields));
+
+	$already_loaded_custom_fields[$user] = !empty($already_loaded_custom_fields[$user]) | $display_custom_fields;
 
 	return $memberContext[$user];
 }
@@ -2057,6 +2061,35 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	if (!$initialize)
 		return;
+
+	// Perhaps we've changed the agreement or privacy policy? Only redirect if:
+	// 1. They're not a guest or admin
+	// 2. This isn't called from SSI
+	// 3. This isn't an XML request
+	// 4. They're not trying to do any of the following actions:
+	// 4a. View or accept the agreement and/or policy
+	// 4b. Login or logout
+	// 4c. Get a feed (RSS, ATOM, etc.)
+	$agreement_actions = array(
+		'agreement' => true,
+		'acceptagreement' => true,
+		'login2' => true,
+		'logintfa' => true,
+		'logout' => true,
+		'pm' => array('sa' => array('popup')),
+		'profile' => array('area' => array('popup', 'alerts_popup')),
+		'xmlhttp' => true,
+		'.xml' => true,
+	);
+	if (empty($user_info['is_guest']) && empty($user_info['is_admin']) && SMF != 'SSI' && !isset($_REQUEST['xml']) && !is_filtered_request($agreement_actions, 'action'))
+	{
+		require_once($sourcedir . '/Agreement.php');
+		$can_accept_agreement = !empty($modSettings['requireAgreement']) && canRequireAgreement();
+		$can_accept_privacy_policy = !empty($modSettings['requirePolicyAgreement']) && canRequirePrivacyPolicy();
+
+		if ($can_accept_agreement || $can_accept_privacy_policy)
+			redirectexit('action=agreement');
+	}
 
 	// Check to see if we're forcing SSL
 	if (!empty($modSettings['force_ssl']) && empty($maintenance) &&
@@ -2383,7 +2416,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 			$_SESSION['id_variant'] = $_REQUEST['variant'];
 		// User selection?
 		if (empty($settings['disable_user_variant']) || allowedTo('admin_forum'))
-			$context['theme_variant'] = !empty($_SESSION['id_variant']) ? $_SESSION['id_variant'] : (!empty($options['theme_variant']) ? $options['theme_variant'] : '');
+			$context['theme_variant'] = !empty($_SESSION['id_variant']) && in_array($_SESSION['id_variant'], $settings['theme_variants']) ? $_SESSION['id_variant'] : (!empty($options['theme_variant']) && in_array($options['theme_variant'], $settings['theme_variants']) ? $options['theme_variant'] : '');
 		// If not a user variant, select the default.
 		if ($context['theme_variant'] == '' || !in_array($context['theme_variant'], $settings['theme_variants']))
 			$context['theme_variant'] = !empty($settings['default_variant']) && in_array($settings['default_variant'], $settings['theme_variants']) ? $settings['default_variant'] : $settings['theme_variants'][0];
@@ -2699,14 +2732,12 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 				$fileUrl = $settings['default_theme_url'] . '/css/' . $fileName;
 				$filePath = $settings['default_theme_dir'] . '/css/' . $fileName;
 			}
-
 			else
 			{
 				$fileUrl = false;
 				$filePath = false;
 			}
 		}
-
 		else
 		{
 			$fileUrl = $settings[$themeRef . '_url'] . '/css/' . $fileName;
@@ -2714,7 +2745,6 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 			$mtime = @filemtime($filePath);
 		}
 	}
-
 	// An external file doesn't have a filepath. Mock one for simplicity.
 	else
 	{
@@ -2725,7 +2755,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	$mtime = empty($mtime) ? 0 : $mtime;
 
 	// Add it to the array for use in the template
-	if (!empty($fileName))
+	if (!empty($fileName) && !empty($fileUrl))
 	{
 		// find a free number/position
 		while (isset($context['css_files_order'][$params['order_pos']]))
@@ -2814,14 +2844,12 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName;
 				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName;
 			}
-
 			else
 			{
 				$fileUrl = false;
 				$filePath = false;
 			}
 		}
-
 		else
 		{
 			$fileUrl = $settings[$themeRef . '_url'] . '/scripts/' . $fileName;
@@ -2829,7 +2857,6 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 			$mtime = @filemtime($filePath);
 		}
 	}
-
 	// An external file doesn't have a filepath. Mock one for simplicity.
 	else
 	{
@@ -2840,7 +2867,7 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 	$mtime = empty($mtime) ? 0 : $mtime;
 
 	// Add it to the array for use in the template
-	if (!empty($fileName))
+	if (!empty($fileName) && !empty($fileUrl))
 		$context['javascript_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params, 'mtime' => $mtime);
 
 	if ($mtime > $modSettings['browser_cache'])
@@ -3316,7 +3343,7 @@ function template_include($filename, $once = false)
 		{
 			$txt['template_parse_error'] = 'Template Parse Error!';
 			$txt['template_parse_error_message'] = 'It seems something has gone sour on the forum with the template system.  This problem should only be temporary, so please come back later and try again.  If you continue to see this message, please contact the administrator.<br><br>You can also try <a href="javascript:location.reload();">refreshing this page</a>.';
-			$txt['template_parse_error_details'] = 'There was a problem loading the <pre><strong>%1$s</strong></pre> template or language file.  Please check the syntax and try again - remember, single quotes (<pre>\'</pre>) often have to be escaped with a slash (<pre>\\</pre>).  To see more specific error information from PHP, try <a href="' . $boardurl . '%1$s" class="extern">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="' . $scripturl . '?theme=1">use the default theme</a>.';
+			$txt['template_parse_error_details'] = 'There was a problem loading the <pre><strong>%1$s</strong></pre> template or language file.  Please check the syntax and try again - remember, single quotes (<pre>\'</pre>) often have to be escaped with a slash (<pre>\\</pre>).  To see more specific error information from PHP, try <a href="%2$s%1$s" class="extern">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="%3$s?theme=1">use the default theme</a>.';
 			$txt['template_parse_errmsg'] = 'Unfortunately more information is not available at this time as to exactly what is wrong.';
 		}
 
@@ -3362,7 +3389,7 @@ function template_include($filename, $once = false)
 	</head>
 	<body>
 		<h3>', $txt['template_parse_error'], '</h3>
-		', sprintf($txt['template_parse_error_details'], strtr($filename, array($boarddir => '', strtr($boarddir, '\\', '/') => '')));
+		', sprintf($txt['template_parse_error_details'], strtr($filename, array($boarddir => '', strtr($boarddir, '\\', '/') => '')), $boardurl, $scripturl);
 
 			if (!empty($error))
 				echo '

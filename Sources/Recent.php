@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -722,7 +722,7 @@ function UnreadTopics()
 			'name' => $txt['unread_topics_all']
 		);
 	else
-		$txt['unread_topics_visit_none'] = strtr($txt['unread_topics_visit_none'], array('?action=unread;all' => '?action=unread;all' . sprintf($context['querystring_board_limits'], 0) . $context['querystring_sort_limits']));
+		$txt['unread_topics_visit_none'] = strtr(sprintf($txt['unread_topics_visit_none'], $scripturl), array('?action=unread;all' => '?action=unread;all' . sprintf($context['querystring_board_limits'], 0) . $context['querystring_sort_limits']));
 
 	loadTemplate('Recent');
 	loadTemplate('MessageIndex');

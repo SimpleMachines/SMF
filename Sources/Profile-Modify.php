@@ -12,7 +12,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -1791,7 +1791,7 @@ function forumProfile($memID)
 		loadCustomFields($memID, 'forumprofile');
 
 	$context['sub_template'] = 'edit_options';
-	$context['page_desc'] = $txt['forumProfile_info'];
+	$context['page_desc'] = sprintf($txt['forumProfile_info'], $context['forum_name_html_safe']);
 	$context['show_preview_button'] = true;
 
 	setupProfileContext(

@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -629,6 +629,9 @@ function PlushSearch2()
 
 	// Sorting direction: descending unless stated otherwise.
 	$search_params['sort_dir'] = !empty($search_params['sort_dir']) && $search_params['sort_dir'] == 'asc' ? 'asc' : 'desc';
+
+	// Remember current sort type and sort direction
+	$context['current_sorting'] = $search_params['sort'] . '|' . $search_params['sort_dir'];
 
 	// Determine some values needed to calculate the relevance.
 	$minMsg = (int) ((1 - $recentPercentage) * $modSettings['maxMsgID']);

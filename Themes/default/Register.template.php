@@ -7,7 +7,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -18,13 +18,27 @@ function template_registration_agreement()
 	global $context, $scripturl, $txt;
 
 	echo '
-		<form action="', $scripturl, '?action=signup" method="post" accept-charset="', $context['character_set'], '" id="registration">
+		<form action="', $scripturl, '?action=signup" method="post" accept-charset="', $context['character_set'], '" id="registration">';
+
+	if (!empty($context['agreement']))
+		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['registration_agreement'], '</h3>
 			</div>
 			<div class="roundframe">
-				<p>', $context['agreement'], '</p>
+				<div>', $context['agreement'], '</div>
+			</div>';
+
+	if (!empty($context['privacy_policy']))
+		echo '
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['privacy_policy'], '</h3>
 			</div>
+			<div class="roundframe">
+				<div>', $context['privacy_policy'], '</div>
+			</div>';
+
+		echo '
 			<div id="confirm_buttons">';
 
 	// Age restriction in effect?
@@ -35,15 +49,14 @@ function template_registration_agreement()
 				<input type="submit" name="accept_agreement_coppa" value="', $context['coppa_agree_below'], '" class="button">';
 	else
 		echo '
-				<input type="submit" name="accept_agreement" value="', $txt['agreement_agree'], '" class="button">';
+				<input type="submit" name="accept_agreement" value="', $context['agree'], '" class="button" />';
 
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['register_token_var'], '" value="', $context['register_token'], '">
-			</div><!-- .confirm_buttons -->
-			<input type="hidden" name="step" value="1">
+				<input type="hidden" name="step" value="1">
+			</div>
 		</form>';
-
 }
 
 /**
@@ -293,7 +306,7 @@ function template_registration_form()
 			<div id="confirm_buttons" class="flow_auto">';
 
 	// Age restriction in effect?
-	if (!$context['require_agreement'] && $context['show_coppa'])
+	if (empty($context['agree']) && $context['show_coppa'])
 		echo '
 				<input type="submit" name="accept_agreement" value="', $context['coppa_agree_above'], '" class="button"><br>
 				<br>
@@ -633,13 +646,19 @@ function template_edit_agreement()
 	echo '
 				<form action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
 					<textarea cols="70" rows="20" name="agreement" id="agreement">', $context['agreement'], '</textarea>
-					<p>
-						<label for="requireAgreement"><input type="checkbox" name="requireAgreement" id="requireAgreement"', $context['require_agreement'] ? ' checked' : '', ' tabindex="', $context['tabindex']++, '" value="1"> ', $txt['admin_agreement'], '.</label>
-					</p>
-					<input type="submit" value="', $txt['save'], '" tabindex="', $context['tabindex']++, '" class="button">
+					<div class="information">
+						<span>', $context['agreement_info'], '</span>
+					</div>
+					<div class="righttext"><input type="submit" value="', $txt['save'], '" tabindex="', $context['tabindex']++, '" class="button" onclick="return resetAgreementConfirm()" />
 					<input type="hidden" name="agree_lang" value="', $context['current_agreement'], '">
 					<input type="hidden" name="sa" value="agreement">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<script>
+						function resetAgreementConfirm()
+						{
+							return true;
+						}
+					</script>
 					<input type="hidden" name="', $context['admin-rega_token_var'], '" value="', $context['admin-rega_token'], '">
 				</form>
 			</div><!-- #registration_agreement -->
@@ -699,6 +718,70 @@ function template_edit_reserved_words()
 			</div>
 		</div><!-- .windowbg -->
 	</form>';
+}
+
+// Form for editing the privacy policy shown to people registering to the forum.
+function template_edit_privacy_policy()
+{
+	global $context, $settings, $options, $scripturl, $txt;
+
+	if (!empty($context['saved_successful']))
+		echo '
+		<div class="infobox">', $txt['settings_saved'], '</div>';
+
+	// Just a big box to edit the text file ;).
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['privacy_policy'], '</h3>
+		</div>
+		<div class="windowbg" id="privacy_policy">';
+
+	// Is there more than one language to choose from?
+	if (count($context['editable_policies']) > 1)
+	{
+		echo '
+			<div class="information">
+				<form action="', $scripturl, '?action=admin;area=regcenter" id="change_policy" method="post" accept-charset="', $context['character_set'], '" style="display: inline;">
+					<strong>', $txt['admin_agreement_select_language'], ':</strong>
+					<select name="policy_lang" onchange="document.getElementById(\'change_policy\').submit();" tabindex="', $context['tabindex']++, '">';
+
+		foreach ($context['editable_policies'] as $lang => $name)
+			echo '
+						<option value="', $lang, '" ', $context['current_policy_lang'] == $lang ? 'selected="selected"' : '', '>', $name, '</option>';
+
+		echo '
+					</select>
+					<div class="righttext">
+						<input type="hidden" name="sa" value="policy">
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+						<input type="submit" name="change" value="', $txt['admin_agreement_select_language_change'], '" tabindex="', $context['tabindex']++, '" class="button">
+					</div>
+				</form>
+			</div>';
+	}
+
+	echo '
+			<form action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">';
+
+	// Show the actual policy in an oversized text box.
+	echo '
+			<textarea cols="70" rows="20" name="policy" id="agreement">', $context['privacy_policy'], '</textarea>
+				<div class="information">', $context['privacy_policy_info'], '</div>
+				<div class="righttext">
+					<input type="submit" value="', $txt['save'], '" tabindex="', $context['tabindex']++, '" class="button" onclick="return resetPolicyConfirm()" />
+					<input type="hidden" name="policy_lang" value="', $context['current_policy_lang'], '" />
+					<input type="hidden" name="sa" value="policy" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-regp_token_var'], '" value="', $context['admin-regp_token'], '" />
+					<script>
+						function resetPolicyConfirm()
+						{
+							return true;
+						}
+					</script>
+				</div>
+			</form>
+		</div>';
 }
 
 ?>

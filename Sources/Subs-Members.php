@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -506,7 +506,12 @@ function registerMember(&$regOptions, $return_errors = false)
 
 		// Password isn't legal?
 		if ($passwordError != null)
-			$reg_errors[] = array('lang', 'profile_error_password_' . $passwordError);
+		{
+			$errorCode = array('lang', 'profile_error_password_' . $passwordError, false);
+			if ($passwordError == 'short')
+				$errorCode[] = array(empty($modSettings['password_strength']) ? 4 : 8);
+			$reg_errors[] = $errorCode;
+		}
 	}
 
 	// You may not be allowed to register this email.
@@ -735,6 +740,11 @@ function registerMember(&$regOptions, $return_errors = false)
 		);
 	}
 
+	// Log their acceptance of the agreement and privacy policy, for future reference.
+	foreach (array('agreement_accepted', 'policy_accepted') as $key)
+		if (!empty($theme_vars[$key]))
+			logAction($key, array('member_affected' => $memberID, 'applicator' => $memberID), 'user');
+
 	// If it's enabled, increase the registrations for today.
 	trackStats(array('registers' => '+'));
 
@@ -801,9 +811,10 @@ function registerMember(&$regOptions, $return_errors = false)
 				'ACTIVATIONLINKWITHOUTCODE' => $scripturl . '?action=activate;u=' . $memberID,
 				'ACTIVATIONCODE' => $validation_code,
 			);
+
 		else
 			$replacements += array(
-				'COPPALINK' => $scripturl . '?action=coppa;u=' . $memberID,
+				'COPPALINK' => $scripturl . '?action=coppa;member=' . $memberID,
 			);
 
 		$emaildata = loadEmailTemplate('register_' . ($regOptions['require'] == 'activation' ? 'activate' : 'coppa'), $replacements);
@@ -1517,24 +1528,13 @@ function populateDuplicateMembers(&$members)
 /**
  * Generate a random validation code.
  *
- * @todo Err. Whatcha doin' here.
- *
  * @return string A random validation code
  */
 function generateValidationCode()
 {
-	global $smcFunc, $modSettings;
+	global $smcFunc;
 
-	$request = $smcFunc['db_query']('get_random_number', '
-		SELECT RAND()',
-		array(
-		)
-	);
-
-	list ($dbRand) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
-
-	return substr(preg_replace('/\W/', '', sha1(microtime() . $smcFunc['random_int']() . $dbRand . $modSettings['rand_seed'])), 0, 10);
+	return bin2hex($smcFunc['random_bytes'](5));
 }
 
 ?>

@@ -7,7 +7,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -26,7 +26,7 @@ function template_view_package()
 
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt[($context['uninstalling'] ? 'un' : '') . 'install_mod'], '</h3>
+			<h3 class="catbg">', $txt[($context['uninstalling'] ? 'uninstall' : ('install_' . $context['extract_type']))], '</h3>
 		</div>
 		<div class="information">';
 

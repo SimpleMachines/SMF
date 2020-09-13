@@ -7,7 +7,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 // @todo
@@ -266,7 +266,7 @@ function template_attachment_errors()
  */
 function template_show_backtrace()
 {
-	global $context, $settings, $modSettings, $txt;
+	global $context, $settings, $modSettings, $txt, $scripturl;
 
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
@@ -334,7 +334,7 @@ function template_show_backtrace()
 				$value->line = -1;
 
 			echo '
-					<li class="backtrace">', sprintf($txt['backtrace_info'], $key, $value->function, $value->file, $value->line, base64_encode($value->file)), '</li>';
+					<li class="backtrace">', sprintf($txt['backtrace_info'], $key, $value->function, $value->file, $value->line, base64_encode($value->file), $scripturl), '</li>';
 		}
 
 		echo '

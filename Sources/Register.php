@@ -12,7 +12,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -46,21 +46,33 @@ function Register($reg_errors = array())
 	loadLanguage('Login');
 	loadTemplate('Register');
 
-	// Do we need them to agree to the registration agreement, first?
-	$context['require_agreement'] = !empty($modSettings['requireAgreement']);
+	// How many steps have we done so far today?
+	$current_step = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : (!empty($modSettings['requireAgreement']) || !empty($modSettings['requirePolicyAgreement']) ? 1 : 2);
+
+	// Do we need them to agree to the registration agreement and/or privacy policy agreement, first?
 	$context['registration_passed_agreement'] = !empty($_SESSION['registration_agreed']);
 	$context['show_coppa'] = !empty($modSettings['coppaAge']);
+
+	$agree_txt_key = '';
+	if ($current_step == 1)
+	{
+		if (!empty($modSettings['requireAgreement']) && !empty($modSettings['requirePolicyAgreement']))
+			$agree_txt_key = 'agreement_policy_';
+		elseif (!empty($modSettings['requireAgreement']))
+			$agree_txt_key = 'agreement_';
+		elseif (!empty($modSettings['requirePolicyAgreement']))
+			$agree_txt_key = 'policy_';
+	}
 
 	// Under age restrictions?
 	if ($context['show_coppa'])
 	{
 		$context['skip_coppa'] = false;
-		$context['coppa_agree_above'] = sprintf($txt[($context['require_agreement'] ? 'agreement_' : '') . 'agree_coppa_above'], $modSettings['coppaAge']);
-		$context['coppa_agree_below'] = sprintf($txt[($context['require_agreement'] ? 'agreement_' : '') . 'agree_coppa_below'], $modSettings['coppaAge']);
+		$context['coppa_agree_above'] = sprintf($txt[$agree_txt_key . 'agree_coppa_above'], $modSettings['coppaAge']);
+		$context['coppa_agree_below'] = sprintf($txt[$agree_txt_key . 'agree_coppa_below'], $modSettings['coppaAge']);
 	}
-
-	// What step are we at?
-	$current_step = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : ($context['require_agreement'] ? 1 : 2);
+	elseif ($agree_txt_key != '')
+		$context['agree'] = $txt[$agree_txt_key . 'agree'];
 
 	// Does this user agree to the registation agreement?
 	if ($current_step == 1 && (isset($_POST['accept_agreement']) || isset($_POST['accept_agreement_coppa'])))
@@ -82,7 +94,7 @@ function Register($reg_errors = array())
 		}
 	}
 	// Make sure they don't squeeze through without agreeing.
-	elseif ($current_step > 1 && $context['require_agreement'] && !$context['registration_passed_agreement'])
+	elseif ($current_step > 1 && (!empty($modSettings['requireAgreement']) || !empty($modSettings['requirePolicyAgreement'])) && !$context['registration_passed_agreement'])
 		$current_step = 1;
 
 	// Show the user the right form.
@@ -109,7 +121,7 @@ function Register($reg_errors = array())
 		$_SESSION['register']['timenow'] = time();
 
 	// If you have to agree to the agreement, it needs to be fetched from the file.
-	if ($context['require_agreement'])
+	if (!empty($modSettings['requireAgreement']))
 	{
 		// Have we got a localized one?
 		if (file_exists($boarddir . '/agreement.' . $user_info['language'] . '.txt'))
@@ -148,6 +160,22 @@ function Register($reg_errors = array())
 			// Found it!
 			if ($selectedLanguage == $lang['filename'])
 				$context['languages'][$key]['selected'] = true;
+		}
+	}
+
+	// If you have to agree to the privacy policy, it needs to be loaded from the database.
+	if (!empty($modSettings['requirePolicyAgreement']))
+	{
+		// Have we got a localized one?
+		if (!empty($modSettings['policy_' . $user_info['language']]))
+			$context['privacy_policy'] = parse_bbc($modSettings['policy_' . $user_info['language']]);
+		elseif (!empty($modSettings['policy_' . $language]))
+			$context['privacy_policy'] = parse_bbc($modSettings['policy_' . $language]);
+		else
+		{
+			// None was found; log the error so the admin knows there is a problem!
+			log_error($txt['error_no_privacy_policy'], 'critical');
+			fatal_lang_error('registration_disabled', false);
 		}
 	}
 
@@ -240,16 +268,17 @@ function Register2()
 		fatal_lang_error('registration_disabled', false);
 
 	// Well, if you don't agree, you can't register.
-	if (!empty($modSettings['requireAgreement']) && empty($_SESSION['registration_agreed']))
+	if ((!empty($modSettings['requireAgreement']) || !empty($modSettings['requirePolicyAgreement'])) && empty($_SESSION['registration_agreed']))
 		redirectexit();
 
 	// Make sure they came from *somewhere*, have a session.
 	if (!isset($_SESSION['old_url']))
 		redirectexit('action=signup');
 
-	// If we don't require an agreement, we need a extra check for coppa.
-	if (empty($modSettings['requireAgreement']) && !empty($modSettings['coppaAge']))
+	// If we require neither an agreement nor a privacy policy, we need a extra check for coppa.
+	if (empty($modSettings['requireAgreement']) && empty($modSettings['requirePolicyAgreement']) && !empty($modSettings['coppaAge']))
 		$_SESSION['skip_coppa'] = !empty($_POST['accept_agreement']);
+
 	// Are they under age, and under age users are banned?
 	if (!empty($modSettings['coppaAge']) && empty($modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
 	{
@@ -428,6 +457,12 @@ function Register2()
 	if (isset($_POST['default_options']))
 		$_POST['options'] = isset($_POST['options']) ? $_POST['options'] + $_POST['default_options'] : $_POST['default_options'];
 	$regOptions['theme_vars'] = isset($_POST['options']) && is_array($_POST['options']) ? $_POST['options'] : array();
+
+	// Note when they accepted the agreement and privacy policy
+	if (!empty($modSettings['requireAgreement']))
+		$regOptions['theme_vars']['agreement_accepted'] = time();
+	if (!empty($modSettings['requirePolicyAgreement']))
+		$regOptions['theme_vars']['policy_accepted'] = time();
 
 	// Make sure they are clean, dammit!
 	$regOptions['theme_vars'] = htmlspecialchars__recursive($regOptions['theme_vars']);
@@ -755,8 +790,8 @@ function CoppaForm()
 			$context['ul'] = '<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>';
 			$context['template_layers'] = array();
 			$context['sub_template'] = 'coppa_form';
-			$context['page_title'] = $txt['coppa_form_title'];
-			$context['coppa_body'] = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}'), array($context['ul'], $context['ul'], $username), $txt['coppa_form_body']);
+			$context['page_title'] = sprintf($txt['coppa_form_title'], $context['forum_name_html_safe']);
+			$context['coppa_body'] = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}'), array($context['ul'], $context['ul'], $username), sprintf($txt['coppa_form_body'], $context['forum_name_html_safe']));
 		}
 		// Downloading.
 		else
@@ -764,7 +799,7 @@ function CoppaForm()
 			// The data.
 			$ul = '                ';
 			$crlf = "\r\n";
-			$data = $context['forum_contacts'] . $crlf . $txt['coppa_form_address'] . ':' . $crlf . $txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf . $txt['coppa_form_body'];
+			$data = $context['forum_contacts'] . $crlf . $txt['coppa_form_address'] . ':' . $crlf . $txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf . sprintf($txt['coppa_form_body'], $context['forum_name_html_safe']);
 			$data = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}', '<br>', '<br>'), array($ul, $ul, $username, $crlf, $crlf), $data);
 
 			// Send the headers.
@@ -785,7 +820,7 @@ function CoppaForm()
 		);
 
 		$context['coppa'] = array(
-			'body' => str_replace('{MINIMUM_AGE}', $modSettings['coppaAge'], $txt['coppa_after_registration']),
+			'body' => str_replace('{MINIMUM_AGE}', $modSettings['coppaAge'], sprintf($txt['coppa_after_registration'], $context['forum_name_html_safe'])),
 			'many_options' => !empty($modSettings['coppaPost']) && !empty($modSettings['coppaFax']),
 			'post' => empty($modSettings['coppaPost']) ? '' : $modSettings['coppaPost'],
 			'fax' => empty($modSettings['coppaFax']) ? '' : $modSettings['coppaFax'],
@@ -887,7 +922,6 @@ function RegisterCheckUsername()
 
 /**
  * It doesn't actually send anything, this action just shows a message for a guest.
- *
  */
 function SendActivation()
 {
@@ -904,7 +938,7 @@ function SendActivation()
 	$context['title'] = $txt['activate_changed_email_title'];
 	$context['description'] = $txt['activate_changed_email_desc'];
 
-	// We're gone!
+	// Aaand we're gone!
 	obExit();
 }
 

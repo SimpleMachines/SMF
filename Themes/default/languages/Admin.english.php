@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; Admin
+// Version: 2.1 RC3; Admin
 
 global $settings, $scripturl;
 
@@ -38,7 +38,12 @@ $txt['admin_smfpackage'] = 'SMF Package';
 $txt['admin_logoff'] = 'End admin Session';
 $txt['admin_maintenance'] = 'Maintenance';
 $txt['admin_credits'] = 'Credits';
-$txt['admin_agreement'] = 'Show and require agreement letter when registering';
+$txt['admin_agreement'] = 'Require new members to accept the registration agreement';
+$txt['admin_agreement_minor_edit'] = 'This is a minor edit';
+$txt['reset_agreement_desc'] = 'This will force all members to re-read and accept the registration agreement in order to continue using the forum.';
+$txt['admin_privacy_policy'] = 'Require new members to accept the privacy policy';
+$txt['reset_privacy_policy_desc'] = 'This will force all members to re-read and accept the privacy policy in order to continue using the forum.';
+$txt['admin_agreement_info'] = 'Last updated: %1$s.';
 $txt['admin_agreement_default'] = 'Default';
 $txt['admin_agreement_select_language'] = 'Language to edit';
 $txt['admin_agreement_select_language_change'] = 'Change';
@@ -64,6 +69,8 @@ $txt['dont_show_attach_under_post_sub'] = 'Enable this if you do not want attach
 $txt['admin_backup_fail'] = 'Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable.';
 $txt['registration_agreement'] = 'Registration Agreement';
 $txt['registration_agreement_desc'] = 'This agreement is shown when a user registers an account on this forum and has to be accepted before users can continue registration.';
+$txt['privacy_policy'] = 'Privacy Policy';
+$txt['privacy_policy_desc'] = 'This privacy policy describes the promises you make to your users regarding how you will use their personal data. It is shown when a user registers an account on this forum and has to be accepted before the user can continue registration.';
 $txt['errors_list'] = 'Listing of forum errors';
 $txt['errors_found'] = 'The following errors are fouling up your forum';
 $txt['errors_fix'] = 'Would you like to attempt to fix these errors?';
@@ -123,11 +130,13 @@ $txt['ip_address'] = 'IP address';
 $txt['member_id'] = 'ID';
 
 $txt['unknown'] = 'unknown';
-$txt['security_wrong'] = 'Administration login attempt!' . "\n" . 'Referrer: %1$s' . "\n" . 'User agent: %2$s' . "\n" . 'IP: %3$s';
+// argument(s): HTTP_REFERER (if applicable), HTTP_USER_AGENT, ip address
+$txt['security_wrong'] = "Administration login attempt!\nReferrer: %1\$s\nUser agent: %2\$s\nIP: %3\$s";
 
 $txt['email_as_html'] = 'Send in HTML format. (with this you can put normal HTML in the email.)';
 $txt['email_parsed_html'] = 'Add &lt;br&gt;s and &amp;nbsp;s to this message.';
-$txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;. Click <a href="' . $scripturl . '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
+// argument(s): $scripturl
+$txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;. Click <a href="%1$s?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
 $txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.';
 $txt['email_as_pms'] = 'Send this to these groups using personal messages.';
 $txt['email_continue'] = 'Continue';
@@ -410,8 +419,10 @@ $txt['use_subdirectories_for_attachments'] = 'Create new directories within a ba
 $txt['use_subdirectories_for_attachments_note'] = 'Otherwise any new directories will be created within the forum\'s main directory.';
 $txt['basedirectory_for_attachments'] = 'Set a base directory for attachments';
 $txt['basedirectory_for_attachments_current'] = 'Current base directory';
-$txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. <br>(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
-$txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. <br>(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
+// argument(s): scripturl
+$txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. <br>(<a href="%1$s?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
+// argument(s): scripturl
+$txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. <br>(<a href="%1$s?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
 
 $txt['attachment_transfer'] = 'Transfer Attachments';
 $txt['attachment_transfer_desc'] = 'Transfer files between directories.';

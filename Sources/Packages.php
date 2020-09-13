@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -1466,7 +1466,7 @@ function PackageBrowse()
 						'value' => '',
 					),
 					'data' => array(
-						'function' => function($package) use ($context, $scripturl, $txt)
+						'function' => function($package) use ($context, $scripturl, $txt, $type)
 						{
 							$return = '';
 
@@ -1481,7 +1481,7 @@ function PackageBrowse()
 									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button" floatnone>' . $txt['package_upgrade'] . '</a>';
 							elseif ($package['can_install'])
 								$return = '
-									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button floatnone">' . $txt['install_mod'] . '</a>';
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button floatnone">' . $txt['install_' . $type] . '</a>';
 							elseif ($package['can_emulate_install'])
 								$return = '
 									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;ve=' . $package['can_emulate_install'] . ';package=' . $package['filename'] . '" class="button floatnone">' . $txt['package_emulate_install'] . ' ' . $package['can_emulate_install'] . '</a>';

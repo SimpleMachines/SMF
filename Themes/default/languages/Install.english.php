@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; Install
+// Version: 2.1 RC3; Install
 
 // These should be the same as those in index.language.php.
 $txt['lang_character_set'] = 'UTF-8';
@@ -159,22 +159,11 @@ $txt['user_settings_proceed'] = 'Finish';
 $txt['ftp_checking_writable'] = 'Checking Files are Writable';
 $txt['ftp_setup'] = 'FTP Connection Information';
 $txt['ftp_setup_info'] = 'This installer can connect via FTP to fix the files that need to be writable and are not. If this doesn\'t work for you, you will have to go in manually and make the files writable. Please note that this doesn\'t support SSL right now.';
-$txt['ftp_server'] = 'Server';
 $txt['ftp_server_info'] = 'This should be the server and port for your FTP server.';
-$txt['ftp_port'] = 'Port';
-$txt['ftp_username'] = 'Username';
-$txt['ftp_username_info'] = 'The username to login with. <em>This will not be saved anywhere.</em>';
-$txt['ftp_password'] = 'Password';
-$txt['ftp_password_info'] = 'The password to login with. <em>This will not be saved anywhere.</em>';
-$txt['ftp_path'] = 'Install Path';
-$txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP server.';
-$txt['ftp_path_found_info'] = 'The path in the box above was automatically detected.';
-$txt['ftp_connect'] = 'Connect';
 $txt['ftp_setup_why'] = 'What is this step for?';
 $txt['ftp_setup_why_info'] = 'Some files need to be writable for SMF to work properly. This step allows you to let the installer make them writable for you. However, in some cases it won\'t work - in that case, please make the following files 777 (writable, 755 on some hosts):';
 $txt['ftp_setup_again'] = 'to test if these files are writable again.';
 
-$txt['error_php_too_low'] = 'Warning!  You do not appear to have a version of PHP installed on your webserver that meets SMF\'s <strong>minimum installations requirements</strong>.<br>If you are not the host, you will need to ask your host to upgrade, or use a different host - otherwise, please upgrade PHP to a recent version.<br><br>If you know for a fact that your PHP version is high enough you may continue, although this is strongly discouraged.';
 $txt['error_missing_files'] = 'Unable to find crucial installation files in the directory of this script!<br><br>Please make sure you uploaded the entire installation package, including the sql file, and then try again.';
 $txt['error_session_save_path'] = 'Please inform your host that the <strong>session.save_path specified in php.ini</strong> is not valid!  It needs to be changed to a directory that <strong>exists</strong>, and is <strong>writable</strong> by the user PHP is running under.<br>';
 $txt['error_windows_chmod'] = 'You\'re on a windows server, and some crucial files are not writable. Please ask your host to give <strong>write permissions</strong> to the user PHP is running under for the files in your SMF installation. The following files or directories need to be writable:';
@@ -183,7 +172,6 @@ $txt['error_ftp_no_connect'] = 'Unable to connect to FTP server with this combin
 $txt['error_db_file'] = 'Cannot find database source script! Please check file %1$s is within your forum source directory.';
 $txt['error_db_connect'] = 'Cannot connect to the database server with the supplied data.<br><br>If you are not sure about what to type in, please contact your host.';
 $txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
-$txt['error_db_too_low'] = 'The version of your database server is very old, and does not meet SMF\'s minimum requirements.<br><br>Please ask your host to either upgrade it or supply a new one, and if they won\'t, please try a different host.';
 $txt['error_db_database'] = 'The installer was unable to access the &quot;<em>%1$s</em>&quot; database. With some hosts, you have to create the database in your administration panel before SMF can use it. Some also add prefixes - like your username - to your database names.';
 $txt['error_db_queries'] = 'Some of the queries were not executed properly. This could be caused by an unsupported (development or old) version of your database software.<br><br>Technical information about the queries:';
 $txt['error_db_queries_line'] = 'Line #';
@@ -224,7 +212,7 @@ $txt['ftp_username_info'] = 'The username to login with. <em>This will not be sa
 $txt['ftp_password'] = 'Password';
 $txt['ftp_password_info'] = 'The password to login with. <em>This will not be saved anywhere.</em>';
 $txt['ftp_path'] = 'Install Path';
-$txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP client <a href="' . $_SERVER['PHP_SELF'] . '?ftphelp" onclick="window.open(this.href, \'\', \'width=450,height=250\');return false;" target="_blank" rel="noopener">(more help)</a>.';
+$txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP client.';
 $txt['ftp_path_found_info'] = 'The path in the box above was automatically detected.';
 $txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to your FTP client. It commonly starts with &quot;<pre>www</pre>&quot;, &quot;<pre>public_html</pre>&quot;, or &quot;<pre>httpdocs</pre>&quot; - but it should include the directory SMF is in too, such as &quot;/public_html/forum&quot;. It is different from your URL and full path.<br><br>Files in this path may be overwritten, so make sure it\'s correct.';
 $txt['ftp_path_help_close'] = 'Close';
@@ -369,7 +357,8 @@ $txt['mtitle'] = 'Upgrading the forum...';
 $txt['mmessage'] = 'Don\'t worry, we will be back shortly with an updated forum.  It will only be a minute ;).';
 
 // Upgrader error messages
-$txt['error_unexpected_template_call'] = "\n" . 'Error: Unexpected call to use the %1$s template. Please copy and paste all the text above and visit the SMF support forum to let the developers know that there is a bug so they can fix it and get you up and running again.';
+// argument(s): template name (if applicable)
+$txt['error_unexpected_template_call'] = 'Error: Unexpected call to use the %1$s template. Please copy and paste all the text above and visit the SMF support forum to let the developers know that there is a bug so they can fix it and get you up and running again.';
 $txt['error_invalid_template'] = 'Upgrade aborted!  Invalid template: template_%1$s';
 $txt['error_lang_index_missing'] = 'The upgrader was unable to find language files for the selected language, %1$s.<br>SMF will not work in this language without the language files installed.<br><br>Please either install them, or <a href="%2$s?step=0;lang=english">try English instead</a>.';
 $txt['error_upgrade_files_missing'] = 'The upgrader was unable to find some crucial files.<br><br>Please make sure you uploaded all of the files included in the package, including the Themes, Sources, and other directories.';

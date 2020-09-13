@@ -1395,48 +1395,74 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 // We cannot do this twice
 // See which columns we have
 $results = $smcFunc['db_list_columns']('{db_prefix}members');
-$possible_columns = array('icq', 'msn', 'yim', 'location', 'gender');
+$possible_columns = array('icq', 'msn', 'location', 'gender');
 
 // Find values that are in both arrays
 $select_columns = array_intersect($possible_columns, $results);
 
 if (!empty($select_columns))
 {
-	$request = $smcFunc['db_query']('', '
-		SELECT id_member, '. implode(',', $select_columns) .'
-		FROM {db_prefix}members');
+	$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
+	$step_progress['name'] = 'Converting member values';
+	$step_progress['current'] = $_GET['a'];
 
-	$inserts = array();
-	$genderTypes = array(1 => 'Male', 2 => 'Female');
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
+	list($maxMembers) = $smcFunc['db_fetch_row']($request);
+
+	$limit = 10000;
+	$is_done = false;
+
+	while (!$is_done)
 	{
-		if (!empty($row['icq']))
-			$inserts[] = array($row['id_member'], 1, 'cust_icq', $row['icq']);
+		nextSubStep($substep);
+		$inserts = array();
 
-		if (!empty($row['msn']))
-			$inserts[] = array($row['id_member'], 1, 'cust_skype', $row['msn']);
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member, '. implode(',', $select_columns) .'
+			FROM {db_prefix}members
+			ORDER BY id_member
+			LIMIT {int:start}, {int:limit}',
+			array(
+				'start' => $_GET['a'],
+				'limit' => $limit,
+		));
 
-		if (!empty($row['yim']))
-			$inserts[] = array($row['id_member'], 1, 'cust_yahoo', $row['yim']);
+		$genderTypes = array(1 => 'Male', 2 => 'Female');
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (!empty($row['icq']))
+				$inserts[] = array($row['id_member'], 1, 'cust_icq', $row['icq']);
 
-		if (!empty($row['location']))
-			$inserts[] = array($row['id_member'], 1, 'cust_loca', $row['location']);
+			if (!empty($row['msn']))
+				$inserts[] = array($row['id_member'], 1, 'cust_skype', $row['msn']);
 
-		if (!empty($row['gender']) && isset($genderTypes[intval($row['gender'])]))
-			$inserts[] = array($row['id_member'], 1, 'cust_gender', $genderTypes[intval($row['gender'])]);
+			if (!empty($row['location']))
+				$inserts[] = array($row['id_member'], 1, 'cust_loca', $row['location']);
+
+			if (!empty($row['gender']) && isset($genderTypes[INTval($row['gender'])]))
+				$inserts[] = array($row['id_member'], 1, 'cust_gender', $genderTypes[INTval($row['gender'])]);
+		}
+		$smcFunc['db_free_result']($request);
+
+		if (!empty($inserts))
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}themes',
+				array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
+				$inserts,
+				array('id_theme', 'id_member', 'variable')
+			);
+
+		$_GET['a'] += $limit;
+		$step_progress['current'] = $_GET['a'];
+
+		if ($step_progress['current'] >= $maxMembers)
+			$is_done = true;
 	}
-	$smcFunc['db_free_result']($request);
-
-	if (!empty($inserts))
-		$smcFunc['db_insert']('replace',
-			'{db_prefix}themes',
-			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
-			$inserts,
-			array('id_theme', 'id_member', 'variable')
-		);
 }
+unset($_GET['a']);
 ---}
 ---#
+
 ---# Dropping old fields
 ALTER TABLE {$db_prefix}members
 	DROP IF EXISTS icq,
@@ -3522,4 +3548,86 @@ CREATE INDEX {$db_prefix}attachments_id_thumb ON {$db_prefix}attachments (id_thu
 /******************************************************************************/
 ---# Allow for hyper aggressive crawlers
 ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN page_hits TYPE INT;
+---#
+
+/******************************************************************************/
+--- Update policy & agreement settings
+/******************************************************************************/
+---# Strip -utf8 from policy settings
+---{
+$utf8_policy_settings = array();
+foreach($modSettings AS $k => $v)
+{
+	if ((substr($k, 0, 7) === 'policy_') && (substr($k, -5) === '-utf8'))
+		$utf8_policy_settings[$k] = $v;
+}
+$adds = array();
+$deletes = array();
+foreach($utf8_policy_settings AS $var => $val)
+{
+	// Note this works on the policy_updated_ strings as well...
+	$language = substr($var, 7, strlen($var) - 12);
+	if (!array_key_exists('policy_' . $language, $modSettings))
+	{
+		$adds[] =  '(\'policy_' . $language . '\', \'' . $val . '\')';
+		$deletes[] = '\'' . $var . '\'';
+	}
+}
+if (!empty($adds))
+{
+	upgrade_query("
+		INSERT INTO {$db_prefix}settings (variable, value)
+			VALUES " . implode(', ', $adds)
+	);
+}
+if (!empty($deletes))
+{
+	upgrade_query("
+		DELETE FROM {$db_prefix}settings
+			WHERE variable IN (" . implode(', ', $deletes) . ")
+	");
+}
+
+---}
+---#
+
+---# Strip -utf8 from agreement file names
+---{
+$files = glob($boarddir . '/agreement.*-utf8.txt');
+foreach($files AS $filename)
+{
+	$newfile = substr($filename, 0, strlen($filename) - 9) . '.txt';
+	// Do not overwrite existing files
+	if (!file_exists($newfile))
+		@rename($filename, $newfile);
+}
+
+---}
+---#
+
+---# Fix missing values in log_actions
+---{
+// Find the missing id_members
+$request = upgrade_query("
+	SELECT id_action, extra
+		FROM {$db_prefix}log_actions
+		WHERE id_member = 0
+		AND action IN ('policy_accepted', 'agreement_accepted')");
+
+// Fortunately they're in the extra field
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+	$extra = @unserialize($row['extra']);
+	if ($extra === false)
+		continue;
+	if (!empty($extra['applicator']))
+	{
+		upgrade_query("
+			UPDATE {$db_prefix}log_actions
+				SET id_member = " . $extra['applicator'] . "
+				WHERE id_action = " . $row['id_action']);
+	}
+}
+
+---}
 ---#
