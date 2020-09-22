@@ -442,7 +442,7 @@ function logActions($logs)
 
 	foreach ($logs as $log)
 	{
-		if ((empty($modSettings[$log['log_type'] . 'log_enabled']) || !isset($log_types[$log['log_type']])) && !in_array($log['action'], $always_log))
+		if (!in_array($log['action'], $always_log) && (empty($modSettings[$log['log_type'] . 'log_enabled']) || !isset($log_types[$log['log_type']])))
 			return false;
 
 		if (!is_array($log['extra']))
