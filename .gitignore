@@ -18,6 +18,7 @@ attachments/
 Themes/default/css/minified*.css
 Themes/default/scripts/minified*.js
 Themes/default/scripts/minified_deferred*.js
+custom_avatar/
 
 # Compiled source #
 ###################
