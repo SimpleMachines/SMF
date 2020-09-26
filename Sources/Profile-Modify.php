@@ -484,7 +484,7 @@ function loadProfileFields($force_reload = false)
 				$no_smiley_sets = array_diff(explode(',', $modSettings['smiley_sets_known']), array_keys($filenames));
 				foreach ($no_smiley_sets as $set)
 				{
-					$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
+					$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg', 'webp');
 					$images = glob(implode('/', array($modSettings['smileys_dir'], $set, '*.{' . (implode(',', $allowedTypes) . '}'))), GLOB_BRACE);
 
 					// Just use some image or other

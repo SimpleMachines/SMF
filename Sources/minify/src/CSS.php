@@ -36,6 +36,7 @@ class CSS extends Minify
         'tif' => 'image/tiff',
         'tiff' => 'image/tiff',
         'xbm' => 'image/x-xbitmap',
+        'webp' => 'image/webp',
     );
 
     /**
