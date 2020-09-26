@@ -217,7 +217,10 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 	{
 		loadLanguage('Errors', $language);
 		$reload_lang_file = $language != $user_info['language'];
-		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
+		if (empty($txt[$error]))
+			$error_message = $error;
+		else
+			$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
 		log_error($error_message, $log);
 	}
 
