@@ -175,7 +175,7 @@ class memcached_cache extends cache_api
 	 */
 	public function getVersion()
 	{
-		if (is_resource($this->memcached))
+		if (is_object($this->memcached))
 			return false;
 
 		// This gets called in Subs-Admin getServerVersions when loading up support information.  If we can't get a connection, return nothing.
