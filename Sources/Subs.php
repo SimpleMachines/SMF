@@ -3946,7 +3946,7 @@ function template_header()
 
 				if (!empty($context['auth_secret_missing']))
 					echo '
-				<strong>', $txt['secret_auth_missing'], '</strong><br>';
+				<strong>', $txt['auth_secret_missing'], '</strong><br>';
 
 				echo '
 			</p>
