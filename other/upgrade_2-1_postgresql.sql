@@ -3569,7 +3569,7 @@ foreach($utf8_policy_settings AS $var => $val)
 	$language = substr($var, 7, strlen($var) - 12);
 	if (!array_key_exists('policy_' . $language, $modSettings))
 	{
-		$adds[] =  '(\'policy_' . $language . '\', \'' . $val . '\')';
+		$adds[] =  '(\'policy_' . $language . '\', \'' . $smcFunc['db_escape_string']($val) . '\')';
 		$deletes[] = '\'' . $var . '\'';
 	}
 }
