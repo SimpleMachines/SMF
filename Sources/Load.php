@@ -169,10 +169,12 @@ function reloadSettings()
 
 			return preg_replace('~^(?:[' . $space_chars . ']|&nbsp;)+|(?:[' . $space_chars . ']|&nbsp;)+$~' . ($utf8 ? 'u' : ''), '', $ent_check($string));
 		},
+		// Like normal strlen, except that it counts entities as single characters.
 		'strlen' => function($string) use ($ent_list, $utf8, $ent_check)
 		{
 			return strlen(preg_replace('~' . $ent_list . ($utf8 ? '|.~u' : '~'), '_', $ent_check($string)));
 		},
+		// Like normal strpos, except that it counts entities as single characters.
 		'strpos' => function($haystack, $needle, $offset = 0) use ($utf8, $ent_check, $ent_list, $modSettings)
 		{
 			if (strlen($haystack) < abs($offset))
@@ -207,6 +209,7 @@ function reloadSettings()
 
 			return $needle_pos;
 		},
+		// Like normal substr, except that it handles entities as single characters.
 		'substr' => function($string, $start, $length = null) use ($utf8, $ent_check, $ent_list, $modSettings)
 		{
 			$ent_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
