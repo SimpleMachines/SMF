@@ -947,8 +947,8 @@ function hash_benchmark($hashTime = 0.2)
 	return $cost;
 }
 
-// Based on code by "s rotondo90 at gmail com".
-// https://www.php.net/manual/en/function.hash-equals.php#119576
+// Based on code by "examplehash at user dot com".
+// https://www.php.net/manual/en/function.hash-equals.php#125034
 if (!function_exists('hash_equals'))
 {
 	/**
@@ -959,22 +959,20 @@ if (!function_exists('hash_equals'))
 	 */
 	function hash_equals($known_string, $user_string)
 	{
-		$ret = 0;
+		$known_string = (string) $known_string;
+		$user_string = (string) $user_string;
 
-		if (strlen($known_string) !== strlen($user_string))
+		$sx = 0;
+		$sy = strlen($known_string);
+		$uy = strlen($user_string);
+		$result = $sy - $uy;
+		for ($ux = 0; $ux < $uy; $ux++)
 		{
-			$user_string = $known_string;
-			$ret = 1;
+			$result |= ord($user_string[$ux]) ^ ord($known_string[$sx]);
+			$sx = ($sx + 1) % $sy;
 		}
 
-		$res = $known_string ^ $user_string;
-
-		for ($i = strlen($res) - 1; $i >= 0; --$i)
-		{
-			$ret |= ord($res[$i]);
-		}
-
-		return !$ret;
+		return !$result;
 	}
 }
 
