@@ -1210,8 +1210,6 @@ function UpgradeOptions()
 
 	$upcontext['migrate_settings_recommended'] = empty($modSettings['smfVersion']) || version_compare(strtolower($modSettings['smfVersion']), substr(SMF_VERSION, 0, strpos(SMF_VERSION, '.') + 1 + strspn(SMF_VERSION, '1234567890', strpos(SMF_VERSION, '.') + 1)) . ' foo', '<');
 
-	$upcontext['auth_secret_update_recommended'] = empty($auth_secret);
-
 	unset($member_columns);
 
 	// If we've not submitted then we're done.
