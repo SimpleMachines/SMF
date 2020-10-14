@@ -1427,10 +1427,6 @@ function UpgradeOptions()
 	// Ensure this doesn't get lost in translation.
 	$changes['upgradeData'] = base64_encode(json_encode($upcontext['user']));
 
-	// Update $auth_secret?
-	if (!empty($_POST['resetAuthSecret']))
-		$changes['auth_secret'] = bin2hex($smcFunc['random_bytes'](32));
-
 	// Update Settings.php with the new settings, and rebuild if they selected that option.
 	require_once($sourcedir . '/Subs.php');
 	require_once($sourcedir . '/Subs-Admin.php');
@@ -2721,8 +2717,6 @@ function cmdStep0()
 			$_POST['backup'] = 1;
 		elseif ($arg == '--rebuild-settings')
 			$_POST['migrateSettings'] = 1;
-		elseif ($arg == '--reset-auth')
-			$_POST['resetAuthSecret'] = 1;
 		elseif ($arg == '--allow-stats')
 			$_POST['stats'] = 1;
 		elseif ($arg == '--template' && (file_exists($boarddir . '/template.php') || file_exists($boarddir . '/template.html') && !file_exists($modSettings['theme_dir'] . '/converted')))
@@ -2738,8 +2732,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	--debug                 Output debugging information.
 	--backup                Create backups of tables with "backup_" prefix.
 	--allow-stats           Allow Simple Machines stat collection
-	--rebuild-settings      Rebuild the Settings.php file
-	--reset-auth            Reset the auth_secret';
+	--rebuild-settings      Rebuild the Settings.php file';
 			echo "\n";
 			exit;
 		}
@@ -4257,12 +4250,6 @@ function template_upgrade_options()
 						<input type="checkbox" name="migrateSettings" id="migrateSettings" value="1"', empty($upcontext['migrate_settings_recommended']) ? '' : ' checked="checked"', '>
 						<label for="migrateSettings">
 							', $txt['upgrade_migrate_settings_file'], '
-						</label>
-					</li>
-					<li>
-						<input type="checkbox" name="resetAuthSecret" id="resetAuthSecret" value="1"', empty($upcontext['auth_secret_update_recommended']) ? '' : ' checked="checked"', '>
-						<label for="resetAuthSecret">
-							', $txt['upgrade_reset_auth_secret'], '
 						</label>
 					</li>
 				</ul>
