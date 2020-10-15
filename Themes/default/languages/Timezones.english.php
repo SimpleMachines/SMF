@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; Time zone descriptions
+// Version: 2.1 RC3; Timezones
 
 /**
  * This file defines custom descriptions for certain time zones to be used in
