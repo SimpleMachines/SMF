@@ -77,7 +77,6 @@ function template_login()
 					<p class="smalltext">
 						<a href="', $scripturl, '?action=reminder">', $txt['forgot_your_password'], '</a>
 					</p>
-					<input type="hidden" name="hash_passwrd" value="">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
 					<script>
@@ -273,7 +272,6 @@ function template_kick_guest()
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
-			<input type="hidden" name="hash_passwrd" value="">
 		</div><!-- .login -->
 	</form>';
 
@@ -326,7 +324,6 @@ function template_maintenance()
 				<input type="submit" value="', $txt['login'], '" class="button">
 				<br class="clear">
 			</div>
-			<input type="hidden" name="hash_passwrd" value="">
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
 		</div><!-- #maintenance_mode -->
