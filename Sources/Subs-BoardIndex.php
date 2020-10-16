@@ -147,6 +147,7 @@ function getBoardIndex($board_index_options)
 	$smcFunc['db_free_result']($result_boards);
 
 	// Run through the categories and boards (or only boards)....
+	// Done like this so the modified values can be used.
 	for (reset($row_boards); key($row_boards) !== null; next($row_boards))
 	{
 		$row_board = current($row_boards);

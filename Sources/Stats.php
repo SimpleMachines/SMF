@@ -546,7 +546,7 @@ function DisplayStats()
 				INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
 					AND b.id_board != {int:recycle_board}' : '') . ')
-			WHERE {query_see_board}' . ($modSettings['postmod_active'] ? '
+			WHERE m.likes > 0 AND {query_see_board}' . ($modSettings['postmod_active'] ? '
 				AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY m.likes DESC
 			LIMIT 10',

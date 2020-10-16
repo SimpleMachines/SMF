@@ -114,12 +114,12 @@ function PrintTopic()
 		$pollOptions = array();
 		$realtotal = 0;
 		$pollinfo['has_voted'] = false;
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($voterow = $smcFunc['db_fetch_assoc']($request))
 		{
-			censorText($row['label']);
-			$pollOptions[$row['id_choice']] = $row;
-			$realtotal += $row['votes'];
-			$pollinfo['has_voted'] |= $row['voted_this'] != -1;
+			censorText($voterow['label']);
+			$pollOptions[$voterow['id_choice']] = $voterow;
+			$realtotal += $voterow['votes'];
+			$pollinfo['has_voted'] |= $voterow['voted_this'] != -1;
 		}
 		$smcFunc['db_free_result']($request);
 
