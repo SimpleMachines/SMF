@@ -2482,7 +2482,7 @@ function template_admin_account()
 				<label for="email">', $txt['user_settings_admin_email'], ':</label>
 			</dt>
 			<dd>
-				<input type="text" name="email" id="email" value="', $incontext['email'], '" size="40">
+				<input type="email" name="email" id="email" value="', $incontext['email'], '" size="40">
 				<div class="smalltext">', $txt['user_settings_admin_email_info'], '</div>
 			</dd>
 			<dt>
