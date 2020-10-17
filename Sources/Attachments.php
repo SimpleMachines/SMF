@@ -128,10 +128,9 @@ class Attachments
 	{
 		global $smcFunc, $sourcedir;
 
-		require_once($sourcedir . '/Subs-Attachments.php');
+		isAllowedTo('post_attachment');
 
-		// Guest aren't welcome, sorry.
-		is_not_guest();
+		require_once($sourcedir . '/Subs-Attachments.php');
 
 		// Need this. For reasons...
 		loadLanguage('Post');
