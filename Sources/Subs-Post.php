@@ -1738,7 +1738,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			// Remove any members who weren't actually mentioned, to prevent bogus notifications
 			foreach ($msgOptions['mentioned_members'] as $m)
 			{
-				if (strpos('[member=' . $m['id'] . ']' . $m['real_name'] . '[/member]', $msgOptions['body']) === false)
+				if (strpos('[member=' . $m['id'] . ']@' . $m['real_name'] . '[/member]', $msgOptions['body']) === false)
 					unset($msgOptions['mentioned_members'][$m['id']]);
 			}
 		}
