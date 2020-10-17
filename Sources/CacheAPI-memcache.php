@@ -153,6 +153,7 @@ class memcache_cache extends cache_api
 
 		// This gets called in Subs-Admin getServerVersions when loading up support information.  If we can't get a connection, return nothing.
 		$result = $this->memcache->getVersion();
+
 		if (!empty($result))
 			return $result;
 		return false;
