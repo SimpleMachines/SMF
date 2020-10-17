@@ -734,16 +734,14 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	$unsupportedFormatsWindows = array('z', 'Z');
 
 	// Ensure required values are set
-	$user_info['time_offset'] = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
-	$modSettings['time_offset'] = !empty($modSettings['time_offset']) ? $modSettings['time_offset'] : 0;
 	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %H:%M');
 
 	// Offset the time.
 	if (!$offset_type)
-		$log_time = $log_time + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
+		$log_time = forum_time(true, $log_time);
 	// Just the forum offset?
 	elseif ($offset_type == 'forum')
-		$log_time = $log_time + $modSettings['time_offset'] * 3600;
+		$log_time = forum_time(false, $log_time);
 
 	// We can't have a negative date (on Windows, at least.)
 	if ($log_time < 0)
@@ -1126,18 +1124,46 @@ function shorten_subject($subject, $len)
  *
  * @param bool $use_user_offset Whether to apply the user's offset as well
  * @param int $timestamp A timestamp (null to use current time)
+ * @param bool $local_to_server sometimes you need to go the other way - from user prompt to server time
  * @return int Seconds since the unix epoch, with forum time offset and (optionally) user time offset applied
  */
-function forum_time($use_user_offset = true, $timestamp = null)
+function forum_time($use_user_offset = true, $timestamp = null, $local_to_server = false)
 {
-	global $user_info, $modSettings;
+	global $user_info, $modSettings, $user_settings;
+
+	// Ensure required values are set
+	$modSettings['time_offset'] = !empty($modSettings['time_offset']) ? $modSettings['time_offset'] : 0;
 
 	if ($timestamp === null)
 		$timestamp = time();
 	elseif ($timestamp == 0)
 		return 0;
 
-	return $timestamp + ($modSettings['time_offset'] + ($use_user_offset ? $user_info['time_offset'] : 0)) * 3600;
+	$user_offset = 0;
+
+	if ($use_user_offset)
+	{
+		// Fall back on current user offset setting if you must
+		$user_offset = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
+
+		// But finding the user offset for the time in question is better
+		if (!empty($user_settings['timezone']))
+		{
+			$dtz_user = new DateTimeZone($user_settings['timezone']);
+			if ($dtz_user !== false)
+			{
+				$dt_user = new DateTime('@' . $timestamp);
+				$temp_offset = $dtz_user->getOffset($dt_user);
+				if ($temp_offset !== false)
+					$user_offset = $temp_offset/3600;
+			}
+		}
+	}
+
+	if ($local_to_server)
+		return $timestamp - ($modSettings['time_offset'] + $user_offset) * 3600;
+	else
+		return $timestamp + ($modSettings['time_offset'] + $user_offset) * 3600;
 }
 
 /**

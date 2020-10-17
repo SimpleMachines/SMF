@@ -332,9 +332,24 @@ function ViewMemberlist()
 					}
 				}
 				// Special case - equals a date.
-				elseif ($param_info['type'] == 'date' && $search_params['types'][$param_name] == '=')
+				elseif ($param_info['type'] == 'date')
 				{
-					$query_parts[] = $param_info['db_fields'][0] . ' > ' . $search_params[$param_name] . ' AND ' . $param_info['db_fields'][0] . ' < ' . ($search_params[$param_name] + 86400);
+					if ($search_params['types'][$param_name] == '=')
+					{
+						$query_parts[] = $param_info['db_fields'][0] . ' >= ' . forum_time(true, $search_params[$param_name], true) . ' AND ' . $param_info['db_fields'][0] . ' < ' . (forum_time(true, $search_params[$param_name], true) + 86400);
+					}
+					// Less than or equal to
+					elseif ($search_params['types'][$param_name] == '-')
+					{
+						$query_parts[] = $param_info['db_fields'][0] . ' < ' . (forum_time(true, $search_params[$param_name], true) + 86400);
+					}
+					// Greater than
+					elseif ($search_params['types'][$param_name] == '++')
+					{
+						$query_parts[] = $param_info['db_fields'][0] . ' >= ' . (forum_time(true, $search_params[$param_name], true) + 86400);
+					}
+					else
+						$query_parts[] = $param_info['db_fields'][0] . ' ' . $range_trans[$search_params['types'][$param_name]] . ' ' . forum_time(true, $search_params[$param_name], true);
 				}
 				else
 					$query_parts[] = $param_info['db_fields'][0] . ' ' . $range_trans[$search_params['types'][$param_name]] . ' ' . $search_params[$param_name];
