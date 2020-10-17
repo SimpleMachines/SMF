@@ -449,6 +449,8 @@ function reloadSettings()
 		43200 => 'one_month',
 	);
 
+	$context['show_spellchecking'] = false;
+
 	// Call pre load integration functions.
 	call_integration_hook('integrate_pre_load');
 }
