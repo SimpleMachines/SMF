@@ -379,7 +379,6 @@ function smf_main()
 		'signup2' => array('Register.php', 'Register2'),
 		'smstats' => array('Stats.php', 'SMStats'),
 		'suggest' => array('Subs-Editor.php', 'AutoSuggestHandler'),
-		'spellcheck' => array('Subs-Post.php', 'SpellCheck'),
 		'splittopics' => array('SplitTopics.php', 'SplitTopics'),
 		'stats' => array('Stats.php', 'DisplayStats'),
 		'sticky' => array('Topic.php', 'Sticky'),
