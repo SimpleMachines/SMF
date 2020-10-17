@@ -156,6 +156,7 @@ class memcache_cache extends cache_api
 
 		if (!empty($result))
 			return $result;
+
 		return false;
 	}
 }

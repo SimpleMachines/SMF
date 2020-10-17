@@ -183,6 +183,7 @@ class memcached_cache extends cache_api
 
 		if (!empty($result))
 			return current($result);
+
 		return false;
 	}
 }
