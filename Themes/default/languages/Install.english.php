@@ -45,6 +45,7 @@ $txt['default_fugue_smileyset_name'] = 'Fugue\'s Set';
 $txt['default_alienine_smileyset_name'] = 'Alienine\'s Set';
 $txt['default_aaron_smileyset_name'] = 'Aaron\'s Set';
 $txt['default_akyhne_smileyset_name'] = 'Akyhne\'s Set';
+$txt['default_legacy_smileyset_name'] = '2.0 Default';
 $txt['default_theme_name'] = 'SMF Default Theme - Curve2';
 
 $txt['default_administrator_group'] = 'Administrator';
