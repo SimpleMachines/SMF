@@ -180,6 +180,7 @@ class memcached_cache extends cache_api
 
 		// This gets called in Subs-Admin getServerVersions when loading up support information.  If we can't get a connection, return nothing.
 		$result = $this->memcached->getVersion();
+
 		if (!empty($result))
 			return current($result);
 		return false;
