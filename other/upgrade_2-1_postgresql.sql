@@ -1060,6 +1060,7 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'buddy_request', 1) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'warn_any', 1) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'request_group', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_notify_pref', 1) ON CONFLICT DO NOTHING;
 ---#
 
 ---# Upgrading post notification settings
