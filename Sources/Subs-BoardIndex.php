@@ -222,6 +222,15 @@ function getBoardIndex($board_index_options)
 			$this_category = &$categories[$row_board['id_cat']]['boards'];
 		}
 
+		if (empty($boards_parsed_data))
+			$boards_parsed_data = getBoardsParsedDescription($row_board['id_cat']);
+
+		if (empty($to_parse_boards_info))
+			$to_parse_boards_info = array();
+
+		if (empty($to_parse_boards_info[$row_board['id_cat']]))
+			$to_parse_boards_info[$row_board['id_cat']] = array();
+
 		// This is a parent board.
 		if ($row_board['id_parent'] == $board_index_options['parent_id'])
 		{
@@ -230,15 +239,6 @@ function getBoardIndex($board_index_options)
 			{
 				// Not a child.
 				$isChild = false;
-
-				if (empty($boards_parsed_data))
-					$boards_parsed_data = getBoardsParsedDescription($row_board['id_cat']);
-
-				if (empty($to_parse_boards_info))
-					$to_parse_boards_info = array();
-
-				if (empty($to_parse_boards_info[$row_board['id_cat']]))
-					$to_parse_boards_info[$row_board['id_cat']] = array();
 
 				// We might or might not have already added this board, so...
 				if (!isset($this_category[$row_board['id_board']]))
