@@ -271,9 +271,6 @@ function setCategoryParsedDescription($category_info = array())
 	// Get the data we already parsed
 	$already_parsed_categories = getCategoriesParsedDescription();
 
-	if (null === $already_parsed_categories)
-		$already_parsed_categories = array();
-
 	foreach ($category_info as $category_id => $category_description)
 		$already_parsed_categories[$category_id] = !empty($category_description) ?
 				parse_bbc($category_description, false, '', $context['description_allowed_tags']) : '';
@@ -289,7 +286,7 @@ function getCategoriesParsedDescription()
 	global $cache_enable;
 
 	if (empty($cache_enable))
-		return null;
+		return array();
 
 	return cache_get_data('parsed_category_descriptions', 864000);
 }
