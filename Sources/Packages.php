@@ -894,7 +894,10 @@ function PackageInstall()
 	if (!is_array($packageInfo))
 		fatal_lang_error($packageInfo);
 
-	$context['package_sha256_hash'] = hash_file('sha256', $packagesdir . '/' . $context['filename']);
+	if (is_dir($packagesdir . '/' . $context['filename']))
+		$context['package_sha256_hash'] = '';
+	else
+		$context['package_sha256_hash'] = hash_file('sha256', $packagesdir . '/' . $context['filename']);
 	$packageInfo['filename'] = $context['filename'];
 
 	// Set the type of extraction...
@@ -953,9 +956,6 @@ function PackageInstall()
 		foreach ($theme_paths as $id => $data)
 			if ($id != 1 && !in_array($id, $old_themes))
 				unset($theme_paths[$id]);
-
-		$context['keep_url'] = $scripturl . '?action=admin;area=packages;sa=browse;' . $context['session_var'] . '=' . $context['session_id'];	
-		$context['remove_url'] = $scripturl . '?action=admin;area=packages;sa=remove;package=' . $context['filename'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 	}
 	elseif (isset($old_version) && $old_version != $packageInfo['version'])
 	{
@@ -1403,7 +1403,7 @@ function PackageBrowse()
 			'no_items_label' => $txt['no_packages'],
 			'get_items' => array(
 				'function' => 'list_getPackages',
-				'params' => array('type' => $type),
+				'params' => array($type),
 			),
 			'base_href' => $scripturl . '?action=admin;area=packages;sa=browse;type=' . $type,
 			'default_sort_col' => 'id' . $type,
