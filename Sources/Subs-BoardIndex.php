@@ -132,35 +132,25 @@ function getBoardIndex($board_index_options)
 		);
 
 	// Start with an empty array.
+	$categories = array();
+	$this_category = array();
+	$parsed_categories_description = array();
+	$to_parse_categories_description = array();
+
 	if ($board_index_options['include_categories'])
 	{
 		require_once $sourcedir . '/Subs-Categories.php';
 
-		$categories = array();
 		$parsed_categories_description = getCategoriesParsedDescription();
-		$to_parse_categories_description = array();
-	}
-
-	else
-	{
-		$this_category = array();
-		$parsed_categories_description = array();
-		$to_parse_categories_description = array();
 	}
 
 	$boards = array();
-	$boards_ids = array();
-	$categories_ids = array();
 
 	// Children can affect parents, so we need to gather all the boards first and then process them after.
 	$row_boards = array();
 
 	foreach ($smcFunc['db_fetch_all']($result_boards) as $row)
-	{
 		$row_boards[$row['id_board']] = $row;
-		$boards_ids[] = $row['id_board'];
-		$categories_ids[] = $row['id_cat'];
-	}
 
 	$smcFunc['db_free_result']($result_boards);
 
@@ -180,8 +170,6 @@ function getBoardIndex($board_index_options)
 
 		if ($board_index_options['include_categories'])
 		{
-			require_once $sourcedir . '/Subs-Categories.php';
-
 			// Haven't set this category yet.
 			if (empty($categories[$row_board['id_cat']]))
 			{
@@ -536,6 +524,13 @@ function getBoardIndex($board_index_options)
 			{
 				$board['name'] = $boards_parsed_data[$board['id_cat']][$board['id']]['name'];
 				$board['description'] = $boards_parsed_data[$board['id_cat']][$board['id']]['description'];
+
+				if (isset($board['children']))
+					foreach ($board['children'] as &$child_board)
+					{
+						$child_board['name'] = $boards_parsed_data[$board['id_cat']][$board['id']]['name'];
+						$child_board['description'] = $boards_parsed_data[$board['id_cat']][$board['id']]['description'];
+					}
 			}
 
 			if (!empty($moderators[$board['id']]))
