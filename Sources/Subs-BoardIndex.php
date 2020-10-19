@@ -174,13 +174,13 @@ function getBoardIndex($board_index_options)
 			if (empty($categories[$row_board['id_cat']]))
 			{
 				$category_name = $row_board['cat_name'];
-				$category_description = $parsed_categories_description[$row_board['id_cat']];
+				$category_description = $row_board['cat_desc'];
 
-				if (!isset($category_description))
-				{
+				if (isset($parsed_categories_description[$row_board['id_cat']]))
+					$category_description = $parsed_categories_description[$row_board['id_cat']];
+
+				else
 					$to_parse_categories_description[$row_board['id_cat']] = $row_board['cat_desc'];
-					$category_description = $row_board['cat_desc'];
-				}
 
 				$categories[$row_board['id_cat']] = array(
 					'id' => $row_board['id_cat'],
