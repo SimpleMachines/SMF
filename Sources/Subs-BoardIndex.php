@@ -319,14 +319,24 @@ function getBoardIndex($board_index_options)
 					'board_class' => 'off'
 				);
 
-			$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
-			$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
+			if (isset($boards_parsed_data[$row_board['id_board']]))
+				$child_board_parsed_info = $boards_parsed_data[$row_board['id_board']];
+
+			else
+			{
+				$child_board_parsed_info = array(
+					'name' => $row_board['board_name'],
+					'description' => $row_board['description']
+				);
+
+				$to_parse_boards_info[$row_board['id_cat']][$row_board['id_board']] = $child_board_parsed_info;
+			}
 
 			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']] = array(
 				'id' => $row_board['id_board'],
-				'name' => $board_name,
-				'description' => $board_description,
-				'short_description' => shorten_subject($board_description, 128),
+				'name' => $child_board_parsed_info['name'],
+				'description' => $child_board_parsed_info['description'],
+				'short_description' => shorten_subject($child_board_parsed_info['description'], 128),
 				'new' => empty($row_board['is_read']),
 				'topics' => $row_board['num_topics'],
 				'posts' => $row_board['num_posts'],
@@ -335,7 +345,7 @@ function getBoardIndex($board_index_options)
 				'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
 				'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
 				'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
-				'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $board_name . '</a>'
+				'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $child_board_parsed_info['name'] . '</a>'
 			);
 
 			// Counting child board posts in the parent's totals?
@@ -562,18 +572,12 @@ function getBoardIndex($board_index_options)
 		$context['latest_post'] = $latest_post['ref'];
 	}
 
-	// I took my time, I hurried up, the choice was mine I didn't think enough
-	$parsed_descriptions = setparsedDescriptions($to_parse);
-
 	// I can't remember why but trying to make a ternary to get this all in one line is actually a Very Bad Idea.
 	if ($board_index_options['include_categories'])
 		call_integration_hook('integrate_getboardtree', array($board_index_options, &$categories));
 
 	else
 		call_integration_hook('integrate_getboardtree', array($board_index_options, &$this_category));
-
-	// I took my time, I hurried up, the choice was mine I didn't think enough
-	setparsedDescriptions($to_parse);
 
 	return $board_index_options['include_categories'] ? $categories : $this_category;
 }
