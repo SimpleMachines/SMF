@@ -7,11 +7,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -22,8 +22,8 @@ if (!defined('SMF'))
  * Must be called with a topic specified.
  * Accessed via ?action=printpage.
  *
- * @uses Printpage template, main sub-template.
- * @uses print_above/print_below later without the main layer.
+ * Uses Printpage template, main sub-template.
+ * Uses print_above/print_below later without the main layer.
  */
 
 function PrintTopic()
@@ -114,12 +114,12 @@ function PrintTopic()
 		$pollOptions = array();
 		$realtotal = 0;
 		$pollinfo['has_voted'] = false;
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($voterow = $smcFunc['db_fetch_assoc']($request))
 		{
-			censorText($row['label']);
-			$pollOptions[$row['id_choice']] = $row;
-			$realtotal += $row['votes'];
-			$pollinfo['has_voted'] |= $row['voted_this'] != -1;
+			censorText($voterow['label']);
+			$pollOptions[$voterow['id_choice']] = $voterow;
+			$realtotal += $voterow['votes'];
+			$pollinfo['has_voted'] |= $voterow['voted_this'] != -1;
 		}
 		$smcFunc['db_free_result']($request);
 

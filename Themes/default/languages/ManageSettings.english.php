@@ -1,9 +1,10 @@
 <?php
-// Version: 2.1 RC2; ManageSettings
+// Version: 2.1 RC3; ManageSettings
 
 global $scripturl;
 
-$txt['modSettings_desc'] = 'This page allows you to change the settings of features and basic options in your forum. Please see the <a href="' . $scripturl . '?action=admin;area=theme;sa=list;th=%1$s;%3$s=%2$s">theme settings</a> for more options. Click the help icons for more information about a setting.';
+// argument(s): theme_id, session_id, session_var, $scripturl
+$txt['modSettings_desc'] = 'This page allows you to change the settings of features and basic options in your forum. Please see the <a href="%4$s?action=admin;area=theme;sa=list;th=%1$s;%3$s=%2$s">theme settings</a> for more options. Click the help icons for more information about a setting.';
 $txt['modification_settings_desc'] = 'This page contains settings added by any modifications to your forum';
 
 $txt['modification_no_misc_settings'] = 'There are no modifications installed that have added any settings to this area yet.';
@@ -21,15 +22,14 @@ $txt['default_personal_text'] = 'Default personal text';
 $txt['default_personal_text_note'] = 'Personal text to assign to newly registered members.';
 $txt['time_format'] = 'Default time format';
 $txt['setting_time_offset'] = 'Overall time offset';
-$txt['setting_time_offset_note'] = '(added to the member specific option)';
-$txt['setting_default_timezone'] = 'Server timezone';
+$txt['setting_default_timezone'] = 'Forum default timezone';
 $txt['setting_timezone_priority_countries'] = 'Show time zones from these countries first';
 $txt['setting_timezone_priority_countries_note'] = 'A comma separated list of two character ISO country codes.';
 $txt['failed_login_threshold'] = 'Failed login threshold';
 $txt['loginHistoryDays'] = 'Days to keep login history';
 $txt['lastActive'] = 'User online time threshold';
-$txt['trackStats'] = 'Track daily statistics';
-$txt['hitStats'] = 'Track daily page views (must have stats enabled)';
+$txt['trackStats'] = 'Track statistics';
+$txt['hitStats'] = 'Track daily page views (statistics tracking must be enabled)';
 $txt['enableCompressedOutput'] = 'Enable compressed output';
 $txt['databaseSession_enable'] = 'Use database driven sessions';
 $txt['databaseSession_loose'] = 'Allow browsers to go back to cached pages';
@@ -56,12 +56,16 @@ $txt['securityDisable_moderate'] = 'Disable moderation security';
 $txt['send_validation_onChange'] = 'Require reactivation after email change';
 $txt['approveAccountDeletion'] = 'Require admin approval when member deletes account';
 $txt['autoFixDatabase'] = 'Automatically fix broken tables';
-$txt['allow_disableAnnounce'] = 'Allow users to disable announcements';
 $txt['disallow_sendBody'] = 'Don\'t allow post text in notifications';
-$txt['enable_ajax_alerts'] = 'Allow AJAX Desktop Notifications for Alerts';
+$txt['enable_ajax_alerts'] = 'Allow AJAX desktop notifications for alerts';
+$txt['alerts_auto_purge'] = 'Automatically delete read alerts';
+$txt['alerts_auto_purge_7'] = 'After 1 week';
+$txt['alerts_auto_purge_30'] = 'After 1 month';
+$txt['alerts_auto_purge_90'] = 'After 3 months';
+$txt['alerts_auto_purge_0'] = 'Never';
 $txt['jquery_source'] = 'Source for the jQuery Library';
 $txt['jquery_custom_label'] = 'Custom';
-$txt['jquery_custom'] = 'Custom url to the jQuery Library';
+$txt['jquery_custom'] = 'Custom URL to the jQuery Library';
 $txt['jquery_local'] = 'Local';
 $txt['jquery_cdn'] = 'Google CDN';
 $txt['jquery_auto'] = 'Auto';
@@ -82,7 +86,7 @@ $txt['todayMod'] = 'Enable shorthand date display';
 $txt['today_disabled'] = 'Disabled';
 $txt['today_only'] = 'Only Today';
 $txt['yesterday_today'] = 'Today &amp; Yesterday';
-$txt['onlineEnable'] = 'Show online/offline in posts and PMs';
+$txt['onlineEnable'] = 'Show online/offline status in posts and PMs';
 $txt['defaultMaxMembers'] = 'Members per page in member list';
 $txt['timeLoadPageEnable'] = 'Display time taken to create every page';
 $txt['disableHostnameLookup'] = 'Disable hostname lookups';
@@ -115,8 +119,8 @@ $txt['caching_information'] = 'SMF supports caching through the use of accelerat
 	<li>XCache</li>
 </ul>
 Caching will work best if you have PHP compiled with one of the above optimizers, or have memcached available. If you do not have any optimizer installed SMF will do file based caching.';
-$txt['detected_no_caching'] = '<strong class="alert">SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.</strong>';
-$txt['detected_accelerators'] = '<strong class="success">SMF has detected the following accelerators: %1$s</strong>';
+$txt['detected_no_caching'] = 'SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.';
+$txt['detected_accelerators'] = 'SMF has detected the following accelerators: %1$s';
 
 $txt['cache_enable'] = 'Caching Level';
 $txt['cache_off'] = 'No caching';
@@ -143,7 +147,7 @@ $txt['cache_xcache_settings'] = 'XCache settings';
 $txt['cache_xcache_adminuser'] = 'XCache Admin User';
 $txt['cache_xcache_adminpass'] = 'XCache Admin Password';
 
-$txt['loadavg_warning'] = '<span class="error">Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>%01.2f</strong></span>';
+$txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>%01.2f</strong>';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';
 $txt['loadavg_auto_opt'] = 'Threshold to disabling automatic database optimization';
 $txt['loadavg_search'] = 'Threshold to disabling search';
@@ -153,9 +157,9 @@ $txt['loadavg_show_posts'] = 'Threshold to disabling showing user posts';
 $txt['loadavg_userstats'] = 'Threshold to disabling showing user statistics';
 $txt['loadavg_bbc'] = 'Threshold to disabling BBC formatting when showing posts';
 $txt['loadavg_forum'] = 'Threshold to disabling the forum <strong>completely</strong>';
-$txt['loadavg_disabled_windows'] = '<span class="error">Load balancing support is not available on Windows.</span>';
-$txt['loadavg_disabled_osx'] = '<span class="error">Load balancing support is not available on OS:X.</span>';
-$txt['loadavg_disabled_conf'] = '<span class="error">Load balancing support is disabled by your host configuration.</span>';
+$txt['loadavg_disabled_windows'] = 'Load balancing support is not available on Windows.';
+$txt['loadavg_disabled_osx'] = 'Load balancing support is not available on OS:X.';
+$txt['loadavg_disabled_conf'] = 'Load balancing support is disabled by your host configuration.';
 
 $txt['setting_password_strength'] = 'Required strength for user passwords';
 $txt['setting_password_strength_low'] = 'Low - 4 character minimum';
@@ -189,7 +193,7 @@ $txt['setting_image_verification_sample'] = 'Sample';
 
 // reCAPTCHA
 $txt['recaptcha_configure'] = 'reCAPTCHA Verification System';
-$txt['recaptcha_configure_desc'] = 'Configure the reCAPTCHA Verification System. Don\'t have a key for reCAPTCHA? <a href="https://www.google.com/recaptcha/admin"> Get your reCAPTCHA key here</a>.';
+$txt['recaptcha_configure_desc'] = 'Configure the reCAPTCHA Verification System. Don\'t have a key for reCAPTCHA? <a href="https://www.google.com/recaptcha/admin">Get your reCAPTCHA key here</a>.';
 $txt['recaptcha_enabled'] = 'Use reCAPTCHA Verification System';
 $txt['recaptcha_enable_desc'] = 'This augments the built-in visual verification';
 $txt['recaptcha_theme'] = 'reCAPTCHA Theme';
@@ -228,7 +232,8 @@ $txt['setting_view_warning_own'] = 'Users who can see their own warning status';
 
 $txt['signature_settings'] = 'Signature Settings';
 $txt['signature_settings_desc'] = 'Use the settings on this page to decide how member signatures should be treated in SMF.';
-$txt['signature_settings_warning'] = 'Note that settings are not applied to existing signatures by default. <a href="' . $scripturl . '?action=admin;area=featuresettings;sa=sig;apply;%2$s=%1$s">Run the process now</a>';
+// argument(s): session_id, session_var, scripturl
+$txt['signature_settings_warning'] = 'Note that settings are not applied to existing signatures by default. <a href="%3$s?action=admin;area=featuresettings;sa=sig;apply;%2$s=%1$s">Apply changes now</a>';
 $txt['signature_settings_applied'] = 'The updated rules have been applied to the existing signatures.';
 $txt['signature_enable'] = 'Enable signatures';
 $txt['signature_max_length'] = 'Maximum allowed characters';
@@ -266,7 +271,7 @@ $txt['custom_edit_advanced'] = 'Advanced Settings';
 $txt['custom_edit_name'] = 'Name';
 $txt['custom_edit_desc'] = 'Description';
 $txt['custom_edit_profile'] = 'Profile Section';
-$txt['custom_edit_profile_desc'] = 'Section of profile this is edited in.';
+$txt['custom_edit_profile_desc'] = 'Section of profile the users will be able to edit this in.';
 $txt['custom_edit_profile_none'] = 'None';
 $txt['custom_edit_registration'] = 'Show on Registration';
 $txt['custom_edit_registration_disable'] = 'No';
@@ -353,7 +358,8 @@ $txt['add_language_smf_version'] = 'Version';
 
 $txt['edit_language_entries_primary'] = 'Below are the primary language settings for this language pack.';
 $txt['edit_language_entries'] = 'Edit Language Entries';
-$txt['edit_language_entries_desc'] = 'You can customize the individual text entries for this language. Select a file to load its entries, and then edit them below.<br><br>When you edit (or remove) an entry, a commented out version of the original is preserved in the file. If you ever need to restore your edited strings to their original state, or if you need more advanced access to these language files, go to <a href="' . $scripturl . '?action=admin;area=theme;sa=edit">' . $txt['themeadmin_edit_title'] . '</a>, browse to the file you are looking for, and then edit it directly using SMF\'s built-in text editor.';
+// argument(s): $scripturl, $txt['themeadmin_edit_title']
+$txt['edit_language_entries_desc'] = 'You can customize the individual text entries for this language. Select a file to load its entries, and then edit them below.<br><br>When you edit (or remove) an entry, a commented out version of the original is preserved in the file. If you ever need to restore your edited strings to their original state, or if you need more advanced access to these language files, go to <a href="%1$s?action=admin;area=theme;sa=edit">%2$s</a>, browse to the file you are looking for, and then edit it directly using SMF\'s built-in text editor.';
 $txt['edit_language_entries_file'] = 'Select entries to edit';
 $txt['languages_dictionary'] = 'Dictionary';
 $txt['languages_spelling'] = 'Spelling';
@@ -381,13 +387,13 @@ $txt['languages_download_older'] = 'You have a newer version of this file instal
 $txt['languages_download_exists'] = 'Already Exists';
 $txt['languages_download_exists_same'] = 'Identical';
 $txt['languages_download_exists_different'] = 'Different';
-$txt['languages_download_copy'] = 'Copy';
+$txt['languages_download_overwrite'] = 'Overwrite';
 $txt['languages_download_not_chmod'] = 'You cannot proceed with the installation until all files selected to be copied are writable.';
 $txt['languages_download_illegal_paths'] = 'Package contains illegal paths - please contact Simple Machines';
 $txt['languages_download_complete'] = 'Installation Complete';
 $txt['languages_download_complete_desc'] = 'Language pack installed successfully. Please click <a href="%1$s">here</a> to return to the languages page';
 $txt['languages_delete_confirm'] = 'Are you sure you want to delete this language?';
-$txt['languages_max_inputs_warning'] = 'You can only save %1$s edits at a time. Please click the Save button now, and then continue editing when this page reloads.';
+$txt['languages_max_inputs_warning'] = 'You can only save %1$s edits at a time. Please click the Save button now, and then continue editing once this page has reloaded.';
 $txt['languages_txt'] = 'Standard text strings';
 $txt['languages_helptxt'] = 'Help text';
 $txt['languages_editortxt'] = 'User interface for the editor';
@@ -420,5 +426,12 @@ $txt['tfa_mode_forced_help'] = 'Please enable 2FA in your account in order to be
 $txt['tfa_mode_enabled'] = 'Enabled';
 $txt['tfa_mode_disabled'] = 'Disabled';
 $txt['tfa_mode_subtext'] = 'Allows users to have a second layer of security while logging in, users would need an app like Google Authenticator paired with their account';
+
+$txt['export_settings_description'] = 'Members can export copies of their profile data, optionally including their posts and personal messages.<br>To avoid overtaxing server resources, SMF slowly compiles the exported data to a downloadable file stored in a secured directory.';
+$txt['export_dir'] = 'Directory for profile data export files';
+$txt['export_expiry'] = 'Automatically delete profile data export files after';
+$txt['export_min_diskspace_pct'] = 'Pause exports if free space on disk is less than';
+$txt['export_rate'] = 'Rate at which to process posts & personal messages for export';
+$txt['export_rate_desc'] = 'Higher values will compile exports more quickly, but could affect forum performance.';
 
 ?>

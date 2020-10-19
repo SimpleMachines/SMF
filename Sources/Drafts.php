@@ -7,11 +7,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -229,8 +229,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 				subject = {string:subject},
 				body = {string:body},
 				to_list = {string:to_list}
-			WHERE id_draft = {int:id_pm_draft}
-			LIMIT 1',
+			WHERE id_draft = {int:id_pm_draft}',
 			array(
 				'id_reply' => $reply_id,
 				'type' => 1,
@@ -651,7 +650,8 @@ function showProfileDrafts($memID, $draft_type = 0)
 				'delete' => array(
 					'label' => $txt['draft_delete'],
 					'href' => $scripturl.'?action=profile;u='.$context['member']['id'].';area=showdrafts;delete='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
-					'javascript' => 'data-confirm="'.$txt['draft_remove'].'" class="you_sure"',
+					'javascript' => 'data-confirm="'.$txt['draft_remove'].'"',
+					'class' => 'you_sure',
 					'icon' => 'remove_button'
 				),
 			),
@@ -685,6 +685,7 @@ function showPMDrafts($memID = -1)
 
 	// init
 	$draft_type = 1;
+	$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
 	// If just deleting a draft, do it and then redirect back.
 	if (!empty($_REQUEST['delete']))
@@ -697,8 +698,7 @@ function showPMDrafts($memID = -1)
 			DELETE FROM {db_prefix}user_drafts
 			WHERE id_draft = {int:id_draft}
 				AND id_member = {int:id_member}
-				AND type = {int:draft_type}
-			LIMIT 1',
+				AND type = {int:draft_type}',
 			array(
 				'id_draft' => $id_delete,
 				'id_member' => $memID,
@@ -843,7 +843,8 @@ function showPMDrafts($memID = -1)
 				'delete' => array(
 					'label' => $txt['draft_delete'],
 					'href' => $scripturl.'?action=pm;sa=showpmdrafts;delete='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
-					'javascript' => 'data-confirm="'.$txt['draft_remove'].'?" class="you_sure"',
+					'javascript' => 'data-confirm="'.$txt['draft_remove'].'?"',
+					'class' => 'you_sure',
 					'icon' => 'remove_button'
 				),
 			),

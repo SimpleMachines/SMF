@@ -9,11 +9,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 namespace
@@ -38,7 +38,7 @@ namespace
 		 */
 		function password_hash($password, $algo, array $options = array())
 		{
-			global $smcFunc;
+			global $smcFunc, $sourcedir;
 
 			if (!function_exists('crypt'))
 			{
@@ -131,6 +131,23 @@ namespace
 						$buffer_valid = true;
 					}
 				}
+				if (!$buffer_valid && is_callable(@$smcFunc['random_bytes']))
+				{
+					$buffer = $smcFunc['random_bytes']($raw_salt_len);
+					if ($buffer)
+					{
+						$buffer_valid = true;
+					}
+				}
+				if (!$buffer_valid && file_exists((!empty($sourcedir) ? $sourcedir : __DIR__) . '/random_compat/random.php'))
+				{
+					require_once($sourcedir . '/random_compat/random.php');
+					$buffer = random_bytes($raw_salt_len);
+					if ($buffer)
+					{
+						$buffer_valid = true;
+					}
+				}
 				if (!$buffer_valid && function_exists('mcrypt_create_iv') && !defined('PHALANGER'))
 				{
 					$buffer = mcrypt_create_iv($raw_salt_len, MCRYPT_DEV_URANDOM);
@@ -164,16 +181,22 @@ namespace
 				}
 				if (!$buffer_valid || PasswordCompat\binary\_strlen($buffer) < $raw_salt_len)
 				{
+					if (function_exists('random_int'))
+						$random_int = 'random_int';
+					// This is bad, but we're out of options. Alternative would be to trigger an error, maybe?
+					else
+						$random_int = 'mt_rand';
+
 					$bl = PasswordCompat\binary\_strlen($buffer);
 					for ($i = 0; $i < $raw_salt_len; $i++)
 					{
 						if ($i < $bl)
 						{
-							$buffer[$i] = $buffer[$i] ^ chr($smcFunc['random_int'](0, 255));
+							$buffer[$i] = $buffer[$i] ^ chr($random_int(0, 255));
 						}
 						else
 						{
-							$buffer .= chr($smcFunc['random_int'](0, 255));
+							$buffer .= chr($random_int(0, 255));
 						}
 					}
 				}

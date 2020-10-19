@@ -1,5 +1,5 @@
 # Force our line endings to be LF, even for Windows
-* text
+* text eol=lf
 
 # Set certain files to be binary
 *.png binary

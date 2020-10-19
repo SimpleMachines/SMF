@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -315,6 +315,7 @@ function AdminMain()
 					'subsections' => array(
 						'register' => array($txt['admin_browse_register_new'], 'moderate_forum'),
 						'agreement' => array($txt['registration_agreement'], 'admin_forum'),
+						'policy' => array($txt['privacy_policy'], 'admin_forum'),
 						'reservednames' => array($txt['admin_reserved_set'], 'admin_forum'),
 						'settings' => array($txt['settings'], 'admin_forum'),
 					),
@@ -369,6 +370,7 @@ function AdminMain()
 						'cookie' => array($txt['cookies_sessions_settings']),
 						'security' => array($txt['security_settings']),
 						'cache' => array($txt['caching_settings']),
+						'export' => array($txt['export_settings']),
 						'loads' => array($txt['load_balancing_settings']),
 						'phpinfo' => array($txt['phpinfo_settings']),
 					),
@@ -536,9 +538,10 @@ function AdminHome()
 		'gd',
 		'imagemagick',
 		'db_server',
-		'phpa',
 		'apc',
+		'apcu',
 		'memcache',
+		'memcached',
 		'xcache',
 		'php',
 		'server',

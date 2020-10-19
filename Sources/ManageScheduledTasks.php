@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -21,8 +21,8 @@ if (!defined('SMF'))
  * to the appropriate function based on the sub-action.
  * Everything here requires admin_forum permission.
  *
- * @uses ManageScheduledTasks template file
- * @uses ManageScheduledTasks language file
+ * Uses ManageScheduledTasks template file
+ * Uses ManageScheduledTasks language file
  */
 function ManageScheduledTasks()
 {
@@ -73,7 +73,7 @@ function ManageScheduledTasks()
 /**
  * List all the scheduled task in place on the forum.
  *
- * @uses ManageScheduledTasks template, view_scheduled_tasks sub-template
+ * @uses template_view_scheduled_tasks()
  */
 function ScheduledTasks()
 {
@@ -361,7 +361,7 @@ function list_getScheduledTasks($start, $items_per_page, $sort)
 /**
  * Function for editing a task.
  *
- * @uses ManageScheduledTasks template, edit_scheduled_tasks sub-template
+ * @uses template_edit_scheduled_tasks()
  */
 function EditTask()
 {
@@ -469,7 +469,7 @@ function EditTask()
 /**
  * Show the log of all tasks that have taken place.
  *
- * @uses ManageScheduledTasks language file
+ * Uses ManageScheduledTasks language file
  */
 function TaskLog()
 {
@@ -635,6 +635,12 @@ function list_getNumTaskLogEntries()
 	return $num_entries;
 }
 
+/**
+ * This handles settings related to scheduled tasks
+ *
+ * @param bool $return_config Whether or not to return the config vars. Used in the admin search.
+ * @return void|array If return_config is true, returns the array of $config_vars
+ */
 function TaskSettings($return_config = false)
 {
 	global $sourcedir, $txt, $context, $scripturl;

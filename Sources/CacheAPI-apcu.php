@@ -4,11 +4,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -40,7 +40,9 @@ class apcu_cache extends cache_api
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
-		return apcu_fetch($key . 'smf');
+		$value = apcu_fetch($key . 'smf');
+
+		return !empty($value) ? $value : null;
 	}
 
 	/**
@@ -54,7 +56,7 @@ class apcu_cache extends cache_api
 		if ($value === null)
 			return apcu_delete($key . 'smf');
 		else
-			return apcu_store($key . 'smf', $value, $ttl);
+			return apcu_store($key . 'smf', $value, $ttl !== null ? $ttl : $this->ttl);
 	}
 
 	/**

@@ -3,11 +3,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -19,23 +19,47 @@ if (!defined('SMF'))
  * Properly redirects even with safe mode and basedir restrictions
  * Can provide simple post options to a page
  *
- * Load class
+ * ### Load class
  * Initiate as
- *  - $fetch_data = new cURL_fetch_web_data();
- *	- optionally pass an array of cURL options and redirect count
- *	- cURL_fetch_web_data(cURL options array, Max redirects);
- *  - $fetch_data = new cURL_fetch_web_data(array(CURLOPT_SSL_VERIFYPEER => 1), 5);
+ * ```
+ * $fetch_data = new cURL_fetch_web_data();
+ * ```
+ * Optionally pass an array of cURL options and redirect count
+ * ```
+ * $fetch_data = new cURL_fetch_web_data(array(CURLOPT_SSL_VERIFYPEER => 1), 5);
+ * ```
  *
- * Make the call
- *  - $fetch_data('https://www.simplemachines.org'); // fetch a page
- *  - $fetch_data('https://www.simplemachines.org', array('user' => 'name', 'password' => 'password')); // post to a page
- *  - $fetch_data('https://www.simplemachines.org', parameter1&parameter2&parameter3); // post to a page
+ * ### Make the call
+ * Fetch a page
+ * ```
+ * $fetch_data->get_url_data('https://www.simplemachines.org');
+ * ```
+ * Post to a page providing an array
+ * ```
+ * $fetch_data->get_url_data('https://www.simplemachines.org', array('user' => 'name', 'password' => 'password'));
+ * ```
+ * Post to a page providing a string
+ * ```
+ * $fetch_data->get_url_data('https://www.simplemachines.org', parameter1&parameter2&parameter3);
+ * ```
  *
- * Get the data
- *  - $fetch_data->result('body'); // just the page content
- *  - $fetch_data->result(); // an array of results, body, header, http result codes
- *  - $fetch_data->result_raw(); // show all results of all calls (in the event of a redirect)
- *  - $fetch_data->result_raw(0); // show all results of call x
+ * ### Get the data
+ * Just the page content
+ * ```
+ * $fetch_data->result('body');
+ * ```
+ * An array of results, body, header, http result codes
+ * ```
+ * $fetch_data->result();
+ * ```
+ * Show all results of all calls (in the event of a redirect)
+ * ```
+ * $fetch_data->result_raw();
+ * ```
+ * Show the results of a specific call (in the event of a redirect)
+ * ```
+ * $fetch_data->result_raw(0);
+ * ```
  */
 class curl_fetch_web_data
 {
@@ -48,7 +72,7 @@ class curl_fetch_web_data
 		CURLOPT_RETURNTRANSFER	=> 1, // Get returned value as a string (don't output it)
 		CURLOPT_HEADER			=> 1, // We need the headers to do our own redirect
 		CURLOPT_FOLLOWLOCATION	=> 0, // Don't follow, we will do it ourselves so safe mode and open_basedir will dig it
-		CURLOPT_USERAGENT		=> 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:11.0) Gecko Firefox/11.0', // set a normal looking useragent
+		CURLOPT_USERAGENT		=> SMF_USER_AGENT, // set a normal looking useragent
 		CURLOPT_CONNECTTIMEOUT	=> 15, // Don't wait forever on a connection
 		CURLOPT_TIMEOUT			=> 90, // A page should load in this amount of time
 		CURLOPT_MAXREDIRS		=> 5, // stop after this many redirects
@@ -326,7 +350,7 @@ class curl_fetch_web_data
 	 * Callback function to parse returned headers
 	 *  - lowercases everything to make it consistent
 	 *
-	 * @param type $cr Not sure what this is used for?
+	 * @param curl_fetch_web_data $cr The curl request
 	 * @param string $header The header
 	 * @return int The length of the header
 	 */

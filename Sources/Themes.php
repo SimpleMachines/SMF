@@ -23,11 +23,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -117,8 +117,8 @@ function ThemesMain()
  *  - requires the admin_forum permission.
  *  - accessed with ?action=admin;area=theme;sa=admin.
  *
- * @uses Themes template
- * @uses Admin language file
+ * Uses Themes template
+ * Uses Admin language file
  */
 function ThemeAdmin()
 {
@@ -413,7 +413,7 @@ function SetThemeOptions()
 				$smcFunc['db_query']('substring', '
 					DELETE FROM {db_prefix}themes
 					WHERE id_theme = {int:default_theme}
-						AND id_member != {int:no_member}
+						AND id_member > {int:no_member}
 						AND variable = SUBSTRING({string:option}, 1, 255)',
 					array(
 						'default_theme' => 1,
@@ -472,7 +472,7 @@ function SetThemeOptions()
 				$smcFunc['db_query']('substring', '
 					DELETE FROM {db_prefix}themes
 					WHERE id_theme = {int:current_theme}
-						AND id_member != {int:no_member}
+						AND id_member > {int:no_member}
 						AND variable = SUBSTRING({string:option}, 1, 255)',
 					array(
 						'current_theme' => $_GET['th'],
@@ -1089,7 +1089,7 @@ function PickTheme()
 			$txt['theme_description'] = '';
 		}
 
-		$context['available_themes'][$id_theme]['thumbnail_href'] = $txt['theme_thumbnail_href'];
+		$context['available_themes'][$id_theme]['thumbnail_href'] = sprintf($txt['theme_thumbnail_href'], $settings['images_url']);
 		$context['available_themes'][$id_theme]['description'] = $txt['theme_description'];
 
 		// Are there any variants?
@@ -1814,7 +1814,7 @@ function EditTheme()
 /**
  * Makes a copy of a template file in a new location
  *
- * @uses Themes template, copy_template sub-template.
+ * @uses template_copy_template()
  */
 function CopyTemplate()
 {

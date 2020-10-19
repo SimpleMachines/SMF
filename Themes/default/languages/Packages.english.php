@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; Packages
+// Version: 2.1 RC3; Packages
 
 $txt['package_proceed'] = 'Proceed';
 $txt['php_script'] = 'Modification file was extracted, but this modification also comes with a PHP script which should be executed before it will work';
@@ -22,7 +22,10 @@ $txt['download'] = 'Download';
 $txt['download_success'] = 'Package downloaded successfully';
 $txt['package_downloaded_successfully'] = 'Package has been downloaded successfully';
 $txt['package_manager'] = 'Package Manager';
-$txt['install_mod'] = 'Install Mod';
+$txt['install_modification'] = 'Install Mod';
+$txt['install_language'] = 'Add Language';
+$txt['install_avatar'] = 'Install Avatar Pack';
+$txt['install_unknown'] = 'Install Package';
 $txt['uninstall_mod'] = 'Uninstall Mod';
 $txt['sql_file'] = 'The Modification file has been extracted. This modification also comes with a database file containing changes the database needs. You will need to execute this file for the modification to function properly.';
 $txt['sql_queries'] = 'SQL Queries';
@@ -45,8 +48,6 @@ $txt['modification_package'] = 'Modification packages';
 $txt['avatar_package'] = 'Avatar packages';
 $txt['language_package'] = 'Language packages';
 $txt['unknown_package'] = 'Unknown packages';
-$txt['use_avatars'] = 'Use Avatars';
-$txt['add_languages'] = 'Add Language';
 $txt['list_files'] = 'List Files';
 $txt['remove'] = 'Remove';
 $txt['package_type'] = 'Package Type';
@@ -124,11 +125,11 @@ $txt['package_theme_failure_warning'] = 'At least one error was encountered duri
 
 $txt['package_bytes'] = 'bytes';
 
-$txt['package_action_missing'] = '<strong class="error">File not found</strong>';
-$txt['package_action_error'] = '<strong class="error">Modification parse error</strong>';
-$txt['package_action_failure'] = '<strong class="error">Test failed</strong>';
-$txt['package_action_success'] = '<strong>Test successful</strong>';
-$txt['package_action_skipping'] = '<strong>Skipping file</strong>';
+$txt['package_action_missing'] = 'File not found';
+$txt['package_action_error'] = 'Modification parse error';
+$txt['package_action_failure'] = 'Test failed';
+$txt['package_action_success'] = 'Test successful';
+$txt['package_action_skipping'] = 'Skipping file';
 
 $txt['package_uninstall_actions'] = 'Uninstall Actions';
 $txt['package_uninstall_done'] = 'The package has been successfully uninstalled.';
@@ -183,9 +184,9 @@ $txt['package_cleanperms_free'] = 'All files are writable.';
 $txt['package_cleanperms_restrictive'] = 'The minimum files are writable.';
 $txt['package_cleanperms_go'] = 'Change file permissions';
 
-$txt['package_download_by_url'] = 'Download a package by url';
+$txt['package_download_by_url'] = 'Download a package by URL';
 $txt['package_download_filename'] = 'Name of the file';
-$txt['package_download_filename_info'] = 'Optional value. Should be used when the url does not end in the filename. For example: index.php?mod=5';
+$txt['package_download_filename_info'] = 'Optional value. Should be used when the URL does not end in the filename. For example: index.php?mod=5';
 
 $txt['package_db_uninstall'] = 'Remove all data associated with this modification.';
 $txt['package_db_uninstall_details'] = 'Details';
@@ -280,5 +281,11 @@ $txt['package_license_default'] = 'Default';
 $txt['package_available_license_language'] = 'Available License Languages:';
 
 $txt['package_chmod_linux'] = 'If you have a shell account, the convenient below command can automatically correct permissions on these files';
+
+$txt['package_validaiton_results'] = 'Validation Results';
+$txt['package_validation_status_unknown'] = 'Unknown or Not Found';
+$txt['package_validation_status_clean'] = 'Found';
+$txt['package_validation_status_blacklist'] = 'Blacklisted';
+$txt['package_validation_blacklist_found'] = 'This customization has been found on a blacklist and may be unsafe.';
 
 ?>

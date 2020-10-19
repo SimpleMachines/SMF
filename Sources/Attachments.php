@@ -6,40 +6,105 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
 
+/**
+ * Class Attachments
+ *
+ * This class handles adding/deleting attachments
+ */
 class Attachments
 {
+	/**
+	 * @var int $_msg The ID of the message this attachment is associated with
+	 */
 	protected $_msg = 0;
+
+	/**
+	 * @var int|null $_board The ID of the board this attachment's post is in or null if it's not set
+	 */
 	protected $_board = null;
+
+	/**
+	 * @var string|bool $_attachmentUploadDir An array of info about attachment upload directories or false
+	 */
 	protected $_attachmentUploadDir = false;
+
+	/**
+	 * @var string $_attchDir The path to the current attachment directory
+	 */
 	protected $_attchDir = '';
+
+	/**
+	 * @var int $_currentAttachmentUploadDir ID of the current attachment directory
+	 */
 	protected $_currentAttachmentUploadDir;
+
+	/**
+	 * @var bool $_canPostAttachment Whether or not an attachment can be posted
+	 */
 	protected $_canPostAttachment;
+
+	/**
+	 * @var array $_generalErrors An array of information about any errors that occurred
+	 */
 	protected $_generalErrors = array();
+
+	/**
+	 * @var mixed $_initialError Not used?
+	 */
 	protected $_initialError;
+
+	/**
+	 * @var array $_attachments Not used?
+	 */
 	protected $_attachments = array();
+
+	/**
+	 * @var array $_attachResults An array of information about the results of each file
+	 */
 	protected $_attachResults = array();
+
+	/**
+	 * @var array $_attachSuccess An array of information about successful attachments
+	 */
 	protected $_attachSuccess = array();
+
+	/**
+	 * @var array $_response An array of response information. @used-by \sendResponse() when adding attachments
+	 */
 	protected $_response = array(
 		'error' => true,
 		'data' => array(),
 		'extra' => '',
 	);
+
+	/**
+	 * @var array $_subActions An array of all valid sub-actions
+	 */
 	protected $_subActions = array(
 		'add',
 		'delete',
 	);
+
+	/**
+	 * @var string|bool $_sa The current sub-action, or false if there isn't one
+	 */
 	protected $_sa = false;
 
+	/**
+	 * Attachments constructor.
+	 *
+	 * Sets up some initial information - the message ID, board, current attachment upload dir, etc.
+	 */
 	public function __construct()
 	{
 		global $modSettings, $context;
@@ -56,14 +121,16 @@ class Attachments
 		$this->_canPostAttachment = $context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment', $this->_board) || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments', $this->_board)));
 	}
 
+	/**
+	 * Handles calling the appropriate function based on the sub-action
+	 */
 	public function call()
 	{
 		global $smcFunc, $sourcedir;
 
-		require_once($sourcedir . '/Subs-Attachments.php');
+		isAllowedTo('post_attachment');
 
-		// Guest aren't welcome, sorry.
-		is_not_guest();
+		require_once($sourcedir . '/Subs-Attachments.php');
 
 		// Need this. For reasons...
 		loadLanguage('Post');
@@ -85,6 +152,9 @@ class Attachments
 		$this->sendResponse();
 	}
 
+	/**
+	 * Handles deleting the attachment
+	 */
 	public function delete()
 	{
 		global $sourcedir;
@@ -116,6 +186,9 @@ class Attachments
 		));
 	}
 
+	/**
+	 * Handles adding an attachment
+	 */
 	public function add()
 	{
 		// You gotta be able to post attachments.
@@ -255,9 +328,9 @@ class Attachments
 			if (empty($errors))
 			{
 				// The reported MIME type of the attachment might not be reliable.
-				// Fortunately, PHP 5.3+ lets us easily verify the real MIME type.
-				if (function_exists('mime_content_type'))
-					$_FILES['attachment']['type'][$n] = mime_content_type($_FILES['attachment']['tmp_name'][$n]);
+				$detected_mime_type = get_mime_type($_FILES['attachment']['tmp_name'][$n], true);
+				if ($detected_mime_type !== false)
+					$_FILES['attachment']['type'][$n] = $detected_mime_type;
 
 				$_SESSION['temp_attachments'][$attachID] = array(
 					'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
@@ -313,6 +386,9 @@ class Attachments
 		call_integration_hook('integrate_attachment_upload', array());
 	}
 
+	/**
+	 * Actually attaches the file
+	 */
 	protected function createAttach()
 	{
 		global $txt, $user_info, $modSettings;
@@ -389,6 +465,11 @@ class Attachments
 		unset($_SESSION['temp_attachments']);
 	}
 
+	/**
+	 * Sets up the response information
+	 *
+	 * @param array $data Data for the response if we're not adding an attachment
+	 */
 	protected function setResponse($data = array())
 	{
 		global $txt;
@@ -425,6 +506,9 @@ class Attachments
 				$this->_response['text'] = $txt[$data['text']];
 	}
 
+	/**
+	 * Sends the response data
+	 */
 	protected function sendResponse()
 	{
 		global $smcFunc, $modSettings, $context;

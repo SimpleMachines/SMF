@@ -1,13 +1,18 @@
 <?php
-// Version: 2.1 RC2; Login
-
-global $context;
+// Version: 2.1 RC3; Login
 
 // Registration agreement page.
 $txt['registration_agreement'] = 'Registration Agreement';
 $txt['agreement_agree'] = 'I accept the terms of the agreement.';
 $txt['agreement_agree_coppa_above'] = 'I accept the terms of the agreement and I am at least %1$d years old.';
 $txt['agreement_agree_coppa_below'] = 'I accept the terms of the agreement and I am younger than %1$d years old.';
+$txt['privacy_policy'] = 'Privacy Policy';
+$txt['agreement_policy_agree'] = 'I accept the terms of the agreement and privacy policy.';
+$txt['agreement_policy_agree_coppa_above'] = 'I accept the terms of the agreement and privacy policy, and I am at least %1$d years old.';
+$txt['agreement_policy_agree_coppa_below'] = 'I accept the terms of the agreement and privacy policy, and I am younger than %1$d years old.';
+$txt['policy_agree'] = 'I accept the terms of the privacy policy.';
+$txt['policy_agree_coppa_above'] = 'I accept the terms of the privacy policy, and I am at least %1$d years old.';
+$txt['policy_agree_coppa_below'] = 'I accept the terms of the privacy policy, and I am younger than %1$d years old.';
 $txt['agree_coppa_above'] = 'I am at least %1$d years old.';
 $txt['agree_coppa_below'] = 'I am younger than %1$d years old.';
 
@@ -55,7 +60,7 @@ $txt['invalid_activation_known'] = 'If you already know your activation code, pl
 $txt['invalid_activation_retry'] = 'Activation code';
 $txt['invalid_activation_submit'] = 'Activate';
 
-$txt['coppa_no_concent'] = 'The administrator has still not received parent/guardian consent for your account.';
+$txt['coppa_no_consent'] = 'The administrator has still not received parent/guardian consent for your account.';
 $txt['coppa_need_more_details'] = 'Need more details?';
 
 $txt['awaiting_delete_account'] = 'Your account has been marked for deletion!<br>If you wish to restore your account, please check the &quot;Reactivate my account&quot; box, and login again.';
@@ -109,7 +114,8 @@ $txt['admin_register_group_none'] = '(no primary membergroup)';
 $txt['admin_register_done'] = 'Member %1$s has been registered successfully!';
 
 $txt['coppa_title'] = 'Age restricted Forum';
-$txt['coppa_after_registration'] = 'Thank you for signing up with ' . $context['forum_name_html_safe'] . '.<br><br>Because you fall under the age of {MINIMUM_AGE}, it is a legal requirement
+// argument(s): $context['forum_name_html_safe']
+$txt['coppa_after_registration'] = 'Thank you for signing up with %1$s.<br><br>Because you fall under the age of {MINIMUM_AGE}, it is a legal requirement
 	to obtain your parent or guardian\'s permission before you may begin to use your account. To arrange for account activation please print off the form below:';
 $txt['coppa_form_link_popup'] = 'Load Form in new Window';
 $txt['coppa_form_link_download'] = 'Download Form as text file';
@@ -119,10 +125,12 @@ $txt['coppa_send_by_post'] = 'Post, to the following address:';
 $txt['coppa_send_by_fax'] = 'Fax, to the following number:';
 $txt['coppa_send_by_phone'] = 'Alternatively, arrange for them to phone the administrator at {PHONE_NUMBER}.';
 
-$txt['coppa_form_title'] = 'Permission form for registration at ' . $context['forum_name_html_safe'];
+// argument(s): $context['forum_name_html_safe']
+$txt['coppa_form_title'] = 'Permission form for registration at %1$s';
 $txt['coppa_form_address'] = 'Address';
 $txt['coppa_form_date'] = 'Date';
-$txt['coppa_form_body'] = 'I {PARENT_NAME},<br><br>Give permission for {CHILD_NAME} (child name) to become a fully registered member of the forum: ' . $context['forum_name_html_safe'] . ', with the username: {USER_NAME}.<br><br>I understand that certain personal information entered by {USER_NAME} may be shown to other users of the forum.<br><br>Signed:<br>{PARENT_NAME} (Parent/Guardian).';
+// argument(s): $context['forum_name_html_safe']
+$txt['coppa_form_body'] = 'I {PARENT_NAME},<br><br>Give permission for {CHILD_NAME} (child name) to become a fully registered member of the forum: %1$s, with the username: {USER_NAME}.<br><br>I understand that certain personal information entered by {USER_NAME} may be shown to other users of the forum.<br><br>Signed:<br>{PARENT_NAME} (Parent/Guardian).';
 
 $txt['visual_verification_sound_again'] = 'Play again';
 $txt['visual_verification_sound_close'] = 'Close window';

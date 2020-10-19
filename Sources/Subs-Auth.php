@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -51,7 +51,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 			list(,,, $old_domain, $old_path) = $smcFunc['json_decode']($_COOKIE[$cookiename], true);
 
 		// Legacy format (for recent 2.0 --> 2.1 upgrades)
-		elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[$cookiename]) === 1)
+		elseif (preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;(i:3;i:\d;)?~', $_COOKIE[$cookiename]) === 1)
 		{
 			list(,,, $old_state) = safe_unserialize($_COOKIE[$cookiename]);
 
@@ -884,7 +884,7 @@ function hash_password($username, $password, $cost = null)
 }
 
 /**
- * Hashes password with salt, this is solely used for cookies.
+ * Hashes password with salt and authentication secret. This is solely used for cookies.
  *
  * @param string $password The password
  * @param string $salt The salt
@@ -892,7 +892,11 @@ function hash_password($username, $password, $cost = null)
  */
 function hash_salt($password, $salt)
 {
-	return hash('sha512', $password . $salt);
+	// Append the salt to get a user-specific authentication secret.
+	$secret_key = get_auth_secret() . $salt;
+
+	// Now use that to generate an HMAC of the password.
+	return hash_hmac('sha512', $password, $secret_key);
 }
 
 /**
@@ -941,6 +945,37 @@ function hash_benchmark($hashTime = 0.2)
 	while ($timeTaken < $hashTime);
 
 	return $cost;
+}
+
+// Based on code by "s rotondo90 at gmail com".
+// https://www.php.net/manual/en/function.hash-equals.php#119576
+if (!function_exists('hash_equals'))
+{
+	/**
+	 * A compatibility function for when PHP's "hash_equals" function isn't available
+	 * @param string $known_string A known hash
+	 * @param string $user_string The hash of the user string
+	 * @return bool Whether or not the two are equal
+	 */
+	function hash_equals($known_string, $user_string)
+	{
+		$ret = 0;
+
+		if (strlen($known_string) !== strlen($user_string))
+		{
+			$user_string = $known_string;
+			$ret = 1;
+		}
+
+		$res = $known_string ^ $user_string;
+
+		for ($i = strlen($res) - 1; $i >= 0; --$i)
+		{
+			$ret |= ord($res[$i]);
+		}
+
+		return !$ret;
+	}
 }
 
 ?>

@@ -377,7 +377,7 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '1.1 RC
 // Do they have "classic" installed?
 if (file_exists($GLOBALS['boarddir'] . '/Themes/classic'))
 {
-	$classic_dir = $GLOBALS['boarddir'] . '/Themes/classic';
+	$classic_dir = smf_mysql_real_escape_string($GLOBALS['boarddir'] . '/Themes/classic');
 	$theme_request = upgrade_query("
 		SELECT ID_THEME
 		FROM {$db_prefix}themes
@@ -387,16 +387,16 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/classic'))
 	// Don't do anything if this theme is already uninstalled
 	if (smf_mysql_num_rows($theme_request) == 1)
 	{
-		$id_theme = mysql_result($theme_request, 0);
-		mysql_free_result($theme_request);
+		list($id_theme) = smf_mysql_fetch_row($theme_request);
+		smf_mysql_free_result($theme_request);
 
-		$known_themes = explode(', ', $modSettings['knownThemes']);
+		$known_themes = explode(',', $modSettings['knownThemes']);
 
 		// Remove this value...
 		$known_themes = array_diff($known_themes, array($id_theme));
 
 		// Change back to a string...
-		$known_themes = implode(', ', $known_themes);
+		$known_themes = implode(',', $known_themes);
 
 		// Update the database
 		upgrade_query("

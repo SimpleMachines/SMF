@@ -1,16 +1,17 @@
 <?php
 
 /**
- * This task handles notifying users when a message gets reported.
+ * This file contains code used to notify moderators when someone files a report
+ * about a message.
  *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -19,7 +20,9 @@
 class MsgReport_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
+	 * This executes the task: loads up the info, puts the email in the queue
+	 * and inserts any alerts as needed.
+	 *
 	 * @return bool Always returns true.
 	 */
 	public function execute()

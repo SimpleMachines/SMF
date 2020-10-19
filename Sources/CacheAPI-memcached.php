@@ -4,11 +4,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -21,10 +21,32 @@ if (!defined('SMF'))
  */
 class memcached_cache extends cache_api
 {
-	/**
-	 * @var \Memcached The memcache instance.
-	 */
+	/** @var Memcached The memcache instance. */
 	private $memcached = null;
+
+	/** @var string[] */
+	private $servers;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function __construct()
+	{
+		global $cache_memcached;
+
+		$this->servers = array_map(
+			function($server)
+			{
+				if (strpos($server, '/') !== false)
+					return array($server, 0);
+				else
+					return array($server, isset($server[1]) ? $server[1] : 11211);
+			},
+			explode(',', $cache_memcached)
+		);
+
+		parent::__construct();
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -33,7 +55,7 @@ class memcached_cache extends cache_api
 	{
 		global $cache_memcached;
 
-		$supported = class_exists('memcached');
+		$supported = class_exists('Memcached');
 
 		if ($test)
 			return $supported;
@@ -45,28 +67,31 @@ class memcached_cache extends cache_api
 	 */
 	public function connect()
 	{
-		global $cache_memcached;
-
-		$servers = explode(',', $cache_memcached);
-
-		// memcached does not remove servers from the list upon completing the script under modes like FastCGI. So check to see if servers exist or not.
 		$this->memcached = new Memcached;
-		$currentServers = $this->memcached->getServerList();
-		foreach ($servers as $server)
-		{
-			if (strpos($server, '/') !== false)
-				$tempServer = array($server, 0);
-			else
-			{
-				$server = explode(':', $server);
-				$tempServer = array($server[0], isset($server[1]) ? $server[1] : 11211);
-			}
 
+		return $this->addServers();
+	}
+
+	/**
+	 * Add memcached servers.
+	 *
+	 * Don't add servers if they already exist. Ideal for persistent connections.
+	 *
+	 * @return bool True if there are servers in the daemon, false if not.
+	 */
+	protected function addServers()
+	{
+		// memcached does not remove servers from the list upon completing the
+		// script under modes like FastCGI. So check to see if servers exist or not.
+		$currentServers = $this->memcached->getServerList();
+		$retVal = !empty($currentServers);
+		foreach ($this->servers as $server)
+		{
 			// Figure out if we have this server or not
 			$foundServer = false;
 			foreach ($currentServers as $currentServer)
 			{
-				if ($tempServer[0] == $currentServer['host'] && $tempServer[1] == $currentServer['port'])
+				if ($server[0] == $currentServer['host'] && $server[1] == $currentServer['port'])
 				{
 					$foundServer = true;
 					break;
@@ -75,11 +100,10 @@ class memcached_cache extends cache_api
 
 			// Found it?
 			if (empty($foundServer))
-				$this->memcached->addServer($tempServer[0], $tempServer[1]);
+				$retVal |= $this->memcached->addServer($server[0], $server[1]);
 		}
 
-		// Best guess is this worked.
-		return true;
+		return $retVal;
 	}
 
 	/**
@@ -104,7 +128,7 @@ class memcached_cache extends cache_api
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
-		return $this->memcached->set($key, $value, $ttl);
+		return $this->memcached->set($key, $value, $ttl !== null ? $ttl : $this->ttl);
 	}
 
 	/**
@@ -151,7 +175,16 @@ class memcached_cache extends cache_api
 	 */
 	public function getVersion()
 	{
-		return $this->memcached->getVersion();
+		if (is_object($this->memcached))
+			return false;
+
+		// This gets called in Subs-Admin getServerVersions when loading up support information.  If we can't get a connection, return nothing.
+		$result = $this->memcached->getVersion();
+
+		if (!empty($result))
+			return current($result);
+
+		return false;
 	}
 }
 

@@ -3,11 +3,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -933,11 +933,6 @@ function template_quickreply()
 			<div id="quickreply_options">
 				<div class="roundframe">';
 
-	// Are we hiding the full editor?
-	if (empty($options['use_editor_quick_reply']))
-		echo '
-					<p class="smalltext lefttext">', $txt['quick_reply_desc'], '</p>';
-
 	// Is the topic locked?
 	if ($context['is_locked'])
 		echo '
@@ -968,21 +963,30 @@ function template_quickreply()
 
 	// Guests just need more.
 	if ($context['user']['is_guest'])
+	{
 		echo '
 						<dl id="post_header">
 							<dt>
 								', $txt['name'], ':
 							</dt>
 							<dd>
-								<input type="text" name="guestname" size="25" value="', $context['name'], '" tabindex="', $context['tabindex']++, '">
-							</dd>
+								<input type="text" name="guestname" size="25" value="', $context['name'], '" tabindex="', $context['tabindex']++, '" required>
+							</dd>';
+
+		if (empty($modSettings['guest_post_no_email']))
+		{
+			echo '
 							<dt>
 								', $txt['email'], ':
 							</dt>
 							<dd>
 								<input type="email" name="email" size="25" value="', $context['email'], '" tabindex="', $context['tabindex']++, '" required>
-							</dd>
+							</dd>';
+		}
+
+		echo '
 						</dl>';
+	}
 
 	echo '
 						', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message'), '
@@ -1006,8 +1010,7 @@ function template_quickreply()
 
 	// Finally, the submit buttons.
 	echo '
-						<br class="clear_right">
-						<span id="post_confirm_buttons" class="floatright">
+						<span id="post_confirm_buttons">
 							', template_control_richedit_buttons($context['post_box_name']), '
 						</span>';
 	echo '

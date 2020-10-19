@@ -8,11 +8,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -24,9 +24,9 @@ if (!defined('SMF'))
  * and it calls a function based on the sub-action.
  * It requires the manage_attachments permission.
  *
- * @uses ManageAttachments template.
- * @uses Admin language file.
- * @uses template layer 'manage_files' for showing the tab bar.
+ * Uses ManageAttachments template.
+ * Uses Admin language file.
+ * Uses template layer 'manage_files' for showing the tab bar.
  *
  */
 function ManageAttachments()
@@ -80,10 +80,10 @@ function ManageAttachments()
  * Allows to show/change attachment settings.
  * This is the default sub-action of the 'Attachments and Avatars' center.
  * Called by index.php?action=admin;area=manageattachments;sa=attachments.
+ * Uses 'attachments' sub template.
  *
  * @param bool $return_config Whether to return the array of config variables (used for admin search)
  * @return void|array If $return_config is true, simply returns the config_vars array, otherwise returns nothing
- * @uses 'attachments' sub template.
  */
 
 function ManageAttachmentSettings($return_config = false)
@@ -123,10 +123,8 @@ function ManageAttachmentSettings($return_config = false)
 	$testImg = get_extension_funcs('gd') || class_exists('Imagick') || get_extension_funcs('MagickWand');
 
 	// See if we can find if the server is set up to support the attachment limits
-	$post_max_size = ini_get('post_max_size');
-	$upload_max_filesize = ini_get('upload_max_filesize');
-	$testPM = !empty($post_max_size) ? (memoryReturnBytes($post_max_size) >= (isset($modSettings['attachmentPostLimit']) ? $modSettings['attachmentPostLimit'] * 1024 : 0)) : true;
-	$testUM = !empty($upload_max_filesize) ? (memoryReturnBytes($upload_max_filesize) >= (isset($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] * 1024 : 0)) : true;
+	$post_max_kb = floor(memoryReturnBytes(ini_get('post_max_size')) / 1024);
+	$file_max_kb = floor(memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
 
 	$config_vars = array(
 		array('title', 'attachment_manager_settings'),
@@ -137,18 +135,16 @@ function ManageAttachmentSettings($return_config = false)
 		// Directory and size limits.
 		array('select', 'automanage_attachments', array(0 => $txt['attachments_normal'], 1 => $txt['attachments_auto_space'], 2 => $txt['attachments_auto_years'], 3 => $txt['attachments_auto_months'], 4 => $txt['attachments_auto_16'])),
 		array('check', 'use_subdirectories_for_attachments', 'subtext' => $txt['use_subdirectories_for_attachments_note']),
-		(empty($modSettings['attachment_basedirectories']) ? array('text', 'basedirectory_for_attachments', 40,) : array('var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty($context['valid_basedirectory']), 'text_label' => (!empty($context['valid_basedirectory']) ? $txt['basedirectory_for_attachments_current'] : $txt['basedirectory_for_attachments_warning']))),
-		empty($modSettings['attachment_basedirectories']) && $modSettings['currentAttachmentUploadDir'] == 1 && count($modSettings['attachmentUploadDir']) == 1 ? array('json', 'attachmentUploadDir', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !$context['valid_upload_dir'], 'disabled' => true) : array('var_message', 'attach_current_directory', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty($context['valid_upload_dir']), 'text_label' => (!empty($context['valid_upload_dir']) ? $txt['attach_current_dir'] : $txt['attach_current_dir_warning'])),
+		(empty($modSettings['attachment_basedirectories']) ? array('text', 'basedirectory_for_attachments', 40,) : array('var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty($context['valid_basedirectory']), 'text_label' => (!empty($context['valid_basedirectory']) ? $txt['basedirectory_for_attachments_current'] : sprintf($txt['basedirectory_for_attachments_warning'], $scripturl)))),
+		empty($modSettings['attachment_basedirectories']) && $modSettings['currentAttachmentUploadDir'] == 1 && count($modSettings['attachmentUploadDir']) == 1 ? array('json', 'attachmentUploadDir', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !$context['valid_upload_dir'], 'disabled' => true) : array('var_message', 'attach_current_directory', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty($context['valid_upload_dir']), 'text_label' => (!empty($context['valid_upload_dir']) ? $txt['attach_current_dir'] : sprintf($txt['attach_current_dir_warning'], $scripturl))),
 		array('int', 'attachmentDirFileLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
 		array('int', 'attachmentDirSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
 		array('check', 'dont_show_attach_under_post', 'subtext' => $txt['dont_show_attach_under_post_sub']),
 		'',
 
 		// Posting limits
-		array('int', 'attachmentPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
-		array('warning', empty($testPM) ? 'attachment_postsize_warning' : ''),
-		array('int', 'attachmentSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
-		array('warning', empty($testUM) ? 'attachment_filesize_warning' : ''),
+		array('int', 'attachmentPostLimit', 'subtext' => sprintf($txt['attachment_ini_max'], $post_max_kb . ' ' . $txt['kilobyte']), 6, 'postinput' => $txt['kilobyte'], 'min' => 1, 'max' => $post_max_kb, 'disabled' => empty($post_max_kb)),
+		array('int', 'attachmentSizeLimit', 'subtext' => sprintf($txt['attachment_ini_max'], $file_max_kb . ' ' . $txt['kilobyte']), 6, 'postinput' => $txt['kilobyte'], 'min' => 1, 'max' => $file_max_kb, 'disabled' => empty($file_max_kb)),
 		array('int', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
 		// Security Items
 		array('title', 'attachment_security_settings'),
@@ -264,7 +260,6 @@ function ManageAttachmentSettings($return_config = false)
  *
  * @param bool $return_config Whether to return the config_vars array (used for admin search)
  * @return void|array Returns the config_vars array if $return_config is true, otherwise returns nothing
- * @uses 'avatars' sub template.
  */
 function ManageAvatarSettings($return_config = false)
 {
@@ -714,7 +709,7 @@ function list_getNumFiles($browse_type)
  * Calculates file statistics (total file size, number of attachments,
  * number of avatars, attachment space available).
  *
- * @uses the 'maintain' sub template.
+ * @uses template_maintenance()
  */
 function MaintainFiles()
 {
@@ -1698,7 +1693,7 @@ function RepairAttachments()
  */
 function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 {
-	global $context, $txt, $time_start;
+	global $context, $txt;
 
 	// Try get more time...
 	@set_time_limit(600);
@@ -1706,7 +1701,7 @@ function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 		@apache_reset_timeout();
 
 	// Have we already used our maximum time?
-	if ((time() - $time_start) < 3 || $context['starting_substep'] == $_GET['substep'])
+	if ((time() - TIME_START) < 3 || $context['starting_substep'] == $_GET['substep'])
 		return;
 
 	$context['continue_get_data'] = '?action=admin;area=manageattachments;sa=repair' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . $context['session_var'] . '=' . $context['session_id'];

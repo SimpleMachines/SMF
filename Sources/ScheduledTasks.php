@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function AutoTask()
 {
-	global $time_start, $smcFunc;
+	global $smcFunc;
 
 	// Special case for doing the mail queue.
 	if (isset($_GET['scheduled']) && $_GET['scheduled'] == 'mailq')
@@ -110,7 +110,7 @@ function AutoTask()
 				// Log that we did it ;)
 				if ($completed)
 				{
-					$total_time = round(microtime(true) - $time_start, 3);
+					$total_time = round(microtime(true) - TIME_START, 3);
 					$smcFunc['db_insert']('',
 						'{db_prefix}log_scheduled_tasks',
 						array(
@@ -250,6 +250,32 @@ function scheduled_daily_maintenance()
 		require_once($boarddir . '/proxy.php');
 		$proxy = new ProxyServer();
 		$proxy->housekeeping();
+	}
+
+	// Delete old profile exports
+	if (!empty($modSettings['export_expiry']) && file_exists($modSettings['export_dir']) && is_dir($modSettings['export_dir']))
+	{
+		$expiry_date = round(TIME_START - $modSettings['export_expiry'] * 86400);
+		$export_files = glob(rtrim($modSettings['export_dir'], '/\\') . DIRECTORY_SEPARATOR . '*');
+
+		foreach ($export_files as $export_file)
+		{
+			if (!in_array(basename($export_file), array('index.php', '.htaccess')) && filemtime($export_file) <= $expiry_date)
+				@unlink($export_file);
+		}
+	}
+
+	// Delete old alerts.
+	if (!empty($modSettings['alerts_auto_purge']))
+	{
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}user_alerts
+			WHERE is_read > 0
+				AND is_read < {int:purge_before}',
+			array(
+				'purge_before' => time() - 86400 * $modSettings['alerts_auto_purge'],
+			)
+		);
 	}
 
 	// Anyone else have something to do?
@@ -419,7 +445,7 @@ function scheduled_daily_digest()
 			'move' => $txt['digest_mod_act_move'],
 			'merge' => $txt['digest_mod_act_merge'],
 			'split' => $txt['digest_mod_act_split'],
-			'bye' => $txt['regards_team'],
+			'bye' => sprintf($txt['regards_team'], $context['forum_name']),
 		);
 
 		call_integration_hook('integrate_daily_digest_lang', array(&$langtxt, $lang));
@@ -518,7 +544,7 @@ function scheduled_daily_digest()
 			$email['body'] .= "\n";
 
 		// Then just say our goodbyes!
-		$email['body'] .= "\n\n" . $txt['regards_team'];
+		$email['body'] .= "\n\n" . sprintf($txt['regards_team'], $context['forum_name']);
 
 		// Send it - low priority!
 		sendmail($email['email'], $email['subject'], $email['body'], null, 'digest', false, 4);
@@ -607,11 +633,19 @@ function scheduled_weekly_digest()
  */
 function ReduceMailQueue($number = false, $override_limit = false, $force_send = false)
 {
-	global $modSettings, $smcFunc, $sourcedir;
+	global $modSettings, $smcFunc, $sourcedir, $txt, $language;
 
 	// Are we intending another script to be sending out the queue?
 	if (!empty($modSettings['mail_queue_use_cron']) && empty($force_send))
 		return false;
+
+	// Just in case we run into a problem.
+	if (!isset($txt))
+	{
+		loadEssentialThemeData();
+		loadLanguage('Errors', $language, false);
+		loadLanguage('index', $language, false);
+	}
 
 	// By default send 5 at once.
 	if (!$number)
@@ -667,7 +701,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 
 	// Now we know how many we're sending, let's send them.
 	$request = $smcFunc['db_query']('', '
-		SELECT /*!40001 SQL_NO_CACHE */ id_mail, recipient, body, subject, headers, send_html, time_sent, private
+		SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private
 		FROM {db_prefix}mail_queue
 		ORDER BY priority ASC, id_mail ASC
 		LIMIT {int:limit}',
@@ -985,6 +1019,7 @@ function loadEssentialThemeData()
 
 	// Assume we want this.
 	$context['forum_name'] = $mbname;
+	$context['forum_name_html_safe'] = $smcFunc['htmlspecialchars']($context['forum_name']);
 
 	// Check loadLanguage actually exists!
 	if (!function_exists('loadLanguage'))

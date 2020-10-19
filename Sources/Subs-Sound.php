@@ -8,11 +8,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -60,23 +60,23 @@ function createWaveFile($word)
 	$sound_word = '';
 	for ($i = 0; $i < strlen($word); $i++)
 	{
-		$sound_letter = implode('', file($settings['default_theme_dir'] . '/fonts/sound/' . $word{$i} . '.' . $sound_language . '.wav'));
+		$sound_letter = implode('', file($settings['default_theme_dir'] . '/fonts/sound/' . $word[$i] . '.' . $sound_language . '.wav'));
 		if (strpos($sound_letter, 'data') === false)
 			return false;
 
 		$sound_letter = substr($sound_letter, strpos($sound_letter, 'data') + 8);
-		switch ($word{$i} === 's' ? 0 : mt_rand(0, 2))
+		switch ($word[$i] === 's' ? 0 : mt_rand(0, 2))
 		{
 			case 0 :
 				for ($j = 0, $n = strlen($sound_letter); $j < $n; $j++)
 					for ($k = 0, $m = round(mt_rand(15, 25) / 10); $k < $m; $k++)
-						$sound_word .= $word{$i} === 's' ? $sound_letter{$j} : chr(mt_rand(max(ord($sound_letter{$j}) - 1, 0x00), min(ord($sound_letter{$j}) + 1, 0xFF)));
+						$sound_word .= $word[$i] === 's' ? $sound_letter[$j] : chr(mt_rand(max(ord($sound_letter[$j]) - 1, 0x00), min(ord($sound_letter[$j]) + 1, 0xFF)));
 				break;
 
 			case 1:
 				for ($j = 0, $n = strlen($sound_letter) - 1; $j < $n; $j += 2)
-					$sound_word .= (mt_rand(0, 3) == 0 ? '' : $sound_letter{$j}) . (mt_rand(0, 3) === 0 ? $sound_letter{$j + 1} : $sound_letter{$j}) . (mt_rand(0, 3) === 0 ? $sound_letter{$j} : $sound_letter{$j + 1}) . $sound_letter{$j + 1} . (mt_rand(0, 3) == 0 ? $sound_letter{$j + 1} : '');
-				$sound_word .= str_repeat($sound_letter{$n}, 2);
+					$sound_word .= (mt_rand(0, 3) == 0 ? '' : $sound_letter[$j]) . (mt_rand(0, 3) === 0 ? $sound_letter[$j + 1] : $sound_letter[$j]) . (mt_rand(0, 3) === 0 ? $sound_letter[$j] : $sound_letter[$j + 1]) . $sound_letter[$j + 1] . (mt_rand(0, 3) == 0 ? $sound_letter[$j + 1] : '');
+				$sound_word .= str_repeat($sound_letter[$n], 2);
 				break;
 
 			case 2:
@@ -86,7 +86,7 @@ function createWaveFile($word)
 					if (mt_rand(0, 10) === 0)
 						$shift += mt_rand(-3, 3);
 					for ($k = 0, $m = round(mt_rand(15, 25) / 10); $k < $m; $k++)
-						$sound_word .= chr(min(max(ord($sound_letter{$j}) + $shift, 0x00), 0xFF));
+						$sound_word .= chr(min(max(ord($sound_letter[$j]) + $shift, 0x00), 0xFF));
 				}
 				break;
 		}

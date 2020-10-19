@@ -3,11 +3,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -84,7 +84,7 @@ function template_move()
 /**
  * Redirection topic options
  *
- * @var string $type What type of topic this is for - currently 'merge' or 'move'. Used to display appropriate text strings...
+ * @param string $type What type of topic this is for - currently 'merge' or 'move'. Used to display appropriate text strings...
  */
 function template_redirect_options($type)
 {
@@ -100,7 +100,7 @@ function template_redirect_options($type)
 								', $txt[$type . '_why'], '
 							</dt>
 							<dd>
-								<textarea name="reason">', $txt[$type . 'topic_default'], '</textarea>
+								<textarea name="reason">', sprintf($txt[$type . 'topic_default'], $txt['movetopic_auto_board'], $txt['movetopic_auto_topic']), '</textarea>
 							</dd>
 							<dt>
 								<label for="redirect_topic">', $txt[$type . 'topic_redirect'], '</label>
@@ -246,7 +246,6 @@ function template_merge()
 
 		echo '
 					</ul>
-					<input type="submit" value="', $txt['merge'], '" class="button">
 				</div>
 				<div class="pagesection">
 					', $context['page_index'], '

@@ -4,11 +4,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -33,7 +33,7 @@ class memcache_cache extends cache_api
 	{
 		global $cache_memcached;
 
-		$supported = class_exists('memcache');
+		$supported = class_exists('Memcache');
 
 		if ($test)
 			return $supported;
@@ -103,7 +103,7 @@ class memcache_cache extends cache_api
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
-		return $this->memcache->set($key, $value, 0, $ttl);
+		return $this->memcache->set($key, $value, 0, $ttl !== null ? $ttl : $this->ttl);
 	}
 
 	/**
@@ -148,7 +148,16 @@ class memcache_cache extends cache_api
 	 */
 	public function getVersion()
 	{
-		return $this->memcache->getVersion();
+		if (is_object($this->memcache))
+			return false;
+
+		// This gets called in Subs-Admin getServerVersions when loading up support information.  If we can't get a connection, return nothing.
+		$result = $this->memcache->getVersion();
+
+		if (!empty($result))
+			return $result;
+
+		return false;
 	}
 }
 

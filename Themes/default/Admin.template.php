@@ -3,11 +3,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -737,8 +737,23 @@ function template_show_settings()
 
 	// Have we got a message to display?
 	if (!empty($context['settings_message']))
+	{
+		$tag = !empty($context['settings_message']['tag']) ? $context['settings_message']['tag'] : 'span';
+
 		echo '
-							<div class="information noup">', $context['settings_message'], '</div>';
+							<div class="information noup">';
+
+		if (is_array($context['settings_message']))
+			echo '
+								<', $tag, !empty($context['settings_message']['class']) ? ' class="' . $context['settings_message']['class'] . '"' : '', '>
+									', $context['settings_message']['label'], '
+								</', $tag, '>';
+		else
+			echo $context['settings_message'];
+
+		echo '
+							</div>';
+	}
 
 	// Filter out any redundant separators before we start the loop
 	$context['config_vars'] = array_filter($context['config_vars'], function ($v) use ($context)
@@ -867,7 +882,7 @@ function template_show_settings()
 				elseif ($config_var['type'] == 'select')
 				{
 					echo '
-										<select name="', $config_var['name'], '" id="', $config_var['name'], '" ', $javascript, $disabled, (!empty($config_var['multiple']) ? ' multiple="multiple"' : ''), (!empty($config_var['multiple']) && !empty($config_var['size']) ? ' size="' . $config_var['size'] . '"' : ''), '>';
+										<select name="', $config_var['name'], '" id="', $config_var['name'], '" ', $javascript, $disabled, (!empty($config_var['multiple']) ? ' multiple="multiple"' : ''), ' size="', $config_var['size'], '">';
 
 					foreach ($config_var['data'] as $option)
 						echo '
@@ -875,6 +890,7 @@ function template_show_settings()
 					echo '
 										</select>';
 				}
+
 				// List of boards? This requires getBoardList() having been run and the results in $context['board_list'].
 				elseif ($config_var['type'] == 'boards')
 				{
@@ -900,6 +916,10 @@ function template_show_settings()
 												<li><label><input type="checkbox" name="', $config_var['name'], '[', $brd['id'], ']" value="1"', in_array($brd['id'], $config_var['value']) ? ' checked' : '', '> ', $brd['child_level'] > 0 ? str_repeat('&nbsp; &nbsp;', $brd['child_level']) : '', $brd['name'], '</label></li>';
 
 						echo '
+												<li>
+													<input type="checkbox" onclick="invertAll(this, this.form, \'' . $config_var['name'] . '[\');">
+													<span>', $txt['check_all'], '</span>
+												</li>
 											</ul>';
 						$first = false;
 					}
@@ -1061,7 +1081,9 @@ function template_show_custom_profile()
 	template_show_list('custom_profile_fields');
 }
 
-// Edit a profile field?
+/**
+ * Template for editing a custom profile field
+ */
 function template_edit_profile_field()
 {
 	global $context, $txt, $scripturl;
@@ -1596,7 +1618,7 @@ function template_php_info()
 }
 
 /**
- *
+ * Content shown above the clean cache button
  */
 function template_clean_cache_button_above()
 {

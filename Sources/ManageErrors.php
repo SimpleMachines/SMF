@@ -7,11 +7,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -23,7 +23,7 @@ if (!defined('SMF'))
  * It requires the maintain_forum permission.
  * It is accessed from ?action=admin;area=logs;sa=errorlog.
  *
- * @uses the Errors template and error_log sub template.
+ * @uses template_error_log()
  */
 function ViewErrorLog()
 {
@@ -165,8 +165,10 @@ function ViewErrorLog()
 	for ($i = 0; $row = $smcFunc['db_fetch_assoc']($request); $i++)
 	{
 		$search_message = preg_replace('~&lt;span class=&quot;remove&quot;&gt;(.+?)&lt;/span&gt;~', '%', $smcFunc['db_escape_wildcard_string']($row['message']));
-		if ($search_message == $filter['value']['sql'])
+
+		if (isset($filter) && $search_message == $filter['value']['sql'])
 			$search_message = $smcFunc['db_escape_wildcard_string']($row['message']);
+
 		$show_message = strtr(strtr(preg_replace('~&lt;span class=&quot;remove&quot;&gt;(.+?)&lt;/span&gt;~', '$1', $row['message']), array("\r" => '', '<br>' => "\n", '<' => '&lt;', '>' => '&gt;', '"' => '&quot;')), array("\n" => '<br>'));
 
 		$context['errors'][$row['id_error']] = array(
@@ -278,6 +280,7 @@ function ViewErrorLog()
 
 	$context['error_types']['all'] = array(
 		'label' => $txt['errortype_all'],
+		'error_type' => 'all',
 		'description' => isset($txt['errortype_all_desc']) ? $txt['errortype_all_desc'] : '',
 		'url' => $scripturl . '?action=admin;area=logs;sa=errorlog' . ($context['sort_direction'] == 'down' ? ';desc' : ''),
 		'is_selected' => empty($filter),
@@ -301,6 +304,7 @@ function ViewErrorLog()
 
 		$context['error_types'][$sum] = array(
 			'label' => (isset($txt['errortype_' . $row['error_type']]) ? $txt['errortype_' . $row['error_type']] : $row['error_type']) . ' (' . $row['num_errors'] . ')',
+			'error_type' => $row['error_type'],
 			'description' => isset($txt['errortype_' . $row['error_type'] . '_desc']) ? $txt['errortype_' . $row['error_type'] . '_desc'] : '',
 			'url' => $scripturl . '?action=admin;area=logs;sa=errorlog' . ($context['sort_direction'] == 'down' ? ';desc' : '') . ';filter=error_type;value=' . $row['error_type'],
 			'is_selected' => isset($filter) && $filter['value']['sql'] == $smcFunc['db_escape_wildcard_string']($row['error_type']),
@@ -349,13 +353,18 @@ function deleteErrors()
 		);
 	// Deleting all with a filter?
 	elseif (isset($_POST['delall']) && isset($filter))
+	{
+		// ip need a different placeholder type
+		$filter_type = $filter['variable'] == 'ip'? 'inet' : 'string';
+		$filter_op = $filter['variable'] == 'ip'? '=' : 'LIKE';
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_errors
-			WHERE ' . $filter['variable'] . ' LIKE {string:filter}',
+			WHERE ' . $filter['variable'] . ' ' . $filter_op . ' {' . $filter_type . ':filter}',
 			array(
 				'filter' => $filter['value']['sql'],
 			)
 		);
+	}
 	// Just specific errors?
 	elseif (!empty($_POST['delete']))
 	{

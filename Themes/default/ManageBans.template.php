@@ -3,11 +3,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -133,7 +133,7 @@ function template_ban_edit()
 							<label for="email_check">', $txt['ban_on_email'], '</label>
 						</dt>
 						<dd>
-							<input type="text" name="email" value="', $context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
+							<input type="email" name="email" value="', $context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
 						</dd>
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', !empty($context['ban_suggestions']['user']) || isset($context['ban']['from_user']) ? ' checked' : '', '>
@@ -287,7 +287,7 @@ function template_ban_edit_trigger()
 							<label for="email_check">', $txt['ban_on_email'], '</label>
 						</dt>
 						<dd>
-							<input type="text" name="email" value="', $context['ban_trigger']['email']['value'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
+							<input type="email" name="email" value="', $context['ban_trigger']['email']['value'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
 						</dd>
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', $context['ban_trigger']['banneduser']['selected'] ? ' checked' : '', '>

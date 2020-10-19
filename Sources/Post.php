@@ -7,11 +7,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -21,7 +21,7 @@ if (!defined('SMF'))
  * Handles showing the post screen, loading the post to be modified, and loading any post quoted.
  *
  * - additionally handles previews of posts.
- * - @uses the Post template and language file, main sub template.
+ * - Uses the Post template and language file, main sub template.
  * - requires different permissions depending on the actions, but most notably post_new, post_reply_own, and post_reply_any.
  * - shows options for the editing and posting of calendar events and attachments, as well as the posting of polls.
  * - accessed from ?action=post.
@@ -344,17 +344,36 @@ function Post($post_errors = array())
 
 		// Need this so the user can select a timezone for the event.
 		$context['all_timezones'] = smf_list_timezones($context['event']['start_date']);
-		unset($context['all_timezones']['']);
 
-		// If the event's timezone is not in SMF's standard list of time zones, prepend it to the list
-		if (!in_array($context['event']['tz'], array_keys($context['all_timezones'])))
+		// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
+		if (!isset($context['all_timezones'][$context['event']['tz']]))
 		{
-			$d = date_create($context['event']['start_datetime'] . ' ' . $context['event']['tz']);
-			$context['all_timezones'] = array($context['event']['tz'] => '[UTC' . date_format($d, 'P') . '] - ' . $context['event']['tz']) + $context['all_timezones'];
+			$later = strtotime('@' . $context['event']['start_timestamp'] . ' + 1 year');
+			$tzinfo = timezone_transitions_get(timezone_open($context['event']['tz']), $context['event']['start_timestamp'], $later);
+
+			$found = false;
+			foreach ($context['all_timezones'] as $possible_tzid => $dummy)
+			{
+				$possible_tzinfo = timezone_transitions_get(timezone_open($possible_tzid), $context['event']['start_timestamp'], $later);
+
+				if ($tzinfo === $possible_tzinfo)
+				{
+					$context['event']['tz'] = $possible_tzid;
+					$found = true;
+					break;
+				}
+			}
+
+			// Hm. That's weird. Well, just prepend it to the list and let the user deal with it.
+			if (!$found)
+			{
+				$d = date_create($context['event']['start_datetime'] . ' ' . $context['event']['tz']);
+				$context['all_timezones'] = array($context['event']['tz'] => '[UTC' . date_format($d, 'P') . '] - ' . $context['event']['tz']) + $context['all_timezones'];
+			}
 		}
 
 		loadDatePicker('#event_time_input .date_input');
-		loadTimePicker('#event_time_input .date_input', $time_string);
+		loadTimePicker('#event_time_input .time_input', $time_string);
 		loadDatePair('#event_time_input', 'date_input', 'time_input');
 		addInlineJavaScript('
 	$("#allday").click(function(){
@@ -446,7 +465,7 @@ function Post($post_errors = array())
 
 		// In order to keep the approval status flowing through, we have to pass it through the form...
 		$context['becomes_approved'] = empty($_REQUEST['not_approved']);
-		$context['show_approval'] = isset($_REQUEST['approve']) ? ($_REQUEST['approve'] ? 2 : 1) : allowedTo('approve_posts') ? 2 : 0;
+		$context['show_approval'] = isset($_REQUEST['approve']) ? ($_REQUEST['approve'] ? 2 : 1) : (allowedTo('approve_posts') ? 2 : 0);
 		$context['can_announce'] &= $context['becomes_approved'];
 
 		// Set up the inputs for the form.
@@ -533,6 +552,8 @@ function Post($post_errors = array())
 			}
 			else
 				$context['preview_subject'] = '<em>' . $txt['no_subject'] . '</em>';
+
+			call_integration_hook('integrate_preview_post', array(&$form_message, &$form_subject));
 
 			// Protect any CDATA blocks.
 			if (isset($_REQUEST['xml']))
@@ -1043,7 +1064,7 @@ function Post($post_errors = array())
 	 */
 	$minor_errors = array('not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject', 'topic_locked', 'topic_unlocked', 'topic_stickied', 'topic_unstickied', 'cannot_post_attachment');
 
-	call_integration_hook('integrate_post_errors', array(&$post_errors, &$minor_errors));
+	call_integration_hook('integrate_post_errors', array(&$post_errors, &$minor_errors, $form_message, $form_subject));
 
 	// Any errors occurred?
 	if (!empty($post_errors))
@@ -1122,7 +1143,7 @@ function Post($post_errors = array())
 			'post_button' => $context['submit_label'],
 		),
 		// add height and width for the editor
-		'height' => '275px',
+		'height' => '175px',
 		'width' => '100%',
 		// We do XML preview here.
 		'preview_type' => 2,
@@ -1182,10 +1203,10 @@ function Post($post_errors = array())
 	if ($context['can_post_attachment'])
 	{
 		// If they've unchecked an attachment, they may still want to attach that many more files, but don't allow more than num_allowed_attachments.
-		$context['num_allowed_attachments'] = empty($modSettings['attachmentNumPerPostLimit']) ? 50 : min($modSettings['attachmentNumPerPostLimit'] - count($context['current_attachments']), $modSettings['attachmentNumPerPostLimit']);
+		$context['num_allowed_attachments'] = min(ini_get('max_file_uploads'), (empty($modSettings['attachmentNumPerPostLimit']) ? 50 : $modSettings['attachmentNumPerPostLimit'] - count($context['current_attachments'])));
 		$context['can_post_attachment_unapproved'] = allowedTo('post_attachment');
 		$context['attachment_restrictions'] = array();
-		$context['allowed_extensions'] = strtr(strtolower($modSettings['attachmentExtensions']), array(',' => ', '));
+		$context['allowed_extensions'] = !empty($modSettings['attachmentCheckExtensions']) ? (strtr(strtolower($modSettings['attachmentExtensions']), array(',' => ', '))) : '';
 		$attachmentRestrictionTypes = array('attachmentNumPerPostLimit', 'attachmentPostLimit', 'attachmentSizeLimit');
 		foreach ($attachmentRestrictionTypes as $type)
 			if (!empty($modSettings[$type]))
@@ -1202,9 +1223,6 @@ function Post($post_errors = array())
 	$context['is_new_topic'] = empty($topic);
 	$context['is_new_post'] = !isset($_REQUEST['msg']);
 	$context['is_first_post'] = $context['is_new_topic'] || (isset($_REQUEST['msg']) && $_REQUEST['msg'] == $id_first_msg);
-
-	// WYSIWYG only works if BBC is enabled
-	$modSettings['disable_wysiwyg'] = !empty($modSettings['disable_wysiwyg']) || empty($modSettings['enableBBC']);
 
 	// Register this form in the session variables.
 	checkSubmitOnce('register');
@@ -1241,9 +1259,9 @@ function Post($post_errors = array())
 	// File Upload.
 	if ($context['can_post_attachment'])
 	{
-		$acceptedFiles = implode(',', array_map(function ($val) use ($smcFunc)
+		$acceptedFiles = empty($context['allowed_extensions']) ? '' : implode(',', array_map(function ($val) use ($smcFunc)
 		{
-			return '.' . $smcFunc['htmltrim']($val);
+			return !empty($val) ? ('.' . $smcFunc['htmltrim']($val)) : '';
 		}, explode(',', $context['allowed_extensions'])));
 
 		loadJavaScriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
@@ -1272,7 +1290,7 @@ function Post($post_errors = array())
 			limitMultiFileUploadSize:' . round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1024 . ',
 			maxFileAmount: ' . (!empty($context['num_allowed_attachments']) ? $context['num_allowed_attachments'] : 'null') . ',
 			maxTotalSize: ' . (!empty($modSettings['attachmentPostLimit']) ? $modSettings['attachmentPostLimit'] : '0') . ',
-			maxFileSize: ' . (!empty($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] : '0') . ',
+			maxFilesize: ' . (!empty($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] : '0') . ',
 		});
 	});', true);
 	}
@@ -1566,7 +1584,7 @@ function Post2()
 	require_once($sourcedir . '/Subs-Post.php');
 	loadLanguage('Post');
 
-	call_integration_hook('integrate_post2_start');
+	call_integration_hook('integrate_post2_start', array(&$post_errors));
 
 	// Drafts enabled and needed?
 	if (!empty($modSettings['drafts_post_enabled']) && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))
@@ -1749,6 +1767,8 @@ function Post2()
 		}
 
 		$posterIsGuest = $user_info['is_guest'];
+		$context['is_own_post'] = true;
+		$context['poster_id'] = $user_info['id'];
 	}
 	// Posting a new topic.
 	elseif (empty($topic))
@@ -1787,6 +1807,8 @@ function Post2()
 		}
 
 		$posterIsGuest = $user_info['is_guest'];
+		$context['is_own_post'] = true;
+		$context['poster_id'] = $user_info['id'];
 	}
 	// Modifying an existing message?
 	elseif (isset($_REQUEST['msg']) && !empty($topic))
@@ -1882,6 +1904,8 @@ function Post2()
 		}
 
 		$posterIsGuest = empty($row['id_member']);
+		$context['is_own_post'] = $user_info['id'] === (int) $row['id_member'];
+		$context['poster_id'] = (int) $row['id_member'];
 
 		// Can they approve it?
 		$approve_checked = (!empty($REQUEST['approve']) ? 1 : 0);
@@ -1899,7 +1923,6 @@ function Post2()
 		$searchAPI = findSearchAPI();
 		if ($searchAPI->supportsMethod('postRemoved'))
 			$searchAPI->postRemoved($_REQUEST['msg']);
-
 	}
 
 	// In case we have approval permissions and want to override.
@@ -2021,6 +2044,8 @@ function Post2()
 		$_POST['guestname'] = $user_info['username'];
 		$_POST['email'] = $user_info['email'];
 	}
+
+ 	call_integration_hook('integrate_post2_pre', array(&$post_errors));
 
 	// Any mistakes?
 	if (!empty($post_errors))
@@ -2677,6 +2702,7 @@ function AnnouncementSend()
 				'TOPICSUBJECT' => $context['topic_subject'],
 				'MESSAGE' => $message,
 				'TOPICLINK' => $scripturl . '?topic=' . $topic . '.0',
+				'UNSUBSCRIBELINK' => $scripturl . '?action=notifyannouncements;u={UNSUBSCRIBE_ID};token={UNSUBSCRIBE_TOKEN}',
 			);
 
 			$emaildata = loadEmailTemplate('new_announcement', $replacements, $cur_language);
@@ -2694,7 +2720,17 @@ function AnnouncementSend()
 
 	// For each language send a different mail - low priority...
 	foreach ($announcements as $lang => $mail)
-		sendmail($mail['recipients'], $mail['subject'], $mail['body'], null, 'ann-' . $lang, $mail['is_html'], 5);
+	{
+		foreach ($mail['recipients'] as $member_id => $member_email)
+		{
+			$token = createUnsubscribeToken($member_id, $member_email, 'announcements');
+
+			$body = str_replace(array('{UNSUBSCRIBE_ID}', '{UNSUBSCRIBE_TOKEN}'), array($member_id, $token), $mail['body']);
+
+			sendmail($member_email, $mail['subject'], $body, null, null, false, 5);
+		}
+
+	}
 
 	$context['percentage_done'] = round(100 * $context['start'] / $modSettings['latestMember'], 1);
 
@@ -2749,6 +2785,8 @@ function getTopic()
 		// Censor, BBC, ...
 		censorText($row['body']);
 		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
+
+	 	call_integration_hook('integrate_getTopic_previous_post', array(&$row));
 
 		// ...and store.
 		$context['previous_posts'][] = array(
@@ -2985,6 +3023,8 @@ function JavaScriptModify()
 		}
 	}
 
+ 	call_integration_hook('integrate_post_JavascriptModify', array(&$post_errors, $row));
+
 	if (isset($_POST['lock']))
 	{
 		if (!allowedTo(array('lock_any', 'lock_own')) || (!allowedTo('lock_any') && $user_info['id'] != $row['id_member']))
@@ -3152,6 +3192,9 @@ function JavaScriptModify()
 					$context['message']['errors'][] = $txt['error_' . $post_error];
 			}
 		}
+
+		// Allow mods to do something with $context before we return.
+		call_integration_hook('integrate_jsmodify_xml');
 	}
 	else
 		obExit(false);

@@ -2,11 +2,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 (function ($) {
@@ -176,7 +176,17 @@
 		// creating the first instance and extend it then
 		var instance = sceditor.instance(textarea);
 		if (!isPatched && instance) {
-			$.extend(true, instance.constructor.prototype, extensionMethods);
+			sceditor.utils.extend(instance.constructor.prototype, extensionMethods);
+
+			/*
+			 * Stop SCEditor from resizing the entire container. Long
+			 * toolbars and tons of smilies play havoc with this.
+			 * Only resize the text areas instead.
+			 */
+			document.querySelector(".sceditor-container").removeAttribute("style");
+			document.querySelector(".sceditor-container textarea").style.height = options.height;
+			document.querySelector(".sceditor-container textarea").style.flexBasis = options.height;
+
 			isPatched = true;
 		}
 	};
@@ -194,10 +204,10 @@ sceditor.command.set(
 	'email', {
 		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('@') > -1 ? null : selected,
-				email	= prompt(this._("Enter the e-mail address:"), (display ? '' : selected));
+				email = prompt(this._("Enter the e-mail address:"), (display ? '' : selected));
 			if (email)
 			{
-				var text	= prompt(this._("Enter the displayed text:"), display || email) || email;
+				var text = prompt(this._("Enter the displayed text:"), display || email) || email;
 				this.insertText("[email=" + email + "]" + text + "[/email]");
 			}
 		}
@@ -207,10 +217,10 @@ sceditor.command.set(
 	'link', {
 		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('http://') > -1 ? null : selected,
-				url	= prompt(this._("Enter URL:"), (display ? 'http://' : selected));
+				url = prompt(this._("Enter URL:"), (display ? 'http://' : selected));
 			if (url)
 			{
-				var text	= prompt(this._("Enter the displayed text:"), display || url) || url;
+				var text = prompt(this._("Enter the displayed text:"), display || url) || url;
 				this.insertText("[url=\"" + url + "\"]" + text + "[/url]");
 			}
 		},
@@ -301,6 +311,18 @@ sceditor.command.set(
 		exec: function () {
 			this.wysiwygEditorInsertHtml('<div class="floatright">', '</div>');
 		}
+	}
+);
+
+sceditor.command.set(
+	'maximize', {
+		shortcut: ''
+	}
+);
+
+sceditor.command.set(
+	'source', {
+		shortcut: ''
 	}
 );
 
@@ -885,7 +907,7 @@ sceditor.formats.bbcode.set(
 			if (!element.css('float'))
 				return content;
 
-			side = (element.css('float').indexOf('left') == 0 ? 'left' : 'right');
+			side = (element[0].className == 'floatleft' ? 'left' : 'right');
 			max = ' max=' + (element.css('max-width') != "none" ? element.css('max-width') : '45%');
 
 			return '[float=' + side + max + ']' + content + '[/float]';

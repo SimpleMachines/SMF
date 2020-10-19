@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -23,7 +23,7 @@ if (!defined('SMF'))
  *
  * @todo lazy loading.
  *
- * @uses ManageSettings language file
+ * Uses ManageSettings language file
  */
 function ManageLanguages()
 {
@@ -62,7 +62,7 @@ function ManageLanguages()
 /**
  * Interface for adding a new language
  *
- * @uses ManageLanguages template, add_language sub-template.
+ * @uses template_add_language()
  */
 function AddLanguage()
 {
@@ -170,7 +170,7 @@ function list_getLanguagesList()
 				'id' => $file->fetch('id'),
 				'name' => $smcFunc['ucwords']($file->fetch('name')),
 				'version' => $file->fetch('version'),
-				'utf8' => $file->fetch('utf8') ? $txt['yes'] : $txt['no'],
+				'utf8' => $txt['yes'],
 				'description' => $file->fetch('description'),
 				'install_link' => '<a href="' . $scripturl . '?action=admin;area=languages;sa=downloadlang;did=' . $file->fetch('id') . ';' . $context['session_var'] . '=' . $context['session_id'] . '">' . $txt['add_language_smf_install'] . '</a>',
 			);
@@ -189,8 +189,8 @@ function list_getLanguagesList()
  * Attempts to chmod things as needed.
  * Uses a standard list to display information about all the files and where they'll be put.
  *
- * @uses ManageLanguages template, download_language sub-template.
- * @uses Admin template, show_list sub-template.
+ * @uses template_download_language()
+ * Uses a standard list for displaying languages (@see createList())
  */
 function DownloadLanguage()
 {
@@ -459,7 +459,7 @@ function DownloadLanguage()
 			),
 			'copy' => array(
 				'header' => array(
-					'value' => $txt['languages_download_copy'],
+					'value' => $txt['languages_download_overwrite'],
 					'class' => 'centercol',
 				),
 				'data' => array(
@@ -516,7 +516,7 @@ function ModifyLanguages()
 		if ($_POST['def_language'] != $language && $lang_exists)
 		{
 			require_once($sourcedir . '/Subs-Admin.php');
-			updateSettingsFile(array('language' => '\'' . $_POST['def_language'] . '\''));
+			updateSettingsFile(array('language' => $_POST['def_language']));
 			$language = $_POST['def_language'];
 		}
 	}
@@ -779,9 +779,17 @@ function ModifyLanguageSettings($return_config = false)
 	$context['save_disabled'] = $settings_not_writable;
 
 	if ($settings_not_writable)
-		$context['settings_message'] = '<div class="centertext"><strong>' . $txt['settings_not_writable'] . '</strong></div><br>';
+		$context['settings_message'] = array(
+			'label' => $txt['settings_not_writable'],
+			'tag' => 'div',
+			'class' => 'centertext strong'
+		);
 	elseif ($settings_backup_fail)
-		$context['settings_message'] = '<div class="centertext"><strong>' . $txt['admin_backup_fail'] . '</strong></div><br>';
+		$context['settings_message'] = array(
+			'label' => $txt['admin_backup_fail'],
+			'tag' => 'div',
+			'class' => 'centertext strong'
+		);
 
 	// Fill the config array.
 	prepareServerSettingsContext($config_vars);
@@ -900,10 +908,14 @@ function ModifyLanguage()
 			);
 		}
 		$dir->close();
-		usort($context['possible_files'][$theme]['files'], function($val1, $val2)
+
+		if (!empty($context['possible_files'][$theme]['files']))
 		{
-			return strcmp($val1['name'], $val2['name']);
-		});
+			usort($context['possible_files'][$theme]['files'], function($val1, $val2)
+			{
+				return strcmp($val1['name'], $val2['name']);
+			});
+		}
 	}
 
 	// We no longer wish to speak this language.
@@ -968,7 +980,7 @@ function ModifyLanguage()
 		{
 			require_once($sourcedir . '/Subs-Admin.php');
 			$language = 'english';
-			updateSettingsFile(array('language' => '\'' . $language . '\''));
+			updateSettingsFile(array('language' => $language));
 		}
 
 		// Seventh, get out of here.
@@ -1555,7 +1567,7 @@ function cleanLangString($string, $to_display = true)
 		for ($i = 0; $i < strlen($string); $i++)
 		{
 			// Handle escapes first.
-			if ($string{$i} == '\\')
+			if ($string[$i] == '\\')
 			{
 				// Toggle the escape.
 				$is_escape = !$is_escape;
@@ -1564,15 +1576,15 @@ function cleanLangString($string, $to_display = true)
 					continue;
 			}
 			// Special case - parsed string with line break etc?
-			elseif (($string{$i} == 'n' || $string{$i} == 't') && $in_string == 2 && $is_escape)
+			elseif (($string[$i] == 'n' || $string[$i] == 't') && $in_string == 2 && $is_escape)
 			{
 				// Put the escape back...
-				$new_string .= $string{$i} == 'n' ? "\n" : "\t";
+				$new_string .= $string[$i] == 'n' ? "\n" : "\t";
 				$is_escape = false;
 				continue;
 			}
 			// Have we got a single quote?
-			elseif ($string{$i} == '\'')
+			elseif ($string[$i] == '\'')
 			{
 				// Already in a parsed string, or escaped in a linear string, means we print it - otherwise something special.
 				if ($in_string != 2 && ($in_string != 1 || !$is_escape))
@@ -1589,7 +1601,7 @@ function cleanLangString($string, $to_display = true)
 				}
 			}
 			// Otherwise a double quote?
-			elseif ($string{$i} == '"')
+			elseif ($string[$i] == '"')
 			{
 				// Already in a single quote string, or escaped in a parsed string, means we print it - otherwise something special.
 				if ($in_string != 1 && ($in_string != 2 || !$is_escape))
@@ -1606,10 +1618,10 @@ function cleanLangString($string, $to_display = true)
 				}
 			}
 			// A join/space outside of a string is simply removed.
-			elseif ($in_string == 0 && (empty($string{$i}) || $string{$i} == '.'))
+			elseif ($in_string == 0 && (empty($string[$i]) || $string[$i] == '.'))
 				continue;
 			// Start of a variable?
-			elseif ($in_string == 0 && $string{$i} == '$')
+			elseif ($in_string == 0 && $string[$i] == '$')
 			{
 				// Find the whole of it!
 				preg_match('~([\$A-Za-z0-9\'\[\]_-]+)~', substr($string, $i), $matches);
@@ -1634,7 +1646,7 @@ function cleanLangString($string, $to_display = true)
 			}
 
 			// Actually add the character to the string!
-			$new_string .= $string{$i};
+			$new_string .= $string[$i];
 			// If anything was escaped it ain't any longer!
 			$is_escape = false;
 		}
@@ -1665,7 +1677,7 @@ function cleanLangString($string, $to_display = true)
 			}
 
 			// Is this a variable?
-			if ($string{$i} == '{' && $string{$i + 1} == '%' && $string{$i + 2} == '$')
+			if ($string[$i] == '{' && $string[$i + 1] == '%' && $string[$i + 2] == '$')
 			{
 				// Grab the variable.
 				preg_match('~\{%([\$A-Za-z0-9\'\[\]_-]+)%\}~', substr($string, $i), $matches);
@@ -1684,10 +1696,10 @@ function cleanLangString($string, $to_display = true)
 				continue;
 			}
 			// Is this a lt sign?
-			elseif ($string{$i} == '<')
+			elseif ($string[$i] == '<')
 			{
 				// Probably HTML?
-				if ($string{$i + 1} != ' ')
+				if ($string[$i + 1] != ' ')
 					$in_html = true;
 				// Assume we need an entity...
 				else
@@ -1697,7 +1709,7 @@ function cleanLangString($string, $to_display = true)
 				}
 			}
 			// What about gt?
-			elseif ($string{$i} == '>')
+			elseif ($string[$i] == '>')
 			{
 				// Will it be HTML?
 				if ($in_html)
@@ -1710,10 +1722,10 @@ function cleanLangString($string, $to_display = true)
 				}
 			}
 			// Is it a slash? If so escape it...
-			if ($string{$i} == '\\')
+			if ($string[$i] == '\\')
 				$new_string .= '\\';
 			// The infamous double quote?
-			elseif ($string{$i} == '"')
+			elseif ($string[$i] == '"')
 			{
 				// If we're in HTML we leave it as a quote - otherwise we entity it.
 				if (!$in_html)
@@ -1723,14 +1735,14 @@ function cleanLangString($string, $to_display = true)
 				}
 			}
 			// A single quote?
-			elseif ($string{$i} == '\'')
+			elseif ($string[$i] == '\'')
 			{
 				// Must be in a string so escape it.
 				$new_string .= '\\';
 			}
 
 			// Finally add the character to the string!
-			$new_string .= $string{$i};
+			$new_string .= $string[$i];
 		}
 
 		// If we ended as a string then close it off.

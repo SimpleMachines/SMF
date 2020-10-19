@@ -1,17 +1,17 @@
 <?php
 
 /**
- * This taks handles notifying someone that a user has
- * requested to join a group they moderate.
+ * This file contains code used to notify a member when a group moderator has
+ * taken action on that member's request to join a group.
  *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -19,10 +19,12 @@
  */
 class GroupAct_Notify_Background extends SMF_BackgroundTask
 {
-    /**
-     * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
-     * @return bool Always returns true
-     */
+	/**
+	 * This executes the task: loads up the info, puts the email in the queue
+	 * and inserts any alerts as needed.
+	 *
+	 * @return bool Always returns true
+	 */
 	public function execute()
 	{
 		global $sourcedir, $smcFunc, $language, $modSettings;
@@ -55,7 +57,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 				require_once($sourcedir . '/Security.php');
 				$user_info['permissions'] = array();
 
-				// For the moddlog
+				// For the modlog
 				$user_info['id'] = $this->_details['member_id'];
 				$user_info['ip'] = $this->_details['member_ip'];
 
@@ -82,29 +84,31 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 		if (!empty($affected_users))
 		{
 			require_once($sourcedir . '/Subs-Notify.php');
-			$prefs = getNotifyPrefs($members, array('groupr_approved', 'groupr_rejected'), true);
 
-			// They are being approved?
-			if ($this->_details['status'] == 'approve')
-			{
-				$pref_name = 'approved';
-				$email_template_name = 'mc_group_approve';
-				$email_message_id_prefix = 'grpapp';
-			}
-			// Otherwise, they are getting rejected (With or without a reason).
-			else
-			{
-				$pref_name = 'rejected';
-				$email_template_name = empty($custom_reason) ? 'mc_group_reject' : 'mc_group_reject_reason';
-				$email_message_id_prefix = 'grprej';
-			}
+			$prefs = getNotifyPrefs($members, array('groupr_approved', 'groupr_rejected'), true);
 
 			// Same as for approving, kind of.
 			foreach ($affected_users as $user)
 			{
-				$pref = !empty($prefs[$user['member_id']]['groupr_' . $pref_name]) ? $prefs[$user['member_id']]['groupr_' . $pref_name] : 0;
 				$custom_reason = isset($this->_details['reason']) && isset($this->_details['reason'][$user['rid']]) ? $this->_details['reason'][$user['rid']] : '';
 
+				// They are being approved?
+				if ($this->_details['status'] == 'approve')
+				{
+					$pref_name = 'approved';
+					$email_template_name = 'mc_group_approve';
+					$email_message_id_prefix = 'grpapp';
+				}
+
+				// Otherwise, they are getting rejected (With or without a reason).
+				else
+				{
+					$pref_name = 'rejected';
+					$email_template_name = empty($custom_reason) ? 'mc_group_reject' : 'mc_group_reject_reason';
+					$email_message_id_prefix = 'grprej';
+				}
+
+				$pref = !empty($prefs[$user['member_id']]['groupr_' . $pref_name]) ? $prefs[$user['member_id']]['groupr_' . $pref_name] : 0;
 				if ($pref & self::RECEIVE_NOTIFY_ALERT)
 				{
 					$alert_rows[] = array(

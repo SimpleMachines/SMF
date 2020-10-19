@@ -214,6 +214,7 @@ ALTER TABLE {$db_prefix}calendar ALTER COLUMN end_date SET DEFAULT '1004-01-01':
 ALTER TABLE {$db_prefix}calendar_holidays ALTER COLUMN event_date SET DEFAULT '1004-01-01'::date;
 ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN stat_date SET DEFAULT '1004-01-01'::date;
 ALTER TABLE {$db_prefix}members ALTER COLUMN birthdate SET DEFAULT '1004-01-01'::date;
+ALTER TABLE {$db_prefix}log_activity ALTER COLUMN date DROP DEFAULT;
 ---#
 
 /******************************************************************************/
@@ -355,6 +356,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1') ON CONFLICT DO NOTHING;
 ---#
 
+---# Adding new "alerts_auto_purge" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('alerts_auto_purge', '30') ON CONFLICT DO NOTHING;
+---#
+
 ---# Adding new "minimize_files" setting
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('minimize_files', '1') ON CONFLICT DO NOTHING;
 ---#
@@ -418,6 +423,13 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 			array()
 		);
 ---}
+---#
+
+---# Adding new profile data export settings
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_dir', '{$boarddir}/exports');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_expiry', '7');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_min_diskspace_pct', '5');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_rate', '250');
 ---#
 
 /******************************************************************************/
@@ -702,11 +714,59 @@ CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_r
 ---#
 
 /******************************************************************************/
---- Adding support for <credits> tag in package manager
+--- Package Manager New Features
 /******************************************************************************/
----# Adding new columns to log_packages ..
+---# Adding support for <credits> tag in package manager
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN credits text NOT NULL;
+ADD COLUMN credits TEXT NOT NULL;
+---#
+
+---# Adding support for package hashes
+ALTER TABLE {$db_prefix}log_packages
+ADD COLUMN sha256_hash TEXT;
+---#
+
+---# Adding support for validation servers
+ALTER TABLE {$db_prefix}package_servers
+ADD COLUMN validation_url VARCHAR(255) DEFAULT '',
+ADD COLUMN extra TEXT;
+---#
+
+---# Add Package Validation to Downloads Site
+---{
+	$request = $smcFunc['db_query']('', '
+		SELECT id_server
+		FROM {db_prefix}package_servers
+		WHERE url LIKE {string:downloads_site}',
+		array(
+			'downloads_site' => 'https://download.simplemachines.org%',
+		)
+	);
+
+	if ($smcFunc['db_num_rows']($request) != 0)
+		list($downloads_server) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	if (empty($downloads_server))
+		$smcFunc['db_insert']('',
+			'{db_prefix}package_servers',
+			array('name' => 'string', 'url' => 'string', 'validation_url' => 'string'),
+			array('Simple Machines Download Site', 'https://download.simplemachines.org/browse.php?api=v1;smf_version={SMF_VERSION}', 'https://download.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}'),
+			array('id_server')
+		);
+---}
+---#
+
+---# Ensure The Simple Machines Customize Site is https
+UPDATE {$db_prefix}package_servers
+SET url = 'https://custom.simplemachines.org/packages/mods'
+WHERE url = 'http://custom.simplemachines.org/packages/mods';
+---#
+
+---# Add validation to Simple Machines Customize Site
+UPDATE {$db_prefix}package_servers
+SET validation_url = 'https://custom.simplemachines.org/api.php?action=validate;version=v1;smf_version={SMF_VERSION}'
+WHERE url = 'https://custom.simplemachines.org/packages/mods';
 ---#
 
 /******************************************************************************/
@@ -789,7 +849,7 @@ VALUES
 			)
 		);
 
-		list($task_disabled) = $smcFunc['db_fetch_assoc']($get_info);
+		list($task_disabled) = $smcFunc['db_fetch_row']($get_info);
 		$smcFunc['db_free_result']($get_info);
 
 		$smcFunc['db_insert']('replace',
@@ -1000,6 +1060,7 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'buddy_request', 1) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'warn_any', 1) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'request_group', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_notify_pref', 1) ON CONFLICT DO NOTHING;
 ---#
 
 ---# Upgrading post notification settings
@@ -1017,6 +1078,7 @@ if (in_array('notify_regularity', $results))
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
 	list($maxMembers) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
 
 	while (!$is_done)
 	{
@@ -1036,13 +1098,13 @@ if (in_array('notify_regularity', $results))
 		);
 		if ($smcFunc['db_num_rows']($request) != 0)
 		{
-			while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
+			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
 				$inserts[] = array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0);
 				$inserts[] = array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']);
 				$inserts[] = array($row['id_member'], 'msg_notify_type', $row['notify_types']);
 			}
-			$smcFunc['db_free_result']($existing_notify);
+			$smcFunc['db_free_result']($request);
 		}
 
 		$smcFunc['db_insert']('ignore',
@@ -1096,10 +1158,10 @@ UPDATE {$db_prefix}user_alerts
 SET content_type = 'topic', content_action = 'unapproved_post'
 WHERE content_type = 'unapproved' AND content_action = 'post';
 
-UPDATE {$db_prefix}user_alerts AS a
-SET a.content_type = 'msg', a.content_action = 'unapproved_attachment', a.content_id = f.id_msg
+UPDATE {$db_prefix}user_alerts
+SET content_type = 'msg', content_action = 'unapproved_attachment', content_id = f.id_msg
 FROM {$db_prefix}attachments AS f
-WHERE content_type = 'unapproved' AND content_action = 'attachment' AND f.id_attach = a.content_id;
+WHERE content_type = 'unapproved' AND content_action = 'attachment' AND f.id_attach = content_id;
 ---#
 
 /******************************************************************************/
@@ -1334,48 +1396,74 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 // We cannot do this twice
 // See which columns we have
 $results = $smcFunc['db_list_columns']('{db_prefix}members');
-$possible_columns = array('icq', 'msn', 'yim', 'location', 'gender');
+$possible_columns = array('icq', 'msn', 'location', 'gender');
 
 // Find values that are in both arrays
 $select_columns = array_intersect($possible_columns, $results);
 
 if (!empty($select_columns))
 {
-	$request = $smcFunc['db_query']('', '
-		SELECT id_member, '. implode(',', $select_columns) .'
-		FROM {db_prefix}members');
+	$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
+	$step_progress['name'] = 'Converting member values';
+	$step_progress['current'] = $_GET['a'];
 
-	$inserts = array();
-	$genderTypes = array(1 => 'Male', 2 => 'Female');
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
+	list($maxMembers) = $smcFunc['db_fetch_row']($request);
+
+	$limit = 10000;
+	$is_done = false;
+
+	while (!$is_done)
 	{
-		if (!empty($row['icq']))
-			$inserts[] = array($row['id_member'], 1, 'cust_icq', $row['icq']);
+		nextSubStep($substep);
+		$inserts = array();
 
-		if (!empty($row['msn']))
-			$inserts[] = array($row['id_member'], 1, 'cust_skype', $row['msn']);
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member, '. implode(',', $select_columns) .'
+			FROM {db_prefix}members
+			ORDER BY id_member
+			LIMIT {int:start}, {int:limit}',
+			array(
+				'start' => $_GET['a'],
+				'limit' => $limit,
+		));
 
-		if (!empty($row['yim']))
-			$inserts[] = array($row['id_member'], 1, 'cust_yahoo', $row['yim']);
+		$genderTypes = array(1 => 'Male', 2 => 'Female');
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (!empty($row['icq']))
+				$inserts[] = array($row['id_member'], 1, 'cust_icq', $row['icq']);
 
-		if (!empty($row['location']))
-			$inserts[] = array($row['id_member'], 1, 'cust_loca', $row['location']);
+			if (!empty($row['msn']))
+				$inserts[] = array($row['id_member'], 1, 'cust_skype', $row['msn']);
 
-		if (!empty($row['gender']) && isset($genderTypes[intval($row['gender'])]))
-			$inserts[] = array($row['id_member'], 1, 'cust_gender', $genderTypes[intval($row['gender'])]);
+			if (!empty($row['location']))
+				$inserts[] = array($row['id_member'], 1, 'cust_loca', $row['location']);
+
+			if (!empty($row['gender']) && isset($genderTypes[INTval($row['gender'])]))
+				$inserts[] = array($row['id_member'], 1, 'cust_gender', $genderTypes[INTval($row['gender'])]);
+		}
+		$smcFunc['db_free_result']($request);
+
+		if (!empty($inserts))
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}themes',
+				array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
+				$inserts,
+				array('id_theme', 'id_member', 'variable')
+			);
+
+		$_GET['a'] += $limit;
+		$step_progress['current'] = $_GET['a'];
+
+		if ($step_progress['current'] >= $maxMembers)
+			$is_done = true;
 	}
-	$smcFunc['db_free_result']($request);
-
-	if (!empty($inserts))
-		$smcFunc['db_insert']('replace',
-			'{db_prefix}themes',
-			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
-			$inserts,
-			array('id_theme', 'id_member', 'variable')
-		);
 }
+unset($_GET['a']);
 ---}
 ---#
+
 ---# Dropping old fields
 ALTER TABLE {$db_prefix}members
 	DROP IF EXISTS icq,
@@ -1417,7 +1505,7 @@ ALTER TABLE {$db_prefix}members
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('displayFields', json_encode($fields)),
-			array('id_theme', 'id_member', 'variable')
+			array('variable')
 		);
 	}
 ---}
@@ -1503,7 +1591,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enab
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1') ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7') ON CONFLICT DO NOTHING;
 
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_show_saved_enabled', '1') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, '1', 'drafts_show_saved_enabled', '1') ON CONFLICT DO NOTHING;
 ---#
 
 /******************************************************************************/
@@ -1632,7 +1720,7 @@ WHERE variable = 'avatar_action_too_large'
 
 ---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'log_ban_hits', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc', 'enable_unwatch', 'cache_memcached', 'cache_enable');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'log_ban_hits', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc', 'enable_unwatch', 'cache_memcached', 'cache_enable', 'cookie_no_auth_secret');
 ---#
 
 ---# Cleaning up old theme settings.
@@ -1758,7 +1846,7 @@ CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pat
 		WHERE comment_type = 'ver_test'");
 
 	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
-		$questions[] = array($language, $row['question'], serialize(array($row['answer'])));
+		$questions[] = array($upcontext['language'], $row['question'], serialize(array($row['answer'])));
 
 	$smcFunc['db_free_result']($get_questions);
 
@@ -2523,6 +2611,10 @@ ALTER TABLE {$db_prefix}log_floodcontrol
 	ALTER ip TYPE inet USING migrate_inet(ip);
 ---#
 
+---# Modify log_type size
+ALTER TABLE {$db_prefix}log_floodcontrol ALTER COLUMN log_type TYPE varchar(30);
+---#
+
 ---# add pk
 ALTER TABLE {$db_prefix}log_floodcontrol
   ADD CONSTRAINT {$db_prefix}log_floodcontrol_pkey PRIMARY KEY(ip, log_type);
@@ -2651,7 +2743,7 @@ VALUES
 	('cal_prev_next_links', '1'),
 	('cal_short_days', '0'),
 	('cal_short_months', '0'),
-	('cal_week_numbers', '0');
+	('cal_week_numbers', '0') ON CONFLICT DO NOTHING;
 ---#
 
 /******************************************************************************/
@@ -2731,7 +2823,7 @@ CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (indexable_mo
 /******************************************************************************/
 ---# Add Index for messages likes
 DROP INDEX IF EXISTS {$db_prefix}messages_likes;
-CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes DESC);
+CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes);
 ---#
 
 /******************************************************************************/
@@ -2753,11 +2845,11 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}smiley_files
 $dirs = explode(',', $modSettings['smiley_sets_known']);
 $setnames = explode("\n", $modSettings['smiley_sets_names']);
 
-// Build combined pairs of folders and names; bypass default which is not used anymore
+// Build combined pairs of folders and names
 $combined = array();
 foreach ($dirs AS $ix => $dir)
 {
-	if (!empty($setnames[$ix]) && $dir != 'default')
+	if (!empty($setnames[$ix]))
 		$combined[$dir] = array($setnames[$ix], '');
 }
 
@@ -2766,6 +2858,7 @@ $combined['fugue'] = array($txt['default_fugue_smileyset_name'], 'png');
 $combined['alienine'] = array($txt['default_alienine_smileyset_name'], 'png');
 
 // Add/fix our 2.0 sets (to correct past problems where these got corrupted)
+$combined['default'] = array($txt['default_legacy_smileyset_name'], 'gif');
 $combined['aaron'] = array($txt['default_aaron_smileyset_name'], 'gif');
 $combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], 'gif');
 
@@ -3208,6 +3301,21 @@ LANGUAGE 'sql';
 ---#
 
 /******************************************************************************/
+--- bigint versions of date functions
+/******************************************************************************/
+---# MONTH(bigint)
+CREATE OR REPLACE FUNCTION MONTH (bigint) RETURNS integer AS
+	'SELECT CAST (EXTRACT(MONTH FROM TO_TIMESTAMP($1)) AS integer) AS result'
+LANGUAGE 'sql';
+---#
+
+---# DAYOFMONTH(bigint)
+CREATE OR REPLACE FUNCTION DAYOFMONTH (bigint) RETURNS integer AS
+	'SELECT CAST (EXTRACT(DAY FROM TO_TIMESTAMP($1)) AS integer) AS result'
+LANGUAGE 'sql';
+---#
+
+/******************************************************************************/
 --- Update holidays
 /******************************************************************************/
 ---# Delete all the dates
@@ -3435,4 +3543,93 @@ VALUES ('Independence Day', '1004-07-04'),
 ---# Create new index on Attachments
 DROP INDEX IF EXISTS {$db_prefix}attachments_id_thumb;
 CREATE INDEX {$db_prefix}attachments_id_thumb ON {$db_prefix}attachments (id_thumb);
+---#
+
+/******************************************************************************/
+--- Update log_spider_stats
+/******************************************************************************/
+---# Allow for hyper aggressive crawlers
+ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN page_hits TYPE INT;
+---#
+
+/******************************************************************************/
+--- Update policy & agreement settings
+/******************************************************************************/
+---# Strip -utf8 from policy settings
+---{
+$utf8_policy_settings = array();
+foreach($modSettings AS $k => $v)
+{
+	if ((substr($k, 0, 7) === 'policy_') && (substr($k, -5) === '-utf8'))
+		$utf8_policy_settings[$k] = $v;
+}
+$adds = array();
+$deletes = array();
+foreach($utf8_policy_settings AS $var => $val)
+{
+	// Note this works on the policy_updated_ strings as well...
+	$language = substr($var, 7, strlen($var) - 12);
+	if (!array_key_exists('policy_' . $language, $modSettings))
+	{
+		$adds[] =  '(\'policy_' . $language . '\', \'' . $smcFunc['db_escape_string']($val) . '\')';
+		$deletes[] = '\'' . $var . '\'';
+	}
+}
+if (!empty($adds))
+{
+	upgrade_query("
+		INSERT INTO {$db_prefix}settings (variable, value)
+			VALUES " . implode(', ', $adds)
+	);
+}
+if (!empty($deletes))
+{
+	upgrade_query("
+		DELETE FROM {$db_prefix}settings
+			WHERE variable IN (" . implode(', ', $deletes) . ")
+	");
+}
+
+---}
+---#
+
+---# Strip -utf8 from agreement file names
+---{
+$files = glob($boarddir . '/agreement.*-utf8.txt');
+foreach($files AS $filename)
+{
+	$newfile = substr($filename, 0, strlen($filename) - 9) . '.txt';
+	// Do not overwrite existing files
+	if (!file_exists($newfile))
+		@rename($filename, $newfile);
+}
+
+---}
+---#
+
+---# Fix missing values in log_actions
+---{
+// Find the missing id_members
+$request = upgrade_query("
+	SELECT id_action, extra
+		FROM {$db_prefix}log_actions
+		WHERE id_member = 0
+		AND action IN ('policy_accepted', 'agreement_accepted')");
+
+// Fortunately they're in the extra field
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+	$extra = @unserialize($row['extra']);
+	if ($extra === false)
+		continue;
+	if (!empty($extra['applicator']))
+	{
+		upgrade_query("
+			UPDATE {$db_prefix}log_actions
+				SET id_member = " . $extra['applicator'] . "
+				WHERE id_action = " . $row['id_action']);
+	}
+}
+
+---}
 ---#
