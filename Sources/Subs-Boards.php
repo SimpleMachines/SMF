@@ -1565,9 +1565,6 @@ function setBoardParsedDescription($category_id = 0, $boards_info = array())
 	// Get the data we already parsed
 	$already_parsed_boards = getBoardsParsedDescription($category_id);
 
-	if (null === $already_parsed_boards)
-		$already_parsed_boards = array();
-
 	foreach ($boards_info as $board_id => $board_data)
 		$already_parsed_boards[$board_id] = array(
 			'name' => !empty($board_data['name']) ?
@@ -1587,7 +1584,7 @@ function getBoardsParsedDescription($category_id = 0)
 	global $cache_enable;
 
 	if (empty($category_id) || empty($cache_enable))
-		return null;
+		return array();
 
 	return cache_get_data('parsed_boards_descriptions_' . $category_id, 864000);
 }
