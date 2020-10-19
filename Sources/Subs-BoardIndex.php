@@ -57,7 +57,8 @@ function getBoardIndex($board_index_options)
 		'b.num_topics',
 		'b.unapproved_posts',
 		'b.unapproved_topics',
-		'b.id_parent'
+		'b.id_parent',
+		'b.id_cat'
 	);
 
 	$board_index_parameters = array(
@@ -110,7 +111,7 @@ function getBoardIndex($board_index_options)
 	else
 		$result_boards = $smcFunc['db_query']('', '
 			SELECT' . ($board_index_options['include_categories'] ? '
-				c.id_cat, c.name AS cat_name, c.description AS cat_desc,' : 'b.id_cat,') . '
+				c.id_cat, c.name AS cat_name, c.description AS cat_desc,' : '') . '
 				' . (!empty($board_index_selects) ? implode(', ', $board_index_selects) : '') . ',
 				COALESCE(m.poster_time, 0) AS poster_time, COALESCE(mem.member_name, m.poster_name) AS poster_name,
 				m.subject, m.id_topic, COALESCE(mem.real_name, m.poster_name) AS real_name,
@@ -162,10 +163,6 @@ function getBoardIndex($board_index_options)
 	}
 
 	$smcFunc['db_free_result']($result_boards);
-
-	// mmmm memory, delicious!
-	$parsed_descriptions = getParsedDescriptions($categories_ids);
-	$to_parse = array();
 
 	// Run through the categories and boards (or only boards)....
 	// Done like this so the modified values can be used.
