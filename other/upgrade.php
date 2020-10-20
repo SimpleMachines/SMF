@@ -717,7 +717,18 @@ function loadEssentialData()
 
 		// Oh dear god!!
 		if ($db_connection === null)
-			die($txt['error_db_connect_settings']);
+		{
+			// Get error info...  Recast just in case we get false or 0...
+			$error_message = $smcFunc['db_connect_error']();
+			if (empty($error_message))
+				$error_message = '';
+			$error_number = $smcFunc['db_connect_errno']();
+			if (empty($error_number))
+				$error_number = '';
+			$db_error = (!empty($error_number) ? $error_number . ': ' : '') . $error_message;
+
+			die($txt['error_db_connect_settings'] . '<br><br>' . $db_error);
+		}
 
 		if ($db_type == 'mysql' && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
 			$smcFunc['db_query']('', '
