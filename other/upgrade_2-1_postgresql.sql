@@ -3076,6 +3076,9 @@ ALTER secret_question SET DEFAULT '';
 
 ALTER TABLE {$db_prefix}members
 ALTER additional_groups SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER COLUMN password_salt TYPE varchar(255);
 ---#
 
 ---# messages

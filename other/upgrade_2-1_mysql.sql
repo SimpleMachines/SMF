@@ -2553,6 +2553,11 @@ ALTER TABLE {$db_prefix}members
 MODIFY COLUMN pm_ignore_list TEXT NULL;
 ---#
 
+---# Updating password_salt
+ALTER TABLE {$db_prefix}members
+MODIFY COLUMN password_salt VARCHAR(255) NOT NULL DEFAULT '';
+---#
+
 ---# Updating member_logins id_member
 ALTER TABLE {$db_prefix}member_logins
 MODIFY COLUMN id_member MEDIUMINT NOT NULL DEFAULT '0';
