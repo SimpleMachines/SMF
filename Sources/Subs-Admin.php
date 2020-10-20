@@ -1221,13 +1221,16 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	// It's important to do the numbered ones before the named ones, or messes happen.
 	uksort($substitutions, function($a, $b) {
 		if (is_int($a) && is_int($b))
-			return $a > $b;
+			return $a > $b ? 1 : 0;
 		elseif (is_int($a))
 			return -1;
 		elseif (is_int($b))
 			return 1;
 		else
-			return strcasecmp($b, $a);
+		{
+			$res = strcasecmp($b, $a);
+			return $res > 0 ? 1 : ($res < 0 ? -1 : 0);
+		}
 	});
 
 	/******************************
