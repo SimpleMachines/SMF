@@ -61,6 +61,10 @@ class memcache_cache extends cache_api
 			$this->memcache = new Memcache();
 			$server = trim($servers[array_rand($servers)]);
 
+			// No server, can't connect to this.
+			if (empty($server))
+				continue;
+
 			// Normal host names do not contain slashes, while e.g. unix sockets do. Assume alternative transport pipe with port 0.
 			if (strpos($server, '/') !== false)
 				$host = $server;
