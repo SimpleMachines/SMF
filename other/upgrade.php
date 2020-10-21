@@ -1404,10 +1404,6 @@ function UpgradeOptions()
 	if (empty($tasksdir))
 		$changes['tasksdir'] = fixRelativePath($sourcedir) . '/tasks';
 
-	// Add support for $cacheAPIdir var.
-	if (empty($cacheAPIdir))
-		$changes['cacheAPIdir'] = fixRelativePath($sourcedir) . '/Cache';
-
 	// Make sure we fix the language as well.
 	if (stristr($language, '-utf8'))
 		$changes['language'] = str_ireplace('-utf8', '', $language);

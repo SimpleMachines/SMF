@@ -3557,7 +3557,9 @@ function loadDatabase()
  */
 function loadCacheAccelerator($overrideCache = array(), $fallbackSMF = true)
 {
-	global $cacheAPI, $cache_accelerator, $cache_enable, $cacheAPIdir;
+	global $sourcedir, $cacheAPI, $cache_accelerator, $cache_enable;
+
+	$cacheAPIdir = $sourcedir . '/Cache';
 
 	// Is caching enabled?
 	if (empty($cache_enable) && empty($overrideCache))
