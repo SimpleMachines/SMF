@@ -1633,7 +1633,9 @@ function ShowPHPinfoSettings()
  */
 function loadCacheAPIs()
 {
-	global $cacheAPIdir;
+	global $sourcedir;
+
+	$cacheAPIdir = $sourcedir . '/Cache';
 
 	$loadedApis = array();
 	$apis_dir = $cacheAPIdir .'/'. CacheApi::APIS_FOLDER;

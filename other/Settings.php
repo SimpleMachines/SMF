@@ -226,13 +226,6 @@ $packagesdir = dirname(__FILE__) . '/Packages';
  */
 $tasksdir = $sourcedir . '/tasks';
 
-/**
- * Path to the cache API directory.
- *
- * @var string
- */
-$cacheAPIdir = $sourcedir . '/Cache';
-
 # Make sure the paths are correct... at least try to fix them.
 if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/agreement.txt'))
 	$boarddir = dirname(__FILE__);
