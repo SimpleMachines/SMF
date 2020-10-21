@@ -1614,7 +1614,7 @@ function scheduled_prune_log_topics()
 			(
 				SELECT DISTINCT id_member
 				FROM {db_prefix}log_boards
-			) lb ON lb.id_member = m.id_member
+			) lb ON m.id_member = lb.id_member
 			WHERE m.last_login <= {int:dcutoff}
 		UNION
 		SELECT lmr.id_member, m.last_login
@@ -1623,7 +1623,7 @@ function scheduled_prune_log_topics()
 			(
 				SELECT DISTINCT id_member
 				FROM {db_prefix}log_mark_read
-			) lmr ON lmr.id_member = m.id_member
+			) lmr ON m.id_member = lmr.id_member
 			WHERE m.last_login <= {int:dcutoff}
 		UNION
 		SELECT lt.id_member, m.last_login
@@ -1633,7 +1633,7 @@ function scheduled_prune_log_topics()
 				SELECT DISTINCT id_member
 				FROM {db_prefix}log_topics
 				WHERE unwatched = {int:unwatched}
-			) lt ON lt.id_member = m.id_member
+			) lt ON m.id_member = lt.id_member
 			WHERE m.last_login <= {int:mrcutoff}
 		ORDER BY last_login
 		LIMIT {int:limit}';
@@ -1711,7 +1711,7 @@ function scheduled_prune_log_topics()
 			SELECT id_member, id_topic, id_msg
 			FROM {db_prefix}log_topics
 			WHERE id_member IN ({array_int:members})
-		) lt ON lt.id_topic = t.id_topic
+		) lt ON t.id_topic = lt.id_topic
 		GROUP BY lt.id_member, t.id_board';
 	$result = $smcFunc['db_query']('', $sql,
 		array(
