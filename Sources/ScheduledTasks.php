@@ -1588,7 +1588,7 @@ function scheduled_prune_log_topics()
 	global $smcFunc, $sourcedir, $modSettings;
 
 	// If set to zero, bypass
-	if (empty($modSettings['mark_read_max_users']))
+	if (empty($modSettings['mark_read_max_users']) || (empty($modSettings['mark_read_beyond']) && empty($modSettings['mark_read_delete_beyond'])))
 		return true;
 
 	// Convert to timestamps for comparison
@@ -1665,7 +1665,7 @@ function scheduled_prune_log_topics()
 			$markReadMembers[] = $member['id_member'];
 	}
 
-	if (!empty($purgeMembers))
+	if (!empty($purgeMembers) && !empty($modSettings['mark_read_delete_beyond']))
 	{
 		// Delete rows from log_boards
 		$sql = 'DELETE FROM {db_prefix}log_boards
@@ -1696,7 +1696,7 @@ function scheduled_prune_log_topics()
 	}
 
 	// Nothing left to do?
-	if (empty($markReadMembers))
+	if (empty($markReadMembers) || empty($modSettings['mark_read_beyond']))
 		return true;
 
 	// Find board inserts to perform...
