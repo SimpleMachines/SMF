@@ -2269,8 +2269,8 @@ function ModifyLogSettings($return_config = false)
 		// The 'mark read' log settings.
 		array('title', 'markread_title'),
 		array('desc', 'mark_read_desc'),
-		array('int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000),
-		array('int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000),
+		array('int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
+		array('int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
 		array('int', 'mark_read_max_users', 'step' => 1, 'min' => 0, 'max' => 20000, 'subtext' => $txt['zero_to_disable']),
 		// Even do the pruning?
 		array('title', 'pruning_title'),
