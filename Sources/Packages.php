@@ -894,7 +894,10 @@ function PackageInstall()
 	if (!is_array($packageInfo))
 		fatal_lang_error($packageInfo);
 
-	$context['package_sha256_hash'] = hash_file('sha256', $packagesdir . '/' . $context['filename']);
+	if (is_dir($packagesdir . '/' . $context['filename']))
+		$context['package_sha256_hash'] = '';
+	else
+		$context['package_sha256_hash'] = hash_file('sha256', $packagesdir . '/' . $context['filename']);
 	$packageInfo['filename'] = $context['filename'];
 
 	// Set the type of extraction...
@@ -1403,7 +1406,7 @@ function PackageBrowse()
 			'no_items_label' => $txt['no_packages'],
 			'get_items' => array(
 				'function' => 'list_getPackages',
-				'params' => array('type' => $type),
+				'params' => array($type),
 			),
 			'base_href' => $scripturl . '?action=admin;area=packages;sa=browse;type=' . $type,
 			'default_sort_col' => 'id' . $type,
