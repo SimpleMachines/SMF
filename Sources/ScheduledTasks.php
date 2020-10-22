@@ -1592,8 +1592,16 @@ function scheduled_prune_log_topics()
 		return true;
 
 	// Convert to timestamps for comparison
-	$markReadCutoff = time() - $modSettings['mark_read_beyond'] * 86400;
-	$cleanupBeyond = time() - $modSettings['mark_read_delete_beyond'] * 86400;
+	if (empty($modSettings['mark_read_beyond']))
+		$markReadCutoff = 0;
+	else
+		$markReadCutoff = time() - $modSettings['mark_read_beyond'] * 86400;
+
+	if (empty($modSettings['mark_read_delete_beyond']))
+		$cleanupBeyond = 0;
+	else
+		$cleanupBeyond = time() - $modSettings['mark_read_delete_beyond'] * 86400;
+
 	$maxMembers = $modSettings['mark_read_max_users'];
 
 	// You're basically saying to just purge, so just purge
