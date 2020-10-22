@@ -317,6 +317,15 @@ function reloadSettings()
 			display_loadavg_error();
 	}
 
+	// Ensure we know who can manage boards.
+	if (!isset($modSettings['board_manager_groups']))
+	{
+		require_once($sourcedir . '/Subs-Members.php');
+		$board_managers = groupsAllowedTo('manage_boards', null);
+		$board_managers = implode(',', $board_managers['allowed']);
+		updateSettings(array('board_manager_groups' => $board_managers), true);
+	}
+
 	// Is post moderation alive and well? Everywhere else assumes this has been defined, so let's make sure it is.
 	$modSettings['postmod_active'] = !empty($modSettings['postmod_active']);
 
