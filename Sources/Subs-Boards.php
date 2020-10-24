@@ -453,7 +453,7 @@ function getMsgMemberID($messageID)
  */
 function modifyBoard($board_id, &$boardOptions)
 {
-	global $cat_tree, $boards, $smcFunc;
+	global $cat_tree, $boards, $smcFunc, $context;
 
 	// Get some basic information about all boards and categories.
 	getBoardTree();
@@ -838,14 +838,20 @@ function modifyBoard($board_id, &$boardOptions)
 	if (isset($boardOptions['move_to']))
 		reorderBoards();
 
+	$parsed_boards_cat_id = isset($id_cat) ? $id_cat : $boardOptions['old_id_cat'];
+    $already_parsed_boards = getBoardsParsedDescription($parsed_boards_cat_id);
+    $already_parsed_boards[$board_id] = array(
+        'name' => isset($boardOptions['board_name']) ?
+            parse_bbc($boardOptions['board_name'], false, '', $context['description_allowed_tags']) :
+            '',
+        'description' => isset($boardOptions['board_description']) ?
+            parse_bbc($boardOptions['board_description'], false, '', $context['description_allowed_tags']) :
+            ''
+    );
+
 	clean_cache('data');
 
-    setBoardParsedDescription((isset($id_cat) ? $id_cat : $boardOptions['old_id_cat']), array(
-        $board_id => array(
-            'name' => isset($boardOptions['board_name']) ? $boardOptions['board_name'] : '',
-            'description' => isset($boardOptions['board_description']) ? $boardOptions['board_description'] : ''
-        )
-    ));
+    cache_put_data('parsed_boards_descriptions_'. $parsed_boards_cat_id, $already_parsed_boards, 864000);
 
 	if (empty($boardOptions['dont_log']))
 		logAction('edit_board', array('board' => $board_id), 'admin');
@@ -1557,7 +1563,7 @@ function isChildOf($child, $parent)
 
 function setBoardParsedDescription($category_id = 0, $boards_info = array())
 {
-	global $cache_enable, $context;
+	global $context;
 
 	if (empty($category_id) || empty($boards_info))
 		return array();
@@ -1573,20 +1579,17 @@ function setBoardParsedDescription($category_id = 0, $boards_info = array())
 				parse_bbc($board_data['description'], false, '', $context['description_allowed_tags']) : '',
 		);
 
-	if(!empty($cache_enable))
-		cache_put_data('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);
+    cache_put_data('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);
 
 	return $already_parsed_boards;
 }
 
 function getBoardsParsedDescription($category_id = 0)
 {
-	global $cache_enable;
-
-	if (empty($category_id) || empty($cache_enable))
+	if (empty($category_id))
 		return array();
 
-	return cache_get_data('parsed_boards_descriptions_' . $category_id, 864000);
+	return (array) cache_get_data('parsed_boards_descriptions_' . $category_id, 864000);
 }
 
 ?>
