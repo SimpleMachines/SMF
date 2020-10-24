@@ -645,13 +645,6 @@ function modifyBoard($board_id, &$boardOptions)
 		$boardUpdateParameters['num_posts'] = (int) $boardOptions['num_posts'];
 	}
 
-	setBoardParsedDescription((isset($id_cat) ? $id_cat : $boardOptions['old_id_cat']), array(
-		$board_id => array(
-			'name' => isset($boardOptions['board_name']) ? $boardOptions['board_name'] : '',
-			'description' => isset($boardOptions['board_description']) ? $boardOptions['board_description'] : ''
-		)
-	));
-
 	$id = $board_id;
 	call_integration_hook('integrate_modify_board', array($id, $boardOptions, &$boardUpdates, &$boardUpdateParameters));
 
@@ -846,6 +839,13 @@ function modifyBoard($board_id, &$boardOptions)
 		reorderBoards();
 
 	clean_cache('data');
+
+    setBoardParsedDescription((isset($id_cat) ? $id_cat : $boardOptions['old_id_cat']), array(
+        $board_id => array(
+            'name' => isset($boardOptions['board_name']) ? $boardOptions['board_name'] : '',
+            'description' => isset($boardOptions['board_description']) ? $boardOptions['board_description'] : ''
+        )
+    ));
 
 	if (empty($boardOptions['dont_log']))
 		logAction('edit_board', array('board' => $board_id), 'admin');
