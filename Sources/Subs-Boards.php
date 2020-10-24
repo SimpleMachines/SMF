@@ -840,14 +840,14 @@ function modifyBoard($board_id, &$boardOptions)
 
 	$parsed_boards_cat_id = isset($id_cat) ? $id_cat : $boardOptions['old_id_cat'];
     $already_parsed_boards = getBoardsParsedDescription($parsed_boards_cat_id);
-    $already_parsed_boards[$board_id] = array(
-        'name' => isset($boardOptions['board_name']) ?
-            parse_bbc($boardOptions['board_name'], false, '', $context['description_allowed_tags']) :
+
+    if (isset($boardOptions['board_description']))
+        $already_parsed_boards[$board_id] = parse_bbc(
+            $boardOptions['board_description'],
+            false,
+
             '',
-        'description' => isset($boardOptions['board_description']) ?
-            parse_bbc($boardOptions['board_description'], false, '', $context['description_allowed_tags']) :
-            ''
-    );
+            $context['description_allowed_tags']);
 
 	clean_cache('data');
 
@@ -1571,13 +1571,13 @@ function setBoardParsedDescription($category_id = 0, $boards_info = array())
 	// Get the data we already parsed
 	$already_parsed_boards = getBoardsParsedDescription($category_id);
 
-	foreach ($boards_info as $board_id => $board_data)
-		$already_parsed_boards[$board_id] = array(
-			'name' => !empty($board_data['name']) ?
-				parse_bbc($board_data['name'], false, '', $context['description_allowed_tags']) : '',
-			'description' => !empty($board_data['description']) ?
-				parse_bbc($board_data['description'], false, '', $context['description_allowed_tags']) : '',
-		);
+	foreach ($boards_info as $board_id => $board_description)
+        $already_parsed_boards[$board_id] = parse_bbc(
+            $board_description,
+            false,
+            '',
+            $context['description_allowed_tags']
+        );
 
     cache_put_data('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);
 
