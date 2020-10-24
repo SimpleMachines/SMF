@@ -195,8 +195,8 @@ function getBoardIndex($board_index_options)
 				);
 
 				$categories[$row_board['id_cat']]['link'] = '<a id="c' . $row_board['id_cat'] . '"></a>' . (!$context['user']['is_guest'] ?
-                        '<a href="' . $scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], $row_board['cat_name']) . '">' . $row_board['cat_name'] . '</a>' :
-                        $row_board['cat_name']);
+						'<a href="' . $scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], $row_board['cat_name']) . '">' . $row_board['cat_name'] . '</a>' :
+						$row_board['cat_name']);
 
 			}
 
@@ -234,7 +234,7 @@ function getBoardIndex($board_index_options)
 					$this_category[$row_board['id_board']] = array();
 
 				if (isset($boards_parsed_data[$row_board['id_board']]))
-                    $row_board['description'] = $boards_parsed_data[$row_board['id_board']];
+					$row_board['description'] = $boards_parsed_data[$row_board['id_board']];
 
 				else
 					$to_parse_boards_info[$row_board['id_cat']][$row_board['id_board']] = $row_board['description'];
@@ -302,7 +302,7 @@ function getBoardIndex($board_index_options)
 				);
 
 			if (isset($boards_parsed_data[$row_board['id_board']]))
-                $row_board['description'] = $boards_parsed_data[$row_board['id_board']];
+				$row_board['description'] = $boards_parsed_data[$row_board['id_board']];
 
 			else
 				$to_parse_boards_info[$row_board['id_cat']][$row_board['id_board']] = $row_board['description'];
@@ -449,30 +449,30 @@ function getBoardIndex($board_index_options)
 	}
 
 	// There are some categories still unparsed.
-    $to_parse_categories_description = array_filter($to_parse_categories_description);
+	$to_parse_categories_description = array_filter($to_parse_categories_description);
 
 	if (!empty($to_parse_categories_description))
 	{
 		$already_parsed_categories = setCategoryParsedDescription($to_parse_categories_description);
 
 		foreach ($to_parse_categories_description as $category_id => $category_description)
-		    $categories[$category_id]['description'] = $already_parsed_categories[$category_id];
+			$categories[$category_id]['description'] = $already_parsed_categories[$category_id];
 	}
 
 	// Some boards didn't get their info cached, it is done on a per category basis.
-    $boards_parsed_data_by_cat_id = array();
+	$boards_parsed_data_by_cat_id = array();
 
 	if (!empty($to_parse_boards_info))
 		foreach ($to_parse_boards_info as $unparsed_category_id => $board_unparsed_description)
 		{
-		    if (empty($board_unparsed_description))
-		        continue;
+			if (empty($board_unparsed_description))
+			continue;
 
-            $boards_parsed_data_by_cat_id[$unparsed_category_id] = setBoardParsedDescription(
-                $unparsed_category_id,
-                $board_unparsed_description
-            );
-        }
+			$boards_parsed_data_by_cat_id[$unparsed_category_id] = setBoardParsedDescription(
+				$unparsed_category_id,
+				$board_unparsed_description
+			);
+		}
 
 	/* The board's and children's 'last_post's have:
 	time, timestamp (a number that represents the time.), id (of the post), topic (topic id.),
