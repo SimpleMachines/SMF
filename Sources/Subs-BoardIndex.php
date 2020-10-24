@@ -173,7 +173,6 @@ function getBoardIndex($board_index_options)
 			// Haven't set this category yet.
 			if (empty($categories[$row_board['id_cat']]))
 			{
-				$category_name = $row_board['cat_name'];
 				$category_description = $row_board['cat_desc'];
 
 				if (isset($parsed_categories_description[$row_board['id_cat']]))
@@ -184,7 +183,7 @@ function getBoardIndex($board_index_options)
 
 				$categories[$row_board['id_cat']] = array(
 					'id' => $row_board['id_cat'],
-					'name' => $category_name,
+					'name' => $row_board['cat_name'],
 					'description' => $category_description,
 					'is_collapsed' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1 &&
 						!empty($options['collapse_category_' . $row_board['id_cat']]),
@@ -195,7 +194,9 @@ function getBoardIndex($board_index_options)
 					'css_class' => ''
 				);
 
-				$categories[$row_board['id_cat']]['link'] = '<a id="c' . $row_board['id_cat'] . '"></a>' . (!$context['user']['is_guest'] ? '<a href="' . $scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], $category_name) . '">' . $category_name . '</a>' : $category_name);
+				$categories[$row_board['id_cat']]['link'] = '<a id="c' . $row_board['id_cat'] . '"></a>' . (!$context['user']['is_guest'] ?
+                        '<a href="' . $scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], $row_board['cat_name']) . '">' . $row_board['cat_name'] . '</a>' :
+                        $row_board['cat_name']);
 
 			}
 
@@ -448,12 +449,14 @@ function getBoardIndex($board_index_options)
 	}
 
 	// There are some categories still unparsed.
+    $to_parse_categories_description = array_filter($to_parse_categories_description);
+
 	if (!empty($to_parse_categories_description))
 	{
 		$already_parsed_categories = setCategoryParsedDescription($to_parse_categories_description);
 
 		foreach ($to_parse_categories_description as $category_id => $category_description)
-			$categories[$category_id]['description'] = $already_parsed_categories[$category_id];
+		    $categories[$category_id]['description'] = $already_parsed_categories[$category_id];
 	}
 
 	// Some boards didn't get their info cached, it is done on a per category basis.
