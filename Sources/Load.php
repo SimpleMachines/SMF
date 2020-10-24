@@ -182,6 +182,8 @@ function reloadSettings()
 
 			$neg_offset = $offset < 0;
 
+			$haystack = $ent_check($haystack);
+
 			$needle_pos = false;
 			while (strlen($haystack) > 0)
 			{
