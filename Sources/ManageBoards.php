@@ -330,8 +330,8 @@ function EditCategory2()
 		if (isset($_POST['cat_order']))
 			$catOptions['move_after'] = (int) $_POST['cat_order'];
 
-		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest, parse it on display
-		$catOptions['cat_name'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['cat_name'])));
+		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
+		$catOptions['cat_name'] = $smcFunc['htmlspecialchars'](strip_tags($_POST['cat_name']));
 		$catOptions['cat_desc'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['cat_desc'])));
 		$catOptions['is_collapsible'] = isset($_POST['collapse']);
 
@@ -669,7 +669,7 @@ function EditBoard2()
 			fatal_lang_error('too_many_groups', false);
 
 		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
-		$boardOptions['board_name'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['board_name'])));
+		$boardOptions['board_name'] = $smcFunc['htmlspecialchars'](strip_tags($_POST['board_name']));
 		$boardOptions['board_description'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['desc'])));
 
 		$boardOptions['moderator_string'] = $_POST['moderators'];

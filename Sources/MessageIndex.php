@@ -60,14 +60,11 @@ function MessageIndex()
 
 	if (!isset($boards_parsed_data[$board_info['id']]))
 		$boards_parsed_data = setBoardParsedDescription($board_info['cat']['id'], array(
-			$board_info['id'] => array(
-				'name' => $board_info['name'],
-				'description' => $board_info['description'],
-			)
+			$board_info['id'] => $board_info['description']
 		));
 
-	$context['name'] = $boards_parsed_data[$board_info['id']]['name'];
-	$context['description'] = $boards_parsed_data[$board_info['id']]['description'];
+	$context['name'] = $board_info['name'];
+	$context['description'] = $boards_parsed_data[$board_info['id']];
 
 	if (!empty($board_info['description']))
 		$context['meta_description'] = strip_tags($board_info['description']);

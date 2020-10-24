@@ -233,25 +233,18 @@ function getBoardIndex($board_index_options)
 					$this_category[$row_board['id_board']] = array();
 
 				if (isset($boards_parsed_data[$row_board['id_board']]))
-					$board_parsed_info = $boards_parsed_data[$row_board['id_board']];
+                    $row_board['description'] = $boards_parsed_data[$row_board['id_board']];
 
 				else
-				{
-					$board_parsed_info = array(
-						'name' => $row_board['board_name'],
-						'description' => $row_board['description']
-					);
-
-					$to_parse_boards_info[$row_board['id_cat']][$row_board['id_board']] = $board_parsed_info;
-				}
+					$to_parse_boards_info[$row_board['id_cat']][$row_board['id_board']] = $row_board['description'];
 
 				$this_category[$row_board['id_board']] += array(
 					'id_cat' => $row_board['id_cat'],
 					'new' => empty($row_board['is_read']),
 					'id' => $row_board['id_board'],
 					'type' => $row_board['is_redirect'] ? 'redirect' : 'board',
-					'name' => $board_parsed_info['name'],
-					'description' => $board_parsed_info['description'],
+					'name' => $row_board['board_name'],
+					'description' => $row_board['description'],
 					'moderators' => array(),
 					'moderator_groups' => array(),
 					'link_moderators' => array(),
@@ -266,7 +259,7 @@ function getBoardIndex($board_index_options)
 					'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
 					'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
 					'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
-					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $board_parsed_info['name'] . '</a>',
+					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>',
 					'board_class' => 'off',
 					'css_class' => ''
 				);
@@ -308,23 +301,16 @@ function getBoardIndex($board_index_options)
 				);
 
 			if (isset($boards_parsed_data[$row_board['id_board']]))
-				$child_board_parsed_info = $boards_parsed_data[$row_board['id_board']];
+                $row_board['description'] = $boards_parsed_data[$row_board['id_board']];
 
 			else
-			{
-				$child_board_parsed_info = array(
-					'name' => $row_board['board_name'],
-					'description' => $row_board['description']
-				);
-
-				$to_parse_boards_info[$row_board['id_cat']][$row_board['id_board']] = $child_board_parsed_info;
-			}
+				$to_parse_boards_info[$row_board['id_cat']][$row_board['id_board']] = $row_board['description'];
 
 			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']] = array(
 				'id' => $row_board['id_board'],
-				'name' => $child_board_parsed_info['name'],
-				'description' => $child_board_parsed_info['description'],
-				'short_description' => shorten_subject($child_board_parsed_info['description'], 128),
+				'name' => $row_board['board_name'],
+				'description' => $row_board['description'],
+				'short_description' => shorten_subject($row_board['description'], 128),
 				'new' => empty($row_board['is_read']),
 				'topics' => $row_board['num_topics'],
 				'posts' => $row_board['num_posts'],
@@ -333,7 +319,7 @@ function getBoardIndex($board_index_options)
 				'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
 				'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
 				'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
-				'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $child_board_parsed_info['name'] . '</a>'
+				'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>'
 			);
 
 			// Counting child board posts in the parent's totals?
@@ -471,11 +457,19 @@ function getBoardIndex($board_index_options)
 	}
 
 	// Some boards didn't get their info cached, it is done on a per category basis.
-	$boards_parsed_data = array();
+    $boards_parsed_data_by_cat_id = array();
 
 	if (!empty($to_parse_boards_info))
-		foreach ($to_parse_boards_info as $unparsed_category_id => $boards_unparsed_data)
-			$boards_parsed_data[$unparsed_category_id] = setBoardParsedDescription($unparsed_category_id, $boards_unparsed_data);
+		foreach ($to_parse_boards_info as $unparsed_category_id => $board_unparsed_description)
+		{
+		    if (empty($board_unparsed_description))
+		        continue;
+
+            $boards_parsed_data_by_cat_id[$unparsed_category_id] = setBoardParsedDescription(
+                $unparsed_category_id,
+                $board_unparsed_description
+            );
+        }
 
 	/* The board's and children's 'last_post's have:
 	time, timestamp (a number that represents the time.), id (of the post), topic (topic id.),
@@ -491,11 +485,8 @@ function getBoardIndex($board_index_options)
 		{
 			foreach ($category['boards'] as &$board)
 			{
-				if (isset($boards_parsed_data[$category['id']][$board['id']]))
-				{
-					$board['name'] = $boards_parsed_data[$category['id']][$board['id']]['name'];
-					$board['description'] = $boards_parsed_data[$category['id']][$board['id']]['description'];
-				}
+				if (isset($boards_parsed_data_by_cat_id[$category['id']][$board['id']]))
+					$board['description'] = $boards_parsed_data_by_cat_id[$category['id']][$board['id']];
 
 				if (!empty($moderators[$board['id']]))
 				{
@@ -520,17 +511,13 @@ function getBoardIndex($board_index_options)
 	else
 		foreach ($this_category as &$board)
 		{
-			if (isset($boards_parsed_data[$board['id_cat']][$board['id']]))
+			if (isset($boards_parsed_data_by_cat_id[$board['id_cat']][$board['id']]))
 			{
-				$board['name'] = $boards_parsed_data[$board['id_cat']][$board['id']]['name'];
-				$board['description'] = $boards_parsed_data[$board['id_cat']][$board['id']]['description'];
+				$board['description'] = $boards_parsed_data_by_cat_id[$board['id_cat']][$board['id']];
 
 				if (isset($board['children']))
 					foreach ($board['children'] as &$child_board)
-					{
-						$child_board['name'] = $boards_parsed_data[$board['id_cat']][$board['id']]['name'];
-						$child_board['description'] = $boards_parsed_data[$board['id_cat']][$board['id']]['description'];
-					}
+						$child_board['description'] = $boards_parsed_data_by_cat_id[$child_board['id_cat']][$child_board['id']];
 			}
 
 			if (!empty($moderators[$board['id']]))
