@@ -7,7 +7,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -916,6 +916,10 @@ function template_show_settings()
 												<li><label><input type="checkbox" name="', $config_var['name'], '[', $brd['id'], ']" value="1"', in_array($brd['id'], $config_var['value']) ? ' checked' : '', '> ', $brd['child_level'] > 0 ? str_repeat('&nbsp; &nbsp;', $brd['child_level']) : '', $brd['name'], '</label></li>';
 
 						echo '
+												<li>
+													<input type="checkbox" onclick="invertAll(this, this.form, \'' . $config_var['name'] . '[\');">
+													<span>', $txt['check_all'], '</span>
+												</li>
 											</ul>';
 						$first = false;
 					}
@@ -1077,7 +1081,9 @@ function template_show_custom_profile()
 	template_show_list('custom_profile_fields');
 }
 
-// Edit a profile field?
+/**
+ * Template for editing a custom profile field
+ */
 function template_edit_profile_field()
 {
 	global $context, $txt, $scripturl;
@@ -1612,7 +1618,7 @@ function template_php_info()
 }
 
 /**
- *
+ * Content shown above the clean cache button
  */
 function template_clean_cache_button_above()
 {

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; Profile
+// Version: 2.1 RC3; Profile
 
 global $scripturl, $context;
 
@@ -77,7 +77,6 @@ $txt['secret_ask'] = 'Ask me my question';
 $txt['cant_retrieve'] = 'You can\'t retrieve your password, but you can set a new one by following a link sent to you by email. You also have the option of setting a new password by answering your secret question.';
 $txt['incorrect_answer'] = 'Sorry, but you did not specify a valid combination of Secret Question and Answer in your profile. Please click on the back button, and use the default method of obtaining your password.';
 $txt['enter_new_password'] = 'Please enter the answer to your question, and the password you would like to use. Your password will be changed to the one you select provided you answer the question correctly.';
-$txt['password_success'] = 'Your password was changed successfully.<br>Click <a href="' . $scripturl . '?action=login">here</a> to login.';
 $txt['secret_why_blank'] = 'why is this blank?';
 
 $txt['authentication_reminder'] = 'Authentication Reminder';
@@ -234,7 +233,8 @@ $txt['trackIP'] = 'IP Address';
 $txt['trackLogins'] = 'Logins';
 
 $txt['account_info'] = 'These are your account settings. This page holds all critical information that identifies you on this forum. For security reasons, you will need to enter your (current) password to make changes to this information.';
-$txt['forumProfile_info'] = 'You can change your personal information on this page. This information will be displayed throughout ' . $context['forum_name_html_safe'] . '. If you aren\'t comfortable with sharing some information, simply skip it - nothing here is required.';
+// argument(s): forum name
+$txt['forumProfile_info'] = 'You can change your personal information on this page. This information will be displayed throughout %1$s. If you aren\'t comfortable with sharing some information, simply skip it - nothing here is required.';
 $txt['theme_info'] = 'This section allows you to customize the look and layout of the forum.';
 $txt['notification'] = 'Notifications';
 $txt['notification_info'] = 'SMF allows you to be notified of replies to posts, newly posted topics, and forum announcements. You can change those settings here, or oversee the topics and boards you are currently receiving notifications for.';
@@ -284,13 +284,12 @@ $txt['avatar_max_size_h'] = 'Max size: %2$spx high';
 // Use numeric entities in the below three strings.
 $txt['no_reminder_email'] = 'Unable to send reminder email.';
 $txt['send_email'] = 'Send an email to';
+$txt['webmaster'] = 'webmaster';
 $txt['to_ask_password'] = 'to ask for your authentication details';
 
 $txt['user_email'] = 'Username/Email';
 
 // Use numeric entities in the below two strings.
-$txt['reminder_subject'] = 'New password for ' . $context['forum_name'];
-$txt['reminder_mail'] = 'This mail was sent because the \'forgot password\' function has been applied to your account. To set a new password, click the following link';
 $txt['reminder_sent'] = 'A mail has been sent to your email address. Click the link in that mail to set a new password.';
 $txt['reminder_set_password'] = 'Set Password';
 $txt['reminder_password_set'] = 'Password successfully set';
@@ -300,6 +299,7 @@ $txt['registration_not_approved'] = 'Sorry, this account has not yet been approv
 $txt['registration_not_activated'] = 'Sorry, this account has not yet been activated. If you need to resend the activation email please click <a href="%1$s">here</a>';
 
 $txt['primary_membergroup'] = 'Primary Membergroup';
+$txt['post_based_membergroup'] = 'Post Based Membergroup';
 $txt['additional_membergroups'] = 'Additional Membergroups';
 $txt['additional_membergroups_show'] = 'show additional groups';
 $txt['no_primary_membergroup'] = '(no primary membergroup)';
@@ -358,7 +358,6 @@ $txt['display_quick_mod_check'] = 'checkboxes';
 $txt['display_quick_mod_image'] = 'icons';
 
 $txt['whois_title'] = 'Look up IP on a regional whois-server';
-$txt['whois_afrinic'] = 'AfriNIC (Africa)';
 $txt['whois_apnic'] = 'APNIC (Asia Pacific region)';
 $txt['whois_arin'] = 'ARIN (North America, a portion of the Caribbean and sub-Saharan Africa)';
 $txt['whois_lacnic'] = 'LACNIC (Latin American and Caribbean region)';
@@ -465,8 +464,10 @@ $txt['profile_warning_notify_subject'] = 'Notification Subject';
 $txt['profile_warning_notify_body'] = 'Notification Message';
 $txt['profile_warning_notify_template_subject'] = 'You have received a warning';
 // Use numeric entities in below string.
-$txt['profile_warning_notify_template_outline'] = '{MEMBER},' . "\n\n" . 'You have received a warning for %1$s. Please cease these activities and abide by the forum rules otherwise we will take further action.' . "\n\n" . '{REGARDS}';
-$txt['profile_warning_notify_template_outline_post'] = '{MEMBER},' . "\n\n" . 'You have received a warning for %1$s in regards to the message:' . "\n" . '{MESSAGE}.' . "\n\n" . 'Please cease these activities and abide by the forum rules otherwise we will take further action.' . "\n\n" . '{REGARDS}';
+// argument(s): one of the reasons defined in $txt['profile_warning_notify_for_*']
+$txt['profile_warning_notify_template_outline'] = "{MEMBER},\n\nYou have received a warning for %1\$s. Please cease these activities and abide by the forum rules otherwise we will take further action.\n\nIf you wish to discuss this, please get in touch with an administrator.\n\n{REGARDS}";
+// argument(s): one of the reasons defined in $txt['profile_warning_notify_for_*']
+$txt['profile_warning_notify_template_outline_post'] = "{MEMBER},\n\nYou have received a warning for %1\$s in regards to the message:\n{MESSAGE}.\n\nPlease cease these activities and abide by the forum rules otherwise we will take further action.\n\nIf you wish to discuss this, please get in touch with an administrator.\n\n{REGARDS}";
 $txt['profile_warning_notify_for_spamming'] = 'spamming';
 $txt['profile_warning_notify_title_spamming'] = 'Spamming';
 $txt['profile_warning_notify_for_offence'] = 'posting offensive material';
@@ -533,6 +534,10 @@ $txt['trackEdit_action_email_address'] = 'Email address';
 $txt['trackEdit_action_id_group'] = 'Primary Membergroup';
 $txt['trackEdit_action_additional_groups'] = 'Additional Membergroups';
 
+// Registration Agreement
+$txt['trackEdit_action_agreement_accepted'] = 'Accepted the registration agreement';
+$txt['trackEdit_action_policy_accepted'] = 'Accepted the privacy policy';
+
 $txt['trackGroupRequests'] = 'Group Requests';
 $txt['trackGroupRequests_title'] = 'Group Requests for %1$s';
 $txt['requested_group'] = 'Requested Group';
@@ -550,13 +555,13 @@ $txt['notification_remove_pref'] = 'Use default preference';
 
 $txt['tfadisable'] = 'Disable Two-Factor Authentication';
 $txt['tfa_profile_label'] = 'Two-Factor Authentication';
-$txt['tfa_profile_desc'] = 'TFA allows you to have a secondary layer of security by assigning a dedicated device without which no one would be able to log into your account even if they have your username and password';
+$txt['tfa_profile_desc'] = '2FA allows you to have a secondary layer of security by assigning a dedicated device without which no one would be able to log into your account even if they have your username and password';
 $txt['tfa_profile_enable'] = 'Enable Two-Factor Authentication';
 $txt['tfa_profile_enabled'] = 'Two-Factor Authentication is enabled. <a href="%s">Disable</a>';
 $txt['tfa_profile_disabled'] = 'Two-Factor Authentication is disabled';
 $txt['tfa_title'] = 'Enable Two-Factor Authentication via compatible application';
-$txt['tfa_desc'] = 'In order to have two-factor authentication, you would need a compatible app such as Google Authenticator on your device. Once you have enabled TFA for your account, you will be required to enter a code from the paired device alongside your username and password in order to successfully login. After you have enabled TFA, a backup code will be provided in case you lose your paired device.';
-$txt['tfa_forced_desc'] = 'The administrator requires two-factor authentication to be enabled on all accounts. Please enable TFA here in order to resume.';
+$txt['tfa_desc'] = 'In order to have two-factor authentication, you would need a compatible app such as Google Authenticator on your device. Once you have enabled 2FA for your account, you will be required to enter a code from the paired device alongside your username and password in order to successfully login. After you have enabled 2FA, a backup code will be provided in case you lose your paired device.';
+$txt['tfa_forced_desc'] = 'The administrator requires two-factor authentication to be enabled on all accounts. Please enable 2FA here in order to resume.';
 $txt['tfa_step1'] = '1. Enter your current password';
 $txt['tfa_step2'] = '2. Enter the secret';
 $txt['tfa_step2_desc'] = 'In order to setup the app, either scan the QR code on the right side or enter the following code manually: ';
@@ -567,7 +572,7 @@ $txt['tfa_pass_invalid'] = 'Entered password is invalid, please try again.';
 $txt['tfa_code_invalid'] = 'Entered code is invalid, please try again.';
 $txt['tfa_backup_invalid'] = 'Entered backup code is invalid, please try again.';
 $txt['tfa_backup_title'] = 'Save this Two-Factor Authentication backup code somewhere safe!';
-$txt['tfa_backup_used_desc'] = 'Your backup code has been successfully entered and two-factor authentication details have been reset, if you wish to use TFA again you need to enable it from here';
+$txt['tfa_backup_used_desc'] = 'Your backup code has been successfully entered and two-factor authentication details have been reset, if you wish to use 2FA again you need to enable it from here';
 $txt['tfa_login_desc'] = 'Enter the code generated by the authenticating application on your paired device below.';
 $txt['tfa_backup'] = 'Or use backup code';
 $txt['tfa_code'] = 'Code';
@@ -583,5 +588,30 @@ $txt['theme_opt_display'] = 'Board and Topic display';
 $txt['theme_opt_posting'] = 'Posting';
 $txt['theme_opt_moderation'] = 'Moderation';
 $txt['theme_opt_personal_messages'] = 'Personal Messages';
+
+$txt['export_profile_data'] = 'Download profile data';
+$txt['export_profile_data_desc'] = 'This section allows you to export a copy of your forum profile data to a downloadable file, optionally including your posts and personal messages.<br>Please note:<ul class="bbc_list">%1$s</ul>';
+$txt['export_profile_data_desc_list'] = array('It may take some time for the system to finish compiling your data.', 'A download link will appear on this page once the export process is complete.', 'expiry' => 'Old export files are deleted after %1$d days.');
+$txt['active_exports'] = 'Exports currently in progress';
+$txt['completed_exports'] = 'Completed exports';
+$txt['export_outdated_warning'] = 'This export is out of date. It is missing your most recent data of the following types:';
+$txt['export_file_count'] = '%1$d files.';
+$txt['export_download_all'] = 'Download all';
+$txt['export_settings'] = 'Export settings';
+$txt['export_include_posts'] = 'Include posts';
+$txt['export_include_personal_messages'] = 'Include personal messages';
+$txt['export_format'] = 'File format for exported data';
+$txt['export_format_desc'] = 'File format for exported data';
+$txt['export_format_xml_xslt'] = 'Styled XML (human and machine friendly)';
+$txt['export_format_html'] = 'HTML (human friendly)';
+$txt['export_format_xml'] = 'XML (machine friendly)';
+$txt['export_begin'] = 'Begin export';
+$txt['export_restart'] = 'Restart export';
+$txt['export_restart_confirm'] = 'This will delete the current profile export and start over using the new settings. Are you sure you want to do this?';
+$txt['export_cancel'] = 'Cancel';
+$txt['export_file_desc'] = 'Included data: %1$s. File format: %2$s.';
+$txt['export_download_original'] = 'Download original';
+$txt['export_view_source_button'] = 'Toggle source view';
+$txt['export_open_in_browser'] = 'Please open this file in a web browser to see a human readable version.';
 
 ?>

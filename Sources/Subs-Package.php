@@ -13,7 +13,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -495,8 +495,8 @@ function url_exists($url)
 
 /**
  * Loads and returns an array of installed packages.
- * - returns the array of data.
- * - default sort order is package_installed time
+ *
+ *  default sort order is package_installed time
  *
  * @return array An array of info about installed packages
  */
@@ -3139,6 +3139,124 @@ if (!function_exists('smf_crc32'))
 
 		return $crc;
 	}
+}
+
+/**
+ * Validate a package during install
+ *
+ * @param array $package Package data
+ * @return array Results from the package validation.
+ */
+function package_validate_installtest($package)
+{
+	global $context;
+
+	$context['package_sha256_hash'] = hash_file('sha256', $package['file_name']);
+	$sendData = array(array(
+		'sha256_hash' => $context['package_sha256_hash'],
+		'file_name' => basename($package['file_name']),
+		'custom_id' => $package['custom_id'],
+		'custom_type' => $package['custom_type'],
+	));
+
+	return package_validate_send($sendData);
+}
+
+/**
+ * Validate multiple packages.
+ *
+ * @param array $packages Package data
+ * @return array Results from the package validation.
+ */
+function package_validate($packages)
+{
+	global $context, $smcFunc;
+
+	// Setup our send data.
+	$sendData = array();
+
+	// Go through all packages and get them ready to send up.
+	foreach ($packages as $id_package => $package)
+	{
+		$sha256_hash = hash_file('sha256', $package);
+		$packageInfo = getPackageInfo($package);
+
+		$packageID = '';
+		if (isset($packageInfo['id']))
+			$packageID = $packageInfo['id'];
+
+		$packageType = 'modification';
+		if (isset($package['type']))
+			$packageType = $package['type'];
+
+		$sendData[] = array(
+			'sha256_hash' => $sha256_hash,
+			'file_name' => basename($package),
+			'custom_id' => $packageID,
+			'custom_type' => $packageType,
+		);
+	}
+
+	return package_validate_send($sendData);
+}
+
+/**
+ * Sending data off to validate packages.
+ *
+ * @param array $sendData Json encoded data to be sent to the validation servers.
+ * @return array Results from the package validation.
+ */
+function package_validate_send($sendData)
+{
+	global $context, $smcFunc;
+
+	// First lets get all package servers into here.
+	if (empty($context['package_servers']))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT id_server, name, validation_url, extra
+			FROM {db_prefix}package_servers
+			WHERE validation_url != {string:empty}',
+			array(
+				'empty' => '',
+		));
+		$context['package_servers'] = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$context['package_servers'][$row['id_server']] = $row;
+		$smcFunc['db_free_result']($request);
+	}
+
+	$the_version = SMF_VERSION;
+	if (!empty($_SESSION['version_emulate']))
+		$the_version = $_SESSION['version_emulate'];
+
+	// Test each server.
+	$return_data = array();
+	foreach ($context['package_servers'] as $id_server => $server)
+	{
+		$return_data[$id_server] = array();
+
+		// Sub out any variables we support in the validation url.
+		$validate_url = strtr($server['validation_url'], array(
+			'{SMF_VERSION}' => urlencode($the_version)
+		));
+
+		$results = fetch_web_data($validate_url, 'data=' . json_encode($sendData));
+
+		$parsed_data = $smcFunc['json_decode']($results, true);
+		if (is_array($parsed_data) && isset($parsed_data['data']) && is_array($parsed_data['data']))
+		{
+			foreach ($parsed_data['data'] as $sha256_hash => $status)
+			{
+				if ((string) $status === 'blacklist')
+					$context['package_blacklist_found'] = true;
+
+				$return_data[$id_server][(string) $sha256_hash] = 'package_validation_status_' . ((string) $status);
+			}
+		}
+	}
+
+	return $return_data;
 }
 
 ?>

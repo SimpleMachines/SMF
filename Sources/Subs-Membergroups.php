@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -676,8 +676,8 @@ function cache_getMembergroupList()
 	{
 		$group[$row['id_group']] = $row;
 		$groupCache[$row['id_group']] = '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '" ' . ($row['online_color'] ? 'style="color: ' . $row['online_color'] . '"' : '') . '>' . $row['group_name'] . '</a>';
-	$smcFunc['db_free_result']($request);
 	}
+	$smcFunc['db_free_result']($request);
 
 	call_integration_hook('integrate_getMembergroupList', array(&$groupCache, $group));
 

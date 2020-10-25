@@ -8,7 +8,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 // This won't be dedicated without this - this must exist in each gateway!
@@ -148,6 +148,9 @@ class paypal_display
  */
 class paypal_payment
 {
+	/**
+	 * @var string $return_data The data to return
+	 */
 	private $return_data;
 
 	/**

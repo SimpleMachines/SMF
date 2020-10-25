@@ -168,6 +168,7 @@ div.sceditor-grip {
 	display: flex;
 	-ms-flex-direction: column;
 	flex-direction: column;
+	position: relative;
 	background: #fff;
 	border: 1px solid #d9d9d9;
 	font-size: 13px;
@@ -193,28 +194,28 @@ div.sceditor-dropdown,
 div.sceditor-dropdown div {
 	padding: 0;
 	margin: 0;
-	z-index: 3;
+	z-index: 5;
 }
 .sceditor-container iframe,
 .sceditor-container textarea {
-	display: block;
-	-ms-flex: 1 1 0%;
-	flex: 1 1 0%;
 	line-height: normal;
 	border: 0;
 	outline: none;
 	font-size: 14px;
 	color: #111;
 	box-sizing: border-box;
-	padding: 5px;
+	padding: 0 5px;
 	margin: 0px;
 	resize: none;
 	background: #fff;
-	display: block;
+	display: flex;
+	flex-basis: 175px;
+	flex-grow: 1;
 	min-width: 100%;
 	max-width: 100%;
-	height: auto !important;
+	height: 175px;
 	min-height: 1px;
+	max-height: 100%;
 }
 .sceditor-container iframe {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
@@ -302,10 +303,11 @@ div.sceditor-smileyPopup, div.sceditor-dropdown {
 	border-radius: 2px;
 	background-clip: padding-box;
 	box-shadow: 1px 2px 4px rgba(0, 0, 0, .2);
+	overflow-y: auto;
 }
 @media screen and (min-width: 1024px) {
 	div.sceditor-smileyPopup {
-		height: 50%;
+		max-height: 50%;
 		width: 50%;
 		position: fixed;
 	}
@@ -484,6 +486,7 @@ div.sceditor-toolbar {
 	user-select: none;
 	border-radius: 3px 3px 0 0;
 	background-clip: padding-box;
+	margin: 0 0 5px;
 }
 div.sceditor-group {
 	display: inline-block;

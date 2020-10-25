@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -22,7 +22,7 @@ if (!defined('SMF'))
  * Called by ?action=admin;area=manageboards.
  * It checks the permissions, based on the sub-action, and calls a function based on the sub-action.
  *
- * @uses ManageBoards language file.
+ * Uses ManageBoards language file.
  */
 function ManageBoards()
 {
@@ -77,7 +77,7 @@ function ManageBoards()
  * Requires manage_boards permission.
  * It also handles the interface for moving boards.
  *
- * @uses ManageBoards template, main sub-template.
+ * Uses ManageBoards template, main sub-template.
  */
 function ManageBoardsMain()
 {
@@ -214,7 +214,7 @@ function ManageBoardsMain()
  * Called by ?action=admin;area=manageboards;sa=cat
  * Requires manage_boards permission.
  *
- * @uses ManageBoards template, modify_category sub-template.
+ * @uses template_modify_category()
  */
 function EditCategory()
 {
@@ -809,7 +809,7 @@ function ModifyCat()
 /**
  * A screen to set a few general board and category settings.
  *
- * @uses modify_general_settings sub-template.
+ * @uses template_show_settings()
  * @param bool $return_config Whether to return the $config_vars array (used for admin search)
  * @return void|array Returns nothing or the array of config vars if $return_config is true
  */

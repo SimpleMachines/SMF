@@ -12,7 +12,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -413,6 +413,41 @@ function ModifyProfile($post_errors = array())
 					'permission' => array(
 						'own' => array('is_not_guest'),
 						'any' => array('moderate_forum'),
+					),
+				),
+				'getprofiledata' => array(
+					'label' => $txt['export_profile_data'],
+					'file' => 'Profile-Export.php',
+					'function' => 'export_profile_data',
+					'icon' => 'packages',
+					// 'token' => 'profile-ex%u', // This is not checked here. We do it in the function itself - but if it was checked, this is what it'd be.
+					'permission' => array(
+						'own' => array('profile_view_own'),
+						'any' => array('moderate_forum'),
+					),
+				),
+				'download' => array(
+					'label' => $txt['export_profile_data'],
+					'file' => 'Profile-Export.php',
+					'function' => 'download_export_file',
+					'icon' => 'packages',
+					'hidden' => true,
+					'select' => 'getprofiledata',
+					'permission' => array(
+						'own' => array('profile_view_own'),
+						'any' => array('moderate_forum'),
+					),
+				),
+				'dlattach' => array(
+					'label' => $txt['export_profile_data'],
+					'file' => 'Profile-Export.php',
+					'function' => 'export_attachment',
+					'icon' => 'packages',
+					'hidden' => true,
+					'select' => 'getprofiledata',
+					'permission' => array(
+						'own' => array('profile_view_own'),
+						'any' => array(),
 					),
 				),
 				'deleteaccount' => array(

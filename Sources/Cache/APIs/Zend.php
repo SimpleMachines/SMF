@@ -8,18 +8,23 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
+namespace SMF\Cache\APIs;
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Our Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class zend_cache extends cache_api
+class Zend extends CacheApi implements CacheApiInterface
 {
 	/**
 	 * {@inheritDoc}
@@ -30,7 +35,13 @@ class zend_cache extends cache_api
 
 		if ($test)
 			return $supported;
+
 		return parent::isSupported() && $supported;
+	}
+
+	public function connect()
+	{
+		return true;
 	}
 
 	/**
@@ -43,6 +54,7 @@ class zend_cache extends cache_api
 		// Zend's pricey stuff.
 		if (function_exists('zend_shm_cache_fetch'))
 			return zend_shm_cache_fetch('SMF::' . $key);
+
 		elseif (function_exists('output_cache_get'))
 			return output_cache_get($key, $ttl);
 	}
@@ -56,6 +68,7 @@ class zend_cache extends cache_api
 
 		if (function_exists('zend_shm_cache_store'))
 			return zend_shm_cache_store('SMF::' . $key, $value, $ttl);
+
 		elseif (function_exists('output_cache_put'))
 			return output_cache_put($key, $value);
 	}

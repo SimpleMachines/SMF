@@ -1,8 +1,8 @@
 <?php
 
 /**
- * This task handles notifying users when they've commented to a moderation report and
- * someone else replies to them.
+ * This file contains code used to notify a moderator when another moderator
+ * replies to a profile moderation report that the first mod has commented on.
  *
  * Simple Machines Forum (SMF)
  *
@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -20,7 +20,9 @@
 class MemberReportReply_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
+	 * This executes the task: loads up the info, puts the email in the queue
+	 * and inserts any alerts as needed.
+	 *
 	 * @return bool Always returns true.
 	 */
 	public function execute()

@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -23,7 +23,7 @@ if (!defined('SMF'))
  * It requires the maintain_forum permission.
  * It is accessed from ?action=admin;area=logs;sa=errorlog.
  *
- * @uses the Errors template and error_log sub template.
+ * @uses template_error_log()
  */
 function ViewErrorLog()
 {
@@ -353,13 +353,18 @@ function deleteErrors()
 		);
 	// Deleting all with a filter?
 	elseif (isset($_POST['delall']) && isset($filter))
+	{
+		// ip need a different placeholder type
+		$filter_type = $filter['variable'] == 'ip'? 'inet' : 'string';
+		$filter_op = $filter['variable'] == 'ip'? '=' : 'LIKE';
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_errors
-			WHERE ' . $filter['variable'] . ' LIKE {string:filter}',
+			WHERE ' . $filter['variable'] . ' ' . $filter_op . ' {' . $filter_type . ':filter}',
 			array(
 				'filter' => $filter['value']['sql'],
 			)
 		);
+	}
 	// Just specific errors?
 	elseif (!empty($_POST['delete']))
 	{

@@ -7,6 +7,9 @@ function smf_fileUpload(oOptions) {
 		previewTemplate = tmp.innerHTML;
 		previewNode.parentNode.removeChild(previewNode);
 
+	if (typeof current_board == 'undefined')
+		var current_board = false;
+
 	// Default values in case oOptions isn't defined.
 	var dOptions = {
 		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id + (current_board ? ';board=' + current_board : ''),
@@ -66,7 +69,7 @@ function smf_fileUpload(oOptions) {
 
 			var currentlyUsedKB = myDropzone.options.currentUsedSize / 1024,
 				totalKB = myDropzone.options.maxTotalSize,
-				fileKB = myDropzone.options.maxFileSize,
+				fileKB = myDropzone.options.maxFilesize,
 				uploadedFileKB = file.size / 1024;
 
 			// Check against the max amount of files setting.

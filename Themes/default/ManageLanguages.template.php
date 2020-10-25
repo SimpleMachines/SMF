@@ -8,7 +8,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -196,7 +196,7 @@ function template_modify_language_entries()
 			</div>
 			<div class="information">
 				<div>
-					', $txt['edit_language_entries_desc'], '
+					', sprintf($txt['edit_language_entries_desc'], $scripturl, $txt['themeadmin_edit_title']), '
 				</div>
 				<br>
 				<div id="taskpad" class="floatright">
@@ -353,9 +353,9 @@ function template_add_language()
 	{
 		echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['add_language_found_title'], '</div>
-				<div class="information">', $txt['add_language_smf_found'], '
-			</div>';
+				<h3 class="catbg">', $txt['add_language_found_title'], '</h3>
+			</div>
+			<div class="information">', $txt['add_language_smf_found'], '</div>';
 
 		template_show_list('smf_languages');
 	}

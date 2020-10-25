@@ -7,7 +7,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -107,7 +107,7 @@ function template_alerts_popup()
 		foreach ($context['unread_alerts'] as $id_alert => $details)
 		{
 			echo '
-			<', !$details['show_links'] ? 'a href="' . $scripturl . '?action=profile;area=showalerts;alert=' . $id_alert . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="unread_notify">
+			<', !$details['show_links'] ? 'a href="' . $details['target_href'] . '" onclick="this.classList.add(\'alert_read\')"' : 'div', ' class="unread_notify">
 				<div class="unread_notify_image">
 					', empty($details['sender']['avatar']['image']) ? '' : $details['sender']['avatar']['image'] . '
 					', $details['icon'], '
@@ -1872,11 +1872,7 @@ function template_alert_configuration()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<dl class="settings">';
-
-	// Allow notification on announcements to be disabled?
-	if ($context['can_disable_announce'])
-		echo '
+				<dl class="settings">
 					<dt>
 						<label for="notify_announcements">', $txt['notify_important_email'], '</label>
 					</dt>
@@ -2271,7 +2267,9 @@ function template_load_warning_variables()
 			$context['current_warning_mode'] = $warning;
 }
 
-// Show all warnings of a user?
+/**
+ * Template for viewing a user's warnings
+ */
 function template_viewWarning()
 {
 	global $context, $txt;
@@ -2320,7 +2318,9 @@ function template_viewWarning()
 	template_show_list('view_warnings');
 }
 
-// Show a lovely interface for issuing warnings.
+/**
+ * Template for issuing warnings
+ */
 function template_issueWarning()
 {
 	global $context, $scripturl, $txt;
@@ -2612,7 +2612,7 @@ function template_deleteAccount()
 			if ($context['show_perma_delete'])
 				echo '
 					<br>
-					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1">', $txt['deleteAccount_permanent'], ':</label>';
+					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1">', $txt['deleteAccount_permanent'], '</label>';
 
 			echo '
 				</div>';
@@ -2685,7 +2685,7 @@ function template_profile_save()
  */
 function template_error_message()
 {
-	global $context, $txt;
+	global $context, $modSettings, $txt;
 
 	echo '
 		<div class="errorbox" ', empty($context['post_errors']) ? 'style="display:none" ' : '', 'id="profile_error">';
@@ -2698,8 +2698,14 @@ function template_error_message()
 
 		// Cycle through each error and display an error message.
 		foreach ($context['post_errors'] as $error)
+		{
+			$text_key_error = $error == 'password_short' ?
+				sprintf($txt['profile_error_' . $error], (empty($modSettings['password_strength']) ? 4 : 8)) :
+				$txt['profile_error_' . $error];
+
 			echo '
-				<li>', isset($txt['profile_error_' . $error]) ? $txt['profile_error_' . $error] : $error, '</li>';
+				<li>', isset($txt['profile_error_' . $error]) ? $text_key_error : $error, '</li>';
+		}
 
 		echo '
 			</ul>';
@@ -3283,6 +3289,198 @@ function template_profile_tfa()
 
 	echo '
 							</dd>';
+}
+
+/**
+ * Template for initiating and retrieving profile data exports
+ */
+function template_export_profile_data()
+{
+	global $context, $scripturl, $txt;
+
+	$default_settings = array('included' => array(), 'format' => '');
+	$dltoken = '';
+
+	// The main containing header.
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg profile_hd">
+				', $txt['export_profile_data'], '
+			</h3>
+		</div>
+		<div class="information">', $context['export_profile_data_desc'], '</div>';
+
+	if (!empty($context['completed_exports']))
+	{
+		echo '
+		<div class="title_bar">
+			<h3 class="titlebg">', $txt['completed_exports'], '</h3>
+		</div>
+		<div class="windowbg noup">';
+
+		foreach ($context['completed_exports'] as $basehash_ext => $parts)
+		{
+			echo '
+			<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '" class="', count($context['completed_exports']) > 1 ? 'descbox' : 'padding', '">';
+
+			if (!empty($context['outdated_exports'][$basehash_ext]))
+			{
+				echo '
+				<div class="noticebox">
+					<p>', $txt['export_outdated_warning'], '</p>
+					<ul class="bbc_list">';
+
+				foreach ($context['outdated_exports'][$basehash_ext] as $datatype)
+					echo '
+						<li>', $txt[$datatype], '</li>';
+
+				echo '
+					</ul>
+				</div>';
+			}
+
+			echo '
+				<p>', sprintf($txt['export_file_desc'], $parts[1]['included_desc'], $context['export_formats'][$parts[1]['format']]['description']), '</p>';
+
+			if (count($parts) > 10)
+				echo '
+				<details>
+					<summary>', sprintf($txt['export_file_count'], count($parts)), '</summary>';
+
+			echo '
+				<ul class="bbc_list" id="', $parts[1]['format'], '_export_files">';
+
+			foreach ($parts as $part => $file)
+			{
+				$dltoken = $file['dltoken'];
+				if (empty($default_settings['included']))
+					$default_settings['included'] = $file['included'];
+				if (empty($default_settings['format']))
+					$default_settings['format'] = $file['format'];
+
+				echo '
+					<li>
+						<a href="', $scripturl, '?action=profile;area=download;u=', $context['id_member'], ';format=', $file['format'], ';part=', $part, ';t=', $dltoken, '" class="bbc_link" download>', $file['dlbasename'], '</a> (', $file['size'], ', ', $file['mtime'], ')
+					</li>';
+			}
+
+			echo '
+				</ul>';
+
+			if (count($parts) > 10)
+				echo '
+				</details>';
+
+			echo '
+				<div class="righttext">
+					<input type="submit" name="delete" value="', $txt['delete'], '" class="button you_sure">
+					<input type="hidden" name="format" value="', $parts[1]['format'], '">
+					<input type="hidden" name="t" value="', $dltoken, '">
+					<button type="button" class="button export_download_all" style="display:none" onclick="export_download_all(\'', $parts[1]['format'], '\');">', $txt['export_download_all'], '</button>
+				</div>
+			</form>';
+		}
+
+		echo '
+		</div>';
+	}
+
+	if (!empty($context['active_exports']))
+	{
+		echo '
+		<div class="title_bar">
+			<h3 class="titlebg">', $txt['active_exports'], '</h3>
+		</div>
+		<div class="windowbg noup">';
+
+		foreach ($context['active_exports'] as $file)
+		{
+			$dltoken = $file['dltoken'];
+			if (empty($default_settings['included']))
+				$default_settings['included'] = $file['included'];
+			if (empty($default_settings['format']))
+				$default_settings['format'] = $file['format'];
+
+			echo '
+			<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '"', count($context['active_exports']) > 1 ? ' class="descbox"' : '', '>
+				<p class="padding">', sprintf($txt['export_file_desc'], $file['included_desc'], $context['export_formats'][$file['format']]['description']), '</p>
+				<div class="righttext">
+					<input type="submit" name="delete" value="', $txt['export_cancel'], '" class="button you_sure">
+					<input type="hidden" name="format" value="', $file['format'], '">
+					<input type="hidden" name="t" value="', $dltoken, '">
+				</div>
+			</form>';
+		}
+
+		echo '
+		</div>';
+	}
+
+	echo '
+		<div class="title_bar">
+			<h3 class="titlebg">', $txt['export_settings'], '</h3>
+		</div>
+		<div class="windowbg noup">
+			<form action="', $scripturl, '?action=profile;area=getprofiledata;u=', $context['id_member'], '" method="post" accept-charset="', $context['character_set'], '">
+				<dl class="settings">';
+
+	foreach ($context['export_datatypes'] as $datatype => $datatype_settings)
+	{
+		if (!empty($datatype_settings['label']))
+			echo '
+					<dt>
+						<strong><label for="', $datatype, '">', $datatype_settings['label'], '</label></strong>
+					</dt>
+					<dd>
+						<input type="checkbox" id="', $datatype, '" name="', $datatype, '"', in_array($datatype, $default_settings['included']) ? ' checked' : '', '>
+					</dd>';
+	}
+
+	echo '
+				</dl>
+				<dl class="settings">
+					<dt>
+						<strong>', $txt['export_format'], '</strong>
+					</dt>
+					<dd>
+						<select id="export_format_select" name="format">';
+
+	foreach ($context['export_formats'] as $format => $format_settings)
+		echo '
+							<option value="', $format, '"', $format == $default_settings['format'] ? ' selected' : '', '>', $format_settings['description'], '</option>';
+
+	echo '
+						</select>
+					</dd>
+				</dl>
+				<div class="righttext">';
+
+	// At least one active or completed export exists.
+	if (!empty($dltoken))
+	{
+		echo '
+					<div id="export_begin" style="display:none">
+						<input type="submit" name="export_begin" value="', $txt['export_begin'], '" class="button">
+					</div>
+					<div id="export_restart">
+						<input type="submit" name="export_begin" value="', $txt['export_restart'], '" class="button you_sure" data-confirm="', $txt['export_restart_confirm'], '">
+						<input type="hidden" name="delete">
+						<input type="hidden" name="t" value="', $dltoken, '">
+					</div>';
+	}
+	// No existing exports.
+	else
+	{
+		echo '
+					<input type="submit" name="export_begin" value="', $txt['export_begin'], '" class="button">';
+	}
+
+	echo '
+					<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				</div>
+			</form>
+		</div><!-- .windowbg -->';
 }
 
 ?>

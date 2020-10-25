@@ -15,7 +15,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -336,6 +336,10 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 	{
 		$fileContents = fetch_web_data($source);
 
+		$mime_valid = check_mime_type($fileContents, implode('|', array_map('image_type_to_mime_type', array_keys($default_formats))));
+		if (empty($mime_valid))
+			return false;
+
 		fwrite($fp_destination, $fileContents);
 		fclose($fp_destination);
 
@@ -343,6 +347,10 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 	}
 	elseif ($fp_destination)
 	{
+		$mime_valid = check_mime_type($source, implode('|', array_map('image_type_to_mime_type', array_keys($default_formats))), true);
+		if (empty($mime_valid))
+			return false;
+
 		$sizes = @getimagesize($source);
 
 		$fp_source = fopen($source, 'rb');
@@ -391,7 +399,7 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
  * It saves the new image to destination_filename, as preferred_format
  * if possible, default is jpeg.
  *
- * @uses Imagemagick (IMagick or MagickWand extension) or GD
+ * Uses Imagemagick (IMagick or MagickWand extension) or GD
  *
  * @param resource $src_img The source image
  * @param string $destName The path to the destination image
@@ -760,21 +768,20 @@ if (!function_exists('imagecreatefrombmp'))
 /**
  * Writes a gif file to disk as a png file.
  *
- * @param resource $gif A gif image resource
+ * @param gif_file $gif A gif image resource
  * @param string $lpszFileName The name of the file
  * @param int $background_color The background color
- * @return boolean Whether the operation was successful
+ * @return bool Whether the operation was successful
  */
 function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
 {
-	if (!isset($gif) || @get_class($gif) != 'cgif' || !$gif->loaded || $lpszFileName == '')
+	if (!is_a($gif, 'gif_file') || $lpszFileName == '')
 		return false;
 
-	$fd = $gif->get_png_data($background_color);
-	if (strlen($fd) <= 0)
+	if (($fd = $gif->get_png_data($background_color)) === false)
 		return false;
 
-	if (!($fh = @fopen($lpszFileName, 'wb')))
+	if (($fh = @fopen($lpszFileName, 'wb')) === false)
 		return false;
 
 	@fwrite($fh, $fd, strlen($fd));

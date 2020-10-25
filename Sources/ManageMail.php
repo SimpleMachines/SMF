@@ -13,7 +13,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -45,6 +45,8 @@ function ManageMail()
 		'test' => 'TestMailSend',
 	);
 
+	call_integration_hook('integrate_manage_mail', array(&$subActions));
+
 	// By default we want to browse
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'browse';
 	$context['sub_action'] = $_REQUEST['sa'];
@@ -55,8 +57,6 @@ function ManageMail()
 		'help' => '',
 		'description' => $txt['mailqueue_desc'],
 	);
-
-	call_integration_hook('integrate_manage_mail', array(&$subActions));
 
 	// Call the right function for this sub-action.
 	call_helper($subActions[$_REQUEST['sa']]);

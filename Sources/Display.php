@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -757,9 +757,9 @@ function Display()
 			'has_voted' => !empty($pollinfo['has_voted']),
 			'starter' => array(
 				'id' => $pollinfo['id_member'],
-				'name' => $row['poster_name'],
+				'name' => $pollinfo['poster_name'],
 				'href' => $pollinfo['id_member'] == 0 ? '' : $scripturl . '?action=profile;u=' . $pollinfo['id_member'],
-				'link' => $pollinfo['id_member'] == 0 ? $row['poster_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $pollinfo['id_member'] . '">' . $row['poster_name'] . '</a>'
+				'link' => $pollinfo['id_member'] == 0 ? $pollinfo['poster_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $pollinfo['id_member'] . '">' . $pollinfo['poster_name'] . '</a>'
 			)
 		);
 
@@ -1686,14 +1686,16 @@ function prepareDisplayContext($reset = false)
 			'remove_topic' => array(
 				'label' => $txt['remove_topic'],
 				'href' => $scripturl.'?action=removetopic2;topic='.$context['current_topic'].'.'.$context['start'].';'.$context['session_var'].'='.$context['session_id'],
-				'javascript' => 'data-confirm="'.$txt['are_sure_remove_topic'].'" class="you_sure"',
+				'javascript' => 'data-confirm="'.$txt['are_sure_remove_topic'].'"',
+				'class' => 'you_sure',
 				'icon' => 'remove_button',
 				'show' => $context['can_delete'] && ($context['topic_first_message'] == $output['id'])
 			),
 			'remove' => array(
 				'label' => $txt['remove'],
 				'href' => $scripturl.'?action=deletemsg;topic='.$context['current_topic'].'.'.$context['start'].';msg='.$output['id'].';'.$context['session_var'].'='.$context['session_id'],
-				'javascript' => 'data-confirm="'.$txt['remove_message_question'].'" class="you_sure"',
+				'javascript' => 'data-confirm="'.$txt['remove_message_question'].'"',
+				'class' => 'you_sure',
 				'icon' => 'remove_button',
 				'show' => $output['can_remove'] && ($context['topic_first_message'] != $output['id'])
 			),

@@ -8,18 +8,23 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
+namespace SMF\Cache\APIs;
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Our Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class smf_cache extends cache_api
+class FileBased extends CacheApi implements CacheApiInterface
 {
 	/**
 	 * @var string The path to the current $cachedir directory.
@@ -46,7 +51,16 @@ class smf_cache extends cache_api
 
 		if ($test)
 			return $supported;
+
 		return parent::isSupported() && $supported;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function connect()
+	{
+		return true;
 	}
 
 	/**
@@ -87,6 +101,7 @@ class smf_cache extends cache_api
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 		$cachedir = $this->cachedir;
+		$ttl = $ttl !== null ? $ttl : $this->ttl;
 
 		// Work around Zend's opcode caching (PHP 5.5+), they would cache older files for a couple of seconds
 		// causing newer files to take effect a while later.
@@ -99,6 +114,7 @@ class smf_cache extends cache_api
 		// Otherwise custom cache?
 		if ($value === null)
 			@unlink($cachedir . '/data_' . $key . '.php');
+
 		else
 		{
 			$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, "\0" . '\\\'') . '\';}' . '?' . '>';
@@ -109,8 +125,10 @@ class smf_cache extends cache_api
 			if ($fileSize !== strlen($cache_data))
 			{
 				@unlink($cachedir . '/data_' . $key . '.php');
+
 				return false;
 			}
+
 			else
 				return true;
 		}
@@ -125,7 +143,7 @@ class smf_cache extends cache_api
 
 		// No directory = no game.
 		if (!is_dir($cachedir))
-			return;
+			return false;
 
 		// Remove the files in SMF's own disk cache, if any
 		$dh = opendir($cachedir);
@@ -163,7 +181,10 @@ class smf_cache extends cache_api
 	{
 		global $context, $txt;
 
-		$config_vars[] = $txt['cache_smf_settings'];
+		$class_name = $this->getImplementationClassKeyName();
+		$class_name_txt_key = strtolower($class_name);
+
+		$config_vars[] = $txt['cache_'. $class_name_txt_key .'_settings'];
 		$config_vars[] = array('cachedir', $txt['cachedir'], 'file', 'text', 36, 'cache_cachedir');
 
 		if (!isset($context['settings_post_javascript']))
@@ -172,7 +193,7 @@ class smf_cache extends cache_api
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
-				$("#cachedir").prop("disabled", cache_type != "smf");
+				$("#cachedir").prop("disabled", cache_type != "'. $class_name .'");
 			});';
 	}
 
@@ -190,6 +211,7 @@ class smf_cache extends cache_api
 		// If its invalid, use SMF's.
 		if (is_null($dir) || !is_writable($dir))
 			$this->cachedir = $cachedir;
+
 		else
 			$this->cachedir = $dir;
 	}

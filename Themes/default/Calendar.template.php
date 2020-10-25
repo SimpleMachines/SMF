@@ -7,7 +7,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -873,6 +873,9 @@ function template_event_post()
 		</form>';
 }
 
+/**
+ * Displays a clock
+ */
 function template_bcd()
 {
 	global $context, $scripturl;
@@ -973,6 +976,9 @@ function template_bcd()
 		</script>';
 }
 
+/**
+ * Displays the hours, minutes and seconds for our clock
+ */
 function template_hms()
 {
 	global $context, $scripturl;
@@ -1066,6 +1072,9 @@ function template_hms()
 		</script>';
 }
 
+/**
+ * Displays a binary clock
+ */
 function template_omfg()
 {
 	global $context;
@@ -1157,6 +1166,9 @@ function template_omfg()
 		</script>';
 }
 
+/**
+ * Displays the time
+ */
 function template_thetime()
 {
 	global $context;

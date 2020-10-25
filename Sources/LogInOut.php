@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -23,7 +23,7 @@ if (!defined('SMF'))
  *  It caches the referring URL in $_SESSION['login_url'].
  *  It is accessed from ?action=login.
  *
- * @uses Login template and language file with the login sub-template.
+ * Uses Login template and language file with the login sub-template.
  */
 function Login()
 {
@@ -110,17 +110,17 @@ function Login2()
 			list (,, $timeout) = $smcFunc['json_decode']($_SESSION['login_' . $cookiename]);
 
 		// Next, try checking for 2.0 serialized string cookie in $_COOKIE
-		elseif (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d+;~', $_COOKIE[$cookiename]) === 1)
+		elseif (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;~', $_COOKIE[$cookiename]) === 1)
 			list (,, $timeout) = safe_unserialize($_COOKIE[$cookiename]);
 
 		// Last, see if you need to fall back on checking for 2.0 serialized string cookie in $_SESSION
-		elseif (isset($_SESSION['login_' . $cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d+;~', $_SESSION['login_' . $cookiename]) === 1)
+		elseif (isset($_SESSION['login_' . $cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;~', $_SESSION['login_' . $cookiename]) === 1)
 			list (,, $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
 
 		else
 			trigger_error('Login2(): Cannot be logged in without a session or cookie', E_USER_ERROR);
 
-		$user_settings['password_salt'] = substr(md5($smcFunc['random_int']()), 0, 4);
+		$user_settings['password_salt'] = bin2hex($smcFunc['random_bytes'](16));
 		updateMemberData($user_info['id'], array('password_salt' => $user_settings['password_salt']));
 
 		// Preserve the 2FA cookie?
@@ -192,6 +192,9 @@ function Login2()
 	// Load the template stuff.
 	loadTemplate('Login');
 	$context['sub_template'] = 'login';
+
+	// Create a one time token.
+	createToken('login');
 
 	// Set up the default/fallback stuff.
 	$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user'])) : '';
@@ -300,6 +303,7 @@ function Login2()
 			$other_passwords[] = md5($_POST['passwrd'] . strtolower($user_settings['member_name']));
 			$other_passwords[] = md5(md5($_POST['passwrd']));
 			$other_passwords[] = $_POST['passwrd'];
+			$other_passwords[] = crypt($_POST['passwrd'], $user_settings['passwd']);
 
 			// This one is a strange one... MyPHP, crypt() on the MD5 hash.
 			$other_passwords[] = crypt(md5($_POST['passwrd']), md5($_POST['passwrd']));
@@ -313,6 +317,16 @@ function Login2()
 
 			// APBoard 2 Login Method.
 			$other_passwords[] = md5(crypt($_POST['passwrd'], 'CRYPT_MD5'));
+		}
+		// If the salt is set let's try some other options
+		elseif (!empty($modSettings['enable_password_conversion']) && $user_settings['password_salt'] != '')
+		{
+			// PHPBB 3 check this function exists in PHP 5.5 or higher
+			if (function_exists('password_verify'))
+				$other_passwords[] = password_verify($_POST['passwrd'],$user_settings['password_salt']);
+
+			// PHP-Fusion
+			$other_passwords[] = hash_hmac('sha256', $_POST['passwrd'], $user_settings['password_salt']);
 		}
 		// The hash should be 40 if it's SHA-1, so we're safe with more here too.
 		elseif (!empty($modSettings['enable_password_conversion']) && strlen($user_settings['passwd']) == 32)
@@ -336,6 +350,9 @@ function Login2()
 			// BurningBoard3 style of hashing.
 			if (!empty($modSettings['enable_password_conversion']))
 				$other_passwords[] = sha1($user_settings['password_salt'] . sha1($user_settings['password_salt'] . sha1($_POST['passwrd'])));
+
+			// PunBB
+			$other_passwords[] = sha1($user_settings['password_salt'] . sha1($_POST['passwrd']));
 
 			// Perhaps we converted to UTF-8 and have a valid password being hashed differently.
 			if ($context['character_set'] == 'UTF-8' && !empty($modSettings['previousCharacterSet']) && $modSettings['previousCharacterSet'] != 'utf8')
@@ -364,7 +381,7 @@ function Login2()
 		if (in_array($user_settings['passwd'], $other_passwords))
 		{
 			$user_settings['passwd'] = hash_password($user_settings['member_name'], un_htmlspecialchars($_POST['passwrd']));
-			$user_settings['password_salt'] = substr(md5($smcFunc['random_int']()), 0, 4);
+			$user_settings['password_salt'] = bin2hex($smcFunc['random_bytes'](16));
 
 			// Update the password and set up the hash.
 			updateMemberData($user_settings['id_member'], array('passwd' => $user_settings['passwd'], 'password_salt' => $user_settings['password_salt'], 'passwd_flood' => ''));
@@ -399,9 +416,9 @@ function Login2()
 	}
 
 	// Correct password, but they've got no salt; fix it!
-	if ($user_settings['password_salt'] == '')
+	if (strlen($user_settings['password_salt']) < 32)
 	{
-		$user_settings['password_salt'] = substr(md5($smcFunc['random_int']()), 0, 4);
+		$user_settings['password_salt'] = bin2hex($smcFunc['random_bytes'](16));
 		updateMemberData($user_settings['id_member'], array('password_salt' => $user_settings['password_salt']));
 	}
 
@@ -514,7 +531,7 @@ function checkActivation()
 	// Check if the account is activated - COPPA first...
 	if ($activation_status == 5)
 	{
-		$context['login_errors'][] = $txt['coppa_no_concent'] . ' <a href="' . $scripturl . '?action=coppa;member=' . $user_settings['id_member'] . '">' . $txt['coppa_need_more_details'] . '</a>';
+		$context['login_errors'][] = $txt['coppa_no_consent'] . ' <a href="' . $scripturl . '?action=coppa;member=' . $user_settings['id_member'] . '">' . $txt['coppa_need_more_details'] . '</a>';
 		return false;
 	}
 	// Awaiting approval still?
@@ -705,7 +722,7 @@ function Logout($internal = false, $redirect = true)
 	setLoginCookie(-3600, 0);
 
 	// And some other housekeeping while we're at it.
-	$salt = substr(md5($smcFunc['random_int']()), 0, 4);
+	$salt = bin2hex($smcFunc['random_bytes'](16));
 	if (!empty($user_info['id']))
 		updateMemberData($user_info['id'], array('password_salt' => $salt));
 

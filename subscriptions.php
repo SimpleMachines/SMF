@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 // Set this to true to always log $_POST info received from payment gateways.
@@ -296,6 +296,7 @@ if ($paid_debug === true)
  * Log an error then exit
  *
  * @param string $text The error to log
+ * @param bool $debug If true, won't send an email if $modSettings['paid_email'] isn't set
  * @return void
  */
 function generateSubscriptionError($text, $debug = false)

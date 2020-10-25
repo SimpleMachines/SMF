@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -22,7 +22,7 @@ if (!defined('SMF'))
  * Calls createSalvageArea() to create a new board, if necessary.
  * Accessed by ?action=admin;area=repairboards.
  *
- * @uses repair_boards sub-template.
+ * @uses template_repair_boards()
  */
 function RepairBoards()
 {

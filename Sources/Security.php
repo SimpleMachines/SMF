@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -762,24 +762,11 @@ function createToken($action, $type = 'post')
  * @param string $action The action to validate the token for
  * @param string $type The type of request (get, request, or post)
  * @param bool $reset Whether to reset the token and display an error if validation fails
- * @return bool|string If the action is login, returns the token for the action, otherwise returns whether the validation was successful
+ * @return bool returns whether the validation was successful
  */
 function validateToken($action, $type = 'post', $reset = true)
 {
 	$type = $type == 'get' || $type == 'request' ? $type : 'post';
-
-	// Logins are special: the token is used to has the password with javascript before POST it
-	if ($action == 'login')
-	{
-		if (isset($_SESSION['token'][$type . '-' . $action]))
-		{
-			$return = $_SESSION['token'][$type . '-' . $action][3];
-			unset($_SESSION['token'][$type . '-' . $action]);
-			return $return;
-		}
-		else
-			return '';
-	}
 
 	// This nasty piece of code validates a token.
 	/*
@@ -789,7 +776,7 @@ function validateToken($action, $type = 'post', $reset = true)
 		4. Match that result against what is in the session.
 		5. If it matches, success, otherwise we fallout.
 	*/
-	if (isset($_SESSION['token'][$type . '-' . $action], $GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action][0]]) && md5($GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action][0]] . $_SERVER['HTTP_USER_AGENT']) == $_SESSION['token'][$type . '-' . $action][1])
+	if (isset($_SESSION['token'][$type . '-' . $action], $GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action][0]]) && md5($GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action][0]] . $_SERVER['HTTP_USER_AGENT']) === $_SESSION['token'][$type . '-' . $action][1])
 	{
 		// Invalidate this token now.
 		unset($_SESSION['token'][$type . '-' . $action]);
@@ -1231,7 +1218,7 @@ function secureDirectory($paths, $attachments = false)
 	// Work with arrays
 	$paths = (array) $paths;
 
-	if (empty($path))
+	if (empty($paths))
 		$errors[] = 'empty_path';
 
 	if (!empty($errors))

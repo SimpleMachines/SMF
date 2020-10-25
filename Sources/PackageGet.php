@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -227,6 +227,15 @@ function PackageGBrowse()
 		// If there is a relative link, append to the stored server url.
 		if (isset($_GET['relative']))
 			$url = $url . (substr($url, -1) == '/' ? '' : '/') . $_GET['relative'];
+
+		$the_version = SMF_VERSION;
+		if (!empty($_SESSION['version_emulate']))
+			$the_version = $_SESSION['version_emulate'];
+
+		// Sub out any variables we support in the url.
+		$url = strtr($url, array(
+			'{SMF_VERSION}' => urlencode($the_version)
+		));
 
 		// Clear any "absolute" URL.  Since "server" is present, "absolute" is garbage.
 		unset($_GET['absolute']);
@@ -562,6 +571,15 @@ function PackageDownload()
 		if (empty($url))
 			fatal_lang_error('couldnt_connect', false);
 
+		$the_version = SMF_VERSION;
+		if (!empty($_SESSION['version_emulate']))
+			$the_version = $_SESSION['version_emulate'];
+
+		// Sub out any variables we support in the url.
+		$url = strtr($url, array(
+			'{SMF_VERSION}' => urlencode($the_version)
+		));
+
 		$url = $url . '/';
 	}
 	else
@@ -612,14 +630,10 @@ function PackageDownload()
 	if (!is_array($context['package']))
 		fatal_lang_error('package_cant_download', false);
 
-	if ($context['package']['type'] == 'modification')
-		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['install_mod'] . ' ]</a>';
-	elseif ($context['package']['type'] == 'avatar')
-		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['use_avatars'] . ' ]</a>';
-	elseif ($context['package']['type'] == 'language')
-		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['add_languages'] . ' ]</a>';
-	else
+	if (!isset($context['package']['type']))
 		$context['package']['install']['link'] = '';
+	else
+		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . (isset($txt['install_' . $context['package']['type']]) ? $txt['install_' . $context['package']['type']] : $txt['install_unknown']) . ' ]</a>';
 
 	// Does a 3rd party hook want to do some additional changes?
 	call_integration_hook('integrate_package_download');
@@ -706,14 +720,10 @@ function PackageUpload()
 		closedir($dir);
 	}
 
-	if ($context['package']['type'] == 'modification')
-		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['install_mod'] . ' ]</a>';
-	elseif ($context['package']['type'] == 'avatar')
-		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['use_avatars'] . ' ]</a>';
-	elseif ($context['package']['type'] == 'language')
-		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['add_languages'] . ' ]</a>';
-	else
+	if (!isset($context['package']['type']))
 		$context['package']['install']['link'] = '';
+	else
+		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . (isset($txt['install_' . $context['package']['type']]) ? $txt['install_' . $context['package']['type']] : $txt['install_unknown']) . ' ]</a>';
 
 	// Does a 3rd party hook want to do some additional changes?
 	call_integration_hook('integrate_package_upload');

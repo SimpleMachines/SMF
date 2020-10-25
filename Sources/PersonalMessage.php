@@ -12,7 +12,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -1122,7 +1122,8 @@ function prepareMessageContext($type = 'subject', $reset = false)
 		'delete' => array(
 			'label' => $txt['delete'],
 			'href' => $scripturl . '?action=pm;sa=pmactions;pm_actions%5b' . $output['id'] . '%5D=delete;f=' . $context['folder'] . ';start=' . $context['start'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'],
-			'javascript' => 'data-confirm="' . JavaScriptEscape($txt['remove_message_question']) . '" class="you_sure"',
+			'javascript' => 'data-confirm="' . JavaScriptEscape($txt['remove_message_question']) . '"',
+			'class' => 'you_sure',
 			'icon' => 'remove_button',
 		),
 		'more' => array(
@@ -1771,7 +1772,8 @@ function MessageSearch2()
 					'delete' => array(
 						'label' => $txt['delete'],
 						'href' => $scripturl . '?action=pm;sa=pmactions;pm_actions%5b' . $row['id_pm'] . '%5D=delete;f=' . $context['folder'] . ';start=' . $context['start'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'],
-						'javascript' => 'data-confirm="' . JavaScriptEscape($txt['remove_message_question']) . '" class="you_sure"',
+						'javascript' => 'data-confirm="' . JavaScriptEscape($txt['remove_message_question']) . '"',
+						'class' => 'you_sure',
 						'icon' => 'remove_button',
 					),
 					'more' => array(
@@ -2305,7 +2307,10 @@ function MessagePost2()
 
 	// PM Drafts enabled and needed?
 	if ($context['drafts_pm_save'] && (isset($_POST['save_draft']) || isset($_POST['id_pm_draft'])))
+	{
+		$context['id_pm_draft'] = !empty($_POST['id_pm_draft']) ? (int) $_POST['id_pm_draft'] : 0;
 		require_once($sourcedir . '/Drafts.php');
+	}
 
 	loadLanguage('PersonalMessage', '', false);
 
@@ -3481,10 +3486,10 @@ function ManageLabels()
 /**
  * Allows to edit Personal Message Settings.
  *
- * @uses Profile.php
- * @uses Profile-Modify.php
- * @uses Profile template.
- * @uses Profile language file.
+ * Uses Profile.php
+ * Uses Profile-Modify.php
+ * Uses Profile template.
+ * Uses Profile language file.
  */
 function MessageSettings()
 {
@@ -3555,7 +3560,7 @@ function MessageSettings()
  * - It allows the user to report to either a particular administrator - or the whole admin team.
  * - It will forward on a copy of the original message without allowing the reporter to make changes.
  *
- * @uses report_message sub-template.
+ * @uses template_report_message()
  */
 function ReportMessage()
 {
@@ -3730,6 +3735,12 @@ function ManageRules()
 {
 	global $txt, $context, $user_info, $scripturl, $smcFunc;
 
+	// Limit the Criteria and Actions to this.
+	$context['rule_limiters'] = array(
+		'criteria' => 10,
+		'actions' => 10,
+	);
+
 	// The link tree - gotta have this :o
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=pm;sa=manrules',
@@ -3773,6 +3784,7 @@ function ManageRules()
 	if (isset($_GET['apply']))
 	{
 		checkSession('get');
+		spamProtection('pm');
 
 		ApplyRules(true);
 		redirectexit('action=pm;sa=manrules');
@@ -3834,6 +3846,7 @@ function ManageRules()
 
 		// Let's do the criteria first - it's also hardest!
 		$criteria = array();
+		$criteriaCount = 0;
 		foreach ($_POST['ruletype'] as $ind => $type)
 		{
 			// Check everything is here...
@@ -3841,6 +3854,10 @@ function ManageRules()
 				continue;
 			elseif ($type != 'bud' && !isset($_POST['ruledef'][$ind]))
 				continue;
+
+			// Too many rules in this rule.
+			if ($criteriaCount++ >= $context['rule_limiters']['criteria'])
+				break;
 
 			// Members need to be found.
 			if ($type == 'mid')
@@ -3877,11 +3894,16 @@ function ManageRules()
 		$actions = array();
 		$doDelete = 0;
 		$isOr = $_POST['rule_logic'] == 'or' ? 1 : 0;
+		$actionCount = 0;
 		foreach ($_POST['acttype'] as $ind => $type)
 		{
 			// Picking a valid label?
-			if ($type == 'lab' && (!ctype_digit((string) $ind) || !isset($_POST['labdef'][$ind]) || !isset($context['labels'][$_POST['labdef'][$ind]])))
+			if ($type == 'lab' && (!ctype_digit((string) $ind) || !isset($_POST['labdef'][$ind]) || $_POST['labdef'][$ind] == '' || !isset($context['labels'][$_POST['labdef'][$ind]])))
 				continue;
+
+			// Too many actions in this rule.
+			if ($actionCount++ >= $context['rule_limiters']['actions'])
+				break;
 
 			// Record what we're doing.
 			if ($type == 'del')
@@ -4077,7 +4099,7 @@ function ApplyRules($all_messages = false)
 				'{db_prefix}pm_labeled_messages',
 				array('id_pm' => 'int', 'id_label' => 'int'),
 				$inserts,
-				array()
+				array('id_pm', 'id_label')
 			);
 		}
 	}

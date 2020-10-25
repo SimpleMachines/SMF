@@ -12,7 +12,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -1622,12 +1622,12 @@ function SpellCheck()
  * The function automatically finds the subject and its board, and
  * checks permissions for each member who is "signed up" for notifications.
  * It will not send 'reply' notifications more than once in a row.
+ * Uses Post language file
  *
  * @param array $topics Represents the topics the action is happening to.
  * @param string $type Can be any of reply, sticky, lock, unlock, remove, move, merge, and split.  An appropriate message will be sent for each.
  * @param array $exclude Members in the exclude array will not be processed for the topic with the same key.
  * @param array $members_only Are the only ones that will be sent the notification if they have it on.
- * @uses Post language file
  */
 function sendNotifications($topics, $type, $exclude = array(), $members_only = array())
 {
@@ -1783,9 +1783,20 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	if (!empty($modSettings['enable_mentions']))
 	{
+		// Get any members who were possibly mentioned
 		$msgOptions['mentioned_members'] = Mentions::getMentionedMembers($msgOptions['body']);
 		if (!empty($msgOptions['mentioned_members']))
+		{
+			// Replace @name with [member=id]@name[/member]
 			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $msgOptions['mentioned_members']);
+
+			// Remove any members who weren't actually mentioned, to prevent bogus notifications
+			foreach ($msgOptions['mentioned_members'] as $m)
+			{
+				if (strpos('[member=' . $m['id'] . ']@' . $m['real_name'] . '[/member]', $msgOptions['body']) === false)
+					unset($msgOptions['mentioned_members'][$m['id']]);
+			}
+		}
 	}
 
 	// It's do or die time: forget any user aborts!
@@ -2555,6 +2566,9 @@ function approvePosts($msgs, $approve = true, $notify = true)
 		foreach ($member_post_changes as $id_member => $count_change)
 			updateMemberData($id_member, array('posts' => 'posts ' . ($approve ? '+' : '-') . ' ' . $count_change));
 
+	// In case an external CMS needs to know about this approval/unapproval.
+	call_integration_hook('integrate_after_approve_posts', array($approve, $msgs, $topic_changes, $member_post_changes));
+
 	return true;
 }
 
@@ -2742,11 +2756,11 @@ function updateLastMessages($setboards, $id_msg = 0)
  * Called by registerMember() function in Subs-Members.php.
  * Email is sent to all groups that have the moderate_forum permission.
  * The language set by each member is being used (if available).
+ * Uses the Login language file
  *
  * @param string $type The type. Types supported are 'approval', 'activation', and 'standard'.
  * @param int $memberID The ID of the member
  * @param string $member_name The name of the member (if null, it is pulled from the database)
- * @uses the Login language file.
  */
 function adminNotify($type, $memberID, $member_name = null)
 {
@@ -2793,7 +2807,7 @@ function adminNotify($type, $memberID, $member_name = null)
  */
 function loadEmailTemplate($template, $replacements = array(), $lang = '', $loadLang = true)
 {
-	global $txt, $mbname, $scripturl, $settings;
+	global $txt, $mbname, $scripturl, $settings, $context;
 
 	// First things first, load up the email templates language file, if we need to.
 	if ($loadLang)
@@ -2815,7 +2829,7 @@ function loadEmailTemplate($template, $replacements = array(), $lang = '', $load
 		'THEMEURL' => $settings['theme_url'],
 		'IMAGESURL' => $settings['images_url'],
 		'DEFAULT_THEMEURL' => $settings['default_theme_url'],
-		'REGARDS' => $txt['regards_team'],
+		'REGARDS' => sprintf($txt['regards_team'], $context['forum_name']),
 	);
 
 	// Split the replacements up into two arrays, for use with str_replace

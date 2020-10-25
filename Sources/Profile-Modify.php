@@ -12,7 +12,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -304,7 +304,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'passwrd1' => array(
 			'type' => 'password',
-			'label' => ucwords($txt['choose_pass']),
+			'label' => $txt['choose_pass'],
 			'subtext' => $txt['password_strength'],
 			'size' => 20,
 			'value' => '',
@@ -337,7 +337,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'passwrd2' => array(
 			'type' => 'password',
-			'label' => ucwords($txt['verify_pass']),
+			'label' => $txt['verify_pass'],
 			'size' => 20,
 			'value' => '',
 			'permission' => 'profile_password',
@@ -1791,7 +1791,7 @@ function forumProfile($memID)
 		loadCustomFields($memID, 'forumprofile');
 
 	$context['sub_template'] = 'edit_options';
-	$context['page_desc'] = $txt['forumProfile_info'];
+	$context['page_desc'] = sprintf($txt['forumProfile_info'], $context['forum_name_html_safe']);
 	$context['show_preview_button'] = true;
 
 	setupProfileContext(
@@ -1983,7 +1983,6 @@ function alert_configuration($memID, $defaultSettings = false)
 		'alert_timeout' => isset($context['alert_prefs']['alert_timeout']) ? $context['alert_prefs']['alert_timeout'] : 10,
 		'notify_announcements' => isset($context['alert_prefs']['announcements']) ? $context['alert_prefs']['announcements'] : 0,
 	);
-	$context['can_disable_announce'] = $memID == 0 || !empty($modSettings['allow_disableAnnounce']);
 
 	// Now for the exciting stuff.
 	// We have groups of items, each item has both an alert and an email key as well as an optional help string.
@@ -3458,13 +3457,15 @@ function profileSaveAvatarData(&$value)
 		removeAttachments(array('id_member' => $memID));
 
 		$profile_vars['avatar'] = str_replace(' ', '%20', preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $_POST['userpicpersonal']));
+		$mime_valid = check_mime_type($profile_vars['avatar'], 'image/', true);
 
 		if ($profile_vars['avatar'] == 'http://' || $profile_vars['avatar'] == 'http:///')
 			$profile_vars['avatar'] = '';
 		// Trying to make us do something we'll regret?
 		elseif (substr($profile_vars['avatar'], 0, 7) != 'http://' && substr($profile_vars['avatar'], 0, 8) != 'https://')
 			return 'bad_avatar_invalid_url';
-
+		elseif (empty($mime_valid))
+			return 'bad_avatar';
 		// Should we check dimensions?
 		elseif (!empty($modSettings['avatar_max_height_external']) || !empty($modSettings['avatar_max_width_external']))
 		{
@@ -3513,7 +3514,8 @@ function profileSaveAvatarData(&$value)
 				$_FILES['attachment']['tmp_name'] = $new_filename;
 			}
 
-			$sizes = @getimagesize($_FILES['attachment']['tmp_name']);
+			$mime_valid = check_mime_type($_FILES['attachment']['tmp_name'], 'image/', true);
+			$sizes = empty($mime_valid) ? false : @getimagesize($_FILES['attachment']['tmp_name']);
 
 			// No size, then it's probably not a valid pic.
 			if ($sizes === false)

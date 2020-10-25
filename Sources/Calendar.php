@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -442,6 +442,10 @@ function CalendarPost()
 		$found = false;
 		foreach ($context['all_timezones'] as $possible_tzid => $dummy)
 		{
+			// Ignore the "-----" option
+			if (empty($possible_tzid))
+				continue;
+
 			$possible_tzinfo = timezone_transitions_get(timezone_open($possible_tzid), $context['event']['start_timestamp'], $later);
 
 			if ($tzinfo === $possible_tzinfo)

@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -23,7 +23,7 @@ if (!defined('SMF'))
  *
  * @todo lazy loading.
  *
- * @uses ManageSettings language file
+ * Uses ManageSettings language file
  */
 function ManageLanguages()
 {
@@ -62,7 +62,7 @@ function ManageLanguages()
 /**
  * Interface for adding a new language
  *
- * @uses ManageLanguages template, add_language sub-template.
+ * @uses template_add_language()
  */
 function AddLanguage()
 {
@@ -189,8 +189,8 @@ function list_getLanguagesList()
  * Attempts to chmod things as needed.
  * Uses a standard list to display information about all the files and where they'll be put.
  *
- * @uses ManageLanguages template, download_language sub-template.
- * @uses Admin template, show_list sub-template.
+ * @uses template_download_language()
+ * Uses a standard list for displaying languages (@see createList())
  */
 function DownloadLanguage()
 {
@@ -908,10 +908,14 @@ function ModifyLanguage()
 			);
 		}
 		$dir->close();
-		usort($context['possible_files'][$theme]['files'], function($val1, $val2)
+
+		if (!empty($context['possible_files'][$theme]['files']))
 		{
-			return strcmp($val1['name'], $val2['name']);
-		});
+			usort($context['possible_files'][$theme]['files'], function($val1, $val2)
+			{
+				return strcmp($val1['name'], $val2['name']);
+			});
+		}
 	}
 
 	// We no longer wish to speak this language.

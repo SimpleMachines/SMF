@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -22,8 +22,8 @@ if (!defined('SMF'))
  * Called by ?action=admin;area=viewmembers.
  * Requires the moderate_forum permission.
  *
- * @uses ManageMembers template
- * @uses ManageMembers language file.
+ * Uses ManageMembers template
+ * Uses ManageMembers language file.
  */
 function ViewMembers()
 {
@@ -126,7 +126,7 @@ function ViewMembers()
  * Called by ?action=admin;area=viewmembers;sa=all or ?action=admin;area=viewmembers;sa=query.
  * Requires the moderate_forum permission.
  *
- * @uses the view_members sub template of the ManageMembers template.
+ * Uses a standard list (@see createList())
  */
 function ViewMemberlist()
 {
@@ -332,9 +332,24 @@ function ViewMemberlist()
 					}
 				}
 				// Special case - equals a date.
-				elseif ($param_info['type'] == 'date' && $search_params['types'][$param_name] == '=')
+				elseif ($param_info['type'] == 'date')
 				{
-					$query_parts[] = $param_info['db_fields'][0] . ' > ' . $search_params[$param_name] . ' AND ' . $param_info['db_fields'][0] . ' < ' . ($search_params[$param_name] + 86400);
+					if ($search_params['types'][$param_name] == '=')
+					{
+						$query_parts[] = $param_info['db_fields'][0] . ' >= ' . forum_time(true, $search_params[$param_name], true) . ' AND ' . $param_info['db_fields'][0] . ' < ' . (forum_time(true, $search_params[$param_name], true) + 86400);
+					}
+					// Less than or equal to
+					elseif ($search_params['types'][$param_name] == '-')
+					{
+						$query_parts[] = $param_info['db_fields'][0] . ' < ' . (forum_time(true, $search_params[$param_name], true) + 86400);
+					}
+					// Greater than
+					elseif ($search_params['types'][$param_name] == '++')
+					{
+						$query_parts[] = $param_info['db_fields'][0] . ' >= ' . (forum_time(true, $search_params[$param_name], true) + 86400);
+					}
+					else
+						$query_parts[] = $param_info['db_fields'][0] . ' ' . $range_trans[$search_params['types'][$param_name]] . ' ' . forum_time(true, $search_params[$param_name], true);
 				}
 				else
 					$query_parts[] = $param_info['db_fields'][0] . ' ' . $range_trans[$search_params['types'][$param_name]] . ' ' . $search_params[$param_name];
@@ -620,7 +635,7 @@ function ViewMemberlist()
  * Requires the moderate_forum permission.
  * form is submitted to action=admin;area=viewmembers;sa=query.
  *
- * @uses the search_members sub template of the ManageMembers template.
+ * @uses template_search_members()
  */
 function SearchMembers()
 {
@@ -674,7 +689,7 @@ function SearchMembers()
  * The form submits to ?action=admin;area=viewmembers;sa=approve.
  * Requires the moderate_forum permission.
  *
- * @uses the admin_browse sub template of the ManageMembers template.
+ * @uses template_admin_browse()
  */
 function MembersAwaitingActivation()
 {
