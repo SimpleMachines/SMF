@@ -32,16 +32,16 @@ function preparsecode(&$message, $previewing = false)
 
 	static $tags_regex, $disallowed_tags_regex;
 
-	// Convert control characters (except \t, \r, and \n) to harmless Unicode symbols
+	// Replace evil control characters with the harmless "�" character.
 	$control_replacements = array(
-		"\x00" => '&#x2400;', "\x01" => '&#x2401;', "\x02" => '&#x2402;', "\x03" => '&#x2403;',
-		"\x04" => '&#x2404;', "\x05" => '&#x2405;', "\x06" => '&#x2406;', "\x07" => '&#x2407;',
-		"\x08" => '&#x2408;', "\x0b" => '&#x240b;', "\x0c" => '&#x240c;', "\x0e" => '&#x240e;',
-		"\x0f" => '&#x240f;', "\x10" => '&#x2410;', "\x11" => '&#x2411;', "\x12" => '&#x2412;',
-		"\x13" => '&#x2413;', "\x14" => '&#x2414;', "\x15" => '&#x2415;', "\x16" => '&#x2416;',
-		"\x17" => '&#x2417;', "\x18" => '&#x2418;', "\x19" => '&#x2419;', "\x1a" => '&#x241a;',
-		"\x1b" => '&#x241b;', "\x1c" => '&#x241c;', "\x1d" => '&#x241d;', "\x1e" => '&#x241e;',
-		"\x1f" => '&#x241f;',
+		"\x00" => '&#xfffd;', "\x01" => '&#xfffd;', "\x02" => '&#xfffd;', "\x03" => '&#xfffd;',
+		"\x04" => '&#xfffd;', "\x05" => '&#xfffd;', "\x06" => '&#xfffd;', "\x07" => '&#xfffd;',
+		"\x08" => '&#xfffd;', "\x0b" => '&#xfffd;', "\x0c" => '&#xfffd;', "\x0e" => '&#xfffd;',
+		"\x0f" => '&#xfffd;', "\x10" => '&#xfffd;', "\x11" => '&#xfffd;', "\x12" => '&#xfffd;',
+		"\x13" => '&#xfffd;', "\x14" => '&#xfffd;', "\x15" => '&#xfffd;', "\x16" => '&#xfffd;',
+		"\x17" => '&#xfffd;', "\x18" => '&#xfffd;', "\x19" => '&#xfffd;', "\x1a" => '&#xfffd;',
+		"\x1b" => '&#xfffd;', "\x1c" => '&#xfffd;', "\x1d" => '&#xfffd;', "\x1e" => '&#xfffd;',
+		"\x1f" => '&#xfffd;',
 	);
 	$message = strtr($message, $control_replacements);
 
