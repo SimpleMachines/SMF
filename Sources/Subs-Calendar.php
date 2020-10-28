@@ -1441,6 +1441,9 @@ function getNewEventDatetimes()
 {
 	// Ensure setEventStartEnd() has something to work with
 	$now = date_create();
+	$tz = getUserTimezone();
+	date_timezone_set($now, timezone_open($tz));
+
 	$_POST['year'] = !empty($_POST['year']) ? $_POST['year'] : date_format($now, 'Y');
 	$_POST['month'] = !empty($_POST['month']) ? $_POST['month'] : date_format($now, 'm');
 	$_POST['day'] = !empty($_POST['day']) ? $_POST['day'] : date_format($now, 'd');
