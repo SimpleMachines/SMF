@@ -3706,3 +3706,5 @@ while ($row = $smcFunc['db_fetch_assoc']($request))
 
 		// fire
 		upgrade_query($seq_alter_sql);
+---}
+---#
