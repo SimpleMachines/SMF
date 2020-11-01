@@ -194,7 +194,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function getVersion()
 	{
-		if (is_object($this->memcached))
+		if (!is_object($this->memcached))
 			return false;
 
 		// This gets called in Subs-Admin getServerVersions when loading up support information.  If we can't get a connection, return nothing.
