@@ -55,20 +55,14 @@ class FileBased extends CacheApi implements CacheApiInterface
 		return parent::isSupported() && $supported;
 	}
 
-	private function readFile($file)
+	private function readFile($filename)
 	{
-		if (($fp = fopen($file, 'rb')) !== false)
+		if (($fp = fopen($filename, 'rb')) !== false)
 		{
-			if (!flock($fp, LOCK_SH | LOCK_NB))
-			{
-				fclose($fp);
-				return false;
-			}
 			$string = '';
 			while (!feof($fp))
 				$string .= fread($fp, 8192);
 
-			flock($fp, LOCK_UN);
 			fclose($fp);
 
 			return $string;
@@ -77,16 +71,11 @@ class FileBased extends CacheApi implements CacheApiInterface
 		return false;
 	}
 
-	private function writeFile($file, $string)
+	private function writeFile($filename, $string)
 	{
-		if (($fp = fopen($file, 'cb')) !== false)
+		$tempfile = $filename . uniqid(rand(), true);
+		if (($fp = fopen($tempfile, 'wb')) !== false)
 		{
-			if (!flock($fp, LOCK_EX | LOCK_NB))
-			{
-				fclose($fp);
-				return false;
-			}
-			ftruncate($fp, 0);
 			$bytes = 0;
 			$pieces = str_split($string, 8192);
 			foreach ($pieces as $piece)
@@ -94,11 +83,12 @@ class FileBased extends CacheApi implements CacheApiInterface
 				if (($val = fwrite($fp, $piece, 8192)) !== false)
 					$bytes += $val;
 				else
-					return false;
+					break;
 			}
 			fflush($fp);
-			flock($fp, LOCK_UN);
 			fclose($fp);
+			if ($bytes === strlen($string))
+				rename($tempfile, $filename);
 
 			return $bytes;
 		}
@@ -130,7 +120,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 			if (($value = smf_json_decode($raw, true, false)) !== array() && $value['expiration'] >= time())
 				return $value['value'];
 			else
-				@unlink($file);
+				unlink($file);
 		}
 
 		return null;
@@ -161,14 +151,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 			// Write out the cache file, check that the cache write was successful; all the data must be written
 			// If it fails due to low diskspace, or other, remove the cache file
-			if ($this->writeFile($file, $cache_data) !== strlen($cache_data))
-			{
-				@unlink($file);
-				return false;
-			}
-
-			else
-				return true;
+			return $this->writeFile($file, $cache_data) !== strlen($cache_data);
 		}
 	}
 
@@ -185,7 +168,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 		$files = new GlobIterator($this->cachedir . '/' . $type . '*.cache', FilesystemIterator::NEW_CURRENT_AND_KEY);
 
 		foreach ($files as $file => $info)
-			@unlink($this->cachedir . '/' . $file);
+			unlink($this->cachedir . '/' . $file);
 
 		// Make this invalid.
 		$this->invalidateCache();
