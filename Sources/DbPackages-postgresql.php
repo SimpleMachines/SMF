@@ -151,12 +151,15 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	if (!$db_trans)
 		$smcFunc['db_transaction']('begin');
 	$table_query = 'CREATE TABLE ' . $table_name . "\n" . '(';
+	$alter_sequence = '';
 	foreach ($columns as $column)
 	{
 		// If we have an auto increment do it!
 		if (!empty($column['auto']))
 		{
 			if (!$old_table_exists)
+			{
+			
 				$smcFunc['db_query']('', '
 					DROP SEQUENCE IF EXISTS ' . $table_name . '_seq',
 					array(
@@ -164,13 +167,15 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 					)
 				);
 
-			if (!$old_table_exists)
 				$smcFunc['db_query']('', '
 					CREATE SEQUENCE ' . $table_name . '_seq',
 					array(
 						'security_override' => true,
 					)
 				);
+
+				$alter_sequence .= 'ALTER SEQUENCE ' .  $table_name . '_seq OWNED BY ' . $table_name . '.' . $column['name'] . ';';
+			}
 			$default = 'default nextval(\'' . $table_name . '_seq\')';
 		}
 		elseif (isset($column['default']) && $column['default'] !== null)
@@ -217,6 +222,14 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 			'security_override' => true,
 		)
 	);
+
+	// Alter sequence set owned by table
+	if(!empty($alter_sequence))
+		$smcFunc['db_query']('', $alter_sequence,
+			array(
+				'security_override' => true,
+			)
+		);
 
 	// Fill the old data
 	if ($old_table_exists)
@@ -581,6 +594,12 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 			$smcFunc['db_query']('', '
 				ALTER TABLE ' . $table_name . '
 				ALTER COLUMN ' . $column_info['name'] . ' SET DEFAULT nextval(\'' . $table_name . '_seq\')',
+				array(
+					'security_override' => true,
+				)
+			);
+			$smcFunc['db_query']('', '
+				ALTER SEQUENCE ' .  $table_name . '_seq OWNED BY ' . $table_name . '.' . $column_info['name'],
 				array(
 					'security_override' => true,
 				)
