@@ -3689,6 +3689,7 @@ while ($row = $smcFunc['db_fetch_assoc']($request))
 			join pg_namespace n on (c.relnamespace=n.oid)
 			where has_schema_privilege(n.oid,'USAGE')
 				and n.nspname not like 'pg!_%' escape '!'
+				and n.nspname = 'public'
 				and has_table_privilege(c.oid,'SELECT')
 				and (not a.attisdropped)
 				and c.relname like '{db_prefix}%'
