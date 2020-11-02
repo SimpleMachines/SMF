@@ -782,39 +782,39 @@ function initialize_inputs()
 	// This is really quite simple; if ?delete is on the URL, delete the upgrader...
 	if (isset($_GET['delete']))
 	{
-		@unlink(__FILE__);
+		deleteFile(__FILE__);
 
 		// And the extra little files ;).
-		@unlink(dirname(__FILE__) . '/upgrade_1-0.sql');
-		@unlink(dirname(__FILE__) . '/upgrade_1-1.sql');
-		@unlink(dirname(__FILE__) . '/upgrade_2-0_' . $db_type . '.sql');
-		@unlink(dirname(__FILE__) . '/upgrade_2-1_' . $db_type . '.sql');
-		@unlink(dirname(__FILE__) . '/upgrade-helper.php');
+		deleteFile(dirname(__FILE__) . '/upgrade_1-0.sql');
+		deleteFile(dirname(__FILE__) . '/upgrade_1-1.sql');
+		deleteFile(dirname(__FILE__) . '/upgrade_2-0_' . $db_type . '.sql');
+		deleteFile(dirname(__FILE__) . '/upgrade_2-1_' . $db_type . '.sql');
+		deleteFile(dirname(__FILE__) . '/upgrade-helper.php');
 
 		$dh = opendir(dirname(__FILE__));
 		while ($file = readdir($dh))
 		{
 			if (preg_match('~upgrade_\d-\d_([A-Za-z])+\.sql~i', $file, $matches) && isset($matches[1]))
-				@unlink(dirname(__FILE__) . '/' . $file);
+				deleteFile(dirname(__FILE__) . '/' . $file);
 		}
 		closedir($dh);
 
 		// Legacy files while we're at it. NOTE: We only touch files we KNOW shouldn't be there.
 		// 1.1 Sources files not in 2.0+
-		@unlink(dirname(__FILE__) . '/Sources/ModSettings.php');
+		deleteFile(dirname(__FILE__) . '/Sources/ModSettings.php');
 		// 1.1 Templates that don't exist any more (e.g. renamed)
-		@unlink(dirname(__FILE__) . '/Themes/default/Combat.template.php');
-		@unlink(dirname(__FILE__) . '/Themes/default/Modlog.template.php');
+		deleteFile(dirname(__FILE__) . '/Themes/default/Combat.template.php');
+		deleteFile(dirname(__FILE__) . '/Themes/default/Modlog.template.php');
 		// 1.1 JS files were stored in the main theme folder, but in 2.0+ are in the scripts/ folder
-		@unlink(dirname(__FILE__) . '/Themes/default/fader.js');
-		@unlink(dirname(__FILE__) . '/Themes/default/script.js');
-		@unlink(dirname(__FILE__) . '/Themes/default/spellcheck.js');
-		@unlink(dirname(__FILE__) . '/Themes/default/xml_board.js');
-		@unlink(dirname(__FILE__) . '/Themes/default/xml_topic.js');
+		deleteFile(dirname(__FILE__) . '/Themes/default/fader.js');
+		deleteFile(dirname(__FILE__) . '/Themes/default/script.js');
+		deleteFile(dirname(__FILE__) . '/Themes/default/spellcheck.js');
+		deleteFile(dirname(__FILE__) . '/Themes/default/xml_board.js');
+		deleteFile(dirname(__FILE__) . '/Themes/default/xml_topic.js');
 
 		// 2.0 Sources files not in 2.1+
-		@unlink(dirname(__FILE__) . '/Sources/DumpDatabase.php');
-		@unlink(dirname(__FILE__) . '/Sources/LockTopic.php');
+		deleteFile(dirname(__FILE__) . '/Sources/DumpDatabase.php');
+		deleteFile(dirname(__FILE__) . '/Sources/LockTopic.php');
 
 		header('location: http://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
 		exit;

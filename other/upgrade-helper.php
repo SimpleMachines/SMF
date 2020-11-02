@@ -319,6 +319,23 @@ function quickFileWritable($file)
 }
 
 /**
+ * Delete a file.  Check permissions first, just in case.
+ *
+ * @param string $file
+ */
+function deleteFile($file)
+{
+	if (!file_exists($file))
+		return;
+
+	quickFileWritable($file);
+
+	@unlink($file);
+
+	return;
+}
+
+/**
  * UTF-8 aware strtolower function.
  *
  * @param $string
