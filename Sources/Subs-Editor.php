@@ -1584,6 +1584,9 @@ function create_control_richedit($editorOptions)
 		}
 	}
 
+	// The [#] item code for creating list items causes issues with SCEditor, but [+] is a safe equivalent.
+	$editorOptions['value'] = str_replace('[#]', '[+]', $editorOptions['value']);
+
 	// Start off the editor...
 	$context['controls']['richedit'][$editorOptions['id']] = array(
 		'id' => $editorOptions['id'],
