@@ -421,73 +421,116 @@ sceditor.formats.bbcode.set(
 			li: null
 		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		format: '[li]{0}[/li]',
-		html: '<li>{0}</li>',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		html: '<li data-bbc-tag="li">{0}</li>',
+		format: function (element, content) {
+			var	element = $(element),
+				token = 'li',
+				allowedTokens = ['li', '*', '@', '+', 'x', 'o', 'O', '0'];
+
+			if (element.attr('data-bbc-tag') && allowedTokens.indexOf(element.attr('data-bbc-tag') > -1))
+				token = element.attr('data-bbc-tag');
+
+			return '[' + token + ']' + content + (token === 'li' ? '[/' + token + ']' : '');
+		},
 	}
 );
 sceditor.formats.bbcode.set(
 	'*', {
+		tags: {
+			li: {
+				'data-bbc-tag': ['*']
+			}
+		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li>{0}</li>',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		excludeClosing: true,
+		html: '<li type="disc" data-bbc-tag="*">{0}</li>',
 		format: '[*]{0}',
 	}
 );
 sceditor.formats.bbcode.set(
 	'@', {
+		tags: {
+			li: {
+				'data-bbc-tag': ['@']
+			}
+		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li>{0}</li>',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		excludeClosing: true,
+		html: '<li type="disc" data-bbc-tag="@">{0}</li>',
 		format: '[@]{0}',
 	}
 );
 sceditor.formats.bbcode.set(
 	'+', {
+		tags: {
+			li: {
+				'data-bbc-tag': ['+']
+			}
+		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li type="square">{0}</li>',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		excludeClosing: true,
+		html: '<li type="square" data-bbc-tag="+">{0}</li>',
 		format: '[+]{0}',
 	}
 );
 sceditor.formats.bbcode.set(
 	'x', {
+		tags: {
+			li: {
+				'data-bbc-tag': ['x']
+			}
+		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li type="square">{0}</li>',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		excludeClosing: true,
+		html: '<li type="square" data-bbc-tag="x">{0}</li>',
 		format: '[x]{0}',
 	}
 );
 sceditor.formats.bbcode.set(
-	'#', {
-		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li type="square">{0}</li>',
-		format: '[#]{0}',
-	}
-);
-sceditor.formats.bbcode.set(
 	'o', {
+		tags: {
+			li: {
+				'data-bbc-tag': ['o']
+			}
+		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li type="circle">{0}</li>',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		excludeClosing: true,
+		html: '<li type="circle" data-bbc-tag="o">{0}</li>',
 		format: '[o]{0}',
 	}
 );
 sceditor.formats.bbcode.set(
 	'O', {
+		tags: {
+			li: {
+				'data-bbc-tag': ['O']
+			}
+		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li type="circle">{0}</li>',
-		format: '[O]{0}',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		excludeClosing: true,
+		html: '<li type="circle" data-bbc-tag="O">{0}</li>',
+		format: '[o]{0}',
 	}
 );
 sceditor.formats.bbcode.set(
 	'0', {
+		tags: {
+			li: {
+				'data-bbc-tag': ['0']
+			}
+		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li type="circle">{0}</li>',
-		format: '[0]{0}',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		excludeClosing: true,
+		html: '<li type="circle" data-bbc-tag="0">{0}</li>',
+		format: '[o]{0}',
 	}
 );
 
