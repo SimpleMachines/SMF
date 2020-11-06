@@ -253,7 +253,7 @@ function template_attachment_errors()
 		<div class="windowbg">
 			<div class="padding">
 				<div class="noticebox">',
-	$context['error_message'], '
+					$context['error_message'], '
 				</div>';
 
 	if (!empty($context['back_link']))
