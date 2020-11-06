@@ -8,7 +8,7 @@ function smf_fileUpload(oOptions) {
 		previewNode.parentNode.removeChild(previewNode);
 
 	if (typeof current_board == 'undefined')
-		var current_board = false;
+		current_board = false;
 
 	// Default values in case oOptions isn't defined.
 	var dOptions = {
