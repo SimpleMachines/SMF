@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; Help
+// Version: 2.1 RC3; Help
 
 global $helptxt, $scripturl;
 
@@ -260,7 +260,6 @@ $helptxt['cache_enable'] = 'SMF performs caching at a variety of levels. The hig
 $helptxt['cache_memcached'] = 'If you are using memcached you need to provide the server details. This should be entered as a comma separated list as shown in the example below:<br><br>	&quot;server1,server2,server3:port,server4&quot;<br><br>Note that if no port is specified SMF will use port 11211 unless the host contains a slash, then it is assumed to be an alternative transport and the port will be set to 0. SMF will attempt to perform rough/random load balancing across the specified servers.';
 $helptxt['cache_cachedir'] = 'This setting is only for the smf file-based cache system. It specifies the path to the cache directory. It is recommended that you place this in /tmp/ if you are going to use this, although it will work in any directory';
 $helptxt['cache_sqlite_cachedir'] = 'This setting is only for the SQLite database cache system. It specifies the path to the cache directory. It is recommended that you place this in /tmp/ if you are going to use this, although it will work in any directory';
-$helptxt['xcache_adminuser'] = 'This setting is only for the xcache based cache system. It specifies a username and password required to issue a clear command. If this is not set, clearing the cache will fail and the caching system will still force it to invalidate all cached data.<br>The username and password are in cleartext. The password is a unsalted MD5. It is recommended the username and password are set to random values.<br><br>The Cache API will attempt to set these values, however it is <a href="https://xcache.lighttpd.net/wiki/InstallAdministration">recommended these be set in your php.ini</a>';
 $helptxt['enableErrorLogging'] = 'This will log any errors, like a failed login, so you can see what went wrong.';
 $helptxt['enableErrorQueryLogging'] = 'This will include the full query sent to the database in the error log. It requires error logging to be turned on.<br><br><strong>Note:  This will affect the ability to filter the error log by the error message.</strong>';
 $helptxt['disallow_sendBody'] = 'This setting removes the option to receive the text of replies, posts, and personal messages in notification emails.<br><br>Often, members will reply to the notification email, which in most cases means the webmaster receives the reply.';
@@ -649,5 +648,7 @@ $helptxt['languages_rtl'] = 'Check this box if this language reads from right to
 $helptxt['languages_dictionary'] = 'This defines the main language dictionary that will be used by the <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> spellchecker (if installed).';
 $helptxt['languages_spelling'] = 'This defines the language variant that will be used by the <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> spellchecker. For many languages this is not applicable.';
 $helptxt['languages_recaptcha'] = 'The language code to use for the reCAPTCHA verification widget.<br><br>See Google\'s reCAPTCHA documentation for its <a href="https://developers.google.com/recaptcha/docs/language" target="_blank" class="bbc_link">list of supported languages</a>.';
+$helptxt['requireAgreement'] = 'This setting must be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" class="bbc_link">GDPR</a>.';
+$helptxt['requirePolicyAgreement'] = 'This setting must be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" class="bbc_link">GDPR</a>.';
 
 ?>

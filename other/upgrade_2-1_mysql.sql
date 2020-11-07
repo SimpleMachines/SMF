@@ -263,6 +263,32 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_min_diskspace
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_rate', '250');
 ---#
 
+---# Adding settings for marking boards as read
+---{
+	if (!isset($modSettings['mark_read_beyond']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('mark_read_beyond', '90'),
+			array()
+		);
+	if (!isset($modSettings['mark_read_delete_beyond']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('mark_read_delete_beyond', '365'),
+			array()
+		);
+	if (!isset($modSettings['mark_read_max_users']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('mark_read_max_users', '500'),
+			array()
+		);
+---}
+---#
+
 /******************************************************************************/
 --- Updating legacy attachments...
 /******************************************************************************/
@@ -643,6 +669,10 @@ INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
 	(0, 240, 1, 'd', 0, 'remove_old_drafts', '');
+INSERT INTO {$db_prefix}scheduled_tasks
+	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
+VALUES
+	(0, 0, 1, 'w', 1, 'prune_log_topics', '');
 ---#
 
 ---# Adding a new task-related setting...
@@ -682,6 +712,7 @@ VALUES
 		'remove_temp_attachments',
 		'remove_topic_redirect',
 		'remove_old_drafts',
+		'prune_log_topics',
 		'weekly_digest',
 		'weekly_maintenance');
 
@@ -853,7 +884,8 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'unapproved_post', 1),
 	(0, 'buddy_request', 1),
 	(0, 'warn_any', 1),
-	(0, 'request_group', 1);
+	(0, 'request_group', 1),
+	(0, 'msg_notify_pref', 1);
 ---#
 
 ---# Upgrading post notification settings
@@ -2552,6 +2584,11 @@ ALTER TABLE {$db_prefix}members
 MODIFY COLUMN pm_ignore_list TEXT NULL;
 ---#
 
+---# Updating password_salt
+ALTER TABLE {$db_prefix}members
+MODIFY COLUMN password_salt VARCHAR(255) NOT NULL DEFAULT '';
+---#
+
 ---# Updating member_logins id_member
 ALTER TABLE {$db_prefix}member_logins
 MODIFY COLUMN id_member MEDIUMINT NOT NULL DEFAULT '0';
@@ -2669,11 +2706,11 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}smiley_files
 $dirs = explode(',', $modSettings['smiley_sets_known']);
 $setnames = explode("\n", $modSettings['smiley_sets_names']);
 
-// Build combined pairs of folders and names; bypass default which is not used anymore
+// Build combined pairs of folders and names
 $combined = array();
 foreach ($dirs AS $ix => $dir)
 {
-	if (!empty($setnames[$ix]) && $dir != 'default')
+	if (!empty($setnames[$ix]))
 		$combined[$dir] = array($setnames[$ix], '');
 }
 
@@ -2682,6 +2719,7 @@ $combined['fugue'] = array($txt['default_fugue_smileyset_name'], 'png');
 $combined['alienine'] = array($txt['default_alienine_smileyset_name'], 'png');
 
 // Add/fix our 2.0 sets (to correct past problems where these got corrupted)
+$combined['default'] = array($txt['default_legacy_smileyset_name'], 'gif');
 $combined['aaron'] = array($txt['default_aaron_smileyset_name'], 'gif');
 $combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], 'gif');
 
@@ -3163,4 +3201,86 @@ ALTER TABLE {$db_prefix}members DROP INDEX idx_email_address;
 
 ---# add email_address unique index
 ALTER TABLE {$db_prefix}members ADD UNIQUE INDEX idx_email_address (email_address);
+---#
+
+/******************************************************************************/
+--- Update policy & agreement settings
+/******************************************************************************/
+---# Strip -utf8 from policy settings
+---{
+$utf8_policy_settings = array();
+foreach($modSettings AS $k => $v)
+{
+	if ((substr($k, 0, 7) === 'policy_') && (substr($k, -5) === '-utf8'))
+		$utf8_policy_settings[$k] = $v;
+}
+$adds = array();
+$deletes = array();
+foreach($utf8_policy_settings AS $var => $val)
+{
+	// Note this works on the policy_updated_ strings as well...
+	$language = substr($var, 7, strlen($var) - 12);
+	if (!array_key_exists('policy_' . $language, $modSettings))
+	{
+		$adds[] =  '(\'policy_' . $language . '\', \'' . $smcFunc['db_escape_string']($val) . '\')';
+		$deletes[] = '\'' . $var . '\'';
+	}
+}
+if (!empty($adds))
+{
+	upgrade_query("
+		INSERT INTO {$db_prefix}settings (variable, value)
+			VALUES " . implode(', ', $adds)
+	);
+}
+if (!empty($deletes))
+{
+	upgrade_query("
+		DELETE FROM {$db_prefix}settings
+			WHERE variable IN (" . implode(', ', $deletes) . ")
+	");
+}
+
+---}
+---#
+
+---# Strip -utf8 from agreement file names
+---{
+$files = glob($boarddir . '/agreement.*-utf8.txt');
+foreach($files AS $filename)
+{
+	$newfile = substr($filename, 0, strlen($filename) - 9) . '.txt';
+	// Do not overwrite existing files
+	if (!file_exists($newfile))
+		@rename($filename, $newfile);
+}
+
+---}
+---#
+
+---# Fix missing values in log_actions
+---{
+// Find the missing id_members
+$request = upgrade_query("
+	SELECT id_action, extra
+		FROM {$db_prefix}log_actions
+		WHERE id_member = 0
+		AND action IN ('policy_accepted', 'agreement_accepted')");
+
+// Fortunately they're in the extra field
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+	$extra = @unserialize($row['extra']);
+	if ($extra === false)
+		continue;
+	if (!empty($extra['applicator']))
+	{
+		upgrade_query("
+			UPDATE {$db_prefix}log_actions
+				SET id_member = " . $extra['applicator'] . "
+				WHERE id_action = " . $row['id_action']);
+	}
+}
+
+---}
 ---#

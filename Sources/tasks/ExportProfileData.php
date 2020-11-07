@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -373,9 +373,6 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 						{
 							rename($tempfile, $realfile);
 							$realfile = $export_dir_slash . ++$filenum . '_' . $idhash_ext;
-
-							file_put_contents($tempfile, implode('', array($context['feed']['header'], $profile_basic_items, $context['feed']['footer'])), LOCK_EX);
-
 							$prev_item_count = $new_item_count = 0;
 						}
 						// This was the last chunk.

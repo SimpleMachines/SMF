@@ -432,6 +432,32 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_min_diskspace
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_rate', '250');
 ---#
 
+---# Adding settings for marking boards as read
+---{
+	if (!isset($modSettings['mark_read_beyond']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('mark_read_beyond', '90'),
+			array()
+		);
+	if (!isset($modSettings['mark_read_delete_beyond']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('mark_read_delete_beyond', '365'),
+			array()
+		);
+	if (!isset($modSettings['mark_read_max_users']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('mark_read_max_users', '500'),
+			array()
+		);
+---}
+---#
+
 /******************************************************************************/
 --- Updating legacy attachments...
 /******************************************************************************/
@@ -834,6 +860,10 @@ INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
 	(0, 240, 1, 'd', 0, 'remove_old_drafts', '') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}scheduled_tasks
+	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
+VALUES
+	(0, 0, 1, 'w', 1, 'prune_log_topics', '') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Adding a new task-related setting...
@@ -873,6 +903,7 @@ VALUES
 		'remove_temp_attachments',
 		'remove_topic_redirect',
 		'remove_old_drafts',
+		'prune_log_topics',
 		'weekly_digest',
 		'weekly_maintenance');
 
@@ -1060,6 +1091,7 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'buddy_request', 1) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'warn_any', 1) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'request_group', 1) ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_notify_pref', 1) ON CONFLICT DO NOTHING;
 ---#
 
 ---# Upgrading post notification settings
@@ -1395,48 +1427,74 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 // We cannot do this twice
 // See which columns we have
 $results = $smcFunc['db_list_columns']('{db_prefix}members');
-$possible_columns = array('icq', 'msn', 'yim', 'location', 'gender');
+$possible_columns = array('icq', 'msn', 'location', 'gender');
 
 // Find values that are in both arrays
 $select_columns = array_intersect($possible_columns, $results);
 
 if (!empty($select_columns))
 {
-	$request = $smcFunc['db_query']('', '
-		SELECT id_member, '. implode(',', $select_columns) .'
-		FROM {db_prefix}members');
+	$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
+	$step_progress['name'] = 'Converting member values';
+	$step_progress['current'] = $_GET['a'];
 
-	$inserts = array();
-	$genderTypes = array(1 => 'Male', 2 => 'Female');
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
+	list($maxMembers) = $smcFunc['db_fetch_row']($request);
+
+	$limit = 10000;
+	$is_done = false;
+
+	while (!$is_done)
 	{
-		if (!empty($row['icq']))
-			$inserts[] = array($row['id_member'], 1, 'cust_icq', $row['icq']);
+		nextSubStep($substep);
+		$inserts = array();
 
-		if (!empty($row['msn']))
-			$inserts[] = array($row['id_member'], 1, 'cust_skype', $row['msn']);
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member, '. implode(',', $select_columns) .'
+			FROM {db_prefix}members
+			ORDER BY id_member
+			LIMIT {int:start}, {int:limit}',
+			array(
+				'start' => $_GET['a'],
+				'limit' => $limit,
+		));
 
-		if (!empty($row['yim']))
-			$inserts[] = array($row['id_member'], 1, 'cust_yahoo', $row['yim']);
+		$genderTypes = array(1 => 'Male', 2 => 'Female');
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (!empty($row['icq']))
+				$inserts[] = array($row['id_member'], 1, 'cust_icq', $row['icq']);
 
-		if (!empty($row['location']))
-			$inserts[] = array($row['id_member'], 1, 'cust_loca', $row['location']);
+			if (!empty($row['msn']))
+				$inserts[] = array($row['id_member'], 1, 'cust_skype', $row['msn']);
 
-		if (!empty($row['gender']) && isset($genderTypes[intval($row['gender'])]))
-			$inserts[] = array($row['id_member'], 1, 'cust_gender', $genderTypes[intval($row['gender'])]);
+			if (!empty($row['location']))
+				$inserts[] = array($row['id_member'], 1, 'cust_loca', $row['location']);
+
+			if (!empty($row['gender']) && isset($genderTypes[INTval($row['gender'])]))
+				$inserts[] = array($row['id_member'], 1, 'cust_gender', $genderTypes[INTval($row['gender'])]);
+		}
+		$smcFunc['db_free_result']($request);
+
+		if (!empty($inserts))
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}themes',
+				array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
+				$inserts,
+				array('id_theme', 'id_member', 'variable')
+			);
+
+		$_GET['a'] += $limit;
+		$step_progress['current'] = $_GET['a'];
+
+		if ($step_progress['current'] >= $maxMembers)
+			$is_done = true;
 	}
-	$smcFunc['db_free_result']($request);
-
-	if (!empty($inserts))
-		$smcFunc['db_insert']('replace',
-			'{db_prefix}themes',
-			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
-			$inserts,
-			array('id_theme', 'id_member', 'variable')
-		);
 }
+unset($_GET['a']);
 ---}
 ---#
+
 ---# Dropping old fields
 ALTER TABLE {$db_prefix}members
 	DROP IF EXISTS icq,
@@ -2818,11 +2876,11 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}smiley_files
 $dirs = explode(',', $modSettings['smiley_sets_known']);
 $setnames = explode("\n", $modSettings['smiley_sets_names']);
 
-// Build combined pairs of folders and names; bypass default which is not used anymore
+// Build combined pairs of folders and names
 $combined = array();
 foreach ($dirs AS $ix => $dir)
 {
-	if (!empty($setnames[$ix]) && $dir != 'default')
+	if (!empty($setnames[$ix]))
 		$combined[$dir] = array($setnames[$ix], '');
 }
 
@@ -2831,6 +2889,7 @@ $combined['fugue'] = array($txt['default_fugue_smileyset_name'], 'png');
 $combined['alienine'] = array($txt['default_alienine_smileyset_name'], 'png');
 
 // Add/fix our 2.0 sets (to correct past problems where these got corrupted)
+$combined['default'] = array($txt['default_legacy_smileyset_name'], 'gif');
 $combined['aaron'] = array($txt['default_aaron_smileyset_name'], 'gif');
 $combined['akyhne'] = array($txt['default_akyhne_smileyset_name'], 'gif');
 
@@ -3048,6 +3107,9 @@ ALTER secret_question SET DEFAULT '';
 
 ALTER TABLE {$db_prefix}members
 ALTER additional_groups SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}members
+ALTER COLUMN password_salt TYPE varchar(255);
 ---#
 
 ---# messages
@@ -3541,4 +3603,86 @@ DROP INDEX IF EXISTS {$db_prefix}members_email_address_uni;
 
 ---# add email_address unique index
 CREATE UNIQUE INDEX {$db_prefix}members_email_address_uni on {$db_prefix}members (LOWER(email_address));
+---#
+
+/******************************************************************************/
+--- Update policy & agreement settings
+/******************************************************************************/
+---# Strip -utf8 from policy settings
+---{
+$utf8_policy_settings = array();
+foreach($modSettings AS $k => $v)
+{
+	if ((substr($k, 0, 7) === 'policy_') && (substr($k, -5) === '-utf8'))
+		$utf8_policy_settings[$k] = $v;
+}
+$adds = array();
+$deletes = array();
+foreach($utf8_policy_settings AS $var => $val)
+{
+	// Note this works on the policy_updated_ strings as well...
+	$language = substr($var, 7, strlen($var) - 12);
+	if (!array_key_exists('policy_' . $language, $modSettings))
+	{
+		$adds[] =  '(\'policy_' . $language . '\', \'' . $smcFunc['db_escape_string']($val) . '\')';
+		$deletes[] = '\'' . $var . '\'';
+	}
+}
+if (!empty($adds))
+{
+	upgrade_query("
+		INSERT INTO {$db_prefix}settings (variable, value)
+			VALUES " . implode(', ', $adds)
+	);
+}
+if (!empty($deletes))
+{
+	upgrade_query("
+		DELETE FROM {$db_prefix}settings
+			WHERE variable IN (" . implode(', ', $deletes) . ")
+	");
+}
+
+---}
+---#
+
+---# Strip -utf8 from agreement file names
+---{
+$files = glob($boarddir . '/agreement.*-utf8.txt');
+foreach($files AS $filename)
+{
+	$newfile = substr($filename, 0, strlen($filename) - 9) . '.txt';
+	// Do not overwrite existing files
+	if (!file_exists($newfile))
+		@rename($filename, $newfile);
+}
+
+---}
+---#
+
+---# Fix missing values in log_actions
+---{
+// Find the missing id_members
+$request = upgrade_query("
+	SELECT id_action, extra
+		FROM {$db_prefix}log_actions
+		WHERE id_member = 0
+		AND action IN ('policy_accepted', 'agreement_accepted')");
+
+// Fortunately they're in the extra field
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+	$extra = @unserialize($row['extra']);
+	if ($extra === false)
+		continue;
+	if (!empty($extra['applicator']))
+	{
+		upgrade_query("
+			UPDATE {$db_prefix}log_actions
+				SET id_member = " . $extra['applicator'] . "
+				WHERE id_action = " . $row['id_action']);
+	}
+}
+
+---}
 ---#

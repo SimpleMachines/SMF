@@ -6,7 +6,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 (function ($) {
@@ -332,7 +332,7 @@ sceditor.command.set(
 			var editor = this;
 
 			editor.commands.youtube._dropDown(editor, caller, function (id, time) {
-				editor.wysiwygEditorInsertHtml('<div class="videocontainer"><div><iframe frameborder="0" allowfullscreen src="https://www.youtube.com/embed/' + id + '?wmode=opaque&start=' + time + '" data-youtube-id="' + id + '"></iframe></div></div>');
+				editor.wysiwygEditorInsertHtml('<div class="videocontainer"><div><iframe frameborder="0" allowfullscreen src="https://www.youtube.com/embed/' + id + '?wmode=opaque&start=' + time + '" data-youtube-id="' + id + '" loading="lazy"></iframe></div></div>');
 			});
 		}
 	}
@@ -942,6 +942,6 @@ sceditor.formats.bbcode.set(
 			else
 				return content;
 		},
-		html: '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/{0}?wmode=opaque" data-youtube-id="{0}" allowfullscreen></iframe></div></div>'
+		html: '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/{0}?wmode=opaque" data-youtube-id="{0}" loading="lazy" allowfullscreen></iframe></div></div>'
 	}
 );

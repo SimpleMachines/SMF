@@ -7,7 +7,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -455,7 +455,8 @@ function template_extract_package()
 
 	elseif ($context['uninstalling'])
 		echo '
-			', $txt['package_uninstall_done'];
+			', $txt['package_uninstall_done'] .' <br>
+			', '<a href="', $context['remove_url'], '" class="button">', $txt['package_keep'], '</a>', '<a href="', $context['remove_url'], '" class="button">', $txt['package_delete2'], '</a>';
 
 	elseif ($context['install_finished'])
 	{

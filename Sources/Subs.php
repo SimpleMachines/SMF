@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -734,16 +734,14 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	$unsupportedFormatsWindows = array('z', 'Z');
 
 	// Ensure required values are set
-	$user_info['time_offset'] = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
-	$modSettings['time_offset'] = !empty($modSettings['time_offset']) ? $modSettings['time_offset'] : 0;
 	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %H:%M');
 
 	// Offset the time.
 	if (!$offset_type)
-		$log_time = $log_time + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
+		$log_time = forum_time(true, $log_time);
 	// Just the forum offset?
 	elseif ($offset_type == 'forum')
-		$log_time = $log_time + $modSettings['time_offset'] * 3600;
+		$log_time = forum_time(false, $log_time);
 
 	// We can't have a negative date (on Windows, at least.)
 	if ($log_time < 0)
@@ -1126,18 +1124,46 @@ function shorten_subject($subject, $len)
  *
  * @param bool $use_user_offset Whether to apply the user's offset as well
  * @param int $timestamp A timestamp (null to use current time)
+ * @param bool $local_to_server sometimes you need to go the other way - from user prompt to server time
  * @return int Seconds since the unix epoch, with forum time offset and (optionally) user time offset applied
  */
-function forum_time($use_user_offset = true, $timestamp = null)
+function forum_time($use_user_offset = true, $timestamp = null, $local_to_server = false)
 {
-	global $user_info, $modSettings;
+	global $user_info, $modSettings, $user_settings;
+
+	// Ensure required values are set
+	$modSettings['time_offset'] = !empty($modSettings['time_offset']) ? $modSettings['time_offset'] : 0;
 
 	if ($timestamp === null)
 		$timestamp = time();
 	elseif ($timestamp == 0)
 		return 0;
 
-	return $timestamp + ($modSettings['time_offset'] + ($use_user_offset ? $user_info['time_offset'] : 0)) * 3600;
+	$user_offset = 0;
+
+	if ($use_user_offset)
+	{
+		// Fall back on current user offset setting if you must
+		$user_offset = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
+
+		// But finding the user offset for the time in question is better
+		if (!empty($user_settings['timezone']))
+		{
+			$dtz_user = new DateTimeZone($user_settings['timezone']);
+			if ($dtz_user !== false)
+			{
+				$dt_user = new DateTime('@' . $timestamp);
+				$temp_offset = $dtz_user->getOffset($dt_user);
+				if ($temp_offset !== false)
+					$user_offset = $temp_offset/3600;
+			}
+		}
+	}
+
+	if ($local_to_server)
+		return $timestamp - ($modSettings['time_offset'] + $user_offset) * 3600;
+	else
+		return $timestamp + ($modSettings['time_offset'] + $user_offset) * 3600;
 }
 
 /**
@@ -2113,7 +2139,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'youtube',
 				'type' => 'unparsed_content',
-				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?origin=' . $hosturl . '&wmode=opaque" data-youtube-id="$1" allowfullscreen></iframe></div></div>',
+				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?origin=' . $hosturl . '&wmode=opaque" data-youtube-id="$1" allowfullscreen loading="lazy"></iframe></div></div>',
 				'disabled_content' => '<a href="https://www.youtube.com/watch?v=$1" target="_blank" rel="noopener">https://www.youtube.com/watch?v=$1</a>',
 				'block_level' => true,
 			),
@@ -7239,65 +7265,96 @@ function sentence_list($list)
  */
 function truncate_array($array, $max_length = 1900, $deep = 3)
 {
-    $array = (array) $array;
+	$array = (array) $array;
 
-    $curr_length = array_length($array, $deep);
+	$curr_length = array_length($array, $deep);
 
-    if ($curr_length <= $max_length)
-        return $array;
+	if ($curr_length <= $max_length)
+		return $array;
 
-    else
-    {
-        // Truncate each element's value to a reasonable length
-        $param_max = floor($max_length / count($array));
+	else
+	{
+		// Truncate each element's value to a reasonable length
+		$param_max = floor($max_length / count($array));
 
-        $current_deep = $deep - 1;
+		$current_deep = $deep - 1;
 
-        foreach ($array as $key => &$value)
-        {
-            if (is_array($value))
-                if ($current_deep > 0)
-                    $value = truncate_array($value, $current_deep);
+		foreach ($array as $key => &$value)
+		{
+			if (is_array($value))
+				if ($current_deep > 0)
+					$value = truncate_array($value, $current_deep);
 
-            else
-                $value = substr($value, 0, $param_max - strlen($key) - 5);
-        }
+			else
+				$value = substr($value, 0, $param_max - strlen($key) - 5);
+		}
 
-        return $array;
-    }
+		return $array;
+	}
 }
 
 /**
  * array_length Recursive
- * @param $array
+ * @param array $array
  * @param int $deep How many levels should the function
  * @return int
  */
 function array_length($array, $deep = 3)
 {
-    // Work with arrays
-    $array = (array) $array;
-    $length = 0;
+	// Work with arrays
+	$array = (array) $array;
+	$length = 0;
 
-    $deep_count = $deep - 1;
+	$deep_count = $deep - 1;
 
-    foreach ($array as $value)
-    {
-        // Recursive?
-        if (is_array($value))
-        {
-            // No can't do
-            if ($deep_count <= 0)
-                continue;
+	foreach ($array as $value)
+	{
+		// Recursive?
+		if (is_array($value))
+		{
+			// No can't do
+			if ($deep_count <= 0)
+				continue;
 
-            $length += array_length($value, $deep_count);
-        }
+			$length += array_length($value, $deep_count);
+		}
+		else
+			$length += strlen($value);
+	}
 
-        else
-            $length += strlen($value);
-    }
+	return $length;
+}
 
-    return $length;
+/**
+ * Compares existance request variables against an array.
+ *
+ * The input array is associative, where keys denote accepted values
+ * in a request variable denoted by `$req_val`. Values can be:
+ *
+ * - another associative array where at least one key must be found
+ *   in the request and their values are accepted request values.
+ * - A scalar value, in which case no furthur checks are done.
+ *
+ * @param array $array
+ * @param string $req_var request variable
+ *
+ * @return bool whether any of the criteria was satisfied
+ */
+function is_filtered_request(array $array, $req_var)
+{
+	$matched = false;
+	if (isset($_REQUEST[$req_var], $array[$_REQUEST[$req_var]]))
+	{
+		if (is_array($array[$_REQUEST[$req_var]]))
+		{
+			foreach ($array[$_REQUEST[$req_var]] as $subtype => $subnames)
+				$matched |= isset($_REQUEST[$subtype]) && in_array($_REQUEST[$subtype], $subnames);
+		}
+		else
+			$matched = true;
+	}
+
+	return (bool) $matched;
 }
 
 /**

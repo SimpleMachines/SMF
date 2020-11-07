@@ -7,7 +7,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -171,30 +171,6 @@ function template_manual()
 					<p>', sprintf($txt['manual_docs_and_credits'], $context['wiki_url'], $scripturl . '?action=credits'), '</p>
 				</div><!-- #helpmain -->
 			</div><!-- #help_container -->';
-}
-
-/**
- * The rules page
- */
-function template_terms()
-{
-	global $txt, $context, $modSettings;
-
-	if (!empty($modSettings['requireAgreement']))
-		echo '
-			<div class="cat_bar">
-				<h3 class="catbg">
-					', $txt['terms_and_rules'], ' - ', $context['forum_name_html_safe'], '
-				</h3>
-			</div>
-			<div class="roundframe">
-				', $context['agreement'], '
-			</div>';
-	else
-		echo '
-			<div class="noticebox">
-				', $txt['agreement_disabled'], '
-			</div>';
 }
 
 ?>

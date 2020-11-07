@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -128,10 +128,9 @@ class Attachments
 	{
 		global $smcFunc, $sourcedir;
 
-		require_once($sourcedir . '/Subs-Attachments.php');
+		isAllowedTo('post_attachment');
 
-		// Guest aren't welcome, sorry.
-		is_not_guest();
+		require_once($sourcedir . '/Subs-Attachments.php');
 
 		// Need this. For reasons...
 		loadLanguage('Post');

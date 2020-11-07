@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -273,7 +273,7 @@ function cleanRequest()
 	if ($modSettings['proxy_ip_header'] == 'disabled')
 		$reverseIPheaders = array();
 	elseif ($modSettings['proxy_ip_header'] == 'autodetect')
-		$reverseIPheaders = array('HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP');
+		$reverseIPheaders = array('HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_CF_CONNECTING_IP');
 	else
 		$reverseIPheaders = array($modSettings['proxy_ip_header']);
 

@@ -92,7 +92,7 @@ textarea {
 }
 
 /* Use a consistent monospace font everywhere */
-.monospace, .bbc_code, .phpcode, pre, #error_log span.error_message, #backtrace span.error_message {
+.monospace, .bbc_code, .phpcode, pre {
 	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
 }
 
@@ -1072,7 +1072,6 @@ img.sort, .sort {
 
 /* Box-shadow only on this one. */
 #wrapper {
-	width: 90%;
 	clear: both;
 	background: #fff;
 	border: 1px solid #b8b8b8;
@@ -1084,12 +1083,12 @@ img.sort, .sort {
 #top_section .inner_wrap, #wrapper, #header, #footer .inner_wrap {
 	max-width: 1200px;
 	margin: 0 auto;
+	width: 90%;
 }
 
 /* The framing graphics */
 /* The top bar. */
 #top_section {
-	padding: 0 5%;
 	border-bottom: 1px solid #bbb;
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
 	background: #fff;
@@ -1124,7 +1123,6 @@ img.sort, .sort {
 /* The logo and slogan. */
 #header {
 	padding: 2px 2px 12px 2px;
-	width: 90%;
 	display: flex;
 	align-items: flex-end;
 }
@@ -1279,7 +1277,7 @@ ul li.greeting {
 /* The footer with copyright links etc. */
 #footer {
 	margin: 4em 0 0 0;
-	padding: 10px 5%;
+	padding: 10px 0;
 	background: #3e5a78;
 	border-top: 3px solid #b2b6bd;
 	flex: none;

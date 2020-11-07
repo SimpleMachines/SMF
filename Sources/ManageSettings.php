@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -48,12 +48,13 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = nu
  */
 function ModifyFeatureSettings()
 {
-	global $context, $txt, $settings, $scripturl;
+	global $context, $txt, $settings, $scripturl, $modSettings, $language;
 
 	loadLanguage('Help');
 	loadLanguage('ManageSettings');
 
 	$context['page_title'] = $txt['modSettings_title'];
+	$context['show_privacy_policy_warning'] = empty($modSettings['policy_' . $language]);
 
 	$subActions = array(
 		'basic' => 'ModifyBasicSettings',
@@ -1765,7 +1766,7 @@ function EditCustomProfiles()
 	// We need this for both moving and saving so put it right here.
 	$order_count = custFieldsMaxOrder();
 
-	if ($context['fid'])
+	if ($context['fid'] && !isset($_GET['move']))
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
@@ -1847,34 +1848,54 @@ function EditCustomProfiles()
 		);
 
 	// Are we moving it?
-	if (isset($_GET['move']) && in_array($smcFunc['htmlspecialchars']($_GET['move']), $move_to))
+	if ($context['fid'] && isset($_GET['move']) && in_array($smcFunc['htmlspecialchars']($_GET['move']), $move_to))
 	{
-		// Down is the new up.
-		$new_order = ($_GET['move'] == 'up' ? ($context['field']['order'] - 1) : ($context['field']['order'] + 1));
+		$request = $smcFunc['db_query']('', '
+			SELECT
+				id_field, field_order
+			FROM {db_prefix}custom_fields
+			ORDER BY field_order',
+				array()
+		);
+		$fields = array();
+		$new_sort = array();
 
-		// Is this a valid position?
-		if ($new_order <= 0 || $new_order > $order_count)
+		while($row = $smcFunc['db_fetch_assoc']($request))
+				$fields[] = $row['id_field'];
+		$smcFunc['db_free_result']($request);
+
+		$idx = array_search($context['fid'], $fields);
+
+		if ($_GET['move'] == 'down' && count($fields) - 1 > $idx )
+		{
+				$new_sort = array_slice($fields ,0 ,$idx ,true);
+				$new_sort[] = $fields[$idx + 1];
+				$new_sort[] = $fields[$idx];
+				$new_sort += array_slice($fields ,$idx + 2 ,count($fields) ,true);
+		}
+		elseif ($context['fid'] > 0 and $idx < count($fields))
+		{
+				$new_sort = array_slice($fields ,0 ,($idx - 1) ,true);
+				$new_sort[] = $fields[$idx];
+				$new_sort[] = $fields[$idx - 1];
+				$new_sort += array_slice($fields ,($idx + 1) ,count($fields) ,true);
+		}
+		else
 			redirectexit('action=admin;area=featuresettings;sa=profile'); // @todo implement an error handler
 
-		// All good, proceed.
+		$sql_update = 'CASE ';
+		foreach ($new_sort as $orderKey => $PKid)
+		{
+			$sql_update .= 'WHEN id_field = ' . $PKid . ' THEN ' . ($orderKey + 1) . ' ';
+		}
+		$sql_update .= 'END';
+
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}custom_fields
-			SET field_order = {int:old_order}
-			WHERE field_order = {int:new_order}',
-			array(
-				'new_order' => $new_order,
-				'old_order' => $context['field']['order'],
-			)
+			SET field_order = ' . $sql_update,
+				array()
 		);
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}custom_fields
-			SET field_order = {int:new_order}
-			WHERE id_field = {int:id_field}',
-			array(
-				'new_order' => $new_order,
-				'id_field' => $context['fid'],
-			)
-		);
+
 		redirectexit('action=admin;area=featuresettings;sa=profile'); // @todo perhaps a nice confirmation message, dunno.
 	}
 
@@ -2245,6 +2266,12 @@ function ModifyLogSettings($return_config = false)
 		array('desc', 'error_log_desc'),
 		array('check', 'enableErrorLogging'),
 		array('check', 'enableErrorQueryLogging'),
+		// The 'mark read' log settings.
+		array('title', 'markread_title'),
+		array('desc', 'mark_read_desc'),
+		array('int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
+		array('int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
+		array('int', 'mark_read_max_users', 'step' => 1, 'min' => 0, 'max' => 20000, 'subtext' => $txt['zero_to_disable']),
 		// Even do the pruning?
 		array('title', 'pruning_title'),
 		array('desc', 'pruning_desc'),
@@ -2300,6 +2327,9 @@ function ModifyLogSettings($return_config = false)
 			array('check', 'userlog_enabled'),
 			array('check', 'enableErrorLogging'),
 			array('check', 'enableErrorQueryLogging'),
+			array('int', 'mark_read_beyond'),
+			array('int', 'mark_read_delete_beyond'),
+			array('int', 'mark_read_max_users'),
 			array('text', 'pruningOptions')
 		);
 

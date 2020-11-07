@@ -8,7 +8,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 // Don't do anything if SMF is already loaded.
@@ -16,7 +16,7 @@ if (defined('SMF'))
 	return true;
 
 define('SMF', 'SSI');
-define('SMF_VERSION', '2.1 RC2');
+define('SMF_VERSION', '2.1 RC3');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2020');
 define('JQUERY_VERSION', '3.5.1');
@@ -24,6 +24,9 @@ define('POSTGRE_TITLE', 'PostgreSQL');
 define('MYSQL_TITLE', 'MySQL');
 define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
 
+// Just being safe...  Do this before defining globals as otherwise it unsets the global.
+foreach (array('db_character_set', 'cachedir') as $variable)
+	unset($GLOBALS[$variable]);
 
 // We're going to want a few globals... these are all set later.
 global $maintenance, $msubject, $mmessage, $mbname, $language;
@@ -35,10 +38,6 @@ global $auth_secret;
 
 if (!defined('TIME_START'))
 	define('TIME_START', microtime(true));
-
-// Just being safe...
-foreach (array('db_character_set', 'cachedir') as $variable)
-	unset($GLOBALS[$variable]);
 
 // Get the forum's settings for database and file paths.
 require_once(dirname(__FILE__) . '/Settings.php');

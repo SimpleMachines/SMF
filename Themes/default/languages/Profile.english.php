@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; Profile
+// Version: 2.1 RC3; Profile
 
 global $scripturl, $context;
 
@@ -465,9 +465,9 @@ $txt['profile_warning_notify_body'] = 'Notification Message';
 $txt['profile_warning_notify_template_subject'] = 'You have received a warning';
 // Use numeric entities in below string.
 // argument(s): one of the reasons defined in $txt['profile_warning_notify_for_*']
-$txt['profile_warning_notify_template_outline'] = "{MEMBER},\n\nYou have received a warning for %1\$s. Please cease these activities and abide by the forum rules otherwise we will take further action.\n\n{REGARDS}";
+$txt['profile_warning_notify_template_outline'] = "{MEMBER},\n\nYou have received a warning for %1\$s. Please cease these activities and abide by the forum rules otherwise we will take further action.\n\nIf you wish to discuss this, please get in touch with an administrator.\n\n{REGARDS}";
 // argument(s): one of the reasons defined in $txt['profile_warning_notify_for_*']
-$txt['profile_warning_notify_template_outline_post'] = "{MEMBER},\n\nYou have received a warning for %1\$s in regards to the message:\n{MESSAGE}.\n\nPlease cease these activities and abide by the forum rules otherwise we will take further action.\n\n{REGARDS}";
+$txt['profile_warning_notify_template_outline_post'] = "{MEMBER},\n\nYou have received a warning for %1\$s in regards to the message:\n{MESSAGE}.\n\nPlease cease these activities and abide by the forum rules otherwise we will take further action.\n\nIf you wish to discuss this, please get in touch with an administrator.\n\n{REGARDS}";
 $txt['profile_warning_notify_for_spamming'] = 'spamming';
 $txt['profile_warning_notify_title_spamming'] = 'Spamming';
 $txt['profile_warning_notify_for_offence'] = 'posting offensive material';
@@ -533,6 +533,10 @@ $txt['trackEdit_action_member_name'] = 'Username';
 $txt['trackEdit_action_email_address'] = 'Email address';
 $txt['trackEdit_action_id_group'] = 'Primary Membergroup';
 $txt['trackEdit_action_additional_groups'] = 'Additional Membergroups';
+
+// Registration Agreement
+$txt['trackEdit_action_agreement_accepted'] = 'Accepted the registration agreement';
+$txt['trackEdit_action_policy_accepted'] = 'Accepted the privacy policy';
 
 $txt['trackGroupRequests'] = 'Group Requests';
 $txt['trackGroupRequests_title'] = 'Group Requests for %1$s';

@@ -8,7 +8,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -1744,14 +1744,17 @@ function statPanel($memID)
 		SELECT
 			HOUR(FROM_UNIXTIME(poster_time + {int:time_offset})) AS hour,
 			COUNT(*) AS post_count
-		FROM {db_prefix}messages
-		WHERE id_member = {int:current_member}' . ($modSettings['totalMessages'] > 100000 ? '
-			AND id_topic > {int:top_ten_thousand_topics}' : '') . '
+		FROM (
+			SELECT poster_time, id_msg 
+			FROM {db_prefix}messages WHERE id_member = {int:current_member}
+			ORDER BY id_msg DESC
+			LIMIT {int:max_messages}
+		) a
 		GROUP BY hour',
 		array(
 			'current_member' => $memID,
-			'top_ten_thousand_topics' => $modSettings['totalTopics'] - 10000,
 			'time_offset' => (($user_info['time_offset'] + $modSettings['time_offset']) * 3600),
+			'max_messages' => 1001,
 		)
 	);
 	$maxPosts = $realPosts = 0;

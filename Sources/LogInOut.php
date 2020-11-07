@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -300,6 +300,7 @@ function Login2()
 			$other_passwords[] = md5($_POST['passwrd'] . strtolower($user_settings['member_name']));
 			$other_passwords[] = md5(md5($_POST['passwrd']));
 			$other_passwords[] = $_POST['passwrd'];
+			$other_passwords[] = crypt($_POST['passwrd'], $user_settings['passwd']);
 
 			// This one is a strange one... MyPHP, crypt() on the MD5 hash.
 			$other_passwords[] = crypt(md5($_POST['passwrd']), md5($_POST['passwrd']));
@@ -313,6 +314,16 @@ function Login2()
 
 			// APBoard 2 Login Method.
 			$other_passwords[] = md5(crypt($_POST['passwrd'], 'CRYPT_MD5'));
+		}
+		// If the salt is set let's try some other options
+		elseif (!empty($modSettings['enable_password_conversion']) && $user_settings['password_salt'] != '')
+		{
+			// PHPBB 3 check this function exists in PHP 5.5 or higher
+			if (function_exists('password_verify'))
+				$other_passwords[] = password_verify($_POST['passwrd'],$user_settings['password_salt']);
+
+			// PHP-Fusion
+			$other_passwords[] = hash_hmac('sha256', $_POST['passwrd'], $user_settings['password_salt']);
 		}
 		// The hash should be 40 if it's SHA-1, so we're safe with more here too.
 		elseif (!empty($modSettings['enable_password_conversion']) && strlen($user_settings['passwd']) == 32)
@@ -336,6 +347,9 @@ function Login2()
 			// BurningBoard3 style of hashing.
 			if (!empty($modSettings['enable_password_conversion']))
 				$other_passwords[] = sha1($user_settings['password_salt'] . sha1($user_settings['password_salt'] . sha1($_POST['passwrd'])));
+
+			// PunBB
+			$other_passwords[] = sha1($user_settings['password_salt'] . sha1($_POST['passwrd']));
 
 			// Perhaps we converted to UTF-8 and have a valid password being hashed differently.
 			if ($context['character_set'] == 'UTF-8' && !empty($modSettings['previousCharacterSet']) && $modSettings['previousCharacterSet'] != 'utf8')

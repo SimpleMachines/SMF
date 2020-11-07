@@ -8,7 +8,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  *
  * This file contains helper functions for upgrade.php
  */
@@ -310,6 +310,7 @@ function quickFileWritable($file)
 		// If it's writable, break out of the loop
 		if (is_writable($file))
 			break;
+
 		else
 			@chmod($file, $val);
 	}
@@ -428,25 +429,56 @@ function smf_mysql_real_escape_string($string)
  * @param $index to use as index if specified
  * @return array of values of specified $col from $array
  */
-if (!function_exists('array_column')) {
-	function array_column($input, $column_key, $index_key = null) {
-		$arr = array_map(function($d) use ($column_key, $index_key) {
-			if (!isset($d[$column_key])) {
+if (!function_exists('array_column'))
+{
+	function array_column($input, $column_key, $index_key = null)
+	{
+		$arr = array_map(function($d) use ($column_key, $index_key)
+		{
+			if (!isset($d[$column_key]))
+			{
 				return null;
 			}
-			if ($index_key !== null) {
+			if ($index_key !== null)
+			{
 				return array($d[$index_key] => $d[$column_key]);
 			}
 			return $d[$column_key];
 		}, $input);
 
-		if ($index_key !== null) {
+		if ($index_key !== null)
+		{
 			$tmp = array();
-			foreach ($arr as $ar) {
+			foreach ($arr as $ar)
+			{
 				$tmp[key($ar)] = current($ar);
 			}
 			$arr = $tmp;
 		}
 		return $arr;
 	}
+}
+
+/**
+ * Creates the json_encoded array for the current cache option.
+ *
+ * @return string a json_encoded array with the selected API options
+ */
+function upgradeCacheSettings()
+{
+	$cache_options = array(
+		'smf' => 'FileBase',
+		'apc' => 'FileBase',
+		'apcu' => 'Apcu',
+		'memcache' => 'MemcacheImplementation',
+		'memcached' => 'MemcachedImplementation',
+		'postgres' => 'Postgres',
+		'sqlite' => 'Sqlite',
+		'xcache' => 'FileBase',
+		'zend' => 'Zend',
+	);
+
+	$current_cache = !empty($GLOBALS['cache_accelerator']) ? $GLOBALS['cache_accelerator'] : 'smf';
+
+	return $cache_options[$current_cache];
 }

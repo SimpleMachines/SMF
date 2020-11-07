@@ -9,7 +9,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -265,10 +265,6 @@ function createList($listOptions)
 	// Add an option for inline JavaScript.
 	if (isset($listOptions['javascript']))
 		$list_context['javascript'] = $listOptions['javascript'];
-
-	// We want a menu.
-	if (isset($listOptions['list_menu']))
-		$list_context['list_menu'] = $listOptions['list_menu'];
 
 	// Make sure the template is loaded.
 	loadTemplate('GenericList');

@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 ########## Maintenance ##########
@@ -151,7 +151,7 @@ $db_mb4 = null;
 ########## Cache Info ##########
 /**
  * Select a cache system. You want to leave this up to the cache area of the admin panel for
- * proper detection of apc, memcached, output_cache, smf, or xcache
+ * proper detection of memcached, output_cache or SMF file_system
  * (you can add more with a mod).
  *
  * @var string
@@ -169,6 +169,7 @@ $cache_enable = 0;
  * @var array
  */
 $cache_memcached = '';
+
 /**
  * This is only for the 'smf' file cache system. It is the path to the cache directory.
  * It is also recommended that you place this in /tmp/ if you are going to use this.

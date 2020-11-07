@@ -7,7 +7,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -963,21 +963,30 @@ function template_quickreply()
 
 	// Guests just need more.
 	if ($context['user']['is_guest'])
+	{
 		echo '
 						<dl id="post_header">
 							<dt>
 								', $txt['name'], ':
 							</dt>
 							<dd>
-								<input type="text" name="guestname" size="25" value="', $context['name'], '" tabindex="', $context['tabindex']++, '">
-							</dd>
+								<input type="text" name="guestname" size="25" value="', $context['name'], '" tabindex="', $context['tabindex']++, '" required>
+							</dd>';
+
+		if (empty($modSettings['guest_post_no_email']))
+		{
+			echo '
 							<dt>
 								', $txt['email'], ':
 							</dt>
 							<dd>
 								<input type="email" name="email" size="25" value="', $context['email'], '" tabindex="', $context['tabindex']++, '" required>
-							</dd>
+							</dd>';
+		}
+
+		echo '
 						</dl>';
+	}
 
 	echo '
 						', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message'), '

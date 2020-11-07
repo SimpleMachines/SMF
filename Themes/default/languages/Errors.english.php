@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; Errors
+// Version: 2.1 RC3; Errors
 
 global $scripturl, $modSettings;
 
@@ -427,6 +427,13 @@ $txt['email_no_template'] = 'The email template &quot;%1$s&quot; could not be fo
 $txt['search_api_missing'] = 'The search API could not be found. Please contact the admin to check they have uploaded the correct files.';
 $txt['search_api_not_compatible'] = 'The selected search API the forum is using is out of date - falling back to standard search. Please check file %1$s.';
 
+// Registration Agreement
+$txt['error_no_agreement'] = 'There is no registration agreement to display!';
+$txt['error_no_privacy_policy'] = 'A privacy policy has not been created for this forum.';
+
+// Unsubscribe
+$txt['unsubscribe_invalid'] = 'The unsubscribe link that brought you here does not appear to be valid.';
+
 // Handling hook calls
 $txt['hook_fail_loading_file'] = 'Hook call: The file at path: %s could not be loaded.';
 $txt['hook_fail_call_to'] = 'Hook call: function "%1$s" in file %2$s could not be called.';
@@ -456,8 +463,5 @@ $txt['json_JSON_ERROR_RECURSION'] = 'JSON decode error: One or more recursive re
 $txt['json_JSON_ERROR_INF_OR_NAN'] = 'JSON decode error: One or more NAN or INF values in the value to be encoded';
 $txt['json_JSON_ERROR_UNSUPPORTED_TYPE'] = 'JSON decode error: A value of a type that cannot be encoded was given';
 $txt['json_unknown'] = 'Unknown error';
-
-// Unsubscribe
-$txt['unsubscribe_invalid'] = 'The unsubscribe link that brought you here does not appear to be valid.';
 
 ?>

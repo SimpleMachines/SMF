@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -30,7 +30,6 @@ function ShowHelp()
 
 	$subActions = array(
 		'index' => 'HelpIndex',
-		'rules' => 'HelpRules',
 	);
 
 	// CRUD $subActions as needed.
@@ -76,44 +75,6 @@ function HelpIndex()
 	// Lastly, some minor template stuff.
 	$context['page_title'] = $txt['manual_smf_user_help'];
 	$context['sub_template'] = 'manual';
-}
-
-/**
- * Displays forum rules
- */
-function HelpRules()
-{
-	global $context, $txt, $boarddir, $user_info, $scripturl;
-
-	// Build the link tree.
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=help',
-		'name' => $txt['help'],
-	);
-	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=help;sa=rules',
-		'name' => $txt['terms_and_rules'],
-	);
-
-	// Have we got a localized one?
-	if (file_exists($boarddir . '/agreement.' . $user_info['language'] . '.txt'))
-		$context['agreement'] = parse_bbc(file_get_contents($boarddir . '/agreement.' . $user_info['language'] . '.txt'), true, 'agreement_' . $user_info['language']);
-	elseif (file_exists($boarddir . '/agreement.txt'))
-		$context['agreement'] = parse_bbc(file_get_contents($boarddir . '/agreement.txt'), true, 'agreement');
-	else
-		$context['agreement'] = '';
-
-	// Nothing to show, so let's get out of here
-	if (empty($context['agreement']))
-	{
-		// No file found or a blank file! Just leave...
-		redirectexit();
-	}
-
-	$context['canonical_url'] = $scripturl . '?action=help;sa=rules';
-
-	$context['page_title'] = $txt['terms_and_rules'];
-	$context['sub_template'] = 'terms';
 }
 
 /**

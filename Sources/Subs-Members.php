@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -506,7 +506,12 @@ function registerMember(&$regOptions, $return_errors = false)
 
 		// Password isn't legal?
 		if ($passwordError != null)
-			$reg_errors[] = array('lang', 'profile_error_password_' . $passwordError);
+		{
+			$errorCode = array('lang', 'profile_error_password_' . $passwordError, false);
+			if ($passwordError == 'short')
+				$errorCode[] = array(empty($modSettings['password_strength']) ? 4 : 8);
+			$reg_errors[] = $errorCode;
+		}
 	}
 
 	// You may not be allowed to register this email.
@@ -734,6 +739,11 @@ function registerMember(&$regOptions, $return_errors = false)
 			array('id_member', 'variable')
 		);
 	}
+
+	// Log their acceptance of the agreement and privacy policy, for future reference.
+	foreach (array('agreement_accepted', 'policy_accepted') as $key)
+		if (!empty($theme_vars[$key]))
+			logAction($key, array('member_affected' => $memberID, 'applicator' => $memberID), 'user');
 
 	// If it's enabled, increase the registrations for today.
 	trackStats(array('registers' => '+'));

@@ -8,14 +8,14 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 // Version information...
-define('SMF_VERSION', '2.1 RC2');
+define('SMF_VERSION', '2.1 RC3');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2020');
-define('SMF_LANG_VERSION', '2.1 RC2');
+define('SMF_LANG_VERSION', '2.1 RC3');
 define('SMF_INSTALLING', 1);
 
 define('JQUERY_VERSION', '3.5.1');
@@ -717,7 +717,18 @@ function loadEssentialData()
 
 		// Oh dear god!!
 		if ($db_connection === null)
-			die($txt['error_db_connect_settings']);
+		{
+			// Get error info...  Recast just in case we get false or 0...
+			$error_message = $smcFunc['db_connect_error']();
+			if (empty($error_message))
+				$error_message = '';
+			$error_number = $smcFunc['db_connect_errno']();
+			if (empty($error_number))
+				$error_number = '';
+			$db_error = (!empty($error_number) ? $error_number . ': ' : '') . $error_message;
+
+			die($txt['error_db_connect_settings'] . '<br><br>' . $db_error);
+		}
 
 		if ($db_type == 'mysql' && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
 			$smcFunc['db_query']('', '
@@ -1357,7 +1368,7 @@ function UpgradeOptions()
 	// Accelerator setting didn't exist previously; use 'smf' file based caching as default if caching had been enabled.
 	if (!isset($GLOBALS['cache_enable']))
 		$changes += array(
-			'cache_accelerator' => !empty($modSettings['cache_enable']) ? 'smf' : '',
+			'cache_accelerator' => upgradeCacheSettings(),
 			'cache_enable' => !empty($modSettings['cache_enable']) ? $modSettings['cache_enable'] : 0,
 			'cache_memcached' => !empty($modSettings['cache_memcached']) ? $modSettings['cache_memcached'] : '',
 		);
@@ -1380,6 +1391,7 @@ function UpgradeOptions()
 	{
 		if ($db_type == 'mysql' && $db_port == ini_get('mysqli.default_port'))
 			$changes['db_port'] = 0;
+
 		elseif ($db_type == 'postgresql' && $db_port == 5432)
 			$changes['db_port'] = 0;
 	}
@@ -4086,8 +4098,7 @@ function template_welcome_message()
 							<label for="passwrd"', $disable_security ? ' disabled' : '', '>', $txt['upgrade_password'], '</label>
 						</dt>
 						<dd>
-							<input type="password" name="passwrd" value=""', $disable_security ? ' disabled' : '', '>
-							<input type="hidden" name="hash_passwrd" value="">';
+							<input type="password" name="passwrd" value=""', $disable_security ? ' disabled' : '', '>';
 
 	if (!empty($upcontext['password_failed']))
 		echo '

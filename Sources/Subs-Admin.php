@@ -10,8 +10,10 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
+
+use SMF\Cache\CacheApiInterface;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -19,7 +21,7 @@ if (!defined('SMF'))
 /**
  * Get a list of versions that are currently installed on the server.
  *
- * @param array $checkFor An array of what to check versions for - can contain one or more of 'gd', 'imagemagick', 'db_server', 'phpa', 'memcache', 'xcache', 'apc', 'php' or 'server'
+ * @param array $checkFor An array of what to check versions for - can contain one or more of 'gd', 'imagemagick', 'db_server', 'phpa', 'memcache', 'php' or 'server'
  * @return array An array of versions (keys are same as what was in $checkFor, values are the versions)
  */
 function getServerVersions($checkFor)
@@ -27,6 +29,7 @@ function getServerVersions($checkFor)
 	global $txt, $db_connection, $sourcedir, $smcFunc, $modSettings;
 
 	loadLanguage('Admin');
+	loadLanguage('ManageSettings');
 
 	$versions = array();
 
@@ -80,12 +83,19 @@ function getServerVersions($checkFor)
 	// Check to see if we have any accelerators installed.
 	require_once($sourcedir . '/ManageServer.php');
 	$detected = loadCacheAPIs();
-	foreach ($detected as $api => $object)
-		if (in_array($api, $checkFor))
-			$versions[$api] = array(
-				'title' => isset($txt[$api . '_cache']) ? $txt[$api . '_cache'] : $api,
-				'version' => $detected[$api]->getVersion(),
+
+	/* @var CacheApiInterface $cache_api */
+	foreach ($detected as $class_name => $cache_api)
+	{
+		$class_name_txt_key = strtolower($cache_api->getImplementationClassKeyName());
+
+		if (in_array($class_name_txt_key, $checkFor))
+			$versions[$class_name_txt_key] = array(
+				'title' => isset($txt[$class_name_txt_key . '_cache']) ?
+					$txt[$class_name_txt_key . '_cache'] : $class_name,
+				'version' => $cache_api->getVersion(),
 			);
+	}
 
 	if (in_array('php', $checkFor))
 		$versions['php'] = array(
@@ -700,7 +710,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				'########## Cache Info ##########',
 				'/**',
 				' * Select a cache system. You want to leave this up to the cache area of the admin panel for',
-				' * proper detection of apc, memcached, output_cache, smf, or xcache',
+				' * proper detection of memcached, output_cache, or smf file system',
 				' * (you can add more with a mod).',
 				' *',
 				' * @var string',
@@ -1135,7 +1145,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 
 				$var_pattern = count($var_pattern) > 1 ? '(?:' . (implode('|', $var_pattern)) . ')' : $var_pattern[0];
 
-				$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($context['utf8']) ? 'u' : '');
+				$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($utf8) ? 'u' : '');
 			}
 
 			// Next create the placeholder or replace_pattern.
@@ -1198,7 +1208,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 
 		$placeholder = md5($prefix . $var);
 
-		$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($context['utf8']) ? 'u' : '');
+		$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($utf8) ? 'u' : '');
 		$substitutions[$var]['placeholder'] = $placeholder;
 		$substitutions[$var]['replacement'] = '$' . $var . ' = ' . smf_var_export($val, true) . ";";
 	}

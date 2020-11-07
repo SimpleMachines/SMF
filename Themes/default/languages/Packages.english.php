@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; Packages
+// Version: 2.1 RC3; Packages
 
 $txt['package_proceed'] = 'Proceed';
 $txt['php_script'] = 'Modification file was extracted, but this modification also comes with a PHP script which should be executed before it will work';
@@ -90,6 +90,8 @@ $txt['corrupt_compatible'] = 'The package you are trying to download or install 
 $txt['package_create'] = 'Create';
 $txt['package_move'] = 'Move';
 $txt['package_delete'] = 'Delete';
+$txt['package_delete2'] = 'Delete Package';
+$txt['package_keep'] = 'Keep Package';
 $txt['package_extract'] = 'Extract';
 $txt['package_file'] = 'File';
 $txt['package_tree'] = 'Tree';

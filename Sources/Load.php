@@ -10,8 +10,11 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -317,6 +320,15 @@ function reloadSettings()
 			display_loadavg_error();
 	}
 
+	// Ensure we know who can manage boards.
+	if (!isset($modSettings['board_manager_groups']))
+	{
+		require_once($sourcedir . '/Subs-Members.php');
+		$board_managers = groupsAllowedTo('manage_boards', null);
+		$board_managers = implode(',', $board_managers['allowed']);
+		updateSettings(array('board_manager_groups' => $board_managers), true);
+	}
+
 	// Is post moderation alive and well? Everywhere else assumes this has been defined, so let's make sure it is.
 	$modSettings['postmod_active'] = !empty($modSettings['postmod_active']);
 
@@ -426,6 +438,15 @@ function reloadSettings()
 	// Define a list of BBC tags that require permissions to use
 	$context['restricted_bbc'] = array(
 		'html',
+	);
+
+	// Login Cookie times. Format: time => txt
+	$context['login_cookie_times'] = array(
+		3153600 => 'always_logged_in',
+		60 => 'one_hour',
+		1440 => 'one_day',
+		10080 => 'one_week',
+		43200 => 'one_month',
 	);
 
 	// Call pre load integration functions.
@@ -770,15 +791,6 @@ function loadUserSettings()
 		$user_info['time_offset'] = 0;
 	}
 
-	// Login Cookie times. Format: time => txt
-	$context['login_cookie_times'] = array(
-		3153600 => 'always_logged_in',
-		60 => 'one_hour',
-		1440 => 'one_day',
-		10080 => 'one_week',
-		43200 => 'one_month',
-	);
-
 	// Set up the $user_info array.
 	$user_info += array(
 		'id' => $id_member,
@@ -1028,7 +1040,7 @@ function loadBoard()
 
 	if (empty($temp))
 	{
-		$custom_column_selects = [];
+		$custom_column_selects = array();
 		$custom_column_parameters = [
 			'current_topic' => $topic,
 			'board_link' => empty($topic) ? $smcFunc['db_quote']('{int:current_board}', array('current_board' => $board)) : 't.id_board',
@@ -1725,7 +1737,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		else
 		{
 			// So it's stored in the member table?
-			if (!empty($profile['avatar']))
+			if (!empty($profile['avatar']) && !stristr($profile['avatar'], 'gravatar://'))
 				$image = (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://')) ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'];
 
 			elseif (!empty($profile['filename']))
@@ -2062,6 +2074,35 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (!$initialize)
 		return;
 
+	// Perhaps we've changed the agreement or privacy policy? Only redirect if:
+	// 1. They're not a guest or admin
+	// 2. This isn't called from SSI
+	// 3. This isn't an XML request
+	// 4. They're not trying to do any of the following actions:
+	// 4a. View or accept the agreement and/or policy
+	// 4b. Login or logout
+	// 4c. Get a feed (RSS, ATOM, etc.)
+	$agreement_actions = array(
+		'agreement' => true,
+		'acceptagreement' => true,
+		'login2' => true,
+		'logintfa' => true,
+		'logout' => true,
+		'pm' => array('sa' => array('popup')),
+		'profile' => array('area' => array('popup', 'alerts_popup')),
+		'xmlhttp' => true,
+		'.xml' => true,
+	);
+	if (empty($user_info['is_guest']) && empty($user_info['is_admin']) && SMF != 'SSI' && !isset($_REQUEST['xml']) && !is_filtered_request($agreement_actions, 'action'))
+	{
+		require_once($sourcedir . '/Agreement.php');
+		$can_accept_agreement = !empty($modSettings['requireAgreement']) && canRequireAgreement();
+		$can_accept_privacy_policy = !empty($modSettings['requirePolicyAgreement']) && canRequirePrivacyPolicy();
+
+		if ($can_accept_agreement || $can_accept_privacy_policy)
+			redirectexit('action=agreement');
+	}
+
 	// Check to see if we're forcing SSL
 	if (!empty($modSettings['force_ssl']) && empty($maintenance) &&
 		!httpsOn() && SMF != 'SSI')
@@ -2387,7 +2428,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 			$_SESSION['id_variant'] = $_REQUEST['variant'];
 		// User selection?
 		if (empty($settings['disable_user_variant']) || allowedTo('admin_forum'))
-			$context['theme_variant'] = !empty($_SESSION['id_variant']) ? $_SESSION['id_variant'] : (!empty($options['theme_variant']) ? $options['theme_variant'] : '');
+			$context['theme_variant'] = !empty($_SESSION['id_variant']) && in_array($_SESSION['id_variant'], $settings['theme_variants']) ? $_SESSION['id_variant'] : (!empty($options['theme_variant']) && in_array($options['theme_variant'], $settings['theme_variants']) ? $options['theme_variant'] : '');
 		// If not a user variant, select the default.
 		if ($context['theme_variant'] == '' || !in_array($context['theme_variant'], $settings['theme_variants']))
 			$context['theme_variant'] = !empty($settings['default_variant']) && in_array($settings['default_variant'], $settings['theme_variants']) ? $settings['default_variant'] : $settings['theme_variants'][0];
@@ -2675,7 +2716,9 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	if (empty($context['css_files_order']))
 		$context['css_files_order'] = array();
 
-	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $context) ? $context['browser_cache'] : '') : (is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
+	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ?
+		(array_key_exists('browser_cache', $context) ? $context['browser_cache'] : '') :
+		(is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : true;
@@ -2688,7 +2731,8 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 		$params['minimize'] = false;
 
 	// Account for shorthand like admin.css?alp21 filenames
-	$id = empty($id) ? strtr(str_replace('.css', '', basename($fileName)), '?', '_') : $id;
+	$id = (empty($id) ? strtr(str_replace('.css', '', basename($fileName)), '?', '_') : $id) . '_css';
+
 	$fileName = str_replace(pathinfo($fileName, PATHINFO_EXTENSION), strtok(pathinfo($fileName, PATHINFO_EXTENSION), '?'), $fileName);
 
 	// Is this a local file?
@@ -2703,14 +2747,12 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 				$fileUrl = $settings['default_theme_url'] . '/css/' . $fileName;
 				$filePath = $settings['default_theme_dir'] . '/css/' . $fileName;
 			}
-
 			else
 			{
 				$fileUrl = false;
 				$filePath = false;
 			}
 		}
-
 		else
 		{
 			$fileUrl = $settings[$themeRef . '_url'] . '/css/' . $fileName;
@@ -2718,7 +2760,6 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 			$mtime = @filemtime($filePath);
 		}
 	}
-
 	// An external file doesn't have a filepath. Mock one for simplicity.
 	else
 	{
@@ -2729,7 +2770,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	$mtime = empty($mtime) ? 0 : $mtime;
 
 	// Add it to the array for use in the template
-	if (!empty($fileName))
+	if (!empty($fileName) && !empty($fileUrl))
 	{
 		// find a free number/position
 		while (isset($context['css_files_order'][$params['order_pos']]))
@@ -2790,7 +2831,9 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
-	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $context) ? $context['browser_cache'] : '') : (is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
+	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ?
+		(array_key_exists('browser_cache', $context) ? $context['browser_cache'] : '') :
+		(is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['async'] = isset($params['async']) ? $params['async'] : false;
@@ -2803,7 +2846,7 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 		$params['minimize'] = false;
 
 	// Account for shorthand like admin.js?alp21 filenames
-	$id = empty($id) ? strtr(str_replace('.js', '', basename($fileName)), '?', '_') : $id;
+	$id = (empty($id) ? strtr(str_replace('.js', '', basename($fileName)), '?', '_') : $id) . '_js';
 	$fileName = str_replace(pathinfo($fileName, PATHINFO_EXTENSION), strtok(pathinfo($fileName, PATHINFO_EXTENSION), '?'), $fileName);
 
 	// Is this a local file?
@@ -2818,14 +2861,12 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName;
 				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName;
 			}
-
 			else
 			{
 				$fileUrl = false;
 				$filePath = false;
 			}
 		}
-
 		else
 		{
 			$fileUrl = $settings[$themeRef . '_url'] . '/scripts/' . $fileName;
@@ -2833,7 +2874,6 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 			$mtime = @filemtime($filePath);
 		}
 	}
-
 	// An external file doesn't have a filepath. Mock one for simplicity.
 	else
 	{
@@ -2844,7 +2884,7 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 	$mtime = empty($mtime) ? 0 : $mtime;
 
 	// Add it to the array for use in the template
-	if (!empty($fileName))
+	if (!empty($fileName) && !empty($fileUrl))
 		$context['javascript_files'][$id] = array('fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params, 'mtime' => $mtime);
 
 	if ($mtime > $modSettings['browser_cache'])
@@ -3511,60 +3551,80 @@ function loadDatabase()
 /**
  * Try to load up a supported caching method. This is saved in $cacheAPI if we are not overriding it.
  *
- * @param string $overrideCache Try to use a different cache method other than that defined in $cache_accelerator.
+ * @param array $overrideCache Try to use a different cache method other than that defined in $cache_accelerator.
  * @param bool $fallbackSMF Use the default SMF method if the accelerator fails.
  * @return object|false A object of $cacheAPI, or False on failure.
  */
-function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
+function loadCacheAccelerator($overrideCache = array(), $fallbackSMF = true)
 {
 	global $sourcedir, $cacheAPI, $cache_accelerator, $cache_enable;
 
-	// is caching enabled?
+	$cacheAPIdir = $sourcedir . '/Cache';
+
+	// Is caching enabled?
 	if (empty($cache_enable) && empty($overrideCache))
 		return false;
 
 	// Not overriding this and we have a cacheAPI, send it back.
 	if (empty($overrideCache) && is_object($cacheAPI))
 		return $cacheAPI;
+
 	elseif (is_null($cacheAPI))
 		$cacheAPI = false;
 
-	// Make sure our class is in session.
-	require_once($sourcedir . '/Class-CacheAPI.php');
+	// Autoload hasn't been called yet :/
+	require_once($cacheAPIdir .'/CacheApi.php');
+	require_once($cacheAPIdir .'/CacheApiInterface.php');
+
+	$apis_dir = $cacheAPIdir .'/'. CacheApi::APIS_FOLDER;
 
 	// What accelerator we are going to try.
-	$tryAccelerator = !empty($overrideCache) ? $overrideCache : (!empty($cache_accelerator) ? $cache_accelerator : 'smf');
-	$tryAccelerator = strtolower($tryAccelerator);
+	$cache_class_name = !empty($cache_accelerator) ? $cache_accelerator : CacheApi::APIS_DEFAULT;
+
+	$file_to_load = $apis_dir . '/' . sprintf(CacheApi::APIS_BASENAME, $cache_class_name);
 
 	// Do some basic tests.
-	if (file_exists($sourcedir . '/CacheAPI-' . $tryAccelerator . '.php'))
+	if (file_exists($file_to_load))
 	{
-		require_once($sourcedir . '/CacheAPI-' . $tryAccelerator . '.php');
+		require_once($file_to_load);
 
-		$cache_class_name = $tryAccelerator . '_cache';
-		$testAPI = new $cache_class_name();
+		$fully_qualified_class_name = !empty($overrideCache) ? $overrideCache :
+			CacheApi::APIS_NAMESPACE . $cache_class_name;
+
+		/* @var CacheApiInterface $cache_api */
+		$cache_api = new $fully_qualified_class_name();
+
+		// There are rules you know...
+		if (!($cache_api instanceof CacheApiInterface) || !($cache_api instanceof CacheApi))
+			return false;
 
 		// No Support?  NEXT!
-		if (!$testAPI->isSupported())
+		if (!$cache_api->isSupported())
 		{
 			// Can we save ourselves?
-			if (!empty($fallbackSMF) && is_null($overrideCache) && $tryAccelerator != 'smf')
+			if (!empty($fallbackSMF) && is_null($overrideCache) &&
+				$cache_class_name !== CacheApi::APIS_DEFAULT)
 				return loadCacheAccelerator(null, false);
+
 			return false;
 		}
 
 		// Connect up to the accelerator.
-		$testAPI->connect();
+		$cache_api->connect();
 
 		// Don't set this if we are overriding the cache.
-		if (is_null($overrideCache))
+		if (empty($overrideCache))
 		{
-			$cacheAPI = $testAPI;
+			$cacheAPI = $cache_api;
+
 			return $cacheAPI;
 		}
+
 		else
-			return $testAPI;
+			return $cache_api;
 	}
+
+	return false;
 }
 
 /**
@@ -3618,9 +3678,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  * - It may "miss" so shouldn't be depended on
  * - Uses the cache engine chosen in the ACP and saved in settings.php
  * - It supports:
- *	 Xcache: https://xcache.lighttpd.net/wiki/XcacheApi
  *	 memcache: https://php.net/memcache
- *	 APC: https://php.net/apc
  *   APCu: https://php.net/book.apcu
  *	 Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
  *	 Zend: http://files.zend.com/help/Zend-Platform/zend_cache_functions.htm
@@ -3714,7 +3772,7 @@ function cache_get_data($key, $ttl = 120)
  *  - If no type is specified will perform a complete cache clearing
  * For cache engines that do not distinguish on types, a full cache flush will be done
  *
- * @param string $type The cache type ('memcached', 'apc', 'xcache', 'zend' or something else for SMF's file cache)
+ * @param string $type The cache type ('memcached', 'zend' or something else for SMF's file cache)
  */
 function clean_cache($type = '')
 {

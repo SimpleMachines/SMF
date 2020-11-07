@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -401,7 +401,7 @@ function trackStats($stats = array())
  *
  * @return int The ID of the row containing the logged data
  */
-function logAction($action, $extra = array(), $log_type = 'moderate')
+function logAction($action, array $extra = array(), $log_type = 'moderate')
 {
 	return logActions(array(array(
 		'action' => $action,
@@ -426,7 +426,7 @@ function logAction($action, $extra = array(), $log_type = 'moderate')
  *
  * @return int The last logged ID
  */
-function logActions($logs)
+function logActions(array $logs)
 {
 	global $modSettings, $user_info, $smcFunc, $sourcedir;
 
@@ -436,21 +436,14 @@ function logActions($logs)
 		'user' => 2,
 		'admin' => 3,
 	);
+	$always_log = array('agreement_accepted', 'policy_accepted', 'agreement_updated', 'policy_updated');
 
-	// Make sure this particular log is enabled first...
-	if (empty($modSettings['modlog_enabled']))
-		unset ($log_types['moderate']);
-	if (empty($modSettings['userlog_enabled']))
-		unset ($log_types['user']);
-	if (empty($modSettings['adminlog_enabled']))
-		unset ($log_types['admin']);
-
-	call_integration_hook('integrate_log_types', array(&$log_types));
+	call_integration_hook('integrate_log_types', array(&$log_types, &$always_log));
 
 	foreach ($logs as $log)
 	{
-		if (!isset($log_types[$log['log_type']]))
-			return false;
+		if (!isset($log_types[$log['log_type']]) && (empty($modSettings[$log['log_type'] . 'log_enabled']) || !in_array($log['action'], $always_log)))
+			continue;
 
 		if (!is_array($log['extra']))
 			trigger_error('logActions(): data is not an array with action \'' . $log['action'] . '\'', E_USER_NOTICE);

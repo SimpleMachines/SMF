@@ -17,12 +17,12 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 // Get everything started up...
 define('SMF', 1);
-define('SMF_VERSION', '2.1 RC2');
+define('SMF_VERSION', '2.1 RC3');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2020');
 
@@ -60,9 +60,11 @@ if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
 {
 	if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
 		$cachedir = $boarddir . '/cache';
+
 	else
 	{
 		$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
+
 		@mkdir($cachedir, 0750);
 	}
 }
@@ -87,6 +89,7 @@ loadDatabase();
 // Load the settings from the settings table, and perform operations like optimizing.
 $context = array();
 reloadSettings();
+
 // Clean the request variables, add slashes, etc.
 cleanRequest();
 
@@ -113,6 +116,7 @@ if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
 	// If zlib is being used, turn off output compression.
 	if (ini_get('zlib.output_compression') >= 1 || ini_get('output_handler') == 'ob_gzhandler')
 		$modSettings['enableCompressedOutput'] = '0';
+
 	else
 	{
 		ob_end_clean();
@@ -131,6 +135,7 @@ spl_autoload_register(function ($class) use ($sourcedir)
 		'ReCaptcha\\' => 'ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => 'minify/src/',
 		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+		'SMF\\Cache' => 'Cache/',
 	);
 
 	// Do any third-party scripts want in on the fun?
@@ -243,23 +248,7 @@ function smf_main()
 	);
 	call_integration_hook('integrate_pre_log_stats', array(&$no_stat_actions));
 
-	$should_log = true;
-	if (isset($_REQUEST['action']) && isset($no_stat_actions[$_REQUEST['action']]))
-	{
-		if (is_array($no_stat_actions[$_REQUEST['action']]))
-		{
-			foreach ($no_stat_actions[$_REQUEST['action']] as $subtype => $subnames)
-			{
-				if (isset($_REQUEST[$subtype]) && in_array($_REQUEST[$subtype], $subnames))
-				{
-					$should_log = false;
-					break;
-				}
-			}
-		}
-		else
-			$should_log = empty($no_stat_actions[$_REQUEST['action']]);
-	}
+	$should_log = !is_filtered_request($no_stat_actions, 'action');
 	if ($should_log)
 	{
 		// Log this user as online.
@@ -334,6 +323,8 @@ function smf_main()
 
 	// Here's the monstrous $_REQUEST['action'] array - $_REQUEST['action'] => array($file, $function).
 	$actionArray = array(
+		'agreement' => array('Agreement.php', 'Agreement'),
+		'acceptagreement' => array('Agreement.php', 'AcceptAgreement'),
 		'activate' => array('Register.php', 'Activate'),
 		'admin' => array('Admin.php', 'AdminMain'),
 		'announce' => array('Post.php', 'AnnounceTopic'),
