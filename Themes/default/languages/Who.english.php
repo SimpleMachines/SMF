@@ -164,7 +164,7 @@ $txt['who_index'] = 'Viewing the board index of <a href="%1$s">%2$s</a>.';
 // argument(s): member id, real name, $scripturl
 $txt['who_viewprofile'] = 'Viewing <a href="%3$s?action=profile;u=%1$d">%2$s</a>\'s profile.';
 // argument(s): member id, real name, $scripturl
-$txt['who_viewownprofile'] = 'Viewing <a href="%2$s?action=profile;u=%1$d">their own profile</a>.';
+$txt['who_viewownprofile'] = 'Viewing <a href="%3$s?action=profile;u=%1$d">their own profile</a>.';
 // argument(s): member id, real name, $scripturl
 $txt['who_profile'] = 'Editing the profile of <a href="%3$s?action=profile;u=%1$d">%2$s</a>.';
 // argument(s): board id, board name, $scripturl
