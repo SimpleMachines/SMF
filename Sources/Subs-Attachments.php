@@ -969,6 +969,9 @@ function parseAttachBBC($attachID = 0)
 	if (empty($attachInfo) || empty($attachInfo['msg']) && empty($context['preview_message']))
 		return 'attachments_no_msg_associated';
 
+	if (!empty($board) && empty($attachInfo['board']))
+		$attachInfo['board'] = $board;
+
 	// Hold it! got the info now check if you can see this attachment.
 	if ($view_attachment_boards !== array(0) && !in_array($attachInfo['board'], $view_attachment_boards))
 		return 'attachments_not_allowed_to_see';
@@ -1007,6 +1010,9 @@ function parseAttachBBC($attachID = 0)
 
 	else
 		$attachContext = $attachLoaded[$attachID];
+
+	if (!empty($board) && empty($attachContext['board']))
+		$attachContext['board'] = $board;
 
 	// No point in keep going further.
 	if ($view_attachment_boards !== array(0) && !in_array($attachContext['board'], $view_attachment_boards))
