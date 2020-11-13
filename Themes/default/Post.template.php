@@ -376,10 +376,15 @@ function template_main()
 							<div>
 								<strong>', $txt['attached'], ':</strong>
 							</div>
-							<div id="au-template">
+							<div id="au-template">';
+
+		if (allowedTo('view_attachments'))
+			echo '
 								<div class="attach-preview">
 									<img data-dz-thumbnail />
-								</div>
+								</div>';
+
+		echo '
 								<div class="attachment_info">
 									<div>
 										<span class="name" data-dz-name></span>
