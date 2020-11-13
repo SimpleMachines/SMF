@@ -1267,7 +1267,8 @@ function prepareDBSettingContext(&$config_vars)
 		$temp = parse_bbc(false);
 		$bbcTags = array();
 		foreach ($temp as $tag)
-			$bbcTags[] = $tag['tag'];
+			if (!isset($tag['require_parents']))
+				$bbcTags[] = $tag['tag'];
 
 		$bbcTags = array_unique($bbcTags);
 
