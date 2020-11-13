@@ -1956,7 +1956,7 @@ function notification($memID)
  */
 function alert_configuration($memID, $defaultSettings = false)
 {
-	global $txt, $context, $modSettings, $smcFunc, $sourcedir;
+	global $txt, $context, $modSettings, $smcFunc, $sourcedir, $user_profile;
 
 	if (!isset($context['token_check']))
 		$context['token_check'] = 'profile-nt' . $memID;
@@ -2085,47 +2085,56 @@ function alert_configuration($memID, $defaultSettings = false)
 	// Now we have to do some permissions testing - but only if we're not loading this from the admin center
 	if (!empty($memID))
 	{
-		require_once($sourcedir . '/Subs-Members.php');
-		$perms_cache = array();
-		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}group_moderators
-			WHERE id_member = {int:memID}',
-			array(
-				'memID' => $memID,
-			)
-		);
+		require_once($sourcedir . '/Subs-Membergroups.php');
+		$user_groups = explode(',', $user_profile[$memID]['additional_groups']);
+		$user_groups[] = $user_profile[$memID]['id_group'];
+		$user_groups[] = $user_profile[$memID]['id_post_group'];
+		$group_permissions = array('manage_membergroups');
+		$board_permissions = array();
 
-		list ($can_mod) = $smcFunc['db_fetch_row']($request);
+		foreach ($alert_types as $group => $items)
+			foreach ($items as $alert_key => $alert_value)
+				if (isset($alert_value['permission']))
+				{
+					if (empty($alert_value['permission']['is_board']))
+						$group_permissions[] = $alert_value['permission']['name'];
+					else
+						$board_permissions[] = $alert_value['permission']['name'];
+				}
+		$member_groups = getGroupsWithPermissions($group_permissions, $board_permissions);
 
-		if (!isset($perms_cache['manage_membergroups']))
+		if (empty($member_groups['manage_membergroups']['allowed']))
 		{
-			$members = membersAllowedTo('manage_membergroups');
-			$perms_cache['manage_membergroups'] = in_array($memID, $members);
-		}
+			$request = $smcFunc['db_query']('', '
+				SELECT COUNT(*)
+				FROM {db_prefix}group_moderators
+				WHERE id_member = {int:memID}',
+				array(
+					'memID' => $memID,
+				)
+			);
 
-		if (!($perms_cache['manage_membergroups'] || $can_mod != 0))
-			unset($alert_types['members']['request_group']);
+			list ($is_group_moderator) = $smcFunc['db_fetch_row']($request);
+
+			if (empty($is_group_moderator))
+				unset($alert_types['members']['request_group']);
+		}
 
 		foreach ($alert_types as $group => $items)
 		{
 			foreach ($items as $alert_key => $alert_value)
 			{
-				if (!isset($alert_value['permission']))
-					continue;
-				if (!isset($perms_cache[$alert_value['permission']['name']]))
+				if (isset($alert_value['permission']))
 				{
-					$in_board = !empty($alert_value['permission']['is_board']) ? 0 : null;
-					$members = membersAllowedTo($alert_value['permission']['name'], $in_board);
-					$perms_cache[$alert_value['permission']['name']] = in_array($memID, $members);
-				}
+					$allowed = count(array_intersect($user_groups, $member_groups[$alert_value['permission']['name']]['allowed'])) != 0;
 
-				if (!$perms_cache[$alert_value['permission']['name']])
-					unset ($alert_types[$group][$alert_key]);
+					if (!$allowed)
+						unset($alert_types[$group][$alert_key]);
+				}
 			}
 
 			if (empty($alert_types[$group]))
-				unset ($alert_types[$group]);
+				unset($alert_types[$group]);
 		}
 	}
 
