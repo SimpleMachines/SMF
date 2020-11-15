@@ -1515,3 +1515,5 @@ function get_sorted_tzids_for_country($country_code)
 
 	return $country_tzids;
 }
+
+?>
