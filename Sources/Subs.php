@@ -5942,14 +5942,10 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $smcFunc, $modSettings, $tztxt, $txt, $cur_profile;
-	static $timezones = null, $lastwhen = null;
+	global $modSettings, $txt, $txt, $cur_profile, $sourcedir;
+	static $timezones_when = array();
 
-	// No point doing this over if we already did it once
-	if (!empty($timezones) && $when == $lastwhen)
-		return $timezones;
-	else
-		$lastwhen = $when;
+	require_once($sourcedir . '/Subs-Timezones.php');
 
 	// Parseable datetime string?
 	if (is_int($timestamp = strtotime($when)))
@@ -5963,6 +5959,10 @@ function smf_list_timezones($when = 'now')
 	else
 		$when = time();
 
+	// No point doing this over if we already did it once
+	if (isset($timezones_when[$when]))
+		return $timezones_when[$when];
+
 	// We'll need these too
 	$date_when = date_create('@' . $when);
 	$later = strtotime('@' . $when . ' + 1 year');
@@ -5970,12 +5970,16 @@ function smf_list_timezones($when = 'now')
 	// Load up any custom time zone descriptions we might have
 	loadLanguage('Timezones');
 
+	$tzid_metazones = get_tzid_metazones();
+
 	// Should we put time zones from certain countries at the top of the list?
 	$priority_countries = !empty($modSettings['timezone_priority_countries']) ? explode(',', $modSettings['timezone_priority_countries']) : array();
+
 	$priority_tzids = array();
 	foreach ($priority_countries as $country)
 	{
-		$country_tzids = @timezone_identifiers_list(DateTimeZone::PER_COUNTRY, strtoupper(trim($country)));
+		$country_tzids = get_sorted_tzids_for_country($country);
+
 		if (!empty($country_tzids))
 			$priority_tzids = array_merge($priority_tzids, $country_tzids);
 	}
@@ -5983,10 +5987,15 @@ function smf_list_timezones($when = 'now')
 	// Antarctic research stations should be listed last, unless you're running a penguin forum
 	$low_priority_tzids = !in_array('AQ', $priority_countries) ? timezone_identifiers_list(DateTimeZone::ANTARCTICA) : array();
 
+	$normal_priority_tzids = array_diff(array_unique(array_merge(array_keys($tzid_metazones), timezone_identifiers_list())), $priority_tzids, $low_priority_tzids);
+
 	// Process the preferred timezones first, then the normal ones, then the low priority ones.
-	$tzids = array_merge(array_keys($tztxt), array_diff(timezone_identifiers_list(), array_keys($tztxt), $low_priority_tzids), $low_priority_tzids);
+	$tzids = array_merge($priority_tzids, array('UTC'), $normal_priority_tzids, $low_priority_tzids);
 
 	// Idea here is to get exactly one representative identifier for each and every unique set of time zone rules.
+	$dst_types = array();
+	$metazone_labels = array();
+	$offsets = array();
 	foreach ($tzids as $tzid)
 	{
 		// We don't want UTC right now
@@ -6001,14 +6010,27 @@ function smf_list_timezones($when = 'now')
 		// Use the entire set of transition rules as the array *key* so we can avoid duplicates
 		$tzkey = serialize($tzinfo);
 
-		// Next, get the geographic info for this tzid
-		$tzgeo = timezone_location_get($tz);
-
 		// Don't overwrite our preferred tzids
 		if (empty($zones[$tzkey]['tzid']))
 		{
 			$zones[$tzkey]['tzid'] = $tzid;
 			$zones[$tzkey]['abbr'] = $tzinfo[0]['abbr'];
+			$zones[$tzkey]['dst_type'] = count($tzinfo) > 1 ? 1 : ($tzinfo[0]['isdst'] ? 2 : 0);
+
+			foreach ($tzinfo as $transition) {
+				$zones[$tzkey]['abbrs'][] = $transition['abbr'];
+			}
+
+			if (isset($tzid_metazones[$tzid]))
+				$zones[$tzkey]['metazone'] = $tzid_metazones[$tzid];
+			else
+			{
+				$tzgeo = timezone_location_get($tz);
+				$country_tzids = get_sorted_tzids_for_country($tzgeo['country_code']);
+
+				if (count($country_tzids) === 1)
+					$zones[$tzkey]['metazone'] = $txt['iso3166'][$tzgeo['country_code']];
+			}
 		}
 
 		// A time zone from a prioritized country?
@@ -6024,15 +6046,23 @@ function smf_list_timezones($when = 'now')
 			$zones[$tzkey]['locations'][] = str_replace(array('St_', '_'), array('St. ', ' '), array_pop($tzid_parts));
 		}
 		$offsets[$tzkey] = $tzinfo[0]['offset'];
-		$longitudes[$tzkey] = empty($longitudes[$tzkey]) ? $tzgeo['longitude'] : $longitudes[$tzkey];
+
+		// Figure out the "metazone" info for the label
+		if (empty($zones[$tzkey]['metazone']) && isset($tzid_metazones[$tzid]))
+		{
+			$zones[$tzkey]['metazone'] = $tzid_metazones[$tzid];
+			$zones[$tzkey]['dst_type'] = count($tzinfo) > 1 ? 1 : ($tzinfo[0]['isdst'] ? 2 : 0);
+		}
+		$dst_types[$tzkey] = count($tzinfo) > 1 ? 'c' : ($tzinfo[0]['isdst'] ? 't' : 'f');
+		$metazone_labels[$tzkey] = !empty($zones[$tzkey]['metazone']) ? $zones[$tzkey]['metazone'] : '';
 
 		// Remember this for later
 		if (isset($cur_profile['timezone']) && $cur_profile['timezone'] == $tzid)
 			$member_tzkey = $tzkey;
 	}
 
-	// Sort by offset then longitude
-	array_multisort($offsets, SORT_ASC, SORT_NUMERIC, $longitudes, SORT_ASC, SORT_NUMERIC, $zones);
+	// Sort by offset, then label, then DST type.
+	array_multisort($offsets, SORT_ASC, SORT_NUMERIC, $metazone_labels, SORT_ASC, $dst_types, SORT_ASC, $zones);
 
 	// Build the final array of formatted values
 	$priority_timezones = array();
@@ -6041,15 +6071,41 @@ function smf_list_timezones($when = 'now')
 	{
 		date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
 
-		// Use the custom description, if there is one
-		if (!empty($tztxt[$tzvalue['tzid']]))
-			$desc = $tztxt[$tzvalue['tzid']];
+		// Use the human friendly time zone name, if there is one.
+		if (!empty($tzvalue['metazone']))
+		{
+			if (!empty($txt[$tzvalue['metazone']]))
+				$metazone = $txt[$tzvalue['metazone']];
+			else
+				$metazone = sprintf($txt['generic_metazone'], $tzvalue['metazone'], '%1$s');
+
+			switch ($tzvalue['dst_type'])
+			{
+				case 0:
+					$desc = sprintf($metazone, $txt['dst_false']);
+					break;
+
+				case 1:
+					$desc = sprintf($metazone, '');
+					break;
+
+				case 2:
+					$desc = sprintf($metazone, $txt['dst_true']);
+					break;
+			}
+		}
 		// Otherwise, use the list of locations (max 5, so things don't get silly)
 		else
 			$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . $txt['etc'] : '');
 
-		// Show the UTC offset and the abbreviation, if it's something like 'MST' and not '-06'
-		$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . (!strspn($tzvalue['abbr'], '+-') ? $tzvalue['abbr'] . ' - ' : '') . $desc;
+		// We don't want abbreviations like '+03' or '-11'.
+		$abbrs = array_filter($tzvalue['abbrs'], function ($abbr) {
+			return !strspn($abbr, '+-');
+		});
+		$abbrs = count($abbrs) == count($tzvalue['abbrs']) ? array_unique($abbrs) : array();
+
+		// Show the UTC offset and abbreviation(s).
+		$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . str_replace('  ', ' ', $desc) . (!empty($abbrs) ? ' (' . implode('/', $abbrs) . ')' : '');
 
 		if (isset($priority_zones[$tzkey]))
 			$priority_timezones[$tzvalue['tzid']] = $desc;
@@ -6066,11 +6122,13 @@ function smf_list_timezones($when = 'now')
 
 	$timezones = array_merge(
 		$priority_timezones,
-		array('UTC' => 'UTC' . (!empty($tztxt['UTC']) ? ' - ' . $tztxt['UTC'] : ''), '-----'),
+		array('UTC' => 'UTC' . (!empty($txt['UTC']) ? ' - ' . $txt['UTC'] : ''), '-----'),
 		$timezones
 	);
 
-	return $timezones;
+	$timezones_when[$when] = $timezones;
+
+	return $timezones_when[$when];
 }
 
 /**
