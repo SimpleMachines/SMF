@@ -33,10 +33,10 @@ function get_tzid_metazones()
 		represent others that use exactly the same rules for DST
 		transitions, UTC offsets, and abbreviations. For example,
 		Europe/Berlin can be representative for Europe/Rome,
-		Europe/Paris, etc., because these cities all uses exactly the
+		Europe/Paris, etc., because these cities all use exactly the
 		same time zone rules and values.
 
-		Meta-zone labels are the user-friendly strings shown to the end
+		Meta-zone labels are the user friendly strings shown to the end
 		user, e.g. "Mountain Standard Time". The values of this array
 		are keys of strings defined in Timezones.{language}.php, which
 		in turn are sprintf format strings used to generate the final

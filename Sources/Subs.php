@@ -5942,7 +5942,7 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $modSettings, $txt, $txt, $cur_profile, $sourcedir;
+	global $modSettings, $tztxt, $txt, $cur_profile, $sourcedir;
 	static $timezones_when = array();
 
 	require_once($sourcedir . '/Subs-Timezones.php');
@@ -6072,17 +6072,18 @@ function smf_list_timezones($when = 'now')
 		date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
 
 		// Use the human friendly time zone name, if there is one.
+		$desc = '';
 		if (!empty($tzvalue['metazone']))
 		{
-			if (!empty($txt[$tzvalue['metazone']]))
-				$metazone = $txt[$tzvalue['metazone']];
+			if (!empty($tztxt[$tzvalue['metazone']]))
+				$metazone = $tztxt[$tzvalue['metazone']];
 			else
-				$metazone = sprintf($txt['generic_metazone'], $tzvalue['metazone'], '%1$s');
+				$metazone = sprintf($tztxt['generic_timezone'], $tzvalue['metazone'], '%1$s');
 
 			switch ($tzvalue['dst_type'])
 			{
 				case 0:
-					$desc = sprintf($metazone, $txt['dst_false']);
+					$desc = sprintf($metazone, $tztxt['daylight_saving_time_false']);
 					break;
 
 				case 1:
@@ -6090,7 +6091,7 @@ function smf_list_timezones($when = 'now')
 					break;
 
 				case 2:
-					$desc = sprintf($metazone, $txt['dst_true']);
+					$desc = sprintf($metazone, $tztxt['daylight_saving_time_true']);
 					break;
 			}
 		}
@@ -6122,7 +6123,7 @@ function smf_list_timezones($when = 'now')
 
 	$timezones = array_merge(
 		$priority_timezones,
-		array('UTC' => 'UTC' . (!empty($txt['UTC']) ? ' - ' . $txt['UTC'] : ''), '-----'),
+		array('UTC' => 'UTC' . (!empty($tztxt['UTC']) ? ' - ' . $tztxt['UTC'] : ''), '-----'),
 		$timezones
 	);
 
