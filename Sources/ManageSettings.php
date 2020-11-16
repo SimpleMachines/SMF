@@ -357,9 +357,11 @@ function ModifyBBCSettings($return_config = false)
 		$bbcTags = array();
 		$bbcTagsChildren = array();
 		foreach (parse_bbc(false) as $tag)
+		{
 			$bbcTags[] = $tag['tag'];
 			if (isset($tag['require_children']))
 				$bbcTagsChildren[$tag['tag']] = !isset($bbcTagsChildren[$tag['tag']]) ? $tag['require_children'] : array_unique(array_merge($bbcTagsChildren[$tag['tag']], $tag['require_children']));
+		}
 
 		// Clean up tags with children
 		foreach($bbcTagsChildren as $parent_tag => $children)
