@@ -161,13 +161,19 @@ function DisplayStats()
 		if (($context['gender'] = cache_get_data('stats_gender', 240)) == null)
 		{
 			$result = $smcFunc['db_query']('', '
-				SELECT COUNT(id_member) AS total_members, value AS gender
-				FROM {db_prefix}themes
-				WHERE variable = {string:gender_var} AND id_theme = {int:default_theme}
+				SELECT COUNT(mem.id_member) AS total_members, t.value AS gender
+				FROM {db_prefix}members AS mem
+				LEFT JOIN {db_prefix}themes AS t ON (
+					mem.id_member = t.id_member AND
+					t.variable = {string:gender_var} AND
+					t.id_theme = {int:default_theme}
+					) 
+				WHERE is_activated = {int:is_activated}
 				GROUP BY value',
 				array(
 					'gender_var' => 'cust_gender',
 					'default_theme' => 1,
+					'is_activated' => 1,
 				)
 			);
 			$context['gender'] = array();
