@@ -192,11 +192,11 @@ function get_tzid_metazones()
 		// Asia_Malaysia (no DST)
 		'Asia/Kuala_Lumpur' => 'Asia_Malaysia',
 
-		// Asia_Mongolia_Eastern (no DST)
-		'Asia/Hovd' => 'Asia_Mongolia_Eastern',
-
 		// Asia_Mongolia_Western (no DST)
-		'Asia/Ulaanbaatar' => 'Asia_Mongolia_Western',
+		'Asia/Hovd' => 'Asia_Mongolia_Western',
+
+		// Asia_Mongolia_EAstern (no DST)
+		'Asia/Ulaanbaatar' => 'Asia_Mongolia_Eastern',
 
 		// Asia_Myanmar (no DST)
 		'Asia/Yangon' => 'Asia_Myanmar',
