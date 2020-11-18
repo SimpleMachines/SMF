@@ -1508,8 +1508,8 @@ function get_sorted_tzids_for_country($country_code)
 
 	$country_tzids = $sorted_tzids[$country_code];
 
-	// Ensure we haven't missed anything.
-	$temp = @timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country_code);
+	// Ensure we haven't missed anything, but never include obsolete ones either.
+	$temp = array_intersect(@timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country_code), timezone_identifiers_list());
 	if (!empty($temp))
 		$country_tzids = array_unique(array_merge($country_tzids, $temp));
 
