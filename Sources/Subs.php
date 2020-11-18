@@ -5942,7 +5942,7 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $modSettings, $tztxt, $txt, $cur_profile, $sourcedir;
+	global $modSettings, $tztxt, $txt, $context, $cur_profile, $sourcedir;
 	static $timezones_when = array();
 
 	require_once($sourcedir . '/Subs-Timezones.php');
@@ -6062,6 +6062,8 @@ function smf_list_timezones($when = 'now')
 		// Remember this for later
 		if (isset($cur_profile['timezone']) && $cur_profile['timezone'] == $tzid)
 			$member_tzkey = $tzkey;
+		if (isset($context['event']['tz']) && $context['event']['tz'] == $tzid)
+			$event_tzkey = $tzkey;
 	}
 
 	// Sort by offset, then label, then DST type.
@@ -6116,9 +6118,11 @@ function smf_list_timezones($when = 'now')
 		else
 			$timezones[$tzvalue['tzid']] = $desc;
 
-		// Automatically fix orphaned timezones on the member profile page
+		// Automatically fix orphaned time zones.
 		if (isset($member_tzkey) && $member_tzkey == $tzkey)
 			$cur_profile['timezone'] = $tzvalue['tzid'];
+		if (isset($event_tzkey) && $event_tzkey == $tzkey)
+			$context['event']['tz'] = $tzvalue['tzid'];
 	}
 
 	if (!empty($priority_timezones))
