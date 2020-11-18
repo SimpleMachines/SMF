@@ -6010,11 +6010,14 @@ function smf_list_timezones($when = 'now')
 		// Use the entire set of transition rules as the array *key* so we can avoid duplicates
 		$tzkey = serialize($tzinfo);
 
+		// ...But make sure to include all explicitly defined meta-zones.
+		if (isset($zones[$tzkey]['metazone']) && isset($tzid_metazones[$tzid]))
+			$tzkey = serialize(array_merge($tzinfo, array('metazone' => $tzid_metazones[$tzid])));
+
 		// Don't overwrite our preferred tzids
 		if (empty($zones[$tzkey]['tzid']))
 		{
 			$zones[$tzkey]['tzid'] = $tzid;
-			$zones[$tzkey]['abbr'] = $tzinfo[0]['abbr'];
 			$zones[$tzkey]['dst_type'] = count($tzinfo) > 1 ? 1 : ($tzinfo[0]['isdst'] ? 2 : 0);
 
 			foreach ($tzinfo as $transition) {
