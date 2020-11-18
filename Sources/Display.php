@@ -968,9 +968,7 @@ function Display()
 			}
 		}
 
-		// Before Page bring in the right order
-		if (!empty($start_char) && $start_char === 'L')
-			krsort($messages);
+		sort($messages);
 	}
 
 	// Jump to page
