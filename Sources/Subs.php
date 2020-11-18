@@ -5994,7 +5994,7 @@ function smf_list_timezones($when = 'now')
 
 	// Idea here is to get exactly one representative identifier for each and every unique set of time zone rules.
 	$dst_types = array();
-	$metazone_labels = array();
+	$labels = array();
 	$offsets = array();
 	foreach ($tzids as $tzid)
 	{
@@ -6057,7 +6057,7 @@ function smf_list_timezones($when = 'now')
 			$zones[$tzkey]['dst_type'] = count($tzinfo) > 1 ? 1 : ($tzinfo[0]['isdst'] ? 2 : 0);
 		}
 		$dst_types[$tzkey] = count($tzinfo) > 1 ? 'c' : ($tzinfo[0]['isdst'] ? 't' : 'f');
-		$metazone_labels[$tzkey] = !empty($zones[$tzkey]['metazone']) ? $zones[$tzkey]['metazone'] : '';
+		$labels[$tzkey] = !empty($zones[$tzkey]['metazone']) && !empty($tztxt[$zones[$tzkey]['metazone']]) ? $tztxt[$zones[$tzkey]['metazone']] : '';
 
 		// Remember this for later
 		if (isset($cur_profile['timezone']) && $cur_profile['timezone'] == $tzid)
@@ -6065,7 +6065,7 @@ function smf_list_timezones($when = 'now')
 	}
 
 	// Sort by offset, then label, then DST type.
-	array_multisort($offsets, SORT_ASC, SORT_NUMERIC, $metazone_labels, SORT_ASC, $dst_types, SORT_ASC, $zones);
+	array_multisort($offsets, SORT_ASC, SORT_NUMERIC, $labels, SORT_ASC, $dst_types, SORT_ASC, $zones);
 
 	// Build the final array of formatted values
 	$priority_timezones = array();
