@@ -1506,7 +1506,7 @@ function get_sorted_tzids_for_country($country_code)
 		),
 	);
 
-	$country_tzids = $sorted_tzids[$country_code];
+	$country_tzids = isset($sorted_tzids[$country_code]) ? $sorted_tzids[$country_code] : array();
 
 	// Ensure we haven't missed anything, but never include obsolete ones either.
 	$temp = array_intersect(@timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country_code), timezone_identifiers_list());
