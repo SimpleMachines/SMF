@@ -2075,7 +2075,7 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 
 #fatal_error {
 	width: 80%;
-	margin: auto;
+	margin: 0 auto 10px auto;
 }
 .errorbox::before, .noticebox::before, .infobox::before {
 	width: 16px;
