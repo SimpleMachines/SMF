@@ -1,0 +1,30 @@
+name: PHP Check
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '5.4'
+        coverage: none
+
+    - name: Lint PHP files
+      uses: overtrue/phplint@master
+      with:
+        path: .
+        options: --exclude=vendor
+
+    - name: Checking for sign off (GPG also accepted)
+      run: php ./other/check-signed-off.php
+
+    - name: Checking file integrity
+      run: |
+        php ./other/check-eof.php
+        php ./other/check-smf-license.php
+        php ./other/check-smf-languages.php
+        php ./other/check-version.php
