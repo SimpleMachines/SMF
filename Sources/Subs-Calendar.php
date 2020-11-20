@@ -610,7 +610,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 	$events = $calendarOptions['show_events'] ? getEventRange(date_format($first_day_object, 'Y-m-d'), date_format($last_day_object, 'Y-m-d')) : array();
 	$holidays = $calendarOptions['show_holidays'] ? getHolidayRange(date_format($first_day_object, 'Y-m-d'), date_format($last_day_object, 'Y-m-d')) : array();
 
-	$calendarGrid['week_title'] = sprintf($txt['calendar_week_beginning'], $txt['months_titles'][date_format($first_day_object, 'n')], date_format($first_day_object, 'j'), date_format($first_day_object, 'Y'));
+	$calendarGrid['week_title'] = sprintf($txt['calendar_week_beginning'], $txt['months'][date_format($first_day_object, 'n')], date_format($first_day_object, 'j'), date_format($first_day_object, 'Y'));
 
 	// This holds all the main data - there is at least one month!
 	$calendarGrid['months'] = array();
