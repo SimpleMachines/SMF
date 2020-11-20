@@ -93,7 +93,7 @@ function template_main()
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
 			<div id="post_area">
-				<div class="roundframe">', isset($context['current_topic']) ? '
+				<div class="roundframe noup">', isset($context['current_topic']) ? '
 					<input type="hidden" name="topic" value="' . $context['current_topic'] . '">' : '';
 
 	// If an error occurred, explain what happened.
