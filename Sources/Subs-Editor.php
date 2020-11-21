@@ -1532,7 +1532,11 @@ function create_control_richedit($editorOptions)
 			"Description (optional):": "' . $editortxt['description'] . '",
 			"Rows:": "' . $editortxt['rows'] . '",
 			"Cols:": "' . $editortxt['cols'] . '",
+			"URL:": "' . $editortxt['url'] . '",
+			"E-mail:": "' . $editortxt['email'] . '",
 			"Video URL:": "' . $editortxt['video_url'] . '",
+			"More": "' . $editortxt['more'] . '",
+			"Close": "' . $editortxt['close'] . '",
 			dateFormat: "' . $editortxt['dateformat'] . '"
 		}';
 
