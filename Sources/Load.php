@@ -3551,11 +3551,11 @@ function loadDatabase()
 /**
  * Try to load up a supported caching method. This is saved in $cacheAPI if we are not overriding it.
  *
- * @param array $overrideCache Try to use a different cache method other than that defined in $cache_accelerator.
+ * @param string $overrideCache Try to use a different cache method other than that defined in $cache_accelerator.
  * @param bool $fallbackSMF Use the default SMF method if the accelerator fails.
  * @return object|false A object of $cacheAPI, or False on failure.
  */
-function loadCacheAccelerator($overrideCache = array(), $fallbackSMF = true)
+function loadCacheAccelerator($overrideCache = '', $fallbackSMF = true)
 {
 	global $cacheAPI, $cache_accelerator, $cache_enable;
 
@@ -3589,9 +3589,9 @@ function loadCacheAccelerator($overrideCache = array(), $fallbackSMF = true)
 		if (!$cache_api->isSupported())
 		{
 			// Can we save ourselves?
-			if (!empty($fallbackSMF) && is_null($overrideCache) &&
+			if (!empty($fallbackSMF) && $overrideCache == '' &&
 				$cache_class_name !== CacheApi::APIS_DEFAULT)
-				return loadCacheAccelerator(null, false);
+				return loadCacheAccelerator(CacheApi::APIS_NAMESPACE . CacheApi::APIS_DEFAULT, false);
 
 			return false;
 		}
