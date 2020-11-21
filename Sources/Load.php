@@ -3557,9 +3557,7 @@ function loadDatabase()
  */
 function loadCacheAccelerator($overrideCache = array(), $fallbackSMF = true)
 {
-	global $sourcedir, $cacheAPI, $cache_accelerator, $cache_enable;
-
-	$cacheAPIdir = $sourcedir . '/Cache';
+	global $cacheAPI, $cache_accelerator, $cache_enable;
 
 	// Is caching enabled?
 	if (empty($cache_enable) && empty($overrideCache))
@@ -3572,25 +3570,14 @@ function loadCacheAccelerator($overrideCache = array(), $fallbackSMF = true)
 	elseif (is_null($cacheAPI))
 		$cacheAPI = false;
 
-	// Autoload hasn't been called yet :/
-	require_once($cacheAPIdir .'/CacheApi.php');
-	require_once($cacheAPIdir .'/CacheApiInterface.php');
-
-	$apis_dir = $cacheAPIdir .'/'. CacheApi::APIS_FOLDER;
-
 	// What accelerator we are going to try.
 	$cache_class_name = !empty($cache_accelerator) ? $cache_accelerator : CacheApi::APIS_DEFAULT;
-
-	$file_to_load = $apis_dir . '/' . sprintf(CacheApi::APIS_BASENAME, $cache_class_name);
+	$fully_qualified_class_name = !empty($overrideCache) ? $overrideCache :
+		CacheApi::APIS_NAMESPACE . $cache_class_name;
 
 	// Do some basic tests.
-	if (file_exists($file_to_load))
+	if (class_exists($fully_qualified_class_name))
 	{
-		require_once($file_to_load);
-
-		$fully_qualified_class_name = !empty($overrideCache) ? $overrideCache :
-			CacheApi::APIS_NAMESPACE . $cache_class_name;
-
 		/* @var CacheApiInterface $cache_api */
 		$cache_api = new $fully_qualified_class_name();
 
