@@ -1379,46 +1379,6 @@ function legalise_bbc($text)
 }
 
 /**
- * Creates the javascript code for localization of the editor (SCEditor)
- */
-function loadLocale()
-{
-	global $context, $txt, $editortxt, $modSettings;
-
-	loadLanguage('Editor');
-
-	$context['template_layers'] = array();
-	// Lets make sure we aren't going to output anything nasty.
-	@ob_end_clean();
-	if (!empty($modSettings['enableCompressedOutput']))
-		@ob_start('ob_gzhandler');
-	else
-		@ob_start();
-
-	// If we don't have any locale better avoid broken js
-	if (empty($txt['lang_locale']))
-		die();
-
-	$file_data = '(function ($) {
-	\'use strict\';
-
-	$.sceditor.locale[' . JavaScriptEscape($txt['lang_locale']) . '] = {';
-	foreach ($editortxt as $key => $val)
-		$file_data .= '
-		' . JavaScriptEscape($key) . ': ' . JavaScriptEscape($val) . ',';
-
-	$file_data .= '
-		dateFormat: "day.month.year"
-	}
-})(jQuery);';
-
-	// Make sure they know what type of file we are.
-	header('content-type: text/javascript');
-	echo $file_data;
-	obExit(false);
-}
-
-/**
  * Retrieves a list of message icons.
  * - Based on the settings, the array will either contain a list of default
  *   message icons or a list of custom message icons retrieved from the database.
