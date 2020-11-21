@@ -213,7 +213,7 @@ function ModifyBasicSettings($return_config = false)
 			'min' => -23.5,
 			'max' => 23.5
 		),
-		'default_timezone' => array('select', 'default_timezone', array()),
+		array('select', 'default_timezone', array_filter(smf_list_timezones(), 'is_string', ARRAY_FILTER_USE_KEY)),
 		array('text', 'timezone_priority_countries', 'subtext' => $txt['setting_timezone_priority_countries_note']),
 		'',
 
@@ -242,17 +242,6 @@ function ModifyBasicSettings($return_config = false)
 			),
 		),
 	);
-
-	// Get all the time zones.
-	if (function_exists('timezone_identifiers_list') && function_exists('date_default_timezone_set'))
-	{
-		$all_zones = timezone_identifiers_list();
-		// Make sure we set the value to the same as the printed value.
-		foreach ($all_zones as $zone)
-			$config_vars['default_timezone'][2][$zone] = $zone;
-	}
-	else
-		unset($config_vars['default_timezone']);
 
 	call_integration_hook('integrate_modify_basic_settings', array(&$config_vars));
 
