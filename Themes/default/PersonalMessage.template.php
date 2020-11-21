@@ -805,9 +805,9 @@ function template_search()
 				</dt>
 				<dd>
 					', $txt['pm_search_between'], '
-					<input type="number" name="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="5" min="0" max="9999">
+					<input type="number" name="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" maxlength="5" min="0" max="9999">
 					', $txt['pm_search_between_and'], '
-					<input type="number" name="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="5" min="0" max="9999">
+					<input type="number" name="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" maxlength="5" min="0" max="9999">
 					', $txt['pm_search_between_days'], '
 				</dd>
 			</dl>';

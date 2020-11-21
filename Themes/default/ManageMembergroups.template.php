@@ -72,7 +72,7 @@ function template_new_group()
 						<strong>', $txt['membergroups_min_posts'], ':</strong>
 					</dt>
 					<dd>
-						<input type="number" name="min_posts" id="min_posts_input" size="5">
+						<input type="number" name="min_posts" id="min_posts_input">
 					</dd>';
 
 	if (!$context['post_group'] || !empty($modSettings['permission_enable_postgroups']))
@@ -263,7 +263,7 @@ function template_edit_group()
 						<label for="min_posts_input"><strong>', $txt['membergroups_min_posts'], ':</strong></label>
 					</dt>
 					<dd>
-						<input type="number" name="min_posts" id="min_posts_input"', $context['group']['is_post_group'] ? ' value="' . $context['group']['min_posts'] . '"' : '', ' size="6">
+						<input type="number" name="min_posts" id="min_posts_input"', $context['group']['is_post_group'] ? ' value="' . $context['group']['min_posts'] . '"' : '', '>
 					</dd>';
 
 	echo '
@@ -277,7 +277,7 @@ function template_edit_group()
 						<label for="icon_count_input"><strong>', $txt['membergroups_icon_count'], ':</strong></label>
 					</dt>
 					<dd>
-						<input type="number" name="icon_count" id="icon_count_input" value="', $context['group']['icon_count'], '" size="4">
+						<input type="number" name="icon_count" id="icon_count_input" value="', $context['group']['icon_count'], '">
 					</dd>';
 
 	// Do we have any possible icons to select from?

@@ -280,7 +280,7 @@ function template_maintain_members()
 						<option value="logged">', $txt['maintain_members_logged_in'], '</option>
 					</select>
 					', $txt['maintain_members_since2'], '
-					<input type="number" name="maxdays" value="30" size="3">', $txt['maintain_members_since3'], '
+					<input type="number" name="maxdays" value="30">', $txt['maintain_members_since3'], '
 				</p>
 				<p>
 					<a href="#membersLink" onclick="swapMembers();"><img src="', $settings['images_url'], '/selected.png" alt="+" id="membersIcon"></a> <a href="#membersLink" onclick="swapMembers();" id="membersText" style="font-weight: bold;">', $txt['maintain_members_all'], '</a>
@@ -377,7 +377,7 @@ function template_maintain_topics()
 	// The otherwise hidden "choose which boards to prune".
 	echo '
 					<p>
-						<a id="rotLink"></a>', $txt['maintain_old_since_days1'], '<input type="number" name="maxdays" value="30" size="3">', $txt['maintain_old_since_days2'], '
+						<a id="rotLink"></a>', $txt['maintain_old_since_days1'], '<input type="number" name="maxdays" value="30">', $txt['maintain_old_since_days2'], '
 					</p>
 					<p>
 						<label for="delete_type_nothing"><input type="radio" name="delete_type" id="delete_type_nothing" value="nothing"> ', $txt['maintain_old_nothing_else'], '</label><br>
@@ -438,7 +438,7 @@ function template_maintain_topics()
 		<div class="windowbg">
 			<form action="', $scripturl, '?action=admin;area=maintain;sa=topics;activity=olddrafts" method="post" accept-charset="', $context['character_set'], '">
 				<p>
-					', $txt['maintain_old_drafts_days'], ' <input type="number" name="draftdays" value="', (!empty($modSettings['drafts_keep_days']) ? $modSettings['drafts_keep_days'] : 30), '" size="3"> ', $txt['days_word'], '
+					', $txt['maintain_old_drafts_days'], ' <input type="number" name="draftdays" value="', (!empty($modSettings['drafts_keep_days']) ? $modSettings['drafts_keep_days'] : 30), '"> ', $txt['days_word'], '
 				</p>
 				<input type="submit" value="', $txt['maintain_old_remove'], '" data-confirm="', $txt['maintain_old_drafts_confirm'], '" class="button you_sure">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -493,7 +493,7 @@ function template_maintain_topics()
 				</p>
 				<p>
 					', $txt['move_topics_older_than'], '
-					<input type="number" name="maxdays" value="30" size="3">
+					<input type="number" name="maxdays" value="30">
 					', $txt['manageposts_days'], ' (', $txt['move_zero_all'], ')
 				</p>
 				<p>
