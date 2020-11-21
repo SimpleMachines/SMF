@@ -1577,7 +1577,7 @@ function create_control_richedit($editorOptions)
 		'bbc_level' => !empty($editorOptions['bbc_level']) ? $editorOptions['bbc_level'] : 'full',
 		'preview_type' => isset($editorOptions['preview_type']) ? (int) $editorOptions['preview_type'] : 1,
 		'labels' => !empty($editorOptions['labels']) ? $editorOptions['labels'] : array(),
-		'locale' => !empty($txt['lang_locale']) && substr($txt['lang_locale'], 0, 5) != 'en_US' ? $txt['lang_locale'] : '',
+		'locale' => !empty($txt['lang_dictionary']) && $txt['lang_dictionary'] != 'en' ? $txt['lang_dictionary'] : '',
 		'required' => !empty($editorOptions['required']),
 	);
 
