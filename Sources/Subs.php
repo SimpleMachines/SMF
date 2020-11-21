@@ -6140,6 +6140,59 @@ function smf_list_timezones($when = 'now')
 }
 
 /**
+ * Gets a member's selected timezone identifier
+ *
+ * @param int $id_member The member id to look up. If not provided, the current user's id will be used.
+ * @return string The timezone identifier string for the user's timezone.
+ */
+function getUserTimezone($id_member = null)
+{
+	global $smcFunc, $context, $user_info, $modSettings, $user_settings;
+	static $member_cache = array();
+
+	if (is_null($id_member) && $user_info['is_guest'] == false)
+		$id_member = $context['user']['id'];
+
+	// Did we already look this up?
+	if (isset($id_member) && isset($member_cache[$id_member]))
+	{
+		return $member_cache[$id_member];
+	}
+
+	// Check if we already have this in $user_settings.
+	if (isset($user_settings['id_member']) && $user_settings['id_member'] == $id_member && !empty($user_settings['timezone']))
+	{
+		$member_cache[$id_member] = $user_settings['timezone'];
+		return $user_settings['timezone'];
+	}
+
+	// Look it up in the database.
+	if (isset($id_member))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT timezone
+			FROM {db_prefix}members
+			WHERE id_member = {int:id_member}',
+			array(
+				'id_member' => $id_member,
+			)
+		);
+		list($timezone) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+	}
+
+	// If it is invalid, fall back to the default.
+	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
+		$timezone = isset($modSettings['default_timezone']) ? $modSettings['default_timezone'] : date_default_timezone_get();
+
+	// Save for later.
+	if (isset($id_member))
+		$member_cache[$id_member] = $timezone;
+
+	return $timezone;
+}
+
+/**
  * Converts an IP address into binary
  *
  * @param string $ip_address An IP address in IPv4, IPv6 or decimal notation
