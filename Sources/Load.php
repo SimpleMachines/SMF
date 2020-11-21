@@ -3601,14 +3601,9 @@ function loadCacheAccelerator($overrideCache = array(), $fallbackSMF = true)
 
 		// Don't set this if we are overriding the cache.
 		if (empty($overrideCache))
-		{
 			$cacheAPI = $cache_api;
 
-			return $cacheAPI;
-		}
-
-		else
-			return $cache_api;
+		return $cache_api;
 	}
 
 	return false;
