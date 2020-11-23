@@ -630,7 +630,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 
 		$calendarGrid['months'][$current_month]['days'][$current_day] = array(
 			'day' => $current_day,
-			'day_of_week' => (date_format($current_day_object, 'w') + 7 - $calendarOptions['start_day']) % 7,
+			'day_of_week' => (date_format($current_day_object, 'w') + 7) % 7,
 			'date' => $current_date,
 			'is_today' => $current_date == $today['date'],
 			'holidays' => !empty($holidays[$current_date]) ? $holidays[$current_date] : array(),
