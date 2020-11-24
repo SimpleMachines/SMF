@@ -723,7 +723,7 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
  */
 function loadDatePicker($selector = 'input.date_input', $date_format = '')
 {
-	global $modSettings, $txt, $context, $user_info;
+	global $modSettings, $txt, $context, $user_info, $options;
 
 	if (empty($date_format))
 		$date_format = get_date_or_time_format('date');
@@ -766,6 +766,7 @@ function loadDatePicker($selector = 'input.date_input', $date_format = '')
 		dayNamesMin: ["' . implode('", "', $txt['days_short']) . '"],
 		prevText: "' . $txt['prev_month'] . '",
 		nextText: "' . $txt['next_month'] . '",
+		firstDay: ' . (!empty($options['calendar_start_day']) ? $options['calendar_start_day'] : 0) . ',
 	});', true);
 }
 
