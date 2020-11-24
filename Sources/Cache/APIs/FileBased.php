@@ -13,6 +13,8 @@
 
 namespace SMF\Cache\APIs;
 
+use GlobIterator;
+use FilesystemIterator;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 
