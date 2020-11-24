@@ -914,7 +914,7 @@ function showPosts($memID)
 		);
 	else
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(id_msg)
+			SELECT COUNT(*)
 			FROM {db_prefix}messages AS m
 			WHERE {query_see_message_board} AND m.id_member = {int:current_member}' . (!empty($board) ? '
 				AND m.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
@@ -2129,7 +2129,7 @@ function list_getUserErrorCount($where, $where_vars = array())
 	global $smcFunc;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(id_error)
+		SELECT COUNT(*)
 		FROM {db_prefix}log_errors
 		WHERE ' . $where,
 		$where_vars
@@ -2198,7 +2198,7 @@ function list_getIPMessageCount($where, $where_vars = array())
 	global $smcFunc, $user_info;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(id_msg)
+		SELECT COUNT(*)
 		FROM {db_prefix}messages AS m
 		WHERE {query_see_message_board} AND ' . $where,
 		$where_vars
