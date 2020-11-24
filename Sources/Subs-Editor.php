@@ -1379,46 +1379,6 @@ function legalise_bbc($text)
 }
 
 /**
- * Creates the javascript code for localization of the editor (SCEditor)
- */
-function loadLocale()
-{
-	global $context, $txt, $editortxt, $modSettings;
-
-	loadLanguage('Editor');
-
-	$context['template_layers'] = array();
-	// Lets make sure we aren't going to output anything nasty.
-	@ob_end_clean();
-	if (!empty($modSettings['enableCompressedOutput']))
-		@ob_start('ob_gzhandler');
-	else
-		@ob_start();
-
-	// If we don't have any locale better avoid broken js
-	if (empty($txt['lang_locale']))
-		die();
-
-	$file_data = '(function ($) {
-	\'use strict\';
-
-	$.sceditor.locale[' . JavaScriptEscape($txt['lang_locale']) . '] = {';
-	foreach ($editortxt as $key => $val)
-		$file_data .= '
-		' . JavaScriptEscape($key) . ': ' . JavaScriptEscape($val) . ',';
-
-	$file_data .= '
-		dateFormat: "day.month.year"
-	}
-})(jQuery);';
-
-	// Make sure they know what type of file we are.
-	header('content-type: text/javascript');
-	echo $file_data;
-	obExit(false);
-}
-
-/**
  * Retrieves a list of message icons.
  * - Based on the settings, the array will either contain a list of default
  *   message icons or a list of custom message icons retrieved from the database.
@@ -1563,6 +1523,25 @@ function create_control_richedit($editorOptions)
 		loadJavaScriptFile('editor.js', array('minimize' => true), 'smf_editor');
 		loadJavaScriptFile('jquery.sceditor.bbcode.min.js', array(), 'smf_sceditor_bbcode');
 		loadJavaScriptFile('jquery.sceditor.smf.js', array('minimize' => true), 'smf_sceditor_smf');
+
+		$scExtraLangs = '
+		$.sceditor.locale["' . $txt['lang_dictionary'] . '"] = {
+			"Width (optional):": "' . $editortxt['width'] . '",
+			"Height (optional):": "' . $editortxt['height'] . '",
+			"Insert": "' . $editortxt['insert'] . '",
+			"Description (optional):": "' . $editortxt['description'] . '",
+			"Rows:": "' . $editortxt['rows'] . '",
+			"Cols:": "' . $editortxt['cols'] . '",
+			"URL:": "' . $editortxt['url'] . '",
+			"E-mail:": "' . $editortxt['email'] . '",
+			"Video URL:": "' . $editortxt['video_url'] . '",
+			"More": "' . $editortxt['more'] . '",
+			"Close": "' . $editortxt['close'] . '",
+			dateFormat: "' . $editortxt['dateformat'] . '"
+		}';
+
+		addInlineJavaScript($scExtraLangs, true);
+
 		addInlineJavaScript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
 		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
@@ -1602,7 +1581,7 @@ function create_control_richedit($editorOptions)
 		'bbc_level' => !empty($editorOptions['bbc_level']) ? $editorOptions['bbc_level'] : 'full',
 		'preview_type' => isset($editorOptions['preview_type']) ? (int) $editorOptions['preview_type'] : 1,
 		'labels' => !empty($editorOptions['labels']) ? $editorOptions['labels'] : array(),
-		'locale' => !empty($txt['lang_locale']) && substr($txt['lang_locale'], 0, 5) != 'en_US' ? $txt['lang_locale'] : '',
+		'locale' => !empty($txt['lang_dictionary']) && $txt['lang_dictionary'] != 'en' ? $txt['lang_dictionary'] : '',
 		'required' => !empty($editorOptions['required']),
 	);
 

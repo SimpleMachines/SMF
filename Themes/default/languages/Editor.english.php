@@ -42,6 +42,7 @@ $editortxt['email'] = 'E-mail:';
 $editortxt['insert_email'] = 'Insert an email';
 $editortxt['url'] = 'URL:';
 $editortxt['insert_link'] = 'Insert a link';
+$editortxt['description'] = 'Description (optional)';
 $editortxt['unlink'] = 'Unlink';
 $editortxt['more'] = 'More';
 $editortxt['close'] = 'Close';
@@ -59,5 +60,6 @@ $editortxt['flash'] = 'Insert flash';
 $editortxt['float_left'] = 'Float left';
 $editortxt['float_right'] = 'Float right';
 $editortxt['maximize'] = 'Maximize';
+$editortxt['dateformat'] = 'month/day/year';
 
 ?>
