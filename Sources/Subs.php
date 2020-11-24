@@ -5987,7 +5987,10 @@ function smf_list_timezones($when = 'now')
 		if ($tzid == 'UTC')
 			continue;
 
-		$tz = timezone_open($tzid);
+		$tz = @timezone_open($tzid);
+
+		if ($tz == null)
+			continue;
 
 		// First, get the set of transition rules for this tzid
 		$tzinfo = timezone_transitions_get($tz, $when, $later);
