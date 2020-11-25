@@ -3558,6 +3558,7 @@ function loadDatabase()
 function loadCacheAccelerator($overrideCache = '', $fallbackSMF = true)
 {
 	global $cacheAPI, $cache_accelerator, $cache_enable;
+	global $sourcedir;
 
 	// Is caching enabled?
 	if (empty($cache_enable) && empty($overrideCache))
@@ -3569,6 +3570,9 @@ function loadCacheAccelerator($overrideCache = '', $fallbackSMF = true)
 
 	elseif (is_null($cacheAPI))
 		$cacheAPI = false;
+
+	require_once($sourcedir . '/Cache/CacheApi.php');
+	require_once($sourcedir . '/Cache/CacheApiInterface.php');
 
 	// What accelerator we are going to try.
 	$cache_class_name = !empty($cache_accelerator) ? $cache_accelerator : CacheApi::APIS_DEFAULT;
