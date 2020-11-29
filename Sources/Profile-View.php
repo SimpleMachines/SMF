@@ -359,8 +359,12 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	call_integration_hook('integrate_fetch_alerts', array(&$alerts, &$formats));
 
 	// Substitute $scripturl into the link formats. (Done here to make life easier for hooked mods.)
-	foreach ($formats as &$format_type)
-		$format_type = str_replace('{scripturl}', $scripturl, $format_type);
+	$formats = array_map(function ($format) use ($scripturl) {
+		$format['link'] = str_replace('{scripturl}', $scripturl, $format['link']);
+		$format['text'] = str_replace('{scripturl}', $scripturl, $format['text']);
+
+		return $format;
+	}, $formats);
 
 	// If we need to check board access, use the correct board access filter for the member in question.
 	if ((!isset($user_info['query_see_board']) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
@@ -1747,7 +1751,7 @@ function statPanel($memID)
 			HOUR(FROM_UNIXTIME(poster_time + {int:time_offset})) AS hour,
 			COUNT(*) AS post_count
 		FROM (
-			SELECT poster_time, id_msg 
+			SELECT poster_time, id_msg
 			FROM {db_prefix}messages WHERE id_member = {int:current_member}
 			ORDER BY id_msg DESC
 			LIMIT {int:max_messages}
