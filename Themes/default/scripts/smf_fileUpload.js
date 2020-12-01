@@ -212,6 +212,11 @@ function smf_fileUpload(oOptions) {
 
 								// Re-count!
 								myDropzone.options.createMaxSizeBar();
+
+								file.accepted = false;
+
+								// Show the current amount of remaining files
+								$('.attach_remaining').html(myDropzone.options.maxFileAmount - myDropzone.getAcceptedFiles().length);
 							}
 						},
 						error: function (xhr, textStatus, errorThrown) {
@@ -229,7 +234,7 @@ function smf_fileUpload(oOptions) {
 				.appendTo(_innerElement.find('.attach-ui'));
 
 				// Show the current amount of remaining files
-				$('.attach_remaining').html(myDropzone.getAcceptedFiles().length);
+				$('.attach_remaining').html(myDropzone.options.maxFileAmount - myDropzone.getAcceptedFiles().length);
 		};
 
 		// The editor needs this to know how to handle embedded attachements
