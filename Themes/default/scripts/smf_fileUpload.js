@@ -148,6 +148,7 @@ function smf_fileUpload(oOptions) {
 		file.insertAttachment = function (_innerElement, response) {
 			insertButton = $('<a />')
 				.addClass('button')
+				.addClass('insertBBC')
 				.prop('disabled', false)
 				.text(myDropzone.options.text_insertBBC)
 				.on('click', function (e) {
@@ -200,9 +201,9 @@ function smf_fileUpload(oOptions) {
 							// For dramatic purposes only!
 							_innerElement.removeClass('infobox').addClass(data.type + 'box');
 
-							// Remove the text field and show a nice confirmation message.
-							_innerElement.find('.attached_BBC').text(data.text);
-							_thisElement.find('.attachment_info a.insertBBC').fadeOut();
+							// Remove the text fields and insert button.
+							_innerElement.find('.attached_BBC').fadeOut();
+							_innerElement.find('.attachment_info a.insertBBC').fadeOut();
 
 							// Do stuff only if the file was actually accepted and it doesn't have an error status.
 							if (file.accepted && file.status != Dropzone.ERROR) {
