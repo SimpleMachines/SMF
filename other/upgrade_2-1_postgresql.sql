@@ -3245,11 +3245,6 @@ ALTER TABLE {$db_prefix}custom_fields
 ALTER default_value SET DEFAULT '';
 ---#
 
----# log_activity
-ALTER TABLE {$db_prefix}log_activity
-ALTER date SET DEFAULT '1004-01-01';
----#
-
 ---# log_banned
 ALTER TABLE {$db_prefix}log_banned
 ALTER email SET DEFAULT '';
