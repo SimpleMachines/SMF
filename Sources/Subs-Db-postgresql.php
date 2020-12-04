@@ -643,7 +643,7 @@ function smf_db_error($db_string, $connection = null)
  * @param resource $connection The connection to use (if null, $db_connection is used)
  * @return mixed value of the first key, behavior based on returnmode. null if no data.
  */
-function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
+function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
 {
 	global $smcFunc, $db_connection, $db_prefix;
 
@@ -651,7 +651,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 
 	$replace = '';
 
-	if (empty($data))
+	if (empty($table) || empty($data))
 		return;
 
 	if (!is_array($data[array_rand($data)]))
