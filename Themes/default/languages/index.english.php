@@ -336,6 +336,7 @@ $txt['preview'] = 'Preview';
 $txt['always_logged_in'] = 'Forever';
 
 $txt['logged'] = 'Logged';
+$txt['show_ip'] = 'Show IP address';
 // Use numeric entities in the below string.
 $txt['ip'] = 'IP';
 $txt['url'] = 'URL';

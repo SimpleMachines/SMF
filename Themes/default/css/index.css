@@ -3412,6 +3412,12 @@ img.smiley {
 	clear: both;
 	margin: 12px 0;
 }
+.show_on_hover:hover span {
+	display:none;
+}
+.show_on_hover:hover:before {
+	content:attr(data-hover);
+}
 /* Separator of posts. More useful in the print stylesheet. */
 #forumposts .post_separator {
 	display: none;
