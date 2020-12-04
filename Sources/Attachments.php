@@ -128,8 +128,6 @@ class Attachments
 	{
 		global $smcFunc, $sourcedir;
 
-		isAllowedTo('post_attachment');
-
 		require_once($sourcedir . '/Subs-Attachments.php');
 
 		// Need this. For reasons...
