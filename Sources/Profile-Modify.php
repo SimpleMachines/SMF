@@ -284,7 +284,7 @@ function loadProfileFields($force_reload = false)
 
 					// Maybe they are trying to change their password as well?
 					$resetPassword = true;
-					if (isset($_POST['passwrd1']) && $_POST['passwrd1'] != '' && isset($_POST['passwrd2']) && $_POST['passwrd1'] == $_POST['passwrd2'] && validatePassword($_POST['passwrd1'], $value, array($cur_profile['real_name'], $user_info['username'], $user_info['name'], $user_info['email'])) == null)
+					if (isset($_POST['passwrd1']) && $_POST['passwrd1'] != '' && isset($_POST['passwrd2']) && $_POST['passwrd1'] == $_POST['passwrd2'] && validatePassword(un_htmlspecialchars($_POST['passwrd1']), $value, array($cur_profile['real_name'], $user_info['username'], $user_info['name'], $user_info['email'])) == null)
 						$resetPassword = false;
 
 					// Do the reset... this will send them an email too.
@@ -323,7 +323,7 @@ function loadProfileFields($force_reload = false)
 
 				// Let's get the validation function into play...
 				require_once($sourcedir . '/Subs-Auth.php');
-				$passwordErrors = validatePassword($value, $cur_profile['member_name'], array($cur_profile['real_name'], $user_info['username'], $user_info['name'], $user_info['email']));
+				$passwordErrors = validatePassword(un_htmlspecialchars($value), $cur_profile['member_name'], array($cur_profile['real_name'], $user_info['username'], $user_info['name'], $user_info['email']));
 
 				// Were there errors?
 				if ($passwordErrors != null)
@@ -3159,8 +3159,6 @@ function profileLoadSignatureData()
 	elseif ($context['signature_limits']['max_image_width'] || $context['signature_limits']['max_image_height'])
 		$context['signature_warning'] = sprintf($txt['profile_error_signature_max_image_' . ($context['signature_limits']['max_image_width'] ? 'width' : 'height')], $context['signature_limits'][$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']);
 
-	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv'))));
-
 	if (empty($context['do_preview']))
 		$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br>', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
 	else
@@ -4146,7 +4144,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 	if ($context['can_manage_membergroups'] && !allowedTo('admin_forum'))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(permission)
+			SELECT COUNT(*)
 			FROM {db_prefix}permissions
 			WHERE id_group = {int:selected_group}
 				AND permission = {string:admin_forum}

@@ -76,7 +76,13 @@ function template_login()
 					</p>
 					<p class="smalltext">
 						<a href="', $scripturl, '?action=reminder">', $txt['forgot_your_password'], '</a>
-					</p>
+					</p>';
+	if (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1)
+		echo '
+					<p class="smalltext">
+						', sprintf($txt['welcome_guest_activate'], $scripturl), '
+					</p>';
+	echo '
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
 					<script>

@@ -177,6 +177,7 @@
 		var instance = sceditor.instance(textarea);
 		if (!isPatched && instance) {
 			sceditor.utils.extend(instance.constructor.prototype, extensionMethods);
+			window.addEventListener('beforeunload', instance.updateOriginal, false);
 
 			/*
 			 * Stop SCEditor from resizing the entire container. Long

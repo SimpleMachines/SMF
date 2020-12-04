@@ -173,7 +173,7 @@ function DisplayStats()
 			$smcFunc['db_free_result']($result);
 
 			$result = $smcFunc['db_query']('', '
-				SELECT COUNT(a.id_member) AS total_members,  gender
+				SELECT COUNT(*) AS total_members,  gender
 				FROM (
 					SELECT mem.id_member, COALESCE(t.value, {string:default_gender}) AS gender
 					FROM {db_prefix}members AS mem

@@ -340,9 +340,6 @@ function Display()
 	// Create a previous next string if the selected theme has it as a selected option.
 	$context['previous_next'] = $modSettings['enablePreviousNext'] ? '<a href="' . $scripturl . '?topic=' . $topic . '.0;prev_next=prev#new">' . $txt['previous_next_back'] . '</a> - <a href="' . $scripturl . '?topic=' . $topic . '.0;prev_next=next#new">' . $txt['previous_next_forward'] . '</a>' : '';
 
-	// Check if spellchecking is both enabled and actually working. (for quick reply.)
-	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv'))));
-
 	// Do we need to show the visual verification image?
 	$context['require_verification'] = !$user_info['is_mod'] && !$user_info['is_admin'] && !empty($modSettings['posts_require_captcha']) && ($user_info['posts'] < $modSettings['posts_require_captcha'] || ($user_info['is_guest'] && $modSettings['posts_require_captcha'] == -1));
 	if ($context['require_verification'])
@@ -860,171 +857,54 @@ function Display()
 		call_integration_hook('integrate_poll_buttons');
 	}
 
+	$limit = $context['messages_per_page'];
 	$start = $_REQUEST['start'];
 	$ascending = empty($options['view_newest_first']);
+	$firstIndex = 0;
 
-	// Check if we can use the seek method to speed things up
-	if (isset($_SESSION['page_topic']) && $_SESSION['page_topic'] == $topic && $_SESSION['page_ascending'] == $ascending)
+	// Jump to page
+	// Calculate the fastest way to get the messages!
+	if ($start >= $context['total_visible_posts'] / 2 && $context['messages_per_page'] != -1)
 	{
-		// User moved to the next page
-		if (isset($_SESSION['page_next_start']) && $_SESSION['page_next_start'] == $start)
-		{
-			$start_char = 'M';
-			$page_id = $_SESSION['page_last_id'];
-		}
-		// User moved to the previous page
-		elseif (isset($_SESSION['page_before_start']) && $_SESSION['page_before_start'] == $start)
-		{
-			$start_char = 'L';
-			$page_id = $_SESSION['page_first_id'];
-		}
-		// User refreshed the current page
-		elseif (isset($_SESSION['page_current_start']) && $_SESSION['page_current_start'] == $start)
-		{
-			$start_char = 'C';
-			$page_id = $_SESSION['page_first_id'];
-		}
-	}
-	// Special case start page
-	elseif ($start == 0)
-	{
-		$start_char = 'C';
-		$page_id = $ascending ? $context['topicinfo']['id_first_msg'] : $context['topicinfo']['id_last_msg'];
+		$DBascending = !$ascending;
+		$limit = $context['total_visible_posts'] <= $start + $limit ? $context['total_visible_posts'] - $start : $limit;
+		$start = $context['total_visible_posts'] <= $start + $limit ? 0 : $context['total_visible_posts'] - $start - $limit;
+		$firstIndex = empty($options['view_newest_first']) ? $start - 1 : $limit - 1;
 	}
 	else
-		$start_char = null;
+		$DBascending = $ascending;
 
-	$limit = $context['messages_per_page'];
+	// Get each post and poster in this topic.
+	$request = $smcFunc['db_query']('', '
+		SELECT id_msg, id_member, approved
+		FROM {db_prefix}messages
+		WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $can_approve_posts ? '' : '
+			AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
+		ORDER BY id_msg ' . ($DBascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
+		LIMIT {int:start}, {int:max}'),
+		array(
+			'current_member' => $user_info['id'],
+			'current_topic' => $topic,
+			'is_approved' => 1,
+			'blank_id_member' => 0,
+			'start' => $start,
+			'max' => $limit,
+		)
+	);
 
 	$messages = array();
 	$all_posters = array();
-	$firstIndex = 0;
 
-	if (isset($start_char))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		if ($start_char === 'M' || $start_char === 'C')
-		{
-			$DBascending = $ascending;
-			$page_operator = $ascending ? '>=' : '<=';
-		}
-		else
-		{
-			$DBascending = !$ascending;
-			$page_operator = $ascending ? '<=' : '>=';
-		}
-
-		if ($start_char === 'C')
-			$limit_seek = $limit;
-		else
-			$limit_seek = $limit + 1;
-
-		$request = $smcFunc['db_query']('', '
-			SELECT id_msg, id_member, approved
-			FROM {db_prefix}messages
-			WHERE id_topic = {int:current_topic}
-				AND id_msg ' . $page_operator . ' {int:page_id}' . (!$modSettings['postmod_active'] || $can_approve_posts ? '' : '
-				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
-			ORDER BY id_msg ' . ($DBascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
-			LIMIT {int:limit}'),
-			array(
-				'current_member' => $user_info['id'],
-				'current_topic' => $topic,
-				'is_approved' => 1,
-				'blank_id_member' => 0,
-				'limit' => $limit_seek,
-				'page_id' => $page_id,
-			)
-		);
-
-		$found_msg = false;
-
-		// Fallback
-		if ($smcFunc['db_num_rows']($request) < 1)
-			unset($start_char);
-		else
-		{
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-			{
-				// Check if the start msg is in our result
-				if ($row['id_msg'] == $page_id)
-					$found_msg = true;
-
-				// Skip the the start msg if we not in mode C
-				if ($start_char === 'C' || $row['id_msg'] != $page_id)
-				{
-					if (!empty($row['id_member']))
-						$all_posters[$row['id_msg']] = $row['id_member'];
-
-					$messages[] = $row['id_msg'];
-				}
-			}
-
-			// page_id not found? -> fallback
-			if (!$found_msg)
-			{
-				$messages = array();
-				$all_posters = array();
-				unset($start_char);
-			}
-		}
-
-		// Before Page bring in the right order
-		if (!empty($start_char) && $start_char === 'L')
-			krsort($messages);
+		if (!empty($row['id_member']))
+			$all_posters[$row['id_msg']] = $row['id_member'];
+		$messages[] = $row['id_msg'];
 	}
 
-	// Jump to page
-	if (empty($start_char))
-	{
-		// Calculate the fastest way to get the messages!
-		if ($start >= $context['total_visible_posts'] / 2 && $context['messages_per_page'] != -1)
-		{
-			$DBascending = !$ascending;
-			$limit = $context['total_visible_posts'] <= $start + $limit ? $context['total_visible_posts'] - $start : $limit;
-			$start = $context['total_visible_posts'] <= $start + $limit ? 0 : $context['total_visible_posts'] - $start - $limit;
-			$firstIndex = empty($options['view_newest_first']) ? $start - 1 : $limit - 1;
-		}
-		else
-			$DBascending = $ascending;
-
-		// Get each post and poster in this topic.
-		$request = $smcFunc['db_query']('', '
-			SELECT id_msg, id_member, approved
-			FROM {db_prefix}messages
-			WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $can_approve_posts ? '' : '
-				AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
-			ORDER BY id_msg ' . ($DBascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
-			LIMIT {int:start}, {int:max}'),
-			array(
-				'current_member' => $user_info['id'],
-				'current_topic' => $topic,
-				'is_approved' => 1,
-				'blank_id_member' => 0,
-				'start' => $start,
-				'max' => $limit,
-			)
-		);
-
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-		{
-			if (!empty($row['id_member']))
-				$all_posters[$row['id_msg']] = $row['id_member'];
-			$messages[] = $row['id_msg'];
-		}
-
-		// Sort the messages into the correct display order
-		if (!$DBascending)
-			sort($messages);
-	}
-
-	// Remember the paging data for next time
-	$_SESSION['page_first_id'] = $ascending ? reset($messages) : end($messages);
-	$_SESSION['page_before_start'] = $_REQUEST['start'] - $limit;
-	$_SESSION['page_last_id'] = $ascending ? end($messages) : reset($messages);
-	$_SESSION['page_next_start'] = $_REQUEST['start'] + $limit;
-	$_SESSION['page_current_start'] = $_REQUEST['start'];
-	$_SESSION['page_topic'] = $topic;
-	$_SESSION['page_ascending'] = $ascending;
+	// Sort the messages into the correct display order
+	if (!$DBascending)
+		sort($messages);
 
 	$smcFunc['db_free_result']($request);
 	$posters = array_unique($all_posters);

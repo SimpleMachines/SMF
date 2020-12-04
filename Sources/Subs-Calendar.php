@@ -610,7 +610,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 	$events = $calendarOptions['show_events'] ? getEventRange(date_format($first_day_object, 'Y-m-d'), date_format($last_day_object, 'Y-m-d')) : array();
 	$holidays = $calendarOptions['show_holidays'] ? getHolidayRange(date_format($first_day_object, 'Y-m-d'), date_format($last_day_object, 'Y-m-d')) : array();
 
-	$calendarGrid['week_title'] = sprintf($txt['calendar_week_beginning'], $txt['months_titles'][date_format($first_day_object, 'n')], date_format($first_day_object, 'j'), date_format($first_day_object, 'Y'));
+	$calendarGrid['week_title'] = sprintf($txt['calendar_week_beginning'], $txt['months'][date_format($first_day_object, 'n')], date_format($first_day_object, 'j'), date_format($first_day_object, 'Y'));
 
 	// This holds all the main data - there is at least one month!
 	$calendarGrid['months'] = array();
@@ -630,7 +630,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 
 		$calendarGrid['months'][$current_month]['days'][$current_day] = array(
 			'day' => $current_day,
-			'day_of_week' => (date_format($current_day_object, 'w') + 7 - $calendarOptions['start_day']) % 7,
+			'day_of_week' => (date_format($current_day_object, 'w') + 7) % 7,
 			'date' => $current_date,
 			'is_today' => $current_date == $today['date'],
 			'holidays' => !empty($holidays[$current_date]) ? $holidays[$current_date] : array(),
@@ -723,7 +723,7 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
  */
 function loadDatePicker($selector = 'input.date_input', $date_format = '')
 {
-	global $modSettings, $txt, $context, $user_info;
+	global $modSettings, $txt, $context, $user_info, $options;
 
 	if (empty($date_format))
 		$date_format = get_date_or_time_format('date');
@@ -766,6 +766,7 @@ function loadDatePicker($selector = 'input.date_input', $date_format = '')
 		dayNamesMin: ["' . implode('", "', $txt['days_short']) . '"],
 		prevText: "' . $txt['prev_month'] . '",
 		nextText: "' . $txt['next_month'] . '",
+		firstDay: ' . (!empty($options['calendar_start_day']) ? $options['calendar_start_day'] : 0) . ',
 	});', true);
 }
 
@@ -1774,56 +1775,6 @@ function buildEventDatetimes($row)
 		$tz_abbrev = 'UTC' . $tz_abbrev;
 
 	return array($start, $end, $allday, $span, $tz, $tz_abbrev);
-}
-
-/**
- * Gets a member's selected timezone identifier directly from the database
- *
- * @param int $id_member The member id to look up. If not provided, the current user's id will be used.
- * @return string The timezone identifier string for the user's timezone.
- */
-function getUserTimezone($id_member = null)
-{
-	global $smcFunc, $context, $user_info, $modSettings, $user_settings;
-	static $member_cache = array();
-
-	if (is_null($id_member) && $user_info['is_guest'] == false)
-		$id_member = $context['user']['id'];
-
-	//check if the cache got the data
-	if (isset($id_member) && isset($member_cache[$id_member]))
-	{
-		return $member_cache[$id_member];
-	}
-
-	//maybe the current user is the one
-	if (isset($user_settings['id_member']) && $user_settings['id_member'] == $id_member && !empty($user_settings['timezone']))
-	{
-		$member_cache[$id_member] = $user_settings['timezone'];
-		return $user_settings['timezone'];
-	}
-
-	if (isset($id_member))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT timezone
-			FROM {db_prefix}members
-			WHERE id_member = {int:id_member}',
-			array(
-				'id_member' => $id_member,
-			)
-		);
-		list($timezone) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
-	}
-
-	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
-		$timezone = isset($modSettings['default_timezone']) ? $modSettings['default_timezone'] : date_default_timezone_get();
-
-	if (isset($id_member))
-		$member_cache[$id_member] = $timezone;
-
-	return $timezone;
 }
 
 /**

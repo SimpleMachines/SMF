@@ -21,7 +21,6 @@ abstract class CacheApi
 	const APIS_FOLDER = 'APIs';
 	const APIS_NAMESPACE = 'SMF\Cache\APIs\\';
 	const APIS_DEFAULT = 'FileBased';
-	const APIS_BASENAME = '%s.php';
 
 	/**
 	 * @var string The maximum SMF version that this will work with.
