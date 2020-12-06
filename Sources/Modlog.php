@@ -163,7 +163,7 @@ function ViewModlog()
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
 		'id' => 'moderation_log_list',
-		'title' => $context['log_type'] === 3 ? $txt['admin_log'] : $txt['moderation_log'],
+		'title' => $context['log_type'] == 3 ? $txt['admin_log'] : $txt['moderation_log'],
 		'width' => '100%',
 		'items_per_page' => $context['displaypage'],
 		'no_items_label' => $txt['modlog_' . ($context['log_type'] == 3 ? 'admin_log_' : '') . 'no_entries_found'],
