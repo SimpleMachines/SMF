@@ -564,6 +564,8 @@ function get_tzid_metazones($when = 'now')
 		'Pacific/Wallis' => 'Pacific_Wallis',
 	);
 
+	call_integration_hook('integrate_metazones', array(&$tzid_metazones, $when));
+
 	// Fallbacks in case the server has an old version of the TZDB.
 	$tzids = array_keys($tzid_metazones);
 	$tzid_fallbacks = get_tzid_fallbacks($tzids, $when);
@@ -811,7 +813,6 @@ function get_sorted_tzids_for_country($country_code, $when = 'now')
 		),
 		'CD' => array(
 			'Africa/Kinshasa',
-
 			'Africa/Lubumbashi',
 		),
 		'CF' => array(
@@ -839,7 +840,6 @@ function get_sorted_tzids_for_country($country_code, $when = 'now')
 		),
 		'CN' => array(
 			'Asia/Shanghai',
-
 			'Asia/Urumqi',
 		),
 		'CO' => array(
@@ -1460,7 +1460,6 @@ function get_sorted_tzids_for_country($country_code, $when = 'now')
 		),
 		'UM' => array(
 			'Pacific/Midway',
-
 			'Pacific/Wake',
 		),
 		'US' => array(
@@ -1547,6 +1546,8 @@ function get_sorted_tzids_for_country($country_code, $when = 'now')
 
 	if (!isset($country_tzids[$country_code]))
 	{
+		call_integration_hook('integrate_country_timezones', array(&$sorted_tzids, $country_code, $when));
+
 		$country_tzids[$country_code] = isset($sorted_tzids[$country_code]) ? $sorted_tzids[$country_code] : array();
 
 		// Make sure that no time zones are missing.
@@ -1685,6 +1686,8 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 	);
 
 	$missing = array_diff($tzids, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC));
+
+	call_integration_hook('integrate_timezone_fallbacks', array(&$fallbacks, &$missing, $tzids, $when));
 
 	$replacements = array();
 
