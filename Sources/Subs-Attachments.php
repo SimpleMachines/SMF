@@ -959,7 +959,7 @@ function parseAttachBBC($attachID = 0)
 		return $context['current_attachments'][$attachID];
 
 	// If we are lucky enough to be in $board's scope then check it!
-	if (!empty($board) && $view_attachment_boards !== array(0) && !in_array($board, $view_attachment_boards))
+	if (!empty($board) && $view_attachment_boards !== array(0) && !in_array($board, $view_attachment_boards) && !isset($_SESSION['already_attached'][$attachID]))
 		return 'attachments_not_allowed_to_see';
 
 	// Get the message info associated with this particular attach ID.
@@ -970,7 +970,7 @@ function parseAttachBBC($attachID = 0)
 		return 'attachments_no_msg_associated';
 
 	// Hold it! got the info now check if you can see this attachment.
-	if ($view_attachment_boards !== array(0) && !in_array($attachInfo['board'], $view_attachment_boards))
+	if ($view_attachment_boards !== array(0) && !in_array($attachInfo['board'], $view_attachment_boards) && !isset($_SESSION['already_attached'][$attachID]))
 		return 'attachments_not_allowed_to_see';
 
 	if (empty($context['loaded_attachments'][$attachInfo['msg']]))
@@ -1009,7 +1009,7 @@ function parseAttachBBC($attachID = 0)
 		$attachContext = $attachLoaded[$attachID];
 
 	// No point in keep going further.
-	if ($view_attachment_boards !== array(0) && !in_array($attachContext['board'], $view_attachment_boards))
+	if ($view_attachment_boards !== array(0) && !in_array($attachContext['board'], $view_attachment_boards) && !isset($_SESSION['already_attached'][$attachID]))
 		return 'attachments_not_allowed_to_see';
 
 	// Previewing much? no msg ID has been set yet.
