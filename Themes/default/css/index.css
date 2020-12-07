@@ -3950,6 +3950,9 @@ h3.profile_hd {
 	align-items: center;
 	margin-top: 12px;
 }
+#attachment_previews {
+    display: none;
+}
 #attachment_previews div.descbox > div,
 #attachment_previews div.errorbox > div,
 #attachment_previews div.infobox > div {
