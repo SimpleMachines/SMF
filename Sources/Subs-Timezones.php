@@ -321,7 +321,7 @@ function get_tzid_metazones($when = 'now')
 		'Asia/Omsk' => 'Asia_Omsk',
 
 		// No DST
-		'Asia/Riyadh' => 'Asia_Arabian',
+		'Asia/Riyadh' => 'Asia_Arabia',
 
 		// No DST
 		'Asia/Seoul' => 'Asia_Korea',
