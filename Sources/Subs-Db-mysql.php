@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -52,7 +52,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_transaction'            => 'smf_db_transaction',
 			'db_error'                  => 'mysqli_error',
 			'db_select_db'              => 'smf_db_select',
-			'db_title'                  => 'MySQLi',
+			'db_title'                  => MYSQL_TITLE,
 			'db_sybase'                 => false,
 			'db_case_sensitive'         => false,
 			'db_escape_wildcard_string' => 'smf_db_escape_wildcard_string',
@@ -64,6 +64,8 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_custom_order'			=> 'smf_db_custom_order',
 			'db_native_replace'			=> 'smf_db_native_replace',
 			'db_cte_support'			=> 'smf_db_cte_support',
+			'db_connect_error'			=> 'mysqli_connect_error',
+			'db_connect_errno'			=> 'mysqli_connect_errno',
 		);
 
 	if (!empty($db_options['persist']))
@@ -358,7 +360,7 @@ function smf_db_quote($db_string, $db_values, $connection = null)
  */
 function smf_db_query($identifier, $db_string, $db_values = array(), $connection = null)
 {
-	global $db_cache, $db_count, $db_connection, $db_show_debug, $time_start;
+	global $db_cache, $db_count, $db_connection, $db_show_debug;
 	global $db_unbuffered, $db_callback, $modSettings;
 
 	// Comments that are allowed in a query are preg_removed.
@@ -477,7 +479,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$db_cache[$db_count]['q'] = $db_count < 50 ? $db_string : '...';
 		$db_cache[$db_count]['f'] = $file;
 		$db_cache[$db_count]['l'] = $line;
-		$db_cache[$db_count]['s'] = ($st = microtime(true)) - $time_start;
+		$db_cache[$db_count]['s'] = ($st = microtime(true)) - TIME_START;
 	}
 
 	if (empty($db_unbuffered))
@@ -726,7 +728,7 @@ function smf_db_error($db_string, $connection = null)
  * @param object $connection The connection to use (if null, $db_connection is used)
  * @return mixed value of the first key, behavior based on returnmode. null if no data.
  */
-function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
+function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
 {
 	global $smcFunc, $db_connection, $db_prefix;
 
@@ -735,7 +737,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 	$return_var = null;
 
 	// With nothing to insert, simply return.
-	if (empty($data))
+	if (empty($table) || empty($data))
 		return;
 
 	// Replace the prefix holder with the actual prefix.

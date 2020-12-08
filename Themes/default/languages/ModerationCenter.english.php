@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; ModerationCenter
+// Version: 2.1 RC3; ModerationCenter
 
 $txt['moderation_center'] = 'Moderation Center';
 $txt['mc_main'] = 'Main';
@@ -27,7 +27,7 @@ $txt['mc_notes'] = 'Moderator Notes';
 $txt['mc_notes_delete_own'] = 'You are only allowed to delete your own notes.';
 $txt['mc_cannot_connect_sm'] = 'You are unable to connect to simplemachines.org\'s latest news file.';
 
-$txt['mc_recent_reports_none'] = 'There are no outstanding reports';
+$txt['mc_recent_reports_none'] = 'There are no outstanding reports.';
 $txt['mc_watched_users_none'] = 'There are not currently any watches in place.';
 $txt['mc_group_requests_none'] = 'There are no open requests for group membership.';
 $txt['mc_reported_users_none'] = 'There are no pending profile reports.';
@@ -153,7 +153,7 @@ $txt['report_action_close_all'] = 'You successfully closed all selected reports.
 $txt['mc_warning_template_desc'] = 'Use this page to fill in the details of the template. Note that the subject for the email is not part of the template. Note that as the notification is sent by PM you can use BBC within the template. Note if you use the {MESSAGE} variable then this template will not be available when issuing a generic warning (i.e. A warning not linked to a post).';
 $txt['mc_warning_template_title'] = 'Template Title';
 $txt['mc_warning_template_body_desc'] = 'The content of the notification message. Note that you can use the following shortcuts in this template.<ul style="margin-top: 0px;"><li>{MEMBER} - Member Name.</li><li>{MESSAGE} - Link to Offending Post. (If Applicable)</li><li>{FORUMNAME} - Forum Name.</li><li>{SCRIPTURL} - Web address of forum.</li><li>{REGARDS} - Standard email sign-off.</li></ul>';
-$txt['mc_warning_template_body_default'] = '{MEMBER},' . "\n\n" . 'You have received a warning for inappropriate activity. Please cease these activities and abide by the forum rules otherwise we will take further action.' . "\n\n" . '{REGARDS}';
+$txt['mc_warning_template_body_default'] = "{MEMBER},\n\nYou have received a warning for inappropriate activity. Please cease these activities and abide by the forum rules otherwise we will take further action.\n\n{REGARDS}";
 $txt['mc_warning_template_personal'] = 'Personal Template';
 $txt['mc_warning_template_personal_desc'] = 'If you select this option only you will be able to see, edit and use this template. If not selected all moderators will be able to use this template.';
 $txt['mc_warning_template_error_no_title'] = 'You must set a title.';
@@ -171,7 +171,7 @@ $txt['mc_click_add_note'] = 'Add a new note';
 $txt['mc_add_note'] = 'Add';
 
 // Do not use numeric entries in the below string.
-$txt['mc_reportedm_ignore_confirm'] = 'If you choose &quot;OK&quot;, all future reports about this user\'s profile will be ignored; moderators will not see any future reports about this user\'s profile . Are you sure you wish to do this?';
+$txt['mc_reportedm_ignore_confirm'] = 'If you choose &quot;OK&quot;, all future reports about this user\'s profile will be ignored; moderators will not see any future reports about this user\'s profile. Are you sure you wish to do this?';
 $txt['mc_reported_members_title'] = 'Reported Members';
 $txt['mc_reported_members_desc'] = 'Allows you to view a list of all users whose profiles have been reported';
 

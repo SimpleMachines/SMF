@@ -13,22 +13,29 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 // Get everything started up...
 define('SMF', 1);
-define('SMF_VERSION', '2.1 RC2');
+define('SMF_VERSION', '2.1 RC3');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2019');
-define('JQUERY_VERSION', '3.4.1');
+define('SMF_SOFTWARE_YEAR', '2020');
 
+define('JQUERY_VERSION', '3.5.1');
+define('POSTGRE_TITLE', 'PostgreSQL');
+define('MYSQL_TITLE', 'MySQL');
+define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
+
+if (!defined('TIME_START'))
+	define('TIME_START', microtime(true));
+
+// If anything goes wrong loading Settings.php, make sure the admin knows it.
 error_reporting(E_ALL);
-$time_start = microtime(true);
 
 // This makes it so headers can be sent!
 ob_start();
@@ -40,14 +47,27 @@ foreach (array('db_character_set', 'cachedir') as $variable)
 // Load the settings...
 require_once(dirname(__FILE__) . '/Settings.php');
 
+// Devs want all error messages, but others don't.
+error_reporting(!empty($db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
+
 // Ensure there are no trailing slashes in these variables.
 foreach (array('boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'taskddir', 'cachedir') as $variable)
 	if (!empty($GLOBALS[$variable]))
 		$GLOBALS[$variable] = rtrim($GLOBALS[$variable], "\\/");
 
-// Make absolutely sure the cache directory is defined.
-if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
-	$cachedir = $boarddir . '/cache';
+// Make absolutely sure the cache directory is defined and writable.
+if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
+{
+	if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
+		$cachedir = $boarddir . '/cache';
+
+	else
+	{
+		$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
+
+		@mkdir($cachedir, 0750);
+	}
+}
 
 // Without those we can't go anywhere
 require_once($sourcedir . '/QueryString.php');
@@ -57,7 +77,7 @@ require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
 
 // If $maintenance is set specifically to 2, then we're upgrading or something.
-if (!empty($maintenance) && $maintenance == 2)
+if (!empty($maintenance) &&  2 === $maintenance)
 	display_maintenance_message();
 
 // Create a variable to store some SMF specific functions in.
@@ -69,6 +89,7 @@ loadDatabase();
 // Load the settings from the settings table, and perform operations like optimizing.
 $context = array();
 reloadSettings();
+
 // Clean the request variables, add slashes, etc.
 cleanRequest();
 
@@ -95,6 +116,7 @@ if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
 	// If zlib is being used, turn off output compression.
 	if (ini_get('zlib.output_compression') >= 1 || ini_get('output_handler') == 'ob_gzhandler')
 		$modSettings['enableCompressedOutput'] = '0';
+
 	else
 	{
 		ob_end_clean();
@@ -113,6 +135,7 @@ spl_autoload_register(function ($class) use ($sourcedir)
 		'ReCaptcha\\' => 'ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => 'minify/src/',
 		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+		'SMF\\Cache' => 'Cache/',
 	);
 
 	// Do any third-party scripts want in on the fun?
@@ -210,10 +233,9 @@ function smf_main()
 		'helpadmin' => true,
 		'jsoption' => true,
 		'likes' => true,
-		'loadeditorlocale' => true,
 		'modifycat' => true,
 		'pm' => array('sa' => array('popup')),
-		'profile' => array('area' => array('popup', 'alerts_popup')),
+		'profile' => array('area' => array('popup', 'alerts_popup', 'download', 'dlattach')),
 		'requestmembers' => true,
 		'smstats' => true,
 		'suggest' => true,
@@ -225,23 +247,7 @@ function smf_main()
 	);
 	call_integration_hook('integrate_pre_log_stats', array(&$no_stat_actions));
 
-	$should_log = true;
-	if (isset($_REQUEST['action']) && isset($no_stat_actions[$_REQUEST['action']]))
-	{
-		if (is_array($no_stat_actions[$_REQUEST['action']]))
-		{
-			foreach ($no_stat_actions[$_REQUEST['action']] as $subtype => $subnames)
-			{
-				if (isset($_REQUEST[$subtype]) && in_array($_REQUEST[$subtype], $subnames))
-				{
-					$should_log = false;
-					break;
-				}
-			}
-		}
-		else
-			$should_log = empty($no_stat_actions[$_REQUEST['action']]);
-	}
+	$should_log = !is_filtered_request($no_stat_actions, 'action');
 	if ($should_log)
 	{
 		// Log this user as online.
@@ -316,6 +322,8 @@ function smf_main()
 
 	// Here's the monstrous $_REQUEST['action'] array - $_REQUEST['action'] => array($file, $function).
 	$actionArray = array(
+		'agreement' => array('Agreement.php', 'Agreement'),
+		'acceptagreement' => array('Agreement.php', 'AcceptAgreement'),
 		'activate' => array('Register.php', 'Activate'),
 		'admin' => array('Admin.php', 'AdminMain'),
 		'announce' => array('Post.php', 'AnnounceTopic'),
@@ -336,7 +344,6 @@ function smf_main()
 		'jsmodify' => array('Post.php', 'JavaScriptModify'),
 		'jsoption' => array('Themes.php', 'SetJavaScript'),
 		'likes' => array('Likes.php', 'Likes::call#'),
-		'loadeditorlocale' => array('Subs-Editor.php', 'loadLocale'),
 		'lock' => array('Topic.php', 'LockTopic'),
 		'lockvoting' => array('Poll.php', 'LockVoting'),
 		'login' => array('LogInOut.php', 'Login'),
@@ -350,7 +357,7 @@ function smf_main()
 		'modifycat' => array('ManageBoards.php', 'ModifyCat'),
 		'movetopic' => array('MoveTopic.php', 'MoveTopic'),
 		'movetopic2' => array('MoveTopic.php', 'MoveTopic2'),
-		'notify' => array('Notify.php', 'Notify'),
+		'notifyannouncements' => array('Notify.php', 'AnnouncementsNotify'),
 		'notifyboard' => array('Notify.php', 'BoardNotify'),
 		'notifytopic' => array('Notify.php', 'TopicNotify'),
 		'pm' => array('PersonalMessage.php', 'MessageMain'),
@@ -375,7 +382,6 @@ function smf_main()
 		'signup2' => array('Register.php', 'Register2'),
 		'smstats' => array('Stats.php', 'SMStats'),
 		'suggest' => array('Subs-Editor.php', 'AutoSuggestHandler'),
-		'spellcheck' => array('Subs-Post.php', 'SpellCheck'),
 		'splittopics' => array('SplitTopics.php', 'SplitTopics'),
 		'stats' => array('Stats.php', 'DisplayStats'),
 		'sticky' => array('Topic.php', 'Sticky'),

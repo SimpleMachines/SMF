@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -32,7 +32,7 @@ if (!defined('SMF'))
  */
 function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix, $db_options = array())
 {
-	global $smcFunc;
+	global $smcFunc, $pg_connect_error, $pg_connect_errno;
 
 	// Map some database specific functions, only do this once.
 	if (!isset($smcFunc['db_fetch_assoc']))
@@ -54,7 +54,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_transaction'            => 'smf_db_transaction',
 			'db_error'                  => 'pg_last_error',
 			'db_select_db'              => 'smf_db_select_db',
-			'db_title'                  => 'PostgreSQL',
+			'db_title'                  => POSTGRE_TITLE,
 			'db_sybase'                 => true,
 			'db_case_sensitive'         => true,
 			'db_escape_wildcard_string' => 'smf_db_escape_wildcard_string',
@@ -66,6 +66,8 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_custom_order'           => 'smf_db_custom_order',
 			'db_native_replace'         => 'smf_db_native_replace',
 			'db_cte_support'            => 'smf_db_cte_support',
+			'db_connect_error'          => 'smf_db_connect_error',
+			'db_connect_errno'          => 'smf_db_connect_errno',
 		);
 
 	// We are not going to make it very far without these.
@@ -75,10 +77,24 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 	// We need to escape ' and \
 	$db_passwd = str_replace(array('\\','\''), array('\\\\','\\\''), $db_passwd);
 
-	if (!empty($db_options['persist']))
-		$connection = @pg_pconnect((empty($db_server) ? '' : 'host=' . $db_server . ' ') . 'dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
-	else
-		$connection = @pg_connect((empty($db_server) ? '' : 'host=' . $db_server . ' ') . 'dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
+	// Since pg_connect doesn't feed error info to pg_last_error, we have to catch issues with a try/catch.
+	set_error_handler(function($errno, $errstr) {
+		throw new ErrorException($errstr, $errno);});
+	try
+	{
+		if (!empty($db_options['persist']))
+			$connection = @pg_pconnect((empty($db_server) ? '' : 'host=' . $db_server . ' ') . 'dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
+		else
+			$connection = @pg_connect((empty($db_server) ? '' : 'host=' . $db_server . ' ') . 'dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
+	}
+	catch (Exception $e)
+	{
+		// Make error info available to calling processes
+		$pg_connect_error = $e->getMessage();
+		$pg_connect_errno = $e->getCode();
+		$connection = false;
+	}
+	restore_error_handler();
 
 	// Something's wrong, show an error if its fatal (which we assume it is)
 	if (!$connection)
@@ -322,7 +338,7 @@ function smf_db_quote($db_string, $db_values, $connection = null)
  */
 function smf_db_query($identifier, $db_string, $db_values = array(), $connection = null)
 {
-	global $db_cache, $db_count, $db_connection, $db_show_debug, $time_start;
+	global $db_cache, $db_count, $db_connection, $db_show_debug;
 	global $db_callback, $db_last_result, $db_replace_result, $modSettings;
 
 	// Decide which connection to use.
@@ -330,12 +346,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Special queries that need processing.
 	$replacements = array(
-		'consolidate_spider_stats' => array(
-			'~MONTH\(log_time\), DAYOFMONTH\(log_time\)~' => 'MONTH(CAST(CAST(log_time AS abstime) AS timestamp)), DAYOFMONTH(CAST(CAST(log_time AS abstime) AS timestamp))',
-		),
-		'get_random_number' => array(
-			'~RAND~' => 'RANDOM',
-		),
 		'insert_log_search_topics' => array(
 			'~NOT RLIKE~' => '!~',
 		),
@@ -489,7 +499,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$db_cache[$db_count]['q'] = $db_count < 50 ? $db_string : '...';
 		$db_cache[$db_count]['f'] = $file;
 		$db_cache[$db_count]['l'] = $line;
-		$db_cache[$db_count]['s'] = ($st = microtime(true)) - $time_start;
+		$db_cache[$db_count]['s'] = ($st = microtime(true)) - TIME_START;
 	}
 
 	$db_last_result = @pg_query($connection, $db_string);
@@ -633,7 +643,7 @@ function smf_db_error($db_string, $connection = null)
  * @param resource $connection The connection to use (if null, $db_connection is used)
  * @return mixed value of the first key, behavior based on returnmode. null if no data.
  */
-function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
+function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
 {
 	global $smcFunc, $db_connection, $db_prefix;
 
@@ -641,7 +651,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 
 	$replace = '';
 
-	if (empty($data))
+	if (empty($table) || empty($data))
 		return;
 
 	if (!is_array($data[array_rand($data)]))
@@ -659,7 +669,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $ret
 		if (count(array_intersect_key($columns, array_flip($keys))) !== count($keys))
 			smf_db_error_backtrace('Primary Key field missing in insert call',
 				'Change the method of db insert to insert or add the pk field to the columns array', E_USER_ERROR, __FILE__, __LINE__);
-	}			
+	}
 
 	// PostgreSQL doesn't support replace: we implement a MySQL-compatible behavior instead
 	if ($method == 'replace' || $method == 'ignore')
@@ -918,21 +928,38 @@ function smf_db_fetch_all($request)
  */
 function smf_db_error_insert($error_array)
 {
-	global $db_prefix, $db_connection;
+	global $db_prefix, $db_connection, $db_persist;
 	static $pg_error_data_prep;
 
 	// without database we can't do anything
 	if (empty($db_connection))
 		return;
 
-	if (empty($pg_error_data_prep))
-		$pg_error_data_prep = pg_prepare($db_connection, 'smf_log_errors',
+	if (filter_var($error_array[2], FILTER_VALIDATE_IP) === false)
+		$error_array[2] = null;
+
+	if(empty($db_persist))
+	{ // without pooling
+		if (empty($pg_error_data_prep))
+			$pg_error_data_prep = pg_prepare($db_connection, 'smf_log_errors',
+				'INSERT INTO ' . $db_prefix . 'log_errors
+					(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
+				VALUES( $1, $2, $3, $4, $5, $6, $7, $8,	$9, $10)'
+			);
+
+		pg_execute($db_connection, 'smf_log_errors', $error_array);
+	}
+	else
+	{ //with pooling
+		$pg_error_data_prep = pg_prepare($db_connection, '',
 			'INSERT INTO ' . $db_prefix . 'log_errors
 				(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
 			VALUES( $1, $2, $3, $4, $5, $6, $7, $8,	$9, $10)'
 		);
 
-	pg_execute($db_connection, 'smf_log_errors', $error_array);
+		pg_execute($db_connection, '', $error_array);
+	}
+
 }
 
 /**
@@ -1008,6 +1035,42 @@ function smf_db_escape_string($string, $connection = null)
 	global $db_connection;
 
 	return pg_escape_string($connection === null ? $db_connection : $connection, $string);
+}
+
+/**
+ * Function to return the pg connection error message.
+ * Emulating mysqli_connect_error.
+ * Since pg_connect() doesn't feed info to pg_last_error, we need to
+ * use a try/catch & preserve error info.
+ *
+ * @return string connection error message
+ */
+function smf_db_connect_error()
+{
+	global $pg_connect_error;
+
+	if (empty($pg_connect_error))
+		$pg_connect_error = '';
+
+	return $pg_connect_error;
+}
+
+/**
+ * Function to return the pg connection error number.
+ * Emulating mysqli_connect_errno.
+ * Since pg_connect() doesn't feed info to pg_last_error, we need to
+ * use a try/catch & preserve error info.
+ *
+ * @return string connection error number
+ */
+function smf_db_connect_errno()
+{
+	global $pg_connect_errno;
+
+	if (empty($pg_connect_errno))
+		$pg_connect_errno = '';
+
+	return $pg_connect_errno;
 }
 
 ?>

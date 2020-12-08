@@ -369,8 +369,8 @@ CREATE TABLE {$db_prefix}log_errors (
 CREATE TABLE {$db_prefix}log_floodcontrol (
 	ip VARBINARY(16),
 	log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
-	log_type VARCHAR(8) DEFAULT 'post',
-	PRIMARY KEY (ip, log_type(8))
+	log_type VARCHAR(30) DEFAULT 'post',
+	PRIMARY KEY (ip, log_type)
 ) ENGINE={$memory};
 
 #
@@ -464,6 +464,7 @@ CREATE TABLE {$db_prefix}log_packages (
 	themes_installed VARCHAR(255) NOT NULL DEFAULT '',
 	db_changes TEXT NOT NULL,
 	credits TEXT NOT NULL,
+	sha256_hash TEXT,
 	PRIMARY KEY (id_install),
 	INDEX idx_filename (filename(15))
 ) ENGINE={$engine};
@@ -601,7 +602,7 @@ CREATE TABLE {$db_prefix}log_spider_hits (
 
 CREATE TABLE {$db_prefix}log_spider_stats (
 	id_spider SMALLINT UNSIGNED DEFAULT '0',
-	page_hits SMALLINT UNSIGNED NOT NULL DEFAULT '0',
+	page_hits INT NOT NULL DEFAULT '0',
 	last_seen INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	stat_date DATE DEFAULT '1004-01-01',
 	PRIMARY KEY (stat_date, id_spider)
@@ -846,6 +847,8 @@ CREATE TABLE {$db_prefix}package_servers (
 	id_server SMALLINT UNSIGNED AUTO_INCREMENT,
 	name VARCHAR(255) NOT NULL DEFAULT '',
 	url VARCHAR(255) NOT NULL DEFAULT '',
+	validation_url VARCHAR(255) NOT NULL DEFAULT '',
+	extra TEXT,
 	PRIMARY KEY (id_server)
 ) ENGINE={$engine};
 
@@ -1851,8 +1854,9 @@ VALUES (1, 1, 1, 1, UNIX_TIMESTAMP(), '{$default_topic_subject}', 'Simple Machin
 #
 
 INSERT INTO {$db_prefix}package_servers
-	(name, url)
-VALUES ('Simple Machines Third-party Mod Site', 'https://custom.simplemachines.org/packages/mods');
+	(name, url, validation_url)
+VALUES ('Simple Machines Third-party Mod Site', 'https://custom.simplemachines.org/packages/mods', 'https://custom.simplemachines.org/api.php?action=validate;version=v1;smf_version={SMF_VERSION}'),
+		('Simple Machines Downloads Site', 'https://download.simplemachines.org/browse.php?api=v1;smf_version={SMF_VERSION}', 'https://download.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}');
 # --------------------------------------------------------
 
 #
@@ -1939,7 +1943,8 @@ VALUES
 	(10, 0, 120, 1, 'd', 1, 'paid_subscriptions', ''),
 	(11, 0, 120, 1, 'd', 0, 'remove_temp_attachments', ''),
 	(12, 0, 180, 1, 'd', 0, 'remove_topic_redirect', ''),
-	(13, 0, 240, 1, 'd', 0, 'remove_old_drafts', '');
+	(13, 0, 240, 1, 'd', 0, 'remove_old_drafts', ''),
+	(14, 0, 0, 1, 'w', 1, 'prune_log_topics', '');
 
 # --------------------------------------------------------
 
@@ -1976,7 +1981,6 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('mostOnline', '1'),
 	('mostOnlineToday', '1'),
 	('mostDate', UNIX_TIMESTAMP()),
-	('allow_disableAnnounce', '1'),
 	('trackStats', '1'),
 	('userLanguage', '1'),
 	('titlesEnable', '1'),
@@ -2069,7 +2073,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('enableThemes', '1'),
 	('who_enabled', '1'),
 	('time_offset', '0'),
-	('cookieTime', '60'),
+	('cookieTime', '3153600'),
 	('lastActive', '15'),
 	('smiley_sets_known', 'fugue,alienine'),
 	('smiley_sets_names', '{$default_fugue_smileyset_name}\n{$default_alienine_smileyset_name}'),
@@ -2103,6 +2107,9 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('warning_mute', '60'),
 	('last_mod_report_action', '0'),
 	('pruningOptions', '30,180,180,180,30,0'),
+	('mark_read_beyond', '90'),
+	('mark_read_delete_beyond', '365'),
+	('mark_read_max_users', '500'),
 	('modlog_enabled', '1'),
 	('adminlog_enabled', '1'),
 	('reg_verification', '1'),
@@ -2131,6 +2138,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('show_blurb', '1'),
 	('show_profile_buttons', '1'),
 	('enable_ajax_alerts', '1'),
+	('alerts_auto_purge', '30'),
 	('gravatarEnabled', '1'),
 	('gravatarOverride', '0'),
 	('gravatarAllowExtraEmail', '1'),
@@ -2139,6 +2147,10 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('loginHistoryDays', '30'),
 	('httponlyCookies', '1'),
 	('tfa_mode', '1'),
+	('export_dir', '{$boarddir}/exports'),
+	('export_expiry', '7'),
+	('export_min_diskspace_pct', '5'),
+	('export_rate', '250'),
 	('allow_expire_redirect', '1'),
 	('json_done', '1'),
 	('displayFields', '[{"col_name":"cust_icq","title":"ICQ","type":"text","order":"1","bbc":"0","placement":"1","enclose":"<a class=\\"icq\\" href=\\"\\/\\/www.icq.com\\/people\\/{INPUT}\\" target=\\"_blank\\" title=\\"ICQ - {INPUT}\\"><img src=\\"{DEFAULT_IMAGES_URL}\\/icq.png\\" alt=\\"ICQ - {INPUT}\\"><\\/a>","mlist":"0"},{"col_name":"cust_skype","title":"Skype","type":"text","order":"2","bbc":"0","placement":"1","enclose":"<a href=\\"skype:{INPUT}?call\\"><img src=\\"{DEFAULT_IMAGES_URL}\\/skype.png\\" alt=\\"{INPUT}\\" title=\\"{INPUT}\\" \\/><\\/a> ","mlist":"0"},{"col_name":"cust_loca","title":"Location","type":"text","order":"4","bbc":"0","placement":"0","enclose":"","mlist":"0"},{"col_name":"cust_gender","title":"Gender","type":"radio","order":"5","bbc":"0","placement":"1","enclose":"<span class=\\" main_icons gender_{KEY}\\" title=\\"{INPUT}\\"><\\/span>","mlist":"0","options":["None","Male","Female"]}]'),
@@ -2223,12 +2235,12 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'show_stats_index', '1'),
 	(1, 'newsfader_time', '3000'),
 	(1, 'use_image_buttons', '1'),
-	(1, 'enable_news', '1'),
-	(1, 'drafts_show_saved_enabled', '1');
+	(1, 'enable_news', '1');
 
 INSERT INTO {$db_prefix}themes
 	(id_member, id_theme, variable, value)
 VALUES (-1, 1, 'posts_apply_ignore_list', '1'),
+	(-1, 1, 'drafts_show_saved_enabled', '1'),
 	(-1, 1, 'return_to_post', '1');
 # --------------------------------------------------------
 
@@ -2269,7 +2281,8 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'unapproved_post', 1),
 	(0, 'buddy_request', 1),
 	(0, 'warn_any', 1),
-	(0, 'request_group', 1);
+	(0, 'request_group', 1),
+	(0, 'msg_notify_pref', 1);
 # --------------------------------------------------------
 
 COMMIT;

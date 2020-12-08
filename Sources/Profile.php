@@ -8,11 +8,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -415,6 +415,41 @@ function ModifyProfile($post_errors = array())
 						'any' => array('moderate_forum'),
 					),
 				),
+				'getprofiledata' => array(
+					'label' => $txt['export_profile_data'],
+					'file' => 'Profile-Export.php',
+					'function' => 'export_profile_data',
+					'icon' => 'packages',
+					// 'token' => 'profile-ex%u', // This is not checked here. We do it in the function itself - but if it was checked, this is what it'd be.
+					'permission' => array(
+						'own' => array('profile_view_own'),
+						'any' => array('moderate_forum'),
+					),
+				),
+				'download' => array(
+					'label' => $txt['export_profile_data'],
+					'file' => 'Profile-Export.php',
+					'function' => 'download_export_file',
+					'icon' => 'packages',
+					'hidden' => true,
+					'select' => 'getprofiledata',
+					'permission' => array(
+						'own' => array('profile_view_own'),
+						'any' => array('moderate_forum'),
+					),
+				),
+				'dlattach' => array(
+					'label' => $txt['export_profile_data'],
+					'file' => 'Profile-Export.php',
+					'function' => 'export_attachment',
+					'icon' => 'packages',
+					'hidden' => true,
+					'select' => 'getprofiledata',
+					'permission' => array(
+						'own' => array('profile_view_own'),
+						'any' => array(),
+					),
+				),
 				'deleteaccount' => array(
 					'label' => $txt['deleteAccount'],
 					'file' => 'Profile-Actions.php',
@@ -438,6 +473,16 @@ function ModifyProfile($post_errors = array())
 					'permission' => array(
 						'own' => array(),
 						'any' => array('moderate_forum'),
+					),
+				),
+				// A logout link just for the popup menu.
+				'logout' => array(
+					'label' => $txt['logout'],
+					'custom_url' => $scripturl . '?action=logout;%1$s=%2$s',
+					'enabled' => !empty($_REQUEST['area']) && $_REQUEST['area'] === 'popup',
+					'permission' => array(
+						'own' => array('is_not_guest'),
+						'any' => array(),
 					),
 				),
 			),
@@ -481,6 +526,9 @@ function ModifyProfile($post_errors = array())
 			'u' => $context['id_member'],
 		),
 	);
+
+	// Logging out requires the session id in the url.
+	$profile_areas['profile_action']['areas']['logout']['custom_url'] = sprintf($profile_areas['profile_action']['areas']['logout']['custom_url'], $context['session_var'], $context['session_id']);
 
 	// Actually create the menu!
 	$profile_include_data = createMenu($profile_areas, $menuOptions);
@@ -632,7 +680,7 @@ function ModifyProfile($post_errors = array())
 			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $password, false)), true);
 
 			// Bad password!!!
-			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], un_htmlspecialchars(stripslashes($password)), $user_info['passwd']))
+			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], $password, $user_info['passwd']))
 				$post_errors[] = 'bad_password';
 
 			// Warn other elements not to jump the gun and do custom changes!
@@ -786,32 +834,22 @@ function profile_popup($memID)
 	// This list will pull from the master list wherever possible. Hopefully it should be clear what does what.
 	$profile_items = array(
 		array(
-			'menu' => 'info',
-			'area' => 'summary',
-			'title' => $txt['popup_summary'],
-		),
-		array(
 			'menu' => 'edit_profile',
 			'area' => 'account',
 		),
 		array(
-			'menu' => 'info',
-			'area' => 'showposts',
-			'title' => $txt['popup_showposts'],
-		),
-		array(
 			'menu' => 'edit_profile',
 			'area' => 'forumprofile',
-			'title' => $txt['forumprofile'],
-		),
-		array(
-			'menu' => 'edit_profile',
-			'area' => 'notification',
+			'title' => $txt['popup_forumprofile'],
 		),
 		array(
 			'menu' => 'edit_profile',
 			'area' => 'theme',
 			'title' => $txt['theme'],
+		),
+		array(
+			'menu' => 'edit_profile',
+			'area' => 'notification',
 		),
 		array(
 			'menu' => 'edit_profile',
@@ -824,12 +862,28 @@ function profile_popup($memID)
 			'title' => $txt['popup_ignore'],
 		),
 		array(
+			'menu' => 'info',
+			'area' => 'showposts',
+			'title' => $txt['popup_showposts'],
+		),
+		array(
+			'menu' => 'info',
+			'area' => 'showdrafts',
+			'title' => $txt['popup_showdrafts'],
+		),
+		array(
 			'menu' => 'edit_profile',
 			'area' => 'groupmembership',
+			'title' => $txt['popup_groupmembership'],
 		),
 		array(
 			'menu' => 'profile_action',
 			'area' => 'subscriptions',
+			'title' => $txt['popup_subscriptions'],
+		),
+		array(
+			'menu' => 'profile_action',
+			'area' => 'logout',
 		),
 	);
 
@@ -992,7 +1046,7 @@ function loadCustomFields($memID, $area = 'summary')
 		else
 		{
 			@list ($rows, $cols) = @explode(',', $row['default_value']);
-			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($row['show_reg'] == 2 ? ' required' : '') . '>' . un_htmlspecialchars($value) . '</textarea>';
+			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($row['field_length'] != 0 ? ' maxlength="' . $row['field_length'] . '"' : '') . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($row['show_reg'] == 2 ? ' required' : '') . '>' . un_htmlspecialchars($value) . '</textarea>';
 		}
 
 		// Parse BBCode

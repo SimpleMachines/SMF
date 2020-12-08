@@ -1,16 +1,17 @@
 <?php
 
 /**
- * This task handles notifying someone that an user has added him/her as his/her buddy.
+ * This file contains code used to notify members when they have been added to
+ * other members' buddy lists.
  *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -19,12 +20,14 @@
 class Buddy_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the info, sets the alerts and loads up the email queue.
+	 * This executes the task: loads up the info, puts the email in the queue
+	 * and inserts any alerts as needed.
+	 *
 	 * @return bool Always returns true
 	 */
 	public function execute()
- 	{
- 		global $smcFunc, $sourcedir;
+	{
+		global $smcFunc, $sourcedir;
 
 		// Figure out if the user wants to be notified.
 		require_once($sourcedir . '/Subs-Notify.php');

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; Search
+// Version: 2.1 RC3; Search
 
 $txt['set_parameters'] = 'Set Search Parameters';
 $txt['choose_board'] = 'Choose boards to search in, or search all';
@@ -145,7 +145,7 @@ $txt['spider'] = 'Spider';
 $txt['spider_time'] = 'Time';
 $txt['spider_viewing'] = 'Viewing';
 $txt['spider_logs_empty'] = 'There are currently no spider log entries.';
-$txt['spider_logs_info'] = 'Note that logging of every spider action only occurs if tracking is set to either &quot;high&quot; or &quot;very high&quot;. Detail of every spiders action is only logged if tracking is set to &quot;very high&quot;.';
+$txt['spider_logs_info'] = 'Note that logging of every spider action only occurs if tracking is set to either "moderate" or "aggressive". Detail of every spider\'s action is only logged if tracking is set to "aggressive".';
 $txt['spider_disabled'] = 'Disabled';
 $txt['spider_log_empty_log'] = 'Clear Log';
 $txt['spider_log_empty_log_confirm'] = 'Are you sure you want to completely clear the log';

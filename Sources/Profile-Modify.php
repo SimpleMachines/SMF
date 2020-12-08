@@ -8,11 +8,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -284,7 +284,7 @@ function loadProfileFields($force_reload = false)
 
 					// Maybe they are trying to change their password as well?
 					$resetPassword = true;
-					if (isset($_POST['passwrd1']) && $_POST['passwrd1'] != '' && isset($_POST['passwrd2']) && $_POST['passwrd1'] == $_POST['passwrd2'] && validatePassword($_POST['passwrd1'], $value, array($cur_profile['real_name'], $user_info['username'], $user_info['name'], $user_info['email'])) == null)
+					if (isset($_POST['passwrd1']) && $_POST['passwrd1'] != '' && isset($_POST['passwrd2']) && $_POST['passwrd1'] == $_POST['passwrd2'] && validatePassword(un_htmlspecialchars($_POST['passwrd1']), $value, array($cur_profile['real_name'], $user_info['username'], $user_info['name'], $user_info['email'])) == null)
 						$resetPassword = false;
 
 					// Do the reset... this will send them an email too.
@@ -304,7 +304,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'passwrd1' => array(
 			'type' => 'password',
-			'label' => ucwords($txt['choose_pass']),
+			'label' => $txt['choose_pass'],
 			'subtext' => $txt['password_strength'],
 			'size' => 20,
 			'value' => '',
@@ -323,7 +323,7 @@ function loadProfileFields($force_reload = false)
 
 				// Let's get the validation function into play...
 				require_once($sourcedir . '/Subs-Auth.php');
-				$passwordErrors = validatePassword($value, $cur_profile['member_name'], array($cur_profile['real_name'], $user_info['username'], $user_info['name'], $user_info['email']));
+				$passwordErrors = validatePassword(un_htmlspecialchars($value), $cur_profile['member_name'], array($cur_profile['real_name'], $user_info['username'], $user_info['name'], $user_info['email']));
 
 				// Were there errors?
 				if ($passwordErrors != null)
@@ -337,7 +337,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'passwrd2' => array(
 			'type' => 'password',
-			'label' => ucwords($txt['verify_pass']),
+			'label' => $txt['verify_pass'],
 			'size' => 20,
 			'value' => '',
 			'permission' => 'profile_password',
@@ -602,6 +602,7 @@ function loadProfileFields($force_reload = false)
 			'disabled_options' => array_filter(array_keys(smf_list_timezones()), 'is_int'),
 			'permission' => 'profile_extra',
 			'label' => $txt['timezone'],
+			'value' => empty($cur_profile['timezone']) ? $modSettings['default_timezone'] : $cur_profile['timezone'],
 			'input_validate' => function($value)
 			{
 				$tz = smf_list_timezones();
@@ -1790,7 +1791,7 @@ function forumProfile($memID)
 		loadCustomFields($memID, 'forumprofile');
 
 	$context['sub_template'] = 'edit_options';
-	$context['page_desc'] = $txt['forumProfile_info'];
+	$context['page_desc'] = sprintf($txt['forumProfile_info'], $context['forum_name_html_safe']);
 	$context['show_preview_button'] = true;
 
 	setupProfileContext(
@@ -1951,10 +1952,11 @@ function notification($memID)
  * Handles configuration of alert preferences
  *
  * @param int $memID The ID of the member
+ * @param bool $defaultSettings If true, we are loading default options.
  */
-function alert_configuration($memID)
+function alert_configuration($memID, $defaultSettings = false)
 {
-	global $txt, $context, $modSettings, $smcFunc, $sourcedir;
+	global $txt, $context, $modSettings, $smcFunc, $sourcedir, $user_profile;
 
 	if (!isset($context['token_check']))
 		$context['token_check'] = 'profile-nt' . $memID;
@@ -1968,7 +1970,7 @@ function alert_configuration($memID)
 		$context['action'] = 'action=profile;area=notification;sa=alerts;u=' . $memID;
 
 	// What options are set
-	loadThemeOptions($memID);
+	loadThemeOptions($memID, $defaultSettings);
 	loadJavaScriptFile('alertSettings.js', array('minimize' => true), 'smf_alertSettings');
 
 	// Now load all the values for this user.
@@ -1981,7 +1983,6 @@ function alert_configuration($memID)
 		'alert_timeout' => isset($context['alert_prefs']['alert_timeout']) ? $context['alert_prefs']['alert_timeout'] : 10,
 		'notify_announcements' => isset($context['alert_prefs']['announcements']) ? $context['alert_prefs']['announcements'] : 0,
 	);
-	$context['can_disable_announce'] = $memID == 0 || !empty($modSettings['allow_disableAnnounce']);
 
 	// Now for the exciting stuff.
 	// We have groups of items, each item has both an alert and an email key as well as an optional help string.
@@ -2032,7 +2033,7 @@ function alert_configuration($memID)
 			array('check', 'msg_auto_notify', 'label' => 'after'),
 			array('check', 'msg_receive_body', 'label' => 'after'),
 			array('select', 'msg_notify_pref', 'label' => 'before', 'opts' => array(
-				0 => $txt['alert_opt_msg_notify_pref_nothing'],
+				0 => $txt['alert_opt_msg_notify_pref_never'],
 				1 => $txt['alert_opt_msg_notify_pref_instant'],
 				2 => $txt['alert_opt_msg_notify_pref_first'],
 				3 => $txt['alert_opt_msg_notify_pref_daily'],
@@ -2084,47 +2085,56 @@ function alert_configuration($memID)
 	// Now we have to do some permissions testing - but only if we're not loading this from the admin center
 	if (!empty($memID))
 	{
-		require_once($sourcedir . '/Subs-Members.php');
-		$perms_cache = array();
-		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}group_moderators
-			WHERE id_member = {int:memID}',
-			array(
-				'memID' => $memID,
-			)
-		);
+		require_once($sourcedir . '/Subs-Membergroups.php');
+		$user_groups = explode(',', $user_profile[$memID]['additional_groups']);
+		$user_groups[] = $user_profile[$memID]['id_group'];
+		$user_groups[] = $user_profile[$memID]['id_post_group'];
+		$group_permissions = array('manage_membergroups');
+		$board_permissions = array();
 
-		list ($can_mod) = $smcFunc['db_fetch_row']($request);
+		foreach ($alert_types as $group => $items)
+			foreach ($items as $alert_key => $alert_value)
+				if (isset($alert_value['permission']))
+				{
+					if (empty($alert_value['permission']['is_board']))
+						$group_permissions[] = $alert_value['permission']['name'];
+					else
+						$board_permissions[] = $alert_value['permission']['name'];
+				}
+		$member_groups = getGroupsWithPermissions($group_permissions, $board_permissions);
 
-		if (!isset($perms_cache['manage_membergroups']))
+		if (empty($member_groups['manage_membergroups']['allowed']))
 		{
-			$members = membersAllowedTo('manage_membergroups');
-			$perms_cache['manage_membergroups'] = in_array($memID, $members);
-		}
+			$request = $smcFunc['db_query']('', '
+				SELECT COUNT(*)
+				FROM {db_prefix}group_moderators
+				WHERE id_member = {int:memID}',
+				array(
+					'memID' => $memID,
+				)
+			);
 
-		if (!($perms_cache['manage_membergroups'] || $can_mod != 0))
-			unset($alert_types['members']['request_group']);
+			list ($is_group_moderator) = $smcFunc['db_fetch_row']($request);
+
+			if (empty($is_group_moderator))
+				unset($alert_types['members']['request_group']);
+		}
 
 		foreach ($alert_types as $group => $items)
 		{
 			foreach ($items as $alert_key => $alert_value)
 			{
-				if (!isset($alert_value['permission']))
-					continue;
-				if (!isset($perms_cache[$alert_value['permission']['name']]))
+				if (isset($alert_value['permission']))
 				{
-					$in_board = !empty($alert_value['permission']['is_board']) ? 0 : null;
-					$members = membersAllowedTo($alert_value['permission']['name'], $in_board);
-					$perms_cache[$alert_value['permission']['name']] = in_array($memID, $members);
-				}
+					$allowed = count(array_intersect($user_groups, $member_groups[$alert_value['permission']['name']]['allowed'])) != 0;
 
-				if (!$perms_cache[$alert_value['permission']['name']])
-					unset ($alert_types[$group][$alert_key]);
+					if (!$allowed)
+						unset($alert_types[$group][$alert_key]);
+				}
 			}
 
 			if (empty($alert_types[$group]))
-				unset ($alert_types[$group]);
+				unset($alert_types[$group]);
 		}
 	}
 
@@ -2181,16 +2191,20 @@ function alert_configuration($memID)
 					if ($this_options[$type] == 'yes' && !empty($_POST[$type . '_' . $item_key]) || $this_options[$type] == 'always')
 						$this_value |= $bitvalue;
 				}
-				if (!isset($context['alert_prefs'][$item_key]) || $context['alert_prefs'][$item_key] != $this_value)
-					$update_prefs[$item_key] = $this_value;
+
+				$update_prefs[$item_key] = $this_value;
 			}
 		}
 
-		if (!empty($_POST['opt_alert_timeout']))
+		if (isset($_POST['opt_alert_timeout']))
 			$update_prefs['alert_timeout'] = $context['member']['alert_timeout'] = (int) $_POST['opt_alert_timeout'];
+		else
+			$update_prefs['alert_timeout'] = $context['alert_prefs']['alert_timeout'];
 
-		if (!empty($_POST['notify_announcements']))
+		if (isset($_POST['notify_announcements']))
 			$update_prefs['announcements'] = $context['member']['notify_announcements'] = (int) $_POST['notify_announcements'];
+		else
+			$update_prefs['announcements'] = $context['alert_prefs']['announcements'];
 
 		setNotifyPrefs((int) $memID, $update_prefs);
 		foreach ($update_prefs as $pref => $value)
@@ -2315,6 +2329,27 @@ function alert_delete($toDelete, $memID = false)
 		// Might want to know this.
 		return $count;
 	}
+}
+
+/**
+ * Deletes all the alerts that a user has already read.
+ *
+ * @param int $memID The user ID. Defaults to the current user's ID.
+ */
+function alert_purge($memID = 0)
+{
+	global $smcFunc, $user_info;
+
+	$memID = !empty($memID) && is_int($memID) ? $memID : $user_info['id'];
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}user_alerts
+		WHERE id_member = {int:memID}
+			AND is_read > 0',
+		array(
+			'memID' => $memID,
+		)
+	);
 }
 
 /**
@@ -2874,8 +2909,9 @@ function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
  * Loads the theme options for a user
  *
  * @param int $memID The ID of the member
+ * @param bool $defaultSettings If true, we are loading default options.
  */
-function loadThemeOptions($memID)
+function loadThemeOptions($memID, $defaultSettings = false)
 {
 	global $context, $options, $cur_profile, $smcFunc;
 
@@ -2897,7 +2933,7 @@ function loadThemeOptions($memID)
 			WHERE id_theme IN (1, {int:member_theme})
 				AND id_member IN (-1, {int:selected_member})',
 			array(
-				'member_theme' => (int) $cur_profile['id_theme'],
+				'member_theme' => !isset($cur_profile['id_theme']) && !empty($defaultSettings) ? 0 : (int) $cur_profile['id_theme'],
 				'selected_member' => $memID,
 			)
 		);
@@ -3123,8 +3159,6 @@ function profileLoadSignatureData()
 	elseif ($context['signature_limits']['max_image_width'] || $context['signature_limits']['max_image_height'])
 		$context['signature_warning'] = sprintf($txt['profile_error_signature_max_image_' . ($context['signature_limits']['max_image_width'] ? 'width' : 'height')], $context['signature_limits'][$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']);
 
-	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv'))));
-
 	if (empty($context['do_preview']))
 		$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br>', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
 	else
@@ -3344,10 +3378,18 @@ function profileSaveAvatarData(&$value)
 	global $modSettings, $sourcedir, $smcFunc, $profile_vars, $cur_profile, $context;
 
 	$memID = $context['id_member'];
+	$context['max_external_size_url'] = 255;
+
 	if (empty($memID) && !empty($context['password_auth_failed']))
 		return false;
 
 	require_once($sourcedir . '/ManageAttachments.php');
+
+	call_integration_hook('before_profile_save_avatar', array(&$value));
+
+	// External url too large
+	if ($value == 'external' && allowedTo('profile_remote_avatar') && strlen($_POST['userpicpersonal']) > $context['max_external_size_url'])
+		return 'bad_avatar_url_too_long';
 
 	// We're going to put this on a nice custom dir.
 	$uploadDir = $modSettings['custom_avatar_dir'];
@@ -3422,19 +3464,24 @@ function profileSaveAvatarData(&$value)
 		removeAttachments(array('id_member' => $memID));
 
 		$profile_vars['avatar'] = str_replace(' ', '%20', preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $_POST['userpicpersonal']));
+		$mime_valid = check_mime_type($profile_vars['avatar'], 'image/', true);
 
 		if ($profile_vars['avatar'] == 'http://' || $profile_vars['avatar'] == 'http:///')
 			$profile_vars['avatar'] = '';
 		// Trying to make us do something we'll regret?
 		elseif (substr($profile_vars['avatar'], 0, 7) != 'http://' && substr($profile_vars['avatar'], 0, 8) != 'https://')
 			return 'bad_avatar_invalid_url';
+		elseif (empty($mime_valid))
+			return 'bad_avatar';
 		// Should we check dimensions?
 		elseif (!empty($modSettings['avatar_max_height_external']) || !empty($modSettings['avatar_max_width_external']))
 		{
 			// Now let's validate the avatar.
 			$sizes = url_image_size($profile_vars['avatar']);
 
-			if (is_array($sizes) && (($sizes[0] > $modSettings['avatar_max_width_external'] && !empty($modSettings['avatar_max_width_external'])) || ($sizes[1] > $modSettings['avatar_max_height_external'] && !empty($modSettings['avatar_max_height_external']))))
+			if (is_array($sizes) && (($sizes[0] > $modSettings['avatar_max_width_external']
+				&& !empty($modSettings['avatar_max_width_external'])) || ($sizes[1] > $modSettings['avatar_max_height_external']
+				&& !empty($modSettings['avatar_max_height_external']))))
 			{
 				// Houston, we have a problem. The avatar is too large!!
 				if ($modSettings['avatar_action_too_large'] == 'option_refuse')
@@ -3456,6 +3503,7 @@ function profileSaveAvatarData(&$value)
 			}
 		}
 	}
+
 	elseif (($value == 'upload' && allowedTo('profile_upload_avatar')) || $downloadedExternalAvatar)
 	{
 		if ((isset($_FILES['attachment']['name']) && $_FILES['attachment']['name'] != '') || $downloadedExternalAvatar)
@@ -3464,7 +3512,7 @@ function profileSaveAvatarData(&$value)
 			if (!$downloadedExternalAvatar)
 			{
 				if (!is_writable($uploadDir))
-					fatal_lang_error('attachments_no_write', 'critical');
+					fatal_lang_error('avatars_no_write', 'critical');
 
 				$new_filename = $uploadDir . '/' . getAttachmentFilename('avatar_tmp_' . $memID, false, null, true);
 				if (!move_uploaded_file($_FILES['attachment']['tmp_name'], $new_filename))
@@ -3473,7 +3521,8 @@ function profileSaveAvatarData(&$value)
 				$_FILES['attachment']['tmp_name'] = $new_filename;
 			}
 
-			$sizes = @getimagesize($_FILES['attachment']['tmp_name']);
+			$mime_valid = check_mime_type($_FILES['attachment']['tmp_name'], 'image/', true);
+			$sizes = empty($mime_valid) ? false : @getimagesize($_FILES['attachment']['tmp_name']);
 
 			// No size, then it's probably not a valid pic.
 			if ($sizes === false)
@@ -3482,7 +3531,8 @@ function profileSaveAvatarData(&$value)
 				return 'bad_avatar';
 			}
 			// Check whether the image is too large.
-			elseif ((!empty($modSettings['avatar_max_width_upload']) && $sizes[0] > $modSettings['avatar_max_width_upload']) || (!empty($modSettings['avatar_max_height_upload']) && $sizes[1] > $modSettings['avatar_max_height_upload']))
+			elseif ((!empty($modSettings['avatar_max_width_upload']) && $sizes[0] > $modSettings['avatar_max_width_upload'])
+				|| (!empty($modSettings['avatar_max_height_upload']) && $sizes[1] > $modSettings['avatar_max_height_upload']))
 			{
 				if (!empty($modSettings['avatar_resize_upload']))
 				{
@@ -3590,11 +3640,14 @@ function profileSaveAvatarData(&$value)
 	}
 	elseif ($value == 'gravatar' && allowedTo('profile_gravatar_avatar'))
 		$profile_vars['avatar'] = 'gravatar://www.gravatar.com/avatar/' . md5(strtolower(trim($cur_profile['email_address'])));
+
 	else
 		$profile_vars['avatar'] = '';
 
 	// Setup the profile variables so it shows things right on display!
 	$cur_profile['avatar'] = $profile_vars['avatar'];
+
+	call_integration_hook('after_profile_save_avatar');
 
 	return false;
 }
@@ -4091,7 +4144,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 	if ($context['can_manage_membergroups'] && !allowedTo('admin_forum'))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(permission)
+			SELECT COUNT(*)
 			FROM {db_prefix}permissions
 			WHERE id_group = {int:selected_group}
 				AND permission = {string:admin_forum}

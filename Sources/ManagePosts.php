@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -78,7 +78,7 @@ function ManagePostSettings()
  * Requires the admin_forum permission.
  * Accessed from ?action=admin;area=postsettings;sa=censor.
  *
- * @uses the Admin template and the edit_censored sub template.
+ * @uses template_edit_censored()
  */
 function SetCensor()
 {
@@ -176,27 +176,19 @@ function SetCensor()
  * Modify any setting related to posts and posting.
  * Requires the admin_forum permission.
  * Accessed from ?action=admin;area=postsettings;sa=posts.
+ * @uses template_show_settings()
  *
  * @param bool $return_config Whether or not to return the $config_vars array (used for admin search)
  * @return void|array Returns nothing or returns the config_vars array if $return_config is true
- * @uses Admin template, edit_post_settings sub-template.
  */
 function ModifyPostSettings($return_config = false)
 {
 	global $context, $txt, $modSettings, $scripturl, $sourcedir, $smcFunc, $db_type;
 
-	// Make an inline conditional a little shorter...
-	$can_spell_check = false;
-	if (function_exists('pspell_new'))
-		$can_spell_check = true;
-	elseif (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv')))
-		$can_spell_check = true;
-
 	// All the settings...
 	$config_vars = array(
 		// Simple post options...
 		array('check', 'removeNestedQuotes'),
-		array('check', 'enableSpellChecking', 'disabled' => !$can_spell_check),
 		array('check', 'disable_wysiwyg'),
 		array('check', 'additional_options_collapsable'),
 		array('check', 'guest_post_no_email'),
@@ -220,6 +212,9 @@ function ModifyPostSettings($return_config = false)
 
 		// First & Last message preview lengths
 		array('int', 'preview_characters', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['preview_characters_units']),
+
+		// Quote expand
+		array('int', 'quote_expand', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['quote_expand_pixels_units']),
 	);
 
 	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));
@@ -276,10 +271,10 @@ function ModifyPostSettings($return_config = false)
  * Modify any setting related to topics.
  * Requires the admin_forum permission.
  * Accessed from ?action=admin;area=postsettings;sa=topics.
+ * @uses template_show_settings()
  *
  * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
  * @return void|array Returns nothing or returns $config_vars if $return_config is true
- * @uses Admin template, edit_topic_settings sub-template.
  */
 function ModifyTopicSettings($return_config = false)
 {
@@ -353,10 +348,10 @@ function ModifyTopicSettings($return_config = false)
  * Modify any setting related to drafts.
  * Requires the admin_forum permission.
  * Accessed from ?action=admin;area=postsettings;sa=drafts
+ * @uses template_show_settings()
  *
  * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
  * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
- * @uses Admin template, edit_topic_settings sub-template.
  */
 function ModifyDraftSettings($return_config = false)
 {

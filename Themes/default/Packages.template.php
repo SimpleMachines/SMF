@@ -3,11 +3,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -26,7 +26,7 @@ function template_view_package()
 
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt[($context['uninstalling'] ? 'un' : '') . 'install_mod'], '</h3>
+			<h3 class="catbg">', $txt[($context['uninstalling'] ? 'uninstall' : ('install_' . $context['extract_type']))], '</h3>
 		</div>
 		<div class="information">';
 
@@ -41,6 +41,11 @@ function template_view_package()
 		</div>
 		<br>';
 
+	if (!empty($context['package_blacklist_found']))
+		echo '
+		<div class="errorbox">', $txt['package_validation_blacklist_found'], '
+		</div>';
+
 	// Do errors exist in the install? If so light them up like a christmas tree.
 	if ($context['has_failure'])
 		echo '
@@ -49,6 +54,31 @@ function template_view_package()
 			', sprintf($txt['package_will_fail_warning'], $txt['package_' . ($context['uninstalling'] ? 'uninstall' : 'install')]),
 			!empty($context['failure_details']) ? '<br><br><strong>' . $context['failure_details'] . '</strong>' : '', '
 		</div>';
+
+	// Validation info?
+	if (!empty($context['validation_tests']))
+	{
+		echo '
+		<div class="title_bar">
+			<h3 class="titlebg">', $txt['package_validaiton_results'], '</h3>
+		</div>
+		<div id="package_validation">
+			<table class="table_grid">';
+
+		foreach ($context['validation_tests'] as $id_server => $result)
+		{
+			echo '
+			<tr>
+				<td>', $context['package_servers'][$id_server]['name'], '</td>
+				<td>', $txt[isset($result[$context['package_sha256_hash']]) ? $result[$context['package_sha256_hash']] : 'package_validation_status_unknown'], '</td>
+			</tr>';
+		}
+
+		echo '
+			</table>
+		</div>
+		<br>';
+	}
 
 	// Display the package readme if one exists
 	if (isset($context['package_readme']))
@@ -60,7 +90,7 @@ function template_view_package()
 		<div class="windowbg">
 			', $context['package_readme'], '
 			<span class="floatright">', $txt['package_available_readme_language'], '
-				<select name="readme_language" id="readme_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', ';package=', $context['filename'], ';readme=\' + this.options[this.selectedIndex].value + \';license=\' + get_selected(\'license_language\'));">';
+				<select name="readme_language" id="readme_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', ';package=', $context['filename'], ';license=\' + this.options[this.selectedIndex].value + \';readme=\' + get_selected(\'readme_language\'));">';
 
 		foreach ($context['readmes'] as $a => $b)
 			echo '
@@ -83,7 +113,7 @@ function template_view_package()
 		<div class="windowbg">
 			', $context['package_license'], '
 			<span class="floatright">', $txt['package_available_license_language'], '
-				<select name="license_language" id="license_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=install', ';package=', $context['filename'], ';license=\' + this.options[this.selectedIndex].value + \';readme=\' + get_selected(\'readme_language\'));">';
+				<select name="license_language" id="license_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=install', ';package=', $context['filename'], ';readme=\' + this.options[this.selectedIndex].value + \';license=\' + get_selected(\'license_language\'));">';
 
 		foreach ($context['licenses'] as $a => $b)
 			echo '
@@ -167,7 +197,7 @@ function template_view_package()
 						<td style="width: 30px;">', $i++, '.</td>
 						<td style="width: 23%;">', $packageaction['type'], '</td>
 						<td style="width: 50%;">', $packageaction['action'], '</td>
-						<td style="width: 20%;">', $packageaction['description'], '</td>
+						<td style="width: 20%;"><strong', !empty($packageaction['failed']) ? ' class="error"' : '', '>', $packageaction['description'], '</strong></td>
 					</tr>';
 
 			// Is there water on the knee? Operation!
@@ -195,7 +225,7 @@ function template_view_package()
 									<td width="30">', $operation_num++, '.</td>
 									<td width="23%">', $txt[$operation_text], '</td>
 									<td width="50%">', $operation['action'], '</td>
-									<td width="20%">', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</td>
+									<td width="20%"><strong', !empty($operation['failed']) ? ' class="error"' : '', '>', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</strong></td>
 								</tr>';
 				}
 
@@ -259,7 +289,7 @@ function template_view_package()
 						</td>
 						<td width="23%">', $action['type'], '</td>
 						<td width="50%">', $action['action'], '</td>
-						<td width="20%"><strong>', $action['description'], '</strong></td>
+						<td width="20%"><strong', !empty($action['failed']) ? ' class="error"' : '', '>', $action['description'], '</strong></td>
 					</tr>';
 
 					// Is there water on the knee? Operation!
@@ -286,7 +316,7 @@ function template_view_package()
 									<td width="30">', $operation_num++, '.</td>
 									<td width="23%">', $txt[$operation_text], '</td>
 									<td width="50%">', $operation['action'], '</td>
-									<td width="20%">', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</td>
+									<td width="20%"><strong', !empty($operation['failed']) ? ' class="error"' : '', '>', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</strong></td>
 								</tr>';
 						}
 
@@ -372,7 +402,7 @@ function template_view_package()
 	// And a bit more for database changes.
 	if ($context['uninstalling'] && !empty($context['database_changes']))
 		echo '
-		makeToggle(document.getElementById(\'db_changes_div\'), ', JavaScriptEscape($txt['package_db_uninstall_details']) , ');';
+		makeToggle(document.getElementById(\'db_changes_div\'), ', JavaScriptEscape($txt['package_db_uninstall_details']), ');';
 
 	echo '
 	</script>';
@@ -425,7 +455,8 @@ function template_extract_package()
 
 	elseif ($context['uninstalling'])
 		echo '
-			', $txt['package_uninstall_done'];
+			', $txt['package_uninstall_done'] .' <br>
+			', '<a href="', $context['keep_url'], '" class="button">', $txt['package_keep'], '</a>', '<a href="', $context['remove_url'], '" class="button">', $txt['package_delete2'], '</a>';
 
 	elseif ($context['install_finished'])
 	{
@@ -467,8 +498,8 @@ function template_list()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['list_file'], '</h3>
 		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['files_archive'], ' ', $context['filename'], ':</h3>
+		<div class="title_bar">
+			<h4 class="titlebg">', $txt['files_archive'], ' ', $context['filename'], ':</h4>
 		</div>
 		<div class="windowbg">
 			<ol>';
@@ -495,8 +526,8 @@ function template_examine()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_examine_file'], '</h3>
 		</div>
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['package_file_contents'], ' ', $context['filename'], ':</h3>
+		<div class="title_bar">
+			<h4 class="titlebg">', $txt['package_file_contents'], ' ', $context['filename'], ':</h4>
 		</div>
 		<div class="windowbg">
 			<pre class="file_content">', $context['filedata'], '</pre>
@@ -565,22 +596,18 @@ function template_browse()
 	echo '
 		</div><!-- #admin_form_wrapper -->';
 
-	$mods_available = false;
-	foreach ($context['modification_types'] as $type)
-	{
-		if (!empty($context['available_' . $type]))
-		{
-			template_show_list('packages_lists_' . $type);
-			$mods_available = true;
-		}
-	}
-
-	if (!$mods_available)
+	if ($context['available_packages'] == 0)
 		echo '
 		<div class="noticebox">', $txt['no_packages'], '</div>';
 	else
+	{
+		foreach ($context['modification_types'] as $type)
+			if (!empty($context['packages_lists_' . $type]['rows']))
+				template_show_list('packages_lists_' . $type);
+
 		echo '
 		<br>';
+	}
 
 	// The advanced (emulation) box, collapsed by default
 	echo '

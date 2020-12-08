@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 ########## Maintenance ##########
@@ -131,14 +131,15 @@ $db_prefix = 'smf_';
 /**
  * Use a persistent database connection
  *
- * @var int|bool
+ * @var bool
  */
-$db_persist = 0;
+$db_persist = false;
 /**
+ * Send emails on database connection error
  *
- * @var int|bool
+ * @var bool
  */
-$db_error_send = 0;
+$db_error_send = false;
 /**
  * Override the default behavior of the database layer for mb4 handling
  * null keep the default behavior untouched
@@ -150,7 +151,7 @@ $db_mb4 = null;
 ########## Cache Info ##########
 /**
  * Select a cache system. You want to leave this up to the cache area of the admin panel for
- * proper detection of apc, memcached, output_cache, smf, or xcache
+ * proper detection of memcached, output_cache or SMF file_system
  * (you can add more with a mod).
  *
  * @var string
@@ -168,6 +169,7 @@ $cache_enable = 0;
  * @var array
  */
 $cache_memcached = '';
+
 /**
  * This is only for the 'smf' file cache system. It is the path to the cache directory.
  * It is also recommended that you place this in /tmp/ if you are going to use this.
@@ -184,14 +186,12 @@ $cachedir = dirname(__FILE__) . '/cache';
  * @var bool
  */
 $image_proxy_enabled = true;
-
 /**
  * Secret key to be used by the proxy
  *
  * @var string
  */
 $image_proxy_secret = 'smfisawesome';
-
 /**
  * Maximum file size (in KB) for individual files
  *
@@ -227,11 +227,15 @@ $packagesdir = dirname(__FILE__) . '/Packages';
 $tasksdir = $sourcedir . '/tasks';
 
 # Make sure the paths are correct... at least try to fix them.
-if (!file_exists($boarddir) && file_exists(dirname(__FILE__) . '/agreement.txt'))
+if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/agreement.txt'))
 	$boarddir = dirname(__FILE__);
-if (!file_exists($sourcedir) && file_exists($boarddir . '/Sources'))
+if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
 	$sourcedir = $boarddir . '/Sources';
-if (!file_exists($cachedir) && file_exists($boarddir . '/cache'))
+if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/tasks'))
+	$tasksdir = $sourcedir . '/tasks';
+if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
+	$packagesdir = $boarddir . '/Packages';
+if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
 
 ######### Legacy Settings #########
@@ -258,8 +262,11 @@ if (file_exists(dirname(__FILE__) . '/install.php'))
 	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
 		$secure = true;
 
-	header('location: http' . ($secure ? 's' : '') . '://' . (empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST']) . (strtr(dirname($_SERVER['PHP_SELF']), '\\', '/') == '/' ? '' : strtr(dirname($_SERVER['PHP_SELF']), '\\', '/')) . '/install.php');
-	exit;
+	if (basename($_SERVER['PHP_SELF']) != 'install.php')
+	{
+		header('location: http' . ($secure ? 's' : '') . '://' . (empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST']) . (strtr(dirname($_SERVER['PHP_SELF']), '\\', '/') == '/' ? '' : strtr(dirname($_SERVER['PHP_SELF']), '\\', '/')) . '/install.php');
+		exit;
+	}
 }
 
 ?>

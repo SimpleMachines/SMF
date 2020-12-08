@@ -7,11 +7,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -1379,46 +1379,6 @@ function legalise_bbc($text)
 }
 
 /**
- * Creates the javascript code for localization of the editor (SCEditor)
- */
-function loadLocale()
-{
-	global $context, $txt, $editortxt, $modSettings;
-
-	loadLanguage('Editor');
-
-	$context['template_layers'] = array();
-	// Lets make sure we aren't going to output anything nasty.
-	@ob_end_clean();
-	if (!empty($modSettings['enableCompressedOutput']))
-		@ob_start('ob_gzhandler');
-	else
-		@ob_start();
-
-	// If we don't have any locale better avoid broken js
-	if (empty($txt['lang_locale']))
-		die();
-
-	$file_data = '(function ($) {
-	\'use strict\';
-
-	$.sceditor.locale[' . JavaScriptEscape($txt['lang_locale']) . '] = {';
-	foreach ($editortxt as $key => $val)
-		$file_data .= '
-		' . JavaScriptEscape($key) . ': ' . JavaScriptEscape($val) . ',';
-
-	$file_data .= '
-		dateFormat: "day.month.year"
-	}
-})(jQuery);';
-
-	// Make sure they know what type of file we are.
-	header('content-type: text/javascript');
-	echo $file_data;
-	obExit(false);
-}
-
-/**
  * Retrieves a list of message icons.
  * - Based on the settings, the array will either contain a list of default
  *   message icons or a list of custom message icons retrieved from the database.
@@ -1563,6 +1523,25 @@ function create_control_richedit($editorOptions)
 		loadJavaScriptFile('editor.js', array('minimize' => true), 'smf_editor');
 		loadJavaScriptFile('jquery.sceditor.bbcode.min.js', array(), 'smf_sceditor_bbcode');
 		loadJavaScriptFile('jquery.sceditor.smf.js', array('minimize' => true), 'smf_sceditor_smf');
+
+		$scExtraLangs = '
+		$.sceditor.locale["' . $txt['lang_dictionary'] . '"] = {
+			"Width (optional):": "' . $editortxt['width'] . '",
+			"Height (optional):": "' . $editortxt['height'] . '",
+			"Insert": "' . $editortxt['insert'] . '",
+			"Description (optional):": "' . $editortxt['description'] . '",
+			"Rows:": "' . $editortxt['rows'] . '",
+			"Cols:": "' . $editortxt['cols'] . '",
+			"URL:": "' . $editortxt['url'] . '",
+			"E-mail:": "' . $editortxt['email'] . '",
+			"Video URL:": "' . $editortxt['video_url'] . '",
+			"More": "' . $editortxt['more'] . '",
+			"Close": "' . $editortxt['close'] . '",
+			dateFormat: "' . $editortxt['dateformat'] . '"
+		}';
+
+		addInlineJavaScript($scExtraLangs, true);
+
 		addInlineJavaScript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
 		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
@@ -1570,7 +1549,7 @@ function create_control_richedit($editorOptions)
 		var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';');
 
 		$context['shortcuts_text'] = $txt['shortcuts' . (!empty($context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (isBrowser('is_firefox') ? '_firefox' : ''))];
-		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv'))));
+
 		if ($context['show_spellchecking'])
 		{
 			loadJavaScriptFile('spellcheck.js', array('minimize' => true), 'smf_spellcheck');
@@ -1584,6 +1563,9 @@ function create_control_richedit($editorOptions)
 		}
 	}
 
+	// The [#] item code for creating list items causes issues with SCEditor, but [+] is a safe equivalent.
+	$editorOptions['value'] = str_replace('[#]', '[+]', $editorOptions['value']);
+
 	// Start off the editor...
 	$context['controls']['richedit'][$editorOptions['id']] = array(
 		'id' => $editorOptions['id'],
@@ -1594,12 +1576,12 @@ function create_control_richedit($editorOptions)
 		'columns' => isset($editorOptions['columns']) ? $editorOptions['columns'] : 60,
 		'rows' => isset($editorOptions['rows']) ? $editorOptions['rows'] : 18,
 		'width' => isset($editorOptions['width']) ? $editorOptions['width'] : '70%',
-		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '250px',
+		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '175px',
 		'form' => isset($editorOptions['form']) ? $editorOptions['form'] : 'postmodify',
 		'bbc_level' => !empty($editorOptions['bbc_level']) ? $editorOptions['bbc_level'] : 'full',
 		'preview_type' => isset($editorOptions['preview_type']) ? (int) $editorOptions['preview_type'] : 1,
 		'labels' => !empty($editorOptions['labels']) ? $editorOptions['labels'] : array(),
-		'locale' => !empty($txt['lang_locale']) && substr($txt['lang_locale'], 0, 5) != 'en_US' ? $txt['lang_locale'] : '',
+		'locale' => !empty($txt['lang_dictionary']) && $txt['lang_dictionary'] != 'en' ? $txt['lang_dictionary'] : '',
 		'required' => !empty($editorOptions['required']),
 	);
 
@@ -1899,11 +1881,10 @@ function create_control_richedit($editorOptions)
 		}
 	}
 
-	// Set a flag so the sub template knows what to do...
-	$context['show_bbc'] = !empty($modSettings['enableBBC']);
-
 	// Set up the SCEditor options
 	$sce_options = array(
+		'width' => isset($editorOptions['width']) ? $editorOptions['width'] : '100%',
+		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '175px',
 		'style' => $settings[file_exists($settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css',
 		'emoticonsCompat' => true,
 		'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
@@ -1957,7 +1938,7 @@ function create_control_richedit($editorOptions)
 	}
 
 	$sce_options['toolbar'] = '';
-	if ($context['show_bbc'])
+	if (!empty($modSettings['enableBBC']))
 	{
 		$count_tags = count($context['bbc_tags']);
 		foreach ($context['bbc_toolbar'] as $i => $buttonRow)
@@ -2023,6 +2004,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			'can_recaptcha' => !empty($modSettings['recaptcha_enabled']) && !empty($modSettings['recaptcha_site_key']) && !empty($modSettings['recaptcha_secret_key']),
 		);
 	$thisVerification = &$context['controls']['verification'][$verificationOptions['id']];
+
+	// Add a verification hook, presetup.
+	call_integration_hook('integrate_create_control_verification_pre', array(&$verificationOptions, $do_test));
 
 	// Is there actually going to be anything?
 	if (empty($thisVerification['show_visual']) && empty($thisVerification['number_questions']) && empty($thisVerification['can_recaptcha']))
@@ -2154,6 +2138,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			if (!empty($incorrectQuestions))
 				$verification_errors[] = 'wrong_verification_answer';
 		}
+
+		// Hooks got anything to say about this verification?
+		call_integration_hook('integrate_create_control_verification_test', array($thisVerification, &$verification_errors));
 	}
 
 	// Any errors means we refresh potentially.
@@ -2226,6 +2213,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 				}
 			}
 		}
+
+		// Hooks may need to know about this.
+		call_integration_hook('integrate_create_control_verification_refresh', array($thisVerification));
 	}
 	else
 	{
@@ -2262,6 +2252,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	}
 
 	$_SESSION[$verificationOptions['id'] . '_vv']['count'] = empty($_SESSION[$verificationOptions['id'] . '_vv']['count']) ? 1 : $_SESSION[$verificationOptions['id'] . '_vv']['count'] + 1;
+
+	// Let our hooks know that we are done with the verification process.
+	call_integration_hook('integrate_create_control_verification_post', array(&$verification_errors, $do_test));
 
 	// Return errors if we have them.
 	if (!empty($verification_errors))

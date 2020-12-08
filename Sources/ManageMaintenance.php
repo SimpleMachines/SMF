@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -333,12 +333,12 @@ function Destroy()
  * This action is linked from the maintenance screen (if it's applicable).
  * Accessed by ?action=admin;area=maintain;sa=database;activity=convertmsgbody.
  *
- * @uses the convert_msgbody sub template of the Admin template.
+ * @uses template_convert_msgbody()
  */
 function ConvertMsgBody()
 {
 	global $scripturl, $context, $txt, $db_type;
-	global $modSettings, $smcFunc, $time_start;
+	global $modSettings, $smcFunc;
 
 	// Show me your badge!
 	isAllowedTo('admin_forum');
@@ -425,7 +425,7 @@ function ConvertMsgBody()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-convertMsg');
 				$context['continue_post_data'] = '
@@ -478,7 +478,7 @@ function ConvertMsgBody()
  * This action is linked from the maintenance screen (if applicable).
  * It is accessed by ?action=admin;area=maintain;sa=database;activity=convertentities.
  *
- * @uses Admin template, convert_entities sub-template.
+ * @uses template_convert_entities()
  */
 function ConvertEntities()
 {
@@ -707,11 +707,11 @@ function ConvertEntities()
  * It is accessed from ?action=admin;area=maintain;sa=database;activity=optimize.
  * It also updates the optimize scheduled task such that the tables are not automatically optimized again too soon.
  *
- * @uses the optimize sub template
+ * @uses template_optimize()
  */
 function OptimizeTables()
 {
-	global $db_prefix, $txt, $context, $smcFunc, $time_start;
+	global $db_prefix, $txt, $context, $smcFunc;
 
 	isAllowedTo('admin_forum');
 
@@ -757,7 +757,7 @@ function OptimizeTables()
 			break;
 
 		// Continue?
-		if (microtime(true) - $time_start > 10)
+		if (microtime(true) - TIME_START > 10)
 		{
 			$_REQUEST['start'] = $key;
 			$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;activity=optimize;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
@@ -809,8 +809,7 @@ function OptimizeTables()
  */
 function AdminBoardRecount()
 {
-	global $txt, $context, $modSettings, $sourcedir;
-	global $time_start, $smcFunc;
+	global $txt, $context, $modSettings, $sourcedir, $smcFunc;
 
 	isAllowedTo('admin_forum');
 	checkSession('request');
@@ -910,7 +909,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -968,7 +967,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1024,7 +1023,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1080,7 +1079,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1136,7 +1135,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1185,7 +1184,7 @@ function AdminBoardRecount()
 			updateMemberData($row['id_member'], array('unread_messages' => $row['real_num']));
 		$smcFunc['db_free_result']($request);
 
-		if (microtime(true) - $time_start > 3)
+		if (microtime(true) - TIME_START > 3)
 		{
 			createToken('admin-boardrecount');
 			$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1232,7 +1231,7 @@ function AdminBoardRecount()
 
 			$_REQUEST['start'] += $increment;
 
-			if (microtime(true) - $time_start > 3)
+			if (microtime(true) - TIME_START > 3)
 			{
 				createToken('admin-boardrecount');
 				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '">';
@@ -1330,7 +1329,7 @@ function AdminBoardRecount()
  * Uses the view_versions admin area.
  * Accessed through ?action=admin;area=maintain;sa=routine;activity=version.
  *
- * @uses Admin template, view_versions sub-template.
+ * @uses template_view_versions()
  */
 function VersionDetail()
 {
@@ -1532,7 +1531,7 @@ function MaintainRemoveOldDrafts()
 /**
  * Moves topics from one board to another.
  *
- * @uses not_done template to pause the process.
+ * @uses template_not_done() to pause the process.
  */
 function MaintainMassMoveTopics()
 {
@@ -1740,7 +1739,7 @@ function MaintainRecountPosts()
 
 	// Lets get a group of members and determine their post count (from the boards that have post count enabled of course).
 	$request = $smcFunc['db_query']('', '
-		SELECT m.id_member, COUNT(m.id_member) AS posts
+		SELECT m.id_member, COUNT(*) AS posts
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}boards AS b ON m.id_board = b.id_board
 		WHERE m.id_member != {int:zero}
@@ -2077,16 +2076,16 @@ function get_integration_hooks_data($start, $per_page, $sort)
 
 						if (substr($hook, -8) === '_include')
 						{
-							$hook_status[$hook][$hookParsedData['pureFunc']]['exists'] = file_exists(strtr(trim($rawFunc), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
+							$hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['exists'] = file_exists(strtr(trim($rawFunc), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
 							// I need to know if there is at least one function called in this file.
 							$temp_data['include'][$hookParsedData['pureFunc']] = array('hook' => $hook, 'function' => $hookParsedData['pureFunc']);
 							unset($temp_hooks[$hook][$rawFunc]);
 						}
 						elseif (strpos(str_replace(' (', '(', $fc), 'function ' . trim($hookParsedData['pureFunc']) . '(') !== false)
 						{
-							$hook_status[$hook][$hookParsedData['pureFunc']] = $hookParsedData;
-							$hook_status[$hook][$hookParsedData['pureFunc']]['exists'] = true;
-							$hook_status[$hook][$hookParsedData['pureFunc']]['in_file'] = (!empty($file['name']) ? $file['name'] : (!empty($hookParsedData['hookFile']) ? $hookParsedData['hookFile'] : ''));
+							$hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']] = $hookParsedData;
+							$hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['exists'] = true;
+							$hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['in_file'] = (!empty($hookParsedData['hookFile']) ? $hookParsedData['hookFile'] : (!empty($file['name']) ? $file['name'] : ''));
 
 							// Does the hook has its own file?
 							if (!empty($hookParsedData['hookFile']))
@@ -2139,7 +2138,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 				// Get the hook info.
 				$hookParsedData = get_hook_info_from_raw($rawFunc);
 
-				$hook_exists = !empty($hook_status[$hook][$hookParsedData['pureFunc']]['exists']);
+				$hook_exists = !empty($hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['exists']);
 				$sort[] = $sort_options[0];
 
 				$temp_data[] = array(
@@ -2148,13 +2147,13 @@ function get_integration_hooks_data($start, $per_page, $sort)
 					'function_name' => $hookParsedData['rawData'],
 					'real_function' => $hookParsedData['pureFunc'],
 					'included_file' => !empty($hookParsedData['absPath']) ? $hookParsedData['absPath'] : '',
-					'file_name' => (isset($hook_status[$hook][$hookParsedData['pureFunc']]['in_file']) ? $hook_status[$hook][$hookParsedData['pureFunc']]['in_file'] : (!empty($hookParsedData['hookFile']) ? $hookParsedData['hookFile'] : '')),
+					'file_name' => (isset($hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['in_file']) ? $hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['in_file'] : (!empty($hookParsedData['hookFile']) ? $hookParsedData['hookFile'] : '')),
 					'instance' => $hookParsedData['object'],
 					'hook_exists' => $hook_exists,
 					'status' => $hook_exists ? ($hookParsedData['enabled'] ? 'allow' : 'moderate') : 'deny',
 					'img_text' => $txt['hooks_' . ($hook_exists ? ($hookParsedData['enabled'] ? 'active' : 'disabled') : 'missing')],
 					'enabled' => $hookParsedData['enabled'],
-					'can_be_disabled' => !isset($hook_status[$hook][$hookParsedData['pureFunc']]['enabled']),
+					'can_be_disabled' => !isset($hook_status[$hook][$hookParsedData['class']][$hookParsedData['pureFunc']]['enabled']),
 				);
 			}
 		}

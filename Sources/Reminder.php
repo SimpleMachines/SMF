@@ -5,11 +5,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -18,7 +18,7 @@ if (!defined('SMF'))
 /**
  * This is the controlling delegator
  *
- * @uses Profile language files and Reminder template
+ * Uses Profile language files and Reminder template
  */
 function RemindMe()
 {
@@ -122,7 +122,7 @@ function RemindPick()
 	// You can't get emailed if you have no email address.
 	$row['email_address'] = trim($row['email_address']);
 	if ($row['email_address'] == '')
-		fatal_error($txt['no_reminder_email'] . '<br>' . $txt['send_email'] . ' <a href="mailto:' . $webmaster_email . '">webmaster</a> ' . $txt['to_ask_password'] . '.');
+		fatal_error($txt['no_reminder_email'] . '<br>' . $txt['send_email_to'] . ' <a href="mailto:' . $webmaster_email . '">' . $txt['webmaster'] . '</a> ' . $txt['to_ask_password']);
 
 	// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
 	if (empty($row['secret_question']) || (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'email'))
@@ -199,7 +199,7 @@ function setPassword()
  */
 function setPassword2()
 {
-	global $context, $txt, $smcFunc, $sourcedir;
+	global $context, $modSettings, $txt, $smcFunc, $sourcedir;
 
 	checkSession();
 	validateToken('remind-sp');
@@ -245,7 +245,10 @@ function setPassword2()
 
 	// What - it's not?
 	if ($passwordError != null)
-		fatal_lang_error('profile_error_password_' . $passwordError, false);
+		if ($passwordError == 'short')
+			fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty($modSettings['password_strength']) ? 4 : 8));
+		else
+			fatal_lang_error('profile_error_password_' . $passwordError, false);
 
 	require_once($sourcedir . '/LogInOut.php');
 
@@ -330,7 +333,7 @@ function SecretAnswerInput()
  */
 function SecretAnswer2()
 {
-	global $txt, $context, $smcFunc, $sourcedir;
+	global $txt, $context, $modSettings, $smcFunc, $sourcedir;
 
 	checkSession();
 	validateToken('remind-sai');
@@ -383,7 +386,10 @@ function SecretAnswer2()
 
 	// Invalid?
 	if ($passwordError != null)
-		fatal_lang_error('profile_error_password_' . $passwordError, false);
+		if ($passwordError == 'short')
+			fatal_lang_error('profile_error_password_' . $passwordError, false, array(empty($modSettings['password_strength']) ? 4 : 8));
+		else
+			fatal_lang_error('profile_error_password_' . $passwordError, false);
 
 	// Alright, so long as 'yer sure.
 	updateMemberData($row['id_member'], array('passwd' => hash_password($row['member_name'], $_POST['passwrd1'])));

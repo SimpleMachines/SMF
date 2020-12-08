@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -57,8 +57,10 @@ function modifyCategory($category_id, $catOptions)
 		{
 			if ($row['id_cat'] != $category_id)
 				$cats[] = $row['id_cat'];
+
 			if ($row['id_cat'] == $catOptions['move_after'])
 				$cats[] = $category_id;
+
 			$cat_order[$row['id_cat']] = $row['cat_order'];
 		}
 		$smcFunc['db_free_result']($request);
@@ -91,6 +93,10 @@ function modifyCategory($category_id, $catOptions)
 	{
 		$catUpdates[] = 'description = {string:cat_desc}';
 		$catParameters['cat_desc'] = $catOptions['cat_desc'];
+
+		setCategoryParsedDescription(array(
+			$category_id => $catOptions['cat_desc']
+		));
 	}
 
 	// Can a user collapse this category or is it too important?
@@ -129,6 +135,7 @@ function modifyCategory($category_id, $catOptions)
  * returns the ID of the newly created category.
  *
  * @param array $catOptions An array of data and settings related to the new category. Should have at least 'cat_name' and can also have 'cat_desc', 'move_after' and 'is_collapsable'
+ * @return mixed
  */
 function createCategory($catOptions)
 {
@@ -141,10 +148,13 @@ function createCategory($catOptions)
 	// Set default values.
 	if (!isset($catOptions['cat_desc']))
 		$catOptions['cat_desc'] = '';
+
 	if (!isset($catOptions['move_after']))
 		$catOptions['move_after'] = 0;
+
 	if (!isset($catOptions['is_collapsible']))
 		$catOptions['is_collapsible'] = true;
+
 	// Don't log an edit right after.
 	$catOptions['dont_log'] = true;
 
@@ -249,6 +259,36 @@ function deleteCategories($categories, $moveBoardsTo = null)
 
 	// Get all boards back into the right order.
 	reorderBoards();
+}
+
+function setCategoryParsedDescription($category_info = array())
+{
+	global $cache_enable, $context;
+
+	if (empty($category_info))
+		return $category_info;
+
+	// Get the data we already parsed
+	$already_parsed_categories = getCategoriesParsedDescription();
+
+	foreach ($category_info as $category_id => $category_description)
+	$already_parsed_categories[$category_id] = !empty($category_description) ?
+		parse_bbc($category_description, false, '', $context['description_allowed_tags']) : '';
+
+	if (!empty($cache_enable))
+		cache_put_data('parsed_category_descriptions', $already_parsed_categories, 864000);
+
+	return $already_parsed_categories;
+}
+
+function getCategoriesParsedDescription()
+{
+	global $cache_enable;
+
+	if (empty($cache_enable))
+		return array();
+
+	return cache_get_data('parsed_category_descriptions', 864000);
 }
 
 ?>

@@ -3,11 +3,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /*	This template is, perhaps, the most important template in the theme. It
@@ -89,17 +89,28 @@ function template_html_above()
 	/*
 		You don't need to manually load index.css, this will be set up for you.
 		Note that RTL will also be loaded for you.
-
-		The most efficient way of writing multi themes is to use a master
-		index.css plus variant.css files. If you've set them up properly
-		(through $settings['theme_variants']), the variant files will be loaded
-		for you automatically.
-
-		If you want to load other CSS files, the best way is to use the
-		'integrate_load_theme' integration hook and the loadCSSFile() function.
+		To load other CSS and JS files you should use the functions
+		loadCSSFile() and loadJavaScriptFile() respectively.
 		This approach will let you take advantage of SMF's automatic CSS
 		minimization and other benefits. You can, of course, manually add any
 		other files you want after template_css() has been run.
+
+	*	Short example:
+			- CSS: loadCSSFile('filename.css', array('minimize' => true));
+			- JS:  loadJavaScriptFile('filename.js', array('minimize' => true));
+			You can also read more detailed usages of the parameters for these
+			functions on the SMF wiki.
+
+	*	Themes:
+			The most efficient way of writing multi themes is to use a master
+			index.css plus variant.css files. If you've set them up properly
+			(through $settings['theme_variants']), the variant files will be loaded
+			for you automatically.
+
+	*	MODs:
+			If you want to load CSS or JS files in here, the best way is to use the
+			'integrate_load_theme' hook for adding multiple files, or using
+			'integrate_pre_css_output', 'integrate_pre_javascript_output' for a single file.
 	*/
 
 	// load in any css from mods or themes so they can overwrite if wanted
@@ -218,6 +229,13 @@ function template_body_above()
 					<div id="alerts_menu" class="top_menu scrollable"></div>
 				</li>';
 
+		// A logout button for people without JavaScript.
+		echo '
+				<li id="nojs_logout">
+					<a href="', $scripturl, '?action=logout;', $context['session_var'], '=', $context['session_id'], '">', $txt['logout'], '</a>
+					<script>document.getElementById("nojs_logout").style.display = "none";</script>
+				</li>';
+
 		// And now we're done.
 		echo '
 			</ul>';
@@ -226,13 +244,13 @@ function template_body_above()
 	elseif (empty($maintenance))
 		echo '
 			<ul class="floatleft welcome">
-				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup'), '</li>
+				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup'), '</li>
 			</ul>';
 	else
 		// In maintenance mode, only login is allowed and don't show OverlayDiv
 		echo '
 			<ul class="floatleft welcome">
-				<li>', sprintf($txt['welcome_guest'], $txt['guest_title'], '', $scripturl . '?action=login', 'return true;'), '</li>
+				<li>', sprintf($txt['welcome_guest'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return true;'), '</li>
 			</ul>';
 
 	if (!empty($modSettings['userLanguage']) && !empty($context['languages']) && count($context['languages']) > 1)
@@ -383,7 +401,7 @@ function template_body_below()
 	// There is now a global "Go to top" link at the right.
 	echo '
 		<ul>
-			<li class="floatright"><a href="', $scripturl, '?action=help">', $txt['help'], '</a> ', (!empty($modSettings['requireAgreement'])) ? '| <a href="' . $scripturl . '?action=help;sa=rules">' . $txt['terms_and_rules'] . '</a>' : '', ' | <a href="#top_section">', $txt['go_up'], ' &#9650;</a></li>
+			<li class="floatright"><a href="', $scripturl, '?action=help">', $txt['help'], '</a> ', (!empty($modSettings['requireAgreement'])) ? '| <a href="' . $scripturl . '?action=agreement">' . $txt['terms_and_rules'] . '</a>' : '', ' | <a href="#top_section">', $txt['go_up'], ' &#9650;</a></li>
 			<li class="copyright">', theme_copyright(), '</li>
 		</ul>';
 
@@ -606,15 +624,17 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
  * Generate a list of quickbuttons.
  *
  * @param array $list_items An array with info for displaying the strip
- * @param string $list_id unique list id, used for integration hooks
+ * @param string $list_class Used for integration hooks and as a class name
+ * @param string $output_method The output method. If 'echo', simply displays the buttons, otherwise returns the HTML for them
+ * @return void|string Returns nothing unless output_method is something other than 'echo'
  */
-function template_quickbuttons($list_items, $list_id = null, $output_method = 'echo')
+function template_quickbuttons($list_items, $list_class = null, $output_method = 'echo')
 {
 	global $txt;
 
 	// Enable manipulation with hooks
-	if(!empty($list_id))
-		call_integration_hook('integrate_' . $list_id . '_quickbuttons', array(&$list_items));
+	if (!empty($list_class))
+		call_integration_hook('integrate_' . $list_class . '_quickbuttons', array(&$list_items));
 
 	// Make sure the list has at least one shown item
 	foreach ($list_items as $key => $li)
@@ -640,20 +660,20 @@ function template_quickbuttons($list_items, $list_id = null, $output_method = 'e
 
 	// Print the quickbuttons
 	$output = '
-		<ul' . (!empty($list_id) ? ' id="quickbuttons_'.$list_id.'"' : '') . ' class="quickbuttons">';
+		<ul class="quickbuttons' . (!empty($list_class) ? ' quickbuttons_' . $list_class : '') . '">';
 
 	// This is used for a list item or a sublist item
 	$list_item_format = function($li)
 	{
 		$html = '
-			<li' . (!empty($li['class']) ? ' class="'.$li['class'].'"' : '') . (!empty($li['id']) ? ' id="'.$li['id'].'"' : '') . (!empty($li['custom']) ? $li['custom'] : '') . '>';
+			<li' . (!empty($li['class']) ? ' class="' . $li['class'] . '"' : '') . (!empty($li['id']) ? ' id="' . $li['id'] . '"' : '') . (!empty($li['custom']) ? $li['custom'] : '') . '>';
 
-		if(isset($li['content']))
+		if (isset($li['content']))
 			$html .= $li['content'];
 		else
 			$html .= '
 				<a href="' . (!empty($li['href']) ? $li['href'] : 'javascript:void(0);') . '"' . (!empty($li['javascript']) ? $li['javascript'] : '') . '>
-					' . (!empty($li['icon']) ? '<span class="main_icons '.$li['icon'].'"></span>' : '') . (!empty($li['label']) ? $li['label'] : '') . '
+					' . (!empty($li['icon']) ? '<span class="main_icons ' . $li['icon'] . '"></span>' : '') . (!empty($li['label']) ? $li['label'] : '') . '
 				</a>';
 
 		$html .= '
@@ -665,7 +685,7 @@ function template_quickbuttons($list_items, $list_id = null, $output_method = 'e
 	foreach ($list_items as $key => $li)
 	{
 		// Handle the sublist
-		if($key == 'more')
+		if ($key == 'more')
 		{
 			$output .= '
 			<li class="post_options">
@@ -688,7 +708,7 @@ function template_quickbuttons($list_items, $list_id = null, $output_method = 'e
 		</ul><!-- .quickbuttons -->';
 
 	// There are a few spots where the result needs to be returned
-	if($output_method == 'echo')
+	if ($output_method == 'echo')
 		echo $output;
 	else
 		return $output;

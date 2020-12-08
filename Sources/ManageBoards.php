@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -22,7 +22,7 @@ if (!defined('SMF'))
  * Called by ?action=admin;area=manageboards.
  * It checks the permissions, based on the sub-action, and calls a function based on the sub-action.
  *
- * @uses ManageBoards language file.
+ * Uses ManageBoards language file.
  */
 function ManageBoards()
 {
@@ -77,7 +77,7 @@ function ManageBoards()
  * Requires manage_boards permission.
  * It also handles the interface for moving boards.
  *
- * @uses ManageBoards template, main sub-template.
+ * Uses ManageBoards template, main sub-template.
  */
 function ManageBoardsMain()
 {
@@ -214,7 +214,7 @@ function ManageBoardsMain()
  * Called by ?action=admin;area=manageboards;sa=cat
  * Requires manage_boards permission.
  *
- * @uses ManageBoards template, modify_category sub-template.
+ * @uses template_modify_category()
  */
 function EditCategory()
 {
@@ -330,8 +330,8 @@ function EditCategory2()
 		if (isset($_POST['cat_order']))
 			$catOptions['move_after'] = (int) $_POST['cat_order'];
 
-		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest, parse it on display
-		$catOptions['cat_name'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['cat_name'])));
+		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
+		$catOptions['cat_name'] = $smcFunc['htmlspecialchars'](strip_tags($_POST['cat_name']));
 		$catOptions['cat_desc'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['cat_desc'])));
 		$catOptions['is_collapsible'] = isset($_POST['collapse']);
 
@@ -668,8 +668,8 @@ function EditBoard2()
 		if (strlen(implode(',', $boardOptions['access_groups'])) > 255 || strlen(implode(',', $boardOptions['deny_groups'])) > 255)
 			fatal_lang_error('too_many_groups', false);
 
-		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest, parse it on display
-		$boardOptions['board_name'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['board_name'])));
+		// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
+		$boardOptions['board_name'] = $smcFunc['htmlspecialchars'](strip_tags($_POST['board_name']));
 		$boardOptions['board_description'] = $smcFunc['htmlspecialchars'](strip_tags(html_to_bbc($_POST['desc'])));
 
 		$boardOptions['moderator_string'] = $_POST['moderators'];
@@ -679,6 +679,7 @@ function EditBoard2()
 			$moderators = array();
 			foreach ($_POST['moderator_list'] as $moderator)
 				$moderators[(int) $moderator] = (int) $moderator;
+
 			$boardOptions['moderators'] = $moderators;
 		}
 
@@ -703,25 +704,29 @@ function EditBoard2()
 		if (!empty($_POST['boardid']))
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT redirect, num_posts
+				SELECT redirect, num_posts, id_cat
 				FROM {db_prefix}boards
 				WHERE id_board = {int:current_board}',
 				array(
 					'current_board' => $_POST['boardid'],
 				)
 			);
-			list ($oldRedirect, $numPosts) = $smcFunc['db_fetch_row']($request);
+			list ($oldRedirect, $numPosts, $old_id_cat) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
 			// If we're turning redirection on check the board doesn't have posts in it - if it does don't make it a redirection board.
 			if ($boardOptions['redirect'] && empty($oldRedirect) && $numPosts)
 				unset($boardOptions['redirect']);
+
 			// Reset the redirection count when switching on/off.
 			elseif (empty($boardOptions['redirect']) != empty($oldRedirect))
 				$boardOptions['num_posts'] = 0;
+
 			// Resetting the count?
 			elseif ($boardOptions['redirect'] && !empty($_POST['reset_redirect']))
 				$boardOptions['num_posts'] = 0;
+
+			$boardOptions['old_id_cat'] = $old_id_cat;
 		}
 
 		// Create a new board...
@@ -809,7 +814,7 @@ function ModifyCat()
 /**
  * A screen to set a few general board and category settings.
  *
- * @uses modify_general_settings sub-template.
+ * @uses template_show_settings()
  * @param bool $return_config Whether to return the $config_vars array (used for admin search)
  * @return void|array Returns nothing or the array of config vars if $return_config is true
  */

@@ -108,17 +108,26 @@ String.prototype.php_to8bit = function ()
 	{
 		var n, sReturn = '';
 
+		// Recode from UTF16 (native .js) to UTF8
 		for (var i = 0, iTextLen = this.length; i < iTextLen; i++)
 		{
+			// Below xFFFF, UTF16 simply = the code points
 			n = this.charCodeAt(i);
 			if (n < 128)
 				sReturn += String.fromCharCode(n);
 			else if (n < 2048)
 				sReturn += String.fromCharCode(192 | n >> 6) + String.fromCharCode(128 | n & 63);
-			else if (n < 65536)
-				sReturn += String.fromCharCode(224 | n >> 12) + String.fromCharCode(128 | n >> 6 & 63) + String.fromCharCode(128 | n & 63);
-			else
+			// 0xD800 - 0xDBFF
+			else if (n >= 55296 && n <= 56319)
+			{
+				// In this range, this is the beginning of a surrogate pair, where 4-byte utf8 chars are
+				n = 65536 + ((n & 1023) << 10) + (this.charCodeAt(i + 1) & 1023);
 				sReturn += String.fromCharCode(240 | n >> 18) + String.fromCharCode(128 | n >> 12 & 63) + String.fromCharCode(128 | n >> 6 & 63) + String.fromCharCode(128 | n & 63);
+				// Skip next char, already used...
+				i++;
+			}
+			else
+				sReturn += String.fromCharCode(224 | n >> 12) + String.fromCharCode(128 | n >> 6 & 63) + String.fromCharCode(128 | n & 63);
 		}
 
 		return sReturn;
@@ -1715,7 +1724,69 @@ $(function() {
 			$(this).html($(this).attr('data-shrink-txt'));
 		}
 	});
+
+	// Expand quotes
+	if (smf_quote_expand)
+	{
+		$('blockquote').each(function(index, item) {
+
+			let cite = $(item).find('cite').first();
+			let quote_height = parseInt($(item).height());
+
+			if(quote_height < smf_quote_expand)
+				return;
+
+			$(item).css({
+				'overflow-y': 'hidden',
+				'max-height': smf_quote_expand +'px'
+			});
+
+			let anchor = $('<a/>', {
+				text: ' [' + smf_txt_expand + ']',
+				class: 'expand'
+			});
+
+			if (cite.length)
+				cite.append(anchor);
+
+			$(item).on('click', 'a.expand', function(event) {
+				event.preventDefault();
+
+				if (smf_quote_expand < parseInt($(item).height()))
+				{
+					cite.find('a.expand').text(' ['+ smf_txt_expand +']');
+					$(item).css({
+						'overflow-y': 'hidden',
+						'max-height': smf_quote_expand +'px'
+					});
+				}
+
+				else
+				{
+					cite.find('a.expand').text(' ['+ smf_txt_shrink +']');
+					$(item).css({
+						'overflow-y': 'visible',
+						'max-height': (quote_height + 10) +'px'
+					});
+
+					expand_quote_parent($(item));
+				}
+
+				return false;
+			});
+		});
+	}
 });
+
+function expand_quote_parent(oElement)
+{
+	$.each(oElement.parentsUntil('div.inner'), function( index, value ) {
+		$(value).css({
+			'overflow-y': 'visible',
+			'max-height': '',
+		}).find('a.expand').first().text(' ['+ smf_txt_shrink +']');
+	});
+}
 
 function avatar_fallback(e) {
     var e = window.e || e;
@@ -1760,7 +1831,7 @@ smc_preview_post.prototype.doPreviewPost = function (event)
 	var new_replies = new Array();
 	if (window.XMLHttpRequest)
 	{
-		// @todo Currently not sending poll options and option checkboxes.
+		// @todo Currently not sending option checkboxes.
 		var x = new Array();
 		var textFields = ['subject', this.opts.sPostBoxContainerID, this.opts.sSessionVar, 'icon', 'guestname', 'email', 'evtitle', 'question', 'topic'];
 		var numericFields = [
@@ -1799,6 +1870,15 @@ smc_preview_post.prototype.doPreviewPost = function (event)
 		for (var i = 0, n = checkboxFields.length; i < n; i++)
 			if (checkboxFields[i] in document.forms.postmodify && document.forms.postmodify.elements[checkboxFields[i]].checked)
 				x[x.length] = checkboxFields[i] + '=' + document.forms.postmodify.elements[checkboxFields[i]].value;
+
+		// Poll options.
+		var i = 0;
+		while ('options[' + i + ']' in document.forms.postmodify)
+		{
+			x[x.length] = 'options[' + i + ']=' +
+				document.forms.postmodify.elements['options[' + i + ']'].value.php_to8bit().php_urlencode();
+			i++;
+		}
 
 		sendXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=post2' + (this.opts.iCurrentBoard ? ';board=' + this.opts.iCurrentBoard : '') + (this.opts.bMakePoll ? ';poll' : '') + ';preview;xml', x.join('&'), this.onDocSent.bind(this));
 

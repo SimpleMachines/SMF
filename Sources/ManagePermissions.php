@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -21,7 +21,7 @@ if (!defined('SMF'))
  * Checks the permissions, based on the sub-action.
  * Called by ?action=managepermissions.
  *
- * @uses ManagePermissions language file.
+ * Uses ManagePermissions language file.
  */
 
 function ModifyPermissions()
@@ -81,9 +81,9 @@ function ModifyPermissions()
  * Called by ?action=managepermissions
  * Creates an array of all the groups with the number of members and permissions.
  *
- * @uses ManagePermissions language file.
- * @uses ManagePermissions template file.
- * @uses ManageBoards template, permission_index sub-template.
+ * Uses ManagePermissions language file.
+ * Uses ManagePermissions template file.
+ * @uses template_permission_index()
  */
 function PermissionIndex()
 {
@@ -1740,8 +1740,8 @@ function loadAllPermissions()
  * @param array $permissions The permissions to display inline
  * @param array $excluded_groups The IDs of one or more groups to exclude
  *
- * @uses ManagePermissions language
- * @uses ManagePermissions template.
+ * Uses ManagePermissions language
+ * Uses ManagePermissions template
  */
 function init_inline_permissions($permissions, $excluded_groups = array())
 {
@@ -2111,7 +2111,7 @@ function EditPermissionProfiles()
 
 	// Work out what ones are in use.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_profile, COUNT(id_board) AS board_count
+		SELECT id_profile, COUNT(*) AS board_count
 		FROM {db_prefix}boards
 		GROUP BY id_profile',
 		array(

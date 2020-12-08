@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; index
+// Version: 2.1 RC3; index
 
 global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 
@@ -93,8 +93,8 @@ $txt['quick_modify'] = 'Modify inline';
 $txt['quick_modify_message'] = 'You have successfully modified this message.';
 $txt['reason_for_edit'] = 'Reason for editing';
 
-$txt['choose_pass'] = 'Choose password';
-$txt['verify_pass'] = 'Verify password';
+$txt['choose_pass'] = 'Choose Password';
+$txt['verify_pass'] = 'Verify Password';
 $txt['notify_announcements'] = 'Allow the administrators to send me important news by email';
 
 $txt['position'] = 'Position';
@@ -149,9 +149,9 @@ $txt['unwatch_topic'] = 'Stop watching Topic';
 $txt['watching_this_topic'] = 'You are watching this topic, and will receive notifications about it.';
 $txt['notify'] = 'Notify';
 $txt['unnotify'] = 'Unnotify';
-$txt['notify_request'] = 'Do you want a notification email if someone replies to this topic?';
 // Use numeric entities in the below string.
-$txt['regards_team'] = "Regards,\nThe " . $context['forum_name'] . ' Team.';
+// argument(s): forum name
+$txt['regards_team'] = "Regards,\nThe %1\$s Team.";
 $txt['notify_replies'] = 'Notify of replies';
 $txt['move_topic'] = 'Move Topic';
 $txt['move_to'] = 'Move to';
@@ -161,7 +161,7 @@ $txt['personal_messages'] = 'Personal Messages';
 $txt['reply_quote'] = 'Reply with quote';
 $txt['reply'] = 'Reply';
 $txt['reply_noun'] = 'Reply';
-$txt['reply_number'] = 'Reply #%1$s';
+$txt['reply_number'] = 'Reply #%1$s%2$s';
 $txt['approve'] = 'Approve';
 $txt['unapprove'] = 'Unapprove';
 $txt['approve_all'] = 'approve all';
@@ -172,7 +172,7 @@ $txt['post_awaiting_approval'] = 'This message is awaiting approval by a moderat
 $txt['there_are_unapproved_topics'] = 'There are %1$s topics and %2$s posts awaiting approval in this board. Click <a href="%3$s">here</a> to view them all.';
 $txt['send_message'] = 'Send message';
 
-$txt['msg_alert_no_messages'] = 'you don\'t have any message';
+$txt['msg_alert_no_messages'] = 'you don\'t have any messages';
 $txt['msg_alert_one_message'] = 'you have <a href="%1$s">1 message</a>';
 $txt['msg_alert_many_message'] = 'you have <a href="%1$s">%2$d messages</a>';
 $txt['msg_alert_one_new'] = '1 is new';
@@ -214,6 +214,8 @@ $txt['admin_center'] = 'Administration Center';
 $txt['last_edit_by'] = '<span class="lastedit">Last Edit</span>: %1$s by %2$s';
 $txt['last_edit_reason'] = '<span id="reason" class="lastedit">Reason</span>: %1$s';
 $txt['notify_deactivate'] = 'Would you like to deactivate notification on this topic?';
+$txt['modified_time'] = 'Last edited';
+$txt['modified_by'] = 'Edited by';
 
 $txt['recent_posts'] = 'Recent posts';
 
@@ -231,21 +233,18 @@ $txt['female'] = 'Female';
 
 $txt['error_invalid_characters_username'] = 'Invalid character used in Username.';
 
-$txt['welcome_guest'] = 'Welcome, <strong>%1$s</strong>. Please <a href="%3$s" onclick="%4$s">login</a>.';
+// argument(s): forum name, login URL, login JavaScript snippet
+$txt['welcome_guest'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">login</a>.';
 
-//$txt['welcome_guest_register'] = 'Welcome, <strong>%1$s</strong>. Please <a href="' . $scripturl . '?action=login">login</a> or <a href="' . $scripturl . '?action=register">register</a>.';
-$txt['welcome_guest_register'] = 'Welcome to <strong>%2$s</strong>. Please <a href="%3$s" onclick="%4$s">login</a> or <a href="%5$s">sign up</a>.';
+// argument(s): forum name, login URL, login JavaScript snippet, signup URL
+$txt['welcome_guest_register'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">login</a> or <a href="%4$s">sign up</a>.';
 
-$txt['please_login'] = 'Please <a href="' . $scripturl . '?action=login">login</a>.';
-$txt['login_or_register'] = 'Please <a href="' . $scripturl . '?action=login">login</a> or <a href="' . $scripturl . '?action=signup">signup</a>.';
-$txt['welcome_guest_activate'] = '<br>Did you miss your <a href="' . $scripturl . '?action=activate">activation email</a>?';
+// argument(s): $scripturl
+$txt['welcome_guest_activate'] = '<a href="%1$s?action=activate">Did you miss your activation email?</a>';
 // @todo the following to sprintf
 $txt['hello_member'] = 'Hey,';
 // Use numeric entities in the below string.
 $txt['hello_guest'] = 'Welcome,';
-$txt['welmsg_hey'] = 'Hey,';
-$txt['welmsg_welcome'] = 'Welcome,';
-$txt['welmsg_please'] = 'Please';
 $txt['select_destination'] = 'Please select a destination';
 
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
@@ -272,7 +271,6 @@ $txt['icon_cry'] = 'Cry';
 $txt['moderator'] = 'Moderator';
 $txt['moderators'] = 'Moderators';
 
-$txt['mark_board_read'] = 'Mark Topics as Read for this Board';
 $txt['views'] = 'Views';
 $txt['new'] = 'New';
 
@@ -335,12 +333,13 @@ $txt['total_topics'] = 'Total Topics';
 $txt['time_logged_in'] = 'Time to stay logged in';
 
 $txt['preview'] = 'Preview';
-$txt['always_logged_in'] = 'Always stay logged in';
+$txt['always_logged_in'] = 'Forever';
 
 $txt['logged'] = 'Logged';
+$txt['show_ip'] = 'Show IP address';
 // Use numeric entities in the below string.
 $txt['ip'] = 'IP';
-
+$txt['url'] = 'URL';
 $txt['www'] = 'WWW';
 
 $txt['hours'] = 'hours';
@@ -391,7 +390,8 @@ $txt['tried_to_repair'] = 'SMF has detected and automatically tried to repair an
 $txt['database_error_versions'] = '<strong>Note:</strong> It appears that your database <em>may</em> require an upgrade. Your forum\'s files are currently at version %1$s, while your database is at version %2$s. The above error might possibly go away if you execute the latest version of upgrade.php.';
 $txt['template_parse_error'] = 'Template Parse Error!';
 $txt['template_parse_error_message'] = 'It seems something has gone sour on the forum with the template system. This problem should only be temporary, so please come back later and try again. If you continue to see this message, please contact the administrator.<br><br>You can also try <a href="javascript:location.reload();">refreshing this page</a>.';
-$txt['template_parse_error_details'] = 'There was a problem loading the <pre><strong>%1$s</strong></pre> template or language file. Please check the syntax and try again - remember, single quotes (<pre>\'</pre>) often have to be escaped with a slash (<pre>\\</pre>). To see more specific error information from PHP, try <a href="' . $boardurl . '%1$s">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="' . $scripturl . '?theme=1">use the default theme</a>.';
+// argument(s): filename, $boardurl, $scripturl
+$txt['template_parse_error_details'] = 'There was a problem loading the <pre><strong>%1$s</strong></pre> template or language file. Please check the syntax and try again - remember, single quotes (<pre>\'</pre>) often have to be escaped with a slash (<pre>\\</pre>). To see more specific error information from PHP, try <a href="%2$s%1$s">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="%3$s?theme=1">use the default theme</a>.';
 $txt['template_parse_errmsg'] = 'Unfortunately more information is not available at this time as to exactly what is wrong.';
 
 $txt['today'] = '<strong>Today</strong> at ';
@@ -461,9 +461,7 @@ $txt['new_merged_topic'] = 'Newly Merged Topic';
 $txt['topic_to_merge'] = 'Topic to be merged';
 $txt['target_board'] = 'Target board';
 $txt['target_topic'] = 'Target topic';
-$txt['merge_confirm'] = 'Are you sure you want to merge';
-$txt['with'] = 'with';
-$txt['merge_desc'] = 'This function will merge the messages of two topics into one topic. The messages will be sorted according to the time of posting. Therefore the earliest posted message will be the first message of the merged topic.';
+$txt['merge_desc'] = 'This function will merge the messages of two topics into one topic. The messages will be sorted according to the time of posting. Therefore, the earliest posted message will be the first message of the merged topic.';
 
 $txt['set_sticky'] = 'Set topic sticky';
 $txt['set_nonsticky'] = 'Set topic non-sticky';
@@ -476,7 +474,7 @@ $txt['security_risk'] = 'MAJOR SECURITY RISK:';
 $txt['not_removed'] = 'You have not removed ';
 $txt['not_removed_extra'] = '%1$s is a backup of %2$s that was not generated by SMF. It can be accessed directly and used to gain unauthorized access to your forum. You should delete it immediately.';
 $txt['generic_warning'] = 'Warning';
-$txt['agreement_missing'] = 'You are requiring new users to accept a registration agreement, however the file (agreement.txt) doesn\'t exist.';
+$txt['agreement_missing'] = 'You are requiring new users to accept a registration agreement, however, the file (agreement.txt) does not exist.';
 
 $txt['cache_writable'] = 'The cache directory is not writable - this will adversely affect the performance of your forum.';
 
@@ -496,7 +494,8 @@ $txt['status'] = 'Status';
 $txt['go_up'] = 'Go Up';
 $txt['go_down'] = 'Go Down';
 
-$forum_copyright = '<a href="' . $scripturl . '?action=credits" title="License" target="_blank" rel="noopener">%1$s &copy; %2$s</a>, <a href="http://www.simplemachines.org" title="Simple Machines" target="_blank" rel="noopener">Simple Machines</a>';
+// argument(s): SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl
+$forum_copyright = '<a href="%3$s?action=credits" title="License" target="_blank" rel="noopener">%1$s &copy; %2$s</a>, <a href="http://www.simplemachines.org" title="Simple Machines" target="_blank" rel="noopener">Simple Machines</a>';
 
 $txt['birthdays'] = 'Birthdays:';
 $txt['events'] = 'Events:';
@@ -541,7 +540,8 @@ $txt['movetopic_change_all_subjects'] = 'Change every message\'s subject';
 $txt['move_topic_unapproved_js'] = 'Warning! This topic has not yet been approved.\\n\\nIt is not recommended that you create a redirection topic unless you intend to approve the post immediately following the move.';
 $txt['movetopic_auto_board'] = '[BOARD]';
 $txt['movetopic_auto_topic'] = '[TOPIC LINK]';
-$txt['movetopic_default'] = 'This topic has been moved to ' . $txt['movetopic_auto_board'] . ".\n\n" . $txt['movetopic_auto_topic'];
+// argument(s): $txt['movetopic_auto_board'], $txt['movetopic_auto_topic']
+$txt['movetopic_default'] = "This topic has been moved to %1\$s.\n\n%2\$s";
 $txt['movetopic_redirect'] = 'Redirect to the moved topic';
 
 $txt['post_redirection'] = 'Post a redirection topic';
@@ -557,8 +557,8 @@ $txt['restricted_board'] = 'Restricted Board';
 
 $txt['smtp_no_connect'] = 'Could not connect to SMTP host';
 $txt['smtp_port_ssl'] = 'SMTP port setting incorrect; it should be 465 for SSL servers. Hostname may need ssl:// prefix.';
-$txt['smtp_bad_response'] = 'Couldn\'t get mail server response codes';
-$txt['smtp_error'] = 'Ran into problems sending Mail. Error: ';
+$txt['smtp_bad_response'] = 'Could not get mail server response codes';
+$txt['smtp_error'] = 'Ran into problems sending mail. Error: ';
 $txt['mail_send_unable'] = 'Unable to send mail to the email address \'%1$s\'';
 
 $txt['mlist_search'] = 'Search for Members';
@@ -614,12 +614,11 @@ $txt['quickmod_confirm'] = 'Are you sure you want to do this?';
 $txt['spell_check'] = 'Spell Check';
 
 $txt['quick_reply'] = 'Quick Reply';
-$txt['quick_reply_desc'] = 'With <em>Quick-Reply</em> you can write a post when viewing a topic without loading a new page. You can still use bulletin board code and smileys as you would in a normal post.';
 $txt['quick_reply_warning'] = 'Warning! This topic is currently locked, only admins and moderators can reply.';
 $txt['quick_reply_verification'] = 'After submitting your post you will be directed to the regular post page to verify your post %1$s.';
 $txt['quick_reply_verification_guests'] = '(required for all guests)';
 $txt['quick_reply_verification_posts'] = '(required for all users with less than %1$d posts)';
-$txt['wait_for_approval'] = 'Note: this post will not display until it\'s been approved by a moderator.';
+$txt['wait_for_approval'] = 'Note: this post will not display until it has been approved by a moderator.';
 
 $txt['notification_enable_board'] = 'Are you sure you wish to enable notification of new topics for this board?';
 $txt['notification_disable_board'] = 'Are you sure you wish to disable notification of new topics for this board?';
@@ -650,8 +649,9 @@ $txt['report_to_mod'] = 'Report to moderator';
 $txt['report_profile'] = 'Report profile of %1$s';
 
 $txt['unread_topics_visit'] = 'Recent Unread Topics';
-$txt['unread_topics_visit_none'] = 'No unread topics found since your last visit. <a href="' . $scripturl . '?action=unread;all">Click here to try all unread topics</a>.';
-$txt['updated_topics_visit_none'] = 'No updated topics found since your last visit. <a href="' . $scripturl . '?action=unread;all">Click here to try all unread topics</a>.';
+// argument(s): scripturl
+$txt['unread_topics_visit_none'] = 'No unread topics found since your last visit. <a href="%1$s?action=unread;all">Click here to try all unread topics</a>.';
+$txt['updated_topics_visit_none'] = 'No updated topics found since your last visit.';
 $txt['unread_topics_all'] = 'All Unread Topics';
 $txt['unread_replies'] = 'Updated Topics';
 
@@ -698,7 +698,8 @@ $txt['merge_check'] = 'Merge?';
 $txt['merge_no_poll'] = 'No poll';
 $txt['merge_why'] = 'Please enter a brief description as to why these topics are being merged.';
 $txt['merged_subject'] = '[MERGED] %1$s';
-$txt['mergetopic_default'] = 'This topic has been merged into ' . $txt['movetopic_auto_topic'] . '.';
+// argument(s): $txt['movetopic_auto_topic']
+$txt['mergetopic_default'] = 'This topic has been merged into %2$s.';
 
 $txt['response_prefix'] = 'Re: ';
 $txt['current_icon'] = 'Current Icon';
@@ -719,9 +720,6 @@ $txt['total_time_logged_h'] = 'h ';
 $txt['total_time_logged_m'] = 'm';
 
 $txt['approve_members_waiting'] = 'Member Approvals';
-
-$txt['notifyboard_turnon'] = 'Do you want a notification email when someone posts a new topic in this board?';
-$txt['notifyboard_turnoff'] = 'Are you sure you do not want to receive new topic notifications for this board?';
 
 $txt['activate_code'] = 'Your activation code is';
 
@@ -751,7 +749,7 @@ $txt['previous_next_forward'] = 'Next topic';
 
 $txt['mark_unread'] = 'Mark unread';
 
-$txt['ssi_not_direct'] = 'Please don\'t access SSI.php by URL directly; you may want to use the path (%1$s) or add ?ssi_function=something.';
+$txt['ssi_not_direct'] = 'Please do not access SSI.php by URL directly; you may want to use the path (%1$s) or add ?ssi_function=something.';
 $txt['ssi_session_broken'] = 'SSI.php was unable to load a session! This may cause problems with logout and other functions - please make sure SSI.php is included before *anything* else in all your scripts!';
 
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
@@ -887,6 +885,21 @@ $txt['notify_board_3'] = 'Receive Emails and Alerts';
 $txt['notify_board_1_desc'] = 'You will not receive any emails or alerts for new topics';
 $txt['notify_board_2_desc'] = 'You will receive alerts for this board.';
 $txt['notify_board_3_desc'] = 'You will receive both alerts and e-mails for this board.';
+
+$txt['notify_board_prompt'] = 'Do you want a notification email when someone posts a new topic in this board?';
+$txt['notify_board_subscribed'] = '%1$s has been subscribed to new topic notifications for this board.';
+$txt['notify_board_unsubscribed'] = '%1$s has been unsubscribed from new topic notifications for this board.';
+
+$txt['notify_topic_prompt'] = 'Do you want a notification email if someone replies to this topic?';
+$txt['notify_topic_subscribed'] = '%1$s has been subscribed to new reply notifications for this topic.';
+$txt['notify_topic_unsubscribed'] = '%1$s has been unsubscribed from new reply notifications for this topic.';
+
+$txt['notify_announcements_prompt'] = 'Do you want to receive forum newsletters, announcements and important notifications by email?';
+$txt['notify_announcements_subscribed'] = '%1$s has been subscribed to forum newsletters, announcements and important notifications.';
+$txt['notify_announcements_unsubscribed'] = '%1$s has been unsubscribed from forum newsletters, announcements and important notifications.';
+
+$txt['unsubscribe_announcements_plain'] = 'To unsubscribe from forum newsletters, announcements and important notifications, follow this link: %1$s';
+$txt['unsubscribe_announcements_html'] = '<span style="font-size:small"><a href="%1$s">Unsubscribe</a> from forum newsletters, announcements and important notifications.</span>';
 
 // Mobile Actions
 $txt['mobile_action'] = 'User actions';

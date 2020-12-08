@@ -8,11 +8,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -31,6 +31,19 @@ function preparsecode(&$message, $previewing = false)
 	global $user_info, $modSettings, $context, $sourcedir;
 
 	static $tags_regex, $disallowed_tags_regex;
+
+	// Convert control characters (except \t, \r, and \n) to harmless Unicode symbols
+	$control_replacements = array(
+		"\x00" => '&#x2400;', "\x01" => '&#x2401;', "\x02" => '&#x2402;', "\x03" => '&#x2403;',
+		"\x04" => '&#x2404;', "\x05" => '&#x2405;', "\x06" => '&#x2406;', "\x07" => '&#x2407;',
+		"\x08" => '&#x2408;', "\x0b" => '&#x240b;', "\x0c" => '&#x240c;', "\x0e" => '&#x240e;',
+		"\x0f" => '&#x240f;', "\x10" => '&#x2410;', "\x11" => '&#x2411;', "\x12" => '&#x2412;',
+		"\x13" => '&#x2413;', "\x14" => '&#x2414;', "\x15" => '&#x2415;', "\x16" => '&#x2416;',
+		"\x17" => '&#x2417;', "\x18" => '&#x2418;', "\x19" => '&#x2419;', "\x1a" => '&#x241a;',
+		"\x1b" => '&#x241b;', "\x1c" => '&#x241c;', "\x1d" => '&#x241d;', "\x1e" => '&#x241e;',
+		"\x1f" => '&#x241f;',
+	);
+	$message = strtr($message, $control_replacements);
 
 	// This line makes all languages *theoretically* work even with the wrong charset ;).
 	if (empty($context['utf8']))
@@ -257,6 +270,9 @@ function preparsecode(&$message, $previewing = false)
 
 	// Now let's quickly clean up things that will slow our parser (which are common in posted code.)
 	$message = strtr($message, array('[]' => '&#91;]', '[&#039;' => '&#91;&#039;'));
+
+	// Any hooks want to work here?
+	call_integration_hook('integrate_preparsecode', array(&$message, $previewing));
 }
 
 /**
@@ -267,6 +283,9 @@ function preparsecode(&$message, $previewing = false)
 function un_preparsecode($message)
 {
 	global $smcFunc;
+
+	// Any hooks want to work here?
+	call_integration_hook('integrate_unpreparsecode', array(&$message));
 
 	$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -1128,9 +1147,11 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		$request = $smcFunc['db_query']('', '
 			SELECT real_name
 			FROM {db_prefix}members
-			WHERE id_member IN ({array_int:to_members})',
+			WHERE id_member IN ({array_int:to_members})
+				AND id_member != {int:from}',
 			array(
 				'to_members' => $to_list,
+				'from' => $from['id'],
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -1614,12 +1635,12 @@ function SpellCheck()
  * The function automatically finds the subject and its board, and
  * checks permissions for each member who is "signed up" for notifications.
  * It will not send 'reply' notifications more than once in a row.
+ * Uses Post language file
  *
  * @param array $topics Represents the topics the action is happening to.
  * @param string $type Can be any of reply, sticky, lock, unlock, remove, move, merge, and split.  An appropriate message will be sent for each.
  * @param array $exclude Members in the exclude array will not be processed for the topic with the same key.
  * @param array $members_only Are the only ones that will be sent the notification if they have it on.
- * @uses Post language file
  */
 function sendNotifications($topics, $type, $exclude = array(), $members_only = array())
 {
@@ -1775,9 +1796,20 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	if (!empty($modSettings['enable_mentions']))
 	{
+		// Get any members who were possibly mentioned
 		$msgOptions['mentioned_members'] = Mentions::getMentionedMembers($msgOptions['body']);
 		if (!empty($msgOptions['mentioned_members']))
+		{
+			// Replace @name with [member=id]@name[/member]
 			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $msgOptions['mentioned_members']);
+
+			// Remove any members who weren't actually mentioned, to prevent bogus notifications
+			foreach ($msgOptions['mentioned_members'] as $m)
+			{
+				if (strpos('[member=' . $m['id'] . ']@' . $m['real_name'] . '[/member]', $msgOptions['body']) === false)
+					unset($msgOptions['mentioned_members'][$m['id']]);
+			}
+		}
 	}
 
 	// It's do or die time: forget any user aborts!
@@ -2547,6 +2579,9 @@ function approvePosts($msgs, $approve = true, $notify = true)
 		foreach ($member_post_changes as $id_member => $count_change)
 			updateMemberData($id_member, array('posts' => 'posts ' . ($approve ? '+' : '-') . ' ' . $count_change));
 
+	// In case an external CMS needs to know about this approval/unapproval.
+	call_integration_hook('integrate_after_approve_posts', array($approve, $msgs, $topic_changes, $member_post_changes));
+
 	return true;
 }
 
@@ -2734,11 +2769,11 @@ function updateLastMessages($setboards, $id_msg = 0)
  * Called by registerMember() function in Subs-Members.php.
  * Email is sent to all groups that have the moderate_forum permission.
  * The language set by each member is being used (if available).
+ * Uses the Login language file
  *
  * @param string $type The type. Types supported are 'approval', 'activation', and 'standard'.
  * @param int $memberID The ID of the member
  * @param string $member_name The name of the member (if null, it is pulled from the database)
- * @uses the Login language file.
  */
 function adminNotify($type, $memberID, $member_name = null)
 {
@@ -2785,7 +2820,7 @@ function adminNotify($type, $memberID, $member_name = null)
  */
 function loadEmailTemplate($template, $replacements = array(), $lang = '', $loadLang = true)
 {
-	global $txt, $mbname, $scripturl, $settings;
+	global $txt, $mbname, $scripturl, $settings, $context;
 
 	// First things first, load up the email templates language file, if we need to.
 	if ($loadLang)
@@ -2807,7 +2842,7 @@ function loadEmailTemplate($template, $replacements = array(), $lang = '', $load
 		'THEMEURL' => $settings['theme_url'],
 		'IMAGESURL' => $settings['images_url'],
 		'DEFAULT_THEMEURL' => $settings['default_theme_url'],
-		'REGARDS' => $txt['regards_team'],
+		'REGARDS' => sprintf($txt['regards_team'], $context['forum_name']),
 	);
 
 	// Split the replacements up into two arrays, for use with str_replace

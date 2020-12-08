@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; Admin
+// Version: 2.1 RC3; Admin
 
 global $settings, $scripturl;
 
@@ -38,7 +38,12 @@ $txt['admin_smfpackage'] = 'SMF Package';
 $txt['admin_logoff'] = 'End admin Session';
 $txt['admin_maintenance'] = 'Maintenance';
 $txt['admin_credits'] = 'Credits';
-$txt['admin_agreement'] = 'Show and require agreement letter when registering';
+$txt['admin_agreement'] = 'Require new members to accept the registration agreement';
+$txt['admin_agreement_minor_edit'] = 'This is a minor edit';
+$txt['reset_agreement_desc'] = 'This will force all members to re-read and accept the registration agreement in order to continue using the forum.';
+$txt['admin_privacy_policy'] = 'Require new members to accept the privacy policy';
+$txt['reset_privacy_policy_desc'] = 'This will force all members to re-read and accept the privacy policy in order to continue using the forum.';
+$txt['admin_agreement_info'] = 'Last updated: %1$s.';
 $txt['admin_agreement_default'] = 'Default';
 $txt['admin_agreement_select_language'] = 'Language to edit';
 $txt['admin_agreement_select_language_change'] = 'Change';
@@ -55,7 +60,7 @@ $txt['admin_check_user'] = 'Check username.';
 $txt['admin_check_display'] = 'Check display name.';
 $txt['admin_fader_delay'] = 'Fading delay between items for the news fader, in milliseconds';
 $txt['additional_options_collapsable'] = 'Enable collapsible additional post options';
-$txt['guest_post_no_email'] = 'Do not show the email field for guests posts';
+$txt['guest_post_no_email'] = 'Do not show the email field for guests\' posts';
 $txt['zero_for_no_limit'] = '(0 for no limit)';
 $txt['zero_to_disable'] = '(Set to 0 to disable.)';
 $txt['dont_show_attach_under_post'] = 'Do not show attachments under the post if they are already embedded in it.';
@@ -64,6 +69,8 @@ $txt['dont_show_attach_under_post_sub'] = 'Enable this if you do not want attach
 $txt['admin_backup_fail'] = 'Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable.';
 $txt['registration_agreement'] = 'Registration Agreement';
 $txt['registration_agreement_desc'] = 'This agreement is shown when a user registers an account on this forum and has to be accepted before users can continue registration.';
+$txt['privacy_policy'] = 'Privacy Policy';
+$txt['privacy_policy_desc'] = 'This privacy policy describes the promises you make to your users regarding how you will use their personal data. It is shown when a user registers an account on this forum and has to be accepted before the user can continue registration.';
 $txt['errors_list'] = 'Listing of forum errors';
 $txt['errors_found'] = 'The following errors are fouling up your forum';
 $txt['errors_fix'] = 'Would you like to attempt to fix these errors?';
@@ -123,11 +130,13 @@ $txt['ip_address'] = 'IP address';
 $txt['member_id'] = 'ID';
 
 $txt['unknown'] = 'unknown';
-$txt['security_wrong'] = 'Administration login attempt!' . "\n" . 'Referrer: %1$s' . "\n" . 'User agent: %2$s' . "\n" . 'IP: %3$s';
+// argument(s): HTTP_REFERER (if applicable), HTTP_USER_AGENT, ip address
+$txt['security_wrong'] = "Administration login attempt!\nReferrer: %1\$s\nUser agent: %2\$s\nIP: %3\$s";
 
 $txt['email_as_html'] = 'Send in HTML format. (with this you can put normal HTML in the email.)';
 $txt['email_parsed_html'] = 'Add &lt;br&gt;s and &amp;nbsp;s to this message.';
-$txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;. Click <a href="' . $scripturl . '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
+// argument(s): $scripturl
+$txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;. Click <a href="%1$s?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
 $txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.';
 $txt['email_as_pms'] = 'Send this to these groups using personal messages.';
 $txt['email_continue'] = 'Continue';
@@ -172,7 +181,7 @@ $txt['ban_modify'] = 'Modify';
 $txt['ban_name'] = 'Ban name';
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
 $txt['ban_edit'] = 'Edit ban';
-$txt['ban_add_notes'] = '<strong>Note</strong>: after creating the above ban, you can add additional entries that trigger the ban, like IP addresses, hostnames and email addresses.';
+$txt['ban_add_notes'] = '<strong>Note</strong>: after creating the above ban, you can add additional entries that trigger the ban, like IP addresses, hostnames, and email addresses.';
 $txt['ban_expired'] = 'Expired / disabled';
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
 $txt['ban_restriction_empty'] = 'No restriction selected.';
@@ -189,7 +198,7 @@ $txt['ban_no_entries'] = 'There are currently no bans in effect.';
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
 $txt['ban_remove_selected_triggers_confirm'] = 'Are you sure you want to remove the selected ban triggers?';
 $txt['ban_trigger_browse'] = 'Browse Ban Triggers';
-$txt['ban_trigger_browse_description'] = 'This screen shows all banned entities grouped by IP address, hostname, email address and username.';
+$txt['ban_trigger_browse_description'] = 'This screen shows all banned entities grouped by IP address, hostname, email address, and username.';
 
 $txt['ban_log'] = 'Ban Log';
 $txt['ban_log_description'] = 'The ban log shows all attempts to enter the forum by banned users (\'full ban\' and \'cannot register\' ban only).';
@@ -269,7 +278,6 @@ $txt['censor_whole_words'] = 'Check only whole words';
 $txt['admin_confirm_password'] = '(confirm)';
 $txt['admin_incorrect_password'] = 'Incorrect Password';
 
-$txt['date_format'] = '(YYYY-MM-DD)';
 $txt['age'] = 'User age';
 $txt['activation_status'] = 'Activation Status';
 $txt['activated'] = 'Activated';
@@ -367,14 +375,14 @@ $txt['attach_dir_desc'] = 'Create new directories or change the current director
 $txt['attach_dir_base_desc'] = 'You may use the area below to change the current base directory or create a new one. New base directories are also added to the Attachment Directory list. You may also designate an existing directory to be a base directory.';
 $txt['attach_dir_save_problem'] = 'Oops, there seems to be a problem.';
 $txt['attachments_no_create'] = 'Unable to create a new attachment directory. Please do so using a FTP client or your site file manager.';
-$txt['attachments_no_write'] = 'This directory has been created but is not writable. Please attempt to do so using a FTP client or your site file manager.';
+$txt['attachments_no_write'] = 'This directory has been created, but is not writable. Please attempt to do so using a FTP client or your site file manager.';
 $txt['attach_dir_duplicate_msg'] = 'Unable to add. This directory already exists.';
 $txt['attach_dir_exists_msg'] = 'Unable to move. A directory already exists at that path.';
 $txt['attach_dir_base_dupe_msg'] = 'Unable to add. This base directory has already been created.';
-$txt['attach_dir_base_no_create'] = 'Unable to create. Please verify the path input. Or create this directory using an FTP client or your site file manager and retry.';
+$txt['attach_dir_base_no_create'] = 'Unable to create. Please verify the path input or create this directory using an FTP client or your site file manager and retry.';
 $txt['attach_dir_no_rename'] = 'Unable to move or rename. Please verify that the path is correct or that this directory does not contain any sub-directories.';
-$txt['attach_dir_no_delete'] = 'Is not empty and can not be deleted. Please do so using a FTP client or your site file manager.';
-$txt['attach_dir_no_remove'] = 'Still contains files or is a base directory and can not be deleted.';
+$txt['attach_dir_no_delete'] = 'Is not empty and cannot be deleted. Please do so using a FTP client or your site file manager.';
+$txt['attach_dir_no_remove'] = 'Still contains files or is a base directory and cannot be deleted.';
 $txt['attach_dir_is_current'] = 'Unable to remove while it is selected as the current directory.';
 $txt['attach_dir_is_current_bd'] = 'Unable to remove while it is selected as the current base directory.';
 $txt['attach_dir_invalid'] = 'Invalid directory';
@@ -410,8 +418,10 @@ $txt['use_subdirectories_for_attachments'] = 'Create new directories within a ba
 $txt['use_subdirectories_for_attachments_note'] = 'Otherwise any new directories will be created within the forum\'s main directory.';
 $txt['basedirectory_for_attachments'] = 'Set a base directory for attachments';
 $txt['basedirectory_for_attachments_current'] = 'Current base directory';
-$txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. <br>(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
-$txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. <br>(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
+// argument(s): scripturl
+$txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. <br>(<a href="%1$s?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
+// argument(s): scripturl
+$txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. <br>(<a href="%1$s?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
 
 $txt['attachment_transfer'] = 'Transfer Attachments';
 $txt['attachment_transfer_desc'] = 'Transfer files between directories.';
@@ -457,9 +467,9 @@ $txt['avatar_external_url_groups'] = 'Membergroups allowed to select an external
 $txt['avatar_select_permission'] = 'Select permissions for each group';
 $txt['avatar_download_external'] = 'Download avatar at given URL';
 $txt['option_specified_dir'] = 'Specific directory...';
-$txt['custom_avatar_dir_wrong'] = 'The Attachments directory is not valid. This will prevent attachments from working properly.';
+$txt['custom_avatar_dir_wrong'] = 'The Avatars directory is not valid. This will prevent avatars from working properly.';
 $txt['custom_avatar_dir'] = 'Upload directory';
-$txt['custom_avatar_dir_desc'] = 'This should be a valid and writable directory, different than the server-stored directory.';
+$txt['custom_avatar_dir_desc'] = 'This should be a valid and writable directory, different from the server-stored directory.';
 $txt['custom_avatar_url'] = 'Upload URL';
 $txt['custom_avatar_check_empty'] = 'The custom avatar directory you have specified may be empty or invalid. Please ensure these settings are correct.';
 $txt['avatar_reencode'] = 'Re-encode potentially dangerous avatars';
@@ -549,19 +559,20 @@ $txt['managedrafts_settings_description'] = 'Here you can set all settings invol
 $txt['manage_drafts'] = 'Drafts';
 
 $txt['removeNestedQuotes'] = 'Remove nested quotes when quoting';
-$txt['enableSpellChecking'] = 'Enable spell checking';
 $txt['disable_wysiwyg'] = 'Disable WYSIWYG editor';
 $txt['max_messageLength'] = 'Maximum allowed post size';
 $txt['max_messageLength_zero'] = '0 for no max.';
-$txt['convert_to_mediumtext'] = 'Your database is not setup to accept messages longer than 65535 characters. Please use the <a href="%1$s">database maintenance</a> page to convert the database and then come back to increase the maximum allowed post size.';
+$txt['convert_to_mediumtext'] = 'Your database is not configured to accept messages longer than 65535 characters. Please use the <a href="%1$s">database maintenance</a> page to convert the database and then come back to increase the maximum allowed post size.';
 $txt['topicSummaryPosts'] = 'Posts to show on topic summary';
 $txt['spamWaitTime'] = 'Time required between posts from the same IP';
 $txt['edit_wait_time'] = 'Courtesy edit wait time';
 $txt['edit_disable_time'] = 'Maximum time after posting to allow edit';
 $txt['preview_characters'] = 'Maximum length of last/first post preview';
 $txt['preview_characters_units'] = 'characters';
+$txt['quote_expand'] = 'Minimum quote height to add an expand link on large quotes';
+$txt['quote_expand_pixels_units'] = 'pixels';
 $txt['message_index_preview_first'] = 'When using post previews, show the text of the first post';
-$txt['message_index_preview_first_desc'] = 'Leave un-checked to show the text of the last post instead';
+$txt['message_index_preview_first_desc'] = 'Leave unchecked to show the text of the last post instead';
 $txt['show_user_images'] = 'Show user avatars in message view';
 $txt['show_blurb'] = 'Show personal text in message view';
 $txt['hide_post_group'] = 'Hide post group titles for grouped members';
@@ -576,7 +587,7 @@ $txt['autoLinkUrls'] = 'Automatically link posted URLs';
 $txt['disabledBBC'] = 'Enabled BBC tags';
 $txt['legacyBBC'] = 'Legacy BBC tags';
 $txt['bbcTagsToUse'] = 'Enabled BBC tags';
-$txt['enabled_bbc_select'] = 'Select the tags allowed to be used';
+$txt['enabled_bbc_select'] = 'Select the tags which are allowed to be used';
 $txt['enabled_bbc_select_all'] = 'Select all tags';
 $txt['groups_can_use'] = 'Membergroups allowed to use %1$s';
 
@@ -599,6 +610,7 @@ $txt['database_settings'] = 'Database';
 $txt['cookies_sessions_settings'] = 'Cookies and Sessions';
 $txt['security_settings'] = 'Security';
 $txt['caching_settings'] = 'Caching';
+$txt['export_settings'] = 'Data Export';
 $txt['load_balancing_settings'] = 'Load Balancing';
 $txt['phpinfo_settings'] = 'PHP Info';
 $txt['phpinfo_localsettings'] = 'Local Settings';

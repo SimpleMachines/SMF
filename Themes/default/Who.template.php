@@ -3,11 +3,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -76,7 +76,22 @@ function template_main()
 		echo '
 							</td>
 							<td class="time">', $member['time'], '</td>
-							<td>', $member['action'], '</td>
+							<td>';
+
+		if (is_array($member['action']))
+		{
+			$tag = !empty($member['action']['tag']) ? $member['action']['tag'] : 'span';
+
+			echo '
+								<', $tag, !empty($member['action']['class']) ? ' class="' . $member['action']['class'] . '"' : '', '>
+									', $txt[$member['action']['label']], (!empty($member['action']['error_message']) ? $member['action']['error_message'] : ''), '
+								</', $tag, '>';
+		}
+		else
+			echo $member['action'];
+
+		echo '
+							</td>
 						</tr>';
 	}
 

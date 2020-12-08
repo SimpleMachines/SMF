@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -81,7 +81,7 @@ function ManageNews()
  * Requires the edit_news permission.
  * Can be accessed with ?action=admin;sa=editnews.
  *
- * @uses ManageNews template, edit_news sub template.
+ * Uses a standard list (@see createList())
  */
 function EditNews()
 {
@@ -307,7 +307,7 @@ function list_getNews()
  * Requires the send_mail permission.
  * Form is submitted to ?action=admin;area=news;mailingcompose.
  *
- * @uses the ManageNews template and email_members sub template.
+ * @uses template_email_members()
  */
 function SelectMailingMembers()
 {
@@ -493,7 +493,7 @@ function prepareMailingForPreview()
  * Requires the send_mail permission.
  * Form is submitted to ?action=admin;area=news;sa=mailingsend.
  *
- * @uses ManageNews template, email_members_compose sub-template.
+ * @uses template_email_members_compose()
  */
 function ComposeMailing()
 {
@@ -504,7 +504,7 @@ function ComposeMailing()
 	$context['sub_template'] = 'email_members_compose';
 
 	$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : $smcFunc['htmlspecialchars']($context['forum_name'] . ': ' . $txt['subject']);
-	$context['message'] = !empty($_POST['message']) ? $_POST['message'] : $smcFunc['htmlspecialchars']($txt['message'] . "\n\n" . $txt['regards_team'] . "\n\n" . '{$board_url}');
+	$context['message'] = !empty($_POST['message']) ? $_POST['message'] : $smcFunc['htmlspecialchars']($txt['message'] . "\n\n" . sprintf($txt['regards_team'], $context['forum_name']) . "\n\n" . '{$board_url}');
 
 	// Needed for the WYSIWYG editor.
 	require_once($sourcedir . '/Subs-Editor.php');
@@ -513,7 +513,7 @@ function ComposeMailing()
 	$editorOptions = array(
 		'id' => 'message',
 		'value' => $context['message'],
-		'height' => '250px',
+		'height' => '150px',
 		'width' => '100%',
 		'labels' => array(
 			'post_button' => $txt['sendtopic_send'],
@@ -690,9 +690,9 @@ function ComposeMailing()
  * Requires the send_mail permission.
  * Redirects to itself when more batches need to be sent.
  * Redirects to ?action=admin;area=news;sa=mailingmembers after everything has been sent.
+ * @uses template_email_members_send()
  *
  * @param bool $clean_only If set, it will only clean the variables, put them in context, then return.
- * @uses the ManageNews template and email_members_send sub template.
  */
 function SendMailing($clean_only = false)
 {
@@ -823,6 +823,13 @@ function SendMailing($clean_only = false)
 	$context['subject'] = $smcFunc['htmlspecialchars']($_POST['subject'], ENT_QUOTES);
 	$context['message'] = $smcFunc['htmlspecialchars']($_POST['message'], ENT_QUOTES);
 
+	// Include an unsubscribe link if necessary.
+	if (!$context['send_pm'])
+	{
+		$include_unsubscribe = true;
+		$_POST['message'] .= "\n\n" . '{$member.unsubscribe}';
+	}
+
 	// Prepare the message for sending it as HTML
 	if (!$context['send_pm'] && !empty($_POST['send_html']))
 	{
@@ -882,7 +889,8 @@ function SendMailing($clean_only = false)
 		'{$member.email}',
 		'{$member.link}',
 		'{$member.id}',
-		'{$member.name}'
+		'{$member.name}',
+		'{$member.unsubscribe}',
 	);
 
 	// If we still have emails, do them first!
@@ -900,11 +908,15 @@ function SendMailing($clean_only = false)
 		if ($context['send_pm'])
 			continue;
 
+		// Non-members can't subscribe or unsubscribe from anything...
+		$unsubscribe_link = '';
+
 		$to_member = array(
 			$email,
 			!empty($_POST['send_html']) ? '<a href="mailto:' . $email . '">' . $email . '</a>' : $email,
 			'??',
-			$email
+			$email,
+			$unsubscribe_link,
 		);
 
 		sendmail($email, str_replace($from_member, $to_member, $_POST['subject']), str_replace($from_member, $to_member, $_POST['message']), null, 'news', !empty($_POST['send_html']), 5);
@@ -1008,6 +1020,14 @@ function SendMailing($clean_only = false)
 			// We might need this
 			$cleanMemberName = empty($_POST['send_html']) || $context['send_pm'] ? un_htmlspecialchars($row['real_name']) : $row['real_name'];
 
+			if (!empty($include_unsubscribe))
+			{
+				$token = createUnsubscribeToken($row['id_member'], $row['email_address'], 'announcements');
+				$unsubscribe_link = sprintf($txt['unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain')], $scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token);
+			}
+			else
+				$unsubscribe_link = '';
+
 			// Replace the member-dependant variables
 			$message = str_replace($from_member,
 				array(
@@ -1015,6 +1035,7 @@ function SendMailing($clean_only = false)
 					!empty($_POST['send_html']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $cleanMemberName . '</a>' : ($context['send_pm'] ? '[url=' . $scripturl . '?action=profile;u=' . $row['id_member'] . ']' . $cleanMemberName . '[/url]' : $scripturl . '?action=profile;u=' . $row['id_member']),
 					$row['id_member'],
 					$cleanMemberName,
+					$unsubscribe_link,
 				), $_POST['message']);
 
 			$subject = str_replace($from_member,
@@ -1055,8 +1076,8 @@ function SendMailing($clean_only = false)
  * Set general news and newsletter settings and permissions.
  * Called by ?action=admin;area=news;sa=settings.
  * Requires the forum_admin permission.
+ * @uses template_show_settings()
  *
- * @uses ManageNews template, news_settings sub-template.
  * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
  * @return void|array Returns nothing or returns the config_vars array if $return_config is true
  */

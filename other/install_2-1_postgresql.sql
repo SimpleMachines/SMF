@@ -49,12 +49,20 @@ CREATE OR REPLACE FUNCTION MONTH (timestamp) RETURNS integer AS
 	'SELECT CAST (EXTRACT(MONTH FROM $1) AS integer) AS result'
 LANGUAGE 'sql';
 
+CREATE OR REPLACE FUNCTION MONTH (bigint) RETURNS integer AS
+	'SELECT CAST (EXTRACT(MONTH FROM TO_TIMESTAMP($1)) AS integer) AS result'
+LANGUAGE 'sql';
+
 CREATE OR REPLACE FUNCTION day(date) RETURNS integer AS
 	'SELECT EXTRACT(DAY FROM DATE($1))::integer AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION DAYOFMONTH (timestamp) RETURNS integer AS
 	'SELECT CAST (EXTRACT(DAY FROM $1) AS integer) AS result'
+LANGUAGE 'sql';
+
+CREATE OR REPLACE FUNCTION DAYOFMONTH (bigint) RETURNS integer AS
+	'SELECT CAST (EXTRACT(DAY FROM TO_TIMESTAMP($1)) AS integer) AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION HOUR (timestamp) RETURNS integer AS
@@ -598,7 +606,7 @@ CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
 CREATE UNLOGGED TABLE {$db_prefix}log_floodcontrol (
 	ip inet,
 	log_time bigint NOT NULL DEFAULT '0',
-	log_type varchar(8) NOT NULL DEFAULT 'post',
+	log_type varchar(30) NOT NULL DEFAULT 'post',
 	PRIMARY KEY (ip, log_type)
 );
 
@@ -726,6 +734,7 @@ CREATE TABLE {$db_prefix}log_packages (
 	themes_installed varchar(255) NOT NULL DEFAULT '',
 	db_changes text NOT NULL,
 	credits text NOT NULL,
+	sha256_hash TEXT,
 	PRIMARY KEY (id_install)
 );
 
@@ -917,7 +926,7 @@ CREATE INDEX {$db_prefix}log_spider_hits_processed ON {$db_prefix}log_spider_hit
 
 CREATE TABLE {$db_prefix}log_spider_stats (
 	id_spider smallint NOT NULL DEFAULT '0',
-	page_hits smallint NOT NULL DEFAULT '0',
+	page_hits int NOT NULL DEFAULT '0',
 	last_seen bigint NOT NULL DEFAULT '0',
 	stat_date date NOT NULL DEFAULT '1004-01-01',
 	PRIMARY KEY (stat_date, id_spider)
@@ -1218,7 +1227,7 @@ CREATE INDEX {$db_prefix}messages_show_posts ON {$db_prefix}messages (id_member,
 CREATE INDEX {$db_prefix}messages_id_member_msg ON {$db_prefix}messages (id_member, approved, id_msg);
 CREATE INDEX {$db_prefix}messages_current_topic ON {$db_prefix}messages (id_topic, id_msg, id_member, approved);
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
-CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes DESC);
+CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes);
 #
 # Table structure for table `moderators`
 #
@@ -1253,6 +1262,8 @@ CREATE TABLE {$db_prefix}package_servers (
 	id_server smallint DEFAULT nextval('{$db_prefix}package_servers_seq'),
 	name varchar(255) NOT NULL DEFAULT '',
 	url varchar(255) NOT NULL DEFAULT '',
+	validation_url varchar(255) NOT NULL DEFAULT '',
+	extra text,
 	PRIMARY KEY (id_server)
 );
 
@@ -2399,8 +2410,9 @@ VALUES (1, 1, 1, 1, {$current_time}, '{$default_topic_subject}', 'Simple Machine
 #
 
 INSERT INTO {$db_prefix}package_servers
-	(name, url)
-VALUES ('Simple Machines Third-party Mod Site', 'https://custom.simplemachines.org/packages/mods');
+	(name, url, validation_url)
+VALUES ('Simple Machines Third-party Mod Site', 'https://custom.simplemachines.org/packages/mods', 'https://custom.simplemachines.org/api.php?action=validate;version=v1;smf_version={SMF_VERSION}'),
+		('Simple Machines Downloads Site', 'https://download.simplemachines.org/browse.php?api=v1;smf_version={SMF_VERSION}', 'https://download.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}');
 # --------------------------------------------------------
 
 #
@@ -2487,7 +2499,8 @@ VALUES
 	(10, 0, 120, 1, 'd', 1, 'paid_subscriptions', ''),
 	(11, 0, 120, 1, 'd', 0, 'remove_temp_attachments', ''),
 	(12, 0, 180, 1, 'd', 0, 'remove_topic_redirect', ''),
-	(13, 0, 240, 1, 'd', 0, 'remove_old_drafts', '');
+	(13, 0, 240, 1, 'd', 0, 'remove_old_drafts', ''),
+	(14, 0, 0, 1, 'w', 1, 'prune_log_topics', '');
 
 # --------------------------------------------------------
 
@@ -2524,7 +2537,6 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('mostOnline', '1'),
 	('mostOnlineToday', '1'),
 	('mostDate', {$current_time}),
-	('allow_disableAnnounce', '1'),
 	('trackStats', '1'),
 	('userLanguage', '1'),
 	('titlesEnable', '1'),
@@ -2578,7 +2590,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('reserveCase', '1'),
 	('reserveUser', '1'),
 	('reserveName', '1'),
-	('reserveNames', '{$default_reserved_names}'),
+	('reserveNames', E'{$default_reserved_names}'),
 	('autoLinkUrls', '1'),
 	('banLastUpdated', '0'),
 	('smileys_dir', '{$boarddir}/Smileys'),
@@ -2617,7 +2629,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('enableThemes', '1'),
 	('who_enabled', '1'),
 	('time_offset', '0'),
-	('cookieTime', '60'),
+	('cookieTime', '3153600'),
 	('lastActive', '15'),
 	('smiley_sets_known', 'fugue,alienine'),
 	('smiley_sets_names', '{$default_fugue_smileyset_name}'||E'\n'||'{$default_alienine_smileyset_name}'),
@@ -2651,6 +2663,9 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('warning_mute', '60'),
 	('last_mod_report_action', '0'),
 	('pruningOptions', '30,180,180,180,30,0'),
+	('mark_read_beyond', '90'),
+	('mark_read_delete_beyond', '365'),
+	('mark_read_max_users', '500'),
 	('modlog_enabled', '1'),
 	('adminlog_enabled', '1'),
 	('reg_verification', '1'),
@@ -2679,6 +2694,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('show_blurb', '1'),
 	('show_profile_buttons', '1'),
 	('enable_ajax_alerts', '1'),
+	('alerts_auto_purge', '30'),
 	('gravatarEnabled', '1'),
 	('gravatarOverride', '0'),
 	('gravatarAllowExtraEmail', '1'),
@@ -2687,6 +2703,10 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('loginHistoryDays', '30'),
 	('httponlyCookies', '1'),
 	('tfa_mode', '1'),
+	('export_dir', '{$boarddir}/exports'),
+	('export_expiry', '7'),
+	('export_min_diskspace_pct', '5'),
+	('export_rate', '250'),
 	('allow_expire_redirect', '1'),
 	('json_done', '1'),
 	('displayFields', '[{"col_name":"cust_icq","title":"ICQ","type":"text","order":"1","bbc":"0","placement":"1","enclose":"<a class=\"icq\" href=\"\/\/www.icq.com\/people\/{INPUT}\" target=\"_blank\" title=\"ICQ - {INPUT}\"><img src=\"{DEFAULT_IMAGES_URL}\/icq.png\" alt=\"ICQ - {INPUT}\"><\/a>","mlist":"0"},{"col_name":"cust_skype","title":"Skype","type":"text","order":"2","bbc":"0","placement":"1","enclose":"<a href=\"skype:{INPUT}?call\"><img src=\"{DEFAULT_IMAGES_URL}\/skype.png\" alt=\"{INPUT}\" title=\"{INPUT}\" \/><\/a> ","mlist":"0"},{"col_name":"cust_loca","title":"Location","type":"text","order":"4","bbc":"0","placement":"0","enclose":"","mlist":"0"},{"col_name":"cust_gender","title":"Gender","type":"radio","order":"5","bbc":"0","placement":"1","enclose":"<span class=\" main_icons gender_{KEY}\" title=\"{INPUT}\"><\/span>","mlist":"0","options":["None","Male","Female"]}]'),
@@ -2770,12 +2790,12 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'show_stats_index', '1'),
 	(1, 'newsfader_time', '3000'),
 	(1, 'use_image_buttons', '1'),
-	(1, 'enable_news', '1'),
-	(1, 'drafts_show_saved_enabled', '1');
+	(1, 'enable_news', '1');
 
 INSERT INTO {$db_prefix}themes
 	(id_member, id_theme, variable, value)
 VALUES (-1, 1, 'posts_apply_ignore_list', '1'),
+	(-1, 1, 'drafts_show_saved_enabled', '1'),
 	(-1, 1, 'return_to_post', '1');
 # --------------------------------------------------------
 
@@ -2816,7 +2836,8 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'unapproved_post', 1),
 	(0, 'buddy_request', 1),
 	(0, 'warn_any', 1),
-	(0, 'request_group', 1);
+	(0, 'request_group', 1),
+	(0, 'msg_notify_pref', 1);
 # --------------------------------------------------------
 
 #

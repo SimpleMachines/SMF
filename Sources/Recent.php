@@ -6,11 +6,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -480,7 +480,8 @@ function RecentPosts()
 			'delete' => array(
 				'label' => $txt['remove'],
 				'href' => $scripturl.'?action=deletemsg;msg='.$post['id'].';topic='.$post['topic'].';recent;'.$context['session_var'].'='.$context['session_id'],
-				'javascript' => 'data-confirm="'.$txt['remove_message'].'" class="you_sure"',
+				'javascript' => 'data-confirm="'.$txt['remove_message'].'"',
+				'class' => 'you_sure',
 				'icon' => 'remove_button',
 				'show' => $post['can_delete']
 			),
@@ -721,7 +722,7 @@ function UnreadTopics()
 			'name' => $txt['unread_topics_all']
 		);
 	else
-		$txt['unread_topics_visit_none'] = strtr($txt['unread_topics_visit_none'], array('?action=unread;all' => '?action=unread;all' . sprintf($context['querystring_board_limits'], 0) . $context['querystring_sort_limits']));
+		$txt['unread_topics_visit_none'] = strtr(sprintf($txt['unread_topics_visit_none'], $scripturl), array('?action=unread;all' => '?action=unread;all' . sprintf($context['querystring_board_limits'], 0) . $context['querystring_sort_limits']));
 
 	loadTemplate('Recent');
 	loadTemplate('MessageIndex');

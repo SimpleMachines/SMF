@@ -3,11 +3,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -93,7 +93,7 @@ function template_main()
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
 			<div id="post_area">
-				<div class="roundframe">', isset($context['current_topic']) ? '
+				<div class="roundframe noup">', isset($context['current_topic']) ? '
 					<input type="hidden" name="topic" value="' . $context['current_topic'] . '">' : '';
 
 	// If an error occurred, explain what happened.
@@ -137,80 +137,55 @@ function template_main()
 	// Are you posting a calendar event?
 	if ($context['make_event'])
 	{
+		// Note to theme writers: The JavaScripts expect the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
 		echo '
 					<hr class="clear">
 					<div id="post_event">
-						<fieldset id="event_main">
-							<legend><span', isset($context['post_error']['no_event']) ? ' class="error"' : '', '>', $txt['calendar_event_title'], '</span></legend>
-							<input type="hidden" name="calendar" value="1">
-							<div class="event_options_left" id="event_title">
-								<div>
-									<input type="text" id="evtitle" name="evtitle" maxlength="255" size="55" value="', $context['event']['title'], '" tabindex="', $context['tabindex']++, '">
-								</div>
-							</div>';
-
-		// If this is a new event let the user specify which board they want the linked post to be put into.
-		if ($context['event']['new'] && $context['is_new_post'])
-		{
-			echo '
-							<div class="event_options_right" id="event_board">
-								<div>
-									<span class="label">', $txt['calendar_post_in'], '</span>
-								<select name="board">';
-			foreach ($context['event']['categories'] as $category)
-			{
-				echo '
-										<optgroup label="', $category['name'], '">';
-
-				foreach ($category['boards'] as $board)
-					echo '
-											<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
-				echo '
-										</optgroup>';
-			}
-			echo '
-									</select>
-								</div>
-							</div><!-- #event_board -->';
-		}
-
-		// Note to theme writers: The JavaScripts expect the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
-		echo '
-						</fieldset>
 						<fieldset id="event_options">
-							<legend>', $txt['calendar_event_options'], '</legend>
-							<div class="event_options_left" id="event_time_input">
+							<legend', isset($context['post_error']['no_event']) ? ' class="error"' : '', '>', $txt['calendar_event_options'], '</legend>
+							<input type="hidden" name="calendar" value="1">
+							<div class="event_options" id="event_title">
 								<div>
-									<span class="label">', $txt['start'], '</span>
-									<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
-									<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
-								</div>
-								<div>
-									<span class="label">', $txt['end'], '</span>
-									<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
-									<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+									<span class="label">', $txt['calendar_event_title'], '</span>
+									<input type="text" id="evtitle" name="evtitle" maxlength="255" value="', $context['event']['title'], '" tabindex="', $context['tabindex']++, '">
 								</div>
 							</div>
-							<div class="event_options_right" id="event_time_options">
-								<div id="event_allday">
-									<label for="allday"><span class="label">', $txt['calendar_allday'], '</span></label>
-									<input type="checkbox" name="allday" id="allday"', !empty($context['event']['allday']) ? ' checked' : '', ' tabindex="', $context['tabindex']++, '">
+							<div class="event_options">
+								<div class="event_options_left" id="event_time_input">
+									<div>
+										<span class="label">', $txt['start'], '</span>
+										<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
+										<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+									</div>
+									<div>
+										<span class="label">', $txt['end'], '</span>
+										<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
+										<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+									</div>
 								</div>
-								<div id="event_timezone">
-									<span class="label">', $txt['calendar_timezone'], '</span>
-									<select name="tz" id="tz"', !empty($context['event']['allday']) ? ' disabled' : '', '>';
+								<div class="event_options_right" id="event_time_options">
+									<div id="event_allday">
+										<label for="allday"><span class="label">', $txt['calendar_allday'], '</span></label>
+										<input type="checkbox" name="allday" id="allday"', !empty($context['event']['allday']) ? ' checked' : '', ' tabindex="', $context['tabindex']++, '">
+									</div>
+									<div id="event_timezone">
+										<span class="label">', $txt['calendar_timezone'], '</span>
+										<select name="tz" id="tz"', !empty($context['event']['allday']) ? ' disabled' : '', '>';
 
-		foreach ($context['all_timezones'] as $tz => $tzname)
+			foreach ($context['all_timezones'] as $tz => $tzname)
+				echo '
+											<option', is_numeric($tz) ? ' value="" disabled' : ' value="' . $tz . '"', $tz === $context['event']['tz'] ? ' selected' : '', '>', $tzname, '</option>';
+
 			echo '
-										<option', is_numeric($tz) ? ' value="" disabled' : ' value="' . $tz . '"', $tz === $context['event']['tz'] ? ' selected' : '', '>', $tzname, '</option>';
-
-		echo '
-									</select>
+										</select>
+									</div>
 								</div>
-							</div><!-- #event_time_options -->
-							<div>
-								<span class="label">', $txt['location'], '</span>
-								<input type="text" name="event_location" id="event_location" maxlength="255" value="', $context['event']['location'], '" tabindex="', $context['tabindex']++, '">
+							</div>
+							<div class="event_options">
+								<div>
+									<span class="label">', $txt['location'], '</span>
+									<input type="text" name="event_location" id="event_location" maxlength="255" value="', $context['event']['location'], '" tabindex="', $context['tabindex']++, '">
+								</div>
 							</div>
 						</fieldset>
 					</div><!-- #post_event -->';
@@ -364,7 +339,7 @@ function template_main()
 
 		if (!empty($context['files_in_session_warning']))
 			echo '
-						<div class="smalltext">', $context['files_in_session_warning'], '</div>';
+						<div class="smalltext"><em>', $context['files_in_session_warning'], '</em></div>';
 	}
 
 	// Is the user allowed to post any additional ones? If so give them the boxes to do it!
@@ -534,7 +509,7 @@ function template_main()
 
 	// Finally, the submit buttons.
 	echo '
-					<span id="post_confirm_buttons" class="floatright">
+					<span id="post_confirm_buttons">
 						', template_control_richedit_buttons($context['post_box_name']);
 
 	// Option to delete an event if user is editing one.
@@ -1013,7 +988,7 @@ function template_post_header()
 	{
 		$context['posting_fields']['subject'] = array(
 			'label' => array('html' => '<label for="subject" id="caption_subject">' . $txt['subject'] . '</label>'),
-			'input' => array('html' => '<input type="text" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>')
+			'input' => array('html' => '<input type="text" id="subject" name="subject" value="' . $context['subject'] . '" size="80" maxlength="80" required>')
 		);
 	}
 
@@ -1042,7 +1017,7 @@ function template_post_header()
 			echo $pf['label']['html'];
 		else
 			echo '
-							<label', ($pf['input']['type'] === 'radio_select' ? '' : ' for="' . (!empty($pf['input']['attributes']['name']) ? $pf['input']['attributes']['name'] : $pfid) . '"'), ' id="caption_', $pfid, '"', !empty($pf['label']['class']) ? ' class="' . $pf['label']['class'] . '"' : '', '>', $pf['label']['text'], '</label>';
+							<label', ($pf['input']['type'] === 'radio_select' ? '' : ' for="' . (!empty($pf['input']['attributes']['id']) ? $pf['input']['attributes']['id'] : $pfid) . '"'), ' id="caption_', $pfid, '"', !empty($pf['label']['class']) ? ' class="' . $pf['label']['class'] . '"' : '', '>', $pf['label']['text'], '</label>';
 
 		// Any trailing HTML after the label
 		if (!empty($pf['label']['after']))
@@ -1072,6 +1047,9 @@ function template_post_header()
 			echo '
 							<input type="', $pf['input']['type'], '"';
 
+			if (empty($pf['input']['attributes']['id']))
+				echo ' id="', $pfid, '"';
+
 			if (empty($pf['input']['attributes']['name']))
 				echo ' name="', $pfid, '"';
 
@@ -1093,6 +1071,9 @@ function template_post_header()
 		{
 			echo '
 							<textarea';
+
+			if (empty($pf['input']['attributes']['id']))
+				echo ' id="', $pfid, '"';
 
 			if (empty($pf['input']['attributes']['name']))
 				echo ' name="', $pfid, '"';
@@ -1118,6 +1099,9 @@ function template_post_header()
 			// The select element itself
 			echo '
 							<select';
+
+			if (empty($pf['input']['attributes']['id']))
+				echo ' id="', $pfid, '"';
 
 			if (empty($pf['input']['attributes']['name']))
 				echo ' name="', $pfid, '"';

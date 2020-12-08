@@ -1,16 +1,17 @@
 <?php
 
 /**
- * This task handles notifying users when another member's profile gets reported.
+ * This file contains code used to notify moderators when someone files a report
+ * about another member's profile.
  *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -19,7 +20,9 @@
 class MemberReport_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-     * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
+	 * This executes the task: loads up the info, puts the email in the queue
+	 * and inserts any alerts as needed.
+	 *
 	 * @return bool Always returns true.
 	 */
 	public function execute()
@@ -71,6 +74,7 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 						array(
 							'report_link' => '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'], // We don't put $scripturl in these!
 							'user_name' => $this->_details['user_name'],
+							'user_id' => $this->_details['user_id'],
 						)
 					),
 				);

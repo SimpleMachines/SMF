@@ -7,11 +7,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -24,7 +24,7 @@ if (!defined('SMF'))
  * Requires the admin_forum permission.
  * Accessed via ?action=moderate;area=modlog.
  *
- * @uses Modlog template, main sub-template.
+ * Uses Modlog template, main sub-template.
  */
 function ViewModlog()
 {
@@ -43,12 +43,14 @@ function ViewModlog()
 
 	$context['can_delete'] = allowedTo('admin_forum');
 
-	loadLanguage('Modlog');
+	loadLanguage('Admin+Modlog');
 
 	$context['page_title'] = $context['log_type'] == 3 ? $txt['modlog_admin_log'] : $txt['modlog_view'];
 
 	// The number of entries to show per page of log file.
 	$context['displaypage'] = 30;
+	// Actions whose log entries cannot be deleted.
+	$context['uneditable_actions'] = array('agreement_updated', 'policy_updated');
 
 	// Handle deletion...
 	if (isset($_POST['removeall']) && $context['can_delete'])
@@ -58,9 +60,12 @@ function ViewModlog()
 
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_actions
-			WHERE id_log = {int:moderate_log}',
+			WHERE id_log = {int:moderate_log}
+			AND action NOT IN ({array_string:uneditable})',
+
 			array(
 				'moderate_log' => $context['log_type'],
+				'uneditable' => $context['uneditable_actions'],
 			)
 		);
 
@@ -77,10 +82,12 @@ function ViewModlog()
 			DELETE FROM {db_prefix}log_actions
 			WHERE id_log = {int:moderate_log}
 				AND id_action IN ({array_string:delete_actions})
-				AND action NOT LIKE {string:clearlog}',
+				AND action NOT LIKE {string:clearlog}
+				AND action NOT IN ({array_string:uneditable})',
 			array(
 				'delete_actions' => array_unique($_POST['delete']),
 				'moderate_log' => $context['log_type'],
+				'uneditable' => $context['uneditable_actions'],
 				'clearlog' => 'clearlog_%',
 			)
 		);
@@ -156,6 +163,7 @@ function ViewModlog()
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
 		'id' => 'moderation_log_list',
+		'title' => $context['log_type'] == 3 ? $txt['admin_log'] : $txt['moderation_log'],
 		'width' => '100%',
 		'items_per_page' => $context['displaypage'],
 		'no_items_label' => $txt['modlog_' . ($context['log_type'] == 3 ? 'admin_log_' : '') . 'no_entries_found'],
@@ -164,7 +172,7 @@ function ViewModlog()
 		'get_items' => array(
 			'function' => 'list_getModLogEntries',
 			'params' => array(
-				(!empty($search_params['string']) ? ' INSTR({raw:sql_type}, {string:search_string})' : ''),
+				(!empty($search_params['string']) ? ' INSTR({raw:sql_type}, {string:search_string}) > 0' : ''),
 				array('sql_type' => $search_params_column, 'search_string' => $search_params['string']),
 				$context['log_type'],
 			),
@@ -172,7 +180,7 @@ function ViewModlog()
 		'get_count' => array(
 			'function' => 'list_getModLogEntryCount',
 			'params' => array(
-				(!empty($search_params['string']) ? ' INSTR({raw:sql_type}, {string:search_string})' : ''),
+				(!empty($search_params['string']) ? ' INSTR({raw:sql_type}, {string:search_string}) > 0' : ''),
 				array('sql_type' => $search_params_column, 'search_string' => $search_params['string']),
 				$context['log_type'],
 			),
@@ -275,6 +283,17 @@ function ViewModlog()
 		),
 		'additional_rows' => array(
 			array(
+				'position' => 'top_of_list',
+				'value' => '
+					' . $txt['modlog_search'] . ' (' . $txt['modlog_by'] . ': ' . $context['search']['label'] . '):
+					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '">
+					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button" style="float:none">
+					' . ($context['can_delete'] ? '&nbsp;
+					<input type="submit" name="remove" value="' . $txt['modlog_remove'] . '" data-confirm="' . $txt['modlog_remove_selected_confirm'] . '" class="button you_sure">
+					<input type="submit" name="removeall" value="' . $txt['modlog_removeall'] . '" data-confirm="' . $txt['modlog_remove_all_confirm'] . '" class="button you_sure">' : ''),
+				'class' => 'floatright',
+			),
+			array(
 				'position' => 'below_table_data',
 				'value' => '
 					' . $txt['modlog_search'] . ' (' . $txt['modlog_by'] . ': ' . $context['search']['label'] . '):
@@ -364,9 +383,12 @@ function list_getModLogEntryCount($query_string = '', $query_params = array(), $
  */
 function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '', $query_params = array(), $log_type = 1, $ignore_boards = false)
 {
-	global $scripturl, $txt, $smcFunc, $user_info;
+	global $scripturl, $txt, $smcFunc, $user_info, $context;
 
 	$modlog_query = allowedTo('admin_forum') || $user_info['mod_cache']['bq'] == '1=1' ? '1=1' : (($user_info['mod_cache']['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr($user_info['mod_cache']['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr($user_info['mod_cache']['bq'], array('id_board' => 't.id_board'))));
+
+	if (!isset($context['uneditable_actions']))
+		$context['uneditable_actions'] = array();
 
 	// Can they see the IP address?
 	$seeIP = allowedTo('moderate_forum');
@@ -483,7 +505,7 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 			'moderator_link' => $row['id_member'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? ($txt['guest'] . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
 			'time' => timeformat($row['log_time']),
 			'timestamp' => forum_time(true, $row['log_time']),
-			'editable' => substr($row['action'], 0, 8) !== 'clearlog',
+			'editable' => substr($row['action'], 0, 8) !== 'clearlog' && !in_array($row['action'], $context['uneditable_actions']),
 			'extra' => $row['extra'],
 			'action' => $row['action'],
 			'action_text' => isset($row['action_text']) ? $row['action_text'] : '',

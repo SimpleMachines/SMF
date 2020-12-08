@@ -10,11 +10,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2019 Simple Machines and individual contributors
- * @license http://www.simplemachines.org/about/smf/license.php BSD
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2020 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -33,6 +33,9 @@ function loadSession()
 	@ini_set('url_rewriter.tags', '');
 	@ini_set('session.use_trans_sid', false);
 	@ini_set('arg_separator.output', '&amp;');
+
+	// Allows mods to change/add PHP settings
+	call_integration_hook('integrate_load_session');
 
 	if (!empty($modSettings['globalCookies']))
 	{
@@ -176,26 +179,13 @@ function sessionWrite($session_id, $data)
 		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
 	}
 
-	// First try to update an existing row...
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}sessions
-		SET data = {string:data}, last_update = {int:last_update}
-		WHERE session_id = {string:session_id}',
-		array(
-			'last_update' => time(),
-			'data' => $data,
-			'session_id' => $session_id,
-		)
+	// If an insert fails due to a dupe, replace the existing session...
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}sessions',
+		array('session_id' => 'string', 'data' => 'string', 'last_update' => 'int'),
+		array($session_id, $data, time()),
+		array('session_id')
 	);
-
-	// If that didn't work, try inserting a new one.
-	if ($smcFunc['db_affected_rows']() == 0)
-		$smcFunc['db_insert']('ignore',
-			'{db_prefix}sessions',
-			array('session_id' => 'string', 'data' => 'string', 'last_update' => 'int'),
-			array($session_id, $data, time()),
-			array('session_id')
-		);
 
 	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
 }
