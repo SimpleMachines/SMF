@@ -740,8 +740,8 @@ CREATE TABLE {$db_prefix}members (
 	tfa_backup VARCHAR(64) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_member),
 	INDEX idx_member_name (member_name),
-	INDEX idx_real_name (real_name),
-	INDEX idx_email_address (email_address),
+	INDEX idx_real_name (real_name(191)),
+	INDEX idx_email_address (email_address(191)),
 	INDEX idx_date_registered (date_registered),
 	INDEX idx_id_group (id_group),
 	INDEX idx_birthdate (birthdate),
@@ -985,7 +985,7 @@ CREATE TABLE {$db_prefix}qanda (
 	question VARCHAR(255) NOT NULL DEFAULT '',
 	answers TEXT NOT NULL,
 	PRIMARY KEY (id_question),
-	INDEX idx_lngfile (lngfile)
+	INDEX idx_lngfile (lngfile(191))
 ) ENGINE={$engine};
 
 #

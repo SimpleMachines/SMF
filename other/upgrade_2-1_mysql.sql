@@ -1817,7 +1817,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 	question VARCHAR(255) NOT NULL DEFAULT '',
 	answers TEXT NOT NULL,
 	PRIMARY KEY (id_question),
-	INDEX idx_lngfile (lngfile)
+	INDEX idx_lngfile (lngfile(191))
 ) ENGINE=MyISAM;
 ---#
 
@@ -3813,4 +3813,37 @@ foreach($files AS $filename)
 	unset($_GET['last_action_id']);
 	unset($_GET['total_fixes']);
 ---}
+---#
+
+/******************************************************************************/
+--- Prepare indexes for mb4
+/******************************************************************************/
+---# real_name column drop
+ALTER TABLE {$db_prefix}members
+DROP INDEX idx_real_name;
+---#
+
+---# real_name column recreate
+ALTER TABLE {$db_prefix}members
+ADD INDEX idx_real_name (real_name(191));
+---#
+
+---# email column drop
+ALTER TABLE {$db_prefix}members
+DROP INDEX idx_email_address;
+---#
+
+---# email column recreate
+ALTER TABLE {$db_prefix}members
+ADD INDEX idx_email_address (email_address(191));
+---#
+
+---# lngfile column drop
+ALTER TABLE {$db_prefix}qanda
+DROP INDEX idx_lngfile;
+---#
+
+---# lngfile column recreate
+ALTER TABLE {$db_prefix}qanda
+ADD INDEX idx_lngfile (lngfile(191));
 ---#
