@@ -2004,7 +2004,7 @@ function parse_sql($filename)
 	// If we're on MySQL, set {db_collation}; this approach is used throughout upgrade_2-0_mysql.php to set new tables to utf8
 	// Note it is expected to be in the format: ENGINE=MyISAM{$db_collation};
 	if ($db_type == 'mysql')
-		$db_collation = ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		$db_collation = ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci';
 	else
 		$db_collation = '';
 
@@ -2019,7 +2019,7 @@ function parse_sql($filename)
 
 	// Make sure all newly created tables will have the proper characters set; this approach is used throughout upgrade_2-1_mysql.php
 	if (isset($db_character_set) && $db_character_set === 'utf8')
-		$lines = str_replace(') ENGINE=MyISAM;', ') ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;', $lines);
+		$lines = str_replace(') ENGINE=MyISAM;', ') ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;', $lines);
 
 	// Count the total number of steps within this file - for progress.
 	$file_steps = substr_count(implode('', $lines), '---#');
@@ -3209,8 +3209,8 @@ function ConvertUtf8()
 					{
 						list($charset) = explode('_', $collation);
 
-						// Build structure of columns to operate on organized by charset; only operate on columns not yet utf8
-						if ($charset != 'utf8')
+						// Build structure of columns to operate on organized by charset; only operate on columns not yet utf8mb4
+						if ($charset != 'utf8mb4')
 						{
 							if (!isset($table_charsets[$charset]))
 								$table_charsets[$charset] = array();
@@ -3222,7 +3222,7 @@ function ConvertUtf8()
 			}
 			$smcFunc['db_free_result']($queryColumns);
 
-			// Only change the non-utf8 columns identified above
+			// Only change the non-utf8mb4 columns identified above
 			if (count($table_charsets) > 0)
 			{
 				$updates_blob = '';
@@ -3287,7 +3287,7 @@ function ConvertUtf8()
 
 				$smcFunc['db_query']('', '
 					ALTER TABLE {raw:table_name}
-					CONVERT TO CHARACTER SET utf8',
+					CONVERT TO CHARACTER SET utf8mb4',
 					array(
 						'table_name' => $table_info['Name'],
 					)
@@ -3315,6 +3315,7 @@ function ConvertUtf8()
 		require_once($sourcedir . '/Subs.php');
 		require_once($sourcedir . '/Subs-Admin.php');
 		updateSettingsFile(array('db_character_set' => 'utf8'));
+		updateSettingsFile(array('db_mb4' => true));
 
 		// The conversion might have messed up some serialized strings. Fix them!
 		$request = $smcFunc['db_query']('', '

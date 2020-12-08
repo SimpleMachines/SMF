@@ -1189,8 +1189,8 @@ function DatabasePopulation()
 		// If the UTF-8 setting was enabled, add it to the table definitions.
 		if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
 		{
-			$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
-			$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+			$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci';
+			$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci';
 		}
 
 		// One last thing - if we don't have InnoDB, we can't do transactions...
