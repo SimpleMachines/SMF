@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function AutoTask()
 {
-	global $time_start, $smcFunc;
+	global $smcFunc;
 
 	// Special case for doing the mail queue.
 	if (isset($_GET['scheduled']) && $_GET['scheduled'] == 'mailq')
@@ -110,7 +110,7 @@ function AutoTask()
 				// Log that we did it ;)
 				if ($completed)
 				{
-					$total_time = round(microtime(true) - $time_start, 3);
+					$total_time = round(microtime(true) - TIME_START, 3);
 					$smcFunc['db_insert']('',
 						'{db_prefix}log_scheduled_tasks',
 						array(
@@ -250,6 +250,19 @@ function scheduled_daily_maintenance()
 		require_once($boarddir . '/proxy.php');
 		$proxy = new ProxyServer();
 		$proxy->housekeeping();
+	}
+
+	// Delete old profile exports
+	if (!empty($modSettings['export_expiry']) && file_exists($modSettings['export_dir']) && is_dir($modSettings['export_dir']))
+	{
+		$expiry_date = round(TIME_START - $modSettings['export_expiry'] * 86400);
+		$export_files = glob(rtrim($modSettings['export_dir'], '/\\') . DIRECTORY_SEPARATOR . '*');
+
+		foreach ($export_files as $export_file)
+		{
+			if (!in_array(basename($export_file), array('index.php', '.htaccess')) && filemtime($export_file) <= $expiry_date)
+				@unlink($export_file);
+		}
 	}
 
 	// Delete old alerts.
@@ -432,7 +445,7 @@ function scheduled_daily_digest()
 			'move' => $txt['digest_mod_act_move'],
 			'merge' => $txt['digest_mod_act_merge'],
 			'split' => $txt['digest_mod_act_split'],
-			'bye' => $txt['regards_team'],
+			'bye' => sprintf($txt['regards_team'], $context['forum_name']),
 		);
 
 		call_integration_hook('integrate_daily_digest_lang', array(&$langtxt, $lang));
@@ -531,7 +544,7 @@ function scheduled_daily_digest()
 			$email['body'] .= "\n";
 
 		// Then just say our goodbyes!
-		$email['body'] .= "\n\n" . $txt['regards_team'];
+		$email['body'] .= "\n\n" . sprintf($txt['regards_team'], $context['forum_name']);
 
 		// Send it - low priority!
 		sendmail($email['email'], $email['subject'], $email['body'], null, 'digest', false, 4);
@@ -1006,6 +1019,7 @@ function loadEssentialThemeData()
 
 	// Assume we want this.
 	$context['forum_name'] = $mbname;
+	$context['forum_name_html_safe'] = $smcFunc['htmlspecialchars']($context['forum_name']);
 
 	// Check loadLanguage actually exists!
 	if (!function_exists('loadLanguage'))
@@ -1559,6 +1573,183 @@ function scheduled_remove_old_drafts()
 		require_once($sourcedir . '/Drafts.php');
 		DeleteDraft($drafts, false);
 	}
+
+	return true;
+}
+
+/**
+ * Prune log_topics, log_boards & log_mark_boards_read.
+ * For users who haven't been active in a long time, purge these records.
+ * For users who haven't been active in a shorter time, mark boards as read,
+ * pruning log_topics.
+ */
+function scheduled_prune_log_topics()
+{
+	global $smcFunc, $sourcedir, $modSettings;
+
+	// If set to zero, bypass
+	if (empty($modSettings['mark_read_max_users']) || (empty($modSettings['mark_read_beyond']) && empty($modSettings['mark_read_delete_beyond'])))
+		return true;
+
+	// Convert to timestamps for comparison
+	if (empty($modSettings['mark_read_beyond']))
+		$markReadCutoff = 0;
+	else
+		$markReadCutoff = time() - $modSettings['mark_read_beyond'] * 86400;
+
+	if (empty($modSettings['mark_read_delete_beyond']))
+		$cleanupBeyond = 0;
+	else
+		$cleanupBeyond = time() - $modSettings['mark_read_delete_beyond'] * 86400;
+
+	$maxMembers = $modSettings['mark_read_max_users'];
+
+	// You're basically saying to just purge, so just purge
+	if ($markReadCutoff < $cleanupBeyond)
+		$markReadCutoff = $cleanupBeyond;
+
+	// Try to prevent timeouts
+	@set_time_limit(300);
+	if (function_exists('apache_reset_timeout'))
+		@apache_reset_timeout();
+
+	// Start off by finding the records in log_boards, log_topics & log_mark_read
+	// for users who haven't been around the longest...
+	$members = array();
+	$sql = 'SELECT lb.id_member, m.last_login
+			FROM {db_prefix}members m
+			INNER JOIN
+			(
+				SELECT DISTINCT id_member
+				FROM {db_prefix}log_boards
+			) lb ON m.id_member = lb.id_member
+			WHERE m.last_login <= {int:dcutoff}
+		UNION
+		SELECT lmr.id_member, m.last_login
+			FROM {db_prefix}members m
+			INNER JOIN
+			(
+				SELECT DISTINCT id_member
+				FROM {db_prefix}log_mark_read
+			) lmr ON m.id_member = lmr.id_member
+			WHERE m.last_login <= {int:dcutoff}
+		UNION
+		SELECT lt.id_member, m.last_login
+			FROM {db_prefix}members m
+			INNER JOIN
+			(
+				SELECT DISTINCT id_member
+				FROM {db_prefix}log_topics
+				WHERE unwatched = {int:unwatched}
+			) lt ON m.id_member = lt.id_member
+			WHERE m.last_login <= {int:mrcutoff}
+		ORDER BY last_login
+		LIMIT {int:limit}';
+	$result = $smcFunc['db_query']('', $sql,
+		array(
+			'limit' => $maxMembers,
+			'dcutoff' => $cleanupBeyond,
+			'mrcutoff' => $markReadCutoff,
+			'unwatched' => 0,
+		)
+	);
+
+	// Move to array...
+	$members = $smcFunc['db_fetch_all']($result);
+	$smcFunc['db_free_result']($result);
+
+	// Nothing to do?
+	if (empty($members))
+		return true;
+
+	// Determine action based on last_login...
+	$purgeMembers = array();
+	$markReadMembers = array();
+	foreach($members as $member)
+	{
+		if ($member['last_login'] <= $cleanupBeyond)
+			$purgeMembers[] = $member['id_member'];
+		elseif ($member['last_login'] <= $markReadCutoff)
+			$markReadMembers[] = $member['id_member'];
+	}
+
+	if (!empty($purgeMembers) && !empty($modSettings['mark_read_delete_beyond']))
+	{
+		// Delete rows from log_boards
+		$sql = 'DELETE FROM {db_prefix}log_boards
+			WHERE id_member IN ({array_int:members})';
+		$smcFunc['db_query']('', $sql,
+			array(
+				'members' => $purgeMembers,
+			)
+		);
+		// Delete rows from log_mark_read
+		$sql = 'DELETE FROM {db_prefix}log_mark_read
+			WHERE id_member IN ({array_int:members})';
+		$smcFunc['db_query']('', $sql,
+			array(
+				'members' => $purgeMembers,
+			)
+		);
+		// Delete rows from log_topics
+		$sql = 'DELETE FROM {db_prefix}log_topics
+			WHERE id_member IN ({array_int:members})
+				AND unwatched = {int:unwatched}';
+		$smcFunc['db_query']('', $sql,
+			array(
+				'members' => $purgeMembers,
+				'unwatched' => 0,
+			)
+		);
+	}
+
+	// Nothing left to do?
+	if (empty($markReadMembers) || empty($modSettings['mark_read_beyond']))
+		return true;
+
+	// Find board inserts to perform...
+	// Get board info for each member from log_topics.
+	// Note this user may have read many topics on that board, 
+	// but we just want one row each, & the ID of the last message read in each board.
+	$boards = array();
+	$sql = 'SELECT lt.id_member, t.id_board, MAX(lt.id_msg) AS id_last_message
+		FROM {db_prefix}topics t
+		INNER JOIN
+		(
+			SELECT id_member, id_topic, id_msg
+			FROM {db_prefix}log_topics
+			WHERE id_member IN ({array_int:members})
+		) lt ON t.id_topic = lt.id_topic
+		GROUP BY lt.id_member, t.id_board';
+	$result = $smcFunc['db_query']('', $sql,
+		array(
+			'members' => $markReadMembers,
+		)
+	);
+	$boards = $smcFunc['db_fetch_all']($result);
+	$smcFunc['db_free_result']($result);
+
+	// Create one SQL statement for this set of inserts
+	if (!empty($boards))
+	{
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}log_mark_read',
+			array('id_member' => 'int', 'id_board' => 'int', 'id_msg' => 'int'),
+			$boards,
+			array('id_member', 'id_board')
+		);
+	}
+
+	// Finally, delete this set's rows from log_topics
+	$sql = 'DELETE FROM {db_prefix}log_topics
+		WHERE id_member IN ({array_int:members})
+			AND unwatched = {int:unwatched}';
+	$smcFunc['db_query']('', $sql,
+		array(
+			'members' => $markReadMembers,
+			'unwatched' => 0,
+		)
+	);
 
 	return true;
 }

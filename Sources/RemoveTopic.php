@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -1018,7 +1018,7 @@ function removeMessage($message, $decreasePostCount = true)
 	);
 	if ($smcFunc['db_affected_rows']() != 0)
 	{
-		require_once($sourcedir . '/ModerationCenter.php');
+		require_once($sourcedir . '/Subs-ReportedContent.php');
 		updateSettings(array('last_mod_report_action' => time()));
 		recountOpenReports('posts');
 	}
@@ -1207,7 +1207,7 @@ function RestoreTopic()
 			{
 				// Lets get the members that need their post count restored.
 				$request2 = $smcFunc['db_query']('', '
-					SELECT id_member, COUNT(id_msg) AS post_count
+					SELECT id_member, COUNT(*) AS post_count
 					FROM {db_prefix}messages
 					WHERE id_topic = {int:topic}
 						AND approved = {int:is_approved}

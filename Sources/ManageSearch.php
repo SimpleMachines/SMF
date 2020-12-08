@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -24,8 +24,8 @@ if (!defined('SMF'))
  * Called by ?action=admin;area=managesearch.
  * Requires the admin_forum permission.
  *
- * @uses ManageSearch template.
- * @uses Search language file.
+ * Uses ManageSearch template.
+ * Uses Search language file.
  */
 function ManageSearch()
 {
@@ -81,10 +81,10 @@ function ManageSearch()
  * Edit some general settings related to the search function.
  * Called by ?action=admin;area=managesearch;sa=settings.
  * Requires the admin_forum permission.
+ * @uses template_show_settings()
  *
  * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
  * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
- * @uses ManageSearch template, 'modify_settings' sub-template.
  */
 function EditSearchSettings($return_config = false)
 {
@@ -149,7 +149,7 @@ function EditSearchSettings($return_config = false)
  * Called by ?action=admin;area=managesearch;sa=weights.
  * Requires the admin_forum permission.
  *
- * @uses ManageSearch template, 'modify_weights' sub-template.
+ * @uses template_modify_weights()
  */
 function EditWeights()
 {
@@ -201,7 +201,7 @@ function EditWeights()
  * Called by ?action=admin;area=managesearch;sa=method.
  * Requires the admin_forum permission.
  *
- * @uses ManageSearch template, 'select_search_method' sub-template.
+ * @uses template_select_search_method()
  */
 function EditSearchMethod()
 {
@@ -483,8 +483,7 @@ function EditSearchMethod()
  * Requires the admin_forum permission.
  * Depending on the size of the message table, the process is divided in steps.
  *
- * @uses ManageSearch template, 'create_index', 'create_index_progress', and 'create_index_done'
- *  sub-templates.
+ * @uses template_create_index(), template_create_index_progress(), template_create_index_done()
  */
 function CreateMessageIndex()
 {

@@ -14,7 +14,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -179,26 +179,13 @@ function sessionWrite($session_id, $data)
 		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
 	}
 
-	// First try to update an existing row...
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}sessions
-		SET data = {string:data}, last_update = {int:last_update}
-		WHERE session_id = {string:session_id}',
-		array(
-			'last_update' => time(),
-			'data' => $data,
-			'session_id' => $session_id,
-		)
+	// If an insert fails due to a dupe, replace the existing session...
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}sessions',
+		array('session_id' => 'string', 'data' => 'string', 'last_update' => 'int'),
+		array($session_id, $data, time()),
+		array('session_id')
 	);
-
-	// If that didn't work, try inserting a new one.
-	if ($smcFunc['db_affected_rows']() == 0)
-		$smcFunc['db_insert']('ignore',
-			'{db_prefix}sessions',
-			array('session_id' => 'string', 'data' => 'string', 'last_update' => 'int'),
-			array($session_id, $data, time()),
-			array('session_id')
-		);
 
 	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
 }

@@ -7,7 +7,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -864,7 +864,7 @@ function template_show_settings()
 										<a id="setting_', $config_var['name'], '_help" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', $txt['help'], '"></span></a> ';
 
 				echo '
-										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label for="', $config_var['name'], '">', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
+										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label', ($config_var['type'] == 'boards' || $config_var['type'] == 'permissions' ? '' : ' for="' . $config_var['name'] . '"'), '>', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
 									</dt>
 									<dd', (!empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '_dd"' : ''), '>',
 										$config_var['preinput'];
@@ -881,10 +881,8 @@ function template_show_settings()
 				// Show a selection box.
 				elseif ($config_var['type'] == 'select')
 				{
-					$select_size = !empty($config_var['size']) ? $config_var['size'] : (!empty($config_var['data']) && (count($config_var['data']) <= 4) ? count($config_var['data']) : 4);
-
 					echo '
-										<select name="', $config_var['name'], '" id="', $config_var['name'], '" ', $javascript, $disabled, (!empty($config_var['multiple']) ? ' multiple="multiple"' : ''), (!empty($select_size) ? ' size="' . $select_size . '"' : ''), '>';
+										<select name="', $config_var['name'], '" id="', $config_var['name'], '" ', $javascript, $disabled, (!empty($config_var['multiple']) ? ' multiple="multiple"' : ''), ' size="', $config_var['size'], '">';
 
 					foreach ($config_var['data'] as $option)
 						echo '
@@ -918,6 +916,10 @@ function template_show_settings()
 												<li><label><input type="checkbox" name="', $config_var['name'], '[', $brd['id'], ']" value="1"', in_array($brd['id'], $config_var['value']) ? ' checked' : '', '> ', $brd['child_level'] > 0 ? str_repeat('&nbsp; &nbsp;', $brd['child_level']) : '', $brd['name'], '</label></li>';
 
 						echo '
+												<li>
+													<input type="checkbox" onclick="invertAll(this, this.form, \'' . $config_var['name'] . '[\');">
+													<span>', $txt['check_all'], '</span>
+												</li>
 											</ul>';
 						$first = false;
 					}
@@ -1079,7 +1081,9 @@ function template_show_custom_profile()
 	template_show_list('custom_profile_fields');
 }
 
-// Edit a profile field?
+/**
+ * Template for editing a custom profile field
+ */
 function template_edit_profile_field()
 {
 	global $context, $txt, $scripturl;
@@ -1599,7 +1603,7 @@ function template_php_info()
 				echo '
 								<tr class="windowbg">
 									<td class="equal_table">', $key, '</td>
-									<td colspan="2">', $setting, '</td>
+									<td colspan="2">', str_replace(',', ', ', $setting), '</td>
 								</tr>';
 			}
 		}
@@ -1614,7 +1618,7 @@ function template_php_info()
 }
 
 /**
- *
+ * Content shown above the clean cache button
  */
 function template_clean_cache_button_above()
 {

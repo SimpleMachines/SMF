@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; EmailTemplates
+// Version: 2.1 RC3; EmailTemplates
 
 // Since all of these strings are being used in emails, numeric entities should be used.
 
@@ -195,18 +195,21 @@ $txt['admin_register_immediate_body'] = 'Thank you for registering at {FORUMNAME
 		TOPICSUBJECT: The subject of the topic being announced.
 		MESSAGE: The message body of the first post of the announced topic.
 		TOPICLINK: A link to the topic being announced.
+		UNSUBSCRIBELINK: Link to unsubscribe from announcements.
 	@description:
 */
 $txt['new_announcement_subject'] = 'New announcement: {TOPICSUBJECT}';
 $txt['new_announcement_body'] = '{MESSAGE}
 
-To unsubscribe from these announcements, log in to the forum and uncheck "Receive forum newsletters, announcements and important notifications by email." in your profile <em>(Your username > Notifications > General Settings)</em>.
-
 You can view the full announcement by following this link:
 {TOPICLINK}
 
-{UNSUB}{REGARDS}';
-$txt['new_announcement_unsub'] = 'To unsubscribe from these announcements, log in to the forum and uncheck "Receive forum announcements and important notifications by email." in your profile.';
+To unsubscribe from these announcements, follow this link:
+{UNSUBSCRIBELINK}
+
+For more control over the email notifications you receive, login to the forum and go to the Notifications area in your profile.
+
+{REGARDS}';
 
 /**
 	@additional_params: notify_boards_once_body

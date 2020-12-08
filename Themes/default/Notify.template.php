@@ -7,7 +7,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -25,9 +25,9 @@ function template_main()
 			</h3>
 		</div>
 		<div class="roundframe centertext">
-			<p>', $context['notification_set'] ? $txt['notify_deactivate'] : $txt['notify_request'], '</p>
+			<p>', $txt['notify_topic_prompt'], '</p>
 			<p>
-				<strong><a href="', $scripturl, '?action=notify;sa=', $context['notification_set'] ? 'off' : 'on', ';topic=', $context['current_topic'], '.', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['yes'], '</a> - <a href="', $context['topic_href'], '">', $txt['no'], '</a></strong>
+				<strong><a href="', $scripturl, '?action=notify;sa=on;topic=', $context['current_topic'], '.', $context['start'], ';', (!empty($context['notify_info']['token']) ? 'u=' . $context['notify_info']['u'] . ';token=' . $context['notify_info']['token'] : $context['session_var'] . '=' . $context['session_id']), '">', $txt['yes'], '</a> - <a href="', $scripturl, '?action=notify;sa=off;topic=', $context['current_topic'], '.', $context['start'], ';', (!empty($context['notify_info']['token']) ? 'u=' . $context['notify_info']['u'] . ';token=' . $context['notify_info']['token'] : $context['session_var'] . '=' . $context['session_id']), '">', $txt['no'], '</a></strong>
 			</p>
 		</div>';
 }
@@ -47,10 +47,51 @@ function template_notify_board()
 			</h3>
 		</div>
 		<div class="roundframe centertext">
-			<p>', $context['notification_set'] ? $txt['notifyboard_turnoff'] : $txt['notifyboard_turnon'], '</p>
+			<p>', $txt['notify_board_prompt'], '</p>
 			<p>
-				<strong><a href="', $scripturl, '?action=notifyboard;sa=', $context['notification_set'] ? 'off' : 'on', ';board=', $context['current_board'], '.', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['yes'], '</a> - <a href="', $context['board_href'], '">', $txt['no'], '</a></strong>
+				<strong><a href="', $scripturl, '?action=notifyboard;sa=on;board=', $context['current_board'], '.', $context['start'], ';', (!empty($context['notify_info']['token']) ? 'u=' . $context['notify_info']['u'] . ';token=' . $context['notify_info']['token'] : $context['session_var'] . '=' . $context['session_id']), '">', $txt['yes'], '</a> - <a href="', $scripturl, '?action=notifyboard;sa=off;board=', $context['current_board'], '.', $context['start'], ';', (!empty($context['notify_info']['token']) ? 'u=' . $context['notify_info']['u'] . ';token=' . $context['notify_info']['token'] : $context['session_var'] . '=' . $context['session_id']), '">', $txt['no'], '</a></strong>
 			</p>
+		</div>';
+}
+
+/**
+ *
+ */
+function template_notify_announcements()
+{
+	global $context, $settings, $options, $txt, $scripturl;
+
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<span class="main_icons mail icon"></span>
+				', $txt['notify'], '
+			</h3>
+		</div>
+		<div class="roundframe centertext">
+			<p>', $txt['notify_announcements_prompt'], '</p>
+			<p>
+				<strong><a href="', $scripturl, '?action=notifyannouncements;sa=on;', (!empty($context['notify_info']['token']) ? 'u=' . $context['notify_info']['u'] . ';token=' . $context['notify_info']['token'] : $context['session_var'] . '=' . $context['session_id']), '">', $txt['yes'], '</a> - <a href="', $scripturl, '?action=notifyannouncements;sa=off;', (!empty($context['notify_info']['token']) ? 'u=' . $context['notify_info']['u'] . ';token=' . $context['notify_info']['token'] : $context['session_var'] . '=' . $context['session_id']), '">', $txt['no'], '</a></strong>
+			</p>
+		</div>';
+}
+
+/**
+ * Displays a message indicating the user's notification preferences were successfully changed
+ */
+function template_notify_pref_changed()
+{
+	global $context, $settings, $options, $txt, $scripturl;
+
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<span class="main_icons mail icon"></span>
+				', $txt['notify'], '
+			</h3>
+		</div>
+		<div class="roundframe centertext">
+			<p>', $context['notify_success_msg'], '</p>
 		</div>';
 }
 

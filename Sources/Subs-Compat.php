@@ -13,7 +13,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -35,7 +35,7 @@ function sha1_smf($str)
 	$blks = array_pad(array(), $nblk * 16, 0);
 
 	for ($i = 0; $i < strlen($str); $i++)
-		$blks[$i >> 2] |= ord($str{$i}) << (24 - ($i % 4) * 8);
+		$blks[$i >> 2] |= ord($str[$i]) << (24 - ($i % 4) * 8);
 
 	$blks[$i >> 2] |= 0x80 << (24 - ($i % 4) * 8);
 
@@ -157,16 +157,16 @@ function sha1_raw($text)
 	return sha1($text, true);
 }
 
-/**
- * Compatibility function.
- * crc32 doesn't work as expected on 64-bit functions - make our own.
- * https://php.net/crc32#79567
- *
- * @param string $number
- * @return string The crc32 polynomial of $number
- */
 if (!function_exists('smf_crc32'))
 {
+	/**
+	 * Compatibility function.
+	 * crc32 doesn't work as expected on 64-bit functions - make our own.
+	 * https://php.net/crc32#79567
+	 *
+	 * @param string $number
+	 * @return string The crc32 polynomial of $number
+	 */
 	function smf_crc32($number)
 	{
 		$crc = crc32($number);

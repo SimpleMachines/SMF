@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -86,7 +86,7 @@ function ManagePaidSubscriptions()
  */
 function ModifySubscriptionSettings($return_config = false)
 {
-	global $context, $txt, $modSettings, $sourcedir, $smcFunc, $scripturl;
+	global $context, $txt, $modSettings, $sourcedir, $smcFunc, $scripturl, $boardurl;
 
 	if (!empty($modSettings['paid_enabled']))
 	{
@@ -169,7 +169,7 @@ function ModifySubscriptionSettings($return_config = false)
 			}
 		}
 
-		$context['settings_message'] = $txt['paid_note'];
+		$context['settings_message'] = sprintf($txt['paid_note'], $boardurl);
 		$context[$context['admin_menu_name']]['current_subsection'] = 'settings';
 		$context['settings_title'] = $txt['settings'];
 
@@ -1957,7 +1957,7 @@ function loadSubscriptions()
 
 	// Do the counts.
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(id_sublog) AS member_count, id_subscribe, status
+		SELECT COUNT(*) AS member_count, id_subscribe, status
 		FROM {db_prefix}log_subscribed
 		GROUP BY id_subscribe, status',
 		array(

@@ -8,29 +8,43 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
+namespace SMF\Cache\APIs;
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Our Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class apc_cache extends cache_api
+class Apcu extends CacheApi implements CacheApiInterface
 {
 	/**
 	 * {@inheritDoc}
 	 */
 	public function isSupported($test = false)
 	{
-		$supported = function_exists('apc_fetch') && function_exists('apc_store');
+		$supported = function_exists('apcu_fetch') && function_exists('apcu_store');
 
 		if ($test)
 			return $supported;
+
 		return parent::isSupported() && $supported;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function connect()
+	{
+		return true;
 	}
 
 	/**
@@ -40,7 +54,9 @@ class apc_cache extends cache_api
 	{
 		$key = $this->prefix . strtr($key, ':/', '-_');
 
-		return apc_fetch($key . 'smf');
+		$value = apcu_fetch($key . 'smf');
+
+		return !empty($value) ? $value : null;
 	}
 
 	/**
@@ -52,9 +68,10 @@ class apc_cache extends cache_api
 
 		// An extended key is needed to counteract a bug in APC.
 		if ($value === null)
-			return apc_delete($key . 'smf');
+			return apcu_delete($key . 'smf');
+
 		else
-			return apc_store($key . 'smf', $value, $ttl);
+			return apcu_store($key . 'smf', $value, $ttl !== null ? $ttl : $this->ttl);
 	}
 
 	/**
@@ -62,18 +79,9 @@ class apc_cache extends cache_api
 	 */
 	public function cleanCache($type = '')
 	{
-		// if passed a type, clear that type out
-		if ($type === '' || $type === 'data')
-		{
-			// Always returns true.
-			apc_clear_cache('user');
-			apc_clear_cache('system');
-		}
-		elseif ($type === 'user')
-			apc_clear_cache('user');
-
 		$this->invalidateCache();
-		return true;
+
+		return apcu_clear_cache();
 	}
 
 	/**
@@ -81,7 +89,7 @@ class apc_cache extends cache_api
 	 */
 	public function getVersion()
 	{
-		return phpversion('apc');
+		return phpversion('apcu');
 	}
 }
 

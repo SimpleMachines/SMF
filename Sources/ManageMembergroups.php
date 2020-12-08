@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -23,8 +23,8 @@ if (!defined('SMF'))
  * Called by ?action=admin;area=membergroups.
  * Requires the manage_membergroups or the admin_forum permission.
  *
- * @uses ManageMembergroups template.
- * @uses ManageMembers language file.
+ * Uses ManageMembergroups template.
+ * Uses ManageMembers language file.
  */
 function ModifyMembergroups()
 {
@@ -73,7 +73,7 @@ function ModifyMembergroups()
  * Splits the membergroups in regular ones and post count based groups.
  * It also counts the number of members part of each membergroup.
  *
- * @uses ManageMembergroups template, main.
+ * Uses ManageMembergroups template, main.
  */
 function MembergroupIndex()
 {
@@ -294,7 +294,7 @@ function MembergroupIndex()
  * Allows to use a predefined permission profile or copy one from another group.
  * Redirects to action=admin;area=membergroups;sa=edit;group=x.
  *
- * @uses the new_group sub template of ManageMembergroups.
+ * @uses template_new_group()
  */
 function AddMembergroup()
 {
@@ -643,7 +643,7 @@ function DeleteMembergroup()
  * Also handles the delete button of the edit form.
  * Redirects to ?action=admin;area=membergroups.
  *
- * @uses the edit_group sub template of ManageMembergroups.
+ * @uses template_edit_group()
  */
 function EditMembergroup()
 {
@@ -684,7 +684,7 @@ function EditMembergroup()
 
 	// Can this group moderate any boards?
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(id_board)
+		SELECT COUNT(*)
 		FROM {db_prefix}moderator_groups
 		WHERE id_group = {int:current_group}',
 		array(
@@ -1228,7 +1228,7 @@ function EditMembergroup()
  * Requires the admin_forum permission (and manage_permissions for changing permissions)
  * Redirects to itself.
  *
- * @uses membergroup_settings sub template of ManageMembergroups.
+ * @uses template_show_settings()
  */
 function ModifyMembergroupsettings()
 {

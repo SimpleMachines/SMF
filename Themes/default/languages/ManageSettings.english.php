@@ -1,9 +1,10 @@
 <?php
-// Version: 2.1 RC2; ManageSettings
+// Version: 2.1 RC3; ManageSettings
 
 global $scripturl;
 
-$txt['modSettings_desc'] = 'This page allows you to change the settings of features and basic options in your forum. Please see the <a href="' . $scripturl . '?action=admin;area=theme;sa=list;th=%1$s;%3$s=%2$s">theme settings</a> for more options. Click the help icons for more information about a setting.';
+// argument(s): theme_id, session_id, session_var, $scripturl
+$txt['modSettings_desc'] = 'This page allows you to change the settings of features and basic options in your forum. Please see the <a href="%4$s?action=admin;area=theme;sa=list;th=%1$s;%3$s=%2$s">theme settings</a> for more options. Click the help icons for more information about a setting.';
 $txt['modification_settings_desc'] = 'This page contains settings added by any modifications to your forum';
 
 $txt['modification_no_misc_settings'] = 'There are no modifications installed that have added any settings to this area yet.';
@@ -36,6 +37,11 @@ $txt['databaseSession_lifetime'] = 'Seconds before an unused session timeout';
 $txt['error_log_desc'] = 'The error log, if enabled, will log every error encountered by users using your forum. This can be an invaluable aid to identifying forum problems.';
 $txt['enableErrorLogging'] = 'Enable error logging';
 $txt['enableErrorQueryLogging'] = 'Include database query in the error log';
+$txt['markread_title'] = 'Mark Read Logs';
+$txt['mark_read_desc'] = 'The following options govern how long before automatically marking boards and topics as read and how long before purging this information.';
+$txt['mark_read_beyond'] = 'Automatically mark boards read for users who have been inactive after this many days';
+$txt['mark_read_delete_beyond'] = 'Automatically purge information about boards and topics visited after this many days';
+$txt['mark_read_max_users'] = 'Maximum users to process at a time';
 $txt['pruningOptions'] = 'Enable pruning of log entries';
 $txt['pruneErrorLog'] = 'Remove error log entries older than';
 $txt['pruneModLog'] = 'Remove moderation log entries older than';
@@ -55,7 +61,6 @@ $txt['securityDisable_moderate'] = 'Disable moderation security';
 $txt['send_validation_onChange'] = 'Require reactivation after email change';
 $txt['approveAccountDeletion'] = 'Require admin approval when member deletes account';
 $txt['autoFixDatabase'] = 'Automatically fix broken tables';
-$txt['allow_disableAnnounce'] = 'Allow users to disable mail announcements';
 $txt['disallow_sendBody'] = 'Don\'t allow post text in notifications';
 $txt['enable_ajax_alerts'] = 'Allow AJAX desktop notifications for alerts';
 $txt['alerts_auto_purge'] = 'Automatically delete read alerts';
@@ -110,13 +115,11 @@ $txt['enable_mentions'] = 'Enable Mentions';
 
 $txt['caching_information'] = 'SMF supports caching through the use of accelerators. The currently supported accelerators include:
 <ul class="normallist">
-	<li>APC</li>
 	<li>APCu</li>
 	<li>Memcached</li>
 	<li>SQLite3</li>
 	<li>PostgreSQL</li>
 	<li>Zend Platform/Performance Suite (Not Zend Optimizer)</li>
-	<li>XCache</li>
 </ul>
 Caching will work best if you have PHP compiled with one of the above optimizers, or have memcached available. If you do not have any optimizer installed SMF will do file based caching.';
 $txt['detected_no_caching'] = 'SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.';
@@ -128,24 +131,22 @@ $txt['cache_level1'] = 'Level 1 Caching (Recommended)';
 $txt['cache_level2'] = 'Level 2 Caching';
 $txt['cache_level3'] = 'Level 3 Caching (Not Recommended)';
 $txt['cache_accelerator'] = 'Caching Accelerator';
-$txt['smf_cache'] = 'SMF file based caching';
+$txt['filebased_cache'] = 'SMF file based caching';
 $txt['sqlite_cache'] = 'SQLite3 database based caching';
 $txt['postgres_cache'] = 'PostgreSQL caching';
 $txt['cachedir_sqlite'] = 'SQLite3 database cache directory';
-$txt['apc_cache'] = 'APC';
 $txt['apcu_cache'] = 'APCu';
-$txt['memcache_cache'] = 'Memcache';
-$txt['memcached_cache'] = 'Memcached';
-$txt['xcache_cache'] = 'XCache';
+$txt['memcacheimplementation_cache'] = 'Memcache';
+$txt['memcachedimplementation_cache'] = 'Memcached';
 $txt['zend_cache'] = 'Zend Platform/Performance Suite';
-$txt['cache_smf_settings'] = 'SMF file based caching settings';
+$txt['cache_filebased_settings'] = 'SMF file based caching settings';
 $txt['cache_sqlite_settings'] = 'SQLite3 database caching settings';
-$txt['cache_memcache_settings'] = 'Memcache(d) settings';
-$txt['cache_memcache_servers'] = 'Memcache(d) servers';
-$txt['cache_memcache_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
-$txt['cache_xcache_settings'] = 'XCache settings';
-$txt['cache_xcache_adminuser'] = 'XCache Admin User';
-$txt['cache_xcache_adminpass'] = 'XCache Admin Password';
+$txt['cache_memcachedimplementation_settings'] = 'Memcached settings';
+$txt['cache_memcachedimplementation_servers'] = 'Memcached servers';
+$txt['cache_memcachedimplementation_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
+$txt['cache_memcacheimplementation_settings'] = 'Memcache settings';
+$txt['cache_memcacheimplementation_servers'] = 'Memcache servers';
+$txt['cache_memcacheimplementation_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
 
 $txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>%01.2f</strong>';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';
@@ -232,7 +233,8 @@ $txt['setting_view_warning_own'] = 'Users who can see their own warning status';
 
 $txt['signature_settings'] = 'Signature Settings';
 $txt['signature_settings_desc'] = 'Use the settings on this page to decide how member signatures should be treated in SMF.';
-$txt['signature_settings_warning'] = 'Note that settings are not applied to existing signatures by default. <a href="' . $scripturl . '?action=admin;area=featuresettings;sa=sig;apply;%2$s=%1$s">Apply changes now</a>';
+// argument(s): session_id, session_var, scripturl
+$txt['signature_settings_warning'] = 'Note that settings are not applied to existing signatures by default. <a href="%3$s?action=admin;area=featuresettings;sa=sig;apply;%2$s=%1$s">Apply changes now</a>';
 $txt['signature_settings_applied'] = 'The updated rules have been applied to the existing signatures.';
 $txt['signature_enable'] = 'Enable signatures';
 $txt['signature_max_length'] = 'Maximum allowed characters';
@@ -357,7 +359,8 @@ $txt['add_language_smf_version'] = 'Version';
 
 $txt['edit_language_entries_primary'] = 'Below are the primary language settings for this language pack.';
 $txt['edit_language_entries'] = 'Edit Language Entries';
-$txt['edit_language_entries_desc'] = 'You can customize the individual text entries for this language. Select a file to load its entries, and then edit them below.<br><br>When you edit (or remove) an entry, a commented out version of the original is preserved in the file. If you ever need to restore your edited strings to their original state, or if you need more advanced access to these language files, go to <a href="' . $scripturl . '?action=admin;area=theme;sa=edit">' . $txt['themeadmin_edit_title'] . '</a>, browse to the file you are looking for, and then edit it directly using SMF\'s built-in text editor.';
+// argument(s): $scripturl, $txt['themeadmin_edit_title']
+$txt['edit_language_entries_desc'] = 'You can customize the individual text entries for this language. Select a file to load its entries, and then edit them below.<br><br>When you edit (or remove) an entry, a commented out version of the original is preserved in the file. If you ever need to restore your edited strings to their original state, or if you need more advanced access to these language files, go to <a href="%1$s?action=admin;area=theme;sa=edit">%2$s</a>, browse to the file you are looking for, and then edit it directly using SMF\'s built-in text editor.';
 $txt['edit_language_entries_file'] = 'Select entries to edit';
 $txt['languages_dictionary'] = 'Dictionary';
 $txt['languages_spelling'] = 'Spelling';
@@ -396,7 +399,7 @@ $txt['languages_txt'] = 'Standard text strings';
 $txt['languages_helptxt'] = 'Help text';
 $txt['languages_editortxt'] = 'User interface for the editor';
 $txt['languages_tztxt'] = 'Time zone descriptions';
-$txt['languages_txt_for_timezones'] = 'Custom location names';
+$txt['languages_txt_for_timezones'] = 'Place names';
 $txt['languages_txt_for_email_templates'] = 'Email message templates';
 $txt['languages_enter_key'] = 'Enter a variable name for this text string';
 $txt['languages_invalid_key'] = 'Sorry, but this variable name is invalid: ';
@@ -424,5 +427,12 @@ $txt['tfa_mode_forced_help'] = 'Please enable 2FA in your account in order to be
 $txt['tfa_mode_enabled'] = 'Enabled';
 $txt['tfa_mode_disabled'] = 'Disabled';
 $txt['tfa_mode_subtext'] = 'Allows users to have a second layer of security while logging in, users would need an app like Google Authenticator paired with their account';
+
+$txt['export_settings_description'] = 'Members can export copies of their profile data, optionally including their posts and personal messages.<br>To avoid overtaxing server resources, SMF slowly compiles the exported data to a downloadable file stored in a secured directory.';
+$txt['export_dir'] = 'Directory for profile data export files';
+$txt['export_expiry'] = 'Automatically delete profile data export files after';
+$txt['export_min_diskspace_pct'] = 'Pause exports if free space on disk is less than';
+$txt['export_rate'] = 'Rate at which to process posts & personal messages for export';
+$txt['export_rate_desc'] = 'Higher values will compile exports more quickly, but could affect forum performance.';
 
 ?>

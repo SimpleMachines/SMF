@@ -17,16 +17,16 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 define('SMF', 'BACKGROUND');
-define('SMF_VERSION', '2.1 RC2');
+define('SMF_VERSION', '2.1 RC3');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2020');
 define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
 
-define('JQUERY_VERSION', '3.4.1');
+define('JQUERY_VERSION', '3.5.1');
 define('POSTGRE_TITLE', 'PostgreSQL');
 define('MYSQL_TITLE', 'MySQL');
 define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
@@ -40,13 +40,14 @@ define('MAX_CRON_TIME', 10);
 define('MAX_CLAIM_THRESHOLD', 300);
 
 // We're going to want a few globals... these are all set later.
-global $time_start, $maintenance, $msubject, $mmessage, $mbname, $language;
+global $maintenance, $msubject, $mmessage, $mbname, $language;
 global $boardurl, $boarddir, $sourcedir, $webmaster_email;
 global $db_server, $db_name, $db_user, $db_prefix, $db_persist, $db_error_send, $db_last_error;
 global $db_connection, $modSettings, $context, $sc, $user_info, $txt;
 global $smcFunc, $ssi_db_user, $scripturl, $db_passwd, $cachedir;
 
-define('TIME_START', microtime(true));
+if (!defined('TIME_START'))
+	define('TIME_START', microtime(true));
 
 // Just being safe...
 foreach (array('db_character_set', 'cachedir') as $variable)
@@ -56,9 +57,17 @@ foreach (array('db_character_set', 'cachedir') as $variable)
 // Get the forum's settings for database and file paths.
 require_once(dirname(__FILE__) . '/Settings.php');
 
-// Make absolutely sure the cache directory is defined.
-if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
-	$cachedir = $boarddir . '/cache';
+// Make absolutely sure the cache directory is defined and writable.
+if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
+{
+	if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
+		$cachedir = $boarddir . '/cache';
+	else
+	{
+		$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
+		@mkdir($cachedir, 0750);
+	}
+}
 
 // Don't do john didley if the forum's been shut down completely.
 if ($maintenance == 2)
@@ -84,6 +93,9 @@ if (!FROM_CLI)
 	if ($ts <= 0 || $ts % 15 != 0 || time() - $ts < 0 || time() - $ts > 20)
 		obExit_cron();
 }
+
+else
+	$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
 
 // Load the most important includes. In general, a background should be loading its own dependencies.
 require_once($sourcedir . '/Errors.php');
@@ -262,7 +274,7 @@ function smf_error_handler_cron($error_level, $error_string, $file, $line)
 {
 	global $modSettings;
 
-	// Ignore errors if we're ignoring them or they are strict notices from PHP 5
+	// Ignore errors that should not be logged.
 	if (error_reporting() == 0)
 		return;
 
@@ -297,7 +309,7 @@ function obExit_cron()
 abstract class SMF_BackgroundTask
 {
 	/**
-	 * Constants for notfication types.
+	 * Constants for notification types.
 	*/
 	const RECEIVE_NOTIFY_EMAIL = 0x02;
 	const RECEIVE_NOTIFY_ALERT = 0x01;
@@ -308,13 +320,22 @@ abstract class SMF_BackgroundTask
 	protected $_details;
 
 	/**
+	 * @var array Temp property to hold the current user info while tasks make use of $user_info
+	 */
+	private $current_user_info = array();
+
+	/**
 	 * The constructor.
 	 *
 	 * @param array $details The details for the task
 	 */
 	public function __construct($details)
 	{
+		global $user_info;
+
 		$this->_details = $details;
+
+		$this->current_user_info = $user_info;
 	}
 
 	/**
@@ -323,6 +344,25 @@ abstract class SMF_BackgroundTask
 	 * @return mixed
 	 */
 	abstract public function execute();
+
+	/**
+	 * Loads minimal info for the previously loaded user ids
+	 *
+	 * @param array $user_ids
+	 * @return array
+	 * @throws Exception
+	 */
+	public function getMinUserInfo($user_ids = array())
+	{
+		return loadMinUserInfo($user_ids);
+	}
+
+	public function __destruct()
+	{
+		global $user_info;
+
+		$user_info = $this->current_user_info;
+	}
 }
 
 ?>

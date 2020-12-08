@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -22,7 +22,7 @@ if (!defined('SMF'))
  * Calls createSalvageArea() to create a new board, if necessary.
  * Accessed by ?action=admin;area=repairboards.
  *
- * @uses repair_boards sub-template.
+ * @uses template_repair_boards()
  */
 function RepairBoards()
 {
@@ -130,7 +130,7 @@ function RepairBoards()
  */
 function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0, $force = false)
 {
-	global $context, $txt, $time_start, $db_temp_cache, $db_cache;
+	global $context, $txt, $db_temp_cache, $db_cache;
 
 	// More time, I need more time!
 	@set_time_limit(600);
@@ -138,7 +138,7 @@ function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0
 		@apache_reset_timeout();
 
 	// Errr, wait.  How much time has this taken already?
-	if (!$force && (time() - $time_start) < 3)
+	if (!$force && (time() - TIME_START) < 3)
 		return;
 
 	// Restore the query cache if interested.

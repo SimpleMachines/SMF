@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -48,12 +48,13 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = nu
  */
 function ModifyFeatureSettings()
 {
-	global $context, $txt, $settings;
+	global $context, $txt, $settings, $scripturl, $modSettings, $language;
 
 	loadLanguage('Help');
 	loadLanguage('ManageSettings');
 
 	$context['page_title'] = $txt['modSettings_title'];
+	$context['show_privacy_policy_warning'] = empty($modSettings['policy_' . $language]);
 
 	$subActions = array(
 		'basic' => 'ModifyBasicSettings',
@@ -71,7 +72,7 @@ function ModifyFeatureSettings()
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['modSettings_title'],
 		'help' => 'featuresettings',
-		'description' => sprintf($txt['modSettings_desc'], $settings['theme_id'], $context['session_id'], $context['session_var']),
+		'description' => sprintf($txt['modSettings_desc'], $settings['theme_id'], $context['session_id'], $context['session_var'], $scripturl),
 		'tabs' => array(
 			'basic' => array(
 			),
@@ -212,7 +213,7 @@ function ModifyBasicSettings($return_config = false)
 			'min' => -23.5,
 			'max' => 23.5
 		),
-		'default_timezone' => array('select', 'default_timezone', array()),
+		array('select', 'default_timezone', array_filter(smf_list_timezones(), 'is_string', ARRAY_FILTER_USE_KEY)),
 		array('text', 'timezone_priority_countries', 'subtext' => $txt['setting_timezone_priority_countries_note']),
 		'',
 
@@ -227,7 +228,6 @@ function ModifyBasicSettings($return_config = false)
 		'',
 
 		// Option-ish things... miscellaneous sorta.
-		array('check', 'allow_disableAnnounce'),
 		array('check', 'disallow_sendBody'),
 		'',
 
@@ -242,17 +242,6 @@ function ModifyBasicSettings($return_config = false)
 			),
 		),
 	);
-
-	// Get all the time zones.
-	if (function_exists('timezone_identifiers_list') && function_exists('date_default_timezone_set'))
-	{
-		$all_zones = timezone_identifiers_list();
-		// Make sure we set the value to the same as the printed value.
-		foreach ($all_zones as $zone)
-			$config_vars['default_timezone'][2][$zone] = $zone;
-	}
-	else
-		unset($config_vars['default_timezone']);
 
 	call_integration_hook('integrate_modify_basic_settings', array(&$config_vars));
 
@@ -291,10 +280,10 @@ function ModifyBasicSettings($return_config = false)
  * Set a few Bulletin Board Code settings. It loads a list of Bulletin Board Code tags to allow disabling tags.
  * Requires the admin_forum permission.
  * Accessed from ?action=admin;area=featuresettings;sa=bbc.
+ * @uses template_show_settings()
  *
  * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
  * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
- * @uses Admin template, edit_bbc_settings sub-template.
  */
 function ModifyBBCSettings($return_config = false)
 {
@@ -344,7 +333,7 @@ function ModifyBBCSettings($return_config = false)
 	$extra = '';
 	if (isset($_REQUEST['cowsay']))
 	{
-		$config_vars[] = array('permissions', 'bbc_cowsay', 'text_label' => sprintf($txt['groups_can_use'], 'cowsay'));
+		$config_vars[] = array('permissions', 'bbc_cowsay', 'text_label' => sprintf($txt['groups_can_use'], '[cowsay]'));
 		$extra = ';cowsay';
 	}
 
@@ -1360,7 +1349,7 @@ function ModifySignatureSettings($return_config = false)
 		);
 	else
 		$context['settings_message'] = array(
-			'label' => sprintf($txt['signature_settings_warning'], $context['session_id'], $context['session_var']),
+			'label' => sprintf($txt['signature_settings_warning'], $context['session_id'], $context['session_var'], $scripturl),
 			'tag' => 'div',
 			'class' => 'centertext'
 		);
@@ -1549,7 +1538,7 @@ function ShowCustomProfiles()
 				'data' => array(
 					'function' => function($rowData) use ($context, $txt, $scripturl)
 					{
-						$return = '<p class="centertext bold_text">' . $rowData['field_order'] . '<br>';
+						$return = '<p class="centertext bold_text">';
 
 						if ($rowData['field_order'] > 1)
 							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . $txt['custom_edit_order_move'] . ' ' . $txt['custom_edit_order_up'] . '"></span></a>';
@@ -1766,7 +1755,7 @@ function EditCustomProfiles()
 	// We need this for both moving and saving so put it right here.
 	$order_count = custFieldsMaxOrder();
 
-	if ($context['fid'])
+	if ($context['fid'] && !isset($_GET['move']))
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
@@ -1848,34 +1837,54 @@ function EditCustomProfiles()
 		);
 
 	// Are we moving it?
-	if (isset($_GET['move']) && in_array($smcFunc['htmlspecialchars']($_GET['move']), $move_to))
+	if ($context['fid'] && isset($_GET['move']) && in_array($smcFunc['htmlspecialchars']($_GET['move']), $move_to))
 	{
-		// Down is the new up.
-		$new_order = ($_GET['move'] == 'up' ? ($context['field']['order'] - 1) : ($context['field']['order'] + 1));
+		$request = $smcFunc['db_query']('', '
+			SELECT
+				id_field, field_order
+			FROM {db_prefix}custom_fields
+			ORDER BY field_order',
+				array()
+		);
+		$fields = array();
+		$new_sort = array();
 
-		// Is this a valid position?
-		if ($new_order <= 0 || $new_order > $order_count)
+		while($row = $smcFunc['db_fetch_assoc']($request))
+				$fields[] = $row['id_field'];
+		$smcFunc['db_free_result']($request);
+
+		$idx = array_search($context['fid'], $fields);
+
+		if ($_GET['move'] == 'down' && count($fields) - 1 > $idx )
+		{
+				$new_sort = array_slice($fields ,0 ,$idx ,true);
+				$new_sort[] = $fields[$idx + 1];
+				$new_sort[] = $fields[$idx];
+				$new_sort += array_slice($fields ,$idx + 2 ,count($fields) ,true);
+		}
+		elseif ($context['fid'] > 0 and $idx < count($fields))
+		{
+				$new_sort = array_slice($fields ,0 ,($idx - 1) ,true);
+				$new_sort[] = $fields[$idx];
+				$new_sort[] = $fields[$idx - 1];
+				$new_sort += array_slice($fields ,($idx + 1) ,count($fields) ,true);
+		}
+		else
 			redirectexit('action=admin;area=featuresettings;sa=profile'); // @todo implement an error handler
 
-		// All good, proceed.
+		$sql_update = 'CASE ';
+		foreach ($new_sort as $orderKey => $PKid)
+		{
+			$sql_update .= 'WHEN id_field = ' . $PKid . ' THEN ' . ($orderKey + 1) . ' ';
+		}
+		$sql_update .= 'END';
+
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}custom_fields
-			SET field_order = {int:old_order}
-			WHERE field_order = {int:new_order}',
-			array(
-				'new_order' => $new_order,
-				'old_order' => $context['field']['order'],
-			)
+			SET field_order = ' . $sql_update,
+				array()
 		);
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}custom_fields
-			SET field_order = {int:new_order}
-			WHERE id_field = {int:id_field}',
-			array(
-				'new_order' => $new_order,
-				'id_field' => $context['fid'],
-			)
-		);
+
 		redirectexit('action=admin;area=featuresettings;sa=profile'); // @todo perhaps a nice confirmation message, dunno.
 	}
 
@@ -2246,6 +2255,12 @@ function ModifyLogSettings($return_config = false)
 		array('desc', 'error_log_desc'),
 		array('check', 'enableErrorLogging'),
 		array('check', 'enableErrorQueryLogging'),
+		// The 'mark read' log settings.
+		array('title', 'markread_title'),
+		array('desc', 'mark_read_desc'),
+		array('int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
+		array('int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
+		array('int', 'mark_read_max_users', 'step' => 1, 'min' => 0, 'max' => 20000, 'subtext' => $txt['zero_to_disable']),
 		// Even do the pruning?
 		array('title', 'pruning_title'),
 		array('desc', 'pruning_desc'),
@@ -2301,6 +2316,9 @@ function ModifyLogSettings($return_config = false)
 			array('check', 'userlog_enabled'),
 			array('check', 'enableErrorLogging'),
 			array('check', 'enableErrorQueryLogging'),
+			array('int', 'mark_read_beyond'),
+			array('int', 'mark_read_delete_beyond'),
+			array('int', 'mark_read_max_users'),
 			array('text', 'pruningOptions')
 		);
 
@@ -2406,7 +2424,6 @@ function ModifyAlertsSettings()
 	global $context, $modSettings, $sourcedir, $txt;
 
 	// Dummy settings for the template...
-	$modSettings['allow_disableAnnounce'] = false;
 	$context['user']['is_owner'] = false;
 	$context['member'] = array();
 	$context['id_member'] = 0;
@@ -2420,7 +2437,7 @@ function ModifyAlertsSettings()
 	loadLanguage('Profile');
 
 	include_once($sourcedir . '/Profile-Modify.php');
-	alert_configuration(0);
+	alert_configuration(0, true);
 
 	$context['page_title'] = $txt['notify_settings'];
 

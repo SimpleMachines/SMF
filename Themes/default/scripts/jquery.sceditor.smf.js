@@ -6,7 +6,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 (function ($) {
@@ -177,6 +177,7 @@
 		var instance = sceditor.instance(textarea);
 		if (!isPatched && instance) {
 			sceditor.utils.extend(instance.constructor.prototype, extensionMethods);
+			window.addEventListener('beforeunload', instance.updateOriginal, false);
 
 			/*
 			 * Stop SCEditor from resizing the entire container. Long
@@ -184,8 +185,8 @@
 			 * Only resize the text areas instead.
 			 */
 			document.querySelector(".sceditor-container").removeAttribute("style");
-			instance.getContentAreaContainer().style.minHeight = options.height;
-			document.querySelector(".sceditor-container textarea").style.minHeight = options.height;
+			document.querySelector(".sceditor-container textarea").style.height = options.height;
+			document.querySelector(".sceditor-container textarea").style.flexBasis = options.height;
 
 			isPatched = true;
 		}
@@ -204,10 +205,10 @@ sceditor.command.set(
 	'email', {
 		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('@') > -1 ? null : selected,
-				email	= prompt(this._("Enter the e-mail address:"), (display ? '' : selected));
+				email = prompt(this._("Enter the e-mail address:"), (display ? '' : selected));
 			if (email)
 			{
-				var text	= prompt(this._("Enter the displayed text:"), display || email) || email;
+				var text = prompt(this._("Enter the displayed text:"), display || email) || email;
 				this.insertText("[email=" + email + "]" + text + "[/email]");
 			}
 		}
@@ -217,10 +218,10 @@ sceditor.command.set(
 	'link', {
 		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('http://') > -1 ? null : selected,
-				url	= prompt(this._("Enter URL:"), (display ? 'http://' : selected));
+				url = prompt(this._("Enter URL:"), (display ? 'http://' : selected));
 			if (url)
 			{
-				var text	= prompt(this._("Enter the displayed text:"), display || url) || url;
+				var text = prompt(this._("Enter the displayed text:"), display || url) || url;
 				this.insertText("[url=\"" + url + "\"]" + text + "[/url]");
 			}
 		},
@@ -315,12 +316,24 @@ sceditor.command.set(
 );
 
 sceditor.command.set(
+	'maximize', {
+		shortcut: ''
+	}
+);
+
+sceditor.command.set(
+	'source', {
+		shortcut: ''
+	}
+);
+
+sceditor.command.set(
 	'youtube', {
 		exec: function (caller) {
 			var editor = this;
 
 			editor.commands.youtube._dropDown(editor, caller, function (id, time) {
-				editor.wysiwygEditorInsertHtml('<div class="videocontainer"><div><iframe frameborder="0" allowfullscreen src="https://www.youtube.com/embed/' + id + '?wmode=opaque&start=' + time + '" data-youtube-id="' + id + '"></iframe></div></div>');
+				editor.wysiwygEditorInsertHtml('<div class="videocontainer"><div><iframe frameborder="0" allowfullscreen src="https://www.youtube.com/embed/' + id + '?wmode=opaque&start=' + time + '" data-youtube-id="' + id + '" loading="lazy"></iframe></div></div>');
 			});
 		}
 	}
@@ -409,73 +422,116 @@ sceditor.formats.bbcode.set(
 			li: null
 		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		format: '[li]{0}[/li]',
-		html: '<li>{0}</li>',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		html: '<li data-bbc-tag="li">{0}</li>',
+		format: function (element, content) {
+			var	element = $(element),
+				token = 'li',
+				allowedTokens = ['li', '*', '@', '+', 'x', 'o', 'O', '0'];
+
+			if (element.attr('data-bbc-tag') && allowedTokens.indexOf(element.attr('data-bbc-tag') > -1))
+				token = element.attr('data-bbc-tag');
+
+			return '[' + token + ']' + content + (token === 'li' ? '[/' + token + ']' : '');
+		},
 	}
 );
 sceditor.formats.bbcode.set(
 	'*', {
+		tags: {
+			li: {
+				'data-bbc-tag': ['*']
+			}
+		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li>{0}</li>',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		excludeClosing: true,
+		html: '<li type="disc" data-bbc-tag="*">{0}</li>',
 		format: '[*]{0}',
 	}
 );
 sceditor.formats.bbcode.set(
 	'@', {
+		tags: {
+			li: {
+				'data-bbc-tag': ['@']
+			}
+		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li>{0}</li>',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		excludeClosing: true,
+		html: '<li type="disc" data-bbc-tag="@">{0}</li>',
 		format: '[@]{0}',
 	}
 );
 sceditor.formats.bbcode.set(
 	'+', {
+		tags: {
+			li: {
+				'data-bbc-tag': ['+']
+			}
+		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li type="square">{0}</li>',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		excludeClosing: true,
+		html: '<li type="square" data-bbc-tag="+">{0}</li>',
 		format: '[+]{0}',
 	}
 );
 sceditor.formats.bbcode.set(
 	'x', {
+		tags: {
+			li: {
+				'data-bbc-tag': ['x']
+			}
+		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li type="square">{0}</li>',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		excludeClosing: true,
+		html: '<li type="square" data-bbc-tag="x">{0}</li>',
 		format: '[x]{0}',
 	}
 );
 sceditor.formats.bbcode.set(
-	'#', {
-		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li type="square">{0}</li>',
-		format: '[#]{0}',
-	}
-);
-sceditor.formats.bbcode.set(
 	'o', {
+		tags: {
+			li: {
+				'data-bbc-tag': ['o']
+			}
+		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li type="circle">{0}</li>',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		excludeClosing: true,
+		html: '<li type="circle" data-bbc-tag="o">{0}</li>',
 		format: '[o]{0}',
 	}
 );
 sceditor.formats.bbcode.set(
 	'O', {
+		tags: {
+			li: {
+				'data-bbc-tag': ['O']
+			}
+		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li type="circle">{0}</li>',
-		format: '[O]{0}',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		excludeClosing: true,
+		html: '<li type="circle" data-bbc-tag="O">{0}</li>',
+		format: '[o]{0}',
 	}
 );
 sceditor.formats.bbcode.set(
 	'0', {
+		tags: {
+			li: {
+				'data-bbc-tag': ['0']
+			}
+		},
 		isInline: false,
-		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', '#', 'o', 'O', '0'],
-		html: '<li type="circle">{0}</li>',
-		format: '[0]{0}',
+		closedBy: ['/ul', '/ol', '/list', 'li', '*', '@', '+', 'x', 'o', 'O', '0'],
+		excludeClosing: true,
+		html: '<li type="circle" data-bbc-tag="0">{0}</li>',
+		format: '[o]{0}',
 	}
 );
 
@@ -895,7 +951,7 @@ sceditor.formats.bbcode.set(
 			if (!element.css('float'))
 				return content;
 
-			side = (element.css('float').indexOf('left') == 0 ? 'left' : 'right');
+			side = (element[0].className == 'floatleft' ? 'left' : 'right');
 			max = ' max=' + (element.css('max-width') != "none" ? element.css('max-width') : '45%');
 
 			return '[float=' + side + max + ']' + content + '[/float]';
@@ -930,6 +986,6 @@ sceditor.formats.bbcode.set(
 			else
 				return content;
 		},
-		html: '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/{0}?wmode=opaque" data-youtube-id="{0}" allowfullscreen></iframe></div></div>'
+		html: '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/{0}?wmode=opaque" data-youtube-id="{0}" loading="lazy" allowfullscreen></iframe></div></div>'
 	}
 );

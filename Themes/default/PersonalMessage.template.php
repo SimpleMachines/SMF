@@ -7,7 +7,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -50,6 +50,9 @@ function template_pm_below()
 	</div><!-- #personal_messages -->';
 }
 
+/**
+ * Displays a popup with information about your personal messages
+ */
 function template_pm_popup()
 {
 	global $context, $txt, $scripturl;
@@ -429,7 +432,7 @@ function template_single_pm($message)
 							<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
-			if ($context['can_send_pm'])
+			if ($context['can_send_pm'] && $message['member']['id'] != 0)
 				echo '
 							<li><a href="', $scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']), '</a></li>';
 
@@ -1623,7 +1626,9 @@ function template_add_rule()
 					if (document.forms.addrule.elements[i].id.substr(0, 8) == "ruletype")
 						criteriaNum++;
 			}
-			criteriaNum++
+
+			if (criteriaNum++ >= ', $context['rule_limiters']['criteria'], ')
+				return false;
 
 			setOuterHTML(document.getElementById("criteriaAddHere"), \'<br><select name="ruletype[\' + criteriaNum + \']" id="ruletype\' + criteriaNum + \'" onchange="updateRuleDef(\' + criteriaNum + \'); rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_criteria_pick']), ':<\' + \'/option><option value="mid">', addslashes($txt['pm_rule_mid']), '<\' + \'/option><option value="gid">', addslashes($txt['pm_rule_gid']), '<\' + \'/option><option value="sub">', addslashes($txt['pm_rule_sub']), '<\' + \'/option><option value="msg">', addslashes($txt['pm_rule_msg']), '<\' + \'/option><option value="bud">', addslashes($txt['pm_rule_bud']), '<\' + \'/option><\' + \'/select>&nbsp;<span id="defdiv\' + criteriaNum + \'" style="display: none;"><input type="text" name="ruledef[\' + criteriaNum + \']" id="ruledef\' + criteriaNum + \'" onkeyup="rebuildRuleDesc();" value=""><\' + \'/span><span id="defseldiv\' + criteriaNum + \'" style="display: none;"><select name="ruledefgroup[\' + criteriaNum + \']" id="ruledefgroup\' + criteriaNum + \'" onchange="rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_sel_group']), '<\' + \'/option>';
 
@@ -1631,6 +1636,9 @@ function template_add_rule()
 		echo '<option value="', $id, '">', strtr($group, array("'" => "\'")), '<\' + \'/option>';
 
 	echo '<\' + \'/select><\' + \'/span><span id="criteriaAddHere"><\' + \'/span>\');
+
+				if (criteriaNum + 1 > ', $context['rule_limiters']['criteria'], ')
+					document.getElementById(\'addonjs1\').style.display = \'none\';
 			}
 
 			function addActionOption()
@@ -1641,7 +1649,8 @@ function template_add_rule()
 						if (document.forms.addrule.elements[i].id.substr(0, 7) == "acttype")
 							actionNum++;
 				}
-				actionNum++
+				if (actionNum++ >= ', $context['rule_limiters']['actions'], ')
+					return false;
 
 				setOuterHTML(document.getElementById("actionAddHere"), \'<br><select name="acttype[\' + actionNum + \']" id="acttype\' + actionNum + \'" onchange="updateActionDef(\' + actionNum + \'); rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_sel_action']), ':<\' + \'/option><option value="lab">', addslashes($txt['pm_rule_label']), '<\' + \'/option><option value="del">', addslashes($txt['pm_rule_delete']), '<\' + \'/option><\' + \'/select>&nbsp;<span id="labdiv\' + actionNum + \'" style="display: none;"><select name="labdef[\' + actionNum + \']" id="labdef\' + actionNum + \'" onchange="rebuildRuleDesc();"><option value="">', addslashes($txt['pm_rule_sel_label']), '<\' + \'/option>';
 
@@ -1650,6 +1659,9 @@ function template_add_rule()
 			echo '<option value="', ($label['id']), '">', addslashes($label['name']), '<\' + \'/option>';
 
 	echo '<\' + \'/select><\' + \'/span><span id="actionAddHere"><\' + \'/span>\');
+
+				if (actionNum + 1 > ', $context['rule_limiters']['actions'], ')
+					document.getElementById(\'addonjs2\').style.display = \'none\';
 			}
 
 			// Rebuild the rule description!
@@ -1888,8 +1900,12 @@ function template_add_rule()
 			document.getElementById("removeonjs1").style.display = "none";
 			document.getElementById("removeonjs2").style.display = "none";';
 
-	echo '
-			document.getElementById("addonjs1").style.display = "";
+	if (count($context['rule']['criteria']) <= $context['rule_limiters']['criteria'])
+		echo '
+			document.getElementById("addonjs1").style.display = "";';
+
+	if (count($context['rule']['actions']) <= $context['rule_limiters']['actions'])
+		echo '
 			document.getElementById("addonjs2").style.display = "";';
 
 	echo '

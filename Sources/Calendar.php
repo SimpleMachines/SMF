@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -228,7 +228,7 @@ function CalendarMain()
 
 	// Set the page title to mention the month or week, too
 	if ($context['calendar_view'] != 'viewlist')
-		$context['page_title'] .= ' - ' . ($context['calendar_view'] == 'viewweek' ? $context['calendar_grid_main']['week_title'] : $txt['months'][$context['current_month']] . ' ' . $context['current_year']);
+		$context['page_title'] .= ' - ' . ($context['calendar_view'] == 'viewweek' ? $context['calendar_grid_main']['week_title'] : $txt['months_titles'][$context['current_month']] . ' ' . $context['current_year']);
 
 	// Load up the linktree!
 	$context['linktree'][] = array(
@@ -238,7 +238,7 @@ function CalendarMain()
 	// Add the current month to the linktree.
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=calendar;year=' . $context['current_year'] . ';month=' . $context['current_month'],
-		'name' => $txt['months'][$context['current_month']] . ' ' . $context['current_year']
+		'name' => $txt['months_titles'][$context['current_month']] . ' ' . $context['current_year']
 	);
 	// If applicable, add the current week to the linktree.
 	if ($context['calendar_view'] == 'viewweek')
@@ -442,6 +442,10 @@ function CalendarPost()
 		$found = false;
 		foreach ($context['all_timezones'] as $possible_tzid => $dummy)
 		{
+			// Ignore the "-----" option
+			if (empty($possible_tzid))
+				continue;
+
 			$possible_tzinfo = timezone_transitions_get(timezone_open($possible_tzid), $context['event']['start_timestamp'], $later);
 
 			if ($tzinfo === $possible_tzinfo)

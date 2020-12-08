@@ -8,7 +8,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 // Don't do anything if SMF is already loaded.
@@ -16,34 +16,45 @@ if (defined('SMF'))
 	return true;
 
 define('SMF', 'SSI');
-define('SMF_VERSION', '2.1 RC2');
+define('SMF_VERSION', '2.1 RC3');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2020');
-define('JQUERY_VERSION', '3.4.1');
+define('JQUERY_VERSION', '3.5.1');
+define('POSTGRE_TITLE', 'PostgreSQL');
+define('MYSQL_TITLE', 'MySQL');
+define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
+
+// Just being safe...  Do this before defining globals as otherwise it unsets the global.
+foreach (array('db_character_set', 'cachedir') as $variable)
+	unset($GLOBALS[$variable]);
 
 // We're going to want a few globals... these are all set later.
-global $time_start, $maintenance, $msubject, $mmessage, $mbname, $language;
+global $maintenance, $msubject, $mmessage, $mbname, $language;
 global $boardurl, $boarddir, $sourcedir, $webmaster_email, $cookiename;
-global $db_type, $db_server, $db_name, $db_user, $db_prefix, $db_persist, $db_error_send, $db_last_error;
+global $db_type, $db_server, $db_name, $db_user, $db_prefix, $db_persist, $db_error_send, $db_last_error, $db_show_debug;
 global $db_connection, $db_port, $modSettings, $context, $sc, $user_info, $topic, $board, $txt;
 global $smcFunc, $ssi_db_user, $scripturl, $ssi_db_passwd, $db_passwd, $cache_enable, $cachedir;
+global $auth_secret;
 
-// Remember the current configuration so it can be set back.
-$time_start = microtime(true);
-
-// Just being safe...
-foreach (array('db_character_set', 'cachedir') as $variable)
-	if (isset($GLOBALS[$variable]))
-		unset($GLOBALS[$variable]);
+if (!defined('TIME_START'))
+	define('TIME_START', microtime(true));
 
 // Get the forum's settings for database and file paths.
 require_once(dirname(__FILE__) . '/Settings.php');
 
-// Make absolutely sure the cache directory is defined.
-if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
-	$cachedir = $boarddir . '/cache';
+// Make absolutely sure the cache directory is defined and writable.
+if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
+{
+	if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
+		$cachedir = $boarddir . '/cache';
+	else
+	{
+		$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
+		@mkdir($cachedir, 0750);
+	}
+}
 
-$ssi_error_reporting = error_reporting(E_ALL);
+$ssi_error_reporting = error_reporting(!empty($db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
 /* Set this to one of three values depending on what you want to happen in the case of a fatal error.
 	false:	Default, will just load the error sub template and die - not putting any theme layers around it.
 	true:	Will load the error sub template AND put the SMF layers around it (Not useful if on total custom pages).
@@ -114,6 +125,7 @@ spl_autoload_register(function($class) use ($sourcedir)
 		'ReCaptcha\\' => 'ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => 'minify/src/',
 		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+		'SMF\\Cache' => 'Cache/',
 	);
 
 	// Do any third-party scripts want in on the fun?
@@ -253,6 +265,9 @@ function ssi_shutdown()
 
 /**
  * Show the SMF version.
+ *
+ * @param string $output_method If 'echo', displays the version, otherwise returns it
+ * @return void|string Returns nothing if output_method is 'echo', otherwise returns the version
  */
 function ssi_version($output_method = 'echo')
 {
@@ -264,6 +279,9 @@ function ssi_version($output_method = 'echo')
 
 /**
  * Show the full SMF version string.
+ *
+ * @param string $output_method If 'echo', displays the full version string, otherwise returns it
+ * @return void|string Returns nothing if output_method is 'echo', otherwise returns the version string
  */
 function ssi_full_version($output_method = 'echo')
 {
@@ -275,6 +293,9 @@ function ssi_full_version($output_method = 'echo')
 
 /**
  * Show the SMF software year.
+ *
+ * @param string $output_method If 'echo', displays the software year, otherwise returns it
+ * @return void|string Returns nothing if output_method is 'echo', otherwise returns the software year
  */
 function ssi_software_year($output_method = 'echo')
 {
@@ -286,15 +307,18 @@ function ssi_software_year($output_method = 'echo')
 
 /**
  * Show the forum copyright. Only used in our ssi_examples files.
+ *
+ * @param string $output_method If 'echo', displays the forum copyright, otherwise returns it
+ * @return void|string Returns nothing if output_method is 'echo', otherwise returns the copyright string
  */
 function ssi_copyright($output_method = 'echo')
 {
-	global $forum_copyright;
+	global $forum_copyright, $scripturl;
 
 	if ($output_method == 'echo')
-		printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR);
+		printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl);
 	else
-		return sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR);
+		return sprintf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl);
 }
 
 /**
@@ -310,7 +334,7 @@ function ssi_welcome($output_method = 'echo')
 	if ($output_method == 'echo')
 	{
 		if ($context['user']['is_guest'])
-			echo sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup');
+			echo sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup');
 		else
 			echo $txt['hello_member'], ' <strong>', $context['user']['name'], '</strong>', allowedTo('pm_read') ? ', ' . (empty($context['user']['messages']) ? $txt['msg_alert_no_messages'] : (($context['user']['messages'] == 1 ? sprintf($txt['msg_alert_one_message'], $scripturl . '?action=pm') : sprintf($txt['msg_alert_many_message'], $scripturl . '?action=pm', $context['user']['messages'])) . ', ' . ($context['user']['unread_messages'] == 1 ? $txt['msg_alert_one_new'] : sprintf($txt['msg_alert_many_new'], $context['user']['unread_messages'])))) : '';
 	}
@@ -377,7 +401,7 @@ function ssi_recentPosts($num_recent = 8, $exclude_boards = null, $include_board
 	global $modSettings, $context;
 
 	// Excluding certain boards...
-	if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0)
+	if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']))
 		$exclude_boards = array($modSettings['recycle_board']);
 	else
 		$exclude_boards = empty($exclude_boards) ? array() : (is_array($exclude_boards) ? $exclude_boards : array($exclude_boards));
@@ -668,7 +692,7 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 		censorText($row['body']);
 
 		// Recycled icon
-		if (!empty($recycle_board) && $topics[$row['id_topic']]['id_board'])
+		if (!empty($recycle_board) && $topics[$row['id_topic']]['id_board'] == $recycle_board)
 			$row['icon'] = 'recycled';
 
 		if (!empty($modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
@@ -801,13 +825,13 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 			(COALESCE(lb.id_msg, 0) >= b.id_last_msg) AS is_read') . '
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
-		WHERE {query_wanna_see_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+		WHERE {query_wanna_see_board}' . (!empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? '
 			AND b.id_board != {int:recycle_board}' : '') . '
 		ORDER BY b.num_posts DESC
 		LIMIT ' . $num_top,
 		array(
 			'current_member' => $user_info['id'],
-			'recycle_board' => (int) $modSettings['recycle_board'],
+			'recycle_board' => !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : null,
 		)
 	);
 	$boards = array();
@@ -891,14 +915,14 @@ function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'ec
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 		WHERE {query_wanna_see_board}' . ($modSettings['postmod_active'] ? '
 			AND t.approved = {int:is_approved}' : '') . (!empty($topic_ids) ? '
-			AND t.id_topic IN ({array_int:topic_list})' : '') . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-			AND b.id_board != {int:recycle_enable}' : '') . '
+			AND t.id_topic IN ({array_int:topic_list})' : '') . (!empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? '
+			AND b.id_board != {int:recycle_board}' : '') . '
 		ORDER BY t.num_' . ($type != 'replies' ? 'views' : 'replies') . ' DESC
 		LIMIT {int:limit}',
 		array(
 			'topic_list' => $topic_ids,
 			'is_approved' => 1,
-			'recycle_enable' => $modSettings['recycle_board'],
+			'recycle_board' => !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : null,
 			'limit' => $num_topics,
 		)
 	);
@@ -1371,8 +1395,8 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 			AND (p.expire_time = {int:no_expiration} OR {int:current_time} < p.expire_time)
 			AND ' . ($user_info['is_guest'] ? 'p.guest_vote = {int:guest_vote_allowed}' : 'lp.id_choice IS NULL') . '
 			AND {query_wanna_see_board}' . (!in_array(0, $boardsAllowed) ? '
-			AND b.id_board IN ({array_int:boards_allowed_list})' : '') . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-			AND b.id_board != {int:recycle_enable}' : '') . '
+			AND b.id_board IN ({array_int:boards_allowed_list})' : '') . (!empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? '
+			AND b.id_board != {int:recycle_board}' : '') . '
 		ORDER BY ' . ($topPollInstead ? 'pc.votes' : 'p.id_poll') . ' DESC
 		LIMIT 1',
 		array(
@@ -1384,7 +1408,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 			'voting_opened' => 0,
 			'no_expiration' => 0,
 			'current_time' => time(),
-			'recycle_enable' => $modSettings['recycle_board'],
+			'recycle_board' => !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : null,
 		)
 	);
 	$row = $smcFunc['db_fetch_assoc']($request);
@@ -1897,6 +1921,8 @@ function ssi_todaysHolidays($output_method = 'echo')
 }
 
 /**
+ * Shows today's events.
+ *
  * @param string $output_method The output method. If 'echo', displays a list of events, otherwise returns an array of info about them.
  * @return void|array Displays a list of events or returns an array of info about them depending on output_method
  */

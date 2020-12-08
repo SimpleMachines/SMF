@@ -6,7 +6,7 @@
 	margin: 0 0 10px 0;
 	box-shadow: none;
 }
-#admin_content .button {
+#admin_content .button:not(.floatnone) {
 	float: right;
 }
 .action_admin .table_grid td {
@@ -575,52 +575,6 @@ ul.moderation_notes li {
 }
 .post_note input {
 	width: 100%;
-}
-
-/* Styles for the error log. */
-h3.grid_header {
-	height: 25px;
-}
-#error_log {
-	width: 100%;
-	margin: 4px 0;
-}
-#error_log tr.windowbg td {
-	padding: 8px;
-	line-height: 160%;
-}
-#error_log td.checkbox_column {
-	width: 15px;
-	vertical-align: top;
-	text-align: center;
-}
-#error_log a img {
-	vertical-align: middle;
-	margin: 0 8px 0 0;
-}
-#error_log .main_icons::before {
-	margin: 0 5px 0 0;
-}
-#error_log .error_info {
-	float: right;
-	width: 50%;
-	line-height: 1.8em;
-	padding: 0 4px 4px 4px;
-}
-#error_log .error_location {
-	padding: 4px;
-	clear: both;
-	border-top: 1px solid #e3e3e3;
-	display: flex;
-}
-#error_log a.error_message {
-	float: left;
-	margin-right: 5px;
-}
-#error_log span.error_message, #backtrace span.error_message {
-	overflow: hidden; /* This changes how the text wraps around the float */
-	display: block;
-	white-space: pre-wrap;
 }
 
 /* Styles for the Report generation */

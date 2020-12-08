@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -506,7 +506,12 @@ function registerMember(&$regOptions, $return_errors = false)
 
 		// Password isn't legal?
 		if ($passwordError != null)
-			$reg_errors[] = array('lang', 'profile_error_password_' . $passwordError);
+		{
+			$errorCode = array('lang', 'profile_error_password_' . $passwordError, false);
+			if ($passwordError == 'short')
+				$errorCode[] = array(empty($modSettings['password_strength']) ? 4 : 8);
+			$reg_errors[] = $errorCode;
+		}
 	}
 
 	// You may not be allowed to register this email.
@@ -589,7 +594,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		'member_name' => $regOptions['username'],
 		'email_address' => $regOptions['email'],
 		'passwd' => hash_password($regOptions['username'], $regOptions['password']),
-		'password_salt' => substr(md5($smcFunc['random_int']()), 0, 4),
+		'password_salt' => bin2hex($smcFunc['random_bytes'](16)),
 		'posts' => 0,
 		'date_registered' => time(),
 		'member_ip' => $regOptions['interface'] == 'admin' ? '127.0.0.1' : $user_info['ip'],
@@ -613,7 +618,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		'additional_groups' => '',
 		'ignore_boards' => '',
 		'smiley_set' => '',
-		'timezone' => !empty($regOptions['timezone']) ? $regOptions['timezone'] : 'UTC',
+		'timezone' => empty($regOptions['timezone']) || !in_array($regOptions['timezone'], smf_list_timezones()) ? 'UTC' : $regOptions['timezone'],
 	);
 
 	// Setup the activation status on this new account so it is correct - firstly is it an under age account?
@@ -735,6 +740,11 @@ function registerMember(&$regOptions, $return_errors = false)
 		);
 	}
 
+	// Log their acceptance of the agreement and privacy policy, for future reference.
+	foreach (array('agreement_accepted', 'policy_accepted') as $key)
+		if (!empty($theme_vars[$key]))
+			logAction($key, array('member_affected' => $memberID, 'applicator' => $memberID), 'user');
+
 	// If it's enabled, increase the registrations for today.
 	trackStats(array('registers' => '+'));
 
@@ -801,9 +811,10 @@ function registerMember(&$regOptions, $return_errors = false)
 				'ACTIVATIONLINKWITHOUTCODE' => $scripturl . '?action=activate;u=' . $memberID,
 				'ACTIVATIONCODE' => $validation_code,
 			);
+
 		else
 			$replacements += array(
-				'COPPALINK' => $scripturl . '?action=coppa;u=' . $memberID,
+				'COPPALINK' => $scripturl . '?action=coppa;member=' . $memberID,
 			);
 
 		$emaildata = loadEmailTemplate('register_' . ($regOptions['require'] == 'activation' ? 'activate' : 'coppa'), $replacements);
@@ -846,12 +857,12 @@ function registerMember(&$regOptions, $return_errors = false)
  * current member.
  *
  * @param string $name The name to check
- * @param int $current_ID_MEMBER The ID of the current member (to avoid false positives with the current member)
+ * @param int $current_id_member The ID of the current member (to avoid false positives with the current member)
  * @param bool $is_name Whether we're checking against reserved names or just usernames
  * @param bool $fatal Whether to die with a fatal error if the name is reserved
  * @return bool|void False if name is not reserved, otherwise true if $fatal is false or dies with a fatal_lang_error if $fatal is true
  */
-function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal = true)
+function isReservedName($name, $current_id_member = 0, $is_name = true, $fatal = true)
 {
 	global $modSettings, $smcFunc;
 
@@ -902,25 +913,18 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 			else
 				return true;
 
-	// Get rid of any SQL parts of the reserved name...
-	$checkName = strtr($name, array('_' => '\\_', '%' => '\\%'));
-
-	//when we got no wildcard we can use equal -> fast
-	$operator = (strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=');
-
-	// Make sure they don't want someone else's name.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member
 		FROM {db_prefix}members
-		WHERE ' . (empty($current_ID_MEMBER) ? '' : 'id_member != {int:current_member}
+		WHERE ' . (empty($current_id_member) ? '' : 'id_member != {int:current_member}
 			AND ') . '({raw:real_name} {raw:operator} LOWER({string:check_name}) OR {raw:member_name} {raw:operator} LOWER({string:check_name}))
 		LIMIT 1',
 		array(
 			'real_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name',
 			'member_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(member_name)' : 'member_name',
-			'current_member' => $current_ID_MEMBER,
+			'current_member' => $current_id_member,
 			'check_name' => $checkName,
-			'operator' => $operator,
+			'operator' => strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=',
 		)
 	);
 	if ($smcFunc['db_num_rows']($request) > 0)
@@ -950,7 +954,7 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 	$is_reserved = false;
 
 	// Maybe a mod wants to perform further checks?
-	call_integration_hook('integrate_check_name', array($checkName, &$is_reserved, $current_ID_MEMBER, $is_name));
+	call_integration_hook('integrate_check_name', array($checkName, &$is_reserved, $current_id_member, $is_name));
 
 	return $is_reserved;
 }
@@ -1220,24 +1224,38 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 	{
 		// First, check for updated topics.
 		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}topics as t, {db_prefix}messages as m
-			SET t.id_member_started = {int:memID}
-			WHERE m.id_member = {int:memID}
-				AND t.id_first_msg = m.id_msg',
+			UPDATE {db_prefix}topics AS t
+			SET id_member_started = {int:memID}
+			WHERE t.id_first_msg = (
+				SELECT m.id_msg
+				FROM {db_prefix}messages m
+				WHERE m.id_member = {int:memID}
+					AND m.id_msg = t.id_first_msg
+					AND ' . $query . '
+				)',
 			array(
 				'memID' => $memID,
+				'email_address' => $email,
+				'member_name' => $membername,
 			)
 		);
 		$updated['topics'] = $smcFunc['db_affected_rows']();
 
 		// Second, check for updated reports.
 		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}log_reported AS lr, {db_prefix}messages AS m
-			SET lr.id_member = {int:memID}
-			WHERE lr.id_msg = m.id_msg
-				AND m.id_member = {int:memID}',
+			UPDATE {db_prefix}log_reported AS lr
+			SET id_member = {int:memID}
+			WHERE lr.id_msg = (
+				SELECT m.id_msg
+				FROM {db_prefix}messages m
+				WHERE m.id_member = {int:memID}
+					AND m.id_msg = lr.id_msg
+					AND ' . $query . '
+				)',
 			array(
 				'memID' => $memID,
+				'email_address' => $email,
+				'member_name' => $membername,
 			)
 		);
 		$updated['reports'] = $smcFunc['db_affected_rows']();
@@ -1510,24 +1528,13 @@ function populateDuplicateMembers(&$members)
 /**
  * Generate a random validation code.
  *
- * @todo Err. Whatcha doin' here.
- *
  * @return string A random validation code
  */
 function generateValidationCode()
 {
-	global $smcFunc, $modSettings;
+	global $smcFunc;
 
-	$request = $smcFunc['db_query']('get_random_number', '
-		SELECT RAND()',
-		array(
-		)
-	);
-
-	list ($dbRand) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
-
-	return substr(preg_replace('/\W/', '', sha1(microtime() . $smcFunc['random_int']() . $dbRand . $modSettings['rand_seed'])), 0, 10);
+	return bin2hex($smcFunc['random_bytes'](5));
 }
 
 ?>

@@ -12,7 +12,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -415,6 +415,41 @@ function ModifyProfile($post_errors = array())
 						'any' => array('moderate_forum'),
 					),
 				),
+				'getprofiledata' => array(
+					'label' => $txt['export_profile_data'],
+					'file' => 'Profile-Export.php',
+					'function' => 'export_profile_data',
+					'icon' => 'packages',
+					// 'token' => 'profile-ex%u', // This is not checked here. We do it in the function itself - but if it was checked, this is what it'd be.
+					'permission' => array(
+						'own' => array('profile_view_own'),
+						'any' => array('moderate_forum'),
+					),
+				),
+				'download' => array(
+					'label' => $txt['export_profile_data'],
+					'file' => 'Profile-Export.php',
+					'function' => 'download_export_file',
+					'icon' => 'packages',
+					'hidden' => true,
+					'select' => 'getprofiledata',
+					'permission' => array(
+						'own' => array('profile_view_own'),
+						'any' => array('moderate_forum'),
+					),
+				),
+				'dlattach' => array(
+					'label' => $txt['export_profile_data'],
+					'file' => 'Profile-Export.php',
+					'function' => 'export_attachment',
+					'icon' => 'packages',
+					'hidden' => true,
+					'select' => 'getprofiledata',
+					'permission' => array(
+						'own' => array('profile_view_own'),
+						'any' => array(),
+					),
+				),
 				'deleteaccount' => array(
 					'label' => $txt['deleteAccount'],
 					'file' => 'Profile-Actions.php',
@@ -645,7 +680,7 @@ function ModifyProfile($post_errors = array())
 			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $password, false)), true);
 
 			// Bad password!!!
-			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], un_htmlspecialchars(stripslashes($password)), $user_info['passwd']))
+			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], $password, $user_info['passwd']))
 				$post_errors[] = 'bad_password';
 
 			// Warn other elements not to jump the gun and do custom changes!
@@ -1011,7 +1046,7 @@ function loadCustomFields($memID, $area = 'summary')
 		else
 		{
 			@list ($rows, $cols) = @explode(',', $row['default_value']);
-			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($row['show_reg'] == 2 ? ' required' : '') . '>' . un_htmlspecialchars($value) . '</textarea>';
+			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($row['field_length'] != 0 ? ' maxlength="' . $row['field_length'] . '"' : '') . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($row['show_reg'] == 2 ? ' required' : '') . '>' . un_htmlspecialchars($value) . '</textarea>';
 		}
 
 		// Parse BBCode

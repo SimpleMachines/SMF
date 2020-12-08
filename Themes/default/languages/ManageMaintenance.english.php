@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; ManageMaintenance
+// Version: 2.1 RC3; ManageMaintenance
 
 $txt['repair_zero_ids'] = 'Found topics and/or messages with topic or message IDs of 0.';
 $txt['repair_missing_topics'] = 'Message #%1$d is in non-existent topic #%2$d.';
@@ -115,7 +115,8 @@ $txt['filter_only_type'] = 'Only show the errors of this type';
 $txt['filter_only_file'] = 'Only show the errors from this file';
 $txt['apply_filter_of_type'] = 'Apply filter of type';
 $txt['backtrace_title'] = 'Backtrace information';
-$txt['backtrace_info'] = '<b>#%1$d</b>: %2$s()<br>Called from <a href="' . $scripturl . '?action=admin;area=logs;sa=errorlog;file=%5$s;line=%4$d" onclick="return reqWin(this.href, 600, 480, false);">%3$s on line %4$d</a>';
+// argument(s): error message, function, filename, line nr, filehash, $scripturl
+$txt['backtrace_info'] = '<b>#%1$d</b>: %2$s()<br>Called from <a href="%6$s?action=admin;area=logs;sa=errorlog;file=%5$s;line=%4$d" onclick="return reqWin(this.href, 600, 480, false);">%3$s on line %4$d</a>';
 
 $txt['errortype_all'] = 'All errors';
 $txt['errortype_general'] = 'General';
@@ -147,8 +148,8 @@ $txt['maintain_errors'] = 'Find and repair any errors';
 $txt['maintain_errors_info'] = 'If, for example, posts or topics are missing after a server crash, this function may help finding them again.';
 $txt['maintain_logs'] = 'Empty out unimportant logs';
 $txt['maintain_logs_info'] = 'This function will empty out all unimportant logs. This should be avoided unless something\'s wrong, but it doesn\'t hurt anything.';
-$txt['maintain_cache'] = 'Empty the file cache';
-$txt['maintain_cache_info'] = 'This function will empty out the file cache should you need it to be cleared.';
+$txt['maintain_cache'] = 'Empty SMF\'s cache';
+$txt['maintain_cache_info'] = 'This function will empty out the cache should you need it to be cleared.';
 $txt['maintain_optimize'] = 'Optimize all tables';
 $txt['maintain_optimize_info'] = 'This task allows you to optimize all tables. This will get rid of overhead, effectively making the tables smaller in size and your forum faster.';
 $txt['maintain_version'] = 'Check all files against current versions';

@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -38,6 +38,7 @@ function cleanRequest()
 
 	// What function to use to reverse magic quotes - if sybase is on we assume that the database sensibly has the right unescape function!
 	$removeMagicQuoteFunction = ini_get('magic_quotes_sybase') || strtolower(ini_get('magic_quotes_sybase')) == 'on' ? 'unescapestring__recursive' : 'stripslashes__recursive';
+	$magicQuotesEnabled = version_compare(PHP_VERSION, '7.4.0') == -1 && function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty($modSettings['integrate_magic_quotes']);
 
 	// Save some memory.. (since we don't use these anyway.)
 	unset($GLOBALS['HTTP_POST_VARS'], $GLOBALS['HTTP_POST_VARS']);
@@ -83,12 +84,12 @@ function cleanRequest()
 		parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr($_SERVER['QUERY_STRING'], array(';?' => '&', ';' => '&', '%00' => '', "\0" => ''))), $_GET);
 
 		// Magic quotes still applies with parse_str - so clean it up.
-		if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty($modSettings['integrate_magic_quotes']))
+		if ($magicQuotesEnabled)
 			$_GET = $removeMagicQuoteFunction($_GET);
 	}
 	elseif (strpos(ini_get('arg_separator.input'), ';') !== false)
 	{
-		if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty($modSettings['integrate_magic_quotes']))
+		if ($magicQuotesEnabled)
 			$_GET = $removeMagicQuoteFunction($_GET);
 
 		// Search engines will send action=profile%3Bu=1, which confuses PHP.
@@ -137,7 +138,7 @@ function cleanRequest()
 	}
 
 	// If magic quotes is on we have some work...
-	if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0)
+	if ($magicQuotesEnabled)
 	{
 		$_ENV = $removeMagicQuoteFunction($_ENV);
 		$_POST = $removeMagicQuoteFunction($_POST);
@@ -272,7 +273,7 @@ function cleanRequest()
 	if ($modSettings['proxy_ip_header'] == 'disabled')
 		$reverseIPheaders = array();
 	elseif ($modSettings['proxy_ip_header'] == 'autodetect')
-		$reverseIPheaders = array('HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP');
+		$reverseIPheaders = array('HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_CF_CONNECTING_IP');
 	else
 		$reverseIPheaders = array($modSettings['proxy_ip_header']);
 
@@ -617,47 +618,6 @@ function htmltrim__recursive($var, $level = 0)
 		$var[$k] = $level > 25 ? null : htmltrim__recursive($v, $level + 1);
 
 	return $var;
-}
-
-/**
- * Clean up the XML to make sure it doesn't contain invalid characters.
- * What it does:
- * - removes invalid XML characters to assure the input string being
- * - parsed properly.
- *
- * @param string $string The string to clean
- * @return string The cleaned string
- */
-function cleanXml($string)
-{
-	global $context;
-
-	// https://www.w3.org/TR/2000/REC-xml-20001006#NT-Char
-	return preg_replace('~[\x00-\x08\x0B\x0C\x0E-\x19' . ($context['utf8'] ? '\x{FFFE}\x{FFFF}' : '') . ']~' . ($context['utf8'] ? 'u' : ''), '', $string);
-}
-
-/**
- * Escapes (replaces) characters in strings to make them safe for use in javascript
- *
- * @param string $string The string to escape
- * @return string The escaped string
- */
-function JavaScriptEscape($string)
-{
-	global $scripturl;
-
-	return '\'' . strtr($string, array(
-		"\r" => '',
-		"\n" => '\\n',
-		"\t" => '\\t',
-		'\\' => '\\\\',
-		'\'' => '\\\'',
-		'</' => '<\' + \'/',
-		'<script' => '<scri\'+\'pt',
-		'<body>' => '<bo\'+\'dy>',
-		'<a href' => '<a hr\'+\'ef',
-		$scripturl => '\' + smf_scripturl + \'',
-	)) . '\'';
 }
 
 /**

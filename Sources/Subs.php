@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -734,16 +734,14 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	$unsupportedFormatsWindows = array('z', 'Z');
 
 	// Ensure required values are set
-	$user_info['time_offset'] = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
-	$modSettings['time_offset'] = !empty($modSettings['time_offset']) ? $modSettings['time_offset'] : 0;
 	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %H:%M');
 
 	// Offset the time.
 	if (!$offset_type)
-		$log_time = $log_time + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
+		$log_time = forum_time(true, $log_time);
 	// Just the forum offset?
 	elseif ($offset_type == 'forum')
-		$log_time = $log_time + $modSettings['time_offset'] * 3600;
+		$log_time = forum_time(false, $log_time);
 
 	// We can't have a negative date (on Windows, at least.)
 	if ($log_time < 0)
@@ -1132,6 +1130,10 @@ function forum_time($use_user_offset = true, $timestamp = null)
 {
 	global $user_info, $modSettings;
 
+	// Ensure required values are set
+	$modSettings['time_offset'] = !empty($modSettings['time_offset']) ? $modSettings['time_offset'] : 0;
+	$user_info['time_offset'] = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
+
 	if ($timestamp === null)
 		$timestamp = time();
 	elseif ($timestamp == 0)
@@ -1432,8 +1434,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $currentAttachment['name']) . '"';
 						$title = !empty($data) ? ' title="' . $smcFunc['htmlspecialchars']($data) . '"' : '';
 
-						$width = !empty($params['{width}']) ? $params['{width}'] : (!empty($currentAttachment['width']) ? $currentAttachment['width'] : '');
-						$height = !empty($params['{height}']) ? $params['{height}'] : (!empty($currentAttachment['height']) ? $currentAttachment['height'] : '');
+						if (empty($params['{width}']) && empty($params['{height}']))
+						{
+							$width = !empty($currentAttachment['width']) ? $currentAttachment['width'] : '';
+							$height = !empty($currentAttachment['height']) ? $currentAttachment['height'] : '';
+						}
+						else
+						{
+							$width = !empty($params['{width}']) ? $params['{width}'] : '';
+							$height = !empty($params['{height}']) ? $params['{height}'] : '';
+						}
 
 						// Image.
 						if (!empty($currentAttachment['is_image']))
@@ -1452,7 +1462,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							$width = !empty($width) ? ' width="' . $width . '"' : '';
 							$height = !empty($height) ? ' height="' . $height . '"' : '';
 
-							$returnContext .= '<div class="videocontainer"><div><video controls preload="none" src="'. $currentAttachment['href'] . '" playsinline' . $width . $height . ' style="object-fit:contain;"><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></video></div></div>' . (!empty($data) && $data != $currentAttachment['name'] ? '<div class="smalltext">' . $data . '</div>' : '');
+							$returnContext .= '<div class="videocontainer"><video controls preload="metadata" src="'. $currentAttachment['href'] . '" playsinline' . $width . $height . '><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></video></div>' . (!empty($data) && $data != $currentAttachment['name'] ? '<div class="smalltext">' . $data . '</div>' : '');
 						}
 						// Audio.
 						elseif (strpos($currentAttachment['mime_type'], 'audio/') === 0)
@@ -1475,6 +1485,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					// No image. Show a link.
 					else
 						$returnContext .= '<a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a>';
+
+					// Use this hook to adjust the HTML output of the attach BBCode.
+					// If you want to work with the attachment data itself, use one of these:
+					// - integrate_pre_parseAttachBBC
+					// - integrate_post_parseAttachBBC
+					call_integration_hook('integrate_attach_bbc_validate', array(&$returnContext, $currentAttachment, $tag, $data, $disabled, $params));
 
 					// Gotta append what we just did.
 					$data = $returnContext;
@@ -1787,13 +1803,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'justify',
-				'before' => '<div style="text-align: justify;">',
+				'before' => '<div class="justifytext">',
 				'after' => '</div>',
 				'block_level' => true,
 			),
 			array(
 				'tag' => 'left',
-				'before' => '<div style="text-align: left;">',
+				'before' => '<div class="lefttext">',
 				'after' => '</div>',
 				'block_level' => true,
 			),
@@ -1941,7 +1957,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'right',
-				'before' => '<div style="text-align: right;">',
+				'before' => '<div class="righttext">',
 				'after' => '</div>',
 				'block_level' => true,
 			),
@@ -2099,7 +2115,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'youtube',
 				'type' => 'unparsed_content',
-				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?origin=' . $hosturl . '&wmode=opaque" data-youtube-id="$1" allowfullscreen></iframe></div></div>',
+				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?origin=' . $hosturl . '&wmode=opaque" data-youtube-id="$1" allowfullscreen loading="lazy"></iframe></div></div>',
 				'disabled_content' => '<a href="https://www.youtube.com/watch?v=$1" target="_blank" rel="noopener">https://www.youtube.com/watch?v=$1</a>',
 				'block_level' => true,
 			),
@@ -2163,18 +2179,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			'parameters' => array(
 				'e' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => 'oo', 'validate' => function ($eyes) use ($smcFunc)
 					{
-						static $css_added;
-
-						if (empty($css_added))
-						{
-							$css = base64_decode('cHJlW2RhdGEtZV1bZGF0YS10XXt3aGl0ZS1zcGFjZTpwcmUtd3JhcDtsaW5lLWhlaWdodDppbml0aWFsO31wcmVbZGF0YS1lXVtkYXRhLXRdID4gZGl2e2Rpc3BsYXk6dGFibGU7Ym9yZGVyOjFweCBzb2xpZDtib3JkZXItcmFkaXVzOjAuNWVtO3BhZGRpbmc6MWNoO21heC13aWR0aDo4MGNoO21pbi13aWR0aDoxMmNoO31wcmVbZGF0YS1lXVtkYXRhLXRdOjphZnRlcntkaXNwbGF5OmlubGluZS1ibG9jazttYXJnaW4tbGVmdDo4Y2g7bWluLXdpZHRoOjIwY2g7ZGlyZWN0aW9uOmx0cjtjb250ZW50OidcNUMgICBeX19eXEEgIFw1QyAgKCcgYXR0cihkYXRhLWUpICcpXDVDX19fX19fX1xBICAgIChfXylcNUMgICAgICAgIClcNUMvXDVDXEEgICAgICcgYXR0cihkYXRhLXQpICcgfHwtLS0tdyB8XEEgICAgICAgIHx8ICAgICB8fCc7fQ==');
-
-							addInlineJavaScript('
-								$("head").append("<style>" + ' . JavaScriptEscape($css) . ' + "</style>");', true);
-
-							$css_added = true;
-						}
-
 						return $smcFunc['substr']($eyes . 'oo', 0, 2);
 					},
 				),
@@ -2185,7 +2189,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				),
 			),
 			'before' => '<pre data-e="{e}" data-t="{t}"><div>',
-			'after' => '</div></pre>',
+			'after' => '</div><script>' . '$("head").append("<style>" + ' . JavaScriptEscape(base64_decode('cHJlW2RhdGEtZV1bZGF0YS10XXt3aGl0ZS1zcGFjZTpwcmUtd3JhcDtsaW5lLWhlaWdodDppbml0aWFsO31wcmVbZGF0YS1lXVtkYXRhLXRdID4gZGl2e2Rpc3BsYXk6dGFibGU7Ym9yZGVyOjFweCBzb2xpZDtib3JkZXItcmFkaXVzOjAuNWVtO3BhZGRpbmc6MWNoO21heC13aWR0aDo4MGNoO21pbi13aWR0aDoxMmNoO31wcmVbZGF0YS1lXVtkYXRhLXRdOjphZnRlcntkaXNwbGF5OmlubGluZS1ibG9jazttYXJnaW4tbGVmdDo4Y2g7bWluLXdpZHRoOjIwY2g7ZGlyZWN0aW9uOmx0cjtjb250ZW50OidcNUMgJycgJycgXl9fXlxBICcnIFw1QyAnJyAoJyBhdHRyKGRhdGEtZSkgJylcNUNfX19fX19fXEEgJycgJycgJycgKF9fKVw1QyAnJyAnJyAnJyAnJyAnJyAnJyAnJyApXDVDL1w1Q1xBICcnICcnICcnICcnICcgYXR0cihkYXRhLXQpICcgfHwtLS0tdyB8XEEgJycgJycgJycgJycgJycgJycgJycgfHwgJycgJycgJycgJycgfHwnO30=')) . ' + "</style>");' . '</script></pre>',
 			'block_level' => true,
 		);
 
@@ -2643,7 +2647,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				// See the comment at the end of the big loop - just eating whitespace ;).
 				$whitespace_regex = '';
 				if (!empty($tag['block_level']))
-					$whitespace_regex .= '(&nbsp;|\s)*(<br>)?';
+					$whitespace_regex .= '(&nbsp;|\s)*(<br\s*/?' . '>)?';
 				// Trim one line of whitespace after unnested tags, but all of it after nested ones
 				if (!empty($tag['trim']) && $tag['trim'] != 'inside')
 					$whitespace_regex .= empty($tag['require_parents']) ? '(&nbsp;|\s)*' : '(<br>|&nbsp;|\s)*';
@@ -3106,7 +3110,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			else
 				$quoted = false;
 
-			$pos2 = strpos($message, $quoted == false ? ']' : '&quot;]', $pos1);
+			if ($quoted)
+			{
+				$end_of_value = strpos($message, '&quot;]', $pos1);
+				$nested_tag = strpos($message, '=&quot;', $pos1);
+				if ($nested_tag && $nested_tag < $end_of_value)
+					// Nested tag with quoted value detected, use next end tag
+					$nested_tag_pos = strpos($message, $quoted == false ? ']' : '&quot;]', $pos1) + 6;
+			}
+
+			$pos2 = strpos($message, $quoted == false ? ']' : '&quot;]', isset($nested_tag_pos) ? $nested_tag_pos : $pos1);
 			if ($pos2 === false)
 				continue;
 
@@ -3682,9 +3695,6 @@ function setupThemeContext($forceload = false)
 		$context['user']['total_time_logged_in'] = array('days' => 0, 'hours' => 0, 'minutes' => 0);
 		$context['user']['popup_messages'] = false;
 
-		if (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1)
-			$txt['welcome_guest'] .= $txt['welcome_guest_activate'];
-
 		// If we've upgraded recently, go easy on the passwords.
 		if (!empty($modSettings['disableHashTime']) && ($modSettings['disableHashTime'] == 1 || time() < $modSettings['disableHashTime']))
 			$context['disable_login_hashing'] = true;
@@ -3977,14 +3987,14 @@ function template_header()
  */
 function theme_copyright()
 {
-	global $forum_copyright;
+	global $forum_copyright, $scripturl;
 
 	// Don't display copyright for things like SSI.
 	if (SMF !== 1)
 		return;
 
 	// Put in the version...
-	printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR);
+	printf($forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl);
 }
 
 /**
@@ -3992,11 +4002,11 @@ function theme_copyright()
  */
 function template_footer()
 {
-	global $context, $modSettings, $time_start, $db_count;
+	global $context, $modSettings, $db_count;
 
 	// Show the load time?  (only makes sense for the footer.)
 	$context['show_load_time'] = !empty($modSettings['timeLoadPageEnable']);
-	$context['load_time'] = round(microtime(true) - $time_start, 3);
+	$context['load_time'] = round(microtime(true) - TIME_START, 3);
 	$context['load_queries'] = $db_count;
 
 	if (!empty($context['template_layers']) && is_array($context['template_layers']))
@@ -4064,8 +4074,10 @@ function template_javascript($do_deferred = false)
 			{
 				if (!empty($js_file['options']['async']))
 					$toMinify['async'][] = $js_file;
+
 				elseif (!empty($js_file['options']['defer']))
 					$toMinify['defer'][] = $js_file;
+
 				else
 					$toMinify['standard'][] = $js_file;
 
@@ -4084,6 +4096,7 @@ function template_javascript($do_deferred = false)
 					{
 						if (is_bool($value))
 							echo !empty($value) ? ' ' . $key : '';
+
 						else
 							echo ' ', $key, '="', $value, '"';
 					}
@@ -4151,7 +4164,7 @@ function template_css()
 	$toMinify = array();
 	$normal = array();
 
-	usort($context['css_files'], function ($a, $b)
+	uasort($context['css_files'], function ($a, $b)
 	{
 		return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
 	});
@@ -4598,6 +4611,10 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 {
 	global $smcFunc, $context;
 
+	// Upgrader may be working on old DBs...
+	if (!isset($context['utf8']))
+		$context['utf8'] = false;
+
 	// Step 1: Remove entities/things we don't consider words:
 	$words = preg_replace('~(?:[\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . ($context['utf8'] ? 'u' : ''), ' ', strtr($text, array('<br>' => ' ')));
 
@@ -4618,7 +4635,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 				$encrypted = substr(crypt($word, 'uk'), 2, $max_chars);
 				$total = 0;
 				for ($i = 0; $i < $max_chars; $i++)
-					$total += $possible_chars[ord($encrypted{$i})] * pow(63, $i);
+					$total += $possible_chars[ord($encrypted[$i])] * pow(63, $i);
 				$returned_ints[] = $max_chars == 4 ? min($total, 16777215) : $total;
 			}
 		}
@@ -5280,6 +5297,7 @@ function call_helper($string, $return = false)
 	// We can't call this helper, but we want to silently ignore this.
 	if (!is_callable($func, false, $callable_name) && !empty($context['ignore_hook_errors']))
 		return false;
+
 	// Right, we got what we need, time to do some checks.
 	elseif (!is_callable($func, false, $callable_name))
 	{
@@ -5319,7 +5337,7 @@ function call_helper($string, $return = false)
  */
 function load_file($string)
 {
-	global $sourcedir, $txt, $boarddir, $settings;
+	global $sourcedir, $txt, $boarddir, $settings, $context;
 
 	if (empty($string))
 		return false;
@@ -5348,7 +5366,7 @@ function load_file($string)
 				require_once($absPath);
 
 			// Sorry, can't do much for you at this point.
-			else
+			elseif (empty($context['uninstalling']))
 			{
 				loadLanguage('Errors');
 				log_error(sprintf($txt['hook_fail_loading_file'], $absPath), 'general');
@@ -5546,6 +5564,98 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 	}
 
 	return $data;
+}
+
+/**
+ * Attempts to determine the MIME type of some data or a file.
+ *
+ * @param string $data The data to check, or the path or URL of a file to check.
+ * @param string $is_path If true, $data is a path or URL to a file.
+ * @return string|bool A MIME type, or false if we cannot determine it.
+ */
+function get_mime_type($data, $is_path = false)
+{
+	global $cachedir;
+
+	$finfo_loaded = extension_loaded('fileinfo');
+	$exif_loaded = extension_loaded('exif') && function_exists('image_type_to_mime_type');
+
+	// Oh well. We tried.
+	if (!$finfo_loaded && !$exif_loaded)
+		return false;
+
+	// Start with the 'empty' MIME type.
+	$mime_type = 'application/x-empty';
+
+	if ($finfo_loaded)
+	{
+		// Just some nice, simple data to analyze.
+		if (empty($is_path))
+			$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+
+		// A file, or maybe a URL?
+		else
+		{
+			// Local file.
+			if (file_exists($data))
+				$mime_type = mime_content_type($data);
+
+			// URL.
+			elseif ($data = fetch_web_data($data))
+				$mime_type = finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+		}
+	}
+	// Workaround using Exif requires a local file.
+	else
+	{
+		// If $data is a URL to fetch, do so.
+		if (!empty($is_path) && !file_exists($data) && url_exists($data))
+		{
+			$data = fetch_web_data($data);
+			$is_path = false;
+		}
+
+		// If we don't have a local file, create one and use it.
+		if (empty($is_path))
+		{
+			$temp_file = tempnam($cachedir, md5($data));
+			file_put_contents($temp_file, $data);
+			$is_path = true;
+			$data = $temp_file;
+		}
+
+		$imagetype = @exif_imagetype($data);
+
+		if (isset($temp_file))
+			unlink($temp_file);
+
+		// Unfortunately, this workaround only works for image files.
+		if ($imagetype !== false)
+			$mime_type = image_type_to_mime_type($imagetype);
+	}
+
+	return $mime_type;
+}
+
+/**
+ * Checks whether a file or data has the expected MIME type.
+ *
+ * @param string $data The data to check, or the path or URL of a file to check.
+ * @param string $type_pattern A regex pattern to match the acceptable MIME types.
+ * @param string $is_path If true, $data is a path or URL to a file.
+ * @return int 1 if the detected MIME type matches the pattern, 0 if it doesn't, or 2 if we can't check.
+ */
+function check_mime_type($data, $type_pattern, $is_path = false)
+{
+	// Get the MIME type.
+	$mime_type = get_mime_type($data, $is_path);
+
+	// Couldn't determine it.
+	if ($mime_type === false)
+		return 2;
+
+	// Check whether the MIME type matches expectations.
+	return (int) @preg_match('~' . $type_pattern . '~', $mime_type);
 }
 
 /**
@@ -5814,14 +5924,10 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $smcFunc, $modSettings, $tztxt, $txt, $cur_profile;
-	static $timezones = null, $lastwhen = null;
+	global $modSettings, $tztxt, $txt, $context, $cur_profile, $sourcedir;
+	static $timezones_when = array();
 
-	// No point doing this over if we already did it once
-	if (!empty($timezones) && $when == $lastwhen)
-		return $timezones;
-	else
-		$lastwhen = $when;
+	require_once($sourcedir . '/Subs-Timezones.php');
 
 	// Parseable datetime string?
 	if (is_int($timestamp = strtotime($when)))
@@ -5835,6 +5941,10 @@ function smf_list_timezones($when = 'now')
 	else
 		$when = time();
 
+	// No point doing this over if we already did it once
+	if (isset($timezones_when[$when]))
+		return $timezones_when[$when];
+
 	// We'll need these too
 	$date_when = date_create('@' . $when);
 	$later = strtotime('@' . $when . ' + 1 year');
@@ -5842,12 +5952,16 @@ function smf_list_timezones($when = 'now')
 	// Load up any custom time zone descriptions we might have
 	loadLanguage('Timezones');
 
+	$tzid_metazones = get_tzid_metazones();
+
 	// Should we put time zones from certain countries at the top of the list?
 	$priority_countries = !empty($modSettings['timezone_priority_countries']) ? explode(',', $modSettings['timezone_priority_countries']) : array();
+
 	$priority_tzids = array();
 	foreach ($priority_countries as $country)
 	{
-		$country_tzids = @timezone_identifiers_list(DateTimeZone::PER_COUNTRY, strtoupper(trim($country)));
+		$country_tzids = get_sorted_tzids_for_country($country);
+
 		if (!empty($country_tzids))
 			$priority_tzids = array_merge($priority_tzids, $country_tzids);
 	}
@@ -5855,17 +5969,25 @@ function smf_list_timezones($when = 'now')
 	// Antarctic research stations should be listed last, unless you're running a penguin forum
 	$low_priority_tzids = !in_array('AQ', $priority_countries) ? timezone_identifiers_list(DateTimeZone::ANTARCTICA) : array();
 
+	$normal_priority_tzids = array_diff(array_unique(array_merge(array_keys($tzid_metazones), timezone_identifiers_list())), $priority_tzids, $low_priority_tzids);
+
 	// Process the preferred timezones first, then the normal ones, then the low priority ones.
-	$tzids = array_merge(array_keys($tztxt), array_diff(timezone_identifiers_list(), array_keys($tztxt), $low_priority_tzids), $low_priority_tzids);
+	$tzids = array_merge($priority_tzids, array('UTC'), $normal_priority_tzids, $low_priority_tzids);
 
 	// Idea here is to get exactly one representative identifier for each and every unique set of time zone rules.
+	$dst_types = array();
+	$labels = array();
+	$offsets = array();
 	foreach ($tzids as $tzid)
 	{
 		// We don't want UTC right now
 		if ($tzid == 'UTC')
 			continue;
 
-		$tz = timezone_open($tzid);
+		$tz = @timezone_open($tzid);
+
+		if ($tz == null)
+			continue;
 
 		// First, get the set of transition rules for this tzid
 		$tzinfo = timezone_transitions_get($tz, $when, $later);
@@ -5873,14 +5995,30 @@ function smf_list_timezones($when = 'now')
 		// Use the entire set of transition rules as the array *key* so we can avoid duplicates
 		$tzkey = serialize($tzinfo);
 
-		// Next, get the geographic info for this tzid
-		$tzgeo = timezone_location_get($tz);
+		// ...But make sure to include all explicitly defined meta-zones.
+		if (isset($zones[$tzkey]['metazone']) && isset($tzid_metazones[$tzid]))
+			$tzkey = serialize(array_merge($tzinfo, array('metazone' => $tzid_metazones[$tzid])));
 
 		// Don't overwrite our preferred tzids
 		if (empty($zones[$tzkey]['tzid']))
 		{
 			$zones[$tzkey]['tzid'] = $tzid;
-			$zones[$tzkey]['abbr'] = $tzinfo[0]['abbr'];
+			$zones[$tzkey]['dst_type'] = count($tzinfo) > 1 ? 1 : ($tzinfo[0]['isdst'] ? 2 : 0);
+
+			foreach ($tzinfo as $transition) {
+				$zones[$tzkey]['abbrs'][] = $transition['abbr'];
+			}
+
+			if (isset($tzid_metazones[$tzid]))
+				$zones[$tzkey]['metazone'] = $tzid_metazones[$tzid];
+			else
+			{
+				$tzgeo = timezone_location_get($tz);
+				$country_tzids = get_sorted_tzids_for_country($tzgeo['country_code']);
+
+				if (count($country_tzids) === 1)
+					$zones[$tzkey]['metazone'] = $txt['iso3166'][$tzgeo['country_code']];
+			}
 		}
 
 		// A time zone from a prioritized country?
@@ -5896,15 +6034,25 @@ function smf_list_timezones($when = 'now')
 			$zones[$tzkey]['locations'][] = str_replace(array('St_', '_'), array('St. ', ' '), array_pop($tzid_parts));
 		}
 		$offsets[$tzkey] = $tzinfo[0]['offset'];
-		$longitudes[$tzkey] = empty($longitudes[$tzkey]) ? $tzgeo['longitude'] : $longitudes[$tzkey];
+
+		// Figure out the "metazone" info for the label
+		if (empty($zones[$tzkey]['metazone']) && isset($tzid_metazones[$tzid]))
+		{
+			$zones[$tzkey]['metazone'] = $tzid_metazones[$tzid];
+			$zones[$tzkey]['dst_type'] = count($tzinfo) > 1 ? 1 : ($tzinfo[0]['isdst'] ? 2 : 0);
+		}
+		$dst_types[$tzkey] = count($tzinfo) > 1 ? 'c' : ($tzinfo[0]['isdst'] ? 't' : 'f');
+		$labels[$tzkey] = !empty($zones[$tzkey]['metazone']) && !empty($tztxt[$zones[$tzkey]['metazone']]) ? $tztxt[$zones[$tzkey]['metazone']] : '';
 
 		// Remember this for later
 		if (isset($cur_profile['timezone']) && $cur_profile['timezone'] == $tzid)
 			$member_tzkey = $tzkey;
+		if (isset($context['event']['tz']) && $context['event']['tz'] == $tzid)
+			$event_tzkey = $tzkey;
 	}
 
-	// Sort by offset then longitude
-	array_multisort($offsets, SORT_ASC, SORT_NUMERIC, $longitudes, SORT_ASC, SORT_NUMERIC, $zones);
+	// Sort by offset, then label, then DST type.
+	array_multisort($offsets, SORT_ASC, SORT_NUMERIC, $labels, SORT_ASC, $dst_types, SORT_ASC, $zones);
 
 	// Build the final array of formatted values
 	$priority_timezones = array();
@@ -5913,24 +6061,53 @@ function smf_list_timezones($when = 'now')
 	{
 		date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
 
-		// Use the custom description, if there is one
-		if (!empty($tztxt[$tzvalue['tzid']]))
-			$desc = $tztxt[$tzvalue['tzid']];
+		// Use the human friendly time zone name, if there is one.
+		$desc = '';
+		if (!empty($tzvalue['metazone']))
+		{
+			if (!empty($tztxt[$tzvalue['metazone']]))
+				$metazone = $tztxt[$tzvalue['metazone']];
+			else
+				$metazone = sprintf($tztxt['generic_timezone'], $tzvalue['metazone'], '%1$s');
+
+			switch ($tzvalue['dst_type'])
+			{
+				case 0:
+					$desc = sprintf($metazone, $tztxt['daylight_saving_time_false']);
+					break;
+
+				case 1:
+					$desc = sprintf($metazone, '');
+					break;
+
+				case 2:
+					$desc = sprintf($metazone, $tztxt['daylight_saving_time_true']);
+					break;
+			}
+		}
 		// Otherwise, use the list of locations (max 5, so things don't get silly)
 		else
 			$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . $txt['etc'] : '');
 
-		// Show the UTC offset and the abbreviation, if it's something like 'MST' and not '-06'
-		$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . (!strspn($tzvalue['abbr'], '+-') ? $tzvalue['abbr'] . ' - ' : '') . $desc;
+		// We don't want abbreviations like '+03' or '-11'.
+		$abbrs = array_filter($tzvalue['abbrs'], function ($abbr) {
+			return !strspn($abbr, '+-');
+		});
+		$abbrs = count($abbrs) == count($tzvalue['abbrs']) ? array_unique($abbrs) : array();
+
+		// Show the UTC offset and abbreviation(s).
+		$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . str_replace('  ', ' ', $desc) . (!empty($abbrs) ? ' (' . implode('/', $abbrs) . ')' : '');
 
 		if (isset($priority_zones[$tzkey]))
 			$priority_timezones[$tzvalue['tzid']] = $desc;
 		else
 			$timezones[$tzvalue['tzid']] = $desc;
 
-		// Automatically fix orphaned timezones on the member profile page
+		// Automatically fix orphaned time zones.
 		if (isset($member_tzkey) && $member_tzkey == $tzkey)
 			$cur_profile['timezone'] = $tzvalue['tzid'];
+		if (isset($event_tzkey) && $event_tzkey == $tzkey)
+			$context['event']['tz'] = $tzvalue['tzid'];
 	}
 
 	if (!empty($priority_timezones))
@@ -5942,10 +6119,67 @@ function smf_list_timezones($when = 'now')
 		$timezones
 	);
 
-	return $timezones;
+	$timezones_when[$when] = $timezones;
+
+	return $timezones_when[$when];
 }
 
 /**
+ * Gets a member's selected timezone identifier
+ *
+ * @param int $id_member The member id to look up. If not provided, the current user's id will be used.
+ * @return string The timezone identifier string for the user's timezone.
+ */
+function getUserTimezone($id_member = null)
+{
+	global $smcFunc, $context, $user_info, $modSettings, $user_settings;
+	static $member_cache = array();
+
+	if (is_null($id_member) && $user_info['is_guest'] == false)
+		$id_member = $context['user']['id'];
+
+	// Did we already look this up?
+	if (isset($id_member) && isset($member_cache[$id_member]))
+	{
+		return $member_cache[$id_member];
+	}
+
+	// Check if we already have this in $user_settings.
+	if (isset($user_settings['id_member']) && $user_settings['id_member'] == $id_member && !empty($user_settings['timezone']))
+	{
+		$member_cache[$id_member] = $user_settings['timezone'];
+		return $user_settings['timezone'];
+	}
+
+	// Look it up in the database.
+	if (isset($id_member))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT timezone
+			FROM {db_prefix}members
+			WHERE id_member = {int:id_member}',
+			array(
+				'id_member' => $id_member,
+			)
+		);
+		list($timezone) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+	}
+
+	// If it is invalid, fall back to the default.
+	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
+		$timezone = isset($modSettings['default_timezone']) ? $modSettings['default_timezone'] : date_default_timezone_get();
+
+	// Save for later.
+	if (isset($id_member))
+		$member_cache[$id_member] = $timezone;
+
+	return $timezone;
+}
+
+/**
+ * Converts an IP address into binary
+ *
  * @param string $ip_address An IP address in IPv4, IPv6 or decimal notation
  * @return string|false The IP address in binary or false
  */
@@ -5959,6 +6193,8 @@ function inet_ptod($ip_address)
 }
 
 /**
+ * Converts a binary version of an IP address into a readable format
+ *
  * @param string $bin An IP address in IPv4, IPv6 (Either string (postgresql) or binary (other databases))
  * @return string|false The IP address in presentation format or false on error
  */
@@ -6566,10 +6802,10 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		static $depth = 0;
 		$depth++;
 
-		$first = @$substr($string, 0, 1);
+		$first = (string) @$substr($string, 0, 1);
 
 		// No first character? That's no good.
-		if (empty($first))
+		if ($first === '')
 		{
 			// A nested array? Really? Ugh. Fine.
 			if (is_array($string) && $depth < 20)
@@ -6771,7 +7007,7 @@ function build_query_board($userid)
 	$query_part = array();
 
 	// If we come from cron, we can't have a $user_info.
-	if (isset($user_info['id']) && $user_info['id'] == $userid)
+	if (isset($user_info['id']) && $user_info['id'] == $userid && SMF != 'BACKGROUND')
 	{
 		$groups = $user_info['groups'];
 		$can_see_all_boards = $user_info['is_admin'] || $user_info['can_manage_boards'];
@@ -7134,65 +7370,152 @@ function sentence_list($list)
  */
 function truncate_array($array, $max_length = 1900, $deep = 3)
 {
-    $array = (array) $array;
+	$array = (array) $array;
 
-    $curr_length = array_length($array, $deep);
+	$curr_length = array_length($array, $deep);
 
-    if ($curr_length <= $max_length)
-        return $array;
+	if ($curr_length <= $max_length)
+		return $array;
 
-    else
-    {
-        // Truncate each element's value to a reasonable length
-        $param_max = floor($max_length / count($array));
+	else
+	{
+		// Truncate each element's value to a reasonable length
+		$param_max = floor($max_length / count($array));
 
-        $current_deep = $deep - 1;
+		$current_deep = $deep - 1;
 
-        foreach ($array as $key => &$value)
-        {
-            if (is_array($value))
-                if ($current_deep > 0)
-                    $value = truncate_array($value, $current_deep);
+		foreach ($array as $key => &$value)
+		{
+			if (is_array($value))
+				if ($current_deep > 0)
+					$value = truncate_array($value, $current_deep);
 
-            else
-                $value = substr($value, 0, $param_max - strlen($key) - 5);
-        }
+			else
+				$value = substr($value, 0, $param_max - strlen($key) - 5);
+		}
 
-        return $array;
-    }
+		return $array;
+	}
 }
 
 /**
  * array_length Recursive
- * @param $array
+ * @param array $array
  * @param int $deep How many levels should the function
  * @return int
  */
 function array_length($array, $deep = 3)
 {
-    // Work with arrays
-    $array = (array) $array;
-    $length = 0;
+	// Work with arrays
+	$array = (array) $array;
+	$length = 0;
 
-    $deep_count = $deep - 1;
+	$deep_count = $deep - 1;
 
-    foreach ($array as $value)
-    {
-        // Recursive?
-        if (is_array($value))
-        {
-            // No can't do
-            if ($deep_count <= 0)
-                continue;
+	foreach ($array as $value)
+	{
+		// Recursive?
+		if (is_array($value))
+		{
+			// No can't do
+			if ($deep_count <= 0)
+				continue;
 
-            $length += array_length($value, $deep_count);
-        }
+			$length += array_length($value, $deep_count);
+		}
+		else
+			$length += strlen($value);
+	}
 
-        else
-            $length += strlen($value);
-    }
+	return $length;
+}
 
-    return $length;
+/**
+ * Compares existance request variables against an array.
+ *
+ * The input array is associative, where keys denote accepted values
+ * in a request variable denoted by `$req_val`. Values can be:
+ *
+ * - another associative array where at least one key must be found
+ *   in the request and their values are accepted request values.
+ * - A scalar value, in which case no furthur checks are done.
+ *
+ * @param array $array
+ * @param string $req_var request variable
+ *
+ * @return bool whether any of the criteria was satisfied
+ */
+function is_filtered_request(array $array, $req_var)
+{
+	$matched = false;
+	if (isset($_REQUEST[$req_var], $array[$_REQUEST[$req_var]]))
+	{
+		if (is_array($array[$_REQUEST[$req_var]]))
+		{
+			foreach ($array[$_REQUEST[$req_var]] as $subtype => $subnames)
+				$matched |= isset($_REQUEST[$subtype]) && in_array($_REQUEST[$subtype], $subnames);
+		}
+		else
+			$matched = true;
+	}
+
+	return (bool) $matched;
+}
+
+/**
+ * Clean up the XML to make sure it doesn't contain invalid characters.
+ *
+ * See https://www.w3.org/TR/xml/#charsets
+ *
+ * @param string $string The string to clean
+ * @return string The cleaned string
+ */
+function cleanXml($string)
+{
+	global $context;
+
+	$illegal_chars = array(
+		// Remove all ASCII control characters except \t, \n, and \r.
+		"\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08",
+		"\x0B", "\x0C", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13", "\x14",
+		"\x15", "\x16", "\x17", "\x18", "\x19", "\x1A", "\x1B", "\x1C", "\x1D",
+		"\x1E", "\x1F",
+		// Remove \xFFFE and \xFFFF
+		"\xEF\xBF\xBE", "\xEF\xBF\xBF",
+	);
+
+	$string = str_replace($illegal_chars, '', $string);
+
+	// The Unicode surrogate pair code points should never be present in our
+	// strings to begin with, but if any snuck in, they need to be removed.
+	if (!empty($context['utf8']) && strpos($string, "\xED") !== false)
+		$string = preg_replace('/\xED[\xA0-\xBF][\x80-\xBF]/', '', $string);
+
+	return $string;
+}
+
+/**
+ * Escapes (replaces) characters in strings to make them safe for use in javascript
+ *
+ * @param string $string The string to escape
+ * @return string The escaped string
+ */
+function JavaScriptEscape($string)
+{
+	global $scripturl;
+
+	return '\'' . strtr($string, array(
+		"\r" => '',
+		"\n" => '\\n',
+		"\t" => '\\t',
+		'\\' => '\\\\',
+		'\'' => '\\\'',
+		'</' => '<\' + \'/',
+		'<script' => '<scri\'+\'pt',
+		'<body>' => '<bo\'+\'dy>',
+		'<a href' => '<a hr\'+\'ef',
+		$scripturl => '\' + smf_scripturl + \'',
+	)) . '\'';
 }
 
 ?>

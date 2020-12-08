@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -549,7 +549,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 	// Get the count of applicable drafts on the boards they can (still) see ...
 	// @todo .. should we just let them see their drafts even if they have lost board access ?
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(id_draft)
+		SELECT COUNT(*)
 		FROM {db_prefix}user_drafts AS ud
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board AND {query_see_board})
 		WHERE id_member = {int:id_member}
@@ -650,7 +650,8 @@ function showProfileDrafts($memID, $draft_type = 0)
 				'delete' => array(
 					'label' => $txt['draft_delete'],
 					'href' => $scripturl.'?action=profile;u='.$context['member']['id'].';area=showdrafts;delete='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
-					'javascript' => 'data-confirm="'.$txt['draft_remove'].'" class="you_sure"',
+					'javascript' => 'data-confirm="'.$txt['draft_remove'].'"',
+					'class' => 'you_sure',
 					'icon' => 'remove_button'
 				),
 			),
@@ -684,6 +685,7 @@ function showPMDrafts($memID = -1)
 
 	// init
 	$draft_type = 1;
+	$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
 	// If just deleting a draft, do it and then redirect back.
 	if (!empty($_REQUEST['delete']))
@@ -722,7 +724,7 @@ function showPMDrafts($memID = -1)
 
 	// Get the count of applicable drafts
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(id_draft)
+		SELECT COUNT(*)
 		FROM {db_prefix}user_drafts
 		WHERE id_member = {int:id_member}
 			AND type={int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
@@ -841,7 +843,8 @@ function showPMDrafts($memID = -1)
 				'delete' => array(
 					'label' => $txt['draft_delete'],
 					'href' => $scripturl.'?action=pm;sa=showpmdrafts;delete='.$row['id_draft'].';'.$context['session_var'].'='.$context['session_id'],
-					'javascript' => 'data-confirm="'.$txt['draft_remove'].'?" class="you_sure"',
+					'javascript' => 'data-confirm="'.$txt['draft_remove'].'?"',
+					'class' => 'you_sure',
 					'icon' => 'remove_button'
 				),
 			),

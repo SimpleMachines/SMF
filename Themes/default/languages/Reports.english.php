@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC2; Reports
+// Version: 2.1 RC3; Reports
 
 $txt['generate_reports_desc'] = 'From this section you can generate a variety of reports to assist in the administration of your forum. Simply follow the steps below to select the option of your choice.';
 $txt['generate_reports_continue'] = 'Continue';
@@ -138,7 +138,7 @@ $txt['group_perms_name_profile_displayed_name_any'] = 'Edit anyone\'s displayed 
 $txt['group_perms_name_profile_displayed_name_own'] = 'Edit own displayed name';
 $txt['group_perms_name_profile_forum_any'] = 'Edit anyone\'s forum profile';
 $txt['group_perms_name_profile_forum_own'] = 'Allow Forum own Profile edits';
-$txt['group_perms_name_profile_password_any'] = 'Change anyone\'s password and secret question';
+$txt['group_perms_name_profile_password_any'] = 'Change anyone\'s password';
 $txt['group_perms_name_profile_password_own'] = 'Change own password';
 $txt['group_perms_name_profile_signature_any'] = 'Edit anyone\'s signature';
 $txt['group_perms_name_profile_signature_own'] = 'Edit own signature';

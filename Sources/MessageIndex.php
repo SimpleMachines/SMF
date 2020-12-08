@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -24,6 +24,8 @@ function MessageIndex()
 {
 	global $txt, $scripturl, $board, $modSettings, $context;
 	global $options, $settings, $board_info, $user_info, $smcFunc, $sourcedir;
+
+	require_once($sourcedir . '/Subs-Boards.php');
 
 	// If this is a redirection board head off.
 	if ($board_info['redirect'])
@@ -54,8 +56,16 @@ function MessageIndex()
 		}
 	}
 
+	$boards_parsed_data = getBoardsParsedDescription($board_info['cat']['id']);
+
+	if (!isset($boards_parsed_data[$board_info['id']]))
+		$boards_parsed_data = setBoardParsedDescription($board_info['cat']['id'], array(
+			$board_info['id'] => $board_info['description']
+		));
+
 	$context['name'] = $board_info['name'];
-	$context['description'] = $board_info['description'];
+	$context['description'] = $boards_parsed_data[$board_info['id']];
+
 	if (!empty($board_info['description']))
 		$context['meta_description'] = strip_tags($board_info['description']);
 

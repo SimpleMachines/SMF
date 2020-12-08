@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file contains background notification code
+ * This file contains code used to send out "Happy Birthday" emails.
  *
  * Simple Machines Forum (SMF)
  *
@@ -10,7 +10,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 /**
@@ -18,12 +18,14 @@
  */
 class Birthday_Notify_Background extends SMF_BackgroundTask
 {
-    /**
-     * This executes the task. It loads up the birthdays, figures out the greeting, etc.
-     * @return bool Always returns true
-     */
+	/**
+	 * This executes the task: loads up the info, puts the email in the queue
+	 * and inserts any alerts as needed.
+	 *
+	 * @return bool Always returns true
+	 */
 	public function execute()
- 	{
+	{
 		global $txt, $smcFunc, $txtBirthdayEmails, $modSettings, $sourcedir;
 
 		$greeting = isset($modSettings['birthday_email']) ? $modSettings['birthday_email'] : 'happy_birthday';
@@ -39,11 +41,13 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 			WHERE is_activated < 10
 				AND MONTH(birthdate) = {int:month}
 				AND DAYOFMONTH(birthdate) = {int:day}
-				AND YEAR(birthdate) > {int:year}',
+				AND YEAR(birthdate) > {int:year}
+				' . ($smcFunc['db_title'] === POSTGRE_TITLE ? 'AND indexable_month_day(birthdate) = indexable_month_day({date:bdate})' : ''),
 			array(
-				'year' => 1,
+				'year' => 1004,
 				'month' => $month,
 				'day' => $day,
+				'bdate' => '1004-' . $month . '-' . $day, // a random leap year is here needed
 			)
 		);
 

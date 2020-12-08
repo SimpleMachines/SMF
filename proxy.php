@@ -10,14 +10,14 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
 	define('SMF', 'PROXY');
 
 if (!defined('SMF_VERSION'))
-	define('SMF_VERSION', '2.1 RC2');
+	define('SMF_VERSION', '2.1 RC3');
 
 if (!defined('SMF_FULL_VERSION'))
 	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
@@ -26,7 +26,7 @@ if (!defined('SMF_SOFTWARE_YEAR'))
 	define('SMF_SOFTWARE_YEAR', '2020');
 
 if (!defined('JQUERY_VERSION'))
-	define('JQUERY_VERSION', '3.4.1');
+	define('JQUERY_VERSION', '3.5.1');
 
 if (!defined('POSTGRE_TITLE'))
 	define('POSTGRE_TITLE', 'PostgreSQL');
@@ -80,6 +80,18 @@ class ProxyServer
 
 		require_once(dirname(__FILE__) . '/Settings.php');
 		require_once($sourcedir . '/Subs.php');
+
+		// Make absolutely sure the cache directory is defined and writable.
+		if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
+		{
+			if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
+				$cachedir = $boarddir . '/cache';
+			else
+			{
+				$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
+				@mkdir($cachedir, 0750);
+			}
+		}
 
 		// Turn off all error reporting; any extra junk makes for an invalid image.
 		error_reporting(0);
@@ -244,7 +256,7 @@ class ProxyServer
 		$mime_type = finfo_buffer($finfo, $image);
 
 		// SVG needs a little extra care
-		if ($ext == 'svg' && $mime_type == 'text/plain')
+		if ($ext == 'svg' && in_array($mime_type, array('text/plain', 'text/xml')) && strpos($image, '<svg') !== false && strpos($image, '</svg>') !== false)
 			$mime_type = 'image/svg+xml';
 
 		// Make sure the url is returning an image

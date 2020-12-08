@@ -15,7 +15,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -336,6 +336,10 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 	{
 		$fileContents = fetch_web_data($source);
 
+		$mime_valid = check_mime_type($fileContents, implode('|', array_map('image_type_to_mime_type', array_keys($default_formats))));
+		if (empty($mime_valid))
+			return false;
+
 		fwrite($fp_destination, $fileContents);
 		fclose($fp_destination);
 
@@ -343,6 +347,10 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 	}
 	elseif ($fp_destination)
 	{
+		$mime_valid = check_mime_type($source, implode('|', array_map('image_type_to_mime_type', array_keys($default_formats))), true);
+		if (empty($mime_valid))
+			return false;
+
 		$sizes = @getimagesize($source);
 
 		$fp_source = fopen($source, 'rb');
@@ -356,8 +364,9 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 			$sizes = array(-1, -1, -1);
 		fclose($fp_destination);
 	}
-	// We can't get to the file.
-	else
+
+	// We can't get to the file. or a previous getimagesize failed.
+	if (empty($sizes))
 		$sizes = array(-1, -1, -1);
 
 	// See if we have -or- can get the needed memory for this operation
@@ -390,7 +399,7 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
  * It saves the new image to destination_filename, as preferred_format
  * if possible, default is jpeg.
  *
- * @uses Imagemagick (IMagick or MagickWand extension) or GD
+ * Uses Imagemagick (IMagick or MagickWand extension) or GD
  *
  * @param resource $src_img The source image
  * @param string $destName The path to the destination image
@@ -620,9 +629,9 @@ if (!function_exists('imagecreatefrombmp'))
 		$n = 0;
 		for ($j = 0; $j < $palette_size; $j++)
 		{
-			$b = ord($palettedata{$j++});
-			$g = ord($palettedata{$j++});
-			$r = ord($palettedata{$j++});
+			$b = ord($palettedata[$j++]);
+			$g = ord($palettedata[$j++]);
+			$r = ord($palettedata[$j++]);
 
 			$palette[$n++] = imagecolorallocate($dst_img, $r, $g, $b);
 		}
@@ -643,9 +652,9 @@ if (!function_exists('imagecreatefrombmp'))
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$b = ord($scan_line{$j++});
-					$g = ord($scan_line{$j++});
-					$r = ord($scan_line{$j++});
+					$b = ord($scan_line[$j++]);
+					$g = ord($scan_line[$j++]);
+					$r = ord($scan_line[$j++]);
 					$j++;
 
 					$color = imagecolorexact($dst_img, $r, $g, $b);
@@ -666,9 +675,9 @@ if (!function_exists('imagecreatefrombmp'))
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$b = ord($scan_line{$j++});
-					$g = ord($scan_line{$j++});
-					$r = ord($scan_line{$j++});
+					$b = ord($scan_line[$j++]);
+					$g = ord($scan_line[$j++]);
+					$r = ord($scan_line[$j++]);
 
 					$color = imagecolorexact($dst_img, $r, $g, $b);
 					if ($color == -1)
@@ -688,8 +697,8 @@ if (!function_exists('imagecreatefrombmp'))
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$b1 = ord($scan_line{$j++});
-					$b2 = ord($scan_line{$j++});
+					$b1 = ord($scan_line[$j++]);
+					$b2 = ord($scan_line[$j++]);
 
 					$word = $b2 * 256 + $b1;
 
@@ -715,14 +724,14 @@ if (!function_exists('imagecreatefrombmp'))
 			{
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
-					imagesetpixel($dst_img, $x, $y, $palette[ord($scan_line{$j++})]);
+					imagesetpixel($dst_img, $x, $y, $palette[ord($scan_line[$j++])]);
 			}
 			elseif ($info['bits'] == 4)
 			{
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$byte = ord($scan_line{$j++});
+					$byte = ord($scan_line[$j++]);
 
 					imagesetpixel($dst_img, $x, $y, $palette[(int) ($byte / 16)]);
 
@@ -735,7 +744,7 @@ if (!function_exists('imagecreatefrombmp'))
 				$x = 0;
 				for ($j = 0; $j < $scan_line_size; $x++)
 				{
-					$byte = ord($scan_line{$j++});
+					$byte = ord($scan_line[$j++]);
 
 					imagesetpixel($dst_img, $x, $y, $palette[(($byte) & 128) != 0]);
 
@@ -759,21 +768,20 @@ if (!function_exists('imagecreatefrombmp'))
 /**
  * Writes a gif file to disk as a png file.
  *
- * @param resource $gif A gif image resource
+ * @param gif_file $gif A gif image resource
  * @param string $lpszFileName The name of the file
  * @param int $background_color The background color
- * @return boolean Whether the operation was successful
+ * @return bool Whether the operation was successful
  */
 function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
 {
-	if (!isset($gif) || @get_class($gif) != 'cgif' || !$gif->loaded || $lpszFileName == '')
+	if (!is_a($gif, 'gif_file') || $lpszFileName == '')
 		return false;
 
-	$fd = $gif->get_png_data($background_color);
-	if (strlen($fd) <= 0)
+	if (($fd = $gif->get_png_data($background_color)) === false)
 		return false;
 
-	if (!($fh = @fopen($lpszFileName, 'wb')))
+	if (($fh = @fopen($lpszFileName, 'wb')) === false)
 		return false;
 
 	@fwrite($fh, $fd, strlen($fd));
@@ -892,7 +900,7 @@ function showCodeImage($code)
 	for ($i = 0; $i < strlen($code); $i++)
 	{
 		$characters[$i] = array(
-			'id' => $code{$i},
+			'id' => $code[$i],
 			'font' => array_rand($font_list),
 		);
 
@@ -1151,12 +1159,12 @@ function showLetterImage($letter)
 	$random_font = $font_list[array_rand($font_list)];
 
 	// Check if the given letter exists.
-	if (!file_exists($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . $letter . '.png'))
+	if (!file_exists($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png'))
 		return false;
 
 	// Include it!
 	header('content-type: image/png');
-	include($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . $letter . '.png');
+	include($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . strtoupper($letter) . '.png');
 
 	// Nothing more to come.
 	die();

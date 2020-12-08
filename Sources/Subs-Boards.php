@@ -11,7 +11,7 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
 if (!defined('SMF'))
@@ -453,7 +453,7 @@ function getMsgMemberID($messageID)
  */
 function modifyBoard($board_id, &$boardOptions)
 {
-	global $cat_tree, $boards, $smcFunc;
+	global $cat_tree, $boards, $smcFunc, $context;
 
 	// Get some basic information about all boards and categories.
 	getBoardTree();
@@ -502,6 +502,7 @@ function modifyBoard($board_id, &$boardOptions)
 			// People can be creative, in many ways...
 			if (isChildOf($id_parent, $board_id))
 				fatal_lang_error('mboards_parent_own_child_error', false);
+
 			elseif ($id_parent == $board_id)
 				fatal_lang_error('mboards_board_own_child_error', false);
 
@@ -533,8 +534,10 @@ function modifyBoard($board_id, &$boardOptions)
 		// See if there are changes that affect children.
 		$childUpdates = array();
 		$levelDiff = $child_level - $boards[$board_id]['level'];
+
 		if ($levelDiff != 0)
 			$childUpdates[] = 'child_level = child_level ' . ($levelDiff > 0 ? '+ ' : '') . '{int:level_diff}';
+
 		if ($id_cat != $boards[$board_id]['category'])
 			$childUpdates[] = 'id_cat = {int:category}';
 
@@ -835,7 +838,20 @@ function modifyBoard($board_id, &$boardOptions)
 	if (isset($boardOptions['move_to']))
 		reorderBoards();
 
+	$parsed_boards_cat_id = isset($id_cat) ? $id_cat : $boardOptions['old_id_cat'];
+	$already_parsed_boards = getBoardsParsedDescription($parsed_boards_cat_id);
+
+	if (isset($boardOptions['board_description']))
+		$already_parsed_boards[$board_id] = parse_bbc(
+			$boardOptions['board_description'],
+			false,
+
+			'',
+			$context['description_allowed_tags']);
+
 	clean_cache('data');
+
+	cache_put_data('parsed_boards_descriptions_'. $parsed_boards_cat_id, $already_parsed_boards, 864000);
 
 	if (empty($boardOptions['dont_log']))
 		logAction('edit_board', array('board' => $board_id), 'admin');
@@ -1219,9 +1235,9 @@ function getTreeOrder()
 
 	$request = $smcFunc['db_query']('', '
 		SELECT b.id_board, b.id_cat
-		FROM {db_prefix}boards AS b
-		ORDER BY b.board_order',
-		array()
+		FROM {db_prefix}categories AS c
+			JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
+		ORDER BY c.cat_order, b.board_order'
 	);
 
 	foreach ($smcFunc['db_fetch_all']($request) as $row)
@@ -1543,6 +1559,37 @@ function isChildOf($child, $parent)
 		return true;
 
 	return isChildOf($boards[$child]['parent'], $parent);
+}
+
+function setBoardParsedDescription($category_id = 0, $boards_info = array())
+{
+	global $context;
+
+	if (empty($category_id) || empty($boards_info))
+		return array();
+
+	// Get the data we already parsed
+	$already_parsed_boards = getBoardsParsedDescription($category_id);
+
+	foreach ($boards_info as $board_id => $board_description)
+		$already_parsed_boards[$board_id] = parse_bbc(
+			$board_description,
+			false,
+			'',
+			$context['description_allowed_tags']
+		);
+
+	cache_put_data('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);
+
+	return $already_parsed_boards;
+}
+
+function getBoardsParsedDescription($category_id = 0)
+{
+	if (empty($category_id))
+		return array();
+
+	return (array) cache_get_data('parsed_boards_descriptions_' . $category_id, 864000);
 }
 
 ?>

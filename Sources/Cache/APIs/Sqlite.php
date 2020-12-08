@@ -8,18 +8,24 @@
  * @copyright 2020 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC2
+ * @version 2.1 RC3
  */
 
+namespace SMF\Cache\APIs;
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+use SQLite3;
+
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * SQLite Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class sqlite_cache extends cache_api
+class Sqlite extends CacheApi implements CacheApiInterface
 {
 	/**
 	 * @var string The path to the current $cachedir directory.
@@ -30,11 +36,6 @@ class sqlite_cache extends cache_api
 	 * @var SQLite3
 	 */
 	private $cacheDB = null;
-
-	/**
-	 * @var int
-	 */
-	private $cacheTime = 0;
 
 	public function __construct()
 	{
@@ -57,7 +58,6 @@ class sqlite_cache extends cache_api
 			$this->cacheDB->exec('CREATE TABLE cache (key text unique, value blob, ttl int);');
 			$this->cacheDB->exec('CREATE INDEX ttls ON cache(ttl);');
 		}
-		$this->cacheTime = time();
 	}
 
 	/**
@@ -78,8 +78,7 @@ class sqlite_cache extends cache_api
 	 */
 	public function getData($key, $ttl = null)
 	{
-		$ttl = time() - $ttl;
-		$query = 'SELECT value FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\' AND ttl >= ' . $ttl . ' LIMIT 1';
+		$query = 'SELECT value FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\' AND ttl >= ' . time() . ' LIMIT 1';
 		$result = $this->cacheDB->query($query);
 
 		$value = null;
@@ -94,8 +93,11 @@ class sqlite_cache extends cache_api
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		$ttl = $this->cacheTime + $ttl;
-		$query = 'REPLACE INTO cache VALUES (\'' . $this->cacheDB->escapeString($key) . '\', \'' . $this->cacheDB->escapeString($value) . '\', ' . $this->cacheDB->escapeString($ttl) . ');';
+		$ttl = time() + (int) ($ttl !== null ? $ttl : $this->ttl);
+		if ($value === null)
+			$query = 'DELETE FROM cache WHERE key = \'' . $this->cacheDB->escapeString($key) . '\';';
+		else
+			$query = 'REPLACE INTO cache VALUES (\'' . $this->cacheDB->escapeString($key) . '\', \'' . $this->cacheDB->escapeString($value) . '\', ' . $ttl . ');';
 		$result = $this->cacheDB->exec($query);
 
 		return $result;
@@ -126,8 +128,17 @@ class sqlite_cache extends cache_api
 	{
 		global $context, $txt;
 
-		$config_vars[] = $txt['cache_sqlite_settings'];
-		$config_vars[] = array('cachedir_sqlite', $txt['cachedir_sqlite'], 'file', 'text', 36, 'cache_sqlite_cachedir');
+		$class_name = $this->getImplementationClassKeyName();
+		$class_name_txt_key = strtolower($class_name);
+
+		$config_vars[] = $txt['cache_'. $class_name_txt_key .'_settings'];
+		$config_vars[] = array(
+			'cachedir_'. $class_name_txt_key,
+			$txt['cachedir_'. $class_name_txt_key],
+			'file',
+			'text',
+			36,
+			'cache_'. $class_name_txt_key .'_cachedir');
 
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';
@@ -135,7 +146,7 @@ class sqlite_cache extends cache_api
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
-				$("#cachedir_sqlite").prop("disabled", cache_type != "sqlite");
+				$("#cachedir_'. $class_name_txt_key .'").prop("disabled", cache_type != "'. $class_name .'");
 			});';
 	}
 
@@ -167,8 +178,10 @@ class sqlite_cache extends cache_api
 	 */
 	public function getVersion()
 	{
-		$temp = $this->cacheDB->version();
-		return $temp['versionString'];
+		if (null == $this->cacheDB)
+			$this->connect();
+
+		return $this->cacheDB->version()['versionString'];
 	}
 
 	/**
