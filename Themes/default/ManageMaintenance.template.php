@@ -38,6 +38,23 @@ function template_maintain_database()
 			</form>
 		</div>';
 
+	// Show an option to convert to UTF8MB4 if we're not on UTF8MB4 yet.
+	if ($context['convert_utf8mb4'])
+	{
+		echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['utf8_title'], '</h3>
+		</div>
+		<div class="windowbg">
+			<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertutf8mb4" method="post" accept-charset="', $context['character_set'], '">
+				<p>', $txt['utf8_introduction'], '</p>
+				<input type="submit" value="', $txt['maintain_run_now'], '" class="button">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
+			</form>
+		</div>';
+	}
+
 	// Show an option to convert the body column of the post table to MEDIUMTEXT or TEXT
 	if (isset($context['convert_to']))
 		echo '
@@ -543,6 +560,49 @@ function template_optimize()
 }
 
 /**
+ * Template for converting tables from UTF8 to UTF8MB4
+ */
+function template_convert_utf8mb4()
+{
+	global $context, $txt, $settings, $scripturl;
+
+	echo '
+	<div id="manage_maintenance">
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['utf8_title'], '</h3>
+		</div>
+		<div class="windowbg">
+			<span class="topslice"><span></span></span>
+			<div class="content">
+				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertutf8mb4" method="post" accept-charset="', $context['character_set'], '">
+					<p>', $txt['utf8_introduction'], '</p>
+					<div>', $txt['utf8_warning'], '</div>
+
+					<dl class="settings">
+						<dt><strong>', $txt['utf8_source_charset'], ':</strong></dt>
+						<dd><select name="src_charset">';
+	foreach ($context['charset_list'] as $charset)
+		echo '
+							<option value="', $charset, '"', $charset === $context['charset_detected'] ? ' selected="selected"' : '', '>', $charset, '</option>';
+	echo '
+							</select></dd>
+						<dt><strong>', $txt['utf8_database_charset'], ':</strong></dt>
+						<dd>', $context['database_charset'], '</dd>
+						<dt><strong>', $txt['utf8_target_charset'], ': </strong></dt>
+						<dd>', $txt['utf8_utf8'], '</dd>
+					</dl>
+					<input type="submit" value="', $txt['utf8_proceed'], '" class="button_submit" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="proceed" value="1" />
+				</form>
+			</div>
+			<span class="botslice"><span></span></span>
+		</div>
+	</div>
+	<br class="clear" />';
+}
+
+/**
  * Template for converting entities to UTF-8 characters
  */
 function template_convert_entities()
@@ -564,7 +624,7 @@ function template_convert_entities()
 }
 
 /**
- * Template for converting posts to UTF-8.
+ * Template for changing message body from TEXT to MEDIUMTEXT.
  */
 function template_convert_msgbody()
 {
