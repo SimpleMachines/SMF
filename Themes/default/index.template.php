@@ -672,7 +672,7 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 			$html .= $li['content'];
 		else
 			$html .= '
-				<a' . (!empty($li['href']) ? ' href="' . $li['href'] . '"' : '') . (!empty($li['javascript']) ? $li['javascript'] : '') . '>
+				<a href="' . (!empty($li['href']) ? $li['href'] : 'javascript:void(0);') . '"' . (!empty($li['javascript']) ? $li['javascript'] : '') . '>
 					' . (!empty($li['icon']) ? '<span class="main_icons ' . $li['icon'] . '"></span>' : '') . (!empty($li['label']) ? $li['label'] : '') . '
 				</a>';
 
@@ -688,7 +688,8 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 		if ($key == 'more')
 		{
 			$output .= '
-			<li class="post_options">' . $txt['post_options'] . '
+			<li class="post_options">
+				<a href="javascript:void(0);">' . $txt['post_options'] . '</a>
 				<ul>';
 
 			foreach ($li as $subli)

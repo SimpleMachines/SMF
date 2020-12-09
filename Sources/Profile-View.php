@@ -742,6 +742,7 @@ function showAlerts($memID)
 				'icon' => 'move',
 			),
 			'quickmod' => array(
+    			'class' => 'inline_mod_check',
 				'content' => '<input type="checkbox" name="mark[' . $id . ']" value="' . $id . '">',
 				'show' => $context['showCheckboxes']
 			)
