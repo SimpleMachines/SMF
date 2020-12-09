@@ -953,7 +953,7 @@ function parseAttachBBC($attachID = 0)
 	if (empty($modSettings['attachmentEnable']))
 		return 'attachments_not_enable';
 
-	$check_board_perms = !isset($_SESSION['already_attached'][$attachID]) && $view_attachment_boards !== array(0);
+	$check_board_perms = !isset($_SESSION['attachments_can_preview'][$attachID]) && $view_attachment_boards !== array(0);
 
 	// There is always the chance someone else has already done our dirty work...
 	// If so, all pertinent checks were already done. Hopefully...

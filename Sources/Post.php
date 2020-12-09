@@ -1040,6 +1040,21 @@ function Post($post_errors = array())
 		}
 	}
 
+	// Allow user to see previews for all of this post's attachments, even if the post hasn't been submitted yet.
+	if (!isset($_SESSION['attachments_can_preview']))
+		$_SESSION['attachments_can_preview'] = array();
+
+	if (!empty($_SESSION['already_attached']))
+		$_SESSION['attachments_can_preview'] += array_fill_keys(array_keys($_SESSION['already_attached']), true);
+
+	foreach ($context['current_attachments'] as $attachID => $attachment)
+	{
+		$_SESSION['attachments_can_preview'][$attachID] = true;
+
+		if (!empty($attachment['thumb']))
+			$_SESSION['attachments_can_preview'][$attachment['thumb']] = true;
+	}
+
 	// Do we need to show the visual verification image?
 	$context['require_verification'] = !$user_info['is_mod'] && !$user_info['is_admin'] && !empty($modSettings['posts_require_captcha']) && ($user_info['posts'] < $modSettings['posts_require_captcha'] || ($user_info['is_guest'] && $modSettings['posts_require_captcha'] == -1));
 	if ($context['require_verification'])
