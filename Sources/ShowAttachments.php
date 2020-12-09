@@ -175,10 +175,8 @@ function showAttachment()
 			// Got something! replace the $file var with the thumbnail info.
 			if ($thumbFile)
 			{
-				$attachId = $thumbFile['id_attach'];
-
 				// set filePath and ETag time
-				$thumbFile['filePath'] = getAttachmentFilename($thumbFile['filename'], $attachId, $thumbFile['id_folder'], false, $thumbFile['file_hash']);
+				$thumbFile['filePath'] = getAttachmentFilename($thumbFile['filename'], $thumbFile['id_attach'], $thumbFile['id_folder'], false, $thumbFile['file_hash']);
 				$thumbFile['etag'] = '"' . md5_file($thumbFile['filePath']) . '"';
 			}
 		}
