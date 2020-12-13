@@ -534,21 +534,18 @@ function download_export_file($uid)
 	header('etag: ' . $eTag);
 	header('content-type: ' . $export_formats[$_GET['format']]['mime']);
 
-	// Convert the file to UTF-8, cuz most browsers dig that.
-	$utf8name = !$context['utf8'] && function_exists('iconv') ? iconv($context['character_set'], 'UTF-8', $dlbasename) : (!$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($dlbasename, 'UTF-8', $context['character_set']) : $dlbasename);
-
 	// Different browsers like different standards...
 	if (isBrowser('firefox'))
-		header('content-disposition: attachment; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)));
+		header('content-disposition: attachment; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $dlbasename)));
 
 	elseif (isBrowser('opera'))
-		header('content-disposition: attachment; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name) . '"');
+		header('content-disposition: attachment; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $dlbasename) . '"');
 
 	elseif (isBrowser('ie'))
-		header('content-disposition: attachment; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)) . '"');
+		header('content-disposition: attachment; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $dlbasename)) . '"');
 
 	else
-		header('content-disposition: attachment; filename="' . $utf8name . '"');
+		header('content-disposition: attachment; filename="' . $dlbasename . '"');
 
 	header('cache-control: max-age=' . (525600 * 60) . ', private');
 
