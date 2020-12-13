@@ -3457,7 +3457,7 @@ function template_include($filename, $once = false)
 			ob_start();
 
 		if (isset($_GET['debug']))
-			header('content-type: application/xhtml+xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+			header('content-type: application/xhtml+xml; charset=UTF-8');
 
 		// Don't cache error pages!!
 		header('expires: Mon, 26 Jul 1997 05:00:00 GMT');

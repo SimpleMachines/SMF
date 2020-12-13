@@ -29,7 +29,7 @@ function showAttachment()
 	global $smcFunc, $modSettings, $maintenance, $context, $txt, $user_info;
 
 	// Some defaults that we need.
-	$context['character_set'] = empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set'];
+	$context['character_set'] = empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'UTF-8' : $txt['lang_character_set']) : $modSettings['global_character_set'];
 	$context['utf8'] = $context['character_set'] === 'UTF-8';
 
 	// An early hook to set up global vars, clean cache and other early process.
@@ -218,7 +218,7 @@ function showAttachment()
 	if (!file_exists($file['filePath']))
 	{
 		send_http_status(404);
-		header('content-type: text/plain; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+		header('content-type: text/plain; charset=UTF-8');
 
 		// We need to die like this *before* we send any anti-caching headers as below.
 		die('File not found.');
