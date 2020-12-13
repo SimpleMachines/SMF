@@ -1436,11 +1436,11 @@ function MessageSearch2()
 		$context['search_errors']['invalid_search_string'] = true;
 
 	// Extract phrase parts first (e.g. some words "this is a phrase" some more words.)
-	preg_match_all('~(?:^|\s)([-]?)"([^"]+)"(?:$|\s)~' . ($context['utf8'] ? 'u' : ''), $search_params['search'], $matches, PREG_PATTERN_ORDER);
+	preg_match_all('~(?:^|\s)([-]?)"([^"]+)"(?:$|\s)~u', $search_params['search'], $matches, PREG_PATTERN_ORDER);
 	$searchArray = $matches[2];
 
 	// Remove the phrase parts and extract the words.
-	$tempSearch = explode(' ', preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']));
+	$tempSearch = explode(' ', preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~u', ' ', $search_params['search']));
 
 	// A minus sign in front of a word excludes the word.... so...
 	$excludedWords = array();
