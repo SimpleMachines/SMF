@@ -1520,10 +1520,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	if ($message === '')
 		return '';
 
-	// Just in case it wasn't determined yet whether UTF-8 is enabled.
-	if (!isset($context['utf8']))
-		$context['utf8'] = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
-
 	// Clean up any cut/paste issues we may have
 	$message = sanitizeMSCutPaste($message);
 
@@ -3900,7 +3896,7 @@ function parsesmileys(&$message)
 			list ($smileysfrom, $smileysto, $smileysdescs) = $temp;
 
 		// The non-breaking-space is a complex thing...
-		$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
+		$non_breaking_space = '\x{A0}';
 
 		// This smiley regex makes sure it doesn't parse smileys within code tags (so [url=mailto:David@bla.com] doesn't parse the :D smiley)
 		$smileyPregReplacements = array();
@@ -3930,7 +3926,7 @@ function parsesmileys(&$message)
 			}
 		}
 
-		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . build_regex($searchParts, '~') . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
+		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . build_regex($searchParts, '~') . ')(?=[^[:alpha:]0-9]|$)~u';
 	}
 
 	// If there are no smileys defined, no need to replace anything
@@ -5272,12 +5268,14 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 {
 	global $smcFunc, $context;
 
-	// Upgrader may be working on old DBs...
-	if (!isset($context['utf8']))
+	// Upgrader uses this function & may be working on old DBs...
+	if (!isset($db_character_set) || (isset($db_character_set) && ($db_character_set != 'utf8') && ($db_character_set != 'utf8mb4')))
 		$context['utf8'] = false;
+	else
+		$context['utf8'] = true;
 
 	// Step 1: Remove entities/things we don't consider words:
-	$words = preg_replace('~(?:[\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . ($context['utf8'] ? 'u' : ''), ' ', strtr($text, array('<br>' => ' ')));
+	$words = preg_replace('~(?:[\x0B\0' . '\x{A0}' . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~u', ' ', strtr($text, array('<br>' => ' ')));
 
 	// Step 2: Entities we left to letters, where applicable, lowercase.
 	$words = un_htmlspecialchars($smcFunc['strtolower']($words));
@@ -6406,17 +6404,6 @@ function sanitizeMSCutPaste($string)
 		"\xe2\x80\x9d",	// right double curly quote
 	);
 
-	// windows 1252 / iso equivalents
-	$findchars_iso = array(
-		chr(130),
-		chr(132),
-		chr(133),
-		chr(145),
-		chr(146),
-		chr(147),
-		chr(148),
-	);
-
 	// safe replacements
 	$replacechars = array(
 		',',	// &sbquo;
@@ -6428,10 +6415,7 @@ function sanitizeMSCutPaste($string)
 		'"',	// &rdquo;
 	);
 
-	if ($context['utf8'])
-		$string = str_replace($findchars_utf8, $replacechars, $string);
-	else
-		$string = str_replace($findchars_iso, $replacechars, $string);
+	$string = str_replace($findchars_utf8, $replacechars, $string);
 
 	return $string;
 }
@@ -6463,37 +6447,22 @@ function replaceEntities__callback($matches)
 	if (in_array($num, array(0x22, 0x26, 0x27, 0x3C, 0x3E)))
 		return '&#' . $num . ';';
 
-	if (empty($context['utf8']))
-	{
-		// no control characters
-		if ($num < 0x20)
-			return '';
-		// text is text
-		elseif ($num < 0x80)
-			return chr($num);
-		// all others get html-ised
-		else
-			return '&#' . $matches[2] . ';';
-	}
+	// <0x20 are control characters, 0x20 is a space, > 0x10FFFF is past the end of the utf8 character set
+	// 0xD800 >= $num <= 0xDFFF are surrogate markers (not valid for utf8 text)
+	if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF))
+		return '';
+	// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and punctuation
+	elseif ($num < 0x80)
+		return chr($num);
+	// <0x800 (2048)
+	elseif ($num < 0x800)
+		return chr(($num >> 6) + 192) . chr(($num & 63) + 128);
+	// < 0x10000 (65536)
+	elseif ($num < 0x10000)
+		return chr(($num >> 12) + 224) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
+	// <= 0x10FFFF (1114111)
 	else
-	{
-		// <0x20 are control characters, 0x20 is a space, > 0x10FFFF is past the end of the utf8 character set
-		// 0xD800 >= $num <= 0xDFFF are surrogate markers (not valid for utf8 text)
-		if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF))
-			return '';
-		// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and punctuation
-		elseif ($num < 0x80)
-			return chr($num);
-		// <0x800 (2048)
-		elseif ($num < 0x800)
-			return chr(($num >> 6) + 192) . chr(($num & 63) + 128);
-		// < 0x10000 (65536)
-		elseif ($num < 0x10000)
-			return chr(($num >> 12) + 224) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
-		// <= 0x10FFFF (1114111)
-		else
-			return chr(($num >> 18) + 240) . chr((($num >> 12) & 63) + 128) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
-	}
+		return chr(($num >> 18) + 240) . chr((($num >> 12) & 63) + 128) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
 }
 
 /**
@@ -8349,7 +8318,7 @@ function cleanXml($string)
 
 	// The Unicode surrogate pair code points should never be present in our
 	// strings to begin with, but if any snuck in, they need to be removed.
-	if (!empty($context['utf8']) && strpos($string, "\xED") !== false)
+	if (strpos($string, "\xED") !== false)
 		$string = preg_replace('/\xED[\xA0-\xBF][\x80-\xBF]/', '', $string);
 
 	return $string;
