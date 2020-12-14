@@ -2053,8 +2053,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					if (is_numeric($data))
 						$data = timeformat($data);
-					else
-						$tag['content'] = '[time]$1[/time]';
+
+					$tag['content'] = '<strong>$1</strong>';
 				},
 			),
 			array(
