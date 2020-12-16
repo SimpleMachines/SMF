@@ -69,7 +69,7 @@ function template_notify_announcements()
 			</h3>
 		</div>
 		<div class="roundframe centertext">
-			<p>', $txt['notify_announcements_prompt'], '</p>
+			<p>', $txt['notifyannouncements_prompt'], '</p>
 			<p>
 				<strong><a href="', $scripturl, '?action=notifyannouncements;sa=on;', (!empty($context['notify_info']['token']) ? 'u=' . $context['notify_info']['u'] . ';token=' . $context['notify_info']['token'] : $context['session_var'] . '=' . $context['session_id']), '">', $txt['yes'], '</a> - <a href="', $scripturl, '?action=notifyannouncements;sa=off;', (!empty($context['notify_info']['token']) ? 'u=' . $context['notify_info']['u'] . ';token=' . $context['notify_info']['token'] : $context['session_var'] . '=' . $context['session_id']), '">', $txt['no'], '</a></strong>
 			</p>

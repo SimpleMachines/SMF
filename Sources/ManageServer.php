@@ -59,9 +59,6 @@
  * @version 2.1 RC3
  */
 
-use SMF\Cache\CacheApi;
-use SMF\Cache\CacheApiInterface;
-
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -688,31 +685,20 @@ function ModifyCacheSettings($return_config = false)
 	global $context, $scripturl, $txt;
 
 	// Detect all available optimizers
-	$detectedCacheApis = loadCacheAPIs();
-	$apis_names = array();
-
-	/* @var CacheApiInterface $cache_api */
-	foreach ($detectedCacheApis as $class_name => $cache_api)
-	{
-		$class_name_txt_key = strtolower($cache_api->getImplementationClassKeyName());
-
-		$apis_names[$class_name] = isset($txt[$class_name_txt_key . '_cache']) ?
-			$txt[$class_name_txt_key . '_cache'] : $class_name;
-	}
+	$detected = loadCacheAPIs();
+	foreach ($detected as $api => $object)
+		$detected[$api] = isset($txt[$api . '_cache']) ? $txt[$api . '_cache'] : $api;
 
 	// set our values to show what, if anything, we found
-	if (empty($detectedCacheApis))
+	if (empty($detected))
 	{
 		$txt['cache_settings_message'] = '<strong class="alert">' . $txt['detected_no_caching'] . '</strong>';
 		$cache_level = array($txt['cache_off']);
-		$apis_names['none'] = $txt['cache_off'];
+		$detected['none'] = $txt['cache_off'];
 	}
-
 	else
 	{
-		$txt['cache_settings_message'] = '<strong class="success">' .
-			sprintf($txt['detected_accelerators'], implode(', ', $apis_names)) . '</strong>';
-
+		$txt['cache_settings_message'] = '<strong class="success">' . sprintf($txt['detected_accelerators'], implode(', ', $detected)) . '</strong>';
 		$cache_level = array($txt['cache_off'], $txt['cache_level1'], $txt['cache_level2'], $txt['cache_level3']);
 	}
 
@@ -721,7 +707,7 @@ function ModifyCacheSettings($return_config = false)
 		// Only a few settings, but they are important
 		array('', $txt['cache_settings_message'], '', 'desc'),
 		array('cache_enable', $txt['cache_enable'], 'file', 'select', $cache_level, 'cache_enable'),
-		array('cache_accelerator', $txt['cache_accelerator'], 'file', 'select', $apis_names),
+		array('cache_accelerator', $txt['cache_accelerator'], 'file', 'select', $detected),
 	);
 
 	// some javascript to enable / disable certain settings if the option is not selected
@@ -733,12 +719,20 @@ function ModifyCacheSettings($return_config = false)
 	call_integration_hook('integrate_modify_cache_settings', array(&$config_vars));
 
 	// Maybe we have some additional settings from the selected accelerator.
-	if (!empty($detectedCacheApis))
-		/* @var CacheApiInterface $cache_api */
-		foreach ($detectedCacheApis as $class_name_txt_key => $cache_api)
-			if (is_callable(array($cache_api, 'cacheSettings')))
-				$cache_api->cacheSettings($config_vars);
+	if (!empty($detected))
+	{
+		foreach ($detected as $tryCache => $dummy)
+		{
+			$cache_class_name = $tryCache . '_cache';
 
+			// loadCacheAPIs has already included the file, just see if we can't add the settings in.
+			if (is_callable(array($cache_class_name, 'cacheSettings')))
+			{
+				$testAPI = new $cache_class_name();
+				call_user_func_array(array($testAPI, 'cacheSettings'), array(&$config_vars));
+			}
+		}
+	}
 	if ($return_config)
 		return $config_vars;
 
@@ -764,7 +758,7 @@ function ModifyCacheSettings($return_config = false)
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=cache;save';
 	$context['settings_title'] = $txt['caching_settings'];
 
-	// Changing cache settings won't have any effect if Settings.php is not writable.
+	// Changing cache settings won't have any effect if Settings.php is not writeable.
 	$context['save_disabled'] = $context['settings_not_writable'];
 
 	// Decide what message to show.
@@ -1635,37 +1629,25 @@ function loadCacheAPIs()
 {
 	global $sourcedir;
 
-	$cacheAPIdir = $sourcedir . '/Cache';
+	// Make sure our class is in session.
+	require_once($sourcedir . '/Class-CacheAPI.php');
 
-	$loadedApis = array();
-	$apis_dir = $cacheAPIdir .'/'. CacheApi::APIS_FOLDER;
+	$apis = array();
+	$classes = new GlobIterator($sourcedir . '/CacheAPI-*.php', FilesystemIterator::NEW_CURRENT_AND_KEY);
 
-	$api_classes = new GlobIterator($apis_dir . '/*.php', FilesystemIterator::NEW_CURRENT_AND_KEY);
-
-	foreach ($api_classes as $file_path => $file_info)
+	foreach ($classes as $file => $info)
 	{
-		require_once($apis_dir . '/' . $file_path);
+		$tryCache = strtolower(explode('-', $info->getBasename('.php'))[1]);
 
-		$class_name = $file_info->getBasename('.php');
-		$fully_qualified_class_name = CacheApi::APIS_NAMESPACE . $class_name;
+		require_once($sourcedir . '/' . $file);
+		$cache_class_name = $tryCache . '_cache';
+		$testAPI = new $cache_class_name();
 
-		/* @var CacheApiInterface $cache_api */
-		$cache_api = new $fully_qualified_class_name();
-
-		// Deal with it!
-		if (!($cache_api instanceof CacheApiInterface) || !($cache_api instanceof CacheApi))
-			continue;
-
-		// No Support?  NEXT!
-		if (!$cache_api->isSupported(true))
-			continue;
-
-		$loadedApis[$class_name] = $cache_api;
+		if ($testAPI->isSupported(true) && $testAPI->connect())
+			$apis[$tryCache] = $testAPI;
 	}
 
-	call_integration_hook('integrate_load_cache_apis', array(&$loadedApis));
-
-	return $loadedApis;
+	return $apis;
 }
 
 /**

@@ -344,7 +344,7 @@ class Likes
 		global $smcFunc;
 
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
+			SELECT COUNT(id_member)
 			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}',

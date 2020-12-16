@@ -725,7 +725,7 @@ function get_export_formats()
  */
 function create_export_dir($fallback = '')
 {
-	global $boarddir, $modSettings, $txt;
+	global $boarddir, $modSettings;
 
 	// No supplied fallback, so use the default location.
 	if (empty($fallback))

@@ -151,7 +151,7 @@ $db_mb4 = null;
 ########## Cache Info ##########
 /**
  * Select a cache system. You want to leave this up to the cache area of the admin panel for
- * proper detection of memcached, output_cache or SMF file_system
+ * proper detection of apc, memcached, output_cache, smf, or xcache
  * (you can add more with a mod).
  *
  * @var string
@@ -169,7 +169,6 @@ $cache_enable = 0;
  * @var array
  */
 $cache_memcached = '';
-
 /**
  * This is only for the 'smf' file cache system. It is the path to the cache directory.
  * It is also recommended that you place this in /tmp/ if you are going to use this.

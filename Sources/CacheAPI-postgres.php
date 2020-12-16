@@ -11,20 +11,15 @@
  * @version 2.1 RC3
  */
 
-namespace SMF\Cache\APIs;
-
-use SMF\Cache\CacheApi;
-use SMF\Cache\CacheApiInterface;
-
 if (!defined('SMF'))
-	die('No direct access...');
+	die('Hacking attempt...');
 
 /**
  * PostgreSQL Cache API class
  *
- * @package CacheAPI
+ * @package cacheAPI
  */
-class Postgres extends CacheApi implements CacheApiInterface
+class postgres_cache extends cache_api
 {
 	/** @var string */
 	private $db_prefix;

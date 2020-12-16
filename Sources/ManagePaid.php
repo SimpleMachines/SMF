@@ -1957,7 +1957,7 @@ function loadSubscriptions()
 
 	// Do the counts.
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*) AS member_count, id_subscribe, status
+		SELECT COUNT(id_sublog) AS member_count, id_subscribe, status
 		FROM {db_prefix}log_subscribed
 		GROUP BY id_subscribe, status',
 		array(

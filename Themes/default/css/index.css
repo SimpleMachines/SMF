@@ -84,7 +84,7 @@ img, input, select, textarea {
 }
 /* This is a specific issue on Ubuntu - Chrome */
 #chrome input {
-	font-family: "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
+	font: 83.33%/150% "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
 }
 /* The following is necessary */
 textarea {
@@ -92,7 +92,7 @@ textarea {
 }
 
 /* Use a consistent monospace font everywhere */
-.monospace, .bbc_code, .phpcode, pre {
+.monospace, .bbc_code, .phpcode, pre, #error_log span.error_message, #backtrace span.error_message {
 	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
 }
 
@@ -107,7 +107,7 @@ dd textarea {
 }
 /* Apply the font only to these elements */
 input, button, select {
-	font-size: 0.75rem;
+	font-size: 0.9em;
 }
 /* Number inputs don't support size nor width, so add some common ones here and set a default... */
 input[type="number"] {
@@ -337,7 +337,7 @@ h3.largetext {
 blockquote {
 	margin: 0 0 8px 0;
 	padding: 6px 10px;
-	font-size: 0.85rem;
+	font-size: small;
 	border: 1px solid #d6dfe2;
 	border-left: 2px solid #aaa;
 	border-right: 2px solid #aaa;
@@ -366,7 +366,7 @@ blockquote cite::before {
 /* A code block - maybe PHP ;). */
 .bbc_code {
 	display: block;
-	font-size: 0.78rem;
+	font-size: 0.85em;
 	background: #f3f3f3;
 	border: 1px solid #dfdfdf;
 	border-top: 2px solid #bbb;
@@ -391,6 +391,13 @@ blockquote cite::before {
 /* Expand code bbc */
 .expand_code {
 	max-height: none;
+}
+/* Let's get a bit more flexibility in font sizes for quotes and code. */
+/* We just need to stop em compounding when elements are nested. */
+.bbc_standard_quote .bbc_alternate_quote, .bbc_alternate_quote .bbc_standard_quote,
+.bbc_standard_quote .bbc_code, .bbc_alternate_quote .bbc_code, .bbc_standard_quote .codeheader,
+.bbc_alternate_quote .codeheader, .bbc_standard_quote .quoteheader, .bbc_alternate_quote .quoteheader {
+	font-size: 1em;
 }
 /* Styling for BBC tags */
 .bbc_link {
@@ -659,11 +666,6 @@ table.table_grid td {
 .additional_row {
 	padding: 6px 0 6px 0;
 }
-.additional_row::after {
-	content: "";
-	display: block;
-	clear: both;
-}
 img.sort, .sort {
 	margin-bottom: -4px;
 	margin-left: 4px;
@@ -744,23 +746,23 @@ img.sort, .sort {
 	border-radius: 4px;
 }
 /* Level 1 active button. */
-.dropmenu a.active, #top_info a.active {
+.dropmenu li a.active, #top_info li a.active {
+	background: orange;
 	color: #fff;
 	font-weight: bold;
-	border-color: #f49a3a;
-	background: linear-gradient(#ffae14, #f5a100);
-	text-shadow: 0 0 2px #000;
+	border: 1px solid #f49a3a;
+	box-shadow: 0 5px 5px rgba(255, 255, 255, 0.2) inset;
+	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
 /* Level 1 hover effects. */
-.dropmenu > li:hover > a, .dropmenu > li > a:focus,
-#top_info > li:hover > a, #top_info > li > a:focus, #top_info > li > a.open {
+.dropmenu li a:hover, .dropmenu li:hover a, .dropmenu li a:focus, #top_info > li > a:hover, #top_info > li:hover > a, #top_info > li > a.open {
 	background: #597b9f;
 	border: 1px solid #4a6b8c;
 	color: #fff;
 	cursor: pointer;
 	text-decoration: none;
 	box-shadow: 0 4px 4px rgba(255, 255, 255, 0.1) inset;
-	text-shadow: 0 0 2px #000;
+	text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.5);
 }
 /* Level 1 active button. */
 .dropmenu li a.active:hover, .dropmenu li:hover a.active {
@@ -999,37 +1001,35 @@ img.sort, .sort {
 	padding: 5px 0 5px 0;
 	margin: 5px 0 5px 0;
 }
-.button, .quickbuttons > li > a, .inline_mod_check {
+.button {
 	display: inline-block;
-	padding: 0 8px;
-	color: #444;
-	font-size: 0.7rem;
-	line-height: 2em;
 	text-transform: uppercase;
 	cursor: pointer;
-	height: calc(2em + 2em * (0.9 - 0.85)); /* "input" font size minus ".button" font size */
-	border: 1px solid;
-	border-color: #ddd #bbb #aaa #ddd;
+	border: 1px solid #ddd;
+	border-right: 1px solid #bbb;
+	border-bottom: 1px solid #aaa;
 	border-radius: 3px;
-	box-shadow: 1px 1px 1px rgba(221, 221, 221, 0.57);
-	box-sizing: border-box;
-	vertical-align: middle;
-}
-.pagesection .button {
-	color: #346;
+	box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+	padding: 0 0.7em;
+	overflow: visible;
+	color: #444;
+	font-size: 0.85em;
+	height: calc(2em + 2em * (0.9 - 0.85)); /* "input" font size minus ".button" font size */
+	line-height: 2em;
 }
 .button:not(:first-child) {
 	margin-left: 4px;
 }
-.button:hover, .button:focus,
-.quickbuttons > li:hover > a, .quickbuttons > li > a:focus {
-	color: #222;
-	border-color: #aaa #ddd #ddd #bbb;
-	box-shadow: -1px -1px 2px rgba(221, 221, 221, 0.7), -1px -2px 4px #ddd inset;
-	text-decoration: none;
+.pagesection .button {
+	color: #346;
 }
-.button:hover, .button:focus {
+.button:hover {
 	color: #af6700;
+	text-decoration: none;
+	border: 1px solid #ddd;
+	border-left: 1px solid #bbb;
+	border-top: 1px solid #aaa;
+	box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.07), -1px -2px 4px rgba(255, 255, 255, 0.33) inset;
 }
 /* the active one */
 .button.active {
@@ -1037,29 +1037,29 @@ img.sort, .sort {
 	color: #fff;
 	font-weight: bold;
 	border: 1px solid #558080;
-	text-shadow: 0 0 1px #000;
+	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
-.button.active:hover, .button.active:focus {
+.button.active:hover {
 	color: #ffc187;
 	background: #557ea0;
-	box-shadow: none;
-}
-.cat_bar .button {
-	box-shadow: none;
 }
 /* In a .buttonrow, the buttons are joined together */
 .buttonrow {
-	margin: 0 5px;
+	margin-left: 5px;
 }
 .buttonrow .button {
 	display: table-cell;
-	border-radius: 0;
 }
-.buttonrow .button:first-child {
-	border-radius: 3px 0 0 3px;
+.buttonrow .button:not(:first-child) {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	border-left-color: #ccc;
 }
-.buttonrow .button:last-child {
-	border-radius:  0 3px 3px 0;
+.buttonrow .button:not(:last-child) {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+	border-right: none;
+	box-shadow: -1px 0 0 rgba(255, 255, 255, 0.7);
 }
 /* in a titlebg, the buttonlist is of small height */
 .titlebg .buttonlist {
@@ -1072,6 +1072,7 @@ img.sort, .sort {
 
 /* Box-shadow only on this one. */
 #wrapper {
+	width: 90%;
 	clear: both;
 	background: #fff;
 	border: 1px solid #b8b8b8;
@@ -1083,12 +1084,12 @@ img.sort, .sort {
 #top_section .inner_wrap, #wrapper, #header, #footer .inner_wrap {
 	max-width: 1200px;
 	margin: 0 auto;
-	width: 90%;
 }
 
 /* The framing graphics */
 /* The top bar. */
 #top_section {
+	padding: 0 5%;
 	border-bottom: 1px solid #bbb;
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
 	background: #fff;
@@ -1123,6 +1124,7 @@ img.sort, .sort {
 /* The logo and slogan. */
 #header {
 	padding: 2px 2px 12px 2px;
+	width: 90%;
 	display: flex;
 	align-items: flex-end;
 }
@@ -1277,7 +1279,7 @@ ul li.greeting {
 /* The footer with copyright links etc. */
 #footer {
 	margin: 4em 0 0 0;
-	padding: 10px 0;
+	padding: 10px 5%;
 	background: #3e5a78;
 	border-top: 3px solid #b2b6bd;
 	flex: none;
@@ -1326,69 +1328,93 @@ ul li.greeting {
 	clear: right;
 	float: right;
 	text-align: right;
+	font-size: 0.9em;
 }
 #recent .quickbuttons {
 	margin: 0;
 }
-.quickbuttons > li {
+.quickbuttons li {
 	float: left;
-}
-.quickbuttons > li > a, .inline_mod_check {
-	display: block;
-	height: auto;
-	padding: 0 4px;
+	display: inline;
+	height: 23px;
+	border: 1px solid #ddd;
+	border-right: 1px solid #bbb;
+	border-bottom: 1px solid #aaa;
+	border-radius: 1px;
+	box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+	padding: 0 1px 0 1px;
 	color: #222;
-	line-height: 1.375rem;
-	border-radius: 0;
+	overflow: visible;
 }
-.quickbuttons > li:first-child > a {
-	border-radius: 4px 0 0 4px;
+.quickbuttons li a {
+	padding: 0 4px 0 5px;
+	display: block;
+	line-height: 1.9em;
 }
-.quickbuttons > li:last-child > a, .inline_mod_check:last-child {
-	border-radius: 0 4px 4px 0;
+.quickbuttons li a, .quickbuttons li a:hover {
+	text-decoration: none;
+	color: #222;
 }
-.inline_mod_check input {
-	position: relative;
-	top: -1px;
-	height: auto;
+.quickbuttons li:first-child, .quickbuttons li:first-child:hover {
+	border-radius: 4px 1px 1px 4px;
+	padding-bottom: 0;
 }
-.moderationbuttons_check:focus {
-	box-shadow: 0 0 4px #499dd8;
+.quickbuttons li:last-child, .quickbuttons li:last-child:hover {
+	border-radius: 1px 4px 4px 1px;
+	padding-bottom: 0;
+	line-height: 1.9em;
 }
-.quick_edit, .post_options {
-	position: relative;
+.quickbuttons li:hover {
+	border: 1px solid #ddd;
+	border-right: 1px solid #bbb;
+	border-bottom: 1px solid #aaa;
+	border-radius: 1px;
+	box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
 }
+
 /* Drop part of QuickButtons */
-.post_options ul {
-	display: none;
+.quickbuttons li ul {
 	position: absolute;
 	top: 100%;
-	right: -1px;
 	z-index: 90;
-	padding: 6px;
-	background: #fff;
+	padding: 0.5em;
 	font-weight: normal;
 	text-align: left;
 	border: solid 1px #999;
 	border-left: solid 1px #aaa;
 	border-top: solid 1px #bbb;
-	border-radius: 4px 0 4px 4px;
+	border-radius: 0 0 4px 4px;
 	box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2);
 }
-.post_options:hover ul {
+.quickbuttons li ul {
+	display: none;
+	right: -1px;
+}
+.quickbuttons li:hover ul {
 	display: block;
 }
-.post_options ul a {
+.quickbuttons li ul li, .quickbuttons li:hover ul li {
 	display: block;
+	background: none;
+	box-shadow: none;
 	width: 12em;
-	padding: 0 6px;
-	line-height: 2.2em;
-	text-decoration: none;
 	border: 1px solid transparent;
 	border-radius: 3px;
 }
-.post_options ul a:hover, .post_options ul a:focus {
-	border-color: #c4cbd3;
+.quickbuttons li ul li:hover {
+	border: 1px solid #cfcfcf;
+	border-top: 1px solid #d4dee6;
+	border-bottom: 1px solid #cbdae6;
+}
+.quickbuttons ul li a, .quickbuttons ul li a:focus {
+	display: block;
+	line-height: 2.2em;
+	width: 12em;
+	padding: 0;
+}
+/* Sub buttons doesn't need to be effected by first-child/last-child */
+.quickbuttons li > ul > li {
+	border-radius: 3px !important;
 }
 /* Note: The next declarations are for keyboard access with js disabled. */
 .quickbuttons ul li a:focus {
@@ -1402,6 +1428,21 @@ ul li.greeting {
    Fix for quote on reply box */
 #post_modify {
 	border-radius: 4px;
+}
+.quickbuttons li.inline_mod_check {
+	padding: 1px 1px 1px 1px;
+}
+.quickbuttons li.quick_edit, .quickbuttons li.post_options {
+	line-height: 1.9em;
+	position: relative;
+}
+.quickbuttons li.post_options {
+	padding: 0 4px 0 4px;
+	cursor: pointer;
+}
+
+.quickbuttons li.post_options > a {
+	padding: 0 4px 0 4px;
 }
 
 /* The jump to box */
@@ -1426,40 +1467,36 @@ ul li.greeting {
 	padding: 6px;
 	clear: both;
 }
+div.event_options {
+	line-height: 25px;
+	margin-top: 5px;
+}
 #post_event span.label {
 	margin: 0 0.5em 0 2px;
 	min-width: 60px;
 	display: inline-block;
 }
 
-.event_options {
-	line-height: 25px;
-	display: flex;
-	flex-flow: row wrap;
-}
-.event_options div {
-	min-height: 25px;
-	margin-bottom: 5px;
-	flex: 1 0 auto;
-}
 .event_options_left {
-	box-sizing: border-box;
+	display: inline-block;
 	width: 49%;
 	padding-right: 1em;
 	min-width: 238px;
 }
 .event_options_right {
-	box-sizing: border-box;
+	display: inline-block;
 	width: 50%;
-	min-width: 270px;
 }
-.event_options_left div,
-.event_options_right div {
-	white-space: nowrap;
+.event_options_left div, .event_options_right div {
+	min-height: 25px;
+	margin-bottom: 5px;
 }
 
 #post_event #event_main input {
 	margin: 0;
+}
+#evtitle {
+	max-width: 100%;
 }
 #event_time_input {
 	clear: left;
@@ -1477,7 +1514,7 @@ ul li.greeting {
 #post_event select, #event_options input[type="text"], #tz {
 	max-width: calc(100% - 75px);
 }
-#post_event select, #evtitle, #event_location {
+#post_event select, #event_location {
 	width: calc(100% - 75px);
 }
 #post_event input[type="checkbox"] + select {
@@ -2040,7 +2077,7 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 
 #fatal_error {
 	width: 80%;
-	margin: 0 auto 10px auto;
+	margin: auto;
 }
 .errorbox::before, .noticebox::before, .infobox::before {
 	width: 16px;
@@ -3100,7 +3137,7 @@ span.postby {
 	overflow: hidden;
 }
 #topic_container .lastpost, #topic_header .lastpost {
-	width: 20%;
+	width: 28ex;
 }
 #topic_container .lastpost, #topic_container .board_stats {
 	flex-shrink: 0;
@@ -3367,12 +3404,6 @@ img.smiley {
 .attachments hr {
 	clear: both;
 	margin: 12px 0;
-}
-.show_on_hover:hover span {
-	display:none;
-}
-.show_on_hover:hover:before {
-	content:attr(data-hover);
 }
 /* Separator of posts. More useful in the print stylesheet. */
 #forumposts .post_separator {
@@ -3792,12 +3823,11 @@ h3.profile_hd {
 /* Background of buttons */
 .dropmenu li ul, .top_menu, .dropmenu li li:hover, .button,
 .dropmenu li li:hover > a, .dropmenu li li a:focus, .dropmenu li li a:hover,
-#top_section, .quickbuttons > li,
-.quickbuttons li ul, .quickbuttons li ul li a:hover, .quickbuttons ul li a:focus,
-.inline_mod_check, .popup_window, #inner_section, .post_options ul,
-.post_options ul a:hover, .post_options ul a:focus, .notify_dropdown a:hover, .notify_dropdown a:focus {
+#top_section, #search_form .button, .quickbuttons li,
+.quickbuttons li ul, .quickbuttons li ul li:hover, .quickbuttons ul li a:focus,
+.popup_window, #inner_section {
 	background: #fff; /* fallback for some browsers */
-	background-image: linear-gradient(#e2e9f3 0%, #fff 70%);
+	background-image: linear-gradient(to bottom, #e2e9f3 0%, #fff 70%);
 }
 /* Well some of them has different gradient effect on hover */
 .button:hover, #search_form .button:hover, .quickbuttons li:hover {
@@ -3817,12 +3847,10 @@ h3.profile_hd {
 .notify_dropdown a {
 	display: block;
 	padding: 0.5em;
-	text-decoration: none;
-	border: 1px solid transparent;
-	border-radius: 3px;
 }
-.notify_dropdown a:hover, .notify_dropdown a:focus {
-	border-color: #ddd;
+.notify_dropdown a:hover {
+	text-decoration: none;
+	background: #eee;
 }
 .notify_dropdown span {
 	font-size: 0.9em;

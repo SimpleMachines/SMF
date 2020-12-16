@@ -862,18 +862,22 @@ function DatabaseSettings()
 
 		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
 
+		// No dice?  Let's try adding the prefix they specified, just in case they misread the instructions ;)
+		if ($db_connection == null)
+		{
+			$db_error = @$smcFunc['db_error']();
+
+			$db_connection = smf_db_initiate($db_server, $db_name, $_POST['db_prefix'] . $db_user, $db_passwd, $db_prefix, $options);
+			if ($db_connection != null)
+			{
+				$db_user = $_POST['db_prefix'] . $db_user;
+				installer_updateSettingsFile(array('db_user' => $db_user));
+			}
+		}
+
 		// Still no connection?  Big fat error message :P.
 		if (!$db_connection)
 		{
-			// Get error info...  Recast just in case we get false or 0...
-			$error_message = $smcFunc['db_connect_error']();
-			if (empty($error_message))
-				$error_message = '';
-			$error_number = $smcFunc['db_connect_errno']();
-			if (empty($error_number))
-				$error_number = '';
-			$db_error = (!empty($error_number) ? $error_number . ': ' : '') . $error_message;
-
 			$incontext['error'] = $txt['error_db_connect'] . '<div class="error_content"><strong>' . $db_error . '</strong></div>';
 			return false;
 		}
@@ -2478,7 +2482,7 @@ function template_admin_account()
 				<label for="email">', $txt['user_settings_admin_email'], ':</label>
 			</dt>
 			<dd>
-				<input type="email" name="email" id="email" value="', $incontext['email'], '" size="40">
+				<input type="text" name="email" id="email" value="', $incontext['email'], '" size="40">
 				<div class="smalltext">', $txt['user_settings_admin_email_info'], '</div>
 			</dd>
 			<dt>

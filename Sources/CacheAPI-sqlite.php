@@ -11,21 +11,15 @@
  * @version 2.1 RC3
  */
 
-namespace SMF\Cache\APIs;
-
-use SMF\Cache\CacheApi;
-use SMF\Cache\CacheApiInterface;
-use SQLite3;
-
 if (!defined('SMF'))
-	die('No direct access...');
+	die('Hacking attempt...');
 
 /**
  * SQLite Cache API class
  *
- * @package CacheAPI
+ * @package cacheAPI
  */
-class Sqlite extends CacheApi implements CacheApiInterface
+class sqlite_cache extends cache_api
 {
 	/**
 	 * @var string The path to the current $cachedir directory.
@@ -128,17 +122,8 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	{
 		global $context, $txt;
 
-		$class_name = $this->getImplementationClassKeyName();
-		$class_name_txt_key = strtolower($class_name);
-
-		$config_vars[] = $txt['cache_'. $class_name_txt_key .'_settings'];
-		$config_vars[] = array(
-			'cachedir_'. $class_name_txt_key,
-			$txt['cachedir_'. $class_name_txt_key],
-			'file',
-			'text',
-			36,
-			'cache_'. $class_name_txt_key .'_cachedir');
+		$config_vars[] = $txt['cache_sqlite_settings'];
+		$config_vars[] = array('cachedir_sqlite', $txt['cachedir_sqlite'], 'file', 'text', 36, 'cache_sqlite_cachedir');
 
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';
@@ -146,7 +131,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
-				$("#cachedir_'. $class_name_txt_key .'").prop("disabled", cache_type != "'. $class_name .'");
+				$("#cachedir_sqlite").prop("disabled", cache_type != "sqlite");
 			});';
 	}
 
@@ -178,10 +163,8 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	 */
 	public function getVersion()
 	{
-		if (null == $this->cacheDB)
-			$this->connect();
-
-		return $this->cacheDB->version()['versionString'];
+		$temp = $this->cacheDB->version();
+		return $temp['versionString'];
 	}
 
 	/**

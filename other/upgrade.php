@@ -717,18 +717,7 @@ function loadEssentialData()
 
 		// Oh dear god!!
 		if ($db_connection === null)
-		{
-			// Get error info...  Recast just in case we get false or 0...
-			$error_message = $smcFunc['db_connect_error']();
-			if (empty($error_message))
-				$error_message = '';
-			$error_number = $smcFunc['db_connect_errno']();
-			if (empty($error_number))
-				$error_number = '';
-			$db_error = (!empty($error_number) ? $error_number . ': ' : '') . $error_message;
-
-			die($txt['error_db_connect_settings'] . '<br><br>' . $db_error);
-		}
+			die($txt['error_db_connect_settings']);
 
 		if ($db_type == 'mysql' && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
 			$smcFunc['db_query']('', '
@@ -782,39 +771,39 @@ function initialize_inputs()
 	// This is really quite simple; if ?delete is on the URL, delete the upgrader...
 	if (isset($_GET['delete']))
 	{
-		deleteFile(__FILE__);
+		@unlink(__FILE__);
 
 		// And the extra little files ;).
-		deleteFile(dirname(__FILE__) . '/upgrade_1-0.sql');
-		deleteFile(dirname(__FILE__) . '/upgrade_1-1.sql');
-		deleteFile(dirname(__FILE__) . '/upgrade_2-0_' . $db_type . '.sql');
-		deleteFile(dirname(__FILE__) . '/upgrade_2-1_' . $db_type . '.sql');
-		deleteFile(dirname(__FILE__) . '/upgrade-helper.php');
+		@unlink(dirname(__FILE__) . '/upgrade_1-0.sql');
+		@unlink(dirname(__FILE__) . '/upgrade_1-1.sql');
+		@unlink(dirname(__FILE__) . '/upgrade_2-0_' . $db_type . '.sql');
+		@unlink(dirname(__FILE__) . '/upgrade_2-1_' . $db_type . '.sql');
+		@unlink(dirname(__FILE__) . '/upgrade-helper.php');
 
 		$dh = opendir(dirname(__FILE__));
 		while ($file = readdir($dh))
 		{
 			if (preg_match('~upgrade_\d-\d_([A-Za-z])+\.sql~i', $file, $matches) && isset($matches[1]))
-				deleteFile(dirname(__FILE__) . '/' . $file);
+				@unlink(dirname(__FILE__) . '/' . $file);
 		}
 		closedir($dh);
 
 		// Legacy files while we're at it. NOTE: We only touch files we KNOW shouldn't be there.
 		// 1.1 Sources files not in 2.0+
-		deleteFile(dirname(__FILE__) . '/Sources/ModSettings.php');
+		@unlink(dirname(__FILE__) . '/Sources/ModSettings.php');
 		// 1.1 Templates that don't exist any more (e.g. renamed)
-		deleteFile(dirname(__FILE__) . '/Themes/default/Combat.template.php');
-		deleteFile(dirname(__FILE__) . '/Themes/default/Modlog.template.php');
+		@unlink(dirname(__FILE__) . '/Themes/default/Combat.template.php');
+		@unlink(dirname(__FILE__) . '/Themes/default/Modlog.template.php');
 		// 1.1 JS files were stored in the main theme folder, but in 2.0+ are in the scripts/ folder
-		deleteFile(dirname(__FILE__) . '/Themes/default/fader.js');
-		deleteFile(dirname(__FILE__) . '/Themes/default/script.js');
-		deleteFile(dirname(__FILE__) . '/Themes/default/spellcheck.js');
-		deleteFile(dirname(__FILE__) . '/Themes/default/xml_board.js');
-		deleteFile(dirname(__FILE__) . '/Themes/default/xml_topic.js');
+		@unlink(dirname(__FILE__) . '/Themes/default/fader.js');
+		@unlink(dirname(__FILE__) . '/Themes/default/script.js');
+		@unlink(dirname(__FILE__) . '/Themes/default/spellcheck.js');
+		@unlink(dirname(__FILE__) . '/Themes/default/xml_board.js');
+		@unlink(dirname(__FILE__) . '/Themes/default/xml_topic.js');
 
 		// 2.0 Sources files not in 2.1+
-		deleteFile(dirname(__FILE__) . '/Sources/DumpDatabase.php');
-		deleteFile(dirname(__FILE__) . '/Sources/LockTopic.php');
+		@unlink(dirname(__FILE__) . '/Sources/DumpDatabase.php');
+		@unlink(dirname(__FILE__) . '/Sources/LockTopic.php');
 
 		header('location: http://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
 		exit;
@@ -1062,7 +1051,7 @@ function checkLogin()
 				foreach ($groups as $k => $v)
 					$groups[$k] = (int) $v;
 
-				$sha_passwd = sha1(strtolower($name) . $_REQUEST['passwrd']);
+				$sha_passwd = sha1(strtolower($name) . un_htmlspecialchars($_REQUEST['passwrd']));
 
 				// We don't use "-utf8" anymore...
 				$user_language = str_ireplace('-utf8', '', $user_language);
@@ -1368,7 +1357,7 @@ function UpgradeOptions()
 	// Accelerator setting didn't exist previously; use 'smf' file based caching as default if caching had been enabled.
 	if (!isset($GLOBALS['cache_enable']))
 		$changes += array(
-			'cache_accelerator' => upgradeCacheSettings(),
+			'cache_accelerator' => !empty($modSettings['cache_enable']) ? 'smf' : '',
 			'cache_enable' => !empty($modSettings['cache_enable']) ? $modSettings['cache_enable'] : 0,
 			'cache_memcached' => !empty($modSettings['cache_memcached']) ? $modSettings['cache_memcached'] : '',
 		);
@@ -1391,7 +1380,6 @@ function UpgradeOptions()
 	{
 		if ($db_type == 'mysql' && $db_port == ini_get('mysqli.default_port'))
 			$changes['db_port'] = 0;
-
 		elseif ($db_type == 'postgresql' && $db_port == 5432)
 			$changes['db_port'] = 0;
 	}
@@ -4098,7 +4086,8 @@ function template_welcome_message()
 							<label for="passwrd"', $disable_security ? ' disabled' : '', '>', $txt['upgrade_password'], '</label>
 						</dt>
 						<dd>
-							<input type="password" name="passwrd" value=""', $disable_security ? ' disabled' : '', '>';
+							<input type="password" name="passwrd" value=""', $disable_security ? ' disabled' : '', '>
+							<input type="hidden" name="hash_passwrd" value="">';
 
 	if (!empty($upcontext['password_failed']))
 		echo '

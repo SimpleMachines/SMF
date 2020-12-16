@@ -1461,7 +1461,7 @@ function Post($post_errors = array())
 	}
 
 	// Gotta post it somewhere.
-	if (empty($board))
+	if (empty($board) && !$context['make_event'])
 	{
 		$context['posting_fields']['board'] = array(
 			'label' => array(

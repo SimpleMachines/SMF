@@ -228,7 +228,7 @@ function CalendarMain()
 
 	// Set the page title to mention the month or week, too
 	if ($context['calendar_view'] != 'viewlist')
-		$context['page_title'] .= ' - ' . ($context['calendar_view'] == 'viewweek' ? $context['calendar_grid_main']['week_title'] : $txt['months_titles'][$context['current_month']] . ' ' . $context['current_year']);
+		$context['page_title'] .= ' - ' . ($context['calendar_view'] == 'viewweek' ? $context['calendar_grid_main']['week_title'] : $txt['months'][$context['current_month']] . ' ' . $context['current_year']);
 
 	// Load up the linktree!
 	$context['linktree'][] = array(
@@ -238,7 +238,7 @@ function CalendarMain()
 	// Add the current month to the linktree.
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=calendar;year=' . $context['current_year'] . ';month=' . $context['current_month'],
-		'name' => $txt['months_titles'][$context['current_month']] . ' ' . $context['current_year']
+		'name' => $txt['months'][$context['current_month']] . ' ' . $context['current_year']
 	);
 	// If applicable, add the current week to the linktree.
 	if ($context['calendar_view'] == 'viewweek')

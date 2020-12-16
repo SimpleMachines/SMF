@@ -32,7 +32,7 @@ if (!defined('SMF'))
  */
 function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix, $db_options = array())
 {
-	global $smcFunc, $pg_connect_error, $pg_connect_errno;
+	global $smcFunc;
 
 	// Map some database specific functions, only do this once.
 	if (!isset($smcFunc['db_fetch_assoc']))
@@ -66,8 +66,6 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_custom_order'           => 'smf_db_custom_order',
 			'db_native_replace'         => 'smf_db_native_replace',
 			'db_cte_support'            => 'smf_db_cte_support',
-			'db_connect_error'          => 'smf_db_connect_error',
-			'db_connect_errno'          => 'smf_db_connect_errno',
 		);
 
 	// We are not going to make it very far without these.
@@ -77,24 +75,10 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 	// We need to escape ' and \
 	$db_passwd = str_replace(array('\\','\''), array('\\\\','\\\''), $db_passwd);
 
-	// Since pg_connect doesn't feed error info to pg_last_error, we have to catch issues with a try/catch.
-	set_error_handler(function($errno, $errstr) {
-		throw new ErrorException($errstr, $errno);});
-	try
-	{
-		if (!empty($db_options['persist']))
-			$connection = @pg_pconnect((empty($db_server) ? '' : 'host=' . $db_server . ' ') . 'dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
-		else
-			$connection = @pg_connect((empty($db_server) ? '' : 'host=' . $db_server . ' ') . 'dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
-	}
-	catch (Exception $e)
-	{
-		// Make error info available to calling processes
-		$pg_connect_error = $e->getMessage();
-		$pg_connect_errno = $e->getCode();
-		$connection = false;
-	}
-	restore_error_handler();
+	if (!empty($db_options['persist']))
+		$connection = @pg_pconnect((empty($db_server) ? '' : 'host=' . $db_server . ' ') . 'dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
+	else
+		$connection = @pg_connect((empty($db_server) ? '' : 'host=' . $db_server . ' ') . 'dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
 
 	// Something's wrong, show an error if its fatal (which we assume it is)
 	if (!$connection)
@@ -643,7 +627,7 @@ function smf_db_error($db_string, $connection = null)
  * @param resource $connection The connection to use (if null, $db_connection is used)
  * @return mixed value of the first key, behavior based on returnmode. null if no data.
  */
-function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
+function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
 {
 	global $smcFunc, $db_connection, $db_prefix;
 
@@ -651,7 +635,7 @@ function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0,
 
 	$replace = '';
 
-	if (empty($table) || empty($data))
+	if (empty($data))
 		return;
 
 	if (!is_array($data[array_rand($data)]))
@@ -1035,42 +1019,6 @@ function smf_db_escape_string($string, $connection = null)
 	global $db_connection;
 
 	return pg_escape_string($connection === null ? $db_connection : $connection, $string);
-}
-
-/**
- * Function to return the pg connection error message.
- * Emulating mysqli_connect_error.
- * Since pg_connect() doesn't feed info to pg_last_error, we need to
- * use a try/catch & preserve error info.
- *
- * @return string connection error message
- */
-function smf_db_connect_error()
-{
-	global $pg_connect_error;
-
-	if (empty($pg_connect_error))
-		$pg_connect_error = '';
-
-	return $pg_connect_error;
-}
-
-/**
- * Function to return the pg connection error number.
- * Emulating mysqli_connect_errno.
- * Since pg_connect() doesn't feed info to pg_last_error, we need to
- * use a try/catch & preserve error info.
- *
- * @return string connection error number
- */
-function smf_db_connect_errno()
-{
-	global $pg_connect_errno;
-
-	if (empty($pg_connect_errno))
-		$pg_connect_errno = '';
-
-	return $pg_connect_errno;
 }
 
 ?>

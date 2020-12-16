@@ -286,12 +286,14 @@ function ViewMemberlist()
 			// Make sure numeric values are really numeric.
 			if (in_array($param_info['type'], array('int', 'age')))
 				$search_params[$param_name] = (int) $search_params[$param_name];
-			// Date values have to match a date format that PHP recognizes.
+			// Date values have to match the specified format.
 			elseif ($param_info['type'] == 'date')
 			{
-				$search_params[$param_name] = strtotime($search_params[$param_name] . ' ' . getUserTimezone());
-				if (!is_int($search_params[$param_name]))
+				// Check if this date format is valid.
+				if (preg_match('/^\d{4}-\d{1,2}-\d{1,2}$/', $search_params[$param_name]) == 0)
 					continue;
+
+				$search_params[$param_name] = strtotime($search_params[$param_name]);
 			}
 			elseif ($param_info['type'] == 'inet')
 			{
@@ -330,24 +332,9 @@ function ViewMemberlist()
 					}
 				}
 				// Special case - equals a date.
-				elseif ($param_info['type'] == 'date')
+				elseif ($param_info['type'] == 'date' && $search_params['types'][$param_name] == '=')
 				{
-					if ($search_params['types'][$param_name] == '=')
-					{
-						$query_parts[] = $param_info['db_fields'][0] . ' >= ' . forum_time(true, $search_params[$param_name]) . ' AND ' . $param_info['db_fields'][0] . ' < ' . (forum_time(true, $search_params[$param_name]) + 86400);
-					}
-					// Less than or equal to
-					elseif ($search_params['types'][$param_name] == '-')
-					{
-						$query_parts[] = $param_info['db_fields'][0] . ' < ' . (forum_time(true, $search_params[$param_name]) + 86400);
-					}
-					// Greater than
-					elseif ($search_params['types'][$param_name] == '++')
-					{
-						$query_parts[] = $param_info['db_fields'][0] . ' >= ' . (forum_time(true, $search_params[$param_name]) + 86400);
-					}
-					else
-						$query_parts[] = $param_info['db_fields'][0] . ' ' . $range_trans[$search_params['types'][$param_name]] . ' ' . forum_time(true, $search_params[$param_name]);
+					$query_parts[] = $param_info['db_fields'][0] . ' > ' . $search_params[$param_name] . ' AND ' . $param_info['db_fields'][0] . ' < ' . ($search_params[$param_name] + 86400);
 				}
 				else
 					$query_parts[] = $param_info['db_fields'][0] . ' ' . $range_trans[$search_params['types'][$param_name]] . ' ' . $search_params[$param_name];

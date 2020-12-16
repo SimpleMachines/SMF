@@ -43,11 +43,11 @@ function template_login()
 					<dl>
 						<dt>', $txt['username'], ':</dt>
 						<dd>
-							<input type="text" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', $context['default_username'], '" required>
+							<input type="text" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', $context['default_username'], '">
 						</dd>
 						<dt>', $txt['password'], ':</dt>
 						<dd>
-							<input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20" required>
+							<input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20">
 						</dd>
 					</dl>
 					<dl>
@@ -76,13 +76,8 @@ function template_login()
 					</p>
 					<p class="smalltext">
 						<a href="', $scripturl, '?action=reminder">', $txt['forgot_your_password'], '</a>
-					</p>';
-	if (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1)
-		echo '
-					<p class="smalltext">
-						', sprintf($txt['welcome_guest_activate'], $scripturl), '
-					</p>';
-	echo '
+					</p>
+					<input type="hidden" name="hash_passwrd" value="">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
 					<script>
@@ -278,6 +273,7 @@ function template_kick_guest()
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
+			<input type="hidden" name="hash_passwrd" value="">
 		</div><!-- .login -->
 	</form>';
 
@@ -330,6 +326,7 @@ function template_maintenance()
 				<input type="submit" value="', $txt['login'], '" class="button">
 				<br class="clear">
 			</div>
+			<input type="hidden" name="hash_passwrd" value="">
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
 		</div><!-- #maintenance_mode -->

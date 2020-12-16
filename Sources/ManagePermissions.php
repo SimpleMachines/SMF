@@ -2111,7 +2111,7 @@ function EditPermissionProfiles()
 
 	// Work out what ones are in use.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_profile, COUNT(*) AS board_count
+		SELECT id_profile, COUNT(id_board) AS board_count
 		FROM {db_prefix}boards
 		GROUP BY id_profile',
 		array(

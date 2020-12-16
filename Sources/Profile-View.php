@@ -359,12 +359,8 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	call_integration_hook('integrate_fetch_alerts', array(&$alerts, &$formats));
 
 	// Substitute $scripturl into the link formats. (Done here to make life easier for hooked mods.)
-	$formats = array_map(function ($format) use ($scripturl) {
-		$format['link'] = str_replace('{scripturl}', $scripturl, $format['link']);
-		$format['text'] = str_replace('{scripturl}', $scripturl, $format['text']);
-
-		return $format;
-	}, $formats);
+	foreach ($formats as &$format_type)
+		$format_type = str_replace('{scripturl}', $scripturl, $format_type);
 
 	// If we need to check board access, use the correct board access filter for the member in question.
 	if ((!isset($user_info['query_see_board']) || $user_info['id'] != $memID) && (!empty($possible_msgs) || !empty($possible_topics)))
@@ -742,7 +738,6 @@ function showAlerts($memID)
 				'icon' => 'move',
 			),
 			'quickmod' => array(
-    			'class' => 'inline_mod_check',
 				'content' => '<input type="checkbox" name="mark[' . $id . ']" value="' . $id . '">',
 				'show' => $context['showCheckboxes']
 			)
@@ -838,11 +833,9 @@ function showPosts($memID)
 	// Shortcut used to determine which $txt['show*'] string to use for the title, based on the SA
 	$title = array(
 		'attach' => 'Attachments',
+		'unwatchedtopics' => 'Unwatched',
 		'topics' => 'Topics'
 	);
-
-	if ($context['user']['is_owner'])
-		$title['unwatchedtopics'] = 'Unwatched';
 
 	// Set the page title
 	if (isset($_GET['sa']) && array_key_exists($_GET['sa'], $title))
@@ -860,7 +853,7 @@ function showPosts($memID)
 	if (isset($_GET['sa']) && $_GET['sa'] == 'attach')
 		return showAttachments($memID);
 	// Instead, if we're dealing with unwatched topics (and the feature is enabled) use that other function.
-	elseif (isset($_GET['sa']) && $_GET['sa'] == 'unwatchedtopics' && $context['user']['is_owner'])
+	elseif (isset($_GET['sa']) && $_GET['sa'] == 'unwatchedtopics')
 		return showUnwatched($memID);
 
 	// Are we just viewing topics?
@@ -919,7 +912,7 @@ function showPosts($memID)
 		);
 	else
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
+			SELECT COUNT(id_msg)
 			FROM {db_prefix}messages AS m
 			WHERE {query_see_message_board} AND m.id_member = {int:current_member}' . (!empty($board) ? '
 				AND m.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
@@ -1751,17 +1744,14 @@ function statPanel($memID)
 		SELECT
 			HOUR(FROM_UNIXTIME(poster_time + {int:time_offset})) AS hour,
 			COUNT(*) AS post_count
-		FROM (
-			SELECT poster_time, id_msg
-			FROM {db_prefix}messages WHERE id_member = {int:current_member}
-			ORDER BY id_msg DESC
-			LIMIT {int:max_messages}
-		) a
+		FROM {db_prefix}messages
+		WHERE id_member = {int:current_member}' . ($modSettings['totalMessages'] > 100000 ? '
+			AND id_topic > {int:top_ten_thousand_topics}' : '') . '
 		GROUP BY hour',
 		array(
 			'current_member' => $memID,
+			'top_ten_thousand_topics' => $modSettings['totalTopics'] - 10000,
 			'time_offset' => (($user_info['time_offset'] + $modSettings['time_offset']) * 3600),
-			'max_messages' => 1001,
 		)
 	);
 	$maxPosts = $realPosts = 0;
@@ -2134,7 +2124,7 @@ function list_getUserErrorCount($where, $where_vars = array())
 	global $smcFunc;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
+		SELECT COUNT(id_error)
 		FROM {db_prefix}log_errors
 		WHERE ' . $where,
 		$where_vars
@@ -2203,7 +2193,7 @@ function list_getIPMessageCount($where, $where_vars = array())
 	global $smcFunc, $user_info;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
+		SELECT COUNT(id_msg)
 		FROM {db_prefix}messages AS m
 		WHERE {query_see_message_board} AND ' . $where,
 		$where_vars

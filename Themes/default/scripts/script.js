@@ -1831,7 +1831,7 @@ smc_preview_post.prototype.doPreviewPost = function (event)
 	var new_replies = new Array();
 	if (window.XMLHttpRequest)
 	{
-		// @todo Currently not sending option checkboxes.
+		// @todo Currently not sending poll options and option checkboxes.
 		var x = new Array();
 		var textFields = ['subject', this.opts.sPostBoxContainerID, this.opts.sSessionVar, 'icon', 'guestname', 'email', 'evtitle', 'question', 'topic'];
 		var numericFields = [
@@ -1870,15 +1870,6 @@ smc_preview_post.prototype.doPreviewPost = function (event)
 		for (var i = 0, n = checkboxFields.length; i < n; i++)
 			if (checkboxFields[i] in document.forms.postmodify && document.forms.postmodify.elements[checkboxFields[i]].checked)
 				x[x.length] = checkboxFields[i] + '=' + document.forms.postmodify.elements[checkboxFields[i]].value;
-
-		// Poll options.
-		var i = 0;
-		while ('options[' + i + ']' in document.forms.postmodify)
-		{
-			x[x.length] = 'options[' + i + ']=' +
-				document.forms.postmodify.elements['options[' + i + ']'].value.php_to8bit().php_urlencode();
-			i++;
-		}
 
 		sendXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=post2' + (this.opts.iCurrentBoard ? ';board=' + this.opts.iCurrentBoard : '') + (this.opts.bMakePoll ? ';poll' : '') + ';preview;xml', x.join('&'), this.onDocSent.bind(this));
 

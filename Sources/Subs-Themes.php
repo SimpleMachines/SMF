@@ -20,10 +20,9 @@ if (!defined('SMF'))
  * Gets a single theme's info.
  *
  * @param int $id The theme ID to get the info from.
- * @param string[] $variables
  * @return array The theme info as an array.
  */
-function get_single_theme($id, array $variables = array())
+function get_single_theme($id)
 {
 	global $smcFunc, $modSettings;
 
@@ -34,8 +33,21 @@ function get_single_theme($id, array $variables = array())
 	// Make sure $id is an int.
 	$id = (int) $id;
 
+	// List of all possible  values.
+	$themeValues = array(
+		'theme_dir',
+		'images_url',
+		'theme_url',
+		'name',
+		'theme_layers',
+		'theme_templates',
+		'version',
+		'install_for',
+		'based_on',
+	);
+
 	// Make changes if you really want it.
-	call_integration_hook('integrate_get_single_theme', array(&$variables, $id));
+	call_integration_hook('integrate_get_single_theme', array(&$themeValues, $id));
 
 	$single = array(
 		'id' => $id,
@@ -48,11 +60,11 @@ function get_single_theme($id, array $variables = array())
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme, variable, value
 		FROM {db_prefix}themes
-		WHERE id_theme = ({int:id_theme})
-			AND id_member = {int:no_member}' . (!empty($variables) ? '
-			AND variable IN ({array_string:variables})' : ''),
+		WHERE variable IN ({array_string:theme_values})
+			AND id_theme = ({int:id_theme})
+			AND id_member = {int:no_member}',
 		array(
-			'variables' => $variables,
+			'theme_values' => $themeValues,
 			'id_theme' => $id,
 			'no_member' => 0,
 		)
@@ -132,19 +144,17 @@ function get_all_themes($enable_only = false)
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		if (!isset($context['themes'][$row['id_theme']]))
-			$context['themes'][$row['id_theme']] = array(
-				'id' => (int) $row['id_theme'],
-				'known' => in_array($row['id_theme'], $knownThemes),
-				'enable' => in_array($row['id_theme'], $enableThemes)
-			);
+		$context['themes'][$row['id_theme']]['id'] = (int) $row['id_theme'];
 
 		// Fix the path and tell if its a valid one.
 		if ($row['variable'] == 'theme_dir')
 		{
-			$row['value'] = realpath($row['value']);
-			$context['themes'][$row['id_theme']]['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
+			$context['themes'][$row['id_theme']][$row['variable']] = realpath($row['value']);
+			$context['themes'][$row['id_theme']]['valid_path'] = file_exists(realpath($row['value'])) && is_dir(realpath($row['value']));
 		}
+
+		$context['themes'][$row['id_theme']]['known'] = in_array($row['id_theme'], $knownThemes);
+		$context['themes'][$row['id_theme']]['enable'] = in_array($row['id_theme'], $enableThemes);
 		$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
 	}
 
@@ -198,19 +208,17 @@ function get_installed_themes()
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		if (!isset($context['themes'][$row['id_theme']]))
-			$context['themes'][$row['id_theme']] = array(
-				'id' => (int) $row['id_theme'],
-				'known' => in_array($row['id_theme'], $knownThemes),
-				'enable' => in_array($row['id_theme'], $enableThemes)
-			);
+		$context['themes'][$row['id_theme']]['id'] = (int) $row['id_theme'];
 
 		// Fix the path and tell if its a valid one.
 		if ($row['variable'] == 'theme_dir')
 		{
-			$row['value'] = realpath($row['value']);
-			$context['themes'][$row['id_theme']]['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
+			$context['themes'][$row['id_theme']][$row['variable']] = realpath($row['value']);
+			$context['themes'][$row['id_theme']]['valid_path'] = file_exists(realpath($row['value'])) && is_dir(realpath($row['value']));
 		}
+
+		$context['themes'][$row['id_theme']]['known'] = in_array($row['id_theme'], $knownThemes);
+		$context['themes'][$row['id_theme']]['enable'] = in_array($row['id_theme'], $enableThemes);
 		$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
 	}
 
@@ -268,7 +276,7 @@ function get_theme_info($path)
 
 	// So, we have an install tag which is cool and stuff but we also need to check it and match your current SMF version...
 	$the_version = SMF_VERSION;
-	$install_versions = $theme_info_xml->fetch('theme-info/install/@for');
+	$install_versions = $theme_info_xml->path('theme-info/install/@for');
 
 	// The theme isn't compatible with the current SMF version.
 	if (!$install_versions || !matchPackageVersion($the_version, $install_versions))
@@ -277,7 +285,8 @@ function get_theme_info($path)
 		fatal_lang_error('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
 	}
 
-	$theme_info_xml = $theme_info_xml->to_array('theme-info[0]');
+	$theme_info_xml = $theme_info_xml->path('theme-info[0]');
+	$theme_info_xml = $theme_info_xml->to_array();
 
 	$xml_elements = array(
 		'theme_layers' => 'layers',
@@ -321,7 +330,7 @@ function theme_install($to_install = array())
 	global $settings, $explicit_images;
 
 	// External use? no problem!
-	if (!empty($to_install))
+	if ($to_install)
 		$context['to_install'] = $to_install;
 
 	// One last check.
@@ -332,43 +341,45 @@ function theme_install($to_install = array())
 	if (!empty($context['to_install']['version']))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT id_theme
+			SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE id_member = {int:no_member}
-				AND variable = {literal:name}
+				AND variable = {string:name}
 				AND value LIKE {string:name_value}
 			LIMIT 1',
 			array(
 				'no_member' => 0,
+				'name' => 'name',
+				'version' => 'version',
 				'name_value' => '%' . $context['to_install']['name'] . '%',
 			)
 		);
 
-		list ($id_to_update) = $smcFunc['db_fetch_row']($request);
+		$to_update = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
-		$to_update = get_single_theme($id_to_update, array('version'));
 
 		// Got something, lets figure it out what to do next.
-		if (!empty($id_to_update) && !empty($to_update['version']))
+		if (!empty($to_update) && !empty($to_update['version']))
 			switch (compareVersions($context['to_install']['version'], $to_update['version']))
 			{
 				case 1: // Got a newer version, update the old entry.
 					$smcFunc['db_query']('', '
 						UPDATE {db_prefix}themes
 						SET value = {string:new_value}
-						WHERE variable = {literal:version}
+						WHERE variable = {string:version}
 							AND id_theme = {int:id_theme}',
 						array(
 							'new_value' => $context['to_install']['version'],
-							'id_theme' => $id_to_update,
+							'version' => 'version',
+							'id_theme' => $to_update['id_theme'],
 						)
 					);
 
 					// Done with the update, tell the user about it.
 					$context['to_install']['updated'] = true;
 
-					return $id_to_update;
-
+					return $to_update['id_theme'];
+					break; // Just for reference.
 				case 0: // This is exactly the same theme.
 				case -1: // The one being installed is older than the one already installed.
 				default: // Any other possible result.
@@ -404,12 +415,26 @@ function theme_install($to_install = array())
 				)
 			);
 
-			list ($id_based_on) = $smcFunc['db_fetch_row']($request);
+			$based_on = $smcFunc['db_fetch_assoc']($request);
 			$smcFunc['db_free_result']($request);
-			$temp = get_single_theme($id_based_on, array('theme_dir', 'images_url', 'theme_url'));
+
+			$request = $smcFunc['db_query']('', '
+				SELECT variable, value
+				FROM {db_prefix}themes
+				WHERE variable IN ({array_string:theme_values})
+					AND id_theme = ({int:based_on})
+				LIMIT 1',
+				array(
+					'no_member' => 0,
+					'theme__values' => array('theme_url', 'images_url', 'theme_dir',),
+					'based_on' => $based_on['id_theme'],
+				)
+			);
+			$temp = $smcFunc['db_fetch_assoc']($request);
+			$smcFunc['db_free_result']($request);
 
 			// Found the based on theme info, add it to the current one being installed.
-			if (!empty($temp))
+			if (is_array($temp))
 			{
 				$context['to_install']['base_theme_url'] = $temp['theme_url'];
 				$context['to_install']['base_theme_dir'] = $temp['theme_dir'];

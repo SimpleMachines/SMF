@@ -455,8 +455,7 @@ function template_extract_package()
 
 	elseif ($context['uninstalling'])
 		echo '
-			', $txt['package_uninstall_done'] .' <br>
-			', '<a href="', $context['keep_url'], '" class="button">', $txt['package_keep'], '</a>', '<a href="', $context['remove_url'], '" class="button">', $txt['package_delete2'], '</a>';
+			', $txt['package_uninstall_done'];
 
 	elseif ($context['install_finished'])
 	{
@@ -498,8 +497,8 @@ function template_list()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['list_file'], '</h3>
 		</div>
-		<div class="title_bar">
-			<h4 class="titlebg">', $txt['files_archive'], ' ', $context['filename'], ':</h4>
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['files_archive'], ' ', $context['filename'], ':</h3>
 		</div>
 		<div class="windowbg">
 			<ol>';
@@ -526,8 +525,8 @@ function template_examine()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_examine_file'], '</h3>
 		</div>
-		<div class="title_bar">
-			<h4 class="titlebg">', $txt['package_file_contents'], ' ', $context['filename'], ':</h4>
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['package_file_contents'], ' ', $context['filename'], ':</h3>
 		</div>
 		<div class="windowbg">
 			<pre class="file_content">', $context['filedata'], '</pre>

@@ -116,7 +116,7 @@ $txt['notify_regularity_instant'] = 'Instantly';
 $txt['notify_regularity_first_only'] = 'Instantly - but only for the first unread reply';
 $txt['notify_regularity_daily'] = 'Daily';
 $txt['notify_regularity_weekly'] = 'Weekly';
-$txt['auto_notify'] = 'Turn notification on when you post or reply to a topic';
+$txt['auto_notify'] = 'Turn notification on when you post or reply to a topic.';
 $txt['notify_send_types'] = 'For topics and boards I\'ve requested notification on, notify me of';
 $txt['notify_send_type_everything'] = 'Replies and moderation';
 $txt['notify_send_type_everything_own'] = 'Moderation only if I started the topic and am following it';
@@ -323,11 +323,11 @@ $txt['ban_type_access'] = 'access forum';
 
 $txt['show_online'] = 'Show others my online status';
 
-$txt['return_to_post'] = 'Return to topics after posting by default';
-$txt['posts_apply_ignore_list'] = 'Hide messages posted by members on my ignore list';
-$txt['recent_posts_at_top'] = 'Show most recent posts at the top in topic view';
-$txt['recent_pms_at_top'] = 'Show most recent personal messages at top';
-$txt['wysiwyg_default'] = 'Load editor in <abbr title="What You See Is What You Get">WYSIWYG</abbr> mode by default';
+$txt['return_to_post'] = 'Return to topics after posting by default.';
+$txt['posts_apply_ignore_list'] = 'Hide messages posted by members on my ignore list.';
+$txt['recent_posts_at_top'] = 'Show most recent posts at the top in topic view.';
+$txt['recent_pms_at_top'] = 'Show most recent personal messages at top.';
+$txt['wysiwyg_default'] = 'Load editor in <abbr title="What You See Is What You Get">WYSIWYG</abbr> mode by default.';
 
 $txt['timeformat_default'] = '(Forum Default)';
 $txt['timeformat_easy1'] = 'Month Day, Year, HH:MM:SS am/pm';
@@ -338,12 +338,12 @@ $txt['timeformat_easy5'] = 'DD-MM-YYYY, HH:MM:SS';
 
 $txt['poster'] = 'Poster';
 
-$txt['show_children'] = 'Show sub-boards on every page inside boards, not just the first';
-$txt['show_no_avatars'] = 'Don\'t show users\' avatars';
-$txt['show_no_signatures'] = 'Don\'t show users\' signatures';
+$txt['show_children'] = 'Show sub-boards on every page inside boards, not just the first.';
+$txt['show_no_avatars'] = 'Don\'t show users\' avatars.';
+$txt['show_no_signatures'] = 'Don\'t show users\' signatures.';
 $txt['show_no_censored'] = 'Leave words uncensored.';
-$txt['topics_per_page'] = 'Topics to display per page';
-$txt['messages_per_page'] = 'Messages to display per page';
+$txt['topics_per_page'] = 'Topics to display per page:';
+$txt['messages_per_page'] = 'Messages to display per page:';
 $txt['per_page_default'] = 'forum default';
 
 $txt['calendar_start_day'] = 'First day of the week on the calendar';
@@ -465,9 +465,9 @@ $txt['profile_warning_notify_body'] = 'Notification Message';
 $txt['profile_warning_notify_template_subject'] = 'You have received a warning';
 // Use numeric entities in below string.
 // argument(s): one of the reasons defined in $txt['profile_warning_notify_for_*']
-$txt['profile_warning_notify_template_outline'] = "{MEMBER},\n\nYou have received a warning for %1\$s. Please cease these activities and abide by the forum rules otherwise we will take further action.\n\nIf you wish to discuss this, please get in touch with an administrator.\n\n{REGARDS}";
+$txt['profile_warning_notify_template_outline'] = "{MEMBER},\n\nYou have received a warning for %1\$s. Please cease these activities and abide by the forum rules otherwise we will take further action.\n\n{REGARDS}";
 // argument(s): one of the reasons defined in $txt['profile_warning_notify_for_*']
-$txt['profile_warning_notify_template_outline_post'] = "{MEMBER},\n\nYou have received a warning for %1\$s in regards to the message:\n{MESSAGE}.\n\nPlease cease these activities and abide by the forum rules otherwise we will take further action.\n\nIf you wish to discuss this, please get in touch with an administrator.\n\n{REGARDS}";
+$txt['profile_warning_notify_template_outline_post'] = "{MEMBER},\n\nYou have received a warning for %1\$s in regards to the message:\n{MESSAGE}.\n\nPlease cease these activities and abide by the forum rules otherwise we will take further action.\n\n{REGARDS}";
 $txt['profile_warning_notify_for_spamming'] = 'spamming';
 $txt['profile_warning_notify_title_spamming'] = 'Spamming';
 $txt['profile_warning_notify_for_offence'] = 'posting offensive material';

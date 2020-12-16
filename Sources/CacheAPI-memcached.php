@@ -11,24 +11,16 @@
  * @version 2.1 RC3
  */
 
-namespace SMF\Cache\APIs;
-
-use Memcached;
-use SMF\Cache\CacheApi;
-use SMF\Cache\CacheApiInterface;
-
 if (!defined('SMF'))
-	die('No direct access...');
+	die('Hacking attempt...');
 
 /**
  * Our Cache API class
  *
- * @package CacheAPI
+ * @package cacheAPI
  */
-class MemcachedImplementation extends CacheApi implements CacheApiInterface
+class memcached_cache extends cache_api
 {
-	const CLASS_KEY = 'cache_memcached';
-
 	/** @var Memcached The memcache instance. */
 	private $memcached = null;
 
@@ -47,9 +39,8 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 			{
 				if (strpos($server, '/') !== false)
 					return array($server, 0);
-
 				else
-					return array($server, isset($server[1]) ? (int) $server[1] : 11211);
+					return array($server, isset($server[1]) ? $server[1] : 11211);
 			},
 			explode(',', $cache_memcached)
 		);
@@ -68,7 +59,6 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 
 		if ($test)
 			return $supported;
-
 		return parent::isSupported() && $supported && !empty($cache_memcached);
 	}
 
@@ -91,6 +81,8 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	protected function addServers()
 	{
+		// memcached does not remove servers from the list upon completing the
+		// script under modes like FastCGI. So check to see if servers exist or not.
 		$currentServers = $this->memcached->getServerList();
 		$retVal = !empty($currentServers);
 		foreach ($this->servers as $server)
@@ -126,7 +118,6 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 		// $value should return either data or false (from failure, key not found or empty array).
 		if ($value === false)
 			return null;
-
 		return $value;
 	}
 
@@ -166,18 +157,8 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	{
 		global $context, $txt;
 
-		$class_name = $this->getImplementationClassKeyName();
-		$class_name_txt_key = strtolower($class_name);
-
-		$config_vars[] = $txt['cache_'. $class_name_txt_key .'_settings'];
-		$config_vars[] = array(
-			self::CLASS_KEY,
-			$txt['cache_'. $class_name_txt_key .'_servers'],
-			'file',
-			'text',
-			0,
-			'cache_'. $class_name_txt_key,
-			'subtext' => $txt['cache_'. $class_name_txt_key .'_servers_subtext']);
+		$config_vars[] = $txt['cache_memcache_settings'];
+		$config_vars[] = array('cache_memcached', $txt['cache_memcache_servers'], 'file', 'text', 0, 'cache_memcached', 'postinput' => '<br><div class="smalltext"><em>' . $txt['cache_memcache_servers_subtext'] . '</em></div>');
 
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';
@@ -185,7 +166,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
-				$("#'. self::CLASS_KEY .'").prop("disabled", cache_type != "'. $class_name .'");
+				$("#cache_memcached").prop("disabled", cache_type != "memcached");
 			});';
 	}
 
@@ -194,16 +175,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function getVersion()
 	{
-		if (!is_object($this->memcached))
-			return false;
-
-		// This gets called in Subs-Admin getServerVersions when loading up support information.  If we can't get a connection, return nothing.
-		$result = $this->memcached->getVersion();
-
-		if (!empty($result))
-			return current($result);
-
-		return false;
+		return current($this->memcached->getVersion());
 	}
 }
 

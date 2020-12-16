@@ -43,7 +43,7 @@ function ViewModlog()
 
 	$context['can_delete'] = allowedTo('admin_forum');
 
-	loadLanguage('Admin+Modlog');
+	loadLanguage('Modlog');
 
 	$context['page_title'] = $context['log_type'] == 3 ? $txt['modlog_admin_log'] : $txt['modlog_view'];
 
@@ -163,7 +163,6 @@ function ViewModlog()
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
 		'id' => 'moderation_log_list',
-		'title' => $context['log_type'] == 3 ? $txt['admin_log'] : $txt['moderation_log'],
 		'width' => '100%',
 		'items_per_page' => $context['displaypage'],
 		'no_items_label' => $txt['modlog_' . ($context['log_type'] == 3 ? 'admin_log_' : '') . 'no_entries_found'],
@@ -282,17 +281,6 @@ function ViewModlog()
 			'token' => 'mod-ml',
 		),
 		'additional_rows' => array(
-			array(
-				'position' => 'top_of_list',
-				'value' => '
-					' . $txt['modlog_search'] . ' (' . $txt['modlog_by'] . ': ' . $context['search']['label'] . '):
-					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '">
-					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button" style="float:none">
-					' . ($context['can_delete'] ? '&nbsp;
-					<input type="submit" name="remove" value="' . $txt['modlog_remove'] . '" data-confirm="' . $txt['modlog_remove_selected_confirm'] . '" class="button you_sure">
-					<input type="submit" name="removeall" value="' . $txt['modlog_removeall'] . '" data-confirm="' . $txt['modlog_remove_all_confirm'] . '" class="button you_sure">' : ''),
-				'class' => 'floatright',
-			),
 			array(
 				'position' => 'below_table_data',
 				'value' => '

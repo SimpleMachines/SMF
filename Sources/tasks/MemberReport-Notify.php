@@ -74,7 +74,6 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 						array(
 							'report_link' => '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'], // We don't put $scripturl in these!
 							'user_name' => $this->_details['user_name'],
-							'user_id' => $this->_details['user_id'],
 						)
 					),
 				);

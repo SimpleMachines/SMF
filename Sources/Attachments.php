@@ -130,6 +130,9 @@ class Attachments
 
 		require_once($sourcedir . '/Subs-Attachments.php');
 
+		// Guest aren't welcome, sorry.
+		is_not_guest();
+
 		// Need this. For reasons...
 		loadLanguage('Post');
 

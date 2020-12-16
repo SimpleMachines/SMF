@@ -1207,7 +1207,7 @@ function RestoreTopic()
 			{
 				// Lets get the members that need their post count restored.
 				$request2 = $smcFunc['db_query']('', '
-					SELECT id_member, COUNT(*) AS post_count
+					SELECT id_member, COUNT(id_msg) AS post_count
 					FROM {db_prefix}messages
 					WHERE id_topic = {int:topic}
 						AND approved = {int:is_approved}

@@ -684,7 +684,7 @@ function EditMembergroup()
 
 	// Can this group moderate any boards?
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
+		SELECT COUNT(id_board)
 		FROM {db_prefix}moderator_groups
 		WHERE id_group = {int:current_group}',
 		array(

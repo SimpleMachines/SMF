@@ -203,7 +203,7 @@ function UnapprovedPosts()
 
 	// What about topics?  Normally we'd use the table alias t for topics but lets use m so we don't have to redo our approve query.
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
+		SELECT COUNT(m.id_topic)
 		FROM {db_prefix}topics AS m
 		WHERE m.approved = {int:not_approved}
 			AND {query_see_message_board}

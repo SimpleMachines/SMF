@@ -317,13 +317,8 @@ $(document).ready(function() {
 
 function export_download_all(format)
 {
-	$('#' + format + '_export_files a').each(function(index, element) {
-		// Add an invisible iframe pointing to the file.
-		var iframe = $('<iframe style="visibility: collapse;"></iframe>');
-		iframe[0].src = $(element).attr('href');
-		$('body').append(iframe);
+	var export_file_links = $('#' + format + '_export_files a');
 
-		// Give plenty of time for the download to complete, then clean up.
-		setTimeout(function() { iframe.remove(); }, 30000);
-	});
+	for (var i = 0; i < export_file_links.length; i++)
+		export_file_links[i].click();
 }
