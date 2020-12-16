@@ -3926,12 +3926,12 @@ function template_header()
 			if ($modSettings['requireAgreement'])
 				$agreement = !file_exists($boarddir . '/agreement.txt');
 
-			if (!empty($securityFiles) || (!empty($cache_enable) && !is_writable($cachedir)) || !empty($agreement))
+			if (!empty($securityFiles) || (!empty($cache_enable) && !is_writable($cachedir)) || !empty($agreement) || !empty($context['auth_secret_missing']))
 			{
 				echo '
 		<div class="errorbox">
 			<p class="alert">!!</p>
-			<h3>', empty($securityFiles) ? $txt['generic_warning'] : $txt['security_risk'], '</h3>
+			<h3>', empty($securityFiles) && empty($context['auth_secret_missing']) ? $txt['generic_warning'] : $txt['security_risk'], '</h3>
 			<p>';
 
 				foreach ($securityFiles as $securityFile)
@@ -3951,6 +3951,10 @@ function template_header()
 				if (!empty($agreement))
 					echo '
 				<strong>', $txt['agreement_missing'], '</strong><br>';
+
+				if (!empty($context['auth_secret_missing']))
+					echo '
+				<strong>', $txt['auth_secret_missing'], '</strong><br>';
 
 				echo '
 			</p>
