@@ -856,7 +856,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				'if (!is_dir(realpath($cachedir)) && is_dir($boarddir . \'/cache\'))',
 				'	$cachedir = $boarddir . \'/cache\';',
 			)),
-			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)|\!is_dir\(realpath\(\$(?>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)\))[^;]+\n\h*\$(?>boarddir|sourcedir|tasksdir|packagesdir|cachedir)[^\n]+;)+~sm',
+			'search_pattern' => '~\n?(#[^\n]+)?(?:\n\h*if\s*\((?:\!file_exists\(\$(?'.'>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)|\!is_dir\(realpath\(\$(?'.'>boarddir|sourcedir|tasksdir|packagesdir|cachedir)\)\))[^;]+\n\h*\$(?'.'>boarddir|sourcedir|tasksdir|packagesdir|cachedir)[^\n]+;)+~sm',
 		),
 		'db_character_set' => array(
 			'text' => implode("\n", array(
@@ -955,8 +955,8 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		'boolean' =>  '(?i:TRUE|FALSE|(["\']?)[01]\b\\1)',
 		'NULL' =>  '(?i:NULL)',
 		// These use a PCRE subroutine to match nested arrays.
-		'array' =>  'array\s*(\((?>[^()]|(?1))*\))',
-		'object' =>  '\w+::__set_state\(array\s*(\((?>[^()]|(?1))*\))\)',
+		'array' =>  'array\s*(\((?'.'>[^()]|(?1))*\))',
+		'object' =>  '\w+::__set_state\(array\s*(\((?'.'>[^()]|(?1))*\))\)',
 	);
 
 	/*
@@ -989,7 +989,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 		),
 		// Remove the code that redirects to the installer.
 		$neg_index-- => array(
-			'search_pattern' => '~^if\s*\(file_exists\(dirname\(__FILE__\)\s*\.\s*\'/install\.php\'\)\)\s*(?:({(?>[^{}]|(?1))*})\h*|header(\((?' . '>[^()]|(?2))*\));\n)~m',
+			'search_pattern' => '~^if\s*\(file_exists\(dirname\(__FILE__\)\s*\.\s*\'/install\.php\'\)\)\s*(?:({(?'.'>[^{}]|(?1))*})\h*|header(\((?' . '>[^()]|(?2))*\));\n)~m',
 			'placeholder' => '',
 		),
 	);
@@ -2062,10 +2062,12 @@ function strip_php_comments($code_str, $line_ending = null)
  * - If it fails Settings.php will assume 0
  *
  * @param int $time The timestamp of the last DB error
+ * @param bool True If we should update the current db_last_error context as well.  This may be useful in cases where the current context needs to know a error was logged since the last check.
+ * @return bool True If we could succesfully put the file or not.
  */
-function updateDbLastError($time)
+function updateDbLastError($time, $update = true)
 {
-	global $boarddir, $cachedir;
+	global $boarddir, $cachedir, $db_last_error;
 
 	// Write out the db_last_error file with the error timestamp
 	if (!empty($cachedir) && is_writable($cachedir))
@@ -2077,9 +2079,16 @@ function updateDbLastError($time)
 	else
 		$errorfile = dirname(__DIR__) . '/db_last_error.php';
 
-	file_put_contents($errorfile, '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';' . "\n" . '?' . '>', LOCK_EX);
+	$result = file_put_contents($errorfile, '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';' . "\n" . '?' . '>', LOCK_EX);
 
 	@touch($boarddir . '/' . 'Settings.php');
+
+	// Unless requested, we should update $db_last_error as well.
+	if ($update)
+		$db_last_error = $time;
+
+	// We  do a loose match here rather than strict (!==) as 0 is also false.
+	return $result != false;
 }
 
 /**
