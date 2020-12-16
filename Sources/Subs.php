@@ -2054,7 +2054,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (is_numeric($data))
 						$data = timeformat($data);
 
-					$tag['content'] = '<strong>$1</strong>';
+					$tag['content'] = '<span class="bbc_time">$1</span>';
 				},
 			),
 			array(
