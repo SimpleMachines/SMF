@@ -11,18 +11,26 @@
  * @version 2.1 RC3
  */
 
+namespace SMF\Cache\APIs;
+
+use Memcache;
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Our Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class memcache_cache extends cache_api
+class MemcacheImplementation extends CacheApi implements CacheApiInterface
 {
+	const CLASS_KEY = 'cache_memcached';
+
 	/**
-	 * @var \Memcache The memcache instance.
+	 * @var Memcache The memcache instance.
 	 */
 	private $memcache = null;
 
@@ -37,6 +45,7 @@ class memcache_cache extends cache_api
 
 		if ($test)
 			return $supported;
+
 		return parent::isSupported() && $supported && !empty($cache_memcached);
 	}
 
@@ -46,6 +55,8 @@ class memcache_cache extends cache_api
 	public function connect()
 	{
 		global $db_persist, $cache_memcached;
+
+		$this->memcache = new Memcache();
 
 		$servers = explode(',', $cache_memcached);
 		$port = 0;
@@ -58,12 +69,17 @@ class memcache_cache extends cache_api
 		while (!$connected && $level < count($servers))
 		{
 			++$level;
-			$this->memcache = new Memcache();
+
 			$server = trim($servers[array_rand($servers)]);
+
+			// No server, can't connect to this.
+			if (empty($server))
+				continue;
 
 			// Normal host names do not contain slashes, while e.g. unix sockets do. Assume alternative transport pipe with port 0.
 			if (strpos($server, '/') !== false)
 				$host = $server;
+
 			else
 			{
 				$server = explode(':', $server);
@@ -74,6 +90,7 @@ class memcache_cache extends cache_api
 			// Don't wait too long: yes, we want the server, but we might be able to run the query faster!
 			if (empty($db_persist))
 				$connected = $this->memcache->connect($host, $port);
+
 			else
 				$connected = $this->memcache->pconnect($host, $port);
 		}
@@ -93,6 +110,7 @@ class memcache_cache extends cache_api
 		// $value should return either data or false (from failure, key not found or empty array).
 		if ($value === false)
 			return null;
+
 		return $value;
 	}
 
@@ -120,6 +138,7 @@ class memcache_cache extends cache_api
 	public function cleanCache($type = '')
 	{
 		$this->invalidateCache();
+
 		return $this->memcache->flush();
 	}
 
@@ -130,8 +149,18 @@ class memcache_cache extends cache_api
 	{
 		global $context, $txt;
 
-		$config_vars[] = $txt['cache_memcache_settings'];
-		$config_vars[] = array('cache_memcached', $txt['cache_memcache_servers'], 'file', 'text', 0, 'cache_memcached', 'postinput' => '<br><div class="smalltext"><em>' . $txt['cache_memcache_servers_subtext'] . '</em></div>');
+		$class_name = $this->getImplementationClassKeyName();
+		$class_name_txt_key = strtolower($class_name);
+
+		$config_vars[] = $txt['cache_'. $class_name_txt_key .'_settings'];
+		$config_vars[] = array(
+			self::CLASS_KEY,
+			$txt['cache_'. $class_name_txt_key .'_servers'],
+			'file',
+			'text',
+			0,
+			'cache_'. $class_name_txt_key,
+			'subtext' => $txt['cache_'. $class_name_txt_key .'_servers_subtext']);
 
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';
@@ -139,7 +168,7 @@ class memcache_cache extends cache_api
 		$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
-				$("#cache_memcached").prop("disabled", cache_type != "memcache");
+				$("#'. self::CLASS_KEY .'").prop("disabled", cache_type != "'. $class_name .'");
 			});';
 	}
 
@@ -148,7 +177,16 @@ class memcache_cache extends cache_api
 	 */
 	public function getVersion()
 	{
-		return $this->memcache->getVersion();
+		if (!is_object($this->memcache))
+			return false;
+
+		// This gets called in Subs-Admin getServerVersions when loading up support information.  If we can't get a connection, return nothing.
+		$result = $this->memcache->getVersion();
+
+		if (!empty($result))
+			return $result;
+
+		return false;
 	}
 }
 

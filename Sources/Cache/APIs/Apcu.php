@@ -11,15 +11,20 @@
  * @version 2.1 RC3
  */
 
+namespace SMF\Cache\APIs;
+
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Our Cache API class
  *
- * @package cacheAPI
+ * @package CacheAPI
  */
-class apcu_cache extends cache_api
+class Apcu extends CacheApi implements CacheApiInterface
 {
 	/**
 	 * {@inheritDoc}
@@ -30,7 +35,16 @@ class apcu_cache extends cache_api
 
 		if ($test)
 			return $supported;
+
 		return parent::isSupported() && $supported;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function connect()
+	{
+		return true;
 	}
 
 	/**
@@ -55,6 +69,7 @@ class apcu_cache extends cache_api
 		// An extended key is needed to counteract a bug in APC.
 		if ($value === null)
 			return apcu_delete($key . 'smf');
+
 		else
 			return apcu_store($key . 'smf', $value, $ttl !== null ? $ttl : $this->ttl);
 	}
@@ -65,6 +80,7 @@ class apcu_cache extends cache_api
 	public function cleanCache($type = '')
 	{
 		$this->invalidateCache();
+
 		return apcu_clear_cache();
 	}
 

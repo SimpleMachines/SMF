@@ -1577,4 +1577,181 @@ function scheduled_remove_old_drafts()
 	return true;
 }
 
+/**
+ * Prune log_topics, log_boards & log_mark_boards_read.
+ * For users who haven't been active in a long time, purge these records.
+ * For users who haven't been active in a shorter time, mark boards as read,
+ * pruning log_topics.
+ */
+function scheduled_prune_log_topics()
+{
+	global $smcFunc, $sourcedir, $modSettings;
+
+	// If set to zero, bypass
+	if (empty($modSettings['mark_read_max_users']) || (empty($modSettings['mark_read_beyond']) && empty($modSettings['mark_read_delete_beyond'])))
+		return true;
+
+	// Convert to timestamps for comparison
+	if (empty($modSettings['mark_read_beyond']))
+		$markReadCutoff = 0;
+	else
+		$markReadCutoff = time() - $modSettings['mark_read_beyond'] * 86400;
+
+	if (empty($modSettings['mark_read_delete_beyond']))
+		$cleanupBeyond = 0;
+	else
+		$cleanupBeyond = time() - $modSettings['mark_read_delete_beyond'] * 86400;
+
+	$maxMembers = $modSettings['mark_read_max_users'];
+
+	// You're basically saying to just purge, so just purge
+	if ($markReadCutoff < $cleanupBeyond)
+		$markReadCutoff = $cleanupBeyond;
+
+	// Try to prevent timeouts
+	@set_time_limit(300);
+	if (function_exists('apache_reset_timeout'))
+		@apache_reset_timeout();
+
+	// Start off by finding the records in log_boards, log_topics & log_mark_read
+	// for users who haven't been around the longest...
+	$members = array();
+	$sql = 'SELECT lb.id_member, m.last_login
+			FROM {db_prefix}members m
+			INNER JOIN
+			(
+				SELECT DISTINCT id_member
+				FROM {db_prefix}log_boards
+			) lb ON m.id_member = lb.id_member
+			WHERE m.last_login <= {int:dcutoff}
+		UNION
+		SELECT lmr.id_member, m.last_login
+			FROM {db_prefix}members m
+			INNER JOIN
+			(
+				SELECT DISTINCT id_member
+				FROM {db_prefix}log_mark_read
+			) lmr ON m.id_member = lmr.id_member
+			WHERE m.last_login <= {int:dcutoff}
+		UNION
+		SELECT lt.id_member, m.last_login
+			FROM {db_prefix}members m
+			INNER JOIN
+			(
+				SELECT DISTINCT id_member
+				FROM {db_prefix}log_topics
+				WHERE unwatched = {int:unwatched}
+			) lt ON m.id_member = lt.id_member
+			WHERE m.last_login <= {int:mrcutoff}
+		ORDER BY last_login
+		LIMIT {int:limit}';
+	$result = $smcFunc['db_query']('', $sql,
+		array(
+			'limit' => $maxMembers,
+			'dcutoff' => $cleanupBeyond,
+			'mrcutoff' => $markReadCutoff,
+			'unwatched' => 0,
+		)
+	);
+
+	// Move to array...
+	$members = $smcFunc['db_fetch_all']($result);
+	$smcFunc['db_free_result']($result);
+
+	// Nothing to do?
+	if (empty($members))
+		return true;
+
+	// Determine action based on last_login...
+	$purgeMembers = array();
+	$markReadMembers = array();
+	foreach($members as $member)
+	{
+		if ($member['last_login'] <= $cleanupBeyond)
+			$purgeMembers[] = $member['id_member'];
+		elseif ($member['last_login'] <= $markReadCutoff)
+			$markReadMembers[] = $member['id_member'];
+	}
+
+	if (!empty($purgeMembers) && !empty($modSettings['mark_read_delete_beyond']))
+	{
+		// Delete rows from log_boards
+		$sql = 'DELETE FROM {db_prefix}log_boards
+			WHERE id_member IN ({array_int:members})';
+		$smcFunc['db_query']('', $sql,
+			array(
+				'members' => $purgeMembers,
+			)
+		);
+		// Delete rows from log_mark_read
+		$sql = 'DELETE FROM {db_prefix}log_mark_read
+			WHERE id_member IN ({array_int:members})';
+		$smcFunc['db_query']('', $sql,
+			array(
+				'members' => $purgeMembers,
+			)
+		);
+		// Delete rows from log_topics
+		$sql = 'DELETE FROM {db_prefix}log_topics
+			WHERE id_member IN ({array_int:members})
+				AND unwatched = {int:unwatched}';
+		$smcFunc['db_query']('', $sql,
+			array(
+				'members' => $purgeMembers,
+				'unwatched' => 0,
+			)
+		);
+	}
+
+	// Nothing left to do?
+	if (empty($markReadMembers) || empty($modSettings['mark_read_beyond']))
+		return true;
+
+	// Find board inserts to perform...
+	// Get board info for each member from log_topics.
+	// Note this user may have read many topics on that board, 
+	// but we just want one row each, & the ID of the last message read in each board.
+	$boards = array();
+	$sql = 'SELECT lt.id_member, t.id_board, MAX(lt.id_msg) AS id_last_message
+		FROM {db_prefix}topics t
+		INNER JOIN
+		(
+			SELECT id_member, id_topic, id_msg
+			FROM {db_prefix}log_topics
+			WHERE id_member IN ({array_int:members})
+		) lt ON t.id_topic = lt.id_topic
+		GROUP BY lt.id_member, t.id_board';
+	$result = $smcFunc['db_query']('', $sql,
+		array(
+			'members' => $markReadMembers,
+		)
+	);
+	$boards = $smcFunc['db_fetch_all']($result);
+	$smcFunc['db_free_result']($result);
+
+	// Create one SQL statement for this set of inserts
+	if (!empty($boards))
+	{
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}log_mark_read',
+			array('id_member' => 'int', 'id_board' => 'int', 'id_msg' => 'int'),
+			$boards,
+			array('id_member', 'id_board')
+		);
+	}
+
+	// Finally, delete this set's rows from log_topics
+	$sql = 'DELETE FROM {db_prefix}log_topics
+		WHERE id_member IN ({array_int:members})
+			AND unwatched = {int:unwatched}';
+	$smcFunc['db_query']('', $sql,
+		array(
+			'members' => $markReadMembers,
+			'unwatched' => 0,
+		)
+	);
+
+	return true;
+}
+
 ?>

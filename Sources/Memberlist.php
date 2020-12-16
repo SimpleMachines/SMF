@@ -79,15 +79,15 @@ function Memberlist()
 			'label' => $txt['website'],
 			'link_with' => 'website',
 			'sort' => array(
-				'down' => 'LENGTH(mem.website_url) > 0 ASC, COALESCE(mem.website_url, 1=1) DESC, mem.website_url DESC',
-				'up' => 'LENGTH(mem.website_url) > 0 DESC, COALESCE(mem.website_url, 1=1) ASC, mem.website_url ASC'
+				'down' => 'mem.website_url = \'\', mem.website_url is null, mem.website_url DESC',
+				'up' => 'mem.website_url != \'\', mem.website_url is not null, mem.website_url ASC'
 			),
 		),
 		'id_group' => array(
 			'label' => $txt['position'],
 			'sort' => array(
-				'down' => 'COALESCE(mg.group_name, 1=1) DESC, mg.group_name DESC',
-				'up' => 'COALESCE(mg.group_name, 1=1) ASC, mg.group_name ASC'
+				'down' => 'mg.group_name is null, mg.group_name DESC',
+				'up' => 'mg.group_name is not null, mg.group_name ASC'
 			),
 		),
 		'registered' => array(
@@ -207,7 +207,7 @@ function MLAll()
 				list($memberlist_cache['index'][$i]) = $smcFunc['db_fetch_row']($request);
 			}
 			$smcFunc['db_data_seek']($request, $memberlist_cache['num_members'] - 1);
-			list ($memberlist_cache['index'][$i]) = $smcFunc['db_fetch_row']($request);
+			list ($memberlist_cache['index'][$memberlist_cache['num_members'] - 1]) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 
 			// Now we've got the cache...store it.
@@ -304,7 +304,11 @@ function MLAll()
 	if ($use_cache && $_REQUEST['sort'] === 'real_name' && !isset($_REQUEST['desc']))
 	{
 		$first_offset = $_REQUEST['start'] - ($_REQUEST['start'] % $cache_step_size);
+		if ($first_offset < 0)
+			$first_offset = 0;
 		$second_offset = ceil(($_REQUEST['start'] + $modSettings['defaultMaxMembers']) / $cache_step_size) * $cache_step_size;
+		if ($second_offset >= $memberlist_cache['num_members'])
+			$second_offset = $memberlist_cache['num_members'] - 1;
 
 		$where = 'mem.real_name BETWEEN {string:real_name_low} AND {string:real_name_high}';
 		$query_parameters['real_name_low'] = $memberlist_cache['index'][$first_offset];
@@ -319,6 +323,8 @@ function MLAll()
 		if ($first_offset < 0)
 			$first_offset = 0;
 		$second_offset = ceil(($memberlist_cache['num_members'] - $_REQUEST['start']) / $cache_step_size) * $cache_step_size;
+		if ($second_offset >= $memberlist_cache['num_members'])
+			$second_offset = $memberlist_cache['num_members'] - 1;
 
 		$where = 'mem.real_name BETWEEN {string:real_name_low} AND {string:real_name_high}';
 		$query_parameters['real_name_low'] = $memberlist_cache['index'][$first_offset];

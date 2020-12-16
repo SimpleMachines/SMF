@@ -80,7 +80,7 @@ function template_search_members()
 								</select>
 							</dt>
 							<dd>
-								<input type="date" name="reg_date" id="reg_date" value="" size="10"><span class="smalltext">', $txt['date_format'], '</span>
+								<input type="date" name="reg_date" id="reg_date" value="" size="10"><span class="smalltext"></span>
 							</dd>
 							<dt class="righttext">
 								<strong><label for="last_online">', $txt['viewmembers_online'], ':</label></strong>
@@ -93,7 +93,7 @@ function template_search_members()
 								</select>
 							</dt>
 							<dd>
-								<input type="date" name="last_online" id="last_online" value="" size="10"><span class="smalltext">', $txt['date_format'], '</span>
+								<input type="date" name="last_online" id="last_online" value="" size="10"><span class="smalltext"></span>
 							</dd>
 						</dl>
 					</div><!-- .msearch_details -->

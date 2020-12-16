@@ -60,9 +60,11 @@ if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
 {
 	if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
 		$cachedir = $boarddir . '/cache';
+
 	else
 	{
 		$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
+
 		@mkdir($cachedir, 0750);
 	}
 }
@@ -87,6 +89,7 @@ loadDatabase();
 // Load the settings from the settings table, and perform operations like optimizing.
 $context = array();
 reloadSettings();
+
 // Clean the request variables, add slashes, etc.
 cleanRequest();
 
@@ -113,6 +116,7 @@ if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
 	// If zlib is being used, turn off output compression.
 	if (ini_get('zlib.output_compression') >= 1 || ini_get('output_handler') == 'ob_gzhandler')
 		$modSettings['enableCompressedOutput'] = '0';
+
 	else
 	{
 		ob_end_clean();
@@ -131,6 +135,7 @@ spl_autoload_register(function ($class) use ($sourcedir)
 		'ReCaptcha\\' => 'ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => 'minify/src/',
 		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+		'SMF\\Cache' => 'Cache/',
 	);
 
 	// Do any third-party scripts want in on the fun?
@@ -228,7 +233,6 @@ function smf_main()
 		'helpadmin' => true,
 		'jsoption' => true,
 		'likes' => true,
-		'loadeditorlocale' => true,
 		'modifycat' => true,
 		'pm' => array('sa' => array('popup')),
 		'profile' => array('area' => array('popup', 'alerts_popup', 'download', 'dlattach')),
@@ -340,7 +344,6 @@ function smf_main()
 		'jsmodify' => array('Post.php', 'JavaScriptModify'),
 		'jsoption' => array('Themes.php', 'SetJavaScript'),
 		'likes' => array('Likes.php', 'Likes::call#'),
-		'loadeditorlocale' => array('Subs-Editor.php', 'loadLocale'),
 		'lock' => array('Topic.php', 'LockTopic'),
 		'lockvoting' => array('Poll.php', 'LockVoting'),
 		'login' => array('LogInOut.php', 'Login'),
@@ -379,7 +382,6 @@ function smf_main()
 		'signup2' => array('Register.php', 'Register2'),
 		'smstats' => array('Stats.php', 'SMStats'),
 		'suggest' => array('Subs-Editor.php', 'AutoSuggestHandler'),
-		'spellcheck' => array('Subs-Post.php', 'SpellCheck'),
 		'splittopics' => array('SplitTopics.php', 'SplitTopics'),
 		'stats' => array('Stats.php', 'DisplayStats'),
 		'sticky' => array('Topic.php', 'Sticky'),

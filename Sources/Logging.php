@@ -401,7 +401,7 @@ function trackStats($stats = array())
  *
  * @return int The ID of the row containing the logged data
  */
-function logAction($action, $extra = array(), $log_type = 'moderate')
+function logAction($action, array $extra = array(), $log_type = 'moderate')
 {
 	return logActions(array(array(
 		'action' => $action,
@@ -426,7 +426,7 @@ function logAction($action, $extra = array(), $log_type = 'moderate')
  *
  * @return int The last logged ID
  */
-function logActions($logs)
+function logActions(array $logs)
 {
 	global $modSettings, $user_info, $smcFunc, $sourcedir;
 
@@ -442,8 +442,8 @@ function logActions($logs)
 
 	foreach ($logs as $log)
 	{
-		if ((empty($modSettings[$log['log_type'] . 'log_enabled']) || !isset($log_types[$log['log_type']])) && !in_array($log['action'], $always_log))
-			return false;
+		if (!isset($log_types[$log['log_type']]) && (empty($modSettings[$log['log_type'] . 'log_enabled']) || !in_array($log['action'], $always_log)))
+			continue;
 
 		if (!is_array($log['extra']))
 			trigger_error('logActions(): data is not an array with action \'' . $log['action'] . '\'', E_USER_NOTICE);

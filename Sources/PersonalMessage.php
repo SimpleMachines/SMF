@@ -1135,6 +1135,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 			),
 		),
 		'quickmod' => array(
+			'class' => 'inline_mod_check',
 			'content' => '<input type="checkbox" name="pms[]" id="deletedisplay' . $output['id'] . '" value="' . $output['id'] . '" onclick="document.getElementById(\'deletelisting' . $output['id'] . '\').checked = this.checked;">',
 			'show' => empty($context['display_mode'])
 		)
@@ -2751,7 +2752,7 @@ function MessageActionsApply()
 				// If we're removing from the inbox, see if we have at least one other label.
 				// This query is faster than the one above
 				$request2 = $smcFunc['db_query']('', '
-					SELECT COUNT(l.id_label)
+					SELECT COUNT(*)
 					FROM {db_prefix}pm_labels AS l
 						INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
 					WHERE l.id_member = {int:current_member}
