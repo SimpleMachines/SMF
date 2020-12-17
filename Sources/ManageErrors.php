@@ -137,7 +137,7 @@ function ViewErrorLog()
 	{
 		// We want all errors, not just the number of filtered messages...
 		$query = $smcFunc['db_query']('', '
-			SELECT COUNT(id_error)
+			SELECT COUNT(*)
 			FROM {db_prefix}log_errors',
 			array()
 		);

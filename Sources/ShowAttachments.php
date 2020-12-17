@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function showAttachment()
 {
-	global $smcFunc, $modSettings, $maintenance, $context, $txt;
+	global $smcFunc, $modSettings, $maintenance, $context, $txt, $user_info;
 
 	// Some defaults that we need.
 	$context['character_set'] = empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set'];
@@ -147,6 +147,30 @@ function showAttachment()
 			$smcFunc['db_free_result']($request2);
 		}
 
+		// If attachment is unapproved, see if user is allowed to approve
+		if (!$file['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts'))
+		{
+			$request3 = $smcFunc['db_query']('', '
+				SELECT id_member
+				FROM {db_prefix}messages
+				WHERE id_msg = {int:id_msg}
+				LIMIT 1',
+				array(
+					'id_msg' => $file['id_msg'],
+				)
+			);
+
+			$id_member = $smcFunc['db_fetch_assoc']($request3)['id_member'];
+			$smcFunc['db_free_result']($request3);
+
+			// Let users see own unapproved attachments
+			if ($id_member != $user_info['id'])
+			{
+				send_http_status(403, 'Forbidden');
+				die('403 Forbidden');
+			}
+		}
+
 		// set filePath and ETag time
 		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
 		// ensure variant attachment compatibility
@@ -175,10 +199,8 @@ function showAttachment()
 			// Got something! replace the $file var with the thumbnail info.
 			if ($thumbFile)
 			{
-				$attachId = $thumbFile['id_attach'];
-
 				// set filePath and ETag time
-				$thumbFile['filePath'] = getAttachmentFilename($thumbFile['filename'], $attachId, $thumbFile['id_folder'], false, $thumbFile['file_hash']);
+				$thumbFile['filePath'] = getAttachmentFilename($thumbFile['filename'], $thumbFile['id_attach'], $thumbFile['id_folder'], false, $thumbFile['file_hash']);
 				$thumbFile['etag'] = '"' . md5_file($thumbFile['filePath']) . '"';
 			}
 		}

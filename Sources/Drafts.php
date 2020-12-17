@@ -549,7 +549,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 	// Get the count of applicable drafts on the boards they can (still) see ...
 	// @todo .. should we just let them see their drafts even if they have lost board access ?
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(id_draft)
+		SELECT COUNT(*)
 		FROM {db_prefix}user_drafts AS ud
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board AND {query_see_board})
 		WHERE id_member = {int:id_member}
@@ -724,7 +724,7 @@ function showPMDrafts($memID = -1)
 
 	// Get the count of applicable drafts
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(id_draft)
+		SELECT COUNT(*)
 		FROM {db_prefix}user_drafts
 		WHERE id_member = {int:id_member}
 			AND type={int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '

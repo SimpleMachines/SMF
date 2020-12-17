@@ -7,6 +7,9 @@ function smf_fileUpload(oOptions) {
 		previewTemplate = tmp.innerHTML;
 		previewNode.parentNode.removeChild(previewNode);
 
+	if (typeof current_board == 'undefined')
+		current_board = false;
+
 	// Default values in case oOptions isn't defined.
 	var dOptions = {
 		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id + (current_board ? ';board=' + current_board : ''),
@@ -145,6 +148,7 @@ function smf_fileUpload(oOptions) {
 		file.insertAttachment = function (_innerElement, response) {
 			insertButton = $('<a />')
 				.addClass('button')
+				.addClass('insertBBC')
 				.prop('disabled', false)
 				.text(myDropzone.options.text_insertBBC)
 				.on('click', function (e) {
@@ -197,9 +201,9 @@ function smf_fileUpload(oOptions) {
 							// For dramatic purposes only!
 							_innerElement.removeClass('infobox').addClass(data.type + 'box');
 
-							// Remove the text field and show a nice confirmation message.
-							_innerElement.find('.attached_BBC').text(data.text);
-							_thisElement.find('.attachment_info a.insertBBC').fadeOut();
+							// Remove the text fields and insert button.
+							_innerElement.find('.attached_BBC').fadeOut();
+							_innerElement.find('.attachment_info a.insertBBC').fadeOut();
 
 							// Do stuff only if the file was actually accepted and it doesn't have an error status.
 							if (file.accepted && file.status != Dropzone.ERROR) {
@@ -209,6 +213,11 @@ function smf_fileUpload(oOptions) {
 
 								// Re-count!
 								myDropzone.options.createMaxSizeBar();
+
+								file.accepted = false;
+
+								// Show the current amount of remaining files
+								$('.attach_remaining').html(myDropzone.options.maxFileAmount - myDropzone.getAcceptedFiles().length);
 							}
 						},
 						error: function (xhr, textStatus, errorThrown) {
@@ -226,7 +235,7 @@ function smf_fileUpload(oOptions) {
 				.appendTo(_innerElement.find('.attach-ui'));
 
 				// Show the current amount of remaining files
-				$('.attach_remaining').html(myDropzone.getAcceptedFiles().length);
+				$('.attach_remaining').html(myDropzone.options.maxFileAmount - myDropzone.getAcceptedFiles().length);
 		};
 
 		// The editor needs this to know how to handle embedded attachements

@@ -37,6 +37,11 @@ $txt['databaseSession_lifetime'] = 'Seconds before an unused session timeout';
 $txt['error_log_desc'] = 'The error log, if enabled, will log every error encountered by users using your forum. This can be an invaluable aid to identifying forum problems.';
 $txt['enableErrorLogging'] = 'Enable error logging';
 $txt['enableErrorQueryLogging'] = 'Include database query in the error log';
+$txt['markread_title'] = 'Mark Read Logs';
+$txt['mark_read_desc'] = 'The following options govern how long before automatically marking boards and topics as read and how long before purging this information.';
+$txt['mark_read_beyond'] = 'Automatically mark boards read for users who have been inactive after this many days';
+$txt['mark_read_delete_beyond'] = 'Automatically purge information about boards and topics visited after this many days';
+$txt['mark_read_max_users'] = 'Maximum users to process at a time';
 $txt['pruningOptions'] = 'Enable pruning of log entries';
 $txt['pruneErrorLog'] = 'Remove error log entries older than';
 $txt['pruneModLog'] = 'Remove moderation log entries older than';
@@ -110,13 +115,11 @@ $txt['enable_mentions'] = 'Enable Mentions';
 
 $txt['caching_information'] = 'SMF supports caching through the use of accelerators. The currently supported accelerators include:
 <ul class="normallist">
-	<li>APC</li>
 	<li>APCu</li>
 	<li>Memcached</li>
 	<li>SQLite3</li>
 	<li>PostgreSQL</li>
 	<li>Zend Platform/Performance Suite (Not Zend Optimizer)</li>
-	<li>XCache</li>
 </ul>
 Caching will work best if you have PHP compiled with one of the above optimizers, or have memcached available. If you do not have any optimizer installed SMF will do file based caching.';
 $txt['detected_no_caching'] = 'SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.';
@@ -128,24 +131,22 @@ $txt['cache_level1'] = 'Level 1 Caching (Recommended)';
 $txt['cache_level2'] = 'Level 2 Caching';
 $txt['cache_level3'] = 'Level 3 Caching (Not Recommended)';
 $txt['cache_accelerator'] = 'Caching Accelerator';
-$txt['smf_cache'] = 'SMF file based caching';
+$txt['filebased_cache'] = 'SMF file based caching';
 $txt['sqlite_cache'] = 'SQLite3 database based caching';
 $txt['postgres_cache'] = 'PostgreSQL caching';
 $txt['cachedir_sqlite'] = 'SQLite3 database cache directory';
-$txt['apc_cache'] = 'APC';
 $txt['apcu_cache'] = 'APCu';
-$txt['memcache_cache'] = 'Memcache';
-$txt['memcached_cache'] = 'Memcached';
-$txt['xcache_cache'] = 'XCache';
+$txt['memcacheimplementation_cache'] = 'Memcache';
+$txt['memcachedimplementation_cache'] = 'Memcached';
 $txt['zend_cache'] = 'Zend Platform/Performance Suite';
-$txt['cache_smf_settings'] = 'SMF file based caching settings';
+$txt['cache_filebased_settings'] = 'SMF file based caching settings';
 $txt['cache_sqlite_settings'] = 'SQLite3 database caching settings';
-$txt['cache_memcache_settings'] = 'Memcache(d) settings';
-$txt['cache_memcache_servers'] = 'Memcache(d) servers';
-$txt['cache_memcache_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
-$txt['cache_xcache_settings'] = 'XCache settings';
-$txt['cache_xcache_adminuser'] = 'XCache Admin User';
-$txt['cache_xcache_adminpass'] = 'XCache Admin Password';
+$txt['cache_memcachedimplementation_settings'] = 'Memcached settings';
+$txt['cache_memcachedimplementation_servers'] = 'Memcached servers';
+$txt['cache_memcachedimplementation_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
+$txt['cache_memcacheimplementation_settings'] = 'Memcache settings';
+$txt['cache_memcacheimplementation_servers'] = 'Memcache servers';
+$txt['cache_memcacheimplementation_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
 
 $txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>%01.2f</strong>';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';
@@ -398,7 +399,7 @@ $txt['languages_txt'] = 'Standard text strings';
 $txt['languages_helptxt'] = 'Help text';
 $txt['languages_editortxt'] = 'User interface for the editor';
 $txt['languages_tztxt'] = 'Time zone descriptions';
-$txt['languages_txt_for_timezones'] = 'Custom location names';
+$txt['languages_txt_for_timezones'] = 'Place names';
 $txt['languages_txt_for_email_templates'] = 'Email message templates';
 $txt['languages_enter_key'] = 'Enter a variable name for this text string';
 $txt['languages_invalid_key'] = 'Sorry, but this variable name is invalid: ';

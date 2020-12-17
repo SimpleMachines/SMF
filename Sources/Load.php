@@ -13,6 +13,9 @@
  * @version 2.1 RC3
  */
 
+use SMF\Cache\CacheApi;
+use SMF\Cache\CacheApiInterface;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -317,6 +320,15 @@ function reloadSettings()
 			display_loadavg_error();
 	}
 
+	// Ensure we know who can manage boards.
+	if (!isset($modSettings['board_manager_groups']))
+	{
+		require_once($sourcedir . '/Subs-Members.php');
+		$board_managers = groupsAllowedTo('manage_boards', null);
+		$board_managers = implode(',', $board_managers['allowed']);
+		updateSettings(array('board_manager_groups' => $board_managers), true);
+	}
+
 	// Is post moderation alive and well? Everywhere else assumes this has been defined, so let's make sure it is.
 	$modSettings['postmod_active'] = !empty($modSettings['postmod_active']);
 
@@ -427,6 +439,17 @@ function reloadSettings()
 	$context['restricted_bbc'] = array(
 		'html',
 	);
+
+	// Login Cookie times. Format: time => txt
+	$context['login_cookie_times'] = array(
+		3153600 => 'always_logged_in',
+		60 => 'one_hour',
+		1440 => 'one_day',
+		10080 => 'one_week',
+		43200 => 'one_month',
+	);
+
+	$context['show_spellchecking'] = false;
 
 	// Call pre load integration functions.
 	call_integration_hook('integrate_pre_load');
@@ -770,15 +793,6 @@ function loadUserSettings()
 		$user_info['time_offset'] = 0;
 	}
 
-	// Login Cookie times. Format: time => txt
-	$context['login_cookie_times'] = array(
-		3153600 => 'always_logged_in',
-		60 => 'one_hour',
-		1440 => 'one_day',
-		10080 => 'one_week',
-		43200 => 'one_month',
-	);
-
 	// Set up the $user_info array.
 	$user_info += array(
 		'id' => $id_member,
@@ -1028,7 +1042,7 @@ function loadBoard()
 
 	if (empty($temp))
 	{
-		$custom_column_selects = [];
+		$custom_column_selects = array();
 		$custom_column_parameters = [
 			'current_topic' => $topic,
 			'board_link' => empty($topic) ? $smcFunc['db_quote']('{int:current_board}', array('current_board' => $board)) : 't.id_board',
@@ -2293,7 +2307,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'findmember',
 		'helpadmin',
 		'printpage',
-		'spellcheck',
 	);
 
 	// Parent action => array of areas
@@ -2676,7 +2689,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 	if (allowedTo('admin_forum') && isset($_REQUEST['debug']) && !in_array($sub_template_name, array('init', 'main_below')) && ob_get_length() > 0 && !isset($_REQUEST['xml']))
 	{
 		echo '
-<div class="warningbox">---- ', $sub_template_name, ' ends ----</div>';
+<div class="noticebox">---- ', $sub_template_name, ' ends ----</div>';
 	}
 }
 
@@ -2704,7 +2717,9 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	if (empty($context['css_files_order']))
 		$context['css_files_order'] = array();
 
-	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $context) ? $context['browser_cache'] : '') : (is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
+	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ?
+		(array_key_exists('browser_cache', $context) ? $context['browser_cache'] : '') :
+		(is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : true;
@@ -2717,7 +2732,8 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 		$params['minimize'] = false;
 
 	// Account for shorthand like admin.css?alp21 filenames
-	$id = empty($id) ? strtr(str_replace('.css', '', basename($fileName)), '?', '_') : $id;
+	$id = (empty($id) ? strtr(str_replace('.css', '', basename($fileName)), '?', '_') : $id) . '_css';
+
 	$fileName = str_replace(pathinfo($fileName, PATHINFO_EXTENSION), strtok(pathinfo($fileName, PATHINFO_EXTENSION), '?'), $fileName);
 
 	// Is this a local file?
@@ -2816,7 +2832,9 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
-	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $context) ? $context['browser_cache'] : '') : (is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
+	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ?
+		(array_key_exists('browser_cache', $context) ? $context['browser_cache'] : '') :
+		(is_string($params['seed']) ? '?' . ltrim($params['seed'], '?') : '');
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['async'] = isset($params['async']) ? $params['async'] : false;
@@ -2829,7 +2847,7 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 		$params['minimize'] = false;
 
 	// Account for shorthand like admin.js?alp21 filenames
-	$id = empty($id) ? strtr(str_replace('.js', '', basename($fileName)), '?', '_') : $id;
+	$id = (empty($id) ? strtr(str_replace('.js', '', basename($fileName)), '?', '_') : $id) . '_js';
 	$fileName = str_replace(pathinfo($fileName, PATHINFO_EXTENSION), strtok(pathinfo($fileName, PATHINFO_EXTENSION), '?'), $fileName);
 
 	// Is this a local file?
@@ -3538,56 +3556,62 @@ function loadDatabase()
  * @param bool $fallbackSMF Use the default SMF method if the accelerator fails.
  * @return object|false A object of $cacheAPI, or False on failure.
  */
-function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
+function loadCacheAccelerator($overrideCache = '', $fallbackSMF = true)
 {
-	global $sourcedir, $cacheAPI, $cache_accelerator, $cache_enable;
+	global $cacheAPI, $cache_accelerator, $cache_enable;
+	global $sourcedir;
 
-	// is caching enabled?
+	// Is caching enabled?
 	if (empty($cache_enable) && empty($overrideCache))
 		return false;
 
 	// Not overriding this and we have a cacheAPI, send it back.
 	if (empty($overrideCache) && is_object($cacheAPI))
 		return $cacheAPI;
+
 	elseif (is_null($cacheAPI))
 		$cacheAPI = false;
 
-	// Make sure our class is in session.
-	require_once($sourcedir . '/Class-CacheAPI.php');
+	require_once($sourcedir . '/Cache/CacheApi.php');
+	require_once($sourcedir . '/Cache/CacheApiInterface.php');
 
 	// What accelerator we are going to try.
-	$tryAccelerator = !empty($overrideCache) ? $overrideCache : (!empty($cache_accelerator) ? $cache_accelerator : 'smf');
-	$tryAccelerator = strtolower($tryAccelerator);
+	$cache_class_name = !empty($cache_accelerator) ? $cache_accelerator : CacheApi::APIS_DEFAULT;
+	$fully_qualified_class_name = !empty($overrideCache) ? $overrideCache :
+		CacheApi::APIS_NAMESPACE . $cache_class_name;
 
 	// Do some basic tests.
-	if (file_exists($sourcedir . '/CacheAPI-' . $tryAccelerator . '.php'))
+	if (class_exists($fully_qualified_class_name))
 	{
-		require_once($sourcedir . '/CacheAPI-' . $tryAccelerator . '.php');
+		/* @var CacheApiInterface $cache_api */
+		$cache_api = new $fully_qualified_class_name();
 
-		$cache_class_name = $tryAccelerator . '_cache';
-		$testAPI = new $cache_class_name();
+		// There are rules you know...
+		if (!($cache_api instanceof CacheApiInterface) || !($cache_api instanceof CacheApi))
+			return false;
 
 		// No Support?  NEXT!
-		if (!$testAPI->isSupported())
+		if (!$cache_api->isSupported())
 		{
 			// Can we save ourselves?
-			if (!empty($fallbackSMF) && is_null($overrideCache) && $tryAccelerator != 'smf')
-				return loadCacheAccelerator(null, false);
+			if (!empty($fallbackSMF) && $overrideCache == '' &&
+				$cache_class_name !== CacheApi::APIS_DEFAULT)
+				return loadCacheAccelerator(CacheApi::APIS_NAMESPACE . CacheApi::APIS_DEFAULT, false);
+
 			return false;
 		}
 
 		// Connect up to the accelerator.
-		$testAPI->connect();
+		$cache_api->connect();
 
 		// Don't set this if we are overriding the cache.
-		if (is_null($overrideCache))
-		{
-			$cacheAPI = $testAPI;
-			return $cacheAPI;
-		}
-		else
-			return $testAPI;
+		if (empty($overrideCache))
+			$cacheAPI = $cache_api;
+
+		return $cache_api;
 	}
+
+	return false;
 }
 
 /**
@@ -3603,8 +3627,6 @@ function loadCacheAccelerator($overrideCache = null, $fallbackSMF = true)
 function cache_quick_get($key, $file, $function, $params, $level = 1)
 {
 	global $modSettings, $sourcedir, $cache_enable;
-
-	// @todo Why are we doing this if caching is disabled?
 
 	if (function_exists('call_integration_hook'))
 		call_integration_hook('pre_cache_quick_get', array(&$key, &$file, &$function, &$params, &$level));
@@ -3641,9 +3663,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  * - It may "miss" so shouldn't be depended on
  * - Uses the cache engine chosen in the ACP and saved in settings.php
  * - It supports:
- *	 Xcache: https://xcache.lighttpd.net/wiki/XcacheApi
  *	 memcache: https://php.net/memcache
- *	 APC: https://php.net/apc
  *   APCu: https://php.net/book.apcu
  *	 Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
  *	 Zend: http://files.zend.com/help/Zend-Platform/zend_cache_functions.htm
@@ -3685,7 +3705,7 @@ function cache_put_data($key, $value, $ttl = 120)
  *
  * @param string $key The key for the value to retrieve
  * @param int $ttl The maximum age of the cached data
- * @return string|null The cached data or null if nothing was loaded
+ * @return array|null The cached data or null if nothing was loaded
  */
 function cache_get_data($key, $ttl = 120)
 {
@@ -3693,7 +3713,7 @@ function cache_get_data($key, $ttl = 120)
 	global $cache_hits, $cache_count, $cache_misses, $cache_count_misses, $db_show_debug;
 
 	if (empty($cache_enable) || empty($cacheAPI))
-		return;
+		return null;
 
 	$cache_count = isset($cache_count) ? $cache_count + 1 : 1;
 	if (isset($db_show_debug) && $db_show_debug === true)
@@ -3737,7 +3757,7 @@ function cache_get_data($key, $ttl = 120)
  *  - If no type is specified will perform a complete cache clearing
  * For cache engines that do not distinguish on types, a full cache flush will be done
  *
- * @param string $type The cache type ('memcached', 'apc', 'xcache', 'zend' or something else for SMF's file cache)
+ * @param string $type The cache type ('memcached', 'zend' or something else for SMF's file cache)
  */
 function clean_cache($type = '')
 {

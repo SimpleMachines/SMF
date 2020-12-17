@@ -213,7 +213,7 @@ function ModifyBasicSettings($return_config = false)
 			'min' => -23.5,
 			'max' => 23.5
 		),
-		'default_timezone' => array('select', 'default_timezone', array()),
+		array('select', 'default_timezone', array_filter(smf_list_timezones(), 'is_string', ARRAY_FILTER_USE_KEY)),
 		array('text', 'timezone_priority_countries', 'subtext' => $txt['setting_timezone_priority_countries_note']),
 		'',
 
@@ -242,17 +242,6 @@ function ModifyBasicSettings($return_config = false)
 			),
 		),
 	);
-
-	// Get all the time zones.
-	if (function_exists('timezone_identifiers_list') && function_exists('date_default_timezone_set'))
-	{
-		$all_zones = timezone_identifiers_list();
-		// Make sure we set the value to the same as the printed value.
-		foreach ($all_zones as $zone)
-			$config_vars['default_timezone'][2][$zone] = $zone;
-	}
-	else
-		unset($config_vars['default_timezone']);
 
 	call_integration_hook('integrate_modify_basic_settings', array(&$config_vars));
 
@@ -2266,6 +2255,12 @@ function ModifyLogSettings($return_config = false)
 		array('desc', 'error_log_desc'),
 		array('check', 'enableErrorLogging'),
 		array('check', 'enableErrorQueryLogging'),
+		// The 'mark read' log settings.
+		array('title', 'markread_title'),
+		array('desc', 'mark_read_desc'),
+		array('int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
+		array('int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
+		array('int', 'mark_read_max_users', 'step' => 1, 'min' => 0, 'max' => 20000, 'subtext' => $txt['zero_to_disable']),
 		// Even do the pruning?
 		array('title', 'pruning_title'),
 		array('desc', 'pruning_desc'),
@@ -2321,6 +2316,9 @@ function ModifyLogSettings($return_config = false)
 			array('check', 'userlog_enabled'),
 			array('check', 'enableErrorLogging'),
 			array('check', 'enableErrorQueryLogging'),
+			array('int', 'mark_read_beyond'),
+			array('int', 'mark_read_delete_beyond'),
+			array('int', 'mark_read_max_users'),
 			array('text', 'pruningOptions')
 		);
 

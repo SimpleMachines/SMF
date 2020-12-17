@@ -32,6 +32,19 @@ function preparsecode(&$message, $previewing = false)
 
 	static $tags_regex, $disallowed_tags_regex;
 
+	// Convert control characters (except \t, \r, and \n) to harmless Unicode symbols
+	$control_replacements = array(
+		"\x00" => '&#x2400;', "\x01" => '&#x2401;', "\x02" => '&#x2402;', "\x03" => '&#x2403;',
+		"\x04" => '&#x2404;', "\x05" => '&#x2405;', "\x06" => '&#x2406;', "\x07" => '&#x2407;',
+		"\x08" => '&#x2408;', "\x0b" => '&#x240b;', "\x0c" => '&#x240c;', "\x0e" => '&#x240e;',
+		"\x0f" => '&#x240f;', "\x10" => '&#x2410;', "\x11" => '&#x2411;', "\x12" => '&#x2412;',
+		"\x13" => '&#x2413;', "\x14" => '&#x2414;', "\x15" => '&#x2415;', "\x16" => '&#x2416;',
+		"\x17" => '&#x2417;', "\x18" => '&#x2418;', "\x19" => '&#x2419;', "\x1a" => '&#x241a;',
+		"\x1b" => '&#x241b;', "\x1c" => '&#x241c;', "\x1d" => '&#x241d;', "\x1e" => '&#x241e;',
+		"\x1f" => '&#x241f;',
+	);
+	$message = strtr($message, $control_replacements);
+
 	// This line makes all languages *theoretically* work even with the wrong charset ;).
 	if (empty($context['utf8']))
 		$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
@@ -1783,9 +1796,20 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	if (!empty($modSettings['enable_mentions']))
 	{
+		// Get any members who were possibly mentioned
 		$msgOptions['mentioned_members'] = Mentions::getMentionedMembers($msgOptions['body']);
 		if (!empty($msgOptions['mentioned_members']))
+		{
+			// Replace @name with [member=id]@name[/member]
 			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $msgOptions['mentioned_members']);
+
+			// Remove any members who weren't actually mentioned, to prevent bogus notifications
+			foreach ($msgOptions['mentioned_members'] as $m)
+			{
+				if (strpos('[member=' . $m['id'] . ']@' . $m['real_name'] . '[/member]', $msgOptions['body']) === false)
+					unset($msgOptions['mentioned_members'][$m['id']]);
+			}
+		}
 	}
 
 	// It's do or die time: forget any user aborts!

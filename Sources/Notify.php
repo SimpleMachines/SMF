@@ -380,7 +380,7 @@ function AnnouncementsNotify()
 
 	// Show a confirmation message.
 	$context['sub_template'] = 'notify_pref_changed';
-	$context['notify_success_msg'] = sprintf($txt['notifyannouncements' . (!empty($mode) ? '_subscribed' : '_unsubscribed')], $member_info['email']);
+	$context['notify_success_msg'] = sprintf($txt['notify_announcements' . (!empty($mode) ? '_subscribed' : '_unsubscribed')], $member_info['email']);
 }
 
 ?>

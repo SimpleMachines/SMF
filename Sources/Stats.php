@@ -161,13 +161,35 @@ function DisplayStats()
 		if (($context['gender'] = cache_get_data('stats_gender', 240)) == null)
 		{
 			$result = $smcFunc['db_query']('', '
-				SELECT COUNT(id_member) AS total_members, value AS gender
-				FROM {db_prefix}themes
-				WHERE variable = {string:gender_var} AND id_theme = {int:default_theme}
-				GROUP BY value',
+				SELECT default_value 
+				FROM {db_prefix}custom_fields 
+				WHERE col_name= {string:gender_var}',
+				array(
+					'gender_var' => 'cust_gender',
+				)
+			);
+			$row = $smcFunc['db_fetch_assoc']($result);
+			$default_gender = !empty($row['default_value']) ? $row['default_value'] : 'None';
+			$smcFunc['db_free_result']($result);
+
+			$result = $smcFunc['db_query']('', '
+				SELECT COUNT(*) AS total_members,  gender
+				FROM (
+					SELECT mem.id_member, COALESCE(t.value, {string:default_gender}) AS gender
+					FROM {db_prefix}members AS mem
+					LEFT JOIN {db_prefix}themes AS t ON (
+						mem.id_member = t.id_member AND
+						t.variable = {string:gender_var} AND
+						t.id_theme = {int:default_theme}
+						) 
+					WHERE is_activated = {int:is_activated}
+				) AS a
+				GROUP BY gender',
 				array(
 					'gender_var' => 'cust_gender',
 					'default_theme' => 1,
+					'is_activated' => 1,
+					'default_gender' => $default_gender,
 				)
 			);
 			$context['gender'] = array();

@@ -734,16 +734,14 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	$unsupportedFormatsWindows = array('z', 'Z');
 
 	// Ensure required values are set
-	$user_info['time_offset'] = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
-	$modSettings['time_offset'] = !empty($modSettings['time_offset']) ? $modSettings['time_offset'] : 0;
 	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %H:%M');
 
 	// Offset the time.
 	if (!$offset_type)
-		$log_time = $log_time + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
+		$log_time = forum_time(true, $log_time);
 	// Just the forum offset?
 	elseif ($offset_type == 'forum')
-		$log_time = $log_time + $modSettings['time_offset'] * 3600;
+		$log_time = forum_time(false, $log_time);
 
 	// We can't have a negative date (on Windows, at least.)
 	if ($log_time < 0)
@@ -1131,6 +1129,10 @@ function shorten_subject($subject, $len)
 function forum_time($use_user_offset = true, $timestamp = null)
 {
 	global $user_info, $modSettings;
+
+	// Ensure required values are set
+	$modSettings['time_offset'] = !empty($modSettings['time_offset']) ? $modSettings['time_offset'] : 0;
+	$user_info['time_offset'] = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
 
 	if ($timestamp === null)
 		$timestamp = time();
@@ -2051,8 +2053,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					if (is_numeric($data))
 						$data = timeformat($data);
-					else
-						$tag['content'] = '[time]$1[/time]';
+
+					$tag['content'] = '<span class="bbc_time">$1</span>';
 				},
 			),
 			array(
@@ -2113,7 +2115,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'youtube',
 				'type' => 'unparsed_content',
-				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?origin=' . $hosturl . '&wmode=opaque" data-youtube-id="$1" allowfullscreen></iframe></div></div>',
+				'content' => '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube.com/embed/$1?origin=' . $hosturl . '&wmode=opaque" data-youtube-id="$1" allowfullscreen loading="lazy"></iframe></div></div>',
 				'disabled_content' => '<a href="https://www.youtube.com/watch?v=$1" target="_blank" rel="noopener">https://www.youtube.com/watch?v=$1</a>',
 				'block_level' => true,
 			),
@@ -3108,7 +3110,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			else
 				$quoted = false;
 
-			$pos2 = strpos($message, $quoted == false ? ']' : '&quot;]', $pos1);
+			if ($quoted)
+			{
+				$end_of_value = strpos($message, '&quot;]', $pos1);
+				$nested_tag = strpos($message, '=&quot;', $pos1);
+				if ($nested_tag && $nested_tag < $end_of_value)
+					// Nested tag with quoted value detected, use next end tag
+					$nested_tag_pos = strpos($message, $quoted == false ? ']' : '&quot;]', $pos1) + 6;
+			}
+
+			$pos2 = strpos($message, $quoted == false ? ']' : '&quot;]', isset($nested_tag_pos) ? $nested_tag_pos : $pos1);
 			if ($pos2 === false)
 				continue;
 
@@ -3683,9 +3694,6 @@ function setupThemeContext($forceload = false)
 		$context['user']['avatar'] = array();
 		$context['user']['total_time_logged_in'] = array('days' => 0, 'hours' => 0, 'minutes' => 0);
 		$context['user']['popup_messages'] = false;
-
-		if (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1)
-			$txt['welcome_guest'] .= sprintf($txt['welcome_guest_activate'], $scripturl);
 
 		// If we've upgraded recently, go easy on the passwords.
 		if (!empty($modSettings['disableHashTime']) && ($modSettings['disableHashTime'] == 1 || time() < $modSettings['disableHashTime']))
@@ -5289,6 +5297,7 @@ function call_helper($string, $return = false)
 	// We can't call this helper, but we want to silently ignore this.
 	if (!is_callable($func, false, $callable_name) && !empty($context['ignore_hook_errors']))
 		return false;
+
 	// Right, we got what we need, time to do some checks.
 	elseif (!is_callable($func, false, $callable_name))
 	{
@@ -5915,14 +5924,10 @@ function get_gravatar_url($email_address)
  */
 function smf_list_timezones($when = 'now')
 {
-	global $smcFunc, $modSettings, $tztxt, $txt, $cur_profile;
-	static $timezones = null, $lastwhen = null;
+	global $modSettings, $tztxt, $txt, $context, $cur_profile, $sourcedir;
+	static $timezones_when = array();
 
-	// No point doing this over if we already did it once
-	if (!empty($timezones) && $when == $lastwhen)
-		return $timezones;
-	else
-		$lastwhen = $when;
+	require_once($sourcedir . '/Subs-Timezones.php');
 
 	// Parseable datetime string?
 	if (is_int($timestamp = strtotime($when)))
@@ -5936,6 +5941,10 @@ function smf_list_timezones($when = 'now')
 	else
 		$when = time();
 
+	// No point doing this over if we already did it once
+	if (isset($timezones_when[$when]))
+		return $timezones_when[$when];
+
 	// We'll need these too
 	$date_when = date_create('@' . $when);
 	$later = strtotime('@' . $when . ' + 1 year');
@@ -5943,12 +5952,16 @@ function smf_list_timezones($when = 'now')
 	// Load up any custom time zone descriptions we might have
 	loadLanguage('Timezones');
 
+	$tzid_metazones = get_tzid_metazones();
+
 	// Should we put time zones from certain countries at the top of the list?
 	$priority_countries = !empty($modSettings['timezone_priority_countries']) ? explode(',', $modSettings['timezone_priority_countries']) : array();
+
 	$priority_tzids = array();
 	foreach ($priority_countries as $country)
 	{
-		$country_tzids = @timezone_identifiers_list(DateTimeZone::PER_COUNTRY, strtoupper(trim($country)));
+		$country_tzids = get_sorted_tzids_for_country($country);
+
 		if (!empty($country_tzids))
 			$priority_tzids = array_merge($priority_tzids, $country_tzids);
 	}
@@ -5956,17 +5969,25 @@ function smf_list_timezones($when = 'now')
 	// Antarctic research stations should be listed last, unless you're running a penguin forum
 	$low_priority_tzids = !in_array('AQ', $priority_countries) ? timezone_identifiers_list(DateTimeZone::ANTARCTICA) : array();
 
+	$normal_priority_tzids = array_diff(array_unique(array_merge(array_keys($tzid_metazones), timezone_identifiers_list())), $priority_tzids, $low_priority_tzids);
+
 	// Process the preferred timezones first, then the normal ones, then the low priority ones.
-	$tzids = array_merge(array_keys($tztxt), array_diff(timezone_identifiers_list(), array_keys($tztxt), $low_priority_tzids), $low_priority_tzids);
+	$tzids = array_merge($priority_tzids, array('UTC'), $normal_priority_tzids, $low_priority_tzids);
 
 	// Idea here is to get exactly one representative identifier for each and every unique set of time zone rules.
+	$dst_types = array();
+	$labels = array();
+	$offsets = array();
 	foreach ($tzids as $tzid)
 	{
 		// We don't want UTC right now
 		if ($tzid == 'UTC')
 			continue;
 
-		$tz = timezone_open($tzid);
+		$tz = @timezone_open($tzid);
+
+		if ($tz == null)
+			continue;
 
 		// First, get the set of transition rules for this tzid
 		$tzinfo = timezone_transitions_get($tz, $when, $later);
@@ -5974,14 +5995,30 @@ function smf_list_timezones($when = 'now')
 		// Use the entire set of transition rules as the array *key* so we can avoid duplicates
 		$tzkey = serialize($tzinfo);
 
-		// Next, get the geographic info for this tzid
-		$tzgeo = timezone_location_get($tz);
+		// ...But make sure to include all explicitly defined meta-zones.
+		if (isset($zones[$tzkey]['metazone']) && isset($tzid_metazones[$tzid]))
+			$tzkey = serialize(array_merge($tzinfo, array('metazone' => $tzid_metazones[$tzid])));
 
 		// Don't overwrite our preferred tzids
 		if (empty($zones[$tzkey]['tzid']))
 		{
 			$zones[$tzkey]['tzid'] = $tzid;
-			$zones[$tzkey]['abbr'] = $tzinfo[0]['abbr'];
+			$zones[$tzkey]['dst_type'] = count($tzinfo) > 1 ? 1 : ($tzinfo[0]['isdst'] ? 2 : 0);
+
+			foreach ($tzinfo as $transition) {
+				$zones[$tzkey]['abbrs'][] = $transition['abbr'];
+			}
+
+			if (isset($tzid_metazones[$tzid]))
+				$zones[$tzkey]['metazone'] = $tzid_metazones[$tzid];
+			else
+			{
+				$tzgeo = timezone_location_get($tz);
+				$country_tzids = get_sorted_tzids_for_country($tzgeo['country_code']);
+
+				if (count($country_tzids) === 1)
+					$zones[$tzkey]['metazone'] = $txt['iso3166'][$tzgeo['country_code']];
+			}
 		}
 
 		// A time zone from a prioritized country?
@@ -5997,15 +6034,25 @@ function smf_list_timezones($when = 'now')
 			$zones[$tzkey]['locations'][] = str_replace(array('St_', '_'), array('St. ', ' '), array_pop($tzid_parts));
 		}
 		$offsets[$tzkey] = $tzinfo[0]['offset'];
-		$longitudes[$tzkey] = empty($longitudes[$tzkey]) ? $tzgeo['longitude'] : $longitudes[$tzkey];
+
+		// Figure out the "metazone" info for the label
+		if (empty($zones[$tzkey]['metazone']) && isset($tzid_metazones[$tzid]))
+		{
+			$zones[$tzkey]['metazone'] = $tzid_metazones[$tzid];
+			$zones[$tzkey]['dst_type'] = count($tzinfo) > 1 ? 1 : ($tzinfo[0]['isdst'] ? 2 : 0);
+		}
+		$dst_types[$tzkey] = count($tzinfo) > 1 ? 'c' : ($tzinfo[0]['isdst'] ? 't' : 'f');
+		$labels[$tzkey] = !empty($zones[$tzkey]['metazone']) && !empty($tztxt[$zones[$tzkey]['metazone']]) ? $tztxt[$zones[$tzkey]['metazone']] : '';
 
 		// Remember this for later
 		if (isset($cur_profile['timezone']) && $cur_profile['timezone'] == $tzid)
 			$member_tzkey = $tzkey;
+		if (isset($context['event']['tz']) && $context['event']['tz'] == $tzid)
+			$event_tzkey = $tzkey;
 	}
 
-	// Sort by offset then longitude
-	array_multisort($offsets, SORT_ASC, SORT_NUMERIC, $longitudes, SORT_ASC, SORT_NUMERIC, $zones);
+	// Sort by offset, then label, then DST type.
+	array_multisort($offsets, SORT_ASC, SORT_NUMERIC, $labels, SORT_ASC, $dst_types, SORT_ASC, $zones);
 
 	// Build the final array of formatted values
 	$priority_timezones = array();
@@ -6014,24 +6061,53 @@ function smf_list_timezones($when = 'now')
 	{
 		date_timezone_set($date_when, timezone_open($tzvalue['tzid']));
 
-		// Use the custom description, if there is one
-		if (!empty($tztxt[$tzvalue['tzid']]))
-			$desc = $tztxt[$tzvalue['tzid']];
+		// Use the human friendly time zone name, if there is one.
+		$desc = '';
+		if (!empty($tzvalue['metazone']))
+		{
+			if (!empty($tztxt[$tzvalue['metazone']]))
+				$metazone = $tztxt[$tzvalue['metazone']];
+			else
+				$metazone = sprintf($tztxt['generic_timezone'], $tzvalue['metazone'], '%1$s');
+
+			switch ($tzvalue['dst_type'])
+			{
+				case 0:
+					$desc = sprintf($metazone, $tztxt['daylight_saving_time_false']);
+					break;
+
+				case 1:
+					$desc = sprintf($metazone, '');
+					break;
+
+				case 2:
+					$desc = sprintf($metazone, $tztxt['daylight_saving_time_true']);
+					break;
+			}
+		}
 		// Otherwise, use the list of locations (max 5, so things don't get silly)
 		else
 			$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . $txt['etc'] : '');
 
-		// Show the UTC offset and the abbreviation, if it's something like 'MST' and not '-06'
-		$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . (!strspn($tzvalue['abbr'], '+-') ? $tzvalue['abbr'] . ' - ' : '') . $desc;
+		// We don't want abbreviations like '+03' or '-11'.
+		$abbrs = array_filter($tzvalue['abbrs'], function ($abbr) {
+			return !strspn($abbr, '+-');
+		});
+		$abbrs = count($abbrs) == count($tzvalue['abbrs']) ? array_unique($abbrs) : array();
+
+		// Show the UTC offset and abbreviation(s).
+		$desc = '[UTC' . date_format($date_when, 'P') . '] - ' . str_replace('  ', ' ', $desc) . (!empty($abbrs) ? ' (' . implode('/', $abbrs) . ')' : '');
 
 		if (isset($priority_zones[$tzkey]))
 			$priority_timezones[$tzvalue['tzid']] = $desc;
 		else
 			$timezones[$tzvalue['tzid']] = $desc;
 
-		// Automatically fix orphaned timezones on the member profile page
+		// Automatically fix orphaned time zones.
 		if (isset($member_tzkey) && $member_tzkey == $tzkey)
 			$cur_profile['timezone'] = $tzvalue['tzid'];
+		if (isset($event_tzkey) && $event_tzkey == $tzkey)
+			$context['event']['tz'] = $tzvalue['tzid'];
 	}
 
 	if (!empty($priority_timezones))
@@ -6043,7 +6119,62 @@ function smf_list_timezones($when = 'now')
 		$timezones
 	);
 
-	return $timezones;
+	$timezones_when[$when] = $timezones;
+
+	return $timezones_when[$when];
+}
+
+/**
+ * Gets a member's selected timezone identifier
+ *
+ * @param int $id_member The member id to look up. If not provided, the current user's id will be used.
+ * @return string The timezone identifier string for the user's timezone.
+ */
+function getUserTimezone($id_member = null)
+{
+	global $smcFunc, $context, $user_info, $modSettings, $user_settings;
+	static $member_cache = array();
+
+	if (is_null($id_member) && $user_info['is_guest'] == false)
+		$id_member = $context['user']['id'];
+
+	// Did we already look this up?
+	if (isset($id_member) && isset($member_cache[$id_member]))
+	{
+		return $member_cache[$id_member];
+	}
+
+	// Check if we already have this in $user_settings.
+	if (isset($user_settings['id_member']) && $user_settings['id_member'] == $id_member && !empty($user_settings['timezone']))
+	{
+		$member_cache[$id_member] = $user_settings['timezone'];
+		return $user_settings['timezone'];
+	}
+
+	// Look it up in the database.
+	if (isset($id_member))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT timezone
+			FROM {db_prefix}members
+			WHERE id_member = {int:id_member}',
+			array(
+				'id_member' => $id_member,
+			)
+		);
+		list($timezone) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+	}
+
+	// If it is invalid, fall back to the default.
+	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
+		$timezone = isset($modSettings['default_timezone']) ? $modSettings['default_timezone'] : date_default_timezone_get();
+
+	// Save for later.
+	if (isset($id_member))
+		$member_cache[$id_member] = $timezone;
+
+	return $timezone;
 }
 
 /**

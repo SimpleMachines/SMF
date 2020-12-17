@@ -57,7 +57,8 @@ function getBoardIndex($board_index_options)
 		'b.num_topics',
 		'b.unapproved_posts',
 		'b.unapproved_topics',
-		'b.id_parent'
+		'b.id_parent',
+		'b.id_cat'
 	);
 
 	$board_index_parameters = array(
@@ -131,10 +132,17 @@ function getBoardIndex($board_index_options)
 		);
 
 	// Start with an empty array.
+	$categories = array();
+	$this_category = array();
+	$parsed_categories_description = array();
+	$to_parse_categories_description = array();
+
 	if ($board_index_options['include_categories'])
-		$categories = array();
-	else
-		$this_category = array();
+	{
+		require_once $sourcedir . '/Subs-Categories.php';
+
+		$parsed_categories_description = getCategoriesParsedDescription();
+	}
 
 	$boards = array();
 
@@ -165,14 +173,20 @@ function getBoardIndex($board_index_options)
 			// Haven't set this category yet.
 			if (empty($categories[$row_board['id_cat']]))
 			{
-				$name = parse_bbc($row_board['cat_name'], false, '', $context['description_allowed_tags']);
-				$description = parse_bbc($row_board['cat_desc'], false, '', $context['description_allowed_tags']);
+				$category_description = $row_board['cat_desc'];
+
+				if (isset($parsed_categories_description[$row_board['id_cat']]))
+					$category_description = $parsed_categories_description[$row_board['id_cat']];
+
+				else
+					$to_parse_categories_description[$row_board['id_cat']] = $row_board['cat_desc'];
 
 				$categories[$row_board['id_cat']] = array(
 					'id' => $row_board['id_cat'],
-					'name' => $name,
-					'description' => $description,
-					'is_collapsed' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1 && !empty($options['collapse_category_' . $row_board['id_cat']]),
+					'name' => $row_board['cat_name'],
+					'description' => $category_description,
+					'is_collapsed' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1 &&
+						!empty($options['collapse_category_' . $row_board['id_cat']]),
 					'can_collapse' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1,
 					'href' => $scripturl . '#c' . $row_board['id_cat'],
 					'boards' => array(),
@@ -180,7 +194,10 @@ function getBoardIndex($board_index_options)
 					'css_class' => ''
 				);
 
-				$categories[$row_board['id_cat']]['link'] = '' . (!$context['user']['is_guest'] ? '<a href="' . $scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], $name) . '" id="c' . $row_board['id_cat'] . '">' . $name . '</a>' : '<span id="c' . $row_board['id_cat'] . '">' . $name . '</span>');
+				$categories[$row_board['id_cat']]['link'] = '<a id="c' . $row_board['id_cat'] . '"></a>' . (!$context['user']['is_guest'] ?
+						'<a href="' . $scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], $row_board['cat_name']) . '">' . $row_board['cat_name'] . '</a>' :
+						$row_board['cat_name']);
+
 			}
 
 			// If this board has new posts in it (and isn't the recycle bin!) then the category is new.
@@ -193,6 +210,15 @@ function getBoardIndex($board_index_options)
 			// Let's save some typing.  Climbing the array might be slower, anyhow.
 			$this_category = &$categories[$row_board['id_cat']]['boards'];
 		}
+
+		if (empty($boards_parsed_data))
+			$boards_parsed_data = getBoardsParsedDescription($row_board['id_cat']);
+
+		if (empty($to_parse_boards_info))
+			$to_parse_boards_info = array();
+
+		if (empty($to_parse_boards_info[$row_board['id_cat']]))
+			$to_parse_boards_info[$row_board['id_cat']] = array();
 
 		// This is a parent board.
 		if ($row_board['id_parent'] == $board_index_options['parent_id'])
@@ -207,15 +233,19 @@ function getBoardIndex($board_index_options)
 				if (!isset($this_category[$row_board['id_board']]))
 					$this_category[$row_board['id_board']] = array();
 
-				$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
-				$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
+				if (isset($boards_parsed_data[$row_board['id_board']]))
+					$row_board['description'] = $boards_parsed_data[$row_board['id_board']];
+
+				else
+					$to_parse_boards_info[$row_board['id_cat']][$row_board['id_board']] = $row_board['description'];
 
 				$this_category[$row_board['id_board']] += array(
+					'id_cat' => $row_board['id_cat'],
 					'new' => empty($row_board['is_read']),
 					'id' => $row_board['id_board'],
 					'type' => $row_board['is_redirect'] ? 'redirect' : 'board',
-					'name' => $board_name,
-					'description' => $board_description,
+					'name' => $row_board['board_name'],
+					'description' => $row_board['description'],
 					'moderators' => array(),
 					'moderator_groups' => array(),
 					'link_moderators' => array(),
@@ -230,7 +260,7 @@ function getBoardIndex($board_index_options)
 					'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
 					'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
 					'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
-					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $board_name . '</a>',
+					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>',
 					'board_class' => 'off',
 					'css_class' => ''
 				);
@@ -250,12 +280,14 @@ function getBoardIndex($board_index_options)
 					$this_category[$row_board['id_board']]['board_class'] = 'on';
 					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['new_posts'];
 				}
+
 				else
 				{
 					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['old_posts'];
 				}
 			}
 		}
+
 		// This is a child board.
 		elseif (isset($row_boards[$row_board['id_parent']]['id_parent']) && $row_boards[$row_board['id_parent']]['id_parent'] == $board_index_options['parent_id'])
 		{
@@ -269,14 +301,18 @@ function getBoardIndex($board_index_options)
 					'board_class' => 'off'
 				);
 
-			$board_name = parse_bbc($row_board['board_name'], false, '', $context['description_allowed_tags']);
-			$board_description = parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']);
+			if (isset($boards_parsed_data[$row_board['id_board']]))
+				$row_board['description'] = $boards_parsed_data[$row_board['id_board']];
+
+			else
+				$to_parse_boards_info[$row_board['id_cat']][$row_board['id_board']] = $row_board['description'];
 
 			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']] = array(
 				'id' => $row_board['id_board'],
-				'name' => $board_name,
-				'description' => $board_description,
-				'short_description' => shorten_subject($board_description, 128),
+				'id_cat' => $row_board['id_cat'],
+				'name' => $row_board['board_name'],
+				'description' => $row_board['description'],
+				'short_description' => shorten_subject($row_board['description'], 128),
 				'new' => empty($row_board['is_read']),
 				'topics' => $row_board['num_topics'],
 				'posts' => $row_board['num_posts'],
@@ -285,7 +321,7 @@ function getBoardIndex($board_index_options)
 				'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
 				'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
 				'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
-				'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $board_name . '</a>'
+				'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>'
 			);
 
 			// Counting child board posts in the parent's totals?
@@ -308,6 +344,7 @@ function getBoardIndex($board_index_options)
 			// This is easier to use in many cases for the theme....
 			$this_category[$row_board['id_parent']]['link_children'][] = &$this_category[$row_board['id_parent']]['children'][$row_board['id_board']]['link'];
 		}
+
 		// A further descendent (grandchild, great-grandchild, etc.)
 		else
 		{
@@ -379,6 +416,7 @@ function getBoardIndex($board_index_options)
 			$this_last_post['href'] = $scripturl . '?topic=' . $row_board['id_topic'] . '.msg' . ($user_info['is_guest'] ? $row_board['id_msg'] : $row_board['new_from']) . (empty($row_board['is_read']) ? ';boardseen' : '') . '#new';
 			$this_last_post['link'] = '<a href="' . $this_last_post['href'] . '" title="' . $row_board['subject'] . '">' . $row_board['short_subject'] . '</a>';
 		}
+
 		else
 		{
 			$this_last_post['href'] = '';
@@ -395,8 +433,8 @@ function getBoardIndex($board_index_options)
 		if (!$isChild && !empty($row_board['poster_time'])
 			&& (empty($this_category[$row_board['id_board']]['last_post']['timestamp'])
 				|| $this_category[$row_board['id_board']]['last_post']['timestamp'] < forum_time(true, $row_board['poster_time'])
-				)
 			)
+		)
 			$this_category[$row_board['id_board']]['last_post'] = $this_last_post;
 
 		// Just in the child...?
@@ -410,6 +448,32 @@ function getBoardIndex($board_index_options)
 				'ref' => &$this_category[$isChild ? $row_board['id_parent'] : $row_board['id_board']]['last_post']
 			);
 	}
+
+	// There are some categories still unparsed.
+	$to_parse_categories_description = array_filter($to_parse_categories_description);
+
+	if (!empty($to_parse_categories_description))
+	{
+		$already_parsed_categories = setCategoryParsedDescription($to_parse_categories_description);
+
+		foreach ($to_parse_categories_description as $category_id => $category_description)
+			$categories[$category_id]['description'] = $already_parsed_categories[$category_id];
+	}
+
+	// Some boards didn't get their info cached, it is done on a per category basis.
+	$boards_parsed_data_by_cat_id = array();
+
+	if (!empty($to_parse_boards_info))
+		foreach ($to_parse_boards_info as $unparsed_category_id => $board_unparsed_description)
+		{
+			if (empty($board_unparsed_description))
+			continue;
+
+			$boards_parsed_data_by_cat_id[$unparsed_category_id] = setBoardParsedDescription(
+				$unparsed_category_id,
+				$board_unparsed_description
+			);
+		}
 
 	/* The board's and children's 'last_post's have:
 	time, timestamp (a number that represents the time.), id (of the post), topic (topic id.),
@@ -425,6 +489,9 @@ function getBoardIndex($board_index_options)
 		{
 			foreach ($category['boards'] as &$board)
 			{
+				if (isset($boards_parsed_data_by_cat_id[$category['id']][$board['id']]))
+					$board['description'] = $boards_parsed_data_by_cat_id[$category['id']][$board['id']];
+
 				if (!empty($moderators[$board['id']]))
 				{
 					$board['moderators'] = $moderators[$board['id']];
@@ -444,9 +511,19 @@ function getBoardIndex($board_index_options)
 					$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], $board['last_post']['link'], $board['last_post']['time'] > 0 ? timeformat($board['last_post']['time']) : $txt['not_applicable']);
 			}
 		}
+
 	else
 		foreach ($this_category as &$board)
 		{
+			if (isset($boards_parsed_data_by_cat_id[$board['id_cat']][$board['id']]))
+			{
+				$board['description'] = $boards_parsed_data_by_cat_id[$board['id_cat']][$board['id']];
+
+				if (isset($board['children']))
+					foreach ($board['children'] as &$child_board)
+						$child_board['description'] = $boards_parsed_data_by_cat_id[$child_board['id_cat']][$child_board['id']];
+			}
+
 			if (!empty($moderators[$board['id']]))
 			{
 				$board['moderators'] = $moderators[$board['id']];
@@ -470,6 +547,7 @@ function getBoardIndex($board_index_options)
 
 	if ($board_index_options['include_categories'])
 		sortCategories($categories);
+
 	else
 		sortBoards($this_category);
 
@@ -483,6 +561,7 @@ function getBoardIndex($board_index_options)
 	// I can't remember why but trying to make a ternary to get this all in one line is actually a Very Bad Idea.
 	if ($board_index_options['include_categories'])
 		call_integration_hook('integrate_getboardtree', array($board_index_options, &$categories));
+
 	else
 		call_integration_hook('integrate_getboardtree', array($board_index_options, &$this_category));
 

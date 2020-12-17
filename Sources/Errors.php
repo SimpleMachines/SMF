@@ -133,7 +133,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		if (!isset($context['num_errors']))
 		{
 			$query = $smcFunc['db_query']('', '
-				SELECT COUNT(id_error)
+				SELECT COUNT(*)
 				FROM {db_prefix}log_errors',
 				array()
 			);

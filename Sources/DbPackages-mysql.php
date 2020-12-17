@@ -232,9 +232,9 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 
 		$smcFunc['db_query']('', '
 			INSERT INTO ' . $table_name . '('
-			. implode($same_col, ',') .
+			. implode(',', $same_col) .
 			')
-			SELECT ' . implode($same_col, ',') . '
+			SELECT ' . implode(',', $same_col) . '
 			FROM ' . $table_name . '_old',
 			array()
 		);
