@@ -5917,10 +5917,12 @@ function get_gravatar_url($email_address)
 }
 
 /**
- * Get a list of timezones.
+ * Get a list of time zones.
  *
- * @param string $when An optional date or time for which to calculate the timezone offset values. May be a Unix timestamp or any string that strtotime() can understand. Defaults to 'now'.
- * @return array An array of timezone info.
+ * @param string $when The date/time for which to calculate the time zone values.
+ *		May be a Unix timestamp or any string that strtotime() can understand.
+ *		Defaults to 'now'.
+ * @return array An array of time zone identifiers and label text.
  */
 function smf_list_timezones($when = 'now')
 {
@@ -5952,7 +5954,7 @@ function smf_list_timezones($when = 'now')
 	// Load up any custom time zone descriptions we might have
 	loadLanguage('Timezones');
 
-	$tzid_metazones = get_tzid_metazones();
+	$tzid_metazones = get_tzid_metazones($later);
 
 	// Should we put time zones from certain countries at the top of the list?
 	$priority_countries = !empty($modSettings['timezone_priority_countries']) ? explode(',', $modSettings['timezone_priority_countries']) : array();
@@ -5971,8 +5973,8 @@ function smf_list_timezones($when = 'now')
 
 	$normal_priority_tzids = array_diff(array_unique(array_merge(array_keys($tzid_metazones), timezone_identifiers_list())), $priority_tzids, $low_priority_tzids);
 
-	// Process the preferred timezones first, then the normal ones, then the low priority ones.
-	$tzids = array_merge($priority_tzids, array('UTC'), $normal_priority_tzids, $low_priority_tzids);
+	// Process them in order of importance.
+	$tzids = array_merge($priority_tzids, $normal_priority_tzids, $low_priority_tzids);
 
 	// Idea here is to get exactly one representative identifier for each and every unique set of time zone rules.
 	$dst_types = array();
@@ -6035,7 +6037,7 @@ function smf_list_timezones($when = 'now')
 		}
 		$offsets[$tzkey] = $tzinfo[0]['offset'];
 
-		// Figure out the "metazone" info for the label
+		// Figure out the "meta-zone" info for the label
 		if (empty($zones[$tzkey]['metazone']) && isset($tzid_metazones[$tzid]))
 		{
 			$zones[$tzkey]['metazone'] = $tzid_metazones[$tzid];
@@ -6125,10 +6127,10 @@ function smf_list_timezones($when = 'now')
 }
 
 /**
- * Gets a member's selected timezone identifier
+ * Gets a member's selected time zone identifier
  *
  * @param int $id_member The member id to look up. If not provided, the current user's id will be used.
- * @return string The timezone identifier string for the user's timezone.
+ * @return string The time zone identifier string for the user's time zone.
  */
 function getUserTimezone($id_member = null)
 {

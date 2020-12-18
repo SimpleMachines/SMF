@@ -21,10 +21,18 @@ if (!defined('SMF'))
  * (e.g. "America/Denver") onto the user-friendly "meta-zone" labels that
  * most people think of as time zones (e.g. "Mountain Time").
  *
+ * @param string $when The date/time used to determine fallback values.
+ *		May be a Unix timestamp or any string that strtotime() can understand.
+ *		Defaults to 'now'.
  * @return array An array relating time zones to "meta-zones"
  */
-function get_tzid_metazones()
+function get_tzid_metazones($when = 'now')
 {
+	global $txt, $tztxt;
+
+	// This should already have been loaded, but just in case...
+	loadLanguage('Timezones');
+
 	/*
 		This array lists a series of representative time zones and their
 		corresponding "meta-zone" labels.
@@ -49,519 +57,552 @@ function get_tzid_metazones()
 		America/Phoenix map to North_America_Mountain, but the ultimate
 		output will be 'Mountain Time (MST/MDT)' for America/Denver vs.
 		'Mountain Standard Time (MST)' for America/Phoenix.
+
+		If you are adding a new meta-zone to this list because the TZDB
+		added a new time zone that doesn't fit any existing meta-zone,
+		please also add a fallback in the get_tzid_fallbacks() function.
+		This helps support SMF installs on servers using outdated
+		versions of the TZDB.
 	 */
-	$tzid_metazones =  array(
-		// Africa_Central (no DST)
-		'Africa/Maputo' => 'Africa_Central',
-
-		// Africa_East (no DST)
-		'Africa/Nairobi' => 'Africa_East',
-
-		// Africa_Morocco (uses DST)
-		'Africa/Casablanca' => 'Africa_Morocco',
-
-		// Africa_South (no DST)
-		'Africa/Johannesburg' => 'Africa_South',
-
-		// Africa_West (no DST)
-		'Africa/Lagos' => 'Africa_West',
-
-		// Antarctica_Casey (no DST)
-		'Antarctica/Casey' => 'Antarctica_Casey',
-
-		// Antarctica_Davis (no DST)
-		'Antarctica/Davis' => 'Antarctica_Davis',
-
-		// Antarctica_DumontDUrville (no DST)
-		'Antarctica/DumontDUrville' => 'Antarctica_DumontDUrville',
-
-		// Antarctica_Macquarie (no DST)
-		'Antarctica/Macquarie' => 'Antarctica_Macquarie',
-
-		// Antarctica_Mawson (no DST)
-		'Antarctica/Mawson' => 'Antarctica_Mawson',
-
-		// Antarctica_McMurdo (uses DST)
-		'Antarctica/McMurdo' => 'Antarctica_McMurdo',
-
-		// Antarctica_Palmer (no DST)
-		'Antarctica/Palmer' => 'Antarctica_Palmer',
-
-		// Antarctica_Rothera (no DST)
-		'Antarctica/Rothera' => 'Antarctica_Rothera',
-
-		// Antarctica_Syowa (no DST)
-		'Antarctica/Syowa' => 'Antarctica_Syowa',
-
-		// Antarctica_Troll (uses DST)
-		'Antarctica/Troll' => 'Antarctica_Troll',
-
-		// Antarctica_Vostok (no DST)
-		'Antarctica/Vostok' => 'Antarctica_Vostok',
-
-		// Asia_Afghanistan (no DST)
-		'Asia/Kabul' => 'Asia_Afghanistan',
-
-		// Asia_Arabian (no DST)
-		'Asia/Riyadh' => 'Asia_Arabian',
-
-		// Asia_Armenia (no DST)
-		'Asia/Yerevan' => 'Asia_Armenia',
-
-		// Asia_Azerbaijan (no DST)
-		'Asia/Baku' => 'Asia_Azerbaijan',
-
-		// Asia_Bangladesh (no DST)
-		'Asia/Dhaka' => 'Asia_Bangladesh',
-
-		// Asia_Bhutan (no DST)
-		'Asia/Thimphu' => 'Asia_Bhutan',
-
-		// Asia_Brunei (no DST)
-		'Asia/Brunei' => 'Asia_Brunei',
-
-		// Asia_China (no DST)
-		'Asia/Shanghai' => 'Asia_China',
-
-		// Asia_Damascus (uses DST)
-		'Asia/Damascus' => 'Asia_Damascus',
-
-		// Asia_East_Timor (no DST)
-		'Asia/Dili' => 'Asia_East_Timor',
-
-		// Asia_Georgia (no DST)
-		'Asia/Tbilisi' => 'Asia_Georgia',
-
-		// Asia_Gulf (no DST)
-		'Asia/Dubai' => 'Asia_Gulf',
-
-		// Asia_Hong_Kong (no DST)
-		'Asia/Hong_Kong' => 'Asia_Hong_Kong',
-
-		// Asia_India (no DST)
-		'Asia/Kolkata' => 'Asia_India',
-
-		// Asia_Indonesia_Central (no DST)
-		'Asia/Makassar' => 'Asia_Indonesia_Central',
-
-		// Asia_Indonesia_Eastern (no DST)
-		'Asia/Jayapura' => 'Asia_Indonesia_Eastern',
-
-		// Asia_Indonesia_Western (no DST)
-		'Asia/Jakarta' => 'Asia_Indonesia_Western',
-
-		// Asia_Iran (uses DST)
-		'Asia/Tehran' => 'Asia_Iran',
-
-		// Asia_Irkutsk (no DST)
-		'Asia/Irkutsk' => 'Asia_Irkutsk',
-
-		// Asia_Israel (uses DST)
-		'Asia/Jerusalem' => 'Asia_Israel',
-
-		// Asia_Japan (no DST)
-		'Asia/Tokyo' => 'Asia_Japan',
-
-		// Asia_Jordan (uses DST)
-		'Asia/Amman' => 'Asia_Jordan',
-
-		// Asia_Kamchatka (no DST)
-		'Asia/Kamchatka' => 'Asia_Kamchatka',
-
-		// Asia_Kazakhstan_Eastern (no DST)
-		'Asia/Almaty' => 'Asia_Kazakhstan_Eastern',
-
-		// Asia_Kazakhstan_Western (no DST)
-		'Asia/Aqtau' => 'Asia_Kazakhstan_Western',
-
-		// Asia_Korea (no DST)
-		'Asia/Seoul' => 'Asia_Korea',
-
-		// Asia_Krasnoyarsk (no DST)
-		'Asia/Krasnoyarsk' => 'Asia_Krasnoyarsk',
-
-		// Asia_Kyrgystan (no DST)
-		'Asia/Bishkek' => 'Asia_Kyrgystan',
-
-		// Asia_Libya (uses DST)
-		'Asia/Beirut' => 'Asia_Libya',
-
-		// Asia_Magadan (no DST)
-		'Asia/Magadan' => 'Asia_Magadan',
-
-		// Asia_Malaysia (no DST)
-		'Asia/Kuala_Lumpur' => 'Asia_Malaysia',
-
-		// Asia_Mongolia_Western (no DST)
-		'Asia/Hovd' => 'Asia_Mongolia_Western',
-
-		// Asia_Mongolia_EAstern (no DST)
-		'Asia/Ulaanbaatar' => 'Asia_Mongolia_Eastern',
-
-		// Asia_Myanmar (no DST)
-		'Asia/Yangon' => 'Asia_Myanmar',
-
-		// Asia_Nepal (no DST)
-		'Asia/Kathmandu' => 'Asia_Nepal',
-
-		// Asia_Omsk (no DST)
-		'Asia/Omsk' => 'Asia_Omsk',
-
-		// Asia_Pakistan (no DST)
-		'Asia/Karachi' => 'Asia_Pakistan',
-
-		// Asia_Palestine (uses DST)
-		'Asia/Hebron' => 'Asia_Palestine',
-
-		// Asia_Philippines (no DST)
-		'Asia/Manila' => 'Asia_Philippines',
-
-		// Asia_Singapore (no DST)
-		'Asia/Singapore' => 'Asia_Singapore',
-
-		// Asia_Southeast (no DST)
-		'Asia/Bangkok' => 'Asia_Southeast',
-
-		// Asia_Taiwan (no DST)
-		'Asia/Taipei' => 'Asia_Taiwan',
-
-		// Asia_Tajikistan (no DST)
-		'Asia/Dushanbe' => 'Asia_Tajikistan',
-
-		// Asia_Turkey (no DST)
-		'Europe/Istanbul' => 'Asia_Turkey',
-
-		// Asia_Turkmenistan (no DST)
-		'Asia/Ashgabat' => 'Asia_Turkmenistan',
-
-		// Asia_Uzbekistan (no DST)
-		'Asia/Tashkent' => 'Asia_Uzbekistan',
-
-		// Asia_Vladivostok (no DST)
-		'Asia/Vladivostok' => 'Asia_Vladivostok',
-
-		// Asia_Yakutsk (no DST)
-		'Asia/Yakutsk' => 'Asia_Yakutsk',
-
-		// Asia_Yekaterinburg (no DST)
-		'Asia/Yekaterinburg' => 'Asia_Yekaterinburg',
-
-		// Atlantic_Azores (uses DST)
-		'Atlantic/Azores' => 'Atlantic_Azores',
-
-		// Atlantic_Cape_Verde (no DST)
-		'Atlantic/Cape_Verde' => 'Atlantic_Cape_Verde',
-
-		// Atlantic_Falkland (no DST)
-		'Atlantic/Stanley' => 'Atlantic_Falkland',
-
-		// Atlantic_South_Georgia (no DST)
-		'Atlantic/South_Georgia' => 'Atlantic_South_Georgia',
-
-		// Australia_Central (uses DST)
-		'Australia/Adelaide' => 'Australia_Central',
-
-		// Australia_Central (no DST)
-		'Australia/Darwin' => 'Australia_Central',
-
-		// Australia_CentralWestern (no DST)
-		'Australia/Eucla' => 'Australia_CentralWestern',
-
-		// Australia_Eastern (uses DST)
-		'Australia/Melbourne' => 'Australia_Eastern',
-
-		// Australia_Eastern (no DST)
-		'Australia/Brisbane' => 'Australia_Eastern',
-
-		// Australia_Lord_Howe (uses DST)
-		'Australia/Lord_Howe' => 'Australia_Lord_Howe',
-
-		// Australia_Western (no DST)
-		'Australia/Perth' => 'Australia_Western',
-
-		// Europe_Central (uses DST)
-		'Europe/Berlin' => 'Europe_Central',
-
-		// Europe_Central (no DST)
-		'Africa/Algiers' => 'Europe_Central',
-
-		// Europe_Eastern (uses DST)
-		'Europe/Helsinki' => 'Europe_Eastern',
-
-		// Europe_Eastern (no DST)
-		'Europe/Kaliningrad' => 'Europe_Eastern',
-
-		// Europe_Eire (uses DST)
-		'Europe/Dublin' => 'Europe_Eire',
-
-		// Europe_UK (uses DST)
-		'Europe/London' => 'Europe_UK',
-
-		// Europe_Minsk (no DST)
-		'Europe/Minsk' => 'Europe_Minsk',
-
-		// Europe_Moldova (uses DST)
-		'Europe/Chisinau' => 'Europe_Moldova',
-
-		// Europe_Moscow (no DST)
-		'Europe/Moscow' => 'Europe_Moscow',
-
-		// Europe_Samara (no DST)
-		'Europe/Samara' => 'Europe_Samara',
-
-		// Europe_Volgograd (no DST)
-		'Europe/Volgograd' => 'Europe_Volgograd',
-
-		// Europe_Western (uses DST)
-		'Europe/Lisbon' => 'Europe_Western',
-
-		// GMT (no DST)
+	$tzid_metazones = array(
+		// No DST
 		'Africa/Abidjan' => 'GMT',
 
-		// Indian_Chagos (no DST)
-		'Indian/Chagos' => 'Indian_Chagos',
+		// No DST
+		'Africa/Algiers' => 'Europe_Central',
 
-		// Indian_Christmas (no DST)
-		'Indian/Christmas' => 'Indian_Christmas',
+		// Uses DST
+		'Africa/Casablanca' => 'Africa_Morocco',
 
-		// Indian_Cocos (no DST)
-		'Indian/Cocos' => 'Indian_Cocos',
+		// No DST
+		'Africa/Johannesburg' => 'Africa_South',
 
-		// Indian_Kerguelen (no DST)
-		'Indian/Kerguelen' => 'Indian_Kerguelen',
+		// No DST
+		'Africa/Lagos' => 'Africa_West',
 
-		// Indian_Maldives (no DST)
-		'Indian/Maldives' => 'Indian_Maldives',
+		// No DST
+		'Africa/Maputo' => 'Africa_Central',
 
-		// Indian_Mauritius (no DST)
-		'Indian/Mauritius' => 'Indian_Mauritius',
+		// No DST
+		'Africa/Nairobi' => 'Africa_East',
 
-		// Indian_Reunion (no DST)
-		'Indian/Reunion' => 'Indian_Reunion',
-
-		// Indian_Seychelles (no DST)
-		'Indian/Mahe' => 'Indian_Seychelles',
-
-		// North_America_Alaska (uses DST)
-		'America/Anchorage' => 'North_America_Alaska',
-
-		// North_America_Atlantic (uses DST)
-		'America/Halifax' => 'North_America_Atlantic',
-
-		// North_America_Atlantic (no DST)
-		'America/Port_of_Spain' => 'North_America_Atlantic',
-
-		// North_America_Central (uses DST)
-		'America/Chicago' => 'North_America_Central',
-
-		// North_America_Central (no DST)
-		'America/Belize' => 'North_America_Central',
-
-		// North_America_Mexico_Central (uses DST)
-		'America/Mexico_City' => 'North_America_Mexico_Central',
-
-		// North_America_Cuba (uses DST)
-		'America/Havana' => 'North_America_Cuba',
-
-		// North_America_Eastern (uses DST)
-		'America/New_York' => 'North_America_Eastern',
-
-		// North_America_Eastern (no DST)
-		'America/Jamaica' => 'North_America_Eastern',
-
-		// North_America_Greenland_Eastern (uses DST)
-		'America/Scoresbysund' => 'North_America_Greenland_Eastern',
-
-		// North_America_Greenland_Western (uses DST)
-		'America/Godthab' => 'North_America_Greenland_Western',
-
-		// North_America_Hawaii_Aleutian (uses DST)
+		// Uses DST
 		'America/Adak' => 'North_America_Hawaii_Aleutian',
 
-		// North_America_Mountain (uses DST)
-		'America/Denver' => 'North_America_Mountain',
+		// Uses DST
+		'America/Anchorage' => 'North_America_Alaska',
 
-		// North_America_Mountain (no DST)
-		'America/Phoenix' => 'North_America_Mountain',
-
-		// North_America_Mexico_Pacific (uses DST)
-		'America/Chihuahua' => 'North_America_Mexico_Pacific',
-
-		// North_America_Newfoundland (uses DST)
-		'America/St_Johns' => 'North_America_Newfoundland',
-
-		// North_America_Pacific (uses DST)
-		'America/Los_Angeles' => 'North_America_Pacific',
-
-		// North_America_St_Pierre_Miquelon (uses DST)
-		'America/Miquelon' => 'North_America_St_Pierre_Miquelon',
-
-		// Pacific_Bougainville (no DST)
-		'Pacific/Bougainville' => 'Pacific_Bougainville',
-
-		// Pacific_Chamorro (no DST)
-		'Pacific/Guam' => 'Pacific_Chamorro',
-
-		// Pacific_Chatham (uses DST)
-		'Pacific/Chatham' => 'Pacific_Chatham',
-
-		// Pacific_Chuuk (no DST)
-		'Pacific/Chuuk' => 'Pacific_Chuuk',
-
-		// Pacific_Cook (no DST)
-		'Pacific/Rarotonga' => 'Pacific_Cook',
-
-		// Pacific_Easter (uses DST)
-		'Pacific/Easter' => 'Pacific_Easter',
-
-		// Pacific_Fiji (uses DST)
-		'Pacific/Fiji' => 'Pacific_Fiji',
-
-		// Pacific_Galapagos (no DST)
-		'Pacific/Galapagos' => 'Pacific_Galapagos',
-
-		// Pacific_Gambier (no DST)
-		'Pacific/Gambier' => 'Pacific_Gambier',
-
-		// Pacific_Gilbert (no DST)
-		'Pacific/Tarawa' => 'Pacific_Gilbert',
-
-		// Pacific_Hawaii (no DST)
-		'Pacific/Honolulu' => 'Pacific_Hawaii',
-
-		// Pacific_Line (no DST)
-		'Pacific/Kiritimati' => 'Pacific_Line',
-
-		// Pacific_Marquesas (no DST)
-		'Pacific/Marquesas' => 'Pacific_Marquesas',
-
-		// Pacific_Marshall (no DST)
-		'Pacific/Kwajalein' => 'Pacific_Marshall',
-
-		// Pacific_Nauru (no DST)
-		'Pacific/Nauru' => 'Pacific_Nauru',
-
-		// Pacific_New_Caledonia (no DST)
-		'Pacific/Noumea' => 'Pacific_New_Caledonia',
-
-		// Pacific_Apia (uses DST)
-		'Pacific/Apia' => 'Pacific_Apia',
-
-		// Pacific_New_Zealand (uses DST)
-		'Pacific/Auckland' => 'Pacific_New_Zealand',
-
-		// Pacific_Niue (no DST)
-		'Pacific/Niue' => 'Pacific_Niue',
-
-		// Pacific_Norfolk (no DST)
-		'Pacific/Norfolk' => 'Pacific_Norfolk',
-
-		// Pacific_Palau (no DST)
-		'Pacific/Palau' => 'Pacific_Palau',
-
-		// Pacific_Papua_New_Guinea (no DST)
-		'Pacific/Port_Moresby' => 'Pacific_Papua_New_Guinea',
-
-		// Pacific_Phoenix_Islands (no DST)
-		'Pacific/Enderbury' => 'Pacific_Phoenix_Islands',
-
-		// Pacific_Pitcairn (no DST)
-		'Pacific/Pitcairn' => 'Pacific_Pitcairn',
-
-		// Pacific_Pohnpei (no DST)
-		'Pacific/Pohnpei' => 'Pacific_Pohnpei',
-
-		// Pacific_American_Samoa (no DST)
-		'Pacific/Pago_Pago' => 'Pacific_Samoa',
-
-		// Pacific_Solomon (no DST)
-		'Pacific/Guadalcanal' => 'Pacific_Solomon',
-
-		// Pacific_Tahiti (no DST)
-		'Pacific/Tahiti' => 'Pacific_Tahiti',
-
-		// Pacific_Tokelau (no DST)
-		'Pacific/Fakaofo' => 'Pacific_Tokelau',
-
-		// Pacific_Tonga (no DST)
-		'Pacific/Tongatapu' => 'Pacific_Tonga',
-
-		// Pacific_Tuvalu (no DST)
-		'Pacific/Funafuti' => 'Pacific_Tuvalu',
-
-		// Pacific_Vanuatu (no DST)
-		'Pacific/Efate' => 'Pacific_Vanuatu',
-
-		// Pacific_Wake (no DST)
-		'Pacific/Wake' => 'Pacific_Wake',
-
-		// Pacific_Wallis (no DST)
-		'Pacific/Wallis' => 'Pacific_Wallis',
-
-		// South_America_Acre (no DST)
-		'America/Rio_Branco' => 'South_America_Acre',
-
-		// South_America_Amazon (no DST)
-		'America/Manaus' => 'South_America_Amazon',
-
-		// South_America_Argentina (no DST)
+		// No DST
 		'America/Argentina/Buenos_Aires' => 'South_America_Argentina',
 
-		// South_America_Bolivia (no DST)
-		'America/La_Paz' => 'South_America_Bolivia',
-
-		// South_America_Brasilia (no DST)
-		'America/Sao_Paulo' => 'South_America_Brasilia',
-
-		// South_America_Chile (uses DST)
-		'America/Santiago' => 'South_America_Chile',
-
-		// South_America_Chile (no DST)
-		'America/Punta_Arenas' => 'South_America_Chile',
-
-		// South_America_Colombia (no DST)
-		'America/Bogota' => 'South_America_Colombia',
-
-		// South_America_Ecuador (no DST)
-		'America/Guayaquil' => 'South_America_Ecuador',
-
-		// South_America_French_Guiana (no DST)
-		'America/Cayenne' => 'South_America_French_Guiana',
-
-		// South_America_Guyana (no DST)
-		'America/Guyana' => 'South_America_Guyana',
-
-		// South_America_Noronha (no DST)
-		'America/Noronha' => 'South_America_Noronha',
-
-		// South_America_Paraguay (uses DST)
+		// Uses DST
 		'America/Asuncion' => 'South_America_Paraguay',
 
-		// South_America_Peru (no DST)
+		// No DST
+		'America/Belize' => 'North_America_Central',
+
+		// No DST
+		'America/Bogota' => 'South_America_Colombia',
+
+		// No DST
+		'America/Caracas' => 'South_America_Venezuela',
+
+		// No DST
+		'America/Cayenne' => 'South_America_French_Guiana',
+
+		// Uses DST
+		'America/Chicago' => 'North_America_Central',
+
+		// Uses DST
+		'America/Chihuahua' => 'North_America_Mexico_Pacific',
+
+		// Uses DST
+		'America/Denver' => 'North_America_Mountain',
+
+		// Uses DST
+		'America/Nuuk' => 'North_America_Greenland_Western',
+
+		// No DST
+		'America/Guayaquil' => 'South_America_Ecuador',
+
+		// No DST
+		'America/Guyana' => 'South_America_Guyana',
+
+		// Uses DST
+		'America/Halifax' => 'North_America_Atlantic',
+
+		// Uses DST
+		'America/Havana' => 'North_America_Cuba',
+
+		// No DST
+		'America/Jamaica' => 'North_America_Eastern',
+
+		// No DST
+		'America/La_Paz' => 'South_America_Bolivia',
+
+		// No DST
 		'America/Lima' => 'South_America_Peru',
 
-		// South_America_Suriname (no DST)
-		'America/Paramaribo' => 'South_America_Suriname',
+		// Uses DST
+		'America/Los_Angeles' => 'North_America_Pacific',
 
-		// South_America_Uruguay (no DST)
+		// No DST
+		'America/Manaus' => 'South_America_Amazon',
+
+		// Uses DST
+		'America/Mexico_City' => 'North_America_Mexico_Central',
+
+		// Uses DST
+		'America/Miquelon' => 'North_America_St_Pierre_Miquelon',
+
+		// No DST
 		'America/Montevideo' => 'South_America_Uruguay',
 
-		// South_America_Venezuela (no DST)
-		'America/Caracas' => 'South_America_Venezuela',
+		// Uses DST
+		'America/New_York' => 'North_America_Eastern',
+
+		// No DST
+		'America/Noronha' => 'South_America_Noronha',
+
+		// No DST
+		'America/Paramaribo' => 'South_America_Suriname',
+
+		// No DST
+		'America/Phoenix' => 'North_America_Mountain',
+
+		// No DST
+		'America/Port_of_Spain' => 'North_America_Atlantic',
+
+		// No DST
+		'America/Punta_Arenas' => 'South_America_Chile_Magallanes',
+
+		// No DST
+		'America/Rio_Branco' => 'South_America_Acre',
+
+		// Uses DST
+		'America/Santiago' => 'South_America_Chile',
+
+		// No DST
+		'America/Sao_Paulo' => 'South_America_Brasilia',
+
+		// Uses DST
+		'America/Scoresbysund' => 'North_America_Greenland_Eastern',
+
+		// Uses DST
+		'America/St_Johns' => 'North_America_Newfoundland',
+
+		// No DST
+		'Antarctica/Casey' => 'Antarctica_Casey',
+
+		// No DST
+		'Antarctica/Davis' => 'Antarctica_Davis',
+
+		// No DST
+		'Antarctica/DumontDUrville' => 'Antarctica_DumontDUrville',
+
+		// No DST
+		'Antarctica/Macquarie' => 'Antarctica_Macquarie',
+
+		// No DST
+		'Antarctica/Mawson' => 'Antarctica_Mawson',
+
+		// Uses DST
+		'Antarctica/McMurdo' => 'Antarctica_McMurdo',
+
+		// No DST
+		'Antarctica/Palmer' => 'Antarctica_Palmer',
+
+		// No DST
+		'Antarctica/Rothera' => 'Antarctica_Rothera',
+
+		// No DST
+		'Antarctica/Syowa' => 'Antarctica_Syowa',
+
+		// Uses DST
+		'Antarctica/Troll' => 'Antarctica_Troll',
+
+		// No DST
+		'Antarctica/Vostok' => 'Antarctica_Vostok',
+
+		// No DST
+		'Asia/Almaty' => 'Asia_Kazakhstan_Eastern',
+
+		// Uses DST
+		'Asia/Amman' => 'Asia_Jordan',
+
+		// No DST
+		'Asia/Aqtau' => 'Asia_Kazakhstan_Western',
+
+		// No DST
+		'Asia/Ashgabat' => 'Asia_Turkmenistan',
+
+		// No DST
+		'Asia/Baku' => 'Asia_Azerbaijan',
+
+		// No DST
+		'Asia/Bangkok' => 'Asia_Southeast',
+
+		// Uses DST
+		'Asia/Beirut' => 'Asia_Libya',
+
+		// No DST
+		'Asia/Bishkek' => 'Asia_Kyrgystan',
+
+		// No DST
+		'Asia/Brunei' => 'Asia_Brunei',
+
+		// Uses DST
+		'Asia/Damascus' => 'Asia_Damascus',
+
+		// No DST
+		'Asia/Dhaka' => 'Asia_Bangladesh',
+
+		// No DST
+		'Asia/Dili' => 'Asia_East_Timor',
+
+		// No DST
+		'Asia/Dubai' => 'Asia_Gulf',
+
+		// No DST
+		'Asia/Dushanbe' => 'Asia_Tajikistan',
+
+		// Uses DST
+		'Asia/Gaza' => 'Asia_Palestine',
+
+		// No DST
+		'Asia/Hong_Kong' => 'Asia_Hong_Kong',
+
+		// No DST
+		'Asia/Hovd' => 'Asia_Mongolia_Western',
+
+		// No DST
+		'Asia/Irkutsk' => 'Asia_Irkutsk',
+
+		// No DST
+		'Asia/Jakarta' => 'Asia_Indonesia_Western',
+
+		// No DST
+		'Asia/Jayapura' => 'Asia_Indonesia_Eastern',
+
+		// Uses DST
+		'Asia/Jerusalem' => 'Asia_Israel',
+
+		// No DST
+		'Asia/Kabul' => 'Asia_Afghanistan',
+
+		// No DST
+		'Asia/Kamchatka' => 'Asia_Kamchatka',
+
+		// No DST
+		'Asia/Karachi' => 'Asia_Pakistan',
+
+		// No DST
+		'Asia/Kathmandu' => 'Asia_Nepal',
+
+		// No DST
+		'Asia/Kolkata' => 'Asia_India',
+
+		// No DST
+		'Asia/Krasnoyarsk' => 'Asia_Krasnoyarsk',
+
+		// No DST
+		'Asia/Kuala_Lumpur' => 'Asia_Malaysia',
+
+		// No DST
+		'Asia/Magadan' => 'Asia_Magadan',
+
+		// No DST
+		'Asia/Makassar' => 'Asia_Indonesia_Central',
+
+		// No DST
+		'Asia/Manila' => 'Asia_Philippines',
+
+		// No DST
+		'Asia/Omsk' => 'Asia_Omsk',
+
+		// No DST
+		'Asia/Riyadh' => 'Asia_Arabia',
+
+		// No DST
+		'Asia/Seoul' => 'Asia_Korea',
+
+		// No DST
+		'Asia/Shanghai' => 'Asia_China',
+
+		// No DST
+		'Asia/Singapore' => 'Asia_Singapore',
+
+		// No DST
+		'Asia/Taipei' => 'Asia_Taiwan',
+
+		// No DST
+		'Asia/Tashkent' => 'Asia_Uzbekistan',
+
+		// No DST
+		'Asia/Tbilisi' => 'Asia_Georgia',
+
+		// Uses DST
+		'Asia/Tehran' => 'Asia_Iran',
+
+		// No DST
+		'Asia/Thimphu' => 'Asia_Bhutan',
+
+		// No DST
+		'Asia/Tokyo' => 'Asia_Japan',
+
+		// No DST
+		'Asia/Ulaanbaatar' => 'Asia_Mongolia_Eastern',
+
+		// No DST
+		'Asia/Vladivostok' => 'Asia_Vladivostok',
+
+		// No DST
+		'Asia/Yakutsk' => 'Asia_Yakutsk',
+
+		// No DST
+		'Asia/Yangon' => 'Asia_Myanmar',
+
+		// No DST
+		'Asia/Yekaterinburg' => 'Asia_Yekaterinburg',
+
+		// No DST
+		'Asia/Yerevan' => 'Asia_Armenia',
+
+		// Uses DST
+		'Atlantic/Azores' => 'Atlantic_Azores',
+
+		// No DST
+		'Atlantic/Cape_Verde' => 'Atlantic_Cape_Verde',
+
+		// No DST
+		'Atlantic/South_Georgia' => 'Atlantic_South_Georgia',
+
+		// No DST
+		'Atlantic/Stanley' => 'Atlantic_Falkland',
+
+		// Uses DST
+		'Australia/Adelaide' => 'Australia_Central',
+
+		// No DST
+		'Australia/Brisbane' => 'Australia_Eastern',
+
+		// No DST
+		'Australia/Darwin' => 'Australia_Central',
+
+		// No DST
+		'Australia/Eucla' => 'Australia_CentralWestern',
+
+		// Uses DST
+		'Australia/Lord_Howe' => 'Australia_Lord_Howe',
+
+		// Uses DST
+		'Australia/Melbourne' => 'Australia_Eastern',
+
+		// No DST
+		'Australia/Perth' => 'Australia_Western',
+
+		// Uses DST
+		'Europe/Berlin' => 'Europe_Central',
+
+		// Uses DST
+		'Europe/Chisinau' => 'Europe_Moldova',
+
+		// Uses DST
+		'Europe/Dublin' => 'Europe_Eire',
+
+		// Uses DST
+		'Europe/Helsinki' => 'Europe_Eastern',
+
+		// No DST
+		'Europe/Istanbul' => 'Asia_Turkey',
+
+		// No DST
+		'Europe/Kaliningrad' => 'Europe_Eastern',
+
+		// Uses DST
+		'Europe/Lisbon' => 'Europe_Western',
+
+		// Uses DST
+		'Europe/London' => 'Europe_UK',
+
+		// No DST
+		'Europe/Minsk' => 'Europe_Minsk',
+
+		// No DST
+		'Europe/Moscow' => 'Europe_Moscow',
+
+		// No DST
+		'Europe/Samara' => 'Europe_Samara',
+
+		// No DST
+		'Europe/Volgograd' => 'Europe_Volgograd',
+
+		// No DST
+		'Indian/Chagos' => 'Indian_Chagos',
+
+		// No DST
+		'Indian/Christmas' => 'Indian_Christmas',
+
+		// No DST
+		'Indian/Cocos' => 'Indian_Cocos',
+
+		// No DST
+		'Indian/Kerguelen' => 'Indian_Kerguelen',
+
+		// No DST
+		'Indian/Mahe' => 'Indian_Seychelles',
+
+		// No DST
+		'Indian/Maldives' => 'Indian_Maldives',
+
+		// No DST
+		'Indian/Mauritius' => 'Indian_Mauritius',
+
+		// No DST
+		'Indian/Reunion' => 'Indian_Reunion',
+
+		// Uses DST
+		'Pacific/Apia' => 'Pacific_Apia',
+
+		// Uses DST
+		'Pacific/Auckland' => 'Pacific_New_Zealand',
+
+		// No DST
+		'Pacific/Bougainville' => 'Pacific_Bougainville',
+
+		// Uses DST
+		'Pacific/Chatham' => 'Pacific_Chatham',
+
+		// No DST
+		'Pacific/Chuuk' => 'Pacific_Chuuk',
+
+		// Uses DST
+		'Pacific/Easter' => 'Pacific_Easter',
+
+		// No DST
+		'Pacific/Efate' => 'Pacific_Vanuatu',
+
+		// No DST
+		'Pacific/Enderbury' => 'Pacific_Phoenix_Islands',
+
+		// No DST
+		'Pacific/Fakaofo' => 'Pacific_Tokelau',
+
+		// Uses DST
+		'Pacific/Fiji' => 'Pacific_Fiji',
+
+		// No DST
+		'Pacific/Funafuti' => 'Pacific_Tuvalu',
+
+		// No DST
+		'Pacific/Galapagos' => 'Pacific_Galapagos',
+
+		// No DST
+		'Pacific/Gambier' => 'Pacific_Gambier',
+
+		// No DST
+		'Pacific/Guadalcanal' => 'Pacific_Solomon',
+
+		// No DST
+		'Pacific/Guam' => 'Pacific_Chamorro',
+
+		// No DST
+		'Pacific/Honolulu' => 'Pacific_Hawaii',
+
+		// No DST
+		'Pacific/Kiritimati' => 'Pacific_Line',
+
+		// No DST
+		'Pacific/Kwajalein' => 'Pacific_Marshall',
+
+		// No DST
+		'Pacific/Marquesas' => 'Pacific_Marquesas',
+
+		// No DST
+		'Pacific/Nauru' => 'Pacific_Nauru',
+
+		// No DST
+		'Pacific/Niue' => 'Pacific_Niue',
+
+		// No DST
+		'Pacific/Norfolk' => 'Pacific_Norfolk',
+
+		// No DST
+		'Pacific/Noumea' => 'Pacific_New_Caledonia',
+
+		// No DST
+		'Pacific/Pago_Pago' => 'Pacific_Samoa',
+
+		// No DST
+		'Pacific/Palau' => 'Pacific_Palau',
+
+		// No DST
+		'Pacific/Pitcairn' => 'Pacific_Pitcairn',
+
+		// No DST
+		'Pacific/Pohnpei' => 'Pacific_Pohnpei',
+
+		// No DST
+		'Pacific/Port_Moresby' => 'Pacific_Papua_New_Guinea',
+
+		// No DST
+		'Pacific/Rarotonga' => 'Pacific_Cook',
+
+		// No DST
+		'Pacific/Tahiti' => 'Pacific_Tahiti',
+
+		// No DST
+		'Pacific/Tarawa' => 'Pacific_Gilbert',
+
+		// No DST
+		'Pacific/Tongatapu' => 'Pacific_Tonga',
+
+		// No DST
+		'Pacific/Wake' => 'Pacific_Wake',
+
+		// No DST
+		'Pacific/Wallis' => 'Pacific_Wallis',
 	);
+
+	call_integration_hook('integrate_metazones', array(&$tzid_metazones, $when));
+
+	// Fallbacks in case the server has an old version of the TZDB.
+	$tzids = array_keys($tzid_metazones);
+	$tzid_fallbacks = get_tzid_fallbacks($tzids, $when);
+	foreach ($tzid_fallbacks as $orig_tzid => $alt_tzid)
+	{
+		// Skip any that are unchanged.
+		if ($orig_tzid == $alt_tzid)
+			continue;
+
+		// Use fallback where possible.
+		if (!empty($alt_tzid))
+		{
+			$tzid_metazones[$alt_tzid] = $tzid_metazones[$orig_tzid];
+			$txt[$alt_tzid] = $txt[$orig_tzid];
+		}
+
+		// Either way, get rid of the unknown time zone.
+		unset($tzid_metazones[$orig_tzid]);
+	}
 
 	return $tzid_metazones;
 }
 
 /**
  * Returns an array of all the time zones in a country, ranked according
- * to population and/or politically significance.
+ * to population and/or political significance.
  *
  * @param string $country_code The two-character ISO-3166 code for a country.
+ * @param string $when The date/time used to determine fallback values.
+ *		May be a Unix timestamp or any string that strtotime() can understand.
+ *		Defaults to 'now'.
  * @return array An array relating time zones to "meta-zones"
  */
-function get_sorted_tzids_for_country($country_code)
+function get_sorted_tzids_for_country($country_code, $when = 'now')
 {
+	static $country_tzids = array();
+
 	/*
 		This array lists all the individual time zones in each country,
 		sorted by population (as reported in statistics available on
@@ -573,8 +614,8 @@ function get_sorted_tzids_for_country($country_code)
 
 		If future versions of the time zone database add new time zone
 		identifiers beyond those included here, they should be added to this
-		list appropriate. However, SMF will gracefully handle unexpected new
-		time zones, so nothing will break in the meantime.
+		list as appropriate. However, SMF will gracefully handle unexpected
+		new time zones, so nothing will break in the meantime.
 	 */
 	$sorted_tzids = array(
 		// '??' means international.
@@ -772,7 +813,6 @@ function get_sorted_tzids_for_country($country_code)
 		),
 		'CD' => array(
 			'Africa/Kinshasa',
-
 			'Africa/Lubumbashi',
 		),
 		'CF' => array(
@@ -800,7 +840,6 @@ function get_sorted_tzids_for_country($country_code)
 		),
 		'CN' => array(
 			'Asia/Shanghai',
-
 			'Asia/Urumqi',
 		),
 		'CO' => array(
@@ -916,7 +955,7 @@ function get_sorted_tzids_for_country($country_code)
 			'Europe/Gibraltar',
 		),
 		'GL' => array(
-			'America/Godthab',
+			'America/Nuuk',
 			'America/Thule',
 			'America/Scoresbysund',
 			'America/Danmarkshavn',
@@ -1421,7 +1460,6 @@ function get_sorted_tzids_for_country($country_code)
 		),
 		'UM' => array(
 			'Pacific/Midway',
-
 			'Pacific/Wake',
 		),
 		'US' => array(
@@ -1506,14 +1544,184 @@ function get_sorted_tzids_for_country($country_code)
 		),
 	);
 
-	$country_tzids = isset($sorted_tzids[$country_code]) ? $sorted_tzids[$country_code] : array();
+	if (!isset($country_tzids[$country_code]))
+	{
+		call_integration_hook('integrate_country_timezones', array(&$sorted_tzids, $country_code, $when));
 
-	// Ensure we haven't missed anything, but never include obsolete ones either.
-	$temp = array_intersect(@timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country_code), timezone_identifiers_list());
-	if (!empty($temp))
-		$country_tzids = array_unique(array_merge($country_tzids, $temp));
+		$country_tzids[$country_code] = isset($sorted_tzids[$country_code]) ? $sorted_tzids[$country_code] : array();
 
-	return $country_tzids;
+		// Make sure that no time zones are missing.
+		$country_tzids[$country_code] = array_unique(array_merge($country_tzids[$country_code], array_intersect(@timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country_code), timezone_identifiers_list())));
+
+		// Get fallbacks where necessary.
+		$country_tzids[$country_code] = array_values(get_tzid_fallbacks($country_tzids[$country_code], $when));
+
+		// Filter out any time zones that are still undefined.
+		$country_tzids[$country_code] = array_intersect(array_filter($country_tzids[$country_code]), timezone_identifiers_list(DateTimeZone::ALL_WITH_BC));
+	}
+
+	return $country_tzids[$country_code];
+}
+
+/**
+ * Checks a list of time zone identifiers to make sure they are all defined in
+ * the installed version of the time zone database, and returns an array of
+ * key-value substitution pairs.
+ *
+ * For defined time zone identifiers, the substitution value will be identical
+ * to the original value. For undefined ones, the substitute will be a time zone
+ * identifier that was equivalent to the missing one at the specified time, or
+ * an empty string if there was no equivalent at that time.
+ *
+ * Note: These fallbacks do not need to include every new time zone ever. They
+ * only need to cover any that are used in $tzid_metazones.
+ *
+ * To find the date & time when a new time zone comes into effect, check
+ * the TZDB changelog at https://data.iana.org/time-zones/tzdb/NEWS
+ *
+ * @param array $tzids The time zone identifiers to check.
+ * @param string $when The date/time used to determine substitute values.
+ *		May be a Unix timestamp or any string that strtotime() can understand.
+ *		Defaults to 'now'.
+ * @return array Substitute values for any missing time zone identifiers.
+ */
+function get_tzid_fallbacks($tzids, $when = 'now')
+{
+	$tzids = (array) $tzids;
+
+	$when = is_numeric($when) ? intval($when) : (is_int(@strtotime($when)) ? strtotime($when) : time());
+
+	// 'ts' is the timestamp when the substitution first becomes valid.
+	// 'tzid' is the alternative time zone identifier to use.
+	$fallbacks = array(
+		// 1. Simple renames. PHP_INT_MIN because these are valid for all dates.
+		'Asia/Kolkata' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => 'Asia/Calcutta',
+			),
+		),
+		'Pacific/Chuuk' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => 'Pacific/Truk',
+			),
+		),
+		'Pacific/Pohnpei' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => 'Pacific/Ponape',
+			),
+		),
+		'Asia/Yangon' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => 'Asia/Rangoon',
+			),
+		),
+		'America/Nuuk' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => 'America/Godthab',
+			),
+		),
+
+		// 2. Newly created time zones.
+
+		// The same as Tasmania, except it stayed on DST all year in 2010.
+		// Australia/Tasmania is an otherwise unused backwards compatibility
+		// link to Australia/Hobart, so we can borrow it here without conflict.
+		'Antarctica/Macquarie' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => 'Australia/Tasmania',
+			),
+			array(
+				'ts' => strtotime('2010-04-03T16:00:00+0000'),
+				'tzid' => 'Etc/GMT-11',
+			),
+			array(
+				'ts' => strtotime('2011-04-07T17:00:00+0000'),
+				'tzid' => 'Australia/Tasmania',
+			),
+		),
+
+		// This place uses two hours for DST. No substitutes are possible.
+		'Antarctica/Troll' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+		),
+
+		// Diverged from Pacific/Port_Moresby in version 2014i.
+		'Pacific/Bougainville' => array(
+			// Before the divergence, we don't actually need this one at all.
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			// For dates after divergence, it is the same as Pacific/Kosrae.
+			// If this ever ceases to be true, add another entry.
+			array(
+				'ts' => strtotime('2014-12-27T16:00:00+0000'),
+				'tzid' => 'Pacific/Kosrae',
+			),
+		),
+
+		// Diverged from America/Santiago in version 2017a.
+		'America/Punta_Arenas' => array(
+			// Before the divergence, we don't actually need this one at all.
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			// For dates after divergence, it is the same as Antarctica/Palmer.
+			// If this ever ceases to be true, add another entry.
+			array(
+				'ts' => strtotime('2017-05-14T03:00:00+0000'),
+				'tzid' => 'Antarctica/Palmer',
+			),
+		),
+	);
+
+	$missing = array_diff($tzids, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC));
+
+	call_integration_hook('integrate_timezone_fallbacks', array(&$fallbacks, &$missing, $tzids, $when));
+
+	$replacements = array();
+
+	foreach ($tzids as $tzid)
+	{
+		// Not missing.
+		if (!in_array($tzid, $missing))
+			$replacements[$tzid] = $tzid;
+
+		// Missing and we have no fallback.
+		elseif (empty($fallbacks[$tzid]))
+			$replacements[$tzid] = '';
+
+		// Missing, but we have a fallback.
+		else
+		{
+			usort($fallbacks[$tzid], function ($a, $b) {
+				return $a['ts'] > $b['ts'];
+			});
+
+			foreach ($fallbacks[$tzid] as $alt)
+			{
+				if ($when < $alt['ts'])
+					break;
+
+				$replacements[$tzid] = $alt['tzid'];
+			}
+
+			if (empty($replacements[$tzid]))
+				$replacements[$tzid] = '';
+		}
+	}
+
+	return $replacements;
 }
 
 ?>
