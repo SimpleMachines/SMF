@@ -1289,9 +1289,20 @@ function ssi_whosOnline($output_method = 'echo')
 			', implode(', ', $return['list_users_online']);
 
 	// Showing membergroups?
-	if (!empty($settings['show_group_key']) && !empty($return['membergroups']))
+	if (!empty($settings['show_group_key']) && !empty($return['online_groups']))
+	{
+		$membergroups = cache_quick_get('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
+
+		$groups = array();
+		foreach ($return['online_groups'] as $group)
+		{
+			if (in_array($group['id'], array_keys($membergroups)))
+				$groups[] = $membergroups[$group['id']];
+		}
+
 		echo '<br>
-			[' . implode(']&nbsp;&nbsp;[', $return['membergroups']) . ']';
+			[' . implode(']&nbsp;&nbsp;[', $groups) . ']';
+	}
 }
 
 /**
