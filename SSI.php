@@ -1296,7 +1296,7 @@ function ssi_whosOnline($output_method = 'echo')
 		$groups = array();
 		foreach ($return['online_groups'] as $group)
 		{
-			if (in_array($group['id'], array_keys($membergroups)))
+			if (isset($membergroups[$group['id']]))
 				$groups[] = $membergroups[$group['id']];
 		}
 
