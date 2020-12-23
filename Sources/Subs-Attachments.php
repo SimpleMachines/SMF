@@ -953,13 +953,15 @@ function parseAttachBBC($attachID = 0)
 	if (empty($modSettings['attachmentEnable']))
 		return 'attachments_not_enable';
 
+	$check_board_perms = !isset($_SESSION['attachments_can_preview'][$attachID]) && $view_attachment_boards !== array(0);
+
 	// There is always the chance someone else has already done our dirty work...
 	// If so, all pertinent checks were already done. Hopefully...
 	if (!empty($context['current_attachments']) && !empty($context['current_attachments'][$attachID]))
 		return $context['current_attachments'][$attachID];
 
-	// If we are lucky enough to be in $board's scope then check it!
-	if (!empty($board) && $view_attachment_boards !== array(0) && !in_array($board, $view_attachment_boards))
+	// Can the user view attachments on this board?
+	if ($check_board_perms && !empty($board) && !in_array($board, $view_attachment_boards))
 		return 'attachments_not_allowed_to_see';
 
 	// Get the message info associated with this particular attach ID.
@@ -969,8 +971,9 @@ function parseAttachBBC($attachID = 0)
 	if (empty($attachInfo) || empty($attachInfo['msg']) && empty($context['preview_message']))
 		return 'attachments_no_msg_associated';
 
-	// Hold it! got the info now check if you can see this attachment.
-	if ($view_attachment_boards !== array(0) && !in_array($attachInfo['board'], $view_attachment_boards))
+	// Can the user view attachments on the board that holds the attachment's original post?
+	// (This matters when one post quotes another on a different board.)
+	if ($check_board_perms && !in_array($attachInfo['board'], $view_attachment_boards))
 		return 'attachments_not_allowed_to_see';
 
 	if (empty($context['loaded_attachments'][$attachInfo['msg']]))
@@ -996,23 +999,20 @@ function parseAttachBBC($attachID = 0)
 	// Load this particular attach's context.
 	if (!empty($attachContext))
 		$attachLoaded = loadAttachmentContext($attachContext['id_msg'], $context['loaded_attachments']);
-
-	// One last check, you know, gotta be paranoid...
 	else
 		return 'attachments_no_data_loaded';
 
-	// This is the last "if" I promise!
 	if (empty($attachLoaded))
 		return 'attachments_no_data_loaded';
 
 	else
 		$attachContext = $attachLoaded[$attachID];
 
-	// No point in keep going further.
-	if ($view_attachment_boards !== array(0) && !in_array($attachContext['board'], $view_attachment_boards))
+	// It's theoretically possible that prepareAttachsByMsg() changed the board id, so check again.
+	if ($check_board_perms && !in_array($attachContext['board'], $view_attachment_boards))
 		return 'attachments_not_allowed_to_see';
 
-	// Previewing much? no msg ID has been set yet.
+	// Previewing much? No msg ID has been set yet.
 	if (!empty($context['preview_message']))
 	{
 		$attachContext['href'] = $scripturl . '?action=dlattach;attach=' . $attachID . ';type=preview';
