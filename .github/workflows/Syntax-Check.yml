@@ -1,10 +1,6 @@
 name: PHP Syntax Check
 
-on:
-  push:
-    branches: [ release-2.1, master ]
-  pull_request:
-    branches: [ release-2.1, master ]
+on: [push, pull_request]
 
   workflow_dispatch:
 jobs:
