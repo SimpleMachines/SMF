@@ -86,44 +86,6 @@ $smcFunc = array();
 // Initiate the database connection and define some database functions to use.
 loadDatabase();
 
-// Load the settings from the settings table, and perform operations like optimizing.
-$context = array();
-reloadSettings();
-
-// Clean the request variables, add slashes, etc.
-cleanRequest();
-
-// Seed the random generator.
-if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
-	smf_seed_generator();
-
-// Before we get carried away, are we doing a scheduled task? If so save CPU cycles by jumping out!
-if (isset($_GET['scheduled']))
-{
-	require_once($sourcedir . '/ScheduledTasks.php');
-	AutoTask();
-}
-
-// And important includes.
-require_once($sourcedir . '/Session.php');
-require_once($sourcedir . '/Logging.php');
-require_once($sourcedir . '/Security.php');
-require_once($sourcedir . '/Class-BrowserDetect.php');
-
-// Check if compressed output is enabled, supported, and not already being done.
-if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
-{
-	// If zlib is being used, turn off output compression.
-	if (ini_get('zlib.output_compression') >= 1 || ini_get('output_handler') == 'ob_gzhandler')
-		$modSettings['enableCompressedOutput'] = '0';
-
-	else
-	{
-		ob_end_clean();
-		ob_start('ob_gzhandler');
-	}
-}
-
 /**
  * An autoloader for certain classes.
  *
@@ -167,6 +129,44 @@ spl_autoload_register(function ($class) use ($sourcedir)
 		}
 	}
 });
+
+// Load the settings from the settings table, and perform operations like optimizing.
+$context = array();
+reloadSettings();
+
+// Clean the request variables, add slashes, etc.
+cleanRequest();
+
+// Seed the random generator.
+if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
+	smf_seed_generator();
+
+// Before we get carried away, are we doing a scheduled task? If so save CPU cycles by jumping out!
+if (isset($_GET['scheduled']))
+{
+	require_once($sourcedir . '/ScheduledTasks.php');
+	AutoTask();
+}
+
+// And important includes.
+require_once($sourcedir . '/Session.php');
+require_once($sourcedir . '/Logging.php');
+require_once($sourcedir . '/Security.php');
+require_once($sourcedir . '/Class-BrowserDetect.php');
+
+// Check if compressed output is enabled, supported, and not already being done.
+if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
+{
+	// If zlib is being used, turn off output compression.
+	if (ini_get('zlib.output_compression') >= 1 || ini_get('output_handler') == 'ob_gzhandler')
+		$modSettings['enableCompressedOutput'] = '0';
+
+	else
+	{
+		ob_end_clean();
+		ob_start('ob_gzhandler');
+	}
+}
 
 // Register an error handler.
 set_error_handler('smf_error_handler');
