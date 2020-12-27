@@ -1755,7 +1755,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		if (!empty($image))
 			$memberContext[$user]['avatar'] = array(
 				'name' => $profile['avatar'],
-				'image' => '<img class="avatar" src="' . $image . '" alt="" loading="lazy" width="' . $profile['attachment_width'] . 'px" height = "'. $profile['attachment_height'] . 'px">',
+				'image' => '<img class="avatar" src="' . $image . '" alt="" loading="lazy" width="' . $profile['attachment_width'] . '" height = "'. $profile['attachment_height'] . '">',
 				'href' => $image,
 				'url' => $image,
 			);
