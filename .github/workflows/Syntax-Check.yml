@@ -1,0 +1,27 @@
+name: PHP Syntax Check
+
+on:
+  push:
+    branches: [ release-2.1, master ]
+  pull_request:
+    branches: [ release-2.1, master ]
+
+  workflow_dispatch:
+jobs:
+  syntax-checker:
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: [ ubuntu-latest ]
+        php: [ '5.4', '5.5', '5.6', '7.1', '7.2', '7.3', '7.4', '8.0' ]
+    name: PHP ${{ matrix.php }} Syntax Check
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: true
+      - name: Setup PHP
+        id: SetupPHP
+        uses: nanasess/setup-php@master
+        with:
+          php-version: ${{ matrix.php }}
+      - run: php ./other/buildTools/check-php-syntax.php ./

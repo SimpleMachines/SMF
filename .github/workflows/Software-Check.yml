@@ -1,0 +1,46 @@
+name: Software Checks
+
+on:
+  push:
+    branches: [ release-2.1, master ]
+  pull_request:
+    branches: [ release-2.1, master ]
+
+  workflow_dispatch:
+jobs:
+  check-signedoff:
+    runs-on: ubuntu-latest
+    name: Check Signed Off
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: true
+      - name: Update Build Tools
+        run: git submodule foreach git pull origin master
+      - name: Checking Sign off
+        id: check-signoff
+        run: php ./other/buildTools/check-signed-off.php github
+  check-licensing:
+    runs-on: ubuntu-latest
+    name: Check Licensing
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: true
+      - name: Update Build Tools
+        run: git submodule foreach git pull origin master
+      - name: Checking Licensing
+        id: check-licensing
+        run: php ./other/buildTools/check-license-master.php ./
+  check-eof:
+    runs-on: ubuntu-latest
+    name: Check End of File
+    steps:
+      - uses: actions/checkout@master
+        with:
+          submodules: true
+      - name: Update Build Tools
+        run: git submodule foreach git pull origin master
+      - name: Checking End of File
+        id: check-eof
+        run: php ./other/buildTools/check-eof-master.php ./
