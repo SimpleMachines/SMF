@@ -2,7 +2,6 @@ name: Software Checks
 
 on: [push, pull_request]
 
-  workflow_dispatch:
 jobs:
   check-signedoff:
     runs-on: ubuntu-latest

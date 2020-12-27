@@ -2,7 +2,6 @@ name: PHP Syntax Check
 
 on: [push, pull_request]
 
-  workflow_dispatch:
 jobs:
   syntax-checker:
     runs-on: ${{ matrix.operating-system }}
