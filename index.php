@@ -135,7 +135,7 @@ spl_autoload_register(function ($class) use ($sourcedir)
 		'ReCaptcha\\' => 'ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => 'minify/src/',
 		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
-		'SMF\\Cache' => 'Cache/',
+		'SMF\\Cache\\' => 'Cache/',
 	);
 
 	// Do any third-party scripts want in on the fun?
