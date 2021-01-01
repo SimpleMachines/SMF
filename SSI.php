@@ -87,33 +87,6 @@ $smcFunc = array();
 // Initiate the database connection and define some database functions to use.
 loadDatabase();
 
-// Load installed 'Mods' settings.
-reloadSettings();
-// Clean the request variables.
-cleanRequest();
-
-// Seed the random generator?
-if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
-	smf_seed_generator();
-
-// Check on any hacking attempts.
-if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS']))
-	die('No direct access...');
-elseif (isset($_REQUEST['ssi_theme']) && (int) $_REQUEST['ssi_theme'] == (int) $ssi_theme)
-	die('No direct access...');
-elseif (isset($_COOKIE['ssi_theme']) && (int) $_COOKIE['ssi_theme'] == (int) $ssi_theme)
-	die('No direct access...');
-elseif (isset($_REQUEST['ssi_layers'], $ssi_layers) && (@get_magic_quotes_gpc() ? stripslashes($_REQUEST['ssi_layers']) : $_REQUEST['ssi_layers']) == $ssi_layers)
-	die('No direct access...');
-if (isset($_REQUEST['context']))
-	die('No direct access...');
-
-// Gzip output? (because it must be boolean and true, this can't be hacked.)
-if (isset($ssi_gzip) && $ssi_gzip === true && ini_get('zlib.output_compression') != '1' && ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>='))
-	ob_start('ob_gzhandler');
-else
-	$modSettings['enableCompressedOutput'] = '0';
-
 /**
  * An autoloader for certain classes.
  *
@@ -125,7 +98,7 @@ spl_autoload_register(function($class) use ($sourcedir)
 		'ReCaptcha\\' => 'ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => 'minify/src/',
 		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
-		'SMF\\Cache' => 'Cache/',
+		'SMF\\Cache\\' => 'Cache/',
 	);
 
 	// Do any third-party scripts want in on the fun?
@@ -157,6 +130,33 @@ spl_autoload_register(function($class) use ($sourcedir)
 		}
 	}
 });
+
+// Load installed 'Mods' settings.
+reloadSettings();
+// Clean the request variables.
+cleanRequest();
+
+// Seed the random generator?
+if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
+	smf_seed_generator();
+
+// Check on any hacking attempts.
+if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS']))
+	die('No direct access...');
+elseif (isset($_REQUEST['ssi_theme']) && (int) $_REQUEST['ssi_theme'] == (int) $ssi_theme)
+	die('No direct access...');
+elseif (isset($_COOKIE['ssi_theme']) && (int) $_COOKIE['ssi_theme'] == (int) $ssi_theme)
+	die('No direct access...');
+elseif (isset($_REQUEST['ssi_layers'], $ssi_layers) && (@get_magic_quotes_gpc() ? stripslashes($_REQUEST['ssi_layers']) : $_REQUEST['ssi_layers']) == $ssi_layers)
+	die('No direct access...');
+if (isset($_REQUEST['context']))
+	die('No direct access...');
+
+// Gzip output? (because it must be boolean and true, this can't be hacked.)
+if (isset($ssi_gzip) && $ssi_gzip === true && ini_get('zlib.output_compression') != '1' && ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>='))
+	ob_start('ob_gzhandler');
+else
+	$modSettings['enableCompressedOutput'] = '0';
 
 // Primarily, this is to fix the URLs...
 ob_start('ob_sessrewrite');
