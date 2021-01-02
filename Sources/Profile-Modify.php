@@ -3181,10 +3181,6 @@ function profileLoadSignatureData()
 		$context['member']['signature'] = $_POST['signature'];
 	}
 
-	// Load the spell checker?
-	if ($context['show_spellchecking'])
-		loadJavaScriptFile('spellcheck.js', array('defer' => false, 'minimize' => true), 'smf_spellcheck');
-
 	return true;
 }
 

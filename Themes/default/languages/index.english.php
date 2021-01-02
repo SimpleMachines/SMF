@@ -6,14 +6,11 @@ global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 // Native name, please use full HTML entities to write your language's name.
 $txt['native_name'] = 'English';
 
-// Locale (strftime, pspell_new) and spelling. (pspell_new, can be left as '' normally.)
+// Locale (strftime)
 // For more information see:
-//   - https://php.net/function.pspell-new
 //   - https://php.net/function.setlocale
-// Again, SPELLING SHOULD BE '' 99% OF THE TIME!!  Please read this!
 $txt['lang_locale'] = 'en_US';
 $txt['lang_dictionary'] = 'en';
-$txt['lang_spelling'] = 'american';
 //https://developers.google.com/recaptcha/docs/language
 $txt['lang_recaptcha'] = 'en';
 
@@ -611,8 +608,6 @@ $txt['quick_mod_markunread'] = 'Mark selected unread';
 $txt['quick_mod_selected'] = 'With the selected options do';
 $txt['quick_mod_go'] = 'Go';
 $txt['quickmod_confirm'] = 'Are you sure you want to do this?';
-
-$txt['spell_check'] = 'Spell Check';
 
 $txt['quick_reply'] = 'Quick Reply';
 $txt['quick_reply_warning'] = 'Warning! This topic is currently locked, only admins and moderators can reply.';

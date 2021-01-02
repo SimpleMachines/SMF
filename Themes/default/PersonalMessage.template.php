@@ -1109,7 +1109,7 @@ function template_send()
 					', template_control_verification($context['visual_verification_id'], 'all'), '
 				</div>';
 
-	// Send, Preview, spellcheck buttons.
+	// Send, and Preview buttons.
 	echo '
 				<span id="post_confirm_buttons">
 					', template_control_richedit_buttons($context['post_box_name']), '

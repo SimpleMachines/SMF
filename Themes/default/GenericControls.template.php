@@ -95,17 +95,11 @@ function template_control_richedit_buttons($editor_id)
 		$tempTab++;
 	elseif ($editor_context['preview_type'])
 		$tempTab++;
-	elseif ($context['show_spellchecking'])
-		$tempTab++;
 
 	$tempTab++;
 	$context['tabindex'] = $tempTab;
 
 	foreach ($context['richedit_buttons'] as $name => $button) {
-		if ($name == 'spell_check') {
-			$button['onclick'] = 'oEditorHandle_' . $editor_id . '.spellCheckStart();';
-		}
-
 		if ($name == 'preview') {
 			$button['value'] = isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $button['value'];
 			$button['onclick'] = $editor_context['preview_type'] == 2 ? '' : 'return submitThisOnce(this);';

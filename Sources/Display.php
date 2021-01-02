@@ -1346,10 +1346,6 @@ function Display()
 	if ($context['drafts_autosave'])
 		loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
 
-	// Spellcheck
-	if ($context['show_spellchecking'])
-		loadJavaScriptFile('spellcheck.js', array('defer' => false, 'minimize' => true), 'smf_spellcheck');
-
 	// topic.js
 	loadJavaScriptFile('topic.js', array('defer' => false, 'minimize' => true), 'smf_topic');
 

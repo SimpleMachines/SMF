@@ -110,14 +110,6 @@ $txt['poll_too_many_votes'] = 'You selected too many options. For this poll, you
 $txt['poll_add_option'] = 'Add Option';
 $txt['poll_guest_vote'] = 'Allow guests to vote';
 
-$txt['spellcheck_done'] = 'Spell checking complete.';
-$txt['spellcheck_change_to'] = 'Change To:';
-$txt['spellcheck_suggest'] = 'Suggestions:';
-$txt['spellcheck_change'] = 'Change';
-$txt['spellcheck_change_all'] = 'Change All';
-$txt['spellcheck_ignore'] = 'Ignore';
-$txt['spellcheck_ignore_all'] = 'Ignore All';
-
 $txt['more_attachments'] = 'more attachments';
 // Don't use entities in the below string.
 $txt['more_attachments_error'] = 'Sorry, you aren\'t allowed to post any more attachments.';

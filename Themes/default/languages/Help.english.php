@@ -532,7 +532,7 @@ $helptxt['posts_and_topics'] = '
 	<ul class="normallist">
 		<li>
 			<strong>Post Settings</strong><br>
-			Modify the settings related to the posting of messages and the way messages are shown. You can also enable the spell check here.
+			Modify the settings related to the posting of messages and the way messages are shown.
 		</li><li>
 			<strong>Bulletin Board Code</strong><br>
 			Enable the code that shows forum messages in the right layout. Also adjust which codes are allowed and which aren\'t.
@@ -640,7 +640,6 @@ $helptxt['languages_character_set'] = 'The character encoding used for this lang
 $helptxt['languages_locale'] = 'The locale code is used to determine various formatting conventions, etc.<br><br>The locale code typically takes the form of a two character language code, optionally followed by an underscore and a two character country code. For example, <code>en</code> would identify generic English, while <code>en_AU</code> would identify Australian English in particular.';
 $helptxt['languages_rtl'] = 'Check this box if this language reads from right to left (e.g. Hebrew, Arabic).';
 $helptxt['languages_dictionary'] = 'This defines the main language dictionary that will be used by the <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> spellchecker (if installed).';
-$helptxt['languages_spelling'] = 'This defines the language variant that will be used by the <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> spellchecker. For many languages this is not applicable.';
 $helptxt['languages_recaptcha'] = 'The language code to use for the reCAPTCHA verification widget.<br><br>See Google\'s reCAPTCHA documentation for its <a href="https://developers.google.com/recaptcha/docs/language" target="_blank" class="bbc_link">list of supported languages</a>.';
 $helptxt['requireAgreement'] = 'This setting must be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" class="bbc_link">GDPR</a>.';
 $helptxt['requirePolicyAgreement'] = 'This setting must be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" class="bbc_link">GDPR</a>.';

@@ -1632,11 +1632,6 @@ function template_edit_options()
 				<input type="hidden" name="sa" value="', $context['menu_item_selected'], '">
 			</div><!-- .roundframe -->
 		</form>';
-
-	// Any final spellchecking stuff?
-	if (!empty($context['show_spellchecking']))
-		echo '
-		<form name="spell_form" id="spell_form" method="post" accept-charset="', $context['character_set'], '" target="spellWindow" action="', $scripturl, '?action=spellcheck"><input type="hidden" name="spellstring" value=""></form>';
 }
 
 /**
@@ -2810,13 +2805,7 @@ function template_profile_signature_modify()
 							<dt>
 								<strong>', $txt['signature'], '</strong><br>
 								<span class="smalltext">', $txt['sig_info'], '</span><br>
-								<br>';
-
-	if ($context['show_spellchecking'])
-		echo '
-								<input type="button" value="', $txt['spell_check'], '" onclick="spellCheck(\'creator\', \'signature\');" class="button">';
-
-	echo '
+								<br>
 							</dt>
 							<dd>
 								<textarea class="editor" onkeyup="calcCharLeft();" id="signature" name="signature" rows="5" cols="50">', $context['member']['signature'], '</textarea><br>';
