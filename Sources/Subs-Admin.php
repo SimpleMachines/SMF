@@ -730,10 +730,21 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			'default' => 0,
 			'type' => 'integer',
 		),
+		'cache_memcache' => array(
+			'text' => implode("\n", array(
+				'/**',
+				' * This is only used for memcache. Should be a string of \'server:port,server:port\'',
+				' *',
+				' * @var array',
+				' */',
+			)),
+			'default' => '',
+			'type' => 'string',
+		),
 		'cache_memcached' => array(
 			'text' => implode("\n", array(
 				'/**',
-				' * This is only used for memcache / memcached. Should be a string of \'server:port,server:port\'',
+				' * This is only used for memcached. Should be a string of \'server:port,server:port\'',
 				' *',
 				' * @var array',
 				' */',

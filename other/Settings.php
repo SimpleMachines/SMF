@@ -164,7 +164,13 @@ $cache_accelerator = '';
  */
 $cache_enable = 0;
 /**
- * This is only used for memcache / memcached. Should be a string of 'server:port,server:port'
+ * This is only used for memcache. Should be a string of 'server:port,server:port'
+ *
+ * @var array
+ */
+$cache_memcache = '';
+/**
+ * This is only used for memcached. Should be a string of 'server:port,server:port'
  *
  * @var array
  */
