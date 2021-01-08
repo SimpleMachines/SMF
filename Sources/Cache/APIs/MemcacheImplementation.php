@@ -27,7 +27,7 @@ if (!defined('SMF'))
  */
 class MemcacheImplementation extends CacheApi implements CacheApiInterface
 {
-	const CLASS_KEY = 'cache_memcached';
+	const CLASS_KEY = 'cache_memcache';
 
 	/**
 	 * @var Memcache The memcache instance.
