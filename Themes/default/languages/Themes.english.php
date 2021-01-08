@@ -104,9 +104,10 @@ $txt['themeadmin_admin_desc'] = 'This page allows you to change the default them
 $txt['themeadmin_list_desc'] = 'From here, you can view the list of themes you currently have installed, change their paths and settings, and uninstall them.';
 $txt['themeadmin_reset_desc'] = 'Below you will see an interface to change the current theme-specific options for all your members. You will only see those themes that have their own set of settings.';
 $txt['themeadmin_edit_desc'] = 'Modify the stylesheet and source code of your installed themes. Please consult the documentation for more information.';
+$txt['themeadmin_install_title'] = 'Manage and Install themes';
 
 $txt['themeadmin_list_heading'] = 'Theme Settings overview';
-$txt['themeadmin_list_tip'] = 'Remember, the layout settings may be different between one theme and another. Click on the theme\'s names below to set their options, change their directory or URL settings, or to find other options.';
+$txt['themeadmin_list_tip'] = 'Remember, the layout settings may be different between one theme and another. Click on the settings icon for a theme below to set their options, change their directory or URL settings, or to find other options.';
 $txt['themeadmin_list_theme_dir'] = 'Theme directory (templates)';
 $txt['themeadmin_list_invalid'] = '(Warning! this path is not correct.)';
 $txt['themeadmin_list_theme_url'] = 'URL to above directory';
