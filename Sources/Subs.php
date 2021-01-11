@@ -4737,7 +4737,7 @@ function setupMenuContext()
 			$timeout = empty($timeout) ? 10000 : $timeout[$context['user']['id']]['alert_timeout'] * 1000;
 
 			addInlineJavaScript('
-	var new_alert_title = "' . $context['forum_name'] . '";
+	var new_alert_title = "' . $context['forum_name_html_safe'] . '";
 	var alert_timeout = ' . $timeout . ';');
 			loadJavaScriptFile('alerts.js', array('minimize' => true), 'smf_alerts');
 		}
