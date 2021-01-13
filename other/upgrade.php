@@ -4030,13 +4030,13 @@ function template_xml_below()
 
 function template_error_message()
 {
-	global $upcontext;
+	global $upcontext, $txt;
 
 	echo '
 	<div class="error">
 		', $upcontext['error_msg'], '
 		<br>
-		<a href="', $_SERVER['PHP_SELF'], '">Click here to try again.</a>
+		<a href="', $_SERVER['PHP_SELF'], '">', $txt['upgrade_respondtime_clickhere'], '</a>
 	</div>';
 }
 
@@ -4123,7 +4123,7 @@ function template_welcome_message()
 	}
 
 	echo '
-					<strong>', $txt['upgrade_admin_login'], ' ', $disable_security ? '(DISABLED)' : '', '</strong>
+					<strong>', $txt['upgrade_admin_login'], ' ', $disable_security ? $txt['upgrade_admin_disabled'] : '', '</strong>
 					<h3>', $txt['upgrade_sec_login'], '</h3>
 					<dl class="settings adminlogin">
 						<dt>
