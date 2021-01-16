@@ -16,6 +16,9 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
+if (!defined('PHP_INT_MIN'))
+	define('PHP_INT_MIN', ~PHP_INT_MAX);
+
 /**
  * Returns an array that instructs SMF how to map specific time zones
  * (e.g. "America/Denver") onto the user-friendly "meta-zone" labels that
