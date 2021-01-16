@@ -39,14 +39,14 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function isSupported($test = false)
 	{
-		global $cache_memcached;
+		global $cache_memcache;
 
 		$supported = class_exists('Memcache');
 
 		if ($test)
 			return $supported;
 
-		return parent::isSupported() && $supported && !empty($cache_memcached);
+		return parent::isSupported() && $supported && !empty($cache_memcache);
 	}
 
 	/**
@@ -54,11 +54,11 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function connect()
 	{
-		global $db_persist, $cache_memcached;
+		global $db_persist, $cache_memcache;
 
 		$this->memcache = new Memcache();
 
-		$servers = explode(',', $cache_memcached);
+		$servers = explode(',', $cache_memcache);
 		$port = 0;
 
 		// Don't try more times than we have servers!
