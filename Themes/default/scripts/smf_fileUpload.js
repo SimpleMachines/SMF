@@ -496,6 +496,8 @@ function smf_fileUpload(oOptions) {
 	// Hide the default way to show already attached files.
 	$('#postAttachment').remove();
 
+	$('#attachment_previews').show();
+
 	// Show the drag-and-drop instructions and buttons
 	$('#drop_zone_ui').show();
 

@@ -417,30 +417,9 @@ function template_main()
 			echo '
 										<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1024 . '">';
 
-		// Show more boxes if they aren't approaching that limit.
-		if ($context['num_allowed_attachments'] > 1)
-			echo '
-										<script>
-											var allowed_attachments = ', $context['num_allowed_attachments'], ';
-											var current_attachment = 1;
-
-											function addAttachment()
-											{
-												allowed_attachments = allowed_attachments - 1;
-												current_attachment = current_attachment + 1;
-												if (allowed_attachments <= 0)
-													return alert("', $txt['more_attachments_error'], '");
-
-												setOuterHTML(document.getElementById("moreAttachments"), \'<dd class="smalltext"><input type="file" name="attachment[]" id="attachment\' + current_attachment + \'"> (<a href="javascript:void(0);" onclick="cleanFileInput(\\\'attachment\' + current_attachment + \'\\\');">', $txt['clean_attach'], '<\/a>)\' + \'<\/dd><dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')<\' + \'/a><\' + \'/dd>\');
-
-												return true;
-											}
-										</script>
-										<a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a>
-									</div><!-- .fallback -->
-								</div><!-- #attachment_upload -->';
-
 		echo '
+									</div><!-- .fallback -->
+								</div><!-- #attachment_upload -->
 							</dd>';
 
 		// Add any template changes for an alternative upload system here.
