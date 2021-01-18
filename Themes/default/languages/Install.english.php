@@ -302,6 +302,7 @@ $txt['upgrade_json_completed'] = 'Convert to JSON Complete! Click Continue to Pr
 $txt['upgrade_executing'] = 'Executing:';
 $txt['upgrade_of'] = 'of';
 $txt['upgrade_admin_login'] = 'Admin Login:';
+$txt['upgrade_admin_disabled'] = '(DISABLED)';
 /* Same sentence, 3 different strings */
 $txt['upgrade_done'] = 'Upgrade complete. Now you are ready to use';
 $txt['upgrade_done2'] = 'your installation of SMF';

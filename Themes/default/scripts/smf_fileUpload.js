@@ -106,6 +106,16 @@ function smf_fileUpload(oOptions) {
 				done();
 			}
 		},
+		hideFileProgressAndAllButtonsIfNeeded: function () {
+			// Hide the cancel and upload all buttons if there is nothing to cancel/upload anymore.
+			if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 0) {
+				$('div#attachment_upload').find('#attach_cancel_all, #attach_upload_all').hide();
+			}
+			if (myDropzone.getAcceptedFiles().length == 0) {
+				$('#max_files_progress').hide();
+				$('#max_files_progress_text').hide();
+			}
+		},
 	};
 
 	if (oOptions.thumbnailHeight && oOptions.thumbnailWidth) {
@@ -218,6 +228,8 @@ function smf_fileUpload(oOptions) {
 
 								// Show the current amount of remaining files
 								$('.attach_remaining').html(myDropzone.options.maxFileAmount - myDropzone.getAcceptedFiles().length);
+
+								myDropzone.options.hideFileProgressAndAllButtonsIfNeeded();
 							}
 						},
 						error: function (xhr, textStatus, errorThrown) {
@@ -275,11 +287,7 @@ function smf_fileUpload(oOptions) {
 			myDropzone.options.createMaxSizeBar();
 		}
 
-		// Hide the cancel and upload all buttons if there is nothing to cancel/upload anymore.
-		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 0) {
-			$('div#attachment_upload').find('#attach_cancel_all, #attach_upload_all').hide();
-			$('#max_files_progress').hide();
-		}
+		myDropzone.options.hideFileProgressAndAllButtonsIfNeeded();
 	});
 
     // Event for when a file has been canceled
@@ -395,6 +403,8 @@ function smf_fileUpload(oOptions) {
 		// Hide the progress bar.
 		_thisElement.find('.progress_bar').fadeOut();
 
+		myDropzone.options.hideFileProgressAndAllButtonsIfNeeded();
+
 		// Finishing up mocking!
 		if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined") {
 			// Show the input field.
@@ -460,13 +470,12 @@ function smf_fileUpload(oOptions) {
 		if (!confirm(smf_you_sure))
 			return;
 
-		myDropzone.removeAllFiles(true);
+		myDropzone.getAddedFiles().forEach(function(file){ myDropzone.removeFile(file) });
+		myDropzone.getFilesWithStatus(Dropzone.ERROR).forEach(function(file){ myDropzone.removeFile(file) });
+
 		myDropzone.options.createMaxSizeBar();
 
-		// Set to zero
-		myDropzone.options.currentUsedSize = 0;
-		myDropzone.options.maxTotalSize = 0;
-
+		myDropzone.options.hideFileProgressAndAllButtonsIfNeeded();
 	});
 
 	$('a#attach_upload_all').on('click', function () {
@@ -477,6 +486,8 @@ function smf_fileUpload(oOptions) {
 
 		myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED));
 		myDropzone.options.createMaxSizeBar();
+
+		myDropzone.options.hideFileProgressAndAllButtonsIfNeeded();
 	});
 
 	// Need to tell the user they cannot post until all files are either uploaded or canceled.
@@ -495,6 +506,8 @@ function smf_fileUpload(oOptions) {
 
 	// Hide the default way to show already attached files.
 	$('#postAttachment').remove();
+
+	$('#attachment_previews').show();
 
 	// Show the drag-and-drop instructions and buttons
 	$('#drop_zone_ui').show();

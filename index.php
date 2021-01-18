@@ -86,6 +86,50 @@ $smcFunc = array();
 // Initiate the database connection and define some database functions to use.
 loadDatabase();
 
+/**
+ * An autoloader for certain classes.
+ *
+ * @param string $class The fully-qualified class name.
+ */
+spl_autoload_register(function ($class) use ($sourcedir)
+{
+	$classMap = array(
+		'ReCaptcha\\' => 'ReCaptcha/',
+		'MatthiasMullie\\Minify\\' => 'minify/src/',
+		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+		'SMF\\Cache\\' => 'Cache/',
+	);
+
+	// Do any third-party scripts want in on the fun?
+	call_integration_hook('integrate_autoload', array(&$classMap));
+
+	foreach ($classMap as $prefix => $dirName)
+	{
+		// does the class use the namespace prefix?
+		$len = strlen($prefix);
+		if (strncmp($prefix, $class, $len) !== 0)
+		{
+			continue;
+		}
+
+		// get the relative class name
+		$relativeClass = substr($class, $len);
+
+		// replace the namespace prefix with the base directory, replace namespace
+		// separators with directory separators in the relative class name, append
+		// with .php
+		$fileName = $dirName . strtr($relativeClass, '\\', '/') . '.php';
+
+		// if the file exists, require it
+		if (file_exists($fileName = $sourcedir . '/' . $fileName))
+		{
+			require_once $fileName;
+
+			return;
+		}
+	}
+});
+
 // Load the settings from the settings table, and perform operations like optimizing.
 $context = array();
 reloadSettings();
@@ -123,50 +167,6 @@ if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
 		ob_start('ob_gzhandler');
 	}
 }
-
-/**
- * An autoloader for certain classes.
- *
- * @param string $class The fully-qualified class name.
- */
-spl_autoload_register(function ($class) use ($sourcedir)
-{
-	$classMap = array(
-		'ReCaptcha\\' => 'ReCaptcha/',
-		'MatthiasMullie\\Minify\\' => 'minify/src/',
-		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
-		'SMF\\Cache' => 'Cache/',
-	);
-
-	// Do any third-party scripts want in on the fun?
-	call_integration_hook('integrate_autoload', array(&$classMap));
-
-	foreach ($classMap as $prefix => $dirName)
-	{
-		// does the class use the namespace prefix?
-		$len = strlen($prefix);
-		if (strncmp($prefix, $class, $len) !== 0)
-		{
-			continue;
-		}
-
-		// get the relative class name
-		$relativeClass = substr($class, $len);
-
-		// replace the namespace prefix with the base directory, replace namespace
-		// separators with directory separators in the relative class name, append
-		// with .php
-		$fileName = $dirName . strtr($relativeClass, '\\', '/') . '.php';
-
-		// if the file exists, require it
-		if (file_exists($fileName = $sourcedir . '/' . $fileName))
-		{
-			require_once $fileName;
-
-			return;
-		}
-	}
-});
 
 // Register an error handler.
 set_error_handler('smf_error_handler');

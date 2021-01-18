@@ -77,7 +77,6 @@ function ThemesMain()
 	{
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $txt['themeadmin_title'],
-			'help' => 'themes',
 			'description' => $txt['themeadmin_description'],
 			'tabs' => array(
 				'admin' => array(
