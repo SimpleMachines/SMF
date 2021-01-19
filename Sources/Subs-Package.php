@@ -111,7 +111,7 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 	$flags = $flags['f'];
 
 	$offset = 10;
-	$octdec = array('mode', 'uid', 'gid', 'size', 'mtime', 'checksum', 'type');
+	$octdec = array('mode', 'uid', 'gid', 'size', 'mtime', 'checksum');
 
 	// "Read" the filename and comment.
 	// @todo Might be mussed.
@@ -155,7 +155,7 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 				$current[$k] = trim($v);
 		}
 
-		if ($current['type'] == 5 && substr($current['filename'], -1) != '/')
+		if ($current['type'] == '5' && substr($current['filename'], -1) != '/')
 			$current['filename'] .= '/';
 
 		$checksum = 256;
