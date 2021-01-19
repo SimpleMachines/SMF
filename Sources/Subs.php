@@ -1434,27 +1434,17 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $currentAttachment['name']) . '"';
 						$title = !empty($data) ? ' title="' . $smcFunc['htmlspecialchars']($data) . '"' : '';
 
-						if (empty($params['{width}']) && empty($params['{height}']))
-						{
-							$width = !empty($currentAttachment['width']) ? $currentAttachment['width'] : '';
-							$height = !empty($currentAttachment['height']) ? $currentAttachment['height'] : '';
-						}
-						else
-						{
-							$width = !empty($params['{width}']) ? $params['{width}'] : '';
-							$height = !empty($params['{height}']) ? $params['{height}'] : '';
-						}
-
 						// Image.
 						if (!empty($currentAttachment['is_image']))
 						{
-							$width = !empty($width) ? ' width="' . $width . '"' : '';
-							$height = !empty($height) ? ' height="' . $height . '"' : '';
-
-							if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
-								$returnContext .= '<a href="' . $currentAttachment['href'] . ';image" id="link_' . $currentAttachment['id'] . '" onclick="' . $currentAttachment['thumbnail']['javascript'] . '"><img src="' . $currentAttachment['thumbnail']['href'] . '"' . $alt . $title . ' id="thumb_' . $currentAttachment['id'] . '" class="atc_img"></a>';
+							if (empty($params['{width}']) && empty($params['{height}']))
+								$returnContext .= '<img src="' . $currentAttachment['href'] . '"' . $alt . $title . ' class="bbc_img"></a>';
 							else
-								$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img"/>';
+							{
+								$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"': '';
+								$height = !empty($params['{height}']) ? 'height="' . $params['{height}'] . '"' : '';
+								$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img resized"/>';
+							}
 						}
 						// Video.
 						elseif (strpos($currentAttachment['mime_type'], 'video/') === 0)
