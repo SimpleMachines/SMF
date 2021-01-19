@@ -648,7 +648,9 @@ function template_set_settings()
 			elseif (isset($setting['type']) && $setting['type'] == 'url')
 				echo '
 						<input type="url"';
-
+			elseif (isset($setting['type']) && $setting['type'] == 'color')
+				echo '
+						<input type="color"';
 			else
 				echo '
 						<input type="text"';
