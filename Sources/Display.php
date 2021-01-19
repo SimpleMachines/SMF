@@ -1551,7 +1551,7 @@ function prepareDisplayContext($reset = false)
 		'quick_edit' => array(
 			'label' => $txt['quick_edit'],
 			'class' => 'quick_edit',
-			'id' =>' modify_button_'. $output['id'],
+			'id' => 'modify_button_'. $output['id'],
 			'custom' => 'onclick="oQuickModify.modifyMsg(\''.$output['id'].'\', \''.!empty($modSettings['toggle_subject']).'\')"',
 			'icon' => 'quick_edit_button',
 			'show' => $output['can_modify']
@@ -1621,7 +1621,7 @@ function prepareDisplayContext($reset = false)
 			'id' => 'in_topic_mod_check_'. $output['id'],
 			'custom' => 'style="display: none;"',
 			'content' => '',
-			'show' => !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $output['can_remove'],
+			'show' => !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $output['can_remove']
 		)
 	);
 
