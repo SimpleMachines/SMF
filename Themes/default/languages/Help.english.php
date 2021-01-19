@@ -640,8 +640,10 @@ $helptxt['languages_locale'] = 'The locale code is used to determine various for
 $helptxt['languages_rtl'] = 'Check this box if this language reads from right to left (e.g. Hebrew, Arabic).';
 $helptxt['languages_dictionary'] = 'This defines the main language dictionary that will be used by the <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> spellchecker (if installed).';
 $helptxt['languages_spelling'] = 'This defines the language variant that will be used by the <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> spellchecker. For many languages this is not applicable.';
-$helptxt['languages_recaptcha'] = 'The language code to use for the reCAPTCHA verification widget.<br><br>See Google\'s reCAPTCHA documentation for its <a href="https://developers.google.com/recaptcha/docs/language" target="_blank" class="bbc_link">list of supported languages</a>.';
-$helptxt['requireAgreement'] = 'This setting must be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" class="bbc_link">GDPR</a>.';
-$helptxt['requirePolicyAgreement'] = 'This setting must be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" class="bbc_link">GDPR</a>.';
+$helptxt['languages_recaptcha'] = 'The language code to use for the reCAPTCHA verification widget.<br><br>See Google\'s reCAPTCHA documentation for its <a href="https://developers.google.com/recaptcha/docs/language" target="_blank" rel="noopener" class="bbc_link">list of supported languages</a>.';
+// The GDPR page of the EU exists in several languages; change the language code at the end of the url
+$helptxt['requireAgreement'] = 'This setting is recommended to be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a>.';
+// The GDPR page of the EU exists in several languages; change the language code at the end of the url
+$helptxt['requirePolicyAgreement'] = 'This setting is recommended to be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a>.';
 
 ?>
