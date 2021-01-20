@@ -147,5 +147,7 @@ $txt['registration_password_no_match'] = 'Passwords do not match';
 $txt['registration_password_valid'] = 'Password is valid';
 
 $txt['registration_errors_occurred'] = 'The following errors were detected in your registration. Please correct them to continue:';
+$txt['registration_agreement_missing'] = 'The registration agreement file, agreement.txt, is either missing or empty. Registrations have been disabled until this is fixed';
+$txt['registration_policy_missing'] = 'The privacy policy is either missing or empty. Registrations have been disabled until this is fixed';
 
 ?>

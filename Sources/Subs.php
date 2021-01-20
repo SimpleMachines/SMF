@@ -3860,7 +3860,7 @@ function memoryReturnBytes($val)
  */
 function template_header()
 {
-	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir, $cache_enable;
+	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir, $cache_enable, $language;
 
 	setupThemeContext();
 
@@ -3926,11 +3926,14 @@ function template_header()
 			secureDirectory($path, true);
 			secureDirectory($cachedir);
 
-			// If agreement is enabled, at least the english version shall exists
+			// If agreement is enabled, at least the english version shall exist
 			if ($modSettings['requireAgreement'])
 				$agreement = !file_exists($boarddir . '/agreement.txt');
+			// If privacy policy is enabled, at least the default language version shall exist
+			if ($modSettings['requirePolicyAgreement'])
+				$policy_agreement = empty($modSettings['policy_' . $language]);
 
-			if (!empty($securityFiles) || (!empty($cache_enable) && !is_writable($cachedir)) || !empty($agreement) || !empty($context['auth_secret_missing']))
+			if (!empty($securityFiles) || (!empty($cache_enable) && !is_writable($cachedir)) || !empty($agreement) || !empty($policy_agreement) || !empty($context['auth_secret_missing']))
 			{
 				echo '
 		<div class="errorbox">
@@ -3955,6 +3958,10 @@ function template_header()
 				if (!empty($agreement))
 					echo '
 				<strong>', $txt['agreement_missing'], '</strong><br>';
+
+				if (!empty($policy_agreement))
+					echo '
+				<strong>', $txt['policy_agreement_missing'], '</strong><br>';
 
 				if (!empty($context['auth_secret_missing']))
 					echo '

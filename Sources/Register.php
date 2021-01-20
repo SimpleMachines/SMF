@@ -174,7 +174,7 @@ function Register($reg_errors = array())
 		else
 		{
 			// None was found; log the error so the admin knows there is a problem!
-			log_error($txt['error_no_privacy_policy'], 'critical');
+			log_error($txt['registration_policy_missing'], 'critical');
 			fatal_lang_error('registration_disabled', false);
 		}
 	}
