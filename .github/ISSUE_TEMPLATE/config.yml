@@ -1,0 +1,7 @@
+contact_links:
+  - name: SMF Community Support
+    url: https://www.simplemachines.org/community/index.php#category_3
+    about: Please ask and answer questions here.
+  - name: SMF Security Issue
+    url: https://www.simplemachines.org/about/smf/security.php
+    about: Please report security vulnerabilities here.
