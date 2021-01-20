@@ -864,6 +864,7 @@ $txt['attachments_not_enable'] = 'Attachments are disabled';
 $txt['attachments_no_data_loaded'] = 'Not a valid attachment ID.';
 $txt['attachments_not_allowed_to_see'] = 'You cannot see attachments on this board.';
 $txt['attachments_no_msg_associated'] = 'No message is associated with this attachment.';
+$txt['attachments_unapproved'] = 'Attachment is awating approval.';
 
 // Accessibility
 $txt['hide_category'] = 'Hide Category';
