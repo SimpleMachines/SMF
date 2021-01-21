@@ -929,7 +929,7 @@ function assignAttachments($attachIDs = array(), $msgID = 0)
  */
 function parseAttachBBC($attachID = 0)
 {
-	global $board, $modSettings, $context, $scripturl, $smcFunc;
+	global $board, $modSettings, $context, $scripturl, $smcFunc, $user_info;
 	static $view_attachment_boards;
 
 	if (!isset($view_attachment_boards))
@@ -998,7 +998,17 @@ function parseAttachBBC($attachID = 0)
 
 	// Load this particular attach's context.
 	if (!empty($attachContext))
+	{
+		// Skip unapproved attachment, unless they belong to the user or the user can approve them.
+		if (!$context['loaded_attachments'][$attachInfo['msg']][$attachID]['approved'] &&
+			$modSettings['postmod_active'] && !allowedTo('approve_posts') &&
+			$context['loaded_attachments'][$attachInfo['msg']][$attachID]['id_member'] != $user_info['id'])
+		{
+			unset($context['loaded_attachments'][$attachInfo['msg']][$attachID]);
+			return 'attachments_unapproved';
+		}
 		$attachLoaded = loadAttachmentContext($attachContext['id_msg'], $context['loaded_attachments']);
+	}
 	else
 		return 'attachments_no_data_loaded';
 
@@ -1323,7 +1333,7 @@ function loadAttachmentContext($id_msg, $attachments)
  */
 function prepareAttachsByMsg($msgIDs)
 {
-	global $context, $modSettings, $smcFunc, $user_info;
+	global $context, $modSettings, $smcFunc;
 
 	if (empty($context['loaded_attachments']))
 		$context['loaded_attachments'] = array();
@@ -1356,10 +1366,6 @@ function prepareAttachsByMsg($msgIDs)
 
 		foreach ($rows as $row)
 		{
-			// Skip unapproved ones, unless they belong to the user or the user can approve them.
-			if (!$row['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts') && $row['id_member'] != $user_info['id'])
-				continue;
-
 			if (empty($context['loaded_attachments'][$row['id_msg']]))
 				$context['loaded_attachments'][$row['id_msg']] = array();
 
