@@ -987,7 +987,7 @@ function parseAttachBBC($attachID = 0)
 	{
 		foreach ($context['loaded_attachments'][$attachInfo['msg']] as $foundAttachID => $foundAttach)
 		{
-			if ($foundAttach['id_thumb'] == $attachID)
+			if (array_key_exists('id_thumb', $foundAttach) && $foundAttach['id_thumb'] == $attachID)
 			{
 				$attachContext = $context['loaded_attachments'][$attachInfo['msg']][$foundAttachID];
 				$attachID = $foundAttachID;
@@ -1174,7 +1174,7 @@ function loadAttachmentContext($id_msg, $attachments)
 				'byte_size' => $attachment['filesize'],
 				'href' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
 				'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars']($attachment['filename']) . '</a>',
-				'is_image' => !empty($attachment['width']) && !empty($attachment['height']) && !empty($modSettings['attachmentShowImages']),
+				'is_image' => !empty($attachment['width']) && !empty($attachment['height']),
 				'is_approved' => $attachment['approved'],
 				'topic' => $attachment['topic'],
 				'board' => $attachment['board'],
@@ -1194,7 +1194,7 @@ function loadAttachmentContext($id_msg, $attachments)
 			$attachmentData[$i]['height'] = $attachment['height'];
 
 			// Let's see, do we want thumbs?
-			if (!empty($modSettings['attachmentThumbnails']) && !empty($modSettings['attachmentThumbWidth']) && !empty($modSettings['attachmentThumbHeight']) && ($attachment['width'] > $modSettings['attachmentThumbWidth'] || $attachment['height'] > $modSettings['attachmentThumbHeight']) && strlen($attachment['filename']) < 249)
+			if (!empty($modSettings['attachmentShowImages']) && !empty($modSettings['attachmentThumbnails']) && !empty($modSettings['attachmentThumbWidth']) && !empty($modSettings['attachmentThumbHeight']) && ($attachment['width'] > $modSettings['attachmentThumbWidth'] || $attachment['height'] > $modSettings['attachmentThumbHeight']) && strlen($attachment['filename']) < 249)
 			{
 				// A proper thumb doesn't exist yet? Create one!
 				if (empty($attachment['id_thumb']) || $attachment['thumb_width'] > $modSettings['attachmentThumbWidth'] || $attachment['thumb_height'] > $modSettings['attachmentThumbHeight'] || ($attachment['thumb_width'] < $modSettings['attachmentThumbWidth'] && $attachment['thumb_height'] < $modSettings['attachmentThumbHeight']))

@@ -773,7 +773,7 @@ function template_single_post($message)
 			echo '
 									<div class="attached">';
 
-			if ($attachment['is_image'])
+			if ($attachment['is_image'] && !empty($modSettings['attachmentShowImages']))
 			{
 				echo '
 										<div class="attachments_top">';
