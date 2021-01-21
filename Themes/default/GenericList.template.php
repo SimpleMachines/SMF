@@ -108,7 +108,7 @@ function template_show_list($list_id = null)
 		foreach ($cur_list['rows'] as $id => $row)
 		{
 			echo '
-				<tr class="windowbg', empty($row['class']) ? '' : ' ' . $row['class'], '"', empty($row['style']) ? '' : ' style="' . $row['style'] . '"', ' id="list_', $list_id, '_', $id, '">';
+				<tr class="', empty($row['class']) ? 'windowbg' : $row['class'], '"', empty($row['style']) ? '' : ' style="' . $row['style'] . '"', ' id="list_', $list_id, '_', $id, '">';
 
 			if (!empty($row['data']))
 				foreach ($row['data'] as $row_id => $row_data)

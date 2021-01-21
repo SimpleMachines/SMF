@@ -1245,11 +1245,12 @@ function showAttachments($memID)
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<a href="' . $scripturl . '?action=dlattach;topic=%1$d.0;attach=%2$d">%3$s</a>',
+						'format' => '<a href="' . $scripturl . '?action=dlattach;topic=%1$d.0;attach=%2$d">%3$s</a>%4$s',
 						'params' => array(
 							'topic' => true,
 							'id' => true,
 							'filename' => false,
+							'awaiting_approval' => false,
 						),
 					),
 				),
@@ -1325,7 +1326,7 @@ function showAttachments($memID)
  */
 function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $memID)
 {
-	global $smcFunc, $board, $modSettings, $context;
+	global $smcFunc, $board, $modSettings, $context, $txt;
 
 	// Retrieve some attachments.
 	$request = $smcFunc['db_query']('', '
@@ -1338,8 +1339,8 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 			AND a.id_msg != {int:no_message}
 			AND m.id_member = {int:current_member}' . (!empty($board) ? '
 			AND b.id_board = {int:board}' : '') . (!in_array(0, $boardsAllowed) ? '
-			AND b.id_board IN ({array_int:boards_list})' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
-			AND m.approved = {int:is_approved}') . '
+			AND b.id_board IN ({array_int:boards_list})' : '') . (!$modSettings['postmod_active'] || allowedTo('approve_posts') || $context['user']['is_owner'] ? '' : '
+			AND a.approved = {int:is_approved}') . '
 		ORDER BY {raw:sort}
 		LIMIT {int:offset}, {int:limit}',
 		array(
@@ -1367,6 +1368,7 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 			'board' => $row['id_board'],
 			'board_name' => $row['name'],
 			'approved' => $row['approved'],
+			'awaiting_approval' => (empty($row['approved']) ? ' <em>(' . $txt['awaiting_approval'] . ')</em>' : ''),
 		);
 
 	$smcFunc['db_free_result']($request);
