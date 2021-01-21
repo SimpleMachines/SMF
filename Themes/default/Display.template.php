@@ -735,8 +735,6 @@ function template_single_post($message)
 	if (!empty($message['attachment']))
 	{
 		$last_approved_state = 1;
-		$attachments_per_line = 5;
-		$i = 0;
 		// Don't output the div unless we actually have something to show...
 		$div_output = false;
 
@@ -802,11 +800,6 @@ function template_single_post($message)
 
 			echo '
 									</div><!-- .attached -->';
-
-			// Next attachment line ?
-			if (++$i % $attachments_per_line === 0)
-				echo '
-									<br>';
 		}
 
 		// If we had unapproved attachments clean up.
