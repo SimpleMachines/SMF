@@ -141,12 +141,9 @@ $txt['memcachedimplementation_cache'] = 'Memcached';
 $txt['zend_cache'] = 'Zend Platform/Performance Suite';
 $txt['cache_filebased_settings'] = 'SMF file based caching settings';
 $txt['cache_sqlite_settings'] = 'SQLite3 database caching settings';
-$txt['cache_memcachedimplementation_settings'] = 'Memcached settings';
-$txt['cache_memcachedimplementation_servers'] = 'Memcached servers';
-$txt['cache_memcachedimplementation_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
-$txt['cache_memcacheimplementation_settings'] = 'Memcache settings';
-$txt['cache_memcacheimplementation_servers'] = 'Memcache servers';
-$txt['cache_memcacheimplementation_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
+$txt['cache_memcached_settings'] = 'Memcache/Memcached settings';
+$txt['cache_memcached_servers'] = 'Memcache/Memcached servers';
+$txt['cache_memcached_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
 
 $txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>%01.2f</strong>';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';
