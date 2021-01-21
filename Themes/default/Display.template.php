@@ -743,7 +743,7 @@ function template_single_post($message)
 		foreach ($message['attachment'] as $attachment)
 		{
 			// Do we want this attachment to not be showed here?
-			if (!empty($modSettings['dont_show_attach_under_post']) && !empty($context['show_attach_under_post'][$attachment['id']]))
+			if ($attachment['is_approved'] && !empty($modSettings['dont_show_attach_under_post']) && !empty($context['show_attach_under_post'][$attachment['id']]))
 				continue;
 			elseif (!$div_output)
 			{
