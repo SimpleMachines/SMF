@@ -438,6 +438,7 @@ $txt['quote_from'] = 'Quote from';
 $txt['quote'] = 'Quote';
 $txt['quote_action'] = 'Quote';
 $txt['quote_selected_action'] = 'Quote selected text';
+$txt['spoiler'] = 'Spoiler';
 $txt['fulledit'] = 'Full&nbsp;edit';
 $txt['edit'] = 'Edit';
 $txt['quick_edit'] = 'Quick Edit';

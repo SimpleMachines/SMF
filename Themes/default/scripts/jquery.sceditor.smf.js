@@ -339,6 +339,82 @@ sceditor.command.set(
 	}
 );
 
+sceditor.command.set(
+	'spoiler', {
+		exec: function (caller) {
+			let editor = this;
+
+			let content = $(
+				this._('<form><div><label for="title">{0}</label> <input id="title" name="title"></div></form>',
+				this._('Spoiler title (optional):')
+			)).submit(function () {
+				return false;
+			});
+
+			content.append(
+				$(this._('<div><input class="button" type="button" value="{0}"></div>', this._('Insert'))
+				).click(function (e) {
+					let	title = $(this).parent('form').find('#title').val();
+
+					editor.wysiwygEditorInsertHtml('<details class="bbc_spoiler" data-title="' + title + '"><summary class="sceditor-ignore">' + title + '</summary><div class="spoiler_content">', '</div></details>');
+					editor.closeDropDown(true);
+
+					e.preventDefault();
+				})
+			);
+
+			editor.createDropDown(caller, 'add-spoiler', content[0]);
+		},
+		txtExec: function () {
+			let title = prompt(this._('Spoiler title (optional):'));
+
+			if (title) {
+				title = '=' + title;
+			}
+
+			this.insertText('[spoiler' + title + ']', '[/spoiler]');
+		}
+	}
+);
+
+sceditor.formats.bbcode.set(
+	'spoiler', {
+		tags: {
+			details: {
+				'class': 'bbc_spoiler'
+			},
+			summary: null,
+			div: {
+				'class': 'spoiler_content'
+			}
+		},
+		breakBefore: false,
+		isInline: false,
+		format: function (element, content) {
+			let attr = '',
+				elem = $(element).children('summary:first');
+
+			if (elem.length === 1) {
+				attr = elem.text();
+
+				$(element).attr({'attr': attr.php_htmlspecialchars()});
+
+				attr = '=' + attr;
+				content = '';
+				elem.remove();
+				content = this.elementToBbcode($(element));
+			}
+
+			return '[spoiler' + attr + ']' + content + '[/spoiler]';
+		},
+		html: function (e, attrs, content) {
+			let title = typeof attrs.defaultattr !== 'undefined' ? attrs.defaultattr : smf_txt_spoiler;
+
+			return '<details class="bbc_spoiler"><summary>' + title + '</summary><div class="spoiler_content">' + content + '</div></details>';
+		}
+	}
+);
+
 sceditor.formats.bbcode.set(
 	'abbr', {
 		tags: {

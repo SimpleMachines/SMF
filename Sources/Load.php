@@ -2476,6 +2476,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'smf_txt_expand' => JavaScriptEscape($txt['code_expand']),
 		'smf_txt_shrink' => JavaScriptEscape($txt['code_shrink']),
 		'smf_quote_expand' => !empty($modSettings['quote_expand']) ? $modSettings['quote_expand'] : 'false',
+		'smf_txt_spoiler' => JavaScriptEscape($txt['spoiler']),
 	);
 
 	// Add the JQuery library to the list of files to load.
@@ -2538,11 +2539,11 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$ts = time();
 		$ts -= $ts % 15;
 		addInlineJavaScript('
-	function triggerCron()
-	{
-		$.get(' . JavaScriptEscape($boardurl) . ' + "/cron.php?ts=' . $ts . '");
-	}
-	window.setTimeout(triggerCron, 1);', true);
+			function triggerCron()
+			{
+				$.get(' . JavaScriptEscape($boardurl) . ' + "/cron.php?ts=' . $ts . '");
+			}
+			window.setTimeout(triggerCron, 1);', true);
 	}
 
 	// Filter out the restricted boards from the linktree

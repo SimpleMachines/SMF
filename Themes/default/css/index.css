@@ -4062,3 +4062,32 @@ tr[id^='list_news_lists_'] textarea {
 .word_break {
 	word-break: break-all;
 }
+
+/* Spoiler */
+.bbc_spoiler {
+	display: block;
+	box-sizing: border-box;
+	user-select: none;
+	overflow: hidden;
+	background: #cfc;
+	color:#000;
+	border-radius: 6px;
+	box-shadow: 0px 1px 5px 2px rgba(34, 60, 80, 0.2);
+	margin-bottom: 4px;
+	padding: 6px 12px;
+}
+.bbc_spoiler summary {
+	display: list-item;
+	outline: 0;
+	cursor: pointer;
+	position: relative;
+	line-height: 19px;
+	white-space: nowrap;
+}
+.bbc_spoiler .spoiler_content {
+	background: #ebf4f8;
+	border-radius: 6px;
+	box-shadow: 0px 1px 5px 2px rgba(34, 60, 80, 0.2) inset;
+	line-height: 26px;
+	padding: 10px;
+}

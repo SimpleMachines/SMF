@@ -1530,6 +1530,7 @@ function create_control_richedit($editorOptions)
 			"Height (optional):": "' . $editortxt['height'] . '",
 			"Insert": "' . $editortxt['insert'] . '",
 			"Description (optional):": "' . $editortxt['description'] . '",
+			"Spoiler title (optional):": "' . $editortxt['spoiler_title'] . '",
 			"Rows:": "' . $editortxt['rows'] . '",
 			"Cols:": "' . $editortxt['cols'] . '",
 			"URL:": "' . $editortxt['url'] . '",
@@ -1705,6 +1706,11 @@ function create_control_richedit($editorOptions)
 				'code' => 'quote',
 				'description' => $editortxt['insert_quote']
 			),
+			array(
+				'code' => 'spoiler',
+				'description' => $editortxt['spoiler'],
+				'image' => 'spoiler'
+			),
 			array(),
 			array(
 				'code' => 'bulletlist',
@@ -1791,28 +1797,28 @@ function create_control_richedit($editorOptions)
 					if (isset($tag['image']))
 					{
 						$bbcodes_styles .= '
-						.sceditor-button-' . $tag['code'] . ' div {
-							background: url(\'' . $settings['default_theme_url'] . '/images/bbc/' . $tag['image'] . '.png\');
-						}';
+		.sceditor-button-' . $tag['code'] . ' div {
+			background: url(\'' . $settings['default_theme_url'] . '/images/bbc/' . $tag['image'] . '.png\');
+		}';
 					}
 
 					// Set the tooltip and possibly the command info
 					$context['bbcodes_handlers'] .= '
-						sceditor.command.set(' . JavaScriptEscape($tag['code']) . ', {
-							tooltip: ' . JavaScriptEscape(isset($tag['description']) ? $tag['description'] : $tag['code']);
+				sceditor.command.set(' . JavaScriptEscape($tag['code']) . ', {
+					tooltip: ' . JavaScriptEscape(isset($tag['description']) ? $tag['description'] : $tag['code']);
 
 					// Legacy support for 2.0 BBC mods
 					if (isset($tag['before']))
 					{
 						$context['bbcodes_handlers'] .= ',
-							exec: function () {
-								this.insert(' . JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . JavaScriptEscape($tag['after']) : '') . ');
-							},
-							txtExec: [' . JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . JavaScriptEscape($tag['after']) : '') . ']';
+					exec: function () {
+						this.insert(' . JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . JavaScriptEscape($tag['after']) : '') . ');
+					},
+					txtExec: [' . JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . JavaScriptEscape($tag['after']) : '') . ']';
 					}
 
 					$context['bbcodes_handlers'] .= '
-						});';
+				});';
 				}
 				else
 				{

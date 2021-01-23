@@ -1949,6 +1949,19 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'trim' => 'both',
 				'block_level' => true,
 			),
+			array(
+				'tag' => 'spoiler',
+				'before' => '<details class="bbc_spoiler"><summary>' . $txt['spoiler'] . '</summary><div class="spoiler_content">',
+				'after' => '</div></details>',
+				'block_level' => true
+			),
+			array(
+				'tag' => 'spoiler',
+				'type' => 'parsed_equals',
+				'before' => '<details class="bbc_spoiler"><summary>$1</summary><div class="spoiler_content">',
+				'after' => '</div></details>',
+				'block_level' => true
+			),
 			// Legacy (alias of [color=red])
 			array(
 				'tag' => 'red',
@@ -3722,21 +3735,29 @@ function setupThemeContext($forceload = false)
 
 	// Add a generic "Are you sure?" confirmation message.
 	addInlineJavaScript('
-	var smf_you_sure =' . JavaScriptEscape($txt['quickmod_confirm']) . ';');
+		var smf_you_sure =' . JavaScriptEscape($txt['quickmod_confirm']) . ';');
 
 	// Now add the capping code for avatars.
 	if (!empty($modSettings['avatar_max_width_external']) && !empty($modSettings['avatar_max_height_external']) && !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_css_resize')
 		addInlineCss('
-	img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max-height: ' . $modSettings['avatar_max_height_external'] . 'px; }');
+		img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max-height: ' . $modSettings['avatar_max_height_external'] . 'px; }');
 
 	// Add max image limits
 	if (!empty($modSettings['max_image_width']))
 		addInlineCss('
-	.postarea .bbc_img { max-width: ' . $modSettings['max_image_width'] . 'px; }');
+		.postarea .bbc_img { max-width: ' . $modSettings['max_image_width'] . 'px; }');
 
 	if (!empty($modSettings['max_image_height']))
 		addInlineCss('
-	.postarea .bbc_img { max-height: ' . $modSettings['max_image_height'] . 'px; }');
+		.postarea .bbc_img { max-height: ' . $modSettings['max_image_height'] . 'px; }');
+
+	if (!empty($settings['spoiler_background_color']))
+		addInlineCss('
+		.bbc_spoiler { background: ' . $settings['spoiler_background_color'] . '; }');
+
+	if (!empty($settings['spoiler_content_background_color']))
+		addInlineCss('
+		.bbc_spoiler .spoiler_content { background: ' . $settings['spoiler_content_background_color'] . '; }');
 
 	// This looks weird, but it's because BoardIndex.php references the variable.
 	$context['common_stats']['latest_member'] = array(
@@ -4130,15 +4151,15 @@ function template_javascript($do_deferred = false)
 		if (!empty($context['javascript_inline']['defer']) && $do_deferred)
 		{
 			echo '
-<script>
-window.addEventListener("DOMContentLoaded", function() {';
+	<script>
+		window.addEventListener("DOMContentLoaded", function() {';
 
 			foreach ($context['javascript_inline']['defer'] as $js_code)
 				echo $js_code;
 
 			echo '
-});
-</script>';
+		});
+	</script>';
 		}
 
 		if (!empty($context['javascript_inline']['standard']) && !$do_deferred)
@@ -4241,8 +4262,7 @@ function template_css()
 	<style>';
 
 		foreach ($context['css_header'] as $css)
-			echo $css . '
-	';
+			echo $css;
 
 		echo '
 	</style>';
@@ -4722,12 +4742,13 @@ function setupMenuContext()
 	if (!$context['user']['is_guest'])
 	{
 		addInlineJavaScript('
-	var user_menus = new smc_PopupMenu();
-	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");
-	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u=' . $context['user']['id'] . '");', true);
+			var user_menus = new smc_PopupMenu();
+			user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");
+			user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u=' . $context['user']['id'] . '");', true);
+
 		if ($context['allow_pm'])
 			addInlineJavaScript('
-	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
+			user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
 
 		if (!empty($modSettings['enable_ajax_alerts']))
 		{
@@ -4737,8 +4758,8 @@ function setupMenuContext()
 			$timeout = empty($timeout) ? 10000 : $timeout[$context['user']['id']]['alert_timeout'] * 1000;
 
 			addInlineJavaScript('
-	var new_alert_title = "' . $context['forum_name_html_safe'] . '";
-	var alert_timeout = ' . $timeout . ';');
+		var new_alert_title = "' . $context['forum_name_html_safe'] . '";
+		var alert_timeout = ' . $timeout . ';');
 			loadJavaScriptFile('alerts.js', array('minimize' => true), 'smf_alerts');
 		}
 	}
