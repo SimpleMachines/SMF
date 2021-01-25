@@ -356,7 +356,7 @@ sceditor.command.set(
 				).click(function (e) {
 					let	title = $(this).parent('form').find('#title').val();
 
-					editor.wysiwygEditorInsertHtml('<details class="bbc_spoiler" data-title="' + title + '"><summary class="sceditor-ignore">' + title + '</summary><div class="spoiler_content">', '</div></details>');
+					editor.wysiwygEditorInsertHtml('<details class="bbc_spoiler"><summary class="sceditor-ignore">' + title + '</summary><div class="spoiler_content">', '</div></details>');
 					editor.closeDropDown(true);
 
 					e.preventDefault();
@@ -368,9 +368,7 @@ sceditor.command.set(
 		txtExec: function () {
 			let title = prompt(this._('Spoiler title (optional):'));
 
-			if (title) {
-				title = '=' + title;
-			}
+			title = title ? '=' + title : '';
 
 			this.insertText('[spoiler' + title + ']', '[/spoiler]');
 		}
