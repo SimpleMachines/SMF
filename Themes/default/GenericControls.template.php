@@ -35,7 +35,6 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		<input type="hidden" name="', $editor_id, '_mode" id="', $editor_id, '_mode" value="0">
 		<script>
 			$(document).ready(function() {', !empty($context['bbcodes_handlers']) ? $context['bbcodes_handlers'] : '', '
-
 				var textarea = $("#', $editor_id, '").get(0);
 				sceditor.create(textarea, ', $smcFunc['json_encode']($editor_context['sce_options'], JSON_PRETTY_PRINT), ');';
 

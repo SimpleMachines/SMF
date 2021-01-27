@@ -186,16 +186,6 @@ function template_settings()
 			'options' => $context['smiley_sets'],
 			'type' => 'text',
 		),
-		array(
-			'id' => 'spoiler_background_color',
-			'label' => $txt['spoiler_background_color'] ,
-			'type' => 'color',
-		),
-		array(
-			'id' => 'spoiler_content_background_color',
-			'label' => $txt['spoiler_content_background_color'] ,
-			'type' => 'color',
-		),
 		'',
 		array(
 			'id' => 'enable_news',

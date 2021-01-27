@@ -3751,14 +3751,6 @@ function setupThemeContext($forceload = false)
 		addInlineCss('
 		.postarea .bbc_img { max-height: ' . $modSettings['max_image_height'] . 'px; }');
 
-	if (!empty($settings['spoiler_background_color']))
-		addInlineCss('
-		.bbc_spoiler { background: ' . $settings['spoiler_background_color'] . '; }');
-
-	if (!empty($settings['spoiler_content_background_color']))
-		addInlineCss('
-		.bbc_spoiler .spoiler_content { background: ' . $settings['spoiler_content_background_color'] . '; }');
-
 	// This looks weird, but it's because BoardIndex.php references the variable.
 	$context['common_stats']['latest_member'] = array(
 		'id' => $modSettings['latestMember'],
