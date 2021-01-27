@@ -338,7 +338,7 @@ sceditor.command.set(
 		}
 	}
 );
-//sceditor-ignore
+
 sceditor.command.set(
 	'spoiler', {
 		exec: function (caller) {
