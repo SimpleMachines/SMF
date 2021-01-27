@@ -338,7 +338,7 @@ sceditor.command.set(
 		}
 	}
 );
-
+//sceditor-ignore
 sceditor.command.set(
 	'spoiler', {
 		exec: function (caller) {
@@ -356,9 +356,9 @@ sceditor.command.set(
 				).click(function (e) {
 					let	title = $(this).parent('form').find('#title').val();
 
-					editor.wysiwygEditorInsertHtml('<details class="bbc_spoiler"><summary class="sceditor-ignore">' + title + '</summary><div class="spoiler_content">', '</div></details>');
-					editor.closeDropDown(true);
+					editor.wysiwygEditorInsertHtml('<details class="bbc_spoiler" data-title="' + title + '"><summary>' + title + '</summary>', '</details>');
 
+					editor.closeDropDown(true);
 					e.preventDefault();
 				})
 			);
@@ -381,34 +381,33 @@ sceditor.formats.bbcode.set(
 			details: {
 				'class': 'bbc_spoiler'
 			},
-			summary: null,
-			div: {
-				'class': 'spoiler_content'
-			}
+			summary: null
 		},
 		breakBefore: false,
-		isInline: false,
+		isInline: true,
 		format: function (element, content) {
-			let attr = '',
-				elem = $(element).children('summary:first');
+			var  element = $(element),
+				title = '';
 
-			if (elem.length === 1) {
-				attr = elem.text();
+			if (element[0].tagName.toLowerCase() === 'summary')
+				return '';
 
-				$(element).attr({'attr': attr.php_htmlspecialchars()});
+			if (element.attr('data-title'))
+				title = '=' + element.attr('data-title').php_unhtmlspecialchars();
 
-				attr = '=' + attr;
-				content = '';
-				elem.remove();
-				content = this.elementToBbcode($(element));
-			}
-
-			return '[spoiler' + attr + ']' + content + '[/spoiler]';
+			return '[spoiler' + title + ']' + content + '[/spoiler]';
 		},
 		html: function (e, attrs, content) {
-			let title = typeof attrs.defaultattr !== 'undefined' ? attrs.defaultattr : smf_txt_spoiler;
+			var  escapeEntities = sceditor.escapeEntities,
+				attr_title = '',
+				title = smf_txt_spoiler;
 
-			return '<details class="bbc_spoiler"><summary>' + title + '</summary><div class="spoiler_content">' + content + '</div></details>';
+			if (attrs.defaultattr) {
+				attr_title = ' data-title="' + escapeEntities(attrs.defaultattr) + '"';
+				title = attrs.defaultattr;
+			}
+
+			return '<details class="bbc_spoiler"' + attr_title + '><summary>' + title + '</summary>' + content + '</details>';
 		}
 	}
 );

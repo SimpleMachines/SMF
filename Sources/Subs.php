@@ -1951,15 +1951,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'spoiler',
-				'before' => '<details class="bbc_spoiler"><summary>' . $txt['spoiler'] . '</summary><div class="spoiler_content">',
-				'after' => '</div></details>',
+				'before' => '<details class="bbc_spoiler"><summary>' . $txt['spoiler'] . '</summary>',
+				'after' => '</details>',
 				'block_level' => true
 			),
 			array(
 				'tag' => 'spoiler',
 				'type' => 'parsed_equals',
-				'before' => '<details class="bbc_spoiler"><summary>$1</summary><div class="spoiler_content">',
-				'after' => '</div></details>',
+				'before' => '<details class="bbc_spoiler"><summary>$1</summary>',
+				'after' => '</details>',
 				'block_level' => true
 			),
 			// Legacy (alias of [color=red])
