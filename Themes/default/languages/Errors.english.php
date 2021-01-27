@@ -221,7 +221,6 @@ $txt['email_missing_data'] = 'You must enter something in both the subject and m
 $txt['topic_gone'] = 'The topic or board you are looking for appears to be either missing or off limits to you.';
 $txt['theme_edit_missing'] = 'The file you are trying to edit cannot be found.';
 
-$txt['no_dump_database'] = 'Only administrators can make database backups.';
 $txt['pm_not_yours'] = 'The personal message you are trying to quote is not your own or does not exist, please go back and try again.';
 $txt['mangled_post'] = 'Mangled form data - please go back and try again.';
 $txt['too_many_groups'] = 'Sorry, you selected too many groups, please remove some from your selection.';
