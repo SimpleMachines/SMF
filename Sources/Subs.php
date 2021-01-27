@@ -1958,6 +1958,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'spoiler',
 				'type' => 'parsed_equals',
+				'quoted' => 'optional',
 				'before' => '<details class="bbc_spoiler"><summary>$1</summary>',
 				'after' => '</details>',
 				'block_level' => true
