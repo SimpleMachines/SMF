@@ -227,8 +227,11 @@
 		display: none;
 	}
 	/* Unread */
-	#unread .board_icon, #unread .lastpost {
+	#unread .board_icon, #unread .lastpost, #unreadreplies .board_icon, #unreadreplies .lastpost {
 		display: none;
+	}
+	#unread .info, #unreadreplies .info {
+		padding-left: 5px;
 	}
 
 	/* Display (Topics) */
