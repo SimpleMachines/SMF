@@ -251,7 +251,7 @@ function Register($reg_errors = array())
 function Register2()
 {
 	global $txt, $modSettings, $context, $sourcedir;
-	global $smcFunc, $maintenance;
+	global $smcFunc, $maintenance, $user_info;
 
 	checkSession();
 	validateToken('register');
@@ -560,6 +560,8 @@ function Register2()
 	{
 		require_once($sourcedir . '/Profile.php');
 		require_once($sourcedir . '/Profile-Modify.php');
+		// Set user_info id, it is used by log actions
+		$user_info['id'] = $memberID;
 		makeCustomFieldChanges($memberID, 'register');
 	}
 
