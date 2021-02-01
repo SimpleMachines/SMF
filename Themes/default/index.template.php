@@ -242,10 +242,17 @@ function template_body_above()
 	}
 	// Otherwise they're a guest. Ask them to either register or login.
 	elseif (empty($maintenance))
-		echo '
-			<ul class="floatleft welcome">
-				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup'), '</li>
-			</ul>';
+		if ($context['can_register']) 
+			echo '
+				<ul class="floatleft welcome">
+					<li>', sprintf($txt['welcome_guest_register'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup'), '</li>
+				</ul>';
+
+		else
+			echo '
+				<ul class="floatleft welcome">
+					<li>', sprintf($txt['welcome_guest'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');'), '</li>
+				</ul>';
 	else
 		// In maintenance mode, only login is allowed and don't show OverlayDiv
 		echo '
