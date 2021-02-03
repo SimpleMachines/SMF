@@ -1243,7 +1243,9 @@ function UpgradeOptions()
 		if (empty($modSettings['sm_stats_key']))
 		{
 			// Attempt to register the site etc.
-			$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
+			$fp = @fsockopen('www.simplemachines.org', 443, $errno, $errstr);
+			if (!$fp)
+				$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
 			if ($fp)
 			{
 				$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode($boardurl) . ' HTTP/1.1' . "\r\n";
