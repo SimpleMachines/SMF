@@ -501,12 +501,14 @@ function DisplayStats()
 	$temp = cache_get_data('stats_total_time_members', 600);
 	$members_result = $smcFunc['db_query']('', '
 		SELECT id_member, real_name, total_time_logged_in
-		FROM {db_prefix}members' . (!empty($temp) ? '
-		WHERE id_member IN ({array_int:member_list_cached})' : '') . '
+		FROM {db_prefix}members
+		WHERE is_activated = {int:is_activated}' .
+		(!empty($temp) ? ' AND id_member IN ({array_int:member_list_cached})' : '') . '
 		ORDER BY total_time_logged_in DESC
 		LIMIT 20',
 		array(
 			'member_list_cached' => $temp,
+			'is_activated' => 1,
 		)
 	);
 	$context['stats_blocks']['time_online'] = array();
