@@ -3917,13 +3917,18 @@ function template_header()
 			secureDirectory($cachedir);
 
 			// If agreement is enabled, at least the english version shall exist
-			if ($modSettings['requireAgreement'])
+			if (!empty($modSettings['requireAgreement']))
 				$agreement = !file_exists($boarddir . '/agreement.txt');
+
 			// If privacy policy is enabled, at least the default language version shall exist
-			if ($modSettings['requirePolicyAgreement'])
+			if (!empty($modSettings['requirePolicyAgreement']))
 				$policy_agreement = empty($modSettings['policy_' . $language]);
 
-			if (!empty($securityFiles) || (!empty($cache_enable) && !is_writable($cachedir)) || !empty($agreement) || !empty($policy_agreement) || !empty($context['auth_secret_missing']))
+			if (!empty($securityFiles) ||
+				(!empty($cache_enable) && !is_writable($cachedir)) ||
+				!empty($agreement) ||
+				!empty($policy_agreement) ||
+				!empty($context['auth_secret_missing']))
 			{
 				echo '
 		<div class="errorbox">
