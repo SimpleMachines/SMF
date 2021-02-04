@@ -343,7 +343,7 @@ function smf_db_table_sql($tableName)
 		// Ensure the columns are in proper order.
 		ksort($columns);
 
-		$schema_create .= ',' . $crlf . ' ' . $keyname . ' (' . implode($columns, ', ') . ')';
+		$schema_create .= ',' . $crlf . ' ' . $keyname . ' (' . implode(', ', $columns) . ')';
 	}
 
 	// Now just get the comment and engine... (MyISAM, etc.)
