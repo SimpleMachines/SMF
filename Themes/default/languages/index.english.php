@@ -221,6 +221,7 @@ $txt['recent_posts'] = 'Recent posts';
 
 $txt['location'] = 'Location';
 $txt['gender'] = 'Gender';
+$txt['your_gender'] = 'Your gender.';
 $txt['personal_text'] = 'Personal text';
 $txt['date_registered'] = 'Date registered';
 
