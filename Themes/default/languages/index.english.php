@@ -223,6 +223,8 @@ $txt['location'] = 'Location';
 $txt['location_desc'] = 'Geographic location.';
 $txt['gender'] = 'Gender';
 $txt['gender_desc'] = 'Your gender.';
+$txt['icq'] = 'ICQ';
+$txt['icq_desc'] = 'This is your ICQ number.';
 $txt['personal_text'] = 'Personal text';
 $txt['date_registered'] = 'Date registered';
 
