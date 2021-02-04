@@ -202,29 +202,7 @@ sceditor.command.set(
 	}
 );
 sceditor.command.set(
-	'email', {
-		txtExec: function (caller, selected) {
-			var	display = selected && selected.indexOf('@') > -1 ? null : selected,
-				email = prompt(this._("Enter the e-mail address:"), (display ? '' : selected));
-			if (email)
-			{
-				var text = prompt(this._("Enter the displayed text:"), display || email) || email;
-				this.insertText("[email=" + email + "]" + text + "[/email]");
-			}
-		}
-	}
-);
-sceditor.command.set(
 	'link', {
-		txtExec: function (caller, selected) {
-			var	display = selected && selected.indexOf('http://') > -1 ? null : selected,
-				url = prompt(this._("Enter URL:"), (display ? 'http://' : selected));
-			if (url)
-			{
-				var text = prompt(this._("Enter the displayed text:"), display || url) || url;
-				this.insertText("[url=\"" + url + "\"]" + text + "[/url]");
-			}
-		},
 		exec: function (caller) {
 			var editor = this;
 
@@ -239,13 +217,16 @@ sceditor.command.set(
 					text = text || url;
 
 					editor.wysiwygEditorInsertHtml(
-						'<a target="_blank" rel="noopener" href="' + url + '">' + text + '</a>'
+						'<a target="_blank" rel="noopener" href="' +
+						sceditor.escapeEntities(url) + '">' +
+						sceditor.escapeEntities(text, true) + '</a>'
 					);
 				} else {
 					// Can't just use `editor.execCommand('createlink', url)`
 					// because we need to set the target attribute.
 					editor.wysiwygEditorInsertHtml(
-						'<a target="_blank" rel="noopener" href="' + url + '">', '</a>'
+						'<a target="_blank" rel="noopener" href="' +
+						sceditor.escapeEntities(url) + '">', '</a>'
 					);
 				}
 			});
@@ -335,6 +316,64 @@ sceditor.command.set(
 			editor.commands.youtube._dropDown(editor, caller, function (id, time) {
 				editor.wysiwygEditorInsertHtml('<div class="videocontainer"><div><iframe frameborder="0" allowfullscreen src="https://www.youtube.com/embed/' + id + '?wmode=opaque&start=' + time + '" data-youtube-id="' + id + '" loading="lazy"></iframe></div></div>');
 			});
+		}
+	}
+);
+
+sceditor.command.set(
+	'email', {
+		exec: function (caller)
+		{
+			var editor = this;
+
+			editor.commands.email._dropDown(
+				editor,
+				caller,
+				function (email, text)
+				{
+					// needed for IE to reset the last range
+					editor.focus();
+
+					if (!editor.getRangeHelper().selectedHtml() || text)
+						editor.wysiwygEditorInsertHtml(
+							'<a href="' +
+							'mailto:' + sceditor.escapeEntities(email) + '">' +
+								sceditor.escapeEntities(text || email) +
+							'</a>'
+						);
+					else
+						editor.execCommand('createlink', 'mailto:' + email);
+				}
+			);
+		},
+	}
+);
+
+sceditor.command.set(
+	'image', {
+		exec: function (caller)
+		{
+			var editor = this;
+
+			editor.commands.image._dropDown(
+				editor,
+				caller,
+				'',
+				function (url, width, height)
+				{
+					var attrs = ['src="' + sceditor.escapeEntities(url) + '"'];
+
+					if (width)
+						attrs.push('width="' + sceditor.escapeEntities(width, true) + '"');
+
+					if (height)
+						attrs.push('height="' + sceditor.escapeEntities(height, true) + '"');
+ 
+					editor.wysiwygEditorInsertHtml(
+						'<img ' + attrs.join(' ') + '>'
+					);
+				}
+			);
 		}
 	}
 );
@@ -890,8 +929,14 @@ sceditor.formats.bbcode.set(
 				author += ' ' + bbc_search_on;
 
 			/*
-			 * This fixes GH Bug #2845
-			 * As SMF allows "[quote=text]message[/quote]" it is lost during sceditor when it converts bbc to html and then html back to bbc code.  The simplest method is to tell sceditor that this is a "author", which is how the bbc parser treats it in SMF.  This will cause all bbc to be updated to "[quote author=text]message[/quote]".
+			 * This fixes #2845
+			 *
+			 * As SMF allows "[quote=text]message[/quote]" it is lost during
+			 * sceditor when it converts bbc to html and then html back to
+			 * bbc code. The simplest method is to tell sceditor that this
+			 * is a "author", which is how the bbc parser treats it in SMF.
+			 *
+			 * This will cause all bbc to be updated to "[quote author=text]message[/quote]".
 			*/
 			if (attr_author == '' && attrs.defaultattr)
 				attr_author = attrs.defaultattr;
