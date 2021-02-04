@@ -220,8 +220,9 @@ $txt['modified_by'] = 'Edited by';
 $txt['recent_posts'] = 'Recent posts';
 
 $txt['location'] = 'Location';
+$txt['location_desc'] = 'Geographic location.';
 $txt['gender'] = 'Gender';
-$txt['your_gender'] = 'Your gender.';
+$txt['gender_desc'] = 'Your gender.';
 $txt['personal_text'] = 'Personal text';
 $txt['date_registered'] = 'Date registered';
 
