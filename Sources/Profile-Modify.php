@@ -1312,9 +1312,15 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				'action' => 'customfield_' . $row['col_name'],
 				'log_type' => 'user',
 				'extra' => array(
-					'previous' => !empty($user_profile[$memID]['options'][$row['col_name']]) ? $user_profile[$memID]['options'][$row['col_name']] : '',
+					'previous' => !empty($user_profile[$memID]['options'][$row['col_name']])
+						? $user_profile[$memID]['options'][$row['col_name']]
+						: '',
 					'new' => $value,
-					'applicator' => $user_info['id'],
+					// The applicator is the same as the member affected
+					// if we are registering a new member.
+					'applicator' => empty($user_info['id']) && $area == 'register'
+						? $memID
+						: $user_info['id'],
 					'member_affected' => $memID,
 				),
 			);
