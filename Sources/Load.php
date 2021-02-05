@@ -1800,14 +1800,14 @@ function loadMemberContext($user, $display_custom_fields = false)
 					'{SCRIPTURL}' => $scripturl,
 					'{IMAGES_URL}' => $settings['images_url'],
 					'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-					'{INPUT}' => $value,
+					'{INPUT}' => tokenTxtReplace($value),
 					'{KEY}' => $currentKey,
 				));
 
 			$memberContext[$user]['custom_fields'][] = array(
-				'title' => !empty($custom['title']) ? $custom['title'] : $custom['col_name'],
-				'col_name' => $custom['col_name'],
-				'value' => un_htmlspecialchars($value),
+				'title' => tokenTxtReplace(!empty($custom['title']) ? $custom['title'] : $custom['col_name']),
+				'col_name' => tokenTxtReplace($custom['col_name']),
+				'value' => un_htmlspecialchars(tokenTxtReplace($value)),
 				'raw' => $profile['options'][$custom['col_name']],
 				'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
 			);
@@ -1859,6 +1859,8 @@ function loadMemberCustomFields($users, $params)
 	{
 		$fieldOptions = array();
 		$currentKey = 0;
+		$row['field_name'] = tokenTxtReplace($row['field_name']);
+		$row['field_desc'] = tokenTxtReplace($row['field_desc']);
 
 		// Create a key => value array for multiple options fields
 		if (!empty($row['field_options']))
