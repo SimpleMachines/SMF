@@ -1837,8 +1837,8 @@ function loadMemberCustomFields($users, $params)
 		return false;
 
 	// Make sure it's an array.
-	$users = !is_array($users) ? array($users) : array_unique($users);
-	$params = !is_array($params) ? array($params) : array_unique($params);
+	$users = (array) array_unique($users);
+	$params = (array) array_unique($params);
 	$return = array();
 
 	$request = $smcFunc['db_query']('', '
