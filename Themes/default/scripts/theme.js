@@ -15,7 +15,7 @@ function smf_codeBoxFix()
 	$.each(codeFix, function(index, tag)
 	{
 		if (is_webkit && $(tag).height() < 20)
-			$(tag).css({height: ($(tag).height + 20) + 'px'});
+			$(tag).css({height: ($(tag).height() + 20) + 'px'});
 
 		else if (is_ff && ($(tag)[0].scrollWidth > $(tag).innerWidth() || $(tag).innerWidth() == 0))
 			$(tag).css({overflow: 'scroll'});
