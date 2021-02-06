@@ -181,7 +181,7 @@
 		display: block;
 		min-height: 2em;
 	}
-	.lpr_border {
+	.up_contain .lastpost {
 		border-top: 1px solid #ddd;
 	}
 	.lastpost p {
