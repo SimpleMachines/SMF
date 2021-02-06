@@ -205,6 +205,18 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}log_spider_stats (
 --- Adding new forum settings.
 /******************************************************************************/
 
+---# GDPR compliance settings.
+---{
+if (!isset($modSettings['requirePolicyAgreement']))
+{
+    upgrade_query("
+        INSERT INTO {$db_prefix}settings
+            (variable, value)
+        VALUES ('requirePolicyAgreement', '0')");
+}
+---}
+---#
+
 ---# Enable cache if upgrading from 2.0 beta 1 and lower.
 ---{
 if (isset($modSettings['smfVersion']) && $modSettings['smfVersion'] <= '2.0 Beta 1')

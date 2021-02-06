@@ -14,7 +14,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -24,7 +24,7 @@
 define('SMF', 1);
 define('SMF_VERSION', '2.1 RC3');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2020');
+define('SMF_SOFTWARE_YEAR', '2021');
 
 define('JQUERY_VERSION', '3.5.1');
 define('POSTGRE_TITLE', 'PostgreSQL');
@@ -86,6 +86,50 @@ $smcFunc = array();
 // Initiate the database connection and define some database functions to use.
 loadDatabase();
 
+/**
+ * An autoloader for certain classes.
+ *
+ * @param string $class The fully-qualified class name.
+ */
+spl_autoload_register(function ($class) use ($sourcedir)
+{
+	$classMap = array(
+		'ReCaptcha\\' => 'ReCaptcha/',
+		'MatthiasMullie\\Minify\\' => 'minify/src/',
+		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+		'SMF\\Cache\\' => 'Cache/',
+	);
+
+	// Do any third-party scripts want in on the fun?
+	call_integration_hook('integrate_autoload', array(&$classMap));
+
+	foreach ($classMap as $prefix => $dirName)
+	{
+		// does the class use the namespace prefix?
+		$len = strlen($prefix);
+		if (strncmp($prefix, $class, $len) !== 0)
+		{
+			continue;
+		}
+
+		// get the relative class name
+		$relativeClass = substr($class, $len);
+
+		// replace the namespace prefix with the base directory, replace namespace
+		// separators with directory separators in the relative class name, append
+		// with .php
+		$fileName = $dirName . strtr($relativeClass, '\\', '/') . '.php';
+
+		// if the file exists, require it
+		if (file_exists($fileName = $sourcedir . '/' . $fileName))
+		{
+			require_once $fileName;
+
+			return;
+		}
+	}
+});
+
 // Load the settings from the settings table, and perform operations like optimizing.
 $context = array();
 reloadSettings();
@@ -123,50 +167,6 @@ if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
 		ob_start('ob_gzhandler');
 	}
 }
-
-/**
- * An autoloader for certain classes.
- *
- * @param string $class The fully-qualified class name.
- */
-spl_autoload_register(function ($class) use ($sourcedir)
-{
-	$classMap = array(
-		'ReCaptcha\\' => 'ReCaptcha/',
-		'MatthiasMullie\\Minify\\' => 'minify/src/',
-		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
-		'SMF\\Cache' => 'Cache/',
-	);
-
-	// Do any third-party scripts want in on the fun?
-	call_integration_hook('integrate_autoload', array(&$classMap));
-
-	foreach ($classMap as $prefix => $dirName)
-	{
-		// does the class use the namespace prefix?
-		$len = strlen($prefix);
-		if (strncmp($prefix, $class, $len) !== 0)
-		{
-			continue;
-		}
-
-		// get the relative class name
-		$relativeClass = substr($class, $len);
-
-		// replace the namespace prefix with the base directory, replace namespace
-		// separators with directory separators in the relative class name, append
-		// with .php
-		$fileName = $dirName . strtr($relativeClass, '\\', '/') . '.php';
-
-		// if the file exists, require it
-		if (file_exists($fileName = $sourcedir . '/' . $fileName))
-		{
-			require_once $fileName;
-
-			return;
-		}
-	}
-});
 
 // Register an error handler.
 set_error_handler('smf_error_handler');

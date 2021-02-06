@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -145,7 +145,7 @@ function BoardNotify()
 		loadTemplate('Notify');
 		$context['page_title'] = $txt['notification'];
 		$context['sub_template'] = 'notify_pref_changed';
-		$context['notify_success_msg'] = sprintf($txt['notifyboard' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
+		$context['notify_success_msg'] = sprintf($txt['notify_board' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
 		return;
 	}
 	// Back to the board!
@@ -315,7 +315,7 @@ function TopicNotify()
 		loadTemplate('Notify');
 		$context['page_title'] = $txt['notification'];
 		$context['sub_template'] = 'notify_pref_changed';
-		$context['notify_success_msg'] = sprintf($txt['notifytopic' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
+		$context['notify_success_msg'] = sprintf($txt['notify_topic' . ($mode == 3 ? '_subscribed' : '_unsubscribed')], $member_info['email']);
 		return;
 	}
 	// Back to the topic.

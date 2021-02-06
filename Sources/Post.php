@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -1038,6 +1038,21 @@ function Post($post_errors = array())
 				);
 			}
 		}
+	}
+
+	// Allow user to see previews for all of this post's attachments, even if the post hasn't been submitted yet.
+	if (!isset($_SESSION['attachments_can_preview']))
+		$_SESSION['attachments_can_preview'] = array();
+
+	if (!empty($_SESSION['already_attached']))
+		$_SESSION['attachments_can_preview'] += array_fill_keys(array_keys($_SESSION['already_attached']), true);
+
+	foreach ($context['current_attachments'] as $attachID => $attachment)
+	{
+		$_SESSION['attachments_can_preview'][$attachID] = true;
+
+		if (!empty($attachment['thumb']))
+			$_SESSION['attachments_can_preview'][$attachment['thumb']] = true;
 	}
 
 	// Do we need to show the visual verification image?

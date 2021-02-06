@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -501,12 +501,14 @@ function DisplayStats()
 	$temp = cache_get_data('stats_total_time_members', 600);
 	$members_result = $smcFunc['db_query']('', '
 		SELECT id_member, real_name, total_time_logged_in
-		FROM {db_prefix}members' . (!empty($temp) ? '
-		WHERE id_member IN ({array_int:member_list_cached})' : '') . '
+		FROM {db_prefix}members
+		WHERE is_activated = {int:is_activated}' .
+		(!empty($temp) ? ' AND id_member IN ({array_int:member_list_cached})' : '') . '
 		ORDER BY total_time_logged_in DESC
 		LIMIT 20',
 		array(
 			'member_list_cached' => $temp,
+			'is_activated' => 1,
 		)
 	);
 	$context['stats_blocks']['time_online'] = array();
@@ -831,7 +833,9 @@ function SMStats()
 	else
 	{
 		// Connect to the collection script.
-		$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
+		$fp = @fsockopen('www.simplemachines.org', 443, $errno, $errstr);
+		if (!$fp)
+			$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
 		if ($fp)
 		{
 			$length = strlen($stats_to_send);

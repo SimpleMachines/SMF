@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -2315,7 +2315,7 @@ function searchSort($a, $b)
 function highlight($text, array $words)
 {
 	$words = implode('|', array_map('preg_quote', $words));
-	$highlighted = preg_filter('/' . $words . '/i', '<span class="highlight">$0</span>', $text);
+	$highlighted = preg_filter('<' . $words . '>i', '<span class="highlight">$0</span>', $text);
 
 	if (!empty($highlighted))
 		$text = $highlighted;

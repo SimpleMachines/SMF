@@ -829,6 +829,19 @@ ALTER TABLE {$db_prefix}log_notify
 ADD INDEX id_topic (id_topic, id_member);
 ---#
 
+---# GDPR compliance settings.
+---{
+if (!isset($modSettings['requirePolicyAgreement']))
+{
+	upgrade_query("
+		INSERT INTO {$db_prefix}settings
+			(variable, value)
+		VALUES
+			('requirePolicyAgreement', '0')");
+}
+---}
+---#
+
 /******************************************************************************/
 --- Adding custom profile fields.
 /******************************************************************************/

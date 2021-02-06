@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -217,7 +217,10 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
 	{
 		loadLanguage('Errors', $language);
 		$reload_lang_file = $language != $user_info['language'];
-		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
+		if (empty($txt[$error]))
+			$error_message = $error;
+		else
+			$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
 		log_error($error_message, $log);
 	}
 

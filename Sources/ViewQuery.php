@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -94,7 +94,7 @@ function ViewQuery()
 		if (isset($query_data['f']))
 			$query_data['f'] = preg_replace('~^' . preg_quote($boarddir, '~') . '~', '...', $query_data['f']);
 
-		$is_select_query = substr(trim($query_data['q']), 0, 6) == 'SELECT';
+		$is_select_query = substr(trim($query_data['q']), 0, 6) == 'SELECT' || substr(trim($query_data['q']), 0, 4) == 'WITH';
 		if ($is_select_query)
 			$select = $query_data['q'];
 		elseif (preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+(SELECT .+)$~s', trim($query_data['q']), $matches) != 0)

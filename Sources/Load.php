@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -527,7 +527,7 @@ function loadUserSettings()
 		if (empty($cache_enable) || $cache_enable < 2 || ($user_settings = cache_get_data('user_settings-' . $id_member, 60)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT mem.*, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type
+				SELECT mem.*, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type, a.width AS "attachment_width", a.height AS "attachment_height" 
 				FROM {db_prefix}members AS mem
 					LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = {int:id_member})
 				WHERE mem.id_member = {int:id_member}
@@ -813,7 +813,9 @@ function loadUserSettings()
 			'url' => isset($user_settings['avatar']) ? $user_settings['avatar'] : '',
 			'filename' => empty($user_settings['filename']) ? '' : $user_settings['filename'],
 			'custom_dir' => !empty($user_settings['attachment_type']) && $user_settings['attachment_type'] == 1,
-			'id_attach' => isset($user_settings['id_attach']) ? $user_settings['id_attach'] : 0
+			'id_attach' => isset($user_settings['id_attach']) ? $user_settings['id_attach'] : 0,
+			'width' => isset($user_settings['attachment_width']) > 0 ? $user_settings['attachment_width']: 0,
+			'height' => isset($user_settings['attachment_height']) > 0 ? $user_settings['attachment_height'] : 0,
 		),
 		'smiley_set' => isset($user_settings['smiley_set']) ? $user_settings['smiley_set'] : '',
 		'messages' => empty($user_settings['instant_messages']) ? 0 : $user_settings['instant_messages'],
@@ -1433,7 +1435,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 
 	// Used by default
 	$select_columns = '
-			COALESCE(lo.log_time, 0) AS is_online, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type,
+			COALESCE(lo.log_time, 0) AS is_online, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type, a.width "attachment_width", a.height "attachment_height",
 			mem.signature, mem.personal_text, mem.avatar, mem.id_member, mem.member_name,
 			mem.real_name, mem.email_address, mem.date_registered, mem.website_title, mem.website_url,
 			mem.birthdate, mem.member_ip, mem.member_ip2, mem.posts, mem.last_login, mem.id_post_group, mem.lngfile, mem.id_group, mem.time_offset, mem.timezone, mem.show_online,
@@ -1647,7 +1649,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		'name' => $profile['real_name'],
 		'id' => $profile['id_member'],
 		'href' => $scripturl . '?action=profile;u=' . $profile['id_member'],
-		'link' => '<a href="' . $scripturl . '?action=profile;u=' . $profile['id_member'] . '" title="' . $txt['profile_of'] . ' ' . $profile['real_name'] . '" ' . (!empty($modSettings['onlineEnable']) ? 'class="pm_icon"' : '') . '>' . $profile['real_name'] . '</a>',
+		'link' => '<a href="' . $scripturl . '?action=profile;u=' . $profile['id_member'] . '" title="' . $txt['profile_of'] . ' ' . $profile['real_name'] . '">' . $profile['real_name'] . '</a>',
 		'email' => $profile['email_address'],
 		'show_email' => !$user_info['is_guest'] && ($user_info['id'] == $profile['id_member'] || allowedTo('moderate_forum')),
 		'registered' => empty($profile['date_registered']) ? $txt['not_applicable'] : timeformat($profile['date_registered']),
@@ -1753,7 +1755,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		if (!empty($image))
 			$memberContext[$user]['avatar'] = array(
 				'name' => $profile['avatar'],
-				'image' => '<img class="avatar" src="' . $image . '" alt="">',
+				'image' => '<img class="avatar" src="' . $image . '" alt="" loading="lazy" width="' . $profile['attachment_width'] . '" height = "'. $profile['attachment_height'] . '">',
 				'href' => $image,
 				'url' => $image,
 			);
@@ -3866,7 +3868,7 @@ function set_avatar_data($data = array())
  */
 function get_auth_secret()
 {
-	global $auth_secret, $sourcedir, $smcFunc;
+	global $context, $auth_secret, $sourcedir, $boarddir, $smcFunc, $db_last_error, $txt;
 
 	if (empty($auth_secret))
 	{
@@ -3874,8 +3876,23 @@ function get_auth_secret()
 
 		// It is important to store this in Settings.php, not the database.
 		require_once($sourcedir . '/Subs-Admin.php');
-		updateSettingsFile(array('auth_secret' => $auth_secret));
+
+		// Did this fail?  If so, we should alert, log and set a static value.
+		if (!updateSettingsFile(array('auth_secret' => $auth_secret)))
+		{
+			$context['auth_secret_missing'] = true;
+			$auth_secret = hash_file('sha256', $boarddir . '/Settings.php');
+
+			// Set the last error to now, but only every 15 minutes.  Don't need to flood the logs.
+			if (empty($db_last_error) || ($db_last_error + 60*15) <= time())
+			{
+				updateDbLastError(time());
+				loadLanguage('Errors');
+				log_error($txt['auth_secret_missing'], 'critical');
+			}
+		}
 	}
+
 
 	return $auth_secret;
 }

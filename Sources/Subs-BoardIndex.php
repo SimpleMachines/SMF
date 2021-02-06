@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -309,6 +309,7 @@ function getBoardIndex($board_index_options)
 
 			$this_category[$row_board['id_parent']]['children'][$row_board['id_board']] = array(
 				'id' => $row_board['id_board'],
+				'id_cat' => $row_board['id_cat'],
 				'name' => $row_board['board_name'],
 				'description' => $row_board['description'],
 				'short_description' => shorten_subject($row_board['description'], 128),

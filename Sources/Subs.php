@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -1434,27 +1434,17 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $currentAttachment['name']) . '"';
 						$title = !empty($data) ? ' title="' . $smcFunc['htmlspecialchars']($data) . '"' : '';
 
-						if (empty($params['{width}']) && empty($params['{height}']))
-						{
-							$width = !empty($currentAttachment['width']) ? $currentAttachment['width'] : '';
-							$height = !empty($currentAttachment['height']) ? $currentAttachment['height'] : '';
-						}
-						else
-						{
-							$width = !empty($params['{width}']) ? $params['{width}'] : '';
-							$height = !empty($params['{height}']) ? $params['{height}'] : '';
-						}
-
 						// Image.
 						if (!empty($currentAttachment['is_image']))
 						{
-							$width = !empty($width) ? ' width="' . $width . '"' : '';
-							$height = !empty($height) ? ' height="' . $height . '"' : '';
-
-							if ($currentAttachment['thumbnail']['has_thumb'] && empty($params['{width}']) && empty($params['{height}']))
-								$returnContext .= '<a href="' . $currentAttachment['href'] . ';image" id="link_' . $currentAttachment['id'] . '" onclick="' . $currentAttachment['thumbnail']['javascript'] . '"><img src="' . $currentAttachment['thumbnail']['href'] . '"' . $alt . $title . ' id="thumb_' . $currentAttachment['id'] . '" class="atc_img"></a>';
+							if (empty($params['{width}']) && empty($params['{height}']))
+								$returnContext .= '<img src="' . $currentAttachment['href'] . '"' . $alt . $title . ' class="bbc_img"></a>';
 							else
-								$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img"/>';
+							{
+								$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"': '';
+								$height = !empty($params['{height}']) ? 'height="' . $params['{height}'] . '"' : '';
+								$returnContext .= '<img src="' . $currentAttachment['href'] . ';image"' . $alt . $title . $width . $height . ' class="bbc_img resized"/>';
+							}
 						}
 						// Video.
 						elseif (strpos($currentAttachment['mime_type'], 'video/') === 0)
@@ -1739,10 +1729,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'parameters' => array(
 					'alt' => array('optional' => true),
 					'title' => array('optional' => true),
-					'width' => array('optional' => true, 'value' => ' width="$1"', 'match' => '(\d+)'),
-					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
 				),
-				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized" loading="lazy">',
+				'content' => '<img src="$1" alt="{alt}" title="{title}" class="bbc_img" loading="lazy">',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
@@ -1757,7 +1745,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'img',
 				'type' => 'unparsed_content',
-				'content' => '<img src="$1" alt="" class="bbc_img">',
+				'parameters' => array(
+					'alt' => array('optional' => true),
+					'title' => array('optional' => true),
+					'width' => array('optional' => true, 'value' => ' width="$1"', 'match' => '(\d+)'),
+					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
+				),
+				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
@@ -2053,8 +2047,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					if (is_numeric($data))
 						$data = timeformat($data);
-					else
-						$tag['content'] = '[time]$1[/time]';
+
+					$tag['content'] = '<span class="bbc_time">$1</span>';
 				},
 			),
 			array(
@@ -3856,7 +3850,7 @@ function memoryReturnBytes($val)
  */
 function template_header()
 {
-	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir, $cache_enable;
+	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir, $cache_enable, $language;
 
 	setupThemeContext();
 
@@ -3922,16 +3916,24 @@ function template_header()
 			secureDirectory($path, true);
 			secureDirectory($cachedir);
 
-			// If agreement is enabled, at least the english version shall exists
-			if ($modSettings['requireAgreement'])
+			// If agreement is enabled, at least the english version shall exist
+			if (!empty($modSettings['requireAgreement']))
 				$agreement = !file_exists($boarddir . '/agreement.txt');
 
-			if (!empty($securityFiles) || (!empty($cache_enable) && !is_writable($cachedir)) || !empty($agreement))
+			// If privacy policy is enabled, at least the default language version shall exist
+			if (!empty($modSettings['requirePolicyAgreement']))
+				$policy_agreement = empty($modSettings['policy_' . $language]);
+
+			if (!empty($securityFiles) ||
+				(!empty($cache_enable) && !is_writable($cachedir)) ||
+				!empty($agreement) ||
+				!empty($policy_agreement) ||
+				!empty($context['auth_secret_missing']))
 			{
 				echo '
 		<div class="errorbox">
 			<p class="alert">!!</p>
-			<h3>', empty($securityFiles) ? $txt['generic_warning'] : $txt['security_risk'], '</h3>
+			<h3>', empty($securityFiles) && empty($context['auth_secret_missing']) ? $txt['generic_warning'] : $txt['security_risk'], '</h3>
 			<p>';
 
 				foreach ($securityFiles as $securityFile)
@@ -3951,6 +3953,14 @@ function template_header()
 				if (!empty($agreement))
 					echo '
 				<strong>', $txt['agreement_missing'], '</strong><br>';
+
+				if (!empty($policy_agreement))
+					echo '
+				<strong>', $txt['policy_agreement_missing'], '</strong><br>';
+
+				if (!empty($context['auth_secret_missing']))
+					echo '
+				<strong>', $txt['auth_secret_missing'], '</strong><br>';
 
 				echo '
 			</p>
@@ -4733,7 +4743,7 @@ function setupMenuContext()
 			$timeout = empty($timeout) ? 10000 : $timeout[$context['user']['id']]['alert_timeout'] * 1000;
 
 			addInlineJavaScript('
-	var new_alert_title = "' . $context['forum_name'] . '";
+	var new_alert_title = "' . $context['forum_name_html_safe'] . '";
 	var alert_timeout = ' . $timeout . ';');
 			loadJavaScriptFile('alerts.js', array('minimize' => true), 'smf_alerts');
 		}
@@ -5917,10 +5927,12 @@ function get_gravatar_url($email_address)
 }
 
 /**
- * Get a list of timezones.
+ * Get a list of time zones.
  *
- * @param string $when An optional date or time for which to calculate the timezone offset values. May be a Unix timestamp or any string that strtotime() can understand. Defaults to 'now'.
- * @return array An array of timezone info.
+ * @param string $when The date/time for which to calculate the time zone values.
+ *		May be a Unix timestamp or any string that strtotime() can understand.
+ *		Defaults to 'now'.
+ * @return array An array of time zone identifiers and label text.
  */
 function smf_list_timezones($when = 'now')
 {
@@ -5952,7 +5964,7 @@ function smf_list_timezones($when = 'now')
 	// Load up any custom time zone descriptions we might have
 	loadLanguage('Timezones');
 
-	$tzid_metazones = get_tzid_metazones();
+	$tzid_metazones = get_tzid_metazones($later);
 
 	// Should we put time zones from certain countries at the top of the list?
 	$priority_countries = !empty($modSettings['timezone_priority_countries']) ? explode(',', $modSettings['timezone_priority_countries']) : array();
@@ -5971,8 +5983,8 @@ function smf_list_timezones($when = 'now')
 
 	$normal_priority_tzids = array_diff(array_unique(array_merge(array_keys($tzid_metazones), timezone_identifiers_list())), $priority_tzids, $low_priority_tzids);
 
-	// Process the preferred timezones first, then the normal ones, then the low priority ones.
-	$tzids = array_merge($priority_tzids, array('UTC'), $normal_priority_tzids, $low_priority_tzids);
+	// Process them in order of importance.
+	$tzids = array_merge($priority_tzids, $normal_priority_tzids, $low_priority_tzids);
 
 	// Idea here is to get exactly one representative identifier for each and every unique set of time zone rules.
 	$dst_types = array();
@@ -6035,7 +6047,7 @@ function smf_list_timezones($when = 'now')
 		}
 		$offsets[$tzkey] = $tzinfo[0]['offset'];
 
-		// Figure out the "metazone" info for the label
+		// Figure out the "meta-zone" info for the label
 		if (empty($zones[$tzkey]['metazone']) && isset($tzid_metazones[$tzid]))
 		{
 			$zones[$tzkey]['metazone'] = $tzid_metazones[$tzid];
@@ -6125,10 +6137,10 @@ function smf_list_timezones($when = 'now')
 }
 
 /**
- * Gets a member's selected timezone identifier
+ * Gets a member's selected time zone identifier
  *
  * @param int $id_member The member id to look up. If not provided, the current user's id will be used.
- * @return string The timezone identifier string for the user's timezone.
+ * @return string The time zone identifier string for the user's time zone.
  */
 function getUserTimezone($id_member = null)
 {

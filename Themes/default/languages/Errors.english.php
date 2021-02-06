@@ -138,7 +138,6 @@ $txt['cannot_who_view'] = 'Sorry, you don\'t have the proper permissions to view
 $txt['no_theme'] = 'That theme does not exist.';
 $txt['theme_dir_wrong'] = 'The default theme\'s directory is wrong, please correct it by clicking this text.';
 $txt['registration_disabled'] = 'Sorry, registration is currently disabled.';
-$txt['registration_agreement_missing'] = 'The registration agreement file, agreement.txt, is either missing or empty. Registrations have been disabled until this is fixed';
 $txt['registration_no_secret_question'] = 'Sorry, there is no secret question set for this member.';
 $txt['poll_range_error'] = 'Sorry, the poll must run for more than 0 days.';
 $txt['delFirstPost'] = 'You are not allowed to delete the first post in a topic.<p>If you want to delete this topic, click on the Remove Topic link, or ask a moderator/administrator to do it for you.</p>';
@@ -222,7 +221,6 @@ $txt['email_missing_data'] = 'You must enter something in both the subject and m
 $txt['topic_gone'] = 'The topic or board you are looking for appears to be either missing or off limits to you.';
 $txt['theme_edit_missing'] = 'The file you are trying to edit cannot be found.';
 
-$txt['no_dump_database'] = 'Only administrators can make database backups.';
 $txt['pm_not_yours'] = 'The personal message you are trying to quote is not your own or does not exist, please go back and try again.';
 $txt['mangled_post'] = 'Mangled form data - please go back and try again.';
 $txt['too_many_groups'] = 'Sorry, you selected too many groups, please remove some from your selection.';

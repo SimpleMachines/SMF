@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -344,8 +344,31 @@ function ModifyBBCSettings($return_config = false)
 
 		// Clean up the tags.
 		$bbcTags = array();
+		$bbcTagsChildren = array();
 		foreach (parse_bbc(false) as $tag)
+		{
 			$bbcTags[] = $tag['tag'];
+			if (isset($tag['require_children']))
+				$bbcTagsChildren[$tag['tag']] = !isset($bbcTagsChildren[$tag['tag']]) ? $tag['require_children'] : array_unique(array_merge($bbcTagsChildren[$tag['tag']], $tag['require_children']));
+		}
+
+		// Clean up tags with children
+		foreach($bbcTagsChildren as $parent_tag => $children)
+			foreach($children as $index => $child_tag)
+			{
+				// Remove entries where parent and child tag is the same
+				if ($child_tag == $parent_tag)
+				{
+					unset($bbcTagsChildren[$parent_tag][$index]);
+					continue;
+				}
+				// Combine chains of tags
+				if (isset($bbcTagsChildren[$child_tag]))
+				{
+					$bbcTagsChildren[$parent_tag] = array_merge($bbcTagsChildren[$parent_tag], $bbcTagsChildren[$child_tag]);
+					unset($bbcTagsChildren[$child_tag]);
+				}
+			}
 
 		if (!isset($_POST['disabledBBC_enabledTags']))
 			$_POST['disabledBBC_enabledTags'] = array();
@@ -358,6 +381,11 @@ function ModifyBBCSettings($return_config = false)
 			$_POST['legacyBBC_enabledTags'] = array($_POST['legacyBBC_enabledTags']);
 
 		$_POST['disabledBBC_enabledTags'] = array_unique(array_merge($_POST['disabledBBC_enabledTags'], $_POST['legacyBBC_enabledTags']));
+
+		// Enable all children if parent is enabled
+		foreach ($bbcTagsChildren as $tag => $children)
+			if (in_array($tag, $_POST['disabledBBC_enabledTags']))
+				$_POST['disabledBBC_enabledTags'] = array_merge($_POST['disabledBBC_enabledTags'], $children);
 
 		// Work out what is actually disabled!
 		$_POST['disabledBBC'] = implode(',', array_diff($bbcTags, $_POST['disabledBBC_enabledTags']));

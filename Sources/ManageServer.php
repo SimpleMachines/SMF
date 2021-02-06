@@ -53,7 +53,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -1267,7 +1267,8 @@ function prepareDBSettingContext(&$config_vars)
 		$temp = parse_bbc(false);
 		$bbcTags = array();
 		foreach ($temp as $tag)
-			$bbcTags[] = $tag['tag'];
+			if (!isset($tag['require_parents']))
+				$bbcTags[] = $tag['tag'];
 
 		$bbcTags = array_unique($bbcTags);
 
@@ -1685,7 +1686,9 @@ function registerSMStats()
 	if (!empty($modSettings['sm_stats_key']))
 		return true;
 
-	$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
+	$fp = @fsockopen('www.simplemachines.org', 443, $errno, $errstr);
+	if (!$fp)
+		$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
 	if ($fp)
 	{
 		$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode($boardurl) . ' HTTP/1.1' . "\r\n";

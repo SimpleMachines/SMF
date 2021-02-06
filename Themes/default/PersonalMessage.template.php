@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -505,6 +505,52 @@ function template_single_pm($message)
 				</div><!-- .post -->
 				<div class="under_message">';
 
+	// Add an extra line at the bottom if we have labels enabled.
+	if ($context['folder'] != 'sent' && !empty($context['currently_using_labels']) && $context['display_mode'] != 2)
+	{
+		echo '
+				<div class="labels floatleft">';
+
+		// Add the label drop down box.
+		if (!empty($context['currently_using_labels']))
+		{
+			echo '
+					<select name="pm_actions[', $message['id'], ']" onchange="if (this.options[this.selectedIndex].value) form.submit();">
+						<option value="">', $txt['pm_msg_label_title'], ':</option>
+						<option value="" disabled>---------------</option>';
+
+			// Are there any labels which can be added to this?
+			if (!$message['fully_labeled'])
+			{
+				echo '
+						<option value="" disabled>', $txt['pm_msg_label_apply'], ':</option>';
+
+				foreach ($context['labels'] as $label)
+					if (!isset($message['labels'][$label['id']]))
+						echo '
+						<option value="', $label['id'], '">', $label['name'], '</option>';
+			}
+
+			// ... and are there any that can be removed?
+			if (!empty($message['labels']) && (count($message['labels']) > 1 || !isset($message['labels'][-1])))
+			{
+				echo '
+						<option value="" disabled>', $txt['pm_msg_label_remove'], ':</option>';
+
+				foreach ($message['labels'] as $label)
+					echo '
+						<option value="', $label['id'], '">&nbsp;', $label['name'], '</option>';
+			}
+			echo '
+					</select>
+					<noscript>
+						<input type="submit" value="', $txt['pm_apply'], '" class="button">
+					</noscript>';
+		}
+		echo '
+				</div><!-- .labels -->';
+	}
+
 	// Message options
 	template_quickbuttons($message['quickbuttons'], 'pm');
 
@@ -550,52 +596,6 @@ function template_single_pm($message)
 		echo '
 					</ul>
 				</div>';
-	}
-
-	// Add an extra line at the bottom if we have labels enabled.
-	if ($context['folder'] != 'sent' && !empty($context['currently_using_labels']) && $context['display_mode'] != 2)
-	{
-		echo '
-				<div class="labels righttext flow_auto">';
-
-		// Add the label drop down box.
-		if (!empty($context['currently_using_labels']))
-		{
-			echo '
-					<select name="pm_actions[', $message['id'], ']" onchange="if (this.options[this.selectedIndex].value) form.submit();">
-						<option value="">', $txt['pm_msg_label_title'], ':</option>
-						<option value="" disabled>---------------</option>';
-
-			// Are there any labels which can be added to this?
-			if (!$message['fully_labeled'])
-			{
-				echo '
-						<option value="" disabled>', $txt['pm_msg_label_apply'], ':</option>';
-
-				foreach ($context['labels'] as $label)
-					if (!isset($message['labels'][$label['id']]))
-						echo '
-						<option value="', $label['id'], '">', $label['name'], '</option>';
-			}
-
-			// ... and are there any that can be removed?
-			if (!empty($message['labels']) && (count($message['labels']) > 1 || !isset($message['labels'][-1])))
-			{
-				echo '
-						<option value="" disabled>', $txt['pm_msg_label_remove'], ':</option>';
-
-				foreach ($message['labels'] as $label)
-					echo '
-						<option value="', $label['id'], '">&nbsp;', $label['name'], '</option>';
-			}
-			echo '
-					</select>
-					<noscript>
-						<input type="submit" value="', $txt['pm_apply'], '" class="button">
-					</noscript>';
-		}
-		echo '
-				</div><!-- .labels -->';
 	}
 
 	echo '
