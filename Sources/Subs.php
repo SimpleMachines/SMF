@@ -1730,7 +1730,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'alt' => array('optional' => true),
 					'title' => array('optional' => true),
 				),
-				'content' => '<img src="$1" alt="{alt}" title="{title}" class="bbc_img">',
+				'content' => '<img src="$1" alt="{alt}" title="{title}" class="bbc_img" loading="lazy">',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
 					$data = strtr($data, array('<br>' => ''));
