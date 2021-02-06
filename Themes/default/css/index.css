@@ -2763,6 +2763,7 @@ dl.addrules dt.floatleft {
 	background: none;
 	margin: 0;
 	height: auto; /* In case anything fishy happens in the situations where this used make sure it stays still */
+	z-index: 10;
 }
 #main_menu .popup_window, #genericmenu .popup_window {
 	position: relative;
