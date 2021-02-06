@@ -30,7 +30,7 @@ if (!defined('TIME_START'))
  *
  * @var string
  */
-$GLOBALS['required_php_version'] = '5.4.0';
+$GLOBALS['required_php_version'] = '5.6.0';
 
 /**
  * A list of supported database systems.
