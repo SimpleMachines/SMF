@@ -872,7 +872,7 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
  */
 function hash_password($username, $password, $cost = null)
 {
-	global  $smcFunc, $modSettings;
+	global $smcFunc, $modSettings;
 
 	$cost = empty($cost) ? (empty($modSettings['bcrypt_hash_cost']) ? 10 : $modSettings['bcrypt_hash_cost']) : $cost;
 
