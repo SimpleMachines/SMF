@@ -1580,17 +1580,18 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 }
 
 /**
- * Checks if version matches any of the versions in versions.
+ * Checks if version matches any of the versions in `$versions`.
+ *
  * - supports comma separated version numbers, with or without whitespace.
  * - supports lower and upper bounds. (1.0-1.2)
  * - returns true if the version matched.
  *
- * @param string $versions The SMF versions
+ * @param string[] $versions The SMF versions
  * @param boolean $reset Whether to reset $near_version
  * @param string $the_version
  * @return string|bool Highest install value string or false
  */
-function matchHighestPackageVersion($versions, $reset = false, $the_version)
+function matchHighestPackageVersion(array $versions, $reset, $the_version)
 {
 	static $near_version = 0;
 

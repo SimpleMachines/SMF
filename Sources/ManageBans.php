@@ -933,7 +933,7 @@ function banEdit2()
  *
  * @return array|bool An array with the triggers if there were errors or false on success
  */
-function saveTriggers($suggestions = array(), $ban_group, $member = 0, $ban_id = 0)
+function saveTriggers(array $suggestions, $ban_group, $member = 0, $ban_id = 0)
 {
 	global $context;
 
