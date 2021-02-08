@@ -73,3 +73,5 @@ Themes/default/scripts/minified.js
 Themes/default/css/minified.css
 upgrade-helper.php
 .vscode/
+
+vendor/

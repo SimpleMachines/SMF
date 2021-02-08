@@ -1,0 +1,14 @@
+{
+    "name": "simplemachines/smf2.1",
+    "repositories": [
+        {
+            "url": "https://github.com/SimpleMachines/BuildTools.git",
+            "type": "vcs"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require-dev": {
+        "simplemachines/build-tools": "dev-master"
+    }
+}
