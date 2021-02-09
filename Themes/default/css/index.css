@@ -232,23 +232,18 @@ body#help_popup {
 
 /* The "new" button */
 .new_posts {
+	display: inline-block;
+	position: relative;
+	top: -2px;
+	padding: 0 4px;
+	background: linear-gradient(#f97b00,#884d00);
 	color: #fff;
-	font-weight: bold;
-	line-height: 1.12px;
+	font: 9px/15px verdana, sans-serif;
 	border-radius: 2px;
-	background: orange;
-	display: inline;
-	margin: 0 2px;
-	padding: 2px 4px;
-	font-size: 9px;
-	font-family: verdana, sans-serif;
-	box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1), 0 -2px 4px rgba(0, 0, 0, 0.1) inset;
-	opacity: 0.7;
-	transition: 0.3s all;
+	opacity: 0.8;
 }
-.new_posts:hover {
+.new_posts:hover, .new_posts:focus {
 	text-decoration: none;
-	color: #444;
 	opacity: 1;
 }
 
@@ -2763,6 +2758,7 @@ dl.addrules dt.floatleft {
 	background: none;
 	margin: 0;
 	height: auto; /* In case anything fishy happens in the situations where this used make sure it stays still */
+	z-index: 10;
 }
 #main_menu .popup_window, #genericmenu .popup_window {
 	position: relative;
