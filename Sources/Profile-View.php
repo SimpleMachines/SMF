@@ -3109,7 +3109,8 @@ function showPermissions($memID)
 	$context['no_access_boards'] = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		if ((count(array_intersect($curGroups, explode(',', $row['member_groups']))) === 0) && !$row['is_mod'] && (!empty($modSettings['board_manager_groups']) && count(array_intersect($curGroups, explode(',', $modSettings['board_manager_groups']))) === 0))
+		if ((count(array_intersect($curGroups, explode(',', $row['member_groups']))) === 0) && !$row['is_mod']
+		&& (!empty($modSettings['board_manager_groups']) && count(array_intersect($curGroups, explode(',', $modSettings['board_manager_groups']))) === 0))
 			$context['no_access_boards'][] = array(
 				'id' => $row['id_board'],
 				'name' => $row['name'],
