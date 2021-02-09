@@ -285,12 +285,12 @@ function MembergroupMembers()
 	// Must be adding new members to the group...
 	elseif (isset($_REQUEST['add']) && (!empty($_REQUEST['toAdd']) || !empty($_REQUEST['member_add'])) && $context['group']['assignable'])
 	{
-		checkSession();
-		validateToken('mod-mgm');
-
 		// Demand an admin password before adding new admins -- every time, no matter what.
 		if ($context['group']['id'] == 1)
 			validateSession('admin', true);
+
+		checkSession();
+		validateToken('mod-mgm');
 
 		$member_query = array();
 		$member_parameters = array();
