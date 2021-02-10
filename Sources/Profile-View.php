@@ -3066,7 +3066,7 @@ function list_getGroupRequests($start, $items_per_page, $sort, $memID)
  */
 function showPermissions($memID)
 {
-	global $txt, $board;
+	global $txt, $board, $modSettings;
 	global $user_profile, $context, $sourcedir, $smcFunc;
 
 	// Verify if the user has sufficient permissions.
@@ -3111,7 +3111,8 @@ function showPermissions($memID)
 	$context['no_access_boards'] = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		if (count(array_intersect($curGroups, explode(',', $row['member_groups']))) === 0 && !$row['is_mod'])
+		if ((count(array_intersect($curGroups, explode(',', $row['member_groups']))) === 0) && !$row['is_mod']
+		&& (!empty($modSettings['board_manager_groups']) && count(array_intersect($curGroups, explode(',', $modSettings['board_manager_groups']))) === 0))
 			$context['no_access_boards'][] = array(
 				'id' => $row['id_board'],
 				'name' => $row['name'],
