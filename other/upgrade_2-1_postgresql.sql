@@ -205,7 +205,7 @@ ALTER stat_date SET DEFAULT '1004-01-01';
 
 UPDATE {$db_prefix}members
 SET birthdate = concat_ws('-', CASE WHEN EXTRACT(YEAR FROM birthdate) < 1004 THEN 1004 END, CASE WHEN EXTRACT(MONTH FROM birthdate) < 1 THEN 1 ELSE EXTRACT(MONTH FROM birthdate) END, CASE WHEN EXTRACT(DAY FROM birthdate) < 1 THEN 1 ELSE EXTRACT(DAY FROM birthdate) END)::date
-WHERE EXTRACT(YEAR FROM birthdate) < 1004;
+WHERE EXTRACT(YEAR FROM birthdate) < 1004 OR EXTRACT(MONTH FROM birthdate) < 1 OR EXTRACT(DAY FROM birthdate) < 1;
 ---#
 
 ---# Changing default values
