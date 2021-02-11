@@ -1234,6 +1234,9 @@ function UpgradeOptions()
 	if (empty($_POST['upcont']))
 		return false;
 
+	// We cannot execute this step in strict mode - strict mode data fixes are not applied yet
+	setSqlMode(false);
+
 	// Firstly, if they're enabling SM stat collection just do it.
 	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']))
 	{
