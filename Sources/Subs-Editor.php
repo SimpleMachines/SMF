@@ -1565,6 +1565,8 @@ function create_control_richedit($editorOptions)
 
 	// The [#] item code for creating list items causes issues with SCEditor, but [+] is a safe equivalent.
 	$editorOptions['value'] = str_replace('[#]', '[+]', $editorOptions['value']);
+	// Tabs are not shown in the SCEditor, replace with spaces.
+	$editorOptions['value'] = str_replace("\t", '    ', $editorOptions['value']);
 
 	// Start off the editor...
 	$context['controls']['richedit'][$editorOptions['id']] = array(
@@ -1890,7 +1892,7 @@ function create_control_richedit($editorOptions)
 		'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
 		'format' => 'bbcode',
 		'plugins' => '',
-		'bbcodeTrim' => true,
+		'bbcodeTrim' => false,
 	);
 	if (!empty($context['controls']['richedit'][$editorOptions['id']]['locale']))
 		$sce_options['locale'] = $context['controls']['richedit'][$editorOptions['id']]['locale'];
