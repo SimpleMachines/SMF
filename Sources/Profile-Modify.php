@@ -3220,7 +3220,7 @@ function profileLoadAvatarData()
 		$context['member']['avatar'] += array(
 			'choice' => 'gravatar',
 			'server_pic' => 'blank.png',
-			'external' => $cur_profile['avatar'] == 'gravatar://' || empty($modSettings['gravatarAllowExtraEmail']) || !empty($modSettings['gravatarOverride']) ? $cur_profile['email_address'] : substr($cur_profile['avatar'], 11)
+			'external' => $cur_profile['avatar'] == 'gravatar://' || empty($modSettings['gravatarAllowExtraEmail']) || (!empty($modSettings['gravatarOverride']) && substr($cur_profile['avatar'], 0, 11) != 'gravatar://') ? $cur_profile['email_address'] : substr($cur_profile['avatar'], 11)
 		);
 		$context['member']['avatar']['href'] = get_gravatar_url($context['member']['avatar']['external']);
 	}
