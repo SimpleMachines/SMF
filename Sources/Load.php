@@ -1731,7 +1731,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 	// If the set isn't minimal then load their avatar as well.
 	if ($context['loadMemberContext_set'] != 'minimal')
 	{
-		if (!empty($modSettings['gravatarOverride']) || (!empty($modSettings['gravatarEnabled']) && stristr($profile['avatar'], 'gravatar://')))
+		if (!empty($modSettings['gravatarEnabled']) && (!empty($modSettings['gravatarOverride']) || stristr($profile['avatar'], 'gravatar://')))
 		{
 			if (!empty($modSettings['gravatarAllowExtraEmail']) && stristr($profile['avatar'], 'gravatar://') && strlen($profile['avatar']) > 11)
 				$image = get_gravatar_url($smcFunc['substr']($profile['avatar'], 11));
@@ -3799,7 +3799,7 @@ function set_avatar_data($data = array())
 	$image = '';
 
 	// Gravatar has been set as mandatory!
-	if (!empty($modSettings['gravatarOverride']))
+	if (!empty($modSettings['gravatarEnabled']) && !empty($modSettings['gravatarOverride']))
 	{
 		if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($data['avatar']) && stristr($data['avatar'], 'gravatar://'))
 			$image = get_gravatar_url($smcFunc['substr']($data['avatar'], 11));

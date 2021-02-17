@@ -2863,7 +2863,7 @@ function template_profile_avatar_select()
 									<label for="avatar_upload_box">', $txt['personal_picture'], '</label>
 								</strong>';
 
-	if (empty($modSettings['gravatarOverride']))
+	if (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride']))
 		echo '
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_none" value="none"' . ($context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_none"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
