@@ -15,36 +15,155 @@ base_url : "https://api.crowdin.com"
 preserve_hierarchy: true
 
 #
-# Files configuration
+# Source files & their translation patterns
 #
 files: [
  {
-  #
-  # Source files filter
-  #  - Grab all the english files in the languages folder
-  #
-  source: "/Themes/default/languages/*.english.php",
-
-  #
-  # Where translations will be placed
-  #  - Note this honors CrowdIn's "Language Mapping"
-  #  - Need to remove the '.english' from the filename on export otherwise things end up like "Admin.english.dutch.php"
-  #
-  translation: "/Themes/default/languages/%file_name%.%language%.php",
-  translation_replace: {
-      ".english" : ""
-  }
+  source: "Themes/default/languages/Admin.english.php",
+  translation: "Admin.%language%.php",
  },
  {
-  #
-  # Source files filter
-  #  - The english agreement has no language in the name
-  #
+  source: "Themes/default/languages/Agreement.english.php",
+  translation: "Agreement.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Alerts.english.php",
+  translation: "Alerts.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Drafts.english.php",
+  translation: "Drafts.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Editor.english.php",
+  translation: "Editor.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/EmailTemplates.english.php",
+  translation: "EmailTemplates.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Errors.english.php",
+  translation: "Errors.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Help.english.php",
+  translation: "Help.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/index.english.php",
+  translation: "index.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Install.english.php",
+  translation: "Install.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Login.english.php",
+  translation: "Login.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageBoards.english.php",
+  translation: "ManageBoards.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageCalendar.english.php",
+  translation: "ManageCalendar.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageMail.english.php",
+  translation: "ManageMail.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageMaintenance.english.php",
+  translation: "ManageMaintenance.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageMembers.english.php",
+  translation: "ManageMembers.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManagePaid.english.php",
+  translation: "ManagePaid.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManagePermissions.english.php",
+  translation: "ManagePermissions.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageScheduledTasks.english.php",
+  translation: "ManageScheduledTasks.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageSettings.english.php",
+  translation: "ManageSettings.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageSmileys.english.php",
+  translation: "ManageSmileys.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Manual.english.php",
+  translation: "Manual.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ModerationCenter.english.php",
+  translation: "ModerationCenter.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Modifications.english.php",
+  translation: "Modifications.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Modlog.english.php",
+  translation: "Modlog.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Packages.english.php",
+  translation: "Packages.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/PersonalMessage.english.php",
+  translation: "PersonalMessages.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Post.english.php",
+  translation: "Post.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Profile.english.php",
+  translation: "Profile.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Reports.english.php",
+  translation: "Reports.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Search.english.php",
+  translation: "Search.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Settings.english.php",
+  translation: "Settings.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Stats.english.php",
+  translation: "Stats.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Themes.english.php",
+  translation: "Themes.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Timezones.english.php",
+  translation: "Timezones.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Who.english.php",
+  translation: "Who.%language%.php",
+ },
+ {
   source: "agreement.txt",
-
-  #
-  # Translated agreements include the language
-  #
   translation: "agreement.%language%.txt"
  }
 
