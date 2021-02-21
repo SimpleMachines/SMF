@@ -831,34 +831,16 @@ sceditor.formats.bbcode.set(
 			if ($(element).hasClass('php'))
 				return '[php]' + content.replace('&#91;', '[') + '[/php]';
 
-			var from = '';
-			if ($(element).children("cite:first").length === 1)
-			{
-				from = $(element).children("cite:first").text();
-
-				$(element).attr({'from': from.php_htmlspecialchars()});
-
-				from = '=' + from;
-				content = '';
-				$(element).children("cite:first").remove();
-				content = this.elementToBbcode($(element));
-			}
-			else
-			{
-				if (typeof $(element).attr('from') != 'undefined')
-				{
-					from = '=' + $(element).attr('from').php_unhtmlspecialchars();
-				}
-			}
+			var
+				title = $(element).attr('data-title'),
+				from = title ?' =' + title : '';
 
 			return '[code' + from + ']' + content.replace('&#91;', '[') + '[/code]';
 		},
 		html: function (element, attrs, content) {
-			var from = '';
-			if (typeof attrs.defaultattr !== "undefined")
-				from = '<cite>' + attrs.defaultattr + '</cite>';
+			var from = attrs.defaultattr ? ' data-title="' + attrs.defaultattr + '"'  : '';
 
-			return '<code>' + from + content.replace('[', '&#91;') + '</code>'
+			return '<code' + from + '>' + content.replace('[', '&#91;') + '</code>'
 		}
 	}
 );
