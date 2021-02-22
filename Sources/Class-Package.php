@@ -158,7 +158,7 @@ class xmlArray
 				$lvl = (int) substr($el, strpos($el, '[') + 1);
 				$el = substr($el, 0, strpos($el, '['));
 			}
-			// Find an attriggertribute.
+			// Find an attribute.
 			elseif (substr($el, 0, 1) == '@')
 			{
 				// It simplifies things if the attribute is already there ;).
