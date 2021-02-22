@@ -26,7 +26,10 @@ function getBoardList($boardListOptions = array())
 	global $smcFunc, $sourcedir, $txt;
 
 	if (isset($boardListOptions['excluded_boards']) && isset($boardListOptions['included_boards']))
+	{
+		loadLanguage('Errors');
 		trigger_error($txt['get_board_list_cannot_include_and_exclude'], E_USER_ERROR);
+	}
 
 	$where = array();
 	$where_parameters = array();

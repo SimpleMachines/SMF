@@ -66,7 +66,10 @@ function getServerVersions($checkFor)
 	{
 		db_extend();
 		if (!isset($db_connection) || $db_connection === false)
+		{
+			loadLanguage('Errors');
 			trigger_error($txt['get_server_versions_no_database'], E_USER_NOTICE);
+		}
 		else
 		{
 			$versions['db_engine'] = array(

@@ -1757,7 +1757,10 @@ function parse_path($path)
 		$dirs['$package'] = $temp_path;
 
 	if (strlen($path) == 0)
+	{
+		loadLanguage('Errors');
 		trigger_error($txt['parse_path_filename_required'], E_USER_ERROR);
+	}
 
 	return strtr($path, $dirs);
 }
@@ -2092,6 +2095,7 @@ function parseModification($file, $testing = true, $undo = false, $theme_paths =
 		{
 			if ($working_file[0] != '/' && $working_file[1] != ':')
 			{
+				loadLanguage('Errors');
 				trigger_error(sprintf($txt['parse_modification_filename_not_full_path'], $working_file), E_USER_WARNING);
 
 				$working_file = $boarddir . '/' . $working_file;
@@ -2526,6 +2530,7 @@ function parseBoardMod($file, $testing = true, $undo = false, $theme_paths = arr
 
 			if ($working_file[0] != '/' && $working_file[1] != ':')
 			{
+				loadLanguage('Errors');
 				trigger_error(sprintf($txt['parse_boardmod_filename_not_full_path'], $working_file), E_USER_WARNING);
 
 				$working_file = $boarddir . '/' . $working_file;
@@ -2816,6 +2821,7 @@ function package_flush_cache($trash = false)
 			if (!$fp)
 			{
 				// We should have package_chmod()'d them before, no?!
+				loadLanguage('Errors');
 				trigger_error($txt['package_flush_cache_not_writable'], E_USER_WARNING);
 				return;
 			}

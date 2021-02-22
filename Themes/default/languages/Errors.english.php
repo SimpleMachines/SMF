@@ -473,7 +473,8 @@ $txt['create_category_no_name'] = 'createCategory(): A category name is required
 $txt['cannot_move_to_deleted_category'] = 'deleteCategories(): You cannot move the boards to a category that\'s being deleted';
 
 // Package manager error
-$txt['undefined_xml_attributes'] = 'Undefined XML attribute: %s';
+$txt['undefined_xml_attribute'] = 'Undefined XML attribute: %s';
+$txt['undefined_xml_element'] = 'Undefined XML element: %s';
 
 // loadMemberData() error
 $txt['invalid_member_data_set'] = 'loadMemberData(): Invalid member set: \'%s\'';

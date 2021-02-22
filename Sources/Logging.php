@@ -446,13 +446,19 @@ function logActions(array $logs)
 			continue;
 
 		if (!is_array($log['extra']))
+		{
+			loadLanguage('Errors');
 			trigger_error(sprintf($txt['logActions_not_array'], $log['action']), E_USER_NOTICE);
+		}
 
 		// Pull out the parts we want to store separately, but also make sure that the data is proper
 		if (isset($log['extra']['topic']))
 		{
 			if (!is_numeric($log['extra']['topic']))
+			{
+				loadLanguage('Errors');
 				trigger_error($txt['logActions_topic_not_numeric'], E_USER_NOTICE);
+			}
 			$topic_id = empty($log['extra']['topic']) ? 0 : (int) $log['extra']['topic'];
 			unset($log['extra']['topic']);
 		}
@@ -462,7 +468,10 @@ function logActions(array $logs)
 		if (isset($log['extra']['message']))
 		{
 			if (!is_numeric($log['extra']['message']))
+			{
+				loadLanguage('Errors');
 				trigger_error($txt['logActions_message_not_numeric'], E_USER_NOTICE);
+			}
 			$msg_id = empty($log['extra']['message']) ? 0 : (int) $log['extra']['message'];
 			unset($log['extra']['message']);
 		}
@@ -495,12 +504,18 @@ function logActions(array $logs)
 		}
 
 		if (isset($log['extra']['member']) && !is_numeric($log['extra']['member']))
+		{
+			loadLanguage('Errors');
 			trigger_error($txt['logActions_member_not_numeric'], E_USER_NOTICE);
+		}
 
 		if (isset($log['extra']['board']))
 		{
 			if (!is_numeric($log['extra']['board']))
+			{
+				loadLanguage('Errors');
 				trigger_error($txt['logActions_board_not_numeric'], E_USER_NOTICE);
+			}
 			$board_id = empty($log['extra']['board']) ? 0 : (int) $log['extra']['board'];
 			unset($log['extra']['board']);
 		}
@@ -510,7 +525,10 @@ function logActions(array $logs)
 		if (isset($log['extra']['board_to']))
 		{
 			if (!is_numeric($log['extra']['board_to']))
+			{
+				loadLanguage('Errors');
 				trigger_error($txt['logActions_board_to_not_numeric'], E_USER_NOTICE);
+			}
 			if (empty($board_id))
 			{
 				$board_id = empty($log['extra']['board_to']) ? 0 : (int) $log['extra']['board_to'];

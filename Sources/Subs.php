@@ -242,6 +242,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			break;
 
 		default:
+			loadLanguage('Errors');
 			trigger_error(sprintf($txt['invalid_statistic_type'], $type), E_USER_NOTICE);
 	}
 }
@@ -5569,6 +5570,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 	else
 	{
 		// Umm, this shouldn't happen?
+		loadLanguage('Errors');
 		trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
 		$data = false;
 	}

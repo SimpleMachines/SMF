@@ -476,7 +476,7 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
  */
 function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDone = false, $ignoreProtected = false)
 {
-	global $smcFunc, $sourcedir;
+	global $smcFunc, $sourcedir, $txt;
 
 	// Show your licence, but only if it hasn't been done yet.
 	if (!$permissionCheckDone)
@@ -596,7 +596,10 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 		);
 	// Ack!!?  What happened?
 	else
+	{
+		loadLanguage('Errors');
 		trigger_error(sprintf($txt['add_members_to_group_invalid_type'], $type), E_USER_WARNING);
+	}
 
 	call_integration_hook('integrate_add_members_to_group', array($members, $group, &$group_names));
 

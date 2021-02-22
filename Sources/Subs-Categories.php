@@ -143,7 +143,10 @@ function createCategory($catOptions)
 
 	// Check required values.
 	if (!isset($catOptions['cat_name']) || trim($catOptions['cat_name']) == '')
+	{
+		loadLanguage('Errors');
 		trigger_error($txt['create_category_no_name'], E_USER_ERROR);
+	}
 
 	// Set default values.
 	if (!isset($catOptions['cat_desc']))
@@ -230,7 +233,10 @@ function deleteCategories($categories, $moveBoardsTo = null)
 
 	// Make sure the safe category is really safe.
 	elseif (in_array($moveBoardsTo, $categories))
+	{
+		loadLanguage('Errors');
 		trigger_error($txt['cannot_move_to_deleted_category'], E_USER_ERROR);
+	}
 
 	// Move the boards inside the categories to a safe category.
 	else
