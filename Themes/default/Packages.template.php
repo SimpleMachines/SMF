@@ -1317,9 +1317,11 @@ function template_view_operations()
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['operation_title'], '</title>
 		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/admin.css', $context['browser_cache'], '">
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', $context['browser_cache'], '"></script>
-		<script src="', $settings['default_theme_url'], '/scripts/theme.js', $context['browser_cache'], '"></script>
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/admin.css', $context['browser_cache'], '">';
+
+	template_javascript();
+
+	echo '
 	</head>
 	<body>
 		<div class="padding windowbg">
