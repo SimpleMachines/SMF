@@ -3651,7 +3651,7 @@ function setupThemeContext($forceload = false)
 		$context['user']['avatar'] = array();
 
 		// Check for gravatar first since we might be forcing them...
-		if (($modSettings['gravatarEnabled'] && substr($user_info['avatar']['url'], 0, 11) == 'gravatar://') || !empty($modSettings['gravatarOverride']))
+		if (!empty($modSettings['gravatarEnabled']) && (substr($user_info['avatar']['url'], 0, 11) == 'gravatar://' || !empty($modSettings['gravatarOverride'])))
 		{
 			if (!empty($modSettings['gravatarAllowExtraEmail']) && stristr($user_info['avatar']['url'], 'gravatar://') && strlen($user_info['avatar']['url']) > 11)
 				$context['user']['avatar']['href'] = get_gravatar_url($smcFunc['substr']($user_info['avatar']['url'], 11));
