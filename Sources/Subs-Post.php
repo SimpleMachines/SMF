@@ -1778,7 +1778,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			// Couldn't find the current poster?
 			if ($smcFunc['db_num_rows']($request) == 0)
 			{
-				trigger_error('createPost(): Invalid member id ' . $posterOptions['id'], E_USER_NOTICE);
+				trigger_error(sprintf($txt['create_post_invalid_member_id'], $posterOptions['id']), E_USER_NOTICE);
 				$posterOptions['id'] = 0;
 				$posterOptions['name'] = $txt['guest_title'];
 				$posterOptions['email'] = '';

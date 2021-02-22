@@ -525,7 +525,7 @@ function modifyBoard($board_id, &$boardOptions)
 
 		// Oops...?
 		else
-			trigger_error('modifyBoard(): The move_to value \'' . $boardOptions['move_to'] . '\' is incorrect', E_USER_ERROR);
+			trigger_error(sprintf($txt['modify_board_incorrect_move_to'], $boardOptions['move_to']), E_USER_ERROR);
 
 		// Get a list of children of this board.
 		$childList = array();
@@ -868,14 +868,14 @@ function modifyBoard($board_id, &$boardOptions)
  */
 function createBoard($boardOptions)
 {
-	global $boards, $smcFunc;
+	global $boards, $smcFunc, $txt;
 
 	// Trigger an error if one of the required values is not set.
 	if (!isset($boardOptions['board_name']) || trim($boardOptions['board_name']) == '' || !isset($boardOptions['move_to']) || !isset($boardOptions['target_category']))
-		trigger_error('createBoard(): One or more of the required options is not set', E_USER_ERROR);
+		trigger_error($txt['create_board_missing_options'], E_USER_ERROR);
 
 	if (in_array($boardOptions['move_to'], array('child', 'before', 'after')) && !isset($boardOptions['target_board']))
-		trigger_error('createBoard(): Target board is not set', E_USER_ERROR);
+		trigger_error($txt['move_board_no_target'], E_USER_ERROR);
 
 	// Set every optional value to its default value.
 	$boardOptions += array(

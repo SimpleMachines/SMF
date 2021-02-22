@@ -870,7 +870,7 @@ function checkSubmitOnce($action, $is_fatal = true)
 	elseif ($action == 'free' && isset($_REQUEST['seqnum']) && in_array($_REQUEST['seqnum'], $_SESSION['forms']))
 		$_SESSION['forms'] = array_diff($_SESSION['forms'], array($_REQUEST['seqnum']));
 	elseif ($action != 'free')
-		trigger_error('checkSubmitOnce(): Invalid action \'' . $action . '\'', E_USER_WARNING);
+		trigger_error(sprintf($txt['check_submit_once_invalid_action'], $action), E_USER_WARNING);
 }
 
 /**

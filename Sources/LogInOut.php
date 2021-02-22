@@ -115,7 +115,7 @@ function Login2()
 			list (,, $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
 
 		else
-			trigger_error('Login2(): Cannot be logged in without a session or cookie', E_USER_ERROR);
+			trigger_error($txt['login_no_session_cookie'], E_USER_ERROR);
 
 		$user_settings['password_salt'] = bin2hex($smcFunc['random_bytes'](16));
 		updateMemberData($user_info['id'], array('password_salt' => $user_settings['password_salt']));

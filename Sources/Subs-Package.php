@@ -1735,7 +1735,7 @@ function compareVersions($version1, $version2)
  */
 function parse_path($path)
 {
-	global $modSettings, $boarddir, $sourcedir, $settings, $temp_path;
+	global $modSettings, $boarddir, $sourcedir, $settings, $temp_path, $txt;
 
 	$dirs = array(
 		'\\' => '/',
@@ -1757,7 +1757,7 @@ function parse_path($path)
 		$dirs['$package'] = $temp_path;
 
 	if (strlen($path) == 0)
-		trigger_error('parse_path(): There should never be an empty filename', E_USER_ERROR);
+		trigger_error($txt['parse_path_filename_required'], E_USER_ERROR);
 
 	return strtr($path, $dirs);
 }
@@ -2092,7 +2092,7 @@ function parseModification($file, $testing = true, $undo = false, $theme_paths =
 		{
 			if ($working_file[0] != '/' && $working_file[1] != ':')
 			{
-				trigger_error('parseModification(): The filename \'' . $working_file . '\' is not a full path!', E_USER_WARNING);
+				trigger_error(sprintf($txt['parse_modification_filename_not_full_path'], $working_file), E_USER_WARNING);
 
 				$working_file = $boarddir . '/' . $working_file;
 			}
@@ -2385,7 +2385,7 @@ function parseModification($file, $testing = true, $undo = false, $theme_paths =
  */
 function parseBoardMod($file, $testing = true, $undo = false, $theme_paths = array())
 {
-	global $boarddir, $sourcedir, $settings, $modSettings;
+	global $boarddir, $sourcedir, $settings, $modSettings, $txt;
 
 	@set_time_limit(600);
 	$file = strtr($file, array("\r" => ''));
@@ -2526,7 +2526,7 @@ function parseBoardMod($file, $testing = true, $undo = false, $theme_paths = arr
 
 			if ($working_file[0] != '/' && $working_file[1] != ':')
 			{
-				trigger_error('parseBoardMod(): The filename \'' . $working_file . '\' is not a full path!', E_USER_WARNING);
+				trigger_error(sprintf($txt['parse_boardmod_filename_not_full_path'], $working_file), E_USER_WARNING);
 
 				$working_file = $boarddir . '/' . $working_file;
 			}
@@ -2788,7 +2788,7 @@ function package_put_contents($filename, $data, $testing = false)
 function package_flush_cache($trash = false)
 {
 	/** @var ftp_connection $package_ftp */
-	global $package_ftp, $package_cache;
+	global $package_ftp, $package_cache, $txt;
 	static $text_filetypes = array('php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm');
 
 	if (empty($package_cache))
@@ -2816,7 +2816,7 @@ function package_flush_cache($trash = false)
 			if (!$fp)
 			{
 				// We should have package_chmod()'d them before, no?!
-				trigger_error('package_flush_cache(): some files are still not writable', E_USER_WARNING);
+				trigger_error($txt['package_flush_cache_not_writable'], E_USER_WARNING);
 				return;
 			}
 			fclose($fp);

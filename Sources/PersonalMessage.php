@@ -4157,7 +4157,7 @@ function LoadRules($reload = false)
  */
 function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 {
-	global $user_info, $smcFunc;
+	global $user_info, $smcFunc, $txt;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
@@ -4198,7 +4198,7 @@ function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 			break;
 
 		default:
-			trigger_error('Undefined validation type given', E_USER_ERROR);
+			trigger_error($txt['pm_invalid_validation_type'], E_USER_ERROR);
 			break;
 	}
 }

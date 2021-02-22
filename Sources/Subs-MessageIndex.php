@@ -23,10 +23,10 @@ if (!defined('SMF'))
  */
 function getBoardList($boardListOptions = array())
 {
-	global $smcFunc, $sourcedir;
+	global $smcFunc, $sourcedir, $txt;
 
 	if (isset($boardListOptions['excluded_boards']) && isset($boardListOptions['included_boards']))
-		trigger_error('getBoardList(): Setting both excluded_boards and included_boards is not allowed.', E_USER_ERROR);
+		trigger_error($txt['get_board_list_cannot_include_and_exclude'], E_USER_ERROR);
 
 	$where = array();
 	$where_parameters = array();

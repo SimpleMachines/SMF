@@ -141,6 +141,8 @@ class xmlArray
 	 */
 	public function path($path, $return_full = false)
 	{
+		global $txt;
+
 		// Split up the path.
 		$path = explode('/', $path);
 
@@ -156,7 +158,7 @@ class xmlArray
 				$lvl = (int) substr($el, strpos($el, '[') + 1);
 				$el = substr($el, 0, strpos($el, '['));
 			}
-			// Find an attribute.
+			// Find an attriggertribute.
 			elseif (substr($el, 0, 1) == '@')
 			{
 				// It simplifies things if the attribute is already there ;).
@@ -172,7 +174,7 @@ class xmlArray
 
 					// Cause an error.
 					if ($this->debug_level & E_NOTICE)
-						trigger_error('Undefined XML attribute: ' . substr($el, 1) . $debug, E_USER_NOTICE);
+						trigger_error(sprintf($txt['undefined_xml_attribute'], substr($el, 1) . $debug), E_USER_NOTICE);
 					return false;
 				}
 			}

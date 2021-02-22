@@ -798,7 +798,7 @@ function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0,
 				else
 				{
 					$with_returning = false;
-					trigger_error('trying to returning ID Field which is not a Int field', E_USER_ERROR);
+					trigger_error($txt['postgres_id_not_int'], E_USER_ERROR);
 				}
 			}
 		}

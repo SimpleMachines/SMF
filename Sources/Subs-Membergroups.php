@@ -596,7 +596,7 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 		);
 	// Ack!!?  What happened?
 	else
-		trigger_error('addMembersToGroup(): Unknown type \'' . $type . '\'', E_USER_WARNING);
+		trigger_error(sprintf($txt['add_members_to_group_invalid_type'], $type), E_USER_WARNING);
 
 	call_integration_hook('integrate_add_members_to_group', array($members, $group, &$group_names));
 

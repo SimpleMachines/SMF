@@ -66,7 +66,7 @@ function getServerVersions($checkFor)
 	{
 		db_extend();
 		if (!isset($db_connection) || $db_connection === false)
-			trigger_error('getServerVersions(): you need to be connected to the database in order to get its server version', E_USER_NOTICE);
+			trigger_error($txt['get_server_versions_no_database'], E_USER_NOTICE);
 		else
 		{
 			$versions['db_engine'] = array(
