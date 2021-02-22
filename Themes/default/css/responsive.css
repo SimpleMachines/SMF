@@ -369,6 +369,10 @@
 	#private, #enclose {
 		width: 95%;
 	}
+	/* Edit Language */
+	#language_list .character_set {
+		display: none;
+	}
 	/* Generic Classes for Customizations */
 	.hide_720 {
 		display: none;
