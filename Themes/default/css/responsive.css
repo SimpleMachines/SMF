@@ -601,6 +601,10 @@
 		width: 100%;
 		float: none;
 	}
+	#post_draft_options dl.settings dt, dl.settings dd {
+		width: 50%;
+		float: left;
+	}
 	dl.settings dd textarea, #report_comment {
 		width: 100%;
 	}
