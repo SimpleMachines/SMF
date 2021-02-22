@@ -565,7 +565,7 @@
 		width: 100%;
 		text-align: left;
 	}
-	.login #ajax_loginuser, .login #ajax_loginpass, .login #loginuser, .login #loginpass, select {
+	.login #ajax_loginuser, .login #ajax_loginpass, .login #loginuser, .login #loginpass, .login select {
 		width: 100%;
 	}
 
