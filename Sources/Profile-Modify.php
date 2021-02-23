@@ -1522,10 +1522,12 @@ function editBuddies($memID)
 		SELECT col_name, field_name, field_desc, field_type, bbc, enclose
 		FROM {db_prefix}custom_fields
 		WHERE active = {int:active}
-			AND private < {int:private_level}',
+			AND private < {int:private_level}
+			AND show_blist = {int:show_blist}',
 		array(
 			'active' => 1,
 			'private_level' => 2,
+			'show_blist' => 1,
 		)
 	);
 

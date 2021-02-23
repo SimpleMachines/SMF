@@ -789,7 +789,7 @@ function template_editBuddies()
 			if (!empty($context['custom_pf']))
 				foreach ($context['custom_pf'] as $key => $column)
 					echo '
-					<td class="lefttext buddy_custom_fields">', $buddy['options'][$key], '</td>';
+					<td class="centertext buddy_custom_fields">', $buddy['options'][$key], '</td>';
 
 			echo '
 					<td class="centertext buddy_remove">
