@@ -454,7 +454,7 @@ function template_main()
 					</div><!-- #post_additional_options -->';
 
 	// If the admin enabled the drafts feature, show a draft selection box
-	if (!empty($modSettings['drafts_post_enabled']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
+	if (!empty($modSettings['drafts_post_enabled']) && !empty($context['drafts']) && !empty($modSettings['drafts_show_saved_enabled']) && !empty($options['drafts_show_saved_enabled']))
 	{
 		echo '
 					<div id="post_draft_options_header" class="title_bar">
