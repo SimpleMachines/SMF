@@ -43,7 +43,7 @@ if (!defined('SMF'))
  */
 function updateStats($type, $parameter1 = null, $parameter2 = null)
 {
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $txt;
 
 	switch ($type)
 	{

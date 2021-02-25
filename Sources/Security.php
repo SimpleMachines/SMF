@@ -839,7 +839,7 @@ function cleanTokens($complete = false)
  */
 function checkSubmitOnce($action, $is_fatal = true)
 {
-	global $context;
+	global $context, $txt;
 
 	if (!isset($_SESSION['forms']))
 		$_SESSION['forms'] = array();

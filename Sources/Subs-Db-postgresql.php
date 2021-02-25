@@ -645,7 +645,7 @@ function smf_db_error($db_string, $connection = null)
  */
 function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0, $connection = null)
 {
-	global $smcFunc, $db_connection, $db_prefix;
+	global $smcFunc, $db_connection, $db_prefix, $txt;
 
 	$connection = $connection === null ? $db_connection : $connection;
 

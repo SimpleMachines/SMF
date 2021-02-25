@@ -680,6 +680,8 @@ class xmlArray
 	 */
 	protected function _path($array, $path, $level, $no_error = false)
 	{
+		global $txt;
+
 		// Is $array even an array?  It might be false!
 		if (!is_array($array))
 			return false;

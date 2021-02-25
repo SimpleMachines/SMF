@@ -1405,7 +1405,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $user_info, $cache_enable;
+	global $user_info, $cache_enable, $txt;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1468,7 +1468,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			break;
 		default:
 		{
-			lodaLanguage('Errors');
+			loadLanguage('Errors');
 			trigger_error(sprintf($txt['invalid_member_data_set'], $set), E_USER_WARNING);
 		}
 	}
