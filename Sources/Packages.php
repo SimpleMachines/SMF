@@ -1816,7 +1816,7 @@ function PackageOptions()
  */
 function ViewOperations()
 {
-	global $context, $txt, $sourcedir, $packagesdir, $smcFunc, $modSettings;
+	global $context, $txt, $sourcedir, $packagesdir, $smcFunc, $modSettings, $settings;
 
 	// Can't be in here buddy.
 	isAllowedTo('admin_forum');
@@ -1926,6 +1926,18 @@ function ViewOperations()
 	// No layers
 	$context['template_layers'] = array();
 	$context['sub_template'] = 'view_operations';
+
+	// We only want to load these three JavaScript files.
+	$context['javascript_files'] = array_intersect_key(
+		$context['javascript_files'],
+		[
+			'smf_script' => true,
+			'smf_jquery' => true
+		]
+	);
+
+	// Since the alerts code is loaded very late in the process, it must be disabled seperately.
+	$settings['disable_files'] = ['smf_alerts'];
 }
 
 /**
