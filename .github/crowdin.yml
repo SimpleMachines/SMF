@@ -1,0 +1,170 @@
+#
+# Your Crowdin credentials
+#  - The _env versions replace the non-_env versions when using a public repository for security
+#  - These environment variables must be defined in the env: section in your GitHub workflow
+#
+project_id_env: CROWDIN_PROJECT_ID
+api_token_env: CROWDIN_API_TOKEN
+base_path : "."
+base_url : "https://api.crowdin.com"
+
+#
+# Whether to use the existing file system hierarchy or to flatten it out
+#  - true or false, SMF needs this to be true, since our hierarchy isn't flat (agreement.txt vs others)
+#
+preserve_hierarchy: true
+
+#
+# Source files & their translation patterns
+#
+files: [
+ {
+  source: "Themes/default/languages/Admin.english.php",
+  translation: "Admin.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Agreement.english.php",
+  translation: "Agreement.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Alerts.english.php",
+  translation: "Alerts.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Drafts.english.php",
+  translation: "Drafts.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Editor.english.php",
+  translation: "Editor.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/EmailTemplates.english.php",
+  translation: "EmailTemplates.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Errors.english.php",
+  translation: "Errors.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Help.english.php",
+  translation: "Help.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/index.english.php",
+  translation: "index.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Install.english.php",
+  translation: "Install.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Login.english.php",
+  translation: "Login.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageBoards.english.php",
+  translation: "ManageBoards.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageCalendar.english.php",
+  translation: "ManageCalendar.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageMail.english.php",
+  translation: "ManageMail.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageMaintenance.english.php",
+  translation: "ManageMaintenance.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageMembers.english.php",
+  translation: "ManageMembers.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManagePaid.english.php",
+  translation: "ManagePaid.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManagePermissions.english.php",
+  translation: "ManagePermissions.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageScheduledTasks.english.php",
+  translation: "ManageScheduledTasks.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageSettings.english.php",
+  translation: "ManageSettings.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ManageSmileys.english.php",
+  translation: "ManageSmileys.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Manual.english.php",
+  translation: "Manual.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/ModerationCenter.english.php",
+  translation: "ModerationCenter.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Modifications.english.php",
+  translation: "Modifications.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Modlog.english.php",
+  translation: "Modlog.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Packages.english.php",
+  translation: "Packages.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/PersonalMessage.english.php",
+  translation: "PersonalMessages.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Post.english.php",
+  translation: "Post.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Profile.english.php",
+  translation: "Profile.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Reports.english.php",
+  translation: "Reports.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Search.english.php",
+  translation: "Search.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Settings.english.php",
+  translation: "Settings.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Stats.english.php",
+  translation: "Stats.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Themes.english.php",
+  translation: "Themes.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Timezones.english.php",
+  translation: "Timezones.%language%.php",
+ },
+ {
+  source: "Themes/default/languages/Who.english.php",
+  translation: "Who.%language%.php",
+ },
+ {
+  source: "agreement.txt",
+  translation: "agreement.%language%.txt"
+ }
+
+]
