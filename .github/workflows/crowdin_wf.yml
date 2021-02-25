@@ -35,6 +35,8 @@ jobs:
         # The crowdin_branch_name is the name of the highest level folder in your "Files" tab in CrowdIn
         # At the moment, it really does not like embedded spaces (2/2021)
         crowdin_branch_name: 'SMF_2-1'
+        # Path to crowdin.yml, no leading /
+        config: .github/crowdin.yml
 
       env:
         # Use GitHub Secrets here, so sensitive stuff isn't in the publicly visible workflow
