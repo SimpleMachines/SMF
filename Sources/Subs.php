@@ -43,7 +43,7 @@ if (!defined('SMF'))
  */
 function updateStats($type, $parameter1 = null, $parameter2 = null)
 {
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $txt;
 
 	switch ($type)
 	{
@@ -242,7 +242,8 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			break;
 
 		default:
-			trigger_error('updateStats(): Invalid statistic type \'' . $type . '\'', E_USER_NOTICE);
+			loadLanguage('Errors');
+			trigger_error(sprintf($txt['invalid_statistic_type'], $type), E_USER_NOTICE);
 	}
 }
 
@@ -5406,7 +5407,7 @@ function load_file($string)
  */
 function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection_level = 0)
 {
-	global $webmaster_email, $sourcedir;
+	global $webmaster_email, $sourcedir, $txt;
 	static $keep_alive_dom = null, $keep_alive_fp = null;
 
 	preg_match('~^(http|ftp)(s)?://([^/:]+)(:(\d+))?(.+)$~', $url, $match);
@@ -5569,7 +5570,8 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 	else
 	{
 		// Umm, this shouldn't happen?
-		trigger_error('fetch_web_data(): Bad URL', E_USER_NOTICE);
+		loadLanguage('Errors');
+		trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
 		$data = false;
 	}
 

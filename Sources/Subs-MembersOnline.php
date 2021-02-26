@@ -47,7 +47,10 @@ function getMembersOnlineStats($membersOnlineOptions)
 
 	// Not allowed sort method? Bang! Error!
 	elseif (!in_array($membersOnlineOptions['sort'], $allowed_sort_options))
-		trigger_error('Sort method for getMembersOnlineStats() function is not allowed', E_USER_NOTICE);
+	{
+		loadLanguage('Errors');
+		trigger_error($txt['get_members_online_stats_invalid_sort'], E_USER_NOTICE);
+	}
 
 	// Initialize the array that'll be returned later on.
 	$membersOnlineStats = array(

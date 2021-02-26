@@ -462,4 +462,62 @@ $txt['json_JSON_ERROR_INF_OR_NAN'] = 'JSON decode error: One or more NAN or INF 
 $txt['json_JSON_ERROR_UNSUPPORTED_TYPE'] = 'JSON decode error: A value of a type that cannot be encoded was given';
 $txt['json_unknown'] = 'Unknown error';
 
+// The following strings are used with various trigger_error calls. Most include the function that they're called from.
+// Board errors
+$txt['create_board_missing_options'] = 'createBoard(): One or more of the required options is not set';
+$txt['move_board_no_target'] = 'createBoard(): Target board is not set';
+$txt['modify_board_move_to_incorrect'] = 'modifyBoard(): the move_to value \'%s\' is incorrect';
+
+// Category errors
+$txt['create_category_no_name'] = 'createCategory(): A category name is required';
+$txt['cannot_move_to_deleted_category'] = 'deleteCategories(): You cannot move the boards to a category that\'s being deleted';
+
+// Package manager error
+$txt['undefined_xml_attribute'] = 'Undefined XML attribute: %s';
+$txt['undefined_xml_element'] = 'Undefined XML element: %s';
+
+// loadMemberData() error
+$txt['invalid_member_data_set'] = 'loadMemberData(): Invalid member set: \'%s\'';
+
+// loadMemberContext() error
+$txt['user_not_loaded'] = 'loadMemberContext(): member id \'%d\' not previously loaded by loadMemberData()';
+
+// logActions() errors
+$txt['logActions_not_array'] = 'logActions(): data is not an array with action \'%s\'';
+$txt['logActions_topic_not_numeric']  = 'logActions(): data\'s topic is not a number';
+$txt['logActions_message_not_numeric'] = 'logActions(): data\'s message is not a number';
+$txt['logActions_member_not_numeric'] = 'logActions(): data\'s member is not a number';
+$txt['logActions_board_not_numeric'] = 'logActions(): data\'s board is not a number';
+$txt['logActions_board_to_not_numeric'] = 'logActions(): data\'s board_to is not a number';
+
+// Login error
+$txt['login_no_session_cookie'] = 'Login2(): Cannot be logged in without a session or cookie';
+
+// PM error (see isAccessiblePM function)
+$txt['pm_invalid_validation_type'] = 'Undefined validation type given';
+
+$txt['check_submit_once_invalid_action'] = 'checkSubmitOnce(): Invalid action \'%s\'';
+
+$txt['get_server_versions_no_database'] = 'getServerVersions(): you need to be connected to the database in order to get its server version';
+
+// Subs-Db-postgresql.php line 801
+$txt['postgres_id_not_int'] = 'Trying to return an ID field which is not an Int';
+
+$txt['add_members_to_group_invalid_type'] = 'addMembersToGroup(): Unknown type \'%s\'';
+
+$txt['get_members_online_stats_invalid_sort'] = 'Sort method for getMembersOnlineStats() function is not allowed';
+
+$txt['get_board_list_cannot_include_and_exclude'] = 'getBoardList(): Setting both excluded_boards and included_boards is not allowed.';
+
+$txt['parse_path_filename_required'] = 'parse_path(): There should never be an empty filename';
+$txt['parse_modification_filename_not_full_path'] = 'parseModification(): The filename \'%s\' is not a full path!';
+$txt['parse_boardmod_filename_not_full_path'] = 'parseBoardMod(): The filename \'%s\' is not a full path!';
+$txt['package_flush_cache_not_writable'] = 'package_flush_cache(): some files are still not writable';
+
+$txt['create_post_invalid_member_id'] = 'createPost(): invalid member id \'%d\'';
+
+$txt['invalid_statistic_type'] = 'updateStats(): invalid statistic type \'%s\'';
+
+$txt['fetch_web_data_bad_url'] = 'fetch_web_data(): Bad URL';
+
 ?>

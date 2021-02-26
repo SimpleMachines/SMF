@@ -1405,7 +1405,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $user_info, $cache_enable;
+	global $user_info, $cache_enable, $txt;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1467,7 +1467,10 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			$select_tables = '';
 			break;
 		default:
-			trigger_error('loadMemberData(): Invalid member data set \'' . $set . '\'', E_USER_WARNING);
+		{
+			loadLanguage('Errors');
+			trigger_error(sprintf($txt['invalid_member_data_set'], $set), E_USER_WARNING);
+		}
 	}
 
 	// Allow mods to easily add to the selected member data
@@ -1614,7 +1617,8 @@ function loadMemberContext($user, $display_custom_fields = false)
 		return false;
 	if (!isset($user_profile[$user]))
 	{
-		trigger_error('loadMemberContext(): member id ' . $user . ' not previously loaded by loadMemberData()', E_USER_WARNING);
+		loadLanguage('Errors');
+		trigger_error(sprintf($txt['user_not_loaded'], $user), E_USER_WARNING);
 		return false;
 	}
 
