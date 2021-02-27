@@ -258,10 +258,10 @@ function smf_db_table_sql($tableName)
 		FROM pg_class AS c
 			INNER JOIN pg_index AS i ON (i.indrelid = c.oid)
 			INNER JOIN pg_class AS c2 ON (c2.oid = i.indexrelid)
-		WHERE c.relname = {string:table} AND i.indisprimary is {boolean:pk}',
+		WHERE c.relname = {string:table} AND i.indisprimary is {raw:pk}',
 		array(
 			'table' => $tableName,
-			'pk'	=> false,
+			'pk'	=> 'false',
 		)
 	);
 
