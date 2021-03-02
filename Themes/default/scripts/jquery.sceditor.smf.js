@@ -238,15 +238,11 @@ sceditor.command.set(
 	'bulletlist', {
 		txtExec: function (caller, selected) {
 			if (selected)
-			{
-				var content = '';
-
-				$.each(selected.split(/\r?\n/), function () {
-					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
-				});
-
-				this.insertText('[list]\n' + content + '\n[/list]');
-			}
+				this.insertText(
+					'[list]\n[li]' +
+					selected.split(/\r?\n/).join('[/li]\n[li]') +
+					'[/li]\n[/list]'
+				);
 			else
 				this.insertText('[list]\n[li]', '[/li]\n[li][/li]\n[/list]');
 		}
@@ -257,15 +253,11 @@ sceditor.command.set(
 	'orderedlist', {
 		txtExec: function (caller, selected) {
 			if (selected)
-			{
-				var content = '';
-
-				$.each(selected.split(/\r?\n/), function () {
-					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
-				});
-
-				this.insertText('[list type=decimal]\n' + content + '\n[/list]');
-			}
+				this.insertText(
+					'[list type=decimal]\n[li]' +
+					selected.split(/\r?\n/).join('[/li]\n[li]') +
+					'[/li]\n[/list]'
+				);
 			else
 				this.insertText('[list type=decimal]\n[li]', '[/li]\n[li][/li]\n[/list]');
 		}
