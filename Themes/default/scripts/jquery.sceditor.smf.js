@@ -832,7 +832,9 @@ sceditor.formats.bbcode.set(
 				return '[php]' + content.replace('&#91;', '[') + '[/php]';
 
 			var
-				title = $(element).attr('data-title'),
+				dom = sceditor.dom,
+				attr = dom.attr,
+				title = attr(element, 'data-title'),
 				from = title ?' =' + title : '';
 
 			return '[code' + from + ']' + content.replace('&#91;', '[') + '[/code]';
@@ -840,7 +842,7 @@ sceditor.formats.bbcode.set(
 		html: function (element, attrs, content) {
 			var from = attrs.defaultattr ? ' data-title="' + attrs.defaultattr + '"'  : '';
 
-			return '<code' + from + '>' + content.replace('[', '&#91;') + '</code>'
+			return '<code data-name="' + this.opts.txtVars.code + '"' + from + '>' + content.replace('[', '&#91;') + '</code>'
 		}
 	}
 );
