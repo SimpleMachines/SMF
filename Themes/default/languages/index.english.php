@@ -412,7 +412,6 @@ $txt['two_weeks'] = '2 Weeks';
 $txt['one_month'] = '1 Month';
 $txt['two_months'] = '2 Months';
 $txt['forever'] = 'Forever';
-$txt['quick_login_dec'] = 'Login with username, password and session length';
 $txt['moved'] = 'MOVED';
 $txt['move_why'] = 'Please enter a brief description as to<br>why this topic is being moved.';
 $txt['board'] = 'Board';
