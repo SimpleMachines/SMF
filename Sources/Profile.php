@@ -222,8 +222,8 @@ function ModifyProfile($post_errors = array())
 					'function' => 'viewWarning',
 					'icon' => 'warning',
 					'permission' => array(
-						'own' => array('profile_warning_own', 'profile_warning_any', 'issue_warning', 'moderate_forum'),
-						'any' => array('profile_warning_any', 'issue_warning', 'moderate_forum'),
+						'own' => array('view_warning_own', 'view_warning_any', 'issue_warning', 'moderate_forum'),
+						'any' => array('view_warning_any', 'issue_warning', 'moderate_forum'),
 					),
 				),
 			),
