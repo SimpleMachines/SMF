@@ -216,7 +216,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 				if ($type == 'reply')
 				{
-					if (!empty($prefs[$member_id]['msg_receive_body']))
+					if (empty($modSettings['disallow_sendBody']) && !empty($prefs[$member_id]['msg_receive_body']))
 						$message_type .= '_body';
 
 					if (!empty($frequency))
@@ -236,7 +236,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 				$message_type = !empty($frequency) ? 'notify_boards_once' : 'notify_boards';
 
-				if (!empty($prefs[$member_id]['msg_receive_body']))
+				if (empty($modSettings['disallow_sendBody']) && !empty($prefs[$member_id]['msg_receive_body']))
 					$message_type .= '_body';
 			}
 
