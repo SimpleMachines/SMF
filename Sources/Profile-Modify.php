@@ -2037,7 +2037,7 @@ function alert_configuration($memID, $defaultSettings = false)
 	$group_options = array(
 		'board' => array(
 			array('check', 'msg_auto_notify', 'label' => 'after'),
-			array('check', 'msg_receive_body', 'label' => 'after'),
+			array(empty($modSettings['disallow_sendBody']) ? 'check' : 'hide', 'msg_receive_body', 'label' => 'after'),
 			array('select', 'msg_notify_pref', 'label' => 'before', 'opts' => array(
 				0 => $txt['alert_opt_msg_notify_pref_never'],
 				1 => $txt['alert_opt_msg_notify_pref_instant'],
