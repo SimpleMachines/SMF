@@ -33,8 +33,8 @@ function Login()
 	if (!empty($user_info['id']))
 	{
  		// This came from a valid hashed return url.  Or something that knows our secrets...
- 		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', base64_decode($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
-			redirectexit(base64_decode($_REQUEST['return_to']));
+ 		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
+			redirectexit(un_htmlspecialchars($_REQUEST['return_to']));
 		else
 			redirectexit();
 	}
@@ -67,8 +67,8 @@ function Login()
 	if (isset($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'dlattach') === false && preg_match('~(board|topic)[=,]~', $_SESSION['old_url']) != 0)
 		$_SESSION['login_url'] = $_SESSION['old_url'];
 	// This came from a valid hashed return url.  Or something that knows our secrets...
-	elseif (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', base64_decode($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
-		$_SESSION['login_url'] = base64_decode($_REQUEST['return_to']);
+	elseif (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
+		$_SESSION['login_url'] = un_htmlspecialchars($_REQUEST['return_to']);
 	elseif (isset($_SESSION['login_url']) && strpos($_SESSION['login_url'], 'dlattach') !== false)
 		unset($_SESSION['login_url']);
 
@@ -685,9 +685,9 @@ function Logout($internal = false, $redirect = true)
 		$context['sub_template'] = 'logout';
 
 		// This came from a valid hashed return url.  Or something that knows our secrets...
-		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', base64_decode($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
+		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
 		{
-			$_SESSION['logout_url'] = urldecode($_REQUEST['return_to']);
+			$_SESSION['logout_url'] = un_htmlspecialchars($_REQUEST['return_to']);
 			$_SESSION['logout_return'] = $_SESSION['logout_url'];
 		}
 		// Setup the return address.
