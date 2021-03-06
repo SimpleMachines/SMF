@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -130,6 +130,7 @@ function ReportedContent()
 					'show' => !$report['closed'] && !empty($context['report_manage_bans']) && ($context['report_type'] == 'posts' || $context['report_type'] == 'members' && !empty($report['user']['id']))
 				),
 				'quickmod' => array(
+					'class' => 'inline_mod_check',
 					'content' => '<input type="checkbox" name="close[]" value="'.$report['id'].'">',
 					'show' => !$context['view_closed']
 				)

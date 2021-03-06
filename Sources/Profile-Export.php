@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -725,7 +725,7 @@ function get_export_formats()
  */
 function create_export_dir($fallback = '')
 {
-	global $boarddir, $modSettings;
+	global $boarddir, $modSettings, $txt;
 
 	// No supplied fallback, so use the default location.
 	if (empty($fallback))

@@ -61,7 +61,7 @@ $txt['scheduled_task_remove_old_drafts'] = 'Remove old drafts';
 $txt['scheduled_task_desc_remove_old_drafts'] = 'Deletes drafts older than the number of days defined in the draft settings in the admin panel.';
 
 $txt['scheduled_task_prune_log_topics'] = 'Mark Boards as Read';
-$txt['scheduled_task_desc_prune_log_topics'] = 'Marks boards read for users inactive longer than the number of days defined in the Mark Read Logs settings in the admin panel.';
+$txt['scheduled_task_desc_prune_log_topics'] = 'Marks boards as read for users inactive longer than the number of days defined in the Read Logs settings in the admin panel.';
 
 $txt['cron_is_real_cron'] = 'Disable JavaScript-based method of running scheduled tasks.';
 $txt['cron_is_real_cron_desc'] = '<strong>Do not check this box</strong> unless you are <strong><u>sure</u></strong> that you have configured another method to tell your server to run SMF\'s cron.php on a regular basis.';

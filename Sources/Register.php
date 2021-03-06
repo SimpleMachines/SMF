@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -174,7 +174,7 @@ function Register($reg_errors = array())
 		else
 		{
 			// None was found; log the error so the admin knows there is a problem!
-			log_error($txt['error_no_privacy_policy'], 'critical');
+			log_error($txt['registration_policy_missing'], 'critical');
 			fatal_lang_error('registration_disabled', false);
 		}
 	}
@@ -645,7 +645,7 @@ function Activate()
 	$smcFunc['db_free_result']($request);
 
 	// Change their email address? (they probably tried a fake one first :P.)
-	if (isset($_POST['new_email'], $_REQUEST['passwd']) && hash_password($row['member_name'], $_REQUEST['passwd']) == $row['passwd'] && ($row['is_activated'] == 0 || $row['is_activated'] == 2))
+	if (!empty($_POST['new_email']) && !empty($_REQUEST['passwd']) && hash_verify_password($row['member_name'], $_REQUEST['passwd'], $row['passwd']) && ($row['is_activated'] == 0 || $row['is_activated'] == 2))
 	{
 		if (empty($modSettings['registration_method']) || $modSettings['registration_method'] == 3)
 			fatal_lang_error('no_access', false);
@@ -698,9 +698,9 @@ function Activate()
 		$context['page_title'] = $txt['invalid_activation_resend'];
 
 		// This will ensure we don't actually get an error message if it works!
-		$context['error_title'] = '';
+		$context['error_title'] = $txt['invalid_activation_resend'];
 
-		fatal_lang_error(!empty($email_change) ? 'change_email_success' : 'resend_email_success', false);
+		fatal_lang_error(!empty($email_change) ? 'change_email_success' : 'resend_email_success', false, array(), false);
 	}
 
 	// Quit if this code is not right.

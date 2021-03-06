@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -2580,7 +2580,7 @@ function getXmlPMs($xml_format, $ascending = false)
 					(pm2.id_member_from = {int:uid} AND pm2.deleted_by_sender = {int:not_deleted})
 					OR (pmr.id_member = {int:uid} AND pmr.deleted = {int:not_deleted})
 				)
-			GROUP BY pm2.id_pm, memf.real_name
+			GROUP BY pm2.id_pm, COALESCE(memf.real_name, pm2.from_name)
 			ORDER BY pm2.id_pm {raw:ascdesc}
 			LIMIT {int:limit}
 		) AS nis ON nis.id_pm = pm.id_pm

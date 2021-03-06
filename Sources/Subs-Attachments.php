@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -929,7 +929,7 @@ function assignAttachments($attachIDs = array(), $msgID = 0)
  */
 function parseAttachBBC($attachID = 0)
 {
-	global $board, $modSettings, $context, $scripturl, $smcFunc;
+	global $board, $modSettings, $context, $scripturl, $smcFunc, $user_info;
 	static $view_attachment_boards;
 
 	if (!isset($view_attachment_boards))
@@ -953,13 +953,15 @@ function parseAttachBBC($attachID = 0)
 	if (empty($modSettings['attachmentEnable']))
 		return 'attachments_not_enable';
 
+	$check_board_perms = !isset($_SESSION['attachments_can_preview'][$attachID]) && $view_attachment_boards !== array(0);
+
 	// There is always the chance someone else has already done our dirty work...
 	// If so, all pertinent checks were already done. Hopefully...
 	if (!empty($context['current_attachments']) && !empty($context['current_attachments'][$attachID]))
 		return $context['current_attachments'][$attachID];
 
-	// If we are lucky enough to be in $board's scope then check it!
-	if (!empty($board) && $view_attachment_boards !== array(0) && !in_array($board, $view_attachment_boards))
+	// Can the user view attachments on this board?
+	if ($check_board_perms && !empty($board) && !in_array($board, $view_attachment_boards))
 		return 'attachments_not_allowed_to_see';
 
 	// Get the message info associated with this particular attach ID.
@@ -969,8 +971,9 @@ function parseAttachBBC($attachID = 0)
 	if (empty($attachInfo) || empty($attachInfo['msg']) && empty($context['preview_message']))
 		return 'attachments_no_msg_associated';
 
-	// Hold it! got the info now check if you can see this attachment.
-	if ($view_attachment_boards !== array(0) && !in_array($attachInfo['board'], $view_attachment_boards))
+	// Can the user view attachments on the board that holds the attachment's original post?
+	// (This matters when one post quotes another on a different board.)
+	if ($check_board_perms && !in_array($attachInfo['board'], $view_attachment_boards))
 		return 'attachments_not_allowed_to_see';
 
 	if (empty($context['loaded_attachments'][$attachInfo['msg']]))
@@ -984,7 +987,7 @@ function parseAttachBBC($attachID = 0)
 	{
 		foreach ($context['loaded_attachments'][$attachInfo['msg']] as $foundAttachID => $foundAttach)
 		{
-			if ($foundAttach['id_thumb'] == $attachID)
+			if (array_key_exists('id_thumb', $foundAttach) && $foundAttach['id_thumb'] == $attachID)
 			{
 				$attachContext = $context['loaded_attachments'][$attachInfo['msg']][$foundAttachID];
 				$attachID = $foundAttachID;
@@ -995,24 +998,31 @@ function parseAttachBBC($attachID = 0)
 
 	// Load this particular attach's context.
 	if (!empty($attachContext))
+	{
+		// Skip unapproved attachment, unless they belong to the user or the user can approve them.
+		if (!$context['loaded_attachments'][$attachInfo['msg']][$attachID]['approved'] &&
+			$modSettings['postmod_active'] && !allowedTo('approve_posts') &&
+			$context['loaded_attachments'][$attachInfo['msg']][$attachID]['id_member'] != $user_info['id'])
+		{
+			unset($context['loaded_attachments'][$attachInfo['msg']][$attachID]);
+			return 'attachments_unapproved';
+		}
 		$attachLoaded = loadAttachmentContext($attachContext['id_msg'], $context['loaded_attachments']);
-
-	// One last check, you know, gotta be paranoid...
+	}
 	else
 		return 'attachments_no_data_loaded';
 
-	// This is the last "if" I promise!
 	if (empty($attachLoaded))
 		return 'attachments_no_data_loaded';
 
 	else
 		$attachContext = $attachLoaded[$attachID];
 
-	// No point in keep going further.
-	if ($view_attachment_boards !== array(0) && !in_array($attachContext['board'], $view_attachment_boards))
+	// It's theoretically possible that prepareAttachsByMsg() changed the board id, so check again.
+	if ($check_board_perms && !in_array($attachContext['board'], $view_attachment_boards))
 		return 'attachments_not_allowed_to_see';
 
-	// Previewing much? no msg ID has been set yet.
+	// Previewing much? No msg ID has been set yet.
 	if (!empty($context['preview_message']))
 	{
 		$attachContext['href'] = $scripturl . '?action=dlattach;attach=' . $attachID . ';type=preview';
@@ -1164,7 +1174,7 @@ function loadAttachmentContext($id_msg, $attachments)
 				'byte_size' => $attachment['filesize'],
 				'href' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
 				'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars']($attachment['filename']) . '</a>',
-				'is_image' => !empty($attachment['width']) && !empty($attachment['height']) && !empty($modSettings['attachmentShowImages']),
+				'is_image' => !empty($attachment['width']) && !empty($attachment['height']),
 				'is_approved' => $attachment['approved'],
 				'topic' => $attachment['topic'],
 				'board' => $attachment['board'],
@@ -1184,7 +1194,7 @@ function loadAttachmentContext($id_msg, $attachments)
 			$attachmentData[$i]['height'] = $attachment['height'];
 
 			// Let's see, do we want thumbs?
-			if (!empty($modSettings['attachmentThumbnails']) && !empty($modSettings['attachmentThumbWidth']) && !empty($modSettings['attachmentThumbHeight']) && ($attachment['width'] > $modSettings['attachmentThumbWidth'] || $attachment['height'] > $modSettings['attachmentThumbHeight']) && strlen($attachment['filename']) < 249)
+			if (!empty($modSettings['attachmentShowImages']) && !empty($modSettings['attachmentThumbnails']) && !empty($modSettings['attachmentThumbWidth']) && !empty($modSettings['attachmentThumbHeight']) && ($attachment['width'] > $modSettings['attachmentThumbWidth'] || $attachment['height'] > $modSettings['attachmentThumbHeight']) && strlen($attachment['filename']) < 249)
 			{
 				// A proper thumb doesn't exist yet? Create one!
 				if (empty($attachment['id_thumb']) || $attachment['thumb_width'] > $modSettings['attachmentThumbWidth'] || $attachment['thumb_height'] > $modSettings['attachmentThumbHeight'] || ($attachment['thumb_width'] < $modSettings['attachmentThumbWidth'] && $attachment['thumb_height'] < $modSettings['attachmentThumbHeight']))
@@ -1323,7 +1333,7 @@ function loadAttachmentContext($id_msg, $attachments)
  */
 function prepareAttachsByMsg($msgIDs)
 {
-	global $context, $modSettings, $smcFunc, $user_info;
+	global $context, $modSettings, $smcFunc;
 
 	if (empty($context['loaded_attachments']))
 		$context['loaded_attachments'] = array();
@@ -1356,10 +1366,6 @@ function prepareAttachsByMsg($msgIDs)
 
 		foreach ($rows as $row)
 		{
-			// Skip unapproved ones, unless they belong to the user or the user can approve them.
-			if (!$row['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts') && $row['id_member'] != $user_info['id'])
-				continue;
-
 			if (empty($context['loaded_attachments'][$row['id_msg']]))
 				$context['loaded_attachments'][$row['id_msg']] = array();
 

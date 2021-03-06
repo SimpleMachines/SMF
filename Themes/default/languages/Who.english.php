@@ -27,6 +27,7 @@ $txt['whospider_reminder'] = 'Viewing the reminder page.';
 
 $txt['whoall_activate'] = 'Activating their account.';
 $txt['whoall_buddy'] = 'Modifying their buddy list.';
+$txt['whoall_agreement'] = 'Viewing the <a href="%1$s?action=agreement">Terms and Rules</a>.';
 $txt['whoall_coppa'] = 'Filling out parent/guardian consent form.';
 $txt['whoall_credits'] = 'Viewing credits page.';
 $txt['whoall_emailuser'] = 'Sending email to another member.';
@@ -164,7 +165,7 @@ $txt['who_index'] = 'Viewing the board index of <a href="%1$s">%2$s</a>.';
 // argument(s): member id, real name, $scripturl
 $txt['who_viewprofile'] = 'Viewing <a href="%3$s?action=profile;u=%1$d">%2$s</a>\'s profile.';
 // argument(s): member id, real name, $scripturl
-$txt['who_viewownprofile'] = 'Viewing <a href="%2$s?action=profile;u=%1$d">their own profile</a>.';
+$txt['who_viewownprofile'] = 'Viewing <a href="%3$s?action=profile;u=%1$d">their own profile</a>.';
 // argument(s): member id, real name, $scripturl
 $txt['who_profile'] = 'Editing the profile of <a href="%3$s?action=profile;u=%1$d">%2$s</a>.';
 // argument(s): board id, board name, $scripturl

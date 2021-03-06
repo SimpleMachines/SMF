@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -14,7 +14,7 @@
 // Version information...
 define('SMF_VERSION', '2.1 RC3');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2020');
+define('SMF_SOFTWARE_YEAR', '2021');
 define('SMF_LANG_VERSION', '2.1 RC3');
 define('SMF_INSTALLING', 1);
 
@@ -30,7 +30,7 @@ if (!defined('TIME_START'))
  *
  * @var string
  */
-$GLOBALS['required_php_version'] = '5.4.0';
+$GLOBALS['required_php_version'] = '5.6.0';
 
 /**
  * A list of supported database systems.
@@ -116,8 +116,22 @@ if (!ini_get('safe_mode'))
 if (!empty($_SERVER['argv']) && php_sapi_name() == 'cli' && empty($_SERVER['REMOTE_ADDR']))
 	for ($i = 1; $i < $_SERVER['argc']; $i++)
 	{
+		// Provide the help without possible errors if the enviornment isn't sane.
+		if (in_array($_SERVER['argv'][$i], array('-h', '--help')))
+		{
+			cmdStep0();
+			exit;
+		}
+
 		if (preg_match('~^--path=(.+)$~', $_SERVER['argv'][$i], $match) != 0)
-			$upgrade_path = substr($match[1], -1) == '/' ? substr($match[1], 0, -1) : $match[1];
+			$upgrade_path = realpath(substr($match[1], -1) == '/' ? substr($match[1], 0, -1) : $match[1]);
+
+		// Cases where we do php other/upgrade.php --path=./
+		if ($upgrade_path == './' && isset($_SERVER['PWD']))
+			$upgrade_path = realpath($_SERVER['PWD']);
+		// Cases where we do php upgrade.php --path=../
+		elseif ($upgrade_path == '../' && isset($_SERVER['PWD']))
+			$upgrade_path = dirname(realpath($_SERVER['PWD']));
 	}
 
 // Are we from the client?
@@ -130,12 +144,15 @@ else
 	$command_line = false;
 
 // We can't do anything without these files.
-foreach (array('upgrade-helper.php', 'Settings.php') as $required_file)
+foreach (array(
+	dirname(__FILE__) . '/upgrade-helper.php',
+	$upgrade_path . '/Settings.php'
+) as $required_file)
 {
-	if (!file_exists($upgrade_path . '/' . $required_file))
-		die($required_file . ' was not found where it was expected: ' . $upgrade_path . '/' . $required_file . '! Make sure you have uploaded ALL files from the upgrade package to your forum\'s root directory. The upgrader cannot continue.');
+	if (!file_exists($required_file))
+		die(basename($required_file) . ' was not found where it was expected: ' . $required_file . '! Make sure you have uploaded ALL files from the upgrade package to your forum\'s root directory. The upgrader cannot continue.');
 
-	require_once($upgrade_path . '/' . $required_file);
+	require_once($required_file);
 }
 
 // We don't use "-utf8" anymore...  Tweak the entry that may have been loaded by Settings.php
@@ -456,12 +473,12 @@ function upgradeExit($fallThrough = false)
 // Load the list of language files, and the current language file.
 function load_lang_file()
 {
-	global $txt, $upcontext, $language, $modSettings;
+	global $txt, $upcontext, $language, $modSettings, $upgrade_path, $command_line;
 
 	static $lang_dir = '', $detected_languages = array(), $loaded_langfile = '';
 
 	// Do we know where to look for the language files, or shall we just guess for now?
-	$temp = isset($modSettings['theme_dir']) ? $modSettings['theme_dir'] . '/languages' : dirname(__FILE__) . '/Themes/default/languages';
+	$temp = isset($modSettings['theme_dir']) ? $modSettings['theme_dir'] . '/languages' : $upgrade_path . '/Themes/default/languages';
 
 	if ($lang_dir != $temp)
 	{
@@ -517,7 +534,7 @@ function load_lang_file()
 	// Didn't find any, show an error message!
 	if (empty($detected_languages))
 	{
-		$from = explode('/', $_SERVER['PHP_SELF']);
+		$from = explode('/', $command_line ? $upgrade_path : $_SERVER['PHP_SELF']);
 		$to = explode('/', $lang_dir);
 		$relPath = $to;
 
@@ -539,6 +556,16 @@ function load_lang_file()
 			}
 		}
 		$relPath = implode(DIRECTORY_SEPARATOR, $relPath);
+
+		// Command line?
+		if ($command_line)
+		{
+			echo 'This upgrader was unable to find the upgrader\'s language file or files.  They should be found under:', "\n",
+				$relPath, "\n",
+				'In some cases, FTP clients do not properly upload files with this many folders. Please double check to make sure you have uploaded all the files in the distribution', "\n",
+				'If that doesn\'t help, please make sure this upgrade.php file is in the same place as the Themes folder.', "\n";
+			die;
+		}
 
 		// Let's not cache this message, eh?
 		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
@@ -588,9 +615,13 @@ function load_lang_file()
 
 	// For backup we load English at first, then the second language will overwrite it.
 	if ($_SESSION['upgrader_langfile'] != 'Install.english.php')
+	{
+		require_once($lang_dir . '/index.english.php');
 		require_once($lang_dir . '/Install.english.php');
+	}
 
 	// And now include the actual language file itself.
+	require_once($lang_dir . '/' . str_replace('Install.', 'index.', $_SESSION['upgrader_langfile']));
 	require_once($lang_dir . '/' . $_SESSION['upgrader_langfile']);
 
 	// Remember what we've done
@@ -633,7 +664,6 @@ function loadEssentialData()
 	// Otherwise, report all errors except for deprecation notices.
 	else
 		error_reporting(E_ALL & ~E_DEPRECATED);
-
 
 	define('SMF', 1);
 	header('X-Frame-Options: SAMEORIGIN');
@@ -768,7 +798,7 @@ function loadEssentialData()
 
 function initialize_inputs()
 {
-	global $start_time, $db_type;
+	global $start_time, $db_type, $upgrade_path;
 
 	$start_time = time();
 
@@ -782,41 +812,41 @@ function initialize_inputs()
 	// This is really quite simple; if ?delete is on the URL, delete the upgrader...
 	if (isset($_GET['delete']))
 	{
-		@unlink(__FILE__);
+		deleteFile(__FILE__);
 
 		// And the extra little files ;).
-		@unlink(dirname(__FILE__) . '/upgrade_1-0.sql');
-		@unlink(dirname(__FILE__) . '/upgrade_1-1.sql');
-		@unlink(dirname(__FILE__) . '/upgrade_2-0_' . $db_type . '.sql');
-		@unlink(dirname(__FILE__) . '/upgrade_2-1_' . $db_type . '.sql');
-		@unlink(dirname(__FILE__) . '/upgrade-helper.php');
+		deleteFile(dirname(__FILE__) . '/upgrade_1-0.sql');
+		deleteFile(dirname(__FILE__) . '/upgrade_1-1.sql');
+		deleteFile(dirname(__FILE__) . '/upgrade_2-0_' . $db_type . '.sql');
+		deleteFile(dirname(__FILE__) . '/upgrade_2-1_' . $db_type . '.sql');
+		deleteFile(dirname(__FILE__) . '/upgrade-helper.php');
 
 		$dh = opendir(dirname(__FILE__));
 		while ($file = readdir($dh))
 		{
 			if (preg_match('~upgrade_\d-\d_([A-Za-z])+\.sql~i', $file, $matches) && isset($matches[1]))
-				@unlink(dirname(__FILE__) . '/' . $file);
+				deleteFile(dirname(__FILE__) . '/' . $file);
 		}
 		closedir($dh);
 
 		// Legacy files while we're at it. NOTE: We only touch files we KNOW shouldn't be there.
 		// 1.1 Sources files not in 2.0+
-		@unlink(dirname(__FILE__) . '/Sources/ModSettings.php');
+		deleteFile($upgrade_path . '/Sources/ModSettings.php');
 		// 1.1 Templates that don't exist any more (e.g. renamed)
-		@unlink(dirname(__FILE__) . '/Themes/default/Combat.template.php');
-		@unlink(dirname(__FILE__) . '/Themes/default/Modlog.template.php');
+		deleteFile($upgrade_path . '/Themes/default/Combat.template.php');
+		deleteFile($upgrade_path . '/Themes/default/Modlog.template.php');
 		// 1.1 JS files were stored in the main theme folder, but in 2.0+ are in the scripts/ folder
-		@unlink(dirname(__FILE__) . '/Themes/default/fader.js');
-		@unlink(dirname(__FILE__) . '/Themes/default/script.js');
-		@unlink(dirname(__FILE__) . '/Themes/default/spellcheck.js');
-		@unlink(dirname(__FILE__) . '/Themes/default/xml_board.js');
-		@unlink(dirname(__FILE__) . '/Themes/default/xml_topic.js');
+		deleteFile($upgrade_path . '/Themes/default/fader.js');
+		deleteFile($upgrade_path . '/Themes/default/script.js');
+		deleteFile($upgrade_path . '/Themes/default/spellcheck.js');
+		deleteFile($upgrade_path . '/Themes/default/xml_board.js');
+		deleteFile($upgrade_path . '/Themes/default/xml_topic.js');
 
 		// 2.0 Sources files not in 2.1+
-		@unlink(dirname(__FILE__) . '/Sources/DumpDatabase.php');
-		@unlink(dirname(__FILE__) . '/Sources/LockTopic.php');
+		deleteFile($upgrade_path . '/Sources/DumpDatabase.php');
+		deleteFile($upgrade_path . '/Sources/LockTopic.php');
 
-		header('location: http://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
+		header('location: http' . (httpsOn() ? 's' : '') . '://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
 		exit;
 	}
 
@@ -838,7 +868,7 @@ function initialize_inputs()
 function WelcomeLogin()
 {
 	global $boarddir, $sourcedir, $modSettings, $cachedir, $upgradeurl, $upcontext;
-	global $smcFunc, $db_type, $databases, $boardurl;
+	global $smcFunc, $db_type, $databases, $boardurl, $upgrade_path;
 
 	// We global $txt here so that the language files can add to them. This variable is NOT unused.
 	global $txt;
@@ -969,9 +999,9 @@ function WelcomeLogin()
 	}
 
 	// We're going to check that their board dir setting is right in case they've been moving stuff around.
-	if (strtr($boarddir, array('/' => '', '\\' => '')) != strtr(dirname(__FILE__), array('/' => '', '\\' => '')))
+	if (strtr($boarddir, array('/' => '', '\\' => '')) != strtr($upgrade_path, array('/' => '', '\\' => '')))
 		$upcontext['warning'] = '
-			' . sprintf($txt['upgrade_boarddir_settings'], $boarddir, dirname(__FILE__)) . '<br>
+			' . sprintf($txt['upgrade_boarddir_settings'], $boarddir, $upgrade_path) . '<br>
 			<ul>
 				<li>' . $txt['upgrade_boarddir'] . '  ' . $boarddir . '</li>
 				<li>' . $txt['upgrade_sourcedir'] . '  ' . $boarddir . '</li>
@@ -1062,7 +1092,7 @@ function checkLogin()
 				foreach ($groups as $k => $v)
 					$groups[$k] = (int) $v;
 
-				$sha_passwd = sha1(strtolower($name) . un_htmlspecialchars($_REQUEST['passwrd']));
+				$sha_passwd = sha1(strtolower($name) . $_REQUEST['passwrd']);
 
 				// We don't use "-utf8" anymore...
 				$user_language = str_ireplace('-utf8', '', $user_language);
@@ -1184,6 +1214,7 @@ function UpgradeOptions()
 {
 	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir, $tasksdir, $language, $txt, $db_port;
 	global $boarddir, $boardurl, $sourcedir, $maintenance, $cachedir, $upcontext, $db_type, $db_server, $image_proxy_enabled;
+	global $auth_secret;
 
 	$upcontext['sub_template'] = 'upgrade_options';
 	$upcontext['page_title'] = $txt['upgrade_options'];
@@ -1203,6 +1234,9 @@ function UpgradeOptions()
 	if (empty($_POST['upcont']))
 		return false;
 
+	// We cannot execute this step in strict mode - strict mode data fixes are not applied yet
+	setSqlMode(false);
+
 	// Firstly, if they're enabling SM stat collection just do it.
 	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']))
 	{
@@ -1212,7 +1246,9 @@ function UpgradeOptions()
 		if (empty($modSettings['sm_stats_key']))
 		{
 			// Attempt to register the site etc.
-			$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
+			$fp = @fsockopen('www.simplemachines.org', 443, $errno, $errstr);
+			if (!$fp)
+				$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
 			if ($fp)
 			{
 				$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode($boardurl) . ' HTTP/1.1' . "\r\n";
@@ -1416,10 +1452,15 @@ function UpgradeOptions()
 	// Update Settings.php with the new settings, and rebuild if they selected that option.
 	require_once($sourcedir . '/Subs.php');
 	require_once($sourcedir . '/Subs-Admin.php');
-	updateSettingsFile($changes, false, !empty($_POST['migrateSettings']));
+	$res = updateSettingsFile($changes, false, !empty($_POST['migrateSettings']));
 
-	if ($command_line)
+	if ($command_line && $res)
 		echo ' Successful.' . "\n";
+	elseif ($command_line && !$res)
+	{
+		echo ' FAILURE.' . "\n";
+		die;
+	}
 
 	// Are we doing debug?
 	if (isset($_POST['debug']))
@@ -2676,7 +2717,8 @@ function cmdStep0()
 	global $is_debug, $boardurl, $txt;
 	$start_time = time();
 
-	ob_end_clean();
+	while (ob_get_level() > 0)
+		ob_end_clean();
 	ob_implicit_flush(1);
 	@set_time_limit(600);
 
@@ -2696,6 +2738,10 @@ function cmdStep0()
 			$is_debug = true;
 		elseif ($arg == '--backup')
 			$_POST['backup'] = 1;
+		elseif ($arg == '--rebuild-settings')
+			$_POST['migrateSettings'] = 1;
+		elseif ($arg == '--allow-stats')
+			$_POST['stats'] = 1;
 		elseif ($arg == '--template' && (file_exists($boarddir . '/template.php') || file_exists($boarddir . '/template.html') && !file_exists($modSettings['theme_dir'] . '/converted')))
 			$_GET['conv'] = 1;
 		elseif ($i != 0)
@@ -2703,10 +2749,13 @@ function cmdStep0()
 			echo 'SMF Command-line Upgrader
 Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 
+	--path=/path/to/SMF     Specify custom SMF root directory.
 	--language=LANG         Reset the forum\'s language to LANG.
 	--no-maintenance        Don\'t put the forum into maintenance mode.
 	--debug                 Output debugging information.
-	--backup                Create backups of tables with "backup_" prefix.';
+	--backup                Create backups of tables with "backup_" prefix.
+	--allow-stats           Allow Simple Machines stat collection
+	--rebuild-settings      Rebuild the Settings.php file';
 			echo "\n";
 			exit;
 		}
@@ -3986,13 +4035,13 @@ function template_xml_below()
 
 function template_error_message()
 {
-	global $upcontext;
+	global $upcontext, $txt;
 
 	echo '
 	<div class="error">
 		', $upcontext['error_msg'], '
 		<br>
-		<a href="', $_SERVER['PHP_SELF'], '">Click here to try again.</a>
+		<a href="', $_SERVER['PHP_SELF'], '">', $txt['upgrade_respondtime_clickhere'], '</a>
 	</div>';
 }
 
@@ -4079,7 +4128,7 @@ function template_welcome_message()
 	}
 
 	echo '
-					<strong>', $txt['upgrade_admin_login'], ' ', $disable_security ? '(DISABLED)' : '', '</strong>
+					<strong>', $txt['upgrade_admin_login'], ' ', $disable_security ? $txt['upgrade_admin_disabled'] : '', '</strong>
 					<h3>', $txt['upgrade_sec_login'], '</h3>
 					<dl class="settings adminlogin">
 						<dt>
@@ -4961,7 +5010,7 @@ function template_upgrade_complete()
 
 	echo '
 					<p>
-						', sprintf($txt['upgrade_problems'], 'http://simplemachines.org'), '
+						', sprintf($txt['upgrade_problems'], 'https://www.simplemachines.org'), '
 						<br>
 						', $txt['upgrade_luck'], '<br>
 						Simple Machines

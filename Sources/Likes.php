@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -344,7 +344,7 @@ class Likes
 		global $smcFunc;
 
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(id_member)
+			SELECT COUNT(*)
 			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}',

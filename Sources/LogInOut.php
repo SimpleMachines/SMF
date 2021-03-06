@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -124,7 +124,10 @@ function Login2()
 			list (,, $timeout) = safe_unserialize($_SESSION['login_' . $cookiename]);
 
 		else
-			trigger_error('Login2(): Cannot be logged in without a session or cookie', E_USER_ERROR);
+		{
+			loadLanguage('Errors');
+			trigger_error($txt['login_no_session_cookie'], E_USER_ERROR);
+		}
 
 		$user_settings['password_salt'] = bin2hex($smcFunc['random_bytes'](16));
 		updateMemberData($user_info['id'], array('password_salt' => $user_settings['password_salt']));

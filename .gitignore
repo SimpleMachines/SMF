@@ -6,6 +6,7 @@ Settings_bak.php
 Settings_org.php
 db_last_error.php
 cache/data*.php
+cache/data*.cache
 cache/*.db3
 Packages/backups/*
 Packages/temp
@@ -72,3 +73,5 @@ Themes/default/scripts/minified.js
 Themes/default/css/minified.css
 upgrade-helper.php
 .vscode/
+
+vendor/

@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -839,7 +839,7 @@ function cleanTokens($complete = false)
  */
 function checkSubmitOnce($action, $is_fatal = true)
 {
-	global $context;
+	global $context, $txt;
 
 	if (!isset($_SESSION['forms']))
 		$_SESSION['forms'] = array();
@@ -870,7 +870,10 @@ function checkSubmitOnce($action, $is_fatal = true)
 	elseif ($action == 'free' && isset($_REQUEST['seqnum']) && in_array($_REQUEST['seqnum'], $_SESSION['forms']))
 		$_SESSION['forms'] = array_diff($_SESSION['forms'], array($_REQUEST['seqnum']));
 	elseif ($action != 'free')
-		trigger_error('checkSubmitOnce(): Invalid action \'' . $action . '\'', E_USER_WARNING);
+	{
+		loadLanguage('Errors');
+		trigger_error(sprintf($txt['check_submit_once_invalid_action'], $action), E_USER_WARNING);
+	}
 }
 
 /**

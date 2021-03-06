@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -47,7 +47,10 @@ function getMembersOnlineStats($membersOnlineOptions)
 
 	// Not allowed sort method? Bang! Error!
 	elseif (!in_array($membersOnlineOptions['sort'], $allowed_sort_options))
-		trigger_error('Sort method for getMembersOnlineStats() function is not allowed', E_USER_NOTICE);
+	{
+		loadLanguage('Errors');
+		trigger_error($txt['get_members_online_stats_invalid_sort'], E_USER_NOTICE);
+	}
 
 	// Initialize the array that'll be returned later on.
 	$membersOnlineStats = array(

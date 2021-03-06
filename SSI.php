@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -18,7 +18,7 @@ if (defined('SMF'))
 define('SMF', 'SSI');
 define('SMF_VERSION', '2.1 RC3');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2020');
+define('SMF_SOFTWARE_YEAR', '2021');
 define('JQUERY_VERSION', '3.5.1');
 define('POSTGRE_TITLE', 'PostgreSQL');
 define('MYSQL_TITLE', 'MySQL');
@@ -87,33 +87,6 @@ $smcFunc = array();
 // Initiate the database connection and define some database functions to use.
 loadDatabase();
 
-// Load installed 'Mods' settings.
-reloadSettings();
-// Clean the request variables.
-cleanRequest();
-
-// Seed the random generator?
-if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
-	smf_seed_generator();
-
-// Check on any hacking attempts.
-if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS']))
-	die('No direct access...');
-elseif (isset($_REQUEST['ssi_theme']) && (int) $_REQUEST['ssi_theme'] == (int) $ssi_theme)
-	die('No direct access...');
-elseif (isset($_COOKIE['ssi_theme']) && (int) $_COOKIE['ssi_theme'] == (int) $ssi_theme)
-	die('No direct access...');
-elseif (isset($_REQUEST['ssi_layers'], $ssi_layers) && (@get_magic_quotes_gpc() ? stripslashes($_REQUEST['ssi_layers']) : $_REQUEST['ssi_layers']) == $ssi_layers)
-	die('No direct access...');
-if (isset($_REQUEST['context']))
-	die('No direct access...');
-
-// Gzip output? (because it must be boolean and true, this can't be hacked.)
-if (isset($ssi_gzip) && $ssi_gzip === true && ini_get('zlib.output_compression') != '1' && ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>='))
-	ob_start('ob_gzhandler');
-else
-	$modSettings['enableCompressedOutput'] = '0';
-
 /**
  * An autoloader for certain classes.
  *
@@ -125,6 +98,7 @@ spl_autoload_register(function($class) use ($sourcedir)
 		'ReCaptcha\\' => 'ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => 'minify/src/',
 		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+		'SMF\\Cache\\' => 'Cache/',
 	);
 
 	// Do any third-party scripts want in on the fun?
@@ -156,6 +130,33 @@ spl_autoload_register(function($class) use ($sourcedir)
 		}
 	}
 });
+
+// Load installed 'Mods' settings.
+reloadSettings();
+// Clean the request variables.
+cleanRequest();
+
+// Seed the random generator?
+if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
+	smf_seed_generator();
+
+// Check on any hacking attempts.
+if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS']))
+	die('No direct access...');
+elseif (isset($_REQUEST['ssi_theme']) && (int) $_REQUEST['ssi_theme'] == (int) $ssi_theme)
+	die('No direct access...');
+elseif (isset($_COOKIE['ssi_theme']) && (int) $_COOKIE['ssi_theme'] == (int) $ssi_theme)
+	die('No direct access...');
+elseif (isset($_REQUEST['ssi_layers'], $ssi_layers) && (@get_magic_quotes_gpc() ? stripslashes($_REQUEST['ssi_layers']) : $_REQUEST['ssi_layers']) == $ssi_layers)
+	die('No direct access...');
+if (isset($_REQUEST['context']))
+	die('No direct access...');
+
+// Gzip output? (because it must be boolean and true, this can't be hacked.)
+if (isset($ssi_gzip) && $ssi_gzip === true && ini_get('zlib.output_compression') != '1' && ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>='))
+	ob_start('ob_gzhandler');
+else
+	$modSettings['enableCompressedOutput'] = '0';
 
 // Primarily, this is to fix the URLs...
 ob_start('ob_sessrewrite');
@@ -333,7 +334,7 @@ function ssi_welcome($output_method = 'echo')
 	if ($output_method == 'echo')
 	{
 		if ($context['user']['is_guest'])
-			echo sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup');
+			echo sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup');
 		else
 			echo $txt['hello_member'], ' <strong>', $context['user']['name'], '</strong>', allowedTo('pm_read') ? ', ' . (empty($context['user']['messages']) ? $txt['msg_alert_no_messages'] : (($context['user']['messages'] == 1 ? sprintf($txt['msg_alert_one_message'], $scripturl . '?action=pm') : sprintf($txt['msg_alert_many_message'], $scripturl . '?action=pm', $context['user']['messages'])) . ', ' . ($context['user']['unread_messages'] == 1 ? $txt['msg_alert_one_new'] : sprintf($txt['msg_alert_many_new'], $context['user']['unread_messages'])))) : '';
 	}
@@ -1289,9 +1290,20 @@ function ssi_whosOnline($output_method = 'echo')
 			', implode(', ', $return['list_users_online']);
 
 	// Showing membergroups?
-	if (!empty($settings['show_group_key']) && !empty($return['membergroups']))
+	if (!empty($settings['show_group_key']) && !empty($return['online_groups']))
+	{
+		$membergroups = cache_quick_get('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
+
+		$groups = array();
+		foreach ($return['online_groups'] as $group)
+		{
+			if (isset($membergroups[$group['id']]))
+				$groups[] = $membergroups[$group['id']];
+		}
+
 		echo '<br>
-			[' . implode(']&nbsp;&nbsp;[', $return['membergroups']) . ']';
+			[' . implode(']&nbsp;&nbsp;[', $groups) . ']';
+	}
 }
 
 /**

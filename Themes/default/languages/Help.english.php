@@ -340,8 +340,7 @@ $helptxt['enablePostHTML'] = 'This will allow the posting of some basic HTML tag
 		<li>&lt;pre&gt;, &lt;blockquote&gt;</li>
 	</ul>';
 
-$helptxt['themes'] = 'Here you can select whether the default theme can be chosen, what theme guests will use,
-	as well as other settings. Click on a theme to the right to change the settings for it.';
+$helptxt['themes_manage'] = 'Here you can install new themes and select which themes your users can chose from, the default theme that new users and guests will use, as well as other theme selection settings.';
 $helptxt['theme_install'] = 'This allows you to install new themes. You can do this from an existing directory, by uploading an archive for the theme, or by copying the default theme.<br><br>Note that the archive or directory must have a <pre>theme_info.xml</pre> definition file.';
 $helptxt['xmlnews_enable'] = 'Allows people to link to <a href="%1$s?action=.xml;sa=news" target="_blank" rel="noopener">Recent news</a>
 	and similar data. It is also recommended that you limit the size of recent posts/news because some clients expect the RSS data to be truncated for display.';
@@ -382,12 +381,6 @@ $helptxt['edit_disable_time'] = 'The number of minutes allowed to pass before a 
 $helptxt['preview_characters'] = 'This setting sets the number of available characters for the first and last message topic preview.';
 $helptxt['quote_expand'] = 'This setting allows large quotes to be cutoff and expanded to their full length by the user. The setting indicates the minimum height a quote needs to have for it to be collapsed. Quotes smaller than this setting won\'t be affected';
 $helptxt['posts_require_captcha'] = 'This setting will force users to pass anti-spam bot verification each time they make a post to a board. Only users with a post count below the number set will need to enter the code - this should help combat automated spamming scripts.';
-// argument(s): either $helptxt['enableSpellCheckingSupported'] or $helptxt['enableSpellCheckingUnsupported'], depending on whether the server supports one of the libs
-$helptxt['enableSpellChecking'] = 'Enable spell checking. You MUST have the pspell or enchant library installed on your server and your PHP configuration set up to use the installed library. %1$s';
-// is conditionally used as part of $helptxt['enableSpellChecking']
-$helptxt['enableSpellCheckingSupported'] = 'Your server DOES appear to have this set up.';
-// is conditionally used as part of $helptxt['enableSpellChecking']
-$helptxt['enableSpellCheckingUnsupported'] = 'Your server DOES NOT appear to have this set up.';
 $helptxt['disable_wysiwyg'] = 'This setting disallows all users from using the WYSIWYG (&quot;What You See Is What You Get&quot;) editor on the post page.';
 $helptxt['lastActive'] = 'Set the number of minutes to show people are active in X number of minutes on the board index. Default is 15 minutes.';
 
@@ -638,17 +631,19 @@ $helptxt['cron_is_real_cron'] = 'By default, SMF adds to every page a small bit 
 $helptxt['languages_txt'] = 'These language entries are used throughout SMF to define localized versions of text for different languages.<br><br>If you see a value like <code>&#37;1$s</code> in an entry, it is a placeholder that SMF fills in with a real value at runtime. Make sure to keep such placeholders in your customized text.';
 $helptxt['languages_helptxt'] = 'These language entries are used to show floating help text popups (like this one).';
 $helptxt['languages_editortxt'] = 'These language entries are used for user interface elements in the post editor.';
-$helptxt['languages_tztxt'] = 'These language entries define custom descriptions for entire time zones.<br><br>Each of these language entries uses a specific location, such as <code>Africa/Khartoum</code> or <code>America/New_York</code>, to represent all locations that share its time zone, and then defines a custom description to use for that time zone.<br><br>If no description is set for a given time zone, SMF will generate one using a list of locations within that time zone. If a location is set for a given time zone, but the description is empty, SMF will generate a description in the same way, but will make sure to put the defined location first in the list.';
-$helptxt['languages_txt_for_timezones'] = 'These language entries allow you to define custom names for individual locations anywhere they might be used in a context related to time zones.<br><br>For example, you can tell SMF to show "Greenland" for the location "America/Godthab" instead of "Godthab".';
+$helptxt['languages_tztxt'] = 'These language entries are used to build descriptions for time zones.<br><br>For example, the <code>Europe_Western</code> string may be combined with the <code>daylight_saving_time_false</code> string to produce "Western Europe Standard Time".<br><br>Note: If no description is provided for a given time zone, SMF will generate a description using a list of locations within that time zone.';
+$helptxt['languages_txt_for_timezones'] = 'These language entries allow you to do the following:<br><ol class="bbc_list" style="list-style-type: decimal;"><li>Edit the names shown for individual locations anywhere they might be used in a context related to time zones. For example, you can tell SMF to show "Qaanaaq" for the location "America/Thule" instead of "Thule".</li><li>Edit the names shown for different countries. This can be done by editing the relevant <code>iso3166[]</code> string.</li></ol>';
 $helptxt['languages_txt_for_email_templates'] = 'These language entries are used to create the email messages that SMF sends to your members.';
 $helptxt['languages_native_name'] = 'The language\'s name for itself, represented in its own script.';
 $helptxt['languages_character_set'] = 'The character encoding used for this language. As of SMF 2.1, this should always be "UTF-8".';
 $helptxt['languages_locale'] = 'The locale code is used to determine various formatting conventions, etc.<br><br>The locale code typically takes the form of a two character language code, optionally followed by an underscore and a two character country code. For example, <code>en</code> would identify generic English, while <code>en_AU</code> would identify Australian English in particular.';
 $helptxt['languages_rtl'] = 'Check this box if this language reads from right to left (e.g. Hebrew, Arabic).';
 $helptxt['languages_dictionary'] = 'This defines the main language dictionary that will be used by the <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> spellchecker (if installed).';
-$helptxt['languages_spelling'] = 'This defines the language variant that will be used by the <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> spellchecker. For many languages this is not applicable.';
-$helptxt['languages_recaptcha'] = 'The language code to use for the reCAPTCHA verification widget.<br><br>See Google\'s reCAPTCHA documentation for its <a href="https://developers.google.com/recaptcha/docs/language" target="_blank" class="bbc_link">list of supported languages</a>.';
-$helptxt['requireAgreement'] = 'This setting must be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" class="bbc_link">GDPR</a>.';
-$helptxt['requirePolicyAgreement'] = 'This setting must be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" class="bbc_link">GDPR</a>.';
+$helptxt['languages_recaptcha'] = 'The language code to use for the reCAPTCHA verification widget.<br><br>See Google\'s reCAPTCHA documentation for its <a href="https://developers.google.com/recaptcha/docs/language" target="_blank" rel="noopener" class="bbc_link">list of supported languages</a>.';
+// The GDPR page of the EU exists in several languages; change the language code at the end of the url
+$helptxt['requireAgreement'] = 'This setting is recommended to be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a>.';
+// The GDPR page of the EU exists in several languages; change the language code at the end of the url
+$helptxt['requirePolicyAgreement'] = 'This setting is recommended to be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a>.';
+$helptxt['gravatar'] = 'Gravatar is Globally Recognized Avatars. Register an account at <a href="https://www.gravatar.com" target="_blank" rel="noopener">https://www.gravatar.com</a> to select an avatar image. This avatar is then available at every site that supports gravatars. If you don\'t have a gravatar account, a default image will be used.';
 
 ?>

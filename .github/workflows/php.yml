@@ -1,0 +1,41 @@
+name: PHP Check
+
+on:
+  push:
+   branches:
+      - '*'
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v2
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      if: steps.composer-cache.outputs.cache-hit != 'true'
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    - run: php -v
+
+    - name: Checking for sign off (GPG also accepted)
+      run: php ./vendor/simplemachines/build-tools/check-signed-off.php
+
+    - name: Checking file integrity
+      run: |
+        php ./vendor/simplemachines/build-tools/check-eof.php
+        php ./vendor/simplemachines/build-tools/check-smf-license.php
+        php ./vendor/simplemachines/build-tools/check-smf-languages.php
+        php ./vendor/simplemachines/build-tools/check-version.php
+
+    - name: Lint PHP files
+      run: vendor/bin/phplint . --exclude=vendor -w

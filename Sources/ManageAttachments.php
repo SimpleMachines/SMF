@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -644,10 +644,12 @@ function list_getFiles($start, $items_per_page, $sort, $browse_type)
 				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE a.attachment_type = {int:attachment_type}
+				AND a.id_member = {int:guest_id_member}
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:per_page}',
 			array(
 				'attachment_type' => $browse_type == 'thumbs' ? '3' : '0',
+				'guest_id_member' => 0,
 				'sort' => $sort,
 				'start' => $start,
 				'per_page' => $items_per_page,

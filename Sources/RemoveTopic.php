@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -1207,7 +1207,7 @@ function RestoreTopic()
 			{
 				// Lets get the members that need their post count restored.
 				$request2 = $smcFunc['db_query']('', '
-					SELECT id_member, COUNT(id_msg) AS post_count
+					SELECT id_member, COUNT(*) AS post_count
 					FROM {db_prefix}messages
 					WHERE id_topic = {int:topic}
 						AND approved = {int:is_approved}

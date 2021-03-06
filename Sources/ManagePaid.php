@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -1957,7 +1957,7 @@ function loadSubscriptions()
 
 	// Do the counts.
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(id_sublog) AS member_count, id_subscribe, status
+		SELECT COUNT(*) AS member_count, id_subscribe, status
 		FROM {db_prefix}log_subscribed
 		GROUP BY id_subscribe, status',
 		array(

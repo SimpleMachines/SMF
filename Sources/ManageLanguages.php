@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -988,7 +988,7 @@ function ModifyLanguage()
 	}
 
 	// Saving primary settings?
-	$primary_settings = array('native_name' => 'string', 'lang_character_set' => 'string', 'lang_locale' => 'string', 'lang_rtl' => 'bool', 'lang_dictionary' => 'string', 'lang_spelling' => 'string', 'lang_recaptcha' => 'string');
+	$primary_settings = array('native_name' => 'string', 'lang_character_set' => 'string', 'lang_locale' => 'string', 'lang_rtl' => 'bool', 'lang_dictionary' => 'string', 'lang_recaptcha' => 'string');
 	$madeSave = false;
 	if (!empty($_POST['save_main']) && !$current_file)
 	{

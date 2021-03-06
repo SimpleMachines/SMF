@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -316,6 +316,23 @@ function quickFileWritable($file)
 	}
 
 	return is_writable($file);
+}
+
+/**
+ * Delete a file.  Check permissions first, just in case.
+ *
+ * @param string $file
+ */
+function deleteFile($file)
+{
+	if (!file_exists($file))
+		return;
+
+	quickFileWritable($file);
+
+	@unlink($file);
+
+	return;
 }
 
 /**

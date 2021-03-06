@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -284,7 +284,7 @@ function loadProfileFields($force_reload = false)
 
 					// Maybe they are trying to change their password as well?
 					$resetPassword = true;
-					if (isset($_POST['passwrd1']) && $_POST['passwrd1'] != '' && isset($_POST['passwrd2']) && $_POST['passwrd1'] == $_POST['passwrd2'] && validatePassword($_POST['passwrd1'], $value, array($cur_profile['real_name'], $user_info['username'], $user_info['name'], $user_info['email'])) == null)
+					if (isset($_POST['passwrd1']) && $_POST['passwrd1'] != '' && isset($_POST['passwrd2']) && $_POST['passwrd1'] == $_POST['passwrd2'] && validatePassword(un_htmlspecialchars($_POST['passwrd1']), $value, array($cur_profile['real_name'], $user_info['username'], $user_info['name'], $user_info['email'])) == null)
 						$resetPassword = false;
 
 					// Do the reset... this will send them an email too.
@@ -323,7 +323,7 @@ function loadProfileFields($force_reload = false)
 
 				// Let's get the validation function into play...
 				require_once($sourcedir . '/Subs-Auth.php');
-				$passwordErrors = validatePassword($value, $cur_profile['member_name'], array($cur_profile['real_name'], $user_info['username'], $user_info['name'], $user_info['email']));
+				$passwordErrors = validatePassword(un_htmlspecialchars($value), $cur_profile['member_name'], array($cur_profile['real_name'], $user_info['username'], $user_info['name'], $user_info['email']));
 
 				// Were there errors?
 				if ($passwordErrors != null)
@@ -1312,9 +1312,15 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				'action' => 'customfield_' . $row['col_name'],
 				'log_type' => 'user',
 				'extra' => array(
-					'previous' => !empty($user_profile[$memID]['options'][$row['col_name']]) ? $user_profile[$memID]['options'][$row['col_name']] : '',
+					'previous' => !empty($user_profile[$memID]['options'][$row['col_name']])
+						? $user_profile[$memID]['options'][$row['col_name']]
+						: '',
 					'new' => $value,
-					'applicator' => $user_info['id'],
+					// The applicator is the same as the member affected
+					// if we are registering a new member.
+					'applicator' => empty($user_info['id']) && $area == 'register'
+						? $memID
+						: $user_info['id'],
 					'member_affected' => $memID,
 				),
 			);
@@ -1956,7 +1962,7 @@ function notification($memID)
  */
 function alert_configuration($memID, $defaultSettings = false)
 {
-	global $txt, $context, $modSettings, $smcFunc, $sourcedir;
+	global $txt, $context, $modSettings, $smcFunc, $sourcedir, $user_profile;
 
 	if (!isset($context['token_check']))
 		$context['token_check'] = 'profile-nt' . $memID;
@@ -2031,7 +2037,7 @@ function alert_configuration($memID, $defaultSettings = false)
 	$group_options = array(
 		'board' => array(
 			array('check', 'msg_auto_notify', 'label' => 'after'),
-			array('check', 'msg_receive_body', 'label' => 'after'),
+			array(empty($modSettings['disallow_sendBody']) ? 'check' : 'hide', 'msg_receive_body', 'label' => 'after'),
 			array('select', 'msg_notify_pref', 'label' => 'before', 'opts' => array(
 				0 => $txt['alert_opt_msg_notify_pref_never'],
 				1 => $txt['alert_opt_msg_notify_pref_instant'],
@@ -2085,47 +2091,56 @@ function alert_configuration($memID, $defaultSettings = false)
 	// Now we have to do some permissions testing - but only if we're not loading this from the admin center
 	if (!empty($memID))
 	{
-		require_once($sourcedir . '/Subs-Members.php');
-		$perms_cache = array();
-		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}group_moderators
-			WHERE id_member = {int:memID}',
-			array(
-				'memID' => $memID,
-			)
-		);
+		require_once($sourcedir . '/Subs-Membergroups.php');
+		$user_groups = explode(',', $user_profile[$memID]['additional_groups']);
+		$user_groups[] = $user_profile[$memID]['id_group'];
+		$user_groups[] = $user_profile[$memID]['id_post_group'];
+		$group_permissions = array('manage_membergroups');
+		$board_permissions = array();
 
-		list ($can_mod) = $smcFunc['db_fetch_row']($request);
+		foreach ($alert_types as $group => $items)
+			foreach ($items as $alert_key => $alert_value)
+				if (isset($alert_value['permission']))
+				{
+					if (empty($alert_value['permission']['is_board']))
+						$group_permissions[] = $alert_value['permission']['name'];
+					else
+						$board_permissions[] = $alert_value['permission']['name'];
+				}
+		$member_groups = getGroupsWithPermissions($group_permissions, $board_permissions);
 
-		if (!isset($perms_cache['manage_membergroups']))
+		if (empty($member_groups['manage_membergroups']['allowed']))
 		{
-			$members = membersAllowedTo('manage_membergroups');
-			$perms_cache['manage_membergroups'] = in_array($memID, $members);
-		}
+			$request = $smcFunc['db_query']('', '
+				SELECT COUNT(*)
+				FROM {db_prefix}group_moderators
+				WHERE id_member = {int:memID}',
+				array(
+					'memID' => $memID,
+				)
+			);
 
-		if (!($perms_cache['manage_membergroups'] || $can_mod != 0))
-			unset($alert_types['members']['request_group']);
+			list ($is_group_moderator) = $smcFunc['db_fetch_row']($request);
+
+			if (empty($is_group_moderator))
+				unset($alert_types['members']['request_group']);
+		}
 
 		foreach ($alert_types as $group => $items)
 		{
 			foreach ($items as $alert_key => $alert_value)
 			{
-				if (!isset($alert_value['permission']))
-					continue;
-				if (!isset($perms_cache[$alert_value['permission']['name']]))
+				if (isset($alert_value['permission']))
 				{
-					$in_board = !empty($alert_value['permission']['is_board']) ? 0 : null;
-					$members = membersAllowedTo($alert_value['permission']['name'], $in_board);
-					$perms_cache[$alert_value['permission']['name']] = in_array($memID, $members);
-				}
+					$allowed = count(array_intersect($user_groups, $member_groups[$alert_value['permission']['name']]['allowed'])) != 0;
 
-				if (!$perms_cache[$alert_value['permission']['name']])
-					unset ($alert_types[$group][$alert_key]);
+					if (!$allowed)
+						unset($alert_types[$group][$alert_key]);
+				}
 			}
 
 			if (empty($alert_types[$group]))
-				unset ($alert_types[$group]);
+				unset($alert_types[$group]);
 		}
 	}
 
@@ -3150,8 +3165,6 @@ function profileLoadSignatureData()
 	elseif ($context['signature_limits']['max_image_width'] || $context['signature_limits']['max_image_height'])
 		$context['signature_warning'] = sprintf($txt['profile_error_signature_max_image_' . ($context['signature_limits']['max_image_width'] ? 'width' : 'height')], $context['signature_limits'][$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']);
 
-	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv'))));
-
 	if (empty($context['do_preview']))
 		$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br>', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
 	else
@@ -3199,7 +3212,7 @@ function profileLoadAvatarData()
 		'allow_server_stored' => (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride'])) && (allowedTo('profile_server_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any'))),
 		'allow_upload' => (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride'])) && (allowedTo('profile_upload_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any'))),
 		'allow_external' => (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride'])) && (allowedTo('profile_remote_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any'))),
-		'allow_gravatar' => !empty($modSettings['gravatarEnabled']) || !empty($modSettings['gravatarOverride']),
+		'allow_gravatar' => !empty($modSettings['gravatarEnabled']),
 	);
 
 	if ($context['member']['avatar']['allow_gravatar'] && (stristr($cur_profile['avatar'], 'gravatar://') || !empty($modSettings['gravatarOverride'])))
@@ -3207,7 +3220,7 @@ function profileLoadAvatarData()
 		$context['member']['avatar'] += array(
 			'choice' => 'gravatar',
 			'server_pic' => 'blank.png',
-			'external' => $cur_profile['avatar'] == 'gravatar://' || empty($modSettings['gravatarAllowExtraEmail']) || !empty($modSettings['gravatarOverride']) ? $cur_profile['email_address'] : substr($cur_profile['avatar'], 11)
+			'external' => $cur_profile['avatar'] == 'gravatar://' || empty($modSettings['gravatarAllowExtraEmail']) || (!empty($modSettings['gravatarOverride']) && substr($cur_profile['avatar'], 0, 11) != 'gravatar://') ? $cur_profile['email_address'] : substr($cur_profile['avatar'], 11)
 		);
 		$context['member']['avatar']['href'] = get_gravatar_url($context['member']['avatar']['external']);
 	}
@@ -4137,7 +4150,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 	if ($context['can_manage_membergroups'] && !allowedTo('admin_forum'))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(permission)
+			SELECT COUNT(*)
 			FROM {db_prefix}permissions
 			WHERE id_group = {int:selected_group}
 				AND permission = {string:admin_forum}

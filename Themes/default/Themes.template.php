@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -21,8 +21,8 @@ function template_main()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
-				', $txt['themeadmin_title'], '
+				<a href="', $scripturl, '?action=helpadmin;help=themes_manage" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
+				', $txt['themeadmin_install_title'], '
 			</h3>
 		</div>
 		<div class="information">
@@ -590,7 +590,7 @@ function template_set_settings()
 
 		echo '
 					<dt>
-						<label for="', $setting['id'], '">', !$titled_section ? '<strong>' : '', $setting['label'], !$titled_section ? '</strong>' : '', '</label>:';
+						<label for="options_', $setting['id'], '">', !$titled_section ? '<strong>' : '', $setting['label'], !$titled_section ? '</strong>' : '', '</label>:';
 
 		if (isset($setting['description']))
 			echo '<br>
@@ -604,7 +604,7 @@ function template_set_settings()
 			echo '
 					<dd>
 						<input type="hidden" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" value="0">
-						<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', ' value="1">
+						<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', ' value="1">
 					</dd>';
 
 		// A list with options?
@@ -612,7 +612,7 @@ function template_set_settings()
 		{
 			echo '
 					<dd>
-						<select name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '">';
+						<select name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '">';
 
 			foreach ($setting['options'] as $value => $label)
 				echo '
@@ -627,7 +627,7 @@ function template_set_settings()
 		{
 			echo '
 					<dd>
-						<textarea rows="4" style="width: 95%;" cols="40" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '">', $setting['value'], '</textarea>
+						<textarea rows="4" style="width: 95%;" cols="40" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '">', $setting['value'], '</textarea>
 					</dd>';
 		}
 		// A regular input box, then?
@@ -648,12 +648,14 @@ function template_set_settings()
 			elseif (isset($setting['type']) && $setting['type'] == 'url')
 				echo '
 						<input type="url"';
-
+			elseif (isset($setting['type']) && $setting['type'] == 'color')
+				echo '
+						<input type="color"';
 			else
 				echo '
 						<input type="text"';
 
-			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : (empty($setting['size']) ? ' size="40"' : ' size="' . $setting['size'] . '"'), '>
+			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : (empty($setting['size']) ? ' size="40"' : ' size="' . $setting['size'] . '"'), '>
 					</dd>';
 		}
 	}

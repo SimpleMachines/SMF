@@ -829,6 +829,19 @@ ALTER TABLE {$db_prefix}log_notify
 ADD INDEX id_topic (id_topic, id_member);
 ---#
 
+---# GDPR compliance settings.
+---{
+if (!isset($modSettings['requirePolicyAgreement']))
+{
+	upgrade_query("
+		INSERT INTO {$db_prefix}settings
+			(variable, value)
+		VALUES
+			('requirePolicyAgreement', '0')");
+}
+---}
+---#
+
 /******************************************************************************/
 --- Adding custom profile fields.
 /******************************************************************************/
@@ -3004,29 +3017,6 @@ ADD COLUMN email_address varchar(255) NOT NULL default '' AFTER membername;
 /******************************************************************************/
 --- Adjusting group types.
 /******************************************************************************/
-
----# Fixing the group types.
----{
-// Get the admin group type.
-$request = upgrade_query("
-	SELECT group_type
-	FROM {$db_prefix}membergroups
-	WHERE id_group = 1
-	LIMIT 1");
-list ($admin_group_type) = smf_mysql_fetch_row($request);
-smf_mysql_free_result($request);
-
-// Not protected means we haven't updated yet!
-if ($admin_group_type != 1)
-{
-	// Increase by one.
-	upgrade_query("
-		UPDATE {$db_prefix}membergroups
-		SET group_type = group_type + 1
-		WHERE group_type > 0");
-}
----}
----#
 
 ---# Changing the group type for Administrator group.
 UPDATE {$db_prefix}membergroups

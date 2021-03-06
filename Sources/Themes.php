@@ -24,7 +24,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -77,7 +77,6 @@ function ThemesMain()
 	{
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $txt['themeadmin_title'],
-			'help' => 'themes',
 			'description' => $txt['themeadmin_description'],
 			'tabs' => array(
 				'admin' => array(
@@ -832,7 +831,7 @@ function RemoveTheme()
 	if ($themeID == 1)
 		fatal_lang_error('no_access', false);
 
-	$theme_info = get_single_theme($themeID);
+	$theme_info = get_single_theme($themeID, array('theme_dir'));
 
 	// Remove it from the DB.
 	remove_theme($themeID);
@@ -1089,7 +1088,7 @@ function PickTheme()
 			$txt['theme_description'] = '';
 		}
 
-		$context['available_themes'][$id_theme]['thumbnail_href'] = sprintf($txt['theme_thumbnail_href'], $settings['images_url']);
+		$context['available_themes'][$id_theme]['thumbnail_href'] = $txt['theme_thumbnail_href'];
 		$context['available_themes'][$id_theme]['description'] = $txt['theme_description'];
 
 		// Are there any variants?
@@ -1324,6 +1323,8 @@ function InstallCopy()
 		'install_for' => '2.1 - 2.1.99, ' . SMF_VERSION,
 		'based_on' => '',
 		'based_on_dir' => $themedir . '/default',
+		'theme_layers' => 'html,body',
+		'theme_templates' => 'index',
 	);
 
 	// Create the specific dir.
@@ -1352,37 +1353,10 @@ function InstallCopy()
 	copytree($settings['default_theme_dir'] . '/images', $context['to_install']['theme_dir'] . '/images');
 	package_flush_cache();
 
-	// Lets get some data for the new theme.
-	$request = $smcFunc['db_query']('', '
-		SELECT variable, value
-		FROM {db_prefix}themes
-		WHERE variable IN ({string:theme_templates}, {string:theme_layers})
-			AND id_member = {int:no_member}
-			AND id_theme = {int:default_theme}',
-		array(
-			'no_member' => 0,
-			'default_theme' => 1,
-			'theme_templates' => 'theme_templates',
-			'theme_layers' => 'theme_layers',
-		)
-	);
-
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		if ($row['variable'] == 'theme_templates')
-			$theme_templates = $row['value'];
-		elseif ($row['variable'] == 'theme_layers')
-			$theme_layers = $row['value'];
-		else
-			continue;
-	}
-
-	$smcFunc['db_free_result']($request);
-
-	$context['to_install'] += array(
-		'theme_layers' => empty($theme_layers) ? 'html,body' : $theme_layers,
-		'theme_templates' => empty($theme_templates) ? 'index' : $theme_templates,
-	);
+	// Any data from the default theme that we want?
+	foreach (get_single_theme(1, array('theme_layers', 'theme_templates')) as $variable => $value)
+		if ($variable == 'theme_templates' || $variable == 'theme_layers')
+			$context['to_install'][$variable] = $value;
 
 	// Lets add a theme_info.xml to this theme.
 	$xml_info = '<' . '?xml version="1.0"?' . '>

@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -254,28 +254,40 @@ function smf_db_table_sql($tableName)
 	$schema_create = substr($schema_create, 0, -strlen($crlf) - 1);
 
 	$result = $smcFunc['db_query']('', '
-		SELECT CASE WHEN i.indisprimary THEN 1 ELSE 0 END AS is_primary, pg_get_indexdef(i.indexrelid) AS inddef
+		SELECT pg_get_indexdef(i.indexrelid) AS inddef
 		FROM pg_class AS c
 			INNER JOIN pg_index AS i ON (i.indrelid = c.oid)
 			INNER JOIN pg_class AS c2 ON (c2.oid = i.indexrelid)
-		WHERE c.relname = {string:table}',
+		WHERE c.relname = {string:table} AND i.indisprimary is {raw:pk}',
 		array(
 			'table' => $tableName,
+			'pk'	=> 'false',
 		)
 	);
 
 	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
-		if ($row['is_primary'])
-		{
-			if (preg_match('~\(([^\)]+?)\)~i', $row['inddef'], $matches) == 0)
-				continue;
-
-			$index_create .= $crlf . 'ALTER TABLE ' . $tableName . ' ADD PRIMARY KEY ("' . $matches[1] . '");';
-		}
-		else
-			$index_create .= $crlf . $row['inddef'] . ';';
+		$index_create .= $crlf . $row['inddef'] . ';';
 	}
+
+	$smcFunc['db_free_result']($result);
+
+	$result = $smcFunc['db_query']('', '
+		SELECT pg_get_constraintdef(c.oid) as pkdef
+		FROM pg_constraint as c
+		WHERE c.conrelid::regclass::text = {string:table} AND
+			c.contype = {string:constraintType}',
+		array(
+			'table' 			=> $tableName,
+			'constraintType'	=> 'p',
+		)
+	);
+
+	while ($row = $smcFunc['db_fetch_assoc']($result))
+	{
+		$index_create .= $crlf . 'ALTER TABLE ' . $tableName . ' ADD ' . $row['pkdef'] . ';';
+	}
+
 	$smcFunc['db_free_result']($result);
 
 	// Finish it off!

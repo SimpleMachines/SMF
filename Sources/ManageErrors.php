@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -137,7 +137,7 @@ function ViewErrorLog()
 	{
 		// We want all errors, not just the number of filtered messages...
 		$query = $smcFunc['db_query']('', '
-			SELECT COUNT(id_error)
+			SELECT COUNT(*)
 			FROM {db_prefix}log_errors',
 			array()
 		);

@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -93,7 +93,7 @@ function template_main()
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
 			<div id="post_area">
-				<div class="roundframe">', isset($context['current_topic']) ? '
+				<div class="roundframe noup">', isset($context['current_topic']) ? '
 					<input type="hidden" name="topic" value="' . $context['current_topic'] . '">' : '';
 
 	// If an error occurred, explain what happened.
@@ -137,80 +137,55 @@ function template_main()
 	// Are you posting a calendar event?
 	if ($context['make_event'])
 	{
+		// Note to theme writers: The JavaScripts expect the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
 		echo '
 					<hr class="clear">
 					<div id="post_event">
-						<fieldset id="event_main">
-							<legend><span', isset($context['post_error']['no_event']) ? ' class="error"' : '', '>', $txt['calendar_event_title'], '</span></legend>
-							<input type="hidden" name="calendar" value="1">
-							<div class="event_options_left" id="event_title">
-								<div>
-									<input type="text" id="evtitle" name="evtitle" maxlength="255" size="55" value="', $context['event']['title'], '" tabindex="', $context['tabindex']++, '">
-								</div>
-							</div>';
-
-		// If this is a new event let the user specify which board they want the linked post to be put into.
-		if ($context['event']['new'] && $context['is_new_post'])
-		{
-			echo '
-							<div class="event_options_right" id="event_board">
-								<div>
-									<span class="label">', $txt['calendar_post_in'], '</span>
-								<select name="board">';
-			foreach ($context['event']['categories'] as $category)
-			{
-				echo '
-										<optgroup label="', $category['name'], '">';
-
-				foreach ($category['boards'] as $board)
-					echo '
-											<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
-				echo '
-										</optgroup>';
-			}
-			echo '
-									</select>
-								</div>
-							</div><!-- #event_board -->';
-		}
-
-		// Note to theme writers: The JavaScripts expect the input fields for the start and end dates & times to be contained in a wrapper element with the id "event_time_input"
-		echo '
-						</fieldset>
 						<fieldset id="event_options">
-							<legend>', $txt['calendar_event_options'], '</legend>
-							<div class="event_options_left" id="event_time_input">
+							<legend', isset($context['post_error']['no_event']) ? ' class="error"' : '', '>', $txt['calendar_event_options'], '</legend>
+							<input type="hidden" name="calendar" value="1">
+							<div class="event_options" id="event_title">
 								<div>
-									<span class="label">', $txt['start'], '</span>
-									<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
-									<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
-								</div>
-								<div>
-									<span class="label">', $txt['end'], '</span>
-									<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
-									<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+									<span class="label">', $txt['calendar_event_title'], '</span>
+									<input type="text" id="evtitle" name="evtitle" maxlength="255" value="', $context['event']['title'], '" tabindex="', $context['tabindex']++, '">
 								</div>
 							</div>
-							<div class="event_options_right" id="event_time_options">
-								<div id="event_allday">
-									<label for="allday"><span class="label">', $txt['calendar_allday'], '</span></label>
-									<input type="checkbox" name="allday" id="allday"', !empty($context['event']['allday']) ? ' checked' : '', ' tabindex="', $context['tabindex']++, '">
+							<div class="event_options">
+								<div class="event_options_left" id="event_time_input">
+									<div>
+										<span class="label">', $txt['start'], '</span>
+										<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
+										<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+									</div>
+									<div>
+										<span class="label">', $txt['end'], '</span>
+										<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
+										<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+									</div>
 								</div>
-								<div id="event_timezone">
-									<span class="label">', $txt['calendar_timezone'], '</span>
-									<select name="tz" id="tz"', !empty($context['event']['allday']) ? ' disabled' : '', '>';
+								<div class="event_options_right" id="event_time_options">
+									<div id="event_allday">
+										<label for="allday"><span class="label">', $txt['calendar_allday'], '</span></label>
+										<input type="checkbox" name="allday" id="allday"', !empty($context['event']['allday']) ? ' checked' : '', ' tabindex="', $context['tabindex']++, '">
+									</div>
+									<div id="event_timezone">
+										<span class="label">', $txt['calendar_timezone'], '</span>
+										<select name="tz" id="tz"', !empty($context['event']['allday']) ? ' disabled' : '', '>';
 
-		foreach ($context['all_timezones'] as $tz => $tzname)
+			foreach ($context['all_timezones'] as $tz => $tzname)
+				echo '
+											<option', is_numeric($tz) ? ' value="" disabled' : ' value="' . $tz . '"', $tz === $context['event']['tz'] ? ' selected' : '', '>', $tzname, '</option>';
+
 			echo '
-										<option', is_numeric($tz) ? ' value="" disabled' : ' value="' . $tz . '"', $tz === $context['event']['tz'] ? ' selected' : '', '>', $tzname, '</option>';
-
-		echo '
-									</select>
+										</select>
+									</div>
 								</div>
-							</div><!-- #event_time_options -->
-							<div>
-								<span class="label">', $txt['location'], '</span>
-								<input type="text" name="event_location" id="event_location" maxlength="255" value="', $context['event']['location'], '" tabindex="', $context['tabindex']++, '">
+							</div>
+							<div class="event_options">
+								<div>
+									<span class="label">', $txt['location'], '</span>
+									<input type="text" name="event_location" id="event_location" maxlength="255" value="', $context['event']['location'], '" tabindex="', $context['tabindex']++, '">
+								</div>
 							</div>
 						</fieldset>
 					</div><!-- #post_event -->';
@@ -442,30 +417,9 @@ function template_main()
 			echo '
 										<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1024 . '">';
 
-		// Show more boxes if they aren't approaching that limit.
-		if ($context['num_allowed_attachments'] > 1)
-			echo '
-										<script>
-											var allowed_attachments = ', $context['num_allowed_attachments'], ';
-											var current_attachment = 1;
-
-											function addAttachment()
-											{
-												allowed_attachments = allowed_attachments - 1;
-												current_attachment = current_attachment + 1;
-												if (allowed_attachments <= 0)
-													return alert("', $txt['more_attachments_error'], '");
-
-												setOuterHTML(document.getElementById("moreAttachments"), \'<dd class="smalltext"><input type="file" name="attachment[]" id="attachment\' + current_attachment + \'"> (<a href="javascript:void(0);" onclick="cleanFileInput(\\\'attachment\' + current_attachment + \'\\\');">', $txt['clean_attach'], '<\/a>)\' + \'<\/dd><dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')<\' + \'/a><\' + \'/dd>\');
-
-												return true;
-											}
-										</script>
-										<a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a>
-									</div><!-- .fallback -->
-								</div><!-- #attachment_upload -->';
-
 		echo '
+									</div><!-- .fallback -->
+								</div><!-- #attachment_upload -->
 							</dd>';
 
 		// Add any template changes for an alternative upload system here.
@@ -500,7 +454,7 @@ function template_main()
 					</div><!-- #post_additional_options -->';
 
 	// If the admin enabled the drafts feature, show a draft selection box
-	if (!empty($modSettings['drafts_post_enabled']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
+	if (!empty($modSettings['drafts_post_enabled']) && !empty($context['drafts']) && !empty($modSettings['drafts_show_saved_enabled']) && !empty($options['drafts_show_saved_enabled']))
 	{
 		echo '
 					<div id="post_draft_options_header" class="title_bar">

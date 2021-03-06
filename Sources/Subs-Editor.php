@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -1379,46 +1379,6 @@ function legalise_bbc($text)
 }
 
 /**
- * Creates the javascript code for localization of the editor (SCEditor)
- */
-function loadLocale()
-{
-	global $context, $txt, $editortxt, $modSettings;
-
-	loadLanguage('Editor');
-
-	$context['template_layers'] = array();
-	// Lets make sure we aren't going to output anything nasty.
-	@ob_end_clean();
-	if (!empty($modSettings['enableCompressedOutput']))
-		@ob_start('ob_gzhandler');
-	else
-		@ob_start();
-
-	// If we don't have any locale better avoid broken js
-	if (empty($txt['lang_locale']))
-		die();
-
-	$file_data = '(function ($) {
-	\'use strict\';
-
-	$.sceditor.locale[' . JavaScriptEscape($txt['lang_locale']) . '] = {';
-	foreach ($editortxt as $key => $val)
-		$file_data .= '
-		' . JavaScriptEscape($key) . ': ' . JavaScriptEscape($val) . ',';
-
-	$file_data .= '
-		dateFormat: "day.month.year"
-	}
-})(jQuery);';
-
-	// Make sure they know what type of file we are.
-	header('content-type: text/javascript');
-	echo $file_data;
-	obExit(false);
-}
-
-/**
  * Retrieves a list of message icons.
  * - Based on the settings, the array will either contain a list of default
  *   message icons or a list of custom message icons retrieved from the database.
@@ -1563,6 +1523,25 @@ function create_control_richedit($editorOptions)
 		loadJavaScriptFile('editor.js', array('minimize' => true), 'smf_editor');
 		loadJavaScriptFile('jquery.sceditor.bbcode.min.js', array(), 'smf_sceditor_bbcode');
 		loadJavaScriptFile('jquery.sceditor.smf.js', array('minimize' => true), 'smf_sceditor_smf');
+
+		$scExtraLangs = '
+		$.sceditor.locale["' . $txt['lang_dictionary'] . '"] = {
+			"Width (optional):": "' . $editortxt['width'] . '",
+			"Height (optional):": "' . $editortxt['height'] . '",
+			"Insert": "' . $editortxt['insert'] . '",
+			"Description (optional):": "' . $editortxt['description'] . '",
+			"Rows:": "' . $editortxt['rows'] . '",
+			"Cols:": "' . $editortxt['cols'] . '",
+			"URL:": "' . $editortxt['url'] . '",
+			"E-mail:": "' . $editortxt['email'] . '",
+			"Video URL:": "' . $editortxt['video_url'] . '",
+			"More": "' . $editortxt['more'] . '",
+			"Close": "' . $editortxt['close'] . '",
+			dateFormat: "' . $editortxt['dateformat'] . '"
+		}';
+
+		addInlineJavaScript($scExtraLangs, true);
+
 		addInlineJavaScript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
 		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
@@ -1570,7 +1549,7 @@ function create_control_richedit($editorOptions)
 		var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';');
 
 		$context['shortcuts_text'] = $txt['shortcuts' . (!empty($context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (isBrowser('is_firefox') ? '_firefox' : ''))];
-		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_character_set'] == 'UTF-8' || function_exists('iconv'))));
+
 		if ($context['show_spellchecking'])
 		{
 			loadJavaScriptFile('spellcheck.js', array('minimize' => true), 'smf_spellcheck');
@@ -1583,6 +1562,11 @@ function create_control_richedit($editorOptions)
 		</form>';
 		}
 	}
+
+	// The [#] item code for creating list items causes issues with SCEditor, but [+] is a safe equivalent.
+	$editorOptions['value'] = str_replace('[#]', '[+]', $editorOptions['value']);
+	// Tabs are not shown in the SCEditor, replace with spaces.
+	$editorOptions['value'] = str_replace("\t", '    ', $editorOptions['value']);
 
 	// Start off the editor...
 	$context['controls']['richedit'][$editorOptions['id']] = array(
@@ -1599,7 +1583,7 @@ function create_control_richedit($editorOptions)
 		'bbc_level' => !empty($editorOptions['bbc_level']) ? $editorOptions['bbc_level'] : 'full',
 		'preview_type' => isset($editorOptions['preview_type']) ? (int) $editorOptions['preview_type'] : 1,
 		'labels' => !empty($editorOptions['labels']) ? $editorOptions['labels'] : array(),
-		'locale' => !empty($txt['lang_locale']) && substr($txt['lang_locale'], 0, 5) != 'en_US' ? $txt['lang_locale'] : '',
+		'locale' => !empty($txt['lang_dictionary']) && $txt['lang_dictionary'] != 'en' ? $txt['lang_dictionary'] : '',
 		'required' => !empty($editorOptions['required']),
 	);
 
@@ -1824,7 +1808,7 @@ function create_control_richedit($editorOptions)
 					{
 						$context['bbcodes_handlers'] .= ',
 							exec: function () {
-								this.insert(' . JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . JavaScriptEscape($tag['after']) : '') . ');
+								this.insertText(' . JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . JavaScriptEscape($tag['after']) : '') . ');
 							},
 							txtExec: [' . JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . JavaScriptEscape($tag['after']) : '') . ']';
 					}
@@ -1903,12 +1887,12 @@ function create_control_richedit($editorOptions)
 	$sce_options = array(
 		'width' => isset($editorOptions['width']) ? $editorOptions['width'] : '100%',
 		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '175px',
-		'style' => $settings[file_exists($settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css',
+		'style' => $settings[file_exists($settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css' . $context['browser_cache'],
 		'emoticonsCompat' => true,
 		'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
 		'format' => 'bbcode',
 		'plugins' => '',
-		'bbcodeTrim' => true,
+		'bbcodeTrim' => false,
 	);
 	if (!empty($context['controls']['richedit'][$editorOptions['id']]['locale']))
 		$sce_options['locale'] = $context['controls']['richedit'][$editorOptions['id']]['locale'];
@@ -1956,6 +1940,9 @@ function create_control_richedit($editorOptions)
 	}
 
 	$sce_options['toolbar'] = '';
+	$sce_options['parserOptions']['txtVars'] = [
+		'code' => $txt['code']
+	];
 	if (!empty($modSettings['enableBBC']))
 	{
 		$count_tags = count($context['bbc_tags']);

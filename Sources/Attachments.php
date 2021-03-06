@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -127,8 +127,6 @@ class Attachments
 	public function call()
 	{
 		global $smcFunc, $sourcedir;
-
-		isAllowedTo('post_attachment');
 
 		require_once($sourcedir . '/Subs-Attachments.php');
 
@@ -463,6 +461,12 @@ class Attachments
 			$this->_attachSuccess = $_SESSION['already_attached'];
 
 		unset($_SESSION['temp_attachments']);
+
+		// Allow user to see previews for all of this post's attachments, even if the post hasn't been submitted yet.
+		if (!isset($_SESSION['attachments_can_preview']))
+			$_SESSION['attachments_can_preview'] = array();
+		if (!empty($_SESSION['already_attached']))
+			$_SESSION['attachments_can_preview'] += array_fill_keys(array_keys($_SESSION['already_attached']), true);
 	}
 
 	/**

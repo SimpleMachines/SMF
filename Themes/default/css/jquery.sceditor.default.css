@@ -49,6 +49,9 @@ code::before {
 	top: -1.35em;
 	left: 0;
 }
+code[data-title]::before {
+	content: 'Code: (' attr(data-title) ')';
+}
 code {
 	margin-top: 1.5em;
 	position: relative;

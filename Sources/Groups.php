@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -285,12 +285,12 @@ function MembergroupMembers()
 	// Must be adding new members to the group...
 	elseif (isset($_REQUEST['add']) && (!empty($_REQUEST['toAdd']) || !empty($_REQUEST['member_add'])) && $context['group']['assignable'])
 	{
-		checkSession();
-		validateToken('mod-mgm');
-
 		// Demand an admin password before adding new admins -- every time, no matter what.
 		if ($context['group']['id'] == 1)
 			validateSession('admin', true);
+
+		checkSession();
+		validateToken('mod-mgm');
 
 		$member_query = array();
 		$member_parameters = array();

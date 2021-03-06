@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -122,7 +122,7 @@ function template_error_log()
 	foreach ($context['errors'] as $error)
 	{
 		echo '
-			<div class="windowbg">
+			<div class="windowbg word_break">
 				<div class="counter" style="padding: 0 10px 10px 0">', $error['id'], '</div>
 				<div class="topic_details">
 					<span class="floatright">

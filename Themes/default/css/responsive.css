@@ -56,15 +56,10 @@
 
 /* We have shared things... */
 @media screen and (max-width: 720px) {
-  /* Generic Classes for Customizations */
-	.hide_720 {
+	/* Remove some content from the hooks table */
+	#list_integration_hooks th#header_list_integration_hooks_function_name, #list_integration_hooks td.function_name,
+	#list_integration_hooks th#header_list_integration_hooks_remove, #list_integration_hooks td.remove {
 		display: none;
-	}
-	.block_720 {
-		display: block;
-	}
-	.inlineblock_720 {
-		display: inline-block;
 	}
 	/* New Mobile Action/Mod Pop (Test) */
 	.moderationbuttons_check {
@@ -174,6 +169,9 @@
 		padding: 5px 0 5px 0;
 		margin-right: 3px;
 	}
+	#languages_form {
+		padding-right: 10px;
+	}
 
 	/* BoardIndex */
 	.board_stats {
@@ -188,7 +186,7 @@
 		display: block;
 		min-height: 2em;
 	}
-	.lpr_border {
+	.up_contain .lastpost {
 		border-top: 1px solid #ddd;
 	}
 	.lastpost p {
@@ -224,8 +222,11 @@
 		display: none;
 	}
 	/* Unread */
-	#unread .board_icon, #unread .lastpost {
+	#unread .board_icon, #unread .lastpost, #unreadreplies .board_icon, #unreadreplies .lastpost {
 		display: none;
+	}
+	#unread .info, #unreadreplies .info {
+		padding-left: 5px;
 	}
 
 	/* Display (Topics) */
@@ -368,6 +369,20 @@
 	#private, #enclose {
 		width: 95%;
 	}
+	/* Edit Language */
+	#language_list .character_set {
+		display: none;
+	}
+	/* Generic Classes for Customizations */
+	.hide_720 {
+		display: none;
+	}
+	.block_720 {
+		display: block;
+	}
+	.inlineblock_720 {
+		display: inline-block;
+	}
 }
 
 /* Tricky menu */
@@ -402,16 +417,6 @@
 
 /* Entry level phones */
 @media (max-width: 480px) {
-  /* Generic Classes for Customizations */
-	.hide_480 {
-		display: none;
-	}
-	.block_480 {
-		display: block;
-	}
-	.inlineblock_480 {
-		display: inline-block;
-	}
 	/* This is general */
 	#main_menu .popup_container, #genericmenu .popup_container {
 		display: none;
@@ -560,7 +565,7 @@
 		width: 100%;
 		text-align: left;
 	}
-	.login #ajax_loginuser, .login #ajax_loginpass, .login #loginuser, .login #loginpass, select {
+	.login #ajax_loginuser, .login #ajax_loginpass, .login #loginuser, .login #loginpass, .login select {
 		width: 100%;
 	}
 
@@ -599,6 +604,10 @@
 	#advanced_search dt, #advanced_search dd {
 		width: 100%;
 		float: none;
+	}
+	#post_draft_options dl.settings dt, dl.settings dd {
+		width: 50%;
+		float: left;
 	}
 	dl.settings dd textarea, #report_comment {
 		width: 100%;
@@ -777,6 +786,16 @@
 	/* 3rd level menu tests */
 	.dropmenu li ul ul {
 		margin: 0 !important;
+	}
+	/* Generic Classes for Customizations */
+	.hide_480 {
+		display: none;
+	}
+	.block_480 {
+		display: block;
+	}
+	.inlineblock_480 {
+		display: inline-block;
 	}
 }
 

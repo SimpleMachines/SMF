@@ -160,7 +160,6 @@ $txt['user_settings_proceed'] = 'Finish';
 $txt['ftp_checking_writable'] = 'Checking files are writable';
 $txt['ftp_setup'] = 'FTP Connection Information';
 $txt['ftp_setup_info'] = 'This installer can connect via FTP to fix the files that need to be writable and are not. If this does not work for you, you will have to go in manually and make the files writable. Please note that this does not support SSL right now.';
-$txt['ftp_server_info'] = 'This should be the server and port for your FTP server.';
 $txt['ftp_setup_why'] = 'What is this step for?';
 $txt['ftp_setup_why_info'] = 'Some files need to be writable for SMF to work properly. This step allows you to let the installer make them writable for you. However, in some cases it will not work. In this case, please make the following files 777 (writable, 755 on some hosts):';
 $txt['ftp_setup_again'] = 'to test if these files are writable again.';
@@ -302,6 +301,7 @@ $txt['upgrade_json_completed'] = 'Convert to JSON Complete! Click Continue to Pr
 $txt['upgrade_executing'] = 'Executing:';
 $txt['upgrade_of'] = 'of';
 $txt['upgrade_admin_login'] = 'Admin Login:';
+$txt['upgrade_admin_disabled'] = '(DISABLED)';
 /* Same sentence, 3 different strings */
 $txt['upgrade_done'] = 'Upgrade complete. Now you are ready to use';
 $txt['upgrade_done2'] = 'your installation of SMF';

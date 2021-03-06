@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -1585,7 +1585,7 @@ function template_edit_options()
 		foreach ($context['custom_fields'] as $field)
 			echo '
 					<dt>
-						<strong>', $field['name'], ': </strong><br>
+						<strong>', $field['name'], '</strong><br>
 						<span class="smalltext">', $field['desc'], '</span>
 					</dt>
 					<dd>
@@ -1606,7 +1606,7 @@ function template_edit_options()
 		echo '
 				<dl class="settings">
 					<dt>
-						<strong', isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : '', '><label for="oldpasswrd">', $txt['current_password'], ': </label></strong><br>
+						<strong', isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : '', '><label for="oldpasswrd">', $txt['current_password'], '</label></strong><br>
 						<span class="smalltext">', $txt['required_security_reasons'], '</span>
 					</dt>
 					<dd>
@@ -2724,7 +2724,7 @@ function template_profile_group_manage()
 
 	echo '
 							<dt>
-								<strong>', $txt['primary_membergroup'], ': </strong><br>
+								<strong>', $txt['primary_membergroup'], '</strong><br>
 								<span class="smalltext"><a href="', $scripturl, '?action=helpadmin;help=moderator_why_missing" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ', $txt['moderator_why_missing'], '</a></span>
 							</dt>
 							<dd>
@@ -2742,7 +2742,7 @@ function template_profile_group_manage()
 								</select>
 							</dd>
 							<dt>
-								<strong>', $txt['additional_membergroups'], ':</strong>
+								<strong>', $txt['additional_membergroups'], '</strong>
 							</dt>
 							<dd>
 								<span id="additional_groupsList">
@@ -2775,7 +2775,7 @@ function template_profile_birthdate()
 	// Just show the pretty box!
 	echo '
 							<dt>
-								<strong>', $txt['dob'], ':</strong><br>
+								<strong>', $txt['dob'], '</strong><br>
 								<span class="smalltext">', $txt['dob_year'], ' - ', $txt['dob_month'], ' - ', $txt['dob_day'], '</span>
 							</dt>
 							<dd>
@@ -2794,21 +2794,21 @@ function template_profile_signature_modify()
 
 	echo '
 							<dt id="current_signature" style="display:none">
-								<strong>', $txt['current_signature'], ':</strong>
+								<strong>', $txt['current_signature'], '</strong>
 							</dt>
 							<dd id="current_signature_display" style="display:none">
 								<hr>
 							</dd>
 
 							<dt id="preview_signature" style="display:none">
-								<strong>', $txt['signature_preview'], ':</strong>
+								<strong>', $txt['signature_preview'], '</strong>
 							</dt>
 							<dd id="preview_signature_display" style="display:none">
 								<hr>
 							</dd>
 
 							<dt>
-								<strong>', $txt['signature'], ':</strong><br>
+								<strong>', $txt['signature'], '</strong><br>
 								<span class="smalltext">', $txt['sig_info'], '</span><br>
 								<br>';
 
@@ -2854,7 +2854,7 @@ function template_profile_signature_modify()
  */
 function template_profile_avatar_select()
 {
-	global $context, $txt, $modSettings;
+	global $context, $txt, $modSettings, $scripturl;
 
 	// Start with the upper menu
 	echo '
@@ -2863,7 +2863,7 @@ function template_profile_avatar_select()
 									<label for="avatar_upload_box">', $txt['personal_picture'], '</label>
 								</strong>';
 
-	if (empty($modSettings['gravatarOverride']))
+	if (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride']))
 		echo '
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_none" value="none"' . ($context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_none"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
@@ -2894,7 +2894,8 @@ function template_profile_avatar_select()
 	if (!empty($context['member']['avatar']['allow_gravatar']))
 		echo '
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"' . ($context['member']['avatar']['choice'] == 'gravatar' ? ' checked="checked"' : '') . '>
-								<label for="avatar_choice_gravatar"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['use_gravatar'] . '</label>';
+								<label for="avatar_choice_gravatar"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['use_gravatar'] . '</label>
+								<span class="smalltext"><a href="', $scripturl, '?action=helpadmin;help=gravatar" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span></a></span>';
 
 	echo '
 							</dt>
@@ -3064,7 +3065,7 @@ function template_profile_timeformat_modify()
 
 	echo '
 							<dt>
-								<strong><label for="easyformat">', $txt['time_format'], ':</label></strong><br>
+								<strong><label for="easyformat">', $txt['time_format'], '</label></strong><br>
 								<a href="', $scripturl, '?action=helpadmin;help=time_format" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 								<span class="smalltext">
 									<label for="time_format">', $txt['date_format'], '</label>
@@ -3093,7 +3094,7 @@ function template_profile_theme_pick()
 
 	echo '
 							<dt>
-								<strong>', $txt['current_theme'], ':</strong>
+								<strong>', $txt['current_theme'], '</strong>
 							</dt>
 							<dd>
 								', $context['member']['theme']['name'], ' <a class="button" href="', $scripturl, '?action=theme;sa=pick;u=', $context['id_member'], '">', $txt['change'], '</a>
@@ -3109,7 +3110,7 @@ function template_profile_smiley_pick()
 
 	echo '
 							<dt>
-								<strong><label for="smiley_set">', $txt['smileys_current'], ':</label></strong>
+								<strong><label for="smiley_set">', $txt['smileys_current'], '</label></strong>
 							</dt>
 							<dd>
 								<select name="smiley_set" id="smiley_set">';
@@ -3224,7 +3225,7 @@ function template_tfadisable()
 	if ($context['user']['is_owner'])
 		echo '
 					<div class="block">
-						<strong', (isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : ''), '>', $txt['current_password'], ': </strong><br>
+						<strong', (isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : ''), '>', $txt['current_password'], '</strong><br>
 						<input type="password" name="oldpasswrd" size="20">
 					</div>';
 	else
@@ -3270,7 +3271,7 @@ function template_profile_tfa()
 
 	echo '
 							<dt>
-								<strong>', $txt['tfa_profile_label'], ':</strong><br>
+								<strong>', $txt['tfa_profile_label'], '</strong><br>
 								<div class="smalltext">', $txt['tfa_profile_desc'], '</div>
 							</dt>
 							<dd>';

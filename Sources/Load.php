@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -449,6 +449,8 @@ function reloadSettings()
 		43200 => 'one_month',
 	);
 
+	$context['show_spellchecking'] = false;
+
 	// Call pre load integration functions.
 	call_integration_hook('integrate_pre_load');
 }
@@ -525,7 +527,7 @@ function loadUserSettings()
 		if (empty($cache_enable) || $cache_enable < 2 || ($user_settings = cache_get_data('user_settings-' . $id_member, 60)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT mem.*, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type
+				SELECT mem.*, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type, a.width AS "attachment_width", a.height AS "attachment_height" 
 				FROM {db_prefix}members AS mem
 					LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = {int:id_member})
 				WHERE mem.id_member = {int:id_member}
@@ -811,7 +813,9 @@ function loadUserSettings()
 			'url' => isset($user_settings['avatar']) ? $user_settings['avatar'] : '',
 			'filename' => empty($user_settings['filename']) ? '' : $user_settings['filename'],
 			'custom_dir' => !empty($user_settings['attachment_type']) && $user_settings['attachment_type'] == 1,
-			'id_attach' => isset($user_settings['id_attach']) ? $user_settings['id_attach'] : 0
+			'id_attach' => isset($user_settings['id_attach']) ? $user_settings['id_attach'] : 0,
+			'width' => isset($user_settings['attachment_width']) > 0 ? $user_settings['attachment_width']: 0,
+			'height' => isset($user_settings['attachment_height']) > 0 ? $user_settings['attachment_height'] : 0,
 		),
 		'smiley_set' => isset($user_settings['smiley_set']) ? $user_settings['smiley_set'] : '',
 		'messages' => empty($user_settings['instant_messages']) ? 0 : $user_settings['instant_messages'],
@@ -1401,7 +1405,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $user_info, $cache_enable;
+	global $user_info, $cache_enable, $txt;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1431,7 +1435,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 
 	// Used by default
 	$select_columns = '
-			COALESCE(lo.log_time, 0) AS is_online, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type,
+			COALESCE(lo.log_time, 0) AS is_online, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type, a.width "attachment_width", a.height "attachment_height",
 			mem.signature, mem.personal_text, mem.avatar, mem.id_member, mem.member_name,
 			mem.real_name, mem.email_address, mem.date_registered, mem.website_title, mem.website_url,
 			mem.birthdate, mem.member_ip, mem.member_ip2, mem.posts, mem.last_login, mem.id_post_group, mem.lngfile, mem.id_group, mem.time_offset, mem.timezone, mem.show_online,
@@ -1463,7 +1467,10 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			$select_tables = '';
 			break;
 		default:
-			trigger_error('loadMemberData(): Invalid member data set \'' . $set . '\'', E_USER_WARNING);
+		{
+			loadLanguage('Errors');
+			trigger_error(sprintf($txt['invalid_member_data_set'], $set), E_USER_WARNING);
+		}
 	}
 
 	// Allow mods to easily add to the selected member data
@@ -1610,7 +1617,8 @@ function loadMemberContext($user, $display_custom_fields = false)
 		return false;
 	if (!isset($user_profile[$user]))
 	{
-		trigger_error('loadMemberContext(): member id ' . $user . ' not previously loaded by loadMemberData()', E_USER_WARNING);
+		loadLanguage('Errors');
+		trigger_error(sprintf($txt['user_not_loaded'], $user), E_USER_WARNING);
 		return false;
 	}
 
@@ -1645,7 +1653,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		'name' => $profile['real_name'],
 		'id' => $profile['id_member'],
 		'href' => $scripturl . '?action=profile;u=' . $profile['id_member'],
-		'link' => '<a href="' . $scripturl . '?action=profile;u=' . $profile['id_member'] . '" title="' . $txt['profile_of'] . ' ' . $profile['real_name'] . '" ' . (!empty($modSettings['onlineEnable']) ? 'class="pm_icon"' : '') . '>' . $profile['real_name'] . '</a>',
+		'link' => '<a href="' . $scripturl . '?action=profile;u=' . $profile['id_member'] . '" title="' . $txt['profile_of'] . ' ' . $profile['real_name'] . '">' . $profile['real_name'] . '</a>',
 		'email' => $profile['email_address'],
 		'show_email' => !$user_info['is_guest'] && ($user_info['id'] == $profile['id_member'] || allowedTo('moderate_forum')),
 		'registered' => empty($profile['date_registered']) ? $txt['not_applicable'] : timeformat($profile['date_registered']),
@@ -1727,7 +1735,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 	// If the set isn't minimal then load their avatar as well.
 	if ($context['loadMemberContext_set'] != 'minimal')
 	{
-		if (!empty($modSettings['gravatarOverride']) || (!empty($modSettings['gravatarEnabled']) && stristr($profile['avatar'], 'gravatar://')))
+		if (!empty($modSettings['gravatarEnabled']) && (!empty($modSettings['gravatarOverride']) || stristr($profile['avatar'], 'gravatar://')))
 		{
 			if (!empty($modSettings['gravatarAllowExtraEmail']) && stristr($profile['avatar'], 'gravatar://') && strlen($profile['avatar']) > 11)
 				$image = get_gravatar_url($smcFunc['substr']($profile['avatar'], 11));
@@ -1751,7 +1759,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		if (!empty($image))
 			$memberContext[$user]['avatar'] = array(
 				'name' => $profile['avatar'],
-				'image' => '<img class="avatar" src="' . $image . '" alt="">',
+				'image' => '<img class="avatar" src="' . $image . '" alt="" loading="lazy" width="' . $profile['attachment_width'] . '" height = "'. $profile['attachment_height'] . '">',
 				'href' => $image,
 				'url' => $image,
 			);
@@ -2305,7 +2313,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'findmember',
 		'helpadmin',
 		'printpage',
-		'spellcheck',
 	);
 
 	// Parent action => array of areas
@@ -2688,7 +2695,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 	if (allowedTo('admin_forum') && isset($_REQUEST['debug']) && !in_array($sub_template_name, array('init', 'main_below')) && ob_get_length() > 0 && !isset($_REQUEST['xml']))
 	{
 		echo '
-<div class="warningbox">---- ', $sub_template_name, ' ends ----</div>';
+<div class="noticebox">---- ', $sub_template_name, ' ends ----</div>';
 	}
 }
 
@@ -3551,15 +3558,14 @@ function loadDatabase()
 /**
  * Try to load up a supported caching method. This is saved in $cacheAPI if we are not overriding it.
  *
- * @param array $overrideCache Try to use a different cache method other than that defined in $cache_accelerator.
+ * @param string $overrideCache Try to use a different cache method other than that defined in $cache_accelerator.
  * @param bool $fallbackSMF Use the default SMF method if the accelerator fails.
  * @return object|false A object of $cacheAPI, or False on failure.
  */
-function loadCacheAccelerator($overrideCache = array(), $fallbackSMF = true)
+function loadCacheAccelerator($overrideCache = '', $fallbackSMF = true)
 {
-	global $sourcedir, $cacheAPI, $cache_accelerator, $cache_enable;
-
-	$cacheAPIdir = $sourcedir . '/Cache';
+	global $cacheAPI, $cache_accelerator, $cache_enable;
+	global $sourcedir;
 
 	// Is caching enabled?
 	if (empty($cache_enable) && empty($overrideCache))
@@ -3572,25 +3578,17 @@ function loadCacheAccelerator($overrideCache = array(), $fallbackSMF = true)
 	elseif (is_null($cacheAPI))
 		$cacheAPI = false;
 
-	// Autoload hasn't been called yet :/
-	require_once($cacheAPIdir .'/CacheApi.php');
-	require_once($cacheAPIdir .'/CacheApiInterface.php');
-
-	$apis_dir = $cacheAPIdir .'/'. CacheApi::APIS_FOLDER;
+	require_once($sourcedir . '/Cache/CacheApi.php');
+	require_once($sourcedir . '/Cache/CacheApiInterface.php');
 
 	// What accelerator we are going to try.
 	$cache_class_name = !empty($cache_accelerator) ? $cache_accelerator : CacheApi::APIS_DEFAULT;
-
-	$file_to_load = $apis_dir . '/' . sprintf(CacheApi::APIS_BASENAME, $cache_class_name);
+	$fully_qualified_class_name = !empty($overrideCache) ? $overrideCache :
+		CacheApi::APIS_NAMESPACE . $cache_class_name;
 
 	// Do some basic tests.
-	if (file_exists($file_to_load))
+	if (class_exists($fully_qualified_class_name))
 	{
-		require_once($file_to_load);
-
-		$fully_qualified_class_name = !empty($overrideCache) ? $overrideCache :
-			CacheApi::APIS_NAMESPACE . $cache_class_name;
-
 		/* @var CacheApiInterface $cache_api */
 		$cache_api = new $fully_qualified_class_name();
 
@@ -3602,9 +3600,9 @@ function loadCacheAccelerator($overrideCache = array(), $fallbackSMF = true)
 		if (!$cache_api->isSupported())
 		{
 			// Can we save ourselves?
-			if (!empty($fallbackSMF) && is_null($overrideCache) &&
+			if (!empty($fallbackSMF) && $overrideCache == '' &&
 				$cache_class_name !== CacheApi::APIS_DEFAULT)
-				return loadCacheAccelerator(null, false);
+				return loadCacheAccelerator(CacheApi::APIS_NAMESPACE . CacheApi::APIS_DEFAULT, false);
 
 			return false;
 		}
@@ -3614,14 +3612,9 @@ function loadCacheAccelerator($overrideCache = array(), $fallbackSMF = true)
 
 		// Don't set this if we are overriding the cache.
 		if (empty($overrideCache))
-		{
 			$cacheAPI = $cache_api;
 
-			return $cacheAPI;
-		}
-
-		else
-			return $cache_api;
+		return $cache_api;
 	}
 
 	return false;
@@ -3640,8 +3633,6 @@ function loadCacheAccelerator($overrideCache = array(), $fallbackSMF = true)
 function cache_quick_get($key, $file, $function, $params, $level = 1)
 {
 	global $modSettings, $sourcedir, $cache_enable;
-
-	// @todo Why are we doing this if caching is disabled?
 
 	if (function_exists('call_integration_hook'))
 		call_integration_hook('pre_cache_quick_get', array(&$key, &$file, &$function, &$params, &$level));
@@ -3720,7 +3711,7 @@ function cache_put_data($key, $value, $ttl = 120)
  *
  * @param string $key The key for the value to retrieve
  * @param int $ttl The maximum age of the cached data
- * @return string|null The cached data or null if nothing was loaded
+ * @return array|null The cached data or null if nothing was loaded
  */
 function cache_get_data($key, $ttl = 120)
 {
@@ -3728,7 +3719,7 @@ function cache_get_data($key, $ttl = 120)
 	global $cache_hits, $cache_count, $cache_misses, $cache_count_misses, $db_show_debug;
 
 	if (empty($cache_enable) || empty($cacheAPI))
-		return;
+		return null;
 
 	$cache_count = isset($cache_count) ? $cache_count + 1 : 1;
 	if (isset($db_show_debug) && $db_show_debug === true)
@@ -3812,7 +3803,7 @@ function set_avatar_data($data = array())
 	$image = '';
 
 	// Gravatar has been set as mandatory!
-	if (!empty($modSettings['gravatarOverride']))
+	if (!empty($modSettings['gravatarEnabled']) && !empty($modSettings['gravatarOverride']))
 	{
 		if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($data['avatar']) && stristr($data['avatar'], 'gravatar://'))
 			$image = get_gravatar_url($smcFunc['substr']($data['avatar'], 11));
@@ -3881,7 +3872,7 @@ function set_avatar_data($data = array())
  */
 function get_auth_secret()
 {
-	global $auth_secret, $sourcedir, $smcFunc;
+	global $context, $auth_secret, $sourcedir, $boarddir, $smcFunc, $db_last_error, $txt;
 
 	if (empty($auth_secret))
 	{
@@ -3889,8 +3880,23 @@ function get_auth_secret()
 
 		// It is important to store this in Settings.php, not the database.
 		require_once($sourcedir . '/Subs-Admin.php');
-		updateSettingsFile(array('auth_secret' => $auth_secret));
+
+		// Did this fail?  If so, we should alert, log and set a static value.
+		if (!updateSettingsFile(array('auth_secret' => $auth_secret)))
+		{
+			$context['auth_secret_missing'] = true;
+			$auth_secret = hash_file('sha256', $boarddir . '/Settings.php');
+
+			// Set the last error to now, but only every 15 minutes.  Don't need to flood the logs.
+			if (empty($db_last_error) || ($db_last_error + 60*15) <= time())
+			{
+				updateDbLastError(time());
+				loadLanguage('Errors');
+				log_error($txt['auth_secret_missing'], 'critical');
+			}
+		}
 	}
+
 
 	return $auth_secret;
 }

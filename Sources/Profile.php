@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -222,8 +222,8 @@ function ModifyProfile($post_errors = array())
 					'function' => 'viewWarning',
 					'icon' => 'warning',
 					'permission' => array(
-						'own' => array('profile_warning_own', 'profile_warning_any', 'issue_warning', 'moderate_forum'),
-						'any' => array('profile_warning_any', 'issue_warning', 'moderate_forum'),
+						'own' => array('view_warning_own', 'view_warning_any', 'issue_warning', 'moderate_forum'),
+						'any' => array('view_warning_any', 'issue_warning', 'moderate_forum'),
 					),
 				),
 			),
@@ -680,7 +680,7 @@ function ModifyProfile($post_errors = array())
 			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $password, false)), true);
 
 			// Bad password!!!
-			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], un_htmlspecialchars(stripslashes($password)), $user_info['passwd']))
+			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], $password, $user_info['passwd']))
 				$post_errors[] = 'bad_password';
 
 			// Warn other elements not to jump the gun and do custom changes!
@@ -1046,7 +1046,7 @@ function loadCustomFields($memID, $area = 'summary')
 		else
 		{
 			@list ($rows, $cols) = @explode(',', $row['default_value']);
-			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($row['show_reg'] == 2 ? ' required' : '') . '>' . un_htmlspecialchars($value) . '</textarea>';
+			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($row['field_length'] != 0 ? ' maxlength="' . $row['field_length'] . '"' : '') . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($row['show_reg'] == 2 ? ' required' : '') . '>' . un_htmlspecialchars($value) . '</textarea>';
 		}
 
 		// Parse BBCode

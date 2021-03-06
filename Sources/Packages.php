@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -957,7 +957,7 @@ function PackageInstall()
 			if ($id != 1 && !in_array($id, $old_themes))
 				unset($theme_paths[$id]);
 
-		$context['keep_url'] = $scripturl . '?action=admin;area=packages;sa=browse;' . $context['session_var'] . '=' . $context['session_id'];	
+		$context['keep_url'] = $scripturl . '?action=admin;area=packages;sa=browse;' . $context['session_var'] . '=' . $context['session_id'];
 		$context['remove_url'] = $scripturl . '?action=admin;area=packages;sa=remove;package=' . $context['filename'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 	}
 	elseif (isset($old_version) && $old_version != $packageInfo['version'])
@@ -1414,7 +1414,7 @@ function PackageBrowse()
 				'id' . $type => array(
 					'header' => array(
 						'value' => $txt['package_id'],
-						'style' => 'width: 40px;',
+						'style' => 'width: 52px;',
 					),
 					'data' => array(
 						'db' => 'sort_id',
@@ -1816,7 +1816,7 @@ function PackageOptions()
  */
 function ViewOperations()
 {
-	global $context, $txt, $sourcedir, $packagesdir, $smcFunc, $modSettings;
+	global $context, $txt, $sourcedir, $packagesdir, $smcFunc, $modSettings, $settings;
 
 	// Can't be in here buddy.
 	isAllowedTo('admin_forum');
@@ -1926,6 +1926,18 @@ function ViewOperations()
 	// No layers
 	$context['template_layers'] = array();
 	$context['sub_template'] = 'view_operations';
+
+	// We only want to load these three JavaScript files.
+	$context['javascript_files'] = array_intersect_key(
+		$context['javascript_files'],
+		[
+			'smf_script' => true,
+			'smf_jquery' => true
+		]
+	);
+
+	// Since the alerts code is loaded very late in the process, it must be disabled seperately.
+	$settings['disable_files'] = ['smf_alerts'];
 }
 
 /**

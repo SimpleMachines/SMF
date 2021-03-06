@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2020 Simple Machines and individual contributors
+ * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 RC3
@@ -141,6 +141,8 @@ class xmlArray
 	 */
 	public function path($path, $return_full = false)
 	{
+		global $txt;
+
 		// Split up the path.
 		$path = explode('/', $path);
 
@@ -172,7 +174,10 @@ class xmlArray
 
 					// Cause an error.
 					if ($this->debug_level & E_NOTICE)
-						trigger_error('Undefined XML attribute: ' . substr($el, 1) . $debug, E_USER_NOTICE);
+					{
+						loadLanguage('Errors');
+						trigger_error(sprintf($txt['undefined_xml_attribute'], substr($el, 1) . $debug), E_USER_NOTICE);
+					}
 					return false;
 				}
 			}
@@ -675,6 +680,8 @@ class xmlArray
 	 */
 	protected function _path($array, $path, $level, $no_error = false)
 	{
+		global $txt;
+
 		// Is $array even an array?  It might be false!
 		if (!is_array($array))
 			return false;
@@ -716,7 +723,10 @@ class xmlArray
 
 			// Cause an error.
 			if ($this->debug_level & E_NOTICE && !$no_error)
-				trigger_error('Undefined XML element: ' . $path . $debug, E_USER_NOTICE);
+			{
+				loadLanguage('Errors');
+				trigger_error(sprintf($txt['undefined_xml_element'], $path . $debug), E_USER_NOTICE);
+			}
 			return false;
 		}
 		// Only one result.
