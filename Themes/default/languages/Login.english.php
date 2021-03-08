@@ -150,4 +150,9 @@ $txt['registration_errors_occurred'] = 'The following errors were detected in yo
 $txt['registration_agreement_missing'] = 'The registration agreement file, agreement.txt, is either missing or empty. Registrations have been disabled until this is fixed';
 $txt['registration_policy_missing'] = 'The privacy policy is either missing or empty. Registrations have been disabled until this is fixed';
 
+// Logout
+$txt['logout_confirm'] = 'Are you sure you want to log out?';
+$txt['logout_notice'] = 'You are about to be logged out of the forum and continue browsing as a guest!';
+$txt['logout_return'] = 'Stay logged in and return to browsing as a member.';
+
 ?>

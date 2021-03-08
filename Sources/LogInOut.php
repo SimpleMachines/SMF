@@ -31,7 +31,13 @@ function Login()
 
 	// You are already logged in, go take a tour of the boards
 	if (!empty($user_info['id']))
-		redirectexit();
+	{
+ 		// This came from a valid hashed return url.  Or something that knows our secrets...
+ 		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
+			redirectexit(un_htmlspecialchars($_REQUEST['return_to']));
+		else
+			redirectexit();
+	}
 
 	// We need to load the Login template/language file.
 	loadLanguage('Login');
@@ -60,6 +66,9 @@ function Login()
 	// Set the login URL - will be used when the login process is done (but careful not to send us to an attachment).
 	if (isset($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'dlattach') === false && preg_match('~(board|topic)[=,]~', $_SESSION['old_url']) != 0)
 		$_SESSION['login_url'] = $_SESSION['old_url'];
+	// This came from a valid hashed return url.  Or something that knows our secrets...
+	elseif (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
+		$_SESSION['login_url'] = un_htmlspecialchars($_REQUEST['return_to']);
 	elseif (isset($_SESSION['login_url']) && strpos($_SESSION['login_url'], 'dlattach') !== false)
 		unset($_SESSION['login_url']);
 
@@ -148,7 +157,7 @@ function Login2()
 			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
 		elseif (!empty($_SESSION['login_url']) && (strpos($_SESSION['login_url'], 'http://') === false && strpos($_SESSION['login_url'], 'https://') === false))
 		{
-			unset ($_SESSION['login_url']);
+			unset($_SESSION['login_url']);
 			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
 		}
 		elseif (!empty($user_settings['tfa_secret']))
@@ -665,8 +674,31 @@ function Logout($internal = false, $redirect = true)
 {
 	global $sourcedir, $user_info, $user_settings, $context, $smcFunc, $cookiename, $modSettings;
 
+	// They decided to cancel a logout?
+	if (!$internal && isset($_POST['cancel']) && isset($_GET[$context['session_var']]))
+		redirectexit(!empty($_SESSION['logout_return']) ? $_SESSION['logout_return'] : '');
+	// Prompt to logout?
+	elseif (!$internal && !isset($_GET[$context['session_var']]))
+	{
+		loadLanguage('Login');
+		loadTemplate('Login');
+		$context['sub_template'] = 'logout';
+
+		// This came from a valid hashed return url.  Or something that knows our secrets...
+		if (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', un_htmlspecialchars($_REQUEST['return_to']), get_auth_secret()) == $_REQUEST['return_hash'])
+		{
+			$_SESSION['logout_url'] = un_htmlspecialchars($_REQUEST['return_to']);
+			$_SESSION['logout_return'] = $_SESSION['logout_url'];
+		}
+		// Setup the return address.
+		else
+			$_SESSION['logout_return'] = $_SESSION['old_url'];
+
+		// Don't go any further.
+		return;
+	}
 	// Make sure they aren't being auto-logged out.
-	if (!$internal)
+	elseif (!$internal && isset($_GET[$context['session_var']]))
 		checkSession('get');
 
 	require_once($sourcedir . '/Subs-Auth.php');
