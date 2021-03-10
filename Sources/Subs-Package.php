@@ -1586,12 +1586,12 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
  * - supports lower and upper bounds. (1.0-1.2)
  * - returns true if the version matched.
  *
- * @param string[] $versions The SMF versions
+ * @param string $versions The versions that this package will install on
  * @param boolean $reset Whether to reset $near_version
- * @param string $the_version
+ * @param string $the_version The forum version
  * @return string|bool Highest install value string or false
  */
-function matchHighestPackageVersion(array $versions, $reset, $the_version)
+function matchHighestPackageVersion($versions, $reset, $the_version)
 {
 	static $near_version = 0;
 
