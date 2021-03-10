@@ -1362,7 +1362,7 @@ function UpgradeOptions()
 	// If $boardurl reflects https, set force_ssl
 	if (!function_exists('cache_put_data'))
 		require_once($sourcedir . '/Load.php');
-	if (stripos($boardurl, 'https://') !== false)
+	if (stripos($boardurl, 'https://') !== false && !isset($modSettings['force_ssl']))
 		updateSettings(array('force_ssl' => '1'));
 
 	// If we're overriding the language follow it through.
