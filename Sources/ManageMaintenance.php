@@ -1878,9 +1878,9 @@ function list_integration_hooks()
 
 			remove_integration_function($_REQUEST['hook'], $function_remove);
 			add_integration_function($_REQUEST['hook'], $function_add);
-
-			redirectexit('action=admin;area=maintain;sa=hooks' . $context['filter_url']);
 		}
+
+		redirectexit('action=admin;area=maintain;sa=hooks' . $context['filter_url']);
 	}
 
 	createToken('admin-hook', 'request');
@@ -1955,7 +1955,7 @@ function list_integration_hooks()
 					{
 						$change_status = array('before' => '', 'after' => '');
 
-						$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
+						$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['real_function']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
 						$change_status['after'] = '</a>';
 
 						return $change_status['before'] . '<span class="main_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>';
