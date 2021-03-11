@@ -2758,7 +2758,6 @@ dl.addrules dt.floatleft {
 	background: none;
 	margin: 0;
 	height: auto; /* In case anything fishy happens in the situations where this used make sure it stays still */
-	z-index: 10;
 }
 #main_menu .popup_window, #genericmenu .popup_window {
 	position: relative;
@@ -2771,6 +2770,9 @@ dl.addrules dt.floatleft {
 	margin: 0;
 	top: 0;
 	padding: 0;
+}
+#main_menu .popup_container {
+	z-index: 10;
 }
 .main_icons.hide_popup {
 	float: right;
