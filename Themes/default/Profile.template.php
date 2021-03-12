@@ -2701,7 +2701,7 @@ function template_error_message()
 		{
 			$text_key_error = $error == 'password_short' ?
 				sprintf($txt['profile_error_' . $error], (empty($modSettings['password_strength']) ? 4 : 8)) :
-				$txt['profile_error_' . $error];
+				(isset($txt['profile_error_' . $error]) ? $txt['profile_error_' . $error] : '');
 
 			echo '
 				<li>', isset($txt['profile_error_' . $error]) ? $text_key_error : $error, '</li>';
