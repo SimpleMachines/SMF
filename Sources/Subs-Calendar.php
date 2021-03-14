@@ -39,8 +39,7 @@ function getBirthdayRange($low_date, $high_date)
 		$result = $smcFunc['db_query']('birthday_array', '
 			SELECT id_member, real_name, YEAR(birthdate) AS birth_year, birthdate
 			FROM {db_prefix}members
-			WHERE YEAR(birthdate) != {string:year_one}
-				AND MONTH(birthdate) != {int:no_month}
+			WHERE MONTH(birthdate) != {int:no_month}
 				AND DAYOFMONTH(birthdate) != {int:no_day}
 				AND YEAR(birthdate) <= {int:max_year}
 				AND (
@@ -52,7 +51,6 @@ function getBirthdayRange($low_date, $high_date)
 				'is_activated' => 1,
 				'no_month' => 0,
 				'no_day' => 0,
-				'year_one' => '1004',
 				'year_low' => $year_low . '-%m-%d',
 				'year_high' => $year_high . '-%m-%d',
 				'low_date' => $low_date,
@@ -703,15 +701,25 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 	// Give birthdays and holidays a friendly format, without the year
 	$date_format = str_replace(array('%Y', '%y', '%G', '%g', '%C', '%c', '%D'), array('', '', '', '', '', '%b %d', '%m/%d'), get_date_or_time_format('date'));
 
+	// timeformat() uses $user_info to get the format
+	if (isset($user_info['time_format']))
+		$saved_dt_format = $user_info['time_format'];
+	$user_info['time_format'] = $date_format;
 	foreach (array('birthdays', 'holidays') as $type)
 	{
 		foreach ($calendarGrid[$type] as $date => $date_content)
 		{
-			$date_local = preg_replace('~(?<=\s)0+(\d)~', '$1', trim(timeformat(strtotime($date), $date_format), " \t\n\r\0\x0B,./;:<>()[]{}\\|-_=+"));
+			// Make sure to apply no offsets
+			$date_local = preg_replace('~(?<=\s)0+(\d)~', '$1', trim(timeformat(strtotime($date), true, true), " \t\n\r\0\x0B,./;:<>()[]{}\\|-_=+"));
 
 			$calendarGrid[$type][$date]['date_local'] = $date_local;
 		}
 	}
+	// Restore it exactly as you found it
+	if (isset($saved_dt_format))
+		$user_info['time_format'] = $saved_dt_format;
+	else
+		unset($user_info['time_format']);
 
 	loadDatePicker('#calendar_range .date_input');
 	loadDatePair('#calendar_range', 'date_input', '');
