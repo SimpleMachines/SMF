@@ -243,8 +243,8 @@
 		float: none;
 	}
 	.bbc_img.resized {
-		max-width: 250px;
-		max-height: 300px;
+		width: auto;
+		height: auto;
 	}
 	img.icon, #forumposts .catbg img {
 		display: none;
