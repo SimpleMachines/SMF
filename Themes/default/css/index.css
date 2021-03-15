@@ -2771,9 +2771,6 @@ dl.addrules dt.floatleft {
 	top: 0;
 	padding: 0;
 }
-#main_menu .popup_container {
-	z-index: 10;
-}
 .main_icons.hide_popup {
 	float: right;
 }
