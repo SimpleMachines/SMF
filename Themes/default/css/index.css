@@ -434,8 +434,8 @@ blockquote cite::before {
 .bbc_img.original_size {
 	height: auto !important;
 	width: auto !important;
-	max-height: none;
-	max-width: 100%;
+	max-height: none !important;
+	max-width: 100% !important;
 }
 /* No image should have a border when linked. */
 a img {
