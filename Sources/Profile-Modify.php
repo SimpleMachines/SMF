@@ -764,7 +764,7 @@ function setupProfileContext($fields)
 	var form_handle = document.forms.creator;
 	createEventListener(form_handle);
 	' . (!empty($context['require_password']) ? '
-	form_handle.addEventListener("submit, function(event)
+	form_handle.addEventListener("submit", function(event)
 	{
 		if (this.oldpasswrd.value == "")
 		{
