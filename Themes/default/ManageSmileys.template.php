@@ -104,7 +104,7 @@ function template_modifysmiley()
 	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
-	<form action="', $scripturl, '?action=admin;area=smileys;sa=editsmileys" method="post" accept-charset="', $context['character_set'], '" name="smileyForm" id="smileyForm">
+	<form action="', $scripturl, '?action=admin;area=smileys;sa=editsmileys" method="post" accept-charset="', $context['character_set'], '" name="smileyForm" id="smileyForm" enctype="multipart/form-data">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['smiley_modify_existing'], '</h3>
 		</div>
@@ -152,6 +152,7 @@ function template_modifysmiley()
 
 			echo '
 					</select>
+					<input type="file" name="smiley_upload[', $set, ']" id="smiley_upload_', $set, '">
 				</dd>';
 		}
 	}
@@ -266,28 +267,29 @@ function template_addsmiley()
 			<fieldset id="ul_settings" style="display: none;">
 				<dl class="settings">
 					<dt>
+						<a href="', $scripturl, '?action=helpadmin;help=smiley_sameall" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a>
 						<strong><label for="sameall">', $txt['smileys_add_upload_all'], ':</label></strong>
 					</dt>
 					<dd>
-						<input type="checkbox" name="sameall" id="sameall" onclick="swapUploads(); selectMethod(\'upload\');">
+						<input type="checkbox" name="sameall" id="sameall" onclick="swapUploads(); selectMethod(\'upload\');" checked>
 					</dd>
 					<dt>
 						<strong>', $txt['smileys_add_upload_choose'], ':</strong>
 					</dt>
-					<dt class="upload_sameall" style="display: none;">
+					<dt class="upload_sameall">
 						', $txt['smileys_add_upload_choose_desc'], '
 					</dt>
-					<dd class="upload_sameall" style="display: none;">
-						<input type="file" name="uploadSmiley" id="uploadSmiley" disabled onchange="selectMethod(\'upload\');">
+					<dd class="upload_sameall">
+						<input type="file" name="uploadSmiley" id="uploadSmiley" onchange="selectMethod(\'upload\');">
 					</dd>';
 
 	foreach ($context['smiley_sets'] as $smiley_set)
 		echo '
-					<dt class="upload_more">
+					<dt class="upload_more" style="display: none;">
 						', sprintf($txt['smileys_add_upload_for'], '<strong>' . $smiley_set['name'] . '</strong>'), ':
 					</dt>
-					<dd class="upload_more">
-						<input type="file" name="individual_', $smiley_set['path'], '" onchange="selectMethod(\'upload\');">
+					<dd class="upload_more" style="display: none;">
+						<input type="file" name="individual_', $smiley_set['path'], '" disabled onchange="selectMethod(\'upload\');">
 					</dd>';
 
 	echo '

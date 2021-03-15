@@ -926,8 +926,10 @@ function EditSmileys()
 
 	// Force the correct tab to be displayed.
 	$context[$context['admin_menu_name']]['current_subsection'] = 'editsmileys';
+	$context['smileys_dir'] = empty($modSettings['smileys_dir']) ? $boarddir . '/Smileys' : $modSettings['smileys_dir'];
 
 	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
+	$disabledFiles = array('con', 'com1', 'com2', 'com3', 'com4', 'prn', 'aux', 'lpt1', '.htaccess', 'index.php');
 	$known_sets = explode(',', $modSettings['smiley_sets_known']);
 
 	// Submitting a form?
@@ -1010,6 +1012,58 @@ function EditSmileys()
 				// Make sure some code was entered.
 				if (empty($_POST['smiley_code']))
 					fatal_lang_error('smiley_has_no_code');
+
+				// If upload a new smiley image, check that smiley set folders are writable for the sets with new images.
+				$writeErrors = array();
+				foreach ($_FILES['smiley_upload']['name'] as $set => $name)
+				{
+					if (!empty($name))
+						if (!is_writable($context['smileys_dir'] . '/' . $set))
+							$writeErrors[] = $set['path'];
+				}
+
+				if (!empty($writeErrors))
+					fatal_lang_error('smileys_upload_error_notwritable', true, array(implode(', ', $writeErrors)));
+
+				foreach ($known_sets as $set)
+				{
+					if (!isset($_FILES['smiley_upload']['name'][$set]) || empty($_FILES['smiley_upload']['name'][$set]))
+						continue;
+
+					// Got a new image for this set
+					if (!is_uploaded_file($_FILES['smiley_upload']['tmp_name'][$set]) || (ini_get('open_basedir') == '' && !file_exists($_FILES['smiley_upload']['tmp_name'][$set])))
+						fatal_lang_error('smileys_upload_error');
+
+					// Sorry, no spaces, dots, or anything else but letters allowed.
+					$_FILES['smiley_upload']['name'][$set] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['smiley_upload']['name'][$set]);
+
+					// We only allow image files - it's THAT simple - no messing around here...
+					if (!in_array(strtolower(pathinfo($_FILES['smiley_upload']['name'][$set], PATHINFO_EXTENSION)), $allowedTypes))
+						fatal_lang_error('smileys_upload_error_types', false, array(implode(', ', $allowedTypes)));
+
+					// We only need the filename...
+					$destName = basename($_FILES['smiley_upload']['name'][$set]);
+
+					// Make sure they aren't trying to upload a nasty file - for their own good here!
+					if (in_array(strtolower($destName), $disabledFiles))
+						fatal_lang_error('smileys_upload_error_illegal');
+
+					// If the file exists - ignore it.
+					$smileyLocation = $context['smileys_dir'] . '/' . $set . '/' . $destName;
+					if (!file_exists($smileyLocation))
+					{
+						// Finally - move the image!
+						move_uploaded_file($_FILES['smiley_upload']['tmp_name'][$set], $smileyLocation);
+						smf_chmod($smileyLocation, 0644);
+					}
+
+					// Double-check
+					if (!file_exists($smileyLocation))
+						fatal_lang_error('smiley_not_found');
+
+					// Overwrite smiley filename with uploaded filename
+					$_POST['smiley_filename'][$set] = $destName;
+				}
 
 				// Make sure all submitted filenames are clean.
 				$filenames = array();
