@@ -2423,16 +2423,62 @@ function removeIllegalBBCHtmlPermission($reload = false)
 
 /**
  * Makes sure $modSettings['board_manager_groups'] is up to date.
+ * Also ensures all board managers have access to all boards.
  */
 function updateBoardManagers()
 {
-	global $sourcedir;
+	global $sourcedir, $modSettings, $smcFunc;
 
 	require_once($sourcedir . '/Subs-Members.php');
-	$board_managers = groupsAllowedTo('manage_boards', null);
-	$board_managers = implode(',', $board_managers['allowed']);
+	$board_managers = $board_managers_no_admin = groupsAllowedTo('manage_boards', null)['allowed'];
+	$board_managers = implode(',', $board_managers);
 
+	// If no changes, don't bother with the updates
+	if ($board_managers == $modSettings['board_manager_groups'])
+		return;
+
+	// Update the setting
 	updateSettings(array('board_manager_groups' => $board_managers), true);
+
+	// Strip admin from the set, it is assumed on the boards
+	$key = array_search('1', $board_managers_no_admin);
+	if ($key !== false)
+		unset($board_managers_no_admin[$key]);
+
+	// If the only one was an admin, you're done...
+	if (empty($board_managers_no_admin))
+		return;
+
+	// Make sure the board_managers have access to all boards. First, find boards with gaps...
+	$where = '';
+	foreach($board_managers_no_admin as $group)
+		$where .= (empty($where) ? '' : ' OR') . " (FIND_IN_SET({$group}, member_groups) = 0)";	
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_board, member_groups
+		FROM {db_prefix}boards
+		WHERE' . $where,
+		array()
+	);
+
+	// ...now fix 'em...
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$mg_array = explode(',', $row['member_groups']);
+		$mg_array = array_unique(array_merge($mg_array, $board_managers_no_admin));
+		sort($mg_array, SORT_NUMERIC);
+		$mg_string = implode(',', $mg_array);
+
+		$upd = $smcFunc['db_query']('', '
+			UPDATE {db_prefix}boards
+				SET member_groups = {string:mg_string}
+				WHERE id_board = {int:id_board}',
+			array(
+				'mg_string' => $mg_string,
+				'id_board' => $row['id_board'],
+			)
+		);
+	}
 }
 
 /**

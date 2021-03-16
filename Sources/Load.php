@@ -326,7 +326,7 @@ function reloadSettings()
 		require_once($sourcedir . '/Subs-Members.php');
 		$board_managers = groupsAllowedTo('manage_boards', null);
 		$board_managers = implode(',', $board_managers['allowed']);
-		updateSettings(array('board_manager_groups' => $board_managers), true);
+		updateSettings(array('board_manager_groups' => $board_managers));
 	}
 
 	// Is post moderation alive and well? Everywhere else assumes this has been defined, so let's make sure it is.
