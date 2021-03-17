@@ -227,7 +227,7 @@ function smf_fileUpload(oOptions) {
 								file.accepted = false;
 
 								// Show the current amount of remaining files
-								$('.attach_remaining').html(myDropzone.options.maxFileAmount - myDropzone.getAcceptedFiles().length);
+								$('.attach_remaining').html(Math.max(myDropzone.options.maxFileAmount - myDropzone.getAcceptedFiles().length, 0));
 
 								myDropzone.options.hideFileProgressAndAllButtonsIfNeeded();
 							}
@@ -247,7 +247,7 @@ function smf_fileUpload(oOptions) {
 				.appendTo(_innerElement.find('.attach-ui'));
 
 				// Show the current amount of remaining files
-				$('.attach_remaining').html(myDropzone.options.maxFileAmount - myDropzone.getAcceptedFiles().length);
+				$('.attach_remaining').html(Math.max(myDropzone.options.maxFileAmount - myDropzone.getAcceptedFiles().length, 0));
 		};
 
 		// The editor needs this to know how to handle embedded attachements
@@ -524,6 +524,10 @@ function smf_fileUpload(oOptions) {
 			mock.accepted = true;
 
 			myDropzone.emit("addedfile", mock);
+
+			// Add to the files list
+			mock.status = Dropzone.SUCCESS;
+			myDropzone.files.push(mock);
 
 			// This file is "completed".
 			myDropzone.emit("complete", mock);

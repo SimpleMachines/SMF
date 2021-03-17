@@ -437,7 +437,7 @@ function template_main()
 			echo '
 								', $txt['attach_restrictions'], ' ', implode(', ', $context['attachment_restrictions']), '<br>';
 
-		if ($context['num_allowed_attachments'] == 0)
+		if ($context['num_allowed_attachments'] <= count($context['current_attachments']))
 			echo '
 								', $txt['attach_limit_nag'], '<br>';
 
