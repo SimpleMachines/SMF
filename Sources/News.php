@@ -660,10 +660,10 @@ function dumpTags($data, $i, $xml_format = '', $forceCdataKeys = array(), $nsKey
 			}
 			// A string with returns in it.... show this as a multiline element.
 			elseif (strpos($val, "\n") !== false)
-				$context['feed']['items'] .= "\n" . (!empty($element['cdata']) || $forceCdata ? cdata_parse(fix_possible_url($val), $ns, $forceCdata) : fix_possible_url($val)) . "\n" . str_repeat("\t", $i);
+				$context['feed']['items'] .= "\n" . (!empty($element['cdata']) || $forceCdata ? cdata_parse(fix_possible_url($val), $ns, $forceCdata) : str_replace('&', '&amp;', fix_possible_url($val))) . "\n" . str_repeat("\t", $i);
 			// A simple string.
 			else
-				$context['feed']['items'] .= !empty($element['cdata']) || $forceCdata ? cdata_parse(fix_possible_url($val), $ns, $forceCdata) : fix_possible_url($val);
+				$context['feed']['items'] .= !empty($element['cdata']) || $forceCdata ? cdata_parse(fix_possible_url($val), $ns, $forceCdata) : str_replace('&', '&amp;', fix_possible_url($val));
 
 			// Ending tag.
 			$context['feed']['items'] .= '</' . $key . '>';
