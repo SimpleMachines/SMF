@@ -671,13 +671,8 @@ $txt['powered_by_php'] = 'Powered by PHP';
 $txt['powered_by_mysql'] = 'Powered by MySQL';
 $txt['valid_css'] = 'Valid CSS';
 
-// Footer strings, no longer used
-$txt['valid_html'] = 'Valid HTML 4.01';
-$txt['valid_xhtml'] = 'Valid XHTML 1.0';
-$txt['wap2'] = 'WAP2';
 $txt['rss'] = 'RSS';
 $txt['atom'] = 'Atom';
-$txt['xhtml'] = 'XHTML';
 $txt['html'] = 'HTML';
 
 $txt['guest'] = 'Guest';
