@@ -1148,7 +1148,7 @@ function ModifyLanguage()
 				continue;
 
 			// These are arrays that need breaking out.
-			if (strpos($entryValue['entry'], 'array(') === 0 && strpos($entryValue['entry'], ')', -1) === strlen($entryValue['entry']) - 1)
+			if (strpos($entryValue['entry'], 'array(') === 0 && substr($entryValue['entry'], -1) === ')')
 			{
 				// No, you may not use multidimensional arrays of $txt strings. Madness stalks that path.
 				if (isset($entryValue['subkey']))
