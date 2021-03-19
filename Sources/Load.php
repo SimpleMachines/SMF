@@ -850,8 +850,9 @@ function loadUserSettings()
 				updateMemberData($user_info['id'], array('lngfile' => $user_info['language']));
 			else
 				$_SESSION['language'] = $user_info['language'];
-			// Reload same url with new language
-			redirectexit($_SESSION['old_url']);
+			// Reload same url with new language, if it exist
+			if (isset($_SESSION['old_url']))
+				redirectexit($_SESSION['old_url']);
 		}
 		elseif (!empty($_SESSION['language']) && isset($languages[strtr($_SESSION['language'], './\\:', '____')]))
 			$user_info['language'] = strtr($_SESSION['language'], './\\:', '____');
