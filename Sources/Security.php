@@ -605,7 +605,7 @@ function isBannedEmail($email, $restriction, $error)
  */
 function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 {
-	global $sc, $modSettings, $boardurl;
+	global $context, $sc, $modSettings, $boardurl;
 
 	// Is it in as $_POST['sc']?
 	if ($type == 'post')
@@ -649,7 +649,9 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 		$referrer = $_SESSION['request_referer'];
 	else
 		$referrer = isset($_SERVER['HTTP_REFERER']) ? @parse_url($_SERVER['HTTP_REFERER']) : array();
-	if (!empty($referrer['host']))
+
+	// Check the refer but if we have CORS enabled and it came from a trusted source, we can skip this check.
+	if (!empty($referrer['host']) && (empty($modSettings['allow_cors']) || empty($context['valid_cors_found']) || !in_array($context['valid_cors_found'], array('same', 'subdomain'))))
 	{
 		if (strpos($_SERVER['HTTP_HOST'], ':') !== false)
 			$real_host = substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], ':'));
@@ -1340,6 +1342,136 @@ function frameOptionsHeader($override = null)
 	// And some other useful ones.
 	header('x-xss-protection: 1');
 	header('x-content-type-options: nosniff');
+}
+
+/**
+ * This sets the Access-Control-Allow-Origin header.
+ *
+ * @since 2.1
+ */
+function corsPolicyHeader($set_header = true)
+{
+	global $boardurl, $modSettings, $context;
+
+	if (empty($modSettings['allow_cors']))
+		return;
+
+	// We want weak security.
+	if (!empty($modSettings['cors_domains']) && $modSettings['cors_domains'] === '*')
+		$context['cors_domain'] = '*';
+
+	// If subdomain-independent cookies are on, allow sub domains. This will have issues if the forum is at forum.domain.tld and the origin we are at is another.sub.domain.tld.
+	if (empty($context['cors_domain']) && !empty($modSettings['globalCookies']) && !empty($_SERVER['HTTP_ORIGIN']) && filter_var($_SERVER['HTTP_ORIGIN'], FILTER_VALIDATE_URL) !== false)
+	{
+		$boardurl_base = implode('.', array_slice(explode('.', parse_url($boardurl, PHP_URL_HOST)), 1));
+
+		// If we find www, pop one more off.
+		if ('www' === array_slice(explode('.', parse_url($boardurl, PHP_URL_HOST)), 0, 1))
+			$boardurl_base = implode('.', array_slice(explode('.', parse_url($boardurl, PHP_URL_HOST)), 1));
+
+		$origin_base = implode('.', array_slice(explode('.', parse_url($_SERVER['HTTP_ORIGIN'], PHP_URL_HOST)), 1));
+
+		if ('www' === array_slice(explode('.', parse_url($origin_base, PHP_URL_HOST)), 0, 1))
+			$origin_base = implode('.', array_slice(explode('.', parse_url($origin_base, PHP_URL_HOST)), 1));
+
+		if ($boardurl_base === $origin_base)
+		{
+			$context['cors_domain'] = $_SERVER['HTTP_ORIGIN'];
+			$context['valid_cors_found'] = 'subdomain';
+		}
+	}
+
+	// Support forum_alias_urls as well, which is supported by our login cookie, so we implant it similar here.
+	if (empty($context['cors_domain']) && !empty($modSettings['forum_alias_urls']) && !empty($_SERVER['HTTP_ORIGIN']) && filter_var($_SERVER['HTTP_ORIGIN'], FILTER_VALIDATE_URL) !== false)
+	{
+		$aliases = explode(',', $modSettings['forum_alias_urls']);
+
+		foreach ($aliases as $alias)
+		{
+			if ($alias === $_SERVER['HTTP_ORIGIN'])
+			{
+				$context['cors_domain'] = $_SERVER['HTTP_ORIGIN'];
+				$context['valid_cors_found'] = 'alias';
+				break;
+			}
+		}
+	}
+
+	// Additional CORS domains but its just a wildcard for everything.
+	if (empty($context['cors_domain']) && !empty($modSettings['cors_domains']) && !empty($_SERVER['HTTP_ORIGIN']) && filter_var($_SERVER['HTTP_ORIGIN'], FILTER_VALIDATE_URL) !== false)
+	{
+		$cors_domains = explode(',', $modSettings['cors_domains']);
+
+		foreach ($cors_domains as $domain)
+		{
+			if ($domain === $_SERVER['HTTP_ORIGIN'])
+			{
+				$context['cors_domain'] = $_SERVER['HTTP_ORIGIN'];
+				$context['valid_cors_found'] = 'additional';
+				break;
+			}
+
+			// If we find a * in the host, then its a wildcard and lets allow it.  This will have issues if the forum is at forum.domain.tld and the origin we are at is more.sub.domain.tld.
+			if ('*' === implode('.', array_slice(explode('.', parse_url($domain, PHP_URL_HOST)), 0, 1)))
+			{
+				$domain_base = implode('.', array_slice(explode('.', parse_url($boardurl, PHP_URL_HOST)), 1));
+
+				if ('www' === array_slice(explode('.', parse_url($domain_base, PHP_URL_HOST)), 0, 1))
+					$domain_base = implode('.', array_slice(explode('.', parse_url($domain_base, PHP_URL_HOST)), 1));
+
+				$origin_base = implode('.', array_slice(explode('.', parse_url($_SERVER['HTTP_ORIGIN'], PHP_URL_HOST)), 1));
+
+				if ('www' === array_slice(explode('.', parse_url($origin_base, PHP_URL_HOST)), 0, 1))
+					$origin_base = implode('.', array_slice(explode('.', parse_url($origin_base, PHP_URL_HOST)), 1));
+
+				if ($domain_base === $origin_base)
+				{
+					$context['cors_domain'] = $_SERVER['HTTP_ORIGIN'];
+					$context['valid_cors_found'] = 'additional_wildcard';
+					break;
+				}
+			}
+		}
+	}
+
+	// The default is just to place the domain of the boardurl into the policy.
+	if (empty($context['cors_domain']))
+	{
+		$boardurl_parts = parse_url($boardurl);
+
+		// Default the CORS to the current domain
+		$context['cors_domain'] = $boardurl_parts['scheme'] . '://' . $boardurl_parts['host'];
+
+		// Attach the port if needed.
+		if (!empty($boardurl_parts['port']))
+			$context['cors_domain'] .= ':' . $boardurl_parts['port'];
+
+		$context['valid_cors_found'] = 'same';
+	}
+
+	$context['cors_headers'] = 'X-SMF-AJAX';
+
+	// Any additional headers?
+	if (!empty($modSettings['cors_headers']))
+	{
+		// Cleanup any typos.
+		$cors_headers = explode(',', $modSettings['cors_headers']);
+		foreach ($cors_headers as &$ch)
+			$ch = trim(str_replace(' ', '-', $ch));
+
+		$context['cors_headers'] += implode(',', $cors_headers);
+	}
+
+	// Allowing Cross-Origin Resource Sharing (CORS).
+	if ($set_header && !empty($modSettings['allow_cors']) && !empty($context['valid_cors_found']) && !empty($context['cors_domain']))
+	{
+		header('Access-Control-Allow-Origin: ' . $context['cors_domain']);
+		header('Access-Control-Allow-Headers: ' . $context['cors_headers']);
+
+		// Be careful with this, your allowing a external site to allow the browser to send cookies with this.
+		if (!empty($modSettings['allow_cors_credentials']))
+			header('Access-Control-Allow-Credentials: true');
+	}
 }
 
 ?>

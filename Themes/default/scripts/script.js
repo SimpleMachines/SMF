@@ -329,7 +329,13 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 
 	// Load the help page content (we just want the text to show)
 	$.ajax({
-		url: desktopURL,
+		url: desktopURL + ';ajax',
+		headers: {
+			'X-SMF-AJAX': 1
+		},
+		xhrFields: {
+			withCredentials: allow_xhjr_credentials
+		},
 		type: "GET",
 		dataType: "html",
 		beforeSend: function () {
@@ -390,14 +396,32 @@ smc_PopupMenu.prototype.open = function (sItem)
 	if (!this.opt.menus[sItem].loaded)
 	{
 		this.opt.menus[sItem].menuObj.html('<div class="loading">' + (typeof(ajax_notification_text) != null ? ajax_notification_text : '') + '</div>');
-		this.opt.menus[sItem].menuObj.load(this.opt.menus[sItem].sUrl, function() {
-			if ($(this).hasClass('scrollable'))
-				$(this).customScrollbar({
-					skin: "default-skin",
-					hScroll: false,
-					updateOnWindowResize: true
-				});
+
+		$.ajax({
+			url: this.opt.menus[sItem].sUrl + ';ajax',
+			headers: {
+				'X-SMF-AJAX': 1
+			},
+			xhrFields: {
+				withCredentials: allow_xhjr_credentials
+			},
+			type: "GET",
+			dataType: "html",
+			beforeSend: function () {
+			},
+			context: this.opt.menus[sItem].menuObj,
+			success: function (data, textStatus, xhr) {
+				this.html(data);
+
+				if ($(this).hasClass('scrollable'))
+					$(this).customScrollbar({
+						skin: "default-skin",
+						hScroll: false,
+						updateOnWindowResize: true
+					});
+			}
 		});
+
 		this.opt.menus[sItem].loaded = true;
 	}
 

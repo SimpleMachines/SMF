@@ -7290,6 +7290,7 @@ function check_cron()
 function send_http_status($code, $status = '')
 {
 	$statuses = array(
+		204 => 'No Content',
 		206 => 'Partial Content',
 		304 => 'Not Modified',
 		400 => 'Bad Request',
@@ -7301,6 +7302,10 @@ function send_http_status($code, $status = '')
 	);
 
 	$protocol = preg_match('~^\s*(HTTP/[12]\.\d)\s*$~i', $_SERVER['SERVER_PROTOCOL'], $matches) ? $matches[1] : 'HTTP/1.0';
+
+	// Typically during these requests, we have cleaned the response (ob_*clean), ensure these headers exist.
+	frameOptionsHeader();
+	corsPolicyHeader();
 
 	if (!isset($statuses[$code]) && empty($status))
 		header($protocol . ' 500 Internal Server Error');

@@ -90,7 +90,7 @@ function template_login()
 							document.getElementById("', !empty($context['from_ajax']) ? 'ajax_' : '', isset($context['default_username']) && $context['default_username'] != '' ? 'loginpass' : 'loginuser', '").focus();
 						}, 150);';
 
-	if (!empty($context['from_ajax']))
+	if (!empty($context['from_ajax']) && ((empty($modSettings['allow_cors']) || empty($modSettings['allow_cors_credentials']) || empty($context['valid_cors_found']) || !in_array($context['valid_cors_found'], array('same', 'subsite')))))
 		echo '
 						form = $("#frmLogin");
 						form.submit(function(e) {
@@ -98,8 +98,14 @@ function template_login()
 							e.stopPropagation();
 
 							$.ajax({
-								url: form.prop("action"),
+								url: form.prop("action") + ";ajax",
 								method: "POST",
+								headers: {
+									"X-SMF-AJAX": 1
+								},
+								xhrFields: {
+									withCredentials: allow_xhjr_credentials
+								},
 								data: form.serialize(),
 								success: function(data) {
 									if (data.indexOf("<bo" + "dy") > -1) {

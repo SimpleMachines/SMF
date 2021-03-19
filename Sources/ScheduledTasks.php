@@ -23,6 +23,16 @@ function AutoTask()
 {
 	global $smcFunc;
 
+	// We bail out of index.php too early for these to be called.
+	frameOptionsHeader();
+	corsPolicyHeader();
+
+	if (isset($_SERVER['HTTP_X_SMF_AJAX']) && isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD']	=== 'OPTIONS')
+	{
+		send_http_status(204);
+		die;
+	}
+
 	// Special case for doing the mail queue.
 	if (isset($_GET['scheduled']) && $_GET['scheduled'] == 'mailq')
 		ReduceMailQueue();
