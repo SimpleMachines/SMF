@@ -628,6 +628,12 @@ function ModifyGeneralSecuritySettings($return_config = false)
 		array('check', 'enableReportPM'),
 		'',
 
+		array('check', 'allow_cors'),
+		array('check', 'allow_cors_credentials'),
+		array('text', 'cors_domains'),
+		array('text', 'cors_headers'),
+		'',
+
 		array(
 			'select',
 			'frame_security',

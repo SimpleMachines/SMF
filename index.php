@@ -141,18 +141,25 @@ cleanRequest();
 if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
 	smf_seed_generator();
 
+// And important includes.
+require_once($sourcedir . '/Session.php');
+require_once($sourcedir . '/Logging.php');
+require_once($sourcedir . '/Security.php');
+require_once($sourcedir . '/Class-BrowserDetect.php');
+
+// If a Preflight is occurring, lets stop now.
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS')
+{
+	send_http_status(204);
+	die;
+}
+
 // Before we get carried away, are we doing a scheduled task? If so save CPU cycles by jumping out!
 if (isset($_GET['scheduled']))
 {
 	require_once($sourcedir . '/ScheduledTasks.php');
 	AutoTask();
 }
-
-// And important includes.
-require_once($sourcedir . '/Session.php');
-require_once($sourcedir . '/Logging.php');
-require_once($sourcedir . '/Security.php');
-require_once($sourcedir . '/Class-BrowserDetect.php');
 
 // Check if compressed output is enabled, supported, and not already being done.
 if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
@@ -200,6 +207,9 @@ function smf_main()
 
 	// We should set our security headers now.
 	frameOptionsHeader();
+
+	// Set our CORS policy.
+	corsPolicyHeader();
 
 	// Load the user's cookie (or set as guest) and load their settings.
 	loadUserSettings();

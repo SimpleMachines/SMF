@@ -399,6 +399,11 @@ $txt['languages_txt_for_email_templates'] = 'Email message templates';
 $txt['languages_enter_key'] = 'Enter a variable name for this text string';
 $txt['languages_invalid_key'] = 'Sorry, but this variable name is invalid: ';
 
+$txt['allow_cors'] = 'Allow CORS (Cross Origin Resource Sharing)';
+$txt['allow_cors_credentials'] = 'Allow sending credentials over CORS';
+$txt['cors_domains'] = 'Additional CORS domains';
+$txt['cors_headers'] = 'Additional CORS headers';
+
 $txt['setting_frame_security'] = 'Frame Security Options';
 $txt['setting_frame_security_SAMEORIGIN'] = 'Allow Same Origin';
 $txt['setting_frame_security_DENY'] = 'Deny all frames';

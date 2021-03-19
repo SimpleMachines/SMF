@@ -2484,6 +2484,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'smf_txt_expand' => JavaScriptEscape($txt['code_expand']),
 		'smf_txt_shrink' => JavaScriptEscape($txt['code_shrink']),
 		'smf_quote_expand' => !empty($modSettings['quote_expand']) ? $modSettings['quote_expand'] : 'false',
+		'allow_xhjr_credentials' => !empty($modSettings['allow_cors_credentials']) ? 'true' : 'false',
 	);
 
 	// Add the JQuery library to the list of files to load.

@@ -45,7 +45,7 @@ function Login()
 
 	$context['sub_template'] = 'login';
 
-	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+	if ((!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') || (!empty($context['valid_cors_found']) && !empty($_SERVER['HTTP_X_SMF_AJAX']) && isset($_REQUEST['ajax'])))
 	{
 		$context['from_ajax'] = true;
 		$context['template_layers'] = array();
@@ -99,7 +99,7 @@ function Login2()
 	// Load cookie authentication stuff.
 	require_once($sourcedir . '/Subs-Auth.php');
 
-	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+	if ((!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') || (!empty($context['valid_cors_found']) && !empty($_SERVER['HTTP_X_SMF_AJAX']) && isset($_REQUEST['ajax'])))
 	{
 		$context['from_ajax'] = true;
 		$context['template_layers'] = array();
@@ -460,7 +460,7 @@ function LoginTFA()
 	$totp = new \TOTP\Auth($member['tfa_secret']);
 	$totp->setRange(1);
 
-	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+	if ((!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') || (!empty($context['valid_cors_found']) && !empty($_SERVER['HTTP_X_SMF_AJAX']) && isset($_REQUEST['ajax'])))
 	{
 		$context['from_ajax'] = true;
 		$context['template_layers'] = array();
