@@ -309,7 +309,7 @@ $txt['upgrade_done3'] = 'Hope you like it!';
 
 $txt['upgrade_delete_now'] = 'Delete upgrade.php and its data files now';
 $txt['upgrade_delete_server'] = '(does not work on all servers).';
-$txt['upgrade_problems'] = 'If you had any problems with this upgrade, or have any problems using SMF, please do not hesitate to <a href="%1$s">ask to us for assistance</a>..';
+$txt['upgrade_problems'] = 'If you had any problems with this upgrade, or have any problems using SMF, please do not hesitate to <a href="%1$s">ask to us for assistance</a>.';
 $txt['upgrade_luck'] = 'Best of luck,';
 
 $txt['upgrade_ftp_login'] = 'Your FTP connection information';
