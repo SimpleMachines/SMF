@@ -342,11 +342,11 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 			oPopup_body.html(textStatus);
 		},
 		statusCode: {
+			403: function() {
+				oPopup_body.html(banned_text);
+			},
 			500: function() {
-				if (sHeader == 'Login')
-					oPopup_body.html(banned_text);
-				else
-					oPopup_body.html('500 Internal Server Error');
+				oPopup_body.html('500 Internal Server Error');
 			}
 		}
 	});
