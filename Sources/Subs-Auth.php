@@ -854,8 +854,9 @@ function rebuildModCache()
  * @param string $domain = ''
  * @param bool $secure = false
  * @param bool $httponly = true
+ * @param string $samesite = lax
  */
-function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = '', $secure = null, $httponly = true)
+function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = '', $secure = null, $httponly = true, $samesite = null)
 {
 	global $modSettings;
 
@@ -864,11 +865,23 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
 		$httponly = !empty($modSettings['httponlyCookies']);
 	if ($secure === null)
 		$secure = !empty($modSettings['secureCookies']);
+	if ($samesite === null)
+		$samesite = !empty($modSettings['samesiteCookies']) ? $modSettings['samesiteCookies'] : 'lax';
 
 	// Intercept cookie?
-	call_integration_hook('integrate_cookie', array($name, $value, $expire, $path, $domain, $secure, $httponly));
+	call_integration_hook('integrate_cookie', array($name, $value, $expire, $path, $domain, $secure, $httponly, $samesite));
 
-	return setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
+	if(PHP_VERSION_ID < 70300)
+		return setcookie($name, $value, $expire, $path . ';samesite=' . $samesite, $domain, $secure, $httponly);
+	else
+		return setcookie($name, $value, array(
+			'expires' 	=> $expire,
+			'path'		=> $path,
+			'domain' 	=> $domain,
+			'secure'	=> $secure,
+			'httponly'	=> $httponly,    
+			'samesite'	=> $samesite
+		));
 }
 
 /**
