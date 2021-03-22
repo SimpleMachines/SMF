@@ -1017,9 +1017,8 @@ function EditSmileys()
 				$writeErrors = array();
 				foreach ($_FILES['smiley_upload']['name'] as $set => $name)
 				{
-					if (!empty($name))
-						if (!is_writable($context['smileys_dir'] . '/' . $set))
-							$writeErrors[] = $set['path'];
+					if (!empty($name) && !is_writable($context['smileys_dir'] . '/' . $set))
+						$writeErrors[] = $set['path'];
 				}
 
 				if (!empty($writeErrors))
