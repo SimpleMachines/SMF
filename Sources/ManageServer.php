@@ -482,6 +482,12 @@ function ModifyCookieSettings($return_config = false)
 		array('globalCookiesDomain', $txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'),
 		array('secureCookies', $txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !httpsOn()),
 		array('httponlyCookies', $txt['httponlyCookies'], 'db', 'check', false, 'httponlyCookies'),
+		array('samesiteCookies', $txt['samesiteCookies'], 'db', 'select', array(
+				'none' 		=> $txt['samesiteNone'],
+				'lax' 		=> $txt['samesiteLax'],
+				'strict' 	=> $txt['samesiteStrict']
+			),
+			'samesiteCookies'),
 		'',
 		// Sessions
 		array('databaseSession_enable', $txt['databaseSession_enable'], 'db', 'check', false, 'databaseSession_enable'),
@@ -514,7 +520,12 @@ function ModifyCookieSettings($return_config = false)
 
 	$("#localCookies, #globalCookies").click(function() {
 		hideGlobalCookies();
-	});', true);
+	});
+	
+	if ( document.getElementById("samesiteCookies").getAttribute("selected") === null) { 
+		document.getElementById("samesiteCookies").selectedIndex=1; 
+	}
+	', true);
 
 	if (empty($user_settings['tfa_secret']))
 		addInlineJavaScript('');
