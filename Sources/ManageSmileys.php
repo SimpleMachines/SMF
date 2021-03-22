@@ -254,7 +254,7 @@ function EditSmileySets()
 			if ($_POST['set'] == -1 && isset($_POST['smiley_sets_path']))
 			{
 				if (in_array($_POST['smiley_sets_path'], $set_paths))
-					fatal_lang_error('smiley_set_already_exists');
+					fatal_lang_error('smiley_set_already_exists', false);
 
 				updateSettings(array(
 					'smiley_sets_known' => $modSettings['smiley_sets_known'] . ',' . $_POST['smiley_sets_path'],
@@ -267,11 +267,11 @@ function EditSmileySets()
 			{
 				// Make sure the smiley set exists.
 				if (!isset($set_paths[$_POST['set']]) || !isset($set_names[$_POST['set']]))
-					fatal_lang_error('smiley_set_not_found');
+					fatal_lang_error('smiley_set_not_found', false);
 
 				// Make sure the path is not yet used by another smileyset.
 				if (in_array($_POST['smiley_sets_path'], $set_paths) && $_POST['smiley_sets_path'] != $set_paths[$_POST['set']])
-					fatal_lang_error('smiley_set_path_already_used');
+					fatal_lang_error('smiley_set_path_already_used', false);
 
 				$set_paths[$_POST['set']] = $_POST['smiley_sets_path'];
 				$set_names[$_POST['set']] = $_POST['smiley_sets_name'];
@@ -619,7 +619,7 @@ function AddSmiley()
 
 		// Make sure some code was entered.
 		if (empty($_POST['smiley_code']))
-			fatal_lang_error('smiley_has_no_code');
+			fatal_lang_error('smiley_has_no_code', false);
 
 		// Check whether the new code has duplicates. It should be unique.
 		$request = $smcFunc['db_query']('', '
@@ -632,7 +632,7 @@ function AddSmiley()
 			)
 		);
 		if ($smcFunc['db_num_rows']($request) > 0)
-			fatal_lang_error('smiley_not_unique');
+			fatal_lang_error('smiley_not_unique', false);
 		$smcFunc['db_free_result']($request);
 
 		// If we are uploading - check all the smiley sets are writable!
@@ -645,14 +645,14 @@ function AddSmiley()
 					$writeErrors[] = $set['path'];
 			}
 			if (!empty($writeErrors))
-				fatal_lang_error('smileys_upload_error_notwritable', true, array(implode(', ', $writeErrors)));
+				fatal_lang_error('smileys_upload_error_notwritable', false, array(implode(', ', $writeErrors)));
 		}
 
 		// Uploading just one smiley for all of them?
 		if (isset($_POST['sameall']) && isset($_FILES['uploadSmiley']['name']) && $_FILES['uploadSmiley']['name'] != '')
 		{
 			if (!is_uploaded_file($_FILES['uploadSmiley']['tmp_name']) || (ini_get('open_basedir') == '' && !file_exists($_FILES['uploadSmiley']['tmp_name'])))
-				fatal_lang_error('smileys_upload_error');
+				fatal_lang_error('smileys_upload_error', false);
 
 			// Sorry, no spaces, dots, or anything else but letters allowed.
 			$_FILES['uploadSmiley']['name'] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['uploadSmiley']['name']);
@@ -666,7 +666,7 @@ function AddSmiley()
 
 			// Make sure they aren't trying to upload a nasty file - for their own good here!
 			if (in_array(strtolower($destName), $disabledFiles))
-				fatal_lang_error('smileys_upload_error_illegal');
+				fatal_lang_error('smileys_upload_error_illegal', false);
 
 			// Check if the file already exists... and if not move it to EVERY smiley set directory.
 			$smileyLocation = null;
@@ -696,7 +696,7 @@ function AddSmiley()
 
 				// Double-check
 				if (!file_exists($currentPath))
-					fatal_lang_error('smiley_not_found');
+					fatal_lang_error('smiley_not_found', false);
 
 				// Finally make sure it's saved correctly!
 				$filename_array[$context['smiley_sets'][$j]['raw_path']] = $destName;
@@ -709,12 +709,12 @@ function AddSmiley()
 			foreach ($_FILES as $name => $data)
 			{
 				if ($_FILES[$name]['name'] == '')
-					fatal_lang_error('smileys_upload_error_blank');
+					fatal_lang_error('smileys_upload_error_blank', false);
 
 				// if (empty($newName))
 				// 	$newName = basename($_FILES[$name]['name']);
 				// elseif (basename($_FILES[$name]['name']) != $newName)
-				// 	fatal_lang_error('smileys_upload_error_name');
+				// 	fatal_lang_error('smileys_upload_error_name', false);
 			}
 
 			foreach ($context['smiley_sets'] as $i => $set)
@@ -726,7 +726,7 @@ function AddSmiley()
 
 				// Got one...
 				if (!is_uploaded_file($_FILES['individual_' . $set['raw_path']]['tmp_name']) || (ini_get('open_basedir') == '' && !file_exists($_FILES['individual_' . $set['raw_path']]['tmp_name'])))
-					fatal_lang_error('smileys_upload_error');
+					fatal_lang_error('smileys_upload_error', false);
 
 				// Sorry, no spaces, dots, or anything else but letters allowed.
 				$_FILES['individual_' . $set['raw_path']]['name'] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['individual_' . $set['raw_path']]['name']);
@@ -740,7 +740,7 @@ function AddSmiley()
 
 				// Make sure they aren't trying to upload a nasty file - for their own good here!
 				if (in_array(strtolower($destName), $disabledFiles))
-					fatal_lang_error('smileys_upload_error_illegal');
+					fatal_lang_error('smileys_upload_error_illegal', false);
 
 				// If the file exists - ignore it.
 				$smileyLocation = $context['smileys_dir'] . '/' . $set['raw_path'] . '/' . $destName;
@@ -753,7 +753,7 @@ function AddSmiley()
 
 				// Double-check
 				if (!file_exists($smileyLocation))
-					fatal_lang_error('smiley_not_found');
+					fatal_lang_error('smiley_not_found', false);
 
 				// Should always be saved correctly!
 				$filename_array[$set['raw_path']] = $destName;
@@ -764,7 +764,7 @@ function AddSmiley()
 		{
 			// Make sure a filename was given
 			if (empty($_POST['smiley_filename']))
-				fatal_lang_error('smiley_has_no_filename');
+				fatal_lang_error('smiley_has_no_filename', false);
 
 			// And make sure it is legitimate
 			$pathinfo = pathinfo($_POST['smiley_filename']);
@@ -772,11 +772,11 @@ function AddSmiley()
 			if (!in_array($pathinfo['extension'], $allowedTypes))
 				fatal_lang_error('smileys_upload_error_types', false, array(implode(', ', $allowedTypes)));
 			if (strpos($pathinfo['filename'], '.') !== false)
-				fatal_lang_error('smileys_upload_error_illegal');
+				fatal_lang_error('smileys_upload_error_illegal', false);
 			if (!in_array($pathinfo['dirname'], explode(',', $modSettings['smiley_sets_known'])))
-				fatal_lang_error('smiley_set_not_found');
+				fatal_lang_error('smiley_set_not_found', false);
 			if (!file_exists($context['smileys_dir'] . '/' . $pathinfo['dirname'] . '/' . $pathinfo['basename']))
-				fatal_lang_error('smiley_not_found');
+				fatal_lang_error('smiley_not_found', false);
 
 			// Now ensure every set has a file to use for this smiley
 			foreach (explode(',', $modSettings['smiley_sets_known']) as $set)
@@ -811,7 +811,7 @@ function AddSmiley()
 
 				// Double-check that everything went as expected
 				if (empty($basename) || !file_exists($context['smileys_dir'] . '/' . $set . '/' . $basename))
-					fatal_lang_error('smiley_not_found');
+					fatal_lang_error('smiley_not_found', false);
 
 				// Okay, let's add this one
 				$filename_array[$set] = $basename;
@@ -1011,7 +1011,7 @@ function EditSmileys()
 
 				// Make sure some code was entered.
 				if (empty($_POST['smiley_code']))
-					fatal_lang_error('smiley_has_no_code');
+					fatal_lang_error('smiley_has_no_code', false);
 
 				// If upload a new smiley image, check that smiley set folders are writable for the sets with new images.
 				$writeErrors = array();
@@ -1022,7 +1022,7 @@ function EditSmileys()
 				}
 
 				if (!empty($writeErrors))
-					fatal_lang_error('smileys_upload_error_notwritable', true, array(implode(', ', $writeErrors)));
+					fatal_lang_error('smileys_upload_error_notwritable', false, array(implode(', ', $writeErrors)));
 
 				foreach ($known_sets as $set)
 				{
@@ -1031,7 +1031,7 @@ function EditSmileys()
 
 					// Got a new image for this set
 					if (!is_uploaded_file($_FILES['smiley_upload']['tmp_name'][$set]) || (ini_get('open_basedir') == '' && !file_exists($_FILES['smiley_upload']['tmp_name'][$set])))
-						fatal_lang_error('smileys_upload_error');
+						fatal_lang_error('smileys_upload_error', false);
 
 					// Sorry, no spaces, dots, or anything else but letters allowed.
 					$_FILES['smiley_upload']['name'][$set] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['smiley_upload']['name'][$set]);
@@ -1045,7 +1045,7 @@ function EditSmileys()
 
 					// Make sure they aren't trying to upload a nasty file - for their own good here!
 					if (in_array(strtolower($destName), $disabledFiles))
-						fatal_lang_error('smileys_upload_error_illegal');
+						fatal_lang_error('smileys_upload_error_illegal', false);
 
 					// If the file exists - ignore it.
 					$smileyLocation = $context['smileys_dir'] . '/' . $set . '/' . $destName;
@@ -1058,7 +1058,7 @@ function EditSmileys()
 
 					// Double-check
 					if (!file_exists($smileyLocation))
-						fatal_lang_error('smiley_not_found');
+						fatal_lang_error('smiley_not_found', false);
 
 					// Overwrite smiley filename with uploaded filename
 					$_POST['smiley_filename'][$set] = $destName;
@@ -1094,7 +1094,7 @@ function EditSmileys()
 
 				// Can't do anything without filenames for the smileys.
 				if (empty($filenames))
-					fatal_lang_error('smiley_has_no_filename');
+					fatal_lang_error('smiley_has_no_filename', false);
 
 				// Check whether the new code has duplicates. It should be unique.
 				$request = $smcFunc['db_query']('', '
@@ -1109,7 +1109,7 @@ function EditSmileys()
 					)
 				);
 				if ($smcFunc['db_num_rows']($request) > 0)
-					fatal_lang_error('smiley_not_unique');
+					fatal_lang_error('smiley_not_unique', false);
 				$smcFunc['db_free_result']($request);
 
 				$smcFunc['db_query']('', '
@@ -1409,7 +1409,7 @@ function EditSmileys()
 		$smcFunc['db_free_result']($request);
 
 		if (empty($context['current_smiley']))
-			fatal_lang_error('smiley_not_found');
+			fatal_lang_error('smiley_not_found', false);
 
 		$context['current_smiley']['code'] = $smcFunc['htmlspecialchars']($context['current_smiley']['code']);
 		$context['current_smiley']['description'] = $smcFunc['htmlspecialchars']($context['current_smiley']['description']);
@@ -1532,7 +1532,7 @@ function EditSmileyOrder()
 		$_GET['source'] = empty($_GET['source']) ? 0 : (int) $_GET['source'];
 
 		if (empty($_GET['source']))
-			fatal_lang_error('smiley_not_found');
+			fatal_lang_error('smiley_not_found', false);
 
 		if (!empty($_GET['after']))
 		{
@@ -1549,7 +1549,7 @@ function EditSmileyOrder()
 				)
 			);
 			if ($smcFunc['db_num_rows']($request) != 1)
-				fatal_lang_error('smiley_not_found');
+				fatal_lang_error('smiley_not_found', false);
 			list ($smiley_row, $smiley_order, $smileyLocation) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 		}
@@ -1713,12 +1713,12 @@ function InstallSmileySet()
 		// Check that the smiley is from simplemachines.org, for now... maybe add mirroring later.
 		// @ TODO: Our current xml files serve http links.  Allowing both for now until we serve https.
 		if (preg_match('~^https?://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['set_gz']) == 0 || strpos($_REQUEST['set_gz'], 'dlattach') !== false)
-			fatal_lang_error('not_on_simplemachines');
+			fatal_lang_error('not_on_simplemachines', false);
 
 		$destination = $packagesdir . '/' . $base_name;
 
 		if (file_exists($destination))
-			fatal_lang_error('package_upload_error_exists');
+			fatal_lang_error('package_upload_error_exists', false);
 
 		// Let's copy it to the Packages directory
 		file_put_contents($destination, fetch_web_data($_REQUEST['set_gz']));
@@ -1774,7 +1774,7 @@ function InstallSmileySet()
 
 	$smileyInfo = getPackageInfo($context['filename']);
 	if (!is_array($smileyInfo))
-		fatal_lang_error($smileyInfo);
+		fatal_lang_error($smileyInfo, false);
 
 	// See if it is installed?
 	$request = $smcFunc['db_query']('', '
@@ -1791,7 +1791,7 @@ function InstallSmileySet()
 	);
 
 	if ($smcFunc['db_num_rows']($request) > 0)
-		fatal_lang_error('package_installed_warning1');
+		fatal_lang_error('package_installed_warning1', false);
 
 	// Everything is fine, now it's time to do something
 	$actions = parsePackageInfo($smileyInfo['xml'], true, 'install');
@@ -1927,7 +1927,7 @@ function ImportSmileys($smileyPath, $create = false)
 	global $modSettings, $smcFunc;
 
 	if (empty($modSettings['smileys_dir']) || !is_dir($modSettings['smileys_dir'] . '/' . $smileyPath))
-		fatal_lang_error('smiley_set_unable_to_import');
+		fatal_lang_error('smiley_set_unable_to_import', false);
 
 	$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
 	$known_sets = explode(',', $modSettings['smiley_sets_known']);
@@ -2229,12 +2229,12 @@ function EditMessageIcons()
 			if (strpos($_POST['icon_filename'], '.png') !== false)
 				$_POST['icon_filename'] = substr($_POST['icon_filename'], 0, -4);
 			if (!file_exists($settings['default_theme_dir'] . '/images/post/' . $_POST['icon_filename'] . '.png'))
-				fatal_lang_error('icon_not_found');
+				fatal_lang_error('icon_not_found', false);
 			// There is a 16 character limit on message icons...
 			elseif (strlen($_POST['icon_filename']) > 16)
-				fatal_lang_error('icon_name_too_long');
+				fatal_lang_error('icon_name_too_long', false);
 			elseif ($_POST['icon_location'] == $_GET['icon'] && !empty($_GET['icon']))
-				fatal_lang_error('icon_after_itself');
+				fatal_lang_error('icon_after_itself', false);
 
 			// First do the sorting... if this is an edit reduce the order of everything after it by one ;)
 			if ($_GET['icon'] != 0)
