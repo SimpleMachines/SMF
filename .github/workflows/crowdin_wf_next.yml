@@ -16,6 +16,12 @@ on:
     types: [ published ]
     branches: [ master ]
 
+env:
+  # Use GitHub Secrets here, so sensitive stuff isn't in the publicly visible workflow
+  # Note that the CrowdIn API token will accept either a user's personal CrowdIn token
+  # or an "API" token, generated via the CrowdIn console client using the "crowdin init" command.
+  CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+  CROWDIN_API_TOKEN: ${{ secrets.CROWDIN_API_TOKEN }}
 # Only one job, the crowdin sync
 jobs:
   crowdin-sync:
@@ -44,11 +50,4 @@ jobs:
         # At the moment, it really does not like embedded spaces (2/2021)
         crowdin_branch_name: 'SMF_2-1_NEXT'
         # Path to crowdin.yml, no leading /
-        config: .github/crowdin.yml
-
-      env:
-        # Use GitHub Secrets here, so sensitive stuff isn't in the publicly visible workflow
-        # Note that the CrowdIn API token will accept either a user's personal CrowdIn token
-        # or an "API" token, generated via the CrowdIn console client using the "crowdin init" command.
-        CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
-        CROWDIN_API_TOKEN: ${{ secrets.CROWDIN_API_TOKEN }}
+        config: '.github/crowdin.yml'
