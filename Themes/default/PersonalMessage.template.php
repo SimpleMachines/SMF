@@ -61,8 +61,8 @@ function template_pm_popup()
 	echo '
 		<div class="pm_bar">
 			<div class="pm_sending block">
-				', $context['can_send_pm'] ? '<a href="' . $scripturl . '?action=pm;sa=send">' . $txt['pm_new_short'] . '</a>' . ($context['can_draft'] ? ' | ' : '') : '', '
-				', $context['can_draft'] ? '<a href="' . $scripturl . '?action=pm;sa=showpmdrafts">' . $txt['pm_drafts_short'] . '</a>' : '', '
+				', $context['can_send_pm'] ? '<a href="' . $scripturl . '?action=pm;sa=send">' . $txt['pm_new_short'] . '</a>' : '', '
+				', $context['can_draft'] ? ' | <a href="' . $scripturl . '?action=pm;sa=showpmdrafts">' . $txt['pm_drafts_short'] . '</a>' : '', '
 				<a href="', $scripturl, '?action=pm;sa=settings" class="floatright">', $txt['pm_settings_short'], '</a>
 			</div>
 			<div class="pm_mailbox centertext">
