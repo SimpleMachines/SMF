@@ -601,7 +601,6 @@ $txt['export_settings'] = 'Export settings';
 $txt['export_include_posts'] = 'Include posts';
 $txt['export_include_personal_messages'] = 'Include personal messages';
 $txt['export_format'] = 'File format for exported data';
-$txt['export_format_desc'] = 'File format for exported data';
 $txt['export_format_xml_xslt'] = 'Styled XML (human and machine friendly)';
 $txt['export_format_html'] = 'HTML (human friendly)';
 $txt['export_format_xml'] = 'XML (machine friendly)';
