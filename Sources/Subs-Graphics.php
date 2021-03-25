@@ -365,6 +365,26 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 		fclose($fp_destination);
 	}
 
+	$rotate = 0;
+	if (($exif_data = @exif_read_data($destination)) !== false)
+	{
+		if (!empty($exif_data['Orientation']))
+		{
+			switch($exif_data['Orientation'])
+			{
+				case 8:
+					$rotate = 90;
+					break;
+				case 3:
+					$rotate = 180;
+					break;
+				case 6:
+					$rotate = -90;
+					break;
+			}
+		}
+	}
+
 	// We can't get to the file. or a previous getimagesize failed.
 	if (empty($sizes))
 		$sizes = array(-1, -1, -1);
@@ -378,14 +398,14 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 	// @todo test PSD and gif.
 	if ((checkImagick() || checkMagickWand()) && isset($default_formats[$sizes[2]]))
 	{
-		return resizeImage(null, $destination, null, null, $max_width, $max_height, true, $preferred_format);
+		return resizeImage(null, $destination, null, null, $max_width, $max_height, true, $preferred_format, $rotate);
 	}
 	elseif (checkGD() && isset($default_formats[$sizes[2]]) && function_exists('imagecreatefrom' . $default_formats[$sizes[2]]))
 	{
 		$imagecreatefrom = 'imagecreatefrom' . $default_formats[$sizes[2]];
 		if ($src_img = @$imagecreatefrom($destination))
 		{
-			return resizeImage($src_img, $destination, imagesx($src_img), imagesy($src_img), $max_width === null ? imagesx($src_img) : $max_width, $max_height === null ? imagesy($src_img) : $max_height, true, $preferred_format);
+			return resizeImage($src_img, $destination, imagesx($src_img), imagesy($src_img), $max_width === null ? imagesx($src_img) : $max_width, $max_height === null ? imagesy($src_img) : $max_height, true, $preferred_format, $rotate);
 		}
 	}
 
@@ -409,9 +429,10 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
  * @param int $max_height The maximum allowed height
  * @param bool $force_resize = false Whether to forcibly resize it
  * @param int $preferred_format - 1 for gif, 2 for jpeg, 3 for png, 6 for bmp or 15 for wbmp
+ * @param int angle the image should be rotated
  * @return bool Whether the resize was successful
  */
-function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $max_height, $force_resize = false, $preferred_format = 0)
+function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $max_height, $force_resize = false, $preferred_format = 0, $rotate = 0)
 {
 	global $gd2, $modSettings;
 
@@ -439,6 +460,8 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 
 			$imagick->setImageFormat($default_formats[$preferred_format]);
 			$imagick->resizeImage($dest_width, $dest_height, Imagick::FILTER_LANCZOS, 1, true);
+			if ($rotate != 0)
+				$imagick->rotateImage('#00000000', $rotate);
 			$success = $imagick->writeImage($destName);
 		}
 		else
@@ -455,6 +478,8 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 
 			MagickSetImageFormat($magick_wand, $default_formats[$preferred_format]);
 			MagickResizeImage($magick_wand, $dest_width, $dest_height, MW_LanczosFilter, 1, true);
+			if ($rotate != 0)
+				MagickResizeImage($magick_wand, NewPixelWand('white'), $rotate);
 			$success = MagickWriteImage($magick_wand, $destName);
 		}
 
@@ -508,6 +533,9 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 		}
 		else
 			$dst_img = $src_img;
+
+		if ($rotate != 0)
+			$dst_img = imagerotate($dst_img, $rotate, 0);
 
 		// Save the image as ...
 		if (!empty($preferred_format) && ($preferred_format == 3) && function_exists('imagepng'))
