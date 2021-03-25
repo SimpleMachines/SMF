@@ -145,9 +145,12 @@ $txt['unwatch_topic'] = 'Stop watching Topic';
 $txt['watching_this_topic'] = 'You are watching this topic, and will receive notifications about it.';
 $txt['notify'] = 'Notify';
 $txt['unnotify'] = 'Unnotify';
+
 // Use numeric entities in the below string.
 // argument(s): forum name
-$txt['regards_team'] = "Regards,\nThe %1\$s Team.";
+$txt['regards_team'] = 'Regards,
+The %1$s Team.';
+
 $txt['notify_replies'] = 'Notify of replies';
 $txt['move_topic'] = 'Move Topic';
 $txt['move_to'] = 'Move to';
@@ -537,8 +540,12 @@ $txt['movetopic_change_all_subjects'] = 'Change every message\'s subject';
 $txt['move_topic_unapproved_js'] = 'Warning! This topic has not yet been approved.\\n\\nIt is not recommended that you create a redirection topic unless you intend to approve the post immediately following the move.';
 $txt['movetopic_auto_board'] = '[BOARD]';
 $txt['movetopic_auto_topic'] = '[TOPIC LINK]';
+
 // argument(s): $txt['movetopic_auto_board'], $txt['movetopic_auto_topic']
-$txt['movetopic_default'] = "This topic has been moved to %1\$s.\n\n%2\$s";
+$txt['movetopic_default'] = 'This topic has been moved to %1$s.
+
+%2$s';
+
 $txt['movetopic_redirect'] = 'Redirect to the moved topic';
 
 $txt['post_redirection'] = 'Post a redirection topic';
