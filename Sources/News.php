@@ -985,6 +985,7 @@ function getXmlNews($xml_format, $ascending = false)
 					array(
 						'tag' => 'author',
 						'content' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] . ' (' . $row['poster_name'] . ')' : null,
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'comments',
@@ -993,6 +994,7 @@ function getXmlNews($xml_format, $ascending = false)
 					array(
 						'tag' => 'category',
 						'content' => $row['bname'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'pubDate',
@@ -1080,6 +1082,7 @@ function getXmlNews($xml_format, $ascending = false)
 					array(
 						'tag' => 'category',
 						'attributes' => array('term' => $row['bname']),
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'author',
@@ -1092,6 +1095,7 @@ function getXmlNews($xml_format, $ascending = false)
 							array(
 								'tag' => 'email',
 								'content' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] : null,
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'uri',
@@ -1227,6 +1231,7 @@ function getXmlNews($xml_format, $ascending = false)
 								'tag' => 'name',
 								'attributes' => array('label' => $txt['name']),
 								'content' => $row['bname'],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'id',
@@ -1436,10 +1441,12 @@ function getXmlRecent($xml_format)
 					array(
 						'tag' => 'author',
 						'content' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'category',
 						'content' => $row['bname'],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'comments',
@@ -1531,6 +1538,7 @@ function getXmlRecent($xml_format)
 					array(
 						'tag' => 'category',
 						'attributes' => array('term' => $row['bname']),
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'author',
@@ -1543,6 +1551,7 @@ function getXmlRecent($xml_format)
 							array(
 								'tag' => 'email',
 								'content' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'uri',
@@ -1715,6 +1724,7 @@ function getXmlRecent($xml_format)
 								'tag' => 'name',
 								'attributes' => array('label' => $txt['name']),
 								'content' => $row['bname'],
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'id',
@@ -1872,10 +1882,12 @@ function getXmlProfile($xml_format)
 						array(
 							'tag' => 'email',
 							'content' => $profile['show_email'] ? $profile['email'] : null,
+							'cdata' => true,
 						),
 						array(
 							'tag' => 'uri',
-							'content' => !empty($profile['website']['url']) ? $profile['website']['url'] : null,
+							'content' => !empty($profile['website']['url']) ? $profile['website']['url'] : $scripturl . '?action=profile;u=' . $row['id_member'],
+							'cdata' => !empty($profile['website']['url']),
 						),
 					),
 				),
@@ -1947,6 +1959,7 @@ function getXmlProfile($xml_format)
 				'tag' => 'avatar',
 				'attributes' => !empty($profile['avatar']['url']) ? array('label' => $txt['personal_picture']) : null,
 				'content' => !empty($profile['avatar']['url']) ? $profile['avatar']['url'] : null,
+				'cdata' => true,
 			),
 			array(
 				'tag' => 'signature',
@@ -1976,6 +1989,7 @@ function getXmlProfile($xml_format)
 				'tag' => 'email',
 				'attributes' => !empty($profile['show_email']) || $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? array('label' => $txt['user_email_address']) : null,
 				'content' => !empty($profile['show_email']) || $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['email'] : null,
+				'cdata' => true,
 			),
 			array(
 				'tag' => 'website',
@@ -1985,11 +1999,13 @@ function getXmlProfile($xml_format)
 						'tag' => 'title',
 						'attributes' => !empty($profile['website']['title']) ? array('label' => $txt['website_title']) : null,
 						'content' => !empty($profile['website']['title']) ? $profile['website']['title'] : null,
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'link',
 						'attributes' => array('label' => $txt['website_url']),
 						'content' => $profile['website']['url'],
+						'cdata' => true,
 					),
 				),
 			),
@@ -2217,10 +2233,12 @@ function getXmlPosts($xml_format, $ascending = false)
 					array(
 						'tag' => 'author',
 						'content' => (allowedTo('moderate_forum') || ($row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'category',
 						'content' => $boardnames[$row['id_board']],
+						'cdata' => true,
 					),
 					array(
 						'tag' => 'comments',
@@ -2320,6 +2338,7 @@ function getXmlPosts($xml_format, $ascending = false)
 							array(
 								'tag' => 'email',
 								'content' => (allowedTo('moderate_forum') || ($row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'uri',
@@ -2450,6 +2469,7 @@ function getXmlPosts($xml_format, $ascending = false)
 								'tag' => 'email',
 								'attributes' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? array('label' => $txt['user_email_address']) : null,
 								'content' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] : null,
+								'cdata' => true,
 							),
 							array(
 								'tag' => 'ip',
