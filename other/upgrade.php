@@ -4973,7 +4973,7 @@ function template_upgrade_complete()
 	global $upcontext, $upgradeurl, $settings, $boardurl, $is_debug, $txt;
 
 	echo '
-				<h3>', $txt['upgrade_done'], ' <a href="', $boardurl, '/index.php">', $txt['upgrade_done2'], '</a>.  ', $txt['upgrade_done3'], '</h3>
+				<h3>', sprintf($txt['upgrade_done'], $boardurl), '</h3>
 				<form action="', $boardurl, '/index.php">';
 
 	if (!empty($upcontext['can_delete_script']))
