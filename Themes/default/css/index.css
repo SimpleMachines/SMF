@@ -1686,7 +1686,9 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 	vertical-align: middle;
 }
 /* Load better icons for higher resolution screens */
-@media screen and (min-resolution: 160dpi) {
+@media
+	screen and (-webkit-min-device-pixel-ratio: 1.66),
+	screen and (min-resolution: 160dpi) {
 	.main_icons::before {
 		background-image: url(../images/icons/main_icons_sprite_hd.png);
 	}
