@@ -87,9 +87,9 @@ $txt['attach_restrictions'] = 'Restrictions:';
 
 $txt['post_additionalopt_attach'] = 'Attachments and other options';
 $txt['post_additionalopt'] = 'Other options';
-$txt['sticky_after_posting'] = 'Sticky this topic.';
-$txt['move_after_posting'] = 'Move this topic.';
-$txt['back_to_topic'] = 'Return to this topic.';
+$txt['sticky_after_posting'] = 'Sticky this topic';
+$txt['move_after_posting'] = 'Move this topic';
+$txt['back_to_topic'] = 'Return to this topic';
 $txt['approve_this_post'] = 'Approve this post';
 
 $txt['retrieving_quote'] = 'Retrieving quote...';
@@ -143,7 +143,7 @@ $txt['announce_desc'] = 'This form allows you to send an announcement to the sel
 $txt['announce_sending'] = 'Sending announcement of topic';
 $txt['announce_done'] = 'done';
 $txt['announce_continue'] = 'Continue';
-$txt['announce_topic'] = 'Announce topic.';
+$txt['announce_topic'] = 'Announce topic';
 $txt['announce_regular_members'] = 'Regular Members';
 
 $txt['digest_subject_daily'] = 'Daily Digest';
