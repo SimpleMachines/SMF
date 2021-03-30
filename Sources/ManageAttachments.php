@@ -1034,7 +1034,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 		// Figure out the "encrypted" filename and unlink it ;).
 		if ($row['attachment_type'] == 1)
 		{
-			// if attachment_type = 1, it's... an avatar in a custom avatar directory.
+			// if attachment_type = 1, it's... an avatar in a custom avatars directory.
 			// wasn't it obvious? :P
 			// @todo look again at this.
 			@unlink($modSettings['custom_avatar_dir'] . '/' . $row['filename']);
