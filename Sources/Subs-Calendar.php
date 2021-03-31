@@ -806,6 +806,15 @@ function loadTimePicker($selector = 'input.time_input', $time_format = '')
 		timeFormat: "' . $time_format . '",
 		showDuration: true,
 		maxTime: "23:59:59",
+		lang: {
+			am: "' . strtolower($txt['time_am']) . '",
+			pm: "' . strtolower($txt['time_pm']) . '",
+			AM: "' . strtoupper($txt['time_am']) . '",
+			PM: "' . strtoupper($txt['time_pm']) . '",
+			decimal: "' . $txt['decimal_sign'] . '",
+			mins: "' . $txt['minutes_short'] . '",
+			hr: "' . $txt['hour_short'] . '",
+		}
 	});', true);
 }
 
