@@ -296,6 +296,8 @@ function Post($post_errors = array())
 			'%T' => '%l:%M',
 		));
 
+		$time_string = preg_replace('~:(?=\s|$|%[pPzZ])~', '', $time_string);
+
 		// Editing an event?  (but NOT previewing!?)
 		if (empty($context['event']['new']) && !isset($_REQUEST['subject']))
 		{
