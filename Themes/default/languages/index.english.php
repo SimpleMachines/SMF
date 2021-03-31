@@ -43,6 +43,15 @@ $txt['years_title'] = 'Years';
 $txt['time_am'] = 'am';
 $txt['time_pm'] = 'pm';
 
+// Short form of minutes
+$txt['minutes_short'] = 'mins';
+// Short form of hour
+$txt['hour_short'] = 'hr';
+// Short form of hours
+$txt['hours_short'] = 'hrs';
+// Descimal sign
+$txt['decimal_sign'] = '.';
+
 $txt['admin'] = 'Admin';
 $txt['moderate'] = 'Moderate';
 
