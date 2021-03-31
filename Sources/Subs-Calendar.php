@@ -397,9 +397,10 @@ function getTodayInfo()
  * @param string $selected_date A date in YYYY-MM-DD format
  * @param array $calendarOptions An array of calendar options
  * @param bool $is_previous Whether this is the previous month
+ * @param bool $has_picker Wheter to add javascript to handle a date picker
  * @return array A large array containing all the information needed to show a calendar grid for the given month
  */
-function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false)
+function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false, $has_picker = true)
 {
 	global $scripturl, $modSettings;
 
@@ -536,8 +537,11 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false)
 	$calendarGrid['previous_calendar']['href'] = $scripturl . '?action=calendar;viewmonth;year=' . $calendarGrid['previous_calendar']['year'] . ';month=' . $calendarGrid['previous_calendar']['month'] . ';day=' . $calendarGrid['previous_calendar']['day'];
 	$calendarGrid['next_calendar']['href'] = $scripturl . '?action=calendar;viewmonth;year=' . $calendarGrid['next_calendar']['year'] . ';month=' . $calendarGrid['next_calendar']['month'] . ';day=' . $calendarGrid['previous_calendar']['day'];
 
-	loadDatePicker('#calendar_navigation .date_input');
-	loadDatePair('#calendar_navigation', 'date_input');
+	if ($has_picker)
+	{
+		loadDatePicker('#calendar_navigation .date_input');
+		loadDatePair('#calendar_navigation', 'date_input');
+	}
 
 	return $calendarGrid;
 }
