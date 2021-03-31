@@ -174,7 +174,7 @@ td.days:hover {
 	min-height: 30px;
 }
 .calendar_top input[type="text"] {
-	width: 80px;
+	width: 100px;
 }
 #calendar_range,
 #calendar_navigation {

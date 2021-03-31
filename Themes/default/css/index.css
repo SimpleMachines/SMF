@@ -1463,7 +1463,7 @@ ul li.greeting {
 	clear: left;
 }
 #event_time_input input[type="text"] {
-	width: 80px;
+	width: 100px;
 	display: inline-block;
 }
 #post_event input[type="checkbox"] {
