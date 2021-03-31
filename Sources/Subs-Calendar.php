@@ -406,10 +406,10 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false)
 	$selected_object = date_create($selected_date);
 
 	$next_object = date_create($selected_date);
-	date_add($next_object, date_interval_create_from_date_string('1 month'));
+	$next_object->modify('first day of next month');
 
 	$prev_object = date_create($selected_date);
-	date_sub($prev_object, date_interval_create_from_date_string('1 month'));
+	$prev_object->modify('first day of previous month');
 
 	// Eventually this is what we'll be returning.
 	$calendarGrid = array(
