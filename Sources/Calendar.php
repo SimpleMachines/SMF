@@ -199,15 +199,15 @@ function CalendarMain()
 		$context['calendar_grid_main'] = getCalendarGrid($curPage['start_date'], $calendarOptions);
 
 	// Load up the previous and next months.
-	$context['calendar_grid_current'] = getCalendarGrid($curPage['start_date'], $calendarOptions);
+	$context['calendar_grid_current'] = getCalendarGrid($curPage['start_date'], $calendarOptions, false, false);
 
 	// Only show previous month if it isn't pre-January of the min-year
 	if ($context['calendar_grid_current']['previous_calendar']['year'] > $modSettings['cal_minyear'] || $curPage['month'] != 1)
-		$context['calendar_grid_prev'] = getCalendarGrid($context['calendar_grid_current']['previous_calendar']['start_date'], $calendarOptions, true);
+		$context['calendar_grid_prev'] = getCalendarGrid($context['calendar_grid_current']['previous_calendar']['start_date'], $calendarOptions, true, false);
 
 	// Only show next month if it isn't post-December of the max-year
 	if ($context['calendar_grid_current']['next_calendar']['year'] < $modSettings['cal_maxyear'] || $curPage['month'] != 12)
-		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions);
+		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions, false, false);
 
 	// Basic template stuff.
 	$context['allow_calendar_event'] = allowedTo('calendar_post');
