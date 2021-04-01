@@ -188,8 +188,7 @@ class Mentions
 		$body = htmlspecialchars_decode(preg_replace('~<br\s*/?'.'>~', "\n", str_replace('&nbsp;', ' ', $body)), ENT_QUOTES);
 
 		// Remove quotes, we don't want to get double mentions.
-		while (preg_match('~\[quote[^\]]*\](.+?)\[\/quote\]~s', $body))
-			$body = preg_replace('~\[quote[^\]]*\](.+?)\[\/quote\]~s', '', $body);
+		$body = preg_replace('~\[quote[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?quote[^\]]*\]))|(?0))*\[/quote\]~', '', $body);
 
 		$matches = array();
 		// Split before every Unicode character.
