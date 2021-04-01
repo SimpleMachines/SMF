@@ -1801,13 +1801,13 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		$msgOptions['mentioned_members'] = Mentions::getMentionedMembers($msgOptions['body']);
 		if (!empty($msgOptions['mentioned_members']))
 		{
-			// Replace @name with [member=id]@name[/member]
+			// Replace @name with [member=id]name[/member]
 			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $msgOptions['mentioned_members']);
 
 			// Remove any members who weren't actually mentioned, to prevent bogus notifications
 			foreach ($msgOptions['mentioned_members'] as $m)
 			{
-				if (strpos('[member=' . $m['id'] . ']@' . $m['real_name'] . '[/member]', $msgOptions['body']) === false)
+				if (strpos($msgOptions['body'], '[member=' . $m['id'] . ']' . $m['real_name'] . '[/member]') === false)
 					unset($msgOptions['mentioned_members'][$m['id']]);
 			}
 		}
