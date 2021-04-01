@@ -185,14 +185,15 @@ class Mentions
 		global $smcFunc;
 
 		// preparse code does a few things which might mess with our parsing
-		$body = htmlspecialchars_decode(preg_replace('~<br\s*/?\>~', "\n", str_replace('&nbsp;', ' ', $body)), ENT_QUOTES);
+		$body = htmlspecialchars_decode(preg_replace('~<br\s*/?'.'>~', "\n", str_replace('&nbsp;', ' ', $body)), ENT_QUOTES);
 
 		// Remove quotes, we don't want to get double mentions.
 		while (preg_match('~\[quote[^\]]*\](.+?)\[\/quote\]~s', $body))
 			$body = preg_replace('~\[quote[^\]]*\](.+?)\[\/quote\]~s', '', $body);
 
 		$matches = array();
-		$string = str_split($body);
+		// Split before every Unicode character.
+		$string = preg_split('/(?=\X)/u', $body, -1, PREG_SPLIT_NO_EMPTY);
 		$depth = 0;
 		foreach ($string as $k => $char)
 		{
@@ -223,7 +224,8 @@ class Mentions
 		$names = array();
 		foreach ($matches as $match)
 		{
-			$match = preg_split('/([^\w])/', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
+			// '[^\p{L}\p{M}\p{N}_]' is the Unicode equivalent of '[^\w]'
+			$match = preg_split('/([^\p{L}\p{M}\p{N}_])/u', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
 			$count = count($match);
 
 			for ($i = 1; $i <= $count; $i++)
