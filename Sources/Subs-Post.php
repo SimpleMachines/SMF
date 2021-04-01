@@ -1805,11 +1805,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $msgOptions['mentioned_members']);
 
 			// Remove any members who weren't actually mentioned, to prevent bogus notifications
-			foreach ($msgOptions['mentioned_members'] as $m)
-			{
-				if (strpos($msgOptions['body'], '[member=' . $m['id'] . ']' . $m['real_name'] . '[/member]') === false)
-					unset($msgOptions['mentioned_members'][$m['id']]);
-			}
+			$msgOptions['mentioned_members'] = Mentions::verifyMentionedMembers($msgOptions['body'], $msgOptions['mentioned_members']);
 		}
 	}
 
@@ -2090,6 +2086,10 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	if (isset($_SESSION['topicseen_cache'][$topicOptions['board']]))
 		$_SESSION['topicseen_cache'][$topicOptions['board']]--;
 
+	// Keep track of any mentions.
+	if (!empty($msgOptions['mentioned_members']))
+		Mentions::insertMentions('msg', $msgOptions['id'], $msgOptions['mentioned_members'], $posterOptions['id']);
+
 	// Update all the stats so everyone knows about this new topic and message.
 	updateStats('message', true, $msgOptions['id']);
 
@@ -2185,38 +2185,24 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	if ($searchAPI->supportsMethod('postRemoved'))
 		$searchAPI->postRemoved($msgOptions['id']);
 
-	if (!empty($modSettings['enable_mentions']) && isset($msgOptions['body']))
+	if (!empty($modSettings['enable_mentions']) && !empty($msgOptions['body']))
 	{
 		require_once($sourcedir . '/Mentions.php');
 
-		$oldmentions = array();
-
-		if (!empty($msgOptions['old_body']))
-		{
-			preg_match_all('/\[member\=([0-9]+)\]([^\[]*)\[\/member\]/U', $msgOptions['old_body'], $match);
-
-			if (isset($match[1]) && isset($match[2]) && is_array($match[1]) && is_array($match[2]))
-				foreach ($match[1] as $i => $oldID)
-					$oldmentions[$oldID] = array('id' => $oldID, 'real_name' => $match[2][$i]);
-
-			if (empty($modSettings['search_custom_index_config']))
-				unset($msgOptions['old_body']);
-		}
-
 		$mentions = Mentions::getMentionedMembers($msgOptions['body']);
 		$messages_columns['body'] = $msgOptions['body'] = Mentions::getBody($msgOptions['body'], $mentions);
+		$mentions = Mentions::verifyMentionedMembers($msgOptions['body'], $mentions);
 
-		// Remove the poster.
-		if (isset($mentions[$user_info['id']]))
-			unset($mentions[$user_info['id']]);
+		// Update our records in the database.
+		$mention_modifications = Mentions::modifyMentions('msg', $msgOptions['id'], $mentions, $posterOptions['id']);
 
-		if (isset($oldmentions[$user_info['id']]))
-			unset($oldmentions[$user_info['id']]);
-
-		if (is_array($mentions) && is_array($oldmentions) && count(array_diff_key($mentions, $oldmentions)) > 0 && count($mentions) > count($oldmentions))
+		if (!empty($mention_modifications['added']))
 		{
 			// Queue this for notification.
-			$msgOptions['mentioned_members'] = array_diff_key($mentions, $oldmentions);
+			$msgOptions['mentioned_members'] = array_diff_key($mentions, array_flip($mention_modifications['added']));
+
+			// Mentioning yourself is silly, and we aren't going to notify you about it.
+			unset($msgOptions['mentioned_members'][$user_info['id']]);
 
 			$smcFunc['db_insert']('',
 				'{db_prefix}background_tasks',

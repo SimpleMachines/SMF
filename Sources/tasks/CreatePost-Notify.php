@@ -75,7 +75,6 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		// Insert the post mentions
 		if (!empty($msgOptions['mentioned_members']))
 		{
-			Mentions::insertMentions('msg', $msgOptions['id'], $msgOptions['mentioned_members'], $posterOptions['id']);
 			$members = array_merge($members, array_keys($msgOptions['mentioned_members']));
 		}
 
@@ -487,6 +486,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			if (!empty($prefs[$id]['msg_mention']))
 				$done_members[] = $id;
 			else
+				continue;
+
+			// Mentioning yourself is silly, and we aren't going to notify you about it.
+			if ($member['id'] == $member['mentioned_by']['id'])
 				continue;
 
 			// Alerts' emails are always instant
