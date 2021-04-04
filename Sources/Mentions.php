@@ -154,6 +154,9 @@ class Mentions
 	 */
 	public static function getBody($body, array $members)
 	{
+		if (empty($body))
+			return $body;
+
 		foreach ($members as $member)
 			$body = str_ireplace(static::$char . $member['real_name'], '[member=' . $member['id'] . ']' . $member['real_name'] . '[/member]', $body);
 
@@ -171,6 +174,9 @@ class Mentions
 	public static function getMentionedMembers($body)
 	{
 		global $smcFunc;
+
+		if (empty($body))
+			return array();
 
 		$possible_names = self::getPossibleMentions($body);
 		$existing_mentions = self::getExistingMentions($body);
@@ -240,6 +246,9 @@ class Mentions
 	protected static function getPossibleMentions($body)
 	{
 		global $smcFunc;
+
+		if (empty($body))
+			return array();
 
 		// preparse code does a few things which might mess with our parsing
 		$body = htmlspecialchars_decode(preg_replace('~<br\s*/?'.'>~', "\n", str_replace('&nbsp;', ' ', $body)), ENT_QUOTES);
@@ -331,6 +340,9 @@ class Mentions
 	 */
 	public static function verifyMentionedMembers($body, array $members)
 	{
+		if (empty($body))
+			return array();
+
 		// Don't include mentions inside quotations.
 		$body = preg_replace('~\[quote[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?quote[^\]]*\]))|(?0))*\[/quote\]~', '', $body);
 
@@ -338,6 +350,83 @@ class Mentions
 		{
 			if (strpos($body, '[member=' . $member['id'] . ']' . $member['real_name'] . '[/member]') === false)
 				unset($members[$member['id']]);
+		}
+
+		return $members;
+	}
+
+	/**
+	 * Retrieves info about the authors of posts quoted in a block of text.
+	 *
+	 * @static
+	 * @access public
+	 * @param string $body A block of text, such as the body of a post.
+	 * @param int $poster_id The member ID of the author of the text.
+	 * @return array Info about any members who were quoted.
+	 */
+	public static function getQuotedMembers($body, $poster_id)
+	{
+		global $smcFunc;
+
+		if (empty($body))
+			return array();
+
+		$blocks = preg_split('/(\[quote.*?\]|\[\/quote\])/i', $body, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+
+		$quote_level = 0;
+		$message = '';
+
+		foreach ($blocks as $block)
+		{
+			if (preg_match('/\[quote(.*)?\]/i', $block, $matches))
+			{
+				if ($quote_level == 0)
+					$message .= '[quote' . $matches[1] . ']';
+				$quote_level++;
+			}
+			elseif (preg_match('/\[\/quote\]/i', $block))
+			{
+				if ($quote_level <= 1)
+					$message .= '[/quote]';
+				if ($quote_level >= 1)
+				{
+					$quote_level--;
+					$message .= "\n";
+				}
+			}
+			elseif ($quote_level <= 1)
+				$message .= $block;
+		}
+
+		preg_match_all('/\[quote.*?link=msg=([0-9]+).*?\]/i', $message, $matches);
+
+		$id_msgs = $matches[1];
+		foreach ($id_msgs as $k => $id_msg)
+			$id_msgs[$k] = (int) $id_msg;
+
+		if (empty($id_msgs))
+			return array();
+
+		// Get the messages
+		$request = $smcFunc['db_query']('', '
+			SELECT m.id_member AS id, mem.email_address, mem.lngfile, mem.real_name
+			FROM {db_prefix}messages AS m
+				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
+			WHERE id_msg IN ({array_int:msgs})
+			LIMIT {int:count}',
+			array(
+				'msgs' => array_unique($id_msgs),
+				'count' => count(array_unique($id_msgs)),
+			)
+		);
+
+		$members = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if ($poster_id == $row['id'])
+				continue;
+
+			$members[$row['id']] = $row;
 		}
 
 		return $members;
