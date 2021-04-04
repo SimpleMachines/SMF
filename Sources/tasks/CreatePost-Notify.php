@@ -23,8 +23,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 	/**
 	 * Constants for reply types.
 	*/
-	const NOTIFY_TYPE_REPLY_AND_MODIFY = 1;
-	const NOTIFY_TYPE_REPLY_AND_TOPIC_START_FOLLOWING = 2;
+	const NOTIFY_TYPE_REPLIES_AND_MODERATION = 1;
+	const NOTIFY_TYPE_REPLIES_AND_OWN_TOPIC_MODERATION = 2;
 	const NOTIFY_TYPE_ONLY_REPLIES = 3;
 	const NOTIFY_TYPE_NOTHING = 4;
 
@@ -36,6 +36,32 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 	const FREQUENCY_FIRST_UNREAD_MSG = 2;
 	const FREQUENCY_DAILY_DIGEST = 3;
 	const FREQUENCY_WEEKLY_DIGEST = 4;
+
+	/**
+	 * @var array Info about members to be notified.
+	 */
+	private $members = array(
+		// These three contain nested arrays of member info.
+		'mentioned' => array(),
+		'quoted' => array(),
+		'watching' => array(),
+
+		// These ones just contain member IDs.
+		'all' => array(),
+		'emailed' => array(),
+		'alerted' => array(),
+		'done' => array(),
+	);
+
+	/**
+	 * @var array Alerts to be inserted into the alerts table.
+	 */
+	private $alert_rows = array();
+
+	/**
+	 * @var array Members' notification and alert preferences.
+	 */
+	private $prefs = array();
 
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
@@ -60,23 +86,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$posterOptions = $this->_details['posterOptions'];
 		$type = $this->_details['type'];
 
-		$members = array();
-		$quotedMembers = array();
-		$done_members = array();
-		$alert_rows = array();
-		$receiving_members = array();
-
-		if ($type == 'reply' || $type == 'topic')
-		{
-			$quotedMembers = self::getQuotedMembers($msgOptions, $posterOptions);
-			$members = array_keys($quotedMembers);
-		}
-
-		// Insert the post mentions
+		if (!empty($msgOptions['quoted_members']))
+			$this->members['quoted'] = Mentions::getMentionsByContent('quote', $msgOptions['id'], array_keys($msgOptions['quoted_members']));
 		if (!empty($msgOptions['mentioned_members']))
-		{
-			$members = array_merge($members, array_keys($msgOptions['mentioned_members']));
-		}
+			$this->members['mentioned'] = Mentions::getMentionsByContent('msg', $msgOptions['id'], array_keys($msgOptions['mentioned_members']));
 
 		// Find the people interested in receiving notifications for this topic
 		$request = $smcFunc['db_query']('', '
@@ -99,9 +112,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			)
 		);
 
-		$watched = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
+			// Skip members who aren't allowed to see this board
 			$groups = array_merge(array($row['id_group'], $row['id_post_group']), (empty($row['additional_groups']) ? array() : explode(',', $row['additional_groups'])));
 
 			if (!in_array(1, $groups) && count(array_intersect($groups, explode(',', $row['member_groups']))) == 0)
@@ -112,8 +125,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				unset($row['id_group'], $row['id_post_group'], $row['additional_groups']);
 			}
 
-			$members[] = $row['id_member'];
-			$watched[$row['id_member']] = $row;
+			$this->members['watching'][$row['id_member']] = $row;
 		}
 
 		$smcFunc['db_free_result']($request);
@@ -122,25 +134,23 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		if ($type == 'edit')
 		{
 			// Filter out members who have already been notified about this post's topic
-			$unnotified = array_filter($watched, function ($member)
+			$unnotified = array_filter($this->members['watching'], function ($member)
 			{
 				return empty($member['sent']);
 			});
-			$members = array_intersect($members, array_keys($unnotified));
-			$quotedMembers = array_intersect_key($quotedMembers, $unnotified);
-			$msgOptions['mentioned_members'] = array_intersect_key($msgOptions['mentioned_members'], $unnotified);
+			$this->members['quoted'] = array_intersect_key($this->members['quoted'], $unnotified);
+			$this->members['mentioned'] = array_intersect_key($this->members['mentioned'], $unnotified);
 
 			// Notifications about modified posts only go to members who were mentioned or quoted
-			$watched = array();
+			$this->members['watching'] = array();
 		}
 
-		if (empty($members))
+		$this->members['all'] = array_unique(array_merge(array_keys($this->members['watching']), array_keys($this->members['quoted']), array_keys($this->members['mentioned'])));
+
+		if (empty($this->members['all']))
 			return true;
 
-		$members = array_unique($members);
-		$members_info = $this->getMinUserInfo($members);
-
-		$prefs = getNotifyPrefs($members, '', true);
+		$this->prefs = getNotifyPrefs($this->members['all'], '', true);
 
 		// May as well disable these, since they'll be stripped out anyway.
 		$disable = array('attach', 'img', 'iurl', 'url', 'youtube');
@@ -151,71 +161,144 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		}
 		$modSettings['disabledBBC'] = implode(',', $disable);
 
-		// Do we have anyone to notify via mention? Handle them first and cross them off the list
-		if (!empty($msgOptions['mentioned_members']))
-		{
-			$mentioned_members = Mentions::getMentionsByContent('msg', $msgOptions['id'], array_keys($msgOptions['mentioned_members']));
-			self::handleMentionedNotifications($msgOptions, $mentioned_members, $prefs, $done_members, $alert_rows);
-		}
+		// Notify any members who were mentioned.
+		if (!empty($this->members['mentioned']))
+			$this->handleMentionedNotifications();
 
-		// Notify members which might've been quoted
-		self::handleQuoteNotifications($msgOptions, $posterOptions, $quotedMembers, $prefs, $done_members, $alert_rows);
-
-		// Save ourselves a bit of work in the big loop below
-		foreach ($done_members as $done_member)
-		{
-			$receiving_members[] = $done_member;
-			unset($watched[$done_member]);
-		}
-
-		$parsed_message = array();
+		// Notify any members who were quoted.
+		if (!empty($this->members['quoted']))
+			$this->handleQuoteNotifications();
 
 		// Handle rest of the notifications for watched topics and boards
-		foreach ($watched as $member_id => $member_data)
-		{
-			$frequency = isset($prefs[$member_id]['msg_notify_pref']) ? $prefs[$member_id]['msg_notify_pref'] : self::FREQUENCY_NOTHING;
-			$notify_types = !empty($prefs[$member_id]['msg_notify_type']) ? $prefs[$member_id]['msg_notify_type'] : self::NOTIFY_TYPE_REPLY_AND_MODIFY;
+		if (!empty($this->members['watching']))
+			$this->handleWatchedNotifications();
 
-			// Don't send a notification if the watching member ignored the member who made the action.
+		// Put this back the way we found it.
+		if (!empty($disabledBBC))
+			$modSettings['disabledBBC'] = $disabledBBC;
+
+		// Track what we sent.
+		if (!empty($this->members['emailed']))
+		{
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}log_notify
+				SET sent = {int:is_sent}
+				WHERE (id_topic = {int:topic} OR id_board = {int:board})
+					AND id_member IN ({array_int:members})',
+				array(
+					'topic' => $topicOptions['id'],
+					'board' => $topicOptions['board'],
+					'members' => $this->members['emailed'],
+					'is_sent' => 1,
+				)
+			);
+		}
+
+		// Insert it into the digest for daily/weekly notifications
+		$smcFunc['db_insert']('',
+			'{db_prefix}log_digest',
+			array(
+				'id_topic' => 'int', 'id_msg' => 'int', 'note_type' => 'string', 'exclude' => 'int',
+			),
+			array($topicOptions['id'], $msgOptions['id'], $type, $posterOptions['id']),
+			array()
+		);
+
+		// Insert the alerts if any
+		if (!empty($this->alert_rows))
+		{
+			$smcFunc['db_insert']('',
+				'{db_prefix}user_alerts',
+				array(
+					'alert_time' => 'int',
+					'id_member' => 'int',
+					'id_member_started' => 'int',
+					'member_name' => 'string',
+					'content_type' => 'string',
+					'content_id' => 'int',
+					'content_action' => 'string',
+					'is_read' => 'int',
+					'extra' => 'string',
+				),
+				$this->alert_rows,
+				array()
+			);
+		}
+
+		if (!empty($this->members['alerted']))
+			updateMemberData($this->members['alerted'], array('alerts' => '+'));
+
+		return true;
+	}
+
+	/**
+	 * Notifies members about new posts in topics they are watching
+	 * and new topics in boards they are watching.
+	 */
+	protected function handleWatchedNotifications()
+	{
+		global $smcFunc, $scripturl, $modSettings, $user_info;
+
+		$msgOptions = $this->_details['msgOptions'];
+		$topicOptions = $this->_details['topicOptions'];
+		$posterOptions = $this->_details['posterOptions'];
+		$type = $this->_details['type'];
+
+		$members_info = $this->getMinUserInfo(array_keys($this->members['watching']));
+
+		$parsed_message = array();
+		foreach ($this->members['watching'] as $member_id => $member_data)
+		{
+			if (in_array($member_id, $this->members['done']))
+				continue;
+
+			$frequency = isset($this->prefs[$member_id]['msg_notify_pref']) ? $this->prefs[$member_id]['msg_notify_pref'] : self::FREQUENCY_NOTHING;
+			$notify_types = !empty($this->prefs[$member_id]['msg_notify_type']) ? $this->prefs[$member_id]['msg_notify_type'] : self::NOTIFY_TYPE_REPLIES_AND_MODERATION;
+
+			// Don't send a notification if:
+			// 1. The watching member ignored the member who did the action.
 			if (!empty($member_data['pm_ignore_list']) && in_array($member_data['id_member_updated'], explode(',', $member_data['pm_ignore_list'])))
 				continue;
 
-			if (!in_array($type, array('reply', 'topic')) && $notify_types == self::NOTIFY_TYPE_REPLY_AND_TOPIC_START_FOLLOWING && $member_id != $member_data['id_member_started'])
+			// 2. The watching member is not interested in moderation on this topic.
+			if (!in_array($type, array('reply', 'topic')) && ($notify_types == self::NOTIFY_TYPE_ONLY_REPLIES || ($notify_types == self::NOTIFY_TYPE_REPLIES_AND_OWN_TOPIC_MODERATION && $member_id != $member_data['id_member_started'])))
 				continue;
 
-			elseif (!in_array($type, array('reply', 'topic')) && $notify_types == self::NOTIFY_TYPE_ONLY_REPLIES)
+			// 3. This is the watching member's own post.
+			if (in_array($type, array('reply', 'topic')) && $member_id == $posterOptions['id'])
 				continue;
 
-			elseif ($notify_types == self::NOTIFY_TYPE_NOTHING)
+			// 4. The watching member doesn't want any notifications at all.
+			if ($notify_types == self::NOTIFY_TYPE_NOTHING)
 				continue;
 
-			// Don't send a notification if they don't want any...
+			// 5. The watching member doesn't want notifications until later.
 			if (in_array($frequency, array(
 				self::FREQUENCY_NOTHING,
 				self::FREQUENCY_DAILY_DIGEST,
 				self::FREQUENCY_WEEKLY_DIGEST)))
 				continue;
 
-			// ... or if we already sent one and they don't want more...
-			elseif ($frequency == self::FREQUENCY_FIRST_UNREAD_MSG && $member_data['sent'])
+			// 6. We already sent one and the watching member doesn't want more.
+			if ($frequency == self::FREQUENCY_FIRST_UNREAD_MSG && $member_data['sent'])
 				continue;
 
-			// ... or if they aren't on the bouncer's list.
-			elseif (!empty($this->_details['members_only']) && !in_array($member_id, $this->_details['members_only']))
+			// 7. The watching member isn't on club security's VIP list.
+			if (!empty($this->_details['members_only']) && !in_array($member_id, $this->_details['members_only']))
 				continue;
 
 			// Watched topic?
-			if (!empty($member_data['id_topic']) && $type != 'topic' && !empty($prefs[$member_id]))
+			if (!empty($member_data['id_topic']) && $type != 'topic' && !empty($this->prefs[$member_id]))
 			{
-				$pref = !empty($prefs[$member_id]['topic_notify_' . $topicOptions['id']]) ?
-					$prefs[$member_id]['topic_notify_' . $topicOptions['id']] :
-					(!empty($prefs[$member_id]['topic_notify']) ? $prefs[$member_id]['topic_notify'] : 0);
+				$pref = !empty($this->prefs[$member_id]['topic_notify_' . $topicOptions['id']]) ?
+					$this->prefs[$member_id]['topic_notify_' . $topicOptions['id']] :
+					(!empty($this->prefs[$member_id]['topic_notify']) ? $this->prefs[$member_id]['topic_notify'] : 0);
 
 				$message_type = 'notification_' . $type;
 
 				if ($type == 'reply')
 				{
-					if (empty($modSettings['disallow_sendBody']) && !empty($prefs[$member_id]['msg_receive_body']))
+					if (empty($modSettings['disallow_sendBody']) && !empty($this->prefs[$member_id]['msg_receive_body']))
 						$message_type .= '_body';
 
 					if (!empty($frequency))
@@ -227,15 +310,15 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			// A new topic in a watched board then?
 			elseif ($type == 'topic')
 			{
-				$pref = !empty($prefs[$member_id]['board_notify_' . $topicOptions['board']]) ?
-					$prefs[$member_id]['board_notify_' . $topicOptions['board']] :
-					(!empty($prefs[$member_id]['board_notify']) ? $prefs[$member_id]['board_notify'] : 0);
+				$pref = !empty($this->prefs[$member_id]['board_notify_' . $topicOptions['board']]) ?
+					$this->prefs[$member_id]['board_notify_' . $topicOptions['board']] :
+					(!empty($this->prefs[$member_id]['board_notify']) ? $this->prefs[$member_id]['board_notify'] : 0);
 
 				$content_type = 'board';
 
 				$message_type = !empty($frequency) ? 'notify_boards_once' : 'notify_boards';
 
-				if (empty($modSettings['disallow_sendBody']) && !empty($prefs[$member_id]['msg_receive_body']))
+				if (empty($modSettings['disallow_sendBody']) && !empty($this->prefs[$member_id]['msg_receive_body']))
 					$message_type .= '_body';
 			}
 
@@ -296,12 +379,14 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				// We failed, don't trigger a alert as we don't have a way to attempt to resend just the email currently.
 				if ($mail_result === false)
 					continue;
+
+				$this->members['emailed'][] = $member_id;
 			}
 
 			// Bitwise check: Receiving a alert?
 			if ($pref & self::RECEIVE_NOTIFY_ALERT)
 			{
-				$alert_rows[] = array(
+				$this->alert_rows[] = array(
 					'alert_time' => time(),
 					'id_member' => $member_id,
 					// Only tell sender's information for new topics and replies
@@ -319,66 +404,37 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					)),
 				);
 
-				$receiving_members[] = $member_id;
+				$this->members['alerted'][] = $member_id;
 			}
 
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}log_notify
-				SET sent = {int:is_sent}
-				WHERE (id_topic = {int:topic} OR id_board = {int:board})
-					AND id_member = {int:member}',
-				array(
-					'topic' => $topicOptions['id'],
-					'board' => $topicOptions['board'],
-					'member' => $member_id,
-					'is_sent' => 1,
-				)
-			);
+			$this->members['done'][] = $member_id;
 		}
-
-		// Put this back the way we found it.
-		if (!empty($disabledBBC))
-			$modSettings['disabledBBC'] = $disabledBBC;
-
-		// Insert it into the digest for daily/weekly notifications
-		$smcFunc['db_insert']('',
-			'{db_prefix}log_digest',
-			array(
-				'id_topic' => 'int', 'id_msg' => 'int', 'note_type' => 'string', 'exclude' => 'int',
-			),
-			array($topicOptions['id'], $msgOptions['id'], $type, $posterOptions['id']),
-			array()
-		);
-
-		// Insert the alerts if any
-		if (!empty($alert_rows))
-			$smcFunc['db_insert']('',
-				'{db_prefix}user_alerts',
-				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
-					'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
-				$alert_rows,
-				array()
-			);
-
-		if (!empty($receiving_members))
-			updateMemberData($receiving_members, array('alerts' => '+'));
-
-		return true;
 	}
 
-	protected static function handleQuoteNotifications($msgOptions, $posterOptions, $quotedMembers, $prefs, &$done_members, &$alert_rows)
+	/**
+	 * Notifies members when their posts are quoted in other posts.
+	 */
+	protected function handleQuoteNotifications()
 	{
 		global $smcFunc, $modSettings, $language, $scripturl;
 
-		foreach ($quotedMembers as $id => $member)
+		$msgOptions = $this->_details['msgOptions'];
+		$posterOptions = $this->_details['posterOptions'];
+
+		foreach ($this->members['quoted'] as $id => $member)
 		{
-			if (!isset($prefs[$id]) || $id == $posterOptions['id'] || empty($prefs[$id]['msg_quote']))
+			if (in_array($id, $this->members['done']))
 				continue;
 
-			$done_members[] = $id;
+			if (!isset($this->prefs[$id]) || empty($this->prefs[$id]['msg_quote']))
+				continue;
+
+			// You don't need to be notified about quoting yourself.
+			if ($id == $posterOptions['id'])
+				continue;
 
 			// Bitwise check: Receiving a email notification?
-			if ($prefs[$id]['msg_quote'] & self::RECEIVE_NOTIFY_EMAIL)
+			if ($this->prefs[$id]['msg_quote'] & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				$replacements = array(
 					'CONTENTSUBJECT' => $msgOptions['subject'],
@@ -388,15 +444,18 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				);
 
 				$emaildata = loadEmailTemplate('msg_quote', $replacements, empty($member['lngfile']) || empty($modSettings['userLanguage']) ? $language : $member['lngfile']);
-				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_quote_' . $msgOptions['id'], $emaildata['is_html'], 2);
+				$mail_result = sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_quote_' . $msgOptions['id'], $emaildata['is_html'], 2);
+
+				if ($mail_result === false)
+					continue;
 			}
 
-			// Bitwise check: Receiving a alert?
-			if ($prefs[$id]['msg_quote'] & self::RECEIVE_NOTIFY_ALERT)
+			// Bitwise check: Receiving an alert?
+			if ($this->prefs[$id]['msg_quote'] & self::RECEIVE_NOTIFY_ALERT)
 			{
-				$alert_rows[] = array(
+				$this->alert_rows[] = array(
 					'alert_time' => time(),
-					'id_member' => $member['id_member'],
+					'id_member' => $member['id'],
 					'id_member_started' => $posterOptions['id'],
 					'member_name' => $posterOptions['name'],
 					'content_type' => 'msg',
@@ -409,18 +468,26 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					)),
 				);
 			}
+
+			$this->members['done'][] = $id;
 		}
 	}
 
-	protected static function handleMentionedNotifications($msgOptions, $members, $prefs, &$done_members, &$alert_rows)
+	/**
+	 * Notifies members when they are mentioned in other members' posts.
+	 */
+	protected function handleMentionedNotifications()
 	{
 		global $smcFunc, $scripturl, $language, $modSettings;
 
-		foreach ($members as $id => $member)
+		$msgOptions = $this->_details['msgOptions'];
+
+		foreach ($this->members['mentioned'] as $id => $member)
 		{
-			if (!empty($prefs[$id]['msg_mention']))
-				$done_members[] = $id;
-			else
+			if (in_array($id, $this->members['done']))
+				continue;
+
+			if (empty($this->prefs[$id]) || empty($this->prefs[$id]['msg_mention']))
 				continue;
 
 			// Mentioning yourself is silly, and we aren't going to notify you about it.
@@ -428,7 +495,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				continue;
 
 			// Alerts' emails are always instant
-			if ($prefs[$id]['msg_mention'] & self::RECEIVE_NOTIFY_EMAIL)
+			if ($this->prefs[$id]['msg_mention'] & self::RECEIVE_NOTIFY_EMAIL)
 			{
 				$replacements = array(
 					'CONTENTSUBJECT' => $msgOptions['subject'],
@@ -438,12 +505,15 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				);
 
 				$emaildata = loadEmailTemplate('msg_mention', $replacements, empty($member['lngfile']) || empty($modSettings['userLanguage']) ? $language : $member['lngfile']);
-				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_mention_' . $msgOptions['id'], $emaildata['is_html'], 2);
+				$mail_result = sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_mention_' . $msgOptions['id'], $emaildata['is_html'], 2);
+
+				if ($mail_result === false)
+					continue;
 			}
 
-			if ($prefs[$id]['msg_mention'] & self::RECEIVE_NOTIFY_ALERT)
+			if ($this->prefs[$id]['msg_mention'] & self::RECEIVE_NOTIFY_ALERT)
 			{
-				$alert_rows[] = array(
+				$this->alert_rows[] = array(
 					'alert_time' => time(),
 					'id_member' => $member['id'],
 					'id_member_started' => $member['mentioned_by']['id'],
@@ -458,6 +528,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					)),
 				);
 			}
+
+			$this->members['done'][] = $id;
 		}
 	}
 }
