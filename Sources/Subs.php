@@ -1730,25 +1730,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'parameters' => array(
 					'alt' => array('optional' => true),
 					'title' => array('optional' => true),
-				),
-				'content' => '<img src="$1" alt="{alt}" title="{title}" class="bbc_img" loading="lazy">',
-				'validate' => function(&$tag, &$data, $disabled)
-				{
-					$data = strtr($data, array('<br>' => ''));
-
-					if (parse_url($data, PHP_URL_SCHEME) === null)
-						$data = '//' . ltrim($data, ':/');
-					else
-						$data = get_proxied_url($data);
-				},
-				'disabled_content' => '($1)',
-			),
-			array(
-				'tag' => 'img',
-				'type' => 'unparsed_content',
-				'parameters' => array(
-					'alt' => array('optional' => true),
-					'title' => array('optional' => true),
 					'width' => array('optional' => true, 'value' => ' width="$1"', 'match' => '(\d+)'),
 					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
 				),
