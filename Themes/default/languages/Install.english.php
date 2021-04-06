@@ -302,7 +302,7 @@ $txt['upgrade_executing'] = 'Executing:';
 $txt['upgrade_of'] = 'of';
 $txt['upgrade_admin_login'] = 'Admin Login:';
 $txt['upgrade_admin_disabled'] = '(DISABLED)';
-$txt['upgrade_done'] = 'Upgrade complete. Now you are ready to use <a href="$1%s/index.php">your installation of SMF</a>. Hope you like it!';
+$txt['upgrade_done'] = 'Upgrade complete. Now you are ready to use <a href="%1$s/index.php">your installation of SMF</a>. Hope you like it!';
 
 $txt['upgrade_delete_now'] = 'Delete upgrade.php and its data files now';
 $txt['upgrade_delete_server'] = '(does not work on all servers).';
