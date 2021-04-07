@@ -69,7 +69,7 @@ function reloadSettings()
 		// We explicitly do not use $smcFunc['json_decode'] here yet, as $smcFunc is not fully loaded.
 		if (!is_array($modSettings['attachmentUploadDir']))
 		{
-			$attachmentUploadDir = smf_json_decode($modSettings['attachmentUploadDir'], true);
+			$attachmentUploadDir = smf_json_decode($modSettings['attachmentUploadDir'], true, false);
 			$modSettings['attachmentUploadDir'] = !empty($attachmentUploadDir) ? $attachmentUploadDir : $modSettings['attachmentUploadDir'];
 		}
 
