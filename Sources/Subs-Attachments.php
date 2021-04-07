@@ -145,9 +145,9 @@ function automanage_attachments_create_directory($updir)
 
 	$directory .= DIRECTORY_SEPARATOR . array_shift($tree);
 
-	while (!@is_dir($directory) || $count != -1)
+	while ($count != -1)
 	{
-		if (!@is_dir($directory))
+		if (is_path_allowed($directory) && !@is_dir($directory))
 		{
 			if (!@mkdir($directory, 0755))
 			{
@@ -189,6 +189,32 @@ function automanage_attachments_create_directory($updir)
 
 	$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 	return true;
+}
+
+/**
+ * Check if open_basedir restrictions are in effect.
+ * If so check if the path is allowed.
+ *
+ * @param string $path The path to check
+ *
+ * @return bool True if the path is allowed, false otherwise.
+ */
+function is_path_allowed($path)
+{
+	$open_basedir = ini_get('open_basedir');
+
+	if (empty($open_basedir))
+		return true;
+
+	$restricted_paths = explode(PATH_SEPARATOR, $open_basedir);
+
+	foreach ($restricted_paths as $restricted_path)
+	{
+		if (mb_strpos($path, $restricted_path) === 0)
+			return true;
+	}
+
+	return false;
 }
 
 /**
