@@ -582,8 +582,8 @@ $helptxt['field_show_enclosed'] = 'Encloses the user input between some text or 
 		<ul class="normallist">
 			<li>{INPUT} - The input specified by the user.</li>
 			<li>{SCRIPTURL} - Web address of forum.</li>
-			<li>{IMAGES_URL} - Url to images directory in the users current theme.</li>
-			<li>{DEFAULT_IMAGES_URL} - Url to the images directory in the default theme.</li>
+			<li>{IMAGES_URL} - URL to images directory in the users current theme.</li>
+			<li>{DEFAULT_IMAGES_URL} - URL to the images directory in the default theme.</li>
 			<li>{KEY} - Used when a field has multiple options, is the unique numeric ID used to identify it.</li>
 		</ul>';
 
