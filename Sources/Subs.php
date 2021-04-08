@@ -1727,6 +1727,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'img',
 				'type' => 'unparsed_content',
+				'negative_test' => 'height|width=[\d+]',
 				'parameters' => array(
 					'alt' => array('optional' => true),
 					'title' => array('optional' => true),
@@ -2669,6 +2670,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		foreach ($bbc_codes[$tag_character] as $possible)
 		{
 			$pt_strlen = strlen($possible['tag']);
+			$pos1 = $pos + 1 + $pt_strlen + 1;
 
 			// Not a match?
 			if (strtolower(substr($message, $pos + 1, $pt_strlen)) != $possible['tag'])
@@ -2680,8 +2682,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if ($next_c == '')
 				break;
 
+			// A negative test validation?
+			if (isset($possible['negative_test']) && preg_match('~' . $possible['negative_test'] . '~', substr($message, $pos1)) === 1)
+				continue;
 			// A test validation?
-			if (isset($possible['test']) && preg_match('~^' . $possible['test'] . '~', substr($message, $pos + 1 + $pt_strlen + 1)) === 0)
+			elseif (isset($possible['test']) && preg_match('~^' . $possible['test'] . '~', substr($message, $pos1)) === 0)
 				continue;
 			// Do we want parameters?
 			elseif (!empty($possible['parameters']))
@@ -2724,8 +2729,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// If this is in the list of disallowed child tags, don't parse it.
 			elseif (isset($inside['disallow_children']) && in_array($possible['tag'], $inside['disallow_children']))
 				continue;
-
-			$pos1 = $pos + 1 + $pt_strlen + 1;
 
 			// Quotes can have alternate styling, we do this php-side due to all the permutations of quotes.
 			if ($possible['tag'] == 'quote')
