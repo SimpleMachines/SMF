@@ -2590,7 +2590,7 @@ function alert_notifications_topics($memID)
 					'reverse' => 'ml.id_msg',
 				),
 			),
-			'alert' => array(
+			'alert_pref' => array(
 				'header' => array(
 					'value' => $txt['notify_what_how'],
 					'class' => 'lefttext',
@@ -2708,7 +2708,7 @@ function alert_notifications_boards($memID)
 					'reverse' => 'name DESC',
 				),
 			),
-			'alert' => array(
+			'alert_pref' => array(
 				'header' => array(
 					'value' => $txt['notify_what_how'],
 					'class' => 'lefttext',
