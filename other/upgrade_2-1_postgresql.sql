@@ -1170,6 +1170,110 @@ ALTER TABLE {$db_prefix}members
 	DROP notify_announcements;
 ---#
 
+---# Creating alert prefs for watched topics
+---{
+	$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
+	$step_progress['name'] = 'Creating alert preferences for watched topics';
+	$step_progress['current'] = $_GET['a'];
+
+	$limit = 100000;
+	$is_done = false;
+
+	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_topic <> 0');
+	list($maxTopics) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	while (!$is_done)
+	{
+		nextSubStep($substep);
+		$inserts = array();
+
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member, (\'topic_notify_\' || id_topic) as alert_pref, 1 as alert_value
+			FROM {db_prefix}log_notify
+			WHERE id_member <> 0 AND id_topic <> 0
+			LIMIT {int:start}, {int:limit}',
+			array(
+				'db_error_skip' => true,
+				'start' => $_GET['a'],
+				'limit' => $limit,
+			)
+		);
+		if ($smcFunc['db_num_rows']($request) != 0)
+		{
+			$inserts = $smcFunc['db_fetch_all']($request);
+		}
+		$smcFunc['db_free_result']($request);
+
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}user_alerts_prefs',
+			array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
+			$inserts,
+			array('id_member', 'alert_pref')
+		);
+
+		$_GET['a'] += $limit;
+		$step_progress['current'] = $_GET['a'];
+
+		if ($step_progress['current'] >= $maxTopics)
+			$is_done = true;
+	}
+	unset($_GET['a']);
+---}
+---#
+
+---# Creating alert prefs for watched boards
+---{
+	$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
+	$step_progress['name'] = 'Creating alert preferences for watched boards';
+	$step_progress['current'] = $_GET['a'];
+
+	$limit = 100000;
+	$is_done = false;
+
+	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_board <> 0');
+	list($maxBoards) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	while (!$is_done)
+	{
+		nextSubStep($substep);
+		$inserts = array();
+
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member, (\'board_notify_\' || id_board) as alert_pref, 1 as alert_value
+			FROM {db_prefix}log_notify
+			WHERE id_member <> 0 AND id_board <> 0
+			LIMIT {int:start}, {int:limit}',
+			array(
+				'db_error_skip' => true,
+				'start' => $_GET['a'],
+				'limit' => $limit,
+			)
+		);
+		if ($smcFunc['db_num_rows']($request) != 0)
+		{
+			$inserts = $smcFunc['db_fetch_all']($request);
+		}
+		$smcFunc['db_free_result']($request);
+
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}user_alerts_prefs',
+			array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
+			$inserts,
+			array('id_member', 'alert_pref')
+		);
+
+		$_GET['a'] += $limit;
+		$step_progress['current'] = $_GET['a'];
+
+		if ($step_progress['current'] >= $maxBoards)
+			$is_done = true;
+	}
+	unset($_GET['a']);
+---}
+---#
+
 ---# Updating obsolete alerts from before RC3
 UPDATE {$db_prefix}user_alerts
 SET content_type = 'member', content_id = id_member_started
