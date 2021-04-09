@@ -1727,7 +1727,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'img',
 				'type' => 'unparsed_content',
-				'negative_test' => 'height|width=[\d+]',
+				'test' => function($str)
+				{
+					// Skip this one if either width or height have been specified.
+					return preg_match('~^height|width=[\d+]~', $str) === 0;
+				},
 				'parameters' => array(
 					'alt' => array('optional' => true),
 					'title' => array('optional' => true),
@@ -2682,14 +2686,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if ($next_c == '')
 				break;
 
-			// A negative test validation?
-			if (isset($possible['negative_test']) && preg_match('~' . $possible['negative_test'] . '~', substr($message, $pos1)) === 1)
-				continue;
 			// A test validation?
-			elseif (isset($possible['test']) && preg_match('~^' . $possible['test'] . '~', substr($message, $pos1)) === 0)
-				continue;
+			if (isset($possible['test']))
+			{
+				if (is_callable($possible['test']) && !call_user_func($possible['test'], substr($message, $pos1)))
+					continue;
+				elseif (!is_callable($possible['test']) && preg_match('~^' . $possible['test'] . '~', substr($message, $pos1)) === 0)
+					continue;
+			}
 			// Do we want parameters?
-			elseif (!empty($possible['parameters']))
+			if (!empty($possible['parameters']))
 			{
 				// Are all the parameters optional?
 				$param_required = false;
