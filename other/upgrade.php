@@ -1299,55 +1299,10 @@ function UpgradeOptions()
 		);
 
 	// Deleting old karma stuff?
-	if (!empty($_POST['delete_karma']))
-	{
-		// Delete old settings vars.
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}settings
-			WHERE variable IN ({array_string:karma_vars})',
-			array(
-				'karma_vars' => array('karmaMode', 'karmaTimeRestrictAdmins', 'karmaWaitTime', 'karmaMinPosts', 'karmaLabel', 'karmaSmiteLabel', 'karmaApplaudLabel'),
-			)
-		);
-
-		// Cleaning up old karma member settings.
-		if ($upcontext['karma_installed']['good'])
-			$smcFunc['db_query']('', '
-				ALTER TABLE {db_prefix}members
-				DROP karma_good',
-				array()
-			);
-
-		// Does karma bad was enable?
-		if ($upcontext['karma_installed']['bad'])
-			$smcFunc['db_query']('', '
-				ALTER TABLE {db_prefix}members
-				DROP karma_bad',
-				array()
-			);
-
-		// Cleaning up old karma permissions.
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}permissions
-			WHERE permission = {string:karma_vars}',
-			array(
-				'karma_vars' => 'karma_edit',
-			)
-		);
-		// Cleaning up old log_karma table
-		$smcFunc['db_query']('', '
-			DROP TABLE IF EXISTS {db_prefix}log_karma',
-			array()
-		);
-	}
+	$_SESSION['delete_karma'] = !empty($_POST['delete_karma']);
 
 	// Emptying the error log?
-	if (!empty($_POST['empty_error']))
-		$smcFunc['db_query']('truncate_table', '
-			TRUNCATE {db_prefix}log_errors',
-			array(
-			)
-		);
+	$_SESSION['empty_error'] = !empty($_POST['empty_error']);
 
 	$changes = array();
 
@@ -1587,6 +1542,9 @@ function DatabaseChanges()
 
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'database_xml' : 'database_changes';
 	$upcontext['page_title'] = $txt['database_changes'];
+
+	$upcontext['delete_karma'] = !empty($_SESSION['delete_karma']);
+	$upcontext['empty_error'] = !empty($_SESSION['empty_error']);
 
 	// All possible files.
 	// Name, < version, insert_on_complete
