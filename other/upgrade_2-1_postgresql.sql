@@ -1,6 +1,76 @@
 /* ATTENTION: You don't need to run or use this file! The upgrade.php script does everything for you! */
 
 /******************************************************************************/
+--- Removing karma
+/******************************************************************************/
+
+---# Removing all karma data, if selected
+---{
+if (!empty($upcontext['delete_karma']))
+{
+	// Delete old settings vars.
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}settings
+		WHERE variable IN ({array_string:karma_vars})',
+		array(
+			'karma_vars' => array('karmaMode', 'karmaTimeRestrictAdmins', 'karmaWaitTime', 'karmaMinPosts', 'karmaLabel', 'karmaSmiteLabel', 'karmaApplaudLabel'),
+		)
+	);
+
+    $member_columns = $smcFunc['db_list_columns']('{db_prefix}members');
+
+	// Cleaning up old karma member settings.
+	if (in_array('karma_good', $member_columns))
+		$smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}members
+			DROP karma_good',
+			array()
+		);
+
+	// Does karma bad was enable?
+	if (in_array('karma_bad', $member_columns))
+		$smcFunc['db_query']('', '
+			ALTER TABLE {db_prefix}members
+			DROP karma_bad',
+			array()
+		);
+
+	// Cleaning up old karma permissions.
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}permissions
+		WHERE permission = {string:karma_vars}',
+		array(
+			'karma_vars' => 'karma_edit',
+		)
+	);
+
+	// Cleaning up old log_karma table
+	$smcFunc['db_query']('', '
+		DROP TABLE IF EXISTS {db_prefix}log_karma',
+		array()
+	);
+}
+---}
+---#
+
+/******************************************************************************/
+--- Emptying error log
+/******************************************************************************/
+
+---# Emptying error log, if selected
+---{
+if (!empty($upcontext['empty_error']))
+{
+	$smcFunc['db_query']('truncate_table', '
+		TRUNCATE {db_prefix}log_errors',
+		array(
+		)
+	);
+}
+---}
+---#
+
+/******************************************************************************/
 --- Fixing sequences
 /******************************************************************************/
 
