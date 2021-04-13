@@ -4229,7 +4229,7 @@ function template_upgrade_options()
 	echo '
 				<ul class="upgrade_settings">
 					<li>
-						<input type="checkbox" name="backup" id="backup" value="1">
+						<input type="checkbox" name="backup" id="backup" value="1" checked>
 						<label for="backup">', $txt['upgrade_backup_table'], ' &quot;backup_' . $db_prefix . '&quot;.</label>
 						(', $txt['upgrade_recommended'], ')
 					</li>
