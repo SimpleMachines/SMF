@@ -2470,7 +2470,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							')?' .
 						')?';
 
-						$data = preg_replace_callback('~' . $url_regex . '~i' . ($context['utf8'] ? 'u' : ''), function($matches)
+						$tmp_data = $data;
+
+						$tmp_data = preg_replace_callback('~' . $url_regex . '~i' . ($context['utf8'] ? 'u' : ''), function($matches)
 						{
 							$url = array_shift($matches);
 
@@ -2503,6 +2505,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						}, $data);
 					}
 
+					if (!is_null($tmp_data))
+						$data = $tmp_data;
+
 					// Next, emails...  Must be careful not to step on enablePostHTML logic above...
 					if (!isset($disabled['email']) && strpos($data, '@') !== false && strpos($data, '[email') === false && stripos($data, 'mailto:') === false)
 					{
@@ -2526,8 +2531,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							\.(?=$|[^\p{L}\p{M}\p{N}\-])
 						)';
 
-						$data = preg_replace('~' . $email_regex . '~xi' . ($context['utf8'] ? 'u' : ''), '[email]$0[/email]', $data);
+						$tmp_data = preg_replace('~' . $email_regex . '~xi' . ($context['utf8'] ? 'u' : ''), '[email]$0[/email]', $data);
 					}
+
+					if (!is_null($tmp_data))
+						$data = $tmp_data;
 				}
 			}
 
