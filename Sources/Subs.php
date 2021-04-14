@@ -2447,15 +2447,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							'(?:' .
 								// One or more of:
 								'(?:' .
-									// a run of non-space, non-()<>
-									'[^\s()<>]+' .
-									// or
-									'|' .
-									// balanced parentheses, up to 2 levels
-									'\(([^\s()<>]+|(\([^\s()<>]+\)))*\)' .
-								')+' .
-								// Ending with:
-								'(?:' .
 									// balanced parentheses, up to 2 levels
 									'\(([^\s()<>]+|(\([^\s()<>]+\)))*\)' .
 									// or
@@ -2466,7 +2457,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 									'|' .
 									// a trailing slash (but not two in a row)
 									'(?<!/)/' .
-								')' .
+								')+' .
+								// Query, and fragment components
+								'(?:' .
+									// query must start with ?, fragment with #
+									'[?#]' .
+									// Followed by any non space characters
+									'[^\s]+' .
+								')?' .
 							')?' .
 						')?';
 
