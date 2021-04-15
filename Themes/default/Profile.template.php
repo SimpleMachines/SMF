@@ -1914,6 +1914,9 @@ function template_alert_configuration()
 		{
 			foreach ($context['alert_group_options'][$alert_group] as $opts)
 			{
+				if ($opts[0] == 'hide')
+					continue;
+
 				echo '
 				<tr class="windowbg">
 					<td colspan="3">';
