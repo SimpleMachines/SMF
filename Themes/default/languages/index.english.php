@@ -95,7 +95,8 @@ $txt['notify_announcements'] = 'Allow the administrators to send me important ne
 
 $txt['position'] = 'Position';
 
-$txt['profile_of'] = 'View the profile of';
+// argument(s): username
+$txt['view_profile_of_username'] = 'View the profile of %1$s';
 $txt['total'] = 'Total';
 $txt['website'] = 'Website';
 $txt['register'] = 'Sign Up';
