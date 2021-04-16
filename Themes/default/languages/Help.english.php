@@ -275,7 +275,8 @@ $helptxt['max_image_width'] = 'This allows you to set a maximum size for posted 
 $helptxt['mail_type'] = 'This setting allows you to choose either PHP\'s default settings, or to override those settings with SMTP. PHP doesn\'t support using authentication with SMTP (which many hosts now require), so if you want that you should select SMTP. Please note that SMTP can be slower, and some servers will not accept usernames and passwords.<br><br>You don\'t need to fill in the SMTP settings if this is set to PHP\'s default.';
 $helptxt['attachment_manager_settings'] = 'Attachments are files that members can upload and attach to a post. Different sites may use these in different ways, which you can configure here.';
 $helptxt['attachmentCheckExtensions'] = 'For some communities, you may wish to limit the types of files that users can upload by checking the extension: e.g. myphoto.jpg has an extension of jpg.';
-$helptxt['attachmentExtensions'] = 'If "check attachment\'s extension" above is ticked, these are the extensions that will be permitted for new attachments.';
+// References setting attachmentCheckExtensions
+$helptxt['attachmentExtensions'] = 'If "check attachment\'s extension" above is enabled, these are the extensions that will be permitted for new attachments.';
 $helptxt['attachmentUploadDir'] = 'The path to your attachment folder on the server<br>(example: /home/sites/yoursite/www/forum/attachments)';
 $helptxt['attachmentDirSizeLimit'] = ' Select how large the attachment folder can be, including all files within it.';
 $helptxt['attachmentPostLimit'] = ' Select the maximum filesize (in KB) of all attachments made per post. If this is lower than the per-attachment limit, this will be the limit.';
