@@ -278,10 +278,10 @@ $helptxt['attachmentCheckExtensions'] = 'For some communities, you may wish to l
 // References setting attachmentCheckExtensions
 $helptxt['attachmentExtensions'] = 'If "check attachment\'s extension" above is enabled, these are the extensions that will be permitted for new attachments.';
 $helptxt['attachmentUploadDir'] = 'The path to your attachment folder on the server<br>(example: /home/sites/yoursite/www/forum/attachments)';
-$helptxt['attachmentDirSizeLimit'] = ' Select how large the attachment folder can be, including all files within it.';
-$helptxt['attachmentPostLimit'] = ' Select the maximum filesize (in KB) of all attachments made per post. If this is lower than the per-attachment limit, this will be the limit.';
+$helptxt['attachmentDirSizeLimit'] = 'Select how large the attachment folder can be, including all files within it.';
+$helptxt['attachmentPostLimit'] = 'Select the maximum filesize (in KB) of all attachments made per post. If this is lower than the per-attachment limit, this will be the limit.';
 $helptxt['attachmentSizeLimit'] = 'Select the maximum filesize of each separate attachment.';
-$helptxt['attachmentNumPerPostLimit'] = ' Select the number of attachments a person can make per post.';
+$helptxt['attachmentNumPerPostLimit'] = 'Select the number of attachments a person can make per post.';
 $helptxt['attachmentShowImages'] = 'If the uploaded file is a picture, it will be displayed underneath the post.';
 $helptxt['attachmentThumbnails'] = 'If the above setting is selected, this will save a separate (smaller) attachment for the thumbnail to decrease bandwidth.';
 $helptxt['attachmentThumbWidth'] = 'Only used with the &quot;Resize images when showing under posts&quot; setting. This is the maximum width to resize attachments down to. They will be resized proportionally.';
