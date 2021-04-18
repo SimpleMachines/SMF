@@ -306,7 +306,7 @@ $txt['upgrade_done'] = 'Upgrade complete. Now you are ready to use <a href="%1$s
 
 $txt['upgrade_delete_now'] = 'Delete upgrade.php and its data files now';
 $txt['upgrade_delete_server'] = '(does not work on all servers).';
-$txt['upgrade_problems'] = 'If you had any problems with this upgrade, or have any problems using SMF, please do not hesitate to <a href="%1$s">ask to us for assistance</a>.';
+$txt['upgrade_problems'] = 'If you had any problems with this upgrade, or have any problems using SMF, please do not hesitate to <a href="%1$s">ask us for assistance</a>.';
 $txt['upgrade_luck'] = 'Best of luck,';
 
 $txt['upgrade_ftp_login'] = 'Your FTP connection information';
@@ -329,7 +329,7 @@ $txt['upgrade_incorrect_settings'] = 'If these seem incorrect please open Settin
 
 $txt['upgrade_fulltext_error'] = 'Your fulltext search index was dropped to facilitate the conversion. You will need to recreate it.';
 $txt['upgrade_writable_files'] = 'The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:';
-$txt['upgrade_time_user'] = '&quot; %1$s &quot; is running the upgrade script.';
+$txt['upgrade_time_user'] = '&quot;%1$s&quot; is running the upgrade script.';
 
 // We represent the time here in backwards variables, as it makes the code easier.
 $txt['upgrade_time_hms'] = 'The upgrade script has been running for the last %3$d hours, %2$d minutes and %1$d seconds.';
