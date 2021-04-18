@@ -60,7 +60,7 @@ $helptxt['view_members'] = '
 	<ul class="normallist">
 		<li>
 			<strong>View all Members</strong><br>
-			View all members in the board. You are presented with a hyperlinked list of member names. You may click
+			View all members of the forum. You are presented with a hyperlinked list of member names. You may click
 			on any of the names to find details of the members (homepage, age, etc.), and as Administrator
 			you are able to modify these parameters. You have complete control over members, including the
 			ability to delete them from the forum.<br><br>
