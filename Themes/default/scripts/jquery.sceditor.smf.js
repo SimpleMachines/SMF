@@ -23,6 +23,8 @@
 					for (var i = 0, n = XMLDoc.getElementsByTagName('quote')[0].childNodes.length; i < n; i++)
 						text += XMLDoc.getElementsByTagName('quote')[0].childNodes[i].nodeValue;
 					self.insert(text);
+
+					ajax_indicator(false);
 				}
 			);
 		},
