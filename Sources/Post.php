@@ -580,7 +580,7 @@ function Post($post_errors = array())
 					m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
 					COALESCE(a.size, -1) AS filesize, a.filename, a.id_attach,
 					a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
-					m.poster_time, log.id_action
+					m.poster_time, log.id_action, t.id_first_msg
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 					LEFT JOIN {db_prefix}attachments AS a ON (a.id_msg = m.id_msg AND a.attachment_type = {int:attachment_type})
@@ -620,10 +620,10 @@ function Post($post_errors = array())
 			else
 				isAllowedTo('modify_any');
 
-			if ($context['can_announce'] && !empty($row['id_action']))
+			if ($context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg'])
 			{
 				loadLanguage('Errors');
-				$context['post_error']['messages'][] = $txt['error_topic_already_announced'];
+				$context['post_error']['already_announced'] = $txt['error_topic_already_announced'];
 			}
 
 			if (!empty($modSettings['attachmentEnable']))
@@ -698,7 +698,7 @@ function Post($post_errors = array())
 				m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
 				COALESCE(a.size, -1) AS filesize, a.filename, a.id_attach, a.mime_type, a.id_thumb,
 				a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
-				m.poster_time, log.id_action
+				m.poster_time, log.id_action, t.id_first_msg
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 				LEFT JOIN {db_prefix}attachments AS a ON (a.id_msg = m.id_msg AND a.attachment_type = {int:attachment_type})
@@ -737,10 +737,10 @@ function Post($post_errors = array())
 		else
 			isAllowedTo('modify_any');
 
-		if ($context['can_announce'] && !empty($row['id_action']))
+		if ($context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg'])
 		{
 			loadLanguage('Errors');
-			$context['post_error']['messages'][] = $txt['error_topic_already_announced'];
+			$context['post_error']['already_announced'] = $txt['error_topic_already_announced'];
 		}
 
 		// When was it last modified?
