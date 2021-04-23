@@ -803,7 +803,12 @@ function SpiderLogs()
 		$urls = determineActions($urls, 'whospider_');
 		foreach ($urls as $k => $new_url)
 		{
-			$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $new_url;
+			if (is_array($new_url))
+			{
+				$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $txt[$new_url['label']];
+				$context['spider_logs']['rows'][$k]['data']['viewing']['class'] = $new_url['class'];
+			} else
+				$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $new_url;
 		}
 	}
 
