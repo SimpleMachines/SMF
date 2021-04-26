@@ -338,7 +338,7 @@ function template_show_backtrace()
 						<tr class="title_bar">
 							<td><strong>', $txt['error_url'], '</strong></td>
 						</tr>
-						<tr class="windowbg">
+						<tr class="windowbg word_break">
 							<td>', $context['error_info']['url'], '</td>
 						</tr>';
 
