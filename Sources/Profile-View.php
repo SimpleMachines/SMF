@@ -2486,6 +2486,7 @@ function TrackIP($memID = 0)
 							'url' => false,
 						),
 					),
+					'class' => 'word_break',
 				),
 			),
 			'date2' => array(
