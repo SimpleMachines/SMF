@@ -147,12 +147,12 @@ function template_error_log()
 		if (!empty($error['member']['session']))
 			echo '
 						<br>
-						<a  href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '"><span class="main_icons filter"></span></a> <a class="bbc_link" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '">', $error['member']['session'], '</a>';
+						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '"><span class="main_icons filter"></span></a> <a class="bbc_link" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '">', $error['member']['session'], '</a>';
 
 		echo '
 						<br>
 						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_url'], '"><span class="main_icons filter"></span></a>
-						<a href="', $error['url']['html'], '" class="bbc_link">', $error['url']['html'], '</a>';
+						<a href="', $error['url']['html'], '" class="bbc_link word_break">', $error['url']['html'], '</a>';
 
 		if (!empty($error['file']))
 			echo '
