@@ -396,9 +396,9 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 
 	// backward compatibility
 	if (isset($column_info['null']))
-		$column_info['not_null'] != $column_info['null'];
+		$column_info['not_null'] = !$column_info['null'];
 	if (isset($old_info['null']))
-		$old_info['not_null'] != $old_info['null'];
+		$old_info['not_null'] = !$old_info['null'];
 	// Get the right bits.
 	if (!isset($column_info['name']))
 		$column_info['name'] = $old_column;
