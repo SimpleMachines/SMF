@@ -202,7 +202,8 @@ function ModifySubscriptionSettings($return_config = false)
 					document.getElementById("custom_currency_code_div_dd").style.display = "none";
 				}
 			}
-		}
+		}');
+		addInlineJavaScript('
 		toggleOther();', true);
 	}
 	else
