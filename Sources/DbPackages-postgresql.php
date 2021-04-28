@@ -446,7 +446,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	
 	// backward compatibility
 	if (isset($column_info['null']))
-		$column_info['not_null'] != $column_info['null'];
+		$column_info['not_null'] = !$column_info['null'];
 
 	// Check it does exist!
 	$columns = $smcFunc['db_list_columns']($table_name, true);
