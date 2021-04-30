@@ -26,15 +26,14 @@ function smf_fileUpload(oOptions) {
 		clickable: '.fileinput-button',
 		currentUsedSize: 0,
 		timeout: null,
-		smf_insertBBC: function (file, w, h) {
+		smf_insertBBC: function (file, w) {
 
 			var mime_type = typeof file.type !== "undefined" ? file.type : (typeof file.mime_type !== "undefined" ? file.mime_type : ''),
 				bbcOptionalParams = {
 					width: mime_type.indexOf('image') == 0 && + w > 0 ? (' width=' + w) : '',
-					height: mime_type.indexOf('image') == 0 && + h > 0 ? (' height=' + h) : '',
 				};
 
-			return '[attach id=' + file.attachID + bbcOptionalParams.width + bbcOptionalParams.height + ']' + (typeof file.name !== "undefined" ? decodeURIComponent(file.name.replace(/\+/g,' ')) : '') + '[/attach]';
+			return '[attach id=' + file.attachID + bbcOptionalParams.width + ']' + (typeof file.name !== "undefined" ? decodeURIComponent(file.name.replace(/\+/g,' ')) : '') + '[/attach]';
 		},
 		createMaxSizeBar: function () {
 
@@ -165,13 +164,12 @@ function smf_fileUpload(oOptions) {
 					e.preventDefault();
 
 					w = _innerElement.find('input[name="attached_BBC_width"]').val();
-					h = _innerElement.find('input[name="attached_BBC_height"]').val();
 
 					// Get the editor stuff.
 					var e = $('#' + oEditorID).get(0);
 					var oEditor = sceditor.instance(e);
 
-					oEditor.insert(myDropzone.options.smf_insertBBC(response, w, h));
+					oEditor.insert(myDropzone.options.smf_insertBBC(response, w));
 				})
 				.appendTo(_innerElement.find('.attach-ui'));
 		};
@@ -379,8 +377,7 @@ function smf_fileUpload(oOptions) {
 
 		// Append the BBC.
 		w = _thisElement.find('input[name="attached_BBC_width"]').val();
-		h = _thisElement.find('input[name="attached_BBC_height"]').val();
-		_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(response, w, h));
+		_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(response, w));
 
 		file.insertAttachment(_thisElement, response);
 
@@ -429,8 +426,7 @@ function smf_fileUpload(oOptions) {
 
 			// Append the BBC.
 			w = _thisElement.find('input[name="attached_BBC_width"]').val();
-			h = _thisElement.find('input[name="attached_BBC_height"]').val();
-			_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(file, w, h));
+			_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(file, w));
 
 			file.insertAttachment(_thisElement, file);
 

@@ -359,9 +359,6 @@ sceditor.command.set(
 
 					if (width)
 						attrs.push('width="' + sceditor.escapeEntities(width, true) + '"');
-
-					if (height)
-						attrs.push('height="' + sceditor.escapeEntities(height, true) + '"');
  
 					editor.wysiwygEditorInsertHtml(
 						'<img ' + attrs.join(' ') + '>'
@@ -591,8 +588,6 @@ sceditor.formats.bbcode.set(
 			// only add width and height if one is specified
 			if (element.attr('width') || style('width'))
 				attribs += " width=" + element.attr('width');
-			if (element.attr('height') || style('height'))
-				attribs += " height=" + element.attr('height');
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
 
@@ -617,8 +612,6 @@ sceditor.formats.bbcode.set(
 			// handle [img width=340 height=240]url[/img]
 			if (typeof attrs.width !== "undefined")
 				attribs += ' width="' + attrs.width + '"';
-			if (typeof attrs.height !== "undefined")
-				attribs += ' height="' + attrs.height + '"';
 			if (typeof attrs.alt !== "undefined")
 				attribs += ' alt="' + attrs.alt + '"';
 			if (typeof attrs.title !== "undefined")
@@ -650,8 +643,6 @@ sceditor.formats.bbcode.set(
 			attribs += " id=" + element.attr('data-attachment');
 			if (element.attr('width') || style('width'))
 				attribs += " width=" + element.attr('width');
-			if (element.attr('height') || style('height'))
-				attribs += " height=" + element.attr('height');
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
 
@@ -698,8 +689,6 @@ sceditor.formats.bbcode.set(
 				attribs += ' id=' + id;
 				if (typeof attrs.width !== "undefined")
 					attribs += ' width=' + attrs.width;
-				if (typeof attrs.height !== "undefined")
-					attribs += ' height=' + attrs.height;
 				if (typeof attrs.alt !== "undefined")
 					attribs += ' alt=' + attrs.alt;
 
@@ -715,8 +704,6 @@ sceditor.formats.bbcode.set(
 				attribs += ' title="' + content + '"';
 				if (typeof attrs.width !== "undefined")
 					attribs += ' width="' + attrs.width + '"';
-				if (typeof attrs.height !== "undefined")
-					attribs += ' height="' + attrs.height + '"';
 
 				var contentUrl = smf_scripturl +'?action=dlattach;attach='+ id + ';type=preview;thumb';
 				contentIMG = new Image();

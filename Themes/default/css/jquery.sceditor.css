@@ -612,3 +612,9 @@ div.sceditor-dropdown img,
 .sceditor-smileyPopup img {
 	cursor: pointer;
 }
+.sceditor-insertimage #height {
+	display: none;
+}
+.sceditor-insertimage label[for="height"] {
+    display: none;
+}
