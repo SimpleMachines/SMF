@@ -1931,8 +1931,8 @@ function ViewOperations()
 	$context['javascript_files'] = array_intersect_key(
 		$context['javascript_files'],
 		[
-			'smf_script' => true,
-			'smf_jquery' => true
+			'smf_script_js' => true,
+			'smf_jquery_js' => true
 		]
 	);
 
