@@ -2241,7 +2241,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 		// @todo Change maybe?
 		if (!isset($_GET['images']))
+		{
 			$disabled['img'] = true;
+			$disabled['attach'] = true;
+		}
 
 		// Maybe some custom BBC need to be disabled for printing.
 		call_integration_hook('integrate_bbc_print', array(&$disabled));
