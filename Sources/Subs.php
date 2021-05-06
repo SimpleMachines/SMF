@@ -3730,7 +3730,7 @@ function setupThemeContext($forceload = false)
 	// Add max image limits
 	if (!empty($modSettings['max_image_width']))
 		addInlineCss('
-	.postarea .bbc_img { max-width: ' . $modSettings['max_image_width'] . 'px; }');
+	.postarea .bbc_img { max-width: min(100%,' . $modSettings['max_image_width'] . 'px); }');
 
 	if (!empty($modSettings['max_image_height']))
 		addInlineCss('
