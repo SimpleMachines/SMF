@@ -3727,11 +3727,11 @@ function setupThemeContext($forceload = false)
 	// Add max image limits
 	if (!empty($modSettings['max_image_width']))
 		addInlineCss('
-	.postarea .bbc_img { max-width: ' . $modSettings['max_image_width'] . 'px; }');
+	.postarea .bbc_img, .list_posts .bbc_img, .post .inner .bbc_img, form#reported_posts .bbc_img, #preview_body .bbc_img { max-width: ' . $modSettings['max_image_width'] . 'px; }');
 
 	if (!empty($modSettings['max_image_height']))
 		addInlineCss('
-	.postarea .bbc_img { max-height: ' . $modSettings['max_image_height'] . 'px; }');
+	.postarea .bbc_img, .list_posts .bbc_img, .post .inner .bbc_img, form#reported_posts .bbc_img, #preview_body .bbc_img { max-height: ' . $modSettings['max_image_height'] . 'px; }');
 
 	// This looks weird, but it's because BoardIndex.php references the variable.
 	$context['common_stats']['latest_member'] = array(
