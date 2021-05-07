@@ -222,6 +222,7 @@ if (isset($_GET['ssi']))
 
 	loadUserSettings();
 	loadPermissions();
+	reloadSettings();
 }
 
 // Include our helper functions.
