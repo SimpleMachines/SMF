@@ -4078,6 +4078,7 @@ tr[id^='list_news_lists_'] textarea {
 .word_break {
 	word-break: break-all;
 }
+
 div.sceditor-container {
 	z-index: 4;
 }
