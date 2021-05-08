@@ -194,7 +194,7 @@ div.sceditor-dropdown,
 div.sceditor-dropdown div {
 	padding: 0;
 	margin: 0;
-	z-index: 4;
+	z-index: 5;
 }
 .sceditor-container iframe,
 .sceditor-container textarea {
