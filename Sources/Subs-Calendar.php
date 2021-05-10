@@ -701,25 +701,16 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 	// Give birthdays and holidays a friendly format, without the year
 	$date_format = str_replace(array('%Y', '%y', '%G', '%g', '%C', '%c', '%D'), array('', '', '', '', '', '%b %d', '%m/%d'), get_date_or_time_format('date'));
 
-	// timeformat() uses $user_info to get the format
-	if (isset($user_info['time_format']))
-		$saved_dt_format = $user_info['time_format'];
-	$user_info['time_format'] = $date_format;
 	foreach (array('birthdays', 'holidays') as $type)
 	{
 		foreach ($calendarGrid[$type] as $date => $date_content)
 		{
 			// Make sure to apply no offsets
-			$date_local = preg_replace('~(?<=\s)0+(\d)~', '$1', trim(timeformat(strtotime($date), true, true), " \t\n\r\0\x0B,./;:<>()[]{}\\|-_=+"));
+			$date_local = preg_replace('~(?<=\s)0+(\d)~', '$1', trim(timeformat(strtotime($date), $date_format, true), " \t\n\r\0\x0B,./;:<>()[]{}\\|-_=+"));
 
 			$calendarGrid[$type][$date]['date_local'] = $date_local;
 		}
 	}
-	// Restore it exactly as you found it
-	if (isset($saved_dt_format))
-		$user_info['time_format'] = $saved_dt_format;
-	else
-		unset($user_info['time_format']);
 
 	loadDatePicker('#calendar_range .date_input');
 	loadDatePair('#calendar_range', 'date_input', '');
