@@ -721,7 +721,7 @@ function comma_format($number, $override_decimal_count = false)
  * - performs localization (more than just strftime would do alone.)
  *
  * @param int $log_time A timestamp
- * @param bool $show_today Whether to show "Today"/"Yesterday" or just a date
+ * @param bool|string $show_today Whether to show "Today"/"Yesterday" or just a date. If a string is specified, that is used to temporarily override the date format.
  * @param bool|string $offset_type If false, uses both user time offset and forum offset. If 'forum', uses only the forum offset. Otherwise no offset is applied.
  * @param bool $process_safe Activate setlocale check for changes at runtime. Slower, but safer.
  * @return string A formatted timestamp
@@ -772,6 +772,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 		}
 	}
 
+	// If $show_today is not a bool, use it as the date format & don't use $user_info. Allows for temp override of the format.
 	$str = !is_bool($show_today) ? $show_today : $user_info['time_format'];
 
 	// Use the cached formats if available
