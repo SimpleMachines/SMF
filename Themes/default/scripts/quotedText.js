@@ -143,7 +143,7 @@ $(function() {
 				if (typeof selectedText != 'undefined' && selectedText != false)
 					return;
 
-				// Revome any 'click' event to the button.
+				// Remove any 'click' event to the button.
 				$(document).off('click', '#quoteSelected_' + oSelected.msgID + ' a');
 
 				// Hide the button.
