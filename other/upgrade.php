@@ -222,6 +222,7 @@ if (isset($_GET['ssi']))
 
 	loadUserSettings();
 	loadPermissions();
+	reloadSettings();
 }
 
 // Include our helper functions.
@@ -1686,7 +1687,7 @@ function setSqlMode($strict = true)
 		return;
 
 	if ($strict)
-		$mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+		$mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,PIPES_AS_CONCAT';
 	else
 		$mode = '';
 

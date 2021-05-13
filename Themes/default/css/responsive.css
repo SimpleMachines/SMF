@@ -605,7 +605,7 @@
 		width: 100%;
 		float: none;
 	}
-	#post_draft_options dl.settings dt, dl.settings dd {
+	#post_draft_options dl.settings dt, #post_draft_options dl.settings dd {
 		width: 50%;
 		float: left;
 	}
