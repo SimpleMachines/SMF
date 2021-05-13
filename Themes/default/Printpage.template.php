@@ -15,7 +15,7 @@
  */
 function template_print_above()
 {
-	global $context, $txt;
+	global $context, $txt, $modSettings;
 
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
@@ -117,7 +117,21 @@ function template_print_above()
 				.print_options {
 					margin: 1em 0;
 				}
-			}
+			}';
+
+	if (!empty($modSettings['max_image_width']))
+		echo '
+			.bbc_img {
+				max-width: ' . $modSettings['max_image_width'] . 'px;
+			}';
+
+	if (!empty($modSettings['max_image_height']))
+		echo '
+			.bbc_img {
+				max-height: ' . $modSettings['max_image_height'] . 'px;
+			}';
+
+	echo '
 		</style>
 	</head>
 	<body>';
