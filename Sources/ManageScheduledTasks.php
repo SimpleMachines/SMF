@@ -327,7 +327,7 @@ function ScheduledTasks()
  */
 function list_getScheduledTasks($start, $items_per_page, $sort)
 {
-	global $smcFunc, $txt;
+	global $smcFunc, $txt, $scripturl;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_task, next_time, time_offset, time_regularity, time_unit, disabled, task
@@ -346,7 +346,7 @@ function list_getScheduledTasks($start, $items_per_page, $sort)
 			'id' => $row['id_task'],
 			'function' => $row['task'],
 			'name' => isset($txt['scheduled_task_' . $row['task']]) ? $txt['scheduled_task_' . $row['task']] : $row['task'],
-			'desc' => isset($txt['scheduled_task_desc_' . $row['task']]) ? $txt['scheduled_task_desc_' . $row['task']] : '',
+			'desc' => isset($txt['scheduled_task_desc_' . $row['task']]) ? sprintf($txt['scheduled_task_desc_' . $row['task']], $scripturl) : '',
 			'next_time' => $row['disabled'] ? $txt['scheduled_tasks_na'] : timeformat(($row['next_time'] == 0 ? time() : $row['next_time']), true, 'server'),
 			'disabled' => $row['disabled'],
 			'checked_state' => $row['disabled'] ? '' : 'checked',
@@ -365,7 +365,7 @@ function list_getScheduledTasks($start, $items_per_page, $sort)
  */
 function EditTask()
 {
-	global $context, $txt, $sourcedir, $smcFunc;
+	global $context, $txt, $sourcedir, $smcFunc, $scripturl;
 
 	// Just set up some lovely context stuff.
 	$context[$context['admin_menu_name']]['current_subsection'] = 'tasks';
@@ -452,7 +452,7 @@ function EditTask()
 			'id' => $row['id_task'],
 			'function' => $row['task'],
 			'name' => isset($txt['scheduled_task_' . $row['task']]) ? $txt['scheduled_task_' . $row['task']] : $row['task'],
-			'desc' => isset($txt['scheduled_task_desc_' . $row['task']]) ? $txt['scheduled_task_desc_' . $row['task']] : '',
+			'desc' => isset($txt['scheduled_task_desc_' . $row['task']]) ? sprintf($txt['scheduled_task_desc_' . $row['task']], $scripturl) : '',
 			'next_time' => $row['disabled'] ? $txt['scheduled_tasks_na'] : timeformat($row['next_time'] == 0 ? time() : $row['next_time'], true, 'server'),
 			'disabled' => $row['disabled'],
 			'offset' => $row['time_offset'],
