@@ -189,9 +189,6 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			// Notifications about modified posts only go to members who were mentioned or quoted
 			$this->members['watching'] = $type == 'edit' ? array(): $unnotified;
 
-			// Send alerts as soon as changes are made, and only once.
-			$this->send_alerts = empty($this->_details['respawns']);
-
 			// If this post has no quotes or mentions, just delete any obsolete alerts and bail out.
 			if (empty($this->members['quoted']) && empty($this->members['mentioned']))
 			{
