@@ -2310,6 +2310,7 @@ function Post2()
 			$msgOptions['modify_time'] = time();
 			$msgOptions['modify_name'] = $user_info['name'];
 			$msgOptions['modify_reason'] = $_POST['modify_reason'];
+			$msgOptions['poster_time'] = $row['poster_time'];
 		}
 
 		// This will save some time...
