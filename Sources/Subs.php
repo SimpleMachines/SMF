@@ -7160,7 +7160,8 @@ function validate_iri($iri, $flags = null)
 function sanitize_iri($iri)
 {
 	// Encode any non-ASCII characters (but not space or control characters of any sort)
-	$iri = preg_replace_callback('~[^\x00-\x7F\pZ\pC]~u', function($matches)
+	// Also encode '%' in order to preserve anything that is already percent-encoded.
+	$iri = preg_replace_callback('~[^\x00-\x7F\pZ\pC]|%~u', function($matches)
 	{
 		return rawurlencode($matches[0]);
 	}, $iri);
