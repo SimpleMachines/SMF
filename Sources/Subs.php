@@ -2480,19 +2480,19 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							if ($url != sanitize_iri($url))
 								return $url;
 
-							$scheme = parse_url($url, PHP_URL_SCHEME);
+							$parsedurl = parse_url($url);
 
-							if ($scheme == 'mailto')
+							if (!empty($parsedurl['scheme']) && $parsedurl['scheme'] == 'mailto')
 							{
 								$email_address = str_replace('mailto:', '', $url);
-								if (!isset($disabled['email']) && filter_var($email_address, FILTER_VALIDATE_EMAIL) !== false)
+								if (!isset($disabled['email']) && filter_var($parsedurl['path'], FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE) !== false)
 									return '[email=' . $email_address . ']' . $url . '[/email]';
 								else
 									return $url;
 							}
 
 							// Are we linking a schemeless URL or naked domain name (e.g. "example.com")?
-							if (empty($scheme))
+							if (empty($parsedurl['scheme']))
 								$fullUrl = '//' . ltrim($url, ':/');
 							else
 								$fullUrl = $url;
