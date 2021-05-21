@@ -2292,6 +2292,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			$placeholders = array();
 			$placeholders_counter = 0;
+			// Wrap in "private use" Unicode characters to ensure there will be no conflicts.
+			$placeholder_template = html_entity_decode('&#xE03C;') . '%1$s' . html_entity_decode('&#xE03E;');
 
 			// Take care of some HTML!
 			if (!empty($modSettings['enablePostHTML']) && strpos($data, '&lt;') !== false)
@@ -2328,7 +2330,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						if (preg_match('~action(=|%3d)(?!dlattach)~i', $imgtag) != 0)
 							$imgtag = preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $imgtag);
 
-						$placeholder = '<placeholder ' . ++$placeholders_counter . '>';
+						$placeholder = sprintf($placeholder_template, ++$placeholders_counter);
 						$placeholders[$placeholder] = '[img' . $alt . ']' . $imgtag . '[/img]';
 
 						$replaces[$matches[0][$match]] = $placeholder;
@@ -2361,8 +2363,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					// An &nbsp; right after a URL can break the autolinker
 					if (strpos($data, '&nbsp;') !== false)
 					{
-						$placeholders['<placeholder non-breaking-space>'] = '&nbsp;';
-						$data = strtr($data, array('&nbsp;' => '<placeholder non-breaking-space>'));
+						$placeholders[sprintf($placeholder_template, 'nbsp')] = '&nbsp;';
+						$data = strtr($data, array('&nbsp;' => sprintf($placeholder_template, 'nbsp')));
 					}
 
 					// Parse any URLs
