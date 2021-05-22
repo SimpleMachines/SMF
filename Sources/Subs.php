@@ -7188,17 +7188,25 @@ function iri_to_url($iri)
 {
 	global $sourcedir;
 
-	$host = parse_url((strpos($iri, '://') === false ? 'http://' : '') . ltrim($iri, ':/'), PHP_URL_HOST);
+	$host = parse_url((strpos($iri, '//') === 0 ? 'http:' : '') . $iri, PHP_URL_HOST);
 
-	if (empty($host))
-		return $iri;
+	if (!empty($host))
+	{
+		// Convert the host using the Punycode algorithm
+		require_once($sourcedir . '/Class-Punycode.php');
+		$Punycode = new Punycode();
+		$encoded_host = $Punycode->encode($host);
 
-	// Convert the domain using the Punycode algorithm
-	require_once($sourcedir . '/Class-Punycode.php');
-	$Punycode = new Punycode();
-	$encoded_host = $Punycode->encode($host);
-	$pos = strpos($iri, $host);
-	$iri = substr_replace($iri, $encoded_host, $pos, strlen($host));
+		$pos = strpos($iri, $host);
+	}
+	else
+	{
+		$encoded_host = '';
+		$pos = 0;
+	}
+
+	$before_host = substr($iri, 0, $pos);
+	$after_host = substr($iri, $pos + strlen($host));
 
 	// Encode any disallowed characters in the rest of the URL
 	$unescaped = array(
@@ -7208,9 +7216,11 @@ function iri_to_url($iri)
 		'%3B' => ';', '%3D' => '=', '%3F' => '?', '%40' => '@',
 		'%25' => '%',
 	);
-	$iri = strtr(rawurlencode($iri), $unescaped);
 
-	return $iri;
+	$before_host = strtr(rawurlencode($before_host), $unescaped);
+	$after_host = strtr(rawurlencode($after_host), $unescaped);
+
+	return $before_host . $encoded_host . $after_host;
 }
 
 /**
@@ -7226,22 +7236,31 @@ function url_to_iri($url)
 {
 	global $sourcedir;
 
-	$host = parse_url((strpos($url, '://') === false ? 'http://' : '') . ltrim($url, ':/'), PHP_URL_HOST);
+	$host = parse_url((strpos($url, '//') === 0 ? 'http:' : '') . $url, PHP_URL_HOST);
 
-	if (empty($host))
-		return $url;
+	if (!empty($host))
+	{
+		// Decode the domain from Punycode
+		require_once($sourcedir . '/Class-Punycode.php');
+		$Punycode = new Punycode();
+		$decoded_host = $Punycode->decode($host);
 
-	// Decode the domain from Punycode
-	require_once($sourcedir . '/Class-Punycode.php');
-	$Punycode = new Punycode();
-	$decoded_host = $Punycode->decode($host);
-	$pos = strpos($url, $host);
-	$url = substr_replace($url, $decoded_host, $pos, strlen($host));
+		$pos = strpos($url, $host);
+	}
+	else
+	{
+		$decoded_host = '';
+		$pos = 0;
+	}
+
+	$before_host = substr($url, 0, $pos);
+	$after_host = substr($url, $pos + strlen($host));
 
 	// Decode the rest of the URL
-	$url = rawurldecode($url);
+	$before_host = rawurldecode($before_host);
+	$after_host = rawurldecode($after_host);
 
-	return $url;
+	return $before_host . $decoded_host . $after_host;
 }
 
 /**
