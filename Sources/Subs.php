@@ -1201,7 +1201,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 {
 	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir, $cache_enable;
 	static $bbc_lang_locales = array(), $itemcodes = array(), $no_autolink_tags = array();
-	static $disabled, $alltags_regex = '', $param_regexes = array();
+	static $disabled, $alltags_regex = '', $param_regexes = array(), $url_regex = '';
 
 	// Don't waste cycles
 	if ($message === '')
@@ -2370,109 +2370,351 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					// Parse any URLs
 					if (!isset($disabled['url']) && strpos($data, '[url') === false)
 					{
-						// For efficiency, first define the TLD regex in a PCRE subroutine
-						$url_regex = '(?(DEFINE)(?<tlds>' . $modSettings['tld_regex'] . '))';
+						// Some reusable character classes
+						$space_chars = ($context['utf8'] ? '\p{Z}' : '\s');
+						$excluded_trailing_chars = '!;:.,?';
+						$domain_label_chars = '0-9A-Za-z\-' . ($context['utf8'] ? implode('', array(
+							'\x{A0}-\x{D7FF}', '\x{F900}-\x{FDCF}', '\x{FDF0}-\x{FFEF}',
+							'\x{10000}-\x{1FFFD}', '\x{20000}-\x{2FFFD}', '\x{30000}-\x{3FFFD}',
+							'\x{40000}-\x{4FFFD}', '\x{50000}-\x{5FFFD}', '\x{60000}-\x{6FFFD}',
+							'\x{70000}-\x{7FFFD}', '\x{80000}-\x{8FFFD}', '\x{90000}-\x{9FFFD}',
+							'\x{A0000}-\x{AFFFD}', '\x{B0000}-\x{BFFFD}', '\x{C0000}-\x{CFFFD}',
+							'\x{D0000}-\x{DFFFD}', '\x{E1000}-\x{EFFFD}',
+						)) : '');
 
-						// Now build the rest of the regex
-						$url_regex .=
-						// 1. IRI scheme and domain components
-						'(?:' .
-							// 1a. IRIs with a scheme, or at least an opening "//"
-							'(?:' .
+						// Don't repeat this unnecessarily.
+						if (empty($url_regex))
+						{
+							// URI schemes that require some sort of special handling.
+							$schemes = array(
+								// Schemes whose URI definitions require a domain name in the
+								// authority (or whatever the next part of the URI is).
+								'need_domain' => array(
+									'aaa', 'aaas', 'acap', 'acct', 'afp', 'cap', 'cid', 'coap',
+									'coap+tcp', 'coap+ws', 'coaps', 'coaps+tcp', 'coaps+ws', 'crid',
+									'cvs', 'dict', 'dns', 'feed', 'fish', 'ftp', 'git', 'go',
+									'gopher', 'h323', 'http', 'https', 'iax', 'icap', 'im', 'imap',
+									'ipp', 'ipps', 'irc', 'irc6', 'ircs', 'ldap', 'ldaps', 'mailto',
+									'mid', 'mupdate', 'nfs', 'nntp', 'pop', 'pres', 'reload',
+									'rsync', 'rtsp', 'sftp', 'sieve', 'sip', 'sips', 'smb', 'snmp',
+									'soap.beep', 'soap.beeps', 'ssh', 'svn', 'stun', 'stuns',
+									'telnet', 'tftp', 'tip', 'tn3270', 'turn', 'turns', 'tv', 'udp',
+									'vemmi', 'vnc', 'webcal', 'ws', 'wss', 'xmlrpc.beep',
+									'xmlrpc.beeps', 'xmpp', 'z39.50', 'z39.50r', 'z39.50s',
+								),
+								// Schemes that allow an empty authority ("://" followed by "/")
+								'empty_authority' => array(
+									'file', 'ni', 'nih',
+								),
+								// Schemes that do not use an authority but still have a reasonable
+								// chance of working as clickable links.
+								'no_authority' => array(
+									'about', 'callto', 'geo', 'gg', 'leaptofrogans', 'magnet',
+									'mailto', 'maps', 'news', 'ni', 'nih', 'service', 'skype',
+									'sms', 'tel', 'tv',
+								),
+							);
 
-								// URI scheme (or lack thereof for schemeless URLs)
-								'(?:' .
-									// URL scheme and colon
-									'\b[a-z][\w\-]+:' .
-									// or
-									'|' .
-									// A boundary followed by two slashes for schemeless URLs
-									'(?<=^|\W)(?=//)' .
-								')' .
+							// In case a mod wants to control behaviour for a special URI scheme.
+							call_integration_hook('integrate_autolinker_schemes', array(&$schemes));
 
-								// IRI "authority" chunk
-								'(?:' .
-									// 2 slashes for IRIs with an "authority"
-									'//' .
-									// then a domain name
+							// PCRE subroutines for efficiency.
+							$pcre_subroutines = array(
+								'tlds' => $modSettings['tld_regex'],
+								'pct' => '%[0-9A-Fa-f]{2}',
+								'domain_label_char' => '[' . $domain_label_chars . ']',
+								'not_domain_label_char' => '[^' . $domain_label_chars . ']',
+								'domain' => '(?:(?P>domain_label_char)+\.)+(?P>tlds)',
+								'no_domain' => '(?:(?P>domain_label_char)|[._\~!$&\'()*+,;=:@]|(?P>pct))+',
+								'scheme_need_domain' => build_regex($schemes['need_domain'], '~'),
+								'scheme_empty_authority' => build_regex($schemes['empty_authority'], '~'),
+								'scheme_no_authority' => build_regex($schemes['no_authority'], '~'),
+								'scheme_any' => '[A-Za-z][0-9A-Za-z+\-.]*',
+								'user_info' => '(?:(?P>domain_label_char)|[._\~!$&\'()*+,;=:]|(?P>pct))+',
+								'dec_octet' => '(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)',
+								'h16' => '[0-9A-Fa-f]{1,4}',
+								'ipv4' => '(?:\b(?:(?P>dec_octet)\.){3}(?P>dec_octet)\b)',
+								'ipv6' => '\[(?:' . implode('|', array(
+									'(?:(?P>h16):){7}(?P>h16)',
+									'(?:(?P>h16):){1,7}:',
+									'(?:(?P>h16):){1,6}(?::(?P>h16))',
+									'(?:(?P>h16):){1,5}(?::(?P>h16)){1,2}',
+									'(?:(?P>h16):){1,4}(?::(?P>h16)){1,3}',
+									'(?:(?P>h16):){1,3}(?::(?P>h16)){1,4}',
+									'(?:(?P>h16):){1,2}(?::(?P>h16)){1,5}',
+									'(?P>h16):(?::(?P>h16)){1,6}',
+									':(?:(?::(?P>h16)){1,7}|:)',
+									'fe80:(?::(?P>h16)){0,4}%[0-9A-Za-z]+',
+									'::(ffff(:0{1,4})?:)?(?P>ipv4)',
+									'(?:(?P>h16):){1,4}:(?P>ipv4)',
+								)) . ')\]',
+								'host' => '(?:' . implode('|', array(
+									'localhost',
+									'(?P>domain)',
+									'(?P>ipv4)',
+									'(?P>ipv6)',
+								)) . ')',
+								'authority' => '(?:(?P>user_info)@)?(?P>host)(?::\d+)?',
+							);
+
+							// Brackets and quotation marks are problematic at the end of an IRI.
+							// E.g.: `http://foo.com/baz(qux)` vs. `(http://foo.com/baz_qux)`
+							// In the first case, the user probably intended the `)` as part of the
+							// IRI, but not in the second case. To account for this, we test for
+							// balanced pairs within the IRI.
+							$balanced_pairs = array(
+								// Brackets and parentheses
+								'(' => ')', '[' => ']', '{' => '}',
+								// Double quotation marks
+								'"' => '"',
+								html_entity_decode('&#x201C;') => html_entity_decode('&#x201D;'),
+								html_entity_decode('&#x201E;') => html_entity_decode('&#x201D;'),
+								html_entity_decode('&#x201F;') => html_entity_decode('&#x201D;'),
+								html_entity_decode('&#x00AB;') => html_entity_decode('&#x00BB;'),
+								// Single quotation marks
+								'\'' => '\'',
+								html_entity_decode('&#x2018;') => html_entity_decode('&#x2019;'),
+								html_entity_decode('&#x201A;') => html_entity_decode('&#x2019;'),
+								html_entity_decode('&#x201B;') => html_entity_decode('&#x2019;'),
+								html_entity_decode('&#x2039;') => html_entity_decode('&#x203A;'),
+							);
+							foreach ($balanced_pairs as $pair_opener => $pair_closer)
+								$balanced_pairs[$smcFunc['htmlspecialchars']($pair_opener)] = $smcFunc['htmlspecialchars']($pair_closer);
+
+							$bracket_quote_chars = '';
+							$bracket_quote_entities = array();
+							foreach ($balanced_pairs as $pair_opener => $pair_closer)
+							{
+								if ($pair_opener == $pair_closer)
+									$pair_closer = '';
+
+								foreach (array($pair_opener, $pair_closer) as $bracket_quote)
+								{
+									if (strpos($bracket_quote, '&') === false)
+										$bracket_quote_chars .= $bracket_quote;
+									else
+										$bracket_quote_entities[] = substr($bracket_quote, 1);
+								}
+							}
+							$bracket_quote_chars = str_replace(array('[', ']'), array('\[', '\]'), $bracket_quote_chars);
+
+							$pcre_subroutines['bracket_quote'] = '[' . $bracket_quote_chars . ']|&' . build_regex($bracket_quote_entities, '~');
+							$pcre_subroutines['allowed_entities'] = '&(?!' . build_regex(array_merge($bracket_quote_entities, array('lt;', 'gt;')), '~') . ')';
+							$pcre_subroutines['excluded_lookahead'] = '(?![' . $excluded_trailing_chars . ']*(?>' . $space_chars . '|$))';
+
+							foreach (array('path', 'query', 'fragment') as $part)
+							{
+								switch ($part) {
+									case 'path':
+										$part_disallowed_chars = '<>' . $bracket_quote_chars . $space_chars . $excluded_trailing_chars . '/#&';
+										$part_excluded_trailing_chars = str_replace('?', '', $excluded_trailing_chars);
+										break;
+
+									case 'query':
+										$part_disallowed_chars = '<>' . $bracket_quote_chars . $space_chars . $excluded_trailing_chars . '#&';
+										$part_excluded_trailing_chars = $excluded_trailing_chars;
+										break;
+
+									default:
+										$part_disallowed_chars = '<>' . $bracket_quote_chars . $space_chars . $excluded_trailing_chars . '&';
+										$part_excluded_trailing_chars = $excluded_trailing_chars;
+										break;
+								}
+								$pcre_subroutines[$part . '_allowed'] = '[^' . $part_disallowed_chars . ']|(?P>allowed_entities)|[' . $part_excluded_trailing_chars . '](?P>excluded_lookahead)';
+
+								$balanced_construct_regex = array();
+
+								foreach ($balanced_pairs as $pair_opener => $pair_closer)
+									$balanced_construct_regex[] = preg_quote($pair_opener) . '(?P>' . $part . '_recursive)*+' . preg_quote($pair_closer);
+
+								$pcre_subroutines[$part . '_balanced'] = '(?:' . implode('|', $balanced_construct_regex) . ')(?P>' . $part . '_allowed)*+';
+								$pcre_subroutines[$part . '_recursive'] = '(?' . '>(?P>' . $part . '_allowed)|(?P>' . $part . '_balanced))';
+
+								$pcre_subroutines[$part . '_segment'] =
+									// Allowed characters besides brackets and quotation marks
+									'(?P>' . $part . '_allowed)*+' .
+									// Brackets and quotation marks that are either...
 									'(?:' .
-										// Either the reserved "localhost" domain name
-										'localhost' .
+										// part of a balanced construct
+										'(?P>' . $part . '_balanced)' .
 										// or
 										'|' .
-										// a run of IRI characters, a dot, and a TLD
-										'[\p{L}\p{M}\p{N}\-.:@]+\.(?P>tlds)' .
+										// unpaired but not at the end
+										'(?P>bracket_quote)(?=(?P>' . $part . '_allowed))' .
+									')*+';
+							}
+
+							// Time to build this monster!
+							// First, define the PCRE subroutines.
+							$url_regex = '(?(DEFINE)';
+
+							foreach ($pcre_subroutines as $name => $subroutine)
+								$url_regex .= '(?<' . $name . '>' . $subroutine . ')';
+
+							$url_regex .= ')';
+
+							// Now build the rest of the regex
+							$url_regex .=
+							// 1. IRI scheme and domain components
+							'(?:' .
+								// 1a. IRIs with a scheme, or at least an opening "//"
+								'(?:' .
+
+									// URI scheme (or lack thereof for schemeless URLs)
+									'(?:' .
+										// URI scheme and colon
+										'\b' .
+										'(?:' .
+											// Either a scheme that need a domain in the authority
+											// (Remember for later that we need a domain)
+											'(?P<need_domain>(?P>scheme_need_domain)):' .
+											// or
+											'|' .
+											// a scheme that allows an empty authority
+											// (Remember for later that the authority can be empty)
+											'(?P<empty_authority>(?P>scheme_empty_authority)):' .
+											// or
+											'|' .
+											// a scheme that uses no authority
+											'(?P>scheme_no_authority):(?!//)' .
+											// or
+											'|' .
+											// another scheme, but only if it is followed by "://"
+											'(?P>scheme_any):(?=//)' .
+										')' .
+
+										// or
+										'|' .
+
+										// An empty string followed by "//" for schemeless URLs
+										'(?P<schemeless>(?=//))' .
 									')' .
-									// followed by a non-domain character or end of line
-									'(?=[^\p{L}\p{N}\-.]|$)' .
 
-									// or, if no "authority" per se (e.g. "mailto:" URLs)...
-									'|' .
+									// IRI authority chunk (maybe)
+									'(?:' .
+										// (Keep track of whether we find a valid authority or not)
+										'(?P<has_authority>' .
+											// 2 slashes before the authority itself
+											'//' .
+											'(?:' .
+												// If there was no scheme...
+												'(?(<schemeless>)' .
+													// require an authority that contains a domain.
+													'(?P>authority)' .
 
-									// a run of IRI characters
-									'[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.:@]+[\p{L}\p{M}\p{N}]' .
-									// and then a dot and a closing IRI label
-									'\.[\p{L}\p{M}\p{N}\-]+' .
+													// Else if a domain is needed...
+													'|(?(<need_domain>)' .
+														// require an authority with a domain.
+														'(?P>authority)' .
+
+														// Else if an empty authority is allowed...
+														'|(?(<empty_authority>)' .
+															// then require either
+															'(?:' .
+																// empty string, followed by a "/"
+																'(?=/)' .
+																// or
+																'|' .
+																// an authority with a domain.
+																'(?P>authority)' .
+															')' .
+
+															// Else just a run of IRI characters.
+															'|(?P>no_domain)' .
+														')' .
+													')' .
+												')' .
+											')' .
+											// Followed by a non-domain character or end of line
+											'(?=(?P>not_domain_label_char)|$)' .
+										')' .
+
+										// or, if there is a scheme but no authority
+										// (e.g. "mailto:" URLs)...
+										'|' .
+
+										// A run of IRI characters
+										'(?P>no_domain)' .
+										// If scheme needs a domain, require a dot and a TLD
+										'(?(<need_domain>)\.(?P>tlds))' .
+										// Followed by a non-domain character or end of line
+										'(?=(?P>not_domain_label_char)|$)' .
+									')' .
+								')' .
+
+								// Or, if there is neither a scheme nor an authority...
+								'|' .
+
+								// 1b. Naked domains
+								// (e.g. "example.com" in "Go to example.com for an example.")
+								'(?P<naked_domain>' .
+									// Preceded by start of line or a space
+									'(?<=^|<br>|[' . $space_chars . '])' .
+									// A domain name
+									'(?P>domain)' .
+									// Followed by a non-domain character or end of line
+									'(?=(?P>not_domain_label_char)|$)' .
 								')' .
 							')' .
 
-							// Or
-							'|' .
-
-							// 1b. Naked domains (e.g. "example.com" in "Go to example.com for an example.")
+							// 2. IRI path, query, and fragment components (if present)
 							'(?:' .
-								// Preceded by start of line or a non-domain character
-								'(?<=^|[^\p{L}\p{M}\p{N}\-:@])' .
-								// A run of Unicode domain name characters (excluding [:@])
-								'[\p{L}\p{N}][\p{L}\p{M}\p{N}\-.]+[\p{L}\p{M}\p{N}]' .
-								// and then a dot and a valid TLD
-								'\.(?P>tlds)' .
-								// Followed by either:
+								// If the IRI has an authority or is a naked domain and any of these
+								// components exist, the path must start with a single "/".
+								// Note: technically, it is valid to append a query or fragment
+								// directly to the authority chunk without a "/", but supporting
+								// that in the autolinker would produce a lot of false positives,
+								// so we don't.
 								'(?=' .
-									// end of line or a non-domain character (excluding [.:@])
-									'$|[^\p{L}\p{N}\-]' .
-									// or
-									'|' .
-									// a dot followed by end of line or a non-domain character (excluding [.:@])
-									'\.(?=$|[^\p{L}\p{N}\-])' .
+									// If we found an authority above...
+									'(?(<has_authority>)' .
+										// require a "/"
+										'/' .
+										// Else if we found a naked domain above...
+										'|(?(<naked_domain>)' .
+											// require a "/"
+											'/' .
+										')' .
+									')' .
 								')' .
-							')' .
-						')' .
 
-						// 2. IRI path, query, and fragment components (if present)
-						'(?:' .
-
-							// If any of these parts exist, must start with a single "/"
-							'/' .
-
-							// And then optionally:
-							'(?:' .
-								// One or more of:
+								// 2.a. Path component, if any.
 								'(?:' .
-									// a run of non-space, non-()<>
-									'[^\s()<>]+' .
-									// or
-									'|' .
-									// balanced parentheses, up to 2 levels
-									'\(([^\s()<>]+|(\([^\s()<>]+\)))*\)' .
-								')+' .
-								// Ending with:
-								'(?:' .
-									// balanced parentheses, up to 2 levels
-									'\(([^\s()<>]+|(\([^\s()<>]+\)))*\)' .
-									// or
-									'|' .
-									// not a space or one of these punctuation characters
-									'[^\s`!()\[\]{};:\'".,<>?«»“”‘’/]' .
-									// or
-									'|' .
-									// a trailing slash (but not two in a row)
-									'(?<!/)/' .
+									// Can have one or more segments
+									'(?:' .
+										// Not preceded by a "/", except in the special case of an
+										// empty authority immediately before the path.
+										'(?(<empty_authority>)' .
+											'(?:(?<=://)|(?<!/))' .
+											'|' .
+											'(?<!/)' .
+										')' .
+										// Initial "/"
+										'/' .
+										// Then a run of allowed path segement characters
+										'(?P>path_segment)*+' .
+									')*+' .
 								')' .
-							')?' .
-						')?';
 
-						$data = preg_replace_callback('~' . $url_regex . '~i' . ($context['utf8'] ? 'u' : ''), function($matches)
+								// 2.b. Query component, if any.
+								'(?:' .
+									// Initial "?" that is not last character.
+									'\?' . '(?=(?P>bracket_quote)*(?P>query_allowed))' .
+									// Then a run of allowed query characters
+									'(?P>query_segment)*+' .
+								')?' .
+
+								// 2.c. Fragment component, if any.
+								'(?:' .
+									// Initial "#" that is not last character.
+									'#' . '(?=(?P>bracket_quote)*(?P>fragment_allowed))' .
+									// Then a run of allowed fragment characters
+									'(?P>fragment_segment)*+' .
+								')?' .
+							')?+';
+						}
+
+						$tmp_data = preg_replace_callback('~' . $url_regex . '~i' . ($context['utf8'] ? 'u' : ''), function($matches)
 						{
 							$url = array_shift($matches);
 
@@ -2503,33 +2745,34 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 							return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
 						}, $data);
+
+						if (!is_null($tmp_data))
+							$data = $tmp_data;
 					}
 
 					// Next, emails...  Must be careful not to step on enablePostHTML logic above...
 					if (!isset($disabled['email']) && strpos($data, '@') !== false && strpos($data, '[email') === false && stripos($data, 'mailto:') === false)
 					{
-						$email_regex = '
-						# Preceded by a non-domain character or start of line
-						(?<=^|[^\p{L}\p{M}\p{N}\-\.])
+						// Preceded by a space or start of line
+						$email_regex = '(?<=^|<br>|[' . $space_chars . '])' .
 
-						# An email address
-						[\p{L}\p{M}\p{N}_\-.]{1,80}
-						@
-						[\p{L}\p{M}\p{N}\-.]+
-						\.
-						' . $modSettings['tld_regex'] . '
+						// An email address
+						'[' . $domain_label_chars . '_.]{1,80}' .
+						'@' .
+						'[' . $domain_label_chars . '.]+' .
+						'\.' . $modSettings['tld_regex'] .
 
-						# Followed by either:
-						(?=
-							# end of line or a non-domain character (excluding the dot)
-							$|[^\p{L}\p{M}\p{N}\-]
-							| # or
-							# a dot followed by end of line or a non-domain character
-							\.(?=$|[^\p{L}\p{M}\p{N}\-])
-						)';
+						// Followed by a non-domain character or end of line
+						'(?=[^' . $domain_label_chars . ']|$)';
 
-						$data = preg_replace('~' . $email_regex . '~xi' . ($context['utf8'] ? 'u' : ''), '[email]$0[/email]', $data);
+						$tmp_data = preg_replace('~' . $email_regex . '~i' . ($context['utf8'] ? 'u' : ''), '[email]$0[/email]', $data);
+
+						if (!is_null($tmp_data))
+							$data = $tmp_data;
 					}
+
+					// Save a little memory.
+					unset($tmp_data);
 				}
 			}
 
