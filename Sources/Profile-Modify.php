@@ -1173,7 +1173,7 @@ function makeNotificationChanges($memID)
 			)
 		);
 		foreach ($_POST['notify_topics'] as $topic)
-			setNotifyPrefs($memID, array('topic_notify_' . $topic => 0));
+			setNotifyPrefs((int) $memID, array('topic_notify_' . $topic => 0));
 	}
 
 	// We are removing topic preferences
