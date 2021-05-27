@@ -7401,7 +7401,7 @@ function validate_iri($iri, $flags = null)
 	{
 		$host = parse_url((strpos($url, '//') === 0 ? 'http:' : '') . $url, PHP_URL_HOST);
 
-		if (strpos($host, '[') === 0 && strpos($host, ']') === strlen($host) && strpos($host, ':') !== false)
+		if (strpos($host, '[') === 0 && strpos($host, ']') === strlen($host) - 1 && strpos($host, ':') !== false)
 			$url = str_replace($host, '127.0.0.1', $url);
 	}
 
