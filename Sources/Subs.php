@@ -2382,42 +2382,42 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							'\x{D0000}-\x{DFFFD}', '\x{E1000}-\x{EFFFD}',
 						)) : '');
 
+						// URI schemes that require some sort of special handling.
+						$schemes = array(
+							// Schemes whose URI definitions require a domain name in the
+							// authority (or whatever the next part of the URI is).
+							'need_domain' => array(
+								'aaa', 'aaas', 'acap', 'acct', 'afp', 'cap', 'cid', 'coap',
+								'coap+tcp', 'coap+ws', 'coaps', 'coaps+tcp', 'coaps+ws', 'crid',
+								'cvs', 'dict', 'dns', 'feed', 'fish', 'ftp', 'git', 'go',
+								'gopher', 'h323', 'http', 'https', 'iax', 'icap', 'im', 'imap',
+								'ipp', 'ipps', 'irc', 'irc6', 'ircs', 'ldap', 'ldaps', 'mailto',
+								'mid', 'mupdate', 'nfs', 'nntp', 'pop', 'pres', 'reload',
+								'rsync', 'rtsp', 'sftp', 'sieve', 'sip', 'sips', 'smb', 'snmp',
+								'soap.beep', 'soap.beeps', 'ssh', 'svn', 'stun', 'stuns',
+								'telnet', 'tftp', 'tip', 'tn3270', 'turn', 'turns', 'tv', 'udp',
+								'vemmi', 'vnc', 'webcal', 'ws', 'wss', 'xmlrpc.beep',
+								'xmlrpc.beeps', 'xmpp', 'z39.50', 'z39.50r', 'z39.50s',
+							),
+							// Schemes that allow an empty authority ("://" followed by "/")
+							'empty_authority' => array(
+								'file', 'ni', 'nih',
+							),
+							// Schemes that do not use an authority but still have a reasonable
+							// chance of working as clickable links.
+							'no_authority' => array(
+								'about', 'callto', 'geo', 'gg', 'leaptofrogans', 'magnet',
+								'mailto', 'maps', 'news', 'ni', 'nih', 'service', 'skype',
+								'sms', 'tel', 'tv',
+							),
+						);
+
+						// In case a mod wants to control behaviour for a special URI scheme.
+						call_integration_hook('integrate_autolinker_schemes', array(&$schemes));
+
 						// Don't repeat this unnecessarily.
 						if (empty($url_regex))
 						{
-							// URI schemes that require some sort of special handling.
-							$schemes = array(
-								// Schemes whose URI definitions require a domain name in the
-								// authority (or whatever the next part of the URI is).
-								'need_domain' => array(
-									'aaa', 'aaas', 'acap', 'acct', 'afp', 'cap', 'cid', 'coap',
-									'coap+tcp', 'coap+ws', 'coaps', 'coaps+tcp', 'coaps+ws', 'crid',
-									'cvs', 'dict', 'dns', 'feed', 'fish', 'ftp', 'git', 'go',
-									'gopher', 'h323', 'http', 'https', 'iax', 'icap', 'im', 'imap',
-									'ipp', 'ipps', 'irc', 'irc6', 'ircs', 'ldap', 'ldaps', 'mailto',
-									'mid', 'mupdate', 'nfs', 'nntp', 'pop', 'pres', 'reload',
-									'rsync', 'rtsp', 'sftp', 'sieve', 'sip', 'sips', 'smb', 'snmp',
-									'soap.beep', 'soap.beeps', 'ssh', 'svn', 'stun', 'stuns',
-									'telnet', 'tftp', 'tip', 'tn3270', 'turn', 'turns', 'tv', 'udp',
-									'vemmi', 'vnc', 'webcal', 'ws', 'wss', 'xmlrpc.beep',
-									'xmlrpc.beeps', 'xmpp', 'z39.50', 'z39.50r', 'z39.50s',
-								),
-								// Schemes that allow an empty authority ("://" followed by "/")
-								'empty_authority' => array(
-									'file', 'ni', 'nih',
-								),
-								// Schemes that do not use an authority but still have a reasonable
-								// chance of working as clickable links.
-								'no_authority' => array(
-									'about', 'callto', 'geo', 'gg', 'leaptofrogans', 'magnet',
-									'mailto', 'maps', 'news', 'ni', 'nih', 'service', 'skype',
-									'sms', 'tel', 'tv',
-								),
-							);
-
-							// In case a mod wants to control behaviour for a special URI scheme.
-							call_integration_hook('integrate_autolinker_schemes', array(&$schemes));
-
 							// PCRE subroutines for efficiency.
 							$pcre_subroutines = array(
 								'tlds' => $modSettings['tld_regex'],
@@ -2714,7 +2714,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							')?+';
 						}
 
-						$tmp_data = preg_replace_callback('~' . $url_regex . '~i' . ($context['utf8'] ? 'u' : ''), function($matches)
+						$tmp_data = preg_replace_callback('~' . $url_regex . '~i' . ($context['utf8'] ? 'u' : ''), function($matches) use ($schemes)
 						{
 							$url = array_shift($matches);
 
@@ -2724,7 +2724,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 							$parsedurl = parse_url($url);
 
-							if (!empty($parsedurl['scheme']) && $parsedurl['scheme'] == 'mailto')
+							if (!isset($parsedurl['scheme']))
+								$parsedurl['scheme'] = '';
+
+							if ($parsedurl['scheme'] == 'mailto')
 							{
 								if (isset($disabled['email']))
 									return $url;
@@ -2747,7 +2750,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								$fullUrl = $url;
 
 							// Make sure that $fullUrl really is valid
-							if (validate_iri((strpos($fullUrl, '//') === 0 ? 'http:' : '') . $fullUrl) === false)
+							if (!in_array($parsedurl['scheme'], $schemes['no_authority']) && validate_iri((strpos($fullUrl, '//') === 0 ? 'http:' : '') . $fullUrl) === false)
 								return $url;
 
 							return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
