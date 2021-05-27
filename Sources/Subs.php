@@ -2726,9 +2726,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 							if (!empty($parsedurl['scheme']) && $parsedurl['scheme'] == 'mailto')
 							{
-								$email_address = str_replace('mailto:', '', $url);
-								if (!isset($disabled['email']) && filter_var($parsedurl['path'], FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE) !== false)
-									return '[email=' . $email_address . ']' . $url . '[/email]';
+								if (isset($disabled['email']))
+									return $url;
+
+								// Is this version of PHP capable of validating this email address?
+								$can_validate = defined('FILTER_FLAG_EMAIL_UNICODE') || strlen($parsedurl['path']) == strspn(strtolower($parsedurl['path']), 'abcdefghijklmnopqrstuvwxyz0123456789!#$%&\'*+-/=?^_`{|}~.@');
+
+								$flags = defined('FILTER_FLAG_EMAIL_UNICODE') ? FILTER_FLAG_EMAIL_UNICODE : null;
+
+								if (!$can_validate || filter_var($parsedurl['path'], FILTER_VALIDATE_EMAIL, $flags) !== false)
+									return '[email=' . str_replace('mailto:', '', $url) . ']' . $url . '[/email]';
 								else
 									return $url;
 							}
