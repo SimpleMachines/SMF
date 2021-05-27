@@ -7393,6 +7393,15 @@ function validate_iri($iri, $flags = null)
 {
 	$url = iri_to_url($iri);
 
+	// PHP 5 doesn't recognize IPv6 addresses in the URL host.
+	if (version_compare(phpversion(), '7.0.0', '<'))
+	{
+		$host = parse_url((strpos($url, '//') === 0 ? 'http:' : '') . $url, PHP_URL_HOST);
+
+		if (strpos($host, '[') === 0 && strpos($host, ']') === strlen($host) && strpos($host, ':') !== false)
+			$url = str_replace($host, '127.0.0.1', $url);
+	}
+
 	if (filter_var($url, FILTER_VALIDATE_URL, $flags) !== false)
 		return $iri;
 	else
