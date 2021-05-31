@@ -2224,6 +2224,8 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 */
 function sm_temp_dir()
 {
+	global $cachedir;
+
 	static $temp_dir = null;
 
 	// Already did this.
