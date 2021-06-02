@@ -1303,15 +1303,46 @@ function DatabasePopulation()
 		{
 			// www isn't really a subdomain in this sense, so strip it out
 			$url_parts['host'] = str_ireplace('www.', '', $url_parts['host']);
-			$pos1 = strrpos($url_parts['host'], '.');
-			if ($pos1 !== false)
+
+			// If host only contains one period there can't be any subdomain
+			if (substr_count($url_parts['host'], '.') > 1)
 			{
-				// 2nd period from the right indicates you have a subdomain
-				$pos2 = strrpos(substr($url_parts['host'], 0, $pos1 - 1), '.');
-				if ($pos2 !== false)
+				$allowed_tld = download_ccSLD_list();
+				if (!empty($allowed_tld))
 				{
-					$globalCookies = '1';
-					$globalCookiesDomain = substr($url_parts['host'], $pos2 + 1);
+					foreach($allowed_tld as $value)
+					{
+						$pattern = '/\.' . strtr($value, array('.' => '\.', '*' => '[^.]*?')) . '$/';
+						if (preg_match($pattern, $url_parts['host'], $matches, PREG_OFFSET_CAPTURE) === 1)
+						{
+							$stripped_domain = substr($url_parts['host'], 0, $matches[0][1]);
+							$tld = $matches[0][0];
+							break;
+						}
+					}
+
+					$pos1 = strrpos($stripped_domain, '.');
+					// If we find a period this indicates you have a subdomain
+					if ($pos1 !== false)
+					{
+						$globalCookies = '1';
+						$globalCookiesDomain = substr($stripped_domain, $pos1 + 1) . $tld;
+					}
+				}
+				else
+				{
+					// Fallback if ccSLD list can't be retrieved
+					$pos1 = strrpos($url_parts['host'], '.');
+					if ($pos1 !== false)
+					{
+						// 2nd period from the right indicates you have a subdomain
+						$pos2 = strrpos(substr($url_parts['host'], 0, $pos1 - 1), '.');
+						if ($pos2 !== false)
+						{
+							$globalCookies = '1';
+							$globalCookiesDomain = substr($url_parts['host'], $pos2 + 1);
+						}
+					}
 				}
 			}
 		}
@@ -1505,6 +1536,18 @@ function DatabasePopulation()
 	}
 
 	return false;
+}
+
+function download_ccSLD_list()
+{
+	// Download list of all known ccSLDs
+	$list = explode("\n", file_get_contents('https://publicsuffix.org/list/public_suffix_list.dat'));
+	$allowed_tld = array();
+	foreach ($list as $value)
+		// Remove all empty lines and comments
+		if (!empty($value) && substr($value, 0, 2) != '//')
+			$allowed_tld[] = $value;
+	return array_reverse($allowed_tld);
 }
 
 // Ask for the administrator login information.
