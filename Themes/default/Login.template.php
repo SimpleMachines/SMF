@@ -90,7 +90,8 @@ function template_login()
 							document.getElementById("', !empty($context['from_ajax']) ? 'ajax_' : '', isset($context['default_username']) && $context['default_username'] != '' ? 'loginpass' : 'loginuser', '").focus();
 						}, 150);';
 
-	if (!empty($context['from_ajax']) && ((empty($modSettings['allow_cors']) || empty($modSettings['allow_cors_credentials']) || empty($context['valid_cors_found']) || !in_array($context['valid_cors_found'], array('same', 'subsite')))))
+	if (!empty($context['from_ajax']) && ((empty($modSettings['allow_cors']) || empty($modSettings['allow_cors_credentials']) || empty($context['valid_cors_found']) || !in_array($context['valid_cors_found'], array('samel', 'subsite')))))
+	{
 		echo '
 						form = $("#frmLogin");
 						form.submit(function(e) {
@@ -107,14 +108,24 @@ function template_login()
 									withCredentials: allow_xhjr_credentials
 								},
 								data: form.serialize(),
-								success: function(data) {
+								success: function(data) {';
+
+
+		// While a nice action is to replace the document body after a login, this may fail on CORS requests because the action may not be redirected back to the page they started the login process from.  So for these cases, we simply just reload the page.
+		if (empty($context['valid_cors_found']) || $context['valid_cors_found'] == 'same')
+			echo '
 									if (data.indexOf("<bo" + "dy") > -1) {
 										document.open();
 										document.write(data);
 										document.close();
 									}
 									else
-										form.parent().html($(data).find(".roundframe").html());
+										form.parent().html($(data).find(".roundframe").html());';
+		else
+			echo '
+									window.location.reload();';
+
+		echo '	
 								},
 								error: function(xhr) {
 									var data = xhr.responseText;
@@ -130,6 +141,7 @@ function template_login()
 
 							return false;
 						});';
+	}
 
 	echo '
 					</script>
