@@ -1459,13 +1459,13 @@ function FindCorsBaseUrl($url, $sub_domain = false)
 
 	$base_domain = parse_url($url, PHP_URL_HOST);
 
-	// If we find www, pop it out.
-	if ('www' === array_slice(explode('.', $base_domain), 0, 1))
-		$base_domain = implode('.', array_slice(explode('.', $base_domain, 1)), 1);
-
 	// Are we saying this is a sub domain and to remove another domain level?
 	if ($sub_domain)
 		$base_domain = implode('.', array_slice(explode('.', parse_url($domain, PHP_URL_HOST)), 1));
+
+	// If we find www, pop it out.
+	else if ('www' === array_slice(explode('.', $base_domain), 0, 1))
+		$base_domain = implode('.', array_slice(explode('.', $base_domain, 1)), 1);
 
 	/*	Note, we do have a TLD regex for the autolinker, however it can not reliably be used here due to
 		Country Code Second Level Domains (example: co.uk) as they are not TLDs.  As these are also
