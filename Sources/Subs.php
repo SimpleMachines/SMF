@@ -6891,7 +6891,7 @@ function build_regex($strings, $delim = null, $returnArray = false)
 				$regex[$new_key] = $key_regex . $sub_regex;
 			else
 			{
-				if (($length += strlen($key_regex) + 1) < $max_length || empty($regex))
+				if (($length += strlen($key_regex . $sub_regex) + 1) < $max_length || empty($regex))
 				{
 					$regex[$new_key] = $key_regex . $sub_regex;
 					unset($index[$key]);
