@@ -1291,44 +1291,6 @@ function DatabasePopulation()
 	if ((!empty($databases[$db_type]['utf8_support']) && !empty($databases[$db_type]['utf8_required'])) || (empty($databases[$db_type]['utf8_required']) && !empty($databases[$db_type]['utf8_support']) && isset($_POST['utf8'])))
 		$newSettings[] = array('global_character_set', 'UTF-8');
 
-	// Auto-detect local & global cookie settings
-	$url_parts = parse_url($boardurl);
-	if ($url_parts !== false)
-	{
-		unset($globalCookies, $globalCookiesDomain, $localCookies);
-
-		// Look for subdomain, if found, set globalCookie settings
-		// Don't bother looking if you have an ip address for host
-		if (!empty($url_parts['host']) && (filter_var($url_parts['host'], FILTER_VALIDATE_IP) === false))
-		{
-			// www isn't really a subdomain in this sense, so strip it out
-			$url_parts['host'] = str_ireplace('www.', '', $url_parts['host']);
-			$pos1 = strrpos($url_parts['host'], '.');
-			if ($pos1 !== false)
-			{
-				// 2nd period from the right indicates you have a subdomain
-				$pos2 = strrpos(substr($url_parts['host'], 0, $pos1 - 1), '.');
-				if ($pos2 !== false)
-				{
-					$globalCookies = '1';
-					$globalCookiesDomain = substr($url_parts['host'], $pos2 + 1);
-				}
-			}
-		}
-
-		// Look for subfolder, if found, set localCookie
-		// Checking for len > 1 ensures you don't have just a slash...
-		if (!empty($url_parts['path']) && strlen($url_parts['path']) > 1)
-			$localCookies = '1';
-
-		if (isset($globalCookies))
-			$newSettings[] = array('globalCookies', $globalCookies);
-		if (isset($globalCookiesDomain))
-			$newSettings[] = array('globalCookiesDomain', $globalCookiesDomain);
-		if (isset($localCookies))
-			$newSettings[] = array('localCookies', $localCookies);
-	}
-
 	// Are we allowing stat collection?
 	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']))
 	{
