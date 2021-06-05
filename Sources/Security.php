@@ -1346,6 +1346,9 @@ function frameOptionsHeader($override = null)
 
 /**
  * This sets the Access-Control-Allow-Origin header.
+ * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+ *
+ * @param bool $set_header (Default: true): When false, we will do the logic, but not send the headers.  The relevant logic is still saved in the $context and can be sent manually.
  *
  * @since 2.1
  */
@@ -1451,6 +1454,9 @@ function corsPolicyHeader($set_header = true)
 /**
  * Helper function to figure out a urls base domain.
  *
+ * @param string $url The url/domain/host we are attempting to vaalidate for the base domain.
+ * @param bool $sub_domain (Default: false): When true it will lowest level of a domain off before performing any other logic.
+
  * @since 2.1
  */
 function FindCorsBaseUrl($url, $sub_domain = false)
