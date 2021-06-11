@@ -385,11 +385,15 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['profile_posts'],
 			'log_change' => true,
 			'size' => 7,
+			'min' => 0,
+			'max' => 2 ** 24 - 1,
 			'permission' => 'moderate_forum',
 			'input_validate' => function(&$value)
 			{
 				if (!is_numeric($value))
 					return 'digits_only';
+				elseif ($value < 0 || $value > 2 ** 24 - 1)
+					return 'posts_out_of_range';
 				else
 					$value = $value != '' ? strtr($value, array(',' => '', '.' => '', ' ' => '')) : 0;
 				return true;
