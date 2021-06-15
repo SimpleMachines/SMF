@@ -206,7 +206,7 @@ function Login2()
 	createToken('login');
 
 	// Set up the default/fallback stuff.
-	$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user'])) : '';
+	$context['default_username'] = isset($_POST['user']) ? $smcFunc['entity_fix']($smcFunc['htmlspecialchars']($_POST['user'])) : '';
 	$context['default_password'] = '';
 	$context['never_expire'] = $modSettings['cookieTime'] <= 525600;
 	$context['login_errors'] = array($txt['error_occured']);
@@ -243,7 +243,7 @@ function Login2()
 	if ($smcFunc['strlen']($_POST['user']) > 80)
 	{
 		$_POST['user'] = $smcFunc['substr']($_POST['user'], 0, 79);
-		$context['default_username'] = preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user']));
+		$context['default_username'] = $smcFunc['entity_fix']($smcFunc['htmlspecialchars']($_POST['user']));
 	}
 
 	// Are we using any sort of integration to validate the login?

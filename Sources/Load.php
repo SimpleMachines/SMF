@@ -109,10 +109,9 @@ function reloadSettings()
 
 	// global array of anonymous helper functions, used mostly to properly handle multi byte strings
 	$smcFunc += array(
-		'entity_fix' => function($string)
+		'entity_fix' => function($string) use ($ent_list)
 		{
-			$num = $string[0] === 'x' ? hexdec(substr($string, 1)) : (int) $string;
-			return $num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202E || $num === 0x202D ? '' : '&#' . $num . ';';
+			return preg_replace('~&amp;(' . substr($ent_list, 1, -1) . ');~', '&$1;', $string);
 		},
 		'htmlspecialchars' => function($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($utf8)
 		{
