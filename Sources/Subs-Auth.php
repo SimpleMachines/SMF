@@ -568,10 +568,7 @@ function RequestMembers()
 				$row['real_name'] = $utf8;
 		}
 
-		$row['real_name'] = strtr($row['real_name'], array('&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;'));
-
-		if (preg_match('~&#\d+;~', $row['real_name']) != 0)
-			$row['real_name'] = preg_replace_callback('~&#(\d+);~', 'fixchar__callback', $row['real_name']);
+		$row['real_name'] = smf_entity_decode($row['real_name']);
 
 		echo $row['real_name'], "\n";
 	}

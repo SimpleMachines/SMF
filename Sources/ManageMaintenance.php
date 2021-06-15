@@ -657,7 +657,7 @@ function ConvertEntities()
 					if ($column_name !== $primary_key && strpos($column_value, '&#') !== false)
 					{
 						$changes[] = $column_name . ' = {string:changes_' . $column_name . '}';
-						$insertion_variables['changes_' . $column_name] = preg_replace_callback('~&#(\d{1,5}|x[0-9a-fA-F]{1,4});~', 'fixchardb__callback', $column_value);
+						$insertion_variables['changes_' . $column_name] = smf_entity_decode($column_value);
 					}
 
 				$where = array();
@@ -2297,32 +2297,6 @@ function get_hook_info_from_raw($rawData)
 		$hookData['pureFunc'] = $modFunc;
 
 	return $hookData;
-}
-
-/**
- * Converts html entities to utf8 equivalents
- * special db wrapper for mysql based on the limitation of mysql/mb3
- *
- * Callback function for preg_replace_callback
- * Uses capture group 1 in the supplied array
- * Does basic checks to keep characters inside a viewable range.
- *
- * @param array $matches An array of matches (relevant info should be the 2nd item in the array)
- * @return string The fixed string or return the old when limitation of mysql is hit
- */
-function fixchardb__callback($matches)
-{
-	global $smcFunc;
-	if (!isset($matches[1]))
-		return '';
-
-	$num = $matches[1][0] === 'x' ? hexdec(substr($matches[1], 1)) : (int) $matches[1];
-
-	// it's to big for mb3?
-	if ($num > 0xFFFF && !$smcFunc['db_mb4'])
-		return $matches[0];
-	else
-		return fixchar__callback($matches);
 }
 
 ?>

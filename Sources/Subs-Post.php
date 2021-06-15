@@ -1267,7 +1267,7 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 					$string = $newstring;
 			}
 
-			$string = preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $string);
+			$string = smf_entity_decode($string);
 
 			// Unicode, baby.
 			$charset = 'UTF-8';

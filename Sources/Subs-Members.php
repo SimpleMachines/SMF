@@ -866,7 +866,7 @@ function isReservedName($name, $current_id_member = 0, $is_name = true, $fatal =
 {
 	global $modSettings, $smcFunc;
 
-	$name = preg_replace_callback('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'replaceEntities__callback', $name);
+	$name = $smcFunc['htmlspecialchars'](smf_entity_decode($name));
 	$checkName = $smcFunc['strtolower']($name);
 
 	// Administrators are never restricted ;).
@@ -883,7 +883,7 @@ function isReservedName($name, $current_id_member = 0, $is_name = true, $fatal =
 				continue;
 
 			// The admin might've used entities too, level the playing field.
-			$reservedCheck = preg_replace('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'replaceEntities__callback', $reserved);
+			$reservedCheck = $smcFunc['htmlspecialchars'](smf_entity_decode($reserved));
 
 			// Case sensitive name?
 			if (empty($modSettings['reserveCase']))

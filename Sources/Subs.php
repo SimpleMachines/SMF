@@ -1152,6 +1152,137 @@ function fix_utf8mb4($string)
 }
 
 /**
+ * Decodes and sanitizes HTML entities.
+ *
+ * If database does not support 4-byte UTF-8 characters, entities for 4-byte
+ * characters are left in place.
+ *
+ * @param string $string The string in which to decode entities.
+ * @param bool $nbsp_to_space If true, decode '&nbsp;' to space character.
+ * 		Default: false.
+ * @param integer $flags Flags to pass to html_entity_decode.
+ * 		Default: ENT_QUOTES | ENT_HTML5.
+ * @return string The string with the entities decoded.
+ */
+function smf_entity_decode($string, $nbsp_to_space = false, $flags = ENT_QUOTES | ENT_HTML5)
+{
+	global $context, $smcFunc;
+
+	// Basic parameter sanitization.
+	$string = (string) $string;
+	$nbsp_to_space = (bool) $nbsp_to_space;
+	$flags = !is_int($flags) ? ENT_QUOTES | ENT_HTML5 : $flags;
+
+	// Don't waste time on empty strings.
+	if (trim($string) === '')
+		return $string;
+
+	// In theory this is always UTF-8, but...
+	if (empty($context['character_set']))
+		$charset = is_callable('mb_detect_encoding') ? mb_detect_encoding($string) : 'UTF-8';
+	elseif (strpos($context['character_set'], 'ISO-8859-') !== false && !in_array($context['character_set'], array('ISO-8859-5', 'ISO-8859-15')))
+		$charset = 'ISO-8859-1';
+	else
+		$charset = $context['character_set'];
+
+	// Enables consistency with the behaviour of un_htmlspecialchars.
+	if ($nbsp_to_space)
+		$string = strtr($string, array('&nbsp;' => ' ', '&#xA0;' => ' ', '&#160;' => ' '));
+
+	// Do the deed.
+	$string = html_entity_decode($string, $flags, $charset);
+
+	// Remove any illegal character entities.
+	$string = sanitize_entities($string);
+
+	// Finally, make sure we don't break the database.
+	$string = fix_utf8mb4($string);
+
+	return $string;
+}
+
+/**
+ * Replaces HTML entities for invalid characters with a substitute.
+ *
+ * The default substitute is the entity for the replacement character U+FFFD
+ * (a.k.a. the question-mark-in-a-box).
+ *
+ * !!! Warning !!! Setting $substitute to '' in order to delete invalid
+ * entities from the string can create unexpected security problems. See
+ * https://www.unicode.org/reports/tr36/#Deletion_of_Noncharacters for an
+ * explanation.
+ *
+ * @param string $string The string to sanitize.
+ * @param string $substitute Replacement for the invalid entities.
+ *      Default: '&#65533;'
+ * @return string The sanitized string.
+ */
+function sanitize_entities($string, $substitute = '&#65533;')
+{
+	static $disallowed;
+
+	$string = (string) $string;
+	$substitute = (string) $substitute;
+
+	if (strpos($string, '&#') === false)
+		return $string;
+
+	if (empty($disallowed))
+	{
+		$disallowed['dec'] = array();
+
+		// Control characters.
+		for ($i = 0x0; $i < 0x20; $i++)
+		{
+			// Allow \t, \n, and \r
+			if ($i === 0x9 || $i === 0xA || $i === 0xD)
+				continue;
+
+			$disallowed['dec'][] = $i;
+		}
+		for ($i = 0x7F; $i < 0xA0; $i++)
+			$disallowed['dec'][] = $i;
+
+		// UTF-16 surrogate pairs.
+		for ($i = 0xD800; $i < 0xE000; $i++)
+			$disallowed['dec'][] = $i;
+
+		// Non-character code points.
+		for ($i = 0xFDD0; $i <= 0xFDEF; $i++)
+			$disallowed['dec'][] = $i;
+
+		$disallowed['dec'] = array_merge($disallowed['dec'], array(
+			0xFFFE, 0xFFFF,
+			0x1FFFE, 0x1FFFF,
+			0x2FFFE, 0x2FFFF,
+			0x3FFFE, 0x3FFFF,
+			0x4FFFE, 0x4FFFF,
+			0x5FFFE, 0x5FFFF,
+			0x6FFFE, 0x6FFFF,
+			0x7FFFE, 0x7FFFF,
+			0x8FFFE, 0x8FFFF,
+			0x9FFFE, 0x9FFFF,
+			0xAFFFE, 0xAFFFF,
+			0xBFFFE, 0xBFFFF,
+			0xCFFFE, 0xCFFFF,
+			0xDFFFE, 0xDFFFF,
+			0xEFFFE, 0xEFFFF,
+			0xFFFFE, 0xFFFFF,
+			0x10FFFE, 0x10FFFF,
+		));
+
+		// Now build the regexes to match these illegal entities.
+		$disallowed['hex'] = build_regex(array_map('dechex', $disallowed['dec']));
+		$disallowed['dec'] = build_regex($disallowed['dec']);
+	}
+
+	// Replace all illegal entities with the entity for the replacement character.
+	$string = preg_replace('/&#(?'.'>x0*' . $disallowed['hex'] . '|0*' . $disallowed['dec'] . ');/i', $substitute, $string);
+
+	return $string;
+}
+
+/**
  * Shorten a subject + internationalization concerns.
  *
  * - shortens a subject so that it is either shorter than length, or that length plus an ellipsis.
@@ -5828,124 +5959,6 @@ function sanitizeMSCutPaste($string)
 		$string = str_replace($findchars_iso, $replacechars, $string);
 
 	return $string;
-}
-
-/**
- * Decode numeric html entities to their ascii or UTF8 equivalent character.
- *
- * Callback function for preg_replace_callback in subs-members
- * Uses capture group 2 in the supplied array
- * Does basic scan to ensure characters are inside a valid range
- *
- * @param array $matches An array of matches (relevant info should be the 3rd item)
- * @return string A fixed string
- */
-function replaceEntities__callback($matches)
-{
-	global $context;
-
-	if (!isset($matches[2]))
-		return '';
-
-	$num = $matches[2][0] === 'x' ? hexdec(substr($matches[2], 1)) : (int) $matches[2];
-
-	// remove left to right / right to left overrides
-	if ($num === 0x202D || $num === 0x202E)
-		return '';
-
-	// Quote, Ampersand, Apostrophe, Less/Greater Than get html replaced
-	if (in_array($num, array(0x22, 0x26, 0x27, 0x3C, 0x3E)))
-		return '&#' . $num . ';';
-
-	if (empty($context['utf8']))
-	{
-		// no control characters
-		if ($num < 0x20)
-			return '';
-		// text is text
-		elseif ($num < 0x80)
-			return chr($num);
-		// all others get html-ised
-		else
-			return '&#' . $matches[2] . ';';
-	}
-	else
-	{
-		// <0x20 are control characters, 0x20 is a space, > 0x10FFFF is past the end of the utf8 character set
-		// 0xD800 >= $num <= 0xDFFF are surrogate markers (not valid for utf8 text)
-		if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF))
-			return '';
-		// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and punctuation
-		elseif ($num < 0x80)
-			return chr($num);
-		// <0x800 (2048)
-		elseif ($num < 0x800)
-			return chr(($num >> 6) + 192) . chr(($num & 63) + 128);
-		// < 0x10000 (65536)
-		elseif ($num < 0x10000)
-			return chr(($num >> 12) + 224) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
-		// <= 0x10FFFF (1114111)
-		else
-			return chr(($num >> 18) + 240) . chr((($num >> 12) & 63) + 128) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
-	}
-}
-
-/**
- * Converts html entities to utf8 equivalents
- *
- * Callback function for preg_replace_callback
- * Uses capture group 1 in the supplied array
- * Does basic checks to keep characters inside a viewable range.
- *
- * @param array $matches An array of matches (relevant info should be the 2nd item in the array)
- * @return string The fixed string
- */
-function fixchar__callback($matches)
-{
-	if (!isset($matches[1]))
-		return '';
-
-	$num = $matches[1][0] === 'x' ? hexdec(substr($matches[1], 1)) : (int) $matches[1];
-
-	// <0x20 are control characters, > 0x10FFFF is past the end of the utf8 character set
-	// 0xD800 >= $num <= 0xDFFF are surrogate markers (not valid for utf8 text), 0x202D-E are left to right overrides
-	if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202D || $num === 0x202E)
-		return '';
-	// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and punctuation
-	elseif ($num < 0x80)
-		return chr($num);
-	// <0x800 (2048)
-	elseif ($num < 0x800)
-		return chr(($num >> 6) + 192) . chr(($num & 63) + 128);
-	// < 0x10000 (65536)
-	elseif ($num < 0x10000)
-		return chr(($num >> 12) + 224) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
-	// <= 0x10FFFF (1114111)
-	else
-		return chr(($num >> 18) + 240) . chr((($num >> 12) & 63) + 128) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
-}
-
-/**
- * Strips out invalid html entities, replaces others with html style &#123; codes
- *
- * Callback function used of preg_replace_callback in smcFunc $ent_checks, for example
- * strpos, strlen, substr etc
- *
- * @param array $matches An array of matches (relevant info should be the 3rd item in the array)
- * @return string The fixed string
- */
-function entity_fix__callback($matches)
-{
-	if (!isset($matches[2]))
-		return '';
-
-	$num = $matches[2][0] === 'x' ? hexdec(substr($matches[2], 1)) : (int) $matches[2];
-
-	// we don't allow control characters, characters out of range, byte markers, etc
-	if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num == 0x202D || $num == 0x202E)
-		return '';
-	else
-		return '&#' . $num . ';';
 }
 
 /**

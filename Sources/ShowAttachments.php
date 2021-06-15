@@ -313,13 +313,13 @@ function showAttachment()
 
 	// Different browsers like different standards...
 	if (isBrowser('firefox'))
-		header('content-disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)));
+		header('content-disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(smf_entity_decode($utf8name)));
 
 	elseif (isBrowser('opera'))
-		header('content-disposition: ' . $disposition . '; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name) . '"');
+		header('content-disposition: ' . $disposition . '; filename="' . smf_entity_decode($utf8name) . '"');
 
 	elseif (isBrowser('ie'))
-		header('content-disposition: ' . $disposition . '; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)) . '"');
+		header('content-disposition: ' . $disposition . '; filename="' . urlencode(smf_entity_decode($utf8name)) . '"');
 
 	else
 		header('content-disposition: ' . $disposition . '; filename="' . $utf8name . '"');
