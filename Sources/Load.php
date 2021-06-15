@@ -105,7 +105,7 @@ function reloadSettings()
 	$context['utf8'] = $utf8;
 
 	// Set a list of common functions.
-	$ent_list = '&(?:#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . '|quot|amp|lt|gt|nbsp);';
+	$ent_list = '&(?'.'>nbsp|quot|gt|lt|a(?'.'>pos|mp)|#(?'.'>\d+|x[0-9a-fA-F]+));';
 
 	// global array of anonymous helper functions, used mostly to properly handle multi byte strings
 	$smcFunc += array(
