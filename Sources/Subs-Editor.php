@@ -2379,7 +2379,7 @@ function AutoSuggest_Search_MemberGroups()
 			AND id_group NOT IN ({array_int:invalid_groups})
 			AND hidden != {int:hidden}',
 		array(
-			'group_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(group_name}' : 'group_name',
+			'group_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(group_name)' : 'group_name',
 			'min_posts' => -1,
 			'invalid_groups' => array(1, 3),
 			'hidden' => 2,
