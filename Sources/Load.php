@@ -114,45 +114,6 @@ function reloadSettings()
 		{
 			return $string;
 		};
-	$fix_utf8mb4 = function($string) use ($utf8, $smcFunc)
-	{
-		if (!$utf8 || $smcFunc['db_mb4'])
-			return $string;
-
-		$i = 0;
-		$len = strlen($string);
-		$new_string = '';
-		while ($i < $len)
-		{
-			$ord = ord($string[$i]);
-			if ($ord < 128)
-			{
-				$new_string .= $string[$i];
-				$i++;
-			}
-			elseif ($ord < 224)
-			{
-				$new_string .= $string[$i] . $string[$i + 1];
-				$i += 2;
-			}
-			elseif ($ord < 240)
-			{
-				$new_string .= $string[$i] . $string[$i + 1] . $string[$i + 2];
-				$i += 3;
-			}
-			elseif ($ord < 248)
-			{
-				// Magic happens.
-				$val = (ord($string[$i]) & 0x07) << 18;
-				$val += (ord($string[$i + 1]) & 0x3F) << 12;
-				$val += (ord($string[$i + 2]) & 0x3F) << 6;
-				$val += (ord($string[$i + 3]) & 0x3F);
-				$new_string .= '&#' . $val . ';';
-				$i += 4;
-			}
-		}
-		return $new_string;
-	};
 
 	// global array of anonymous helper functions, used mostly to properly handle multi byte strings
 	$smcFunc += array(
@@ -161,9 +122,9 @@ function reloadSettings()
 			$num = $string[0] === 'x' ? hexdec(substr($string, 1)) : (int) $string;
 			return $num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202E || $num === 0x202D ? '' : '&#' . $num . ';';
 		},
-		'htmlspecialchars' => function($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8, $fix_utf8mb4)
+		'htmlspecialchars' => function($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8)
 		{
-			return $fix_utf8mb4($ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset)));
+			return fix_utf8mb4($ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset)));
 		},
 		'htmltrim' => function($string) use ($utf8, $ent_check)
 		{

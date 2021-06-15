@@ -1096,6 +1096,62 @@ function un_htmlspecialchars($string)
 }
 
 /**
+ * Converts 4-byte UTF-8 characters to entities if required for the database.
+ *
+ * Does nothing if the current character set is not UTF-8 or if the database
+ * can handle 4-byte UTF-8 characters.
+ *
+ * @param string $string A string possibly containing 4-byte UTF-8 characters.
+ * @return string A string that won't break the database.
+ */
+function fix_utf8mb4($string)
+{
+	global $context, $smcFunc;
+
+	if (empty($context['utf8']) || $smcFunc['db_mb4'])
+		return $string;
+
+	// The quick and easy way.
+	if (is_callable('mb_encode_numericentity'))
+		return mb_encode_numericentity($string, array(0x010000, 0x10FFFF, 0, 0xFFFFFF), 'UTF-8');
+
+	// The slow and hard way.
+	$i = 0;
+	$len = strlen($string);
+	$new_string = '';
+	while ($i < $len)
+	{
+		$ord = ord($string[$i]);
+		if ($ord < 128)
+		{
+			$new_string .= $string[$i];
+			$i++;
+		}
+		elseif ($ord < 224)
+		{
+			$new_string .= $string[$i] . $string[$i + 1];
+			$i += 2;
+		}
+		elseif ($ord < 240)
+		{
+			$new_string .= $string[$i] . $string[$i + 1] . $string[$i + 2];
+			$i += 3;
+		}
+		elseif ($ord < 248)
+		{
+			// Magic happens.
+			$val = (ord($string[$i]) & 0x07) << 18;
+			$val += (ord($string[$i + 1]) & 0x3F) << 12;
+			$val += (ord($string[$i + 2]) & 0x3F) << 6;
+			$val += (ord($string[$i + 3]) & 0x3F);
+			$new_string .= '&#' . $val . ';';
+			$i += 4;
+		}
+	}
+	return $new_string;
+}
+
+/**
  * Shorten a subject + internationalization concerns.
  *
  * - shortens a subject so that it is either shorter than length, or that length plus an ellipsis.
