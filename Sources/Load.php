@@ -119,10 +119,11 @@ function reloadSettings()
 		},
 		'htmltrim' => function($string) use ($utf8)
 		{
-			// Preg_replace space characters depend on the character set in use
-			$space_chars = $utf8 ? '\p{Z}\p{C}' : '\x00-\x20\x80-\xA0';
+			// Find all possible versions of &nbsp;
+			$nbsp = '&(?'.'>nbsp|#(?'.'>x0*A0|0*160));';
 
-			return preg_replace('~^(?:[' . $space_chars . ']|&nbsp;)+|(?:[' . $space_chars . ']|&nbsp;)+$~' . ($utf8 ? 'u' : ''), '', sanitize_entities($string));
+			// Interesting fact: Unicode properties work even when not in UTF-8 mode.
+			return preg_replace('~^(?'.'>[\p{Z}\p{C}]|' . $nbsp . ')+|(?'.'>[\p{Z}\p{C}]|' . $nbsp . ')+$~' . ($utf8 ? 'u' : ''), '', sanitize_entities($string));
 		},
 		'strlen' => function($string) use ($ent_list, $utf8)
 		{
