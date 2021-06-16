@@ -1477,6 +1477,47 @@ function DatabasePopulation()
 		}
 	}
 
+	// PG specific stuff
+	if ($db_type = 'postgresql')
+	{
+		// set sequence owned by
+
+		// get all sequence
+		$sequences = $smcFunc['db_query']('', "
+		select quote_ident(min(schema_name)) as schema_name, quote_ident(min(seq_name)) as seq_name
+		, quote_ident(min(table_name)) as table_name, quote_ident(min(column_name)) as column_name
+		from (
+			select 
+				n.nspname as schema_name,
+				c.relname as table_name,
+				a.attname as column_name,
+				substring(pg_get_expr(d.adbin, d.adrelid) from E'^nextval\\\\(''([^'']*)''(?:::text|::regclass)?\\\\)') as seq_name 
+			from pg_class c 
+			join pg_attribute a on (c.oid=a.attrelid) 
+			join pg_attrdef d on (a.attrelid=d.adrelid and a.attnum=d.adnum) 
+			join pg_namespace n on (c.relnamespace=n.oid)
+			where has_schema_privilege(n.oid,'USAGE')
+				and n.nspname not like 'pg!_%' escape '!'
+				and n.nspname = 'public'
+				and has_table_privilege(c.oid,'SELECT')
+				and (not a.attisdropped)
+				and c.relname like '{db_prefix}%'
+		) seq
+		group by seq_name having count(*)=1");
+
+		// generate alter sql
+		$seq_alter_sql = '';
+		while ($row = $smcFunc['db_fetch_assoc']($sequences))
+		{
+			$seq_alter_sql .= 'ALTER SEQUENCE ' . $row['schema_name'] . '.' . $row['seq_name'] . ' OWNED BY ' . $row['table_name'] . '.' . $row['column_name'] . ';';
+		}
+
+		$smcFunc['db_free_result']($sequences);
+
+		// fire
+		$smcFunc['db_query']('', $seq_alter_sql);
+	}
+
 	// MySQL specific stuff
 	if (substr($db_type, 0, 5) != 'mysql')
 		return false;
