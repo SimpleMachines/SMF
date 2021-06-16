@@ -3030,7 +3030,7 @@ function template_profile_avatar_select()
 												', !empty($context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "none";' : '', '
 												', !empty($context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "none";' : '', '
 												', !empty($context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "";' : '', '
-												', ($context['member']['avatar']['external'] == $context['member']['email'] || strstr($context['member']['avatar']['external'], 'http://')) ?
+												', !empty($modSettings['gravatarAllowExtraEmail']) && ($context['member']['avatar']['external'] == $context['member']['email'] || strstr($context['member']['avatar']['external'], 'http://') || strstr($context['member']['avatar']['external'], 'https://')) ?
 												'document.getElementById("gravatarEmail").value = "";' : '', '
 												break;
 										}
