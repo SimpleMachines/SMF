@@ -427,6 +427,10 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 {
 	global $boardurl, $scripturl;
 
+	$forbidden_protocols = array(
+		'javascript',
+	);
+
 	if (preg_match('~^([^:]+://[^/]+)~', $boardurl, $match) != 0)
 		$domain_url = $match[1];
 	else
@@ -459,10 +463,14 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 				break;
 		}
 
-		if (!$found && $protocols[0] == 'http')
-		{
-			$parse_url_replace = parse_url($replace, PHP_URL_SCHEME);
+		$current_protocol = parse_url($replace, PHP_URL_SCHEME);
 
+		if (in_array($current_protocol, $forbidden_protocols))
+		{
+			$replace = str_replace($current_protocol . ':', 'invalid:', $replace);
+		}
+		elseif (!$found && $protocols[0] == 'http')
+		{
 			// A path
 			if (substr($replace, 0, 1) == '/' && substr($replace, 0, 2) != '//')
 				$replace = $domain_url . $replace;
@@ -476,12 +484,12 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 				$this_tag = 'iurl';
 				$this_close = 'iurl';
 			}
-			elseif (substr($replace, 0, 2) != '//' && empty($parse_url_replace))
+			elseif (substr($replace, 0, 2) != '//' && empty($current_protocol))
 				$replace = $protocols[0] . '://' . $replace;
 		}
 		elseif (!$found && $protocols[0] == 'ftp')
 			$replace = $protocols[0] . '://' . preg_replace('~^(?!ftps?)[^:]+://~', '', $replace);
-		elseif (!$found && empty($parse_url_replace))
+		elseif (!$found && empty($current_protocol))
 			$replace = $protocols[0] . '://' . $replace;
 
 		if ($hasEqualSign && $embeddedUrl)
