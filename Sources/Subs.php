@@ -2410,6 +2410,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								'mailto', 'maps', 'news', 'ni', 'nih', 'service', 'skype',
 								'sms', 'tel', 'tv',
 							),
+							// Schemes that we should never link.
+							'forbidden' => array(
+								'javascript', 'data',
+							),
 						);
 
 						// In case a mod wants to control behaviour for a special URI scheme.
@@ -2750,7 +2754,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								$fullUrl = $url;
 
 							// Make sure that $fullUrl really is valid
-							if (!in_array($parsedurl['scheme'], $schemes['no_authority']) && validate_iri((strpos($fullUrl, '//') === 0 ? 'http:' : '') . $fullUrl) === false)
+							if (in_array($parsedurl['scheme'], $schemes['forbidden']) || (!in_array($parsedurl['scheme'], $schemes['no_authority']) && validate_iri((strpos($fullUrl, '//') === 0 ? 'http:' : '') . $fullUrl) === false))
 								return $url;
 
 							return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
