@@ -428,6 +428,9 @@ blockquote cite::before {
 	margin-left: 1em;
 	clear: right;
 }
+.bbc_img {
+	object-fit: contain;
+}
 .postarea .bbc_img.resized:hover {
 	cursor: pointer;
 }
