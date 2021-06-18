@@ -463,11 +463,11 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 				break;
 		}
 
-		$current_protocol = parse_url($replace, PHP_URL_SCHEME);
+		$current_protocol = strtolower(parse_url($replace, PHP_URL_SCHEME));
 
 		if (in_array($current_protocol, $forbidden_protocols))
 		{
-			$replace = str_replace($current_protocol . ':', 'invalid:', $replace);
+			$replace = preg_replace('~' . preg_quote($current_protocol, '~') . ':~i', 'invalid:', $replace);
 		}
 		elseif (!$found && $protocols[0] == 'http')
 		{
