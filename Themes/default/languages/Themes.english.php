@@ -154,6 +154,6 @@ $txt['themeadmin_themelist_link'] = 'Show the list of themes';
 
 // Open Graph
 $txt['og_image'] = 'Open Graph image';
-$txt['og_image_desc'] = 'Suggested size: 175x175px. <a href="http://ogp.me/" target="_blank" class="bbc_link">Open Graph</a> is used for social media sharing.';
+$txt['og_image_desc'] = 'Suggested size: 175x175px. <a href="https://ogp.me/" target="_blank" class="bbc_link">Open Graph</a> is used for social media sharing.';
 
 ?>
