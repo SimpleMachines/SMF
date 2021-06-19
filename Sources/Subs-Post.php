@@ -467,7 +467,7 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 
 		if (in_array($current_protocol, $forbidden_protocols))
 		{
-			$replace = preg_replace('~' . preg_quote($current_protocol, '~') . ':~i', 'invalid:', $replace);
+			$replace = 'about:invalid';
 		}
 		elseif (!$found && $protocols[0] == 'http')
 		{
