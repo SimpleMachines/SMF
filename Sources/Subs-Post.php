@@ -428,7 +428,10 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 	global $boardurl, $scripturl;
 
 	$forbidden_protocols = array(
+		// Poses security risks.
 		'javascript',
+		// Allows file data to be embedded, bypassing our attachment system.
+		'data',
 	);
 
 	if (preg_match('~^([^:]+://[^/]+)~', $boardurl, $match) != 0)
