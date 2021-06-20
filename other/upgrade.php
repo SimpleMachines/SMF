@@ -1445,6 +1445,9 @@ function BackupDatabase()
 	if (!empty($_POST['backup_done']))
 		return true;
 
+	// We cannot execute this step in strict mode - strict mode data fixes are not applied yet
+	setSqlMode(false);
+
 	// Some useful stuff here.
 	db_extend();
 
