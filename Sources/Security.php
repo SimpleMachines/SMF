@@ -1445,7 +1445,7 @@ function corsPolicyHeader($set_header = true)
 		header('Access-Control-Allow-Origin: ' . $context['cors_domain']);
 		header('Access-Control-Allow-Headers: ' . $context['cors_headers']);
 
-		// Be careful with this, your allowing a external site to allow the browser to send cookies with this.
+		// Be careful with this, you're allowing an external site to allow the browser to send cookies with this.
 		if (!empty($modSettings['allow_cors_credentials']))
 			header('Access-Control-Allow-Credentials: true');
 	}
