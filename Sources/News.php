@@ -263,7 +263,7 @@ function ShowXmlFeed()
 	elseif (!empty($board))
 		$filename[] = 'board=' . $board;
 	$filename[] = $xml_format;
-	$filename = preg_replace('/[^\p{L}\p{M}\p{N}\-]+/', '_', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('-', $filename)))));
+	$filename = preg_replace($context['utf8'] ? '/[^\p{L}\p{M}\p{N}\-]+/u' : '/[\s_,.\/\\;:\'<>?|\[\]{}~!@#$%^&*()=+`]+/', '_', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('-', $filename)))));
 
 	// This is an xml file....
 	ob_end_clean();
