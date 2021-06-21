@@ -329,11 +329,11 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 ---# Adding new profile data export settings
 ---{
 	$inserts = array(
-		'export_dir' => '{$boarddir}/exports',
-		'export_expiry' => '7',
-		'export_min_diskspace_pct' => '5',
-		'export_rate' => '250'
-		);
+		array('export_dir', '{$boarddir}/exports'),
+		array('export_expiry', '7'),
+		array('export_min_diskspace_pct', '5'),
+		array('export_rate', '250')
+	);
 	$smcFunc['db_insert']('ignore',
 		'{db_prefix}settings',
 		array('variable' => 'string', 'value' => 'string'),
