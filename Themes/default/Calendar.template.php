@@ -729,12 +729,14 @@ function template_calendar_top($calendar_data)
 
 	echo '
 			<form action="', $scripturl, '?action=calendar;', $context['calendar_view'], '" id="', !empty($calendar_data['end_date']) ? 'calendar_range' : 'calendar_navigation', '" method="post" accept-charset="', $context['character_set'], '">
-				<input type="text" name="start_date" id="start_date" maxlength="10" value="', $calendar_data['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">';
+				<input type="hidden" name="iso_start_date" id="iso_start_date" value="', $calendar_data['iso_start_date'], '">
+				<input type="text" name="start_date" id="start_date" maxlength="10" value="', $calendar_data['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date" onchange="smf_getISODateFromDatePicker(\'start_date\', \'iso_start_date\')">';
 
 	if (!empty($calendar_data['end_date']))
 		echo '
 				<span>', strtolower($txt['to']), '</span>
-				<input type="text" name="end_date" id="end_date" maxlength="10" value="', $calendar_data['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date">';
+				<input type="hidden" name="iso_end_date" id="iso_end_date" value="', $calendar_data['iso_end_date'], '">
+				<input type="text" name="end_date" id="end_date" maxlength="10" value="', $calendar_data['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date" onchange="smf_getISODateFromDatePicker(\'end_date\', \'iso_end_date\')">';
 
 	echo '
 				<input type="submit" class="button" style="float:none" id="view_button" value="', $txt['view'], '">
@@ -824,12 +826,14 @@ function template_event_post()
 						<div class="event_options_left" id="event_time_input">
 							<div>
 								<span class="label">', $txt['start'], '</span>
-								<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
+								<input type="hidden" name="iso_start_date" id="iso_start_date" maxlength="10" value="', $context['event']['start_date'], '">
+								<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date" onchange="smf_getISODateFromDatePicker(\'start_date\', \'iso_start_date\')">
 								<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 							</div>
 							<div>
 								<span class="label">', $txt['end'], '</span>
-								<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
+								<input type="hidden" name="iso_end_date" id="iso_end_date" maxlength="10" value="', $context['event']['end_date'], '">
+								<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', ' onchange="smf_getISODateFromDatePicker(\'end_date\', \'iso_end_date\')">
 								<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 							</div>
 						</div><!-- #event_time_input -->

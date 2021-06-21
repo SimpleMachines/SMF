@@ -436,6 +436,7 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
 			'disabled' => $modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
 		),
 		'start_date' => timeformat(date_format($selected_object, 'U'), get_date_or_time_format('date')),
+		'iso_start_date' => date_format($selected_object, 'Y-m-d'),
 	);
 
 	// Get today's date.
@@ -605,6 +606,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 			'disabled' => $modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
 		),
 		'start_date' => timeformat(date_format($selected_object, 'U'), get_date_or_time_format('date')),
+		'iso_start_date' => date_format($selected_object, 'Y-m-d'),
 	);
 
 	// Fetch the arrays for birthdays, posted events, and holidays.
@@ -672,10 +674,12 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 
 	$calendarGrid = array(
 		'start_date' => timeformat(date_format($start_object, 'U'), get_date_or_time_format('date')),
+		'iso_start_date' => date_format($start_object, 'Y-m-d'),
 		'start_year' => date_format($start_object, 'Y'),
 		'start_month' => date_format($start_object, 'm'),
 		'start_day' => date_format($start_object, 'd'),
 		'end_date' => timeformat(date_format($end_object, 'U'), get_date_or_time_format('date')),
+		'iso_end_date' => date_format($end_object, 'Y-m-d'),
 		'end_year' => date_format($end_object, 'Y'),
 		'end_month' => date_format($end_object, 'm'),
 		'end_day' => date_format($end_object, 'd'),
@@ -869,6 +873,7 @@ function loadDatePair($container, $date_class = '', $time_class = '')
 		},
 		updateDate: function (el, v) {
 			$(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
+			smf_getISODateFromDatePicker($(el).attr("id"), "iso_" + $(el).attr("id"));
 		},';
 	}
 
@@ -1060,7 +1065,7 @@ function validateEventPost()
 		// The 2.1 way
 		if (isset($_POST['start_date']))
 		{
-			$d = date_parse($_POST['start_date']);
+			$d = date_parse(!empty($_POST['iso_start_date']) ? $_POST['iso_start_date'] : $_POST['start_date']);
 			if (!empty($d['error_count']) || !empty($d['warning_count']))
 				fatal_lang_error('invalid_date', false);
 			if (empty($d['year']))
@@ -1565,9 +1570,9 @@ function setEventStartEnd($eventOptions = array())
 	$end_string = isset($eventOptions['end_datetime']) ? $eventOptions['end_datetime'] : (isset($_POST['end_datetime']) ? $_POST['end_datetime'] : null);
 
 	// ... or as date strings and time strings.
-	$start_date_string = isset($eventOptions['start_date']) ? $eventOptions['start_date'] : (isset($_POST['start_date']) ? $_POST['start_date'] : null);
+	$start_date_string = isset($eventOptions['start_date']) ? $eventOptions['start_date'] : (isset($_POST['iso_start_date']) ? $_POST['iso_start_date'] : (isset($_POST['start_date']) ? $_POST['start_date'] : null));
 	$start_time_string = isset($eventOptions['start_time']) ? $eventOptions['start_time'] : (isset($_POST['start_time']) ? $_POST['start_time'] : null);
-	$end_date_string = isset($eventOptions['end_date']) ? $eventOptions['end_date'] : (isset($_POST['end_date']) ? $_POST['end_date'] : null);
+	$end_date_string = isset($eventOptions['end_date']) ? $eventOptions['end_date'] : (isset($_POST['iso_end_date']) ? $_POST['iso_end_date'] : (isset($_POST['end_date']) ? $_POST['end_date'] : null));
 	$end_time_string = isset($eventOptions['end_time']) ? $eventOptions['end_time'] : (isset($_POST['end_time']) ? $_POST['end_time'] : null);
 
 	// If the date and time were given in separate strings, combine them

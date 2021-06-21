@@ -2027,3 +2027,20 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 	if (typeof(smf_codeFix) != 'undefined')
 		smf_codeFix();
 }
+
+function smf_getISODateFromDatePicker(date_picker_id, iso_date_id) {
+	let date = $(`#${date_picker_id}`).datepicker("getDate");
+
+	year = date.getFullYear();
+	month = date.getMonth() + 1;
+	dt = date.getDate();
+
+	if (dt < 10) {
+		dt = '0' + dt;
+	}
+	if (month < 10) {
+		month = '0' + month;
+	}
+
+	$(`#${iso_date_id}`).val(year + '-' + month + '-' + dt);
+}

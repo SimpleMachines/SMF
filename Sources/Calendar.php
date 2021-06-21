@@ -113,6 +113,8 @@ function CalendarMain()
 	// Need a start date for all views
 	if (!empty($_REQUEST['start_date']))
 	{
+		if (!empty($_REQUEST['iso_start_date']))
+			$_REQUEST['start_date'] = $_REQUEST['iso_start_date'];
 		$start_parsed = date_parse($_REQUEST['start_date']);
 		if (empty($start_parsed['error_count']) && empty($start_parsed['warning_count']))
 		{
@@ -130,6 +132,8 @@ function CalendarMain()
 	// Need an end date for the list view
 	if (!empty($_REQUEST['end_date']))
 	{
+		if (!empty($_REQUEST['iso_end_date']))
+			$_REQUEST['end_date'] = $_REQUEST['iso_end_date'];
 		$end_parsed = date_parse($_REQUEST['end_date']);
 		if (empty($end_parsed['error_count']) && empty($end_parsed['warning_count']))
 		{
