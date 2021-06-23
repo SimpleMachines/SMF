@@ -3726,7 +3726,7 @@ function setupThemeContext($forceload = false)
 	// Now add the capping code for avatars.
 	if (!empty($modSettings['avatar_max_width_external']) && !empty($modSettings['avatar_max_height_external']) && !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_css_resize')
 		addInlineCss('
-	img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max-height: ' . $modSettings['avatar_max_height_external'] . 'px; }');
+	img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px !important; max-height: ' . $modSettings['avatar_max_height_external'] . 'px !important; }');
 
 	// Add max image limits
 	if (!empty($modSettings['max_image_width']))

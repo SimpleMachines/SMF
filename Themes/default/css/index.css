@@ -214,7 +214,7 @@ body#help_popup {
 #likes .avatar {
 	max-height: 45px;
 	max-width: 45px;
-	padding: 0 10px 0 0;
+	margin: 0 10px 0 0;
 }
 #likes .avatar, #likes li .like_profile {
 	vertical-align: middle;
@@ -1103,8 +1103,8 @@ img.sort, .sort {
 	width: auto;
 }
 #profile_menu_top > img.avatar {
-	max-height: 18px;
-	max-width: 18px;
+	height: 18px;
+	width: 18px;
 	margin: 2px 5px 0 0;
 	float: left;
 }
@@ -3270,6 +3270,9 @@ div#pollmoderation {
 }
 .poster img {
 	vertical-align: middle;
+}
+img.avatar {
+	object-fit: scale-down;
 }
 .poster img.avatar {
 	max-width: 100%;
