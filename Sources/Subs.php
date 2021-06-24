@@ -1451,24 +1451,24 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						// Video.
 						elseif (strpos($currentAttachment['mime_type'], 'video/') === 0)
 						{
-							$width = !empty($width) ? ' width="' . $width . '"' : '';
-							$height = !empty($height) ? ' height="' . $height . '"' : '';
+							$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
+							$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
 
 							$returnContext .= '<div class="videocontainer"><video controls preload="metadata" src="'. $currentAttachment['href'] . '" playsinline' . $width . $height . '><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></video></div>' . (!empty($data) && $data != $currentAttachment['name'] ? '<div class="smalltext">' . $data . '</div>' : '');
 						}
 						// Audio.
 						elseif (strpos($currentAttachment['mime_type'], 'audio/') === 0)
 						{
-							$width = 'max-width:100%; width: ' . (!empty($width) ? $width : '400') . 'px;';
-							$height = !empty($height) ? 'height: ' . $height . 'px;' : '';
+							$width = 'max-width:100%; width: ' . (!empty($params['{width}']) ? $params['{width}'] : '400') . 'px;';
+							$height = !empty($params['{height}']) ? 'height: ' . $params['{height}'] . 'px;' : '';
 
 							$returnContext .= (!empty($data) && $data != $currentAttachment['name'] ? $data . ' ' : '') . '<audio controls preload="none" src="'. $currentAttachment['href'] . '" class="bbc_audio" style="vertical-align:middle;' . $width . $height . '"><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></audio>';
 						}
 						// Anything else.
 						else
 						{
-							$width = !empty($width) ? ' width="' . $width . '"' : '';
-							$height = !empty($height) ? ' height="' . $height . '"' : '';
+							$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"' : '';
+							$height = !empty($params['{height}']) ? ' height="' . $params['{height}'] . '"' : '';
 
 							$returnContext .= '<object type="' . $currentAttachment['mime_type'] . '" data="' . $currentAttachment['href'] . '"' . $width . $height . ' typemustmatch><a href="' . $currentAttachment['href'] . '" class="bbc_link">' . $smcFunc['htmlspecialchars'](!empty($data) ? $data : $currentAttachment['name']) . '</a></object>';
 						}
