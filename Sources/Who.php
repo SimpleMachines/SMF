@@ -606,6 +606,7 @@ function Credits($in_admin = false)
 						// Developers
 						'Jessica "Suki" González',
 						'John "live627" Rayes',
+						'Oscar "Ozp" Rydhé',
 						'Shawn Bulen',
 
 						// Former Developers
