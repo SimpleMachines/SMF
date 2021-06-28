@@ -746,6 +746,7 @@ $txt['mention'] = 'Membergroups allowed to mention users';
 $txt['notifications'] = 'Notifications';
 $txt['notify_settings'] = 'Notification Settings';
 $txt['notifications_desc'] = 'This page allows you to set the default notification options for users.';
+$txt['notify_announcements_desc'] = 'Enabling this default option violates the rules of the <a href="https://ec.europa.eu/info/law/law-topic/data-protection_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a> and many other countries\' privacy and anti-spam laws.';
 
 $txt['enable_sm_stats'] = 'Allow Stat Collection';
 
