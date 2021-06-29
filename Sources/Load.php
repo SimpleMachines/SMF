@@ -1628,28 +1628,6 @@ function loadMemberContext($user, $display_custom_fields = false)
 	// Well, it's loaded now anyhow.
 	$profile = $user_profile[$user];
 
-	// Censor everything.
-	censorText($profile['signature']);
-	censorText($profile['personal_text']);
-
-	// Set things up to be used before hand.
-	$profile['signature'] = str_replace(array("\n", "\r"), array('<br>', ''), $profile['signature']);
-	$profile['signature'] = parse_bbc($profile['signature'], true, 'sig' . $profile['id_member']);
-
-	$profile['is_online'] = (!empty($profile['show_online']) || allowedTo('moderate_forum')) && $profile['is_online'] > 0;
-	$profile['icons'] = empty($profile['icons']) ? array('', '') : explode('#', $profile['icons']);
-	// Setup the buddy status here (One whole in_array call saved :P)
-	$profile['buddy'] = in_array($profile['id_member'], $user_info['buddies']);
-	$buddy_list = !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : array();
-
-	//We need a little fallback for the membergroup icons. If it doesn't exist in the current theme, fallback to default theme
-	if (isset($profile['icons'][1]) && file_exists($settings['actual_theme_dir'] . '/images/membericons/' . $profile['icons'][1])) //icon is set and exists
-		$group_icon_url = $settings['images_url'] . '/membericons/' . $profile['icons'][1];
-	elseif (isset($profile['icons'][1])) //icon is set and doesn't exist, fallback to default
-		$group_icon_url = $settings['default_images_url'] . '/membericons/' . $profile['icons'][1];
-	else //not set, bye bye
-		$group_icon_url = '';
-
 	// These minimal values are always loaded
 	$memberContext[$user] = array(
 		'username' => $profile['member_name'],
@@ -1666,6 +1644,28 @@ function loadMemberContext($user, $display_custom_fields = false)
 	// If the set isn't minimal then load the monstrous array.
 	if ($context['loadMemberContext_set'] != 'minimal')
 	{
+		// Censor everything.
+		censorText($profile['signature']);
+		censorText($profile['personal_text']);
+
+		// Set things up to be used before hand.
+		$profile['signature'] = str_replace(array("\n", "\r"), array('<br>', ''), $profile['signature']);
+		$profile['signature'] = parse_bbc($profile['signature'], true, 'sig' . $profile['id_member']);
+
+		$profile['is_online'] = (!empty($profile['show_online']) || allowedTo('moderate_forum')) && $profile['is_online'] > 0;
+		$profile['icons'] = empty($profile['icons']) ? array('', '') : explode('#', $profile['icons']);
+		// Setup the buddy status here (One whole in_array call saved :P)
+		$profile['buddy'] = in_array($profile['id_member'], $user_info['buddies']);
+		$buddy_list = !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : array();
+
+		//We need a little fallback for the membergroup icons. If it doesn't exist in the current theme, fallback to default theme
+		if (isset($profile['icons'][1]) && file_exists($settings['actual_theme_dir'] . '/images/membericons/' . $profile['icons'][1])) //icon is set and exists
+			$group_icon_url = $settings['images_url'] . '/membericons/' . $profile['icons'][1];
+		elseif (isset($profile['icons'][1])) //icon is set and doesn't exist, fallback to default
+			$group_icon_url = $settings['default_images_url'] . '/membericons/' . $profile['icons'][1];
+		else //not set, bye bye
+			$group_icon_url = '';
+
 		// Go the extra mile and load the user's native language name.
 		if (empty($loadedLanguages))
 			$loadedLanguages = getLanguages();
