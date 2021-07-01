@@ -663,6 +663,11 @@ function registerMember(&$regOptions, $return_errors = false)
 			$regOptions['register_vars']['id_group'] = 0;
 	}
 
+	// Verify that timezone is correct, if provided.
+	if (!empty($regOptions['extra_register_vars']) && !empty($regOptions['extra_register_vars']['timezone']) &&
+		!array_key_exists($regOptions['extra_register_vars']['timezone'], smf_list_timezones()))
+		unset($regOptions['extra_register_vars']['timezone']);
+
 	// Integrate optional member settings to be set.
 	if (!empty($regOptions['extra_register_vars']))
 		foreach ($regOptions['extra_register_vars'] as $var => $value)
