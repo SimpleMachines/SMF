@@ -1930,7 +1930,7 @@ function smf_var_export($var)
 	{
 		return strtr(preg_replace_callback('/[\r\n]+/', function($m) {
 			return '\' . "' . strtr($m[0], array("\r" => '\r', "\n" => '\n')) . '" . \'';
-		}, $var), array("'' . " => '', " . ''" => ''));
+		}, var_export($var, true)), array("'' . " => '', " . ''" => ''));
 	}
 
 	// We typically use lowercase true/false/null.
