@@ -447,6 +447,7 @@ while (!$is_done)
 		SELECT id_attach, id_member, id_folder, filename, file_hash, mime_type
 		FROM {$db_prefix}attachments
 		WHERE attachment_type != 1
+		ORDER BY id_attach
 		LIMIT $_GET[a], 100");
 
 	// Finished?
@@ -513,10 +514,13 @@ while (!$is_done)
 		if ($row['id_member'] != 0)
 		{
 			if (rename($oldFile, $custom_av_dir . '/' . $row['filename']))
+			{
 				upgrade_query("
 					UPDATE {$db_prefix}attachments
 					SET file_hash = '', attachment_type = 1
 					WHERE id_attach = $row[id_attach]");
+				$_GET['a'] -= 1;
+			}
 		}
 		// Just a regular attachment.
 		else
