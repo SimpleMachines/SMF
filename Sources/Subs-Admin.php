@@ -1276,11 +1276,11 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	}
 
 	// Settings.php is unlikely to contain any heredocs, but just in case...
-	if (preg_match_all('/<<<(\'?)(\w+)\'?\n(.*?)\n\2;$/m', $settingsText, $matches))
+	if (preg_match_all('/<<<([\'"]?)(\w+)\1\R(.*?)\R\h*\2;$/ms', $settingsText, $matches))
 	{
 		foreach ($matches[0] as $mkey => $heredoc)
 		{
-			if (!empty($matches[1][$mkey]))
+			if (!empty($matches[1][$mkey]) && $matches[1][$mkey] === '\'')
 				$heredoc_replacements[$heredoc] = var_export($matches[3][$mkey], true) . ';';
 			else
 				$heredoc_replacements[$heredoc] = '"' . strtr(substr(var_export($matches[3][$mkey], true), 1, -1), array("\\'" => "'", '"' => '\"')) . '";';
