@@ -200,7 +200,7 @@ $txt['error_invalid_characters_username'] = 'Invalid character used in Username.
 $txt['error_username_too_long'] = 'Username may only be up to 25 characters long.';
 $txt['error_username_left_empty'] = 'Username field was left empty.';
 $txt['error_db_prefix_reserved'] = 'The prefix that you entered is a reserved prefix. Please enter another prefix.';
-$txt['error_utf8_support'] = 'The database you are trying to use is not using UTF8 charset';
+$txt['error_utf8_support'] = 'The database you are trying to use is not using UTF-8 charset';
 
 $txt['ftp_login'] = 'Your FTP connection information';
 $txt['ftp_login_info'] = 'This web installer needs your FTP information in order to automate the installation for you. Please note that none of this information is saved in your installation, it is just used to setup SMF.';
@@ -379,7 +379,7 @@ $txt['upgrade_options'] = 'Upgrade Options';
 $txt['backup_database'] = 'Backup Database';
 $txt['database_changes'] = 'Database Changes';
 $txt['upgrade_complete'] = 'Upgrade Complete';
-$txt['converting_utf8'] = 'Converting to UTF8';
+$txt['converting_utf8'] = 'Converting to UTF-8';
 $txt['converting_json'] = 'Converting to JSON';
 
 ?>
