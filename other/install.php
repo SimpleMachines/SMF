@@ -11,7 +11,7 @@
  * @version 2.1 RC4
  */
 
-define('SMF_VERSION', '2.1 RC3');
+define('SMF_VERSION', '2.1 RC4');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2021');
 define('DB_SCRIPT_VERSION', '2-1');
