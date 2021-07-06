@@ -6,7 +6,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 (function ($) {
@@ -362,7 +362,7 @@ sceditor.command.set(
 
 					if (height)
 						attrs.push('height="' + sceditor.escapeEntities(height, true) + '"');
- 
+
 					editor.wysiwygEditorInsertHtml(
 						'<img ' + attrs.join(' ') + '>'
 					);
