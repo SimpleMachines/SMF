@@ -15,7 +15,7 @@
 define('SMF_VERSION', '2.1 RC4');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2021');
-define('SMF_LANG_VERSION', '2.1 RC3');
+define('SMF_LANG_VERSION', '2.1 RC4');
 define('SMF_INSTALLING', 1);
 
 define('JQUERY_VERSION', '3.5.1');
