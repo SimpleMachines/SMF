@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; Errors
+// Version: 2.1 RC4; Errors
 
 global $scripturl, $modSettings;
 
