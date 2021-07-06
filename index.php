@@ -75,10 +75,13 @@ require_once($sourcedir . '/Subs.php');
 require_once($sourcedir . '/Subs-Auth.php');
 require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
+require_once($sourcedir . '/Security.php');
 
 // If $maintenance is set specifically to 2, then we're upgrading or something.
 if (!empty($maintenance) &&  2 === $maintenance)
+{
 	display_maintenance_message();
+}
 
 // Create a variable to store some SMF specific functions in.
 $smcFunc = array();
@@ -144,7 +147,6 @@ if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
 // And important includes.
 require_once($sourcedir . '/Session.php');
 require_once($sourcedir . '/Logging.php');
-require_once($sourcedir . '/Security.php');
 require_once($sourcedir . '/Class-BrowserDetect.php');
 
 // If a Preflight is occurring, lets stop now.
