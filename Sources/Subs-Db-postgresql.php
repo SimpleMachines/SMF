@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -700,7 +700,7 @@ function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0,
 			$replace = ' ON CONFLICT (' . $key_str . ') DO UPDATE SET ' . $col_str;
 		else
 			$replace = ' ON CONFLICT (' . $key_str . ') DO NOTHING';
-		
+
 	}
 
 	$returning = '';

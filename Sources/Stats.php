@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -161,8 +161,8 @@ function DisplayStats()
 		if (($context['gender'] = cache_get_data('stats_gender', 240)) == null)
 		{
 			$result = $smcFunc['db_query']('', '
-				SELECT default_value 
-				FROM {db_prefix}custom_fields 
+				SELECT default_value
+				FROM {db_prefix}custom_fields
 				WHERE col_name= {string:gender_var}',
 				array(
 					'gender_var' => 'cust_gender',
@@ -181,7 +181,7 @@ function DisplayStats()
 						mem.id_member = t.id_member AND
 						t.variable = {string:gender_var} AND
 						t.id_theme = {int:default_theme}
-						) 
+						)
 					WHERE is_activated = {int:is_activated}
 				) AS a
 				GROUP BY gender',

@@ -7,7 +7,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 /**
@@ -197,7 +197,7 @@ function template_viewmodreport()
 		)
 	);
 
-	// Report buttons 
+	// Report buttons
 	template_button_strip($report_buttons, 'right');
 
 	echo '
