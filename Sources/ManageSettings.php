@@ -2279,18 +2279,18 @@ function ModifyLogSettings($return_config = false)
 		array('check', 'adminlog_enabled', 'help' => 'adminlog'),
 		array('check', 'userlog_enabled', 'help' => 'userlog'),
 		// The error log is a wonderful thing.
-		array('title', 'errorlog'),
+		array('title', 'errorlog', 'force_div_id' => 'errorlog'),
 		array('desc', 'error_log_desc'),
 		array('check', 'enableErrorLogging'),
 		array('check', 'enableErrorQueryLogging'),
 		// The 'mark read' log settings.
-		array('title', 'markread_title'),
+		array('title', 'markread_title', 'force_div_id' => 'markread_title'),
 		array('desc', 'mark_read_desc'),
 		array('int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
 		array('int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
 		array('int', 'mark_read_max_users', 'step' => 1, 'min' => 0, 'max' => 20000, 'subtext' => $txt['zero_to_disable']),
 		// Even do the pruning?
-		array('title', 'pruning_title'),
+		array('title', 'pruning_title', 'force_div_id' => 'pruning_title'),
 		array('desc', 'pruning_desc'),
 		// The array indexes are there so we can remove/change them before saving.
 		'pruningOptions' => array('check', 'pruningOptions'),
