@@ -242,10 +242,6 @@
 	.keyinfo h5 .modified {
 		float: none;
 	}
-	.bbc_img.resized {
-		max-width: 250px;
-		max-height: 300px;
-	}
 	img.icon, #forumposts .catbg img {
 		display: none;
 	}
