@@ -618,7 +618,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		'additional_groups' => '',
 		'ignore_boards' => '',
 		'smiley_set' => '',
-		'timezone' => empty($regOptions['timezone']) || !in_array($regOptions['timezone'], smf_list_timezones()) ? 'UTC' : $regOptions['timezone'],
+		'timezone' => empty($modSettings['default_timezone']) || !array_key_exists($modSettings['default_timezone'], smf_list_timezones()) ? 'UTC' : $modSettings['default_timezone'],
 	);
 
 	// Setup the activation status on this new account so it is correct - firstly is it an under age account?
@@ -662,6 +662,11 @@ function registerMember(&$regOptions, $return_errors = false)
 		if (in_array($regOptions['register_vars']['id_group'], $unassignableGroups))
 			$regOptions['register_vars']['id_group'] = 0;
 	}
+
+	// Verify that timezone is correct, if provided.
+	if (!empty($regOptions['extra_register_vars']) && !empty($regOptions['extra_register_vars']['timezone']) &&
+		!array_key_exists($regOptions['extra_register_vars']['timezone'], smf_list_timezones()))
+		unset($regOptions['extra_register_vars']['timezone']);
 
 	// Integrate optional member settings to be set.
 	if (!empty($regOptions['extra_register_vars']))
