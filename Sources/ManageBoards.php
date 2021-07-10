@@ -697,7 +697,7 @@ function EditBoard2()
 		$boardOptions['redirect'] = !empty($_POST['redirect_enable']) && isset($_POST['redirect_address']) && trim($_POST['redirect_address']) != '' ? trim($_POST['redirect_address']) : '';
 
 		// Profiles...
-		$boardOptions['profile'] = $_POST['profile'];
+		$boardOptions['profile'] = $_POST['profile'] == -1 ? 1 : $_POST['profile'];
 		$boardOptions['inherit_permissions'] = $_POST['profile'] == -1;
 
 		// We need to know what used to be case in terms of redirection.
