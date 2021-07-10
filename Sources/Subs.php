@@ -3113,6 +3113,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			{
 				$end_of_value = strpos($message, '&quot;]', $pos1);
 				$nested_tag = strpos($message, '=&quot;', $pos1);
+				// Check so this is not just an quoted url ending with a =
+				if ($nested_tag && substr($message, $nested_tag, 8) == '=&quot;]')
+					$nested_tag = false;
 				if ($nested_tag && $nested_tag < $end_of_value)
 					// Nested tag with quoted value detected, use next end tag
 					$nested_tag_pos = strpos($message, $quoted == false ? ']' : '&quot;]', $pos1) + 6;
