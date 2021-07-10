@@ -3287,6 +3287,10 @@ function parsesmileys(&$message)
 		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . build_regex($searchParts, '~') . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
 	}
 
+	// If there are no smileys defined, no need to replace anything
+	if (empty($smileyPregReplacements))
+		return;
+
 	// Replace away!
 	$message = preg_replace_callback($smileyPregSearch, function($matches) use ($smileyPregReplacements)
 		{
