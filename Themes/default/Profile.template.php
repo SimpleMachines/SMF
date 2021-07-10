@@ -1527,7 +1527,7 @@ function template_edit_options()
 				$step = $field['type'] == 'float' ? ' step="0.1"' : '';
 
 				echo '
-						<input type="', $type, '" name="', $key, '" id="', $key, '" size="', empty($field['size']) ? 30 : $field['size'], '" value="', $field['value'], '" ', $field['input_attr'], ' ', $step, '>';
+						<input type="', $type, '" name="', $key, '" id="', $key, '" size="', empty($field['size']) ? 30 : $field['size'], '"', isset($field['min']) ? ' min="' . $field['min'] . '"' : '', isset($field['max']) ? ' max="' . $field['max'] . '"' : '', ' value="', $field['value'], '" ', $field['input_attr'], ' ', $step, '>';
 			}
 			// You "checking" me out? ;)
 			elseif ($field['type'] == 'check')
