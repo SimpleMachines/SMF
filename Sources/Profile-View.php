@@ -739,7 +739,7 @@ function showAlerts($memID)
 			),
 			'view' => array(
 				'label' => $txt['view'],
-				'href' => $alert['target_href'],
+				'href' => $scripturl . '?action=profile;area=showalerts;alert=' . $id . ';',
 				'icon' => 'move',
 			),
 			'quickmod' => array(
