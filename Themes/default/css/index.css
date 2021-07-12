@@ -4087,6 +4087,6 @@ tr[id^='list_news_lists_'] textarea {
 	word-break: break-all;
 }
 
-div.sceditor-container {
+div.sceditor-container:not(.sceditor-maximize) {
 	z-index: 4;
 }
