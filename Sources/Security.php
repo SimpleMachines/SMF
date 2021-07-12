@@ -1467,7 +1467,7 @@ function FindCorsBaseUrl($url, $sub_domain = false)
 
 	// Are we saying this is a sub domain and to remove another domain level?
 	if ($sub_domain)
-		$base_domain = implode('.', array_slice(explode('.', parse_url($domain, PHP_URL_HOST)), 1));
+		$base_domain = implode('.', array_slice(explode('.', parse_url($base_domain, PHP_URL_HOST)), 1));
 
 	// If we find www, pop it out.
 	else if ('www' === array_slice(explode('.', $base_domain), 0, 1))
