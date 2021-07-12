@@ -821,10 +821,12 @@ function Post($post_errors = array())
 			$request = $smcFunc['db_query']('', '
 				SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body
 				FROM {db_prefix}messages AS m
-					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
+					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 				WHERE {query_see_message_board}
 					AND m.id_msg = {int:id_msg}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
-					AND m.approved = {int:is_approved}') . '
+					AND m.approved = {int:is_approved}
+					AND t.approved = {int:is_approved}') . '
 				LIMIT 1',
 				array(
 					'id_msg' => (int) $_REQUEST['quote'],

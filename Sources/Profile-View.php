@@ -921,10 +921,12 @@ function showPosts($memID)
 	else
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
-			FROM {db_prefix}messages AS m
+			FROM {db_prefix}messages AS m' . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
+				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 			WHERE {query_see_message_board} AND m.id_member = {int:current_member}' . (!empty($board) ? '
 				AND m.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
-				AND m.approved = {int:is_approved}'),
+				AND m.approved = {int:is_approved}
+				AND t.approved = {int:is_approved}'),
 			array(
 				'current_member' => $memID,
 				'is_approved' => 1,
@@ -936,10 +938,12 @@ function showPosts($memID)
 
 	$request = $smcFunc['db_query']('', '
 		SELECT MIN(id_msg), MAX(id_msg)
-		FROM {db_prefix}messages AS m
+		FROM {db_prefix}messages AS m' . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
+			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 		WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
 			AND m.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
-			AND m.approved = {int:is_approved}'),
+			AND m.approved = {int:is_approved}
+			AND t.approved = {int:is_approved}'),
 		array(
 			'current_member' => $memID,
 			'is_approved' => 1,
@@ -1393,13 +1397,15 @@ function list_getNumAttachments($boardsAllowed, $memID)
 		SELECT COUNT(*)
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})' . (!$modSettings['postmod_active'] || $context['user']['is_owner'] || allowedTo('approve_posts') ? '' : '
+			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 		WHERE a.attachment_type = {int:attachment_type}
 			AND a.id_msg != {int:no_message}
 			AND m.id_member = {int:current_member}' . (!empty($board) ? '
 			AND b.id_board = {int:board}' : '') . (!in_array(0, $boardsAllowed) ? '
-			AND b.id_board IN ({array_int:boards_list})' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
-			AND m.approved = {int:is_approved}'),
+			AND b.id_board IN ({array_int:boards_list})' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] || allowedTo('approve_posts') ? '' : '
+			AND m.approved = {int:is_approved}
+			AND t.approved = {int:is_approved}'),
 		array(
 			'boards_list' => $boardsAllowed,
 			'attachment_type' => 0,

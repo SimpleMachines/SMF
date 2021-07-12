@@ -1290,7 +1290,8 @@ function getXmlRecent($xml_format)
 			WHERE ' . $query_this_board . (empty($optimize_msg) ? '' : '
 				AND {raw:optimize_msg}') . (empty($board) ? '' : '
 				AND m.id_board = {int:current_board}') . ($modSettings['postmod_active'] ? '
-				AND m.approved = {int:is_approved}' : '') . '
+				AND m.approved = {int:is_approved}
+				AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY m.id_msg DESC
 			LIMIT {int:limit}',
 			array(
@@ -2126,11 +2127,13 @@ function getXmlPosts($xml_format, $ascending = false)
 			m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_email, m.poster_ip,
 			m.poster_time, m.subject, m.modified_time, m.modified_name, m.modified_reason, m.body,
 			m.likes, m.approved, m.smileys_enabled
-		FROM {db_prefix}messages AS m
+		FROM {db_prefix}messages AS m' . ($modSettings['postmod_active'] && !$show_all ?'
+			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
 		WHERE m.id_member = {int:uid}
 			AND m.id_msg > {int:start_after}
 			AND ' . $query_this_message_board . ($modSettings['postmod_active'] && !$show_all ? '
-			AND m.approved = {int:is_approved}' : '') . '
+			AND m.approved = {int:is_approved}
+			AND t.approved = {int:is_approved}' : '') . '
 		ORDER BY m.id_msg {raw:ascdesc}
 		LIMIT {int:limit}',
 		array(

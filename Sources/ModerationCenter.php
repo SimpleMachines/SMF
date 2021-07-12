@@ -1238,10 +1238,12 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 		// First get the latest messages from these users.
 		$request = $smcFunc['db_query']('', '
 			SELECT m.id_member, MAX(m.id_msg) AS last_post_id
-			FROM {db_prefix}messages AS m
+			FROM {db_prefix}messages AS m' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 			WHERE {query_see_message_board}
 				AND m.id_member IN ({array_int:member_list})' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
-				AND m.approved = {int:is_approved}') . '
+				AND m.approved = {int:is_approved}
+				AND t.approved = {int:is_approved}') . '
 			GROUP BY m.id_member',
 			array(
 				'member_list' => $members,
