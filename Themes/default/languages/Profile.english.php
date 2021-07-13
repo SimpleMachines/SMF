@@ -428,7 +428,7 @@ $txt['submit_request'] = 'Submit Request';
 $txt['profile_updated_own'] = 'Your profile has been updated successfully.';
 $txt['profile_updated_else'] = 'The profile of %1$s has been updated successfully.';
 
-$txt['profile_error_signature_max_length'] = 'Your signature cannot be greater than %1$d characters';
+$txt['profile_error_signature_max_length'] = 'Your signature cannot be longer than %1$d characters';
 $txt['profile_error_signature_max_lines'] = 'Your signature cannot span more than %1$d lines';
 $txt['profile_error_signature_max_image_size'] = 'Images in your signature must be no greater than %1$dx%2$d pixels';
 $txt['profile_error_signature_max_image_width'] = 'Images in your signature must be no wider than %1$d pixels';
