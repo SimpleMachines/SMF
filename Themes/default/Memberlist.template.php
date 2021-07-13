@@ -91,7 +91,7 @@ function template_main()
 				echo '
 						<td class="post_count centertext">';
 
-				if (!empty($member['post_percent']))
+				if (!empty($member['posts']))
 					echo '
 							<div class="generic_bar">
 								<div class="bar" style="width: ', $member['post_percent'], '%;"></div>
