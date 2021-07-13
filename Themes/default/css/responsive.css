@@ -344,7 +344,7 @@
 	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
 	#member_list .ip, #member_list .last_active, #member_list .user_name,
 	#approve_list .ip, #approve_list .date_registered, #group_members .date_registered,
-	#main_content_section .navigate_section, .pagesection.top, .time,
+	#main_content_section .navigate_section, .time,
 	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
 	#header_custom_profile_fields_placement, #custom_profile_fields .active, #custom_profile_fields .field_type, #custom_profile_fields .placement {
 		display: none !important;
