@@ -1874,7 +1874,9 @@ function template_alert_configuration()
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<label for="notify_announcements">', $txt['notify_important_email'], '</label>
+						<label for="notify_announcements">', $txt['notify_important_email'], '</label>', $context['id_member'] == 0 ? '
+						<br>
+						<span class="smalltext alert">' . $txt['notify_announcements_desc'] . '</span>' : '', '
 					</dt>
 					<dd>
 						<input type="hidden" name="notify_announcements" value="0">
