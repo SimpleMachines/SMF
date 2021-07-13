@@ -528,12 +528,17 @@ function MLSearch()
 
 		$context['page_index'] = constructPageIndex($scripturl . '?action=mlist;sa=search;search=' . $_POST['search'] . ';fields=' . implode(',', $_POST['fields']), $_REQUEST['start'], $numResults, $modSettings['defaultMaxMembers']);
 
+		$custom_fields_qry = '';
+		if (array_search('cust_' . $_REQUEST['sort'], $_POST['fields']) === false && !empty($context['custom_profile_fields']['join'][$_REQUEST['sort']]))
+			$custom_fields_qry = $context['custom_profile_fields']['join'][$_REQUEST['sort']];
+
 		// Find the members from the database.
 		$request = $smcFunc['db_query']('', '
 			SELECT mem.id_member
 			FROM {db_prefix}members AS mem
 				LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)
 				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = CASE WHEN mem.id_group = {int:regular_id_group} THEN mem.id_post_group ELSE mem.id_group END)' .
+				$custom_fields_qry .
 				(empty($customJoin) ? '' : implode('
 				', $customJoin)) . '
 			WHERE (' . implode(' ' . $query . ' OR ', $fields) . ' ' . $query . ')
