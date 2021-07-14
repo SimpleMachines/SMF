@@ -1547,14 +1547,21 @@ function get_sorted_tzids_for_country($country_code, $when = 'now')
 		),
 	);
 
+	// Just in case...
+	$country_code = substr(trim($country_code), 0, 2);
+
+	// Avoid unnecessary repetition.
 	if (!isset($country_tzids[$country_code]))
 	{
 		call_integration_hook('integrate_country_timezones', array(&$sorted_tzids, $country_code, $when));
 
 		$country_tzids[$country_code] = isset($sorted_tzids[$country_code]) ? $sorted_tzids[$country_code] : array();
 
+		// If something goes wrong, we want an empty array, not false.
+		$recognized_country_tzids = array_filter((array) @timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country_code));
+
 		// Make sure that no time zones are missing.
-		$country_tzids[$country_code] = array_unique(array_merge($country_tzids[$country_code], array_intersect(@timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country_code), timezone_identifiers_list())));
+		$country_tzids[$country_code] = array_unique(array_merge($country_tzids[$country_code], array_intersect($recognized_country_tzids, timezone_identifiers_list())));
 
 		// Get fallbacks where necessary.
 		$country_tzids[$country_code] = array_values(get_tzid_fallbacks($country_tzids[$country_code], $when));

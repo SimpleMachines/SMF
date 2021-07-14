@@ -253,6 +253,27 @@ function ModifyBasicSettings($return_config = false)
 	{
 		checkSession();
 
+		// Make sure the country codes are valid.
+		if (!empty($_POST['timezone_priority_countries']))
+		{
+			$country_codes = explode(',', $_POST['timezone_priority_countries']);
+			foreach ($country_codes as $key => $country_code)
+			{
+				$country_code = substr(trim($country_code), 0, 2);
+				$country_tzids = @timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country_code);
+
+				if (empty($country_tzids))
+					unset($country_codes[$key]);
+				else
+					$country_codes[$key] = $country_code;
+			}
+
+			if (empty($country_codes))
+				unset($_POST['timezone_priority_countries']);
+			else
+				$_POST['timezone_priority_countries'] = implode(',', $country_codes);
+		}
+
 		// Prevent absurd boundaries here - make it a day tops.
 		if (isset($_POST['lastActive']))
 			$_POST['lastActive'] = min((int) $_POST['lastActive'], 1440);
