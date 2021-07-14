@@ -181,7 +181,7 @@ function export_profile_data($uid)
 		),
 	);
 
-	if (empty($modSettings['export_dir']) || !file_exists($modSettings['export_dir']))
+	if (empty($modSettings['export_dir']) || !is_dir($modSettings['export_dir']) || !smf_chmod($modSettings['export_dir']))
 		create_export_dir();
 
 	$export_dir_slash = $modSettings['export_dir'] . DIRECTORY_SEPARATOR;
