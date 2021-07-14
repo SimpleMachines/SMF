@@ -639,7 +639,7 @@ function printMemberListRows($request)
 				// Don't show anything if there isn't anything to show.
 				if (!isset($context['members'][$member]['options'][$key]))
 				{
-					$context['members'][$member]['options'][$key] = '';
+					$context['members'][$member]['options'][$key] = isset($column['default_value']) ? $column['default_value'] : '';
 					continue;
 				}
 
@@ -686,7 +686,7 @@ function getCustFieldsMList()
 	$cpf = array();
 
 	$request = $smcFunc['db_query']('', '
-		SELECT col_name, field_name, field_desc, field_type, field_options, bbc, enclose
+		SELECT col_name, field_name, field_desc, field_type, field_options, bbc, enclose, default_value
 		FROM {db_prefix}custom_fields
 		WHERE active = {int:active}
 			AND show_mlist = {int:show}
@@ -707,6 +707,7 @@ function getCustFieldsMList()
 			'options' => $row['field_options'],
 			'bbc' => !empty($row['bbc']),
 			'enclose' => $row['enclose'],
+			'default_value' => $row['default_value'],
 		);
 
 		// Get the right sort method depending on the cust field type.
