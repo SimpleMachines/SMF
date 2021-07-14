@@ -4976,13 +4976,13 @@ function template_upgrade_complete()
 /**
  * Convert MySQL (var)char ip col to binary
  *
+ * newCol needs to be a varbinary(16) null able field
+ *
  * @param string $targetTable The table to perform the operation on
  * @param string $oldCol The old column to gather data from
  * @param string $newCol The new column to put data in
  * @param int $limit The amount of entries to handle at once.
  * @param int $setSize The amount of entries after which to update the database.
- *
- * newCol needs to be a varbinary(16) null able field
  * @return bool
  */
 function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setSize = 100)
@@ -5057,7 +5057,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 		{
 			$arIp[$i] = trim($arIp[$i]);
 
-			if (empty($arIp[$i]))
+			if (!filter_var($arIp[$i], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6))
 				continue;
 
 			$updates['ip' . $i] = $arIp[$i];
