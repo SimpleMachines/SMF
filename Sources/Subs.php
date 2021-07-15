@@ -2535,16 +2535,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							}
 
 							// Time to build this monster!
-							// First, define the PCRE subroutines.
-							$url_regex = '(?(DEFINE)';
-
-							foreach ($pcre_subroutines as $name => $subroutine)
-								$url_regex .= '(?<' . $name . '>' . $subroutine . ')';
-
-							$url_regex .= ')';
-
-							// Now build the rest of the regex
-							$url_regex .=
+							$url_regex =
 							// 1. IRI scheme and domain components
 							'(?:' .
 								// 1a. IRIs with a scheme, or at least an opening "//"
@@ -2702,6 +2693,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 									'(?P>fragment_segment)*+' .
 								')?' .
 							')?+';
+
+							// Finally, define the PCRE subroutines in the regex.
+							$url_regex .= '(?(DEFINE)';
+
+							foreach ($pcre_subroutines as $name => $subroutine)
+								$url_regex .= '(?<' . $name . '>' . $subroutine . ')';
+
+							$url_regex .= ')';
 						}
 
 						$tmp_data = preg_replace_callback('~' . $url_regex . '~i' . ($context['utf8'] ? 'u' : ''), function($matches) use ($schemes)
