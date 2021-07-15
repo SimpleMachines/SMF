@@ -1738,34 +1738,14 @@ function loadMemberContext($user, $display_custom_fields = false)
 	// If the set isn't minimal then load their avatar as well.
 	if ($context['loadMemberContext_set'] != 'minimal')
 	{
-		if (!empty($modSettings['gravatarEnabled']) && (!empty($modSettings['gravatarOverride']) || stristr($profile['avatar'], 'gravatar://')))
-		{
-			if (!empty($modSettings['gravatarAllowExtraEmail']) && stristr($profile['avatar'], 'gravatar://') && strlen($profile['avatar']) > 11)
-				$image = get_gravatar_url($smcFunc['substr']($profile['avatar'], 11));
-			else
-				$image = get_gravatar_url($profile['email_address']);
-		}
-		else
-		{
-			// So it's stored in the member table?
-			if (!empty($profile['avatar']) && !stristr($profile['avatar'], 'gravatar://'))
-				$image = (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://')) ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'];
+		$avatarData = set_avatar_data(array(
+			'filename' => $profile['filename'],
+			'avatar' => $profile['avatar'],
+			'email' => $profile['email_address'],
+		));
 
-			elseif (!empty($profile['filename']))
-				$image = $modSettings['custom_avatar_url'] . '/' . $profile['filename'];
-
-			// Right... no avatar...use the default one
-			else
-				$image = $modSettings['avatar_url'] . '/default.png';
-		}
-
-		if (!empty($image))
-			$memberContext[$user]['avatar'] = array(
-				'name' => $profile['avatar'],
-				'image' => '<img class="avatar" src="' . $image . '" alt="" loading="lazy" width="' . $profile['attachment_width'] . '" height = "'. $profile['attachment_height'] . '">',
-				'href' => $image,
-				'url' => $image,
-			);
+		if (!empty($avatarData['image']))
+			$memberContext[$user]['avatar'] = $avatarData;
 	}
 
 	// Are we also loading the members custom fields into context?
