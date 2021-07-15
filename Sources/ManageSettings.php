@@ -151,7 +151,7 @@ function ModifyModSettings()
  */
 function ModifyBasicSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings;
+	global $txt, $scripturl, $context, $modSettings, $sourcedir;
 
 	// We need to know if personal text is enabled, and if it's in the registration fields option.
 	// If admins have set it up as an on-registration thing, they can't set a default value (because it'll never be used)
@@ -256,22 +256,9 @@ function ModifyBasicSettings($return_config = false)
 		// Make sure the country codes are valid.
 		if (!empty($_POST['timezone_priority_countries']))
 		{
-			$country_codes = explode(',', $_POST['timezone_priority_countries']);
-			foreach ($country_codes as $key => $country_code)
-			{
-				$country_code = substr(trim($country_code), 0, 2);
-				$country_tzids = @timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country_code);
+			require_once($sourcedir . '/Subs-Timezones.php');
 
-				if (empty($country_tzids))
-					unset($country_codes[$key]);
-				else
-					$country_codes[$key] = $country_code;
-			}
-
-			if (empty($country_codes))
-				unset($_POST['timezone_priority_countries']);
-			else
-				$_POST['timezone_priority_countries'] = implode(',', $country_codes);
+			$_POST['timezone_priority_countries'] = validate_iso_country_codes($_POST['timezone_priority_countries'], true);
 		}
 
 		// Prevent absurd boundaries here - make it a day tops.
