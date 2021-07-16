@@ -257,6 +257,9 @@
 	.button.mobile {
 		margin: 0 0 5px 0;
 	}
+	.pagelinks {
+		margin: 0;
+	}
 
 	/* Profile */
 	#admin_content .content {

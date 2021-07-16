@@ -231,8 +231,7 @@ function template_main()
 			<div class="pagelinks floatleft">
 				<a href="#bot" class="button">', $txt['go_down'], '</a>
 				', $context['page_index'], '
-			</div>
-		</div>';
+			</div>';
 
 	// Mobile action - moderation buttons (top)
 	if (!empty($context['normal_buttons']))
@@ -240,6 +239,9 @@ function template_main()
 		<div class="mobile_buttons floatright">
 			<a class="button mobile_act">', $txt['mobile_action'], '</a>
 			', !empty($context['mod_buttons']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
+		</div>';
+
+	echo '
 		</div>';
 
 	// Show the topic information - icon, subject, etc.
@@ -258,14 +260,6 @@ function template_main()
 			</form>
 		</div><!-- #forumposts -->';
 
-	// Mobile action - moderation buttons (bottom)
-	if (!empty($context['normal_buttons']))
-		echo '
-		<div class="mobile_buttons floatright">
-			<a class="button mobile_act">', $txt['mobile_action'], '</a>
-			', !empty($context['mod_buttons']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
-		</div>';
-
 	// Show the page index... "Pages: [1]".
 	echo '
 		<div class="pagesection">
@@ -274,7 +268,17 @@ function template_main()
 			<div class="pagelinks floatleft">
 				<a href="#main_content_section" class="button" id="bot">', $txt['go_up'], '</a>
 				', $context['page_index'], '
-			</div>
+			</div>';
+
+	// Mobile action - moderation buttons (bottom)
+	if (!empty($context['normal_buttons']))
+		echo '
+		<div class="mobile_buttons floatright">
+			<a class="button mobile_act">', $txt['mobile_action'], '</a>
+			', !empty($context['mod_buttons']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
+		</div>';
+
+	echo '
 		</div>';
 
 	// Show the lower breadcrumbs.
