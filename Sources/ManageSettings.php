@@ -151,7 +151,7 @@ function ModifyModSettings()
  */
 function ModifyBasicSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings;
+	global $txt, $scripturl, $context, $modSettings, $sourcedir;
 
 	// We need to know if personal text is enabled, and if it's in the registration fields option.
 	// If admins have set it up as an on-registration thing, they can't set a default value (because it'll never be used)
@@ -252,6 +252,14 @@ function ModifyBasicSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		checkSession();
+
+		// Make sure the country codes are valid.
+		if (!empty($_POST['timezone_priority_countries']))
+		{
+			require_once($sourcedir . '/Subs-Timezones.php');
+
+			$_POST['timezone_priority_countries'] = validate_iso_country_codes($_POST['timezone_priority_countries'], true);
+		}
 
 		// Prevent absurd boundaries here - make it a day tops.
 		if (isset($_POST['lastActive']))

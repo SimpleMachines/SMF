@@ -1547,14 +1547,21 @@ function get_sorted_tzids_for_country($country_code, $when = 'now')
 		),
 	);
 
+	// Just in case...
+	$country_code = strtoupper(trim($country_code));
+
+	// Avoid unnecessary repetition.
 	if (!isset($country_tzids[$country_code]))
 	{
 		call_integration_hook('integrate_country_timezones', array(&$sorted_tzids, $country_code, $when));
 
 		$country_tzids[$country_code] = isset($sorted_tzids[$country_code]) ? $sorted_tzids[$country_code] : array();
 
+		// If something goes wrong, we want an empty array, not false.
+		$recognized_country_tzids = array_filter((array) @timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country_code));
+
 		// Make sure that no time zones are missing.
-		$country_tzids[$country_code] = array_unique(array_merge($country_tzids[$country_code], array_intersect(@timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country_code), timezone_identifiers_list())));
+		$country_tzids[$country_code] = array_unique(array_merge($country_tzids[$country_code], array_intersect($recognized_country_tzids, timezone_identifiers_list())));
 
 		// Get fallbacks where necessary.
 		$country_tzids[$country_code] = array_values(get_tzid_fallbacks($country_tzids[$country_code], $when));
@@ -1725,6 +1732,35 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 	}
 
 	return $replacements;
+}
+
+/**
+ * Validates a set of two-character ISO 3166-1 country codes.
+ *
+ * @param array|string $country_codes Array or CSV string of country codes.
+ * @param bool $as_csv If true, return CSV string instead of array.
+ * @return array|string Array or CSV string of valid country codes.
+ */
+function validate_iso_country_codes($country_codes, $as_csv = false)
+{
+	if (is_string($country_codes))
+		$country_codes = explode(',', $country_codes);
+	else
+		$country_codes = array_map('strval', (array) $country_codes);
+
+	foreach ($country_codes as $key => $country_code)
+	{
+		$country_code = strtoupper(trim($country_code));
+		$country_tzids = strlen($country_code) !== 2 ? null : @timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country_code);
+		$country_codes[$key] = empty($country_tzids) ? null : $country_code;
+	}
+
+	$country_codes = array_filter($country_codes);
+
+	if (!empty($as_csv))
+		$country_codes = implode(',', $country_codes);
+
+	return $country_codes;
 }
 
 ?>
