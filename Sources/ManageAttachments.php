@@ -2381,6 +2381,7 @@ function ManageAttachmentPaths()
 					'data' => array(
 						'db' => 'path',
 						'style' => 'width: 45%;',
+						'class' => 'word_break',
 					),
 				),
 				'num_dirs' => array(

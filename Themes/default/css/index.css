@@ -4090,3 +4090,7 @@ tr[id^='list_news_lists_'] textarea {
 div.sceditor-container:not(.sceditor-maximize) {
 	z-index: 4;
 }
+
+#attach_current_directory {
+	word-break: break-word;
+}
