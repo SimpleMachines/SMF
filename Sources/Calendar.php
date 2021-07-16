@@ -293,6 +293,8 @@ function CalendarPost()
 		'%T' => '%l:%M',
 	));
 
+	$time_string = preg_replace('~:(?=\s|$|%[pPzZ])~', '', $time_string);
+
 	// Submitting?
 	if (isset($_POST[$context['session_var']], $_REQUEST['eventid']))
 	{

@@ -1737,6 +1737,8 @@ function buildEventDatetimes($row)
 			'%T' => '%l:%M',
 		));
 
+	$time_format = preg_replace('~:(?=\s|$|%[pPzZ])~', '', $time_format);
+
 	// Should this be an all day event?
 	$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC))) ? true : false;
 
