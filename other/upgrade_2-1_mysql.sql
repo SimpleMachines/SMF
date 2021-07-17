@@ -331,6 +331,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_dir', '{$boar
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_expiry', '7');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_min_diskspace_pct', '5');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_rate', '250');
+---#
 
 ---# Adding settings for marking boards as read
 ---{
