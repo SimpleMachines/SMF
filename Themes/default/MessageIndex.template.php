@@ -71,13 +71,6 @@ function template_main()
 
 	if (!$context['no_topic_listing'])
 	{
-		// Mobile action buttons (top)
-		if (!empty($context['normal_buttons']))
-			echo '
-	<div class="mobile_buttons floatright">
-		<a class="button mobile_act">', $txt['mobile_action'], '</a>
-	</div>';
-
 		echo '
 	<div class="pagesection">
 		', $context['menu_separator'], '
@@ -85,7 +78,16 @@ function template_main()
 			<a href="#bot" class="button">', $txt['go_down'], '</a>
 			', $context['page_index'], '
 		</div>
-		', template_button_strip($context['normal_buttons'], 'right'), '
+		', template_button_strip($context['normal_buttons'], 'right');
+
+		// Mobile action buttons (top)
+		if (!empty($context['normal_buttons']))
+			echo '
+		<div class="mobile_buttons floatright">
+			<a class="button mobile_act">', $txt['mobile_action'], '</a>
+		</div>';
+
+		echo '
 	</div>';
 
 		if ($context['description'] != '' || !empty($context['moderators']))
@@ -305,13 +307,6 @@ function template_main()
 		<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 	</form>';
 
-		// Mobile action buttons (bottom)
-		if (!empty($context['normal_buttons']))
-			echo '
-	<div class="mobile_buttons floatright">
-		<a class="button mobile_act">', $txt['mobile_action'], '</a>
-	</div>';
-
 		echo '
 	<div class="pagesection">
 		', template_button_strip($context['normal_buttons'], 'right'), '
@@ -319,7 +314,16 @@ function template_main()
 		<div class="pagelinks floatleft">
 			<a href="#main_content_section" class="button" id="bot">', $txt['go_up'], '</a>
 			', $context['page_index'], '
-		</div>
+		</div>';
+
+		// Mobile action buttons (bottom)
+		if (!empty($context['normal_buttons']))
+			echo '
+			<div class="mobile_buttons floatright">
+				<a class="button mobile_act">', $txt['mobile_action'], '</a>
+			</div>';
+
+		echo '
 	</div>';
 	}
 
