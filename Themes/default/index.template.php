@@ -106,6 +106,8 @@ function template_html_above()
 			index.css plus variant.css files. If you've set them up properly
 			(through $settings['theme_variants']), the variant files will be loaded
 			for you automatically.
+			Additionally, tweaking the CSS for the editor requires you to include
+			a custom 'jquery.sceditor.theme.css' file in the css folder if you need it.
 
 	*	MODs:
 			If you want to load CSS or JS files in here, the best way is to use the
