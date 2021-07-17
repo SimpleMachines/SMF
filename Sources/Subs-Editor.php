@@ -1519,6 +1519,13 @@ function create_control_richedit($editorOptions)
 		loadCSSFile('jquery.sceditor.css', array('default_theme' => true, 'validate' => true), 'smf_jquery_sceditor');
 		loadTemplate('GenericControls');
 
+		/*
+		 *		THEME AUTHORS:
+		 			If you want to change or tweak the CSS for the editor,
+					include a file named 'jquery.sceditor.theme.css' in your theme.
+		*/
+		loadCSSFile('jquery.sceditor.theme.css', array('force_current' => true, 'validate' => true,), 'smf_jquery_sceditor_theme');
+
 		// JS makes the editor go round
 		loadJavaScriptFile('editor.js', array('minimize' => true), 'smf_editor');
 		loadJavaScriptFile('jquery.sceditor.bbcode.min.js', array(), 'smf_sceditor_bbcode');
