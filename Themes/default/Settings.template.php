@@ -78,6 +78,11 @@ function template_options()
 			'default' => true,
 		),
 		array(
+			'id' => 'no_new_reply_warning',
+			'label' => $txt['no_new_reply_warning'],
+			'default' => true,
+		),
+		array(
 			'id' => 'auto_notify',
 			'label' => $txt['auto_notify'],
 			'default' => true,
