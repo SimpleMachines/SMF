@@ -242,6 +242,9 @@ body#help_popup {
 	border-radius: 2px;
 	opacity: 0.8;
 }
+a.new_posts:visited {
+	color: #fff;
+}
 .new_posts:hover, .new_posts:focus {
 	text-decoration: none;
 	opacity: 1;
