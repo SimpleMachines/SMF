@@ -470,10 +470,13 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 
 		foreach ($xml_data as $item)
 		{
-			$link = array_filter($item['content'], function($e)
-			{
-				return ($e['tag'] == 'link');
-			});
+			$link = array_filter(
+				$item['content'],
+				function($e)
+				{
+					return ($e['tag'] == 'link');
+				}
+			);
 			$link = array_pop($link);
 
 			$context['feed']['header'] .= '

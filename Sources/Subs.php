@@ -6373,9 +6373,13 @@ function smf_list_timezones($when = 'now')
 			$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . $txt['etc'] : '');
 
 		// We don't want abbreviations like '+03' or '-11'.
-		$abbrs = array_filter($tzvalue['abbrs'], function ($abbr) {
-			return !strspn($abbr, '+-');
-		});
+		$abbrs = array_filter(
+			$tzvalue['abbrs'],
+			function ($abbr)
+			{
+				return !strspn($abbr, '+-');
+			}
+		);
 		$abbrs = count($abbrs) == count($tzvalue['abbrs']) ? array_unique($abbrs) : array();
 
 		// Show the UTC offset and abbreviation(s).
@@ -6954,14 +6958,17 @@ function set_tld_regex($update = false)
 	if (!empty($tlds))
 	{
 		// Clean $tlds and convert it to an array
-		$tlds = array_filter(explode("\n", strtolower($tlds)), function($line)
-		{
-			$line = trim($line);
-			if (empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'))
-				return false;
-			else
-				return true;
-		});
+		$tlds = array_filter(
+			explode("\n", strtolower($tlds)),
+			function($line)
+			{
+				$line = trim($line);
+				if (empty($line) || strlen($line) != strspn($line, 'abcdefghijklmnopqrstuvwxyz0123456789-'))
+					return false;
+				else
+					return true;
+			}
+		);
 
 		// Convert Punycode to Unicode
 		require_once($sourcedir . '/Class-Punycode.php');
