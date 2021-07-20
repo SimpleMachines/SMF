@@ -1258,6 +1258,15 @@ function PackageInstall()
 	clean_cache();
 	deleteAllMinified();
 
+	foreach (array('css_files', 'javascript_files') as $file_type)
+	{
+		foreach ($context[$file_type] as $id => $file)
+		{
+			if (isset($file['filePath']) && !file_exists($file['filePath']))
+				unset($context[$file_type][$id]);
+		}
+	}
+
 	// Restore file permissions?
 	create_chmod_control(array(), array(), true);
 }
