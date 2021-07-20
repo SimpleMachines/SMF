@@ -1832,10 +1832,14 @@ function export_load_css_js()
 	$css_to_minify = array();
 	$normal_css_files = array();
 
-	usort($context['css_files'], function ($a, $b)
-	{
-		return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
-	});
+	usort(
+		$context['css_files'],
+		function ($a, $b)
+		{
+			return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
+		}
+	);
+
 	foreach ($context['css_files'] as $css_file)
 	{
 		if (!isset($css_file['options']['minimize']))

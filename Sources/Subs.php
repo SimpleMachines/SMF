@@ -2118,10 +2118,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		// This is mainly for the bbc manager, so it's easy to add tags above.  Custom BBC should be added above this line.
 		if ($message === false)
 		{
-			usort($codes, function($a, $b)
-			{
-				return strcmp($a['tag'], $b['tag']);
-			});
+			usort(
+				$codes,
+				function($a, $b)
+				{
+					return strcmp($a['tag'], $b['tag']);
+				}
+			);
 			return $codes;
 		}
 
@@ -4441,10 +4444,14 @@ function template_css()
 	$toMinify = array();
 	$normal = array();
 
-	uasort($context['css_files'], function ($a, $b)
-	{
-		return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
-	});
+	uasort(
+		$context['css_files'],
+		function ($a, $b)
+		{
+			return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
+		}
+	);
+
 	foreach ($context['css_files'] as $id => $file)
 	{
 		// Last minute call! allow theme authors to disable single files.
@@ -7177,16 +7184,19 @@ function build_regex($strings, $delim = null, $returnArray = false)
 		}
 
 		// Sort by key length and then alphabetically
-		uksort($regex, function($k1, $k2) use (&$strlen)
-		{
-			$l1 = $strlen($k1);
-			$l2 = $strlen($k2);
+		uksort(
+			$regex,
+			function($k1, $k2) use (&$strlen)
+			{
+				$l1 = $strlen($k1);
+				$l2 = $strlen($k2);
 
-			if ($l1 == $l2)
-				return strcmp($k1, $k2) > 0 ? 1 : -1;
-			else
-				return $l1 > $l2 ? -1 : 1;
-		});
+				if ($l1 == $l2)
+					return strcmp($k1, $k2) > 0 ? 1 : -1;
+				else
+					return $l1 > $l2 ? -1 : 1;
+			}
+		);
 
 		$depth--;
 		return implode('|', $regex);

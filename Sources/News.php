@@ -940,12 +940,16 @@ function getXmlNews($xml_format, $ascending = false)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b)
-				{
-					if ($a['filesize'] == $b['filesize'])
-						return 0;
-					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
-				});
+				uasort(
+					$loaded_attachments,
+					function($a, $b)
+					{
+						if ($a['filesize'] == $b['filesize'])
+							return 0;
+
+						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+					}
+				);
 			}
 			else
 				$loaded_attachments = null;
@@ -1395,13 +1399,16 @@ function getXmlRecent($xml_format)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b)
-				{
-					if ($a['filesize'] == $b['filesize'])
-						return 0;
+				uasort(
+					$loaded_attachments,
+					function($a, $b)
+					{
+						if ($a['filesize'] == $b['filesize'])
+							return 0;
 
-					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
-				});
+						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+					}
+				);
 			}
 			else
 				$loaded_attachments = null;
@@ -2190,11 +2197,16 @@ function getXmlPosts($xml_format, $ascending = false)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b) {
-					if ($a['filesize'] == $b['filesize'])
+				uasort(
+					$loaded_attachments,
+					function($a, $b)
+					{
+						if ($a['filesize'] == $b['filesize'])
 					        return 0;
-					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
-				});
+
+						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+					}
+				);
 			}
 			else
 				$loaded_attachments = null;

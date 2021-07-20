@@ -1090,10 +1090,13 @@ function legalise_bbc($text)
 		$lastlen = strlen($text = preg_replace($backToBackPattern, '', $text));
 
 	// Need to sort the tags by name length.
-	uksort($valid_tags, function($a, $b)
-	{
-		return strlen($a) < strlen($b) ? 1 : -1;
-	});
+	uksort(
+		$valid_tags,
+		function($a, $b)
+		{
+			return strlen($a) < strlen($b) ? 1 : -1;
+		}
+	);
 
 	// These inline tags can compete with each other regarding style.
 	$competing_tags = array(
