@@ -50,10 +50,14 @@ function preparsecode(&$message, $previewing = false)
 		$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
 
 	// Clean up after nobbc ;).
-	$message = preg_replace_callback('~\[nobbc\](.+?)\[/nobbc\]~is', function($a)
-	{
-		return '[nobbc]' . strtr($a[1], array('[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;')) . '[/nobbc]';
-	}, $message);
+	$message = preg_replace_callback(
+		'~\[nobbc\](.+?)\[/nobbc\]~is',
+		function($a)
+		{
+			return '[nobbc]' . strtr($a[1], array('[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;')) . '[/nobbc]';
+		},
+		$message
+	);
 
 	// Remove \r's... they're evil!
 	$message = strtr($message, array("\r" => ''));
@@ -134,10 +138,14 @@ function preparsecode(&$message, $previewing = false)
 	if (!$previewing && strpos($message, '[html]') !== false)
 	{
 		if (allowedTo('bbc_html'))
-			$message = preg_replace_callback('~\[html\](.+?)\[/html\]~is', function($m)
-			{
-				return '[html]' . strtr(un_htmlspecialchars($m[1]), array("\n" => '&#13;', '  ' => ' &#32;', '[' => '&#91;', ']' => '&#93;')) . '[/html]';
-			}, $message);
+			$message = preg_replace_callback(
+				'~\[html\](.+?)\[/html\]~is',
+				function($m)
+				{
+					return '[html]' . strtr(un_htmlspecialchars($m[1]), array("\n" => '&#13;', '  ' => ' &#32;', '[' => '&#91;', ']' => '&#93;')) . '[/html]';
+				},
+				$message
+			);
 
 		// We should edit them out, or else if an admin edits the message they will get shown...
 		else
@@ -148,10 +156,14 @@ function preparsecode(&$message, $previewing = false)
 	}
 
 	// Let's look at the time tags...
-	$message = preg_replace_callback('~\[time(?:=(absolute))*\](.+?)\[/time\]~i', function($m) use ($modSettings, $user_info)
-	{
-		return "[time]" . (is_numeric("$m[2]") || @strtotime("$m[2]") == 0 ? "$m[2]" : strtotime("$m[2]") - ("$m[1]" == "absolute" ? 0 : (($modSettings["time_offset"] + $user_info["time_offset"]) * 3600))) . "[/time]";
-	}, $message);
+	$message = preg_replace_callback(
+		'~\[time(?:=(absolute))*\](.+?)\[/time\]~i',
+		function($m) use ($modSettings, $user_info)
+		{
+			return "[time]" . (is_numeric("$m[2]") || @strtotime("$m[2]") == 0 ? "$m[2]" : strtotime("$m[2]") - ("$m[1]" == "absolute" ? 0 : (($modSettings["time_offset"] + $user_info["time_offset"]) * 3600))) . "[/time]";
+		},
+		$message
+	);
 
 	// Change the color specific tags to [color=the color].
 	$message = preg_replace('~\[(black|blue|green|red|white)\]~', '[color=$1]', $message); // First do the opening tags.
@@ -179,10 +191,14 @@ function preparsecode(&$message, $previewing = false)
 		$message = preg_replace('~\[(?=/?' . $disallowed_tags_regex . '\b)~i', '&#91;', $message);
 
 	// Make sure all tags are lowercase.
-	$message = preg_replace_callback('~\[(/?)(list|li|table|tr|td)\b([^\]]*)\]~i', function($m)
-	{
-		return "[$m[1]" . strtolower("$m[2]") . "$m[3]]";
-	}, $message);
+	$message = preg_replace_callback(
+		'~\[(/?)(list|li|table|tr|td)\b([^\]]*)\]~i',
+		function($m)
+		{
+			return "[$m[1]" . strtolower("$m[2]") . "$m[3]]";
+		},
+		$message
+	);
 
 	$list_open = substr_count($message, '[list]') + substr_count($message, '[list ');
 	$list_close = substr_count($message, '[/list]');
@@ -304,19 +320,27 @@ function un_preparsecode($message)
 
 	$message = implode('', $parts);
 
-	$message = preg_replace_callback('~\[html\](.+?)\[/html\]~i', function($m) use ($smcFunc)
-	{
-		return "[html]" . strtr($smcFunc['htmlspecialchars']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
-	}, $message);
+	$message = preg_replace_callback(
+		'~\[html\](.+?)\[/html\]~i',
+		function($m) use ($smcFunc)
+		{
+			return "[html]" . strtr($smcFunc['htmlspecialchars']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
+		},
+		$message
+	);
 
 	if (strpos($message, '[cowsay') !== false && !allowedTo('bbc_cowsay'))
 		$message = preg_replace('~\[(/?)cowsay[^\]]*\]~iu', '[$1pre]', $message);
 
 	// Attempt to un-parse the time to something less awful.
-	$message = preg_replace_callback('~\[time\](\d{0,10})\[/time\]~i', function($m)
-	{
-		return "[time]" . timeformat("$m[1]", false) . "[/time]";
-	}, $message);
+	$message = preg_replace_callback(
+		'~\[time\](\d{0,10})\[/time\]~i',
+		function($m)
+		{
+			return "[time]" . timeformat("$m[1]", false) . "[/time]";
+		},
+		$message
+	);
 
 	if (!empty($code_tags))
 		$message = strtr($message, $code_tags);
@@ -405,10 +429,14 @@ function fixTags(&$message)
 		fixTag($message, $param['tag'], $param['protocols'], $param['embeddedUrl'], $param['hasEqualSign'], !empty($param['hasExtra']));
 
 	// Now fix possible security problems with images loading links automatically...
-	$message = preg_replace_callback('~(\[img.*?\])(.+?)\[/img\]~is', function($m)
-	{
-		return "$m[1]" . preg_replace("~action(=|%3d)(?!dlattach)~i", "action-", "$m[2]") . "[/img]";
-	}, $message);
+	$message = preg_replace_callback(
+		'~(\[img.*?\])(.+?)\[/img\]~is',
+		function($m)
+		{
+			return "$m[1]" . preg_replace("~action(=|%3d)(?!dlattach)~i", "action-", "$m[2]") . "[/img]";
+		},
+		$message
+	);
 
 }
 
@@ -690,16 +718,15 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 
 		foreach ($to_array as $to)
 		{
-			set_error_handler(function($errno, $errstr, $errfile, $errline)
-			{
-				// error was suppressed with the @-operator
-				if (0 === error_reporting())
+			set_error_handler(
+				function($errno, $errstr, $errfile, $errline)
 				{
-					return false;
-				}
+					// error was suppressed with the @-operator
+					if (0 === error_reporting())
+						return false;
 
-				throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
-			}
+					throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+				}
 			);
 			try
 			{
@@ -1264,10 +1291,14 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 		unset($matches);
 
 		if ($simple)
-			$string = preg_replace_callback('~&#(\d{3,8});~', function($m)
-			{
-				return chr("$m[1]");
-			}, $string);
+			$string = preg_replace_callback(
+				'~&#(\d{3,8});~',
+				function($m)
+				{
+					return chr("$m[1]");
+				},
+				$string
+			);
 		else
 		{
 			// Try to convert the string to UTF-8.

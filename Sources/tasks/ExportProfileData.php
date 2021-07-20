@@ -203,7 +203,13 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 
 		$feed_meta = array(
 			'title' => sprintf($txt['profile_of_username'], $user_profile[$uid]['real_name']),
-			'desc' => sentence_list(array_map(function ($datatype) use ($txt) { return $txt[$datatype]; }, array_keys($included))),
+			'desc' => sentence_list(array_map(
+				function ($datatype) use ($txt)
+				{
+					return $txt[$datatype];
+				},
+				array_keys($included)
+			)),
 			'author' => $mbname,
 			'source' => $scripturl . '?action=profile;u=' . $uid,
 			'self' => '', // Unused, but can't be null.

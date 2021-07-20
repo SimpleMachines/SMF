@@ -854,10 +854,14 @@ function Post($post_errors = array())
 				{
 					// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
 					if ($i % 4 == 0)
-						$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~is', function($m)
-						{
-							return '[html]' . preg_replace('~<br\s?/?' . '>~i', '&lt;br /&gt;<br>', "$m[1]") . '[/html]';
-						}, $parts[$i]);
+						$parts[$i] = preg_replace_callback(
+							'~\[html\](.+?)\[/html\]~is',
+							function($m)
+							{
+								return '[html]' . preg_replace('~<br\s?/?' . '>~i', '&lt;br /&gt;<br>', "$m[1]") . '[/html]';
+							},
+							$parts[$i]
+						);
 				}
 				$form_message = implode('', $parts);
 			}
@@ -1276,10 +1280,13 @@ function Post($post_errors = array())
 	// File Upload.
 	if ($context['can_post_attachment'])
 	{
-		$acceptedFiles = empty($context['allowed_extensions']) ? '' : implode(',', array_map(function ($val) use ($smcFunc)
-		{
-			return !empty($val) ? ('.' . $smcFunc['htmltrim']($val)) : '';
-		}, explode(',', $context['allowed_extensions'])));
+		$acceptedFiles = empty($context['allowed_extensions']) ? '' : implode(',', array_map(
+			function ($val) use ($smcFunc)
+			{
+				return !empty($val) ? ('.' . $smcFunc['htmltrim']($val)) : '';
+			},
+			explode(',', $context['allowed_extensions'])
+		));
 
 		loadJavaScriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
 		loadJavaScriptFile('smf_fileUpload.js', array('defer' => true, 'minimize' => true), 'smf_fileUpload');

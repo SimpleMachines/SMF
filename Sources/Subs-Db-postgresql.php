@@ -78,8 +78,12 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 	$db_passwd = str_replace(array('\\','\''), array('\\\\','\\\''), $db_passwd);
 
 	// Since pg_connect doesn't feed error info to pg_last_error, we have to catch issues with a try/catch.
-	set_error_handler(function($errno, $errstr) {
-		throw new ErrorException($errstr, $errno);});
+	set_error_handler(
+		function($errno, $errstr)
+		{
+			throw new ErrorException($errstr, $errno);
+		}
+	);
 	try
 	{
 		if (!empty($db_options['persist']))

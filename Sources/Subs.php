@@ -2703,47 +2703,51 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							$url_regex .= ')';
 						}
 
-						$tmp_data = preg_replace_callback('~' . $url_regex . '~i' . ($context['utf8'] ? 'u' : ''), function($matches) use ($schemes)
-						{
-							$url = array_shift($matches);
-
-							// If this isn't a clean URL, bail out
-							if ($url != sanitize_iri($url))
-								return $url;
-
-							$parsedurl = parse_url($url);
-
-							if (!isset($parsedurl['scheme']))
-								$parsedurl['scheme'] = '';
-
-							if ($parsedurl['scheme'] == 'mailto')
+						$tmp_data = preg_replace_callback(
+							'~' . $url_regex . '~i' . ($context['utf8'] ? 'u' : ''),
+							function($matches) use ($schemes)
 							{
-								if (isset($disabled['email']))
+								$url = array_shift($matches);
+
+								// If this isn't a clean URL, bail out
+								if ($url != sanitize_iri($url))
 									return $url;
 
-								// Is this version of PHP capable of validating this email address?
-								$can_validate = defined('FILTER_FLAG_EMAIL_UNICODE') || strlen($parsedurl['path']) == strspn(strtolower($parsedurl['path']), 'abcdefghijklmnopqrstuvwxyz0123456789!#$%&\'*+-/=?^_`{|}~.@');
+								$parsedurl = parse_url($url);
 
-								$flags = defined('FILTER_FLAG_EMAIL_UNICODE') ? FILTER_FLAG_EMAIL_UNICODE : null;
+								if (!isset($parsedurl['scheme']))
+									$parsedurl['scheme'] = '';
 
-								if (!$can_validate || filter_var($parsedurl['path'], FILTER_VALIDATE_EMAIL, $flags) !== false)
-									return '[email=' . str_replace('mailto:', '', $url) . ']' . $url . '[/email]';
+								if ($parsedurl['scheme'] == 'mailto')
+								{
+									if (isset($disabled['email']))
+										return $url;
+
+									// Is this version of PHP capable of validating this email address?
+									$can_validate = defined('FILTER_FLAG_EMAIL_UNICODE') || strlen($parsedurl['path']) == strspn(strtolower($parsedurl['path']), 'abcdefghijklmnopqrstuvwxyz0123456789!#$%&\'*+-/=?^_`{|}~.@');
+
+									$flags = defined('FILTER_FLAG_EMAIL_UNICODE') ? FILTER_FLAG_EMAIL_UNICODE : null;
+
+									if (!$can_validate || filter_var($parsedurl['path'], FILTER_VALIDATE_EMAIL, $flags) !== false)
+										return '[email=' . str_replace('mailto:', '', $url) . ']' . $url . '[/email]';
+									else
+										return $url;
+								}
+
+								// Are we linking a schemeless URL or naked domain name (e.g. "example.com")?
+								if (empty($parsedurl['scheme']))
+									$fullUrl = '//' . ltrim($url, ':/');
 								else
+									$fullUrl = $url;
+
+								// Make sure that $fullUrl really is valid
+								if (in_array($parsedurl['scheme'], $schemes['forbidden']) || (!in_array($parsedurl['scheme'], $schemes['no_authority']) && validate_iri((strpos($fullUrl, '//') === 0 ? 'http:' : '') . $fullUrl) === false))
 									return $url;
-							}
 
-							// Are we linking a schemeless URL or naked domain name (e.g. "example.com")?
-							if (empty($parsedurl['scheme']))
-								$fullUrl = '//' . ltrim($url, ':/');
-							else
-								$fullUrl = $url;
-
-							// Make sure that $fullUrl really is valid
-							if (in_array($parsedurl['scheme'], $schemes['forbidden']) || (!in_array($parsedurl['scheme'], $schemes['no_authority']) && validate_iri((strpos($fullUrl, '//') === 0 ? 'http:' : '') . $fullUrl) === false))
-								return $url;
-
-							return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
-						}, $data);
+								return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
+							},
+							$data
+						);
 
 						if (!is_null($tmp_data))
 							$data = $tmp_data;
@@ -2807,10 +2811,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$look_for = strtolower(substr($message, $pos + 2, $pos2 - $pos - 2));
 
 			// A closing tag that doesn't match any open tags? Skip it.
-			if (!in_array($look_for, array_map(function($code)
-			{
-				return $code['tag'];
-			}, $open_tags)))
+			if (!in_array($look_for, array_map(function($code) { return $code['tag']; }, $open_tags)))
 				continue;
 
 			$to_close = array();
@@ -3539,10 +3540,14 @@ function parsesmileys(&$message)
 		return;
 
 	// Replace away!
-	$message = preg_replace_callback($smileyPregSearch, function($matches) use ($smileyPregReplacements)
+	$message = preg_replace_callback(
+		$smileyPregSearch,
+		function($matches) use ($smileyPregReplacements)
 		{
 			return $smileyPregReplacements[$matches[1]];
-		}, $message);
+		},
+		$message
+	);
 }
 
 /**
@@ -3641,17 +3646,23 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 	if (!empty($modSettings['queryless_urls']) && (empty($context['server']['is_cgi']) || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && (!empty($context['server']['is_apache']) || !empty($context['server']['is_lighttpd']) || !empty($context['server']['is_litespeed'])))
 	{
 		if (defined('SID') && SID != '')
-			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
+			$setLocation = preg_replace_callback(
+				'~^' . preg_quote($scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
 				function($m) use ($scripturl)
 				{
 					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . SID . (isset($m[2]) ? "$m[2]" : "");
-				}, $setLocation);
+				},
+				$setLocation
+			);
 		else
-			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
+			$setLocation = preg_replace_callback(
+				'~^' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
 				function($m) use ($scripturl)
 				{
 					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? "$m[2]" : "");
-				}, $setLocation);
+				},
+				$setLocation
+			);
 	}
 
 	// Maybe integrations want to change where we are heading?
@@ -4531,10 +4542,13 @@ function custMinify($data, $type)
 		return $data;
 
 	// Different pages include different files, so we use a hash to label the different combinations
-	$hash = md5(implode(' ', array_map(function($file)
-	{
-		return $file['filePath'] . '-' . $file['mtime'];
-	}, $data)));
+	$hash = md5(implode(' ', array_map(
+		function($file)
+		{
+			return $file['filePath'] . '-' . $file['mtime'];
+		},
+		$data
+	)));
 
 	// Is this a deferred or asynchronous JavaScript file?
 	$async = $type === 'js';
@@ -6952,10 +6966,13 @@ function set_tld_regex($update = false)
 		// Convert Punycode to Unicode
 		require_once($sourcedir . '/Class-Punycode.php');
 		$Punycode = new Punycode();
-		$tlds = array_map(function($input) use ($Punycode)
-		{
-			return $Punycode->decode($input);
-		}, $tlds);
+		$tlds = array_map(
+			function($input) use ($Punycode)
+			{
+				return $Punycode->decode($input);
+			},
+			$tlds
+		);
 	}
 	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
 	else
@@ -7421,10 +7438,14 @@ function sanitize_iri($iri)
 {
 	// Encode any non-ASCII characters (but not space or control characters of any sort)
 	// Also encode '%' in order to preserve anything that is already percent-encoded.
-	$iri = preg_replace_callback('~[^\x00-\x7F\pZ\pC]|%~u', function($matches)
-	{
-		return rawurlencode($matches[0]);
-	}, $iri);
+	$iri = preg_replace_callback(
+		'~[^\x00-\x7F\pZ\pC]|%~u',
+		function($matches)
+		{
+			return rawurlencode($matches[0]);
+		},
+		$iri
+	);
 
 	// Perform normal sanitization
 	$iri = filter_var($iri, FILTER_SANITIZE_URL);
