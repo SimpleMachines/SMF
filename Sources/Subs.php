@@ -4308,16 +4308,13 @@ function template_javascript($do_deferred = false)
 
 		foreach ($context['javascript_vars'] as $key => $value)
 		{
-			if (empty($value) && !is_numeric($value))
-			{
-				echo '
-		var ', $key, ';';
-			}
-			else
-			{
-				echo '
-		var ', $key, ' = ', $value, ';';
-			}
+			if (!is_string($key) || is_numeric($key))
+				continue;
+
+			if (!is_string($value) && !is_numeric($value))
+				$value = null;
+
+			echo "\n\t\t", 'var ', $key, isset($value) ? ' = ' . $value : '', ';';
 		}
 
 		echo '
