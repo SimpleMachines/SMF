@@ -4308,7 +4308,7 @@ function template_javascript($do_deferred = false)
 
 		foreach ($context['javascript_vars'] as $key => $value)
 		{
-			if (empty($value))
+			if (empty($value) && !is_numeric($value))
 			{
 				echo '
 		var ', $key, ';';
