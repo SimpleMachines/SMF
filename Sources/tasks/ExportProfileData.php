@@ -180,7 +180,7 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$query_this_board = '{query_see_message_board}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? ' AND m.id_board != ' . $modSettings['recycle_board'] : '');
 
 		// We need a valid export directory.
-		if (empty($modSettings['export_dir']) || !file_exists($modSettings['export_dir']))
+		if (empty($modSettings['export_dir']) || !is_dir($modSettings['export_dir']) || !smf_chmod($modSettings['export_dir']))
 		{
 			require_once($sourcedir . DIRECTORY_SEPARATOR . 'Profile-Export.php');
 			if (create_export_dir() === false)

@@ -181,7 +181,7 @@ function export_profile_data($uid)
 		),
 	);
 
-	if (empty($modSettings['export_dir']) || !file_exists($modSettings['export_dir']))
+	if (empty($modSettings['export_dir']) || !is_dir($modSettings['export_dir']) || !smf_chmod($modSettings['export_dir']))
 		create_export_dir();
 
 	$export_dir_slash = $modSettings['export_dir'] . DIRECTORY_SEPARATOR;
@@ -747,7 +747,7 @@ function create_export_dir($fallback = '')
 		// Try again at the fallback location.
 		if ($modSettings['export_dir'] != $fallback)
 		{
-			log_error($txt['export_dir_forced_change'], $modSettings['export_dir'], $fallback);
+			log_error(sprintf($txt['export_dir_forced_change'], $modSettings['export_dir'], $fallback));
 			updateSettings(array('export_dir' => $fallback));
 
 			// Secondary fallback will be the default location, so no parameter this time.
