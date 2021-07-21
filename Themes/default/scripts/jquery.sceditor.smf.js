@@ -847,81 +847,58 @@ sceditor.formats.bbcode.set(
 			blockquote: null,
 			cite: null
 		},
-		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
+		quoteType: sceditor.BBCodeParser.QuoteType.never,
 		breakBefore: false,
 		isInline: false,
-		format: function (element, content) {
-			var element = $(element);
-			var author = '';
-			var date = '';
-			var link = '';
+		format: function (element, content)
+		{
+			var attrs = '';
+			var author = element.getAttribute('data-author');
+			var date = element.getAttribute('data-date');
+			var link = element.getAttribute('data-link');
 
 			// The <cite> contains only the graphic for the quote, so we can skip it
-			if (element[0].tagName.toLowerCase() === 'cite')
+			if (element.tagName === 'CITE')
 				return '';
 
-			if (element.attr('author'))
-				author = ' author=' + element.attr('author').php_unhtmlspecialchars();
-			if (element.attr('link'))
-				link = ' link=' + element.attr('link');
-			if (element.attr('date'))
-				date = ' date=' + element.attr('date');
+			if (author)
+				attrs += ' author=' + author.php_unhtmlspecialchars();
+			if (link)
+				attrs += ' link=' + link;
+			if (date)
+				attrs += ' date=' + date;
 
-			return '[quote' + author + link + date + ']' + content + '[/quote]';
+			return '[quote' + attrs + ']' + content + '[/quote]';
 		},
-		html: function (element, attrs, content) {
+		html: function (element, attrs, content)
+		{
 			var attr_author = '', author = '';
 			var attr_date = '', sDate = '';
 			var attr_link = '', link = '';
 
-			if (typeof attrs.author !== "undefined" && attrs.author)
+			if (attrs.author || attrs.defaultattr)
 			{
-				attr_author = attrs.author;
+				attr_author = attrs.author || attrs.defaultattr;
 				author = bbc_quote_from + ': ' + attr_author;
 			}
 
-			// Links could be in the form: link=topic=71.msg201#msg201 that would fool javascript, so we need a workaround
-			// Probably no more necessary
-			for (var key in attrs)
+			if (attrs.link)
 			{
-				if (key.substr(0, 4) == 'link' && attrs.hasOwnProperty(key))
-				{
-					var attr_link = key.length > 4 ? key.substr(5) + '=' + attrs[key] : attrs[key];
-
-					link = attr_link.substr(0, 7) == 'http://' ? attr_link : smf_scripturl + '?' + attr_link;
-					author = author == '' ? '<a href="' + link + '">' + bbc_quote_from + ': ' + link + '</a>' : '<a href="' + link + '">' + author + '</a>';
-				}
+				attr_link = attrs.link;
+				link = attr_link.substr(0, 7) == 'http://' ? attr_link : smf_prepareScriptUrl(smf_scripturl) + attr_link;
+				author = '<a href="' + link + '">' + (author || bbc_quote_from + ': ' + link) + '</a>';
 			}
 
-			if (typeof attrs.date !== "undefined" && attrs.date)
+			if (attrs.date)
 			{
 				attr_date = attrs.date;
-				tDate = new Date(attr_date * 1000);
-				sDate_string = tDate.toLocaleString();
-				sDate = '<date timestamp="' + attr_date + '">' + sDate_string + '</date>';
+				sDate = '<date timestamp="' + attr_date + '">' + new Date(attr_date * 1000).toLocaleString() + '</date>';
+
+				if (author !== '')
+					author += ' ' + bbc_search_on;
 			}
 
-			if (author == '' && sDate == '')
-				author = bbc_quote;
-			else if (author == '' && sDate != '')
-				author += ' ' + bbc_search_on;
-
-			/*
-			 * This fixes #2845
-			 *
-			 * As SMF allows "[quote=text]message[/quote]" it is lost during
-			 * sceditor when it converts bbc to html and then html back to
-			 * bbc code. The simplest method is to tell sceditor that this
-			 * is a "author", which is how the bbc parser treats it in SMF.
-			 *
-			 * This will cause all bbc to be updated to "[quote author=text]message[/quote]".
-			*/
-			if (attr_author == '' && attrs.defaultattr)
-				attr_author = attrs.defaultattr;
-
-			content = '<blockquote author="' + attr_author + '" date="' + attr_date + '" link="' + attr_link + '"><cite>' + author + ' ' + sDate + '</cite>' + content + '</blockquote>';
-
-			return content;
+			return '<blockquote data-author="' + attr_author + '" data-date="' + attr_date + '" data-link="' + attr_link + '"><cite>' + (author || bbc_quote) + ' ' + sDate + '</cite>' + content + '</blockquote>';
 		}
 	}
 );
