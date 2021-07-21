@@ -1127,11 +1127,14 @@ function PickTheme()
 	// Then return it.
 	addJavaScriptVar(
 		'oThemeVariants',
-		json_encode(array_map(function($theme)
-		{
-			return $theme['variants'];
-		}, $context['available_themes']
-	)));
+		json_encode(array_map(
+			function($theme)
+			{
+				return $theme['variants'];
+			},
+			$context['available_themes']
+		))
+	);
 	loadJavaScriptFile('profile.js', array('defer' => false, 'minimize' => true), 'smf_profile');
 	$settings['images_url'] = $current_images_url;
 	$settings['theme_variants'] = $current_theme_variants;

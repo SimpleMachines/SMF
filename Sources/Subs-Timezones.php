@@ -1714,9 +1714,13 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 		// Missing, but we have a fallback.
 		else
 		{
-			usort($fallbacks[$tzid], function ($a, $b) {
-				return $a['ts'] > $b['ts'];
-			});
+			usort(
+				$fallbacks[$tzid],
+				function ($a, $b)
+				{
+					return $a['ts'] > $b['ts'];
+				}
+			);
 
 			foreach ($fallbacks[$tzid] as $alt)
 			{

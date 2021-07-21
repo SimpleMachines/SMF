@@ -470,10 +470,13 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 
 		foreach ($xml_data as $item)
 		{
-			$link = array_filter($item['content'], function($e)
-			{
-				return ($e['tag'] == 'link');
-			});
+			$link = array_filter(
+				$item['content'],
+				function($e)
+				{
+					return ($e['tag'] == 'link');
+				}
+			);
 			$link = array_pop($link);
 
 			$context['feed']['header'] .= '
@@ -526,10 +529,14 @@ function fix_possible_url($val)
 	if (empty($modSettings['queryless_urls']) || ($context['server']['is_cgi'] && ini_get('cgi.fix_pathinfo') == 0 && @get_cfg_var('cgi.fix_pathinfo') == 0) || (!$context['server']['is_apache'] && !$context['server']['is_lighttpd']))
 		return $val;
 
-	$val = preg_replace_callback('~\b' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~', function($m) use ($scripturl)
-	{
-		return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "");
-	}, $val);
+	$val = preg_replace_callback(
+		'~\b' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~',
+		function($m) use ($scripturl)
+		{
+			return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "");
+		},
+		$val
+	);
 	return $val;
 }
 
@@ -933,12 +940,16 @@ function getXmlNews($xml_format, $ascending = false)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b)
-				{
-					if ($a['filesize'] == $b['filesize'])
-						return 0;
-					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
-				});
+				uasort(
+					$loaded_attachments,
+					function($a, $b)
+					{
+						if ($a['filesize'] == $b['filesize'])
+							return 0;
+
+						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+					}
+				);
 			}
 			else
 				$loaded_attachments = null;
@@ -1388,13 +1399,16 @@ function getXmlRecent($xml_format)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b)
-				{
-					if ($a['filesize'] == $b['filesize'])
-						return 0;
+				uasort(
+					$loaded_attachments,
+					function($a, $b)
+					{
+						if ($a['filesize'] == $b['filesize'])
+							return 0;
 
-					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
-				});
+						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+					}
+				);
 			}
 			else
 				$loaded_attachments = null;
@@ -2183,11 +2197,16 @@ function getXmlPosts($xml_format, $ascending = false)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b) {
-					if ($a['filesize'] == $b['filesize'])
+				uasort(
+					$loaded_attachments,
+					function($a, $b)
+					{
+						if ($a['filesize'] == $b['filesize'])
 					        return 0;
-					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
-				});
+
+						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+					}
+				);
 			}
 			else
 				$loaded_attachments = null;

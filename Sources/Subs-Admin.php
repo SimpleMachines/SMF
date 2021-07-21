@@ -1232,16 +1232,19 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	}
 
 	// It's important to do the numbered ones before the named ones, or messes happen.
-	uksort($substitutions, function($a, $b) {
-		if (is_int($a) && is_int($b))
-			return $a > $b ? 1 : ($a < $b ? -1 : 0);
-		elseif (is_int($a))
-			return -1;
-		elseif (is_int($b))
-			return 1;
-		else
-			return strcasecmp($b, $a);
-	});
+	uksort(
+		$substitutions,
+		function($a, $b) {
+			if (is_int($a) && is_int($b))
+				return $a > $b ? 1 : ($a < $b ? -1 : 0);
+			elseif (is_int($a))
+				return -1;
+			elseif (is_int($b))
+				return 1;
+			else
+				return strcasecmp($b, $a);
+		}
+	);
 
 	/******************************
 	 * PART 3: Content processing *
@@ -1928,9 +1931,17 @@ function smf_var_export($var)
 	// For the same reason, replace literal returns and newlines with "\r" and "\n"
 	elseif (is_string($var) && (strpos($var, "\n") !== false || strpos($var, "\r") !== false))
 	{
-		return strtr(preg_replace_callback('/[\r\n]+/', function($m) {
-			return '\' . "' . strtr($m[0], array("\r" => '\r', "\n" => '\n')) . '" . \'';
-		}, var_export($var, true)), array("'' . " => '', " . ''" => ''));
+		return strtr(
+			preg_replace_callback(
+				'/[\r\n]+/',
+				function($m)
+				{
+					return '\' . "' . strtr($m[0], array("\r" => '\r', "\n" => '\n')) . '" . \'';
+				},
+				var_export($var, true)
+			),
+			array("'' . " => '', " . ''" => '')
+		);
 	}
 
 	// We typically use lowercase true/false/null.

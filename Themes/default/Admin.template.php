@@ -756,7 +756,9 @@ function template_show_settings()
 	}
 
 	// Filter out any redundant separators before we start the loop
-	$context['config_vars'] = array_filter($context['config_vars'], function ($v) use ($context)
+	$context['config_vars'] = array_filter(
+		$context['config_vars'],
+		function ($v) use ($context)
 		{
 			static $config_vars, $prev;
 
@@ -775,7 +777,8 @@ function template_show_settings()
 
 			$prev = $v;
 			return ($v === '' && ($at_start || $at_end || $v === $next)) ? false : true;
-		});
+		}
+	);
 
 	// Now actually loop through all the variables.
 	$is_open = false;

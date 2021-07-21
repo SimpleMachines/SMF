@@ -468,7 +468,13 @@ function download_export_file($uid)
 
 	// Figure out the filename we'll tell the browser.
 	$datatypes = file_exists($progressfile) ? array_keys($smcFunc['json_decode'](file_get_contents($progressfile), true)) : array('profile');
-	$included_desc = array_map(function ($datatype) use ($txt) { return $txt[$datatype]; }, $datatypes);
+	$included_desc = array_map(
+		function ($datatype) use ($txt)
+		{
+			return $txt[$datatype];
+		},
+		$datatypes
+	);
 
 	$dlfilename = array_merge(array($context['forum_name'], $context['member']['username']), $included_desc);
 	$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
@@ -1826,10 +1832,14 @@ function export_load_css_js()
 	$css_to_minify = array();
 	$normal_css_files = array();
 
-	usort($context['css_files'], function ($a, $b)
-	{
-		return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
-	});
+	usort(
+		$context['css_files'],
+		function ($a, $b)
+		{
+			return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
+		}
+	);
+
 	foreach ($context['css_files'] as $css_file)
 	{
 		if (!isset($css_file['options']['minimize']))
