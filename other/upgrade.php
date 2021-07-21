@@ -3399,9 +3399,16 @@ function serialize_to_json()
 			return true;
 	}
 
+	// Needed when writing settings
+	if (!function_exists('cache_put_data'))
+		require_once($sourcedir . '/Load.php');
+
 	// Done it already - js wise?
 	if (!empty($_POST['json_done']))
+	{
+		updateSettings(array('json_done' => true));
 		return true;
+	}
 
 	// List of tables affected by this function
 	// name => array('key', col1[,col2|true[,col3]])
@@ -3499,8 +3506,6 @@ function serialize_to_json()
 				}
 
 				// Update everything at once
-				if (!function_exists('cache_put_data'))
-					require_once($sourcedir . '/Load.php');
 				updateSettings($new_settings, true);
 
 				if ($command_line)
