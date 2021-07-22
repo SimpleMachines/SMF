@@ -1750,7 +1750,7 @@ $(function() {
 	});
 
 	// Expand quotes
-	if (smf_quote_expand)
+	if ((typeof(smf_quote_expand) != 'undefined') && (smf_quote_expand > 0))
 	{
 		$('blockquote').each(function(index, item) {
 
