@@ -1900,7 +1900,7 @@ function getXmlProfile($xml_format)
 						),
 						array(
 							'tag' => 'uri',
-							'content' => !empty($profile['website']['url']) ? $profile['website']['url'] : $scripturl . '?action=profile;u=' . $row['id_member'],
+							'content' => !empty($profile['website']['url']) ? $profile['website']['url'] : $scripturl . '?action=profile;u=' . $profile['id_member'],
 							'cdata' => !empty($profile['website']['url']),
 						),
 					),
