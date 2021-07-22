@@ -1567,7 +1567,7 @@ function Post($post_errors = array())
 function Post2()
 {
 	global $board, $topic, $txt, $modSettings, $sourcedir, $context;
-	global $user_info, $board_info, $smcFunc, $settings;
+	global $user_info, $board_info, $options, $smcFunc, $settings;
 
 	// Sneaking off, are we?
 	if (empty($_POST) && empty($topic))
