@@ -2651,8 +2651,8 @@ function approveTopics($topics, $approve = true)
 
 	// Just get the messages to be approved and pass through...
 	$request = $smcFunc['db_query']('', '
-		SELECT id_msg
-		FROM {db_prefix}messages
+		SELECT id_first_msg
+		FROM {db_prefix}topics
 		WHERE id_topic IN ({array_int:topic_list})
 			AND approved = {int:approve_type}',
 		array(
@@ -2662,7 +2662,7 @@ function approveTopics($topics, $approve = true)
 	);
 	$msgs = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$msgs[] = $row['id_msg'];
+		$msgs[] = $row['id_first_msg'];
 	$smcFunc['db_free_result']($request);
 
 	return approvePosts($msgs, $approve);
