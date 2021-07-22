@@ -418,9 +418,12 @@ function template_ssi_above()
 	echo '<!DOCTYPE html>
 <html>
 	<head>
-		<title>', SMF_FULL_VERSION, ' SSI.php Examples</title>
-		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">
-		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		<title>', SMF_FULL_VERSION, ' SSI.php Examples</title>';
+
+	template_css();
+	template_javascript();
+
+	echo '
 		<style>
 			#wrapper {
 				width: 90%;
@@ -477,10 +480,6 @@ function template_ssi_above()
 			}
 		</style>
 		<script>
-			var smf_scripturl = "', $scripturl, '";
-			var smf_iso_case_folding = ', $context['server']['iso_case_folding'] ? 'true' : 'false', ';
-			var smf_charset = "', $context['character_set'], '";
-
 			// Sets all ssi_preview class to hidden, then shows the one requested.
 			function showSSIBlock(elementID)
 			{
@@ -536,7 +535,11 @@ function template_ssi_below()
 						<span class="smalltext">', ssi_copyright(), '</span>
 					</li>
 				</ul>
-			</div>
+			</div>';
+
+	template_javascript(true);
+
+	echo '
 	</body>
 </html>';
 }
