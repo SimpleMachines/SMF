@@ -3221,6 +3221,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		if (!isset($tag['type']))
 		{
 			$open_tags[] = $tag;
+
+			// There's no data to change, but maybe do something based on params?
+			$data = null;
+			if (isset($tag['validate']))
+				$tag['validate']($tag, $data, $disabled, $params);
+
 			$message = substr($message, 0, $pos) . "\n" . $tag['before'] . "\n" . substr($message, $pos1);
 			$pos += strlen($tag['before']) - 1 + 2;
 		}
@@ -3289,6 +3295,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		elseif ($tag['type'] == 'closed')
 		{
 			$pos2 = strpos($message, ']', $pos);
+
+			// Maybe a custom BBC wants to do something special?
+			$data = null;
+			if (isset($tag['validate']))
+				$tag['validate']($tag, $data, $disabled, $params);
+
 			$message = substr($message, 0, $pos) . "\n" . $tag['content'] . "\n" . substr($message, $pos2 + 1);
 			$pos += strlen($tag['content']) - 1 + 2;
 		}
