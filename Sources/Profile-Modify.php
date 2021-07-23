@@ -167,7 +167,7 @@ function loadProfileFields($force_reload = false)
 			'log_change' => true,
 			'permission' => 'profile_password',
 			'js_submit' => !empty($modSettings['send_validation_onChange']) ? '
-	form_handle.addEventListener(\'submit\', function(event)
+	form_handle.addEventListener("submit", function(event)
 	{
 		if (this.email_address.value != "' . (!empty($cur_profile['email_address']) ? $cur_profile['email_address'] : '') . '")
 		{
@@ -768,7 +768,7 @@ function setupProfileContext($fields)
 	var form_handle = document.forms.creator;
 	createEventListener(form_handle);
 	' . (!empty($context['require_password']) ? '
-	form_handle.addEventListener(\'submit\', function(event)
+	form_handle.addEventListener("submit", function(event)
 	{
 		if (this.oldpasswrd.value == "")
 		{
