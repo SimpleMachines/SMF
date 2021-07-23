@@ -2936,8 +2936,6 @@ function template_profile_avatar_select()
 										var avatardir = "' . $modSettings['avatar_url'] . '/";
 										var size = avatar.alt.substr(3, 2) + " " + avatar.alt.substr(0, 2) + String.fromCharCode(117, 98, 116);
 										var file = document.getElementById("file");
-										var maxHeight = ', !empty($modSettings['avatar_max_height_external']) ? $modSettings['avatar_max_height_external'] : 0, ';
-										var maxWidth = ', !empty($modSettings['avatar_max_width_external']) ? $modSettings['avatar_max_width_external'] : 0, ';
 
 										if (avatar.src.indexOf("blank.png") > -1)
 											changeSel(selavatar);
@@ -2952,9 +2950,9 @@ function template_profile_avatar_select()
 	if (!empty($context['member']['avatar']['allow_external']))
 		echo '
 								<div id="avatar_external">
-									', $context['member']['avatar']['choice'] == 'external' ? '<div class="edit_avatar_img"><img src="' . $context['member']['avatar']['href'] . '" alt=""></div>' : '', '
+									', $context['member']['avatar']['choice'] == 'external' ? '<div class="edit_avatar_img"><img src="' . $context['member']['avatar']['href'] . '" alt="" class="avatar"></div>' : '', '
 									<div class="smalltext">', $txt['avatar_by_url'], '</div>', !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
-									<input type="text" name="userpicpersonal" size="45" value="', ((stristr($context['member']['avatar']['external'], 'http://') || stristr($context['member']['avatar']['external'], 'https://')) ? $context['member']['avatar']['external'] : 'http://'), '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);">
+									<input type="text" name="userpicpersonal" size="45" value="', ((stristr($context['member']['avatar']['external'], 'http://') || stristr($context['member']['avatar']['external'], 'https://')) ? $context['member']['avatar']['external'] : 'http://'), '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);"><br>
 								</div>';
 
 	// If the user is able to upload avatars to the server show them an upload box.
