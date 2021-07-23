@@ -2976,33 +2976,37 @@ function addJavaScriptVar($key, $value, $escape = false)
 	// Take care of escaping the value for JavaScript?
 	if (!empty($escape))
 	{
-		if (is_null($value))
-			$value = 'null';
+		switch (gettype($value)) {
+			// Illegal.
+			case 'resource':
+				break;
 
-		elseif (is_bool($value))
-			$value = var_export($value, true);
+			// Convert PHP objects to arrays before processing.
+			case 'object':
+				$value = (array) $value;
+				// no break
 
-		elseif (is_scalar($value))
-			$value = JavaScriptEscape($value);
+			// Apply JavaScriptEscape() to any strings in the array.
+			case 'array':
+				$replacements = array();
+				array_walk_recursive(
+					$value,
+					function($v, $k) use (&$replacements)
+					{
+						if (is_string($v))
+							$replacements[json_encode($v)] = JavaScriptEscape($v, true);
+					},
+				);
+				$value = strtr(json_encode($value), $replacements);
+				break;
 
-		elseif (is_array($value))
-		{
-			$elements = array();
+			case 'string':
+				$value = JavaScriptEscape($value);
+				break;
 
-			// We only support one-dimensional arrays.
-			foreach ($value as $element)
-			{
-				if (is_null($element))
-					$elements[] = 'null';
-
-				elseif (is_bool($element))
-					$elements[] = var_export($element, true);
-
-				elseif (is_scalar($element))
-					$elements[] = JavaScriptEscape($element);
-			}
-
-			$value = '[' . implode(', ',$elements) . ']';
+			default:
+				$value = json_encode($value);
+				break;
 		}
 	}
 
