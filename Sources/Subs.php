@@ -849,9 +849,13 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 
 	$timeformat = $finalizedFormats[$str][$format_type];
 
+	// Windows requires a slightly different language code identifier (LCID).
+	// https://msdn.microsoft.com/en-us/library/cc233982.aspx
+	$lang_locale = $context['server']['is_windows'] ? strtr($txt['lang_locale'], '_', '-') : $txt['lang_locale'];
+
 	// Make sure we are using the correct locale.
 	if (!isset($locale) || ($process_safe === true && setlocale(LC_TIME, '0') != $locale))
-		$locale = setlocale(LC_TIME, array($txt['lang_locale'] . '.' . $modSettings['global_character_set'], $txt['lang_locale'] . '.' . $txt['lang_character_set'], $txt['lang_locale']));
+		$locale = setlocale(LC_TIME, array($lang_locale . '.' . $modSettings['global_character_set'], $lang_locale . '.' . $txt['lang_character_set'], $lang_locale));
 
 	// If the current locale is unsupported, we'll have to localize the hard way.
 	if ($locale === false)
