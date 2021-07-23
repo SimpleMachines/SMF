@@ -1794,8 +1794,6 @@ function get_current_settings($mtime = null, $settingsFile = null)
  */
 function safe_file_write($file, $data, $backup_file = null, $mtime = null, $append = false)
 {
-	global $cachedir;
-
 	// Sanity checks.
 	if (!file_exists($file) && !is_dir(dirname($file)))
 		return false;
@@ -2286,6 +2284,8 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 */
 function sm_temp_dir()
 {
+	global $cachedir;
+
 	static $temp_dir = null;
 
 	// Already did this.
@@ -2310,7 +2310,23 @@ function sm_temp_dir()
 	// Search for a working temp directory.
 	foreach ($temp_dir_options as $id_temp => $temp_option)
 	{
-		$possible_temp = sm_temp_dir_option($temp_option);
+		switch ($temp_option) {
+			case 'cachedir':
+				$possible_temp = rtrim($cachedir, '/');
+				break;
+
+			case 'session.save_path':
+				$possible_temp = rtrim(ini_get('session.save_path'), '/');
+				break;
+
+			case 'upload_tmp_dir':
+				$possible_temp = rtrim(ini_get('upload_tmp_dir'), '/');
+				break;
+
+			default:
+				$possible_temp = sys_get_temp_dir();
+				break;
+		}
 
 		// Check if we have a restriction preventing this from working.
 		if ($restriction)
@@ -2334,7 +2350,7 @@ function sm_temp_dir()
 
 	// Fall back to sys_get_temp_dir even though it won't work, so we have something.
 	if (empty($temp_dir))
-		$temp_dir = sm_temp_dir_option('default');
+		$temp_dir = sys_get_temp_dir();
 
 	// Fix the path.
 	$temp_dir = substr($temp_dir, -1) === '/' ? $temp_dir : $temp_dir . '/';
@@ -2343,30 +2359,6 @@ function sm_temp_dir()
 	error_reporting($old_error_reporting);
 
 	return $temp_dir;
-}
-
-/**
- * Internal function for sm_temp_dir.
- *
- * @param string $option Which temp_dir option to use
- * @return string The path to the temp directory
- */
-function sm_temp_dir_option($option = 'sys_get_temp_dir')
-{
-	global $cachedir;
-
-	if ($option === 'cachedir')
-		return rtrim($cachedir, '/');
-
-	elseif ($option === 'session.save_path')
-		return rtrim(ini_get('session.save_path'), '/');
-
-	elseif ($option === 'upload_tmp_dir')
-		return rtrim(ini_get('upload_tmp_dir'), '/');
-
-	// This is the default option.
-	else
-		return sys_get_temp_dir();
 }
 
 ?>
