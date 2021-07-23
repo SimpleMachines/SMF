@@ -6312,7 +6312,7 @@ function smf_list_timezones($when = 'now')
 		if (in_array($tzid, $priority_tzids))
 			$priority_zones[$tzkey] = true;
 
-		// Keep track of the location and offset for this tzid
+		// Keep track of the location for this tzid.
 		if (!empty($txt[$tzid]))
 			$zones[$tzkey]['locations'][] = $txt[$tzid];
 		else
@@ -6320,7 +6320,21 @@ function smf_list_timezones($when = 'now')
 			$tzid_parts = explode('/', $tzid);
 			$zones[$tzkey]['locations'][] = str_replace(array('St_', '_'), array('St. ', ' '), array_pop($tzid_parts));
 		}
+
+		// Keep track of the current offset for this tzid.
 		$offsets[$tzkey] = $tzinfo[0]['offset'];
+
+		// Keep track of the Standard Time offset for this tzid.
+		foreach ($tzinfo as $transition)
+		{
+			if (!$transition['isdst'])
+			{
+				$std_offsets[$tzkey] = $transition['offset'];
+				break;
+			}
+		}
+		if (!isset($std_offsets[$tzkey]))
+			$std_offsets[$tzkey] = $tzinfo[0]['offset'];
 
 		// Figure out the "meta-zone" info for the label
 		if (empty($zones[$tzkey]['metazone']) && isset($tzid_metazones[$tzid]))
@@ -6338,8 +6352,8 @@ function smf_list_timezones($when = 'now')
 			$event_tzkey = $tzkey;
 	}
 
-	// Sort by offset, then label, then DST type.
-	array_multisort($offsets, SORT_ASC, SORT_NUMERIC, $labels, SORT_ASC, $dst_types, SORT_ASC, $zones);
+	// Sort by current offset, then standard offset, then DST type, then label.
+	array_multisort($offsets, SORT_DESC, SORT_NUMERIC, $std_offsets, SORT_DESC, SORT_NUMERIC, $dst_types, SORT_ASC, $labels, SORT_ASC, $zones);
 
 	// Build the final array of formatted values
 	$priority_timezones = array();
