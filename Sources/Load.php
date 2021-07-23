@@ -2894,8 +2894,49 @@ function addJavaScriptVar($key, $value, $escape = false)
 {
 	global $context;
 
-	if (!empty($key) && (!empty($value) || $value === '0'))
-		$context['javascript_vars'][$key] = !empty($escape) ? JavaScriptEscape($value) : $value;
+	// Variable name must be a valid string.
+	if (!is_string($key) || $key === '' || is_numeric($key))
+		return;
+
+	// Take care of escaping the value for JavaScript?
+	if (!empty($escape))
+	{
+		if (is_null($value))
+			$value = 'null';
+
+		elseif (is_bool($value))
+			$value = var_export($value, true);
+
+		elseif (is_scalar($value))
+			$value = JavaScriptEscape($value);
+
+		elseif (is_array($value))
+		{
+			$elements = array();
+
+			// We only support one-dimensional arrays.
+			foreach ($value as $element)
+			{
+				if (is_null($element))
+					$elements[] = 'null';
+
+				elseif (is_bool($element))
+					$elements[] = var_export($element, true);
+
+				elseif (is_scalar($element))
+					$elements[] = JavaScriptEscape($element);
+			}
+
+			$value = '[' . implode(', ',$elements) . ']';
+		}
+	}
+
+	// At this point, value should contain suitably escaped JavaScript code.
+	// If it obviously doesn't, declare the var with an undefined value.
+	if (!is_string($value) && !is_numeric($value))
+		$value = null;
+
+	$context['javascript_vars'][$key] = $value;
 }
 
 /**
