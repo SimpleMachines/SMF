@@ -687,6 +687,15 @@ function createAttachment(&$attachmentOptions)
 	$size = @getimagesize($attachmentOptions['tmp_name']);
 	list ($attachmentOptions['width'], $attachmentOptions['height']) = $size;
 
+	if (function_exists('exif_read_data') && ($exif_data = @exif_read_data($attachmentOptions['tmp_name'])) !== false && !empty($exif_data['Orientation']))
+		if (in_array($exif_data['Orientation'], [5, 6, 7, 8]))
+		{
+			$new_width = $attachmentOptions['height'];
+			$new_height = $attachmentOptions['width'];
+			$attachmentOptions['width'] = $new_width;
+			$attachmentOptions['height'] = $new_height;
+		}
+
 	// If it's an image get the mime type right.
 	if (empty($attachmentOptions['mime_type']) && $attachmentOptions['width'])
 	{
