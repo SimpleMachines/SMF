@@ -2717,16 +2717,6 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
 	$params['order_pos'] = isset($params['order_pos']) ? (int) $params['order_pos'] : 3000;
 
-	// Is this theme always external?
-	if ($themeRef == 'theme' && strpos($settings['theme_url'], $boardurl) !== 0)
-	{
-		// Prepend the theme URL if this is not a full URL already.
-		if (!$params['external'] && parse_url($fileName, PHP_URL_SCHEME) === null)
-			$fileName = $settings[$themeRef . '_url'] . '/css/' . $fileName;
-
-		$params['external'] = true;
-	}
-
 	// Account for shorthand like admin.css?alp21 filenames
 	$id = (empty($id) ? strtr(str_replace('.css', '', basename($fileName)), '?', '_') : $id) . '_css';
 
@@ -2841,16 +2831,6 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
-
-	// Is this theme always external?
-	if ($themeRef == 'theme' && strpos($settings['theme_url'], $boardurl) !== 0)
-	{
-		// Prepend the theme URL if this is not a full URL already.
-		if (!$params['external'] && parse_url($fileName, PHP_URL_SCHEME) === null)
-			$fileName = $settings[$themeRef . '_url'] . '/scripts/' . $fileName;
-
-		$params['external'] = true;
-	}
 
 	// Account for shorthand like admin.js?alp21 filenames
 	$id = (empty($id) ? strtr(str_replace('.js', '', basename($fileName)), '?', '_') : $id) . '_js';
