@@ -1002,9 +1002,9 @@ function WelcomeLogin()
 	// We're going to check that their board dir setting is right in case they've been moving stuff around.
 	if (strtr($boarddir, array('/' => '', '\\' => '')) != strtr($upgrade_path, array('/' => '', '\\' => '')))
 		$upcontext['warning'] = '
-			' . sprintf($txt['upgrade_boarddir_settings'], $boarddir, $upgrade_path) . '<br>
+			' . sprintf($txt['upgrade_forumdir_settings'], $boarddir, $upgrade_path) . '<br>
 			<ul>
-				<li>' . $txt['upgrade_boarddir'] . '  ' . $boarddir . '</li>
+				<li>' . $txt['upgrade_forumdir'] . '  ' . $boarddir . '</li>
 				<li>' . $txt['upgrade_sourcedir'] . '  ' . $boarddir . '</li>
 				<li>' . $txt['upgrade_cachedir'] . '  ' . $cachedir_temp . '</li>
 			</ul>
