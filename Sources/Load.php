@@ -2470,17 +2470,17 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Add the JQuery library to the list of files to load.
 	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
-		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true, 'seed' => false), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
 		loadJavaScriptFile('jquery-' . JQUERY_VERSION . '.min.js', array('seed' => false), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
-		loadJavaScriptFile($modSettings['jquery_custom'], array('external' => true), 'smf_jquery');
+		loadJavaScriptFile($modSettings['jquery_custom'], array('external' => true, 'seed' => false), 'smf_jquery');
 
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
-		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true, 'seed' => false), 'smf_jquery');
 
 	// Queue our JQuery plugins!
 	loadJavaScriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
@@ -2702,7 +2702,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  */
 function loadCSSFile($fileName, $params = array(), $id = '')
 {
-	global $settings, $context, $modSettings;
+	global $settings, $context, $modSettings, $boardurl;
 
 	if (empty($context['css_files_order']))
 		$context['css_files_order'] = array();
@@ -2717,9 +2717,15 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
 	$params['order_pos'] = isset($params['order_pos']) ? (int) $params['order_pos'] : 3000;
 
-	// If this is an external file, automatically set this to false.
-	if (!empty($params['external']))
-		$params['minimize'] = false;
+	// Is this theme always external?
+	if ($themeRef == 'theme' && strpos($settings['theme_url'], $boardurl) !== 0)
+	{
+		// Prepend the theme URL if this is not a full URL already.
+		if (!$params['external'] && parse_url($fileName, PHP_URL_SCHEME) === null)
+			$fileName = $settings[$themeRef . '_url'] . '/css/' . $fileName;
+
+		$params['external'] = true;
+	}
 
 	// Account for shorthand like admin.css?alp21 filenames
 	$id = (empty($id) ? strtr(str_replace('.css', '', basename($fileName)), '?', '_') : $id) . '_css';
@@ -2756,6 +2762,10 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	{
 		$fileUrl = $fileName;
 		$filePath = $fileName;
+
+		// Always turn these off for external files.
+		$params['minimize'] = false;
+		$params['seed'] = false;
 	}
 
 	$mtime = empty($mtime) ? 0 : $mtime;
@@ -2820,7 +2830,7 @@ function addInlineCss($css)
  */
 function loadJavaScriptFile($fileName, $params = array(), $id = '')
 {
-	global $settings, $context, $modSettings;
+	global $settings, $context, $modSettings, $boardurl;
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ?
 		(array_key_exists('browser_cache', $context) ? $context['browser_cache'] : '') :
@@ -2832,9 +2842,15 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
 
-	// If this is an external file, automatically set this to false.
-	if (!empty($params['external']))
-		$params['minimize'] = false;
+	// Is this theme always external?
+	if ($themeRef == 'theme' && strpos($settings['theme_url'], $boardurl) !== 0)
+	{
+		// Prepend the theme URL if this is not a full URL already.
+		if (!$params['external'] && parse_url($fileName, PHP_URL_SCHEME) === null)
+			$fileName = $settings[$themeRef . '_url'] . '/scripts/' . $fileName;
+
+		$params['external'] = true;
+	}
 
 	// Account for shorthand like admin.js?alp21 filenames
 	$id = (empty($id) ? strtr(str_replace('.js', '', basename($fileName)), '?', '_') : $id) . '_js';
@@ -2870,6 +2886,10 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 	{
 		$fileUrl = $fileName;
 		$filePath = $fileName;
+
+		// Always turn these off for external files.
+		$params['minimize'] = false;
+		$params['seed'] = false;
 	}
 
 	$mtime = empty($mtime) ? 0 : $mtime;
