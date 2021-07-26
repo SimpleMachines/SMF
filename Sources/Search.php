@@ -1919,7 +1919,10 @@ function PlushSearch2()
 		);
 
 		// How many results will the user be able to see?
-		$num_results = $smcFunc['db_num_rows']($messages_request);
+		if (!empty($_SESSION['search_cache']['num_results']))
+			$num_results = $_SESSION['search_cache']['num_results'];
+		else
+			$num_results = $smcFunc['db_num_rows']($messages_request);
 
 		// If there are no results that means the things in the cache got deleted, so pretend we have no topics anymore.
 		if ($num_results == 0)
