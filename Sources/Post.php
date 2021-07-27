@@ -1461,6 +1461,7 @@ function Post($post_errors = array())
 				'type' => 'text',
 				'attributes' => array(
 					'size' => 25,
+					'maxlength' => 25,
 					'value' => $context['name'],
 					'required' => true,
 				),
@@ -1521,7 +1522,7 @@ function Post($post_errors = array())
 			'type' => 'text',
 			'attributes' => array(
 				'size' => 80,
-				'maxlength' => !empty($topic) ? 84 : 80,
+				'maxlength' => 80 + (!empty($topic) ? $smcFunc['strlen']($context['response_prefix']) : 0),
 				'value' => $context['subject'],
 				'required' => true,
 			),
