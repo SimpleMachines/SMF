@@ -1320,6 +1320,7 @@ else
  * This sets the X-Frame-Options header.
  *
  * @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
+ *
  * @since 2.1
  */
 function frameOptionsHeader($override = null)
@@ -1343,70 +1344,60 @@ function frameOptionsHeader($override = null)
 	header('x-xss-protection: 1');
 	header('x-content-type-options: nosniff');
 }
-
-/**
- * This sets the Access-Control-Allow-Origin header.
- * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+/*
+ * Determines if the HTTP origin is an authorized one.
  *
- * @param bool $set_header (Default: true): When false, we will do the logic, but not send the headers.  The relevant logic is still saved in the $context and can be sent manually.
+ * @param string $origin
  *
  * @since 2.1
  */
-function corsPolicyHeader($set_header = true)
+function get_allowed_http_origin($origin)
 {
 	global $boardurl, $modSettings, $context;
 
 	if (empty($modSettings['allow_cors']))
 		return;
 
-	// We want weak security.
 	if (!empty($modSettings['cors_domains']) && $modSettings['cors_domains'] === '*')
 		$context['cors_domain'] = '*';
-
-	// If subdomain-independent cookies are on, allow sub domains. This will have issues if the forum is at forum.domain.tld and the origin we are at is another.sub.domain.tld.
-	if (empty($context['cors_domain']) && !empty($modSettings['globalCookies']) && !empty($_SERVER['HTTP_ORIGIN']) && filter_var($_SERVER['HTTP_ORIGIN'], FILTER_VALIDATE_URL) !== false && FindCorsBaseUrl($boardurl, true) === FindCorsBaseUrl($_SERVER['HTTP_ORIGIN'], true))
+	elseif (!empty($origin) && filter_var($origin, FILTER_VALIDATE_URL) !== false)
 	{
-		$context['cors_domain'] = $_SERVER['HTTP_ORIGIN'];
-		$context['valid_cors_found'] = 'subdomain';
-	}
-
-	// Support forum_alias_urls as well, which is supported by our login cookie, so we implant it similar here.
-	if (empty($context['cors_domain']) && !empty($modSettings['forum_alias_urls']) && !empty($_SERVER['HTTP_ORIGIN']) && filter_var($_SERVER['HTTP_ORIGIN'], FILTER_VALIDATE_URL) !== false)
-	{
-		$aliases = explode(',', $modSettings['forum_alias_urls']);
-
-		foreach ($aliases as $alias)
+		// If subdomain-independent cookies are on, allow sub domains. This will have issues if the forum is at forum.domain.tld and the origin we are at is another.sub.domain.tld.
+		if (!empty($modSettings['globalCookies']) && FindCorsBaseUrl($boardurl, true) === FindCorsBaseUrl($origin, true))
 		{
-			if ($alias === $_SERVER['HTTP_ORIGIN'])
-			{
-				$context['cors_domain'] = $_SERVER['HTTP_ORIGIN'];
-				$context['valid_cors_found'] = 'alias';
-				break;
-			}
+			$context['cors_domain'] = $origin;
+			$context['valid_cors_found'] = 'subdomain';
 		}
-	}
 
-	// Additional CORS domains but its just a wildcard for everything.
-	if (empty($context['cors_domain']) && !empty($modSettings['cors_domains']) && !empty($_SERVER['HTTP_ORIGIN']) && filter_var($_SERVER['HTTP_ORIGIN'], FILTER_VALIDATE_URL) !== false)
-	{
-		$cors_domains = explode(',', $modSettings['cors_domains']);
-		$origin_base = FindCorsBaseUrl($_SERVER['HTTP_ORIGIN']);
-
-		foreach ($cors_domains as $domain)
+		// Support forum_alias_urls as well, which is supported by our login cookie, so we implant it similar here.
+		elseif (!empty($modSettings['forum_alias_urls']) && in_array($origin, explode(',', $modSettings['forum_alias_urls'])))
 		{
-			if ($domain === $_SERVER['HTTP_ORIGIN'])
-			{
-				$context['cors_domain'] = $_SERVER['HTTP_ORIGIN'];
-				$context['valid_cors_found'] = 'additional';
-				break;
-			}
+			$context['cors_domain'] = $origin;
+			$context['valid_cors_found'] = 'alias';
+		}
 
-			// If we find a * in the host, then its a wildcard and lets allow it.  This will have issues if the forum is at forum.domain.tld and the origin we are at is more.sub.domain.tld.
-			if ('*' === implode('.', array_slice(explode('.', parse_url($domain, PHP_URL_HOST)), 0, 1)) && FindCorsBaseUrl($domain, true) === $origin_base)
+		// Additional CORS domains but its just a wildcard for everything.
+		elseif (!empty($modSettings['cors_domains']))
+		{
+			$cors_domains = explode(',', $modSettings['cors_domains']);
+			$origin_base = FindCorsBaseUrl($origin, true);
+
+			foreach ($cors_domains as $domain)
 			{
-				$context['cors_domain'] = $_SERVER['HTTP_ORIGIN'];
-				$context['valid_cors_found'] = 'additional_wildcard';
-				break;
+				if ($domain === $origin)
+				{
+					$context['cors_domain'] = $origin;
+					$context['valid_cors_found'] = 'additional';
+					break;
+				}
+
+				// If we find a * in the host, then its a wildcard and lets allow it.  This will have issues if the forum is at forum.domain.tld and the origin we are at is more.sub.domain.tld.
+				if ('*.' === substr(parse_url($domain, PHP_URL_HOST), 0, 2) && FindCorsBaseUrl($domain, true) === $origin_base)
+				{
+					$context['cors_domain'] = $origin;
+					$context['valid_cors_found'] = 'additional_wildcard';
+					break;
+				}
 			}
 		}
 	}
@@ -1425,8 +1416,25 @@ function corsPolicyHeader($set_header = true)
 
 		$context['valid_cors_found'] = 'same';
 	}
+}
+
+/**
+ * This sets the Access-Control-Allow-Origin header.
+ * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+ *
+ * @param bool $set_header (Default: true): When false, we will do the logic, but not send the headers.  The relevant logic is still saved in the $context and can be sent manually.
+ *
+ * @since 2.1
+ */
+function corsPolicyHeader($set_header = true)
+{
+	global $modSettings, $context;
+
+	if (empty($modSettings['allow_cors']))
+		return;
 
 	$context['cors_headers'] = 'X-SMF-AJAX';
+	get_allowed_http_origin(isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '');
 
 	// Any additional headers?
 	if (!empty($modSettings['cors_headers']))
@@ -1440,7 +1448,7 @@ function corsPolicyHeader($set_header = true)
 	}
 
 	// Allowing Cross-Origin Resource Sharing (CORS).
-	if ($set_header && !empty($modSettings['allow_cors']) && !empty($context['valid_cors_found']) && !empty($context['cors_domain']))
+	if ($set_header && !empty($context['valid_cors_found']) && !empty($context['cors_domain']))
 	{
 		header('Access-Control-Allow-Origin: ' . $context['cors_domain']);
 		header('Access-Control-Allow-Headers: ' . $context['cors_headers']);
@@ -1454,26 +1462,28 @@ function corsPolicyHeader($set_header = true)
 /**
  * Helper function to figure out a urls base domain.
  *
+ * IP addresses are not supported.
+ *
  * @param string $url The url/domain/host we are attempting to vaalidate for the base domain.
  * @param bool $sub_domain (Default: false): When true it will lowest level of a domain off before performing any other logic.
-
+ *
  * @since 2.1
  */
 function FindCorsBaseUrl($url, $sub_domain = false)
 {
-	global $modSettings;
-
 	$base_domain = parse_url($url, PHP_URL_HOST);
+	$pos = strpos($base_domain, '.');
 
-	// Are we saying this is a sub domain and to remove another domain level?
-	if ($sub_domain)
-		$base_domain = implode('.', array_slice(explode('.', parse_url($base_domain, PHP_URL_HOST)), 1));
+	if ($pos !== false)
+	{
+		if (substr($base_domain, 0, $pos) == 'www')
+			$base_domain = substr($base_domain, $pos + 1);
+		elseif ($sub_domain)
+			$base_domain = get_domain($base_domain);
+	}
 
-	// If we find www, pop it out.
-	else if ('www' === array_slice(explode('.', $base_domain), 0, 1))
-		$base_domain = implode('.', array_slice(explode('.', $base_domain, 1)), 1);
-
-	/*	Note, we do have a TLD regex for the autolinker, however it can not reliably be used here due to
+	/*
+		Note, we do have a TLD regex for the autolinker, however it can not reliably be used here due to
 		Country Code Second Level Domains (example: co.uk) as they are not TLDs.  As these are also
 		controlled by their respective countries, there is no uniformity or standards on these domains.
 		If this wasn't true, we could use this tld regex to just find the next domain level
@@ -1481,6 +1491,41 @@ function FindCorsBaseUrl($url, $sub_domain = false)
 	*/
 
 	return $base_domain;
+}
+
+/**
+ * Remove subdomains from hostnames
+ *
+ * IP addresses are not supported.
+ *
+ * Some example conversions include:
+ *
+ * - domain.com -> domain.com
+ * - sub.domain.com -> domain.com
+ * - www.domain.com -> domain.com
+ * - www.sub.sub.domain.com -> domain.com
+ * - domain.co.uk -> domain.co.uk
+ * - sub.domain.co.uk -> domain.co.uk
+ * - www.domain.co.uk -> domain.co.uk
+ * - www.sub.sub.domain.co.uk -> domain.co.uk
+ *
+ * Only works well with TLDs that do not use a dot seperator,
+ * although accomodations are made for ccSLDs.
+ *
+ * @param string $hostname
+ *
+ * @return string
+ */
+function get_domain($hostname)
+{
+	$hostname = strtolower(trim($hostname));
+	$count = substr_count($hostname, '.');
+	if ($count === 2 && strlen(explode('.', $hostname)[1]) > 3)
+		$hostname = explode('.', $hostname, 2)[1];
+	elseif ($count > 2)
+		$hostname = get_domain(explode('.', $hostname, 2)[1]);
+
+	return $hostname;
 }
 
 ?>
