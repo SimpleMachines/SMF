@@ -1551,7 +1551,7 @@ function create_control_richedit($editorOptions)
 			"More": "' . $editortxt['more'] . '",
 			"Close": "' . $editortxt['close'] . '",
 			dateFormat: "' . $editortxt['dateformat'] . '"
-		}';
+		};';
 
 		addInlineJavaScript($scExtraLangs, true);
 
