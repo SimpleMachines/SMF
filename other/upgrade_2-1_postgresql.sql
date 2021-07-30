@@ -3042,6 +3042,18 @@ CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes);
 ---#
 
 /******************************************************************************/
+--- Create index for messages board, msg, approved
+/******************************************************************************/
+---# Remove old approved index
+DROP INDEX IF EXISTS {$db_prefix}messages_approved;
+---#
+
+---# Add Index for messages board, msg, approved
+DROP INDEX IF EXISTS {$db_prefix}messages_id_board;
+CREATE UNIQUE INDEX {$db_prefix}messages_id_board ON {$db_prefix}messages (id_board, id_msg, approved);
+---#
+
+/******************************************************************************/
 --- Update smileys
 /******************************************************************************/
 ---# Adding the new `smiley_files` table

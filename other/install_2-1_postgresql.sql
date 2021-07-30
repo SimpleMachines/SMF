@@ -1218,9 +1218,8 @@ CREATE TABLE {$db_prefix}messages (
 # Indexes for table `messages`
 #
 
-CREATE UNIQUE INDEX {$db_prefix}messages_id_board ON {$db_prefix}messages (id_board, id_msg);
+CREATE UNIQUE INDEX {$db_prefix}messages_id_board ON {$db_prefix}messages (id_board, id_msg, approved);
 CREATE UNIQUE INDEX {$db_prefix}messages_id_member ON {$db_prefix}messages (id_member, id_msg);
-CREATE INDEX {$db_prefix}messages_approved ON {$db_prefix}messages (approved);
 CREATE INDEX {$db_prefix}messages_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
 CREATE INDEX {$db_prefix}messages_participation ON {$db_prefix}messages (id_member, id_topic);
 CREATE INDEX {$db_prefix}messages_show_posts ON {$db_prefix}messages (id_member, id_board);
