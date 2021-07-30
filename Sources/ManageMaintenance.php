@@ -1248,9 +1248,12 @@ function AdminBoardRecount()
 
 	// Update the latest message of each board.
 	$request = $smcFunc['db_query']('', '
-		SELECT m.id_board, MAX(m.id_msg) AS local_last_msg
+		SELECT m.id_board,
+			(SELECT MAX(id_msg)
+			FROM {db_prefix}messages
+			WHERE approved = {int:is_approved}
+			AND id_board = m.id_board) AS local_last_msg
 		FROM {db_prefix}messages AS m
-		WHERE m.approved = {int:is_approved}
 		GROUP BY m.id_board',
 		array(
 			'is_approved' => 1,
