@@ -380,28 +380,31 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				}
 				$smcFunc['db_free_result']($request);
 
-				$smcFunc['db_query']('', '
-					DELETE FROM {db_prefix}user_alerts
-					WHERE content_id = {int:msg_id}
-						AND content_type = {literal:msg}
-						AND ((
-								content_action = {literal:quote}
-								AND id_member IN ({array_int:members_not_quoted})
-							)
-							OR (
-								content_action = {literal:mention}
-								AND id_member IN ({array_int:members_not_mentioned})
-							)
-						)',
-					array(
-						'msg_id' => $msg_id,
-						'members_not_quoted' => $old_alerts['quote'],
-						'members_not_mentioned' => $old_alerts['mention'],
-					)
-				);
+				$conditions = array();
 
-				foreach ($old_alerts as $member_ids)
-					updateMemberData($member_ids, array('alerts' => '-'));
+				if (!empty($old_alerts['quote']))
+					$conditions[] = '(content_action = {literal:quote} AND id_member IN ({array_int:members_not_quoted}))';
+
+				if (!empty($old_alerts['mention']))
+					$conditions[] = '(content_action = {literal:mention} AND id_member IN ({array_int:members_not_mentioned}))';
+
+				if (!empty($conditions))
+				{
+					$smcFunc['db_query']('', '
+						DELETE FROM {db_prefix}user_alerts
+						WHERE content_id = {int:msg_id}
+							AND content_type = {literal:msg}
+							AND (' . implode(' OR ', $conditions) . ')',
+						array(
+							'msg_id' => $msg_id,
+							'members_not_quoted' => empty($old_alerts['quote']) ? array(0) : $old_alerts['quote'],
+							'members_not_mentioned' => empty($old_alerts['mention']) ? array(0) : $old_alerts['mention'],
+						)
+					);
+
+					foreach ($old_alerts as $member_ids)
+						updateMemberData($member_ids, array('alerts' => '-'));
+				}
 			}
 		}
 
