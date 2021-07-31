@@ -5040,7 +5040,7 @@ function deleteAllMinified()
 			{
 				// We want to find the most recent mtime of non-minified files
 				if (strpos(pathinfo($filename, PATHINFO_BASENAME), 'minified') === false)
-					$most_recent = max($modSettings['browser_cache'], (int) @filemtime($filename));
+					$most_recent = max($most_recent, (int) @filemtime($filename));
 
 				// Try to delete minified files. Add them to our error list if that fails.
 				elseif (!@unlink($filename))
@@ -5051,7 +5051,7 @@ function deleteAllMinified()
 	$smcFunc['db_free_result']($request);
 
 	// This setting tracks the most recent modification time of any of our CSS and JS files
-	if ($most_recent > $modSettings['browser_cache'])
+	if ($most_recent != $modSettings['browser_cache'])
 		updateSettings(array('browser_cache' => $most_recent));
 
 	// If any of the files could not be deleted, log an error about it.
