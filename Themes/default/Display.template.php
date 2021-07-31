@@ -63,7 +63,7 @@ function template_main()
 	// Show the anchor for the top and for the first message. If the first message is new, say so.
 	echo '
 		</div><!-- #display_head -->
-		<a id="msg', $context['first_message'], '"></a>', $context['first_new_message'] ? '<a id="new"></a>' : '';
+		', $context['first_new_message'] ? '<a id="new"></a>' : '';
 
 	// Is this topic also a poll?
 	if ($context['is_poll'])
