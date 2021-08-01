@@ -2,6 +2,7 @@
 /* Index */
 html {
 	background: #3e5a78;
+	scroll-padding-top: 3rem;
 }
 body {
 	background: #e9eef2;
@@ -2802,6 +2803,11 @@ dl.addrules dt.floatleft {
 }
 .windowbg:nth-of-type(odd), .bg.odd {
 	background: #fdfdfd;
+}
+
+/* Highlight the target item */
+.windowbg:target {
+	background: #ffffe0;
 }
 
 /* Add some hover on table rows */
