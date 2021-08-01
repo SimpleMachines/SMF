@@ -2875,6 +2875,11 @@ ALTER TABLE {$db_prefix}messages
 DROP INDEX id_board;
 ---#
 
+---# Updating messages drop id_board ix alt name
+ALTER TABLE {$db_prefix}messages
+DROP INDEX idx_id_board;
+---#
+
 ---# Updating messages add new id_board ix
 ALTER TABLE {$db_prefix}messages
 ADD INDEX idx_id_board (id_board, id_msg, approved);
