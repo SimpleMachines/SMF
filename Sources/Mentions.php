@@ -30,7 +30,7 @@ class Mentions
 	 * @access public
 	 * @param string $content_type The content type
 	 * @param int $content_id The ID of the desired content
-	 * @param array $members Whether to limit to a specific sect of members
+	 * @param array $members Whether to limit to a specific set of members
 	 * @return array An array of arrays containing info about each member mentioned
 	 */
 	public static function getMentionsByContent($content_type, $content_id, array $members = array())
@@ -96,6 +96,54 @@ class Mentions
 	}
 
 	/**
+	 * Updates list of mentioned members.
+	 *
+	 * Intended for use when a post is modified.
+	 *
+	 * @static
+	 * @access public
+	 * @param string $content_type The content type
+	 * @param int $content_id The ID of the specified content
+	 * @param array $members An array of members who have been mentioned
+	 * @param int $id_member The ID of the member who mentioned them
+	 * @return array An array of unchanged, removed, and added member IDs.
+	 */
+	public static function modifyMentions($content_type, $content_id, array $members, $id_member)
+	{
+		global $smcFunc;
+
+		$existing_members = self::getMentionsByContent($content_type, $content_id);
+
+		$members_to_remove = array_diff_key($existing_members, $members);
+		$members_to_insert = array_diff_key($members, $existing_members);
+		$members_unchanged = array_diff_key($existing_members, $members_to_remove, $members_to_insert);
+
+		// Delete mentions from the table that have been deleted in the content.
+		if (!empty($members_to_remove))
+			$smcFunc['db_query']('', '
+				DELETE FROM {db_prefix}mentions
+				WHERE content_type = {string:type}
+					AND content_id = {int:id}
+					AND id_mentioned IN ({array_int:members})',
+				array(
+					'type' => $content_type,
+					'id' => $content_id,
+					'members' => array_keys($members_to_remove),
+				)
+			);
+
+		// Insert any new mentions.
+		if (!empty($members_to_insert))
+			self::insertMentions($content_type, $content_id, $members_to_insert, $id_member);
+
+		return array(
+			'unchanged' => $members_unchanged,
+			'removed' => $members_to_remove,
+			'added' => $members_to_insert,
+		);
+	}
+
+	/**
 	 * Gets appropriate mentions replaced in the body
 	 *
 	 * @static
@@ -106,6 +154,9 @@ class Mentions
 	 */
 	public static function getBody($body, array $members)
 	{
+		if (empty($body))
+			return $body;
+
 		foreach ($members as $member)
 			$body = str_ireplace(static::$char . $member['real_name'], '[member=' . $member['id'] . ']' . $member['real_name'] . '[/member]', $body);
 
@@ -124,18 +175,30 @@ class Mentions
 	{
 		global $smcFunc;
 
-		$possible_names = self::getPossibleMentions($body);
-
-		if (empty($possible_names) || !allowedTo('mention'))
+		if (empty($body))
 			return array();
+
+		$possible_names = self::getPossibleMentions($body);
+		$existing_mentions = self::getExistingMentions($body);
+
+		if ((empty($possible_names) && empty($existing_mentions)) || !allowedTo('mention'))
+			return array();
+
+		// Make sure we don't pass empty arrays to the query.
+		if (empty($existing_mentions))
+			$existing_mentions = array(0 => '');
+		if (empty($possible_names))
+			$possible_names = $existing_mentions;
 
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, real_name
 			FROM {db_prefix}members
-			WHERE real_name IN ({array_string:names})
+			WHERE id_member IN ({array_int:ids})
+				OR real_name IN ({array_string:names})
 			ORDER BY LENGTH(real_name) DESC
 			LIMIT {int:count}',
 			array(
+				'ids' => array_keys($existing_mentions),
 				'names' => $possible_names,
 				'count' => count($possible_names),
 			)
@@ -143,7 +206,7 @@ class Mentions
 		$members = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			if (stripos($body, static::$char . $row['real_name']) === false)
+			if (!isset($existing_mentions[$row['id_member']]) && stripos($body, static::$char . $row['real_name']) === false)
 				continue;
 
 			$members[$row['id_member']] = array(
@@ -184,15 +247,18 @@ class Mentions
 	{
 		global $smcFunc;
 
+		if (empty($body))
+			return array();
+
 		// preparse code does a few things which might mess with our parsing
-		$body = htmlspecialchars_decode(preg_replace('~<br\s*/?\>~', "\n", str_replace('&nbsp;', ' ', $body)), ENT_QUOTES);
+		$body = htmlspecialchars_decode(preg_replace('~<br\s*/?'.'>~', "\n", str_replace('&nbsp;', ' ', $body)), ENT_QUOTES);
 
 		// Remove quotes, we don't want to get double mentions.
-		while (preg_match('~\[quote[^\]]*\](.+?)\[\/quote\]~s', $body))
-			$body = preg_replace('~\[quote[^\]]*\](.+?)\[\/quote\]~s', '', $body);
+		$body = preg_replace('~\[quote[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?quote[^\]]*\]))|(?0))*\[/quote\]~', '', $body);
 
 		$matches = array();
-		$string = str_split($body);
+		// Split before every Unicode character.
+		$string = preg_split('/(?=\X)/u', $body, -1, PREG_SPLIT_NO_EMPTY);
 		$depth = 0;
 		foreach ($string as $k => $char)
 		{
@@ -223,7 +289,8 @@ class Mentions
 		$names = array();
 		foreach ($matches as $match)
 		{
-			$match = preg_split('/([^\w])/', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
+			// '[^\p{L}\p{M}\p{N}_]' is the Unicode equivalent of '[^\w]'
+			$match = preg_split('/([^\p{L}\p{M}\p{N}_])/u', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
 			$count = count($match);
 
 			for ($i = 1; $i <= $count; $i++)
@@ -234,6 +301,137 @@ class Mentions
 
 		return $names;
 	}
+
+	/**
+	 * Like getPossibleMentions(), but for `[member=1]name[/member]` format.
+	 *
+	 * @static
+	 * @access public
+	 * @param string $body The text to look for mentions in.
+	 * @param array $members An array of arrays containing info about members (each should have 'id' and 'member').
+	 * @return array An array of arrays containing info about members that are in fact mentioned in the body.
+	 */
+	public static function getExistingMentions($body)
+	{
+		// Don't include mentions inside quotations.
+		$body = preg_replace('~\[quote[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?quote[^\]]*\]))|(?0))*\[/quote\]~', '', $body);
+
+		$existing_mentions = array();
+
+		preg_match_all('~\[member=([0-9]+)\]([^\[]*)\[/member\]~', $body, $matches, PREG_SET_ORDER);
+
+		foreach ($matches as $match_set)
+			$existing_mentions[$match_set[1]] = trim($match_set[2]);
+
+		return $existing_mentions;
+	}
+
+	/**
+	 * Verifies that members really are mentioned in the text.
+	 *
+	 * This function assumes the incoming text has already been processed by
+	 * the Mentions::getBody() function.
+	 *
+	 * @static
+	 * @access public
+	 * @param string $body The text to look for mentions in.
+	 * @param array $members An array of arrays containing info about members (each should have 'id' and 'member').
+	 * @return array An array of arrays containing info about members that are in fact mentioned in the body.
+	 */
+	public static function verifyMentionedMembers($body, array $members)
+	{
+		if (empty($body))
+			return array();
+
+		// Don't include mentions inside quotations.
+		$body = preg_replace('~\[quote[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?quote[^\]]*\]))|(?0))*\[/quote\]~', '', $body);
+
+		foreach ($members as $member)
+		{
+			if (strpos($body, '[member=' . $member['id'] . ']' . $member['real_name'] . '[/member]') === false)
+				unset($members[$member['id']]);
+		}
+
+		return $members;
+	}
+
+	/**
+	 * Retrieves info about the authors of posts quoted in a block of text.
+	 *
+	 * @static
+	 * @access public
+	 * @param string $body A block of text, such as the body of a post.
+	 * @param int $poster_id The member ID of the author of the text.
+	 * @return array Info about any members who were quoted.
+	 */
+	public static function getQuotedMembers($body, $poster_id)
+	{
+		global $smcFunc;
+
+		if (empty($body))
+			return array();
+
+		$blocks = preg_split('/(\[quote.*?\]|\[\/quote\])/i', $body, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+
+		$quote_level = 0;
+		$message = '';
+
+		foreach ($blocks as $block)
+		{
+			if (preg_match('/\[quote(.*)?\]/i', $block, $matches))
+			{
+				if ($quote_level == 0)
+					$message .= '[quote' . $matches[1] . ']';
+				$quote_level++;
+			}
+			elseif (preg_match('/\[\/quote\]/i', $block))
+			{
+				if ($quote_level <= 1)
+					$message .= '[/quote]';
+				if ($quote_level >= 1)
+				{
+					$quote_level--;
+					$message .= "\n";
+				}
+			}
+			elseif ($quote_level <= 1)
+				$message .= $block;
+		}
+
+		preg_match_all('/\[quote.*?link=msg=([0-9]+).*?\]/i', $message, $matches);
+
+		$id_msgs = $matches[1];
+		foreach ($id_msgs as $k => $id_msg)
+			$id_msgs[$k] = (int) $id_msg;
+
+		if (empty($id_msgs))
+			return array();
+
+		// Get the messages
+		$request = $smcFunc['db_query']('', '
+			SELECT m.id_member AS id, mem.email_address, mem.lngfile, mem.real_name
+			FROM {db_prefix}messages AS m
+				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
+			WHERE id_msg IN ({array_int:msgs})
+			LIMIT {int:count}',
+			array(
+				'msgs' => array_unique($id_msgs),
+				'count' => count(array_unique($id_msgs)),
+			)
+		);
+
+		$members = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if ($poster_id == $row['id'])
+				continue;
+
+			$members[$row['id']] = $row;
+		}
+
+		return $members;
+	}
+
 }
 
 ?>

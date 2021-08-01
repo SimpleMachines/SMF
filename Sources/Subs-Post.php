@@ -1767,6 +1767,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$msgOptions['smileys_enabled'] = !empty($msgOptions['smileys_enabled']);
 	$msgOptions['attachments'] = empty($msgOptions['attachments']) ? array() : $msgOptions['attachments'];
 	$msgOptions['approved'] = isset($msgOptions['approved']) ? (int) $msgOptions['approved'] : 1;
+	$msgOptions['poster_time'] = isset($msgOptions['poster_time']) ? (int) $msgOptions['poster_time'] : time();
 	$topicOptions['id'] = empty($topicOptions['id']) ? 0 : (int) $topicOptions['id'];
 	$topicOptions['poll'] = isset($topicOptions['poll']) ? (int) $topicOptions['poll'] : null;
 	$topicOptions['lock_mode'] = isset($topicOptions['lock_mode']) ? $topicOptions['lock_mode'] : null;
@@ -1837,21 +1838,20 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		}
 	}
 
+	// Get any members who were quoted in this post.
+	$msgOptions['quoted_members'] = Mentions::getQuotedMembers($msgOptions['body'], $posterOptions['id']);
+
 	if (!empty($modSettings['enable_mentions']))
 	{
 		// Get any members who were possibly mentioned
 		$msgOptions['mentioned_members'] = Mentions::getMentionedMembers($msgOptions['body']);
 		if (!empty($msgOptions['mentioned_members']))
 		{
-			// Replace @name with [member=id]@name[/member]
+			// Replace @name with [member=id]name[/member]
 			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $msgOptions['mentioned_members']);
 
 			// Remove any members who weren't actually mentioned, to prevent bogus notifications
-			foreach ($msgOptions['mentioned_members'] as $m)
-			{
-				if (strpos('[member=' . $m['id'] . ']@' . $m['real_name'] . '[/member]', $msgOptions['body']) === false)
-					unset($msgOptions['mentioned_members'][$m['id']]);
-			}
+			$msgOptions['mentioned_members'] = Mentions::verifyMentionedMembers($msgOptions['body'], $msgOptions['mentioned_members']);
 		}
 	}
 
@@ -1868,7 +1868,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	$message_parameters = array(
 		$topicOptions['board'], $topicOptions['id'], $posterOptions['id'], $msgOptions['subject'], $msgOptions['body'],
-		$posterOptions['name'], $posterOptions['email'], time(), $posterOptions['ip'],
+		$posterOptions['name'], $posterOptions['email'], $msgOptions['poster_time'], $posterOptions['ip'],
 		$msgOptions['smileys_enabled'] ? 1 : 0, '', $msgOptions['icon'], $msgOptions['approved'],
 	);
 
@@ -2132,6 +2132,12 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	if (isset($_SESSION['topicseen_cache'][$topicOptions['board']]))
 		$_SESSION['topicseen_cache'][$topicOptions['board']]--;
 
+	// Keep track of quotes and mentions.
+	if (!empty($msgOptions['quoted_members']))
+		Mentions::insertMentions('quote', $msgOptions['id'], $msgOptions['quoted_members'], $posterOptions['id']);
+	if (!empty($msgOptions['mentioned_members']))
+		Mentions::insertMentions('msg', $msgOptions['id'], $msgOptions['mentioned_members'], $posterOptions['id']);
+
 	// Update all the stats so everyone knows about this new topic and message.
 	updateStats('message', true, $msgOptions['id']);
 
@@ -2227,53 +2233,43 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	if ($searchAPI->supportsMethod('postRemoved'))
 		$searchAPI->postRemoved($msgOptions['id']);
 
-	if (!empty($modSettings['enable_mentions']) && isset($msgOptions['body']))
+	// Anyone quoted or mentioned?
+	require_once($sourcedir . '/Mentions.php');
+
+	$quoted_members = Mentions::getQuotedMembers($msgOptions['body'], $posterOptions['id']);
+	$quoted_modifications = Mentions::modifyMentions('quote', $msgOptions['id'], $quoted_members, $posterOptions['id']);
+
+	if (!empty($quoted_modifications['added']))
 	{
-		require_once($sourcedir . '/Mentions.php');
+		$msgOptions['quoted_members'] = array_intersect_key($quoted_members, array_flip($quoted_modifications['added']));
 
-		$oldmentions = array();
+		// You don't need a notification about quoting yourself.
+		unset($msgOptions['quoted_members'][$user_info['id']]);
+	}
 
-		if (!empty($msgOptions['old_body']))
-		{
-			preg_match_all('/\[member\=([0-9]+)\]([^\[]*)\[\/member\]/U', $msgOptions['old_body'], $match);
-
-			if (isset($match[1]) && isset($match[2]) && is_array($match[1]) && is_array($match[2]))
-				foreach ($match[1] as $i => $oldID)
-					$oldmentions[$oldID] = array('id' => $oldID, 'real_name' => $match[2][$i]);
-
-			if (empty($modSettings['search_custom_index_config']))
-				unset($msgOptions['old_body']);
-		}
-
+	if (!empty($modSettings['enable_mentions']))
+	{
 		$mentions = Mentions::getMentionedMembers($msgOptions['body']);
 		$messages_columns['body'] = $msgOptions['body'] = Mentions::getBody($msgOptions['body'], $mentions);
+		$mentions = Mentions::verifyMentionedMembers($msgOptions['body'], $mentions);
 
-		// Remove the poster.
-		if (isset($mentions[$user_info['id']]))
-			unset($mentions[$user_info['id']]);
+		// Update our records in the database.
+		$mention_modifications = Mentions::modifyMentions('msg', $msgOptions['id'], $mentions, $posterOptions['id']);
 
-		if (isset($oldmentions[$user_info['id']]))
-			unset($oldmentions[$user_info['id']]);
-
-		if (is_array($mentions) && is_array($oldmentions) && count(array_diff_key($mentions, $oldmentions)) > 0 && count($mentions) > count($oldmentions))
+		if (!empty($mention_modifications['added']))
 		{
 			// Queue this for notification.
-			$msgOptions['mentioned_members'] = array_diff_key($mentions, $oldmentions);
+			$msgOptions['mentioned_members'] = array_intersect_key($mentions, array_flip($mention_modifications['added']));
 
-			$smcFunc['db_insert']('',
-				'{db_prefix}background_tasks',
-				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', $smcFunc['json_encode'](array(
-					'msgOptions' => $msgOptions,
-					'topicOptions' => $topicOptions,
-					'posterOptions' => $posterOptions,
-					'type' => 'edit',
-				)), 0),
-				array('id_task')
-			);
+			// Mentioning yourself is silly, and we aren't going to notify you about it.
+			unset($msgOptions['mentioned_members'][$user_info['id']]);
 		}
 	}
 
+	// This allows mods to skip sending notifications if they don't want to.
+	$msgOptions['send_notifications'] = isset($msgOptions['send_notifications']) ? (bool) $msgOptions['send_notifications'] : true;
+
+	// Maybe a mod wants to make some changes?
 	call_integration_hook('integrate_modify_post', array(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts));
 
 	foreach ($messages_columns as $var => $val)
@@ -2347,6 +2343,22 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$searchAPI = findSearchAPI();
 	if (is_callable(array($searchAPI, 'postModified')))
 		$searchAPI->postModified($msgOptions, $topicOptions, $posterOptions);
+
+	// Send notifications about any new quotes or mentions.
+	if ($msgOptions['send_notifications'] && $msgOptions['approved'] && (!empty($msgOptions['quoted_members']) || !empty($msgOptions['mentioned_members'])))
+	{
+		$smcFunc['db_insert']('',
+			'{db_prefix}background_tasks',
+			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+			array('$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', $smcFunc['json_encode'](array(
+				'msgOptions' => $msgOptions,
+				'topicOptions' => $topicOptions,
+				'posterOptions' => $posterOptions,
+				'type' => 'edit',
+			)), 0),
+			array('id_task')
+		);
+	}
 
 	if (isset($msgOptions['subject']))
 	{
