@@ -280,7 +280,9 @@ function template_show_backtrace()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['backtrace_title'], '</title>';
+
 	template_css();
+
 	echo '
 	</head>
 	<body class="padding">';
@@ -294,7 +296,7 @@ function template_show_backtrace()
 				</h3>
 			</div>
 			<div class="windowbg" id="backtrace">
-				<table class="table_grid centertext">
+				<table class="table_grid">
 					<tbody>';
 
 		if (!empty($context['error_info']['error_type']))
@@ -364,6 +366,7 @@ function template_show_backtrace()
 			//Check for existing
 			if (!property_exists($value, 'file') || empty($value->file))
 				$value->file = $txt['unknown'];
+
 			if (!property_exists($value, 'line') || empty($value->line))
 				$value->line = -1;
 
