@@ -2702,7 +2702,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  */
 function loadCSSFile($fileName, $params = array(), $id = '')
 {
-	global $settings, $context, $modSettings, $boardurl;
+	global $settings, $context, $modSettings;
 
 	if (empty($context['css_files_order']))
 		$context['css_files_order'] = array();
@@ -2716,7 +2716,8 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
 	$params['order_pos'] = isset($params['order_pos']) ? (int) $params['order_pos'] : 3000;
-
+	$params['attributes'] = isset($params['attributes']) ? $params['attributes'] : false;
+	
 	// Account for shorthand like admin.css?alp21 filenames
 	$id = (empty($id) ? strtr(str_replace('.css', '', basename($fileName)), '?', '_') : $id) . '_css';
 
@@ -2820,7 +2821,7 @@ function addInlineCss($css)
  */
 function loadJavaScriptFile($fileName, $params = array(), $id = '')
 {
-	global $settings, $context, $modSettings, $boardurl;
+	global $settings, $context, $modSettings;
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ?
 		(array_key_exists('browser_cache', $context) ? $context['browser_cache'] : '') :
@@ -2828,9 +2829,11 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['async'] = isset($params['async']) ? $params['async'] : false;
+	$params['defer'] = isset($params['defer']) ? $params['defer'] : false;
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
+	$params['attributes'] = isset($params['attributes']) ? $params['attributes'] : false;
 
 	// Account for shorthand like admin.js?alp21 filenames
 	$id = (empty($id) ? strtr(str_replace('.js', '', basename($fileName)), '?', '_') : $id) . '_js';
