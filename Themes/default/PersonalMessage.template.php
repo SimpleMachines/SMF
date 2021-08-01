@@ -277,7 +277,7 @@ function template_single_pm($message)
 	global $context, $scripturl, $txt, $settings, $options, $modSettings;
 
 	echo '
-	<div class="windowbg targetAble" id="msg', $message['id'],'">
+	<div class="windowbg" id="msg', $message['id'],'">
 		<div class="post_wrapper">
 			<div class="poster">';
 

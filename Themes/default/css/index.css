@@ -2805,6 +2805,11 @@ dl.addrules dt.floatleft {
 	background: #fdfdfd;
 }
 
+/* Highlight the target item */
+.windowbg:target {
+	background: #ffffe0;
+}
+
 /* Add some hover on table rows */
 tr.windowbg:hover {
 	background: #e2eef8;
@@ -3251,9 +3256,6 @@ div#pollmoderation {
 	padding-right: 5px;
 }
 
-.targetAble:target{
-	outline:3px red dotted;
-}
 /* The visible stuff below the avatar. */
 .user_info > li {
 	margin: 3px 0 0 0;
