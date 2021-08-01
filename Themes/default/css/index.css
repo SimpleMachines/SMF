@@ -2,6 +2,7 @@
 /* Index */
 html {
 	background: #3e5a78;
+	scroll-padding-top: 3rem;
 }
 body {
 	background: #e9eef2;
@@ -3250,6 +3251,9 @@ div#pollmoderation {
 	padding-right: 5px;
 }
 
+.targetAble:target{
+	outline:3px red dotted;
+}
 /* The visible stuff below the avatar. */
 .user_info > li {
 	margin: 3px 0 0 0;

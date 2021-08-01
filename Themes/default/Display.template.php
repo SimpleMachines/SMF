@@ -63,7 +63,7 @@ function template_main()
 	// Show the anchor for the top and for the first message. If the first message is new, say so.
 	echo '
 		</div><!-- #display_head -->
-		<a id="msg', $context['first_message'], '"></a>', $context['first_new_message'] ? '<a id="new"></a>' : '';
+		', $context['first_new_message'] ? '<a id="new"></a>' : '';
 
 	// Is this topic also a poll?
 	if ($context['is_poll'])
@@ -478,9 +478,9 @@ function template_single_post($message)
 
 	// Show the message anchor and a "new" anchor if this message is new.
 	echo '
-				<div class="', $message['css_class'], '">
+				<div class="', $message['css_class'], ' targetAble" id="msg' . $message['id'] . '">
 					', $message['id'] != $context['first_message'] ? '
-					<a id="msg' . $message['id'] . '"></a>' . ($message['first_new'] ? '<a id="new"></a>' : '') : '', '
+					' . ($message['first_new'] ? '<a id="new"></a>' : '') : '', '
 					<div class="post_wrapper">';
 
 	// Show information about the poster of this message.
