@@ -1444,7 +1444,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						if (!empty($currentAttachment['is_image']))
 						{
 							if (empty($params['{width}']) && empty($params['{height}']))
-								$returnContext .= '<img src="' . $currentAttachment['href'] . '"' . $alt . $title . ' class="bbc_img"></a>';
+								$returnContext .= '<img src="' . $currentAttachment['href'] . '"' . $alt . $title . ' class="bbc_img">';
 							else
 							{
 								$width = !empty($params['{width}']) ? ' width="' . $params['{width}'] . '"': '';
