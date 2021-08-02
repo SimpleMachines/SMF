@@ -2092,11 +2092,11 @@ function prepareSearchContext($reset = false)
 	}
 	else
 	{
-		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
-		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
-
 		// Run BBC interpreter on the message.
 		$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
+
+		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
+		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
 	}
 
 	// Make sure we don't end up with a practically empty message body.
