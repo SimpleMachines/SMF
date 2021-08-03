@@ -910,6 +910,9 @@ function allowedTo($permission, $boards = null, $any = false)
 	// Let's ensure this is an array.
 	$permission = (array) $permission;
 
+	// This should be a boolean.
+	$any = (bool) $any;
+
 	// Are we checking the _current_ board, or some other boards?
 	if ($boards === null)
 	{
@@ -922,7 +925,7 @@ function allowedTo($permission, $boards = null, $any = false)
 	elseif (!is_array($boards))
 		$boards = array($boards);
 
-	$cache_key = hash('md5', $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . $any);
+	$cache_key = hash('md5', $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . (int) $any);
 
 	if (isset($perm_cache[$cache_key]))
 		return $perm_cache[$cache_key];
