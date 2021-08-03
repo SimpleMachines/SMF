@@ -579,8 +579,6 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 
 /**
  * Remove a specific message (including permission checks).
- * - normally, local and global should be the localCookies and globalCookies settings, respectively.
- * - uses boardurl to determine these two things.
  *
  * @param int $message The message id
  * @param bool $decreasePostCount Whether to decrease users' post counts
