@@ -2882,7 +2882,7 @@ DROP INDEX idx_id_board;
 
 ---# Updating messages add new id_board ix
 ALTER TABLE {$db_prefix}messages
-ADD INDEX idx_id_board (id_board, id_msg, approved);
+ADD UNIQUE INDEX idx_id_board (id_board, id_msg, approved);
 ---#
 
 ---# Updating topics drop old id_board ix
