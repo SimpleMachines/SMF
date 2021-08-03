@@ -2716,7 +2716,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
 	$params['order_pos'] = isset($params['order_pos']) ? (int) $params['order_pos'] : 3000;
-	$params['attributes'] = isset($params['attributes']) ? $params['attributes'] : false;
+	$params['attributes'] = isset($params['attributes']) ? $params['attributes'] : array();
 	
 	// Account for shorthand like admin.css?alp21 filenames
 	$id = (empty($id) ? strtr(str_replace('.css', '', basename($fileName)), '?', '_') : $id) . '_css';
@@ -2833,7 +2833,7 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
-	$params['attributes'] = isset($params['attributes']) ? $params['attributes'] : false;
+	$params['attributes'] = isset($params['attributes']) ? $params['attributes'] : array();
 
 	// Account for shorthand like admin.js?alp21 filenames
 	$id = (empty($id) ? strtr(str_replace('.js', '', basename($fileName)), '?', '_') : $id) . '_js';
