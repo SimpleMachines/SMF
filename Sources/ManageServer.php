@@ -173,6 +173,8 @@ function ModifyGeneralSettings($return_config = false)
 		'',
 		array('webmaster_email', $txt['admin_webmaster_email'], 'file', 'text', 30),
 		'',
+		array('http_dns_prefetch_domains', $txt['http_dns_prefetch_domains'], 'db', 'text', null, 'http_dns_prefetch_domains'),
+		'',
 		array('enableCompressedOutput', $txt['enableCompressedOutput'], 'db', 'check', null, 'enableCompressedOutput'),
 		array('disableHostnameLookup', $txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'),
 		'',

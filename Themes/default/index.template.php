@@ -115,6 +115,9 @@ function template_html_above()
 			'integrate_pre_css_output', 'integrate_pre_javascript_output' for a single file.
 	*/
 
+	// Load in any prefetch domains
+	template_dns_prefetch();
+	
 	// load in any css from mods or themes so they can overwrite if wanted
 	template_css();
 

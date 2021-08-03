@@ -7886,4 +7886,25 @@ function JavaScriptEscape($string)
 	)) . '\'';
 }
 
+/**
+ * Outputs a list of domains to attempt to prefetch (resolve) in the document head before the resource
+ * at that domain is requested in the DOM build. This can help speed up page load times.
+  */
+function template_dns_prefetch()
+{
+	global $modSettings;
+
+	// ToDo: We can put dns-preconnect here as well if we want to
+	
+	// prefetch domains is a comma seperated list
+	$dns_prefetch_domains = explode(',', $modSettings['http_dns_prefetch_domains']);
+
+	foreach ($dns_prefetch_domains as $domain)
+	{
+		// Yes, we want a newline
+		echo  '
+		<link rel="dns-prefetch" href="'.$domain.'">';
+	}	
+}
+
 ?>
