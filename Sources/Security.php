@@ -913,6 +913,9 @@ function allowedTo($permission, $boards = null, $any = false)
 	// This should be a boolean.
 	$any = (bool) $any;
 
+	// Maybe a mod needs to tweak $user_info['permissions'] on the fly?
+	call_integration_hook('integrate_allowed_to', array($permission, $boards, $any));
+
 	// Are we checking the _current_ board, or some other boards?
 	if ($boards === null)
 	{
@@ -1145,6 +1148,9 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 			}
 		}
 	}
+
+	// Maybe a mod needs to tweak the list of allowed boards on the fly?
+	call_integration_hook('integrate_boards_allowed_to', array(&$boards, $deny_boards, $permissions, $check_access, $simple));
 
 	return $boards;
 }

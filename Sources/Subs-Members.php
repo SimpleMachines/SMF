@@ -1101,6 +1101,9 @@ function groupsAllowedTo($permission, $board_id = null)
 		}
 	}
 
+	// Maybe a mod needs to tweak the list of allowed groups on the fly?
+	call_integration_hook('integrate_groups_allowed_to', array(&$member_groups, $permission, $board_id));
+
 	// Denied is never allowed.
 	$member_groups['allowed'] = array_diff($member_groups['allowed'], $member_groups['denied']);
 
