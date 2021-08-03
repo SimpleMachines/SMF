@@ -1031,15 +1031,16 @@ function loadBoard()
 			SELECT
 				m.id_msg
 			FROM
-				smf_messages AS m
+			{db_prefix}messages AS m
 				JOIN (
 					SELECT
 						COALESCE(lt.id_msg, lmr.id_msg, - 1) AS new_from
-					FROM smf_log_topics AS lt
-					LEFT JOIN smf_log_mark_read AS lmr ON (lmr.id_board = {int:id_topic} AND
+					FROM {db_prefix}topics t
+					left join {db_prefix}log_topics AS lt on (t.id_topic = lt.id_topic)
+					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND
 							lmr.id_member = {int:current_member})
 					WHERE
-						lt.id_topic = {int:id_topic} AND
+						t.id_topic = {int:id_topic} AND
 						lt.id_member = {int:current_member}
 					LIMIT 1) AS nf ON (m.id_msg > nf.new_from)
 					WHERE m.id_topic = {int:id_topic} 
