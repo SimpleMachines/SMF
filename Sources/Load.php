@@ -1023,6 +1023,52 @@ function loadBoard()
 		}
 	}
 
+	// Have they by chance specified a message id but nothing else?
+	if (empty($_REQUEST['action']) && !empty($topic) && empty($board) && !empty($_REQUEST['start']) && $_REQUEST['start'] === 'nm')
+	{
+
+			$request = $smcFunc['db_query']('', '
+			SELECT
+				m.id_msg
+			FROM
+				smf_messages AS m
+				JOIN (
+					SELECT
+						COALESCE(lt.id_msg, lmr.id_msg, - 1) AS new_from
+					FROM smf_log_topics AS lt
+					LEFT JOIN smf_log_mark_read AS lmr ON (lmr.id_board = {int:id_topic} AND
+							lmr.id_member = {int:current_member})
+					WHERE
+						lt.id_topic = {int:id_topic} AND
+						lt.id_member = {int:current_member}
+					LIMIT 1) AS nf ON (m.id_msg > nf.new_from)
+					WHERE m.id_topic = {int:id_topic} 
+			ORDER BY
+				m.id_msg asc
+			LIMIT 1',
+				array(
+					'id_topic' => $topic,
+					'current_member' => $user_info['id'],
+				)
+			);
+
+			// So did it find anything?
+			if ($smcFunc['db_num_rows']($request))
+			{
+				list ($id_msg) = $smcFunc['db_fetch_row']($request);
+				$smcFunc['db_free_result']($request);
+			}
+		
+
+		// Remember redirection is the key to avoiding fallout from your bosses.
+		if (!empty($id_msg))
+			redirectexit('topic=' . $topic . '.msg' . $id_msg . '#msg' . $id_msg);
+		else
+		{
+			redirectexit('topic=' . $topic . '.new');
+		}
+	}
+
 	// Load this board only if it is specified.
 	if (empty($board) && empty($topic))
 	{

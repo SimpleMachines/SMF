@@ -225,6 +225,11 @@ function cleanRequest()
 			$timestamp = (int) substr($_REQUEST['start'], 4);
 			$_REQUEST['start'] = $timestamp === 0 ? 0 : 'from' . $timestamp;
 		}
+		// ... or whatever is nm ...
+		elseif (strpos($_REQUEST['start'], 'nm') === 0)
+		{
+			$_REQUEST['start'] = 'nm';
+		}
 		// ... or something invalid, in which case we reset it to 0.
 		else
 			$_REQUEST['start'] = 0;
