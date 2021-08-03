@@ -614,6 +614,9 @@ function removeMessage($message, $decreasePostCount = true)
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
+	// Give mods a heads-up before we do anything.
+	call_integration_hook('integrate_pre_remove_message', array($message, $decreasePostCount, $row));
+
 	if (empty($board) || $row['id_board'] != $board)
 	{
 		$delete_any = boardsAllowedTo('delete_any');
