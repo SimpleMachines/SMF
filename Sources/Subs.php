@@ -7894,17 +7894,21 @@ function template_dns_prefetch()
 {
 	global $modSettings;
 
-	// ToDo: We can put dns-preconnect here as well if we want to
+	// ToDo: We can put preconnect here as well if we want to
 	
-	// prefetch domains is a comma seperated list
-	$dns_prefetch_domains = explode(',', $modSettings['http_dns_prefetch_domains']);
-
-	foreach ($dns_prefetch_domains as $domain)
+	// Then do prefetch
+	if (!empty($modSettings['http_dns_prefetch_domains']))
 	{
-		// Yes, we want a newline
-		echo  '
-		<link rel="dns-prefetch" href="'.$domain.'">';
-	}	
+		// prefetch domains is a comma seperated list
+		$dns_prefetch_domains = explode(',', $modSettings['http_dns_prefetch_domains']);
+
+		foreach ($dns_prefetch_domains as $domain)
+		{
+	// tabbing to make look neat in view-source
+	echo  '
+	<link rel="dns-prefetch" href="'.$domain.'">';
+		}
+	}
 }
 
 ?>
