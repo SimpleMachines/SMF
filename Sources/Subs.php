@@ -3934,31 +3934,11 @@ function setupThemeContext($forceload = false)
 		if (allowedTo('moderate_forum'))
 			$context['unapproved_members'] = !empty($modSettings['unapprovedMembers']) ? $modSettings['unapprovedMembers'] : 0;
 
-		$context['user']['avatar'] = array();
-
-		// Check for gravatar first since we might be forcing them...
-		if (!empty($modSettings['gravatarEnabled']) && (substr($user_info['avatar']['url'], 0, 11) == 'gravatar://' || !empty($modSettings['gravatarOverride'])))
-		{
-			if (!empty($modSettings['gravatarAllowExtraEmail']) && stristr($user_info['avatar']['url'], 'gravatar://') && strlen($user_info['avatar']['url']) > 11)
-				$context['user']['avatar']['href'] = get_gravatar_url($smcFunc['substr']($user_info['avatar']['url'], 11));
-			else
-				$context['user']['avatar']['href'] = get_gravatar_url($user_info['email']);
-		}
-		// Uploaded?
-		elseif ($user_info['avatar']['url'] == '' && !empty($user_info['avatar']['id_attach']))
-			$context['user']['avatar']['href'] = $user_info['avatar']['custom_dir'] ? $modSettings['custom_avatar_url'] . '/' . $user_info['avatar']['filename'] : $scripturl . '?action=dlattach;attach=' . $user_info['avatar']['id_attach'] . ';type=avatar';
-		// Full URL?
-		elseif (strpos($user_info['avatar']['url'], 'http://') === 0 || strpos($user_info['avatar']['url'], 'https://') === 0)
-			$context['user']['avatar']['href'] = $user_info['avatar']['url'];
-		// Otherwise we assume it's server stored.
-		elseif ($user_info['avatar']['url'] != '')
-			$context['user']['avatar']['href'] = $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($user_info['avatar']['url']);
-		// No avatar at all? Fine, we have a big fat default avatar ;)
-		else
-			$context['user']['avatar']['href'] = $modSettings['avatar_url'] . '/default.png';
-
-		if (!empty($context['user']['avatar']))
-			$context['user']['avatar']['image'] = '<img src="' . $context['user']['avatar']['href'] . '" alt="" class="avatar">';
+		$context['user']['avatar'] = set_avatar_data(array(
+			'filename' => $user_info['avatar']['filename'],
+			'avatar' => $user_info['avatar']['url'],
+			'email' => $user_info['email'],
+		));
 
 		// Figure out how long they've been logged in.
 		$context['user']['total_time_logged_in'] = array(
