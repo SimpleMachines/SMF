@@ -20,7 +20,7 @@ jobs:
                 'PR: unreviewed',
                 'PR: reviewed-changes-requested',
                 'PR: partially-approved',
-                'PR: review-approved'
+                'PR: reviewed-approved'
             ];
             for (const label of labels)
                 try
