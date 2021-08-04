@@ -7894,19 +7894,30 @@ function template_dns_prefetch()
 {
 	global $modSettings;
 
-	// ToDo: We can put preconnect here as well if we want to
+	// First do any preconnect
+	if (!empty($modSettings['http_dns_preconnect_domains']))
+	{
+		//preconnect is newline seperated list
+		$dns_preconnect_domains = preg_split('/\r\n|\r|\n/', $modSettings['http_dns_preconnect_domains'], -1, PREG_SPLIT_NO_EMPTY);
+		foreach ($dns_preconnect_domains as $domain_pair)
+		{
+			$domain = explode(' ', $domain_pair);
+	// tabbing to make output look neat in view-source
+	echo  '
+	<link rel="preconnect" href="', $domain[0] , '"' , !empty($domain[1]) ? ' crossorigin' : '' , '>';
+		}
+	}
 	
 	// Then do prefetch
 	if (!empty($modSettings['http_dns_prefetch_domains']))
 	{
-		// prefetch domains is a comma seperated list
-		$dns_prefetch_domains = explode(',', $modSettings['http_dns_prefetch_domains']);
-
+		//prefetch is newline seperated list
+		$dns_prefetch_domains = preg_split('/\r\n|\r|\n/', $modSettings['http_dns_prefetch_domains'], -1, PREG_SPLIT_NO_EMPTY);
 		foreach ($dns_prefetch_domains as $domain)
 		{
-	// tabbing to make look neat in view-source
+	// tabbing to make output look neat in view-source
 	echo  '
-	<link rel="dns-prefetch" href="'.$domain.'">';
+	<link rel="dns-prefetch" href="',$domain,'">';
 		}
 	}
 }

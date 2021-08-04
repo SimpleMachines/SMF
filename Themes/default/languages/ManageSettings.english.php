@@ -435,6 +435,7 @@ $txt['export_min_diskspace_pct'] = 'Pause exports if free space on disk is less 
 $txt['export_rate'] = 'Rate at which to process posts & personal messages for export';
 $txt['export_rate_desc'] = 'Higher values will compile exports more quickly, but could affect forum performance.';
 
-$txt['http_dns_prefetch_domains'] = 'DNS Prefetch domains';
+$txt['http_dns_prefetch_domains'] = 'DNS prefetch domains';
+$txt['http_dns_preconnect_domains'] = 'DNS preconnect domains';
 
 ?>
