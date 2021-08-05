@@ -307,7 +307,7 @@ $txt['permission_disable_postgroups_warning'] = 'Turning off this option will re
 
 $txt['permissions_post_moderation_desc'] = 'From this page, you can configure the ability to hold users\' posts before being visible to regular forum members, including which group or groups of users can approve them. Users whose posts are held for approval will still be able to see their posts, as well as replies from approvers, e.g. moderator feedback about making a post appropriate.';
 $txt['permissions_post_moderation_enable'] = 'Enable Post Moderation';
-$txt['permissions_post_moderation_deny_note'] = 'Note that while you have advanced permissions enabled you cannot apply the &quot;deny&quot; permission from this page. Please edit the permissions directly if you wish to apply a deny permission.';
+$txt['permissions_post_moderation_deny_note'] = 'Note that while you have advanced options enabled you cannot apply the &quot;deny&quot; permission from this page. Please edit the permissions directly if you wish to apply a deny permission.';
 $txt['permissions_post_moderation_select'] = 'Select Profile';
 $txt['permissions_post_moderation_new_topics'] = 'New Topics';
 $txt['permissions_post_moderation_replies_own'] = 'Own Replies';
