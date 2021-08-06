@@ -2469,7 +2469,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	);
 
 	// Add the JQuery library to the list of files to load.
-	$jQueryUrls = array ('google_cdn' => 'https://ajax.googleapis.com/ajax/libs/jquery/'. JQUERY_VERSION . '/jquery.min.js', 'jquery_cdn' => 'https://code.jquery.com/jquery-'. JQUERY_VERSION . '.min.js', 'microsoft_cdn' => 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-'. JQUERY_VERSION . '.min.js');
+	$jQueryUrls = array ('cdn' => 'https://ajax.googleapis.com/ajax/libs/jquery/'. JQUERY_VERSION . '/jquery.min.js', 'jquery_cdn' => 'https://code.jquery.com/jquery-'. JQUERY_VERSION . '.min.js', 'microsoft_cdn' => 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-'. JQUERY_VERSION . '.min.js');
 	
 	if (array_key_exists($modSettings['jquery_source'], $jQueryUrls))
 		loadJavaScriptFile($jQueryUrls[$modSettings['jquery_source']], array('external' => true, 'seed' => false), 'smf_jquery');
@@ -2480,9 +2480,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
 		loadJavaScriptFile($modSettings['jquery_custom'], array('external' => true, 'seed' => false), 'smf_jquery');
 
-	// Fall back to the local source
+	// Fall back to the forum default
 	else
-		loadJavaScriptFile('jquery-' . JQUERY_VERSION . '.min.js', array('seed' => false), 'smf_jquery');
+		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true, 'seed' => false), 'smf_jquery');
 
 	// Queue our JQuery plugins!
 	loadJavaScriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');

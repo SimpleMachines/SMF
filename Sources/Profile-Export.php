@@ -1865,20 +1865,7 @@ function export_load_css_js()
 	}
 
 	// Next, we need to do for JavaScript what we just did for CSS.
-	$jQueryUrls = array ('google_cdn' => 'https://ajax.googleapis.com/ajax/libs/jquery/'. JQUERY_VERSION . '/jquery.min.js', 'jquery_cdn' => 'https://code.jquery.com/jquery-'. JQUERY_VERSION . '.min.js', 'microsoft_cdn' => 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-'. JQUERY_VERSION . '.min.js');
-	
-	if (array_key_exists($modSettings['jquery_source'], $jQueryUrls))
-		loadJavaScriptFile($jQueryUrls[$modSettings['jquery_source']], array('external' => true, 'seed' => false), 'smf_jquery');
-
-	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		loadJavaScriptFile('jquery-' . JQUERY_VERSION . '.min.js', array('seed' => false), 'smf_jquery');
-
-	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
-		loadJavaScriptFile($modSettings['jquery_custom'], array('external' => true, 'seed' => false), 'smf_jquery');
-
-	// Fall back to the local source
-	else
-		loadJavaScriptFile('jquery-' . JQUERY_VERSION . '.min.js', array('seed' => false), 'smf_jquery');
+	loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true, 'seed' => false), 'smf_jquery');
 
 	// There might be JavaScript that we need to add in order to support custom BBC or something.
 	call_integration_hook('integrate_pre_javascript_output', array(false));
