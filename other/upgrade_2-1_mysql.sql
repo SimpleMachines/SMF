@@ -993,6 +993,7 @@ if (in_array('notify_regularity', $results))
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, notify_regularity, notify_send_body, notify_types
 			FROM {db_prefix}members
+			ORDER BY id_member
 			LIMIT {int:start}, {int:limit}',
 			array(
 				'db_error_skip' => true,
@@ -1429,6 +1430,7 @@ if (!empty($select_columns))
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, '. implode(',', $select_columns) .'
 			FROM {db_prefix}members
+			ORDER BY id_member
 			LIMIT {int:start}, {int:limit}',
 			array(
 				'start' => $_GET['a'],
