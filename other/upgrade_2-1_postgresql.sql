@@ -801,11 +801,11 @@ elseif (empty($modSettings['json_done']))
 
 ---# Adding new columns to log_group_requests
 ALTER TABLE {$db_prefix}log_group_requests
-ADD COLUMN status smallint NOT NULL default '0',
-ADD COLUMN id_member_acted int NOT NULL default '0',
-ADD COLUMN member_name_acted varchar(255) NOT NULL default '',
-ADD COLUMN time_acted int NOT NULL default '0',
-ADD COLUMN act_reason text NOT NULL;
+ADD COLUMN IF NOT EXISTS status smallint NOT NULL default '0',
+ADD COLUMN IF NOT EXISTS id_member_acted int NOT NULL default '0',
+ADD COLUMN IF NOT EXISTS member_name_acted varchar(255) NOT NULL default '',
+ADD COLUMN IF NOT EXISTS time_acted int NOT NULL default '0',
+ADD COLUMN IF NOT EXISTS act_reason text NOT NULL;
 ---#
 
 ---# Adjusting the indexes for log_group_requests
@@ -818,18 +818,18 @@ CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_r
 /******************************************************************************/
 ---# Adding support for <credits> tag in package manager
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN credits TEXT NOT NULL;
+ADD COLUMN IF NOT EXISTS credits TEXT NOT NULL;
 ---#
 
 ---# Adding support for package hashes
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN sha256_hash TEXT;
+ADD COLUMN IF NOT EXISTS sha256_hash TEXT;
 ---#
 
 ---# Adding support for validation servers
 ALTER TABLE {$db_prefix}package_servers
-ADD COLUMN validation_url VARCHAR(255) DEFAULT '',
-ADD COLUMN extra TEXT;
+ADD COLUMN IF NOT EXISTS validation_url VARCHAR(255) DEFAULT '',
+ADD COLUMN IF NOT EXISTS extra TEXT;
 ---#
 
 ---# Add Package Validation to Downloads Site
@@ -907,10 +907,10 @@ upgrade_query("
 /******************************************************************************/
 ---# Adding new columns to topics table
 ALTER TABLE {$db_prefix}topics
-ADD COLUMN redirect_expires int NOT NULL DEFAULT '0';
+ADD COLUMN IF NOT EXISTS redirect_expires int NOT NULL DEFAULT '0';
 
 ALTER TABLE {$db_prefix}topics
-ADD COLUMN id_redirect_topic int NOT NULL DEFAULT '0';
+ADD COLUMN IF NOT EXISTS id_redirect_topic int NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
@@ -918,7 +918,7 @@ ADD COLUMN id_redirect_topic int NOT NULL DEFAULT '0';
 /******************************************************************************/
 ---# Adding a new column "callable" to scheduled_tasks table
 ALTER TABLE {$db_prefix}scheduled_tasks
-ADD COLUMN callable varchar(60) NOT NULL default '';
+ADD COLUMN IF NOT EXISTS callable varchar(60) NOT NULL default '';
 ---#
 
 ---# Adding new scheduled tasks
@@ -1014,7 +1014,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
 /******************************************************************************/
 ---# Adding new columns to boards...
 ALTER TABLE {$db_prefix}boards
-ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
+ADD COLUMN IF NOT EXISTS deny_member_groups varchar(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
@@ -1092,7 +1092,7 @@ if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<
 /******************************************************************************/
 ---# Adding new columns to categories...
 ALTER TABLE {$db_prefix}categories
-ADD COLUMN description text;
+ADD COLUMN IF NOT EXISTS description text;
 
 
 UPDATE {$db_prefix}categories
@@ -1107,7 +1107,7 @@ ALTER COLUMN description SET NOT NULL;
 /******************************************************************************/
 ---# Adding the count to the members table...
 ALTER TABLE {$db_prefix}members
-ADD COLUMN alerts int NOT NULL default '0';
+ADD COLUMN IF NOT EXISTS alerts int NOT NULL default '0';
 ---#
 
 ---# Adding the new table for alerts.
@@ -1384,7 +1384,7 @@ WHERE content_type = 'unapproved' AND content_action = 'attachment' AND f.id_att
 /******************************************************************************/
 ---# Adding new column to log_topics...
 ALTER TABLE {$db_prefix}log_topics
-ADD COLUMN unwatched int NOT NULL DEFAULT 0;
+ADD COLUMN IF NOT EXISTS unwatched int NOT NULL DEFAULT 0;
 ---#
 
 ---# Fixing column name change...
@@ -1559,12 +1559,12 @@ $smcFunc['db_query']('', '
 /******************************************************************************/
 ---# Adding new field_order column...
 ALTER TABLE {$db_prefix}custom_fields
-ADD COLUMN field_order smallint NOT NULL default '0';
+ADD COLUMN IF NOT EXISTS field_order smallint NOT NULL default '0';
 ---#
 
 ---# Adding new show_mlist column...
 ALTER TABLE {$db_prefix}custom_fields
-ADD COLUMN show_mlist smallint NOT NULL default '0';
+ADD COLUMN IF NOT EXISTS show_mlist smallint NOT NULL default '0';
 ---#
 
 ---# Insert fields
@@ -1830,7 +1830,7 @@ CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
 
 ---# Adding count to the messages table.
 ALTER TABLE {$db_prefix}messages
-ADD COLUMN likes smallint NOT NULL default '0';
+ADD COLUMN IF NOT EXISTS likes smallint NOT NULL default '0';
 ---#
 
 /******************************************************************************/
@@ -2209,7 +2209,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labeled_messages (
 
 ---# Adding "in_inbox" column to pm_recipients
 ALTER TABLE {$db_prefix}pm_recipients
-ADD COLUMN in_inbox smallint NOT NULL default '1';
+ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 ---#
 
 ---# Moving label info to new tables and updating rules...
@@ -2377,7 +2377,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 /******************************************************************************/
 ---# Adding "modified_reason" column to messages
 ALTER TABLE {$db_prefix}messages
-ADD COLUMN modified_reason varchar(255) NOT NULL default '';
+ADD COLUMN IF NOT EXISTS modified_reason varchar(255) NOT NULL default '';
 ---#
 
 /******************************************************************************/
@@ -2551,17 +2551,17 @@ ALTER url TYPE varchar(2048);
 /******************************************************************************/
 ---# Adding the secret column to members table
 ALTER TABLE {$db_prefix}members
-ADD COLUMN tfa_secret VARCHAR(24) NOT NULL DEFAULT '';
+ADD COLUMN IF NOT EXISTS tfa_secret VARCHAR(24) NOT NULL DEFAULT '';
 ---#
 
 ---# Adding the backup column to members tab
 ALTER TABLE {$db_prefix}members
-ADD COLUMN tfa_backup VARCHAR(64) NOT NULL DEFAULT '';
+ADD COLUMN IF NOT EXISTS tfa_backup VARCHAR(64) NOT NULL DEFAULT '';
 ---#
 
 ---# Force 2FA per membergroup
 ALTER TABLE {$db_prefix}membergroups
-ADD COLUMN tfa_required smallint NOT NULL default '0';
+ADD COLUMN IF NOT EXISTS tfa_required smallint NOT NULL default '0';
 ---#
 
 ---# Add tfa_mode setting
@@ -2663,8 +2663,8 @@ $upcontext['skip_db_substeps'] = in_array('ip_low', $table_columns);
 ---#
 
 ---# add columns
-ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low inet;
-ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high inet;
+ALTER TABLE {$db_prefix}ban_items ADD COLUMN IF NOT EXISTS ip_low inet;
+ALTER TABLE {$db_prefix}ban_items ADD COLUMN IF NOT EXISTS ip_high inet;
 ---#
 
 ---# convert data
@@ -2906,9 +2906,9 @@ UPDATE {$db_prefix}permissions SET permission = 'profile_website_any' WHERE perm
 /******************************************************************************/
 ---# Add start_time end_time, and timezone columns to calendar table
 ALTER TABLE {$db_prefix}calendar
-ADD COLUMN start_time time,
-ADD COLUMN end_time time,
-ADD COLUMN timezone VARCHAR(80);
+ADD COLUMN IF NOT EXISTS start_time time,
+ADD COLUMN IF NOT EXISTS end_time time,
+ADD COLUMN IF NOT EXISTS timezone VARCHAR(80);
 ---#
 
 ---# Update cal_maxspan and drop obsolete cal_allowspan setting
@@ -2937,7 +2937,7 @@ ADD COLUMN timezone VARCHAR(80);
 /******************************************************************************/
 ---# Add location column to calendar table
 ALTER TABLE {$db_prefix}calendar
-ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
+ADD COLUMN IF NOT EXISTS location VARCHAR(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
@@ -3173,7 +3173,7 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 /******************************************************************************/
 ---# add backtrace column
 ALTER TABLE {$db_prefix}log_errors
-ADD COLUMN backtrace text NOT NULL default '';
+ADD COLUMN IF NOT EXISTS backtrace text NOT NULL default '';
 ---#
 
 /******************************************************************************/
