@@ -913,13 +913,15 @@ function allowedTo($permission, $boards = null, $any = false)
 	// This should be a boolean.
 	$any = (bool) $any;
 
-	// Maybe a mod needs to tweak $user_info['permissions'] on the fly?
-	call_integration_hook('integrate_allowed_to', array($permission, $boards, $any));
-
 	// Are we checking the _current_ board, or some other boards?
 	if ($boards === null)
 	{
-		if (count(array_intersect($permission, $user_info['permissions'])) != 0)
+		$user_permissions = $user_info['permissions'];
+
+		// Allow temporary overrides for general permissions?
+		call_integration_hook('integrate_allowed_to_general', array(&$user_permissions, $permission));
+
+		if (count(array_intersect($permission, $user_permissions)) != 0)
 			return true;
 		// You aren't allowed, by default.
 		else
@@ -978,6 +980,9 @@ function allowedTo($permission, $boards = null, $any = false)
 		$smcFunc['db_free_result']($request);
 		$return = $result;
 	}
+
+	// Allow temporary overrides for board permissions?
+	call_integration_hook('integrate_allowed_to_board', array(&$return, $permission, $boards, $any));
 
 	$perm_cache[$cache_key] = $return;
 
