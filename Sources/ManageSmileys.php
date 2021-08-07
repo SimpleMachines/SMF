@@ -1392,7 +1392,7 @@ function EditSmileys()
 		$request = $smcFunc['db_query']('', '
 			SELECT s.id_smiley AS id, s.code, f.filename, f.smiley_set, s.description, s.hidden AS location
 			FROM {db_prefix}smileys AS s
-				JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
+				LEFT JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
 			WHERE s.id_smiley = {int:current_smiley}',
 			array(
 				'current_smiley' => (int) $_REQUEST['smiley'],
@@ -1465,7 +1465,7 @@ function list_getSmileys($start, $items_per_page, $sort)
 	$request = $smcFunc['db_query']('', '
 		SELECT s.id_smiley, s.code, f.filename, f.smiley_set, s.description, s.smiley_row, s.smiley_order, s.hidden
 		FROM {db_prefix}smileys AS s
-			JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
+			LEFT JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
 		ORDER BY {raw:sort}',
 		array(
 			'sort' => $sort,
@@ -1598,9 +1598,8 @@ function EditSmileyOrder()
 	$request = $smcFunc['db_query']('', '
 		SELECT s.id_smiley, s.code, f.filename, s.description, s.smiley_row, s.smiley_order, s.hidden
 		FROM {db_prefix}smileys AS s
-			JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
+			LEFT JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley AND f.smiley_set = {string:smiley_set})
 		WHERE s.hidden != {int:popup}
-			AND f.smiley_set = {string:smiley_set}
 		ORDER BY s.smiley_order, s.smiley_row',
 		array(
 			'popup' => 1,
