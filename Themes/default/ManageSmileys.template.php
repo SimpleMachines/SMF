@@ -144,7 +144,7 @@ function template_modifysmiley()
 					', $smiley_set['name'], '
 				</dt>
 				<dd', in_array($set, $context['missing_sets']) ? ' class="errorbox"' : '', '>
-					<select name="smiley_filename[', $set, ']" id="smiley_filename_', $set, '" onchange="$(\'#set\').val(\'', $set, '\');updatePreview($(\'#smiley_filename_\' + $(\'#set\').val()).val(), $(\'#set\').val());" required>';
+					<select name="smiley_filename[', $set, ']" id="smiley_filename_', $set, '" onchange="$(\'#set\').val(\'', $set, '\');updatePreview($(\'#smiley_filename_\' + $(\'#set\').val()).val(), $(\'#set\').val());">';
 
 			foreach ($context['filenames'][$set] as $filename)
 				echo '
