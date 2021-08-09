@@ -7614,6 +7614,8 @@ function check_cron()
  */
 function send_http_status($code, $status = '')
 {
+	global $sourcedir;
+
 	$statuses = array(
 		204 => 'No Content',
 		206 => 'Partial Content',
@@ -7629,6 +7631,7 @@ function send_http_status($code, $status = '')
 	$protocol = preg_match('~^\s*(HTTP/[12]\.\d)\s*$~i', $_SERVER['SERVER_PROTOCOL'], $matches) ? $matches[1] : 'HTTP/1.0';
 
 	// Typically during these requests, we have cleaned the response (ob_*clean), ensure these headers exist.
+	require_once($sourcedir . '/Security.php');
 	frameOptionsHeader();
 	corsPolicyHeader();
 

@@ -139,7 +139,7 @@ class ProxyServer
 		if (!$this->isCached($request))
 			return $this->cacheImage($request);
 
-		return false;
+		return true;
 	}
 
 	/**
