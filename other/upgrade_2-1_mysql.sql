@@ -2870,6 +2870,11 @@ ALTER TABLE {$db_prefix}messages
 DROP INDEX approved;
 ---#
 
+---# Updating messages drop approved ix alt name
+ALTER TABLE {$db_prefix}messages
+DROP INDEX idx_approved;
+---#
+
 ---# Updating messages drop id_board ix
 ALTER TABLE {$db_prefix}messages
 DROP INDEX id_board;
