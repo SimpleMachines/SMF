@@ -7614,6 +7614,8 @@ function check_cron()
  */
 function send_http_status($code, $status = '')
 {
+	global $sourcedir;
+
 	$statuses = array(
 		204 => 'No Content',
 		206 => 'Partial Content',
