@@ -179,7 +179,6 @@ function ModifyBasicSettings($return_config = false)
 			'select',
 			'jquery_source',
 			array(
-				'auto' => $txt['jquery_forum_default'],
 				'cdn' => $txt['jquery_google_cdn'],
 				'jquery_cdn' => $txt['jquery_jquery_cdn'],
 				'microsoft_cdn' => $txt['jquery_microsoft_cdn'],
