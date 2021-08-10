@@ -273,7 +273,7 @@ function cleanRequest()
 	if ($modSettings['proxy_ip_header'] == 'disabled')
 		$reverseIPheaders = array();
 	elseif ($modSettings['proxy_ip_header'] == 'autodetect')
-		$reverseIPheaders = array('HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_CF_CONNECTING_IP');
+		$reverseIPheaders = array('HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_REAL_IP', 'HTTP_CF_CONNECTING_IP');
 	else
 		$reverseIPheaders = array($modSettings['proxy_ip_header']);
 
