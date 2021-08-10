@@ -278,6 +278,7 @@ $txt['custom_edit_registration_allow'] = 'Yes';
 $txt['custom_edit_registration_require'] = 'Yes, and require entry';
 $txt['custom_edit_display'] = 'Show on Topic View';
 $txt['custom_edit_mlist'] = 'Show on memberlist';
+$txt['custom_edit_blist'] = 'Show on buddylist';
 $txt['custom_edit_picktype'] = 'Field Type';
 
 $txt['custom_edit_max_length'] = 'Maximum Length';
