@@ -630,7 +630,7 @@ sceditor.formats.bbcode.set(
 		tags: {
 			img: {
 				'data-attachment': null
-			}
+			},
 			a: {
 				'data-attachment': null
 			}
@@ -743,11 +743,11 @@ sceditor.formats.bbcode.set(
 		},
 		format: function (element, content)
 		{
-			return '[email=' + decodeURI(element.href) + ']' + content + '[/email]';
+			return '[email=' + element.href + ']' + content + '[/email]';
 		},
 		html: function (token, attrs, content)
 		{
-			return '<a data-type="email" href="' + encodeURI(attrs.defaultattr || content) + '">' + content + '</a>';
+			return '<a data-type="email" href="' + sceditor.escapeEntities(attrs.defaultattr || content, true) + '">' + content + '</a>';
 		}
 	}
 );
@@ -755,7 +755,7 @@ sceditor.formats.bbcode.set(
 sceditor.formats.bbcode.set(
 	'url', {
 		allowsEmpty: true,
-		quoteType: sceditor.BBCodeParser.QuoteType.never,
+		quoteType: sceditor.BBCodeParser.QuoteType.always,
 		tags: {
 			a: {
 				'data-type': ['url']
@@ -775,7 +775,7 @@ sceditor.formats.bbcode.set(
 sceditor.formats.bbcode.set(
 	'iurl', {
 		allowsEmpty: true,
-		quoteType: sceditor.BBCodeParser.QuoteType.never,
+		quoteType: sceditor.BBCodeParser.QuoteType.always,
 		tags: {
 			a: {
 				'data-type': ['iurl']
