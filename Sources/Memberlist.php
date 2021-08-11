@@ -648,6 +648,7 @@ function printMemberListRows($request)
 					continue;
 				}
 
+				$context['members'][$member]['options'][$key] = tokenTxtReplace($context['members'][$member]['options'][$key]);
 				$currentKey = 0;
 				if (!empty($column['options']))
 				{
@@ -671,7 +672,7 @@ function printMemberListRows($request)
 						'{SCRIPTURL}' => $scripturl,
 						'{IMAGES_URL}' => $settings['images_url'],
 						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-						'{INPUT}' => $context['members'][$member]['options'][$key],
+						'{INPUT}' => tokenTxtReplace($context['members'][$member]['options'][$key]),
 						'{KEY}' => $currentKey
 					));
 			}
@@ -707,9 +708,9 @@ function getCustFieldsMList()
 	{
 		// Get all the data we're gonna need.
 		$cpf['columns'][$row['col_name']] = array(
-			'label' => $row['field_name'],
+			'label' => tokenTxtReplace($row['field_name']),
 			'type' => $row['field_type'],
-			'options' => $row['field_options'],
+			'options' => tokenTxtReplace($row['field_options']),
 			'bbc' => !empty($row['bbc']),
 			'enclose' => $row['enclose'],
 			'default_value' => $row['default_value'],
