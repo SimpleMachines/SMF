@@ -1060,23 +1060,20 @@ function ForumSettings()
 		require(dirname(__FILE__) . '/Settings.php');
 
 		// UTF-8 requires a setting to override the language charset.
-		if ((!empty($databases[$db_type]['utf8_support']) && !empty($databases[$db_type]['utf8_required'])) || (empty($databases[$db_type]['utf8_required']) && !empty($databases[$db_type]['utf8_support']) && isset($_POST['utf8'])))
+		if (!$databases[$db_type]['utf8_support']())
 		{
-			if (!$databases[$db_type]['utf8_support']())
-			{
-				$incontext['error'] = sprintf($txt['error_utf8_support']);
-				return false;
-			}
-
-			if (!empty($databases[$db_type]['utf8_version_check']) && version_compare($databases[$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', eval($databases[$db_type]['utf8_version_check'])), '>'))
-			{
-				$incontext['error'] = sprintf($txt['error_utf8_version'], $databases[$db_type]['utf8_version']);
-				return false;
-			}
-			else
-				// Set the character set here.
-				installer_updateSettingsFile(array('db_character_set' => 'utf8'));
+			$incontext['error'] = sprintf($txt['error_utf8_support']);
+			return false;
 		}
+
+		if (!empty($databases[$db_type]['utf8_version_check']) && version_compare($databases[$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', eval($databases[$db_type]['utf8_version_check'])), '>'))
+		{
+			$incontext['error'] = sprintf($txt['error_utf8_version'], $databases[$db_type]['utf8_version']);
+			return false;
+		}
+
+		// Set the character set here.
+		installer_updateSettingsFile(array('db_character_set' => 'utf8'));
 
 		// Good, skip on.
 		return true;
@@ -1186,12 +1183,9 @@ function DatabasePopulation()
 		$replaces['{$engine}'] = $has_innodb ? 'InnoDB' : 'MyISAM';
 		$replaces['{$memory}'] = (!$has_innodb && in_array('MEMORY', $engines)) ? 'MEMORY' : $replaces['{$engine}'];
 
-		// If the UTF-8 setting was enabled, add it to the table definitions.
-		if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
-		{
-			$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
-			$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
-		}
+		// UTF-8 is required.
+		$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 
 		// One last thing - if we don't have InnoDB, we can't do transactions...
 		if (!$has_innodb)
@@ -1288,8 +1282,7 @@ function DatabasePopulation()
 	}
 
 	// Make sure UTF will be used globally.
-	if ((!empty($databases[$db_type]['utf8_support']) && !empty($databases[$db_type]['utf8_required'])) || (empty($databases[$db_type]['utf8_required']) && !empty($databases[$db_type]['utf8_support']) && isset($_POST['utf8'])))
-		$newSettings[] = array('global_character_set', 'UTF-8');
+	$newSettings[] = array('global_character_set', 'UTF-8');
 
 	// Are we allowing stat collection?
 	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']))
