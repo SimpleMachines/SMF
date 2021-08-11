@@ -225,9 +225,6 @@ function createMenu($menuData, $menuOptions = array())
 									// Let's assume this is the last, for now.
 									$last_sa = $sa;
 								}
-								// Mark it as disabled...
-								else
-									$menu_context['sections'][$section_id]['areas'][$area_id]['subsections'][$sa]['disabled'] = true;
 							}
 
 							// Set which one is first, last and selected in the group.
@@ -262,23 +259,6 @@ function createMenu($menuData, $menuOptions = array())
 					$menu_context['current_section'] = $section_id;
 					$backup_area = isset($area['select']) ? $area['select'] : $area_id;
 					$include_data = $area;
-				}
-			}
-		}
-	}
-
-	foreach ($menu_context['sections'] as $section_id => $section)
-	{
-		if (!empty($section['areas']))
-		{
-			foreach ($section['areas'] as $area_id => $area)
-			{
-				if (!empty($area['subsections']))
-				{
-					$menu_context['sections'][$section_id]['areas'][$area_id]['hide_subsections'] = true;
-
-					foreach ($area['subsections'] as $sa => $sub)
-						$menu_context['sections'][$section_id]['areas'][$area_id]['hide_subsections'] &= !empty($sub['disabled']);
 				}
 			}
 		}
