@@ -273,7 +273,7 @@ function cleanRequest()
 	if ($modSettings['proxy_ip_header'] == 'disabled')
 		$reverseIPheaders = array();
 	elseif ($modSettings['proxy_ip_header'] == 'autodetect')
-		$reverseIPheaders = array('HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_CF_CONNECTING_IP');
+		$reverseIPheaders = array('HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_REAL_IP', 'HTTP_CF_CONNECTING_IP');
 	else
 		$reverseIPheaders = array($modSettings['proxy_ip_header']);
 
@@ -286,9 +286,19 @@ function cleanRequest()
 
 		if (!empty($modSettings['proxy_ip_servers']))
 		{
+			$valid_sender = false;
+
 			foreach (explode(',', $modSettings['proxy_ip_servers']) as $proxy)
+			{
 				if ($proxy == $_SERVER['REMOTE_ADDR'] || matchIPtoCIDR($_SERVER['REMOTE_ADDR'], $proxy))
-					continue;
+				{
+					$valid_sender = true;
+					break;
+				}
+			}
+
+			if (!$valid_sender)
+				continue;
 		}
 
 		// If there are commas, get the last one.. probably.

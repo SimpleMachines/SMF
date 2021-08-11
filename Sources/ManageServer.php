@@ -651,10 +651,10 @@ function ModifyGeneralSecuritySettings($return_config = false)
 			array(
 				'disabled' => $txt['setting_proxy_ip_header_disabled'],
 				'autodetect' => $txt['setting_proxy_ip_header_autodetect'],
-				'HTTP_X_FORWARDED_FOR' => 'HTTP_X_FORWARDED_FOR',
-				'HTTP_CLIENT_IP' => 'HTTP_CLIENT_IP',
-				'HTTP_X_REAL_IP' => 'HTTP_X_REAL_IP',
-				'CF-Connecting-IP' => 'CF-Connecting-IP'
+				'HTTP_X_FORWARDED_FOR' => 'X-Forwarded-For',
+				'HTTP_CLIENT_IP' => 'Client-IP',
+				'HTTP_X_REAL_IP' => 'X-Real-IP',
+				'HTTP_CF_CONNECTING_IP' => 'CF-Connecting-IP'
 			)
 		),
 		array('text', 'proxy_ip_servers'),
