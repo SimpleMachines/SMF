@@ -327,11 +327,11 @@ sceditor.command.set(
 							'</a>'
 						);
 					else
-						// Can't just use `editor.execCommand('createlink', url)`
+						// Can't just use `editor.execCommand('createlink', email)`
 						// because we need to set a custom attribute.
 						editor.wysiwygEditorInsertHtml(
-							'<a data-type="email" href="' +
-							sceditor.escapeEntities(url) + '">', '</a>'
+							'<a data-type="email" href="mailto:' +
+							sceditor.escapeEntities(email) + '">', '</a>'
 						);
 				}
 			);
@@ -743,11 +743,11 @@ sceditor.formats.bbcode.set(
 		},
 		format: function (element, content)
 		{
-			return '[email=' + element.href + ']' + content + '[/email]';
+			return '[email=' + element.href.substr(7) + ']' + content + '[/email]';
 		},
 		html: function (token, attrs, content)
 		{
-			return '<a data-type="email" href="' + sceditor.escapeEntities(attrs.defaultattr || content, true) + '">' + content + '</a>';
+			return '<a data-type="email" href="mailto:' + sceditor.escapeEntities(attrs.defaultattr || content, true) + '">' + content + '</a>';
 		}
 	}
 );
