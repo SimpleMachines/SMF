@@ -229,7 +229,16 @@ $txt['modified_by'] = 'Edited by';
 $txt['recent_posts'] = 'Recent posts';
 
 $txt['location'] = 'Location';
+$txt['location_desc'] = 'Geographic location.';
 $txt['gender'] = 'Gender';
+$txt['gender_0'] = 'None';
+$txt['gender_1'] = 'Male';
+$txt['gender_2'] = 'Female';
+$txt['gender_desc'] = 'Your gender.';
+$txt['icq'] = 'ICQ';
+$txt['icq_desc'] = 'This is your ICQ number.';
+$txt['skype'] = 'Skype';
+$txt['skype_desc'] = 'Your Skype username';
 $txt['personal_text'] = 'Personal text';
 $txt['date_registered'] = 'Date registered';
 

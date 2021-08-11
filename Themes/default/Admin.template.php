@@ -1120,13 +1120,21 @@ function template_edit_profile_field()
 
 									<dl class="settings">
 										<dt>
-											<strong><label for="field_name">', $txt['custom_edit_name'], ':</label></strong>
+											<a id="field_reg_require" href="', $scripturl, '?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);" class="help">
+												<span class="main_icons help" title="', $txt['help'], '"></span>
+											</a>
+											<strong><label for="field_name">', $txt['custom_edit_name'], ':</label></strong><br>
+											<span class="smalltext">', $txt['custom_edit_name_desc'], '</span>
 										</dt>
 										<dd>
 											<input type="text" name="field_name" id="field_name" value="', $context['field']['name'], '" size="20" maxlength="40">
 										</dd>
 										<dt>
-											<strong><label for="field_desc">', $txt['custom_edit_desc'], ':</label></strong>
+											<a id="field_reg_require" href="', $scripturl, '?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);" class="help">
+												<span class="main_icons help" title="', $txt['help'], '"></span>
+											</a>
+											<strong><label for="field_desc">', $txt['custom_edit_desc'], ':</label></strong><br>
+											<span class="smalltext">', $txt['custom_edit_name_desc'], '</span>
 										</dt>
 										<dd>
 											<textarea name="field_desc" id="field_desc" rows="3" cols="40">', $context['field']['desc'], '</textarea>

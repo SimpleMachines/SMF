@@ -7869,4 +7869,24 @@ function JavaScriptEscape($string)
 	)) . '\'';
 }
 
+function tokenTxtReplace($stringSubject = '')
+{
+	global $txt;
+
+	if (empty($stringSubject))
+		return '';
+
+	$translatable_tokens = preg_match_all('/{(.*?)}/' , $stringSubject, $matches);
+	$toFind = array();
+	$replaceWith = array();
+
+	if (!empty($matches[1]))
+		foreach ($matches[1] as $token) {
+			$toFind[] = '{' . $token . '}';
+			$replaceWith[] = isset($txt[$token]) ? $txt[$token] : $token;
+		}
+
+	return str_replace($toFind, $replaceWith, $stringSubject);
+}
+
 ?>
