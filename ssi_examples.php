@@ -420,6 +420,7 @@ function template_ssi_above()
 	<head>
 		<title>', SMF_FULL_VERSION, ' SSI.php Examples</title>
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">
+		<script src="', !empty($context['javascript_files']['smf_jquery']['fileUrl']) ? $context['javascript_files']['smf_jquery']['fileUrl'] : 'https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', '"></script>
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<style>
 			#wrapper {
