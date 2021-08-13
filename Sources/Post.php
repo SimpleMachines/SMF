@@ -1258,6 +1258,10 @@ function Post($post_errors = array())
 		loadJavaScriptFile('mentions.js', array('defer' => true, 'minimize' => true), 'smf_mentions');
 	}
 
+	// Load the drafts js file
+	if ($context['drafts_autosave'])
+		loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
+	
 	// quotedText.js
 	loadJavaScriptFile('quotedText.js', array('defer' => true, 'minimize' => true), 'smf_quotedText');
 

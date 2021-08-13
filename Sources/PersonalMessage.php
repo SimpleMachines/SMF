@@ -1820,6 +1820,8 @@ function MessagePost()
 	loadTemplate('PersonalMessage');
 	loadJavaScriptFile('PersonalMessage.js', array('defer' => false, 'minimize' => true), 'smf_pms');
 	loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+	if ($context['drafts_autosave'])
+		loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
 	$context['sub_template'] = 'send';
 
 	// Extract out the spam settings - cause it's neat.
