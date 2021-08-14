@@ -190,7 +190,7 @@ function ModifyBasicSettings($return_config = false)
 		array(
 			'text',
 			'jquery_custom',
-			'disabled' => isset($modSettings['jquery_source']) && $modSettings['jquery_source'] != 'custom', 'size' => 75
+			'disabled' => !isset($modSettings['jquery_source']) || (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] != 'custom'), 'size' => 75
 		),
 		'',
 
