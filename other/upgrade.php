@@ -3361,34 +3361,53 @@ function ConvertUtf8()
 }
 
 /**
- * Attempts to repair corrupted serialized data strings
+ * Wrapper for unserialize that attempts to repair corrupted serialized data strings
  *
- * @param string $string Serialized data that has been corrupted
- * @return string|bool A working version of the serialized data, or the original if the repair failed
+ * @param string $string Serialized data that may or may not have been corrupted
+ * @return string|bool The unserialized data, or false if the repair failed
  */
-function fix_serialized_data($string)
+function upgrade_unserialize($string)
 {
-	// If its not broken, don't fix it.
-	if (!is_string($string) || !preg_match('/^[bidsa]:/', $string) || @safe_unserialize($string) !== false)
-		return $string;
+	if (!is_string($string))
+	{
+		$data = false;
+	}
+	// Might be JSON already.
+	elseif (strpos($string, '{') === 0)
+	{
+		$data = @json_decode($string, true);
 
-	// This bit fixes incorrect string lengths, which can happen if the character encoding was changed (e.g. conversion to UTF-8)
-	$new_string = preg_replace_callback(
-		'~\bs:(\d+):"(.*?)";(?=$|[bidsa]:|[{}]|N;)~s',
-		function ($matches)
+		if (is_null($data))
+			$data = false;
+	}
+	elseif (in_array(substr($string, 0, 2), array('b:', 'i:', 'd:', 's:', 'a:', 'N;')))
+	{
+		$data = @safe_unserialize($string);
+
+		// The serialized data is broken.
+		if ($data === false)
 		{
-			return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";';
-		},
-		$string
-	);
+			// This bit fixes incorrect string lengths, which can happen if the character encoding was changed (e.g. conversion to UTF-8)
+			$new_string = preg_replace_callback(
+				'~\bs:(\d+):"(.*?)";(?=$|[bidsaO]:|[{}}]|N;)~s',
+				function ($matches)
+				{
+					return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";';
+				},
+				$string
+			);
 
-	// @todo Add more possible fixes here. For example, fix incorrect array lengths, try to handle truncated strings gracefully, etc.
+			// @todo Add more possible fixes here. For example, fix incorrect array lengths, try to handle truncated strings gracefully, etc.
 
-	// Did it work?
-	if (@safe_unserialize($new_string) !== false)
-		return $new_string;
+			// Did it work?
+			$data = @safe_unserialize($string);
+		}
+	}
+	// Just a plain string, then.
 	else
-		return $string;
+		$data = false;
+
+	return $data;
 }
 
 function serialize_to_json()
@@ -3499,10 +3518,7 @@ function serialize_to_json()
 					if (isset($modSettings[$var]))
 					{
 						// Attempt to unserialize the setting
-						$temp = @safe_unserialize($modSettings[$var]);
-						// Maybe conversion to UTF-8 corrupted it
-						if ($temp === false)
-							$temp = @safe_unserialize(fix_serialized_data($modSettings[$var]));
+						$temp = upgrade_unserialize($modSettings[$var]);
 
 						if (!$temp && $command_line)
 							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
@@ -3532,9 +3548,7 @@ function serialize_to_json()
 				{
 					while ($row = $smcFunc['db_fetch_assoc']($query))
 					{
-						$temp = @safe_unserialize($row['value']);
-						if ($temp === false)
-							$temp = @safe_unserialize(fix_serialized_data($row['value']));
+						$temp = upgrade_unserialize($row['value']);
 
 						if ($command_line)
 						{
@@ -3611,18 +3625,10 @@ function serialize_to_json()
 						{
 							if ($col !== true && $row[$col] != '')
 							{
-								$temp = @safe_unserialize($row[$col]);
-
-								// Maybe we can fix the data?
-								if ($temp === false)
-									$temp = @safe_unserialize(fix_serialized_data($row[$col]));
-
-								// Maybe the data is already JSON?
-								if ($temp === false)
-									$temp = smf_json_decode($row[$col], true, false);
+								$temp = upgrade_unserialize($row[$col]);
 
 								// Oh well...
-								if ($temp === null)
+								if ($temp === false)
 								{
 									$temp = array();
 
