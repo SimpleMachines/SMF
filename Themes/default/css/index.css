@@ -232,7 +232,7 @@ body#help_popup {
 }
 
 /* The "new" button */
-.new_posts {
+.new_posts, a.new_posts {
 	display: inline-block;
 	position: relative;
 	top: -2px;
