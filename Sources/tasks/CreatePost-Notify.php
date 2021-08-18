@@ -98,7 +98,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$posterOptions = &$this->_details['posterOptions'];
 		$type = &$this->_details['type'];
 
-		$this->mention_mail_time = $msgOptions['poster_time'] + self::MENTION_DELAY * 60;
+		$this->mention_mail_time = (isset($msgOptions['poster_time']) ? $msgOptions['poster_time'] : 0) + self::MENTION_DELAY * 60;
 
 		// We need some more info about the quoted and mentioned members.
 		if (!empty($msgOptions['quoted_members']))
