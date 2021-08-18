@@ -69,7 +69,7 @@ function MoveTopic()
 
 	if (!$context['move_any'])
 	{
-		$boards = array_diff(boardsAllowedTo('post_new'), array($board));
+		$boards = array_diff(boardsAllowedTo('post_new', true), array($board));
 		if (empty($boards))
 		{
 			// No boards? Too bad...
@@ -81,6 +81,7 @@ function MoveTopic()
 
 	$options = array(
 		'not_redirection' => true,
+		'use_permissions' => $context['move_any'],
 	);
 
 	if (!empty($_SESSION['move_to_topic']) && $_SESSION['move_to_topic'] != $board)
