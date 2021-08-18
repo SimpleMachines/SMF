@@ -2345,7 +2345,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		$searchAPI->postModified($msgOptions, $topicOptions, $posterOptions);
 
 	// Send notifications about any new quotes or mentions.
-	if ($msgOptions['send_notifications'] && $msgOptions['approved'] && (!empty($msgOptions['quoted_members']) || !empty($msgOptions['mentioned_members'])))
+	if ($msgOptions['send_notifications'] && !empty($msgOptions['approved']) && (!empty($msgOptions['quoted_members']) || !empty($msgOptions['mentioned_members'])))
 	{
 		$smcFunc['db_insert']('',
 			'{db_prefix}background_tasks',
