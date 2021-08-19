@@ -171,7 +171,7 @@ function smf_fileUpload(oOptions) {
 					var e = $('#' + oEditorID).get(0);
 					var oEditor = sceditor.instance(e);
 
-					oEditor.insert(myDropzone.options.smf_insertBBC(response, w, h));
+					oEditor.insert(myDropzone.options.smf_insertBBC(response, w, h), ' ');
 				})
 				.appendTo(_innerElement.find('.attach-ui'));
 		};
