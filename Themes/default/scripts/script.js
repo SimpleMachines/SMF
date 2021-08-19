@@ -1937,6 +1937,14 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 			bodyText += preview.getElementsByTagName('body')[0].childNodes[i].nodeValue;
 
 	setInnerHTML(document.getElementById(this.opts.sPreviewBodyContainerID), bodyText);
+	$('#' + this.opts.sPreviewBodyContainerID + ' .smf_select_text').on('click', function(e) {
+		e.preventDefault();
+
+		// Do you want to target yourself?
+		var actOnElement = $(this).attr('data-actonelement');
+
+		return typeof actOnElement !== "undefined" ? smfSelectText(actOnElement, true) : smfSelectText(this);
+	});
 	document.getElementById(this.opts.sPreviewBodyContainerID).className = 'windowbg';
 
 	// Show a list of errors (if any).
