@@ -2247,7 +2247,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		unset($msgOptions['quoted_members'][$user_info['id']]);
 	}
 
-	if (!empty($modSettings['enable_mentions']))
+	if (!empty($modSettings['enable_mentions']) && isset($msgOptions['body']))
 	{
 		$mentions = Mentions::getMentionedMembers($msgOptions['body']);
 		$messages_columns['body'] = $msgOptions['body'] = Mentions::getBody($msgOptions['body'], $mentions);
