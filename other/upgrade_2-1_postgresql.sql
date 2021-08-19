@@ -1829,7 +1829,7 @@ CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_i
 CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
 ---#
 
----# Adding count to the messages table.
+---# Adding likes column to the messages table. (May take a while)
 ALTER TABLE {$db_prefix}messages
 ADD COLUMN IF NOT EXISTS likes smallint NOT NULL default '0';
 ---#
