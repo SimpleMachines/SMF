@@ -313,20 +313,14 @@ function Register2()
 		}
 	}
 
-	foreach ($_POST as $key => $value)
-	{
-		if (!is_array($_POST[$key]))
+	array_walk_recursive(
+		$_POST,
+		function (&$value, $key) use ($context, $smcFunc)
 		{
-			// For UTF-8, replace any kind of space with a normal space, and remove any kind of control character (incl. "\n" and "\r"), then trim.
-			if ($context['utf8'])
-				$_POST[$key] = $smcFunc['htmltrim'](preg_replace(array('~\p{Z}+~u', '~\p{C}+~u'), array(' ', ''), $_POST[$key]));
-			// Otherwise, just remove "\n" and "\r", then trim.
-			else
-				$_POST[$key] = $smcFunc['htmltrim'](str_replace(array("\n", "\r"), '', $_POST[$key]));
+			// Replace any kind of space with a normal space, and remove any kind of control character, then trim.
+			$value = $smcFunc['htmltrim'](preg_replace(array('~[\h\v]+~' . ($context['utf8'] ? 'u' : ''), '~\p{Cc}+~'), array(' ', ''), $value));
 		}
-		else
-			$_POST[$key] = htmltrim__recursive($_POST[$key]);
-	}
+	);
 
 	// Collect all extra registration fields someone might have filled in.
 	$possible_strings = array(

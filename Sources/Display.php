@@ -1039,7 +1039,7 @@ function Display()
 					'now' => time(),
 				)
 			);
-			$user_info['alerts'] = $user_info['alerts'] - max(0, $smcFunc['db_affected_rows']());
+			$user_info['alerts'] = max(0, $user_info['alerts'] - max(0, $smcFunc['db_affected_rows']()));
 			updateMemberData($user_info['id'], array('alerts' => $user_info['alerts']));
 		}
 	}
@@ -1341,6 +1341,26 @@ function Display()
 	call_integration_hook('integrate_display_buttons', array(&$context['normal_buttons']));
 	// Note: integrate_mod_buttons is no more necessary and deprecated, but is kept for backward compatibility with 2.0
 	call_integration_hook('integrate_mod_buttons', array(&$context['mod_buttons']));
+
+	// If any buttons have a 'test' check, run those tests now to keep things clean.
+	foreach (array('normal_buttons', 'mod_buttons') as $button_strip)
+	{
+		foreach ($context[$button_strip] as $key => $value)
+		{
+			if (isset($value['test']) && empty($context[$value['test']]))
+			{
+				unset($context[$button_strip][$key]);
+			}
+			elseif (isset($value['sub_buttons']))
+			{
+				foreach ($value['sub_buttons'] as $subkey => $subvalue)
+				{
+					if (isset($subvalue['test']) && empty($context[$subvalue['test']]))
+						unset($context[$button_strip][$key]['sub_buttons'][$subkey]);
+				}
+			}
+		}
+	}
 
 	// Load the drafts js file
 	if ($context['drafts_autosave'])

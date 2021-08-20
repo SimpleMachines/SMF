@@ -2387,25 +2387,24 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					// An &nbsp; right after a URL can break the autolinker
 					if (strpos($data, '&nbsp;') !== false)
 					{
-						$placeholders[sprintf($placeholder_template, 'nbsp')] = '&nbsp;';
-						$data = strtr($data, array('&nbsp;' => sprintf($placeholder_template, 'nbsp')));
+						$placeholders[html_entity_decode('&nbsp;', null, $context['character_set'])] = '&nbsp;';
+						$data = strtr($data, array('&nbsp;' => html_entity_decode('&nbsp;', null, $context['character_set'])));
 					}
+
+					// Some reusable character classes
+					$excluded_trailing_chars = '!;:.,?';
+					$domain_label_chars = '0-9A-Za-z\-' . ($context['utf8'] ? implode('', array(
+						'\x{A0}-\x{D7FF}', '\x{F900}-\x{FDCF}', '\x{FDF0}-\x{FFEF}',
+						'\x{10000}-\x{1FFFD}', '\x{20000}-\x{2FFFD}', '\x{30000}-\x{3FFFD}',
+						'\x{40000}-\x{4FFFD}', '\x{50000}-\x{5FFFD}', '\x{60000}-\x{6FFFD}',
+						'\x{70000}-\x{7FFFD}', '\x{80000}-\x{8FFFD}', '\x{90000}-\x{9FFFD}',
+						'\x{A0000}-\x{AFFFD}', '\x{B0000}-\x{BFFFD}', '\x{C0000}-\x{CFFFD}',
+						'\x{D0000}-\x{DFFFD}', '\x{E1000}-\x{EFFFD}',
+					)) : '');
 
 					// Parse any URLs
 					if (!isset($disabled['url']) && strpos($data, '[url') === false)
 					{
-						// Some reusable character classes
-						$space_chars = ($context['utf8'] ? '\p{Z}' : '\s');
-						$excluded_trailing_chars = '!;:.,?';
-						$domain_label_chars = '0-9A-Za-z\-' . ($context['utf8'] ? implode('', array(
-							'\x{A0}-\x{D7FF}', '\x{F900}-\x{FDCF}', '\x{FDF0}-\x{FFEF}',
-							'\x{10000}-\x{1FFFD}', '\x{20000}-\x{2FFFD}', '\x{30000}-\x{3FFFD}',
-							'\x{40000}-\x{4FFFD}', '\x{50000}-\x{5FFFD}', '\x{60000}-\x{6FFFD}',
-							'\x{70000}-\x{7FFFD}', '\x{80000}-\x{8FFFD}', '\x{90000}-\x{9FFFD}',
-							'\x{A0000}-\x{AFFFD}', '\x{B0000}-\x{BFFFD}', '\x{C0000}-\x{CFFFD}',
-							'\x{D0000}-\x{DFFFD}', '\x{E1000}-\x{EFFFD}',
-						)) : '');
-
 						// URI schemes that require some sort of special handling.
 						$schemes = array(
 							// Schemes whose URI definitions require a domain name in the
@@ -2495,16 +2494,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								'(' => ')', '[' => ']', '{' => '}',
 								// Double quotation marks
 								'"' => '"',
-								html_entity_decode('&#x201C;') => html_entity_decode('&#x201D;'),
-								html_entity_decode('&#x201E;') => html_entity_decode('&#x201D;'),
-								html_entity_decode('&#x201F;') => html_entity_decode('&#x201D;'),
-								html_entity_decode('&#x00AB;') => html_entity_decode('&#x00BB;'),
+								html_entity_decode('&#x201C;', null, $context['character_set']) => html_entity_decode('&#x201D;', null, $context['character_set']),
+								html_entity_decode('&#x201E;', null, $context['character_set']) => html_entity_decode('&#x201D;', null, $context['character_set']),
+								html_entity_decode('&#x201F;', null, $context['character_set']) => html_entity_decode('&#x201D;', null, $context['character_set']),
+								html_entity_decode('&#x00AB;', null, $context['character_set']) => html_entity_decode('&#x00BB;', null, $context['character_set']),
 								// Single quotation marks
 								'\'' => '\'',
-								html_entity_decode('&#x2018;') => html_entity_decode('&#x2019;'),
-								html_entity_decode('&#x201A;') => html_entity_decode('&#x2019;'),
-								html_entity_decode('&#x201B;') => html_entity_decode('&#x2019;'),
-								html_entity_decode('&#x2039;') => html_entity_decode('&#x203A;'),
+								html_entity_decode('&#x2018;', null, $context['character_set']) => html_entity_decode('&#x2019;', null, $context['character_set']),
+								html_entity_decode('&#x201A;', null, $context['character_set']) => html_entity_decode('&#x2019;', null, $context['character_set']),
+								html_entity_decode('&#x201B;', null, $context['character_set']) => html_entity_decode('&#x2019;', null, $context['character_set']),
+								html_entity_decode('&#x2039;', null, $context['character_set']) => html_entity_decode('&#x203A;', null, $context['character_set']),
 							);
 							foreach ($balanced_pairs as $pair_opener => $pair_closer)
 								$balanced_pairs[$smcFunc['htmlspecialchars']($pair_opener)] = $smcFunc['htmlspecialchars']($pair_closer);
@@ -2528,23 +2527,23 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 							$pcre_subroutines['bracket_quote'] = '[' . $bracket_quote_chars . ']|&' . build_regex($bracket_quote_entities, '~');
 							$pcre_subroutines['allowed_entities'] = '&(?!' . build_regex(array_merge($bracket_quote_entities, array('lt;', 'gt;')), '~') . ')';
-							$pcre_subroutines['excluded_lookahead'] = '(?![' . $excluded_trailing_chars . ']*(?>' . $space_chars . '|<br>|$))';
+							$pcre_subroutines['excluded_lookahead'] = '(?![' . $excluded_trailing_chars . ']*(?>[\h\v]|<br>|$))';
 
 							foreach (array('path', 'query', 'fragment') as $part)
 							{
 								switch ($part) {
 									case 'path':
-										$part_disallowed_chars = '<>' . $bracket_quote_chars . $space_chars . $excluded_trailing_chars . '/#&';
+										$part_disallowed_chars = '\h\v<>' . $bracket_quote_chars . $excluded_trailing_chars . '/#&';
 										$part_excluded_trailing_chars = str_replace('?', '', $excluded_trailing_chars);
 										break;
 
 									case 'query':
-										$part_disallowed_chars = '<>' . $bracket_quote_chars . $space_chars . $excluded_trailing_chars . '#&';
+										$part_disallowed_chars = '\h\v<>' . $bracket_quote_chars . $excluded_trailing_chars . '#&';
 										$part_excluded_trailing_chars = $excluded_trailing_chars;
 										break;
 
 									default:
-										$part_disallowed_chars = '<>' . $bracket_quote_chars . $space_chars . $excluded_trailing_chars . '&';
+										$part_disallowed_chars = '\h\v<>' . $bracket_quote_chars . $excluded_trailing_chars . '&';
 										$part_excluded_trailing_chars = $excluded_trailing_chars;
 										break;
 								}
@@ -2668,7 +2667,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								// (e.g. "example.com" in "Go to example.com for an example.")
 								'(?P<naked_domain>' .
 									// Preceded by start of line or a space
-									'(?<=^|<br>|[' . $space_chars . '])' .
+									'(?<=^|<br>|[\h\v])' .
 									// A domain name
 									'(?P>domain)' .
 									// Followed by a non-domain character or end of line
@@ -2795,7 +2794,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (!isset($disabled['email']) && strpos($data, '@') !== false && strpos($data, '[email') === false && stripos($data, 'mailto:') === false)
 					{
 						// Preceded by a space or start of line
-						$email_regex = '(?<=^|<br>|[' . $space_chars . '])' .
+						$email_regex = '(?<=^|<br>|[\h\v])' .
 
 						// An email address
 						'[' . $domain_label_chars . '_.]{1,80}' .
@@ -5192,10 +5191,6 @@ function setupMenuContext()
 			{
 				$button['active_button'] = false;
 
-				// This button needs some action.
-				if (isset($button['action_hook']))
-					$needs_action_hook = true;
-
 				// Make sure the last button truly is the last button.
 				if (!empty($button['is_last']))
 				{
@@ -5331,8 +5326,7 @@ function setupMenuContext()
 	}
 
 	// Not all actions are simple.
-	if (!empty($needs_action_hook))
-		call_integration_hook('integrate_current_action', array(&$current_action));
+	call_integration_hook('integrate_current_action', array(&$current_action));
 
 	if (isset($context['menu_buttons'][$current_action]))
 		$context['menu_buttons'][$current_action]['active_button'] = true;
