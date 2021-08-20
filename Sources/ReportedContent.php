@@ -244,7 +244,7 @@ function ReportDetails()
 	$report = getReportDetails($report_id);
 
 	if (!$report)
-		fatal_lang_error('mc_no_modreport_found');
+		fatal_lang_error('mc_no_modreport_found', false);
 
 	// Build the report data - basic details first, then extra stuff based on the type
 	$context['report'] = array(
