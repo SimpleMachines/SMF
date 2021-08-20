@@ -1614,7 +1614,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
 ) ENGINE=MyISAM;
 ---#
 
----# Adding count to the messages table. (May take a while)
+---# Adding likes column to the messages table. (May take a while)
 ALTER TABLE {$db_prefix}messages
 ADD COLUMN likes SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0';
 ---#
