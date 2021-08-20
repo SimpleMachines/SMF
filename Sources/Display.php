@@ -1348,7 +1348,17 @@ function Display()
 		foreach ($context[$button_strip] as $key => $value)
 		{
 			if (isset($value['test']) && empty($context[$value['test']]))
+			{
 				unset($context[$button_strip][$key]);
+			}
+			elseif (isset($value['sub_buttons']))
+			{
+				foreach ($value['sub_buttons'] as $subkey => $subvalue)
+				{
+					if (isset($subvalue['test']) && empty($context[$subvalue['test']]))
+						unset($context[$button_strip][$key]['sub_buttons'][$subkey]);
+				}
+			}
 		}
 	}
 
