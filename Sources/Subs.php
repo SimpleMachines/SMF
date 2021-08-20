@@ -5160,10 +5160,6 @@ function setupMenuContext()
 			{
 				$button['active_button'] = false;
 
-				// This button needs some action.
-				if (isset($button['action_hook']))
-					$needs_action_hook = true;
-
 				// Make sure the last button truly is the last button.
 				if (!empty($button['is_last']))
 				{
@@ -5299,8 +5295,7 @@ function setupMenuContext()
 	}
 
 	// Not all actions are simple.
-	if (!empty($needs_action_hook))
-		call_integration_hook('integrate_current_action', array(&$current_action));
+	call_integration_hook('integrate_current_action', array(&$current_action));
 
 	if (isset($context['menu_buttons'][$current_action]))
 		$context['menu_buttons'][$current_action]['active_button'] = true;
