@@ -2356,8 +2356,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					// An &nbsp; right after a URL can break the autolinker
 					if (strpos($data, '&nbsp;') !== false)
 					{
-						$placeholders[html_entity_decode('&nbsp;')] = '&nbsp;';
-						$data = strtr($data, array('&nbsp;' => html_entity_decode('&nbsp;')));
+						$placeholders[html_entity_decode('&nbsp;', null, $context['character_set'])] = '&nbsp;';
+						$data = strtr($data, array('&nbsp;' => html_entity_decode('&nbsp;', null, $context['character_set'])));
 					}
 
 					// Some reusable character classes
@@ -2463,16 +2463,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								'(' => ')', '[' => ']', '{' => '}',
 								// Double quotation marks
 								'"' => '"',
-								html_entity_decode('&#x201C;') => html_entity_decode('&#x201D;'),
-								html_entity_decode('&#x201E;') => html_entity_decode('&#x201D;'),
-								html_entity_decode('&#x201F;') => html_entity_decode('&#x201D;'),
-								html_entity_decode('&#x00AB;') => html_entity_decode('&#x00BB;'),
+								html_entity_decode('&#x201C;', null, $context['character_set']) => html_entity_decode('&#x201D;', null, $context['character_set']),
+								html_entity_decode('&#x201E;', null, $context['character_set']) => html_entity_decode('&#x201D;', null, $context['character_set']),
+								html_entity_decode('&#x201F;', null, $context['character_set']) => html_entity_decode('&#x201D;', null, $context['character_set']),
+								html_entity_decode('&#x00AB;', null, $context['character_set']) => html_entity_decode('&#x00BB;', null, $context['character_set']),
 								// Single quotation marks
 								'\'' => '\'',
-								html_entity_decode('&#x2018;') => html_entity_decode('&#x2019;'),
-								html_entity_decode('&#x201A;') => html_entity_decode('&#x2019;'),
-								html_entity_decode('&#x201B;') => html_entity_decode('&#x2019;'),
-								html_entity_decode('&#x2039;') => html_entity_decode('&#x203A;'),
+								html_entity_decode('&#x2018;', null, $context['character_set']) => html_entity_decode('&#x2019;', null, $context['character_set']),
+								html_entity_decode('&#x201A;', null, $context['character_set']) => html_entity_decode('&#x2019;', null, $context['character_set']),
+								html_entity_decode('&#x201B;', null, $context['character_set']) => html_entity_decode('&#x2019;', null, $context['character_set']),
+								html_entity_decode('&#x2039;', null, $context['character_set']) => html_entity_decode('&#x203A;', null, $context['character_set']),
 							);
 							foreach ($balanced_pairs as $pair_opener => $pair_closer)
 								$balanced_pairs[$smcFunc['htmlspecialchars']($pair_opener)] = $smcFunc['htmlspecialchars']($pair_closer);
