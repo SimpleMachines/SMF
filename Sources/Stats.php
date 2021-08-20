@@ -173,18 +173,15 @@ function DisplayStats()
 			$smcFunc['db_free_result']($result);
 
 			$result = $smcFunc['db_query']('', '
-				SELECT COUNT(*) AS total_members,  gender
-				FROM (
-					SELECT mem.id_member, COALESCE(t.value, {string:default_gender}) AS gender
-					FROM {db_prefix}members AS mem
-					LEFT JOIN {db_prefix}themes AS t ON (
-						mem.id_member = t.id_member AND
-						t.variable = {string:gender_var} AND
-						t.id_theme = {int:default_theme}
-						)
-					WHERE is_activated = {int:is_activated}
-				) AS a
-				GROUP BY gender',
+				SELECT COUNT(*) AS total_members, value AS gender
+				FROM {db_prefix}members AS mem
+				INNER JOIN {db_prefix}themes AS t ON (
+					t.id_member = mem.id_member
+					AND t.variable = {string:gender_var}
+					AND t.id_theme = {int:default_theme}
+				)
+				WHERE is_activated = {int:is_activated}
+				GROUP BY value',
 				array(
 					'gender_var' => 'cust_gender',
 					'default_theme' => 1,
@@ -192,12 +189,14 @@ function DisplayStats()
 					'default_gender' => $default_gender,
 				)
 			);
-			$context['gender'] = array();
+			$context['gender'] = array($default_gender => 0);
 			while ($row = $smcFunc['db_fetch_assoc']($result))
 			{
 				$context['gender'][$row['gender']] = $row['total_members'];
 			}
 			$smcFunc['db_free_result']($result);
+
+			$context['gender'][$default_gender] += $modSettings['totalMembers'] - array_sum($context['gender']);
 
 			cache_put_data('stats_gender', $context['gender'], 240);
 		}
