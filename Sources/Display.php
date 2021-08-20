@@ -1039,7 +1039,7 @@ function Display()
 					'now' => time(),
 				)
 			);
-			$user_info['alerts'] = $user_info['alerts'] - max(0, $smcFunc['db_affected_rows']());
+			$user_info['alerts'] = max(0, $user_info['alerts'] - max(0, $smcFunc['db_affected_rows']()));
 			updateMemberData($user_info['id'], array('alerts' => $user_info['alerts']));
 		}
 	}
