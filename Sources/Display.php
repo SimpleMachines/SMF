@@ -1342,6 +1342,16 @@ function Display()
 	// Note: integrate_mod_buttons is no more necessary and deprecated, but is kept for backward compatibility with 2.0
 	call_integration_hook('integrate_mod_buttons', array(&$context['mod_buttons']));
 
+	// If any buttons have a 'test' check, run those tests now to keep things clean.
+	foreach (array('normal_buttons', 'mod_buttons') as $button_strip)
+	{
+		foreach ($context[$button_strip] as $key => $value)
+		{
+			if (isset($value['test']) && empty($context[$value['test']]))
+				unset($context[$button_strip][$key]);
+		}
+	}
+
 	// Load the drafts js file
 	if ($context['drafts_autosave'])
 		loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
