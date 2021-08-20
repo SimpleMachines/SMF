@@ -2361,7 +2361,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					}
 
 					// Some reusable character classes
-					$space_chars = ($context['utf8'] ? '\p{Z}' : '\s');
 					$excluded_trailing_chars = '!;:.,?';
 					$domain_label_chars = '0-9A-Za-z\-' . ($context['utf8'] ? implode('', array(
 						'\x{A0}-\x{D7FF}', '\x{F900}-\x{FDCF}', '\x{FDF0}-\x{FFEF}',
@@ -2497,23 +2496,23 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 							$pcre_subroutines['bracket_quote'] = '[' . $bracket_quote_chars . ']|&' . build_regex($bracket_quote_entities, '~');
 							$pcre_subroutines['allowed_entities'] = '&(?!' . build_regex(array_merge($bracket_quote_entities, array('lt;', 'gt;')), '~') . ')';
-							$pcre_subroutines['excluded_lookahead'] = '(?![' . $excluded_trailing_chars . ']*(?>' . $space_chars . '|<br>|$))';
+							$pcre_subroutines['excluded_lookahead'] = '(?![' . $excluded_trailing_chars . ']*(?>[\h\v]|<br>|$))';
 
 							foreach (array('path', 'query', 'fragment') as $part)
 							{
 								switch ($part) {
 									case 'path':
-										$part_disallowed_chars = '<>' . $bracket_quote_chars . $space_chars . $excluded_trailing_chars . '/#&';
+										$part_disallowed_chars = '\h\v<>' . $bracket_quote_chars . $excluded_trailing_chars . '/#&';
 										$part_excluded_trailing_chars = str_replace('?', '', $excluded_trailing_chars);
 										break;
 
 									case 'query':
-										$part_disallowed_chars = '<>' . $bracket_quote_chars . $space_chars . $excluded_trailing_chars . '#&';
+										$part_disallowed_chars = '\h\v<>' . $bracket_quote_chars . $excluded_trailing_chars . '#&';
 										$part_excluded_trailing_chars = $excluded_trailing_chars;
 										break;
 
 									default:
-										$part_disallowed_chars = '<>' . $bracket_quote_chars . $space_chars . $excluded_trailing_chars . '&';
+										$part_disallowed_chars = '\h\v<>' . $bracket_quote_chars . $excluded_trailing_chars . '&';
 										$part_excluded_trailing_chars = $excluded_trailing_chars;
 										break;
 								}
@@ -2637,7 +2636,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								// (e.g. "example.com" in "Go to example.com for an example.")
 								'(?P<naked_domain>' .
 									// Preceded by start of line or a space
-									'(?<=^|<br>|[' . $space_chars . '])' .
+									'(?<=^|<br>|[\h\v])' .
 									// A domain name
 									'(?P>domain)' .
 									// Followed by a non-domain character or end of line
@@ -2764,7 +2763,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (!isset($disabled['email']) && strpos($data, '@') !== false && strpos($data, '[email') === false && stripos($data, 'mailto:') === false)
 					{
 						// Preceded by a space or start of line
-						$email_regex = '(?<=^|<br>|[' . $space_chars . '])' .
+						$email_regex = '(?<=^|<br>|[\h\v])' .
 
 						// An email address
 						'[' . $domain_label_chars . '_.]{1,80}' .

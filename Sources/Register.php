@@ -317,9 +317,9 @@ function Register2()
 	{
 		if (!is_array($_POST[$key]))
 		{
-			// For UTF-8, replace any kind of space with a normal space, and remove any kind of control character (incl. "\n" and "\r"), then trim.
+			// For UTF-8, replace any kind of space with a normal space, and remove any kind of control character, then trim.
 			if ($context['utf8'])
-				$_POST[$key] = $smcFunc['htmltrim'](preg_replace(array('~\p{Z}+~u', '~\p{C}+~u'), array(' ', ''), $_POST[$key]));
+				$_POST[$key] = $smcFunc['htmltrim'](preg_replace(array('~[\h\v]+~u', '~\p{C}+~u'), array(' ', ''), $_POST[$key]));
 			// Otherwise, just remove "\n" and "\r", then trim.
 			else
 				$_POST[$key] = $smcFunc['htmltrim'](str_replace(array("\n", "\r"), '', $_POST[$key]));
