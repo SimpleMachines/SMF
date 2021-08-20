@@ -2356,8 +2356,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					// An &nbsp; right after a URL can break the autolinker
 					if (strpos($data, '&nbsp;') !== false)
 					{
-						$placeholders[sprintf($placeholder_template, 'nbsp')] = '&nbsp;';
-						$data = strtr($data, array('&nbsp;' => sprintf($placeholder_template, 'nbsp')));
+						$placeholders[html_entity_decode('&nbsp;')] = '&nbsp;';
+						$data = strtr($data, array('&nbsp;' => html_entity_decode('&nbsp;')));
 					}
 
 					// Some reusable character classes
