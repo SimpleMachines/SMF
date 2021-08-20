@@ -656,7 +656,7 @@ sceditor.formats.bbcode.set(
 
 			if (typeof current_attachments !== "undefined")
 				for (index = 0; index < current_attachments.length; ++index) {
-					if (current_attachments[index]['attachID'] == id) {
+					if (current_attachments[index]['attachID'] == element.attr('data-attachment')) {
 						attach_type = current_attachments[index]['type'];
 						break;
 					}
