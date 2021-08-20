@@ -2178,8 +2178,39 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				),
 			),
 			'before' => '<pre data-e="{e}" data-t="{t}"><div>',
-			'after' => '</div><script>' . '$("head").append("<style>" + ' . JavaScriptEscape(base64_decode('cHJlW2RhdGEtZV1bZGF0YS10XXt3aGl0ZS1zcGFjZTpwcmUtd3JhcDtsaW5lLWhlaWdodDppbml0aWFsO31wcmVbZGF0YS1lXVtkYXRhLXRdID4gZGl2e2Rpc3BsYXk6dGFibGU7Ym9yZGVyOjFweCBzb2xpZDtib3JkZXItcmFkaXVzOjAuNWVtO3BhZGRpbmc6MWNoO21heC13aWR0aDo4MGNoO21pbi13aWR0aDoxMmNoO31wcmVbZGF0YS1lXVtkYXRhLXRdOjphZnRlcntkaXNwbGF5OmlubGluZS1ibG9jazttYXJnaW4tbGVmdDo4Y2g7bWluLXdpZHRoOjIwY2g7ZGlyZWN0aW9uOmx0cjtjb250ZW50OidcNUMgJycgJycgXl9fXlxBICcnIFw1QyAnJyAoJyBhdHRyKGRhdGEtZSkgJylcNUNfX19fX19fXEEgJycgJycgJycgKF9fKVw1QyAnJyAnJyAnJyAnJyAnJyAnJyAnJyApXDVDL1w1Q1xBICcnICcnICcnICcnICcgYXR0cihkYXRhLXQpICcgfHwtLS0tdyB8XEEgJycgJycgJycgJycgJycgJycgJycgfHwgJycgJycgJycgJycgfHwnO30=')) . ' + "</style>");' . '</script></pre>',
+			'after' => '</div></pre>',
 			'block_level' => true,
+			'validate' => function(&$tag, &$data, $disabled, $params)
+			{
+				static $moo = true;
+
+				if ($moo)
+				{
+					addInlineJavaScript("\n\t" . base64_decode(
+						'aWYoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImJvdmluZV9vcmFjbGU
+						iKT09PW51bGwpe2xldCBzdHlsZU5vZGU9ZG9jdW1lbnQuY3JlYXRlRWx
+						lbWVudCgic3R5bGUiKTtzdHlsZU5vZGUuaWQ9ImJvdmluZV9vcmFjbGU
+						iO3N0eWxlTm9kZS5pbm5lckhUTUw9J3ByZVtkYXRhLWVdW2RhdGEtdF1
+						7d2hpdGUtc3BhY2U6cHJlLXdyYXA7bGluZS1oZWlnaHQ6aW5pdGlhbDt
+						9cHJlW2RhdGEtZV1bZGF0YS10XSA+IGRpdntkaXNwbGF5OnRhYmxlO2J
+						vcmRlcjoxcHggc29saWQ7Ym9yZGVyLXJhZGl1czowLjVlbTtwYWRkaW5
+						nOjFjaDttYXgtd2lkdGg6ODBjaDttaW4td2lkdGg6MTJjaDt9cHJlW2R
+						hdGEtZV1bZGF0YS10XTo6YWZ0ZXJ7ZGlzcGxheTppbmxpbmUtYmxvY2s
+						7bWFyZ2luLWxlZnQ6OGNoO21pbi13aWR0aDoyMGNoO2RpcmVjdGlvbjp
+						sdHI7Y29udGVudDpcJ1xcNUMgXCdcJyBcJ1wnIF5fX15cXEEgXCdcJyB
+						cXDVDIFwnXCcgKFwnIGF0dHIoZGF0YS1lKSBcJylcXDVDX19fX19fX1x
+						cQSBcJ1wnIFwnXCcgXCdcJyAoX18pXFw1QyBcJ1wnIFwnXCcgXCdcJyB
+						cJ1wnIFwnXCcgXCdcJyBcJ1wnIClcXDVDL1xcNUNcXEEgXCdcJyBcJ1w
+						nIFwnXCcgXCdcJyBcJyBhdHRyKGRhdGEtdCkgXCcgfHwtLS0tdyB8XFx
+						BIFwnXCcgXCdcJyBcJ1wnIFwnXCcgXCdcJyBcJ1wnIFwnXCcgfHwgXCd
+						cJyBcJ1wnIFwnXCcgXCdcJyB8fFwnO30nO2RvY3VtZW50LmdldEVsZW1
+						lbnRzQnlUYWdOYW1lKCJoZWFkIilbMF0uYXBwZW5kQ2hpbGQoc3R5bGV
+						Ob2RlKTt9'
+					), true);
+
+					$moo = false;
+				}
+			}
 		);
 
 		foreach ($codes as $code)
