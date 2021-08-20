@@ -173,18 +173,15 @@ function DisplayStats()
 			$smcFunc['db_free_result']($result);
 
 			$result = $smcFunc['db_query']('', '
-				SELECT COUNT(*) AS total_members, gender
-				FROM (
-					SELECT mem.id_member, COALESCE(t.value, {string:default_gender}) AS gender
-					FROM {db_prefix}members AS mem
-					INNER JOIN {db_prefix}themes AS t ON (
-						mem.id_member = t.id_member
-						AND t.variable = {string:gender_var}
-						AND t.id_theme = {int:default_theme}
-					)
-					WHERE is_activated = {int:is_activated}
-				) AS a
-				GROUP BY gender',
+				SELECT COUNT(*) AS total_members, value AS gender
+				FROM {db_prefix}members AS mem
+				INNER JOIN {db_prefix}themes AS t ON (
+					t.id_member = mem.id_member
+					AND t.variable = {string:gender_var}
+					AND t.id_theme = {int:default_theme}
+				)
+				WHERE is_activated = {int:is_activated}
+				GROUP BY value',
 				array(
 					'gender_var' => 'cust_gender',
 					'default_theme' => 1,
