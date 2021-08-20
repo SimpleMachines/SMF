@@ -1814,8 +1814,7 @@ function expand_quote_parent(oElement)
 
 function avatar_fallback(e) {
     var e = window.e || e;
-	var default_avatar = '/avatars/default.png';
-	var default_url = document.URL.substr(0,smf_scripturl.lastIndexOf('/')) + default_avatar;
+	var default_url = smf_avatars_url + '/default.png';
 
     if (e.target.tagName !== 'IMG' || !e.target.classList.contains('avatar') || e.target.src === default_url )
         return;
