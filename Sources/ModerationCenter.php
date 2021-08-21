@@ -88,11 +88,11 @@ function ModerationMain($dont_call = false)
 				),
 				'warnings' => array(
 					'label' => $txt['mc_warnings'],
-					'enabled' => $modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards'],
+					'enabled' => $modSettings['warning_settings'][0] == 1 && allowedTo(array('issue_warning', 'view_warning_any')),
 					'function' => 'ViewWarnings',
 					'icon' => 'warning',
 					'subsections' => array(
-						'log' => array($txt['mc_warning_log']),
+						'log' => array($txt['mc_warning_log'], array('view_warning_any', 'moderate_forum')),
 						'templates' => array($txt['mc_warning_templates'], 'issue_warning'),
 					),
 				),
@@ -1386,14 +1386,36 @@ function ViewWarnings()
 	global $context, $txt;
 
 	$subActions = array(
-		'log' => array('ViewWarningLog'),
-		'templateedit' => array('ModifyWarningTemplate', 'issue_warning'),
+		'log' => array('ViewWarningLog', array('view_warning_any', 'moderate_forum')),
 		'templates' => array('ViewWarningTemplates', 'issue_warning'),
+		'templateedit' => array('ModifyWarningTemplate', 'issue_warning'),
 	);
 
 	call_integration_hook('integrate_warning_log_actions', array(&$subActions));
 
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && (empty($subActions[$_REQUEST['sa']][1]) || allowedTo($subActions[$_REQUEST['sa']])) ? $_REQUEST['sa'] : 'log';
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && (empty($subActions[$_REQUEST['sa']][1]) || allowedTo($subActions[$_REQUEST['sa']][1])) ? $_REQUEST['sa'] : '';
+
+	// In theory, 'log' is the default subaction. But if this user can't view the log, more work is needed.
+	if (empty($_REQUEST['sa']))
+	{
+		foreach ($subActions as $sa => $subAction)
+		{
+			if (empty($subAction[1]) || allowedTo($subAction[1]))
+			{
+				// If they can view the log, we can proceed as usual.
+				if ($sa === 'log')
+					$_REQUEST['sa'] = $sa;
+
+				// Otherwise, redirect them to the first allowed subaction.
+				else
+					redirectexit('action=moderate;area=warnings;sa=' . $sa);
+			}
+		}
+
+		// This shouldn't happen, but just in case...
+		if (empty($_REQUEST['sa']))
+			redirectexit('action=moderate;area=index');
+	}
 
 	// Some of this stuff is overseas, so to speak.
 	loadTemplate('ModerationCenter');

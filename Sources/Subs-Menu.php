@@ -275,13 +275,10 @@ function createMenu($menuData, $menuOptions = array())
 			{
 				if (!empty($area['subsections']))
 				{
-					foreach ($area['subsections'] as $sa => $sub)
-					{
-						if (empty($sub['disabled']))
-							break;
+					$menu_context['sections'][$section_id]['areas'][$area_id]['hide_subsections'] = true;
 
-						$menu_context['sections'][$section_id]['areas'][$area_id]['hide_subsections'] = true;
-					}
+					foreach ($area['subsections'] as $sa => $sub)
+						$menu_context['sections'][$section_id]['areas'][$area_id]['hide_subsections'] &= !empty($sub['disabled']);
 				}
 			}
 		}

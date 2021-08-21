@@ -2151,6 +2151,86 @@ $request = upgrade_query("
 ---}
 ---#
 
+---# Adding "view_warning_own" and "view_warning_any" permissions
+---{
+if (isset($modSettings['warning_show']))
+{
+	$can_view_warning_own = array();
+	$can_view_warning_any = array();
+
+	if ($modSettings['warning_show'] >= 1)
+	{
+		$can_view_warning_own[] = 0;
+
+		$request = $smcFunc['db_query']('', '
+			SELECT id_group
+			FROM {db_prefix}membergroups
+			WHERE min_posts = {int:not_post_based}',
+			array(
+				'not_post_based' => -1,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (in_array($row['id_group'], array(1, 3)))
+				continue;
+
+			$can_view_warning_own[] = $row['id_group'];
+		}
+		$smcFunc['db_free_result']($request);
+	}
+
+	if ($modSettings['warning_show'] > 1)
+		$can_view_warning_any = $can_view_warning_own;
+	else
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT id_group, add_deny
+			FROM {db_prefix}permissions
+			WHERE permission = {string:perm}',
+			array(
+				'perm' => 'issue_warning',
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (in_array($row['id_group'], array(-1, 1, 3)) || $row['add_deny'] != 1)
+				continue;
+
+			$can_view_warning_any[] = $row['id_group'];
+		}
+		$smcFunc['db_free_result']($request);
+	}
+
+	$inserts = array();
+
+	foreach ($can_view_warning_own as $id_group)
+		$inserts[] = array($id_group, 'view_warning_own', 1);
+
+	foreach ($can_view_warning_any as $id_group)
+		$inserts[] = array($id_group, 'view_warning_any', 1);
+
+	if (!empty($inserts))
+	{
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}permissions',
+			array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
+			$inserts,
+			array('id_group', 'permission')
+		);
+	}
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}settings
+		WHERE variable = {string:warning_show}',
+		array(
+			'warning_show' => 'warning_show',
+		)
+	);
+}
+---}
+---#
+
 ---# Adding other profile permissions
 ---{
 $inserts = array();
