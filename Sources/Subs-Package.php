@@ -3016,10 +3016,10 @@ function package_crypt($pass)
  */
 function package_unique_filename($dir, $filename, $ext)
 {
-	if (file_exists($dir . '/' . $filename . $ext))
+	if (file_exists($dir . '/' . $filename . '.' . $ext))
 	{
 		$i = 1;
-		while (file_exists($dir . '/' . $filename . '_' . $i . $ext))
+		while (file_exists($dir . '/' . $filename . '_' . $i . '.' . $ext))
 			$i++;
 		$filename .= '_' . $i;
 	}
