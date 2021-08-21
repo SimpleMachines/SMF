@@ -2350,7 +2350,7 @@ function loadIllegalGuestPermissions()
 		'profile_signature',
 		'profile_title',
 		'profile_upload_avatar',
-		'profile_warning',
+		'view_warning_own',
 		'remove',
 		'report_any',
 		'report_user',

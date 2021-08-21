@@ -1158,7 +1158,6 @@ function Display()
 		'can_remove_poll' => 'poll_remove',
 		'can_reply' => 'post_reply',
 		'can_reply_unapproved' => 'post_unapproved_replies',
-		'can_view_warning' => 'profile_warning',
 	);
 	foreach ($anyown_permissions as $contextual => $perm)
 		$context[$contextual] = allowedTo($perm . '_any') || ($context['user']['started'] && allowedTo($perm . '_own'));
