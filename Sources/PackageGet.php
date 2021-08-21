@@ -672,10 +672,10 @@ function PackageUpload()
 		fatal_lang_error('package_upload_error_supports', false, array('zip, tgz, tar.gz'));
 
 	// We only need the filename...
-	$packageName = basename($_FILES['package']['name']);
+	$packageName = substr($_FILES['package']['name'], 0, -strlen($match[0]));
 
 	// Setup the destination and throw an error if the file is already there!
-	$destination = $packagesdir . '/' . package_unique_filename($packagesdir, $packageName, $match[1]);
+	$destination = $packagesdir . '/' . package_unique_filename($packagesdir, $packageName, $match[1]) . $match[0];
 	if (file_exists($destination))
 		fatal_lang_error('package_upload_error_exists');
 
