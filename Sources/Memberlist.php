@@ -713,7 +713,7 @@ function getCustFieldsMList()
 			'options' => tokenTxtReplace($row['field_options']),
 			'bbc' => !empty($row['bbc']),
 			'enclose' => $row['enclose'],
-			'default_value' => $row['default_value'],
+			'default_value' => tokenTxtReplace($row['default_value']),
 		);
 
 		// Get the right sort method depending on the cust field type.
