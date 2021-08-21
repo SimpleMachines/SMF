@@ -20,7 +20,6 @@ if (!defined('SMF'))
  * Get the latest post made on the system
  *
  * - respects approved, recycled, and board permissions
- * - @todo is this even used anywhere?
  *
  * @return array An array of information about the last post that you can see
  */
@@ -930,13 +929,14 @@ function UnreadTopics()
 			SELECT COUNT(*), MIN(t.id_last_msg)
 			FROM {db_prefix}topics AS t' . (!empty($have_temp_table) ? '
 				LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)' : '
-				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member} AND lt.unwatched != 1)') . '
+				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})') . '
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE t.' . $query_this_board . ($context['showing_all_topics'] && !empty($earliest_msg) ? '
 				AND t.id_last_msg > {int:earliest_msg}' : (!$context['showing_all_topics'] && empty($_SESSION['first_login']) ? '
 				AND t.id_last_msg > {int:id_msg_last_visit}' : '')) . '
 				AND COALESCE(lt.id_msg, lmr.id_msg, 0) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
-				AND t.approved = {int:is_approved}' : '') . '',
+				AND t.approved = {int:is_approved}' : '') . '
+				AND COALESCE(lt.unwatched, 0) != 1',
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
@@ -995,12 +995,13 @@ function UnreadTopics()
 				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = mems.id_member)
 				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = meml.id_member)' : '') . '' . (!empty($have_temp_table) ? '
 				LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)' : '
-				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member} AND lt.unwatched != 1)') . '
+				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})') . '
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE t.' . $query_this_board . '
 				AND t.id_last_msg >= {int:min_message}
 				AND COALESCE(lt.id_msg, lmr.id_msg, 0) < ml.id_msg' . ($modSettings['postmod_active'] ? '
 				AND ms.approved = {int:is_approved}' : '') . '
+				AND COALESCE(lt.unwatched, 0) != 1
 			ORDER BY {raw:order}
 			LIMIT {int:offset}, {int:limit}',
 			array_merge($query_parameters, array(
@@ -1106,7 +1107,8 @@ function UnreadTopics()
 				WHERE t.' . $query_this_board . '
 					AND m.id_member = {int:current_member}
 					AND COALESCE(lt.id_msg, lmr.id_msg, 0) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
-					AND t.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1',
+					AND t.approved = {int:is_approved}' : '') . '
+					AND COALESCE(lt.unwatched, 0) != 1',
 				array_merge($query_parameters, array(
 					'current_member' => $user_info['id'],
 					'is_approved' => 1,
@@ -1170,7 +1172,8 @@ function UnreadTopics()
 				WHERE t.' . $query_this_board . '
 					AND t.id_last_msg >= {int:min_message}
 					AND (COALESCE(lt.id_msg, lmr.id_msg, 0)) < t.id_last_msg
-					AND t.approved = {int:is_approved} AND lt.unwatched != 1
+					AND t.approved = {int:is_approved}
+					AND COALESCE(lt.unwatched, 0) != 1
 				ORDER BY {raw:order}
 				LIMIT {int:offset}, {int:limit}',
 				array_merge($query_parameters, array(
