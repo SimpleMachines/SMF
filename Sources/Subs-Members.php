@@ -964,10 +964,10 @@ function isReservedName($name, $current_id_member = 0, $is_name = true, $fatal =
 	return $is_reserved;
 }
 
-// Get a list of groups that have a given permission (on a given board).
 /**
- * Retrieves a list of membergroups that are allowed to do the given
- * permission. (on the given board)
+ * Retrieves a list of membergroups that have the given permission, either on
+ * a given board or in general.
+ *
  * If board_id is not null, a board permission is assumed.
  * The function takes different permission settings into account.
  *
@@ -996,17 +996,25 @@ function groupsAllowedTo($permission, $board_id = null)
 				'permission' => $permission,
 			)
 		);
+
 		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
 			$member_groups[$row['add_deny'] === '1' ? 'allowed' : 'denied'][] = $row['id_group'];
+		}
+
 		$smcFunc['db_free_result']($request);
 	}
 
 	// Otherwise it's time to look at the board.
 	else
 	{
+		$board_id = (int) $board_id;
+
 		// First get the profile of the given board.
 		if (isset($board_info['id']) && $board_info['id'] == $board_id)
+		{
 			$profile_id = $board_info['profile'];
+		}
 		elseif ($board_id !== 0)
 		{
 			$request = $smcFunc['db_query']('', '
@@ -1018,9 +1026,14 @@ function groupsAllowedTo($permission, $board_id = null)
 					'id_board' => $board_id,
 				)
 			);
+
 			if ($smcFunc['db_num_rows']($request) == 0)
+			{
 				fatal_lang_error('no_board');
+			}
+
 			list ($profile_id) = $smcFunc['db_fetch_row']($request);
+
 			$smcFunc['db_free_result']($request);
 		}
 		else
@@ -1036,8 +1049,12 @@ function groupsAllowedTo($permission, $board_id = null)
 				'permission' => $permission,
 			)
 		);
+
 		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
 			$member_groups[$row['add_deny'] === '1' ? 'allowed' : 'denied'][] = $row['id_group'];
+		}
+
 		$smcFunc['db_free_result']($request);
 
 		$moderator_groups = array();
@@ -1083,6 +1100,9 @@ function groupsAllowedTo($permission, $board_id = null)
 			}
 		}
 	}
+
+	// Maybe a mod needs to tweak the list of allowed groups on the fly?
+	call_integration_hook('integrate_groups_allowed_to', array(&$member_groups, $permission, $board_id));
 
 	// Denied is never allowed.
 	$member_groups['allowed'] = array_diff($member_groups['allowed'], $member_groups['denied']);

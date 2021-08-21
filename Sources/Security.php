@@ -910,10 +910,18 @@ function allowedTo($permission, $boards = null, $any = false)
 	// Let's ensure this is an array.
 	$permission = (array) $permission;
 
+	// This should be a boolean.
+	$any = (bool) $any;
+
 	// Are we checking the _current_ board, or some other boards?
 	if ($boards === null)
 	{
-		if (count(array_intersect($permission, $user_info['permissions'])) != 0)
+		$user_permissions = $user_info['permissions'];
+
+		// Allow temporary overrides for general permissions?
+		call_integration_hook('integrate_allowed_to_general', array(&$user_permissions, $permission));
+
+		if (count(array_intersect($permission, $user_permissions)) != 0)
 			return true;
 		// You aren't allowed, by default.
 		else
@@ -922,7 +930,7 @@ function allowedTo($permission, $boards = null, $any = false)
 	elseif (!is_array($boards))
 		$boards = array($boards);
 
-	$cache_key = hash('md5', $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . $any);
+	$cache_key = hash('md5', $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . (int) $any);
 
 	if (isset($perm_cache[$cache_key]))
 		return $perm_cache[$cache_key];
@@ -972,6 +980,9 @@ function allowedTo($permission, $boards = null, $any = false)
 		$smcFunc['db_free_result']($request);
 		$return = $result;
 	}
+
+	// Allow temporary overrides for board permissions?
+	call_integration_hook('integrate_allowed_to_board', array(&$return, $permission, $boards, $any));
 
 	$perm_cache[$cache_key] = $return;
 
@@ -1142,6 +1153,9 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 			}
 		}
 	}
+
+	// Maybe a mod needs to tweak the list of allowed boards on the fly?
+	call_integration_hook('integrate_boards_allowed_to', array(&$boards, $deny_boards, $permissions, $check_access, $simple));
 
 	return $boards;
 }
