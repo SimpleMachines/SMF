@@ -11,7 +11,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -113,7 +113,7 @@ function CalendarMain()
 	// Need a start date for all views
 	if (!empty($_REQUEST['start_date']))
 	{
-		$start_parsed = date_parse($_REQUEST['start_date']);
+		$start_parsed = date_parse(convertDateToEnglish($_REQUEST['start_date']));
 		if (empty($start_parsed['error_count']) && empty($start_parsed['warning_count']))
 		{
 			$_REQUEST['year'] = $start_parsed['year'];
@@ -130,7 +130,7 @@ function CalendarMain()
 	// Need an end date for the list view
 	if (!empty($_REQUEST['end_date']))
 	{
-		$end_parsed = date_parse($_REQUEST['end_date']);
+		$end_parsed = date_parse(convertDateToEnglish($_REQUEST['end_date']));
 		if (empty($end_parsed['error_count']) && empty($end_parsed['warning_count']))
 		{
 			$_REQUEST['end_year'] = $end_parsed['year'];
@@ -199,15 +199,15 @@ function CalendarMain()
 		$context['calendar_grid_main'] = getCalendarGrid($curPage['start_date'], $calendarOptions);
 
 	// Load up the previous and next months.
-	$context['calendar_grid_current'] = getCalendarGrid($curPage['start_date'], $calendarOptions);
+	$context['calendar_grid_current'] = getCalendarGrid($curPage['start_date'], $calendarOptions, false, false);
 
 	// Only show previous month if it isn't pre-January of the min-year
 	if ($context['calendar_grid_current']['previous_calendar']['year'] > $modSettings['cal_minyear'] || $curPage['month'] != 1)
-		$context['calendar_grid_prev'] = getCalendarGrid($context['calendar_grid_current']['previous_calendar']['start_date'], $calendarOptions, true);
+		$context['calendar_grid_prev'] = getCalendarGrid($context['calendar_grid_current']['previous_calendar']['start_date'], $calendarOptions, true, false);
 
 	// Only show next month if it isn't post-December of the max-year
 	if ($context['calendar_grid_current']['next_calendar']['year'] < $modSettings['cal_maxyear'] || $curPage['month'] != 12)
-		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions);
+		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['start_date'], $calendarOptions, false, false);
 
 	// Basic template stuff.
 	$context['allow_calendar_event'] = allowedTo('calendar_post');
@@ -292,6 +292,8 @@ function CalendarPost()
 		'%R' => '%k:%M',
 		'%T' => '%l:%M',
 	));
+
+	$time_string = preg_replace('~:(?=\s|$|%[pPzZ])~', '', $time_string);
 
 	// Submitting?
 	if (isset($_POST[$context['session_var']], $_REQUEST['eventid']))

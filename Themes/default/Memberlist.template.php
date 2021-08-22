@@ -7,7 +7,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 /**
@@ -91,7 +91,7 @@ function template_main()
 				echo '
 						<td class="post_count centertext">';
 
-				if (!empty($member['post_percent']))
+				if (!empty($member['posts']))
 					echo '
 							<div class="generic_bar">
 								<div class="bar" style="width: ', $member['post_percent'], '%;"></div>

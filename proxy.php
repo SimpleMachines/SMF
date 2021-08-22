@@ -10,14 +10,14 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
 	define('SMF', 'PROXY');
 
 if (!defined('SMF_VERSION'))
-	define('SMF_VERSION', '2.1 RC3');
+	define('SMF_VERSION', '2.1 RC4');
 
 if (!defined('SMF_FULL_VERSION'))
 	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
@@ -26,7 +26,7 @@ if (!defined('SMF_SOFTWARE_YEAR'))
 	define('SMF_SOFTWARE_YEAR', '2021');
 
 if (!defined('JQUERY_VERSION'))
-	define('JQUERY_VERSION', '3.5.1');
+	define('JQUERY_VERSION', '3.6.0');
 
 if (!defined('POSTGRE_TITLE'))
 	define('POSTGRE_TITLE', 'PostgreSQL');
@@ -139,7 +139,7 @@ class ProxyServer
 		if (!$this->isCached($request))
 			return $this->cacheImage($request);
 
-		return false;
+		return true;
 	}
 
 	/**

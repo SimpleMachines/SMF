@@ -11,7 +11,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -76,11 +76,14 @@ function bbc_to_html($text, $compat_mode = false)
 
 	// Parse unique ID's and disable javascript into the smileys - using the double space.
 	$i = 1;
-	$text = preg_replace_callback('~(?:\s|&nbsp;)?<(img\ssrc="' . preg_quote($modSettings['smileys_url'], '~') . '/[^<>]+?/([^<>]+?)"\s*)[^<>]*?class="smiley">~',
+	$text = preg_replace_callback(
+		'~(?:\s|&nbsp;)?<(img\ssrc="' . preg_quote($modSettings['smileys_url'], '~') . '/[^<>]+?/([^<>]+?)"\s*)[^<>]*?class="smiley">~',
 		function($m) use (&$i)
 		{
 			return '<' . stripslashes($m[1]) . 'alt="" title="" onresizestart="return false;" id="smiley_' . $i++ . '_' . $m[2] . '" style="padding: 0 3px 0 3px;">';
-		}, $text);
+		},
+		$text
+	);
 
 	return $text;
 }
@@ -1087,10 +1090,13 @@ function legalise_bbc($text)
 		$lastlen = strlen($text = preg_replace($backToBackPattern, '', $text));
 
 	// Need to sort the tags by name length.
-	uksort($valid_tags, function($a, $b)
-	{
-		return strlen($a) < strlen($b) ? 1 : -1;
-	});
+	uksort(
+		$valid_tags,
+		function($a, $b)
+		{
+			return strlen($a) < strlen($b) ? 1 : -1;
+		}
+	);
 
 	// These inline tags can compete with each other regarding style.
 	$competing_tags = array(
@@ -1516,8 +1522,15 @@ function create_control_richedit($editorOptions)
 			$context['drafts_autosave_frequency'] = empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000;
 
 		// This really has some WYSIWYG stuff.
-		loadCSSFile('jquery.sceditor.css', array('force_current' => false, 'validate' => true), 'smf_jquery_sceditor');
+		loadCSSFile('jquery.sceditor.css', array('default_theme' => true, 'validate' => true), 'smf_jquery_sceditor');
 		loadTemplate('GenericControls');
+
+		/*
+		 *		THEME AUTHORS:
+		 			If you want to change or tweak the CSS for the editor,
+					include a file named 'jquery.sceditor.theme.css' in your theme.
+		*/
+		loadCSSFile('jquery.sceditor.theme.css', array('force_current' => true, 'validate' => true,), 'smf_jquery_sceditor_theme');
 
 		// JS makes the editor go round
 		loadJavaScriptFile('editor.js', array('minimize' => true), 'smf_editor');
@@ -1538,7 +1551,7 @@ function create_control_richedit($editorOptions)
 			"More": "' . $editortxt['more'] . '",
 			"Close": "' . $editortxt['close'] . '",
 			dateFormat: "' . $editortxt['dateformat'] . '"
-		}';
+		};';
 
 		addInlineJavaScript($scExtraLangs, true);
 
@@ -2379,7 +2392,7 @@ function AutoSuggest_Search_MemberGroups()
 			AND id_group NOT IN ({array_int:invalid_groups})
 			AND hidden != {int:hidden}',
 		array(
-			'group_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(group_name}' : 'group_name',
+			'group_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(group_name)' : 'group_name',
 			'min_posts' => -1,
 			'invalid_groups' => array(1, 3),
 			'hidden' => 2,

@@ -807,9 +807,8 @@ CREATE TABLE {$db_prefix}messages (
 	approved TINYINT NOT NULL DEFAULT '1',
 	likes SMALLINT UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (id_msg),
-	UNIQUE idx_id_board (id_board, id_msg),
+	UNIQUE idx_id_board (id_board, id_msg, approved),
 	UNIQUE idx_id_member (id_member, id_msg),
-	INDEX idx_approved (approved),
 	INDEX idx_ip_index (poster_ip, id_topic),
 	INDEX idx_participation (id_member, id_topic),
 	INDEX idx_show_posts (id_member, id_board),
@@ -1795,10 +1794,10 @@ VALUES (1, 0, '{$default_category_name}', '', 1);
 
 INSERT INTO {$db_prefix}custom_fields
 	(`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`)
-VALUES ('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 1, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
-	('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
-	('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
-	('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>', 1);
+VALUES ('cust_icq', '{icq}', '{icq_desc}', 'text', 12, '', 1, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
+	('cust_skype', '{skype}', '{skype_desc}', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
+	('cust_loca', '{location}', '{location_desc}', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
+	('cust_gender', '{gender}', '{gender_desc}', 'radio', 255, '{gender_0}, {gender_1}, {gender_2}', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>', 1);
 
 # --------------------------------------------------------
 

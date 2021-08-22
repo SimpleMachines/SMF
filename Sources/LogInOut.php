@@ -11,7 +11,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -45,7 +45,26 @@ function Login()
 
 	$context['sub_template'] = 'login';
 
-	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+	/* This is true when:
+	 * We have a valid header indicating a JQXHR request.  This is not sent during a cross domain request.
+	 * OR we have found:
+	 *		1. valid cors host
+	 *  	2. A header indicating a SMF request
+	 *  	3. The url has a ajax in either the GET or POST
+	 *  These are not intended for security, but ensuring the request is intended for a JQXHR response.
+	*/
+	if (
+		(
+			!empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+			&& $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+		)
+		||
+		(
+			!empty($context['valid_cors_found'])
+			&& !empty($_SERVER['HTTP_X_SMF_AJAX'])
+			&& isset($_REQUEST['ajax'])
+		)
+	)
 	{
 		$context['from_ajax'] = true;
 		$context['template_layers'] = array();
@@ -99,7 +118,26 @@ function Login2()
 	// Load cookie authentication stuff.
 	require_once($sourcedir . '/Subs-Auth.php');
 
-	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+	/* This is true when:
+	 * We have a valid header indicating a JQXHR request.  This is not sent during a cross domain request.
+	 * OR we have found:
+	 *		1. valid cors host
+	 *  	2. A header indicating a SMF request
+	 *  	3. The url has a ajax in either the GET or POST
+	 *  These are not intended for security, but ensuring the request is intended for a JQXHR response.
+	*/
+	if (
+		(
+			!empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+			&& $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+		)
+		||
+		(
+			!empty($context['valid_cors_found'])
+			&& !empty($_SERVER['HTTP_X_SMF_AJAX'])
+			&& isset($_REQUEST['ajax'])
+		)
+	)
 	{
 		$context['from_ajax'] = true;
 		$context['template_layers'] = array();
@@ -460,7 +498,26 @@ function LoginTFA()
 	$totp = new \TOTP\Auth($member['tfa_secret']);
 	$totp->setRange(1);
 
-	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+	/* This is true when:
+	 * We have a valid header indicating a JQXHR request.  This is not sent during a cross domain request.
+	 * OR we have found:
+	 *		1. valid cors host
+	 *  	2. A header indicating a SMF request
+	 *  	3. The url has a ajax in either the GET or POST
+	 *  These are not intended for security, but ensuring the request is intended for a JQXHR response.
+	*/
+	if (
+		(
+			!empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+			&& $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+		)
+		||
+		(
+			!empty($context['valid_cors_found'])
+			&& !empty($_SERVER['HTTP_X_SMF_AJAX'])
+			&& isset($_REQUEST['ajax'])
+		)
+	)
 	{
 		$context['from_ajax'] = true;
 		$context['template_layers'] = array();

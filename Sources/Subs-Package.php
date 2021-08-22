@@ -13,7 +13,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -256,17 +256,18 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 				$file = $file . '.zip';
 
 		// Phar doesn't handle open_basedir restrictions very well and throws a PHP Warning. Ignore that.
-		set_error_handler(function($errno, $errstr, $errfile, $errline)
-		{
-			// error was suppressed with the @-operator
-			if (0 === error_reporting())
+		set_error_handler(
+			function($errno, $errstr, $errfile, $errline)
 			{
-				return false;
+				// error was suppressed with the @-operator
+				if (0 === error_reporting())
+					return false;
+
+				if (strpos($errstr, 'PharData::__construct(): open_basedir') === false)
+					log_error($errstr, 'general', $errfile, $errline);
+
+				return true;
 			}
-			if (strpos($errstr, 'PharData::__construct(): open_basedir') === false)
-				log_error($errstr, 'general', $errfile, $errline);
-			return true;
-		}
 		);
 		$archive = new PharData($file, RecursiveIteratorIterator::SELF_FIRST, null, Phar::ZIP);
 		restore_error_handler();
@@ -3090,17 +3091,18 @@ function package_create_backup($id = 'backup')
 			@apache_reset_timeout();
 
 		// Phar doesn't handle open_basedir restrictions very well and throws a PHP Warning. Ignore that.
-		set_error_handler(function($errno, $errstr, $errfile, $errline)
-		{
-			// error was suppressed with the @-operator
-			if (0 === error_reporting())
+		set_error_handler(
+			function($errno, $errstr, $errfile, $errline)
 			{
-				return false;
+				// error was suppressed with the @-operator
+				if (0 === error_reporting())
+					return false;
+
+				if (strpos($errstr, 'PharData::__construct(): open_basedir') === false && strpos($errstr, 'PharData::compress(): open_basedir') === false)
+					log_error($errstr, 'general', $errfile, $errline);
+
+				return true;
 			}
-			if (strpos($errstr, 'PharData::__construct(): open_basedir') === false && strpos($errstr, 'PharData::compress(): open_basedir') === false)
-				log_error($errstr, 'general', $errfile, $errline);
-			return true;
-		}
 		);
 		$a = new PharData($output_file);
 		$a->buildFromIterator($iterator);

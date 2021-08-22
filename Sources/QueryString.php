@@ -11,7 +11,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -273,7 +273,7 @@ function cleanRequest()
 	if ($modSettings['proxy_ip_header'] == 'disabled')
 		$reverseIPheaders = array();
 	elseif ($modSettings['proxy_ip_header'] == 'autodetect')
-		$reverseIPheaders = array('HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_CF_CONNECTING_IP');
+		$reverseIPheaders = array('HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_REAL_IP', 'HTTP_CF_CONNECTING_IP');
 	else
 		$reverseIPheaders = array($modSettings['proxy_ip_header']);
 
@@ -286,9 +286,19 @@ function cleanRequest()
 
 		if (!empty($modSettings['proxy_ip_servers']))
 		{
+			$valid_sender = false;
+
 			foreach (explode(',', $modSettings['proxy_ip_servers']) as $proxy)
+			{
 				if ($proxy == $_SERVER['REMOTE_ADDR'] || matchIPtoCIDR($_SERVER['REMOTE_ADDR'], $proxy))
-					continue;
+				{
+					$valid_sender = true;
+					break;
+				}
+			}
+
+			if (!$valid_sender)
+				continue;
 		}
 
 		// If there are commas, get the last one.. probably.
@@ -655,17 +665,27 @@ function ob_sessrewrite($buffer)
 	{
 		// Let's do something special for session ids!
 		if (defined('SID') && SID != '')
-			$buffer = preg_replace_callback('~"' . preg_quote($scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~', function($m)
-			{
-				global $scripturl;
-				return '"' . $scripturl . "/" . strtr("$m[1]", '&;=', '//,') . ".html?" . SID . (isset($m[2]) ? $m[2] : "") . '"';
-			}, $buffer);
+			$buffer = preg_replace_callback(
+				'~"' . preg_quote($scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
+				function($m)
+				{
+					global $scripturl;
+
+					return '"' . $scripturl . "/" . strtr("$m[1]", '&;=', '//,') . ".html?" . SID . (isset($m[2]) ? $m[2] : "") . '"';
+				},
+				$buffer
+			);
 		else
-			$buffer = preg_replace_callback('~"' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?"~', function($m)
-			{
-				global $scripturl;
-				return '"' . $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "") . '"';
-			}, $buffer);
+			$buffer = preg_replace_callback(
+				'~"' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
+				function($m)
+				{
+					global $scripturl;
+
+					return '"' . $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "") . '"';
+				},
+				$buffer
+			);
 	}
 
 	// Return the changed buffer.

@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -618,7 +618,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		'additional_groups' => '',
 		'ignore_boards' => '',
 		'smiley_set' => '',
-		'timezone' => empty($regOptions['timezone']) || !in_array($regOptions['timezone'], smf_list_timezones()) ? 'UTC' : $regOptions['timezone'],
+		'timezone' => empty($modSettings['default_timezone']) || !array_key_exists($modSettings['default_timezone'], smf_list_timezones()) ? 'UTC' : $modSettings['default_timezone'],
 	);
 
 	// Setup the activation status on this new account so it is correct - firstly is it an under age account?
@@ -662,6 +662,11 @@ function registerMember(&$regOptions, $return_errors = false)
 		if (in_array($regOptions['register_vars']['id_group'], $unassignableGroups))
 			$regOptions['register_vars']['id_group'] = 0;
 	}
+
+	// Verify that timezone is correct, if provided.
+	if (!empty($regOptions['extra_register_vars']) && !empty($regOptions['extra_register_vars']['timezone']) &&
+		!array_key_exists($regOptions['extra_register_vars']['timezone'], smf_list_timezones()))
+		unset($regOptions['extra_register_vars']['timezone']);
 
 	// Integrate optional member settings to be set.
 	if (!empty($regOptions['extra_register_vars']))
@@ -959,10 +964,10 @@ function isReservedName($name, $current_id_member = 0, $is_name = true, $fatal =
 	return $is_reserved;
 }
 
-// Get a list of groups that have a given permission (on a given board).
 /**
- * Retrieves a list of membergroups that are allowed to do the given
- * permission. (on the given board)
+ * Retrieves a list of membergroups that have the given permission, either on
+ * a given board or in general.
+ *
  * If board_id is not null, a board permission is assumed.
  * The function takes different permission settings into account.
  *
@@ -991,17 +996,25 @@ function groupsAllowedTo($permission, $board_id = null)
 				'permission' => $permission,
 			)
 		);
+
 		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
 			$member_groups[$row['add_deny'] === '1' ? 'allowed' : 'denied'][] = $row['id_group'];
+		}
+
 		$smcFunc['db_free_result']($request);
 	}
 
 	// Otherwise it's time to look at the board.
 	else
 	{
+		$board_id = (int) $board_id;
+
 		// First get the profile of the given board.
 		if (isset($board_info['id']) && $board_info['id'] == $board_id)
+		{
 			$profile_id = $board_info['profile'];
+		}
 		elseif ($board_id !== 0)
 		{
 			$request = $smcFunc['db_query']('', '
@@ -1013,9 +1026,14 @@ function groupsAllowedTo($permission, $board_id = null)
 					'id_board' => $board_id,
 				)
 			);
+
 			if ($smcFunc['db_num_rows']($request) == 0)
+			{
 				fatal_lang_error('no_board');
+			}
+
 			list ($profile_id) = $smcFunc['db_fetch_row']($request);
+
 			$smcFunc['db_free_result']($request);
 		}
 		else
@@ -1031,8 +1049,12 @@ function groupsAllowedTo($permission, $board_id = null)
 				'permission' => $permission,
 			)
 		);
+
 		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
 			$member_groups[$row['add_deny'] === '1' ? 'allowed' : 'denied'][] = $row['id_group'];
+		}
+
 		$smcFunc['db_free_result']($request);
 
 		$moderator_groups = array();
@@ -1078,6 +1100,9 @@ function groupsAllowedTo($permission, $board_id = null)
 			}
 		}
 	}
+
+	// Maybe a mod needs to tweak the list of allowed groups on the fly?
+	call_integration_hook('integrate_groups_allowed_to', array(&$member_groups, $permission, $board_id));
 
 	// Denied is never allowed.
 	$member_groups['allowed'] = array_diff($member_groups['allowed'], $member_groups['denied']);

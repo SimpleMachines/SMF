@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; Themes
+// Version: 2.1 RC4; Themes
 
 $txt['themeadmin_explain'] = 'Themes are the different looks and feels of your forum. These settings affect the selection of themes, and which themes guests and other members use.';
 
@@ -81,7 +81,6 @@ $txt['who_display_viewing'] = 'Show who is viewing boards and topics';
 $txt['who_display_viewing_off'] = 'Don\'t show';
 $txt['who_display_viewing_numbers'] = 'Show only numbers';
 $txt['who_display_viewing_names'] = 'Show member names';
-$txt['disable_recent_posts'] = 'Disable recent posts';
 $txt['enable_single_post'] = 'Enable single post';
 $txt['enable_multiple_posts'] = 'Enable multiple posts';
 $txt['show_stats_index'] = 'Show statistics on board index';
@@ -154,6 +153,6 @@ $txt['themeadmin_themelist_link'] = 'Show the list of themes';
 
 // Open Graph
 $txt['og_image'] = 'Open Graph image';
-$txt['og_image_desc'] = 'Suggested size: 175x175px. <a href="http://ogp.me/" target="_blank" class="bbc_link">Open Graph</a> is used for social media sharing.';
+$txt['og_image_desc'] = 'Suggested size: 175x175px. <a href="https://ogp.me/" target="_blank" class="bbc_link">Open Graph</a> is used for social media sharing.';
 
 ?>

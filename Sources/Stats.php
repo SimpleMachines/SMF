@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -161,8 +161,8 @@ function DisplayStats()
 		if (($context['gender'] = cache_get_data('stats_gender', 240)) == null)
 		{
 			$result = $smcFunc['db_query']('', '
-				SELECT default_value 
-				FROM {db_prefix}custom_fields 
+				SELECT default_value
+				FROM {db_prefix}custom_fields
 				WHERE col_name= {string:gender_var}',
 				array(
 					'gender_var' => 'cust_gender',
@@ -173,18 +173,15 @@ function DisplayStats()
 			$smcFunc['db_free_result']($result);
 
 			$result = $smcFunc['db_query']('', '
-				SELECT COUNT(*) AS total_members,  gender
-				FROM (
-					SELECT mem.id_member, COALESCE(t.value, {string:default_gender}) AS gender
-					FROM {db_prefix}members AS mem
-					LEFT JOIN {db_prefix}themes AS t ON (
-						mem.id_member = t.id_member AND
-						t.variable = {string:gender_var} AND
-						t.id_theme = {int:default_theme}
-						) 
-					WHERE is_activated = {int:is_activated}
-				) AS a
-				GROUP BY gender',
+				SELECT COUNT(*) AS total_members, value AS gender
+				FROM {db_prefix}members AS mem
+				INNER JOIN {db_prefix}themes AS t ON (
+					t.id_member = mem.id_member
+					AND t.variable = {string:gender_var}
+					AND t.id_theme = {int:default_theme}
+				)
+				WHERE is_activated = {int:is_activated}
+				GROUP BY value',
 				array(
 					'gender_var' => 'cust_gender',
 					'default_theme' => 1,
@@ -192,12 +189,14 @@ function DisplayStats()
 					'default_gender' => $default_gender,
 				)
 			);
-			$context['gender'] = array();
+			$context['gender'] = array($default_gender => 0);
 			while ($row = $smcFunc['db_fetch_assoc']($result))
 			{
 				$context['gender'][$row['gender']] = $row['total_members'];
 			}
 			$smcFunc['db_free_result']($result);
+
+			$context['gender'][$default_gender] += $modSettings['totalMembers'] - array_sum($context['gender']);
 
 			cache_put_data('stats_gender', $context['gender'], 240);
 		}
@@ -474,7 +473,7 @@ function DisplayStats()
 	{
 		$i = array_search($row_members['id_member'], array_keys($members));
 		// skip all not top 10
-		if ($i >= 10)
+		if ($i > 10)
 			continue;
 
 		$context['stats_blocks']['starters'][$i] = array(

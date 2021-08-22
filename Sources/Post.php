@@ -11,7 +11,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -32,7 +32,7 @@ function Post($post_errors = array())
 {
 	global $txt, $scripturl, $topic, $modSettings, $board;
 	global $user_info, $context, $settings;
-	global $sourcedir, $smcFunc, $language;
+	global $sourcedir, $smcFunc, $language, $options;
 
 	loadLanguage('Post');
 	if (!empty($modSettings['drafts_post_enabled']))
@@ -296,6 +296,8 @@ function Post($post_errors = array())
 			'%T' => '%l:%M',
 		));
 
+		$time_string = preg_replace('~:(?=\s|$|%[pPzZ])~', '', $time_string);
+
 		// Editing an event?  (but NOT previewing!?)
 		if (empty($context['event']['new']) && !isset($_REQUEST['subject']))
 		{
@@ -391,7 +393,7 @@ function Post($post_errors = array())
 	// only at preview
 	if (empty($_REQUEST['msg']) && !empty($topic))
 	{
-		if (isset($_REQUEST['last_msg']) && $context['topic_last_message'] > $_REQUEST['last_msg'])
+		if (empty($options['no_new_reply_warning']) && isset($_REQUEST['last_msg']) && $context['topic_last_message'] > $_REQUEST['last_msg'])
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT COUNT(*)
@@ -821,10 +823,12 @@ function Post($post_errors = array())
 			$request = $smcFunc['db_query']('', '
 				SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body
 				FROM {db_prefix}messages AS m
-					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
+					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
 				WHERE {query_see_message_board}
 					AND m.id_msg = {int:id_msg}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
-					AND m.approved = {int:is_approved}') . '
+					AND m.approved = {int:is_approved}
+					AND t.approved = {int:is_approved}') . '
 				LIMIT 1',
 				array(
 					'id_msg' => (int) $_REQUEST['quote'],
@@ -852,10 +856,14 @@ function Post($post_errors = array())
 				{
 					// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
 					if ($i % 4 == 0)
-						$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~is', function($m)
-						{
-							return '[html]' . preg_replace('~<br\s?/?' . '>~i', '&lt;br /&gt;<br>', "$m[1]") . '[/html]';
-						}, $parts[$i]);
+						$parts[$i] = preg_replace_callback(
+							'~\[html\](.+?)\[/html\]~is',
+							function($m)
+							{
+								return '[html]' . preg_replace('~<br\s?/?' . '>~i', '&lt;br /&gt;<br>', "$m[1]") . '[/html]';
+							},
+							$parts[$i]
+						);
 				}
 				$form_message = implode('', $parts);
 			}
@@ -1138,7 +1146,7 @@ function Post($post_errors = array())
 
 	// Are post drafts enabled?
 	$context['drafts_save'] = !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft');
-	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft');
+	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft') && !empty($options['drafts_autosave_enabled']);
 
 	// Build a list of drafts that they can load in to the editor
 	if (!empty($context['drafts_save']))
@@ -1218,7 +1226,7 @@ function Post($post_errors = array())
 	if ($context['can_post_attachment'])
 	{
 		// If they've unchecked an attachment, they may still want to attach that many more files, but don't allow more than num_allowed_attachments.
-		$context['num_allowed_attachments'] = min(ini_get('max_file_uploads'), (empty($modSettings['attachmentNumPerPostLimit']) ? 50 : $modSettings['attachmentNumPerPostLimit'] - count($context['current_attachments'])));
+		$context['num_allowed_attachments'] = min(ini_get('max_file_uploads'), (empty($modSettings['attachmentNumPerPostLimit']) ? 50 : $modSettings['attachmentNumPerPostLimit']));
 		$context['can_post_attachment_unapproved'] = allowedTo('post_attachment');
 		$context['attachment_restrictions'] = array();
 		$context['allowed_extensions'] = !empty($modSettings['attachmentCheckExtensions']) ? (strtr(strtolower($modSettings['attachmentExtensions']), array(',' => ', '))) : '';
@@ -1228,7 +1236,7 @@ function Post($post_errors = array())
 			{
 				// Show the max number of attachments if not 0.
 				if ($type == 'attachmentNumPerPostLimit')
-					$context['attachment_restrictions'][] = sprintf($txt['attach_remaining'], $modSettings['attachmentNumPerPostLimit'] - $context['attachments']['quantity']);
+					$context['attachment_restrictions'][] = sprintf($txt['attach_remaining'], max($modSettings['attachmentNumPerPostLimit'] - $context['attachments']['quantity'], 0));
 			}
 	}
 
@@ -1250,6 +1258,10 @@ function Post($post_errors = array())
 		loadJavaScriptFile('mentions.js', array('defer' => true, 'minimize' => true), 'smf_mentions');
 	}
 
+	// Load the drafts js file
+	if ($context['drafts_autosave'])
+		loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
+	
 	// quotedText.js
 	loadJavaScriptFile('quotedText.js', array('defer' => true, 'minimize' => true), 'smf_quotedText');
 
@@ -1274,10 +1286,13 @@ function Post($post_errors = array())
 	// File Upload.
 	if ($context['can_post_attachment'])
 	{
-		$acceptedFiles = empty($context['allowed_extensions']) ? '' : implode(',', array_map(function ($val) use ($smcFunc)
-		{
-			return !empty($val) ? ('.' . $smcFunc['htmltrim']($val)) : '';
-		}, explode(',', $context['allowed_extensions'])));
+		$acceptedFiles = empty($context['allowed_extensions']) ? '' : implode(',', array_map(
+			function ($val) use ($smcFunc)
+			{
+				return !empty($val) ? ('.' . $smcFunc['htmltrim']($val)) : '';
+			},
+			explode(',', $context['allowed_extensions'])
+		));
 
 		loadJavaScriptFile('dropzone.min.js', array('defer' => true), 'smf_dropzone');
 		loadJavaScriptFile('smf_fileUpload.js', array('defer' => true, 'minimize' => true), 'smf_fileUpload');
@@ -1450,6 +1465,7 @@ function Post($post_errors = array())
 				'type' => 'text',
 				'attributes' => array(
 					'size' => 25,
+					'maxlength' => 25,
 					'value' => $context['name'],
 					'required' => true,
 				),
@@ -1510,7 +1526,7 @@ function Post($post_errors = array())
 			'type' => 'text',
 			'attributes' => array(
 				'size' => 80,
-				'maxlength' => !empty($topic) ? 84 : 80,
+				'maxlength' => 80 + (!empty($topic) ? $smcFunc['strlen']($context['response_prefix']) : 0),
 				'value' => $context['subject'],
 				'required' => true,
 			),
@@ -1558,7 +1574,7 @@ function Post($post_errors = array())
 function Post2()
 {
 	global $board, $topic, $txt, $modSettings, $sourcedir, $context;
-	global $user_info, $board_info, $smcFunc, $settings;
+	global $user_info, $board_info, $options, $smcFunc, $settings;
 
 	// Sneaking off, are we?
 	if (empty($_POST) && empty($topic))
@@ -1775,7 +1791,7 @@ function Post2()
 		}
 
 		// If the number of replies has changed, if the setting is enabled, go back to Post() - which handles the error.
-		if (isset($_POST['last_msg']) && $topic_info['id_last_msg'] > $_POST['last_msg'])
+		if (empty($options['no_new_reply_warning']) && isset($_POST['last_msg']) && $topic_info['id_last_msg'] > $_POST['last_msg'])
 		{
 			$_REQUEST['preview'] = true;
 			return Post();
@@ -2310,6 +2326,7 @@ function Post2()
 			$msgOptions['modify_time'] = time();
 			$msgOptions['modify_name'] = $user_info['name'];
 			$msgOptions['modify_reason'] = $_POST['modify_reason'];
+			$msgOptions['poster_time'] = $row['poster_time'];
 		}
 
 		// This will save some time...

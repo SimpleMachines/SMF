@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -1919,7 +1919,10 @@ function PlushSearch2()
 		);
 
 		// How many results will the user be able to see?
-		$num_results = $smcFunc['db_num_rows']($messages_request);
+		if (!empty($_SESSION['search_cache']['num_results']))
+			$num_results = $_SESSION['search_cache']['num_results'];
+		else
+			$num_results = $smcFunc['db_num_rows']($messages_request);
 
 		// If there are no results that means the things in the cache got deleted, so pretend we have no topics anymore.
 		if ($num_results == 0)
@@ -2089,11 +2092,11 @@ function prepareSearchContext($reset = false)
 	}
 	else
 	{
-		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
-		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
-
 		// Run BBC interpreter on the message.
 		$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
+
+		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
+		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
 	}
 
 	// Make sure we don't end up with a practically empty message body.
@@ -2315,7 +2318,7 @@ function searchSort($a, $b)
 function highlight($text, array $words)
 {
 	$words = implode('|', array_map('preg_quote', $words));
-	$highlighted = preg_filter('<' . $words . '>i', '<span class="highlight">$0</span>', $text);
+	$highlighted = preg_filter('<' . $words . '>iu', '<span class="highlight">$0</span>', $text);
 
 	if (!empty($highlighted))
 		$text = $highlighted;

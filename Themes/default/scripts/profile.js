@@ -221,23 +221,17 @@ function showAvatar()
 
 function previewExternalAvatar(src)
 {
-	if (!document.getElementById("avatar"))
-		return;
-
-	var tempImage = new Image();
-
-	tempImage.src = src;
-	if (maxWidth != 0 && tempImage.width > maxWidth)
-	{
-		document.getElementById("avatar").style.height = parseInt((maxWidth * tempImage.height) / tempImage.width) + "px";
-		document.getElementById("avatar").style.width = maxWidth + "px";
+	if ($('#external_avatar_img_new').length){
+		$('#external_avatar_img_new').remove();
 	}
-	else if (maxHeight != 0 && tempImage.height > maxHeight)
-	{
-		document.getElementById("avatar").style.width = parseInt((maxHeight * tempImage.width) / tempImage.height) + "px";
-		document.getElementById("avatar").style.height = maxHeight + "px";
-	}
-	document.getElementById("avatar").src = src;
+
+	var newImage = $('<img />', {
+		id: 'external_avatar_img_new',
+		src: src,
+		class: 'avatar',
+	});
+
+	newImage.appendTo($('#avatar_external'));
 }
 
 function readfromUpload(input) {
@@ -261,20 +255,8 @@ function readfromUpload(input) {
 			var uploadedImage = $('<img />', {
 				id: 'attached_image_new',
 				src: e.target.result,
-				image: tempImage.width,
-				height: tempImage.height,
+				class: 'avatar',
 			});
-
-			if (maxWidth != 0 && uploadedImage.width() > maxWidth)
-			{
-				uploadedImage.height(parseInt((maxWidth * uploadedImage.height()) / uploadedImage.width()) + "px");
-				uploadedImage.width(maxWidth + "px");
-			}
-			else if (maxHeight != 0 && uploadedImage.height() > maxHeight)
-			{
-				uploadedImage.width(parseInt((maxHeight * uploadedImage.width) / uploadedImage.height) + "px");
-				uploadedImage.height(maxHeight + "px");
-			}
 
 			uploadedImage.appendTo($('#avatar_upload'));
 		}

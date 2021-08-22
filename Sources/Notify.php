@@ -11,7 +11,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -105,7 +105,7 @@ function BoardNotify()
 
 		$alertPref = $mode <= 1 ? 0 : ($mode == 2 ? 1 : 3);
 
-		setNotifyPrefs($member_info['id'], array('board_notify_' . $board => $alertPref));
+		setNotifyPrefs((int) $member_info['id'], array('board_notify_' . $board => $alertPref));
 
 		if ($mode > 1)
 			// Turn notification on.  (note this just blows smoke if it's already on.)
@@ -273,7 +273,7 @@ function TopicNotify()
 			array('id_member', 'id_topic')
 		);
 
-		setNotifyPrefs($member_info['id'], array('topic_notify_' . $log['id_topic'] => $alertPref));
+		setNotifyPrefs((int) $member_info['id'], array('topic_notify_' . $log['id_topic'] => $alertPref));
 
 		if ($mode > 1)
 		{
@@ -376,7 +376,7 @@ function AnnouncementsNotify()
 	$mode = (int) !empty($_GET['mode']);
 
 	// Update their announcement notification preference.
-	setNotifyPrefs($member_info['id'], array('announcements' => $mode));
+	setNotifyPrefs((int) $member_info['id'], array('announcements' => $mode));
 
 	// Show a confirmation message.
 	$context['sub_template'] = 'notify_pref_changed';

@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -263,7 +263,7 @@ function ShowXmlFeed()
 	elseif (!empty($board))
 		$filename[] = 'board=' . $board;
 	$filename[] = $xml_format;
-	$filename = preg_replace('/[^\p{L}\p{M}\p{N}\-]+/', '_', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('-', $filename)))));
+	$filename = preg_replace($context['utf8'] ? '/[^\p{L}\p{M}\p{N}\-]+/u' : '/[\s_,.\/\\;:\'<>?|\[\]{}~!@#$%^&*()=+`]+/', '_', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('-', $filename)))));
 
 	// This is an xml file....
 	ob_end_clean();
@@ -470,10 +470,13 @@ function buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction)
 
 		foreach ($xml_data as $item)
 		{
-			$link = array_filter($item['content'], function($e)
-			{
-				return ($e['tag'] == 'link');
-			});
+			$link = array_filter(
+				$item['content'],
+				function($e)
+				{
+					return ($e['tag'] == 'link');
+				}
+			);
 			$link = array_pop($link);
 
 			$context['feed']['header'] .= '
@@ -526,10 +529,14 @@ function fix_possible_url($val)
 	if (empty($modSettings['queryless_urls']) || ($context['server']['is_cgi'] && ini_get('cgi.fix_pathinfo') == 0 && @get_cfg_var('cgi.fix_pathinfo') == 0) || (!$context['server']['is_apache'] && !$context['server']['is_lighttpd']))
 		return $val;
 
-	$val = preg_replace_callback('~\b' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~', function($m) use ($scripturl)
-	{
-		return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "");
-	}, $val);
+	$val = preg_replace_callback(
+		'~\b' . preg_quote($scripturl, '~') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~',
+		function($m) use ($scripturl)
+		{
+			return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "");
+		},
+		$val
+	);
 	return $val;
 }
 
@@ -933,12 +940,16 @@ function getXmlNews($xml_format, $ascending = false)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b)
-				{
-					if ($a['filesize'] == $b['filesize'])
-						return 0;
-					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
-				});
+				uasort(
+					$loaded_attachments,
+					function($a, $b)
+					{
+						if ($a['filesize'] == $b['filesize'])
+							return 0;
+
+						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+					}
+				);
 			}
 			else
 				$loaded_attachments = null;
@@ -1290,7 +1301,8 @@ function getXmlRecent($xml_format)
 			WHERE ' . $query_this_board . (empty($optimize_msg) ? '' : '
 				AND {raw:optimize_msg}') . (empty($board) ? '' : '
 				AND m.id_board = {int:current_board}') . ($modSettings['postmod_active'] ? '
-				AND m.approved = {int:is_approved}' : '') . '
+				AND m.approved = {int:is_approved}
+				AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY m.id_msg DESC
 			LIMIT {int:limit}',
 			array(
@@ -1388,13 +1400,16 @@ function getXmlRecent($xml_format)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b)
-				{
-					if ($a['filesize'] == $b['filesize'])
-						return 0;
+				uasort(
+					$loaded_attachments,
+					function($a, $b)
+					{
+						if ($a['filesize'] == $b['filesize'])
+							return 0;
 
-					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
-				});
+						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+					}
+				);
 			}
 			else
 				$loaded_attachments = null;
@@ -1886,7 +1901,7 @@ function getXmlProfile($xml_format)
 						),
 						array(
 							'tag' => 'uri',
-							'content' => !empty($profile['website']['url']) ? $profile['website']['url'] : $scripturl . '?action=profile;u=' . $row['id_member'],
+							'content' => !empty($profile['website']['url']) ? $profile['website']['url'] : $scripturl . '?action=profile;u=' . $profile['id_member'],
 							'cdata' => !empty($profile['website']['url']),
 						),
 					),
@@ -2126,11 +2141,13 @@ function getXmlPosts($xml_format, $ascending = false)
 			m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_email, m.poster_ip,
 			m.poster_time, m.subject, m.modified_time, m.modified_name, m.modified_reason, m.body,
 			m.likes, m.approved, m.smileys_enabled
-		FROM {db_prefix}messages AS m
+		FROM {db_prefix}messages AS m' . ($modSettings['postmod_active'] && !$show_all ?'
+			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
 		WHERE m.id_member = {int:uid}
 			AND m.id_msg > {int:start_after}
 			AND ' . $query_this_message_board . ($modSettings['postmod_active'] && !$show_all ? '
-			AND m.approved = {int:is_approved}' : '') . '
+			AND m.approved = {int:is_approved}
+			AND t.approved = {int:is_approved}' : '') . '
 		ORDER BY m.id_msg {raw:ascdesc}
 		LIMIT {int:limit}',
 		array(
@@ -2183,11 +2200,16 @@ function getXmlPosts($xml_format, $ascending = false)
 			// Sort the attachments by size to make things easier below
 			if (!empty($loaded_attachments))
 			{
-				uasort($loaded_attachments, function($a, $b) {
-					if ($a['filesize'] == $b['filesize'])
+				uasort(
+					$loaded_attachments,
+					function($a, $b)
+					{
+						if ($a['filesize'] == $b['filesize'])
 					        return 0;
-					return ($a['filesize'] < $b['filesize']) ? -1 : 1;
-				});
+
+						return ($a['filesize'] < $b['filesize']) ? -1 : 1;
+					}
+				);
 			}
 			else
 				$loaded_attachments = null;

@@ -12,7 +12,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -167,7 +167,7 @@ function loadProfileFields($force_reload = false)
 			'log_change' => true,
 			'permission' => 'profile_password',
 			'js_submit' => !empty($modSettings['send_validation_onChange']) ? '
-	form_handle.addEventListener(\'submit\', function(event)
+	form_handle.addEventListener("submit", function(event)
 	{
 		if (this.email_address.value != "' . (!empty($cur_profile['email_address']) ? $cur_profile['email_address'] : '') . '")
 		{
@@ -385,11 +385,15 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['profile_posts'],
 			'log_change' => true,
 			'size' => 7,
+			'min' => 0,
+			'max' => 2 ** 24 - 1,
 			'permission' => 'moderate_forum',
 			'input_validate' => function(&$value)
 			{
 				if (!is_numeric($value))
 					return 'digits_only';
+				elseif ($value < 0 || $value > 2 ** 24 - 1)
+					return 'posts_out_of_range';
 				else
 					$value = $value != '' ? strtr($value, array(',' => '', '.' => '', ' ' => '')) : 0;
 				return true;
@@ -764,7 +768,7 @@ function setupProfileContext($fields)
 	var form_handle = document.forms.creator;
 	createEventListener(form_handle);
 	' . (!empty($context['require_password']) ? '
-	form_handle.addEventListener(\'submit\', function(event)
+	form_handle.addEventListener("submit", function(event)
 	{
 		if (this.oldpasswrd.value == "")
 		{
@@ -1173,7 +1177,7 @@ function makeNotificationChanges($memID)
 			)
 		);
 		foreach ($_POST['notify_topics'] as $topic)
-			setNotifyPrefs($memID, array('topic_notify_' . $topic => 0));
+			setNotifyPrefs((int) $memID, array('topic_notify_' . $topic => 0));
 	}
 
 	// We are removing topic preferences

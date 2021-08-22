@@ -11,7 +11,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -119,7 +119,7 @@ function BoardIndex()
 
 	// Track most online statistics? (Subs-MembersOnline.php)
 	if (!empty($modSettings['trackStats']))
-		trackStatsUsersOnline($context['num_guests'] + $context['num_spiders'] + $context['num_users_online']);
+		trackStatsUsersOnline($context['num_guests'] + $context['num_users_online']);
 
 	// Are we showing all membergroups on the board index?
 	if (!empty($settings['show_group_key']))

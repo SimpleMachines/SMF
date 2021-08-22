@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -22,6 +22,17 @@ if (!defined('SMF'))
 function AutoTask()
 {
 	global $smcFunc;
+
+	// We bail out of index.php too early for these to be called.
+	frameOptionsHeader();
+	corsPolicyHeader();
+
+	// Requests from a CORS response may send a options to find if the requst is valid.  Simply bail out here, the cors header have been sent already.
+	if (isset($_SERVER['HTTP_X_SMF_AJAX']) && isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS')
+	{
+		send_http_status(204);
+		die;
+	}
 
 	// Special case for doing the mail queue.
 	if (isset($_GET['scheduled']) && $_GET['scheduled'] == 'mailq')
@@ -1709,7 +1720,7 @@ function scheduled_prune_log_topics()
 
 	// Find board inserts to perform...
 	// Get board info for each member from log_topics.
-	// Note this user may have read many topics on that board, 
+	// Note this user may have read many topics on that board,
 	// but we just want one row each, & the ID of the last message read in each board.
 	$boards = array();
 	$sql = 'SELECT lt.id_member, t.id_board, MAX(lt.id_msg) AS id_last_message

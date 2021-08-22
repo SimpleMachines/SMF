@@ -8,17 +8,17 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 // Version information...
-define('SMF_VERSION', '2.1 RC3');
+define('SMF_VERSION', '2.1 RC4');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2021');
-define('SMF_LANG_VERSION', '2.1 RC3');
+define('SMF_LANG_VERSION', '2.1 RC4');
 define('SMF_INSTALLING', 1);
 
-define('JQUERY_VERSION', '3.5.1');
+define('JQUERY_VERSION', '3.6.0');
 define('POSTGRE_TITLE', 'PostgreSQL');
 define('MYSQL_TITLE', 'MySQL');
 define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
@@ -49,7 +49,7 @@ $databases = array(
 	),
 	'postgresql' => array(
 		'name' => 'PostgreSQL',
-		'version' => '9.4',
+		'version' => '9.6',
 		'version_check' => '$version = pg_version(); return $version[\'client\'];',
 		'always_has_db' => true,
 	),
@@ -222,6 +222,7 @@ if (isset($_GET['ssi']))
 
 	loadUserSettings();
 	loadPermissions();
+	reloadSettings();
 }
 
 // Include our helper functions.
@@ -1001,9 +1002,9 @@ function WelcomeLogin()
 	// We're going to check that their board dir setting is right in case they've been moving stuff around.
 	if (strtr($boarddir, array('/' => '', '\\' => '')) != strtr($upgrade_path, array('/' => '', '\\' => '')))
 		$upcontext['warning'] = '
-			' . sprintf($txt['upgrade_boarddir_settings'], $boarddir, $upgrade_path) . '<br>
+			' . sprintf($txt['upgrade_forumdir_settings'], $boarddir, $upgrade_path) . '<br>
 			<ul>
-				<li>' . $txt['upgrade_boarddir'] . '  ' . $boarddir . '</li>
+				<li>' . $txt['upgrade_forumdir'] . '  ' . $boarddir . '</li>
 				<li>' . $txt['upgrade_sourcedir'] . '  ' . $boarddir . '</li>
 				<li>' . $txt['upgrade_cachedir'] . '  ' . $cachedir_temp . '</li>
 			</ul>
@@ -1444,6 +1445,9 @@ function BackupDatabase()
 	if (!empty($_POST['backup_done']))
 		return true;
 
+	// We cannot execute this step in strict mode - strict mode data fixes are not applied yet
+	setSqlMode(false);
+
 	// Some useful stuff here.
 	db_extend();
 
@@ -1686,7 +1690,7 @@ function setSqlMode($strict = true)
 		return;
 
 	if ($strict)
-		$mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+		$mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,PIPES_AS_CONCAT';
 	else
 		$mode = '';
 
@@ -2017,8 +2021,7 @@ function parse_sql($filename)
 	$last_step = '';
 
 	// Make sure all newly created tables will have the proper characters set; this approach is used throughout upgrade_2-1_mysql.php
-	if (isset($db_character_set) && $db_character_set === 'utf8')
-		$lines = str_replace(') ENGINE=MyISAM;', ') ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;', $lines);
+	$lines = str_replace(') ENGINE=MyISAM;', ') ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;', $lines);
 
 	// Count the total number of steps within this file - for progress.
 	$file_steps = substr_count(implode('', $lines), '---#');
@@ -2230,12 +2233,6 @@ function upgrade_query($string, $unbuffered = false)
 	$db_unbuffered = $unbuffered;
 	$ignore_insert_error = false;
 
-	// If we got an old pg version and use a insert ignore query
-	if ($db_type == 'postgresql' && !$smcFunc['db_native_replace']() && strpos($string, 'ON CONFLICT DO NOTHING') !== false)
-	{
-		$ignore_insert_error = true;
-		$string = str_replace('ON CONFLICT DO NOTHING', '', $string);
-	}
 	$result = $smcFunc['db_query']('', $string, array('security_override' => true, 'db_error_skip' => true));
 	$db_unbuffered = false;
 
@@ -3376,7 +3373,14 @@ function fix_serialized_data($string)
 		return $string;
 
 	// This bit fixes incorrect string lengths, which can happen if the character encoding was changed (e.g. conversion to UTF-8)
-	$new_string = preg_replace_callback('~\bs:(\d+):"(.*?)";(?=$|[bidsa]:|[{}]|N;)~s', function ($matches) {return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";';}, $string);
+	$new_string = preg_replace_callback(
+		'~\bs:(\d+):"(.*?)";(?=$|[bidsa]:|[{}]|N;)~s',
+		function ($matches)
+		{
+			return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";';
+		},
+		$string
+	);
 
 	// @todo Add more possible fixes here. For example, fix incorrect array lengths, try to handle truncated strings gracefully, etc.
 
@@ -3401,9 +3405,16 @@ function serialize_to_json()
 			return true;
 	}
 
+	// Needed when writing settings
+	if (!function_exists('cache_put_data'))
+		require_once($sourcedir . '/Load.php');
+
 	// Done it already - js wise?
 	if (!empty($_POST['json_done']))
+	{
+		updateSettings(array('json_done' => true));
 		return true;
+	}
 
 	// List of tables affected by this function
 	// name => array('key', col1[,col2|true[,col3]])
@@ -3501,8 +3512,6 @@ function serialize_to_json()
 				}
 
 				// Update everything at once
-				if (!function_exists('cache_put_data'))
-					require_once($sourcedir . '/Load.php');
 				updateSettings($new_settings, true);
 
 				if ($command_line)
@@ -3811,7 +3820,7 @@ function template_upgrade_above()
 	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">
 	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/install.css">
 	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css">' : '', '
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/', JQUERY_VERSION, '/jquery.min.js"></script>
 	<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 	<script>
 		var smf_scripturl = \'', $upgradeurl, '\';
@@ -4300,7 +4309,7 @@ function template_backup_database()
 		// If debug flood the screen.
 		if ($is_debug)
 			echo '
-							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>', $txt['upgrade_completed_table'], ' &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
 
 							if (document.getElementById(\'debug_section\').scrollHeight)
 								document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
@@ -4797,7 +4806,7 @@ function template_convert_utf8()
 		// If debug flood the screen.
 		if ($is_debug)
 			echo '
-						setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+						setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>', $txt['upgrade_completed_table'], ' &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
 
 						if (document.getElementById(\'debug_section\').scrollHeight)
 							document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
@@ -4978,13 +4987,13 @@ function template_upgrade_complete()
 /**
  * Convert MySQL (var)char ip col to binary
  *
+ * newCol needs to be a varbinary(16) null able field
+ *
  * @param string $targetTable The table to perform the operation on
  * @param string $oldCol The old column to gather data from
  * @param string $newCol The new column to put data in
  * @param int $limit The amount of entries to handle at once.
  * @param int $setSize The amount of entries after which to update the database.
- *
- * newCol needs to be a varbinary(16) null able field
  * @return bool
  */
 function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setSize = 100)
@@ -5059,7 +5068,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 		{
 			$arIp[$i] = trim($arIp[$i]);
 
-			if (empty($arIp[$i]))
+			if (!filter_var($arIp[$i], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6))
 				continue;
 
 			$updates['ip' . $i] = $arIp[$i];

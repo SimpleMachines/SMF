@@ -292,7 +292,7 @@ ALTER TABLE {$db_prefix}log_activity ALTER COLUMN date DROP DEFAULT;
 /******************************************************************************/
 
 ---# Creating login history sequence.
-CREATE SEQUENCE {$db_prefix}member_logins_seq;
+CREATE SEQUENCE IF NOT EXISTS {$db_prefix}member_logins_seq;
 ---#
 
 ---# Creating login history table.
@@ -449,7 +449,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('loginHistoryDays', '30'),
-			array()
+			array('variable')
 		);
 ---}
 ---#
@@ -490,7 +490,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('securityDisable_moderate', '1'),
-			array()
+			array('variable')
 		);
 ---}
 ---#
@@ -607,6 +607,7 @@ while (!$is_done)
 		SELECT id_attach, id_member, id_folder, filename, file_hash, mime_type
 		FROM {$db_prefix}attachments
 		WHERE attachment_type != 1
+		ORDER BY id_attach
 		LIMIT $_GET[a], 100");
 
 	// Finished?
@@ -673,10 +674,13 @@ while (!$is_done)
 		if ($row['id_member'] != 0)
 		{
 			if (rename($oldFile, $custom_av_dir . '/' . $row['filename']))
+			{
 				upgrade_query("
 					UPDATE {$db_prefix}attachments
 					SET file_hash = '', attachment_type = 1
 					WHERE id_attach = $row[id_attach]");
+				$_GET['a'] -= 1;
+			}
 		}
 		// Just a regular attachment.
 		else
@@ -797,11 +801,11 @@ elseif (empty($modSettings['json_done']))
 
 ---# Adding new columns to log_group_requests
 ALTER TABLE {$db_prefix}log_group_requests
-ADD COLUMN status smallint NOT NULL default '0',
-ADD COLUMN id_member_acted int NOT NULL default '0',
-ADD COLUMN member_name_acted varchar(255) NOT NULL default '',
-ADD COLUMN time_acted int NOT NULL default '0',
-ADD COLUMN act_reason text NOT NULL;
+ADD COLUMN IF NOT EXISTS status smallint NOT NULL default '0',
+ADD COLUMN IF NOT EXISTS id_member_acted int NOT NULL default '0',
+ADD COLUMN IF NOT EXISTS member_name_acted varchar(255) NOT NULL default '',
+ADD COLUMN IF NOT EXISTS time_acted int NOT NULL default '0',
+ADD COLUMN IF NOT EXISTS act_reason text NOT NULL;
 ---#
 
 ---# Adjusting the indexes for log_group_requests
@@ -814,18 +818,18 @@ CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_r
 /******************************************************************************/
 ---# Adding support for <credits> tag in package manager
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN credits TEXT NOT NULL;
+ADD COLUMN IF NOT EXISTS credits TEXT NOT NULL;
 ---#
 
 ---# Adding support for package hashes
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN sha256_hash TEXT;
+ADD COLUMN IF NOT EXISTS sha256_hash TEXT;
 ---#
 
 ---# Adding support for validation servers
 ALTER TABLE {$db_prefix}package_servers
-ADD COLUMN validation_url VARCHAR(255) DEFAULT '',
-ADD COLUMN extra TEXT;
+ADD COLUMN IF NOT EXISTS validation_url VARCHAR(255) DEFAULT '',
+ADD COLUMN IF NOT EXISTS extra TEXT;
 ---#
 
 ---# Add Package Validation to Downloads Site
@@ -903,10 +907,10 @@ upgrade_query("
 /******************************************************************************/
 ---# Adding new columns to topics table
 ALTER TABLE {$db_prefix}topics
-ADD COLUMN redirect_expires int NOT NULL DEFAULT '0';
+ADD COLUMN IF NOT EXISTS redirect_expires int NOT NULL DEFAULT '0';
 
 ALTER TABLE {$db_prefix}topics
-ADD COLUMN id_redirect_topic int NOT NULL DEFAULT '0';
+ADD COLUMN IF NOT EXISTS id_redirect_topic int NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
@@ -914,7 +918,7 @@ ADD COLUMN id_redirect_topic int NOT NULL DEFAULT '0';
 /******************************************************************************/
 ---# Adding a new column "callable" to scheduled_tasks table
 ALTER TABLE {$db_prefix}scheduled_tasks
-ADD COLUMN callable varchar(60) NOT NULL default '';
+ADD COLUMN IF NOT EXISTS callable varchar(60) NOT NULL default '';
 ---#
 
 ---# Adding new scheduled tasks
@@ -1010,7 +1014,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
 /******************************************************************************/
 ---# Adding new columns to boards...
 ALTER TABLE {$db_prefix}boards
-ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
+ADD COLUMN IF NOT EXISTS deny_member_groups varchar(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
@@ -1088,7 +1092,7 @@ if (version_compare(trim(strtolower(@$modSettings['smfVersion'])), '2.1.foo', '<
 /******************************************************************************/
 ---# Adding new columns to categories...
 ALTER TABLE {$db_prefix}categories
-ADD COLUMN description text;
+ADD COLUMN IF NOT EXISTS description text;
 
 
 UPDATE {$db_prefix}categories
@@ -1103,7 +1107,7 @@ ALTER COLUMN description SET NOT NULL;
 /******************************************************************************/
 ---# Adding the count to the members table...
 ALTER TABLE {$db_prefix}members
-ADD COLUMN alerts int NOT NULL default '0';
+ADD COLUMN IF NOT EXISTS alerts int NOT NULL default '0';
 ---#
 
 ---# Adding the new table for alerts.
@@ -1196,6 +1200,7 @@ if (in_array('notify_regularity', $results))
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, notify_regularity, notify_send_body, notify_types
 			FROM {db_prefix}members
+			ORDER BY id_member
 			LIMIT {int:start}, {int:limit}',
 			array(
 				'db_error_skip' => true,
@@ -1380,7 +1385,7 @@ WHERE content_type = 'unapproved' AND content_action = 'attachment' AND f.id_att
 /******************************************************************************/
 ---# Adding new column to log_topics...
 ALTER TABLE {$db_prefix}log_topics
-ADD COLUMN unwatched int NOT NULL DEFAULT 0;
+ADD COLUMN IF NOT EXISTS unwatched int NOT NULL DEFAULT 0;
 ---#
 
 ---# Fixing column name change...
@@ -1555,23 +1560,23 @@ $smcFunc['db_query']('', '
 /******************************************************************************/
 ---# Adding new field_order column...
 ALTER TABLE {$db_prefix}custom_fields
-ADD COLUMN field_order smallint NOT NULL default '0';
+ADD COLUMN IF NOT EXISTS field_order smallint NOT NULL default '0';
 ---#
 
 ---# Adding new show_mlist column...
 ALTER TABLE {$db_prefix}custom_fields
-ADD COLUMN show_mlist smallint NOT NULL default '0';
+ADD COLUMN IF NOT EXISTS show_mlist smallint NOT NULL default '0';
 ---#
 
 ---# Insert fields
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 1, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1) ON CONFLICT DO NOTHING;
+('cust_icq', '{icq}', '{icq_desc}', 'text', 12, '', 1, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1) ON CONFLICT DO NOTHING;
+('cust_skype', '{skype}', '{skype_desc}', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0) ON CONFLICT DO NOTHING;
+('cust_loca', '{location}', '{location_desc}', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>', 1) ON CONFLICT DO NOTHING;
+('cust_gender', '{gender}', '{gender_desc}', 'radio', 255, '{gender_0},{gender_1},{gender_2}', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>', 1) ON CONFLICT DO NOTHING;
 ---#
 
 ---# Add an order value to each existing cust profile field.
@@ -1639,7 +1644,6 @@ if (!empty($select_columns))
 				'limit' => $limit,
 		));
 
-		$genderTypes = array(1 => 'Male', 2 => 'Female');
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			if (!empty($row['icq']))
@@ -1651,8 +1655,8 @@ if (!empty($select_columns))
 			if (!empty($row['location']))
 				$inserts[] = array($row['id_member'], 1, 'cust_loca', $row['location']);
 
-			if (!empty($row['gender']) && isset($genderTypes[INTval($row['gender'])]))
-				$inserts[] = array($row['id_member'], 1, 'cust_gender', $genderTypes[INTval($row['gender'])]);
+			if (!empty($row['gender']))
+				$inserts[] = array($row['id_member'], 1, 'cust_gender', '{gender_' . intval($row['gender']) . '}');
 		}
 		$smcFunc['db_free_result']($request);
 
@@ -1824,9 +1828,9 @@ CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_i
 CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
 ---#
 
----# Adding count to the messages table.
+---# Adding likes column to the messages table. (May take a while)
 ALTER TABLE {$db_prefix}messages
-ADD COLUMN likes smallint NOT NULL default '0';
+ADD COLUMN IF NOT EXISTS likes smallint NOT NULL default '0';
 ---#
 
 /******************************************************************************/
@@ -1936,7 +1940,7 @@ WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_regis
 
 ---# Cleaning up old theme settings.
 DELETE FROM {$db_prefix}themes
-WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group', 'drafts_autosave_enabled', 'forum_width');
+WHERE variable IN ('show_board_desc', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group', 'drafts_autosave_enabled', 'forum_width');
 ---#
 
 ---# Update the SM Stat collection.
@@ -2147,6 +2151,86 @@ $request = upgrade_query("
 ---}
 ---#
 
+---# Adding "view_warning_own" and "view_warning_any" permissions
+---{
+if (isset($modSettings['warning_show']))
+{
+	$can_view_warning_own = array();
+	$can_view_warning_any = array();
+
+	if ($modSettings['warning_show'] >= 1)
+	{
+		$can_view_warning_own[] = 0;
+
+		$request = $smcFunc['db_query']('', '
+			SELECT id_group
+			FROM {db_prefix}membergroups
+			WHERE min_posts = {int:not_post_based}',
+			array(
+				'not_post_based' => -1,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (in_array($row['id_group'], array(1, 3)))
+				continue;
+
+			$can_view_warning_own[] = $row['id_group'];
+		}
+		$smcFunc['db_free_result']($request);
+	}
+
+	if ($modSettings['warning_show'] > 1)
+		$can_view_warning_any = $can_view_warning_own;
+	else
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT id_group, add_deny
+			FROM {db_prefix}permissions
+			WHERE permission = {string:perm}',
+			array(
+				'perm' => 'issue_warning',
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (in_array($row['id_group'], array(-1, 1, 3)) || $row['add_deny'] != 1)
+				continue;
+
+			$can_view_warning_any[] = $row['id_group'];
+		}
+		$smcFunc['db_free_result']($request);
+	}
+
+	$inserts = array();
+
+	foreach ($can_view_warning_own as $id_group)
+		$inserts[] = array($id_group, 'view_warning_own', 1);
+
+	foreach ($can_view_warning_any as $id_group)
+		$inserts[] = array($id_group, 'view_warning_any', 1);
+
+	if (!empty($inserts))
+	{
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}permissions',
+			array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
+			$inserts,
+			array('id_group', 'permission')
+		);
+	}
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}settings
+		WHERE variable = {string:warning_show}',
+		array(
+			'warning_show' => 'warning_show',
+		)
+	);
+}
+---}
+---#
+
 ---# Adding other profile permissions
 ---{
 $inserts = array();
@@ -2205,7 +2289,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labeled_messages (
 
 ---# Adding "in_inbox" column to pm_recipients
 ALTER TABLE {$db_prefix}pm_recipients
-ADD COLUMN in_inbox smallint NOT NULL default '1';
+ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 ---#
 
 ---# Moving label info to new tables and updating rules...
@@ -2373,7 +2457,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 /******************************************************************************/
 ---# Adding "modified_reason" column to messages
 ALTER TABLE {$db_prefix}messages
-ADD COLUMN modified_reason varchar(255) NOT NULL default '';
+ADD COLUMN IF NOT EXISTS modified_reason varchar(255) NOT NULL default '';
 ---#
 
 /******************************************************************************/
@@ -2547,17 +2631,17 @@ ALTER url TYPE varchar(2048);
 /******************************************************************************/
 ---# Adding the secret column to members table
 ALTER TABLE {$db_prefix}members
-ADD COLUMN tfa_secret VARCHAR(24) NOT NULL DEFAULT '';
+ADD COLUMN IF NOT EXISTS tfa_secret VARCHAR(24) NOT NULL DEFAULT '';
 ---#
 
 ---# Adding the backup column to members tab
 ALTER TABLE {$db_prefix}members
-ADD COLUMN tfa_backup VARCHAR(64) NOT NULL DEFAULT '';
+ADD COLUMN IF NOT EXISTS tfa_backup VARCHAR(64) NOT NULL DEFAULT '';
 ---#
 
 ---# Force 2FA per membergroup
 ALTER TABLE {$db_prefix}membergroups
-ADD COLUMN tfa_required smallint NOT NULL default '0';
+ADD COLUMN IF NOT EXISTS tfa_required smallint NOT NULL default '0';
 ---#
 
 ---# Add tfa_mode setting
@@ -2659,8 +2743,8 @@ $upcontext['skip_db_substeps'] = in_array('ip_low', $table_columns);
 ---#
 
 ---# add columns
-ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low inet;
-ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high inet;
+ALTER TABLE {$db_prefix}ban_items ADD COLUMN IF NOT EXISTS ip_low inet;
+ALTER TABLE {$db_prefix}ban_items ADD COLUMN IF NOT EXISTS ip_high inet;
 ---#
 
 ---# convert data
@@ -2902,9 +2986,9 @@ UPDATE {$db_prefix}permissions SET permission = 'profile_website_any' WHERE perm
 /******************************************************************************/
 ---# Add start_time end_time, and timezone columns to calendar table
 ALTER TABLE {$db_prefix}calendar
-ADD COLUMN start_time time,
-ADD COLUMN end_time time,
-ADD COLUMN timezone VARCHAR(80);
+ADD COLUMN IF NOT EXISTS start_time time,
+ADD COLUMN IF NOT EXISTS end_time time,
+ADD COLUMN IF NOT EXISTS timezone VARCHAR(80);
 ---#
 
 ---# Update cal_maxspan and drop obsolete cal_allowspan setting
@@ -2933,7 +3017,7 @@ ADD COLUMN timezone VARCHAR(80);
 /******************************************************************************/
 ---# Add location column to calendar table
 ALTER TABLE {$db_prefix}calendar
-ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '';
+ADD COLUMN IF NOT EXISTS location VARCHAR(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
@@ -3035,6 +3119,18 @@ CREATE INDEX {$db_prefix}members_birthdate2 ON {$db_prefix}members (indexable_mo
 ---# Add Index for messages likes
 DROP INDEX IF EXISTS {$db_prefix}messages_likes;
 CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes);
+---#
+
+/******************************************************************************/
+--- Create index for messages board, msg, approved
+/******************************************************************************/
+---# Remove old approved index
+DROP INDEX IF EXISTS {$db_prefix}messages_approved;
+---#
+
+---# Add Index for messages board, msg, approved
+DROP INDEX IF EXISTS {$db_prefix}messages_id_board;
+CREATE UNIQUE INDEX {$db_prefix}messages_id_board ON {$db_prefix}messages (id_board, id_msg, approved);
 ---#
 
 /******************************************************************************/
@@ -3169,7 +3265,7 @@ if (!array_key_exists($modSettings['smiley_sets_default'], $filtered))
 /******************************************************************************/
 ---# add backtrace column
 ALTER TABLE {$db_prefix}log_errors
-ADD COLUMN backtrace text NOT NULL default '';
+ADD COLUMN IF NOT EXISTS backtrace text NOT NULL default '';
 ---#
 
 /******************************************************************************/

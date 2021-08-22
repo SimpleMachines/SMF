@@ -56,7 +56,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 use SMF\Cache\CacheApi;
@@ -628,6 +628,12 @@ function ModifyGeneralSecuritySettings($return_config = false)
 		array('check', 'enableReportPM'),
 		'',
 
+		array('check', 'allow_cors'),
+		array('check', 'allow_cors_credentials'),
+		array('text', 'cors_domains'),
+		array('text', 'cors_headers'),
+		'',
+
 		array(
 			'select',
 			'frame_security',
@@ -645,10 +651,10 @@ function ModifyGeneralSecuritySettings($return_config = false)
 			array(
 				'disabled' => $txt['setting_proxy_ip_header_disabled'],
 				'autodetect' => $txt['setting_proxy_ip_header_autodetect'],
-				'HTTP_X_FORWARDED_FOR' => 'HTTP_X_FORWARDED_FOR',
-				'HTTP_CLIENT_IP' => 'HTTP_CLIENT_IP',
-				'HTTP_X_REAL_IP' => 'HTTP_X_REAL_IP',
-				'CF-Connecting-IP' => 'CF-Connecting-IP'
+				'HTTP_X_FORWARDED_FOR' => 'X-Forwarded-For',
+				'HTTP_CLIENT_IP' => 'Client-IP',
+				'HTTP_X_REAL_IP' => 'X-Real-IP',
+				'HTTP_CF_CONNECTING_IP' => 'CF-Connecting-IP'
 			)
 		),
 		array('text', 'proxy_ip_servers'),
@@ -789,12 +795,16 @@ function ModifyExportSettings($return_config = false)
 	if (empty($modSettings['export_dir']))
 		$modSettings['export_dir'] = $boarddir . DIRECTORY_SEPARATOR . 'exports';
 
-	/* Some paranoid hosts worry that the disk space functions pose a security risk. Usually these
-	 * hosts just disable the functions and move on, which is fine. A rare few, however, are not
-	 * only paranoid, but also think it'd be a "clever" security move to overload the disk space
-	 * functions with custom code that intentionally delivers false information, which is idiotic
-	 * and evil. At any rate, if the functions are unavailable or if they report obviously insane
-	 * values, it's not possible to track disk usage correctly. */
+	/*
+		Some paranoid hosts worry that the disk space functions pose a security
+		risk. Usually these hosts just disable the functions and move on, which
+		is fine. A rare few, however, are not only paranoid, but also think it'd
+		be a "clever" security move to overload the disk space functions with
+		custom code that intentionally delivers false information, which is
+		idiotic and evil. At any rate, if the functions are unavailable or if
+		they report obviously insane values, it's not possible to track disk
+		usage correctly.
+	 */
 	$diskspace_disabled = (!function_exists('disk_free_space') || !function_exists('disk_total_space') || intval(@disk_total_space(file_exists($modSettings['export_dir']) ? $modSettings['export_dir'] : $boarddir)) < 1440);
 
 	$context['settings_message'] = $txt['export_settings_description'];
@@ -813,7 +823,7 @@ function ModifyExportSettings($return_config = false)
 
 	if (isset($_REQUEST['save']))
 	{
-		$prev_export_dir = file_exists($modSettings['export_dir']) ? rtrim($modSettings['export_dir'], '/\\') : '';
+		$prev_export_dir = is_dir($modSettings['export_dir']) ? rtrim($modSettings['export_dir'], '/\\') : '';
 
 		if (!empty($_POST['export_dir']))
 			$_POST['export_dir'] = rtrim($_POST['export_dir'], '/\\');

@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -1838,10 +1838,13 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 	if (!empty($excluded_groups))
 	{
 		// Make sure this is an array of integers
-		$excluded_groups = array_filter((array) $excluded_groups, function ($v)
+		$excluded_groups = array_filter(
+			(array) $excluded_groups,
+			function ($v)
 			{
 				return is_int($v) || is_string($v) && (string) intval($v) === $v;
-			});
+			}
+		);
 
 		foreach ($permissions as $permission)
 			$context['permissions_excluded'][$permission] = array_unique(array_merge($context['permissions_excluded'][$permission], $excluded_groups));
@@ -2347,7 +2350,7 @@ function loadIllegalGuestPermissions()
 		'profile_signature',
 		'profile_title',
 		'profile_upload_avatar',
-		'profile_warning',
+		'view_warning_own',
 		'remove',
 		'report_any',
 		'report_user',

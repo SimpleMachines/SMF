@@ -7,7 +7,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 /**
@@ -407,12 +407,16 @@ function template_show_month_grid($grid_name, $is_mini = false)
 					if (!empty($day['events']))
 					{
 						// Sort events by start time (all day events will be listed first)
-						uasort($day['events'], function($a, $b) {
-							if ($a['start_timestamp'] == $b['start_timestamp'])
-								return 0;
+						uasort(
+							$day['events'],
+							function($a, $b)
+							{
+								if ($a['start_timestamp'] == $b['start_timestamp'])
+									return 0;
 
-							return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
-						});
+								return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
+							}
+						);
 
 						echo '
 						<div class="smalltext lefttext">
@@ -600,11 +604,16 @@ function template_show_week_grid($grid_name)
 			if (!empty($day['events']))
 			{
 				// Sort events by start time (all day events will be listed first)
-				uasort($day['events'], function($a, $b) {
-					if ($a['start_timestamp'] == $b['start_timestamp'])
-						return 0;
-					return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
-				});
+				uasort(
+					$day['events'],
+					function($a, $b)
+					{
+						if ($a['start_timestamp'] == $b['start_timestamp'])
+							return 0;
+
+						return ($a['start_timestamp'] < $b['start_timestamp']) ? -1 : 1;
+					}
+				);
 
 				foreach ($day['events'] as $event)
 				{
@@ -729,12 +738,12 @@ function template_calendar_top($calendar_data)
 
 	echo '
 			<form action="', $scripturl, '?action=calendar;', $context['calendar_view'], '" id="', !empty($calendar_data['end_date']) ? 'calendar_range' : 'calendar_navigation', '" method="post" accept-charset="', $context['character_set'], '">
-				<input type="text" name="start_date" id="start_date" maxlength="10" value="', $calendar_data['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">';
+				<input type="text" name="start_date" id="start_date" value="', trim($calendar_data['start_date']), '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">';
 
 	if (!empty($calendar_data['end_date']))
 		echo '
 				<span>', strtolower($txt['to']), '</span>
-				<input type="text" name="end_date" id="end_date" maxlength="10" value="', $calendar_data['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date">';
+				<input type="text" name="end_date" id="end_date" value="', trim($calendar_data['end_date']), '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date">';
 
 	echo '
 				<input type="submit" class="button" style="float:none" id="view_button" value="', $txt['view'], '">
@@ -824,13 +833,13 @@ function template_event_post()
 						<div class="event_options_left" id="event_time_input">
 							<div>
 								<span class="label">', $txt['start'], '</span>
-								<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
-								<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+								<input type="text" name="start_date" id="start_date" value="', trim($context['event']['start_date_orig']), '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
+								<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_orig'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 							</div>
 							<div>
 								<span class="label">', $txt['end'], '</span>
-								<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
-								<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_local'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+								<input type="text" name="end_date" id="end_date" value="', trim($context['event']['end_date_orig']), '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
+								<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_orig'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 							</div>
 						</div><!-- #event_time_input -->
 						<div class="event_options_right" id="event_time_options">

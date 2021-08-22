@@ -8,16 +8,16 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
-define('SMF_VERSION', '2.1 RC3');
+define('SMF_VERSION', '2.1 RC4');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2021');
 define('DB_SCRIPT_VERSION', '2-1');
 define('SMF_INSTALLING', 1);
 
-define('JQUERY_VERSION', '3.5.1');
+define('JQUERY_VERSION', '3.6.0');
 define('POSTGRE_TITLE', 'PostgreSQL');
 define('MYSQL_TITLE', 'MySQL');
 define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
@@ -63,7 +63,7 @@ $databases = array(
 	),
 	'postgresql' => array(
 		'name' => 'PostgreSQL',
-		'version' => '9.4',
+		'version' => '9.6',
 		'function_check' => 'pg_connect',
 		'version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
 		'supported' => function_exists('pg_connect'),
@@ -1060,23 +1060,20 @@ function ForumSettings()
 		require(dirname(__FILE__) . '/Settings.php');
 
 		// UTF-8 requires a setting to override the language charset.
-		if ((!empty($databases[$db_type]['utf8_support']) && !empty($databases[$db_type]['utf8_required'])) || (empty($databases[$db_type]['utf8_required']) && !empty($databases[$db_type]['utf8_support']) && isset($_POST['utf8'])))
+		if (!$databases[$db_type]['utf8_support']())
 		{
-			if (!$databases[$db_type]['utf8_support']())
-			{
-				$incontext['error'] = sprintf($txt['error_utf8_support']);
-				return false;
-			}
-
-			if (!empty($databases[$db_type]['utf8_version_check']) && version_compare($databases[$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', eval($databases[$db_type]['utf8_version_check'])), '>'))
-			{
-				$incontext['error'] = sprintf($txt['error_utf8_version'], $databases[$db_type]['utf8_version']);
-				return false;
-			}
-			else
-				// Set the character set here.
-				installer_updateSettingsFile(array('db_character_set' => 'utf8'));
+			$incontext['error'] = sprintf($txt['error_utf8_support']);
+			return false;
 		}
+
+		if (!empty($databases[$db_type]['utf8_version_check']) && version_compare($databases[$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', eval($databases[$db_type]['utf8_version_check'])), '>'))
+		{
+			$incontext['error'] = sprintf($txt['error_utf8_version'], $databases[$db_type]['utf8_version']);
+			return false;
+		}
+
+		// Set the character set here.
+		installer_updateSettingsFile(array('db_character_set' => 'utf8'));
 
 		// Good, skip on.
 		return true;
@@ -1186,12 +1183,9 @@ function DatabasePopulation()
 		$replaces['{$engine}'] = $has_innodb ? 'InnoDB' : 'MyISAM';
 		$replaces['{$memory}'] = (!$has_innodb && in_array('MEMORY', $engines)) ? 'MEMORY' : $replaces['{$engine}'];
 
-		// If the UTF-8 setting was enabled, add it to the table definitions.
-		if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
-		{
-			$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
-			$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
-		}
+		// UTF-8 is required.
+		$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 
 		// One last thing - if we don't have InnoDB, we can't do transactions...
 		if (!$has_innodb)
@@ -1288,46 +1282,7 @@ function DatabasePopulation()
 	}
 
 	// Make sure UTF will be used globally.
-	if ((!empty($databases[$db_type]['utf8_support']) && !empty($databases[$db_type]['utf8_required'])) || (empty($databases[$db_type]['utf8_required']) && !empty($databases[$db_type]['utf8_support']) && isset($_POST['utf8'])))
-		$newSettings[] = array('global_character_set', 'UTF-8');
-
-	// Auto-detect local & global cookie settings
-	$url_parts = parse_url($boardurl);
-	if ($url_parts !== false)
-	{
-		unset($globalCookies, $globalCookiesDomain, $localCookies);
-
-		// Look for subdomain, if found, set globalCookie settings
-		// Don't bother looking if you have an ip address for host
-		if (!empty($url_parts['host']) && (filter_var($url_parts['host'], FILTER_VALIDATE_IP) === false))
-		{
-			// www isn't really a subdomain in this sense, so strip it out
-			$url_parts['host'] = str_ireplace('www.', '', $url_parts['host']);
-			$pos1 = strrpos($url_parts['host'], '.');
-			if ($pos1 !== false)
-			{
-				// 2nd period from the right indicates you have a subdomain
-				$pos2 = strrpos(substr($url_parts['host'], 0, $pos1 - 1), '.');
-				if ($pos2 !== false)
-				{
-					$globalCookies = '1';
-					$globalCookiesDomain = substr($url_parts['host'], $pos2 + 1);
-				}
-			}
-		}
-
-		// Look for subfolder, if found, set localCookie
-		// Checking for len > 1 ensures you don't have just a slash...
-		if (!empty($url_parts['path']) && strlen($url_parts['path']) > 1)
-			$localCookies = '1';
-
-		if (isset($globalCookies))
-			$newSettings[] = array('globalCookies', $globalCookies);
-		if (isset($globalCookiesDomain))
-			$newSettings[] = array('globalCookiesDomain', $globalCookiesDomain);
-		if (isset($localCookies))
-			$newSettings[] = array('localCookies', $localCookies);
-	}
+	$newSettings[] = array('global_character_set', 'UTF-8');
 
 	// Are we allowing stat collection?
 	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']) && empty($modSettings['enable_sm_stats']))

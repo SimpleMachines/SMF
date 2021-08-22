@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; Admin
+// Version: 2.1 RC4; Admin
 
 global $settings, $scripturl;
 
@@ -51,7 +51,7 @@ $txt['admin_agreement_not_saved'] = 'The agreement changes have not been saved. 
 $txt['admin_delete_members'] = 'Delete Selected Members';
 $txt['admin_repair'] = 'Repair all boards and topics';
 $txt['admin_main_welcome'] = 'This is your &quot;%1$s&quot;. From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br><br>If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page. If the information there doesn\'t help you, feel free to <a href="https://www.simplemachines.org/community/index.php" target="_blank" rel="noopener">look to us for help</a> with the problem.<br>You may also find answers to your questions or problems by clicking the <span class="main_icons help" title="%3$s"></span> symbols for more information on the related functions.';
-$txt['admin_news_desc'] = 'Please place one news item per box. BBC tags, such as <span title="Are you bold?">[b]</span>, <span title="I tall icks!!">[i]</span> and <span title="Brackets are great, no?">[u]</span> are allowed in your news, as well as smileys. Clear a news item\'s text box to remove it.';
+$txt['admin_news_desc'] = 'Please place one news item per box. <abbr title="Bulletin Board Code">BBC</abbr> <span title="Because everyone loves brackets!">tags</span>, such as <span class="monospace">[b]</span>, <span class="monospace">[i]</span> and <span class="monospace">[u]</span>, are allowed in your news, as well as smileys. Clear a news item\'s text box to remove it.';
 $txt['administrators'] = 'Forum Administrators';
 $txt['admin_reserved_desc'] = 'Reserved names will keep members from registering certain usernames or using these words in their displayed names. Choose the options you wish to use from the bottom before submitting.';
 $txt['admin_match_whole'] = 'Match whole name only. If unchecked, search within names.';
@@ -141,7 +141,7 @@ $txt['email_as_html'] = 'Send in HTML format. (with this you can put normal HTML
 $txt['email_parsed_html'] = 'Add &lt;br&gt;s and &amp;nbsp;s to this message.';
 // argument(s): $scripturl
 $txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;. Click <a href="%1$s?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
-$txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.';
+$txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.<br><span class="alert">This should only be used in exceptional circumstances. Using this to send promotional or other non-essential email messages violates many countries\' privacy and anti-spam laws.</span>';
 $txt['email_as_pms'] = 'Send this to these groups using personal messages.';
 $txt['email_continue'] = 'Continue';
 $txt['email_done'] = 'done.';
@@ -642,7 +642,7 @@ $txt['admin_news_select_excluded_members_desc'] = 'Members who should not receiv
 $txt['admin_news_select_excluded_groups'] = 'Excluded Groups';
 $txt['admin_news_select_excluded_groups_desc'] = 'Select groups who should definitely not receive the newsletter.';
 $txt['admin_news_select_email'] = 'Email Addresses';
-$txt['admin_news_select_email_desc'] = 'A semi-colon separated list of email addresses which should be sent a newsletter. (i.e. address1; address2) This is additional to the groups listed above.';
+$txt['admin_news_select_email_desc'] = 'A semi-colon separated list of email addresses which should be sent a newsletter (i.e. address1; address2). This is additional to the groups listed above.<br><span class="alert">Note: You must manually handle any unsubscribe requests regarding newsletters sent to these email addresses.</span>';
 $txt['admin_news_select_override_notify'] = 'Override notification settings';
 // Use entities in below.
 $txt['admin_news_cannot_pm_emails_js'] = 'You cannot send a personal message to an email address. If you continue all entered email addresses will be ignored.\\n\\nAre you sure you wish to do this?';
@@ -746,6 +746,8 @@ $txt['mention'] = 'Membergroups allowed to mention users';
 $txt['notifications'] = 'Notifications';
 $txt['notify_settings'] = 'Notification Settings';
 $txt['notifications_desc'] = 'This page allows you to set the default notification options for users.';
+ // The GDPR page of the EU exists in several languages; change the language code at the end of the url
+$txt['notify_announcements_desc'] = 'Enabling this default option violates the rules of the <a href="https://ec.europa.eu/info/law/law-topic/data-protection/eu-data-protection-rules_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a> and many other countries\' privacy and anti-spam laws.';
 
 $txt['enable_sm_stats'] = 'Allow Stat Collection';
 

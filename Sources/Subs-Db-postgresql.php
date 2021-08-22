@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -78,8 +78,12 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 	$db_passwd = str_replace(array('\\','\''), array('\\\\','\\\''), $db_passwd);
 
 	// Since pg_connect doesn't feed error info to pg_last_error, we have to catch issues with a try/catch.
-	set_error_handler(function($errno, $errstr) {
-		throw new ErrorException($errstr, $errno);});
+	set_error_handler(
+		function($errno, $errstr)
+		{
+			throw new ErrorException($errstr, $errno);
+		}
+	);
 	try
 	{
 		if (!empty($db_options['persist']))
@@ -676,64 +680,31 @@ function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0,
 	{
 		$key_str = '';
 		$col_str = '';
-		$replace_support = $smcFunc['db_native_replace']();
 
 		$count = 0;
-		$where = '';
 		$count_pk = 0;
 
-		If ($replace_support)
+		foreach ($columns as $columnName => $type)
 		{
-			foreach ($columns as $columnName => $type)
+			//check pk fiel
+			IF (in_array($columnName, $keys))
 			{
-				//check pk fiel
-				IF (in_array($columnName, $keys))
-				{
-					$key_str .= ($count_pk > 0 ? ',' : '');
-					$key_str .= $columnName;
-					$count_pk++;
-				}
-				elseif ($method == 'replace') //normal field
-				{
-					$col_str .= ($count > 0 ? ',' : '');
-					$col_str .= $columnName . ' = EXCLUDED.' . $columnName;
-					$count++;
-				}
+				$key_str .= ($count_pk > 0 ? ',' : '');
+				$key_str .= $columnName;
+				$count_pk++;
 			}
-			if ($method == 'replace')
-				$replace = ' ON CONFLICT (' . $key_str . ') DO UPDATE SET ' . $col_str;
-			else
-				$replace = ' ON CONFLICT (' . $key_str . ') DO NOTHING';
-		}
-		elseif ($method == 'replace')
-		{
-			foreach ($columns as $columnName => $type)
+			elseif ($method == 'replace') //normal field
 			{
-				// Are we restricting the length?
-				if (strpos($type, 'string-') !== false)
-					$actualType = sprintf($columnName . ' = SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . '), ', $count);
-				else
-					$actualType = sprintf($columnName . ' = {%1$s:%2$s}, ', $type, $count);
-
-				// A key? That's what we were looking for.
-				if (in_array($columnName, $keys))
-					$where .= (empty($where) ? '' : ' AND ') . substr($actualType, 0, -2);
+				$col_str .= ($count > 0 ? ',' : '');
+				$col_str .= $columnName . ' = EXCLUDED.' . $columnName;
 				$count++;
 			}
-
-			// Make it so.
-			if (!empty($where) && !empty($data))
-			{
-				foreach ($data as $k => $entry)
-				{
-					$smcFunc['db_query']('', '
-						DELETE FROM ' . $table .
-						' WHERE ' . $where,
-						$entry, $connection
-					);
-				}
-			}
 		}
+		if ($method == 'replace')
+			$replace = ' ON CONFLICT (' . $key_str . ') DO UPDATE SET ' . $col_str;
+		else
+			$replace = ' ON CONFLICT (' . $key_str . ') DO NOTHING';
+
 	}
 
 	$returning = '';
@@ -992,26 +963,7 @@ function smf_db_custom_order($field, $array_values, $desc = false)
  */
 function smf_db_native_replace()
 {
-	global $smcFunc;
-	static $pg_version;
-	static $replace_support;
-
-	if (empty($pg_version))
-	{
-		db_extend();
-		//pg 9.5 got replace support
-		$pg_version = $smcFunc['db_get_version']();
-		// if we got a Beta Version
-		if (stripos($pg_version, 'beta') !== false)
-			$pg_version = substr($pg_version, 0, stripos($pg_version, 'beta')) . '.0';
-		// or RC
-		if (stripos($pg_version, 'rc') !== false)
-			$pg_version = substr($pg_version, 0, stripos($pg_version, 'rc')) . '.0';
-
-		$replace_support = (version_compare($pg_version, '9.5.0', '>=') ? true : false);
-	}
-
-	return $replace_support;
+	return true;
 }
 
 /**

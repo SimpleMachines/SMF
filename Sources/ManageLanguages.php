@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -911,10 +911,13 @@ function ModifyLanguage()
 
 		if (!empty($context['possible_files'][$theme]['files']))
 		{
-			usort($context['possible_files'][$theme]['files'], function($val1, $val2)
-			{
-				return strcmp($val1['name'], $val2['name']);
-			});
+			usort(
+				$context['possible_files'][$theme]['files'],
+				function($val1, $val2)
+				{
+					return strcmp($val1['name'], $val2['name']);
+				}
+			);
 		}
 	}
 
@@ -1148,7 +1151,7 @@ function ModifyLanguage()
 				continue;
 
 			// These are arrays that need breaking out.
-			if (strpos($entryValue['entry'], 'array(') === 0 && strpos($entryValue['entry'], ')', -1) === strlen($entryValue['entry']) - 1)
+			if (strpos($entryValue['entry'], 'array(') === 0 && substr($entryValue['entry'], -1) === ')')
 			{
 				// No, you may not use multidimensional arrays of $txt strings. Madness stalks that path.
 				if (isset($entryValue['subkey']))

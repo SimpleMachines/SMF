@@ -11,7 +11,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -665,11 +665,15 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 
 		if (empty($entries[$k]['action_text']))
 			$entries[$k]['action_text'] = isset($txt['modlog_ac_' . $entry['action']]) ? $txt['modlog_ac_' . $entry['action']] : $entry['action'];
-		$entries[$k]['action_text'] = preg_replace_callback('~\{([A-Za-z\d_]+)\}~i',
+
+		$entries[$k]['action_text'] = preg_replace_callback(
+			'~\{([A-Za-z\d_]+)\}~i',
 			function($matches) use ($entries, $k)
 			{
 				return isset($entries[$k]['extra'][$matches[1]]) ? $entries[$k]['extra'][$matches[1]] : '';
-			}, $entries[$k]['action_text']);
+			},
+			$entries[$k]['action_text']
+		);
 	}
 
 	// Back we go!

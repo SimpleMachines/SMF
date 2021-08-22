@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -1258,6 +1258,15 @@ function PackageInstall()
 	clean_cache();
 	deleteAllMinified();
 
+	foreach (array('css_files', 'javascript_files') as $file_type)
+	{
+		foreach ($context[$file_type] as $id => $file)
+		{
+			if (isset($file['filePath']) && !file_exists($file['filePath']))
+				unset($context[$file_type][$id]);
+		}
+	}
+
 	// Restore file permissions?
 	create_chmod_control(array(), array(), true);
 }
@@ -1527,7 +1536,10 @@ function PackageBrowse()
 	// Current SMF version, which is selected by default
 	$context['default_version'] = SMF_VERSION;
 
-	$context['emulation_versions'][] = $context['default_version'];
+	if (!in_array($context['default_version'], $context['emulation_versions']))
+	{
+		$context['emulation_versions'][] = $context['default_version'];
+	}
 
 	// Version we're currently emulating, if any
 	$context['selected_version'] = preg_replace('~^SMF ~', '', $context['forum_version']);
@@ -1931,8 +1943,8 @@ function ViewOperations()
 	$context['javascript_files'] = array_intersect_key(
 		$context['javascript_files'],
 		[
-			'smf_script' => true,
-			'smf_jquery' => true
+			'smf_script_js' => true,
+			'smf_jquery_js' => true
 		]
 	);
 

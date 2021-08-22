@@ -11,7 +11,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -579,8 +579,6 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 
 /**
  * Remove a specific message (including permission checks).
- * - normally, local and global should be the localCookies and globalCookies settings, respectively.
- * - uses boardurl to determine these two things.
  *
  * @param int $message The message id
  * @param bool $decreasePostCount Whether to decrease users' post counts
@@ -615,6 +613,9 @@ function removeMessage($message, $decreasePostCount = true)
 
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
+
+	// Give mods a heads-up before we do anything.
+	call_integration_hook('integrate_pre_remove_message', array($message, $decreasePostCount, $row));
 
 	if (empty($board) || $row['id_board'] != $board)
 	{

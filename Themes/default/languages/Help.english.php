@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; Help
+// Version: 2.1 RC4; Help
 
 global $helptxt, $scripturl;
 
@@ -265,7 +265,7 @@ $helptxt['enableErrorQueryLogging'] = 'This will include the full query sent to 
 $helptxt['disallow_sendBody'] = 'This setting removes the option to receive the text of replies, posts, and personal messages in notification emails.<br><br>Often, members will reply to the notification email, which in most cases means the webmaster receives the reply.';
 $helptxt['enable_ajax_alerts'] = 'This option allows your members to receive AJAX notifications. This means that members don\'t need to refresh the page to get new notifications.<br><strong>DO NOTE:</strong> This option might cause a severe load at your server with many users online.';
 $helptxt['alerts_auto_purge'] = 'Once an alert has been read, it is rarely needed again. For performance reasons, it is a good idea to automatically delete them after a while.';
-$helptxt['jquery_source'] = 'This will determine the source used to load the jQuery Library. <em>Auto</em> will use the CDN first and if not available fall back to the local source. <em>Local</em> will only use the local source. <em>CDN</em> will only load it from Google CDN network';
+$helptxt['jquery_source'] = 'This will determine the source used to load the jQuery Library. <em>Google CDN, jQuery CDN</em> and <em>Microsoft CDN</em> will load the jQuery library from those respective CDN networks. <em>Local</em> will only use the local source. <em>Custom</em> allows you to specify a custom URL for the library.';
 $helptxt['compactTopicPagesEnable'] = 'This will just show a selection of the number of pages.<br><em>Example:</em>
 		&quot;3&quot; to display: 1 ... 4 [5] 6 ... 9 <br>
 		&quot;5&quot; to display: 1 ... 3 4 [5] 6 7 ... 9';
@@ -341,7 +341,7 @@ $helptxt['enablePostHTML'] = 'This will allow the posting of some basic HTML tag
 		<li>&lt;pre&gt;, &lt;blockquote&gt;</li>
 	</ul>';
 
-$helptxt['themes_manage'] = 'Here you can install new themes and select which themes your users can chose from, the default theme that new users and guests will use, as well as other theme selection settings.';
+$helptxt['themes_manage'] = 'Here you can install new themes and select which themes your users can choose from, the default theme that new users and guests will use, as well as other theme selection settings.';
 $helptxt['theme_install'] = 'This allows you to install new themes. You can do this from an existing directory, by uploading an archive for the theme, or by copying the default theme.<br><br>Note that the archive or directory must have a <pre>theme_info.xml</pre> definition file.';
 $helptxt['xmlnews_enable'] = 'Allows people to link to <a href="%1$s?action=.xml;sa=news" target="_blank" rel="noopener">Recent news</a>
 	and similar data. It is also recommended that you limit the size of recent posts/news because some clients expect the RSS data to be truncated for display.';
@@ -361,6 +361,7 @@ $helptxt['securityDisable'] = 'When enabled, this <em>disables</em> the addition
 $helptxt['securityDisable_why'] = 'Enter your current password. (The same one you use to login.)<br><br>The requirement to enter this helps ensure that you want to do whatever administration you are doing, and that it is <strong>you</strong> doing it.';
 $helptxt['securityDisable_moderate'] = 'When enabled, this <em>disables</em> the additional password check for the moderation page. This setting is enabled by default.';
 $helptxt['securityDisable_moderate_why'] = 'Enter your current password. (The same one you use to login.)<br><br>The requirement to enter this helps ensure that you want to do whatever moderation you are doing, and that it is <strong>you</strong> doing it.';
+$helptxt['allow_cors'] = 'Cross Origin Resource Sharing or CORS is a policy for modern browsers to trust resources being requested across different domains.  If enabled, this will attempt to resolve CORS policy for scripts accessing the forum resources from different domains.  If subdomain independent cookies (global cookies) are enabled, attempts are made to determine the proper domain.  Supplying the Additional CORS domains with a comma separated list of domains allows for additional domains.  The format should be {SCHEMA}://{DOMAIN}.  If a wildcard (*) is supplied in the domain, attempts are made to resolve the wildcard.  If a wildcard (*) is supplied as the only additional domain, all domains are allowed and this may present a security risk to your forum and should not be used except in extreme cases.  Additional headers can be supplied in a comma separated list and will be allowed during requests containing these headers and wildcard (*) is allowed.';
 $helptxt['frame_security'] = 'Modern browsers now understand a security header presented by servers called X-Frame-Options. By setting this option you specify how you want to allow your site to be framed inside a frameset or a iframe. Disable will not send any header and is the most unsecure, however allows the most freedom. Deny will prevent all frames completely and is the most restrictive and secure. Allowing the Same Origin will only allow your domain to issue any frames and provides a middle ground for the previous two options.';
 $helptxt['proxy_ip_header'] = 'This is the server header that will be trusted by SMF for containing the actual users IP address. Changing this setting can cause unexpected IP results on members. Please check with your server administrator, CDN provider or proxy administrator prior to changing these settings. Most providers will understand and use HTTP_X_FORWARDED_FOR. You should fill out the list of Servers sending the reverse proxy headers for security to ensure these headers only come from valid sources.';
 $helptxt['email_members'] = 'In this message you can use a few &quot;variables&quot;. These are:<br>
@@ -504,14 +505,16 @@ $helptxt['maintenance_backup'] = 'This area allows you to save a copy of all the
 $helptxt['maintenance_rot'] = 'This allows you to <strong>completely</strong> and <strong>irrevocably</strong> remove old topics. It is recommended that you try to make a backup first, just in case you remove something you didn\'t mean to.<br><br><strong>Use this setting with care.</strong>';
 $helptxt['maintenance_members'] = 'This allows you to <strong>completely</strong> and <strong>irrevocably</strong> remove member accounts from your forum. It is <strong>highly</strong> recommended that you try to make a backup first, just in case you remove something you didn\'t mean to.<br><br><strong>Use this setting with care.</strong>';
 
-$helptxt['avatar_server_stored'] = 'This allows your members to pick from avatars stored on your server itself. They are, generally, in the same place as SMF under the avatars directory.<br>As a tip, if you create directories in that folder, you can make &quot;categories&quot; of avatars.';
+$helptxt['avatar_server_stored'] = 'This allows your members to pick from avatars stored on your server itself. By default they are stored in the "avatars" directory.<br>As a tip, if you create directories in that folder, you can make "categories" of avatars.';
 $helptxt['avatar_external'] = 'With this enabled, your members can type in a URL to their own avatar. The downside of this is that, in some cases, they may use avatars that are overly large or portray images you don\'t want on your forum.';
-$helptxt['avatar_download_external'] = 'With this setting enabled, the URL given by the user is accessed to download the avatar at that location. On success, the avatar will be treated as uploadable avatar.';
+$helptxt['avatar_download_external'] = 'With this setting enabled, external avatars will be downloaded from the URLs given by the users. On success, the avatars will be treated like uploaded avatars.';
 $helptxt['avatar_action_too_large'] = 'This setting lets you reject images (from other sites) that are too big, or tells the user\'s browser to resize them, or to download them to your server.<br><br>If users put in very large images as their avatars and resize in the browser, it could cause very slow loading for your users - it does not actually resize the file, it just displays it smaller. So a digital photo, for example, would still be loaded in full and then resized only when displayed - so for users this could get quite slow and use a lot of bandwidth.<br><br>On the other hand, downloading them means using your bandwidth and server space, but you also ensure that images are smaller, so it should be faster for users. (Note: downloading and resizing requires either the GD library, or ImageMagick using either the Imagick or MagickWand extensions)';
 $helptxt['avatar_upload'] = 'This setting is much like &quot;external avatars&quot;, except that you have better control over the avatars, a better time resizing them, and your members do not have to have somewhere to put avatars.<br><br>However, the downside is that it can take a lot of space on your server.';
 $helptxt['avatar_download_png'] = 'PNGs are larger, but offer better quality compression. If this is unchecked, JPEG will be used instead - which is often smaller, but also of lesser or blurry quality.';
 
 $helptxt['disableHostnameLookup'] = 'This disables host name lookups, which on some servers are very slow. Note that this will make banning less effective.';
+
+$helptxt['smiley_sameall'] = 'If checking "Same image for all sets", the same image will be added to all your smiley sets. If you uncheck the box, a different image can be uploaded for every installed smiley set. Note that an image needs to be provided for every smiley set.';
 
 $helptxt['search_weight_frequency'] = 'Weight factors are used to determine the relevancy of a search result. Change these weight factors to match the things that are specifically important for your forum. For instance, a forum of a news site, might want a relatively high value for \'age of last matching message\'. All values are relative in relation to each other and should be positive integers.<br><br>This factor counts the amount of matching messages and divides them by the total number of messages within a topic.';
 $helptxt['search_weight_age'] = 'Weight factors are used to determine the relevancy of a search result. Change these weight factors to match the things that are specifically important for your forum. For instance, a forum of a news site, might want a relatively high value for \'age of last matching message\'. All values are relative in relation to each other and should be positive integers.<br><br>This factor rates the age of the last matching message within a topic. The more recent this message is, the higher the score.';
@@ -524,7 +527,7 @@ $helptxt['search_why_use_index'] = 'A search index can greatly improve the perfo
 
 $helptxt['see_admin_ip'] = 'IP addresses are shown to administrators and moderators to facilitate moderation and to make it easier to track people up to no good. Remember that IP addresses may not always be identifying, and most people\'s IP addresses change periodically.<br><br>Members are also allowed to see their own IPs.';
 $helptxt['see_member_ip'] = 'Your IP address is shown only to you and moderators. Remember that this information is not identifying, and that most IPs change periodically.<br><br>You cannot see other members\' IP addresses, and they cannot see yours.';
-$helptxt['whytwoip'] = 'SMF uses various methods to detect user IP addresses. Usually these two methods result in the same address but in some cases more than one address may be detected. In this case SMF logs both addresses, and uses them both for ban checks (etc). You can click on either address to track that IP and ban if necessary.';
+$helptxt['whytwoip'] = 'SMF uses various methods to detect user IP addresses. Usually these two methods result in the same address but in some cases more than one address may be detected. In this case SMF logs the two most recent addresses, and uses them both for ban checks (etc). You can click on either address to track that IP and ban if necessary.';
 
 $helptxt['ban_cannot_post'] = 'The \'cannot post\' restriction turns the forum into read-only mode for the banned user. The user cannot create new topics, or reply to existing ones, send personal messages or vote in polls. The banned user can however still read personal messages and topics.<br><br>A warning message is shown to the users that are banned this way.';
 
@@ -626,6 +629,16 @@ $helptxt['enable_sm_stats'] = 'If enabled, this will allow Simple Machines to vi
 
 $helptxt['field_reg_require'] = 'If this field is required during registration, it will also be required on profile changes.';
 
+$helptxt['translatable_fields'] = 'If you wish to provide multi-language support for your custom profile fields you can use translatable tokens on both the name and description fields.<br><br>
+Anything enclosed with braces <span class="monospace">{}</span> will be considered as a token and will be matched against a $txt string. For example, the token <span class="monospace">{gender}</span> will be replaced by the value of $txt[\'gender\']<br><br>
+It is <strong>very important</strong> to add the matched $txt string to <strong>ALL</strong> currently installed languages. To do this, go to the <a href="%1$s?action=admin;area=languages;sa=edit;%3$s=%2$s" class="bbc_link" target="_blank" rel="noopener">Edit Languages</a> page and complete the following steps for each installed language:
+<ol class="bbc_list" style="list-style-type: decimal">
+	<li>Click the "Edit" button next to the language name.</li>
+	<li>In the "Select entries to edit" menu, choose "Modifications".</li>
+	<li>Scroll to bottom and click the "Add Another Item" button.</li>
+	<li>Follow the prompts to add your new string.</li>
+</ol>';
+
 // argument(s): $boarddir, $boardurl
 $helptxt['cron_is_real_cron'] = 'By default, SMF adds to every page a small bit of JavaScript that prompts the user\'s browser to trigger SMF\'s cron.php in the background. This approach allows SMF to execute its scheduled tasks on a regular basis without requiring the admin to do any extra server configuration. However, some admins might prefer to configure their servers to directly execute cron.php on a regular basis. If you have done this, you can disable the JavaScript method.<br><br><strong>Note:</strong> Configuring your server to run scheduled tasks this way cannot be done from within SMF. You will need to use your server configuration software to do so. Typical tools for this purpose include <code>cron</code> (for Linux servers), <code>schtasks.exe</code> (for Windows servers), and <code>launchd</code> (for macOS servers). Most web hosting companies provide some sort of control panel interface to allow their customers to access these tools.<br><br>The path and URL for your forum\'s cron.php are:<br>Path: %1$s/cron.php<br>URL: %2$s/cron.php';
 
@@ -642,9 +655,9 @@ $helptxt['languages_rtl'] = 'Check this box if this language reads from right to
 $helptxt['languages_dictionary'] = 'This defines the main language dictionary that will be used by the <a href="https://php.net/function.pspell-new" target="_blank" rel="noopener">pSpell</a> spellchecker (if installed).';
 $helptxt['languages_recaptcha'] = 'The language code to use for the reCAPTCHA verification widget.<br><br>See Google\'s reCAPTCHA documentation for its <a href="https://developers.google.com/recaptcha/docs/language" target="_blank" rel="noopener" class="bbc_link">list of supported languages</a>.';
 // The GDPR page of the EU exists in several languages; change the language code at the end of the url
-$helptxt['requireAgreement'] = 'This setting is recommended to be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a>.';
+$helptxt['requireAgreement'] = 'This setting is recommended to be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/info/law/law-topic/data-protection/eu-data-protection-rules_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a>.';
 // The GDPR page of the EU exists in several languages; change the language code at the end of the url
-$helptxt['requirePolicyAgreement'] = 'This setting is recommended to be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a>.';
+$helptxt['requirePolicyAgreement'] = 'This setting is recommended to be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/info/law/law-topic/data-protection/eu-data-protection-rules_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a>.';
 $helptxt['gravatar'] = 'Gravatar is Globally Recognized Avatars. Register an account at <a href="https://www.gravatar.com" target="_blank" rel="noopener">https://www.gravatar.com</a> to select an avatar image. This avatar is then available at every site that supports gravatars. If you don\'t have a gravatar account, a default image will be used.';
 
 ?>

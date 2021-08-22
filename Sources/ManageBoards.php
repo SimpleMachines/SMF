@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -697,7 +697,7 @@ function EditBoard2()
 		$boardOptions['redirect'] = !empty($_POST['redirect_enable']) && isset($_POST['redirect_address']) && trim($_POST['redirect_address']) != '' ? trim($_POST['redirect_address']) : '';
 
 		// Profiles...
-		$boardOptions['profile'] = $_POST['profile'];
+		$boardOptions['profile'] = $_POST['profile'] == -1 ? 1 : $_POST['profile'];
 		$boardOptions['inherit_permissions'] = $_POST['profile'] == -1;
 
 		// We need to know what used to be case in terms of redirection.

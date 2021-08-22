@@ -7,7 +7,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 // @todo
@@ -147,12 +147,12 @@ function template_error_log()
 		if (!empty($error['member']['session']))
 			echo '
 						<br>
-						<a  href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '"><span class="main_icons filter"></span></a> <a class="bbc_link" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '">', $error['member']['session'], '</a>';
+						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '"><span class="main_icons filter"></span></a> <a class="bbc_link" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '">', $error['member']['session'], '</a>';
 
 		echo '
 						<br>
 						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_url'], '"><span class="main_icons filter"></span></a>
-						<a href="', $error['url']['html'], '" class="bbc_link">', $error['url']['html'], '</a>';
+						<a href="', $error['url']['html'], '" class="bbc_link word_break">', $error['url']['html'], '</a>';
 
 		if (!empty($error['file']))
 			echo '
@@ -280,7 +280,9 @@ function template_show_backtrace()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['backtrace_title'], '</title>';
+
 	template_css();
+
 	echo '
 	</head>
 	<body class="padding">';
@@ -294,7 +296,7 @@ function template_show_backtrace()
 				</h3>
 			</div>
 			<div class="windowbg" id="backtrace">
-				<table class="table_grid centertext">
+				<table class="table_grid">
 					<tbody>';
 
 		if (!empty($context['error_info']['error_type']))
@@ -338,7 +340,7 @@ function template_show_backtrace()
 						<tr class="title_bar">
 							<td><strong>', $txt['error_url'], '</strong></td>
 						</tr>
-						<tr class="windowbg">
+						<tr class="windowbg word_break">
 							<td>', $context['error_info']['url'], '</td>
 						</tr>';
 
@@ -364,6 +366,7 @@ function template_show_backtrace()
 			//Check for existing
 			if (!property_exists($value, 'file') || empty($value->file))
 				$value->file = $txt['unknown'];
+
 			if (!property_exists($value, 'line') || empty($value->line))
 				$value->line = -1;
 

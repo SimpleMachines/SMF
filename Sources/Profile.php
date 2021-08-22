@@ -12,7 +12,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -1019,7 +1019,7 @@ function loadCustomFields($memID, $area = 'summary')
 			foreach ($options as $k => $v)
 			{
 				$true = (!$exists && $row['default_value'] == $v) || $value == $v;
-				$input_html .= '<option value="' . $k . '"' . ($true ? ' selected' : '') . '>' . $v . '</option>';
+				$input_html .= '<option value="' . $k . '"' . ($true ? ' selected' : '') . '>' . tokenTxtReplace($v) . '</option>';
 				if ($true)
 					$output_html = $v;
 			}
@@ -1033,7 +1033,7 @@ function loadCustomFields($memID, $area = 'summary')
 			foreach ($options as $k => $v)
 			{
 				$true = (!$exists && $row['default_value'] == $v) || $value == $v;
-				$input_html .= '<label for="customfield_' . $row['col_name'] . '_' . $k . '"><input type="radio" name="customfield[' . $row['col_name'] . ']" id="customfield_' . $row['col_name'] . '_' . $k . '" value="' . $k . '"' . ($true ? ' checked' : '') . '>' . $v . '</label><br>';
+				$input_html .= '<label for="customfield_' . $row['col_name'] . '_' . $k . '"><input type="radio" name="customfield[' . $row['col_name'] . ']" id="customfield_' . $row['col_name'] . '_' . $k . '" value="' . $k . '"' . ($true ? ' checked' : '') . '>' . tokenTxtReplace($v) . '</label><br>';
 				if ($true)
 					$output_html = $v;
 			}
@@ -1067,12 +1067,12 @@ function loadCustomFields($memID, $area = 'summary')
 			));
 
 		$context['custom_fields'][] = array(
-			'name' => $row['field_name'],
-			'desc' => $row['field_desc'],
+			'name' => tokenTxtReplace($row['field_name']),
+			'desc' => tokenTxtReplace($row['field_desc']),
 			'type' => $row['field_type'],
 			'order' => $row['field_order'],
 			'input_html' => $input_html,
-			'output_html' => $output_html,
+			'output_html' => tokenTxtReplace($output_html),
 			'placement' => $row['placement'],
 			'colname' => $row['col_name'],
 			'value' => $value,

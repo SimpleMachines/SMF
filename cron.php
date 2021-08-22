@@ -17,16 +17,16 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 define('SMF', 'BACKGROUND');
-define('SMF_VERSION', '2.1 RC3');
+define('SMF_VERSION', '2.1 RC4');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2021');
 define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
 
-define('JQUERY_VERSION', '3.5.1');
+define('JQUERY_VERSION', '3.6.0');
 define('POSTGRE_TITLE', 'PostgreSQL');
 define('MYSQL_TITLE', 'MySQL');
 define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));

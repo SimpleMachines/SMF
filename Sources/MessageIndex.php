@@ -11,7 +11,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -339,7 +339,7 @@ function MessageIndex()
 		' . (!empty($message_index_tables) ? implode("\n\t\t\t\t", $message_index_tables) : '') . '
 		WHERE t.id_board = {int:current_board} '
 			. (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
-			AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . (!empty($message_index_topic_wheres) ? ' 
+			AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . (!empty($message_index_topic_wheres) ? '
 			AND ' . implode("\n\t\t\t\tAND ", $message_index_topic_wheres) : ''). '
 		ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') . '
 		LIMIT {int:maxindex}
@@ -557,7 +557,7 @@ function MessageIndex()
 
 	$context['jump_to'] = array(
 		'label' => addslashes(un_htmlspecialchars($txt['jump_to'])),
-		'board_name' => $smcFunc['htmlspecialchars'](strtr(strip_tags($board_info['name']), array('&amp;' => '&'))),
+		'board_name' => strtr($smcFunc['htmlspecialchars'](strip_tags($board_info['name'])), array('&amp;' => '&')),
 		'child_level' => $board_info['child_level'],
 	);
 

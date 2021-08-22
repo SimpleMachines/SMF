@@ -11,7 +11,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -151,7 +151,7 @@ function ModifyModSettings()
  */
 function ModifyBasicSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings;
+	global $txt, $scripturl, $context, $modSettings, $sourcedir;
 
 	// We need to know if personal text is enabled, and if it's in the registration fields option.
 	// If admins have set it up as an on-registration thing, they can't set a default value (because it'll never be used)
@@ -179,9 +179,10 @@ function ModifyBasicSettings($return_config = false)
 			'select',
 			'jquery_source',
 			array(
-				'auto' => $txt['jquery_auto'],
+				'cdn' => $txt['jquery_google_cdn'],
+				'jquery_cdn' => $txt['jquery_jquery_cdn'],
+				'microsoft_cdn' => $txt['jquery_microsoft_cdn'],
 				'local' => $txt['jquery_local'],
-				'cdn' => $txt['jquery_cdn'],
 				'custom' => $txt['jquery_custom']
 			),
 			'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}'
@@ -189,7 +190,7 @@ function ModifyBasicSettings($return_config = false)
 		array(
 			'text',
 			'jquery_custom',
-			'disabled' => isset($modSettings['jquery_source']) && $modSettings['jquery_source'] != 'custom', 'size' => 75
+			'disabled' => !isset($modSettings['jquery_source']) || (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] != 'custom'), 'size' => 75
 		),
 		'',
 
@@ -252,6 +253,14 @@ function ModifyBasicSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		checkSession();
+
+		// Make sure the country codes are valid.
+		if (!empty($_POST['timezone_priority_countries']))
+		{
+			require_once($sourcedir . '/Subs-Timezones.php');
+
+			$_POST['timezone_priority_countries'] = validate_iso_country_codes($_POST['timezone_priority_countries'], true);
+		}
 
 		// Prevent absurd boundaries here - make it a day tops.
 		if (isset($_POST['lastActive']))
@@ -1592,7 +1601,14 @@ function ShowCustomProfiles()
 				'data' => array(
 					'function' => function($rowData) use ($scripturl)
 					{
-						return sprintf('<a href="%1$s?action=admin;area=featuresettings;sa=profileedit;fid=%2$d">%3$s</a><div class="smalltext">%4$s</div>', $scripturl, $rowData['id_field'], $rowData['field_name'], $rowData['field_desc']);
+						$field_name = tokenTxtReplace($rowData['field_name']);
+						$field_desc = tokenTxtReplace($rowData['field_desc']);
+
+						return sprintf('<a href="%1$s?action=admin;area=featuresettings;sa=profileedit;fid=%2$d">%3$s</a><div class="smalltext">%4$s</div>',
+							$scripturl,
+							$rowData['id_field'],
+							$field_name,
+							$field_desc);
 					},
 					'style' => 'width: 62%;',
 				),
@@ -2279,18 +2295,18 @@ function ModifyLogSettings($return_config = false)
 		array('check', 'adminlog_enabled', 'help' => 'adminlog'),
 		array('check', 'userlog_enabled', 'help' => 'userlog'),
 		// The error log is a wonderful thing.
-		array('title', 'errorlog'),
+		array('title', 'errorlog', 'force_div_id' => 'errorlog'),
 		array('desc', 'error_log_desc'),
 		array('check', 'enableErrorLogging'),
 		array('check', 'enableErrorQueryLogging'),
 		// The 'mark read' log settings.
-		array('title', 'markread_title'),
+		array('title', 'markread_title', 'force_div_id' => 'markread_title'),
 		array('desc', 'mark_read_desc'),
 		array('int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
 		array('int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => $txt['zero_to_disable']),
 		array('int', 'mark_read_max_users', 'step' => 1, 'min' => 0, 'max' => 20000, 'subtext' => $txt['zero_to_disable']),
 		// Even do the pruning?
-		array('title', 'pruning_title'),
+		array('title', 'pruning_title', 'force_div_id' => 'pruning_title'),
 		array('desc', 'pruning_desc'),
 		// The array indexes are there so we can remove/change them before saving.
 		'pruningOptions' => array('check', 'pruningOptions'),

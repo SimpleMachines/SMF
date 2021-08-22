@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; ManageSettings
+// Version: 2.1 RC4; ManageSettings
 
 global $scripturl;
 
@@ -72,8 +72,9 @@ $txt['jquery_source'] = 'Source for the jQuery Library';
 $txt['jquery_custom_label'] = 'Custom';
 $txt['jquery_custom'] = 'Custom URL to the jQuery Library';
 $txt['jquery_local'] = 'Local';
-$txt['jquery_cdn'] = 'Google CDN';
-$txt['jquery_auto'] = 'Auto';
+$txt['jquery_google_cdn'] = 'Google CDN';
+$txt['jquery_jquery_cdn'] = 'jQuery CDN';
+$txt['jquery_microsoft_cdn'] = 'Microsoft CDN';
 $txt['queryless_urls'] = 'Search engine friendly URLs';
 $txt['minimize_files'] = 'Minimize CSS and JavaScript files';
 $txt['queryless_urls_note'] = 'Apache/Lighttpd only';
@@ -267,6 +268,7 @@ $txt['custom_edit_general'] = 'Display Settings';
 $txt['custom_edit_input'] = 'Input Settings';
 $txt['custom_edit_advanced'] = 'Advanced Settings';
 $txt['custom_edit_name'] = 'Name';
+$txt['custom_edit_name_desc'] = 'You can use translatable tokens in this field.';
 $txt['custom_edit_desc'] = 'Description';
 $txt['custom_edit_profile'] = 'Profile Section';
 $txt['custom_edit_profile_desc'] = 'Section of profile the users will be able to edit this in.';
@@ -398,6 +400,11 @@ $txt['languages_txt_for_timezones'] = 'Place names';
 $txt['languages_txt_for_email_templates'] = 'Email message templates';
 $txt['languages_enter_key'] = 'Enter a variable name for this text string';
 $txt['languages_invalid_key'] = 'Sorry, but this variable name is invalid: ';
+
+$txt['allow_cors'] = 'Allow CORS (Cross Origin Resource Sharing)';
+$txt['allow_cors_credentials'] = 'Allow sending credentials over CORS';
+$txt['cors_domains'] = 'Additional CORS domains';
+$txt['cors_headers'] = 'Additional CORS headers';
 
 $txt['setting_frame_security'] = 'Frame Security Options';
 $txt['setting_frame_security_SAMEORIGIN'] = 'Allow Same Origin';

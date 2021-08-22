@@ -7,7 +7,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 /**
@@ -253,7 +253,7 @@ function template_registration_form()
 						if (is_array($field['options']))
 							foreach ($field['options'] as $value => $name)
 								echo '
-								<option', (!empty($field['disabled_options']) && is_array($field['disabled_options']) && in_array($value, $field['disabled_options'], true) ? ' disabled' : ''), ' value="' . $value . '"', $value == $field['value'] ? ' selected' : '', '>', $name, '</option>';
+								<option', (!empty($field['disabled_options']) && is_array($field['disabled_options']) && in_array($value, $field['disabled_options'], true) ? ' disabled' : ''), ' value="' . $value . '"', $value === $field['value'] ? ' selected' : '', '>', $name, '</option>';
 					}
 
 					echo '
@@ -313,7 +313,7 @@ function template_registration_form()
 				<input type="submit" name="accept_agreement_coppa" value="', $context['coppa_agree_below'], '" class="button">';
 	else
 		echo '
-				<input type="submit" name="regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button">';
+				<input type="submit" name="regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button" onclick="this.disabled = true;form.submit();">';
 
 	echo '
 			</div>

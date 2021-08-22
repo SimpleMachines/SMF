@@ -7,7 +7,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 /**
@@ -15,7 +15,7 @@
  */
 function template_print_above()
 {
-	global $context, $txt;
+	global $context, $txt, $modSettings;
 
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
@@ -117,7 +117,21 @@ function template_print_above()
 				.print_options {
 					margin: 1em 0;
 				}
-			}
+			}';
+
+	if (!empty($modSettings['max_image_width']))
+		echo '
+			.bbc_img {
+				max-width: ' . $modSettings['max_image_width'] . 'px;
+			}';
+
+	if (!empty($modSettings['max_image_height']))
+		echo '
+			.bbc_img {
+				max-height: ' . $modSettings['max_image_height'] . 'px;
+			}';
+
+	echo '
 		</style>
 	</head>
 	<body>';

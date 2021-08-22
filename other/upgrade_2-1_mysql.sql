@@ -1,6 +1,41 @@
 /* ATTENTION: You don't need to run or use this file!  The upgrade.php script does everything for you! */
 
 /******************************************************************************/
+--- Fixing dates...
+/******************************************************************************/
+
+---# Updating old values
+UPDATE {$db_prefix}calendar
+SET start_date = DATE(CONCAT(1004, '-', MONTH(start_date), '-', DAY(start_date)))
+WHERE YEAR(start_date) < 1004;
+
+UPDATE {$db_prefix}calendar
+SET end_date = DATE(CONCAT(1004, '-', MONTH(end_date), '-', DAY(end_date)))
+WHERE YEAR(end_date) < 1004;
+
+UPDATE {$db_prefix}calendar_holidays
+SET event_date = DATE(CONCAT(1004, '-', MONTH(event_date), '-', DAY(event_date)))
+WHERE YEAR(event_date) < 1004;
+
+UPDATE {$db_prefix}log_spider_stats
+SET stat_date = DATE(CONCAT(1004, '-', MONTH(stat_date), '-', DAY(stat_date)))
+WHERE YEAR(stat_date) < 1004;
+
+UPDATE {$db_prefix}members
+SET birthdate = DATE(CONCAT(IF(YEAR(birthdate) < 1004, 1004, YEAR(birthdate)), '-', IF(MONTH(birthdate) < 1, 1, MONTH(birthdate)), '-', IF(DAY(birthdate) < 1, 1, DAY(birthdate))))
+WHERE YEAR(birthdate) < 1004 OR MONTH(birthdate) < 1 OR DAY(birthdate) < 1;
+---#
+
+---# Changing default values
+ALTER TABLE {$db_prefix}calendar CHANGE start_date start_date date NOT NULL DEFAULT '1004-01-01';
+ALTER TABLE {$db_prefix}calendar CHANGE end_date end_date date NOT NULL DEFAULT '1004-01-01';
+ALTER TABLE {$db_prefix}calendar_holidays CHANGE event_date event_date date NOT NULL DEFAULT '1004-01-01';
+ALTER TABLE {$db_prefix}log_spider_stats CHANGE stat_date stat_date date NOT NULL DEFAULT '1004-01-01';
+ALTER TABLE {$db_prefix}members CHANGE birthdate birthdate date NOT NULL DEFAULT '1004-01-01';
+ALTER TABLE {$db_prefix}log_activity CHANGE DATE DATE date NOT NULL;
+---#
+
+/******************************************************************************/
 --- Removing karma
 /******************************************************************************/
 
@@ -68,41 +103,6 @@ if (!empty($upcontext['empty_error']))
 	);
 }
 ---}
----#
-
-/******************************************************************************/
---- Fixing dates...
-/******************************************************************************/
-
----# Updating old values
-UPDATE {$db_prefix}calendar
-SET start_date = DATE(CONCAT(1004, '-', MONTH(start_date), '-', DAY(start_date)))
-WHERE YEAR(start_date) < 1004;
-
-UPDATE {$db_prefix}calendar
-SET end_date = DATE(CONCAT(1004, '-', MONTH(end_date), '-', DAY(end_date)))
-WHERE YEAR(end_date) < 1004;
-
-UPDATE {$db_prefix}calendar_holidays
-SET event_date = DATE(CONCAT(1004, '-', MONTH(event_date), '-', DAY(event_date)))
-WHERE YEAR(event_date) < 1004;
-
-UPDATE {$db_prefix}log_spider_stats
-SET stat_date = DATE(CONCAT(1004, '-', MONTH(stat_date), '-', DAY(stat_date)))
-WHERE YEAR(stat_date) < 1004;
-
-UPDATE {$db_prefix}members
-SET birthdate = DATE(CONCAT(IF(YEAR(birthdate) < 1004, 1004, YEAR(birthdate)), '-', IF(MONTH(birthdate) < 1, 1, MONTH(birthdate)), '-', IF(DAY(birthdate) < 1, 1, DAY(birthdate))))
-WHERE YEAR(birthdate) < 1004 OR MONTH(birthdate) < 1 OR DAY(birthdate) < 1;
----#
-
----# Changing default values
-ALTER TABLE {$db_prefix}calendar CHANGE start_date start_date date NOT NULL DEFAULT '1004-01-01';
-ALTER TABLE {$db_prefix}calendar CHANGE end_date end_date date NOT NULL DEFAULT '1004-01-01';
-ALTER TABLE {$db_prefix}calendar_holidays CHANGE event_date event_date date NOT NULL DEFAULT '1004-01-01';
-ALTER TABLE {$db_prefix}log_spider_stats CHANGE stat_date stat_date date NOT NULL DEFAULT '1004-01-01';
-ALTER TABLE {$db_prefix}members CHANGE birthdate birthdate date NOT NULL DEFAULT '1004-01-01';
-ALTER TABLE {$db_prefix}log_activity CHANGE DATE DATE date NOT NULL;
 ---#
 
 /******************************************************************************/
@@ -258,7 +258,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('loginHistoryDays', '30'),
-			array()
+			array('variable')
 		);
 ---}
 ---#
@@ -321,7 +321,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('securityDisable_moderate', '1'),
-			array()
+			array('variable')
 		);
 ---}
 ---#
@@ -437,6 +437,7 @@ while (!$is_done)
 		SELECT id_attach, id_member, id_folder, filename, file_hash, mime_type
 		FROM {$db_prefix}attachments
 		WHERE attachment_type != 1
+		ORDER BY id_attach
 		LIMIT $_GET[a], 100");
 
 	// Finished?
@@ -503,10 +504,13 @@ while (!$is_done)
 		if ($row['id_member'] != 0)
 		{
 			if (rename($oldFile, $custom_av_dir . '/' . $row['filename']))
+			{
 				upgrade_query("
 					UPDATE {$db_prefix}attachments
 					SET file_hash = '', attachment_type = 1
 					WHERE id_attach = $row[id_attach]");
+				$_GET['a'] -= 1;
+			}
 		}
 		// Just a regular attachment.
 		else
@@ -989,6 +993,7 @@ if (in_array('notify_regularity', $results))
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, notify_regularity, notify_send_body, notify_types
 			FROM {db_prefix}members
+			ORDER BY id_member
 			LIMIT {int:start}, {int:limit}',
 			array(
 				'db_error_skip' => true,
@@ -1360,11 +1365,10 @@ ADD COLUMN show_mlist SMALLINT NOT NULL DEFAULT '0';
 
 ---# Insert fields
 INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
-('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 1, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
-('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
-('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" rel="noopener" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>', 1);
+('cust_icq', '{icq}', '{icq_desc}', 'text', 12, '', 1, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
+('cust_skype', '{skype}', '{skype_desc}', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
+('cust_loca', '{location}', '{location_desc}', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
+('cust_gender', '{gender}', '{gender_desc}', 'radio', 255, '{gender_0},{gender_1},{gender_2}', 5, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>', 1);
 ---#
 
 ---# Add an order value to each existing cust profile field.
@@ -1425,13 +1429,13 @@ if (!empty($select_columns))
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, '. implode(',', $select_columns) .'
 			FROM {db_prefix}members
+			ORDER BY id_member
 			LIMIT {int:start}, {int:limit}',
 			array(
 				'start' => $_GET['a'],
 				'limit' => $limit,
 		));
 
-		$genderTypes = array(1 => 'Male', 2 => 'Female');
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			if (!empty($row['icq']))
@@ -1443,8 +1447,8 @@ if (!empty($select_columns))
 			if (!empty($row['location']))
 				$inserts[] = array($row['id_member'], 1, 'cust_loca', $row['location']);
 
-			if (!empty($row['gender']) && isset($genderTypes[INTval($row['gender'])]))
-				$inserts[] = array($row['id_member'], 1, 'cust_gender', $genderTypes[INTval($row['gender'])]);
+			if (!empty($row['gender']))
+				$inserts[] = array($row['id_member'], 1, 'cust_gender', '{gender_' . intval($row['gender']) . '}');
 		}
 		$smcFunc['db_free_result']($request);
 
@@ -1609,7 +1613,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
 ) ENGINE=MyISAM;
 ---#
 
----# Adding count to the messages table. (May take a while)
+---# Adding likes column to the messages table. (May take a while)
 ALTER TABLE {$db_prefix}messages
 ADD COLUMN likes SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0';
 ---#
@@ -1716,7 +1720,7 @@ WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_regis
 
 ---# Cleaning up old theme settings.
 DELETE FROM {$db_prefix}themes
-WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group', 'drafts_autosave_enabled', 'forum_width');
+WHERE variable IN ('show_board_desc', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group', 'drafts_autosave_enabled', 'forum_width');
 ---#
 
 ---# Update the SM Stat collection.
@@ -1895,6 +1899,86 @@ $request = upgrade_query("
 				" . implode(',', $inserts)
 		);
 	}
+---}
+---#
+
+---# Adding "view_warning_own" and "view_warning_any" permissions
+---{
+if (isset($modSettings['warning_show']))
+{
+	$can_view_warning_own = array();
+	$can_view_warning_any = array();
+
+	if ($modSettings['warning_show'] >= 1)
+	{
+		$can_view_warning_own[] = 0;
+
+		$request = $smcFunc['db_query']('', '
+			SELECT id_group
+			FROM {db_prefix}membergroups
+			WHERE min_posts = {int:not_post_based}',
+			array(
+				'not_post_based' => -1,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (in_array($row['id_group'], array(1, 3)))
+				continue;
+
+			$can_view_warning_own[] = $row['id_group'];
+		}
+		$smcFunc['db_free_result']($request);
+	}
+
+	if ($modSettings['warning_show'] > 1)
+		$can_view_warning_any = $can_view_warning_own;
+	else
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT id_group, add_deny
+			FROM {db_prefix}permissions
+			WHERE permission = {string:perm}',
+			array(
+				'perm' => 'issue_warning',
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (in_array($row['id_group'], array(-1, 1, 3)) || $row['add_deny'] != 1)
+				continue;
+
+			$can_view_warning_any[] = $row['id_group'];
+		}
+		$smcFunc['db_free_result']($request);
+	}
+
+	$inserts = array();
+
+	foreach ($can_view_warning_own as $id_group)
+		$inserts[] = array($id_group, 'view_warning_own', 1);
+
+	foreach ($can_view_warning_any as $id_group)
+		$inserts[] = array($id_group, 'view_warning_any', 1);
+
+	if (!empty($inserts))
+	{
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}permissions',
+			array('id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
+			$inserts,
+			array('id_group', 'permission')
+		);
+	}
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}settings
+		WHERE variable = {string:warning_show}',
+		array(
+			'warning_show' => 'warning_show',
+		)
+	);
+}
 ---}
 ---#
 
@@ -2859,6 +2943,31 @@ DROP INDEX topic;
 ---# Updating messages drop another old topic ix
 ALTER TABLE {$db_prefix}messages
 DROP INDEX id_topic;
+---#
+
+---# Updating messages drop approved ix
+ALTER TABLE {$db_prefix}messages
+DROP INDEX approved;
+---#
+
+---# Updating messages drop approved ix alt name
+ALTER TABLE {$db_prefix}messages
+DROP INDEX idx_approved;
+---#
+
+---# Updating messages drop id_board ix
+ALTER TABLE {$db_prefix}messages
+DROP INDEX id_board;
+---#
+
+---# Updating messages drop id_board ix alt name
+ALTER TABLE {$db_prefix}messages
+DROP INDEX idx_id_board;
+---#
+
+---# Updating messages add new id_board ix
+ALTER TABLE {$db_prefix}messages
+ADD UNIQUE INDEX idx_id_board (id_board, id_msg, approved);
 ---#
 
 ---# Updating topics drop old id_board ix

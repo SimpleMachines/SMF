@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -630,10 +630,17 @@ class xmlArray
 		$trans_tbl = array_flip(get_html_translation_table(HTML_ENTITIES, ENT_QUOTES));
 
 		// Translate all the entities out.
-		$data = strtr(preg_replace_callback('~&#(\d{1,4});~', function($m)
-		{
-			return chr("$m[1]");
-		}, $data), $trans_tbl);
+		$data = strtr(
+			preg_replace_callback(
+				'~&#(\d{1,4});~',
+				function($m)
+				{
+					return chr("$m[1]");
+				},
+				$data
+			),
+			$trans_tbl
+		);
 
 		return $this->trim ? trim($data) : $data;
 	}

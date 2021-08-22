@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -65,7 +65,7 @@ function showAttachment()
 
 	// A thumbnail has been requested? madness! madness I say!
 	$preview = isset($_REQUEST['preview']) ? $_REQUEST['preview'] : (isset($_REQUEST['type']) && $_REQUEST['type'] == 'preview' ? $_REQUEST['type'] : 0);
-	$showThumb = isset($_REQUEST['thumb']) || !empty($preview);
+	$showThumb = isset($_REQUEST['thumb']);
 	$attachTopic = isset($_REQUEST['topic']) ? (int) $_REQUEST['topic'] : 0;
 
 	// No access in strict maintenance mode or you don't have permission to see attachments.

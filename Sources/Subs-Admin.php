@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 use SMF\Cache\CacheApiInterface;
@@ -1232,16 +1232,19 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	}
 
 	// It's important to do the numbered ones before the named ones, or messes happen.
-	uksort($substitutions, function($a, $b) {
-		if (is_int($a) && is_int($b))
-			return $a > $b ? 1 : ($a < $b ? -1 : 0);
-		elseif (is_int($a))
-			return -1;
-		elseif (is_int($b))
-			return 1;
-		else
-			return strcasecmp($b, $a);
-	});
+	uksort(
+		$substitutions,
+		function($a, $b) {
+			if (is_int($a) && is_int($b))
+				return $a > $b ? 1 : ($a < $b ? -1 : 0);
+			elseif (is_int($a))
+				return -1;
+			elseif (is_int($b))
+				return 1;
+			else
+				return strcasecmp($b, $a);
+		}
+	);
 
 	/******************************
 	 * PART 3: Content processing *
@@ -1276,11 +1279,11 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	}
 
 	// Settings.php is unlikely to contain any heredocs, but just in case...
-	if (preg_match_all('/<<<(\'?)(\w+)\'?\n(.*?)\n\2;$/m', $settingsText, $matches))
+	if (preg_match_all('/<<<([\'"]?)(\w+)\1\R(.*?)\R\h*\2;$/ms', $settingsText, $matches))
 	{
 		foreach ($matches[0] as $mkey => $heredoc)
 		{
-			if (!empty($matches[1][$mkey]))
+			if (!empty($matches[1][$mkey]) && $matches[1][$mkey] === '\'')
 				$heredoc_replacements[$heredoc] = var_export($matches[3][$mkey], true) . ';';
 			else
 				$heredoc_replacements[$heredoc] = '"' . strtr(substr(var_export($matches[3][$mkey], true), 1, -1), array("\\'" => "'", '"' => '\"')) . '";';
@@ -1791,8 +1794,6 @@ function get_current_settings($mtime = null, $settingsFile = null)
  */
 function safe_file_write($file, $data, $backup_file = null, $mtime = null, $append = false)
 {
-	global $cachedir;
-
 	// Sanity checks.
 	if (!file_exists($file) && !is_dir(dirname($file)))
 		return false;
@@ -1928,9 +1929,17 @@ function smf_var_export($var)
 	// For the same reason, replace literal returns and newlines with "\r" and "\n"
 	elseif (is_string($var) && (strpos($var, "\n") !== false || strpos($var, "\r") !== false))
 	{
-		return strtr(preg_replace_callback('/[\r\n]+/', function($m) {
-			return '\' . "' . strtr($m[0], array("\r" => '\r', "\n" => '\n')) . '" . \'';
-		}, $var), array("'' . " => '', " . ''" => ''));
+		return strtr(
+			preg_replace_callback(
+				'/[\r\n]+/',
+				function($m)
+				{
+					return '\' . "' . strtr($m[0], array("\r" => '\r', "\n" => '\n')) . '" . \'';
+				},
+				var_export($var, true)
+			),
+			array("'' . " => '', " . ''" => '')
+		);
 	}
 
 	// We typically use lowercase true/false/null.
@@ -1944,45 +1953,75 @@ function smf_var_export($var)
 
 /**
  * Deletes all PHP comments from a string.
- * Useful when analyzing input from file_get_contents, etc.
- *
- * If the code contains any strings in nowdoc or heredoc syntax, they will be
- * converted to single- or double-quote strings.
  *
  * @param string $code_str A string containing PHP code.
- * @param string|null $line_ending One of "\r", "\n", or "\r\n". Leave unset for auto-detect.
  * @return string A string of PHP code with no comments in it.
  */
-function strip_php_comments($code_str, $line_ending = null)
+function strip_php_comments($code_str)
 {
-	// What line ending should we use?
-	// Note: this depends on the string, not the host OS, so PHP_EOL isn't what we want.
-	if (!in_array($line_ending, array("\r", "\n", "\r\n")))
+	// This is the faster, better way.
+	if (is_callable('token_get_all'))
 	{
-		if (strpos($code_str, "\r\n") !== false)
-			$line_ending = "\r\n";
-		elseif (strpos($code_str, "\n") !== false)
-			$line_ending = "\n";
-		elseif (strpos($code_str, "\r") !== false)
-			$line_ending = "\r";
+		$tokens = token_get_all($code_str);
+
+		$parts = array();
+		foreach ($tokens as $token)
+		{
+			if (is_string($token))
+				$parts[] = $token;
+			else
+			{
+				list($id, $text) = $token;
+
+				switch ($id) {
+					case T_COMMENT:
+					case T_DOC_COMMENT:
+						end($parts);
+						$prev_part = key($parts);
+
+						// For the sake of tider output, trim any horizontal
+						// whitespace that immediately preceded the comment.
+						$parts[$prev_part] = rtrim($parts[$prev_part], "\t ");
+
+						// For 'C' style comments, also trim one preceding
+						// line break, if present.
+						if (strpos($text, '/*') === 0)
+						{
+							if (substr($parts[$prev_part], -2) === "\r\n")
+								$parts[$prev_part] = substr($parts[$prev_part], 0, -2);
+							elseif (in_array(substr($parts[$prev_part], -1), array("\r", "\n")))
+								$parts[$prev_part] = substr($parts[$prev_part], 0, -1);
+						}
+
+						break;
+
+					default:
+						$parts[] = $text;
+						break;
+				}
+			}
+		}
+
+		$code_str = implode('', $parts);
+
+		return $code_str;
 	}
 
-	// Everything is simpler if we convert heredocs to normal strings first.
-	if (preg_match_all('/<<<(\'?)(\w+)\'?'. $line_ending . '(.*?)'. $line_ending . '\2;$/m', $code_str, $matches))
+	// If the tokenizer extension has been disabled, do the job manually.
+
+	// Leave any heredocs alone.
+	if (preg_match_all('/<<<([\'"]?)(\w+)\1?\R(.*?)\R\h*\2;$/ms', $code_str, $matches))
 	{
+		$heredoc_replacements = array();
+
 		foreach ($matches[0] as $mkey => $heredoc)
-		{
-			if (!empty($matches[1][$mkey]))
-				$heredoc_replacements[$heredoc] = var_export($matches[3][$mkey], true) . ';';
-			else
-				$heredoc_replacements[$heredoc] = '"' . strtr(substr(var_export($matches[3][$mkey], true), 1, -1), array("\\'" => "'", '"' => '\"')) . '";';
-		}
+			$heredoc_replacements[$heredoc] = var_export(md5($matches[3][$mkey]), true) . ';';
 
 		$code_str = strtr($code_str, $heredoc_replacements);
 	}
 
 	// Split before everything that could possibly delimit a comment or a string.
-	$parts = preg_split('~(?=#+|/(?=/|\*)|\*/|'. $line_ending . '|(?<!\\\)[\'"])~m', $code_str);
+	$parts = preg_split('~(?=#+|/(?=/|\*)|\*/|\R|(?<!\\\)[\'"])~m', $code_str);
 
 	$in_string = 0;
 	$in_comment = 0;
@@ -2022,21 +2061,35 @@ function strip_php_comments($code_str, $line_ending = null)
 		elseif ($one_char == '#' || $two_char == '//')
 		{
 			$in_comment = !empty($in_string) ? 0 : (empty($in_comment) ? 1 : $in_comment);
-		}
-		elseif (($line_ending === "\r\n" && $two_char === $line_ending) || $one_char == $line_ending)
-		{
+
 			if ($in_comment == 1)
 			{
-				$in_comment = 0;
+				$parts[$partkey - 1] = rtrim($parts[$partkey - 1], "\t ");
 
-				// If we've removed everything on this line, take out the line ending, too.
-				if ($parts[$partkey - 1] === $line_ending)
-					$to_remove = strlen($line_ending);
+				if (substr($parts[$partkey - 1], -2) === "\r\n")
+					$parts[$partkey - 1] = substr($parts[$partkey - 1], 0, -2);
+				elseif (in_array(substr($parts[$partkey - 1], -1), array("\r", "\n")))
+					$parts[$partkey - 1] = substr($parts[$partkey - 1], 0, -1);
 			}
+		}
+		elseif ($two_char === "\r\n" || $one_char === "\r" || $one_char === "\n")
+		{
+			if ($in_comment == 1)
+				$in_comment = 0;
 		}
 		elseif ($two_char == '/*')
 		{
 			$in_comment = !empty($in_string) ? 0 : (empty($in_comment) ? 2 : $in_comment);
+
+			if ($in_comment == 2)
+			{
+				$parts[$partkey - 1] = rtrim($parts[$partkey - 1], "\t ");
+
+				if (substr($parts[$partkey - 1], -2) === "\r\n")
+					$parts[$partkey - 1] = substr($parts[$partkey - 1], 0, -2);
+				elseif (in_array(substr($parts[$partkey - 1], -1), array("\r", "\n")))
+					$parts[$partkey - 1] = substr($parts[$partkey - 1], 0, -1);
+			}
 		}
 		elseif ($two_char == '*/')
 		{
@@ -2055,7 +2108,12 @@ function strip_php_comments($code_str, $line_ending = null)
 			$parts[$partkey] = '';
 	}
 
-	return implode('', $parts);
+	$code_str = implode('', $parts);
+
+	if (!empty($heredoc_replacements))
+		$code_str = strtr($code_str, array_flip($heredoc_replacements));
+
+	return $code_str;
 }
 
 /**
@@ -2226,6 +2284,8 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 */
 function sm_temp_dir()
 {
+	global $cachedir;
+
 	static $temp_dir = null;
 
 	// Already did this.
@@ -2250,7 +2310,23 @@ function sm_temp_dir()
 	// Search for a working temp directory.
 	foreach ($temp_dir_options as $id_temp => $temp_option)
 	{
-		$possible_temp = sm_temp_dir_option($temp_option);
+		switch ($temp_option) {
+			case 'cachedir':
+				$possible_temp = rtrim($cachedir, '/');
+				break;
+
+			case 'session.save_path':
+				$possible_temp = rtrim(ini_get('session.save_path'), '/');
+				break;
+
+			case 'upload_tmp_dir':
+				$possible_temp = rtrim(ini_get('upload_tmp_dir'), '/');
+				break;
+
+			default:
+				$possible_temp = sys_get_temp_dir();
+				break;
+		}
 
 		// Check if we have a restriction preventing this from working.
 		if ($restriction)
@@ -2274,7 +2350,7 @@ function sm_temp_dir()
 
 	// Fall back to sys_get_temp_dir even though it won't work, so we have something.
 	if (empty($temp_dir))
-		$temp_dir = sm_temp_dir_option('default');
+		$temp_dir = sys_get_temp_dir();
 
 	// Fix the path.
 	$temp_dir = substr($temp_dir, -1) === '/' ? $temp_dir : $temp_dir . '/';
@@ -2283,30 +2359,6 @@ function sm_temp_dir()
 	error_reporting($old_error_reporting);
 
 	return $temp_dir;
-}
-
-/**
- * Internal function for sm_temp_dir.
- *
- * @param string $option Which temp_dir option to use
- * @return string The path to the temp directory
- */
-function sm_temp_dir_option($option = 'sys_get_temp_dir')
-{
-	global $cachedir;
-
-	if ($option === 'cachedir')
-		return rtrim($cachedir, '/');
-
-	elseif ($option === 'session.save_path')
-		return rtrim(ini_get('session.save_path'), '/');
-
-	elseif ($option === 'upload_tmp_dir')
-		return rtrim(ini_get('upload_tmp_dir'), '/');
-
-	// This is the default option.
-	else
-		return sys_get_temp_dir();
 }
 
 ?>

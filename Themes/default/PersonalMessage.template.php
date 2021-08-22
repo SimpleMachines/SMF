@@ -7,7 +7,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 /**
@@ -61,8 +61,8 @@ function template_pm_popup()
 	echo '
 		<div class="pm_bar">
 			<div class="pm_sending block">
-				', $context['can_send_pm'] ? '<a href="' . $scripturl . '?action=pm;sa=send">' . $txt['pm_new_short'] . '</a> | ' : '', '
-				', $context['can_draft'] ? '<a href="' . $scripturl . '?action=pm;sa=showpmdrafts">' . $txt['pm_drafts_short'] . '</a>' : '', '
+				', $context['can_send_pm'] ? '<a href="' . $scripturl . '?action=pm;sa=send">' . $txt['pm_new_short'] . '</a>' : '', '
+				', $context['can_draft'] ? ' | <a href="' . $scripturl . '?action=pm;sa=showpmdrafts">' . $txt['pm_drafts_short'] . '</a>' : '', '
 				<a href="', $scripturl, '?action=pm;sa=settings" class="floatright">', $txt['pm_settings_short'], '</a>
 			</div>
 			<div class="pm_mailbox centertext">
@@ -277,7 +277,7 @@ function template_single_pm($message)
 	global $context, $scripturl, $txt, $settings, $options, $modSettings;
 
 	echo '
-	<div class="windowbg">
+	<div class="windowbg" id="msg', $message['id'],'">
 		<div class="post_wrapper">
 			<div class="poster">';
 
@@ -298,8 +298,7 @@ function template_single_pm($message)
 	}
 
 	echo '
-				<h4>
-					<a id="msg', $message['id'], '"></a>';
+				<h4>';
 
 	// Show online and offline buttons?
 	if (!empty($modSettings['onlineEnable']) && !$message['member']['is_guest'])

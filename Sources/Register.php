@@ -12,7 +12,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -313,20 +313,14 @@ function Register2()
 		}
 	}
 
-	foreach ($_POST as $key => $value)
-	{
-		if (!is_array($_POST[$key]))
+	array_walk_recursive(
+		$_POST,
+		function (&$value, $key) use ($context, $smcFunc)
 		{
-			// For UTF-8, replace any kind of space with a normal space, and remove any kind of control character (incl. "\n" and "\r"), then trim.
-			if ($context['utf8'])
-				$_POST[$key] = $smcFunc['htmltrim'](preg_replace(array('~\p{Z}+~u', '~\p{C}+~u'), array(' ', ''), $_POST[$key]));
-			// Otherwise, just remove "\n" and "\r", then trim.
-			else
-				$_POST[$key] = $smcFunc['htmltrim'](str_replace(array("\n", "\r"), '', $_POST[$key]));
+			// Replace any kind of space with a normal space, and remove any kind of control character, then trim.
+			$value = $smcFunc['htmltrim'](preg_replace(array('~[\h\v]+~' . ($context['utf8'] ? 'u' : ''), '~\p{Cc}+~'), array(' ', ''), $value));
 		}
-		else
-			$_POST[$key] = htmltrim__recursive($_POST[$key]);
-	}
+	);
 
 	// Collect all extra registration fields someone might have filled in.
 	$possible_strings = array(
@@ -436,7 +430,6 @@ function Register2()
 		'require' => !empty($modSettings['coppaAge']) && empty($_SESSION['skip_coppa']) ? 'coppa' : (empty($modSettings['registration_method']) ? 'nothing' : ($modSettings['registration_method'] == 1 ? 'activation' : 'approval')),
 		'extra_register_vars' => array(),
 		'theme_vars' => array(),
-		'timezone' => !empty($modSettings['default_timezone']) ? $modSettings['default_timezone'] : '',
 	);
 
 	// Include the additional options that might have been filled in.

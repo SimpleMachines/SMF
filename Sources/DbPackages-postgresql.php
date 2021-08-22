@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -443,10 +443,10 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	global $smcFunc, $db_prefix;
 
 	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
-	
+
 	// backward compatibility
 	if (isset($column_info['null']))
-		$column_info['not_null'] != $column_info['null'];
+		$column_info['not_null'] = !$column_info['null'];
 
 	// Check it does exist!
 	$columns = $smcFunc['db_list_columns']($table_name, true);

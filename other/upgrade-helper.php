@@ -8,7 +8,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  *
  * This file contains helper functions for upgrade.php
  */
@@ -450,18 +450,21 @@ if (!function_exists('array_column'))
 {
 	function array_column($input, $column_key, $index_key = null)
 	{
-		$arr = array_map(function($d) use ($column_key, $index_key)
-		{
-			if (!isset($d[$column_key]))
+		$arr = array_map(
+			function($d) use ($column_key, $index_key)
 			{
-				return null;
-			}
-			if ($index_key !== null)
-			{
-				return array($d[$index_key] => $d[$column_key]);
-			}
-			return $d[$column_key];
-		}, $input);
+				if (!isset($d[$column_key]))
+				{
+					return null;
+				}
+				if ($index_key !== null)
+				{
+					return array($d[$index_key] => $d[$column_key]);
+				}
+				return $d[$column_key];
+			},
+			$input
+		);
 
 		if ($index_key !== null)
 		{

@@ -11,7 +11,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -605,7 +605,7 @@ function isBannedEmail($email, $restriction, $error)
  */
 function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 {
-	global $sc, $modSettings, $boardurl;
+	global $context, $sc, $modSettings, $boardurl;
 
 	// Is it in as $_POST['sc']?
 	if ($type == 'post')
@@ -649,7 +649,9 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 		$referrer = $_SESSION['request_referer'];
 	else
 		$referrer = isset($_SERVER['HTTP_REFERER']) ? @parse_url($_SERVER['HTTP_REFERER']) : array();
-	if (!empty($referrer['host']))
+
+	// Check the refer but if we have CORS enabled and it came from a trusted source, we can skip this check.
+	if (!empty($referrer['host']) && (empty($modSettings['allow_cors']) || empty($context['valid_cors_found']) || !in_array($context['valid_cors_found'], array('same', 'subdomain'))))
 	{
 		if (strpos($_SERVER['HTTP_HOST'], ':') !== false)
 			$real_host = substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], ':'));
@@ -908,10 +910,18 @@ function allowedTo($permission, $boards = null, $any = false)
 	// Let's ensure this is an array.
 	$permission = (array) $permission;
 
+	// This should be a boolean.
+	$any = (bool) $any;
+
 	// Are we checking the _current_ board, or some other boards?
 	if ($boards === null)
 	{
-		if (count(array_intersect($permission, $user_info['permissions'])) != 0)
+		$user_permissions = $user_info['permissions'];
+
+		// Allow temporary overrides for general permissions?
+		call_integration_hook('integrate_allowed_to_general', array(&$user_permissions, $permission));
+
+		if (count(array_intersect($permission, $user_permissions)) != 0)
 			return true;
 		// You aren't allowed, by default.
 		else
@@ -920,7 +930,7 @@ function allowedTo($permission, $boards = null, $any = false)
 	elseif (!is_array($boards))
 		$boards = array($boards);
 
-	$cache_key = hash('md5', $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . $any);
+	$cache_key = hash('md5', $user_info['id'] . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . (int) $any);
 
 	if (isset($perm_cache[$cache_key]))
 		return $perm_cache[$cache_key];
@@ -970,6 +980,9 @@ function allowedTo($permission, $boards = null, $any = false)
 		$smcFunc['db_free_result']($request);
 		$return = $result;
 	}
+
+	// Allow temporary overrides for board permissions?
+	call_integration_hook('integrate_allowed_to_board', array(&$return, $permission, $boards, $any));
 
 	$perm_cache[$cache_key] = $return;
 
@@ -1140,6 +1153,9 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 			}
 		}
 	}
+
+	// Maybe a mod needs to tweak the list of allowed boards on the fly?
+	call_integration_hook('integrate_boards_allowed_to', array(&$boards, $deny_boards, $permissions, $check_access, $simple));
 
 	return $boards;
 }
@@ -1340,6 +1356,145 @@ function frameOptionsHeader($override = null)
 	// And some other useful ones.
 	header('x-xss-protection: 1');
 	header('x-content-type-options: nosniff');
+}
+
+/**
+ * This sets the Access-Control-Allow-Origin header.
+ * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+ *
+ * @param bool $set_header (Default: true): When false, we will do the logic, but not send the headers.  The relevant logic is still saved in the $context and can be sent manually.
+ *
+ * @since 2.1
+ */
+function corsPolicyHeader($set_header = true)
+{
+	global $boardurl, $modSettings, $context;
+
+	if (empty($modSettings['allow_cors']))
+		return;
+
+	// We want weak security.
+	if (!empty($modSettings['cors_domains']) && $modSettings['cors_domains'] === '*')
+		$context['cors_domain'] = '*';
+
+	// If subdomain-independent cookies are on, allow sub domains. This will have issues if the forum is at forum.domain.tld and the origin we are at is another.sub.domain.tld.
+	if (empty($context['cors_domain']) && !empty($modSettings['globalCookies']) && !empty($_SERVER['HTTP_ORIGIN']) && filter_var($_SERVER['HTTP_ORIGIN'], FILTER_VALIDATE_URL) !== false && FindCorsBaseUrl($boardurl, true) === FindCorsBaseUrl($_SERVER['HTTP_ORIGIN'], true))
+	{
+		$context['cors_domain'] = $_SERVER['HTTP_ORIGIN'];
+		$context['valid_cors_found'] = 'subdomain';
+	}
+
+	// Support forum_alias_urls as well, which is supported by our login cookie, so we implant it similar here.
+	if (empty($context['cors_domain']) && !empty($modSettings['forum_alias_urls']) && !empty($_SERVER['HTTP_ORIGIN']) && filter_var($_SERVER['HTTP_ORIGIN'], FILTER_VALIDATE_URL) !== false)
+	{
+		$aliases = explode(',', $modSettings['forum_alias_urls']);
+
+		foreach ($aliases as $alias)
+		{
+			if ($alias === $_SERVER['HTTP_ORIGIN'])
+			{
+				$context['cors_domain'] = $_SERVER['HTTP_ORIGIN'];
+				$context['valid_cors_found'] = 'alias';
+				break;
+			}
+		}
+	}
+
+	// Additional CORS domains but its just a wildcard for everything.
+	if (empty($context['cors_domain']) && !empty($modSettings['cors_domains']) && !empty($_SERVER['HTTP_ORIGIN']) && filter_var($_SERVER['HTTP_ORIGIN'], FILTER_VALIDATE_URL) !== false)
+	{
+		$cors_domains = explode(',', $modSettings['cors_domains']);
+		$origin_base = FindCorsBaseUrl($_SERVER['HTTP_ORIGIN']);
+
+		foreach ($cors_domains as $domain)
+		{
+			if ($domain === $_SERVER['HTTP_ORIGIN'])
+			{
+				$context['cors_domain'] = $_SERVER['HTTP_ORIGIN'];
+				$context['valid_cors_found'] = 'additional';
+				break;
+			}
+
+			// If we find a * in the host, then its a wildcard and lets allow it.  This will have issues if the forum is at forum.domain.tld and the origin we are at is more.sub.domain.tld.
+			if ('*' === implode('.', array_slice(explode('.', parse_url($domain, PHP_URL_HOST)), 0, 1)) && FindCorsBaseUrl($domain, true) === $origin_base)
+			{
+				$context['cors_domain'] = $_SERVER['HTTP_ORIGIN'];
+				$context['valid_cors_found'] = 'additional_wildcard';
+				break;
+			}
+		}
+	}
+
+	// The default is just to place the domain of the boardurl into the policy.
+	if (empty($context['cors_domain']) || empty($context['valid_cors_found']))
+	{
+		$boardurl_parts = parse_url($boardurl);
+
+		// Default the CORS to the current domain
+		$context['cors_domain'] = $boardurl_parts['scheme'] . '://' . $boardurl_parts['host'];
+
+		// Attach the port if needed.
+		if (!empty($boardurl_parts['port']))
+			$context['cors_domain'] .= ':' . $boardurl_parts['port'];
+
+		$context['valid_cors_found'] = 'same';
+	}
+
+	$context['cors_headers'] = 'X-SMF-AJAX';
+
+	// Any additional headers?
+	if (!empty($modSettings['cors_headers']))
+	{
+		// Cleanup any typos.
+		$cors_headers = explode(',', $modSettings['cors_headers']);
+		foreach ($cors_headers as &$ch)
+			$ch = trim(str_replace(' ', '-', $ch));
+
+		$context['cors_headers'] += implode(',', $cors_headers);
+	}
+
+	// Allowing Cross-Origin Resource Sharing (CORS).
+	if ($set_header && !empty($modSettings['allow_cors']) && !empty($context['valid_cors_found']) && !empty($context['cors_domain']))
+	{
+		header('Access-Control-Allow-Origin: ' . $context['cors_domain']);
+		header('Access-Control-Allow-Headers: ' . $context['cors_headers']);
+
+		// Be careful with this, you're allowing an external site to allow the browser to send cookies with this.
+		if (!empty($modSettings['allow_cors_credentials']))
+			header('Access-Control-Allow-Credentials: true');
+	}
+}
+
+/**
+ * Helper function to figure out a urls base domain.
+ *
+ * @param string $url The url/domain/host we are attempting to vaalidate for the base domain.
+ * @param bool $sub_domain (Default: false): When true it will lowest level of a domain off before performing any other logic.
+
+ * @since 2.1
+ */
+function FindCorsBaseUrl($url, $sub_domain = false)
+{
+	global $modSettings;
+
+	$base_domain = parse_url($url, PHP_URL_HOST);
+
+	// Are we saying this is a sub domain and to remove another domain level?
+	if ($sub_domain)
+		$base_domain = implode('.', array_slice(explode('.', parse_url($base_domain, PHP_URL_HOST)), 1));
+
+	// If we find www, pop it out.
+	else if ('www' === array_slice(explode('.', $base_domain), 0, 1))
+		$base_domain = implode('.', array_slice(explode('.', $base_domain, 1)), 1);
+
+	/*	Note, we do have a TLD regex for the autolinker, however it can not reliably be used here due to
+		Country Code Second Level Domains (example: co.uk) as they are not TLDs.  As these are also
+		controlled by their respective countries, there is no uniformity or standards on these domains.
+		If this wasn't true, we could use this tld regex to just find the next domain level
+		after the TLD and that would be our "truest" base.
+	*/
+
+	return $base_domain;
 }
 
 ?>

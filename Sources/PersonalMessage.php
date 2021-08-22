@@ -12,7 +12,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function MessageMain()
 {
-	global $txt, $scripturl, $sourcedir, $context, $user_info, $user_settings, $smcFunc, $modSettings;
+	global $txt, $scripturl, $sourcedir, $context, $user_info, $user_settings, $smcFunc, $modSettings, $options;
 
 	// No guests!
 	is_not_guest();
@@ -180,7 +180,7 @@ function MessageMain()
 
 	// Are PM drafts enabled?
 	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
-	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']);
+	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && !empty($options['drafts_autosave_enabled']);
 
 	// Build the linktree for all the actions...
 	$context['linktree'][] = array(
@@ -1820,6 +1820,8 @@ function MessagePost()
 	loadTemplate('PersonalMessage');
 	loadJavaScriptFile('PersonalMessage.js', array('defer' => false, 'minimize' => true), 'smf_pms');
 	loadJavaScriptFile('suggest.js', array('defer' => false, 'minimize' => true), 'smf_suggest');
+	if ($context['drafts_autosave'])
+		loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
 	$context['sub_template'] = 'send';
 
 	// Extract out the spam settings - cause it's neat.

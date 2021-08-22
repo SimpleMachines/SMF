@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 use SMF\Cache\CacheApi;
@@ -69,7 +69,7 @@ function reloadSettings()
 		// We explicitly do not use $smcFunc['json_decode'] here yet, as $smcFunc is not fully loaded.
 		if (!is_array($modSettings['attachmentUploadDir']))
 		{
-			$attachmentUploadDir = smf_json_decode($modSettings['attachmentUploadDir'], true);
+			$attachmentUploadDir = smf_json_decode($modSettings['attachmentUploadDir'], true, false);
 			$modSettings['attachmentUploadDir'] = !empty($attachmentUploadDir) ? $attachmentUploadDir : $modSettings['attachmentUploadDir'];
 		}
 
@@ -326,7 +326,7 @@ function reloadSettings()
 		require_once($sourcedir . '/Subs-Members.php');
 		$board_managers = groupsAllowedTo('manage_boards', null);
 		$board_managers = implode(',', $board_managers['allowed']);
-		updateSettings(array('board_manager_groups' => $board_managers), true);
+		updateSettings(array('board_manager_groups' => $board_managers));
 	}
 
 	// Is post moderation alive and well? Everywhere else assumes this has been defined, so let's make sure it is.
@@ -527,7 +527,7 @@ function loadUserSettings()
 		if (empty($cache_enable) || $cache_enable < 2 || ($user_settings = cache_get_data('user_settings-' . $id_member, 60)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT mem.*, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type, a.width AS "attachment_width", a.height AS "attachment_height" 
+				SELECT mem.*, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type, a.width AS "attachment_width", a.height AS "attachment_height"
 				FROM {db_prefix}members AS mem
 					LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = {int:id_member})
 				WHERE mem.id_member = {int:id_member}
@@ -1628,28 +1628,6 @@ function loadMemberContext($user, $display_custom_fields = false)
 	// Well, it's loaded now anyhow.
 	$profile = $user_profile[$user];
 
-	// Censor everything.
-	censorText($profile['signature']);
-	censorText($profile['personal_text']);
-
-	// Set things up to be used before hand.
-	$profile['signature'] = str_replace(array("\n", "\r"), array('<br>', ''), $profile['signature']);
-	$profile['signature'] = parse_bbc($profile['signature'], true, 'sig' . $profile['id_member']);
-
-	$profile['is_online'] = (!empty($profile['show_online']) || allowedTo('moderate_forum')) && $profile['is_online'] > 0;
-	$profile['icons'] = empty($profile['icons']) ? array('', '') : explode('#', $profile['icons']);
-	// Setup the buddy status here (One whole in_array call saved :P)
-	$profile['buddy'] = in_array($profile['id_member'], $user_info['buddies']);
-	$buddy_list = !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : array();
-
-	//We need a little fallback for the membergroup icons. If it doesn't exist in the current theme, fallback to default theme
-	if (isset($profile['icons'][1]) && file_exists($settings['actual_theme_dir'] . '/images/membericons/' . $profile['icons'][1])) //icon is set and exists
-		$group_icon_url = $settings['images_url'] . '/membericons/' . $profile['icons'][1];
-	elseif (isset($profile['icons'][1])) //icon is set and doesn't exist, fallback to default
-		$group_icon_url = $settings['default_images_url'] . '/membericons/' . $profile['icons'][1];
-	else //not set, bye bye
-		$group_icon_url = '';
-
 	// These minimal values are always loaded
 	$memberContext[$user] = array(
 		'username' => $profile['member_name'],
@@ -1666,6 +1644,28 @@ function loadMemberContext($user, $display_custom_fields = false)
 	// If the set isn't minimal then load the monstrous array.
 	if ($context['loadMemberContext_set'] != 'minimal')
 	{
+		// Censor everything.
+		censorText($profile['signature']);
+		censorText($profile['personal_text']);
+
+		// Set things up to be used before hand.
+		$profile['signature'] = str_replace(array("\n", "\r"), array('<br>', ''), $profile['signature']);
+		$profile['signature'] = parse_bbc($profile['signature'], true, 'sig' . $profile['id_member']);
+
+		$profile['is_online'] = (!empty($profile['show_online']) || allowedTo('moderate_forum')) && $profile['is_online'] > 0;
+		$profile['icons'] = empty($profile['icons']) ? array('', '') : explode('#', $profile['icons']);
+		// Setup the buddy status here (One whole in_array call saved :P)
+		$profile['buddy'] = in_array($profile['id_member'], $user_info['buddies']);
+		$buddy_list = !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : array();
+
+		//We need a little fallback for the membergroup icons. If it doesn't exist in the current theme, fallback to default theme
+		if (isset($profile['icons'][1]) && file_exists($settings['actual_theme_dir'] . '/images/membericons/' . $profile['icons'][1])) //icon is set and exists
+			$group_icon_url = $settings['images_url'] . '/membericons/' . $profile['icons'][1];
+		elseif (isset($profile['icons'][1])) //icon is set and doesn't exist, fallback to default
+			$group_icon_url = $settings['default_images_url'] . '/membericons/' . $profile['icons'][1];
+		else //not set, bye bye
+			$group_icon_url = '';
+
 		// Go the extra mile and load the user's native language name.
 		if (empty($loadedLanguages))
 			$loadedLanguages = getLanguages();
@@ -1738,34 +1738,14 @@ function loadMemberContext($user, $display_custom_fields = false)
 	// If the set isn't minimal then load their avatar as well.
 	if ($context['loadMemberContext_set'] != 'minimal')
 	{
-		if (!empty($modSettings['gravatarEnabled']) && (!empty($modSettings['gravatarOverride']) || stristr($profile['avatar'], 'gravatar://')))
-		{
-			if (!empty($modSettings['gravatarAllowExtraEmail']) && stristr($profile['avatar'], 'gravatar://') && strlen($profile['avatar']) > 11)
-				$image = get_gravatar_url($smcFunc['substr']($profile['avatar'], 11));
-			else
-				$image = get_gravatar_url($profile['email_address']);
-		}
-		else
-		{
-			// So it's stored in the member table?
-			if (!empty($profile['avatar']) && !stristr($profile['avatar'], 'gravatar://'))
-				$image = (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://')) ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'];
+		$avatarData = set_avatar_data(array(
+			'filename' => $profile['filename'],
+			'avatar' => $profile['avatar'],
+			'email' => $profile['email_address'],
+		));
 
-			elseif (!empty($profile['filename']))
-				$image = $modSettings['custom_avatar_url'] . '/' . $profile['filename'];
-
-			// Right... no avatar...use the default one
-			else
-				$image = $modSettings['avatar_url'] . '/default.png';
-		}
-
-		if (!empty($image))
-			$memberContext[$user]['avatar'] = array(
-				'name' => $profile['avatar'],
-				'image' => '<img class="avatar" src="' . $image . '" alt="" loading="lazy" width="' . $profile['attachment_width'] . '" height = "'. $profile['attachment_height'] . '">',
-				'href' => $image,
-				'url' => $image,
-			);
+		if (!empty($avatarData['image']))
+			$memberContext[$user]['avatar'] = $avatarData;
 	}
 
 	// Are we also loading the members custom fields into context?
@@ -1809,14 +1789,14 @@ function loadMemberContext($user, $display_custom_fields = false)
 					'{SCRIPTURL}' => $scripturl,
 					'{IMAGES_URL}' => $settings['images_url'],
 					'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-					'{INPUT}' => $value,
+					'{INPUT}' => tokenTxtReplace($value),
 					'{KEY}' => $currentKey,
 				));
 
 			$memberContext[$user]['custom_fields'][] = array(
-				'title' => !empty($custom['title']) ? $custom['title'] : $custom['col_name'],
-				'col_name' => $custom['col_name'],
-				'value' => un_htmlspecialchars($value),
+				'title' => tokenTxtReplace(!empty($custom['title']) ? $custom['title'] : $custom['col_name']),
+				'col_name' => tokenTxtReplace($custom['col_name']),
+				'value' => un_htmlspecialchars(tokenTxtReplace($value)),
 				'raw' => $profile['options'][$custom['col_name']],
 				'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
 			);
@@ -1846,8 +1826,8 @@ function loadMemberCustomFields($users, $params)
 		return false;
 
 	// Make sure it's an array.
-	$users = !is_array($users) ? array($users) : array_unique($users);
-	$params = !is_array($params) ? array($params) : array_unique($params);
+	$users = (array) array_unique($users);
+	$params = (array) array_unique($params);
 	$return = array();
 
 	$request = $smcFunc['db_query']('', '
@@ -1868,6 +1848,8 @@ function loadMemberCustomFields($users, $params)
 	{
 		$fieldOptions = array();
 		$currentKey = 0;
+		$row['field_name'] = tokenTxtReplace($row['field_name']);
+		$row['field_desc'] = tokenTxtReplace($row['field_desc']);
 
 		// Create a key => value array for multiple options fields
 		if (!empty($row['field_options']))
@@ -2473,6 +2455,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'smf_smileys_url' => '"' . $modSettings['smileys_url'] . '"',
 		'smf_smiley_sets' => '"' . $modSettings['smiley_sets_known'] . '"',
 		'smf_smiley_sets_default' => '"' . $modSettings['smiley_sets_default'] . '"',
+		'smf_avatars_url' => '"' . $modSettings['avatar_url'] . '"',
 		'smf_scripturl' => '"' . $scripturl . '"',
 		'smf_iso_case_folding' => $context['server']['iso_case_folding'] ? 'true' : 'false',
 		'smf_charset' => '"' . $context['character_set'] . '"',
@@ -2485,21 +2468,24 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'smf_txt_expand' => JavaScriptEscape($txt['code_expand']),
 		'smf_txt_shrink' => JavaScriptEscape($txt['code_shrink']),
 		'smf_quote_expand' => !empty($modSettings['quote_expand']) ? $modSettings['quote_expand'] : 'false',
+		'allow_xhjr_credentials' => !empty($modSettings['allow_cors_credentials']) ? 'true' : 'false',
 	);
 
 	// Add the JQuery library to the list of files to load.
-	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
-		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true), 'smf_jquery');
+	$jQueryUrls = array ('cdn' => 'https://ajax.googleapis.com/ajax/libs/jquery/'. JQUERY_VERSION . '/jquery.min.js', 'jquery_cdn' => 'https://code.jquery.com/jquery-'. JQUERY_VERSION . '.min.js', 'microsoft_cdn' => 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-'. JQUERY_VERSION . '.min.js');
+	
+	if (isset($modSettings['jquery_source']) && array_key_exists($modSettings['jquery_source'], $jQueryUrls))
+		loadJavaScriptFile($jQueryUrls[$modSettings['jquery_source']], array('external' => true, 'seed' => false), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
 		loadJavaScriptFile('jquery-' . JQUERY_VERSION . '.min.js', array('seed' => false), 'smf_jquery');
 
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
-		loadJavaScriptFile($modSettings['jquery_custom'], array('external' => true), 'smf_jquery');
+		loadJavaScriptFile($modSettings['jquery_custom'], array('external' => true, 'seed' => false), 'smf_jquery');
 
-	// Auto loading? template_javascript() will take care of the local half of this.
+	// Fall back to the forum default
 	else
-		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true), 'smf_jquery');
+		loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true, 'seed' => false), 'smf_jquery');
 
 	// Queue our JQuery plugins!
 	loadJavaScriptFile('smf_jquery_plugins.js', array('minimize' => true), 'smf_jquery_plugins');
@@ -2735,11 +2721,8 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
 	$params['order_pos'] = isset($params['order_pos']) ? (int) $params['order_pos'] : 3000;
-
-	// If this is an external file, automatically set this to false.
-	if (!empty($params['external']))
-		$params['minimize'] = false;
-
+	$params['attributes'] = isset($params['attributes']) ? $params['attributes'] : array();
+	
 	// Account for shorthand like admin.css?alp21 filenames
 	$id = (empty($id) ? strtr(str_replace('.css', '', basename($fileName)), '?', '_') : $id) . '_css';
 
@@ -2775,6 +2758,10 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	{
 		$fileUrl = $fileName;
 		$filePath = $fileName;
+
+		// Always turn these off for external files.
+		$params['minimize'] = false;
+		$params['seed'] = false;
 	}
 
 	$mtime = empty($mtime) ? 0 : $mtime;
@@ -2847,13 +2834,11 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 	$params['force_current'] = isset($params['force_current']) ? $params['force_current'] : false;
 	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['async'] = isset($params['async']) ? $params['async'] : false;
+	$params['defer'] = isset($params['defer']) ? $params['defer'] : false;
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 	$params['validate'] = isset($params['validate']) ? $params['validate'] : true;
-
-	// If this is an external file, automatically set this to false.
-	if (!empty($params['external']))
-		$params['minimize'] = false;
+	$params['attributes'] = isset($params['attributes']) ? $params['attributes'] : array();
 
 	// Account for shorthand like admin.js?alp21 filenames
 	$id = (empty($id) ? strtr(str_replace('.js', '', basename($fileName)), '?', '_') : $id) . '_js';
@@ -2889,6 +2874,10 @@ function loadJavaScriptFile($fileName, $params = array(), $id = '')
 	{
 		$fileUrl = $fileName;
 		$filePath = $fileName;
+
+		// Always turn these off for external files.
+		$params['minimize'] = false;
+		$params['seed'] = false;
 	}
 
 	$mtime = empty($mtime) ? 0 : $mtime;
@@ -2913,8 +2902,49 @@ function addJavaScriptVar($key, $value, $escape = false)
 {
 	global $context;
 
-	if (!empty($key) && (!empty($value) || $value === '0'))
-		$context['javascript_vars'][$key] = !empty($escape) ? JavaScriptEscape($value) : $value;
+	// Variable name must be a valid string.
+	if (!is_string($key) || $key === '' || is_numeric($key))
+		return;
+
+	// Take care of escaping the value for JavaScript?
+	if (!empty($escape))
+	{
+		if (is_null($value))
+			$value = 'null';
+
+		elseif (is_bool($value))
+			$value = var_export($value, true);
+
+		elseif (is_scalar($value))
+			$value = JavaScriptEscape($value);
+
+		elseif (is_array($value))
+		{
+			$elements = array();
+
+			// We only support one-dimensional arrays.
+			foreach ($value as $element)
+			{
+				if (is_null($element))
+					$elements[] = 'null';
+
+				elseif (is_bool($element))
+					$elements[] = var_export($element, true);
+
+				elseif (is_scalar($element))
+					$elements[] = JavaScriptEscape($element);
+			}
+
+			$value = '[' . implode(', ',$elements) . ']';
+		}
+	}
+
+	// At this point, value should contain suitably escaped JavaScript code.
+	// If it obviously doesn't, declare the var with an undefined value.
+	if (!is_string($value) && !is_numeric($value))
+		$value = null;
+
+	$context['javascript_vars'][$key] = $value;
 }
 
 /**

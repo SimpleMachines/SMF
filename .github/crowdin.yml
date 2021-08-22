@@ -124,7 +124,7 @@ files: [
  },
  {
   source: "Themes/default/languages/PersonalMessage.english.php",
-  translation: "%locale%/Themes/default/languages/PersonalMessages.%language%.php",
+  translation: "%locale%/Themes/default/languages/PersonalMessage.%language%.php",
  },
  {
   source: "Themes/default/languages/Post.english.php",

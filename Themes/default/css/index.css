@@ -2,6 +2,7 @@
 /* Index */
 html {
 	background: #3e5a78;
+	scroll-padding-top: 3rem;
 }
 body {
 	background: #e9eef2;
@@ -214,7 +215,7 @@ body#help_popup {
 #likes .avatar {
 	max-height: 45px;
 	max-width: 45px;
-	padding: 0 10px 0 0;
+	margin: 0 10px 0 0;
 }
 #likes .avatar, #likes li .like_profile {
 	vertical-align: middle;
@@ -231,7 +232,7 @@ body#help_popup {
 }
 
 /* The "new" button */
-.new_posts {
+.new_posts, a.new_posts {
 	display: inline-block;
 	position: relative;
 	top: -2px;
@@ -241,6 +242,9 @@ body#help_popup {
 	font: 9px/15px verdana, sans-serif;
 	border-radius: 2px;
 	opacity: 0.8;
+}
+a.new_posts:visited {
+	color: #fff;
 }
 .new_posts:hover, .new_posts:focus {
 	text-decoration: none;
@@ -427,6 +431,9 @@ blockquote cite::before {
 .bbc_float.floatright {
 	margin-left: 1em;
 	clear: right;
+}
+.bbc_img {
+	object-fit: contain;
 }
 .postarea .bbc_img.resized:hover {
 	cursor: pointer;
@@ -1100,8 +1107,8 @@ img.sort, .sort {
 	width: auto;
 }
 #profile_menu_top > img.avatar {
-	max-height: 18px;
-	max-width: 18px;
+	height: 18px;
+	width: 18px;
 	margin: 2px 5px 0 0;
 	float: left;
 }
@@ -1460,7 +1467,7 @@ ul li.greeting {
 	clear: left;
 }
 #event_time_input input[type="text"] {
-	width: 80px;
+	width: 100px;
 	display: inline-block;
 }
 #post_event input[type="checkbox"] {
@@ -1686,7 +1693,9 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 	vertical-align: middle;
 }
 /* Load better icons for higher resolution screens */
-@media screen and (min-resolution: 160dpi) {
+@media
+	screen and (-webkit-min-device-pixel-ratio: 1.66),
+	screen and (min-resolution: 160dpi) {
 	.main_icons::before {
 		background-image: url(../images/icons/main_icons_sprite_hd.png);
 	}
@@ -2716,7 +2725,7 @@ dl.addrules dt.floatleft {
 	width: 100%;
 	height: 100%;
 	background: rgba(40, 64, 80, 0.5);
-	z-index: 5;
+	z-index: 6;
 }
 .popup_window {
 	position: relative;
@@ -2750,7 +2759,7 @@ dl.addrules dt.floatleft {
 	display: none;
 }
 #genericmenu > .popup_container {
-	z-index: 1;
+	z-index: 5;
 }
 #main_menu .popup_container, #genericmenu > .popup_container {
 	display: block;
@@ -2770,9 +2779,6 @@ dl.addrules dt.floatleft {
 	margin: 0;
 	top: 0;
 	padding: 0;
-}
-#main_menu .popup_container {
-	z-index: 10;
 }
 .main_icons.hide_popup {
 	float: right;
@@ -2797,6 +2803,11 @@ dl.addrules dt.floatleft {
 }
 .windowbg:nth-of-type(odd), .bg.odd {
 	background: #fdfdfd;
+}
+
+/* Highlight the target item */
+.windowbg:target {
+	background: #ffffe0;
 }
 
 /* Add some hover on table rows */
@@ -3270,6 +3281,9 @@ div#pollmoderation {
 }
 .poster img {
 	vertical-align: middle;
+}
+img.avatar {
+	object-fit: scale-down;
 }
 .poster img.avatar {
 	max-width: 100%;
@@ -4080,4 +4094,12 @@ tr[id^='list_news_lists_'] textarea {
 /* To break or not to break that is the question indeed */
 .word_break {
 	word-break: break-all;
+}
+
+div.sceditor-container:not(.sceditor-maximize) {
+	z-index: 4;
+}
+
+#attach_current_directory {
+	word-break: break-word;
 }

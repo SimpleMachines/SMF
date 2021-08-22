@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -194,7 +194,7 @@ function sig_preview()
 		censorText($current_signature);
 		$current_signature = !empty($current_signature) ? parse_bbc($current_signature, true, 'sig' . $user) : $txt['no_signature_set'];
 
-		$preview_signature = !empty($_POST['signature']) ? $_POST['signature'] : $txt['no_signature_preview'];
+		$preview_signature = !empty($_POST['signature']) ? $smcFunc['htmlspecialchars']($_POST['signature']) : $txt['no_signature_preview'];
 		$validation = profileValidateSignature($preview_signature);
 
 		if ($validation !== true && $validation !== false)

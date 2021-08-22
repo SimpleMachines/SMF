@@ -7,7 +7,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 /**
@@ -63,7 +63,7 @@ function template_main()
 	// Show the anchor for the top and for the first message. If the first message is new, say so.
 	echo '
 		</div><!-- #display_head -->
-		<a id="msg', $context['first_message'], '"></a>', $context['first_new_message'] ? '<a id="new"></a>' : '';
+		', $context['first_new_message'] ? '<a id="new"></a>' : '';
 
 	// Is this topic also a poll?
 	if ($context['is_poll'])
@@ -231,8 +231,7 @@ function template_main()
 			<div class="pagelinks floatleft">
 				<a href="#bot" class="button">', $txt['go_down'], '</a>
 				', $context['page_index'], '
-			</div>
-		</div>';
+			</div>';
 
 	// Mobile action - moderation buttons (top)
 	if (!empty($context['normal_buttons']))
@@ -240,6 +239,9 @@ function template_main()
 		<div class="mobile_buttons floatright">
 			<a class="button mobile_act">', $txt['mobile_action'], '</a>
 			', !empty($context['mod_buttons']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
+		</div>';
+
+	echo '
 		</div>';
 
 	// Show the topic information - icon, subject, etc.
@@ -258,14 +260,6 @@ function template_main()
 			</form>
 		</div><!-- #forumposts -->';
 
-	// Mobile action - moderation buttons (bottom)
-	if (!empty($context['normal_buttons']))
-		echo '
-		<div class="mobile_buttons floatright">
-			<a class="button mobile_act">', $txt['mobile_action'], '</a>
-			', !empty($context['mod_buttons']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
-		</div>';
-
 	// Show the page index... "Pages: [1]".
 	echo '
 		<div class="pagesection">
@@ -274,7 +268,17 @@ function template_main()
 			<div class="pagelinks floatleft">
 				<a href="#main_content_section" class="button" id="bot">', $txt['go_up'], '</a>
 				', $context['page_index'], '
-			</div>
+			</div>';
+
+	// Mobile action - moderation buttons (bottom)
+	if (!empty($context['normal_buttons']))
+		echo '
+		<div class="mobile_buttons floatright">
+			<a class="button mobile_act">', $txt['mobile_action'], '</a>
+			', !empty($context['mod_buttons']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
+		</div>';
+
+	echo '
 		</div>';
 
 	// Show the lower breadcrumbs.
@@ -474,9 +478,9 @@ function template_single_post($message)
 
 	// Show the message anchor and a "new" anchor if this message is new.
 	echo '
-				<div class="', $message['css_class'], '">
+				<div class="', $message['css_class'], '" id="msg' . $message['id'] . '">
 					', $message['id'] != $context['first_message'] ? '
-					<a id="msg' . $message['id'] . '"></a>' . ($message['first_new'] ? '<a id="new"></a>' : '') : '', '
+					' . ($message['first_new'] ? '<a id="new"></a>' : '') : '', '
 					<div class="post_wrapper">';
 
 	// Show information about the poster of this message.

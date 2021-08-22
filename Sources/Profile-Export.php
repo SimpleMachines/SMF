@@ -11,7 +11,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -181,7 +181,7 @@ function export_profile_data($uid)
 		),
 	);
 
-	if (empty($modSettings['export_dir']) || !file_exists($modSettings['export_dir']))
+	if (empty($modSettings['export_dir']) || !is_dir($modSettings['export_dir']) || !smf_chmod($modSettings['export_dir']))
 		create_export_dir();
 
 	$export_dir_slash = $modSettings['export_dir'] . DIRECTORY_SEPARATOR;
@@ -468,7 +468,13 @@ function download_export_file($uid)
 
 	// Figure out the filename we'll tell the browser.
 	$datatypes = file_exists($progressfile) ? array_keys($smcFunc['json_decode'](file_get_contents($progressfile), true)) : array('profile');
-	$included_desc = array_map(function ($datatype) use ($txt) { return $txt[$datatype]; }, $datatypes);
+	$included_desc = array_map(
+		function ($datatype) use ($txt)
+		{
+			return $txt[$datatype];
+		},
+		$datatypes
+	);
 
 	$dlfilename = array_merge(array($context['forum_name'], $context['member']['username']), $included_desc);
 	$dlfilename = preg_replace('/[^\p{L}\p{M}\p{N}_]+/u', '-', str_replace('"', '', un_htmlspecialchars(strip_tags(implode('_', $dlfilename)))));
@@ -747,7 +753,7 @@ function create_export_dir($fallback = '')
 		// Try again at the fallback location.
 		if ($modSettings['export_dir'] != $fallback)
 		{
-			log_error($txt['export_dir_forced_change'], $modSettings['export_dir'], $fallback);
+			log_error(sprintf($txt['export_dir_forced_change'], $modSettings['export_dir'], $fallback));
 			updateSettings(array('export_dir' => $fallback));
 
 			// Secondary fallback will be the default location, so no parameter this time.
@@ -1826,10 +1832,14 @@ function export_load_css_js()
 	$css_to_minify = array();
 	$normal_css_files = array();
 
-	usort($context['css_files'], function ($a, $b)
-	{
-		return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
-	});
+	usort(
+		$context['css_files'],
+		function ($a, $b)
+		{
+			return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
+		}
+	);
+
 	foreach ($context['css_files'] as $css_file)
 	{
 		if (!isset($css_file['options']['minimize']))
@@ -1855,7 +1865,7 @@ function export_load_css_js()
 	}
 
 	// Next, we need to do for JavaScript what we just did for CSS.
-	loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true), 'smf_jquery');
+	loadJavaScriptFile('https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js', array('external' => true, 'seed' => false), 'smf_jquery');
 
 	// There might be JavaScript that we need to add in order to support custom BBC or something.
 	call_integration_hook('integrate_pre_javascript_output', array(false));

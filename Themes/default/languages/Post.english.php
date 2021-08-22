@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; Post
+// Version: 2.1 RC4; Post
 
 global $context;
 
@@ -167,7 +167,7 @@ $txt['digest_mod_act_split'] = '"%1$s" was split';
 $txt['attach_error_title'] = 'Error uploading attachments.';
 $txt['attach_warning'] = 'There was a problem during the uploading of <strong>%1$s</strong>.';
 $txt['attach_check_nag'] = 'Unable to continue due to incomplete data (%1$s).';
-$txt['attach_max_total_file_size'] = 'Sorry, you are out of attachment space. The total attachment size allowed per post is %1$s KB. Space remaining is %2$s kB.';
+$txt['attach_max_total_file_size'] = 'Sorry, you are out of attachment space. The total attachment size allowed per post is %1$s KB. Space remaining is %2$s KB.';
 $txt['attach_max_total_file_size_current'] = 'Sorry, you are out of attachment space. The current total attachment size allowed per post is {currentTotal} KB. The total amount of the selected files is {currentRemain} KB. Please delete one or more attachments.';
 $txt['attach_max_size_progress'] = 'The current total attachment size allowed per post is {currentTotal} KB. The total amount of the selected files is {currentRemain} KB.';
 $txt['attach_folder_warning'] = 'The attachments directory can not be located. Please notify an administrator of this problem.';

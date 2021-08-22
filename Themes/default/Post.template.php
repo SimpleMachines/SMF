@@ -7,7 +7,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 /**
@@ -154,13 +154,13 @@ function template_main()
 								<div class="event_options_left" id="event_time_input">
 									<div>
 										<span class="label">', $txt['start'], '</span>
-										<input type="text" name="start_date" id="start_date" maxlength="10" value="', $context['event']['start_date'], '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
-										<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+										<input type="text" name="start_date" id="start_date" value="', trim($context['event']['start_date_orig']), '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
+										<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_orig'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 									</div>
 									<div>
 										<span class="label">', $txt['end'], '</span>
-										<input type="text" name="end_date" id="end_date" maxlength="10" value="', $context['event']['end_date'], '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
-										<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+										<input type="text" name="end_date" id="end_date" value="', trim($context['event']['end_date_orig']), '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
+										<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_orig'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 									</div>
 								</div>
 								<div class="event_options_right" id="event_time_options">
@@ -437,7 +437,7 @@ function template_main()
 			echo '
 								', $txt['attach_restrictions'], ' ', implode(', ', $context['attachment_restrictions']), '<br>';
 
-		if ($context['num_allowed_attachments'] == 0)
+		if ($context['num_allowed_attachments'] <= count($context['current_attachments']))
 			echo '
 								', $txt['attach_limit_nag'], '<br>';
 

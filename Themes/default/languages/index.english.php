@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC3; index
+// Version: 2.1 RC4; index
 
 global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 
@@ -42,6 +42,15 @@ $txt['years_title'] = 'Years';
 
 $txt['time_am'] = 'am';
 $txt['time_pm'] = 'pm';
+
+// Short form of minutes
+$txt['minutes_short'] = 'mins';
+// Short form of hour
+$txt['hour_short'] = 'hr';
+// Short form of hours
+$txt['hours_short'] = 'hrs';
+// Descimal sign
+$txt['decimal_sign'] = '.';
 
 $txt['admin'] = 'Admin';
 $txt['moderate'] = 'Moderate';
@@ -220,7 +229,16 @@ $txt['modified_by'] = 'Edited by';
 $txt['recent_posts'] = 'Recent posts';
 
 $txt['location'] = 'Location';
+$txt['location_desc'] = 'Geographic location.';
 $txt['gender'] = 'Gender';
+$txt['gender_0'] = 'None';
+$txt['gender_1'] = 'Male';
+$txt['gender_2'] = 'Female';
+$txt['gender_desc'] = 'Your gender.';
+$txt['icq'] = 'ICQ';
+$txt['icq_desc'] = 'This is your ICQ number.';
+$txt['skype'] = 'Skype';
+$txt['skype_desc'] = 'Your Skype username';
 $txt['personal_text'] = 'Personal text';
 $txt['date_registered'] = 'Date registered';
 
@@ -496,7 +514,7 @@ $txt['go_up'] = 'Go Up';
 $txt['go_down'] = 'Go Down';
 
 // argument(s): SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, $scripturl
-$forum_copyright = '<a href="%3$s?action=credits" title="License" target="_blank" rel="noopener">%1$s &copy; %2$s</a>, <a href="http://www.simplemachines.org" title="Simple Machines" target="_blank" rel="noopener">Simple Machines</a>';
+$forum_copyright = '<a href="%3$s?action=credits" title="License" target="_blank" rel="noopener">%1$s &copy; %2$s</a>, <a href="https://www.simplemachines.org" title="Simple Machines" target="_blank" rel="noopener">Simple Machines</a>';
 
 $txt['birthdays'] = 'Birthdays:';
 $txt['events'] = 'Events:';
@@ -901,6 +919,7 @@ $txt['notify_announcements_unsubscribed'] = '%1$s has been unsubscribed from for
 
 $txt['unsubscribe_announcements_plain'] = 'To unsubscribe from forum newsletters, announcements and important notifications, follow this link: %1$s';
 $txt['unsubscribe_announcements_html'] = '<span style="font-size:small"><a href="%1$s">Unsubscribe</a> from forum newsletters, announcements and important notifications.</span>';
+$txt['unsubscribe_announcements_manual'] = 'To unsubscribe from forum newsletters, announcements and important notifications, contact us at %1$s with your request.';
 
 // Mobile Actions
 $txt['mobile_action'] = 'User actions';

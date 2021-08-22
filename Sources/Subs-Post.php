@@ -12,7 +12,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -50,10 +50,14 @@ function preparsecode(&$message, $previewing = false)
 		$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
 
 	// Clean up after nobbc ;).
-	$message = preg_replace_callback('~\[nobbc\](.+?)\[/nobbc\]~is', function($a)
-	{
-		return '[nobbc]' . strtr($a[1], array('[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;')) . '[/nobbc]';
-	}, $message);
+	$message = preg_replace_callback(
+		'~\[nobbc\](.+?)\[/nobbc\]~is',
+		function($a)
+		{
+			return '[nobbc]' . strtr($a[1], array('[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;')) . '[/nobbc]';
+		},
+		$message
+	);
 
 	// Remove \r's... they're evil!
 	$message = strtr($message, array("\r" => ''));
@@ -134,10 +138,14 @@ function preparsecode(&$message, $previewing = false)
 	if (!$previewing && strpos($message, '[html]') !== false)
 	{
 		if (allowedTo('bbc_html'))
-			$message = preg_replace_callback('~\[html\](.+?)\[/html\]~is', function($m)
-			{
-				return '[html]' . strtr(un_htmlspecialchars($m[1]), array("\n" => '&#13;', '  ' => ' &#32;', '[' => '&#91;', ']' => '&#93;')) . '[/html]';
-			}, $message);
+			$message = preg_replace_callback(
+				'~\[html\](.+?)\[/html\]~is',
+				function($m)
+				{
+					return '[html]' . strtr(un_htmlspecialchars($m[1]), array("\n" => '&#13;', '  ' => ' &#32;', '[' => '&#91;', ']' => '&#93;')) . '[/html]';
+				},
+				$message
+			);
 
 		// We should edit them out, or else if an admin edits the message they will get shown...
 		else
@@ -148,10 +156,14 @@ function preparsecode(&$message, $previewing = false)
 	}
 
 	// Let's look at the time tags...
-	$message = preg_replace_callback('~\[time(?:=(absolute))*\](.+?)\[/time\]~i', function($m) use ($modSettings, $user_info)
-	{
-		return "[time]" . (is_numeric("$m[2]") || @strtotime("$m[2]") == 0 ? "$m[2]" : strtotime("$m[2]") - ("$m[1]" == "absolute" ? 0 : (($modSettings["time_offset"] + $user_info["time_offset"]) * 3600))) . "[/time]";
-	}, $message);
+	$message = preg_replace_callback(
+		'~\[time(?:=(absolute))*\](.+?)\[/time\]~i',
+		function($m) use ($modSettings, $user_info)
+		{
+			return "[time]" . (is_numeric("$m[2]") || @strtotime("$m[2]") == 0 ? "$m[2]" : strtotime("$m[2]") - ("$m[1]" == "absolute" ? 0 : (($modSettings["time_offset"] + $user_info["time_offset"]) * 3600))) . "[/time]";
+		},
+		$message
+	);
 
 	// Change the color specific tags to [color=the color].
 	$message = preg_replace('~\[(black|blue|green|red|white)\]~', '[color=$1]', $message); // First do the opening tags.
@@ -179,10 +191,14 @@ function preparsecode(&$message, $previewing = false)
 		$message = preg_replace('~\[(?=/?' . $disallowed_tags_regex . '\b)~i', '&#91;', $message);
 
 	// Make sure all tags are lowercase.
-	$message = preg_replace_callback('~\[(/?)(list|li|table|tr|td)\b([^\]]*)\]~i', function($m)
-	{
-		return "[$m[1]" . strtolower("$m[2]") . "$m[3]]";
-	}, $message);
+	$message = preg_replace_callback(
+		'~\[(/?)(list|li|table|tr|td)\b([^\]]*)\]~i',
+		function($m)
+		{
+			return "[$m[1]" . strtolower("$m[2]") . "$m[3]]";
+		},
+		$message
+	);
 
 	$list_open = substr_count($message, '[list]') + substr_count($message, '[list ');
 	$list_close = substr_count($message, '[/list]');
@@ -304,19 +320,27 @@ function un_preparsecode($message)
 
 	$message = implode('', $parts);
 
-	$message = preg_replace_callback('~\[html\](.+?)\[/html\]~i', function($m) use ($smcFunc)
-	{
-		return "[html]" . strtr($smcFunc['htmlspecialchars']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
-	}, $message);
+	$message = preg_replace_callback(
+		'~\[html\](.+?)\[/html\]~i',
+		function($m) use ($smcFunc)
+		{
+			return "[html]" . strtr($smcFunc['htmlspecialchars']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
+		},
+		$message
+	);
 
 	if (strpos($message, '[cowsay') !== false && !allowedTo('bbc_cowsay'))
 		$message = preg_replace('~\[(/?)cowsay[^\]]*\]~iu', '[$1pre]', $message);
 
 	// Attempt to un-parse the time to something less awful.
-	$message = preg_replace_callback('~\[time\](\d{0,10})\[/time\]~i', function($m)
-	{
-		return "[time]" . timeformat("$m[1]", false) . "[/time]";
-	}, $message);
+	$message = preg_replace_callback(
+		'~\[time\](\d{0,10})\[/time\]~i',
+		function($m)
+		{
+			return "[time]" . timeformat("$m[1]", false) . "[/time]";
+		},
+		$message
+	);
 
 	if (!empty($code_tags))
 		$message = strtr($message, $code_tags);
@@ -405,10 +429,14 @@ function fixTags(&$message)
 		fixTag($message, $param['tag'], $param['protocols'], $param['embeddedUrl'], $param['hasEqualSign'], !empty($param['hasExtra']));
 
 	// Now fix possible security problems with images loading links automatically...
-	$message = preg_replace_callback('~(\[img.*?\])(.+?)\[/img\]~is', function($m)
-	{
-		return "$m[1]" . preg_replace("~action(=|%3d)(?!dlattach)~i", "action-", "$m[2]") . "[/img]";
-	}, $message);
+	$message = preg_replace_callback(
+		'~(\[img.*?\])(.+?)\[/img\]~is',
+		function($m)
+		{
+			return "$m[1]" . preg_replace("~action(=|%3d)(?!dlattach)~i", "action-", "$m[2]") . "[/img]";
+		},
+		$message
+	);
 
 }
 
@@ -426,6 +454,13 @@ function fixTags(&$message)
 function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSign = false, $hasExtra = false)
 {
 	global $boardurl, $scripturl;
+
+	$forbidden_protocols = array(
+		// Poses security risks.
+		'javascript',
+		// Allows file data to be embedded, bypassing our attachment system.
+		'data',
+	);
 
 	if (preg_match('~^([^:]+://[^/]+)~', $boardurl, $match) != 0)
 		$domain_url = $match[1];
@@ -459,10 +494,14 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 				break;
 		}
 
-		if (!$found && $protocols[0] == 'http')
-		{
-			$parse_url_replace = parse_url($replace, PHP_URL_SCHEME);
+		$current_protocol = strtolower(parse_url($replace, PHP_URL_SCHEME));
 
+		if (in_array($current_protocol, $forbidden_protocols))
+		{
+			$replace = 'about:invalid';
+		}
+		elseif (!$found && $protocols[0] == 'http')
+		{
 			// A path
 			if (substr($replace, 0, 1) == '/' && substr($replace, 0, 2) != '//')
 				$replace = $domain_url . $replace;
@@ -476,12 +515,12 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 				$this_tag = 'iurl';
 				$this_close = 'iurl';
 			}
-			elseif (substr($replace, 0, 2) != '//' && empty($parse_url_replace))
+			elseif (substr($replace, 0, 2) != '//' && empty($current_protocol))
 				$replace = $protocols[0] . '://' . $replace;
 		}
 		elseif (!$found && $protocols[0] == 'ftp')
 			$replace = $protocols[0] . '://' . preg_replace('~^(?!ftps?)[^:]+://~', '', $replace);
-		elseif (!$found && empty($parse_url_replace))
+		elseif (!$found && empty($current_protocol))
 			$replace = $protocols[0] . '://' . $replace;
 
 		if ($hasEqualSign && $embeddedUrl)
@@ -679,16 +718,15 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 
 		foreach ($to_array as $to)
 		{
-			set_error_handler(function($errno, $errstr, $errfile, $errline)
-			{
-				// error was suppressed with the @-operator
-				if (0 === error_reporting())
+			set_error_handler(
+				function($errno, $errstr, $errfile, $errline)
 				{
-					return false;
-				}
+					// error was suppressed with the @-operator
+					if (0 === error_reporting())
+						return false;
 
-				throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
-			}
+					throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+				}
 			);
 			try
 			{
@@ -1253,10 +1291,14 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 		unset($matches);
 
 		if ($simple)
-			$string = preg_replace_callback('~&#(\d{3,8});~', function($m)
-			{
-				return chr("$m[1]");
-			}, $string);
+			$string = preg_replace_callback(
+				'~&#(\d{3,8});~',
+				function($m)
+				{
+					return chr("$m[1]");
+				},
+				$string
+			);
 		else
 		{
 			// Try to convert the string to UTF-8.
@@ -1725,6 +1767,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$msgOptions['smileys_enabled'] = !empty($msgOptions['smileys_enabled']);
 	$msgOptions['attachments'] = empty($msgOptions['attachments']) ? array() : $msgOptions['attachments'];
 	$msgOptions['approved'] = isset($msgOptions['approved']) ? (int) $msgOptions['approved'] : 1;
+	$msgOptions['poster_time'] = isset($msgOptions['poster_time']) ? (int) $msgOptions['poster_time'] : time();
 	$topicOptions['id'] = empty($topicOptions['id']) ? 0 : (int) $topicOptions['id'];
 	$topicOptions['poll'] = isset($topicOptions['poll']) ? (int) $topicOptions['poll'] : null;
 	$topicOptions['lock_mode'] = isset($topicOptions['lock_mode']) ? $topicOptions['lock_mode'] : null;
@@ -1795,21 +1838,20 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		}
 	}
 
+	// Get any members who were quoted in this post.
+	$msgOptions['quoted_members'] = Mentions::getQuotedMembers($msgOptions['body'], $posterOptions['id']);
+
 	if (!empty($modSettings['enable_mentions']))
 	{
 		// Get any members who were possibly mentioned
 		$msgOptions['mentioned_members'] = Mentions::getMentionedMembers($msgOptions['body']);
 		if (!empty($msgOptions['mentioned_members']))
 		{
-			// Replace @name with [member=id]@name[/member]
+			// Replace @name with [member=id]name[/member]
 			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $msgOptions['mentioned_members']);
 
 			// Remove any members who weren't actually mentioned, to prevent bogus notifications
-			foreach ($msgOptions['mentioned_members'] as $m)
-			{
-				if (strpos('[member=' . $m['id'] . ']@' . $m['real_name'] . '[/member]', $msgOptions['body']) === false)
-					unset($msgOptions['mentioned_members'][$m['id']]);
-			}
+			$msgOptions['mentioned_members'] = Mentions::verifyMentionedMembers($msgOptions['body'], $msgOptions['mentioned_members']);
 		}
 	}
 
@@ -1826,7 +1868,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	$message_parameters = array(
 		$topicOptions['board'], $topicOptions['id'], $posterOptions['id'], $msgOptions['subject'], $msgOptions['body'],
-		$posterOptions['name'], $posterOptions['email'], time(), $posterOptions['ip'],
+		$posterOptions['name'], $posterOptions['email'], $msgOptions['poster_time'], $posterOptions['ip'],
 		$msgOptions['smileys_enabled'] ? 1 : 0, '', $msgOptions['icon'], $msgOptions['approved'],
 	);
 
@@ -2090,6 +2132,12 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	if (isset($_SESSION['topicseen_cache'][$topicOptions['board']]))
 		$_SESSION['topicseen_cache'][$topicOptions['board']]--;
 
+	// Keep track of quotes and mentions.
+	if (!empty($msgOptions['quoted_members']))
+		Mentions::insertMentions('quote', $msgOptions['id'], $msgOptions['quoted_members'], $posterOptions['id']);
+	if (!empty($msgOptions['mentioned_members']))
+		Mentions::insertMentions('msg', $msgOptions['id'], $msgOptions['mentioned_members'], $posterOptions['id']);
+
 	// Update all the stats so everyone knows about this new topic and message.
 	updateStats('message', true, $msgOptions['id']);
 
@@ -2185,53 +2233,43 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	if ($searchAPI->supportsMethod('postRemoved'))
 		$searchAPI->postRemoved($msgOptions['id']);
 
+	// Anyone quoted or mentioned?
+	require_once($sourcedir . '/Mentions.php');
+
+	$quoted_members = Mentions::getQuotedMembers($msgOptions['body'], $posterOptions['id']);
+	$quoted_modifications = Mentions::modifyMentions('quote', $msgOptions['id'], $quoted_members, $posterOptions['id']);
+
+	if (!empty($quoted_modifications['added']))
+	{
+		$msgOptions['quoted_members'] = array_intersect_key($quoted_members, array_flip($quoted_modifications['added']));
+
+		// You don't need a notification about quoting yourself.
+		unset($msgOptions['quoted_members'][$user_info['id']]);
+	}
+
 	if (!empty($modSettings['enable_mentions']) && isset($msgOptions['body']))
 	{
-		require_once($sourcedir . '/Mentions.php');
-
-		$oldmentions = array();
-
-		if (!empty($msgOptions['old_body']))
-		{
-			preg_match_all('/\[member\=([0-9]+)\]([^\[]*)\[\/member\]/U', $msgOptions['old_body'], $match);
-
-			if (isset($match[1]) && isset($match[2]) && is_array($match[1]) && is_array($match[2]))
-				foreach ($match[1] as $i => $oldID)
-					$oldmentions[$oldID] = array('id' => $oldID, 'real_name' => $match[2][$i]);
-
-			if (empty($modSettings['search_custom_index_config']))
-				unset($msgOptions['old_body']);
-		}
-
 		$mentions = Mentions::getMentionedMembers($msgOptions['body']);
 		$messages_columns['body'] = $msgOptions['body'] = Mentions::getBody($msgOptions['body'], $mentions);
+		$mentions = Mentions::verifyMentionedMembers($msgOptions['body'], $mentions);
 
-		// Remove the poster.
-		if (isset($mentions[$user_info['id']]))
-			unset($mentions[$user_info['id']]);
+		// Update our records in the database.
+		$mention_modifications = Mentions::modifyMentions('msg', $msgOptions['id'], $mentions, $posterOptions['id']);
 
-		if (isset($oldmentions[$user_info['id']]))
-			unset($oldmentions[$user_info['id']]);
-
-		if (is_array($mentions) && is_array($oldmentions) && count(array_diff_key($mentions, $oldmentions)) > 0 && count($mentions) > count($oldmentions))
+		if (!empty($mention_modifications['added']))
 		{
 			// Queue this for notification.
-			$msgOptions['mentioned_members'] = array_diff_key($mentions, $oldmentions);
+			$msgOptions['mentioned_members'] = array_intersect_key($mentions, array_flip($mention_modifications['added']));
 
-			$smcFunc['db_insert']('',
-				'{db_prefix}background_tasks',
-				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', $smcFunc['json_encode'](array(
-					'msgOptions' => $msgOptions,
-					'topicOptions' => $topicOptions,
-					'posterOptions' => $posterOptions,
-					'type' => 'edit',
-				)), 0),
-				array('id_task')
-			);
+			// Mentioning yourself is silly, and we aren't going to notify you about it.
+			unset($msgOptions['mentioned_members'][$user_info['id']]);
 		}
 	}
 
+	// This allows mods to skip sending notifications if they don't want to.
+	$msgOptions['send_notifications'] = isset($msgOptions['send_notifications']) ? (bool) $msgOptions['send_notifications'] : true;
+
+	// Maybe a mod wants to make some changes?
 	call_integration_hook('integrate_modify_post', array(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts));
 
 	foreach ($messages_columns as $var => $val)
@@ -2305,6 +2343,22 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$searchAPI = findSearchAPI();
 	if (is_callable(array($searchAPI, 'postModified')))
 		$searchAPI->postModified($msgOptions, $topicOptions, $posterOptions);
+
+	// Send notifications about any new quotes or mentions.
+	if ($msgOptions['send_notifications'] && !empty($msgOptions['approved']) && (!empty($msgOptions['quoted_members']) || !empty($msgOptions['mentioned_members'])))
+	{
+		$smcFunc['db_insert']('',
+			'{db_prefix}background_tasks',
+			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+			array('$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', $smcFunc['json_encode'](array(
+				'msgOptions' => $msgOptions,
+				'topicOptions' => $topicOptions,
+				'posterOptions' => $posterOptions,
+				'type' => 'edit',
+			)), 0),
+			array('id_task')
+		);
+	}
 
 	if (isset($msgOptions['subject']))
 	{
@@ -2609,8 +2663,8 @@ function approveTopics($topics, $approve = true)
 
 	// Just get the messages to be approved and pass through...
 	$request = $smcFunc['db_query']('', '
-		SELECT id_msg
-		FROM {db_prefix}messages
+		SELECT id_first_msg
+		FROM {db_prefix}topics
 		WHERE id_topic IN ({array_int:topic_list})
 			AND approved = {int:approve_type}',
 		array(
@@ -2620,7 +2674,7 @@ function approveTopics($topics, $approve = true)
 	);
 	$msgs = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$msgs[] = $row['id_msg'];
+		$msgs[] = $row['id_first_msg'];
 	$smcFunc['db_free_result']($request);
 
 	return approvePosts($msgs, $approve);

@@ -10,7 +10,7 @@
  * @copyright 2021 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC3
+ * @version 2.1 RC4
  */
 
 if (!defined('SMF'))
@@ -244,7 +244,7 @@ function ReportDetails()
 	$report = getReportDetails($report_id);
 
 	if (!$report)
-		fatal_lang_error('mc_no_modreport_found');
+		fatal_lang_error('mc_no_modreport_found', false);
 
 	// Build the report data - basic details first, then extra stuff based on the type
 	$context['report'] = array(
