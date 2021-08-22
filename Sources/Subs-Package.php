@@ -3008,6 +3008,26 @@ function package_crypt($pass)
 }
 
 /**
+ * @param string $dir
+ * @param string $filename The filename without an extension
+ * @param string $ext
+ * @return string The filename with a number appended but no extension
+ * @since 2.1
+ */
+function package_unique_filename($dir, $filename, $ext)
+{
+	if (file_exists($dir . '/' . $filename . '.' . $ext))
+	{
+		$i = 1;
+		while (file_exists($dir . '/' . $filename . '_' . $i . '.' . $ext))
+			$i++;
+		$filename .= '_' . $i;
+	}
+
+	return $filename;
+}
+
+/**
  * Creates a backup of forum files prior to modifying them
  *
  * @param string $id The name of the backup

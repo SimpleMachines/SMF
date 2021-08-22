@@ -655,7 +655,7 @@ function PackageUpload()
 
 	// Setup the correct template, even though I'll admit we ain't downloading ;)
 	$context['sub_template'] = 'downloaded';
-	$allowext = array('.zip', '.tgz', '.gz');
+
 	// @todo Use FTP if the Packages directory is not writable.
 
 	// Check the file was even sent!
@@ -666,19 +666,16 @@ function PackageUpload()
 
 	// Make sure it has a sane filename.
 	$_FILES['package']['name'] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['package']['name']);
-	$extension = substr(strrchr(strtolower($_FILES['package']['name']), '.'), 0);
-	if (!in_array($extension, $allowext))
-	{
+
+	$found_ext = preg_match('/\.(zip|tgz|tar\.gz)$/i', $_FILES['package']['name'], $match);
+	if ($found_ext === 0)
 		fatal_lang_error('package_upload_error_supports', false, array('zip, tgz, tar.gz'));
-	}
 
 	// We only need the filename...
-	$extension = ($extension == '.gz') ? '.tar.gz' : $extension;
-	$packageName = time() . $extension;
+	$packageName = substr($_FILES['package']['name'], 0, -strlen($match[0]));
 
 	// Setup the destination and throw an error if the file is already there!
-	$destination = $packagesdir . '/' . $packageName;
-	// @todo Maybe just roll it like we do for downloads?
+	$destination = $packagesdir . '/' . package_unique_filename($packagesdir, $packageName, $match[1]) . $match[0];
 	if (file_exists($destination))
 		fatal_lang_error('package_upload_error_exists');
 
