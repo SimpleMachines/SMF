@@ -1487,7 +1487,7 @@ function PackageBrowse()
 
 							if ($package['can_uninstall'])
 								$return = '
-									<a href="' . $scripturl . '?action=admin;area=packages;sa=uninstall;package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '" class="button floatnone">' . $txt['uninstall'] . '</a>';
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=uninstall;package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '" class="button floatnone">' . (isset($txt['uninstall_' . $type]) ? $txt['uninstall_' . $type] : $txt['uninstall']) . '</a>';
 							elseif ($package['can_emulate_uninstall'])
 								$return = '
 									<a href="' . $scripturl . '?action=admin;area=packages;sa=uninstall;ve=' . $package['can_emulate_uninstall'] . ';package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '" class="button floatnone">' . $txt['package_emulate_uninstall'] . ' ' . $package['can_emulate_uninstall'] . '</a>';
