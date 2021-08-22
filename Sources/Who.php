@@ -156,7 +156,7 @@ function Who()
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$actions = $smcFunc['json_decode']($row['url'], true);
-		if ($actions === false)
+		if ($actions === array())
 			continue;
 
 		// Send the information to the template.
@@ -329,7 +329,7 @@ function determineActions($urls, $preferred_prefix = false)
 	{
 		// Get the request parameters..
 		$actions = $smcFunc['json_decode']($url[0], true);
-		if ($actions === false)
+		if ($actions === array())
 			continue;
 
 		// If it's the admin or moderation center, and there is an area set, use that instead.
