@@ -1083,7 +1083,7 @@ function template_post_header()
 				echo ' id="', $pfid, '"';
 
 			if (empty($pf['input']['attributes']['name']))
-				echo ' name="', $pfid, '"';
+				echo ' name="', $pfid, !empty($pf['input']['attributes']['multiple']) ? '[]' : '', '"';
 
 			if (!empty($pf['input']['attributes']) && is_array($pf['input']['attributes']))
 			{
