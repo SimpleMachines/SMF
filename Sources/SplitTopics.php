@@ -1399,13 +1399,27 @@ function MergeExecute($topics = array())
 	// We only need to do this if we're posting redirection topics...
 	if (isset($_POST['postRedirect']))
 	{
+		// Replace tokens with links in the reason.
+		$reason_replacements = array(
+			$txt['movetopic_auto_topic'] => '[iurl="' . $scripturl . '?topic=' . $id_topic . '.0"]' . $target_subject . '[/iurl]',
+		);
+
+		// Should be in the boardwide language.
+		if ($user_info['language'] != $language)
+		{
+			loadLanguage('index', $language);
+
+			// Make sure we catch both languages in the reason.
+			$reason_replacements += array(
+				$txt['movetopic_auto_topic'] => '[iurl="' . $scripturl . '?topic=' . $id_topic . '.0"]' . $target_subject . '[/iurl]',
+			);
+		}
+
 		$_POST['reason'] = $smcFunc['htmlspecialchars']($_POST['reason'], ENT_QUOTES);
 		preparsecode($_POST['reason']);
 
 		// Add a URL onto the message.
-		$reason = strtr($_POST['reason'], array(
-			$txt['movetopic_auto_topic'] => '[iurl=' . $scripturl . '?topic=' . $id_topic . '.0]' . $target_subject . '[/iurl]'
-		));
+		$reason = strtr($_POST['reason'], $reason_replacements);
 
 		// Automatically remove this MERGED redirection topic in the future?
 		$redirect_expires = !empty($_POST['redirect_expires']) ? ((int) ($_POST['redirect_expires'] * 60) + time()) : 0;
@@ -1441,6 +1455,10 @@ function MergeExecute($topics = array())
 			// Update subject search index
 			updateStats('subject', $this_old_topic, $redirect_subject);
 		}
+
+		// Restore language strings to normal.
+		if ($user_info['language'] != $language)
+			loadLanguage('index');
 	}
 
 	// Grab the response prefix (like 'Re: ') in the default forum language.

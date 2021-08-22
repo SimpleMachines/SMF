@@ -264,18 +264,29 @@ function MoveTopic2()
 	// @todo Does this make sense if the topic was unapproved before? I'd just about say so.
 	if (isset($_POST['postRedirect']))
 	{
+		// Replace tokens with links in the reason.
+		$reason_replacements = array(
+			$txt['movetopic_auto_board'] => '[url="' . $scripturl . '?board=' . $_POST['toboard'] . '.0"]' . $board_name . '[/url]',
+			$txt['movetopic_auto_topic'] => '[iurl]' . $scripturl . '?topic=' . $topic . '.0[/iurl]',
+		);
+
 		// Should be in the boardwide language.
 		if ($user_info['language'] != $language)
+		{
 			loadLanguage('index', $language);
+
+			// Make sure we catch both languages in the reason.
+			$reason_replacements += array(
+				$txt['movetopic_auto_board'] => '[url="' . $scripturl . '?board=' . $_POST['toboard'] . '.0"]' . $board_name . '[/url]',
+				$txt['movetopic_auto_topic'] => '[iurl]' . $scripturl . '?topic=' . $topic . '.0[/iurl]',
+			);
+		}
 
 		$_POST['reason'] = $smcFunc['htmlspecialchars']($_POST['reason'], ENT_QUOTES);
 		preparsecode($_POST['reason']);
 
-		// Add a URL onto the message.
-		$_POST['reason'] = strtr($_POST['reason'], array(
-			$txt['movetopic_auto_board'] => '[url=' . $scripturl . '?board=' . $_POST['toboard'] . '.0]' . $board_name . '[/url]',
-			$txt['movetopic_auto_topic'] => '[iurl]' . $scripturl . '?topic=' . $topic . '.0[/iurl]'
-		));
+		// Insert real links into the reason.
+		$_POST['reason'] = strtr($_POST['reason'], $reason_replacements);
 
 		// auto remove this MOVED redirection topic in the future?
 		$redirect_expires = !empty($_POST['redirect_expires']) ? ((int) ($_POST['redirect_expires'] * 60) + time()) : 0;
