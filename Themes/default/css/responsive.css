@@ -491,17 +491,9 @@
 		display: none;
 	}
 	#pm_menu, #alerts_menu, #profile_menu {
-		left: 0;
-		right: 0;
-		border-radius: 0;
-		width: calc(100% - 17px);
-		max-width: 100%;
-	}
-	#profile_menu {
-		width: 100%;
-	}
-	#pm_menu, #alerts_menu {
-		padding-right: 9px;
+		min-width: initial;
+		width: 25em;
+		max-width: calc(100vw - 17px);
 	}
 	.generic_menu {
 		display: none;

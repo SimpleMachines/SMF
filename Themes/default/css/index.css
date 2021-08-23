@@ -795,7 +795,7 @@ img.sort, .sort {
 	display: block;
 }
 .profile_user_links ol {
-	margin: 0 10px;
+	margin-left: 10px;
 	clear: both;
 	column-count: 2;
 }
@@ -808,7 +808,9 @@ img.sort, .sort {
 	hyphens: auto;
 }
 /* Fixes bug with border-box on scrollable js */
-.scrollable, .scrollable * {
+.scrollable,
+.scrollable *,
+#profile_menu {
 	box-sizing: content-box;
 }
 .top_menu.scrollable {
@@ -1105,7 +1107,12 @@ img.sort, .sort {
 #top_info {
 	padding: 5px 0;
 	line-height: 1.3em;
-	width: auto;
+	max-width: 100%;
+}
+#pm_menu, #alerts_menu, #profile_menu {
+	left: 0;
+	right: 0;
+	padding-right: 10px;
 }
 #profile_menu_top > img.avatar {
 	height: 18px;
