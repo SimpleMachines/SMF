@@ -1120,6 +1120,10 @@ img.sort, .sort {
 	margin: 2px 5px 0 0;
 	float: left;
 }
+#pm_menu_top .main_icons,
+#alerts_menu_top .main_icons {
+	display: none;
+}
 .notice {
 	font-weight: bold;
 }

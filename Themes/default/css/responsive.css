@@ -29,6 +29,18 @@
 	}
 }
 
+@media (max-width: 855px) {
+	#profile_menu_top .textmenu,
+	#pm_menu_top .textmenu,
+	#alerts_menu_top .textmenu {
+		display: none;
+	}
+	#pm_menu_top .main_icons,
+	#alerts_menu_top .main_icons {
+		display: inline-block;
+	}
+}
+
 @media (min-width: 720px) and (max-width: 799px) {
 	/* Calendar */
 	#event_time_options {
