@@ -805,6 +805,7 @@ img.sort, .sort {
 	text-indent: -24px;
 	-webkit-hyphens: auto;
 	hyphens: auto;
+	white-space: nowrap;
 }
 /* Fixes bug with border-box on scrollable js */
 .scrollable, .scrollable * {
