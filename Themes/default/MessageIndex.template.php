@@ -551,7 +551,6 @@ function template_topic_legend()
 			</script>';
 
 	echo '
-			<br class="clear">
 		</div><!-- .information -->
 	</div><!-- #topic_icons -->';
 }
