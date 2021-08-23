@@ -2727,8 +2727,70 @@ UPDATE {$db_prefix}permissions SET permission = 'profile_website_any' WHERE perm
 ---#
 
 /******************************************************************************/
---- drop col pm_email_notify from members
+--- Migrating pm notification settings
 /******************************************************************************/
+---# Upgrading pm notification settings
+---{
+// First see if we still have a pm_email_notify column
+$results = $smcFunc['db_list_columns']('{db_prefix}members');
+if (in_array('pm_email_notify', $results))
+{
+	$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
+	$step_progress['name'] = 'Upgrading pm notification settings';
+	$step_progress['current'] = $_GET['a'];
+
+	$limit = 100000;
+	$is_done = false;
+
+	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
+	list($maxMembers) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	while (!$is_done)
+	{
+		nextSubStep($substep);
+		$inserts = array();
+
+		// Skip errors here so we don't croak if the columns don't exist...
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member, pm_email_notify
+			FROM {db_prefix}members
+			ORDER BY id_member
+			LIMIT {int:start}, {int:limit}',
+			array(
+				'db_error_skip' => true,
+				'start' => $_GET['a'],
+				'limit' => $limit,
+			)
+		);
+		if ($smcFunc['db_num_rows']($request) != 0)
+		{
+			while ($row = $smcFunc['db_fetch_assoc']($request))
+			{
+				$inserts[] = array($row['id_member'], 'pm_new', !empty($row['pm_email_notify']) ? 2 : 0);
+				$inserts[] = array($row['id_member'], 'pm_notify', $row['pm_email_notify'] == 2 ? 2 : 1);
+			}
+			$smcFunc['db_free_result']($request);
+		}
+
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}user_alerts_prefs',
+			array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
+			$inserts,
+			array('id_member', 'alert_pref')
+		);
+
+		$_GET['a'] += $limit;
+		$step_progress['current'] = $_GET['a'];
+
+		if ($step_progress['current'] >= $maxMembers)
+			$is_done = true;
+	}
+	unset($_GET['a']);
+}
+---}
+---#
+
 ---# drop column pm_email_notify on table members
 ALTER TABLE {$db_prefix}members DROP COLUMN pm_email_notify;
 ---#
