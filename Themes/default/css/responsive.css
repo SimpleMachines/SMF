@@ -105,7 +105,7 @@
 		margin: 0;
 	}
 	.pagesection .buttonlist, #moderationbuttons {
-		display: none;
+		margin: 0;
 	}
 	.mobile_buttons {
 		display: block;
