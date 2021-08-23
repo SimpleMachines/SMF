@@ -129,6 +129,9 @@ $(function() {
 		// Show the "quote this" button.
 		$('#quoteSelected_' + oSelected.msgID).show();
 
+		// Remove any previous selection
+		$(document).off('click', '#quoteSelected_' + oSelected.msgID + ' a');
+
 		$(document).one('click', '#quoteSelected_' + oSelected.msgID + ' a', function(e) {
 			e.preventDefault();
 			quotedTextClick(oSelected);
