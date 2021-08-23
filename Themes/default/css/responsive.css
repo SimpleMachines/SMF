@@ -251,9 +251,6 @@
 	.user_info li.avatar, .user_info li.poster_ip {
 		display: none;
 	}
-	.button.button_strip_mark_unread {
-		display: none;
-	}
 	.button.mobile {
 		margin: 0 0 5px 0;
 	}
