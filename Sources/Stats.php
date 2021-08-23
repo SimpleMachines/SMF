@@ -169,7 +169,7 @@ function DisplayStats()
 				)
 			);
 			$row = $smcFunc['db_fetch_assoc']($result);
-			$default_gender = !empty($row['default_value']) ? $row['default_value'] : 'None';
+			$default_gender = !empty($row['default_value']) ? $row['default_value'] : '{gender_0}';
 			$smcFunc['db_free_result']($result);
 
 			$result = $smcFunc['db_query']('', '

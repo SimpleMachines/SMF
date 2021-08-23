@@ -1001,7 +1001,7 @@ function loadCustomFields($memID, $area = 'summary')
 		}
 
 		// Don't show the "disabled" option for the "gender" field if we are on the "summary" area.
-		if ($area == 'summary' && $row['col_name'] == 'cust_gender' && $value == 'None')
+		if ($area == 'summary' && $row['col_name'] == 'cust_gender' && $value == '{gender_0}')
 			continue;
 
 		// HTML for the input form.
