@@ -397,10 +397,12 @@ function MessagePopup()
 		FROM {db_prefix}pm_recipients AS pmr
 		WHERE pmr.id_member = {int:current_member}
 			AND is_read = {int:not_read}
+			AND deleted = {int:not_deleted}
 		ORDER BY id_pm',
 		array(
 			'current_member' => $context['user']['id'],
 			'not_read' => 0,
+			'not_deleted' => 0,
 		)
 	);
 	$pms = array();
