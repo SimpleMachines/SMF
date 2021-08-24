@@ -478,14 +478,14 @@ function Display()
 		{
 			// No limit! (actually, there is a limit, but...)
 			$context['messages_per_page'] = -1;
-			$context['page_index'] .= empty($modSettings['compactTopicPagesEnable']) ? '<strong>' . $txt['all'] . '</strong> ' : '[<strong>' . $txt['all'] . '</strong>] ';
+			$context['page_index'] .= sprintf(strtr($settings['page_index']['current_page'], array('%1$d' => '%1$s')), $txt['all']);
 
 			// Set start back to 0...
 			$_REQUEST['start'] = 0;
 		}
 		// They aren't using it, but the *option* is there, at least.
 		else
-			$context['page_index'] .= '&nbsp;<a href="' . $scripturl . '?topic=' . $topic . '.0;all">' . $txt['all'] . '</a> ';
+			$context['page_index'] .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => $scripturl . '?topic=' . $topic . '.0;all')), '', $txt['all']);
 	}
 
 	// Build the link tree.

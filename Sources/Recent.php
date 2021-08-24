@@ -1287,7 +1287,7 @@ function UnreadTopics()
 
 			// If we can use all, show all.
 			if (!empty($modSettings['enableAllMessages']) && $topic_length < $modSettings['enableAllMessages'])
-				$pages .= ' &nbsp;<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0;all">' . $txt['all'] . '</a>';
+				$pages .= sprintf(strtr($settings['page_index']['page'], array('{URL}' => $scripturl . '?topic=' . $row['id_topic'] . '.0;all')), '', $txt['all']);
 		}
 
 		else
