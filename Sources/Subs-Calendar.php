@@ -1769,12 +1769,12 @@ function buildEventDatetimes($row)
 	$end['datetime'] = date_format($start_object, 'Y-m-d H:i:s');
 
 	// ISO formatted datetime string, relative to UTC (e.g. '2016-12-29T05:45:30+00:00')
-	$start['iso_gmdate'] = gmdate('c', $start['timestamp']);
-	$end['iso_gmdate'] = gmdate('c', $end['timestamp']);
+	$start['iso_gmdate'] = gmdate('c', (int) $start['timestamp']);
+	$end['iso_gmdate'] = gmdate('c', (int) $end['timestamp']);
 
 	// Strings showing the datetimes in the user's preferred format, relative to the user's time zone
-	list($start['date_local'], $start['time_local']) = explode(' § ', timeformat($start['timestamp'], $date_format . ' § ' . $time_format));
-	list($end['date_local'], $end['time_local']) = explode(' § ', timeformat($end['timestamp'], $date_format . ' § ' . $time_format));
+	list($start['date_local'], $start['time_local']) = explode(' § ', timeformat((int) $start['timestamp'], $date_format . ' § ' . $time_format));
+	list($end['date_local'], $end['time_local']) = explode(' § ', timeformat((int) $end['timestamp'], $date_format . ' § ' . $time_format));
 
 	// Strings showing the datetimes in the user's preferred format, relative to the event's time zone
 	list($start['date_orig'], $start['time_orig']) = explode(' § ', timeformat(strtotime(date_format($start_object, 'Y-m-d H:i:s')), $date_format . ' § ' . $time_format, 'none'));
