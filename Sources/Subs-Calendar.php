@@ -1761,8 +1761,8 @@ function buildEventDatetimes($row)
 	$end_object = date_create($row['end_date'] . (!$allday ? ' ' . $row['end_time'] : ''), $timezone_array[$row['timezone']]);
 
 	// Unix timestamps are good
-	$start['timestamp'] = date_format($start_object, 'U');
-	$end['timestamp'] = date_format($end_object, 'U');
+	$start['timestamp'] = (int) date_format($start_object, 'U');
+	$end['timestamp'] = (int) date_format($end_object, 'U');
 
 	// Datetime string without timezone  (e.g. '2016-12-28 22:45:30')
 	$start['datetime'] = date_format($start_object, 'Y-m-d H:i:s');
