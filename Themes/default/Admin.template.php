@@ -919,14 +919,13 @@ function template_show_settings()
 												<li><label><input type="checkbox" name="', $config_var['name'], '[', $brd['id'], ']" value="1"', in_array($brd['id'], $config_var['value']) ? ' checked' : '', '> ', $brd['child_level'] > 0 ? str_repeat('&nbsp; &nbsp;', $brd['child_level']) : '', $brd['name'], '</label></li>';
 
 						echo '
-												<li>
-													<input type="checkbox" onclick="invertAll(this, this.form, \'' . $config_var['name'] . '[\');">
-													<span>', $txt['check_all'], '</span>
-												</li>
 											</ul>';
 						$first = false;
 					}
 					echo '
+											<hr />
+											<input type="checkbox" onclick="invertAll(this, this.form, \'' . $config_var['name'] . '[\');">
+											<span>', $txt['check_all'], '</span>
 										</fieldset>';
 				}
 				// Text area?
