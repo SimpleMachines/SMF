@@ -434,4 +434,85 @@ function mb_ord_chr_encoding($encoding = null)
 	return false;
 }
 
+/**
+ * IDNA_* constants used as flags for the idn_to_* functions.
+ */
+foreach (
+	array(
+		'IDNA_DEFAULT' => 0,
+		'IDNA_ALLOW_UNASSIGNED' => 0,
+		'IDNA_USE_STD3_RULES' => 2,
+		'IDNA_CHECK_BIDI' => 4,
+		'IDNA_CHECK_CONTEXTJ' => 8,
+		'IDNA_NONTRANSITIONAL_TO_ASCII' => 16,
+		'IDNA_NONTRANSITIONAL_TO_UNICODE' => 32,
+		'INTL_IDNA_VARIANT_2003' => 0,
+		'INTL_IDNA_VARIANT_UTS46' => 1,
+	)
+	as $name => $value
+)
+{
+	if (!defined($name))
+		define($name, $value);
+};
+
+if (!function_exists('idn_to_ascii'))
+{
+	/**
+	 * Compatibility function.
+	 *
+	 * This is not a complete polyfill. The $flags, $variant, and $idna_info
+	 * parameters are included for compatibility with the standard PHP
+	 * function, but only the default values are supported.
+	 *
+	 * @param string $domain The domain to convert, which must be UTF-8 encoded.
+	 * @param int $flags Ignored in this compatibility function.
+	 * @param int $variant Ignored in this compatibility function.
+	 * @param array|null $idna_info Ignored in this compatibility function.
+	 * @return string|bool The domain name encoded in ASCII-compatible form, or false on failure.
+	 */
+	function idn_to_ascii($domain, $flags = 0, $variant = 1, &$idna_info = null)
+	{
+		global $sourcedir;
+
+		if ($flags !== 0 || $variant !== 1)
+			return false;
+
+		require_once($sourcedir . '/Subs-Charset.php');
+		$domain = utf8_normalize_kc($domain);
+
+		require_once($sourcedir . '/Class-Punycode.php');
+		$Punycode = new Punycode();
+		return $Punycode->encode($domain);
+	}
+}
+
+if (!function_exists('idn_to_utf8'))
+{
+	/**
+	 * Compatibility function.
+	 *
+	 * This is not a complete polyfill. The $flags, $variant, and $idna_info
+	 * parameters are included for compatibility with the standard PHP
+	 * function, but only the default values are supported.
+	 *
+	 * @param string $domain Domain to convert, in an IDNA ASCII-compatible format.
+	 * @param int $flags Ignored in this compatibility function.
+	 * @param int $variant Ignored in this compatibility function.
+	 * @param array|null $idna_info Ignored in this compatibility function.
+	 * @return string|bool The domain name in Unicode, encoded in UTF-8, or false on failure.
+	 */
+	function idn_to_utf8($domain, $flags = 0, $variant = 1, &$idna_info = null)
+	{
+		global $sourcedir;
+
+		if ($flags !== 0 || $variant !== 1)
+			return false;
+
+		require_once($sourcedir . '/Class-Punycode.php');
+		$Punycode = new Punycode();
+		return $Punycode->decode($domain);
+	}
+}
+
 ?>
