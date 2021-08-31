@@ -2366,6 +2366,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			if (!empty($modSettings['autoLinkUrls']))
 			{
+				if (!function_exists('idn_to_ascii'))
+					require_once($sourcedir . '/Subs-Compat.php');
+
 				// Are we inside tags that should be auto linked?
 				$no_autolink_area = false;
 				if (!empty($open_tags))
@@ -2776,6 +2779,26 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 									$fullUrl = '//' . ltrim($url, ':/');
 								else
 									$fullUrl = $url;
+
+								// Ensure the host name is in its canonical form.
+								$host = !empty($parsedurl['host']) ? $parsedurl['host'] : parse_url($fullUrl, PHP_URL_HOST);
+
+								if (!empty($host))
+								{
+									$ascii_host = idn_to_ascii($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
+
+									if ($ascii_host !== $host)
+									{
+										$fullUrl = substr($fullUrl, 0, strpos($fullUrl, $host)) . $ascii_host . substr($fullUrl, strpos($fullUrl, $host) + strlen($host));
+
+										$utf8_host = idn_to_utf8($ascii_host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
+
+										if ($utf8_host !== $host)
+										{
+											$url = substr($url, 0, strpos($url, $host)) . $utf8_host . substr($url, strpos($url, $host) + strlen($host));
+										}
+									}
+								}
 
 								// Make sure that $fullUrl really is valid
 								if (in_array($parsedurl['scheme'], $schemes['forbidden']) || (!in_array($parsedurl['scheme'], $schemes['no_authority']) && validate_iri((strpos($fullUrl, '//') === 0 ? 'http:' : '') . $fullUrl) === false))
@@ -7010,15 +7033,11 @@ function set_tld_regex($update = false)
 		);
 
 		// Convert Punycode to Unicode
-		require_once($sourcedir . '/Class-Punycode.php');
-		$Punycode = new Punycode();
-		$tlds = array_map(
-			function($input) use ($Punycode)
-			{
-				return $Punycode->decode($input);
-			},
-			$tlds
-		);
+		if (!function_exists('idn_to_utf8'))
+			require_once($sourcedir . '/Subs-Compat.php');
+
+		foreach ($tlds as &$tld)
+			$tld = idn_to_utf8($tld, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 	}
 	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
 	else
@@ -7522,10 +7541,11 @@ function iri_to_url($iri)
 
 	if (!empty($host))
 	{
+		if (!function_exists('idn_to_ascii'))
+			require_once($sourcedir . '/Subs-Compat.php');
+
 		// Convert the host using the Punycode algorithm
-		require_once($sourcedir . '/Class-Punycode.php');
-		$Punycode = new Punycode();
-		$encoded_host = $Punycode->encode($host);
+		$encoded_host = idn_to_ascii($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 
 		$pos = strpos($iri, $host);
 	}
@@ -7570,10 +7590,11 @@ function url_to_iri($url)
 
 	if (!empty($host))
 	{
+		if (!function_exists('idn_to_utf8'))
+			require_once($sourcedir . '/Subs-Compat.php');
+
 		// Decode the domain from Punycode
-		require_once($sourcedir . '/Class-Punycode.php');
-		$Punycode = new Punycode();
-		$decoded_host = $Punycode->decode($host);
+		$decoded_host = idn_to_utf8($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 
 		$pos = strpos($url, $host);
 	}
