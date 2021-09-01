@@ -2045,157 +2045,219 @@ ADD COLUMN in_inbox TINYINT(3) NOT NULL DEFAULT '1';
 	$results = $smcFunc['db_list_columns']('{db_prefix}members');
 	if (in_array('message_labels', $results))
 	{
-		// They've still got it, so pull the label info
-		$get_labels = $smcFunc['db_query']('', '
-			SELECT id_member, message_labels
+		$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
+		$step_progress['name'] = 'Moving pm labels';
+		$step_progress['current'] = $_GET['a'];
+
+		$request = $smcFunc['db_query']('', '
+			SELECT COUNT(*)
 			FROM {db_prefix}members
 			WHERE message_labels != {string:blank}',
 			array(
 				'blank' => '',
 			)
 		);
+		list($maxMembers) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
 
-		$inserts = array();
-		$label_info = array();
-		while ($row = $smcFunc['db_fetch_assoc']($get_labels))
+		$limit = 5000;
+		$is_done = false;
+
+		while (!$is_done)
 		{
-			// Stick this in an array
-			$labels = explode(',', $row['message_labels']);
-
-			// Build some inserts
-			foreach ($labels AS $index => $label)
-			{
-				// Keep track of the index of this label - we'll need that in a bit...
-				$label_info[$row['id_member']][$label] = $index;
-			}
-		}
-
-		$smcFunc['db_free_result']($get_labels);
-
-		foreach ($label_info AS $id_member => $labels)
-		{
-			foreach ($labels as $label => $index)
-			{
-				$inserts[] = array($id_member, $label);
-			}
-		}
-
-		if (!empty($inserts))
-		{
-			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());
-
-			// Clear this out for our next query below
+			nextSubStep($substep);
 			$inserts = array();
-		}
 
-		// This is the easy part - update the inbox stuff
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}pm_recipients
-			SET in_inbox = {int:in_inbox}
-			WHERE FIND_IN_SET({int:minusone}, labels)',
-			array(
-				'in_inbox' => 1,
-				'minusone' => -1,
-			)
-		);
+			// Pull the label info
+			$get_labels = $smcFunc['db_query']('', '
+				SELECT id_member, message_labels
+				FROM {db_prefix}members
+				WHERE message_labels != {string:blank}
+				ORDER BY id_member
+				LIMIT {int:start}, {int:limit}',
+				array(
+					'blank' => '',
+					'start' => $_GET['a'],
+					'limit' => $limit,
+				)
+			);
 
-		// Now we go pull the new IDs for each label
-		$get_new_label_ids = $smcFunc['db_query']('', '
-			SELECT *
-			FROM {db_prefix}pm_labels',
-			array(
-			)
-		);
-
-		$label_info_2 = array();
-		while ($label_row = $smcFunc['db_fetch_assoc']($get_new_label_ids))
-		{
-			// Map the old index values to the new ID values...
-			$old_index = $label_info[$label_row['id_member']][$label_row['name']];
-			$label_info_2[$label_row['id_member']][$old_index] = $label_row['id_label'];
-		}
-
-		$smcFunc['db_free_result']($get_new_label_ids);
-
-		// Pull label info from pm_recipients
-		// Ignore any that are only in the inbox
-		$get_pm_labels = $smcFunc['db_query']('', '
-			SELECT id_pm, id_member, labels
-			FROM {db_prefix}pm_recipients
-			WHERE deleted = {int:not_deleted}
-				AND labels != {string:minus_one}',
-			array(
-				'not_deleted' => 0,
-				'minus_one' => -1,
-			)
-		);
-
-		while ($row = $smcFunc['db_fetch_assoc']($get_pm_labels))
-		{
-			$labels = explode(',', $row['labels']);
-
-			foreach ($labels as $a_label)
+			$label_info = array();
+			$member_list = array();
+			while ($row = $smcFunc['db_fetch_assoc']($get_labels))
 			{
-				if ($a_label == '-1')
-					continue;
+				$member_list[] = $row['id_member'];
 
-				$new_label_info = $label_info_2[$row['id_member']][$a_label];
-				$inserts[] = array($row['id_pm'], $new_label_info);
-			}
-		}
+				// Stick this in an array
+				$labels = explode(',', $row['message_labels']);
 
-		$smcFunc['db_free_result']($get_pm_labels);
-
-		// Insert the new data
-		if (!empty($inserts))
-		{
-			$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
-		}
-
-		// Final step of this ridiculously massive process
-		$get_pm_rules = $smcFunc['db_query']('', '
-			SELECT id_member, id_rule, actions
-			FROM {db_prefix}pm_rules',
-			array(
-			)
-		);
-
-		// Go through the rules, unserialize the actions, then figure out if there's anything we can use
-		while ($row = $smcFunc['db_fetch_assoc']($get_pm_rules))
-		{
-			// Turn this INTo an array...
-			$actions = unserialize($row['actions']);
-
-			// Loop through the actions and see if we're applying a label anywhere
-			foreach ($actions as $index => $action)
-			{
-				if ($action['t'] == 'lab')
+				// Build some inserts
+				foreach ($labels AS $index => $label)
 				{
-					// Update the value of this label...
-					$actions[$index]['v'] = $label_info_2[$row['id_member']][$action['v']];
+					// Keep track of the index of this label - we'll need that in a bit...
+					$label_info[$row['id_member']][$label] = $index;
 				}
 			}
 
-			// Put this back into a string
-			$actions = serialize($actions);
+			$smcFunc['db_free_result']($get_labels);
 
+			foreach ($label_info AS $id_member => $labels)
+			{
+				foreach ($labels as $label => $index)
+				{
+					$inserts[] = array($id_member, $label);
+				}
+			}
+
+			if (!empty($inserts))
+			{
+				$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());
+
+				// Clear this out for our next query below
+				$inserts = array();
+			}
+
+			// This is the easy part - update the inbox stuff
 			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}pm_rules
-				SET actions = {string:actions}
-				WHERE id_rule = {int:id_rule}',
+				UPDATE {db_prefix}pm_recipients
+				SET in_inbox = {int:in_inbox}
+				WHERE FIND_IN_SET({int:minusone}, labels)
+					AND id_member IN ({array_int:member_list})',
 				array(
-					'actions' => $actions,
-					'id_rule' => $row['id_rule'],
+					'in_inbox' => 1,
+					'minusone' => -1,
+					'member_list' => $member_list,
 				)
 			);
-		}
 
-		$smcFunc['db_free_result']($get_pm_rules);
+			// Now we go pull the new IDs for each label
+			$get_new_label_ids = $smcFunc['db_query']('', '
+				SELECT *
+				FROM {db_prefix}pm_labels
+				WHERE id_member IN ({array_int:member_list})',
+				array(
+					'member_list' => $member_list,
+				)
+			);
+
+			$label_info_2 = array();
+			while ($label_row = $smcFunc['db_fetch_assoc']($get_new_label_ids))
+			{
+				// Map the old index values to the new ID values...
+				$old_index = $label_info[$label_row['id_member']][$label_row['name']];
+				$label_info_2[$label_row['id_member']][$old_index] = $label_row['id_label'];
+			}
+
+			$smcFunc['db_free_result']($get_new_label_ids);
+
+			// Pull label info from pm_recipients
+			// Ignore any that are only in the inbox
+			$get_pm_labels = $smcFunc['db_query']('', '
+				SELECT id_pm, id_member, labels
+				FROM {db_prefix}pm_recipients
+				WHERE deleted = {int:not_deleted}
+					AND labels != {string:minus_one}
+					AND id_member IN ({array_int:member_list})',
+				array(
+					'not_deleted' => 0,
+					'minus_one' => -1,
+					'member_list' => $member_list,
+				)
+			);
+
+			while ($row = $smcFunc['db_fetch_assoc']($get_pm_labels))
+			{
+				$labels = explode(',', $row['labels']);
+
+				foreach ($labels as $a_label)
+				{
+					if ($a_label == '-1')
+						continue;
+
+					$new_label_info = $label_info_2[$row['id_member']][$a_label];
+					$inserts[] = array($row['id_pm'], $new_label_info);
+				}
+			}
+
+			$smcFunc['db_free_result']($get_pm_labels);
+
+			// Insert the new data
+			if (!empty($inserts))
+			{
+				$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
+			}
+
+			// Final step of this ridiculously massive process
+			$get_pm_rules = $smcFunc['db_query']('', '
+				SELECT id_member, id_rule, actions
+				FROM {db_prefix}pm_rules
+				WHERE id_member IN ({array_int:member_list})',
+				array(
+					'member_list' => $member_list,
+				)
+			);
+
+			// Go through the rules, unserialize the actions, then figure out if there's anything we can use
+			while ($row = $smcFunc['db_fetch_assoc']($get_pm_rules))
+			{
+				$updated = false;
+
+				// Turn this into an array...
+				$actions = unserialize($row['actions']);
+
+				// Loop through the actions and see if we're applying a label anywhere
+				foreach ($actions as $index => $action)
+				{
+					if ($action['t'] == 'lab')
+					{
+						// Update the value of this label...
+						$actions[$index]['v'] = $label_info_2[$row['id_member']][$action['v']];
+						$updated = true;
+					}
+				}
+
+				if ($updated)
+				{
+					// Put this back into a string
+					$actions = serialize($actions);
+
+					$smcFunc['db_query']('', '
+						UPDATE {db_prefix}pm_rules
+						SET actions = {string:actions}
+						WHERE id_rule = {int:id_rule}',
+						array(
+							'actions' => $actions,
+							'id_rule' => $row['id_rule'],
+						)
+					);
+				}
+			}
+
+			// Remove processed pm labels, to avoid duplicated data if upgrader is restarted.
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}members
+				SET message_labels = {string:blank}
+				WHERE id_member IN ({array_int:member_list})',
+				array(
+					'blank' => '',
+					'member_list' => $member_list,
+				)
+			);
+
+			$smcFunc['db_free_result']($get_pm_rules);
+
+			$_GET['a'] += $limit;
+			$step_progress['current'] = $_GET['a'];
+
+			if ($step_progress['current'] >= $maxMembers)
+				$is_done = true;
+		}
 
 		// Lastly, we drop the old columns
 		$smcFunc['db_remove_column']('{db_prefix}members', 'message_labels');
 		$smcFunc['db_remove_column']('{db_prefix}pm_recipients', 'labels');
 	}
+	unset($_GET['a']);
 ---}
 ---#
 
