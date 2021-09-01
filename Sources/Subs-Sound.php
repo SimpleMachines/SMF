@@ -96,16 +96,35 @@ function createWaveFile($word)
 
 	$data_size = strlen($sound_word);
 	$file_size = $data_size + 0x24;
+	$content_length = $file_size + 0x08;
 	$sample_rate = 16000;
 
 	// Disable compression.
 	ob_end_clean();
 	header('content-encoding: none');
+	header('accept-ranges: bytes');
+	header('connection: close');
+	header('cache-control: no-cache');
 
 	// Output the wav.
 	header('content-type: audio/x-wav');
 	header('expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
-	header('content-length: ' . ($file_size + 0x08));
+
+	if (isset($_SERVER['HTTP_RANGE']))
+	{
+		list($a, $range) = explode("=", $_SERVER['HTTP_RANGE'], 2);
+		list($range) = explode(",", $range, 2);
+		list($range, $range_end) = explode("-", $range);
+		$range = intval($range);
+		$range_end = !$range_end ? $content_length - 1 : intval($range_end);
+		$new_length = $range_end - $range + 1;
+
+		send_http_status(206);
+		header("content-length: $new_length");
+		header("content-range: bytes $range-$range_end/$content_length");
+	}
+	else
+		header("content-length: " . $content_length);
 
 	echo pack('nnVnnnnnnnnVVnnnnV', 0x5249, 0x4646, $file_size, 0x5741, 0x5645, 0x666D, 0x7420, 0x1000, 0x0000, 0x0100, 0x0100, $sample_rate, $sample_rate, 0x0100, 0x0800, 0x6461, 0x7461, $data_size), $sound_word;
 
