@@ -36,6 +36,12 @@ var atwhoConfig = {
 			$.ajax({
 				url: smf_scripturl + '?action=suggest;' + smf_session_var + '=' + smf_session_id + ';xml',
 				method: 'GET',
+				headers: {
+					"X-SMF-AJAX": 1
+				},
+				xhrFields: {
+					withCredentials: allow_xhjr_credentials
+				},
 				data: {
 					search: query,
 					suggest_type: 'member'
