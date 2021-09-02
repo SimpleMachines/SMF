@@ -2241,7 +2241,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	if (!empty($quoted_modifications['added']))
 	{
-		$msgOptions['quoted_members'] = array_intersect_key($quoted_members, array_flip($quoted_modifications['added']));
+		$msgOptions['quoted_members'] = array_intersect_key($quoted_members, array_flip(array_keys($quoted_modifications['added'])));
 
 		// You don't need a notification about quoting yourself.
 		unset($msgOptions['quoted_members'][$user_info['id']]);
@@ -2259,7 +2259,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		if (!empty($mention_modifications['added']))
 		{
 			// Queue this for notification.
-			$msgOptions['mentioned_members'] = array_intersect_key($mentions, array_flip($mention_modifications['added']));
+			$msgOptions['mentioned_members'] = array_intersect_key($mentions, array_flip(array_keys($mention_modifications['added'])));
 
 			// Mentioning yourself is silly, and we aren't going to notify you about it.
 			unset($msgOptions['mentioned_members'][$user_info['id']]);
