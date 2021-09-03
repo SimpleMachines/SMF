@@ -94,6 +94,12 @@ function ajax_getSignaturePreview (showPreview)
 	$.ajax({
 		type: "POST",
 		url: smf_scripturl + "?action=xmlhttp;sa=previews;xml",
+		headers: {
+			"X-SMF-AJAX": 1
+		},
+		xhrFields: {
+			withCredentials: allow_xhjr_credentials
+		},
 		data: {item: "sig_preview", signature: $("#signature").val(), user: $('input[name="u"]').attr("value")},
 		context: document.body,
 		success: function(request){

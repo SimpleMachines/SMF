@@ -196,6 +196,12 @@ function smf_fileUpload(oOptions) {
 					$.ajax({
 						url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=delete;attach=' + attachmentId + ';' + smf_session_var + '=' + smf_session_id + (current_board ? ';board=' + current_board : ''),
 						type: 'GET',
+						headers: {
+							"X-SMF-AJAX": 1
+						},
+						xhrFields: {
+							withCredentials: allow_xhjr_credentials
+						},
 						dataType: 'json',
 						beforeSend: function () {
 							ajax_indicator(true);

@@ -642,6 +642,12 @@ function template_warn_template()
 		{
 			$.ajax({
 				type: "POST",
+				headers: {
+					"X-SMF-AJAX": 1
+				},
+				xhrFields: {
+					withCredentials: allow_xhjr_credentials
+				},
 				url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
 				data: {item: "warning_preview", title: $("#template_title").val(), body: $("#template_body").val(), user: $(\'input[name="u"]\').attr("value")},
 				context: document.body,

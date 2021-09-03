@@ -232,6 +232,12 @@ function EditNews()
 						$("#preview_" + preview_id).text(\'' . $txt['preview'] . '\').click(function () {
 							$.ajax({
 								type: "POST",
+								headers: {
+									"X-SMF-AJAX": 1
+								},
+								xhrFields: {
+									withCredentials: allow_xhjr_credentials
+								},
 								url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
 								data: {item: "newspreview", news: $("#data_" + preview_id).val()},
 								context: document.body,

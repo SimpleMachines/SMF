@@ -42,6 +42,12 @@ function getServerResponse(sUrl, funcCallback, sType, sDataType)
 	return oMyDoc = $.ajax({
 		type: sType,
 		url: sUrl,
+		headers: {
+			"X-SMF-AJAX": 1
+		},
+		xhrFields: {
+			withCredentials: allow_xhjr_credentials
+		},
 		cache: false,
 		dataType: sDataType,
 		success: function(response) {
@@ -61,6 +67,12 @@ function getXMLDocument(sUrl, funcCallback)
 	return $.ajax({
 		type: 'GET',
 		url: sUrl,
+		headers: {
+			"X-SMF-AJAX": 1
+		},
+		xhrFields: {
+			withCredentials: allow_xhjr_credentials
+		},
 		cache: false,
 		dataType: 'xml',
 		success: function(responseXML) {
@@ -79,6 +91,12 @@ function sendXMLDocument(sUrl, sContent, funcCallback)
 	var oSendDoc = $.ajax({
 		type: 'POST',
 		url: sUrl,
+		headers: {
+			"X-SMF-AJAX": 1
+		},
+		xhrFields: {
+			withCredentials: allow_xhjr_credentials
+		},
 		data: sContent,
 		beforeSend: function(xhr) {
 			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -1724,7 +1742,7 @@ $(function() {
 
 		return typeof actOnElement !== "undefined" ? smfSelectText(actOnElement, true) : smfSelectText(this);
 	});
-	
+
 	// Show the Expand bbc button if needed
 	$('.bbc_code').each(function(index, item) {
 		if($(item).css('max-height') == 'none')
@@ -1738,7 +1756,7 @@ $(function() {
 		e.preventDefault();
 
 		var oCodeArea = this.parentNode.nextSibling;
-		
+
 		if(oCodeArea.classList.contains('expand_code')) {
 			$(oCodeArea).removeClass('expand_code');
 			$(this).html($(this).attr('data-expand-txt'));

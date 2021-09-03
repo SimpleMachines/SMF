@@ -2511,6 +2511,12 @@ function template_issueWarning()
 		{
 			$.ajax({
 				type: "POST",
+				headers: {
+					"X-SMF-AJAX": 1
+				},
+				xhrFields: {
+					withCredentials: allow_xhjr_credentials
+				},
 				url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
 				data: {item: "warning_preview", title: $("#warn_sub").val(), body: $("#warn_body").val(), issuing: true},
 				context: document.body,

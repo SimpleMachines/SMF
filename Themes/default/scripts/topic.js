@@ -726,6 +726,12 @@ $(function() {
 		$.ajax({
 			type: 'GET',
 			url: obj.attr('href') + ';js=1',
+			headers: {
+				"X-SMF-AJAX": 1
+			},
+			xhrFields: {
+				withCredentials: allow_xhjr_credentials
+			},
 			cache: false,
 			dataType: 'html',
 			success: function(html){
