@@ -6623,6 +6623,11 @@ function _safe_unserialize($str)
 	if (empty($str) || !is_string($str))
 		return false;
 
+	// The substring 'O:' is used to serialize objects.
+	// If it is not present, then there are none in the serialized data.
+	if (strpos($str, 'O:') === false)
+		return unserialize($str);
+
 	$stack = array();
 	$expected = array();
 
