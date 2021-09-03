@@ -6573,6 +6573,19 @@ function _safe_serialize($value)
 
 	if (is_array($value))
 	{
+		// Check for nested objects or resources.
+		$contains_invalid = false;
+		array_walk_recursive(
+			$value,
+			function($v) use (&$contains_invalid)
+			{
+				if (is_object($v) || is_resource($v))
+					$contains_invalid = true;
+			}
+		);
+		if ($contains_invalid)
+			return false;
+
 		$out = '';
 		foreach ($value as $k => $v)
 			$out .= _safe_serialize($k) . _safe_serialize($v);
