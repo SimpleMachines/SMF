@@ -24,6 +24,11 @@ class Mentions
 	protected static $char = '@';
 
 	/**
+	 * @var string Regular expression matching BBC that can't contain mentions
+	 */
+	protected static $excluded_bbc_regex = '';
+
+	/**
 	 * Returns mentions for a specific content
 	 *
 	 * @static
@@ -253,8 +258,11 @@ class Mentions
 		// preparse code does a few things which might mess with our parsing
 		$body = htmlspecialchars_decode(preg_replace('~<br\s*/?'.'>~', "\n", str_replace('&nbsp;', ' ', $body)), ENT_QUOTES);
 
-		// Remove quotes, we don't want to get double mentions.
-		$body = preg_replace('~\[quote[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?quote[^\]]*\]))|(?0))*\[/quote\]~', '', $body);
+		if (empty(self::$excluded_bbc_regex))
+			self::setExcludedBbcRegex();
+
+		// Exclude the content of various BBCodes.
+		$body = preg_replace('~\[(' . self::$excluded_bbc_regex . ')[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?\1[^\]]*\]))|(?0))*\[/\1\]~', '', $body);
 
 		$matches = array();
 		// Split before every Unicode character.
@@ -313,8 +321,11 @@ class Mentions
 	 */
 	public static function getExistingMentions($body)
 	{
-		// Don't include mentions inside quotations.
-		$body = preg_replace('~\[quote[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?quote[^\]]*\]))|(?0))*\[/quote\]~', '', $body);
+		if (empty(self::$excluded_bbc_regex))
+			self::setExcludedBbcRegex();
+
+		// Don't include mentions inside quotations, etc.
+		$body = preg_replace('~\[(' . self::$excluded_bbc_regex . ')[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?\1[^\]]*\]))|(?0))*\[/\1\]~', '', $body);
 
 		$existing_mentions = array();
 
@@ -343,8 +354,11 @@ class Mentions
 		if (empty($body))
 			return array();
 
-		// Don't include mentions inside quotations.
-		$body = preg_replace('~\[quote[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?quote[^\]]*\]))|(?0))*\[/quote\]~', '', $body);
+		if (empty(self::$excluded_bbc_regex))
+			self::setExcludedBbcRegex();
+
+		// Don't include mentions inside quotations, etc.
+		$body = preg_replace('~\[(' . self::$excluded_bbc_regex . ')[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?\1[^\]]*\]))|(?0))*\[/\1\]~', '', $body);
 
 		foreach ($members as $member)
 		{
@@ -432,6 +446,29 @@ class Mentions
 		return $members;
 	}
 
+	/**
+	 * Builds a regular expression matching BBC that can't contain mentions.
+	 *
+	 * @static
+	 * @access protected
+	 */
+	protected static function setExcludedBbcRegex()
+	{
+		if (empty(self::$excluded_bbc_regex))
+		{
+			// Exclude quotes. We don't want to get double mentions.
+			$excluded_bbc = array('quote');
+
+			// Exclude everything with unparsed content.
+			foreach (parse_bbc(false) as $code)
+			{
+				if (!empty($code['type']) && in_array($code['type'], array('unparsed_content', 'unparsed_commas_content', 'unparsed_equals_content')))
+					$excluded_bbc[] = $code['tag'];
+			}
+
+			self::$excluded_bbc_regex = build_regex($excluded_bbc, '~');
+		}
+	}
 }
 
 ?>
