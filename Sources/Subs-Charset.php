@@ -561,7 +561,7 @@ function utf8_normalize_d($string)
 	global $sourcedir;
 
 	if (is_callable('normalizer_normalize'))
-		return normalizer_normalize($domain, Normalizer::FORM_D);
+		return normalizer_normalize($string, Normalizer::FORM_D);
 
 	$substitutions = utf8_normalize_d_maps();
 	$combining_classes = utf8_combining_classes();
@@ -625,7 +625,7 @@ function utf8_normalize_d($string)
 function utf8_normalize_kd($string)
 {
 	if (is_callable('normalizer_normalize'))
-		return normalizer_normalize($domain, Normalizer::FORM_KD);
+		return normalizer_normalize($string, Normalizer::FORM_KD);
 
 	$substitutions = utf8_normalize_kd_maps();
 
@@ -653,7 +653,7 @@ function utf8_normalize_kd($string)
 function utf8_normalize_c($string)
 {
 	if (is_callable('normalizer_normalize'))
-		return normalizer_normalize($domain, Normalizer::FORM_C);
+		return normalizer_normalize($string, Normalizer::FORM_C);
 
 	$string = utf8_normalize_d($string);
 
@@ -669,7 +669,7 @@ function utf8_normalize_c($string)
 function utf8_normalize_kc($string)
 {
 	if (is_callable('normalizer_normalize'))
-		return normalizer_normalize($domain, Normalizer::FORM_KC);
+		return normalizer_normalize($string, Normalizer::FORM_KC);
 
 	$string = utf8_normalize_kd($string);
 
