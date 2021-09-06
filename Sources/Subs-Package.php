@@ -3180,7 +3180,9 @@ function package_validate_installtest($package)
 {
 	global $context;
 
-	$context['package_sha256_hash'] = hash_file('sha256', $package['file_name']);
+	// Don't validate directories.
+	$context['package_sha256_hash'] = is_dir($package['file_name']) ? null : hash_file('sha256', $package['file_name']);
+
 	$sendData = array(array(
 		'sha256_hash' => $context['package_sha256_hash'],
 		'file_name' => basename($package['file_name']),
