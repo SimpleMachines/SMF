@@ -681,6 +681,8 @@ function utf8_normalize_kc($string)
  */
 function utf8_compose($string)
 {
+	global $sourcedir;
+
 	$substitutions = utf8_compose_maps();
 	$combining_classes = utf8_combining_classes();
 
