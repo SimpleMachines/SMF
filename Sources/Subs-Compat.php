@@ -222,7 +222,7 @@ if (!function_exists('mb_ord'))
 			if (!function_exists('mb_encode_numericentity'))
 				return false;
 
-			$entity = mb_encode_numericentity($string, array(0x0,0x10FFFF,0x0,0x10FFFF), $encoding);
+			$entity = mb_encode_numericentity($string, array(0x0,0x10FFFF,0x0,0xFFFFFF), $encoding);
 
 			if (strpos($entity, '&#') !== 0)
 				return false;
