@@ -663,7 +663,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				// Don't want an email, so forget this member in any respawned tasks.
 				unset($msgOptions['quoted_members'][$member_id]);
 			}
-			elseif (TIME_START >= $this->mention_mail_time || in_array($member_id, $this->members['watched']))
+			elseif (TIME_START >= $this->mention_mail_time || in_array($member_id, $this->members['watching']))
 			{
 				$replacements = array(
 					'CONTENTSUBJECT' => $msgOptions['subject'],
@@ -738,7 +738,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				// Don't want an email, so forget this member in any respawned tasks.
 				unset($msgOptions['mentioned_members'][$member_id]);
 			}
-			elseif (TIME_START >= $this->mention_mail_time || in_array($member_id, $this->members['watched']))
+			elseif (TIME_START >= $this->mention_mail_time || in_array($member_id, $this->members['watching']))
 			{
 				$replacements = array(
 					'CONTENTSUBJECT' => $msgOptions['subject'],
