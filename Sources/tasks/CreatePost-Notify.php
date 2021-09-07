@@ -597,7 +597,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 				$replacements = array(
 					'TOPICSUBJECT' => $parsed_message[$localization]['subject'],
-					'POSTERNAME' => un_htmlspecialchars($posterOptions['name']),
+					'POSTERNAME' => un_htmlspecialchars($members_info[$member_id]['name']),
 					'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
 					'MESSAGE' => $parsed_message[$localization]['body'],
 					'UNSUBSCRIBELINK' => $scripturl . '?action=notify' . $content_type . ';' . $content_type . '=' . $itemID . ';sa=off;u=' . $member_data['id_member'] . ';token=' . $token,
