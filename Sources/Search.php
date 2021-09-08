@@ -2047,6 +2047,7 @@ function prepareSearchContext($reset = false)
 		$charLimit = 50;
 
 		$message['body'] = strtr($message['body'], array("\n" => ' ', '<br>' => "\n"));
+		$message['body'] = strip_bbc($message['body'], array('code', 'quote'));
 		$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
 		$message['body'] = strip_tags(strtr($message['body'], array('</div>' => '<br>', '</li>' => '<br>')), '<br>');
 
@@ -2076,7 +2077,8 @@ function prepareSearchContext($reset = false)
 				else
 					preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?[\s\W]|^)(' . $matchString . ')([\s\W].{0,' . $charLimit . '}[\s\W]|[\s\W][^\s\W]{0,' . $charLimit . '})/is' . ($context['utf8'] ? 'u' : ''), $message['body'], $matches);
 
-				$message['body'] = '';
+				if (count($matches[0]) > 0)
+					$message['body'] = '';
 				foreach ($matches[0] as $index => $match)
 				{
 					$match = strtr($smcFunc['htmlspecialchars']($match, ENT_QUOTES), array("\n" => '&nbsp;'));
@@ -2322,6 +2324,33 @@ function highlight($text, array $words)
 
 	if (!empty($highlighted))
 		$text = $highlighted;
+
+	return $text;
+}
+
+/**
+ * Remove bbc tags from the text
+ *
+ * @param string $text Text to search through
+ * @param array $words List of bbc tags to remove
+ *
+ * @return string Text with selected bbc tags removed
+ */
+function strip_bbc($text, array $bbc_codes)
+{
+	$stripped_text = preg_replace_callback(
+		'<[\[]\/?([a-z]*).*?[\]]>iu',
+		function($matches) use ($bbc_codes)
+		{
+			if (in_array($matches[1], $bbc_codes))
+				return '';
+			return $matches[0];
+		},
+		$text
+	);
+
+	if (!empty($stripped_text))
+		$text = $stripped_text;
 
 	return $text;
 }
