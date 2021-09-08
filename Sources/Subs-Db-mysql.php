@@ -279,7 +279,7 @@ function smf_db_replacement__callback($matches)
 
 		case 'identifier':
 			// Backticks inside identifiers are supported as of MySQL 4.1. We don't need them for SMF.
-			return '`' . strtr($replacement, array('`' => '', '.' => '`.`')) . '`';
+			return '`' . implode('`.`', array_filter(explode('.', strtr($replacement, array('`' => ''))), 'strlen')) . '`';
 			break;
 
 		case 'raw':
