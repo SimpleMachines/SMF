@@ -1097,12 +1097,18 @@ function PlushSearch2()
 
 				foreach ($searchWords as $orIndex => $words)
 				{
-					$subject_query_params = array();
+					$subject_query_params = array(
+						'not_redirected' => 0,
+						'never_expires' => 0,
+					);
 					$subject_query = array(
 						'from' => '{db_prefix}topics AS t',
 						'inner_join' => array(),
 						'left_join' => array(),
-						'where' => array(),
+						'where' => array(
+							't.id_redirect_topic = {int:not_redirected}',
+						    't.redirect_expires = {int:never_expires}',
+						),
 					);
 
 					if ($modSettings['postmod_active'])
@@ -1265,13 +1271,18 @@ function PlushSearch2()
 						'{db_prefix}messages AS m ON (m.id_topic = t.id_topic)'
 					),
 					'left_join' => array(),
-					'where' => array(),
+					'where' => array(
+						't.id_redirect_topic = {int:not_redirected}',
+						't.redirect_expires = {int:never_expires}',
+					),
 					'group_by' => array(),
 					'parameters' => array(
 						'min_msg' => $minMsg,
 						'recent_message' => $recentMsg,
 						'huge_topic_posts' => $humungousTopicPosts,
 						'is_approved' => 1,
+						'not_redirected' => 0,
+						'never_expires' => 0,
 					),
 				);
 
@@ -1347,8 +1358,14 @@ function PlushSearch2()
 							'from' => '{db_prefix}topics AS t',
 							'inner_join' => array(),
 							'left_join' => array(),
-							'where' => array(),
-							'params' => array(),
+							'where' => array(
+								't.id_redirect_topic = {int:not_redirected}',
+								't.redirect_expires = {int:never_expires}',
+							),
+							'params' => array(
+								'not_redirected' => 0,
+								'never_expires' => 0,
+							),
 						);
 
 						$numTables = 0;
