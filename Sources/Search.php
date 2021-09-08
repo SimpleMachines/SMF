@@ -2094,11 +2094,11 @@ function prepareSearchContext($reset = false)
 	}
 	else
 	{
-		// Run BBC interpreter on the message.
-		$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
-
 		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
 		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);
+
+		// Run BBC interpreter on the highlighted message.
+		$message['body_highlighted'] = parse_bbc($message['body_highlighted'], $message['smileys_enabled'], $message['id_msg']);
 	}
 
 	// Make sure we don't end up with a practically empty message body.
@@ -2319,8 +2319,16 @@ function searchSort($a, $b)
  */
 function highlight($text, array $words)
 {
-	$words = implode('|', array_map('preg_quote', $words));
-	$highlighted = preg_filter('<' . $words . '>iu', '<span class="highlight">$0</span>', $text);
+	$words = implode('[^\]]|[^\[]', array_map('preg_quote', $words));
+
+	$highlighted = preg_replace_callback(
+		'<[^\[]' . $words . '[^\]]>iu',
+		function($matches)
+		{
+			return substr($matches[0], 0, 1) . '<span class="highlight">' . substr($matches[0], 1, -1) . '</span>' . substr($matches[0], -1, 1);
+		},
+		$text
+	);
 
 	if (!empty($highlighted))
 		$text = $highlighted;
