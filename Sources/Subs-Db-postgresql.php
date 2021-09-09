@@ -260,7 +260,7 @@ function smf_db_replacement__callback($matches)
 			break;
 
 		case 'identifier':
-			return '"' . strtr($replacement, array('`' => '', '.' => '"."')) . '"';
+			return '"' . implode('"."', array_filter(explode('.', strtr($replacement, array('`' => ''))), 'strlen')) . '"';
 			break;
 
 		case 'raw':
