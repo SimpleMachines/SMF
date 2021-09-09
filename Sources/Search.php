@@ -2334,8 +2334,8 @@ function searchSort($a, $b)
  */
 function highlight($text, array $words)
 {
-	$words = implode('|', array_map('preg_quote', $words));
-	$highlighted = preg_filter('<' . $words . '>iu', '<span class="highlight">$0</span>', $text);
+	$words = build_regex($words, '~');
+	$highlighted = preg_filter('~' . $words . '~iu', '<span class="highlight">$0</span>', $text);
 
 	if (!empty($highlighted))
 		$text = $highlighted;
