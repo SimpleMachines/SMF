@@ -2366,7 +2366,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			if (!empty($modSettings['autoLinkUrls']))
 			{
-				if (!function_exists('idn_to_ascii'))
+				if (!function_exists('idn_to_ascii') || !defined('INTL_IDNA_VARIANT_UTS46'))
 					require_once($sourcedir . '/Subs-Compat.php');
 
 				// Are we inside tags that should be auto linked?
