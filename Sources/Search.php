@@ -2342,7 +2342,7 @@ function highlight($text, array $words)
 	$parts = preg_split('~(<[^>]+>)~', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 	for ($i = 0, $n = count($parts); $i < $n; $i++)
-		$highlighted .= $i % 2 === 0 ? preg_replace('~' . $words . '~iu', '<span class="highlight">$0</span>', $parts[$i]) : $parts[$i];
+		$highlighted .= $i % 2 === 0 ? preg_replace('~' . $words . '~iu', '<mark class="highlight">$0</mark>', $parts[$i]) : $parts[$i];
 
 	if (!empty($highlighted))
 		$text = $highlighted;

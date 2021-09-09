@@ -490,6 +490,7 @@ a img {
 	font-weight: bold;
 	color: #ff7200 !important;
 	font-size: 1.1em;
+	background-color: inherit;
 }
 
 /* the page navigation area */
