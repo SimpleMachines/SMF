@@ -2063,7 +2063,7 @@ function prepareSearchContext($reset = false)
 		// Set the number of characters before and after the searched keyword.
 		$charLimit = 50;
 
-		$message['body'] = strtr($message['body'], array("\n" => ' ', '<br>' => "\n"));
+		$message['body'] = strtr($message['body'], array("\n" => ' ', '<br>' => "\n", '<br/>' => "\n", '<br />' => "\n"));
 		$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
 		$message['body'] = strip_tags(strtr($message['body'], array('</div>' => '<br>', '</li>' => '<br>')), '<br>');
 
@@ -2334,8 +2334,15 @@ function searchSort($a, $b)
  */
 function highlight($text, array $words)
 {
-	$words = implode('|', array_map('preg_quote', $words));
-	$highlighted = preg_filter('<' . $words . '>iu', '<span class="highlight">$0</span>', $text);
+	$words = build_regex($words, '~');
+
+	$highlighted = '';
+
+	// Don't mess with the content of HTML tags.
+	$parts = preg_split('~(<[^>]+>)~', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+	for ($i = 0, $n = count($parts); $i < $n; $i++)
+		$highlighted .= $i % 2 === 0 ? preg_replace('~' . $words . '~iu', '<mark class="highlight">$0</mark>', $parts[$i]) : $parts[$i];
 
 	if (!empty($highlighted))
 		$text = $highlighted;
