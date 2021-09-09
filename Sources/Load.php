@@ -272,6 +272,22 @@ function reloadSettings()
 
 			return random_bytes($length);
 		},
+		'normalize' => function($string, $form = 'c') use ($utf8)
+		{
+			global $sourcedir;
+
+			if (!$utf8)
+				return $string;
+
+			require_once($sourcedir . '/Subs-Charset.php');
+
+			$normalize_func = 'utf8_normalize_' . strtolower((string) $form);
+
+			if (!function_exists($normalize_func))
+				return false;
+
+			return $normalize_func($string);
+		},
 	);
 
 	// Setting the timezone is a requirement for some functions.
