@@ -30,7 +30,7 @@ if (!defined('TIME_START'))
  *
  * @var string
  */
-$GLOBALS['required_php_version'] = '5.6.0';
+$GLOBALS['required_php_version'] = '7.0.0';
 
 /**
  * A list of supported database systems.
@@ -40,7 +40,7 @@ $GLOBALS['required_php_version'] = '5.6.0';
 $databases = array(
 	'mysql' => array(
 		'name' => 'MySQL',
-		'version' => '5.0.22',
+		'version' => '5.6.0',
 		'version_check' => 'global $db_connection; return min(mysqli_get_server_info($db_connection), mysqli_get_client_info());',
 		'utf8_support' => true,
 		'utf8_version' => '5.0.22',
