@@ -3187,7 +3187,7 @@ function profileLoadSignatureData()
 		censorText($context['member']['signature']);
 		$context['member']['current_signature'] = $context['member']['signature'];
 		censorText($signature);
-		$context['member']['signature_preview'] = parse_bbc($signature, true, 'sig' . $memberContext[$context['id_member']]);
+		$context['member']['signature_preview'] = parse_bbc($signature, true, 'sig' . $memberContext[$context['id_member']], get_signature_allowed_bbc_tags());
 		$context['member']['signature'] = $_POST['signature'];
 	}
 

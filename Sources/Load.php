@@ -1650,7 +1650,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 		// Set things up to be used before hand.
 		$profile['signature'] = str_replace(array("\n", "\r"), array('<br>', ''), $profile['signature']);
-		$profile['signature'] = parse_bbc($profile['signature'], true, 'sig' . $profile['id_member']);
+		$profile['signature'] = parse_bbc($profile['signature'], true, 'sig' . $profile['id_member'], get_signature_allowed_bbc_tags());
 
 		$profile['is_online'] = (!empty($profile['show_online']) || allowedTo('moderate_forum')) && $profile['is_online'] > 0;
 		$profile['icons'] = empty($profile['icons']) ? array('', '') : explode('#', $profile['icons']);

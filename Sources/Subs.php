@@ -1182,6 +1182,35 @@ function permute($array)
 }
 
 /**
+ * Return an array with allowed bbc tags for signatures, that can be passed to parse_bbc().
+ *
+ * @return array An array containing allowed tags for signatures, or an empty array if all tags are allowed.
+ */
+function get_signature_allowed_bbc_tags()
+{
+	global $modSettings;
+
+	list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
+	if (empty($sig_bbc))
+		return array();
+	$disabledTags = explode(',', $sig_bbc);
+
+	// Get all available bbc tags
+	$temp = parse_bbc(false);
+	$allowedTags = array();
+	foreach ($temp as $tag)
+		if (!in_array($tag['tag'], $disabledTags))
+			$allowedTags[] = $tag['tag'];
+
+	$allowedTags = array_unique($allowedTags);
+	if (empty($allowedTags))
+		// An empty array means that all bbc tags are allowed. So if all tags are disabled we need to add a dummy tag.
+		$allowedTags[] = 'nonexisting';
+
+	return $allowedTags;
+}
+
+/**
  * Parse bulletin board code in a string, as well as smileys optionally.
  *
  * - only parses bbc tags which are not disabled in disabledBBC.
