@@ -426,7 +426,9 @@ function getBoardIndex($board_index_options)
 
 		// Set the last post in the parent board.
 		if ($isChild && !empty($row_board['poster_time'])
-			&& $row_boards[$row_board['id_parent']]['poster_time'] < $row_board['poster_time'])
+			&& $row_boards[$row_board['id_parent']]['poster_time'] < $row_board['poster_time']
+			&& (empty($this_category[$row_board['id_parent']]['last_post'])
+				|| $this_category[$row_board['id_parent']]['last_post']['timestamp'] < $this_last_post['timestamp']))
 			$this_category[$row_board['id_parent']]['last_post'] = $this_last_post;
 
 		// Set the last post in the root board
