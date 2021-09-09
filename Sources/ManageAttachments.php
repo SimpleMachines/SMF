@@ -2444,7 +2444,7 @@ function ManageAttachmentPaths()
  */
 function list_getAttachDirs()
 {
-	global $smcFunc, $modSettings, $context, $txt;
+	global $smcFunc, $modSettings, $context, $scripturl, $txt;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_folder, COUNT(id_attach) AS num_attach, SUM(size) AS size_attach
@@ -2499,7 +2499,7 @@ function list_getAttachDirs()
 			'path' => $dir,
 			'current_size' => !empty($expected_size[$id]) ? comma_format($expected_size[$id] / 1024, 0) : 0,
 			'num_files' => comma_format($expected_files[$id] - $sub_dirs, 0) . ($sub_dirs > 0 ? ' (' . $sub_dirs . ')' : ''),
-			'status' => ($is_base_dir ? $txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . sprintf($txt['attach_dir_' . $status], $context['session_id'], $context['session_var']) . ($error ? '</div>' : ''),
+			'status' => ($is_base_dir ? $txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . sprintf($txt['attach_dir_' . $status], $context['session_id'], $context['session_var'], $scripturl) . ($error ? '</div>' : ''),
 		);
 	}
 
