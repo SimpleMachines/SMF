@@ -144,7 +144,7 @@ $txt['alert_board_notify'] = 'When a board I follow gets a topic, I normally wan
 $txt['alert_msg_mention'] = 'When my @name is mentioned in a post';
 $txt['alert_msg_quote'] = 'When a post of mine is quoted (when I\'m not already watching that topic)';
 $txt['alert_msg_like'] = 'When a message of mine is liked';
-$txt['alert_unapproved_reply'] = 'When an reply is made to my unapproved topic';
+$txt['alert_unapproved_reply'] = 'When a reply is made to my unapproved topic';
 $txt['alert_group_pm'] = 'Personal Messages';
 $txt['alert_pm_new'] = 'When I receive a new personal message';
 $txt['alert_pm_reply'] = 'When a personal message I sent gets replied to';
@@ -167,7 +167,7 @@ $txt['alert_birthday'] = 'When it\'s my birthday';
 $txt['alert_member_report'] = 'When another member\'s profile is reported';
 $txt['alert_member_report_reply'] = 'When a member report I\'ve replied to gets replied to';
 $txt['alert_group_paidsubs'] = 'Paid Subscriptions';
-$txt['alert_paidsubs_expiring'] = 'When your Paid Subscriptions are about to expire';
+$txt['alert_paidsubs_expiring'] = 'When my Paid Subscriptions are about to expire';
 $txt['toggle_all'] = 'toggle all';
 
 $txt['notifications_topics'] = 'Current Topic Notifications';
