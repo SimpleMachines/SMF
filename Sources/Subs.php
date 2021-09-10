@@ -1305,6 +1305,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				);
 		}
 
+		if (!empty($parse_tags))
+		{
+			if (!in_array('email', $parse_tags))
+				$disabled['email'] = true;
+			if (!in_array('url', $parse_tags))
+				$disabled['url'] = true;
+			if (!in_array('iurl', $parse_tags))
+				$disabled['iurl'] = true;
+		}
+
 		// The YouTube bbc needs this for its origin parameter
 		$scripturl_parts = parse_url($scripturl);
 		$hosturl = $scripturl_parts['scheme'] . '://' . $scripturl_parts['host'];
