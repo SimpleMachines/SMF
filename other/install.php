@@ -24,7 +24,7 @@ define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m')
 if (!defined('TIME_START'))
 	define('TIME_START', microtime(true));
 
-$GLOBALS['required_php_version'] = '5.6.0';
+$GLOBALS['required_php_version'] = '7.0.0';
 
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
@@ -39,7 +39,7 @@ require_once('Sources/Class-Package.php');
 $databases = array(
 	'mysql' => array(
 		'name' => 'MySQL',
-		'version' => '5.0.22',
+		'version' => '5.6.0',
 		'version_check' => 'return min(mysqli_get_server_info($db_connection), mysqli_get_client_info());',
 		'supported' => function_exists('mysqli_connect'),
 		'default_user' => 'mysql.default_user',
