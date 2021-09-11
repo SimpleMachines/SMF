@@ -2541,7 +2541,7 @@ function checkChange(&$change)
 	// Attempt to find a database_version.
 	if (empty($database_version))
 	{
-		$database_version = $databases[$db_type]['version_check'];
+		$database_version = eval($databases[$db_type]['version_check']);
 		$where_field_support = $db_type == 'mysql' && version_compare('5.0', $database_version, '<=');
 	}
 
