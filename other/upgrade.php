@@ -2566,8 +2566,7 @@ function checkChange(&$change)
 				'new_name' => $temp[2],
 			)
 		);
-		// !!! This doesn't technically work because we don't pass request into it, but it hasn't broke anything yet.
-		if ($smcFunc['db_num_rows'] != 1)
+		if ($smcFunc['db_num_rows']($request) != 1)
 			return;
 
 		list (, $current_type) = $smcFunc['db_fetch_assoc']($request);
@@ -2584,8 +2583,7 @@ function checkChange(&$change)
 			)
 		);
 		// Mayday!
-		// !!! This doesn't technically work because we don't pass request into it, but it hasn't broke anything yet.
-		if ($smcFunc['db_num_rows'] == 0)
+		if ($smcFunc['db_num_rows']($request) == 0)
 			return;
 
 		// Oh where, oh where has my little field gone. Oh where can it be...
