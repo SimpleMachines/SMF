@@ -2589,7 +2589,7 @@ function checkChange(&$change)
 			return;
 
 		// Oh where, oh where has my little field gone. Oh where can it be...
-		while ($row = $smcFunc['db_query']($request))
+		while ($row = $smcFunc['db_fetch_assoc']($request))
 			if ($row['Field'] == $temp[1] || $row['Field'] == $temp[2])
 			{
 				$current_type = $row['Type'];
