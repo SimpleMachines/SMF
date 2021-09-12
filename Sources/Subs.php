@@ -7752,6 +7752,41 @@ function sanitize_iri($iri)
 }
 
 /**
+ * Performs Unicode normalization on IRIs.
+ *
+ * Internally calls sanitize_iri(), then performs Unicode normalization on the
+ * IRI as a whole, using NFKC normalization for the domain name (see RFC 3491)
+ * and NFC normalization for the rest.
+ *
+ * @param string $iri The IRI to normalize.
+ * @return string|bool The normalized version of the IRI.
+ */
+function normalize_iri($iri)
+{
+	global $smcFunc;
+
+	$iri = sanitize_iri($smcFunc['normalize']($iri, 'c'));
+
+	$host = parse_iri((strpos($iri, '//') === 0 ? 'http:' : '') . $iri, PHP_URL_HOST);
+
+	if (!empty($host))
+	{
+		$normalized_host = $smcFunc['strtolower']($smcFunc['normalize']($host, 'kc'));
+		$pos = strpos($iri, $host);
+	}
+	else
+	{
+		$normalized_host = '';
+		$pos = 0;
+	}
+
+	$before_host = substr($iri, 0, $pos);
+	$after_host = substr($iri, $pos + strlen($host));
+
+	return $before_host . $normalized_host . $after_host;
+}
+
+/**
  * Converts a URL with international characters (an IRI) into a pure ASCII URL
  *
  * Uses Punycode to encode any non-ASCII characters in the domain name, and uses
