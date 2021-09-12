@@ -475,15 +475,11 @@ if (!function_exists('idn_to_ascii'))
 	{
 		global $sourcedir;
 
-		if ($flags !== 0 || $variant !== 1)
-			return false;
-
 		require_once($sourcedir . '/Subs-Charset.php');
-		$domain = utf8_normalize_kc($domain);
-
 		require_once($sourcedir . '/Class-Punycode.php');
 		$Punycode = new Punycode();
-		return $Punycode->encode($domain);
+
+		return $Punycode->encode(utf8_normalize_kc(sanitize_iri($domain)));
 	}
 }
 
@@ -506,12 +502,11 @@ if (!function_exists('idn_to_utf8'))
 	{
 		global $sourcedir;
 
-		if ($flags !== 0 || $variant !== 1)
-			return false;
-
+		require_once($sourcedir . '/Subs-Charset.php');
 		require_once($sourcedir . '/Class-Punycode.php');
 		$Punycode = new Punycode();
-		return $Punycode->decode($domain);
+
+		return $Punycode->decode(utf8_normalize_kc(sanitize_iri($domain)));
 	}
 }
 
