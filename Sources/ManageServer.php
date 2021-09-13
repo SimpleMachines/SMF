@@ -547,8 +547,13 @@ function ModifyCookieSettings($return_config = false)
 		if (empty($modSettings['localCookies']) != empty($_POST['localCookies']) || empty($modSettings['globalCookies']) != empty($_POST['globalCookies']))
 			$scope_changed = true;
 
-		if (!empty($_POST['globalCookiesDomain']) && strpos($boardurl, $_POST['globalCookiesDomain']) === false)
-			fatal_lang_error('invalid_cookie_domain', false);
+		if (!empty($_POST['globalCookiesDomain']))
+		{
+			$_POST['globalCookiesDomain'] = parse_iri(normalize_iri((strpos($_POST['globalCookiesDomain'], '//') === false ? 'http://' : '') . ltrim($_POST['globalCookiesDomain'], '.')), PHP_URL_HOST);
+
+			if (!preg_match('/(?:^|\.)' . preg_quote($_POST['globalCookiesDomain'], '/') . '$/u', parse_iri($boardurl, PHP_URL_HOST)))
+				fatal_lang_error('invalid_cookie_domain', false);
+		}
 
 		saveSettings($config_vars);
 
@@ -676,6 +681,26 @@ function ModifyGeneralSecuritySettings($return_config = false)
 	// Saving?
 	if (isset($_GET['save']))
 	{
+		if (!empty($_POST['cors_domains']))
+		{
+			$cors_domains = explode(',', $_POST['cors_domains']);
+
+			foreach ($cors_domains as &$cors_domain)
+			{
+				if (strpos($cors_domain, '//') === false)
+					$cors_domain = '//' . $cors_domain;
+
+				$temp = parse_iri(normalize_iri($cors_domain));
+
+				if (strpos($temp['host'], '*') !== false)
+					$temp['host'] = substr($temp['host'], strrpos($temp['host'], '*'));
+
+				$cors_domain = (!empty($temp['scheme']) ? $temp['scheme'] . '://' : '') . $temp['host'] . (!empty($temp['port']) ? ':' . $temp['port'] : '');
+			}
+
+			$_POST['cors_domains'] = implode(',', $cors_domains);
+		}
+
 		saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 
