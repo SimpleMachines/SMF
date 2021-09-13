@@ -41,16 +41,23 @@ $databases = array(
 	'mysql' => array(
 		'name' => 'MySQL',
 		'version' => '5.6.0',
-		'version_check' => 'global $db_connection; return min(mysqli_get_server_info($db_connection), mysqli_get_client_info());',
-		'utf8_support' => true,
-		'utf8_version' => '5.0.22',
-		'utf8_version_check' => 'global $db_connection; return mysqli_get_server_info($db_connection);',
+		'version_check' => function() {
+			global $db_connection;
+			if (!function_exists('mysqli_fetch_row'))
+				return false;
+			return mysqli_fetch_row(mysqli_query($db_connection, 'SELECT VERSION();'))[0];
+		},
 		'alter_support' => true,
 	),
 	'postgresql' => array(
 		'name' => 'PostgreSQL',
 		'version' => '9.6',
-		'version_check' => '$version = pg_version(); return $version[\'client\'];',
+		'version_check' => function() {
+			if (!function_exists('pg_version'))
+				return false;
+			$version = pg_version();
+			return $version['client'];
+		},
 		'always_has_db' => true,
 	),
 );
@@ -1945,7 +1952,7 @@ function db_version_check()
 {
 	global $db_type, $databases;
 
-	$curver = eval($databases[$db_type]['version_check']);
+	$curver = $databases[$db_type]['version_check']();
 	$curver = preg_replace('~\-.+?$~', '', $curver);
 
 	return version_compare($databases[$db_type]['version'], $curver, '<=');
@@ -2541,7 +2548,7 @@ function checkChange(&$change)
 	// Attempt to find a database_version.
 	if (empty($database_version))
 	{
-		$database_version = $databases[$db_type]['version_check'];
+		$database_version = $databases[$db_type]['version_check']();
 		$where_field_support = $db_type == 'mysql' && version_compare('5.0', $database_version, '<=');
 	}
 
@@ -3832,6 +3839,7 @@ function template_upgrade_above()
 		var smf_scripturl = \'', $upgradeurl, '\';
 		var smf_charset = \'', (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'UTF-8' : $txt['lang_character_set']) : $modSettings['global_character_set']), '\';
 		var startPercent = ', $upcontext['overall_percent'], ';
+		var allow_xhjr_credentials = false;
 
 		// This function dynamically updates the step progress bar - and overall one as required.
 		function updateStepProgress(current, max, overall_weight)
