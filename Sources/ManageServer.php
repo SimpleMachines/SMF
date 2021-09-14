@@ -1362,6 +1362,8 @@ function saveSettings(&$config_vars)
 			$_POST['boardurl'] = substr($_POST['boardurl'], 0, -1);
 		if (substr($_POST['boardurl'], 0, 7) != 'http://' && substr($_POST['boardurl'], 0, 7) != 'file://' && substr($_POST['boardurl'], 0, 8) != 'https://')
 			$_POST['boardurl'] = 'http://' . $_POST['boardurl'];
+
+		$_POST['boardurl'] = normalize_iri($_POST['boardurl']);
 	}
 
 	// Any passwords?
