@@ -5756,7 +5756,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 	global $webmaster_email, $sourcedir, $txt;
 	static $keep_alive_dom = null, $keep_alive_fp = null;
 
-	preg_match('~^(http|ftp)(s)?://([^/:]+)(:(\d+))?(.+)$~', $url, $match);
+	preg_match('~^(http|ftp)(s)?://([^/:]+)(:(\d+))?(.+)$~', iri_to_url($url), $match);
 
 	// No scheme? No data for you!
 	if (empty($match[1]))
@@ -7582,7 +7582,7 @@ function sanitize_iri($iri)
  */
 function iri_to_url($iri)
 {
-	global $smcFunc;
+	global $smcFunc, $sourcedir;
 
 	// Weird stuff can happen if parse_url() is given un-normalized Unicode.
 	$iri = $smcFunc['normalize'](sanitize_iri($iri), 'c');
