@@ -1454,7 +1454,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		}
 
 		// The YouTube bbc needs this for its origin parameter
-		$scripturl_parts = parse_url($scripturl);
+		$scripturl_parts = parse_iri($scripturl);
 		$hosturl = $scripturl_parts['scheme'] . '://' . $scripturl_parts['host'];
 
 		/* The following bbc are formatted as an array, with keys as follows:
@@ -1814,9 +1814,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" target="_blank" rel="noopener">$1</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					$scheme = parse_url($data[0], PHP_URL_SCHEME);
+					$data[0] = normalize_iri($data[0]);
+
+					$scheme = parse_iri($data[0], PHP_URL_SCHEME);
 					if (empty($scheme))
 						$data[0] = '//' . ltrim($data[0], ':/');
+
+					$ascii_url = iri_to_url($data[0]);
+					if ($ascii_url !== $data[0])
+						$tag['content'] = str_replace('href="$1"', 'href="' . $ascii_url . '"', $tag['content']);
 				},
 			),
 			array(
@@ -1846,10 +1852,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = strtr($data, array('<br>' => ''));
-					$scheme = parse_url($data, PHP_URL_SCHEME);
+					$data = normalize_iri(strtr($data, array('<br>' => '')));
+
+					$scheme = parse_iri($url, PHP_URL_SCHEME);
 					if (empty($scheme))
-						$data = 'ftp://' . ltrim($data, ':/');
+						$url = 'ftp://' . ltrim($url, ':/');
+
+					$ascii_url = iri_to_url($data);
+					if ($ascii_url !== $data)
+						$tag['content'] = str_replace('href="$1"', 'href="' . $ascii_url . '"', $tag['content']);
 				},
 			),
 			// Legacy (alias of [url] with an FTP URL)
@@ -1860,7 +1871,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$scheme = parse_url($data, PHP_URL_SCHEME);
+					$data = iri_to_url($data);
+
+					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
 						$data = 'ftp://' . ltrim($data, ':/');
 				},
@@ -1918,9 +1931,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '$1',
 				'validate' => function(&$tag, &$data, $disabled, $params)
 				{
-					$url = strtr($data, array('<br>' => ''));
+					$url = iri_to_url(strtr($data, array('<br>' => '')));
 
-					if (parse_url($url, PHP_URL_SCHEME) === null)
+					if (parse_iri($url, PHP_URL_SCHEME) === null)
 						$url = '//' . ltrim($url, ':/');
 					else
 						$url = get_proxied_url($url);
@@ -1938,10 +1951,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = strtr($data, array('<br>' => ''));
-					$scheme = parse_url($data, PHP_URL_SCHEME);
+					$data = normalize_iri(strtr($data, array('<br>' => '')));
+
+					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
+
+					$ascii_url = iri_to_url($data);
+					if ($ascii_url !== $data)
+						$tag['content'] = str_replace('href="$1"', 'href="' . $ascii_url . '"', $tag['content']);
 				},
 			),
 			array(
@@ -1956,7 +1974,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$data = '#post_' . substr($data, 1);
 					else
 					{
-						$scheme = parse_url($data, PHP_URL_SCHEME);
+						$data = iri_to_url($data);
+
+						$scheme = parse_iri($data, PHP_URL_SCHEME);
 						if (empty($scheme))
 							$data = '//' . ltrim($data, ':/');
 					}
@@ -2248,10 +2268,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = strtr($data, array('<br>' => ''));
-					$scheme = parse_url($data, PHP_URL_SCHEME);
+					$data = normalize_iri(strtr($data, array('<br>' => '')));
+
+					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
+
+					$ascii_url = iri_to_url($data);
+					if ($ascii_url !== $data)
+						$tag['content'] = str_replace('href="$1"', 'href="' . $ascii_url . '"', $tag['content']);
 				},
 			),
 			array(
@@ -2262,7 +2287,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$scheme = parse_url($data, PHP_URL_SCHEME);
+					$data = iri_to_url($data);
+
+					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
 				},
@@ -2543,9 +2570,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			if (!empty($modSettings['autoLinkUrls']))
 			{
-				if (!function_exists('idn_to_ascii'))
-					require_once($sourcedir . '/Subs-Compat.php');
-
 				// Are we inside tags that should be auto linked?
 				$no_autolink_area = false;
 				if (!empty($open_tags))
@@ -2930,7 +2954,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								if ($url != sanitize_iri($url))
 									return $url;
 
-								$parsedurl = parse_url($url);
+								// Ensure the host name is in its canonical form.
+								$url = normalize_iri($url);
+
+								$parsedurl = parse_iri($url);
 
 								if (!isset($parsedurl['scheme']))
 									$parsedurl['scheme'] = '';
@@ -2957,31 +2984,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								else
 									$fullUrl = $url;
 
-								// Ensure the host name is in its canonical form.
-								$host = !empty($parsedurl['host']) ? $parsedurl['host'] : parse_url($fullUrl, PHP_URL_HOST);
-
-								if (!empty($host))
-								{
-									$ascii_host = idn_to_ascii($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
-
-									if ($ascii_host !== $host)
-									{
-										$fullUrl = substr($fullUrl, 0, strpos($fullUrl, $host)) . $ascii_host . substr($fullUrl, strpos($fullUrl, $host) + strlen($host));
-
-										$utf8_host = idn_to_utf8($ascii_host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
-
-										if ($utf8_host !== $host)
-										{
-											$url = substr($url, 0, strpos($url, $host)) . $utf8_host . substr($url, strpos($url, $host) + strlen($host));
-										}
-									}
-								}
-
 								// Make sure that $fullUrl really is valid
 								if (in_array($parsedurl['scheme'], $schemes['forbidden']) || (!in_array($parsedurl['scheme'], $schemes['no_authority']) && validate_iri((strpos($fullUrl, '//') === 0 ? 'http:' : '') . $fullUrl) === false))
 									return $url;
 
-								return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
+								return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), iri_to_url($fullUrl)) . '&quot;]' . $url . '[/url]';
 							},
 							$data
 						);
