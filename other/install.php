@@ -40,7 +40,12 @@ $databases = array(
 	'mysql' => array(
 		'name' => 'MySQL',
 		'version' => '5.6.0',
-		'version_check' => 'return min(mysqli_get_server_info($db_connection), mysqli_get_client_info());',
+		'version_check' => function() {
+			global $db_connection;
+			if (!function_exists('mysqli_fetch_row'))
+				return false;
+			return mysqli_fetch_row(mysqli_query($db_connection, 'SELECT VERSION();'))[0];
+		},
 		'supported' => function_exists('mysqli_connect'),
 		'default_user' => 'mysql.default_user',
 		'default_password' => 'mysql.default_password',
@@ -51,9 +56,10 @@ $databases = array(
 			return true;
 		},
 		'utf8_version' => '5.0.22',
-		'utf8_version_check' => 'return mysqli_get_server_info($db_connection);',
-		'utf8_default' => true,
-		'utf8_required' => true,
+		'utf8_version_check' => function() {
+			global $db_connection;
+			return mysqli_get_server_info($db_connection);
+		},
 		'alter_support' => true,
 		'validate_prefix' => function(&$value)
 		{
@@ -64,12 +70,14 @@ $databases = array(
 	'postgresql' => array(
 		'name' => 'PostgreSQL',
 		'version' => '9.6',
-		'function_check' => 'pg_connect',
-		'version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
+		'version_check' => function() {
+			$request = pg_query('SELECT version()');
+			list ($version) = pg_fetch_row($request);
+			list($pgl, $version) = explode(' ', $version);
+			return $version;
+		},
 		'supported' => function_exists('pg_connect'),
 		'always_has_db' => true,
-		'utf8_default' => true,
-		'utf8_required' => true,
 		'utf8_support' => function()
 		{
 			$request = pg_query('SHOW SERVER_ENCODING');
@@ -82,7 +90,12 @@ $databases = array(
 				return false;
 		},
 		'utf8_version' => '8.0',
-		'utf8_version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
+		'utf8_version_check' => function (){
+			$request = pg_query('SELECT version()');
+			list ($version) = pg_fetch_row($request);
+			list($pgl, $version) = explode(' ', $version);
+			return $version;
+		},
 		'validate_prefix' => function(&$value)
 		{
 			global $txt;
@@ -723,7 +736,7 @@ function CheckFilesWritable()
 function DatabaseSettings()
 {
 	global $txt, $databases, $incontext, $smcFunc, $sourcedir;
-	global $db_server, $db_name, $db_user, $db_passwd, $db_port, $db_mb4;
+	global $db_server, $db_name, $db_user, $db_passwd, $db_port, $db_mb4, $db_connection;
 
 	$incontext['sub_template'] = 'database_settings';
 	$incontext['page_title'] = $txt['db_settings'];
@@ -880,7 +893,7 @@ function DatabaseSettings()
 
 		// Do they meet the install requirements?
 		// @todo Old client, new server?
-		if (version_compare($databases[$db_type]['version'], preg_replace('~^\D*|\-.+?$~', '', eval($databases[$db_type]['version_check']))) > 0)
+		if (version_compare($databases[$db_type]['version'], preg_replace('~^\D*|\-.+?$~', '', $databases[$db_type]['version_check']())) > 0)
 		{
 			$incontext['error'] = $txt['error_db_too_low'];
 			return false;
@@ -964,8 +977,6 @@ function ForumSettings()
 
 	// Check if the database sessions will even work.
 	$incontext['test_dbsession'] = (ini_get('session.auto_start') != 1);
-	$incontext['utf8_default'] = $databases[$db_type]['utf8_default'];
-	$incontext['utf8_required'] = $databases[$db_type]['utf8_required'];
 
 	$incontext['continue'] = 1;
 
@@ -1066,7 +1077,7 @@ function ForumSettings()
 			return false;
 		}
 
-		if (!empty($databases[$db_type]['utf8_version_check']) && version_compare($databases[$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', eval($databases[$db_type]['utf8_version_check'])), '>'))
+		if (!empty($databases[$db_type]['utf8_version_check']) && version_compare($databases[$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', $databases[$db_type]['utf8_version_check']()), '>'))
 		{
 			$incontext['error'] = sprintf($txt['error_utf8_version'], $databases[$db_type]['utf8_version']);
 			return false;
@@ -1125,14 +1136,13 @@ function DatabasePopulation()
 	$modSettings['disableQueryCheck'] = true;
 
 	// If doing UTF8, select it. PostgreSQL requires passing it as a string...
-	if (!empty($db_character_set) && $db_character_set == 'utf8' && !empty($databases[$db_type]['utf8_support']))
-		$smcFunc['db_query']('', '
-			SET NAMES {string:utf8}',
-			array(
-				'db_error_skip' => true,
-				'utf8' => 'utf8',
-			)
-		);
+	$smcFunc['db_query']('', '
+		SET NAMES {string:utf8}',
+		array(
+			'db_error_skip' => true,
+			'utf8' => 'utf8',
+		)
+	);
 
 	// Windows likes to leave the trailing slash, which yields to C:\path\to\SMF\/attachments...
 	if (substr(__DIR__, -1) == '\\')
@@ -1488,7 +1498,7 @@ function AdminAccount()
 	reloadSettings();
 
 	// We need this to properly hash the password for Admin
-	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' : function($string)
+	$smcFunc['strtolower'] = function($string)
 	{
 		global $sourcedir;
 		if (function_exists('mb_strtolower'))
@@ -1707,14 +1717,13 @@ function DeleteInstall()
 	if (!empty($incontext['account_existed']))
 		$incontext['warning'] = $incontext['account_existed'];
 
-	if (!empty($db_character_set) && !empty($databases[$db_type]['utf8_support']))
-		$smcFunc['db_query']('', '
-			SET NAMES {string:db_character_set}',
-			array(
-				'db_character_set' => $db_character_set,
-				'db_error_skip' => true,
-			)
-		);
+	$smcFunc['db_query']('', '
+		SET NAMES {string:db_character_set}',
+		array(
+			'db_character_set' => $db_character_set,
+			'db_error_skip' => true,
+		)
+	);
 
 	// As track stats is by default enabled let's add some activity.
 	$smcFunc['db_insert']('ignore',
@@ -1780,7 +1789,7 @@ function DeleteInstall()
 	updateStats('topic');
 
 	// This function is needed to do the updateStats('subject') call.
-	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' : function($string)
+	$smcFunc['strtolower'] = function($string)
 	{
 		global $sourcedir;
 		if (function_exists('mb_strtolower'))
@@ -1799,7 +1808,7 @@ function DeleteInstall()
 			'db_error_skip' => true,
 		)
 	);
-	$context['utf8'] = $db_character_set === 'utf8' || $txt['lang_character_set'] === 'UTF-8';
+	$context['utf8'] = true;
 	if ($smcFunc['db_num_rows']($request) > 0)
 		updateStats('subject', 1, htmlspecialchars($txt['default_topic_subject']));
 	$smcFunc['db_free_result']($request);
@@ -1838,7 +1847,7 @@ function installer_updateSettingsFile($vars, $rebuild = false)
 {
 	global $sourcedir, $context, $db_character_set, $txt;
 
-	$context['utf8'] = (isset($vars['db_character_set']) && $vars['db_character_set'] === 'utf8') || (!empty($db_character_set) && $db_character_set === 'utf8') || (!empty($txt) && $txt['lang_character_set'] === 'UTF-8');
+	$context['utf8'] = true;
 
 	if (empty($sourcedir))
 	{
@@ -2334,12 +2343,6 @@ function template_forum_settings()
 				<input type="checkbox" name="dbsession" id="dbsession_check" checked>
 				<label for="dbsession_check">', $txt['install_settings_dbsession_title'], '</label>
 				<div class="smalltext">', $incontext['test_dbsession'] ? $txt['install_settings_dbsession_info1'] : $txt['install_settings_dbsession_info2'], '</div>
-			</dd>
-			<dt>', $txt['install_settings_utf8'], ':</dt>
-			<dd>
-				<input type="checkbox" name="utf8" id="utf8_check"', $incontext['utf8_default'] ? ' checked' : '', '', $incontext['utf8_required'] ? ' disabled' : '', '>
-				<label for="utf8_check">', $txt['install_settings_utf8_title'], '</label>
-				<div class="smalltext">', $txt['install_settings_utf8_info'], '</div>
 			</dd>
 			<dt>', $txt['install_settings_stats'], ':</dt>
 			<dd>
