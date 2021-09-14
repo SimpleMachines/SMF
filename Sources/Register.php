@@ -358,7 +358,7 @@ function Register2()
 
 			// Make sure their website URL is squeaky clean
 			if (isset($_POST['website_url']))
-				$_POST['website_url'] = (string) validate_iri(sanitize_iri($_POST['website_url']));
+				$_POST['website_url'] = (string) validate_iri(normalize_iri($_POST['website_url']));
 		}
 	}
 

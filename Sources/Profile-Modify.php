@@ -653,7 +653,7 @@ function loadProfileFields($force_reload = false)
 					$value = 'http://' . $value;
 				if (strlen($value) < 8 || (substr($value, 0, 7) !== 'http://' && substr($value, 0, 8) !== 'https://'))
 					$value = '';
-				$value = (string) validate_iri(sanitize_iri($value));
+				$value = (string) validate_iri(normalize_iri($value));
 				return true;
 			},
 			'link_with' => 'website',
