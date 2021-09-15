@@ -227,7 +227,6 @@ function template_main()
 								', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '
 							</p>
 							', !empty($topic['pages']) ? '<span id="pages' . $topic['first_post']['id'] . '" class="topic_pages">' . $topic['pages'] . '</span>' : '', '
-							<br class="clear">
 						</div><!-- #topic_[first_post][id] -->
 					</div><!-- .info -->
 					<div class="board_stats centertext">
