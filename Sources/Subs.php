@@ -2824,13 +2824,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 								if (!empty($host))
 								{
-									$ascii_host = idn_to_ascii($host, IDNA_DEFAULT);
+									$ascii_host = idn_to_ascii($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 
 									if ($ascii_host !== $host)
 									{
 										$fullUrl = substr($fullUrl, 0, strpos($fullUrl, $host)) . $ascii_host . substr($fullUrl, strpos($fullUrl, $host) + strlen($host));
 
-										$utf8_host = idn_to_utf8($ascii_host, IDNA_DEFAULT);
+										$utf8_host = idn_to_utf8($ascii_host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 
 										if ($utf8_host !== $host)
 										{
@@ -7094,7 +7094,7 @@ function set_tld_regex($update = false)
 			require_once($sourcedir . '/Subs-Compat.php');
 
 		foreach ($tlds as &$tld)
-			$tld = idn_to_utf8($tld, IDNA_DEFAULT);
+			$tld = idn_to_utf8($tld, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 	}
 	// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
 	else
@@ -7605,7 +7605,7 @@ function iri_to_url($iri)
 			require_once($sourcedir . '/Subs-Compat.php');
 
 		// Convert the host using the Punycode algorithm
-		$encoded_host = idn_to_ascii($host, IDNA_DEFAULT);
+		$encoded_host = idn_to_ascii($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 
 		$pos = strpos($iri, $host);
 	}
@@ -7654,7 +7654,7 @@ function url_to_iri($url)
 			require_once($sourcedir . '/Subs-Compat.php');
 
 		// Decode the domain from Punycode
-		$decoded_host = idn_to_utf8($host, IDNA_DEFAULT);
+		$decoded_host = idn_to_utf8($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 
 		$pos = strpos($url, $host);
 	}
