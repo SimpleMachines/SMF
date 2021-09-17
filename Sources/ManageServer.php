@@ -198,6 +198,12 @@ function ModifyGeneralSettings($return_config = false)
 	{
 		call_integration_hook('integrate_save_general_settings');
 
+		foreach ($config_vars as $config_var)
+		{
+			if ($config_var[3] == 'text' && !empty($_POST[$config_var[0]]))
+				$_POST[$config_var[0]] = $smcFunc['normalize']($_POST[$config_var[0]]);
+		}
+
 		// Are we saving the stat collection?
 		if (!empty($_POST['enable_sm_stats']) && empty($modSettings['sm_stats_key']))
 		{
@@ -531,6 +537,8 @@ function ModifyCookieSettings($return_config = false)
 	if (isset($_REQUEST['save']))
 	{
 		call_integration_hook('integrate_save_cookie_settings');
+
+		$_POST['cookiename'] = $smcFunc['normalize']($_POST['cookiename']);
 
 		// Local and global do not play nicely together.
 		if (!empty($_POST['localCookies']) && empty($_POST['globalCookies']))

@@ -1963,9 +1963,10 @@ function EditCustomProfiles()
 		$mask = isset($_POST['mask']) ? $_POST['mask'] : '';
 		if ($mask == 'regex' && isset($_POST['regex']))
 			$mask .= $_POST['regex'];
+		$mask = $smcFunc['normalize']($mask);
 
 		$field_length = isset($_POST['max_length']) ? (int) $_POST['max_length'] : 255;
-		$enclose = isset($_POST['enclose']) ? $_POST['enclose'] : '';
+		$enclose = isset($_POST['enclose']) ? $smcFunc['normalize']($_POST['enclose']) : '';
 		$placement = isset($_POST['placement']) ? (int) $_POST['placement'] : 0;
 
 		// Select options?

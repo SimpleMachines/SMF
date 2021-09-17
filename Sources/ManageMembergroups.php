@@ -765,7 +765,7 @@ function EditMembergroup()
 				'group_name' => $smcFunc['htmlspecialchars']($_POST['group_name']),
 				'online_color' => $_POST['online_color'],
 				'icons' => $_POST['icons'],
-				'group_desc' => $_POST['group_desc'],
+				'group_desc' => $smcFunc['normalize']($_POST['group_desc']),
 				'tfa_required' => $_POST['group_tfa_force'],
 			)
 		);

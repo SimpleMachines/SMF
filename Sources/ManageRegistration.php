@@ -105,7 +105,7 @@ function AdminRegister()
 
 		foreach ($_POST as $key => $value)
 			if (!is_array($_POST[$key]))
-				$_POST[$key] = htmltrim__recursive(str_replace(array("\n", "\r"), '', $_POST[$key]));
+				$_POST[$key] = htmltrim__recursive(str_replace(array("\n", "\r"), '', $smcFunc['normalize']($_POST[$key])));
 
 		$regOptions = array(
 			'interface' => 'admin',
@@ -224,6 +224,8 @@ function EditAgreement()
 		checkSession();
 		validateToken('admin-rega');
 
+		$_POST['agreement'] = $smcFunc['normalize']($_POST['agreement']);
+
 		// Off it goes to the agreement file.
 		$to_write = str_replace("\r", '', $_POST['agreement']);
 		$bytes = file_put_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt', $to_write, LOCK_EX);
@@ -277,6 +279,8 @@ function SetReserved()
 	{
 		checkSession();
 		validateToken('admin-regr');
+
+		$_POST['reserved'] = $smcFunc['normalize']($_POST['reserved']);
 
 		// Set all the options....
 		updateSettings(array(
@@ -359,7 +363,7 @@ function ModifyRegistrationSettings($return_config = false)
 			fatal_lang_error('admin_setting_coppa_require_contact');
 
 		// Post needs to take into account line breaks.
-		$_POST['coppaPost'] = str_replace("\n", '<br>', empty($_POST['coppaPost']) ? '' : $_POST['coppaPost']);
+		$_POST['coppaPost'] = str_replace("\n", '<br>', empty($_POST['coppaPost']) ? '' : $smcFunc['normalize']($_POST['coppaPost']));
 
 		call_integration_hook('integrate_save_registration_settings');
 
