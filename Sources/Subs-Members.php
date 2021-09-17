@@ -464,7 +464,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	}
 
 	// Spaces and other odd characters are evil...
-	$regOptions['username'] = trim(preg_replace('~[\t\n\r \x0B\0' . ($context['utf8'] ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $regOptions['username']));
+	$regOptions['username'] = trim(normalize_spaces(sanitize_chars($regOptions['username'], true, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
 
 	// Convert character encoding for non-utf8mb4 database
 	$regOptions['username'] = $smcFunc['htmlspecialchars']($regOptions['username']);
