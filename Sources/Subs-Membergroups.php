@@ -545,6 +545,27 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 			return false;
 	}
 
+	// Safety check for invisible level 2 membergroups to prevent adding it as the members primary group
+	if ($type != 'only_additional')
+	{
+	$request = $smcFunc['db_query']('', '
+			SELECT hidden
+			FROM {db_prefix}membergroups
+			WHERE id_group = {int:current_group}
+			LIMIT {int:limit}',
+			array(
+				'current_group' => $group,
+				'limit' => 1,
+			)
+		);
+		list ($is_hidden) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+
+		// Is it hidden?
+		if ($is_hidden == 2)
+			$type='only_additional';
+	}
+	
 	// Do the actual updates.
 	if ($type == 'only_additional')
 		$smcFunc['db_query']('', '
