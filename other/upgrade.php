@@ -721,6 +721,23 @@ function loadEssentialData()
 
 	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
 
+	$smcFunc['normalize'] = function($string, $form = 'c') use ($utf8)
+	{
+		global $sourcedir;
+
+		if (!$utf8)
+			return $string;
+
+		require_once($sourcedir . '/Subs-Charset.php');
+
+		$normalize_func = 'utf8_normalize_' . strtolower((string) $form);
+
+		if (!function_exists($normalize_func))
+			return false;
+
+		return $normalize_func($string);
+	};
+
 	// Get the database going!
 	if (empty($db_type) || $db_type == 'mysqli')
 	{
