@@ -795,7 +795,7 @@ function setupProfileContext($fields)
  */
 function saveProfileFields()
 {
-	global $profile_fields, $profile_vars, $context, $old_profile, $post_errors, $cur_profile;
+	global $profile_fields, $profile_vars, $context, $old_profile, $post_errors, $cur_profile, $smcFunc;
 
 	// Load them up.
 	loadProfileFields();
@@ -816,6 +816,8 @@ function saveProfileFields()
 	{
 		if (!isset($_POST[$key]) || !empty($field['is_dummy']) || (isset($_POST['preview_signature']) && $key == 'signature'))
 			continue;
+
+		$_POST[$key] = $smcFunc['normalize']($_POST[$key]);
 
 		// What gets updated?
 		$db_key = isset($field['save_key']) ? $field['save_key'] : $key;
@@ -3143,7 +3145,7 @@ function profileLoadGroups()
  */
 function profileLoadSignatureData()
 {
-	global $modSettings, $context, $txt, $cur_profile, $memberContext;
+	global $modSettings, $context, $txt, $cur_profile, $memberContext, $smcFunc;
 
 	// Signature limits.
 	list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
@@ -3173,7 +3175,7 @@ function profileLoadSignatureData()
 		$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br>', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
 	else
 	{
-		$signature = !empty($_POST['signature']) ? $_POST['signature'] : '';
+		$signature = $_POST['signature'] = !empty($_POST['signature']) ? $smcFunc['normalize']($_POST['signature']) : '';
 		$validation = profileValidateSignature($signature);
 		if (empty($context['post_errors']))
 		{

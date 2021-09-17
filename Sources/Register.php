@@ -317,6 +317,9 @@ function Register2()
 		$_POST,
 		function (&$value, $key) use ($context, $smcFunc)
 		{
+			// Normalize Unicode characters. (Does nothing if not in UTF-8 mode.)
+			$value = $smcFunc['normalize']($value);
+
 			// Replace any kind of space with a normal space, and remove any kind of control character, then trim.
 			$value = $smcFunc['htmltrim'](preg_replace(array('~[\h\v]+~' . ($context['utf8'] ? 'u' : ''), '~\p{Cc}+~'), array(' ', ''), $value));
 		}
