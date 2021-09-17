@@ -7733,7 +7733,7 @@ function iri_to_url($iri)
 	global $smcFunc, $sourcedir;
 
 	// Weird stuff can happen if parse_url() is given un-normalized Unicode.
-	$iri = $smcFunc['normalize'](sanitize_iri($iri), 'c');
+	$iri = sanitize_iri($smcFunc['normalize']($iri, 'c'));
 
 	$host = parse_url((strpos($iri, '//') === 0 ? 'http:' : '') . $iri, PHP_URL_HOST);
 
