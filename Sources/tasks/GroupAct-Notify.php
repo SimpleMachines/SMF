@@ -31,7 +31,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 
 		// Get the details of all the members concerned...
 		$request = $smcFunc['db_query']('', '
-			SELECT lgr.id_request, lgr.id_member, lgr.id_group, mem.email_address,
+			SELECT lgr.id_request, lgr.id_member, lgr.id_group, lgr.hidden, mem.email_address,
 				mem.lngfile, mem.member_name,  mg.group_name
 			FROM {db_prefix}log_group_requests AS lgr
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = lgr.id_member)
@@ -62,7 +62,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 				$user_info['ip'] = $this->_details['member_ip'];
 
 				require_once($sourcedir . '/Subs-Membergroups.php');
-				addMembersToGroup($row['id_member'], $row['id_group'], 'auto', true);
+				addMembersToGroup($row['id_member'], $row['id_group'], $row['hidden'] == 2 ? 'only_additional' : 'auto', true);
 			}
 
 			// Build the required information array
