@@ -5280,7 +5280,6 @@ function setupMenuContext()
 					}
 
 				// Does this button have its own icon?
-				$button['icon'] = '';
 				if (empty($settings['disable_menu_icons']))
 				{
 					if (isset($button['icon']) && file_exists($settings['theme_dir'] . '/images/' . $button['icon']))
@@ -5291,6 +5290,10 @@ function setupMenuContext()
 						$button['icon'] = '<span class="main_icons ' . $button['icon'] . '"></span>';
 					else
 						$button['icon'] = '<span class="main_icons ' . $act . '"></span>';
+				}
+				else
+				{
+					$button['icon'] = '';
 				}
 
 				$menu_buttons[$act] = $button;
