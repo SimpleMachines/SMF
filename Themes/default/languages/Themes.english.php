@@ -74,6 +74,7 @@ $txt['theme_variants_user_disable'] = 'Disable user variant selection';
 $txt['site_slogan'] = 'Site slogan';
 $txt['site_slogan_desc'] = 'Add your own text for a slogan here. It will replace the SMF logo.';
 
+$txt['disable_menu_icons'] = 'Disable icons in the main menu';
 $txt['enable_random_news'] = 'Enable random news line in the forum header';
 $txt['show_group_key'] = 'Show group key on board index';
 $txt['allow_no_censored'] = 'Allow users to turn off word censoring';

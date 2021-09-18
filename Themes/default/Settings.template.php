@@ -193,6 +193,10 @@ function template_settings()
 		),
 		'',
 		array(
+			'id' => 'disable_menu_icons',
+			'label' => $txt['disable_menu_icons'],
+		),
+		array(
 			'id' => 'enable_news',
 			'label' => $txt['enable_random_news'],
 		),

@@ -5280,14 +5280,18 @@ function setupMenuContext()
 					}
 
 				// Does this button have its own icon?
-				if (isset($button['icon']) && file_exists($settings['theme_dir'] . '/images/' . $button['icon']))
-					$button['icon'] = '<img src="' . $settings['images_url'] . '/' . $button['icon'] . '" alt="">';
-				elseif (isset($button['icon']) && file_exists($settings['default_theme_dir'] . '/images/' . $button['icon']))
-					$button['icon'] = '<img src="' . $settings['default_images_url'] . '/' . $button['icon'] . '" alt="">';
-				elseif (isset($button['icon']))
-					$button['icon'] = '<span class="main_icons ' . $button['icon'] . '"></span>';
-				else
-					$button['icon'] = '<span class="main_icons ' . $act . '"></span>';
+				$button['icon'] = '';
+				if (empty($settings['disable_menu_icons']))
+				{
+					if (isset($button['icon']) && file_exists($settings['theme_dir'] . '/images/' . $button['icon']))
+						$button['icon'] = '<img src="' . $settings['images_url'] . '/' . $button['icon'] . '" alt="">';
+					elseif (isset($button['icon']) && file_exists($settings['default_theme_dir'] . '/images/' . $button['icon']))
+						$button['icon'] = '<img src="' . $settings['default_images_url'] . '/' . $button['icon'] . '" alt="">';
+					elseif (isset($button['icon']))
+						$button['icon'] = '<span class="main_icons ' . $button['icon'] . '"></span>';
+					else
+						$button['icon'] = '<span class="main_icons ' . $act . '"></span>';
+				}
 
 				$menu_buttons[$act] = $button;
 			}
