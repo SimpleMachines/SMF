@@ -272,14 +272,11 @@ function reloadSettings()
 
 			return random_bytes($length);
 		},
-		'normalize' => function($string, $form = 'c') use ($utf8)
+		'normalize' => function($string, $form = 'c')
 		{
 			global $sourcedir;
 
 			$string = (string) $string;
-
-			if (!$utf8)
-				return $string;
 
 			require_once($sourcedir . '/Subs-Charset.php');
 
