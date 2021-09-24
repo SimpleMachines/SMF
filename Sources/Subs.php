@@ -3077,7 +3077,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						}
 
 						$tmp_data = preg_replace_callback(
-							'~' . $url_regex . '~i' . ($context['utf8'] ? 'u' : ''),
+							'~' . $url_regex . '~iu',
 							function($matches) use ($schemes)
 							{
 								$url = array_shift($matches);
@@ -3144,7 +3144,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						// Followed by a non-domain character or end of line
 						'(?=[^' . $domain_label_chars . ']|$)';
 
-						$tmp_data = preg_replace('~' . $email_regex . '~i' . ($context['utf8'] ? 'u' : ''), '[email]$0[/email]', $data);
+						$tmp_data = preg_replace('~' . $email_regex . '~iu', '[email]$0[/email]', $data);
 
 						if (!is_null($tmp_data))
 							$data = $tmp_data;
