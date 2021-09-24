@@ -474,7 +474,7 @@ function ConvertMsgBody()
 }
 
 /**
- * Converts all text columns from utf8_general_ci to utf8mb4_general_ci.
+ * Converts all text columns from utf8_general_ci to utf8mb4_unicode_ci.
  * Assumption: This forum has undergone a UTF8 conversion.
  *
  * This action is linked from the maintenance screen (if applicable).
@@ -619,7 +619,7 @@ function ConvertUtf8mb4()
 	foreach ($db_tables AS $cur_table)
 	{
 		$request = $smcFunc['db_query']('', '
-			ALTER TABLE ' . $cur_table . ' CONVERT TO CHARACTER SET \'utf8mb4\' COLLATE \'utf8mb4_general_ci\'',
+			ALTER TABLE ' . $cur_table . ' CONVERT TO CHARACTER SET \'utf8mb4\' COLLATE \'utf8mb4_unicode_ci\'',
 			array(
 			)
 		);

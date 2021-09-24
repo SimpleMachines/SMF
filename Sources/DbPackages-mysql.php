@@ -200,7 +200,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	if (!empty($db_character_set) && $db_character_set == 'utf8')
 		$table_query .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 	else
-		$table_query .= ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci';
+		$table_query .= ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
 
 	// Create the table!
 	$smcFunc['db_query']('', $table_query,

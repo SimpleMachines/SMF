@@ -2043,7 +2043,7 @@ function parse_sql($filename)
 	// If we're on MySQL, set {db_collation}; this approach is used throughout upgrade_2-0_mysql.php to set new tables to utf8
 	// Note it is expected to be in the format: ENGINE=MyISAM{$db_collation};
 	if ($db_type == 'mysql')
-		$db_collation = ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci';
+		$db_collation = ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
 	else
 		$db_collation = '';
 
@@ -2057,7 +2057,7 @@ function parse_sql($filename)
 	$last_step = '';
 
 	// Make sure all newly created tables will have the proper characters set; this approach is used throughout upgrade_2-1_mysql.php
-	$lines = str_replace(') ENGINE=MyISAM;', ') ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;', $lines);
+	$lines = str_replace(') ENGINE=MyISAM;', ') ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;', $lines);
 
 	// Count the total number of steps within this file - for progress.
 	$file_steps = substr_count(implode('', $lines), '---#');
