@@ -1101,7 +1101,10 @@ function ForumSettings()
 		}
 
 		// Set the character set here.
-		installer_updateSettingsFile(array('db_character_set' => 'utf8'), true);
+		if ($db_type === 'postgresql')
+			installer_updateSettingsFile(array('db_character_set' => 'utf8'), true);
+		else
+			installer_updateSettingsFile(array('db_character_set' => 'utf8mb4'), true);
 
 		// Good, skip on.
 		return true;

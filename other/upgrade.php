@@ -2811,7 +2811,7 @@ function ConvertUtf8()
 			return true;
 	}
 	// First make sure they aren't already on UTF-8 before we go anywhere...
-	if ($db_type == 'postgresql' || ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8'))
+	if ($db_type == 'postgresql' || $db_character_set === 'utf8mb4')
 	{
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}settings',
@@ -3280,7 +3280,7 @@ function ConvertUtf8()
 		// Hopefully this works...
 		require_once($sourcedir . '/Subs.php');
 		require_once($sourcedir . '/Subs-Admin.php');
-		updateSettingsFile(array('db_character_set' => 'utf8'));
+		updateSettingsFile(array('db_character_set' => 'utf8mb4'));
 		updateSettingsFile(array('db_mb4' => true));
 
 		// The conversion might have messed up some serialized strings. Fix them!
