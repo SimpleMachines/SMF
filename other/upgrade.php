@@ -3253,7 +3253,7 @@ function ConvertUtf8()
 
 				$smcFunc['db_query']('', '
 					ALTER TABLE {raw:table_name}
-					CONVERT TO CHARACTER SET utf8mb4',
+					CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci',
 					array(
 						'table_name' => $table_info['Name'],
 					)
