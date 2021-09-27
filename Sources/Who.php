@@ -38,6 +38,9 @@ function Who()
 	if (empty($modSettings['who_enabled']))
 		fatal_lang_error('who_off', false);
 
+	// Discourage robots from indexing this page.
+	$context['robot_no_index'] = true;
+
 	// Load the 'Who' template.
 	loadTemplate('Who');
 	loadLanguage('Who');
@@ -576,6 +579,9 @@ function Credits($in_admin = false)
 
 	// Don't blink. Don't even blink. Blink and you're dead.
 	loadLanguage('Who');
+
+	// Discourage robots from indexing this page.
+	$context['robot_no_index'] = true;
 
 	if ($in_admin)
 	{
