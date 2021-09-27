@@ -1966,7 +1966,7 @@ function Post2()
 	// If the poster is a guest evaluate the legality of name and email.
 	if ($posterIsGuest)
 	{
-		$_POST['guestname'] = !isset($_POST['guestname']) ? '' : trim(normalize_spaces(sanitize_chars($_POST['guestname'], true, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
+		$_POST['guestname'] = !isset($_POST['guestname']) ? '' : trim(normalize_spaces(sanitize_chars($_POST['guestname'], 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
 		$_POST['email'] = !isset($_POST['email']) ? '' : trim($_POST['email']);
 
 		if ($_POST['guestname'] == '' || $_POST['guestname'] == '_')

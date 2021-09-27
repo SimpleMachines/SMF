@@ -1108,19 +1108,23 @@ function un_htmlspecialchars($string)
  * explanation.
  *
  * @param string $string The string to sanitize.
- * @param bool $strict Whether to treat most formatting characters as invalid.
- *      Default: true.
+ * @param int $level Controls filtering of invisible formatting characters.
+ *      0: Allow valid formatting characters. Use for sanitizing text in posts.
+ *      1: Allow necessary formatting characters. Use for sanitizing usernames.
+ *      2: Disallow all formatting characters. Use for internal comparisions
+ *         only, such as in the word censor, search contexts, etc.
+ *      Default: 0.
  * @param string|null $substitute Replacement string for the invalid characters.
  *      If not set, the Unicode replacement character (U+FFFD) will be used
  *      (or a fallback like "?" if necessary).
  * @return string The sanitized string.
  */
-function sanitize_chars($string, $strict = true, $substitute = null)
+function sanitize_chars($string, $level = 0, $substitute = null)
 {
 	global $context, $sourcedir;
 
 	$string = (string) $string;
-	$strict = !empty($strict);
+	$level = min(max((int) $level, 0), 2);
 
 	// What substitute character should we use?
 	if (isset($substitute))
@@ -1171,8 +1175,14 @@ function sanitize_chars($string, $strict = true, $substitute = null)
 	// Fix any weird vertical space characters.
 	$string = normalize_spaces($string, true);
 
-	// Fix any unwanted control characters and other creepy-crawlies.
-	$string = preg_replace('/[^\P{Cc}\t\r\n]|[\p{Co}\p{Cn}\p{Cs}' . ($strict ? '\p{Cf}' : '') . ']/' . (!empty($context['utf8']) ? 'u' : ''), $substitute, $string);
+	// Deal with unwanted control characters, invisible formatting characters, and other creepy-crawlies.
+	if (!empty($context['utf8']))
+	{
+		require_once($sourcedir . '/Subs-Charset.php');
+		$string = utf8_sanitize_invisibles($string, $level, $substitute);
+	}
+	else
+		$string = preg_replace('/[^\P{Cc}\t\r\n]/', $substitute, $string);
 
 	return $string;
 }

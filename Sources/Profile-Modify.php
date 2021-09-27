@@ -292,7 +292,7 @@ function loadProfileFields($force_reload = false)
 						resetPassword($context['id_member'], $value);
 					elseif ($value !== null)
 					{
-						validateUsername($context['id_member'], trim(normalize_spaces(sanitize_chars($value, true, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true))));
+						validateUsername($context['id_member'], trim(normalize_spaces(sanitize_chars($value, 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true))));
 						updateMemberData($context['id_member'], array('member_name' => $value));
 
 						// Call this here so any integrated systems will know about the name change (resetPassword() takes care of this if we're letting SMF generate the password)
@@ -409,7 +409,7 @@ function loadProfileFields($force_reload = false)
 			'enabled' => allowedTo('profile_displayed_name_own') || allowedTo('profile_displayed_name_any') || allowedTo('moderate_forum'),
 			'input_validate' => function(&$value) use ($context, $smcFunc, $sourcedir, $cur_profile)
 			{
-				$value = trim(normalize_spaces(sanitize_chars($value, true, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
+				$value = trim(normalize_spaces(sanitize_chars($value, 1, ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
 
 				if (trim($value) == '')
 					return 'no_name';
