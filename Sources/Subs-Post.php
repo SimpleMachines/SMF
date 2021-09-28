@@ -53,6 +53,9 @@ function preparsecode(&$message, $previewing = false)
 	else
 		$message = $smcFunc['normalize']($message);
 
+	// Clean out any other funky stuff.
+	$message = sanitize_chars($message, 0);
+
 	// Clean up after nobbc ;).
 	$message = preg_replace_callback(
 		'~\[nobbc\](.+?)\[/nobbc\]~is',

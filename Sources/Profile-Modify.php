@@ -817,7 +817,7 @@ function saveProfileFields()
 		if (!isset($_POST[$key]) || !empty($field['is_dummy']) || (isset($_POST['preview_signature']) && $key == 'signature'))
 			continue;
 
-		$_POST[$key] = $smcFunc['normalize']($_POST[$key]);
+		$_POST[$key] = sanitize_chars($smcFunc['normalize']($_POST[$key]), in_array($key, array('member_name', 'real_name')) ? 1 : 0);
 
 		// What gets updated?
 		$db_key = isset($field['save_key']) ? $field['save_key'] : $key;
