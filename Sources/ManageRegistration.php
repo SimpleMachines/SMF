@@ -272,7 +272,7 @@ function EditAgreement()
  */
 function SetReserved()
 {
-	global $txt, $context, $modSettings;
+	global $txt, $context, $modSettings, $smcFunc;
 
 	// Submitting new reserved words.
 	if (!empty($_POST['save_reserved_names']))
@@ -319,7 +319,7 @@ function SetReserved()
  */
 function ModifyRegistrationSettings($return_config = false)
 {
-	global $txt, $context, $scripturl, $modSettings, $sourcedir;
+	global $txt, $context, $scripturl, $modSettings, $sourcedir, $smcFunc;
 	global $language, $boarddir;
 
 	// This is really quite wanting.

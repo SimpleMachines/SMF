@@ -150,7 +150,7 @@ function ModifySettings()
  */
 function ModifyGeneralSettings($return_config = false)
 {
-	global $scripturl, $context, $txt, $modSettings, $boardurl, $sourcedir;
+	global $scripturl, $context, $txt, $modSettings, $boardurl, $sourcedir, $smcFunc;
 
 	// If no cert, force_ssl must remain 0
 	require_once($sourcedir . '/Subs.php');
