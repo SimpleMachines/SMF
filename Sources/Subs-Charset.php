@@ -3025,7 +3025,10 @@ function utf8_normalize_kc($string)
 }
 
 /**
- * Helper function for utf8_normalize_c and utf8_normalize_kc
+ * Helper function for utf8_normalize_c and utf8_normalize_kc.
+ *
+ * @param string $string A decomposed string
+ * @return string The composed version of $string
  */
 function utf8_compose($string)
 {
@@ -3685,6 +3688,14 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 	return $string;
 }
 
+/**
+ * Helper function for utf8_normalize_d.
+ *
+ * Developers: Do not update the data in this function manually. Instead,
+ * run "php -f other/update_unicode_data.php" on the command line.
+ *
+ * @return array Canonical Decomposition maps for Unicode normalization.
+ */
 function utf8_normalize_d_maps()
 {
 	return array(
@@ -5752,6 +5763,14 @@ function utf8_normalize_d_maps()
 	);
 }
 
+/**
+ * Helper function for utf8_normalize_kd.
+ *
+ * Developers: Do not update the data in this function manually. Instead,
+ * run "php -f other/update_unicode_data.php" on the command line.
+ *
+ * @return array Compatibility Decomposition maps for Unicode normalization.
+ */
 function utf8_normalize_kd_maps()
 {
 	return array(
@@ -9508,6 +9527,14 @@ function utf8_normalize_kd_maps()
 	);
 }
 
+/**
+ * Helper function for utf8_compose.
+ *
+ * Developers: Do not update the data in this function manually. Instead,
+ * run "php -f other/update_unicode_data.php" on the command line.
+ *
+ * @return array Composition maps for Unicode normalization.
+ */
 function utf8_compose_maps()
 {
 	return array(
@@ -10455,6 +10482,14 @@ function utf8_compose_maps()
 	);
 }
 
+/**
+ * Helper function for utf8_normalize_d.
+ *
+ * Developers: Do not update the data in this function manually. Instead,
+ * run "php -f other/update_unicode_data.php" on the command line.
+ *
+ * @return array Combining Class data for Unicode normalization.
+ */
 function utf8_combining_classes()
 {
 	return array(
