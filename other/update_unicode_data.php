@@ -31,6 +31,8 @@ $utf8_normalize_d_maps = array();
 $utf8_normalize_kd_maps = array();
 $utf8_compose_maps = array();
 $utf8_combining_classes = array();
+$utf8_strtolower_maps = array();
+$utf8_strtoupper_maps = array();
 
 $derived_normalization_props = array();
 foreach (file($unicode_data_url . '/DerivedNormalizationProps.txt') as $line) {
@@ -84,6 +86,14 @@ foreach (file($unicode_data_url . '/UnicodeData.txt') as $line) {
 
 	if (!empty($fields[3]))
 		$utf8_combining_classes['&#x' . $fields[0] . ';'] = trim($fields[3]);
+
+	// Uppercase maps.
+	if ($fields[12] !== '')
+		$utf8_strtoupper_maps['&#x' . $fields[0] . ';'] = '&#x' . $fields[12] . ';';
+
+	// Lowercase maps.
+	if ($fields[13] !== '')
+		$utf8_strtolower_maps['&#x' . $fields[0] . ';'] = '&#x' . $fields[13] . ';';
 
 	if ($fields[5] === '')
 		continue;
@@ -157,7 +167,7 @@ $utf8_normalize_kd_maps = array_diff_assoc($full_decomposition_maps, $utf8_norma
 
 $subs_charset_contents = file_get_contents($sourcedir . '/Subs-Charset.php');
 
-foreach (array('utf8_normalize_d_maps', 'utf8_normalize_kd_maps', 'utf8_compose_maps', 'utf8_combining_classes') as $func_name) {
+foreach (array('utf8_normalize_d_maps', 'utf8_normalize_kd_maps', 'utf8_compose_maps', 'utf8_combining_classes', 'utf8_strtolower_maps', 'utf8_strtoupper_maps') as $func_name) {
 	$func_text = 'function ' . $func_name . '()' . "\n" . '{';
 
 	$func_regex = '/' . preg_quote($func_text, '/') . '[^}]*}/';
