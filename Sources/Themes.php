@@ -1355,6 +1355,7 @@ function InstallCopy()
 		'/css/responsive.css',
 		'/css/rtl.css',
 		'/scripts/theme.js',
+		'/languages/index.php',
 		'/languages/Settings.english.php',
 	);
 
