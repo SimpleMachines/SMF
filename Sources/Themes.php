@@ -1350,6 +1350,7 @@ function InstallCopy()
 	$to_copy = array(
 		'/index.php',
 		'/index.template.php',
+		'/css/admin.css',
 		'/css/index.css',
 		'/css/responsive.css',
 		'/css/rtl.css',
