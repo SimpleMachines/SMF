@@ -1343,8 +1343,19 @@ function InstallCopy()
 	mkdir($context['to_install']['theme_dir'] . '/css', 0777);
 	mkdir($context['to_install']['theme_dir'] . '/scripts', 0777);
 
+	// Create subdirectory for language files
+	mkdir($context['to_install']['theme_dir'] . '/languages', 0777);
+
 	// Copy over the default non-theme files.
-	$to_copy = array('/index.php', '/index.template.php', '/css/index.css', '/css/responsive.css', '/css/slider.min.css', '/css/rtl.css', '/css/calendar.css', '/css/calendar.rtl.css', '/css/admin.css', '/scripts/theme.js');
+	$to_copy = array(
+		'/index.php',
+		'/index.template.php',
+		'/css/index.css',
+		'/css/responsive.css',
+		'/css/rtl.css',
+		'/scripts/theme.js',
+		'/languages/Settings.english.php',
+	);
 
 	foreach ($to_copy as $file)
 	{
