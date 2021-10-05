@@ -1351,6 +1351,8 @@ function InstallCopy()
 		'/index.php',
 		'/index.template.php',
 		'/css/admin.css',
+		'/css/calendar.css',
+		'/css/calendar.rtl.css',
 		'/css/index.css',
 		'/css/responsive.css',
 		'/css/rtl.css',
