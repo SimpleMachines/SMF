@@ -2078,7 +2078,7 @@ function prepareSearchContext($reset = false)
 				foreach ($context['key_words'] as $keyword)
 				{
 					$keyword = un_htmlspecialchars($keyword);
-					$keyword = preg_replace_callback('~(&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', strtr($keyword, array('\\\'' => '\'', '&' => '&amp;')));
+					$keyword = $smcFunc['entity_fix'](strtr($keyword, array('\\\'' => '\'')));
 
 					if (preg_match('~[\'\.,/@%&;:(){}\[\]_\-+\\\\]$~', $keyword) != 0 || preg_match('~^[\'\.,/@%&;:(){}\[\]_\-+\\\\]~', $keyword) != 0)
 						$force_partial_word = true;
@@ -2102,7 +2102,7 @@ function prepareSearchContext($reset = false)
 			}
 
 			// Re-fix the international characters.
-			$message['body'] = preg_replace_callback('~(&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', $message['body']);
+			$message['body'] = $smcFunc['entity_fix']($message['body']);
 		}
 		$message['subject_highlighted'] = highlight($message['subject'], $context['key_words']);
 		$message['body_highlighted'] = highlight($message['body'], $context['key_words']);

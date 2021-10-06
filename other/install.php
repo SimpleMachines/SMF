@@ -1620,7 +1620,7 @@ function AdminAccount()
 			$incontext['member_salt'] = bin2hex(random_bytes(16));
 
 			// Format the username properly.
-			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
+			$_POST['username'] = trim(normalize_spaces(sanitize_chars($_POST['username'], ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
 			$ip = isset($_SERVER['REMOTE_ADDR']) ? substr($_SERVER['REMOTE_ADDR'], 0, 255) : '';
 
 			$_POST['password1'] = hash_password($_POST['username'], $_POST['password1']);

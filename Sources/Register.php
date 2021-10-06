@@ -905,7 +905,7 @@ function RegisterCheckUsername()
 	$context['valid_username'] = true;
 
 	// Clean it up like mother would.
-	$context['checked_username'] = preg_replace('~[\t\n\r \x0B\0' . ($context['utf8'] ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $context['checked_username']);
+	$context['checked_username'] = trim(normalize_spaces(sanitize_chars($context['checked_username'], ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
 
 	require_once($sourcedir . '/Subs-Auth.php');
 	$errors = validateUsername(0, $context['checked_username'], true);

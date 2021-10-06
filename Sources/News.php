@@ -1154,7 +1154,7 @@ function getXmlNews($xml_format, $ascending = false)
 							array(
 								'tag' => 'name',
 								'attributes' => array('label' => $txt['name']),
-								'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($attachment['filename'])),
+								'content' => $smcFunc['entity_fix']($smcFunc['htmlspecialchars']($attachment['filename'])),
 							),
 							array(
 								'tag' => 'downloads',
@@ -1614,7 +1614,7 @@ function getXmlRecent($xml_format)
 							array(
 								'tag' => 'name',
 								'attributes' => array('label' => $txt['name']),
-								'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($attachment['filename'])),
+								'content' => $smcFunc['entity_fix']($smcFunc['htmlspecialchars']($attachment['filename'])),
 							),
 							array(
 								'tag' => 'downloads',
@@ -2408,7 +2408,7 @@ function getXmlPosts($xml_format, $ascending = false)
 							array(
 								'tag' => 'name',
 								'attributes' => array('label' => $txt['name']),
-								'content' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($attachment['filename'])),
+								'content' => $smcFunc['entity_fix']($smcFunc['htmlspecialchars']($attachment['filename'])),
 							),
 							array(
 								'tag' => 'downloads',

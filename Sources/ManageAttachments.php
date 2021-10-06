@@ -468,7 +468,7 @@ function BrowseFiles()
 						if (!empty($rowData['width']) && !empty($rowData['height']))
 							$link .= sprintf(' onclick="return reqWin(this.href' . ($rowData['attachment_type'] == 1 ? '' : ' + \';image\'') . ', %1$d, %2$d, true);"', $rowData['width'] + 20, $rowData['height'] + 20);
 
-						$link .= sprintf('>%1$s</a>', preg_replace('~&amp;#(\\\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\\\1;', $smcFunc['htmlspecialchars']($rowData['filename'])));
+						$link .= sprintf('>%1$s</a>', $smcFunc['entity_fix']($smcFunc['htmlspecialchars']($rowData['filename'])));
 
 						// Show the dimensions.
 						if (!empty($rowData['width']) && !empty($rowData['height']))
@@ -1100,7 +1100,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 				'remove_attach',
 				array(
 					'message' => $row['id_msg'],
-					'filename' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($row['filename'])),
+					'filename' => $smcFunc['entity_fix']($smcFunc['htmlspecialchars']($row['filename'])),
 				)
 			);
 		$smcFunc['db_free_result']($request);
@@ -1889,7 +1889,7 @@ function ApproveAttachments($attachments)
 			'approve_attach',
 			array(
 				'message' => $row['id_msg'],
-				'filename' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($row['filename'])),
+				'filename' => $smcFunc['entity_fix']($smcFunc['htmlspecialchars']($row['filename'])),
 			)
 		);
 	$smcFunc['db_free_result']($request);

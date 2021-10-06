@@ -28,7 +28,7 @@ if (!defined('SMF'))
  */
 function preparsecode(&$message, $previewing = false)
 {
-	global $user_info, $modSettings, $context, $sourcedir;
+	global $user_info, $modSettings, $context, $sourcedir, $smcFunc;
 
 	static $tags_regex, $disallowed_tags_regex;
 
@@ -47,7 +47,7 @@ function preparsecode(&$message, $previewing = false)
 
 	// This line makes all languages *theoretically* work even with the wrong charset ;).
 	if (empty($context['utf8']))
-		$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
+		$message = $smcFunc['entity_fix']($message);
 
 	// Clean up after nobbc ;).
 	$message = preg_replace_callback(
@@ -1309,7 +1309,7 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 					$string = $newstring;
 			}
 
-			$string = preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $string);
+			$string = smf_entity_decode($string);
 
 			// Unicode, baby.
 			$charset = 'UTF-8';

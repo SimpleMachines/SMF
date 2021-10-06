@@ -464,7 +464,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	}
 
 	// Spaces and other odd characters are evil...
-	$regOptions['username'] = trim(preg_replace('~[\t\n\r \x0B\0' . ($context['utf8'] ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $regOptions['username']));
+	$regOptions['username'] = trim(normalize_spaces(sanitize_chars($regOptions['username'], ' '), true, true, array('no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true)));
 
 	// Convert character encoding for non-utf8mb4 database
 	$regOptions['username'] = $smcFunc['htmlspecialchars']($regOptions['username']);
@@ -871,7 +871,7 @@ function isReservedName($name, $current_id_member = 0, $is_name = true, $fatal =
 {
 	global $modSettings, $smcFunc;
 
-	$name = preg_replace_callback('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'replaceEntities__callback', $name);
+	$name = $smcFunc['htmlspecialchars'](smf_entity_decode($name));
 	$checkName = $smcFunc['strtolower']($name);
 
 	// Administrators are never restricted ;).
@@ -888,7 +888,7 @@ function isReservedName($name, $current_id_member = 0, $is_name = true, $fatal =
 				continue;
 
 			// The admin might've used entities too, level the playing field.
-			$reservedCheck = preg_replace('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'replaceEntities__callback', $reserved);
+			$reservedCheck = $smcFunc['htmlspecialchars'](smf_entity_decode($reserved));
 
 			// Case sensitive name?
 			if (empty($modSettings['reserveCase']))

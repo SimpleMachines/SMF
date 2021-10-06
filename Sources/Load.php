@@ -105,80 +105,33 @@ function reloadSettings()
 	$context['utf8'] = $utf8;
 
 	// Set a list of common functions.
-	$ent_list = '&(?:#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . '|quot|amp|lt|gt|nbsp);';
-	$ent_check = empty($modSettings['disableEntityCheck']) ? function($string)
-		{
-			$string = preg_replace_callback('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', $string);
-			return $string;
-		} : function($string)
-		{
-			return $string;
-		};
-	$fix_utf8mb4 = function($string) use ($utf8, $smcFunc)
-	{
-		if (!$utf8 || $smcFunc['db_mb4'])
-			return $string;
-
-		$i = 0;
-		$len = strlen($string);
-		$new_string = '';
-		while ($i < $len)
-		{
-			$ord = ord($string[$i]);
-			if ($ord < 128)
-			{
-				$new_string .= $string[$i];
-				$i++;
-			}
-			elseif ($ord < 224)
-			{
-				$new_string .= $string[$i] . $string[$i + 1];
-				$i += 2;
-			}
-			elseif ($ord < 240)
-			{
-				$new_string .= $string[$i] . $string[$i + 1] . $string[$i + 2];
-				$i += 3;
-			}
-			elseif ($ord < 248)
-			{
-				// Magic happens.
-				$val = (ord($string[$i]) & 0x07) << 18;
-				$val += (ord($string[$i + 1]) & 0x3F) << 12;
-				$val += (ord($string[$i + 2]) & 0x3F) << 6;
-				$val += (ord($string[$i + 3]) & 0x3F);
-				$new_string .= '&#' . $val . ';';
-				$i += 4;
-			}
-		}
-		return $new_string;
-	};
+	$ent_list = '&(?'.'>nbsp|quot|gt|lt|a(?'.'>pos|mp)|#(?'.'>\d+|x[0-9a-fA-F]+));';
 
 	// global array of anonymous helper functions, used mostly to properly handle multi byte strings
 	$smcFunc += array(
-		'entity_fix' => function($string)
+		'entity_fix' => function($string) use ($ent_list)
 		{
-			$num = $string[0] === 'x' ? hexdec(substr($string, 1)) : (int) $string;
-			return $num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202E || $num === 0x202D ? '' : '&#' . $num . ';';
+			return preg_replace('~&amp;(' . substr($ent_list, 1, -1) . ');~', '&$1;', $string);
 		},
-		'htmlspecialchars' => function($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8, $fix_utf8mb4)
+		'htmlspecialchars' => function($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($utf8)
 		{
-			return $fix_utf8mb4($ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset)));
+			return fix_utf8mb4(sanitize_entities(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset)));
 		},
-		'htmltrim' => function($string) use ($utf8, $ent_check)
+		'htmltrim' => function($string) use ($utf8)
 		{
-			// Preg_replace space characters depend on the character set in use
-			$space_chars = $utf8 ? '\p{Z}\p{C}' : '\x00-\x20\x80-\xA0';
+			// Find all possible versions of &nbsp;
+			$nbsp = '&(?'.'>nbsp|#(?'.'>x0*A0|0*160));';
 
-			return preg_replace('~^(?:[' . $space_chars . ']|&nbsp;)+|(?:[' . $space_chars . ']|&nbsp;)+$~' . ($utf8 ? 'u' : ''), '', $ent_check($string));
+			// Interesting fact: Unicode properties work even when not in UTF-8 mode.
+			return preg_replace('~^(?'.'>[\p{Z}\p{C}]|' . $nbsp . ')+|(?'.'>[\p{Z}\p{C}]|' . $nbsp . ')+$~' . ($utf8 ? 'u' : ''), '', sanitize_entities($string));
 		},
-		'strlen' => function($string) use ($ent_list, $utf8, $ent_check)
+		'strlen' => function($string) use ($ent_list, $utf8)
 		{
-			return strlen(preg_replace('~' . $ent_list . ($utf8 ? '|.~u' : '~'), '_', $ent_check($string)));
+			return strlen(preg_replace('~' . $ent_list . ($utf8 ? '|.~u' : '~'), '_', sanitize_entities($string)));
 		},
-		'strpos' => function($haystack, $needle, $offset = 0) use ($utf8, $ent_check, $ent_list, $modSettings)
+		'strpos' => function($haystack, $needle, $offset = 0) use ($utf8, $ent_list, $modSettings)
 		{
-			$haystack_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : ''), $ent_check($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+			$haystack_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : ''), sanitize_entities($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 			if (strlen($needle) === 1)
 			{
@@ -187,7 +140,7 @@ function reloadSettings()
 			}
 			else
 			{
-				$needle_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+				$needle_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : '') . '', sanitize_entities($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 				$needle_size = count($needle_arr);
 
 				$result = array_search($needle_arr[0], array_slice($haystack_arr, $offset));
@@ -201,9 +154,9 @@ function reloadSettings()
 				return false;
 			}
 		},
-		'substr' => function($string, $start, $length = null) use ($utf8, $ent_check, $ent_list, $modSettings)
+		'substr' => function($string, $start, $length = null) use ($utf8, $ent_list, $modSettings)
 		{
-			$ent_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+			$ent_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : ''), sanitize_entities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 			return $length === null ? implode('', array_slice($ent_arr, $start)) : implode('', array_slice($ent_arr, $start, $length));
 		},
 		'strtolower' => $utf8 ? function($string) use ($sourcedir)
@@ -228,9 +181,9 @@ function reloadSettings()
 
 			return mb_strtoupper($string, 'UTF-8');
 		} : 'strtoupper',
-		'truncate' => function($string, $length) use ($utf8, $ent_check, $ent_list, &$smcFunc)
+		'truncate' => function($string, $length) use ($utf8, $ent_list, &$smcFunc)
 		{
-			$string = $ent_check($string);
+			$string = sanitize_entities($string);
 			preg_match('~^(' . $ent_list . '|.){' . $smcFunc['strlen'](substr($string, 0, $length)) . '}~' . ($utf8 ? 'u' : ''), $string, $matches);
 			$string = $matches[0];
 			while (strlen($string) > $length)

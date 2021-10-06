@@ -539,13 +539,13 @@ function download_export_file($uid)
 
 	// Different browsers like different standards...
 	if (isBrowser('firefox'))
-		header('content-disposition: attachment; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)));
+		header('content-disposition: attachment; filename*=UTF-8\'\'' . rawurlencode(smf_entity_decode($utf8name)));
 
 	elseif (isBrowser('opera'))
-		header('content-disposition: attachment; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name) . '"');
+		header('content-disposition: attachment; filename="' . smf_entity_decode($utf8name) . '"');
 
 	elseif (isBrowser('ie'))
-		header('content-disposition: attachment; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)) . '"');
+		header('content-disposition: attachment; filename="' . urlencode(smf_entity_decode($utf8name)) . '"');
 
 	else
 		header('content-disposition: attachment; filename="' . $utf8name . '"');
