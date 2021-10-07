@@ -1497,11 +1497,6 @@ function create_control_richedit($editorOptions)
 			'value' => empty($context['id_draft']) ? 0 : $context['id_draft'],
 			'show' => !empty($context['drafts_save'])
 		),
-		'spell_check' => array(
-			'type' => 'submit',
-			'value' => $txt['spell_check'],
-			'show' => !empty($context['show_spellchecking'])
-		),
 		'preview' => array(
 			'type' => 'submit',
 			'value' => $txt['preview'],
@@ -1562,18 +1557,6 @@ function create_control_richedit($editorOptions)
 		var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';');
 
 		$context['shortcuts_text'] = $txt['shortcuts' . (!empty($context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (isBrowser('is_firefox') ? '_firefox' : ''))];
-
-		if ($context['show_spellchecking'])
-		{
-			loadJavaScriptFile('spellcheck.js', array('minimize' => true), 'smf_spellcheck');
-
-			// Some hidden information is needed in order to make the spell checking work.
-			if (!isset($_REQUEST['xml']))
-				$context['insert_after_template'] .= '
-		<form name="spell_form" id="spell_form" method="post" accept-charset="' . $context['character_set'] . '" target="spellWindow" action="' . $scripturl . '?action=spellcheck">
-			<input type="hidden" name="spellstring" value="">
-		</form>';
-		}
 	}
 
 	// The [#] item code for creating list items causes issues with SCEditor, but [+] is a safe equivalent.
