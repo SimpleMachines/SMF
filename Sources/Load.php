@@ -161,8 +161,10 @@ function reloadSettings()
 			$num = $string[0] === 'x' ? hexdec(substr($string, 1)) : (int) $string;
 			return $num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202E || $num === 0x202D ? '' : '&#' . $num . ';';
 		},
-		'htmlspecialchars' => function($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8, $fix_utf8mb4)
+		'htmlspecialchars' => function($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8, $fix_utf8mb4, &$smcFunc)
 		{
+			$string = $smcFunc['normalize']($string);
+
 			return $fix_utf8mb4($ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset)));
 		},
 		'htmltrim' => function($string) use ($utf8, $ent_check)
@@ -206,8 +208,10 @@ function reloadSettings()
 			$ent_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 			return $length === null ? implode('', array_slice($ent_arr, $start)) : implode('', array_slice($ent_arr, $start, $length));
 		},
-		'strtolower' => $utf8 ? function($string) use ($sourcedir)
+		'strtolower' => $utf8 ? function($string) use ($sourcedir, &$smcFunc)
 		{
+			$string = $smcFunc['normalize']($string);
+
 			if (!function_exists('mb_strtolower'))
 			{
 				require_once($sourcedir . '/Subs-Charset.php');
@@ -216,9 +220,9 @@ function reloadSettings()
 
 			return mb_strtolower($string, 'UTF-8');
 		} : 'strtolower',
-		'strtoupper' => $utf8 ? function($string)
+		'strtoupper' => $utf8 ? function($string) use ($sourcedir, &$smcFunc)
 		{
-			global $sourcedir;
+			$string = $smcFunc['normalize']($string);
 
 			if (!function_exists('mb_strtolower'))
 			{

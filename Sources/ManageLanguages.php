@@ -1659,6 +1659,8 @@ function cleanLangString($string, $to_display = true)
 	}
 	else
 	{
+		$string = $smcFunc['normalize']($string);
+
 		// Keep track of what we're doing...
 		$in_string = 0;
 		// This is for deciding whether to HTML a quote.

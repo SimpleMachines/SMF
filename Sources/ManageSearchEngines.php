@@ -393,6 +393,9 @@ function EditSpider()
 		checkSession();
 		validateToken('admin-ses');
 
+		foreach (array('spider_name', 'spider_agent') as $key)
+			$_POST[$key] = trim($smcFunc['normalize']($_POST[$key]));
+
 		$ips = array();
 		// Check the IP range is valid.
 		$ip_sets = explode(',', $_POST['spider_ip']);

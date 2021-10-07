@@ -1100,6 +1100,144 @@ function un_htmlspecialchars($string)
 }
 
 /**
+ * Replaces invalid characters with a substitute.
+ *
+ * !!! Warning !!! Setting $substitute to '' in order to delete invalid
+ * characters from the string can create unexpected security problems. See
+ * https://www.unicode.org/reports/tr36/#Deletion_of_Noncharacters for an
+ * explanation.
+ *
+ * @param string $string The string to sanitize.
+ * @param int $level Controls filtering of invisible formatting characters.
+ *      0: Allow valid formatting characters. Use for sanitizing text in posts.
+ *      1: Allow necessary formatting characters. Use for sanitizing usernames.
+ *      2: Disallow all formatting characters. Use for internal comparisions
+ *         only, such as in the word censor, search contexts, etc.
+ *      Default: 0.
+ * @param string|null $substitute Replacement string for the invalid characters.
+ *      If not set, the Unicode replacement character (U+FFFD) will be used
+ *      (or a fallback like "?" if necessary).
+ * @return string The sanitized string.
+ */
+function sanitize_chars($string, $level = 0, $substitute = null)
+{
+	global $context, $sourcedir;
+
+	$string = (string) $string;
+	$level = min(max((int) $level, 0), 2);
+
+	// What substitute character should we use?
+	if (isset($substitute))
+	{
+		$substitute = strval($substitute);
+	}
+	elseif (!empty($context['utf8']))
+	{
+		// Raw UTF-8 bytes for U+FFFD.
+		$substitute = "\xEF\xBF\xBD";
+	}
+	elseif (!empty($context['character_set']) && is_callable('mb_decode_numericentity'))
+	{
+		// Get whatever the default replacement character is for this encoding.
+		$substitute = mb_decode_numericentity('&#xFFFD;', array(0xFFFD,0xFFFD,0,0xFFFF), $context['character_set']);
+	}
+	else
+		$substitute = '?';
+
+	// Fix any invalid byte sequences.
+	if (!empty($context['character_set']))
+	{
+		// For UTF-8, this preg_match test is much faster than mb_check_encoding.
+		$malformed = !empty($context['utf8']) ? @preg_match('//u', $string) === false && preg_last_error() === PREG_BAD_UTF8_ERROR : (!is_callable('mb_check_encoding') || !mb_check_encoding($string, $context['character_set']));
+
+		if ($malformed)
+		{
+			// mb_convert_encoding will replace invalid byte sequences with our substitute.
+			if (is_callable('mb_convert_encoding'))
+			{
+				if (!is_callable('mb_ord'))
+					require_once($sourcedir . '/Subs-Compat.php');
+
+				$substitute_ord = $substitute === '' ? 'none' : mb_ord($substitute, $context['character_set']);
+
+				$mb_substitute_character = mb_substitute_character();
+				mb_substitute_character($substitute_ord);
+
+				$string = mb_convert_encoding($string, $context['character_set'], $context['character_set']);
+
+				mb_substitute_character($mb_substitute_character);
+			}
+			else
+				return false;
+		}
+	}
+
+	// Fix any weird vertical space characters.
+	$string = normalize_spaces($string, true);
+
+	// Deal with unwanted control characters, invisible formatting characters, and other creepy-crawlies.
+	if (!empty($context['utf8']))
+	{
+		require_once($sourcedir . '/Subs-Charset.php');
+		$string = utf8_sanitize_invisibles($string, $level, $substitute);
+	}
+	else
+		$string = preg_replace('/[^\P{Cc}\t\r\n]/', $substitute, $string);
+
+	return $string;
+}
+
+/**
+ * Normalizes space characters and line breaks.
+ *
+ * @param string $string The string to sanitize.
+ * @param bool $vspace If true, replaces all line breaks and vertical space
+ *      characters with "\n". Default: true.
+ * @param bool $hspace If true, replaces horizontal space characters with a
+ *      plain " " character. (Note: tabs are not replaced unless the
+ *      'replace_tabs' option is supplied.) Default: false.
+ * @param array $options An array of boolean options. Possible values are:
+ *      - no_breaks: Vertical spaces are replaced by " " instead of "\n".
+ *      - replace_tabs: If true, tabs are are replaced by " " chars.
+ *      - collapse_hspace: If true, removes extra horizontal spaces.
+ * @return string The sanitized string.
+ */
+function normalize_spaces($string, $vspace = true, $hspace = false, $options = array())
+{
+	global $context;
+
+	$string = (string) $string;
+	$vspace = !empty($vspace);
+	$hspace = !empty($hspace);
+
+	if (!$vspace && !$hspace)
+		return $string;
+
+	$options['no_breaks'] = !empty($options['no_breaks']);
+	$options['collapse_hspace'] = !empty($options['collapse_hspace']);
+	$options['replace_tabs'] = !empty($options['replace_tabs']);
+
+	$patterns = array();
+	$replacements = array();
+
+	if ($vspace)
+	{
+		// \R is like \v, except it handles "\r\n" as a single unit.
+		$patterns[] = '/\R/' . ($context['utf8'] ? 'u' : '');
+		$replacements[] = $options['no_breaks'] ? ' ' : "\n";
+	}
+
+	if ($hspace)
+	{
+		// Interesting fact: Unicode properties like \p{Zs} work even when not in UTF-8 mode.
+		$patterns[] = '/' . ($options['replace_tabs'] ? '\h' : '\p{Zs}') . ($options['collapse_hspace'] ? '+' : '') . '/' . ($context['utf8'] ? 'u' : '');
+		$replacements[] = ' ';
+	}
+
+	return preg_replace($patterns, $replacements, $string);
+}
+
+/**
  * Shorten a subject + internationalization concerns.
  *
  * - shortens a subject so that it is either shorter than length, or that length plus an ellipsis.
