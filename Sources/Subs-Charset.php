@@ -70,62 +70,18 @@ function utf8_strtoupper($string)
  */
 function utf8_normalize_d($string)
 {
-	global $sourcedir;
+	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_D))
+		return $string;
 
 	if (is_callable('normalizer_normalize'))
 		return normalizer_normalize($string, Normalizer::FORM_D);
 
-	$substitutions = utf8_normalize_d_maps();
-	$combining_classes = utf8_combining_classes();
+	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
-	$string = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+	if ($chars === false)
+		return false;
 
-	// Replace characters with decomposed forms.
-	for ($i=0; $i < count($string); $i++)
-	{
-		// Hangul characters.
-		if ($string[$i] >= "\xEA\xB0\x80" && $string[$i] <= "\xED\x9E\xA3")
-		{
-			if (!function_exists('mb_ord'))
-				require_once($sourcedir . '/Subs-Compat.php');
-
-			$s = mb_ord($string[$i]);
-			$sindex = $s - 0xAC00;
-			$l = 0x1100 + $sindex / (21 * 28);
-			$v = 0x1161 + ($sindex % (21 * 28)) / 28;
-			$t = $sindex % 28;
-
-			$string[$i] = implode('', array(mb_chr($l), mb_chr($v), $t ? mb_chr(0x11A7 + $t) : ''));
-		}
-		// Everything else.
-		elseif (isset($substitutions[$string[$i]]))
-			$string[$i] = $substitutions[$string[$i]];
-	}
-
-	// Must re-split the string before sorting.
-	$string = preg_split('/(.)/su', implode('', $string), 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-	// Sort characters into canonical order.
-	for ($i = 1; $i < count($string); $i++)
-	{
-		if (empty($combining_classes[$string[$i]]) || empty($combining_classes[$string[$i - 1]]))
-			continue;
-
-		if ($combining_classes[$string[$i - 1]] > $combining_classes[$string[$i]])
-		{
-			$temp = $string[$i];
-			$string[$i] = $string[$i - 1];
-			$string[$i -1] = $temp;
-
-			// Backtrack and check again.
-			if ($i > 1)
-				$i -= 2;
-		}
-	}
-
-	$string = implode('', $string);
-
-	return $string;
+	return implode('', utf8_decompose($chars, false));
 }
 
 /**
@@ -136,24 +92,18 @@ function utf8_normalize_d($string)
  */
 function utf8_normalize_kd($string)
 {
+	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_KD))
+		return $string;
+
 	if (is_callable('normalizer_normalize'))
 		return normalizer_normalize($string, Normalizer::FORM_KD);
 
-	$substitutions = utf8_normalize_kd_maps();
+	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
-	$prev_hash = null;
-	$hash = hash("crc32b", $string);
-	while ($hash !== $prev_hash)
-	{
-		$string = strtr($string, $substitutions);
+	if ($chars === false)
+		return false;
 
-		$prev_hash = $hash;
-		$hash = hash("crc32b", $string);
-	}
-
-	$string = utf8_normalize_d($string);
-
-	return $string;
+	return implode('', utf8_decompose($chars, true));
 }
 
 /**
@@ -164,12 +114,18 @@ function utf8_normalize_kd($string)
  */
 function utf8_normalize_c($string)
 {
+	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_C))
+		return $string;
+
 	if (is_callable('normalizer_normalize'))
 		return normalizer_normalize($string, Normalizer::FORM_C);
 
-	$string = utf8_normalize_d($string);
+	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
-	return utf8_compose($string);
+	if ($chars === false)
+		return false;
+
+	return implode('', utf8_compose(utf8_decompose($chars, false)));
 }
 
 /**
@@ -180,44 +136,115 @@ function utf8_normalize_c($string)
  */
 function utf8_normalize_kc($string)
 {
+	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_KC))
+		return $string;
+
 	if (is_callable('normalizer_normalize'))
 		return normalizer_normalize($string, Normalizer::FORM_KC);
 
-	$string = utf8_normalize_kd($string);
+	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
-	return utf8_compose($string);
+	if ($chars === false)
+		return false;
+
+	return implode('', utf8_compose(utf8_decompose($chars, true)));
+}
+
+/**
+ * Helper function for utf8_normalize_d and utf8_normalize_kd.
+ *
+ * @param array $chars Array of Unicode characters
+ * @return array Array of decomposed Unicode characters.
+ */
+function utf8_decompose($chars, $compatibility = false)
+{
+	global $sourcedir;
+
+	if (!empty($compatibility))
+	{
+		$substitutions = utf8_normalize_kd_maps();
+
+		foreach ($chars as &$char)
+			$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
+	}
+
+	$substitutions = utf8_normalize_d_maps();
+	$combining_classes = utf8_combining_classes();
+
+	// Replace characters with decomposed forms.
+	for ($i=0; $i < count($chars); $i++)
+	{
+		// Hangul characters.
+		if ($chars[$i] >= "\xEA\xB0\x80" && $chars[$i] <= "\xED\x9E\xA3")
+		{
+			if (!function_exists('mb_ord'))
+				require_once($sourcedir . '/Subs-Compat.php');
+
+			$s = mb_ord($chars[$i]);
+			$sindex = $s - 0xAC00;
+			$l = 0x1100 + $sindex / (21 * 28);
+			$v = 0x1161 + ($sindex % (21 * 28)) / 28;
+			$t = $sindex % 28;
+
+			$chars[$i] = implode('', array(mb_chr($l), mb_chr($v), $t ? mb_chr(0x11A7 + $t) : ''));
+		}
+		// Everything else.
+		elseif (isset($substitutions[$chars[$i]]))
+			$chars[$i] = $substitutions[$chars[$i]];
+	}
+
+	// Must re-split the string before sorting.
+	$chars = preg_split('/(.)/su', implode('', $chars), 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
+	// Sort characters into canonical order.
+	for ($i = 1; $i < count($chars); $i++)
+	{
+		if (empty($combining_classes[$chars[$i]]) || empty($combining_classes[$chars[$i - 1]]))
+			continue;
+
+		if ($combining_classes[$chars[$i - 1]] > $combining_classes[$chars[$i]])
+		{
+			$temp = $chars[$i];
+			$chars[$i] = $chars[$i - 1];
+			$chars[$i -1] = $temp;
+
+			// Backtrack and check again.
+			if ($i > 1)
+				$i -= 2;
+		}
+	}
+
+	return $chars;
 }
 
 /**
  * Helper function for utf8_normalize_c and utf8_normalize_kc.
  *
- * @param string $string A decomposed string
- * @return string The composed version of $string
+ * @param array $chars Array of decomposed Unicode characters
+ * @return array Array of composed Unicode characters.
  */
-function utf8_compose($string)
+function utf8_compose($chars)
 {
 	global $sourcedir;
 
 	$substitutions = utf8_compose_maps();
 	$combining_classes = utf8_combining_classes();
 
-	$string = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-	for ($c = 0; $c < count($string); $c++)
+	for ($c = 0; $c < count($chars); $c++)
 	{
 		// Singleton replacements.
-		if (isset($substitutions[$string[$c]]))
-			$string[$c] = $substitutions[$string[$c]];
+		if (isset($substitutions[$chars[$c]]))
+			$chars[$c] = $substitutions[$chars[$c]];
 
 		// Hangul characters.
 		// See "Hangul Syllable Composition" in the Unicode standard, ch. 3.12.
-		if ($string[$c] >= "\xE1\x84\x80" && $string[$c] <= "\xE1\x84\x92" && $string[$c + 1] >= "\xE1\x85\xA1" && $string[$c + 1] <= "\xE1\x85\xB5")
+		if ($chars[$c] >= "\xE1\x84\x80" && $chars[$c] <= "\xE1\x84\x92" && $chars[$c + 1] >= "\xE1\x85\xA1" && $chars[$c + 1] <= "\xE1\x85\xB5")
 		{
 			if (!function_exists('mb_ord'))
 				require_once($sourcedir . '/Subs-Compat.php');
 
-			$l_part = $string[$c];
-			$v_part = $string[$c + 1];
+			$l_part = $chars[$c];
+			$v_part = $chars[$c + 1];
 			$t_part = null;
 
 			$l_index = mb_ord($l_part) - 0x1100;
@@ -226,46 +253,44 @@ function utf8_compose($string)
 			$lv_index = $l_index * 588 + $v_index * 28;
 			$s = 0xAC00 + $lv_index;
 
-			if ($string[$c + 2] >= "\xE1\x86\xA8" && $string[$c + 2] <= "\xE1\x87\x82")
+			if ($chars[$c + 2] >= "\xE1\x86\xA8" && $chars[$c + 2] <= "\xE1\x87\x82")
 			{
-				$t_part = $string[$c + 2];
+				$t_part = $chars[$c + 2];
 				$t_index = mb_ord($t_part) - 0x11A7;
 				$s += $t_index;
 			}
 
-			$string[$c] = mb_chr($s);
-			$string[++$c] = null;
+			$chars[$c] = mb_chr($s);
+			$chars[++$c] = null;
 
 			if (isset($t_part))
-				$string[++$c] = null;
+				$chars[++$c] = null;
 
 			continue;
 		}
 
 		if ($c > 0)
 		{
-			$ccc = isset($combining_classes[$string[$c]]) ? $combining_classes[$string[$c]] : 0;
+			$ccc = isset($combining_classes[$chars[$c]]) ? $combining_classes[$chars[$c]] : 0;
 
 			// Find the preceding starter character.
 			$l = $c - 1;
-			while ($l > 0 && (!isset($string[$l]) || (!empty($combining_classes[$string[$l]]) && $combining_classes[$string[$l]] < $ccc)))
+			while ($l > 0 && (!isset($chars[$l]) || (!empty($combining_classes[$chars[$l]]) && $combining_classes[$chars[$l]] < $ccc)))
 				$l--;
 
 			// Is there a composed form for this combination?
-			if (isset($substitutions[$string[$l] . $string[$c]]))
+			if (isset($substitutions[$chars[$l] . $chars[$c]]))
 			{
 				// Replace the starter character with the composed character.
-				$string[$l] = $substitutions[$string[$l] . $string[$c]];
+				$chars[$l] = $substitutions[$chars[$l] . $chars[$c]];
 
 				// Unset the current combining character.
-				$string[$c] = null;
+				$chars[$c] = null;
 			}
 		}
 	}
 
-	$string = implode('', $string);
-
-	return $string;
+	return $chars;
 }
 
 /**
