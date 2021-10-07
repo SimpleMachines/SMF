@@ -3158,7 +3158,7 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 				'\x{34F}',
 				// Zero Width Non-Joiner.
 				'\x{200C}',
-				// Zero Width Non-Joiner.
+				// Zero Width Joiner.
 				'\x{200D}',
 				// All variation selectors.
 				'\x{180B}-\x{180D}\x{180F}\x{FE00}-\x{FE0F}\x{E0100}-\x{E01EF}',
@@ -3347,7 +3347,7 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 
 		// When not in strict mode, allow ZWJ at word boundaries.
 		if ($level === 0)
-			$temp = mb_ereg_replace('\b\x{200D}|\x{200D}\b', $placeholders[$zwj], $string);
+			$string = mb_ereg_replace('\b\x{200D}|\x{200D}\b', $placeholders[$zwj], $string);
 
 		// Tests for Zero Width Joiner and Zero Width Non-Joiner.
 		$script_tests = array(
@@ -3649,7 +3649,7 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 
 				// ZWJ must NOT be followed by a vowel dependent character in this
 				// script or by any character from a different script.
-				$zwj_pattern = !empty($chars['vowel_dependents']) ? '\x{200D}(?![' . $chars['vowel_dependents'] . ']|\P{' . $script . '}})' : '';
+				$zwj_pattern = '\x{200D}(?!' . (!empty($chars['vowel_dependents']) ? '[' . $chars['vowel_dependents'] . ']|' : '') . '\P{' . $script . '}})';
 
 				// Now build the pattern for this script.
 				$pattern = $letter . $nonspacing_marks . '[' . $chars['viramas'] . ']' . $nonspacing_combining_marks . '\K' . (!empty($zwj_pattern) ? '(?:' . $zwj_pattern . '|' . $zwnj_pattern . ')' : $zwnj_pattern);
