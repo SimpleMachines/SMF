@@ -453,7 +453,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$posterOptions = &$this->_details['posterOptions'];
 		$type = &$this->_details['type'];
 
-		$members_info = $this->getMinUserInfo(array_keys($this->members['watching']));
+		$user_ids = array_keys($this->members['watching']);
+		if (!in_array($posterOptions['id'], $user_ids))
+			$user_ids[] = $posterOptions['id'];
+		$members_info = $this->getMinUserInfo($user_ids);
 
 		$parsed_message = array();
 		foreach ($this->members['watching'] as $member_id => $member_data)
@@ -597,7 +600,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 				$replacements = array(
 					'TOPICSUBJECT' => $parsed_message[$localization]['subject'],
-					'POSTERNAME' => un_htmlspecialchars($members_info[$member_id]['name']),
+					'POSTERNAME' => un_htmlspecialchars($members_info[$posterOptions['id']]['name']),
 					'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
 					'MESSAGE' => $parsed_message[$localization]['body'],
 					'UNSUBSCRIBELINK' => $scripturl . '?action=notify' . $content_type . ';' . $content_type . '=' . $itemID . ';sa=off;u=' . $member_data['id_member'] . ';token=' . $token,
