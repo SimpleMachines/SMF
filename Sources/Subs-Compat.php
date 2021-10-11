@@ -479,7 +479,7 @@ if (!function_exists('idn_to_ascii'))
 		require_once($sourcedir . '/Class-Punycode.php');
 		$Punycode = new Punycode();
 
-		return $Punycode->encode(sanitize_iri(utf8_normalize_kc($domain)));
+		return $Punycode->encode(sanitize_iri(utf8_normalize_kc_casefold($domain)));
 	}
 }
 
@@ -506,7 +506,7 @@ if (!function_exists('idn_to_utf8'))
 		require_once($sourcedir . '/Class-Punycode.php');
 		$Punycode = new Punycode();
 
-		return $Punycode->decode(sanitize_iri(utf8_normalize_kc($domain)));
+		return $Punycode->decode(sanitize_iri(utf8_normalize_kc_casefold($domain)));
 	}
 }
 

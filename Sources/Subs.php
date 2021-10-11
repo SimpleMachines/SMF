@@ -7771,7 +7771,7 @@ function normalize_iri($iri)
 
 	if (!empty($host))
 	{
-		$normalized_host = $smcFunc['strtolower']($smcFunc['normalize']($host, 'kc'));
+		$normalized_host = $smcFunc['normalize']($host, 'kc_casefold');
 		$pos = strpos($iri, $host);
 	}
 	else
