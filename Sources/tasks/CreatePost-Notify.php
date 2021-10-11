@@ -224,11 +224,11 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 					// If it was modified again while we weren't looking, bail out.
 					// A future instance of this task will take care of it instead.
-					if ($msgOptions['modify_time'] < $real_modified_time)
+					if ((!empty($msgOptions['modify_time']) ? $msgOptions['modify_time'] : $msgOptions['poster_time']) < $real_modified_time)
 						return true;
 				}
 
-				$this->mention_mail_time = $msgOptions['modify_time'] + self::MENTION_DELAY * 60;
+				$this->mention_mail_time = (!empty($msgOptions['modify_time']) ? $msgOptions['modify_time'] : $msgOptions['poster_time']) + self::MENTION_DELAY * 60;
 			}
 		}
 
