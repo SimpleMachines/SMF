@@ -621,7 +621,7 @@ function deleteAccount2($memID)
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}polls
 					SET votes = votes - 1
-					WHERE id_poll IN {array_int:polls_to_update}',
+					WHERE id_poll IN ({array_int:polls_to_update})',
 					array(
 						'polls_to_update' => $polls_to_update
 					)
