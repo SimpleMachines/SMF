@@ -84,6 +84,9 @@ function quotedTextClick(oOptions)
 				ajax_indicator(false);
 			},
 			success: function (data, textStatus, xhr) {
+				// Convert all smileys from images back to smiley code
+				oOptions.text = oOptions.text.replaceAll(/<img src=".*?" alt="(.*?)" title=".*?" class="smiley">/, '$1');
+
 				// Search the xml data to get the quote tag.
 				text = $(data).find('quote').text();
 
