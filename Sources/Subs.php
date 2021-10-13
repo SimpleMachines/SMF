@@ -7805,9 +7805,17 @@ function url_to_iri($url)
 	$before_host = substr($url, 0, $pos);
 	$after_host = substr($url, $pos + strlen($host));
 
-	// Decode the rest of the URL
-	$before_host = rawurldecode($before_host);
-	$after_host = rawurldecode($after_host);
+	// Decode the rest of the URL, but preserve escaped URL syntax characters.
+	$double_escaped = array(
+		'%21' => '%2521', '%23' => '%2523', '%24' => '%2524', '%26' => '%2526',
+		'%27' => '%2527', '%28' => '%2528', '%29' => '%2529', '%2A' => '%252A',
+		'%2B' => '%252B', '%2C' => '%252C', '%2F' => '%252F', '%3A' => '%253A',
+		'%3B' => '%253B', '%3D' => '%253D', '%3F' => '%253F', '%40' => '%2540',
+		'%25' => '%2525',
+	);
+
+	$before_host = rawurldecode(strtr($before_host, $double_escaped));
+	$after_host = rawurldecode(strtr($after_host, $double_escaped));
 
 	return $before_host . $decoded_host . $after_host;
 }
