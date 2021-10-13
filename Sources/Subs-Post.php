@@ -1452,11 +1452,16 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 
 		// If the hostname isn't a fully qualified domain name, we can use the host name from $boardurl instead
 		if (empty($helo) || strpos($helo, '.') === false || substr_compare($helo, '.local', -6) === 0 || (!empty($modSettings['tld_regex']) && !preg_match('/\.' . $modSettings['tld_regex'] . '$/u', $helo)))
-			$helo = parse_url($boardurl, PHP_URL_HOST);
+			$helo = parse_iri($boardurl, PHP_URL_HOST);
 
 		// This is one of those situations where 'www.' is undesirable
 		if (strpos($helo, 'www.') === 0)
 			$helo = substr($helo, 4);
+
+		if (!function_exists('idn_to_ascii'))
+			require_once($sourcedir . '/Subs-Compat.php');
+
+		$helo = idn_to_ascii($helo, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 	}
 
 	// SMTP = 1, SMTP - STARTTLS = 2
