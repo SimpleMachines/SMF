@@ -7661,6 +7661,38 @@ function httpsOn()
 }
 
 /**
+ * A wrapper for `parse_url($url)` that can handle URLs with international
+ * characters (a.k.a. IRIs)
+ *
+ * @param string $iri The IRI to parse.
+ * @param int $component Optional parameter to pass to parse_url().
+ * @return mixed Same as parse_url(), but with unmangled Unicode.
+ */
+function parse_iri($iri, $component = -1)
+{
+	$iri = preg_replace_callback(
+		'~[^\x00-\x7F\pZ\pC]|%~u',
+		function($matches)
+		{
+			return rawurlencode($matches[0]);
+		},
+		$iri
+	);
+
+	$parts = parse_url($iri, $component);
+
+	if (is_array($parts))
+	{
+		foreach ($parts as &$part)
+			$part = rawurldecode($part);
+	}
+	else
+		$parts = rawurldecode($parts);
+
+	return $parts;
+}
+
+/**
  * A wrapper for `filter_var($url, FILTER_VALIDATE_URL)` that can handle URLs
  * with international characters (a.k.a. IRIs)
  *
