@@ -77,7 +77,7 @@ function validateSession($type = 'admin', $force = false)
 
 	// Better be sure to remember the real referer
 	if (empty($_SESSION['request_referer']))
-		$_SESSION['request_referer'] = isset($_SERVER['HTTP_REFERER']) ? @parse_url($_SERVER['HTTP_REFERER']) : array();
+		$_SESSION['request_referer'] = isset($_SERVER['HTTP_REFERER']) ? @parse_iri($_SERVER['HTTP_REFERER']) : array();
 	elseif (empty($_POST))
 		unset($_SESSION['request_referer']);
 
@@ -658,7 +658,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 		else
 			$real_host = $_SERVER['HTTP_HOST'];
 
-		$parsed_url = parse_url($boardurl);
+		$parsed_url = parse_iri($boardurl);
 
 		// Are global cookies on?  If so, let's check them ;).
 		if (!empty($modSettings['globalCookies']))
@@ -1416,7 +1416,7 @@ function corsPolicyHeader($set_header = true)
 			}
 
 			// If we find a * in the host, then its a wildcard and lets allow it.  This will have issues if the forum is at forum.domain.tld and the origin we are at is more.sub.domain.tld.
-			if ('*' === implode('.', array_slice(explode('.', parse_url($domain, PHP_URL_HOST)), 0, 1)) && FindCorsBaseUrl($domain, true) === $origin_base)
+			if ('*' === implode('.', array_slice(explode('.', parse_iri($domain, PHP_URL_HOST)), 0, 1)) && FindCorsBaseUrl($domain, true) === $origin_base)
 			{
 				$context['cors_domain'] = $_SERVER['HTTP_ORIGIN'];
 				$context['valid_cors_found'] = 'additional_wildcard';
@@ -1428,7 +1428,7 @@ function corsPolicyHeader($set_header = true)
 	// The default is just to place the domain of the boardurl into the policy.
 	if (empty($context['cors_domain']) || empty($context['valid_cors_found']))
 	{
-		$boardurl_parts = parse_url($boardurl);
+		$boardurl_parts = parse_iri($boardurl);
 
 		// Default the CORS to the current domain
 		$context['cors_domain'] = $boardurl_parts['scheme'] . '://' . $boardurl_parts['host'];
@@ -1477,11 +1477,11 @@ function FindCorsBaseUrl($url, $sub_domain = false)
 {
 	global $modSettings;
 
-	$base_domain = parse_url($url, PHP_URL_HOST);
+	$base_domain = parse_iri($url, PHP_URL_HOST);
 
 	// Are we saying this is a sub domain and to remove another domain level?
 	if ($sub_domain)
-		$base_domain = implode('.', array_slice(explode('.', parse_url($base_domain, PHP_URL_HOST)), 1));
+		$base_domain = implode('.', array_slice(explode('.', parse_iri($base_domain, PHP_URL_HOST)), 1));
 
 	// If we find www, pop it out.
 	else if ('www' === array_slice(explode('.', $base_domain), 0, 1))

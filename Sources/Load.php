@@ -3883,7 +3883,7 @@ function set_avatar_data($data = array())
 
 			// External url.
 			else
-				$image = parse_url($data['avatar'], PHP_URL_SCHEME) !== null ? get_proxied_url($data['avatar']) : $modSettings['avatar_url'] . '/' . $data['avatar'];
+				$image = parse_iri($data['avatar'], PHP_URL_SCHEME) !== null ? get_proxied_url($data['avatar']) : $modSettings['avatar_url'] . '/' . $data['avatar'];
 		}
 
 		// Perhaps this user has an attachment as avatar...

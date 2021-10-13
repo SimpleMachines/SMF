@@ -715,7 +715,7 @@ function getXmlMembers($xml_format, $ascending = false)
 		$row = filter_var($row, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 		// Create a GUID for each member using the tag URI scheme
-		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
+		$guid = 'tag:' . parse_iri($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
 
 		// Make the data look rss-ish.
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
@@ -958,7 +958,7 @@ function getXmlNews($xml_format, $ascending = false)
 			$loaded_attachments = null;
 
 		// Create a GUID for this topic using the tag URI scheme
-		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':topic=' . $row['id_topic'];
+		$guid = 'tag:' . parse_iri($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':topic=' . $row['id_topic'];
 
 		// Being news, this actually makes sense in rss format.
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
@@ -1418,7 +1418,7 @@ function getXmlRecent($xml_format)
 			$loaded_attachments = null;
 
 		// Create a GUID for this post using the tag URI scheme
-		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
+		$guid = 'tag:' . parse_iri($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
 
 		// Doesn't work as well as news, but it kinda does..
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
@@ -1796,7 +1796,7 @@ function getXmlProfile($xml_format)
 	$profile = filter_var($profile, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
 	// Create a GUID for this member using the tag URI scheme
-	$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
+	$guid = 'tag:' . parse_iri($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
 
 	if ($xml_format == 'rss' || $xml_format == 'rss2')
 	{
@@ -2218,7 +2218,7 @@ function getXmlPosts($xml_format, $ascending = false)
 			$loaded_attachments = null;
 
 		// Create a GUID for this post using the tag URI scheme
-		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
+		$guid = 'tag:' . parse_iri($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
 
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
 		{
@@ -2649,7 +2649,7 @@ function getXmlPMs($xml_format, $ascending = false)
 		$recipients = array_combine(explode(',', $row['id_members_to']), explode(',', $row['to_names']));
 
 		// Create a GUID for this post using the tag URI scheme
-		$guid = 'tag:' . parse_url($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['msgtime']) . ':pm=' . $row['id_pm'];
+		$guid = 'tag:' . parse_iri($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $row['msgtime']) . ':pm=' . $row['id_pm'];
 
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
 		{

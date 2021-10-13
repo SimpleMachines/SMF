@@ -3843,14 +3843,14 @@ function get_proxied_url($url)
 	if (empty($image_proxy_enabled) || !empty($user_info['possibly_robot']))
 		return $url;
 
-	$parsedurl = parse_url($url);
+	$parsedurl = parse_iri($url);
 
 	// Don't bother with HTTPS URLs, schemeless URLs, or obviously invalid URLs
 	if (empty($parsedurl['scheme']) || empty($parsedurl['host']) || empty($parsedurl['path']) || $parsedurl['scheme'] === 'https')
 		return $url;
 
 	// We don't need to proxy our own resources
-	if ($parsedurl['host'] === parse_url($boardurl, PHP_URL_HOST))
+	if ($parsedurl['host'] === parse_iri($boardurl, PHP_URL_HOST))
 		return strtr($url, array('http://' => 'https://'));
 
 	// By default, use SMF's own image proxy script
@@ -7486,7 +7486,7 @@ function ssl_cert_found($url)
 		return true;
 
 	// First, strip the subfolder from the passed url, if any
-	$parsedurl = parse_url($url);
+	$parsedurl = parse_iri($url);
 	$url = 'ssl://' . $parsedurl['host'] . ':443';
 
 	// Next, check the ssl stream context for certificate info
@@ -7767,7 +7767,7 @@ function iri_to_url($iri)
 	// Weird stuff can happen if parse_url() is given un-normalized Unicode.
 	$iri = sanitize_iri($smcFunc['normalize']($iri, 'c'));
 
-	$host = parse_url((strpos($iri, '//') === 0 ? 'http:' : '') . $iri, PHP_URL_HOST);
+	$host = parse_iri((strpos($iri, '//') === 0 ? 'http:' : '') . $iri, PHP_URL_HOST);
 
 	if (!empty($host))
 	{
@@ -7816,7 +7816,7 @@ function url_to_iri($url)
 {
 	global $sourcedir;
 
-	$host = parse_url((strpos($url, '//') === 0 ? 'http:' : '') . $url, PHP_URL_HOST);
+	$host = parse_iri((strpos($url, '//') === 0 ? 'http:' : '') . $url, PHP_URL_HOST);
 
 	if (!empty($host))
 	{

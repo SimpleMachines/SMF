@@ -3413,7 +3413,7 @@ function profileSaveAvatarData(&$value)
 		if (!is_writable($uploadDir))
 			fatal_lang_error('attachments_no_write', 'critical');
 
-		$url = parse_url($_POST['userpicpersonal']);
+		$url = parse_iri($_POST['userpicpersonal']);
 		$contents = fetch_web_data($url['scheme'] . '://' . $url['host'] . (empty($url['port']) ? '' : ':' . $url['port']) . str_replace(' ', '%20', trim($url['path'])));
 
 		$new_filename = $uploadDir . '/' . getAttachmentFilename('avatar_tmp_' . $memID, false, null, true);

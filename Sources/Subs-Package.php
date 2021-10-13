@@ -476,7 +476,7 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
  */
 function url_exists($url)
 {
-	$a_url = parse_url($url);
+	$a_url = parse_iri($url);
 
 	if (!isset($a_url['scheme']))
 		return false;

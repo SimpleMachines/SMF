@@ -243,7 +243,7 @@ class ProxyServer
 	protected function cacheImage($request)
 	{
 		$dest = $this->getCachedPath($request);
-		$ext = strtolower(pathinfo(parse_url($request, PHP_URL_PATH), PATHINFO_EXTENSION));
+		$ext = strtolower(pathinfo(parse_iri($request, PHP_URL_PATH), PATHINFO_EXTENSION));
 
 		$image = fetch_web_data($request);
 
