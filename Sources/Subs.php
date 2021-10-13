@@ -7763,15 +7763,21 @@ function sanitize_iri($iri)
  */
 function normalize_iri($iri)
 {
-	global $smcFunc;
+	global $sourcedir, $context, $txt, $db_character_set;
 
-	$iri = sanitize_iri($smcFunc['normalize']($iri, 'c'));
+	// If we are not using UTF-8, just sanitize and return.
+	if (isset($context['utf8']) ? !$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset($db_character_set) && $db_character_set != 'utf8')))
+		return sanitize_iri($iri);
+
+	require_once($sourcedir . '/Subs-Charset.php');
+
+	$iri = sanitize_iri(utf8_normalize_c($iri));
 
 	$host = parse_iri((strpos($iri, '//') === 0 ? 'http:' : '') . $iri, PHP_URL_HOST);
 
 	if (!empty($host))
 	{
-		$normalized_host = $smcFunc['normalize']($host, 'kc_casefold');
+		$normalized_host = utf8_normalize_kc_casefold($host);
 		$pos = strpos($iri, $host);
 	}
 	else
@@ -7797,10 +7803,15 @@ function normalize_iri($iri)
  */
 function iri_to_url($iri)
 {
-	global $smcFunc, $sourcedir;
+	global $sourcedir, $context, $txt, $db_character_set;
 
-	// Weird stuff can happen if parse_url() is given un-normalized Unicode.
-	$iri = sanitize_iri($smcFunc['normalize']($iri, 'c'));
+	// Sanity check: must be using UTF-8 to do this.
+	if (isset($context['utf8']) ? !$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset($db_character_set) && $db_character_set != 'utf8')))
+		return $iri;
+
+	require_once($sourcedir . '/Subs-Charset.php');
+
+	$iri = sanitize_iri(utf8_normalize_c($iri));
 
 	$host = parse_iri((strpos($iri, '//') === 0 ? 'http:' : '') . $iri, PHP_URL_HOST);
 
@@ -7849,7 +7860,11 @@ function iri_to_url($iri)
  */
 function url_to_iri($url)
 {
-	global $sourcedir;
+	global $sourcedir, $context, $txt, $db_character_set;
+
+	// Sanity check: must be using UTF-8 to do this.
+	if (isset($context['utf8']) ? !$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset($db_character_set) && $db_character_set != 'utf8')))
+		return $url;
 
 	$host = parse_iri((strpos($url, '//') === 0 ? 'http:' : '') . $url, PHP_URL_HOST);
 
