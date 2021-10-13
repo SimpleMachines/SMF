@@ -271,6 +271,7 @@ function get_theme_info($path)
 	$install_versions = $theme_info_xml->fetch('theme-info/install/@for');
 
 	// The theme isn't compatible with the current SMF version.
+	require_once($sourcedir . '/Subs-Package.php');
 	if (!$install_versions || !matchPackageVersion($the_version, $install_versions))
 	{
 		remove_dir($path);
