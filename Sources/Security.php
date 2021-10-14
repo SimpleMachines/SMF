@@ -1389,20 +1389,22 @@ function corsPolicyHeader($set_header = true)
 	// Oh good, the admin cares about security. :)
 	else
 	{
+		$i = 0;
+
 		// Build our list of allowed CORS origins.
 		$allowed_origins = array();
 
 		// If subdomain-independent cookies are on, allow CORS requests from subdomains.
 		if (!empty($modSettings['globalCookies']) && !empty($modSettings['globalCookiesDomain']))
 		{
-			$allowed_origins[$i++] = array_merge(parse_iri('//*.' . trim($modSettings['globalCookiesDomain'])), array('type' => 'subdomain'));
+			$allowed_origins[++$i] = array_merge(parse_iri('//*.' . trim($modSettings['globalCookiesDomain'])), array('type' => 'subdomain'));
 		}
 
 		// Support forum_alias_urls as well, since those are supported by our login cookie.
 		if (!empty($modSettings['forum_alias_urls']))
 		{
 			foreach (explode(',', $modSettings['forum_alias_urls']) as $alias)
-				$allowed_origins[$i++] = array_merge(parse_iri((strpos($alias, '//') === false ? '//' : '') . trim($alias)), array('type' => 'alias'));
+				$allowed_origins[++$i] = array_merge(parse_iri((strpos($alias, '//') === false ? '//' : '') . trim($alias)), array('type' => 'alias'));
 		}
 
 		// Additional CORS domains.
@@ -1410,7 +1412,7 @@ function corsPolicyHeader($set_header = true)
 		{
 			foreach (explode(',', $modSettings['cors_domains']) as $cors_domain)
 			{
-				$allowed_origins[$i++] = array_merge(parse_iri((strpos($cors_domain, '//') === false ? '//' : '') . trim($cors_domain)), array('type' => 'additional'));
+				$allowed_origins[++$i] = array_merge(parse_iri((strpos($cors_domain, '//') === false ? '//' : '') . trim($cors_domain)), array('type' => 'additional'));
 
 				if (strpos($allowed_origins[$i]['host'], '*') === 0)
 					 $allowed_origins[$i]['type'] .= '_wildcard';
