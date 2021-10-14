@@ -22,19 +22,22 @@
 $unicode_data_url = 'https://unicode.org/Public/UCD/latest/ucd';
 
 $sourcedir = realpath(dirname(__DIR__) . "/Sources");
-
-if (!is_file($sourcedir . '/Subs-Charset.php') || !is_writable($sourcedir . '/Subs-Charset.php'))
-	die($sourcedir . '/Subs-Charset.php not found or not writable.');
+$unicodedir = $sourcedir . "/Unicode";
 
 $full_decomposition_maps = array();
-$utf8_arrays['utf8_normalize_d_maps'] = array();
-$utf8_arrays['utf8_normalize_kd_maps'] = array();
-$utf8_arrays['utf8_compose_maps'] = array();
-$utf8_arrays['utf8_combining_classes'] = array();
-$utf8_arrays['utf8_strtolower_maps'] = array();
-$utf8_arrays['utf8_strtoupper_maps'] = array();
-$utf8_arrays['utf8_casefold_maps'] = array();
-$utf8_arrays['utf8_default_ignorables'] = array();
+$utf8_arrays['utf8_normalize_d_maps'] = array('file' => 'DecompositionCanonical.php', 'data' => array());
+$utf8_arrays['utf8_normalize_kd_maps'] = array('file' => 'DecompositionCompatibility.php', 'data' => array());
+$utf8_arrays['utf8_compose_maps'] = array('file' => 'Composition.php', 'data' => array());
+$utf8_arrays['utf8_combining_classes'] = array('file' => 'CombiningClasses.php', 'data' => array());
+$utf8_arrays['utf8_strtolower_maps'] = array('file' => 'CaseLower.php', 'data' => array());
+$utf8_arrays['utf8_strtoupper_maps'] = array('file' => 'CaseUpper.php', 'data' => array());
+$utf8_arrays['utf8_casefold_maps'] = array('file' => 'CaseFold.php', 'data' => array());
+$utf8_arrays['utf8_default_ignorables'] = array('file' => 'DefaultIgnorables.php', 'data' => array());
+
+foreach ($utf8_arrays as $func_name => $func_info) {
+	if (!is_file($unicodedir . '/' . $func_info['file']) || !is_writable($unicodedir . '/' . $func_info['file']))
+		die($unicodedir . '/' . $func_info['file'] . ' not found or not writable.');
+}
 
 // We need some of these for further analysis below.
 $derived_normalization_props = array();
@@ -89,15 +92,15 @@ foreach (file($unicode_data_url . '/UnicodeData.txt') as $line) {
 	$fields = explode(';', $line);
 
 	if (!empty($fields[3]))
-		$utf8_arrays['utf8_combining_classes']['&#x' . $fields[0] . ';'] = trim($fields[3]);
+		$utf8_arrays['utf8_combining_classes']['data']['&#x' . $fields[0] . ';'] = trim($fields[3]);
 
 	// Uppercase maps.
 	if ($fields[12] !== '')
-		$utf8_arrays['utf8_strtoupper_maps']['&#x' . $fields[0] . ';'] = '&#x' . $fields[12] . ';';
+		$utf8_arrays['utf8_strtoupper_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[12] . ';';
 
 	// Lowercase maps.
 	if ($fields[13] !== '')
-		$utf8_arrays['utf8_strtolower_maps']['&#x' . $fields[0] . ';'] = '&#x' . $fields[13] . ';';
+		$utf8_arrays['utf8_strtolower_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[13] . ';';
 
 	if ($fields[5] === '')
 		continue;
@@ -107,7 +110,7 @@ foreach (file($unicode_data_url . '/UnicodeData.txt') as $line) {
 
 	// Just the canonical decompositions.
 	if (strpos($fields[5], '<') === false) {
-		$utf8_arrays['utf8_normalize_d_maps']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[5])) . ';';
+		$utf8_arrays['utf8_normalize_d_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[5])) . ';';
 	}
 }
 
@@ -125,12 +128,12 @@ foreach (file($unicode_data_url . '/CaseFolding.txt') as $line) {
 
 	// Full casefolding.
 	if (in_array($fields[1], array('C', 'F'))) {
-		$utf8_arrays['utf8_casefold_maps']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
+		$utf8_arrays['utf8_casefold_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
 	}
 
 	// Simple casefolding. Currently unused.
 	// if (in_array($fields[1], array('C', 'S'))) {
-	// 	$utf8_arrays['utf8_casefold_simple_maps']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
+	// 	$utf8_arrays['utf8_casefold_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
 	// }
 }
 
@@ -165,16 +168,16 @@ $changed = true;
 $iteration = 0;
 while ($changed) {
 	$temp = array();
-	foreach ($utf8_arrays['utf8_normalize_d_maps'] as $composed => $decomposed) {
+	foreach ($utf8_arrays['utf8_normalize_d_maps']['data'] as $composed => $decomposed) {
 		if ($iteration === 0 && !in_array($composed, $derived_normalization_props['Full_Composition_Exclusion'])) {
-			$utf8_arrays['utf8_compose_maps'][$decomposed] = $composed;
+			$utf8_arrays['utf8_compose_maps']['data'][$decomposed] = $composed;
 		}
 
 		$parts = strpos($decomposed, ' ') !== false ? explode(' ', $decomposed) : (array) $decomposed;
 
 		foreach ($parts as $partnum => $hex) {
-			if (isset($utf8_arrays['utf8_normalize_d_maps'][$hex])) {
-				$parts[$partnum] = $utf8_arrays['utf8_normalize_d_maps'][$hex];
+			if (isset($utf8_arrays['utf8_normalize_d_maps']['data'][$hex])) {
+				$parts[$partnum] = $utf8_arrays['utf8_normalize_d_maps']['data'][$hex];
 			}
 		}
 
@@ -184,13 +187,13 @@ while ($changed) {
 		$temp[$composed] = $decomposed;
 	}
 
-	$changed = $utf8_arrays['utf8_normalize_d_maps'] !== $temp;
+	$changed = $utf8_arrays['utf8_normalize_d_maps']['data'] !== $temp;
 
-	$utf8_arrays['utf8_normalize_d_maps'] = $temp;
+	$utf8_arrays['utf8_normalize_d_maps']['data'] = $temp;
 	$iteration++;
 }
 
-$utf8_arrays['utf8_normalize_kd_maps'] = array_diff_assoc($full_decomposition_maps, $utf8_arrays['utf8_normalize_d_maps']);
+$utf8_arrays['utf8_normalize_kd_maps']['data'] = array_diff_assoc($full_decomposition_maps, $utf8_arrays['utf8_normalize_d_maps']['data']);
 
 // Some characters have the 'Default_Ignorable_Code_Point' property.
 foreach (file($unicode_data_url . '/DerivedCoreProperties.txt') as $line) {
@@ -209,7 +212,7 @@ foreach (file($unicode_data_url . '/DerivedCoreProperties.txt') as $line) {
 	}
 
 	if (strpos($fields[0], '..') === false) {
-		$utf8_arrays['utf8_default_ignorables'][] = '&#x' . $fields[0] . ';';
+		$utf8_arrays['utf8_default_ignorables']['data'][] = '&#x' . $fields[0] . ';';
 	} else {
 		$entities = array();
 
@@ -220,22 +223,22 @@ foreach (file($unicode_data_url . '/DerivedCoreProperties.txt') as $line) {
 
 		$ord = $ord_s;
 		while ($ord <= $ord_e) {
-			$utf8_arrays['utf8_default_ignorables'][] = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
+			$utf8_arrays['utf8_default_ignorables']['data'][] = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
 		}
 	}
 }
 
-// Now update the file.
-$subs_charset_contents = file_get_contents($sourcedir . '/Subs-Charset.php');
+foreach ($utf8_arrays as $func_name => $func_info) {
+	// Now update the file.
+	$file_contents = file_get_contents($unicodedir . '/' . $func_info['file']);
 
-foreach ($utf8_arrays as $func_name => $arr) {
 	$func_text = 'function ' . $func_name . '()' . "\n" . '{';
 
 	$func_regex = '/' . preg_quote($func_text, '/') . '[^}]*}/';
 
 	$func_text .= "\n\t" . 'return array(' . "\n";
 
-	foreach ($arr as $key => $value) {
+	foreach ($func_info['data'] as $key => $value) {
 		$func_text .= "\t\t";
 
 		if ($func_name !== 'utf8_default_ignorables') {
@@ -268,9 +271,9 @@ foreach ($utf8_arrays as $func_name => $arr) {
 
 	$func_text .= "\t" . ');' . "\n" . '}';
 
-	$subs_charset_contents = preg_replace($func_regex, $func_text, $subs_charset_contents);
-}
+	$file_contents = preg_replace($func_regex, $func_text, $file_contents);
 
-file_put_contents($sourcedir . '/Subs-Charset.php', $subs_charset_contents);
+	file_put_contents($unicodedir . '/' . $func_info['file'], $file_contents);
+}
 
 ?>
