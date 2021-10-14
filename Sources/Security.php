@@ -1370,7 +1370,7 @@ function corsPolicyHeader($set_header = true)
 {
 	global $boardurl, $modSettings, $context;
 
-	if (empty($modSettings['allow_cors']))
+	if (empty($modSettings['allow_cors']) || empty($_SERVER['HTTP_ORIGIN']))
 		return;
 
 	foreach (array('origin' => $_SERVER['HTTP_ORIGIN'], 'boardurl_parts' => $boardurl) as $var => $url)
