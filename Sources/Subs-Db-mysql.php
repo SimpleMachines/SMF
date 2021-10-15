@@ -75,6 +75,9 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	if (!function_exists('mysqli_init') || !function_exists('mysqli_real_connect'))
 		display_db_error();
 
+	// This was the default prior to PHP 8.1, and all our code assumes it.
+	mysqli_report(MYSQLI_REPORT_OFF);
+
 	$connection = mysqli_init();
 
 	$flags = 2; // MYSQLI_CLIENT_FOUND_ROWS = 2
