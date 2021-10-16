@@ -581,7 +581,7 @@ function ModifyProfile($post_errors = array())
 				}
 
 				// Does this require session validating?
-				if (!empty($area['validate']) || (isset($_REQUEST['save']) && !$context['user']['is_owner']))
+				if (!empty($area['validate']) || (isset($_REQUEST['save']) && !$context['user']['is_owner'] && ($area_id != 'issuewarning' || !empty($modSettings['securityDisable_moderate']))))
 					$security_checks['validate'] = true;
 
 				// Permissions for good measure.
