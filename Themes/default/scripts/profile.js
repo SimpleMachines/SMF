@@ -98,7 +98,7 @@ function ajax_getSignaturePreview (showPreview)
 			"X-SMF-AJAX": 1
 		},
 		xhrFields: {
-			withCredentials: allow_xhjr_credentials
+			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
 		},
 		data: {item: "sig_preview", signature: $("#signature").val(), user: $('input[name="u"]').attr("value")},
 		context: document.body,
