@@ -1387,7 +1387,7 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
  */
 function smtp_mail($mail_to_array, $subject, $message, $headers)
 {
-	global $modSettings, $webmaster_email, $txt, $boardurl;
+	global $modSettings, $webmaster_email, $txt, $boardurl, $sourcedir;
 
 	static $helo;
 

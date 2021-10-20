@@ -1854,9 +1854,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					$data = normalize_iri(strtr($data, array('<br>' => '')));
 
-					$scheme = parse_iri($url, PHP_URL_SCHEME);
+					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
-						$url = 'ftp://' . ltrim($url, ':/');
+						$data = 'ftp://' . ltrim($data, ':/');
 
 					$ascii_url = iri_to_url($data);
 					if ($ascii_url !== $data)
