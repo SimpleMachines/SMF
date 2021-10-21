@@ -2515,7 +2515,7 @@ function template_issueWarning()
 					"X-SMF-AJAX": 1
 				},
 				xhrFields: {
-					withCredentials: allow_xhjr_credentials
+					withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
 				},
 				url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
 				data: {item: "warning_preview", title: $("#warn_sub").val(), body: $("#warn_body").val(), issuing: true},

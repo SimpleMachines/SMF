@@ -46,7 +46,7 @@ function getServerResponse(sUrl, funcCallback, sType, sDataType)
 			"X-SMF-AJAX": 1
 		},
 		xhrFields: {
-			withCredentials: allow_xhjr_credentials
+			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
 		},
 		cache: false,
 		dataType: sDataType,
@@ -71,7 +71,7 @@ function getXMLDocument(sUrl, funcCallback)
 			"X-SMF-AJAX": 1
 		},
 		xhrFields: {
-			withCredentials: allow_xhjr_credentials
+			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
 		},
 		cache: false,
 		dataType: 'xml',
@@ -95,7 +95,7 @@ function sendXMLDocument(sUrl, sContent, funcCallback)
 			"X-SMF-AJAX": 1
 		},
 		xhrFields: {
-			withCredentials: allow_xhjr_credentials
+			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
 		},
 		data: sContent,
 		beforeSend: function(xhr) {
@@ -352,7 +352,7 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 			'X-SMF-AJAX': 1
 		},
 		xhrFields: {
-			withCredentials: allow_xhjr_credentials
+			withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
 		},
 		type: "GET",
 		dataType: "html",
@@ -421,7 +421,7 @@ smc_PopupMenu.prototype.open = function (sItem)
 				'X-SMF-AJAX': 1
 			},
 			xhrFields: {
-				withCredentials: allow_xhjr_credentials
+				withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
 			},
 			type: "GET",
 			dataType: "html",

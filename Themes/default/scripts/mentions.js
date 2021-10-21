@@ -40,7 +40,7 @@ var atwhoConfig = {
 					"X-SMF-AJAX": 1
 				},
 				xhrFields: {
-					withCredentials: allow_xhjr_credentials
+					withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
 				},
 				data: {
 					search: query,
