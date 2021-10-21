@@ -79,7 +79,7 @@ function createList($listOptions)
 	else
 	{
 		// First get an impression of how many items to expect.
-		if (!empty($listOptions['get_count']['value']) && ctype_digit($listOptions['get_count']['value']))
+		if (isset($listOptions['get_count']['value']) && (is_int($listOptions['get_count']['value']) || ctype_digit($listOptions['get_count']['value'])))
 			$list_context['total_num_items'] = $listOptions['get_count']['value'];
 
 		else
