@@ -714,6 +714,12 @@ function validatePassword($password, $username, $restrict_in = array())
 	if ($smcFunc['strlen']($password) < (empty($modSettings['password_strength']) ? 4 : 8))
 		return 'short';
 
+	// Maybe we need some more fancy password checks.
+	$pass_error = '';
+	call_integration_hook('integrate_validatePassword', array($password, $username, $restrict_in, &$pass_error));
+	if (!empty($pass_error))
+		return $pass_error;
+
 	// Is this enough?
 	if (empty($modSettings['password_strength']))
 		return null;
