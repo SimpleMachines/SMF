@@ -200,7 +200,7 @@ function ModifyGeneralSettings($return_config = false)
 
 		foreach ($config_vars as $config_var)
 		{
-			if ($config_var[3] == 'text' && !empty($_POST[$config_var[0]]))
+			if (is_array($config_var) && isset($config_var[3]) && $config_var[3] == 'text' && !empty($_POST[$config_var[0]]))
 				$_POST[$config_var[0]] = $smcFunc['normalize']($_POST[$config_var[0]]);
 		}
 
