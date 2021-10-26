@@ -479,6 +479,7 @@ function ModifyProfile($post_errors = array())
 				'logout' => array(
 					'label' => $txt['logout'],
 					'custom_url' => $scripturl . '?action=logout;%1$s=%2$s',
+					'icon' => 'logout',
 					'enabled' => !empty($_REQUEST['area']) && $_REQUEST['area'] === 'popup',
 					'permission' => array(
 						'own' => array('is_not_guest'),
