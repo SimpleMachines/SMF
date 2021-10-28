@@ -617,7 +617,7 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 		$zwj = "\xE2\x80\x8D";
 
 		$placeholders[$zwnj] = "\xEE\x80\x8C";
-		$placeholders[$zwj] = "\xEE\x80\x8C";
+		$placeholders[$zwj] = "\xEE\x80\x8D";
 
 		// When not in strict mode, allow ZWJ at word boundaries.
 		if ($level === 0)
