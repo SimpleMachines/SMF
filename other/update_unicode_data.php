@@ -25,16 +25,58 @@ $sourcedir = realpath(dirname(__DIR__) . "/Sources");
 $unicodedir = $sourcedir . "/Unicode";
 
 $full_decomposition_maps = array();
-$utf8_arrays['utf8_normalize_d_maps'] = array('file' => 'DecompositionCanonical.php', 'data' => array());
-$utf8_arrays['utf8_normalize_kd_maps'] = array('file' => 'DecompositionCompatibility.php', 'data' => array());
-$utf8_arrays['utf8_compose_maps'] = array('file' => 'Composition.php', 'data' => array());
-$utf8_arrays['utf8_combining_classes'] = array('file' => 'CombiningClasses.php', 'data' => array());
-$utf8_arrays['utf8_strtolower_maps'] = array('file' => 'CaseLower.php', 'data' => array());
-$utf8_arrays['utf8_strtoupper_maps'] = array('file' => 'CaseUpper.php', 'data' => array());
-$utf8_arrays['utf8_casefold_maps'] = array('file' => 'CaseFold.php', 'data' => array());
-$utf8_arrays['utf8_default_ignorables'] = array('file' => 'DefaultIgnorables.php', 'data' => array());
+$funcs = array(
+	'utf8_normalize_d_maps' => array(
+		'file' => 'DecompositionCanonical.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'utf8_normalize_kd_maps' => array(
+		'file' => 'DecompositionCompatibility.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'utf8_compose_maps' => array(
+		'file' => 'Composition.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'utf8_combining_classes' => array(
+		'file' => 'CombiningClasses.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'int',
+		'data' => array(),
+	),
+	'utf8_strtolower_maps' => array(
+		'file' => 'CaseLower.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'utf8_strtoupper_maps' => array(
+		'file' => 'CaseUpper.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'utf8_casefold_maps' => array(
+		'file' => 'CaseFold.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'utf8_default_ignorables' => array(
+		'file' => 'DefaultIgnorables.php',
+		'key_type' => 'int',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+);
 
-foreach ($utf8_arrays as $func_name => $func_info) {
+foreach ($funcs as $func_name => $func_info) {
 	if (!is_file($unicodedir . '/' . $func_info['file']) || !is_writable($unicodedir . '/' . $func_info['file']))
 		die($unicodedir . '/' . $func_info['file'] . ' not found or not writable.');
 }
@@ -92,15 +134,15 @@ foreach (file($unicode_data_url . '/UnicodeData.txt') as $line) {
 	$fields = explode(';', $line);
 
 	if (!empty($fields[3]))
-		$utf8_arrays['utf8_combining_classes']['data']['&#x' . $fields[0] . ';'] = trim($fields[3]);
+		$funcs['utf8_combining_classes']['data']['&#x' . $fields[0] . ';'] = trim($fields[3]);
 
 	// Uppercase maps.
 	if ($fields[12] !== '')
-		$utf8_arrays['utf8_strtoupper_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[12] . ';';
+		$funcs['utf8_strtoupper_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[12] . ';';
 
 	// Lowercase maps.
 	if ($fields[13] !== '')
-		$utf8_arrays['utf8_strtolower_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[13] . ';';
+		$funcs['utf8_strtolower_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[13] . ';';
 
 	if ($fields[5] === '')
 		continue;
@@ -110,7 +152,7 @@ foreach (file($unicode_data_url . '/UnicodeData.txt') as $line) {
 
 	// Just the canonical decompositions.
 	if (strpos($fields[5], '<') === false) {
-		$utf8_arrays['utf8_normalize_d_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[5])) . ';';
+		$funcs['utf8_normalize_d_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[5])) . ';';
 	}
 }
 
@@ -128,12 +170,12 @@ foreach (file($unicode_data_url . '/CaseFolding.txt') as $line) {
 
 	// Full casefolding.
 	if (in_array($fields[1], array('C', 'F'))) {
-		$utf8_arrays['utf8_casefold_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
+		$funcs['utf8_casefold_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
 	}
 
 	// Simple casefolding. Currently unused.
 	// if (in_array($fields[1], array('C', 'S'))) {
-	// 	$utf8_arrays['utf8_casefold_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
+	// 	$funcs['utf8_casefold_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
 	// }
 }
 
@@ -168,16 +210,16 @@ $changed = true;
 $iteration = 0;
 while ($changed) {
 	$temp = array();
-	foreach ($utf8_arrays['utf8_normalize_d_maps']['data'] as $composed => $decomposed) {
+	foreach ($funcs['utf8_normalize_d_maps']['data'] as $composed => $decomposed) {
 		if ($iteration === 0 && !in_array($composed, $derived_normalization_props['Full_Composition_Exclusion'])) {
-			$utf8_arrays['utf8_compose_maps']['data'][$decomposed] = $composed;
+			$funcs['utf8_compose_maps']['data'][$decomposed] = $composed;
 		}
 
 		$parts = strpos($decomposed, ' ') !== false ? explode(' ', $decomposed) : (array) $decomposed;
 
 		foreach ($parts as $partnum => $hex) {
-			if (isset($utf8_arrays['utf8_normalize_d_maps']['data'][$hex])) {
-				$parts[$partnum] = $utf8_arrays['utf8_normalize_d_maps']['data'][$hex];
+			if (isset($funcs['utf8_normalize_d_maps']['data'][$hex])) {
+				$parts[$partnum] = $funcs['utf8_normalize_d_maps']['data'][$hex];
 			}
 		}
 
@@ -187,13 +229,13 @@ while ($changed) {
 		$temp[$composed] = $decomposed;
 	}
 
-	$changed = $utf8_arrays['utf8_normalize_d_maps']['data'] !== $temp;
+	$changed = $funcs['utf8_normalize_d_maps']['data'] !== $temp;
 
-	$utf8_arrays['utf8_normalize_d_maps']['data'] = $temp;
+	$funcs['utf8_normalize_d_maps']['data'] = $temp;
 	$iteration++;
 }
 
-$utf8_arrays['utf8_normalize_kd_maps']['data'] = array_diff_assoc($full_decomposition_maps, $utf8_arrays['utf8_normalize_d_maps']['data']);
+$funcs['utf8_normalize_kd_maps']['data'] = array_diff_assoc($full_decomposition_maps, $funcs['utf8_normalize_d_maps']['data']);
 
 // Some characters have the 'Default_Ignorable_Code_Point' property.
 foreach (file($unicode_data_url . '/DerivedCoreProperties.txt') as $line) {
@@ -212,10 +254,8 @@ foreach (file($unicode_data_url . '/DerivedCoreProperties.txt') as $line) {
 	}
 
 	if (strpos($fields[0], '..') === false) {
-		$utf8_arrays['utf8_default_ignorables']['data'][] = '&#x' . $fields[0] . ';';
+		$funcs['utf8_default_ignorables']['data'][] = '&#x' . $fields[0] . ';';
 	} else {
-		$entities = array();
-
 		list($start, $end) = explode('..', $fields[0]);
 
 		$ord_s = hexdec($start);
@@ -223,25 +263,61 @@ foreach (file($unicode_data_url . '/DerivedCoreProperties.txt') as $line) {
 
 		$ord = $ord_s;
 		while ($ord <= $ord_e) {
-			$utf8_arrays['utf8_default_ignorables']['data'][] = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
+			$funcs['utf8_default_ignorables']['data'][] = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
 		}
 	}
 }
 
-foreach ($utf8_arrays as $func_name => $func_info) {
-	// Now update the file.
+// Now update the files.
+foreach ($funcs as $func_name => $func_info) {
+	export_func_to_file($func_name, $func_info);
+}
+
+
+/**
+ * Updates a Unicode data function in its designated file.
+ *
+ * @param string $func_name The name of the function.
+ * @param array $func_info Info about the function, including its data.
+ */
+function export_func_to_file($func_name, $func_info)
+{
+	global $unicodedir;
+
 	$file_contents = file_get_contents($unicodedir . '/' . $func_info['file']);
 
 	$func_text = 'function ' . $func_name . '()' . "\n" . '{';
 
-	$func_regex = '/' . preg_quote($func_text, '/') . '[^}]*}/';
+	$func_regex = '/' . preg_quote($func_text, '/') . '.+?\n}/s';
 
 	$func_text .= "\n\t" . 'return array(' . "\n";
 
-	foreach ($func_info['data'] as $key => $value) {
-		$func_text .= "\t\t";
+	build_func_array($func_text, $func_info['data'], $func_info['key_type'], $func_info['val_type']);
 
-		if ($func_name !== 'utf8_default_ignorables') {
+	$func_text .= "\t" . ');' . "\n" . '}';
+
+	$file_contents = preg_replace($func_regex, $func_text, $file_contents);
+
+	file_put_contents($unicodedir . '/' . $func_info['file'], $file_contents);
+}
+
+
+/**
+ * Helper for export_func_to_file(). Builds the function's data array.
+ *
+ * @param string &$func_text The raw string that contains function code.
+ * @param array $data Data to format as an array.
+ * @param string $key_type How to format the array keys.
+ * @param string $val_type How to format the array values.
+ */
+function build_func_array(&$func_text, $data, $key_type, $val_type)
+{
+	static $indent = 2;
+
+	foreach ($data as $key => $value) {
+		$func_text .= str_repeat("\t", $indent);
+
+		if ($key_type == 'hexchar') {
 			$func_text .= '"';
 
 			$key = mb_decode_numericentity(str_replace(' ', '', $key), array(0,0x10FFFF,0,0xFFFFFF), 'UTF-8');
@@ -251,11 +327,19 @@ foreach ($utf8_arrays as $func_name => $func_info) {
 			}
 
 			$func_text .= '" => ';
+		} elseif ($key_type == 'string') {
+			$func_text .= var_export($key, true) . ' => ';
 		}
 
-		if ($func_name == 'utf8_combining_classes') {
-			$func_text .= $value;
-		} else {
+		if (is_array($value)) {
+			$func_text .= 'array(' . "\n";
+
+			$indent++;
+			build_func_array($func_text, $value, $key_type, $val_type);
+			$indent--;
+
+			$func_text .= str_repeat("\t", $indent) . ')';
+		} elseif ($val_type == 'hexchar') {
 			$func_text .= '"';
 
 			$value = mb_decode_numericentity(str_replace(' ', '', $value), array(0,0x10FFFF,0,0xFFFFFF), 'UTF-8');
@@ -264,16 +348,14 @@ foreach ($utf8_arrays as $func_name => $func_info) {
 			}
 
 			$func_text .= '"';
+		} elseif ($val_type == 'string') {
+			$func_text .= var_export($value, true);
+		} else {
+			$func_text .= $value;
 		}
 
 		$func_text .= ',' . "\n";
 	}
-
-	$func_text .= "\t" . ');' . "\n" . '}';
-
-	$file_contents = preg_replace($func_regex, $func_text, $file_contents);
-
-	file_put_contents($unicodedir . '/' . $func_info['file'], $file_contents);
 }
 
 ?>
