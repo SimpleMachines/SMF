@@ -74,12 +74,41 @@ $funcs = array(
 		'val_type' => 'hexchar',
 		'data' => array(),
 	),
+	'utf8_regex_properties' => array(
+		'file' => 'RegularExpressions.php',
+		'key_type' => 'string',
+		'val_type' => 'string',
+		'propfiles' => array(
+			'DerivedCoreProperties.txt',
+			'PropList.txt',
+			'emoji/emoji-data.txt',
+			'extracted/DerivedGeneralCategory.txt'
+		),
+		'props' => array(
+			'Bidi_Control',
+			'Cn',
+			'Default_Ignorable_Code_Point',
+			'Emoji',
+			'Emoji_Modifier',
+			'Ideographic',
+			'Join_Control',
+			'Regional_Indicator',
+			'Variation_Selector',
+		),
+		'data' => array(),
+	),
 );
 
 foreach ($funcs as $func_name => $func_info) {
 	if (!is_file($unicodedir . '/' . $func_info['file']) || !is_writable($unicodedir . '/' . $func_info['file']))
 		die($unicodedir . '/' . $func_info['file'] . ' not found or not writable.');
 }
+
+@ini_set('memory_limit', '256M');
+
+/*********************************************
+ * Part 1: Normalization, case folding, etc. *
+ *********************************************/
 
 // We need some of these for further analysis below.
 $derived_normalization_props = array();
@@ -236,39 +265,66 @@ while ($changed) {
 }
 
 $funcs['utf8_normalize_kd_maps']['data'] = array_diff_assoc($full_decomposition_maps, $funcs['utf8_normalize_d_maps']['data']);
+unset($full_decomposition_maps, $derived_normalization_props);
 
-// Some characters have the 'Default_Ignorable_Code_Point' property.
-foreach (file($unicode_data_url . '/DerivedCoreProperties.txt') as $line) {
-	if (strpos($line, 'Default_Ignorable_Code_Point') === false)
+// Now update the files with the data we've got so far.
+foreach ($funcs as $func_name => $func_info) {
+	if (empty($func_info['data']))
 		continue;
 
-	$line = substr($line, 0, strcspn($line, '#'));
+	export_func_to_file($func_name, $func_info);
 
-	if (strpos($line, ';') === false)
-		continue;
+	// Free up some memory.
+	if ($func_name != 'utf8_combining_classes')
+		unset($funcs[$func_name]);
+}
 
-	$fields = explode(';', $line);
+/***********************************
+ * Part 2: Regular expression data *
+ ***********************************/
 
-	foreach ($fields as $key => $value) {
-		$fields[$key] = trim($value);
-	}
+// Build regular expression classes for extended Unicode properties.
+foreach ($funcs['utf8_regex_properties']['propfiles'] as $filename) {
+	foreach (file($unicode_data_url . '/' . $filename) as $line) {
+		$line = substr($line, 0, strcspn($line, '#'));
 
-	if (strpos($fields[0], '..') === false) {
-		$funcs['utf8_default_ignorables']['data'][] = '&#x' . $fields[0] . ';';
-	} else {
-		list($start, $end) = explode('..', $fields[0]);
+		if (strpos($line, ';') === false)
+			continue;
 
-		$ord_s = hexdec($start);
-		$ord_e = hexdec($end);
+		$fields = explode(';', $line);
 
-		$ord = $ord_s;
-		while ($ord <= $ord_e) {
-			$funcs['utf8_default_ignorables']['data'][] = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
+		foreach ($fields as $key => $value) {
+			$fields[$key] = trim($value);
+		}
+
+		if (in_array($fields[1], $funcs['utf8_regex_properties']['props'])) {
+			if (!isset($funcs['utf8_regex_properties']['data'][$fields[1]]))
+				$funcs['utf8_regex_properties']['data'][$fields[1]] = '';
+
+			$funcs['utf8_regex_properties']['data'][$fields[1]] .= '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+		}
+
+		// We also track 'Default_Ignorable_Code_Point' property in a separate array.
+		if ($fields[1] !== 'Default_Ignorable_Code_Point')
+			continue;
+
+		if (strpos($fields[0], '..') === false) {
+			$funcs['utf8_default_ignorables']['data'][] = '&#x' . $fields[0] . ';';
+		} else {
+			list($start, $end) = explode('..', $fields[0]);
+
+			$ord_s = hexdec($start);
+			$ord_e = hexdec($end);
+
+			$ord = $ord_s;
+			while ($ord <= $ord_e) {
+				$funcs['utf8_default_ignorables']['data'][] = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
+			}
 		}
 	}
 }
+ksort($funcs['utf8_regex_properties']['data']);
 
-// Now update the files.
 foreach ($funcs as $func_name => $func_info) {
 	export_func_to_file($func_name, $func_info);
 }

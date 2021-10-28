@@ -394,15 +394,24 @@ function utf8_compose($chars)
  */
 function utf8_sanitize_invisibles($string, $level, $substitute)
 {
+	global $sourcedir;
+
 	$string = (string) $string;
 	$level = min(max((int) $level, 0), 2);
 	$substitute = (string) $substitute;
+
+	require_once($sourcedir . '/Unicode/RegularExpressions.php');
+	$prop_classes = utf8_regex_properties();
 
 	// We never want non-whitespace control characters
 	$disallowed[] = '[^\P{Cc}\t\r\n]';
 
 	// We never want private use characters or non-characters.
-	$disallowed[] = '[\p{Co}\p{Cn}]';
+	// Use our own version of \p{Cn} in order to avoid possible inconsistencies
+	// between our data and whichever version of PCRE happens to be installed
+	// on this server. Unlike \p{Cc} and \p{Co}, which never change, the value
+	// of \p{Cn} changes with every new version of Unicode.
+	$disallowed[] = '[\p{Co}' . $prop_classes['Cn'] . ']';
 
 	// Several more things we never want:
 	$disallowed[] = '[' . implode('', array(
@@ -433,7 +442,7 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 				// Zero Width Joiner.
 				'\x{200D}',
 				// All variation selectors.
-				'\x{180B}-\x{180D}\x{180F}\x{FE00}-\x{FE0F}\x{E0100}-\x{E01EF}',
+				$prop_classes['Variation_Selector'],
 				// Tag characters.
 				'\x{E0000}-\x{E007F}',
 			)) . ']';
@@ -449,7 +458,7 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 				// "Bidi_Control" characters.
 				// Disallowing means that all characters will behave according
 				// to their default bidirectional text properties.
-				'\x{61C}\x{200E}\x{200F}\x{202A}-\x{202E}\x{2066}-\x{2069}',
+				$prop_classes['Bidi_Control'],
 				// Hangul filler characters.
 				// Used as placeholders in incomplete ideographs.
 				'\x{115F}\x{1160}\x{3164}\x{FFA0}',
@@ -515,7 +524,7 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 		character class intersection and more Unicode properties than the preg*
 		functions do.
 	*/
-	if (!function_exists('mb_ereg_replace_callback') || !preg_match('/[\x{200C}\x{200D}\x{202A}-\x{202E}\x{2066}-\x{2069}\x{FE00}-\x{FE0F}\x{E0100}-\x{E01EF}]/u', $string))
+	if (!function_exists('mb_ereg_replace_callback') || !preg_match('/[' . $prop_classes['Join_Control'] . $prop_classes['Regional_Indicator'] . $prop_classes['Emoji'] . $prop_classes['Variation_Selector'] . ']/u', $string))
 		return $string;
 
 	mb_regex_encoding('UTF-8');
@@ -525,30 +534,23 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 
 	$placeholders = array();
 
-	/*
-		Use placeholders to preserve known emoji from further processing.
-
-		This only matches emoji known to the installed version of mbstring,
-		so we still need to account for new possible emoji further down, but
-		this will cover the majority.
-
-		Regex source is https://unicode.org/reports/tr51/#EBNF_and_Regex
-	*/
+	// Use placeholders to preserve known emoji from further processing.
+	// Regex source is https://unicode.org/reports/tr51/#EBNF_and_Regex
 	$string  = mb_ereg_replace_callback(
-		'\p{Regional_Indicator}\p{Regional_Indicator}' .
+		'[' . $prop_classes['Regional_Indicator'] . ']{2}' .
 		'|' .
-		'\p{Emoji}' .
+		'[' . $prop_classes['Emoji'] . ']' .
 		'(' .
-			'\p{Emoji_Modifier}' .
+			'[' . $prop_classes['Emoji_Modifier'] . ']' .
 			'|' .
 			'\x{FE0F}\x{20E3}?' .
 			'|' .
 			'[\x{E0020}-\x{E007E}]+\x{E007F}' .
 		')?' .
 		'(' .
-			'\x{200D}\p{Emoji}' .
+			'\x{200D}[' . $prop_classes['Emoji'] . ']' .
 			'(' .
-				'\p{Emoji_Modifier}' .
+				'[' . $prop_classes['Emoji_Modifier'] . ']' .
 				'|' .
 				'\x{FE0F}\x{20E3}?' .
 				'|' .
@@ -570,7 +572,7 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 	);
 
 	// Get rid of any unsanctioned variation selectors.
-	if (mb_ereg('[\x{FE00}-\x{FE0F}\x{E0100}-\x{E01EF}]', $string))
+	if (mb_ereg('[' . $prop_classes['Variation_Selector'] . ']', $string))
 	{
 		/*
 			Unicode gives pre-defined lists of sanctioned variation sequences
@@ -602,12 +604,12 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 		$string = mb_ereg_replace('[^' . $variation_base_chars_low . ']\K[\x{FE00}-\x{FE0F}]', $substitute, $string);
 
 		// For variation selectors 17 - 256, things are simpler.
-		$string = mb_ereg_replace('\P{Ideographic}\K[\x{E0100}-\x{E01EF}]', $substitute, $string);
+		$string = mb_ereg_replace('[^' . $prop_classes['Ideographic'] . ']\K[\x{E0100}-\x{E01EF}]', $substitute, $string);
 	}
 
 	// Join controls are only allowed inside words in special circumstances.
 	// See https://unicode.org/reports/tr31/#Layout_and_Format_Control_Characters
-	if (mb_ereg('[\x{200C}\x{200D}]', $string))
+	if (mb_ereg('[' . $prop_classes['Join_Control'] . ']', $string))
 	{
 		// Zero Width Non-Joiner (U+200C)
 		$zwnj = "\xE2\x80\x8C";
