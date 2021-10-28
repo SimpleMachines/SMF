@@ -501,7 +501,7 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 				break;
 		}
 
-		$current_protocol = strtolower(parse_url($replace, PHP_URL_SCHEME));
+		$current_protocol = strtolower(parse_iri($replace, PHP_URL_SCHEME));
 
 		if (in_array($current_protocol, $forbidden_protocols))
 		{
@@ -1387,7 +1387,7 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
  */
 function smtp_mail($mail_to_array, $subject, $message, $headers)
 {
-	global $modSettings, $webmaster_email, $txt, $boardurl;
+	global $modSettings, $webmaster_email, $txt, $boardurl, $sourcedir;
 
 	static $helo;
 
@@ -1452,11 +1452,16 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 
 		// If the hostname isn't a fully qualified domain name, we can use the host name from $boardurl instead
 		if (empty($helo) || strpos($helo, '.') === false || substr_compare($helo, '.local', -6) === 0 || (!empty($modSettings['tld_regex']) && !preg_match('/\.' . $modSettings['tld_regex'] . '$/u', $helo)))
-			$helo = parse_url($boardurl, PHP_URL_HOST);
+			$helo = parse_iri($boardurl, PHP_URL_HOST);
 
 		// This is one of those situations where 'www.' is undesirable
 		if (strpos($helo, 'www.') === 0)
 			$helo = substr($helo, 4);
+
+		if (!function_exists('idn_to_ascii'))
+			require_once($sourcedir . '/Subs-Compat.php');
+
+		$helo = idn_to_ascii($helo, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 	}
 
 	// SMTP = 1, SMTP - STARTTLS = 2

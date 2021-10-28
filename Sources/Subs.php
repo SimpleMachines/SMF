@@ -1454,7 +1454,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		}
 
 		// The YouTube bbc needs this for its origin parameter
-		$scripturl_parts = parse_url($scripturl);
+		$scripturl_parts = parse_iri($scripturl);
 		$hosturl = $scripturl_parts['scheme'] . '://' . $scripturl_parts['host'];
 
 		/* The following bbc are formatted as an array, with keys as follows:
@@ -1814,9 +1814,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" target="_blank" rel="noopener">$1</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					$scheme = parse_url($data[0], PHP_URL_SCHEME);
+					$data[0] = normalize_iri($data[0]);
+
+					$scheme = parse_iri($data[0], PHP_URL_SCHEME);
 					if (empty($scheme))
 						$data[0] = '//' . ltrim($data[0], ':/');
+
+					$ascii_url = iri_to_url($data[0]);
+					if ($ascii_url !== $data[0])
+						$tag['content'] = str_replace('href="$1"', 'href="' . $ascii_url . '"', $tag['content']);
 				},
 			),
 			array(
@@ -1846,10 +1852,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = strtr($data, array('<br>' => ''));
-					$scheme = parse_url($data, PHP_URL_SCHEME);
+					$data = normalize_iri(strtr($data, array('<br>' => '')));
+
+					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
 						$data = 'ftp://' . ltrim($data, ':/');
+
+					$ascii_url = iri_to_url($data);
+					if ($ascii_url !== $data)
+						$tag['content'] = str_replace('href="$1"', 'href="' . $ascii_url . '"', $tag['content']);
 				},
 			),
 			// Legacy (alias of [url] with an FTP URL)
@@ -1860,7 +1871,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$scheme = parse_url($data, PHP_URL_SCHEME);
+					$data = iri_to_url($data);
+
+					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
 						$data = 'ftp://' . ltrim($data, ':/');
 				},
@@ -1918,9 +1931,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '$1',
 				'validate' => function(&$tag, &$data, $disabled, $params)
 				{
-					$url = strtr($data, array('<br>' => ''));
+					$url = iri_to_url(strtr($data, array('<br>' => '')));
 
-					if (parse_url($url, PHP_URL_SCHEME) === null)
+					if (parse_iri($url, PHP_URL_SCHEME) === null)
 						$url = '//' . ltrim($url, ':/');
 					else
 						$url = get_proxied_url($url);
@@ -1938,10 +1951,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = strtr($data, array('<br>' => ''));
-					$scheme = parse_url($data, PHP_URL_SCHEME);
+					$data = normalize_iri(strtr($data, array('<br>' => '')));
+
+					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
+
+					$ascii_url = iri_to_url($data);
+					if ($ascii_url !== $data)
+						$tag['content'] = str_replace('href="$1"', 'href="' . $ascii_url . '"', $tag['content']);
 				},
 			),
 			array(
@@ -1956,7 +1974,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$data = '#post_' . substr($data, 1);
 					else
 					{
-						$scheme = parse_url($data, PHP_URL_SCHEME);
+						$data = iri_to_url($data);
+
+						$scheme = parse_iri($data, PHP_URL_SCHEME);
 						if (empty($scheme))
 							$data = '//' . ltrim($data, ':/');
 					}
@@ -2248,10 +2268,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = strtr($data, array('<br>' => ''));
-					$scheme = parse_url($data, PHP_URL_SCHEME);
+					$data = normalize_iri(strtr($data, array('<br>' => '')));
+
+					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
+
+					$ascii_url = iri_to_url($data);
+					if ($ascii_url !== $data)
+						$tag['content'] = str_replace('href="$1"', 'href="' . $ascii_url . '"', $tag['content']);
 				},
 			),
 			array(
@@ -2262,7 +2287,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$scheme = parse_url($data, PHP_URL_SCHEME);
+					$data = iri_to_url($data);
+
+					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
 						$data = '//' . ltrim($data, ':/');
 				},
@@ -2543,9 +2570,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			if (!empty($modSettings['autoLinkUrls']))
 			{
-				if (!function_exists('idn_to_ascii'))
-					require_once($sourcedir . '/Subs-Compat.php');
-
 				// Are we inside tags that should be auto linked?
 				$no_autolink_area = false;
 				if (!empty($open_tags))
@@ -2930,7 +2954,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								if ($url != sanitize_iri($url))
 									return $url;
 
-								$parsedurl = parse_url($url);
+								// Ensure the host name is in its canonical form.
+								$url = normalize_iri($url);
+
+								$parsedurl = parse_iri($url);
 
 								if (!isset($parsedurl['scheme']))
 									$parsedurl['scheme'] = '';
@@ -2957,31 +2984,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								else
 									$fullUrl = $url;
 
-								// Ensure the host name is in its canonical form.
-								$host = !empty($parsedurl['host']) ? $parsedurl['host'] : parse_url($fullUrl, PHP_URL_HOST);
-
-								if (!empty($host))
-								{
-									$ascii_host = idn_to_ascii($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
-
-									if ($ascii_host !== $host)
-									{
-										$fullUrl = substr($fullUrl, 0, strpos($fullUrl, $host)) . $ascii_host . substr($fullUrl, strpos($fullUrl, $host) + strlen($host));
-
-										$utf8_host = idn_to_utf8($ascii_host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
-
-										if ($utf8_host !== $host)
-										{
-											$url = substr($url, 0, strpos($url, $host)) . $utf8_host . substr($url, strpos($url, $host) + strlen($host));
-										}
-									}
-								}
-
 								// Make sure that $fullUrl really is valid
 								if (in_array($parsedurl['scheme'], $schemes['forbidden']) || (!in_array($parsedurl['scheme'], $schemes['no_authority']) && validate_iri((strpos($fullUrl, '//') === 0 ? 'http:' : '') . $fullUrl) === false))
 									return $url;
 
-								return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), $fullUrl) . '&quot;]' . $url . '[/url]';
+								return '[url=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), iri_to_url($fullUrl)) . '&quot;]' . $url . '[/url]';
 							},
 							$data
 						);
@@ -3843,14 +3850,14 @@ function get_proxied_url($url)
 	if (empty($image_proxy_enabled) || !empty($user_info['possibly_robot']))
 		return $url;
 
-	$parsedurl = parse_url($url);
+	$parsedurl = parse_iri($url);
 
 	// Don't bother with HTTPS URLs, schemeless URLs, or obviously invalid URLs
 	if (empty($parsedurl['scheme']) || empty($parsedurl['host']) || empty($parsedurl['path']) || $parsedurl['scheme'] === 'https')
 		return $url;
 
 	// We don't need to proxy our own resources
-	if ($parsedurl['host'] === parse_url($boardurl, PHP_URL_HOST))
+	if ($parsedurl['host'] === parse_iri($boardurl, PHP_URL_HOST))
 		return strtr($url, array('http://' => 'https://'));
 
 	// By default, use SMF's own image proxy script
@@ -7486,7 +7493,7 @@ function ssl_cert_found($url)
 		return true;
 
 	// First, strip the subfolder from the passed url, if any
-	$parsedurl = parse_url($url);
+	$parsedurl = parse_iri($url);
 	$url = 'ssl://' . $parsedurl['host'] . ':443';
 
 	// Next, check the ssl stream context for certificate info
@@ -7661,6 +7668,38 @@ function httpsOn()
 }
 
 /**
+ * A wrapper for `parse_url($url)` that can handle URLs with international
+ * characters (a.k.a. IRIs)
+ *
+ * @param string $iri The IRI to parse.
+ * @param int $component Optional parameter to pass to parse_url().
+ * @return mixed Same as parse_url(), but with unmangled Unicode.
+ */
+function parse_iri($iri, $component = -1)
+{
+	$iri = preg_replace_callback(
+		'~[^\x00-\x7F\pZ\pC]|%~u',
+		function($matches)
+		{
+			return rawurlencode($matches[0]);
+		},
+		$iri
+	);
+
+	$parts = parse_url($iri, $component);
+
+	if (is_array($parts))
+	{
+		foreach ($parts as &$part)
+			$part = rawurldecode($part);
+	}
+	else
+		$parts = rawurldecode($parts);
+
+	return $parts;
+}
+
+/**
  * A wrapper for `filter_var($url, FILTER_VALIDATE_URL)` that can handle URLs
  * with international characters (a.k.a. IRIs)
  *
@@ -7720,6 +7759,47 @@ function sanitize_iri($iri)
 }
 
 /**
+ * Performs Unicode normalization on IRIs.
+ *
+ * Internally calls sanitize_iri(), then performs Unicode normalization on the
+ * IRI as a whole, using NFKC normalization for the domain name (see RFC 3491)
+ * and NFC normalization for the rest.
+ *
+ * @param string $iri The IRI to normalize.
+ * @return string|bool The normalized version of the IRI.
+ */
+function normalize_iri($iri)
+{
+	global $sourcedir, $context, $txt, $db_character_set;
+
+	// If we are not using UTF-8, just sanitize and return.
+	if (isset($context['utf8']) ? !$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset($db_character_set) && $db_character_set != 'utf8')))
+		return sanitize_iri($iri);
+
+	require_once($sourcedir . '/Subs-Charset.php');
+
+	$iri = sanitize_iri(utf8_normalize_c($iri));
+
+	$host = parse_iri((strpos($iri, '//') === 0 ? 'http:' : '') . $iri, PHP_URL_HOST);
+
+	if (!empty($host))
+	{
+		$normalized_host = utf8_normalize_kc_casefold($host);
+		$pos = strpos($iri, $host);
+	}
+	else
+	{
+		$normalized_host = '';
+		$pos = 0;
+	}
+
+	$before_host = substr($iri, 0, $pos);
+	$after_host = substr($iri, $pos + strlen($host));
+
+	return $before_host . $normalized_host . $after_host;
+}
+
+/**
  * Converts a URL with international characters (an IRI) into a pure ASCII URL
  *
  * Uses Punycode to encode any non-ASCII characters in the domain name, and uses
@@ -7730,12 +7810,17 @@ function sanitize_iri($iri)
  */
 function iri_to_url($iri)
 {
-	global $smcFunc, $sourcedir;
+	global $sourcedir, $context, $txt, $db_character_set;
 
-	// Weird stuff can happen if parse_url() is given un-normalized Unicode.
-	$iri = $smcFunc['normalize'](sanitize_iri($iri), 'c');
+	// Sanity check: must be using UTF-8 to do this.
+	if (isset($context['utf8']) ? !$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset($db_character_set) && $db_character_set != 'utf8')))
+		return $iri;
 
-	$host = parse_url((strpos($iri, '//') === 0 ? 'http:' : '') . $iri, PHP_URL_HOST);
+	require_once($sourcedir . '/Subs-Charset.php');
+
+	$iri = sanitize_iri(utf8_normalize_c($iri));
+
+	$host = parse_iri((strpos($iri, '//') === 0 ? 'http:' : '') . $iri, PHP_URL_HOST);
 
 	if (!empty($host))
 	{
@@ -7782,9 +7867,13 @@ function iri_to_url($iri)
  */
 function url_to_iri($url)
 {
-	global $sourcedir;
+	global $sourcedir, $context, $txt, $db_character_set;
 
-	$host = parse_url((strpos($url, '//') === 0 ? 'http:' : '') . $url, PHP_URL_HOST);
+	// Sanity check: must be using UTF-8 to do this.
+	if (isset($context['utf8']) ? !$context['utf8'] : (isset($txt['lang_character_set']) ? $txt['lang_character_set'] != 'UTF-8' : (isset($db_character_set) && $db_character_set != 'utf8')))
+		return $url;
+
+	$host = parse_iri((strpos($url, '//') === 0 ? 'http:' : '') . $url, PHP_URL_HOST);
 
 	if (!empty($host))
 	{
@@ -7805,9 +7894,17 @@ function url_to_iri($url)
 	$before_host = substr($url, 0, $pos);
 	$after_host = substr($url, $pos + strlen($host));
 
-	// Decode the rest of the URL
-	$before_host = rawurldecode($before_host);
-	$after_host = rawurldecode($after_host);
+	// Decode the rest of the URL, but preserve escaped URL syntax characters.
+	$double_escaped = array(
+		'%21' => '%2521', '%23' => '%2523', '%24' => '%2524', '%26' => '%2526',
+		'%27' => '%2527', '%28' => '%2528', '%29' => '%2529', '%2A' => '%252A',
+		'%2B' => '%252B', '%2C' => '%252C', '%2F' => '%252F', '%3A' => '%253A',
+		'%3B' => '%253B', '%3D' => '%253D', '%3F' => '%253F', '%40' => '%2540',
+		'%25' => '%2525',
+	);
+
+	$before_host = rawurldecode(strtr($before_host, $double_escaped));
+	$after_host = rawurldecode(strtr($after_host, $double_escaped));
 
 	return $before_host . $decoded_host . $after_host;
 }

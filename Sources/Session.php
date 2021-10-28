@@ -39,7 +39,7 @@ function loadSession()
 
 	if (!empty($modSettings['globalCookies']))
 	{
-		$parsed_url = parse_url($boardurl);
+		$parsed_url = parse_iri($boardurl);
 
 		if (preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $parsed_url['host']) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $parsed_url['host'], $parts) == 1)
 			@ini_set('session.cookie_domain', '.' . $parts[1]);

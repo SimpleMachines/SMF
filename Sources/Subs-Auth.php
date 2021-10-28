@@ -179,7 +179,7 @@ function url_parts($local, $global)
 	global $boardurl, $modSettings;
 
 	// Parse the URL with PHP to make life easier.
-	$parsed_url = parse_url($boardurl);
+	$parsed_url = parse_iri($boardurl);
 
 	// Is local cookies off?
 	if (empty($parsed_url['path']) || !$local)

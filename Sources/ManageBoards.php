@@ -694,7 +694,7 @@ function EditBoard2()
 		}
 
 		// Are they doing redirection?
-		$boardOptions['redirect'] = !empty($_POST['redirect_enable']) && isset($_POST['redirect_address']) && trim($_POST['redirect_address']) != '' ? trim($_POST['redirect_address']) : '';
+		$boardOptions['redirect'] = !empty($_POST['redirect_enable']) && isset($_POST['redirect_address']) && trim($_POST['redirect_address']) != '' ? normalize_iri(trim($_POST['redirect_address'])) : '';
 
 		// Profiles...
 		$boardOptions['profile'] = $_POST['profile'] == -1 ? 1 : $_POST['profile'];

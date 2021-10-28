@@ -679,7 +679,7 @@ function html_to_bbc($text)
 		if (!empty($src))
 		{
 			// Attempt to fix the path in case it's not present.
-			if (preg_match('~^https?://~i', $src) === 0 && is_array($parsedURL = parse_url($scripturl)) && isset($parsedURL['host']))
+			if (preg_match('~^https?://~i', $src) === 0 && is_array($parsedURL = parse_iri($scripturl)) && isset($parsedURL['host']))
 			{
 				$baseURL = (isset($parsedURL['scheme']) ? $parsedURL['scheme'] : 'http') . '://' . $parsedURL['host'] . (empty($parsedURL['port']) ? '' : ':' . $parsedURL['port']);
 
@@ -902,7 +902,7 @@ function html_to_bbc($text)
 				}
 
 				// No http(s), so attempt to fix this potential relative URL.
-				elseif (preg_match('~^https?://~i', $href) === 0 && is_array($parsedURL = parse_url($scripturl)) && isset($parsedURL['host']))
+				elseif (preg_match('~^https?://~i', $href) === 0 && is_array($parsedURL = parse_iri($scripturl)) && isset($parsedURL['host']))
 				{
 					$baseURL = (isset($parsedURL['scheme']) ? $parsedURL['scheme'] : 'http') . '://' . $parsedURL['host'] . (empty($parsedURL['port']) ? '' : ':' . $parsedURL['port']);
 

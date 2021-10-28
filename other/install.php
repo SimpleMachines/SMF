@@ -1038,6 +1038,10 @@ function ForumSettings()
 		else
 			$_POST['boardurl'] = strtr($_POST['boardurl'], array('http://' => 'https://'));
 
+		// Make sure international domain names are normalized correctly.
+		if ($txt['lang_character_set'] == 'UTF-8')
+			$_POST['boardurl'] = normalize_iri($_POST['boardurl']);
+
 		// Deal with different operating systems' directory structure...
 		$path = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', __DIR__), '/');
 
