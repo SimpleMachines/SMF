@@ -519,15 +519,9 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 
 	$string = preg_replace('/' . implode('|', $disallowed) . '/u', $substitute, $string);
 
-	/*
-		Past this point, we need to use mb_ereg* functions because they support
-		character class intersection and more Unicode properties than the preg*
-		functions do.
-	*/
-	if (!function_exists('mb_ereg_replace_callback') || !preg_match('/[' . $prop_classes['Join_Control'] . $prop_classes['Regional_Indicator'] . $prop_classes['Emoji'] . $prop_classes['Variation_Selector'] . ']/u', $string))
+	// Are we done yet?
+	if (!preg_match('/[' . $prop_classes['Join_Control'] . $prop_classes['Regional_Indicator'] . $prop_classes['Emoji'] . $prop_classes['Variation_Selector'] . ']/u', $string))
 		return $string;
-
-	mb_regex_encoding('UTF-8');
 
 	// String must be in Normalization Form C for the following checks to work.
 	$string = utf8_normalize_c($string);
@@ -536,10 +530,15 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 
 	// Use placeholders to preserve known emoji from further processing.
 	// Regex source is https://unicode.org/reports/tr51/#EBNF_and_Regex
-	$string  = mb_ereg_replace_callback(
+	$string  = preg_replace_callback(
+		'/' .
+		// Flag emojis
 		'[' . $prop_classes['Regional_Indicator'] . ']{2}' .
+		// Or
 		'|' .
+		// Emoji characters
 		'[' . $prop_classes['Emoji'] . ']' .
+		// Possibly followed by modifiers of various sorts
 		'(' .
 			'[' . $prop_classes['Emoji_Modifier'] . ']' .
 			'|' .
@@ -547,6 +546,8 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 			'|' .
 			'[\x{E0020}-\x{E007E}]+\x{E007F}' .
 		')?' .
+		// Possibly concatenated with Zero Width Joiner and more emojis
+		// (e.g. the "family" emoji sequences)
 		'(' .
 			'\x{200D}[' . $prop_classes['Emoji'] . ']' .
 			'(' .
@@ -556,7 +557,8 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 				'|' .
 				'[\x{E0020}-\x{E007E}]+\x{E007F}' .
 			')?' .
-		')*',
+		')*' .
+		'/u',
 		function ($matches) use (&$placeholders)
 		{
 			// Skip lone ASCII characters that are not actully part of an emoji sequence.
@@ -572,7 +574,7 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 	);
 
 	// Get rid of any unsanctioned variation selectors.
-	if (mb_ereg('[' . $prop_classes['Variation_Selector'] . ']', $string))
+	if (preg_match('/[' . $prop_classes['Variation_Selector'] . ']/u', $string))
 	{
 		/*
 			Unicode gives pre-defined lists of sanctioned variation sequences
@@ -601,15 +603,15 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 			'\p{Phags_Pa}',
 			'\p{Manichaean}',
 		));
-		$string = mb_ereg_replace('[^' . $variation_base_chars_low . ']\K[\x{FE00}-\x{FE0F}]', $substitute, $string);
+		$string = preg_replace('/[^' . $variation_base_chars_low . ']\K[\x{FE00}-\x{FE0F}]/u', $substitute, $string);
 
 		// For variation selectors 17 - 256, things are simpler.
-		$string = mb_ereg_replace('[^' . $prop_classes['Ideographic'] . ']\K[\x{E0100}-\x{E01EF}]', $substitute, $string);
+		$string = preg_replace('/[^' . $prop_classes['Ideographic'] . ']\K[\x{E0100}-\x{E01EF}]/u', $substitute, $string);
 	}
 
 	// Join controls are only allowed inside words in special circumstances.
 	// See https://unicode.org/reports/tr31/#Layout_and_Format_Control_Characters
-	if (mb_ereg('[' . $prop_classes['Join_Control'] . ']', $string))
+	if (preg_match('/[' . $prop_classes['Join_Control'] . ']/u', $string))
 	{
 		// Zero Width Non-Joiner (U+200C)
 		$zwnj = "\xE2\x80\x8C";
@@ -621,7 +623,7 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 
 		// When not in strict mode, allow ZWJ at word boundaries.
 		if ($level === 0)
-			$string = mb_ereg_replace('\b\x{200D}|\x{200D}\b', $placeholders[$zwj], $string);
+			$string = preg_replace('/\b\x{200D}|\x{200D}\b/u', $placeholders[$zwj], $string);
 
 		// Tests for Zero Width Joiner and Zero Width Non-Joiner.
 		$joining_type_classes = utf8_regex_joining_type();
@@ -673,18 +675,14 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 			}
 
 			// Do the thing.
-			$temp = @mb_ereg_replace_callback(
-				$pattern,
+			$string = preg_replace_callback(
+				'/' . $pattern . '/u',
 				function ($matches) use ($placeholders)
 				{
 					return strtr($matches[0], $placeholders);
 				},
 				$string
 			);
-
-			// False means the installed version of mbstring lacks support for this script.
-			if ($temp !== false)
-				$string = $temp;
 
 			// Did we catch 'em all?
 			if (strpos($string, $zwnj) === false && strpos($string, $zwj) === false)
