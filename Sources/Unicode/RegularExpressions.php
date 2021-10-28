@@ -43,4 +43,332 @@ function utf8_regex_properties()
 	);
 }
 
+/**
+ * Helper function for utf8_sanitize_invisibles.
+ *
+ * Character class lists compiled from:
+ * https://unicode.org/Public/UNIDATA/extracted/DerivedJoiningType.txt
+ *
+ * Developers: Do not update the data in this function manually. Instead,
+ * run "php -f other/update_unicode_data.php" on the command line.
+ *
+ * @return array Character classes for joining characters in certain scripts.
+ */
+function utf8_regex_joining_type()
+{
+	return array(
+		'Arabic' => array(
+			'Join_Causing' => '\x{0640}\x{0883}-\x{0885}',
+			'Dual_Joining' => '\x{0620}\x{0626}\x{0628}\x{062A}-\x{062E}\x{0633}-\x{063F}\x{0641}-\x{0647}\x{0649}-\x{064A}\x{066E}-\x{066F}\x{0678}-\x{0687}\x{069A}-\x{06BF}\x{06C1}-\x{06C2}\x{06CC}\x{06CE}\x{06D0}-\x{06D1}\x{06FA}-\x{06FC}\x{06FF}\x{075C}-\x{076A}\x{076D}-\x{0770}\x{0772}\x{0775}-\x{0777}\x{077A}-\x{077F}\x{0886}\x{0889}-\x{088D}\x{08A0}-\x{08A9}\x{08AF}-\x{08B0}\x{08B3}-\x{08B8}\x{08BA}-\x{08C8}',
+			'Right_Joining' => '\x{0622}-\x{0625}\x{0627}\x{0629}\x{062F}-\x{0632}\x{0648}\x{0671}-\x{0673}\x{0675}-\x{0677}\x{0688}-\x{0699}\x{06C0}\x{06C3}-\x{06CB}\x{06CD}\x{06CF}\x{06D2}-\x{06D3}\x{06D5}\x{06EE}-\x{06EF}\x{0759}-\x{075B}\x{076B}-\x{076C}\x{0771}\x{0773}-\x{0774}\x{0778}-\x{0779}\x{0870}-\x{0882}\x{088E}\x{08AA}-\x{08AC}\x{08AE}\x{08B1}-\x{08B2}\x{08B9}',
+			'Transparent' => '\x{0610}-\x{061A}\x{061C}\x{061C}\x{064B}-\x{065F}\x{0670}\x{06D6}-\x{06DC}\x{06DF}-\x{06E4}\x{06E7}-\x{06E8}\x{06EA}-\x{06ED}\x{0898}-\x{089F}\x{08CA}-\x{08E1}\x{08E3}-\x{0902}\x{102E0}',
+		),
+		'Syriac' => array(
+			'Join_Causing' => '\x{0640}',
+			'Dual_Joining' => '\x{0712}-\x{0714}\x{071A}-\x{071D}\x{071F}-\x{0727}\x{0729}\x{072B}\x{072D}-\x{072E}\x{074E}-\x{0758}\x{0860}\x{0862}-\x{0865}\x{0868}',
+			'Right_Joining' => '\x{0710}\x{0715}-\x{0719}\x{071E}\x{0728}\x{072A}\x{072C}\x{072F}\x{074D}\x{0867}\x{0869}-\x{086A}',
+			'Transparent' => '\x{061C}\x{0670}\x{070F}\x{0711}\x{0730}-\x{074A}',
+		),
+		'Adlam' => array(
+			'Join_Causing' => '\x{0640}',
+			'Dual_Joining' => '\x{1E900}-\x{1E943}',
+			'Transparent' => '\x{1E944}-\x{1E94A}\x{1E94B}',
+		),
+		'Tirhuta' => array(
+			'Dual_Joining' => '\x{A840}-\x{A871}',
+			'Transparent' => '\x{0951}-\x{0957}\x{114B3}-\x{114B8}\x{114BA}\x{114BF}-\x{114C0}\x{114C2}-\x{114C3}',
+		),
+		'Nko' => array(
+			'Join_Causing' => '\x{07FA}',
+			'Dual_Joining' => '\x{07CA}-\x{07EA}',
+			'Transparent' => '\x{07EB}-\x{07F3}\x{07FD}',
+		),
+		'Hanifi_Rohingya' => array(
+			'Join_Causing' => '\x{0640}',
+			'Dual_Joining' => '\x{10D01}-\x{10D21}\x{10D23}',
+			'Right_Joining' => '\x{10D22}',
+			'Left_Joining' => '\x{10D00}',
+			'Transparent' => '\x{10D24}-\x{10D27}',
+		),
+		'Manichaean' => array(
+			'Join_Causing' => '\x{0640}',
+			'Dual_Joining' => '\x{10AC0}-\x{10AC4}\x{10AD3}-\x{10AD6}\x{10AD8}-\x{10ADC}\x{10ADE}-\x{10AE0}\x{10AEB}-\x{10AEE}',
+			'Right_Joining' => '\x{10AC5}\x{10AC7}\x{10AC9}-\x{10ACA}\x{10ACE}-\x{10AD2}\x{10ADD}\x{10AE1}\x{10AE4}\x{10AEF}',
+			'Left_Joining' => '\x{10ACD}\x{10AD7}',
+			'Transparent' => '\x{10AE5}-\x{10AE6}',
+		),
+		'Sogdian' => array(
+			'Join_Causing' => '\x{0640}',
+			'Dual_Joining' => '\x{10F30}-\x{10F32}\x{10F34}-\x{10F44}\x{10F51}-\x{10F53}',
+			'Right_Joining' => '\x{10F33}\x{10F54}',
+			'Transparent' => '\x{10F46}-\x{10F50}',
+		),
+		'Mandaic' => array(
+			'Join_Causing' => '\x{0640}',
+			'Dual_Joining' => '\x{0841}-\x{0845}\x{0848}\x{084A}-\x{0853}\x{0855}',
+			'Right_Joining' => '\x{0840}\x{0846}-\x{0847}\x{0849}\x{0854}\x{0856}-\x{0858}',
+			'Transparent' => '\x{0859}-\x{085B}',
+		),
+		'Psalter_Pahlavi' => array(
+			'Join_Causing' => '\x{0640}',
+			'Dual_Joining' => '\x{10B80}\x{10B82}\x{10B86}-\x{10B88}\x{10B8A}-\x{10B8B}\x{10B8D}\x{10B90}\x{10BAD}-\x{10BAE}',
+			'Right_Joining' => '\x{10B81}\x{10B83}-\x{10B85}\x{10B89}\x{10B8C}\x{10B8E}-\x{10B8F}\x{10B91}\x{10BA9}-\x{10BAC}',
+		),
+		'Old_Uyghur' => array(
+			'Join_Causing' => '\x{0640}',
+			'Dual_Joining' => '\x{10F70}-\x{10F73}\x{10F76}-\x{10F81}',
+			'Right_Joining' => '\x{10F74}-\x{10F75}',
+			'Transparent' => '\x{10F82}-\x{10F85}',
+		),
+		'Mongolian' => array(
+			'Join_Causing' => '\x{180A}',
+			'Dual_Joining' => '\x{1807}\x{1820}-\x{1842}\x{1843}\x{1844}-\x{1878}\x{1887}-\x{18A8}\x{18AA}',
+			'Transparent' => '\x{180B}-\x{180D}\x{180F}\x{1885}-\x{1886}\x{18A9}',
+		),
+		'Phags_Pa' => array(
+			'Dual_Joining' => '\x{A840}-\x{A871}',
+			'Left_Joining' => '\x{A872}',
+		),
+		'Chorasmian' => array(
+			'Dual_Joining' => '\x{10FB0}\x{10FB2}-\x{10FB3}\x{10FB8}\x{10FBB}-\x{10FBC}\x{10FBE}-\x{10FBF}\x{10FC1}\x{10FC4}\x{10FCA}',
+			'Right_Joining' => '\x{10FB4}-\x{10FB6}\x{10FB9}-\x{10FBA}\x{10FBD}\x{10FC2}-\x{10FC3}\x{10FC9}',
+			'Left_Joining' => '\x{10FCB}',
+		),
+	);
+}
+
+/**
+ * Helper function for utf8_sanitize_invisibles.
+ *
+ * Character class lists compiled from:
+ * https://unicode.org/Public/UNIDATA/extracted/DerivedCombiningClass.txt
+ * https://unicode.org/Public/UNIDATA/IndicSyllabicCategory.txt
+ *
+ * Developers: Do not update the data in this function manually. Instead,
+ * run "php -f other/update_unicode_data.php" on the command line.
+ *
+ * @return array Character classes for Indic scripts that use viramas.
+ */
+function utf8_regex_indic()
+{
+	return array(
+		'Devanagari' => array(
+			'All' => '\x{0900}-\x{0952}\x{0955}-\x{0966}\x{0966}-\x{096A}\x{096A}-\x{096E}\x{096E}-\x{097F}\x{1CD0}-\x{1CD4}\x{1CD6}-\x{1CDC}\x{1CDE}-\x{1CF4}\x{1CF6}\x{1CF8}\x{20F0}\x{A830}\x{A833}\x{A836}\x{A838}-\x{A839}\x{A8E0}-\x{A8F1}\x{A8F1}-\x{A8F3}\x{A8F3}-\x{A8FF}',
+			'Letter' => '\x{0904}-\x{0939}\x{093D}\x{0950}\x{0958}-\x{0961}\x{0971}-\x{097F}\x{1CE9}-\x{1CEC}\x{1CEE}-\x{1CF3}\x{1CF6}\x{A8F2}-\x{A8F3}\x{A8F3}-\x{A8F7}\x{A8FB}\x{A8FD}-\x{A8FE}',
+			'Nonspacing_Combining_Mark' => '\x{093C}\x{094D}\x{0951}-\x{0952}\x{1CD0}-\x{1CD2}\x{1CD4}\x{1CD6}-\x{1CDC}\x{1CDE}-\x{1CE0}\x{1CE2}-\x{1CE8}\x{1CED}\x{1CF4}\x{1CF8}\x{20F0}\x{A8E0}-\x{A8F1}\x{A8F1}',
+			'Nonspacing_Mark' => '\x{0900}-\x{0902}\x{093A}\x{093C}\x{0941}-\x{0948}\x{094D}\x{0951}-\x{0952}\x{0955}-\x{0957}\x{0962}-\x{0963}\x{1CD0}-\x{1CD2}\x{1CD4}\x{1CD6}-\x{1CDC}\x{1CDE}-\x{1CE0}\x{1CE2}-\x{1CE8}\x{1CED}\x{1CF4}\x{1CF8}\x{20F0}\x{A8E0}-\x{A8F1}\x{A8F1}\x{A8FF}',
+			'Virama' => '\x{094D}',
+			'Vowel_Dependent' => '\x{093A}\x{093B}\x{093E}-\x{0940}\x{0941}-\x{0948}\x{0949}-\x{094C}\x{094E}-\x{094F}\x{0955}-\x{0957}\x{0962}-\x{0963}\x{A8FF}',
+		),
+		'Bengali' => array(
+			'All' => '\x{0951}-\x{0952}\x{0964}-\x{0965}\x{0980}-\x{0983}\x{0985}-\x{098C}\x{098F}-\x{0990}\x{0993}-\x{09A8}\x{09AA}-\x{09B0}\x{09B2}\x{09B6}-\x{09B9}\x{09BC}-\x{09C4}\x{09C7}-\x{09C8}\x{09CB}-\x{09CE}\x{09D7}\x{09DC}-\x{09DD}\x{09DF}-\x{09E3}\x{09E6}\x{09E6}-\x{09E9}\x{09E9}-\x{09EC}\x{09EC}-\x{09EF}\x{09EF}-\x{09FE}\x{1CD0}\x{1CD2}\x{1CD5}\x{1CD8}\x{1CE1}\x{1CEA}\x{1CED}\x{1CF2}\x{1CF5}\x{1CF7}\x{A8F1}',
+			'Letter' => '\x{0980}\x{0985}-\x{098C}\x{098F}-\x{0990}\x{0993}-\x{09A8}\x{09AA}-\x{09B0}\x{09B2}\x{09B6}-\x{09B9}\x{09BD}\x{09CE}\x{09DC}-\x{09DD}\x{09DF}-\x{09E1}\x{09F0}-\x{09F1}\x{09FC}\x{1CEA}\x{1CF2}\x{1CF5}',
+			'Nonspacing_Combining_Mark' => '\x{0951}-\x{0952}\x{09BC}\x{09CD}\x{09FE}\x{1CD0}\x{1CD2}\x{1CD5}\x{1CD8}\x{1CED}\x{A8F1}',
+			'Nonspacing_Mark' => '\x{0951}-\x{0952}\x{0981}\x{09BC}\x{09C1}-\x{09C4}\x{09CD}\x{09E2}-\x{09E3}\x{09FE}\x{1CD0}\x{1CD2}\x{1CD5}\x{1CD8}\x{1CED}\x{A8F1}',
+			'Virama' => '\x{09CD}',
+			'Vowel_Dependent' => '\x{09BE}-\x{09C0}\x{09C1}-\x{09C4}\x{09C7}-\x{09C8}\x{09CB}-\x{09CC}\x{09D7}\x{09E2}-\x{09E3}',
+		),
+		'Grantha' => array(
+			'All' => '\x{0951}-\x{0952}\x{0964}-\x{0965}\x{0BE6}\x{0BE8}\x{0BEA}\x{0BEC}\x{0BEE}\x{0BF0}\x{0BF2}-\x{0BF3}\x{1CD0}\x{1CD2}-\x{1CD3}\x{1CF2}-\x{1CF4}\x{1CF9}\x{20F0}\x{11300}-\x{11301}\x{11301}-\x{11303}\x{11303}\x{11305}-\x{1130C}\x{1130F}-\x{11310}\x{11313}-\x{11328}\x{1132A}-\x{11330}\x{11332}-\x{11333}\x{11335}-\x{11339}\x{1133B}-\x{11344}\x{11347}-\x{11348}\x{1134B}-\x{1134D}\x{11350}\x{11357}\x{1135D}-\x{11363}\x{11366}-\x{1136C}\x{11370}-\x{11374}\x{11FD0}\x{11FD3}',
+			'Letter' => '\x{1CF2}-\x{1CF3}\x{11305}-\x{1130C}\x{1130F}-\x{11310}\x{11313}-\x{11328}\x{1132A}-\x{11330}\x{11332}-\x{11333}\x{11335}-\x{11339}\x{1133D}\x{11350}\x{1135D}-\x{11361}',
+			'Nonspacing_Combining_Mark' => '\x{0951}-\x{0952}\x{1CD0}\x{1CD2}\x{1CF4}\x{1CF9}\x{20F0}\x{1133B}-\x{1133C}\x{11366}-\x{1136C}\x{11370}-\x{11374}',
+			'Nonspacing_Mark' => '\x{0951}-\x{0952}\x{1CD0}\x{1CD2}\x{1CF4}\x{1CF9}\x{20F0}\x{11300}-\x{11301}\x{11301}\x{1133B}-\x{1133C}\x{11340}\x{11366}-\x{1136C}\x{11370}-\x{11374}',
+			'Virama' => '\x{1134D}',
+			'Vowel_Dependent' => '\x{1133E}-\x{1133F}\x{11340}\x{11341}-\x{11344}\x{11347}-\x{11348}\x{1134B}-\x{1134C}\x{11357}\x{11362}-\x{11363}',
+		),
+		'Tirhuta' => array(
+			'All' => '\x{0951}-\x{0952}\x{0964}-\x{0965}\x{1CF2}\x{A838}-\x{A839}\x{A83D}\x{A83F}-\x{A840}\x{11480}-\x{114C7}\x{114D0}-\x{114D9}',
+			'Letter' => '\x{1CF2}\x{A840}\x{11480}-\x{114AF}\x{114C4}-\x{114C5}\x{114C7}',
+			'Nonspacing_Combining_Mark' => '\x{0951}-\x{0952}\x{114C2}-\x{114C3}',
+			'Nonspacing_Mark' => '\x{0951}-\x{0952}\x{114B3}-\x{114B8}\x{114BA}\x{114BF}-\x{114C0}\x{114C2}-\x{114C3}',
+			'Virama' => '\x{114C2}',
+			'Vowel_Dependent' => '\x{114B0}-\x{114B2}\x{114B3}-\x{114B8}\x{114B9}\x{114BA}\x{114BB}-\x{114BE}',
+		),
+		'Nandinagari' => array(
+			'All' => '\x{0964}-\x{0965}\x{0CE7}\x{0CE9}\x{0CEB}\x{0CED}\x{0CEF}\x{1CE9}\x{1CF2}\x{1CFA}\x{A83A}\x{A83C}\x{119A0}-\x{119A7}\x{119AA}-\x{119D7}\x{119DA}-\x{119E4}',
+			'Letter' => '\x{1CE9}\x{1CF2}\x{1CFA}\x{119A0}-\x{119A7}\x{119AA}-\x{119D0}\x{119E1}\x{119E3}',
+			'Nonspacing_Combining_Mark' => '\x{119E0}',
+			'Nonspacing_Mark' => '\x{119D4}-\x{119D7}\x{119DA}-\x{119DB}\x{119E0}',
+			'Virama' => '\x{119E0}',
+			'Vowel_Dependent' => '\x{119D1}-\x{119D3}\x{119D4}-\x{119D7}\x{119DA}-\x{119DB}\x{119DC}-\x{119DD}\x{119E4}',
+		),
+		'Takri' => array(
+			'All' => '\x{0964}-\x{0965}\x{A838}-\x{A839}\x{A83C}\x{A83E}-\x{A83F}\x{11680}-\x{116B9}\x{116C0}-\x{116C9}',
+			'Letter' => '\x{11680}-\x{116AA}\x{116B8}',
+			'Nonspacing_Combining_Mark' => '\x{116B7}',
+			'Nonspacing_Mark' => '\x{116AB}\x{116AD}\x{116B0}-\x{116B5}\x{116B7}',
+			'Virama' => '\x{116B6}',
+			'Vowel_Dependent' => '\x{116AD}\x{116AE}-\x{116AF}\x{116B0}-\x{116B5}',
+		),
+		'Khojki' => array(
+			'All' => '\x{0AE7}\x{0AE9}\x{0AEB}\x{0AED}\x{0AEF}\x{A834}\x{A837}-\x{A83A}\x{11200}-\x{11211}\x{11213}-\x{1123E}',
+			'Letter' => '\x{11200}-\x{11211}\x{11213}-\x{1122B}',
+			'Nonspacing_Combining_Mark' => '\x{11236}',
+			'Nonspacing_Mark' => '\x{1122F}-\x{11231}\x{11234}\x{11236}-\x{11237}\x{1123E}',
+			'Virama' => '\x{11235}',
+			'Vowel_Dependent' => '\x{1122C}-\x{1122E}\x{1122F}-\x{11231}\x{11232}-\x{11233}',
+		),
+		'Dogra' => array(
+			'All' => '\x{0964}-\x{0965}\x{0967}\x{096B}\x{096F}\x{A831}\x{A834}\x{A837}-\x{A839}\x{11800}-\x{1183B}',
+			'Letter' => '\x{11800}-\x{1182B}',
+			'Nonspacing_Combining_Mark' => '\x{11839}-\x{1183A}',
+			'Nonspacing_Mark' => '\x{1182F}-\x{11837}\x{11839}-\x{1183A}',
+			'Virama' => '\x{11839}',
+			'Vowel_Dependent' => '\x{1182C}-\x{1182E}\x{1182F}-\x{11836}',
+		),
+		'Tamil' => array(
+			'All' => '\x{0951}-\x{0952}\x{0964}-\x{0965}\x{0B82}-\x{0B83}\x{0B85}-\x{0B8A}\x{0B8E}-\x{0B90}\x{0B92}-\x{0B95}\x{0B99}-\x{0B9A}\x{0B9C}\x{0B9E}-\x{0B9F}\x{0BA3}-\x{0BA4}\x{0BA8}-\x{0BAA}\x{0BAE}-\x{0BB9}\x{0BBE}-\x{0BC2}\x{0BC6}-\x{0BC8}\x{0BCA}-\x{0BCD}\x{0BD0}\x{0BD7}\x{0BE6}-\x{0BE7}\x{0BE7}-\x{0BE9}\x{0BE9}-\x{0BEB}\x{0BEB}-\x{0BED}\x{0BED}-\x{0BEF}\x{0BEF}-\x{0BF1}\x{0BF1}-\x{0BF3}\x{0BF3}\x{0BF3}-\x{0BFA}\x{1CDA}\x{A8F3}\x{11301}\x{11303}\x{1133C}\x{11FC0}-\x{11FD1}\x{11FD1}-\x{11FD3}\x{11FD3}-\x{11FF1}\x{11FFF}',
+			'Letter' => '\x{0B83}\x{0B85}-\x{0B8A}\x{0B8E}-\x{0B90}\x{0B92}-\x{0B95}\x{0B99}-\x{0B9A}\x{0B9C}\x{0B9E}-\x{0B9F}\x{0BA3}-\x{0BA4}\x{0BA8}-\x{0BAA}\x{0BAE}-\x{0BB9}\x{0BD0}\x{A8F3}',
+			'Nonspacing_Combining_Mark' => '\x{0951}-\x{0952}\x{0BCD}\x{1CDA}\x{1133C}',
+			'Nonspacing_Mark' => '\x{0951}-\x{0952}\x{0B82}\x{0BC0}\x{0BCD}\x{1CDA}\x{11301}\x{1133C}',
+			'Virama' => '\x{0BCD}',
+			'Vowel_Dependent' => '\x{0BBE}-\x{0BBF}\x{0BC0}\x{0BC1}-\x{0BC2}\x{0BC6}-\x{0BC8}\x{0BCA}-\x{0BCC}\x{0BD7}',
+		),
+		'Malayalam' => array(
+			'All' => '\x{0951}-\x{0952}\x{0964}-\x{0965}\x{0D00}-\x{0D0C}\x{0D0E}-\x{0D10}\x{0D12}-\x{0D44}\x{0D46}-\x{0D48}\x{0D4A}-\x{0D4F}\x{0D54}-\x{0D63}\x{0D66}-\x{0D7F}\x{1CDA}\x{A838}',
+			'Letter' => '\x{0D04}-\x{0D0C}\x{0D0E}-\x{0D10}\x{0D12}-\x{0D3A}\x{0D3D}\x{0D4E}\x{0D54}-\x{0D56}\x{0D5F}-\x{0D61}\x{0D7A}-\x{0D7F}',
+			'Nonspacing_Combining_Mark' => '\x{0951}-\x{0952}\x{0D3B}-\x{0D3C}\x{0D4D}\x{1CDA}',
+			'Nonspacing_Mark' => '\x{0951}-\x{0952}\x{0D00}-\x{0D01}\x{0D3B}-\x{0D3C}\x{0D41}-\x{0D44}\x{0D4D}\x{0D62}-\x{0D63}\x{1CDA}',
+			'Virama' => '\x{0D4D}',
+			'Vowel_Dependent' => '\x{0D3E}-\x{0D40}\x{0D41}-\x{0D44}\x{0D46}-\x{0D48}\x{0D4A}-\x{0D4C}\x{0D57}\x{0D62}-\x{0D63}',
+		),
+		'Sinhala' => array(
+			'All' => '\x{0964}-\x{0965}\x{0D81}-\x{0D83}\x{0D85}-\x{0D96}\x{0D9A}-\x{0DB1}\x{0DB3}-\x{0DBB}\x{0DBD}\x{0DC0}-\x{0DC6}\x{0DCA}\x{0DCF}-\x{0DD4}\x{0DD6}\x{0DD8}-\x{0DDF}\x{0DE6}-\x{0DEF}\x{0DF2}-\x{0DF4}\x{111E1}-\x{111F4}',
+			'Letter' => '\x{0D85}-\x{0D96}\x{0D9A}-\x{0DB1}\x{0DB3}-\x{0DBB}\x{0DBD}\x{0DC0}-\x{0DC6}',
+			'Nonspacing_Combining_Mark' => '\x{0DCA}',
+			'Nonspacing_Mark' => '\x{0D81}\x{0DCA}\x{0DD2}-\x{0DD4}\x{0DD6}',
+			'Virama' => '\x{0DCA}',
+			'Vowel_Dependent' => '\x{0DCF}-\x{0DD1}\x{0DD2}-\x{0DD4}\x{0DD6}\x{0DD8}-\x{0DDF}\x{0DF2}-\x{0DF3}',
+		),
+		'Telugu' => array(
+			'All' => '\x{0951}-\x{0952}\x{0964}-\x{0965}\x{0C00}-\x{0C0C}\x{0C0E}-\x{0C10}\x{0C12}-\x{0C28}\x{0C2A}-\x{0C39}\x{0C3C}-\x{0C44}\x{0C46}-\x{0C48}\x{0C4A}-\x{0C4D}\x{0C55}-\x{0C56}\x{0C58}-\x{0C5A}\x{0C5D}\x{0C60}-\x{0C63}\x{0C66}-\x{0C6F}\x{0C77}-\x{0C7F}\x{1CDA}\x{1CF2}',
+			'Letter' => '\x{0C05}-\x{0C0C}\x{0C0E}-\x{0C10}\x{0C12}-\x{0C28}\x{0C2A}-\x{0C39}\x{0C3D}\x{0C58}-\x{0C5A}\x{0C5D}\x{0C60}-\x{0C61}\x{1CF2}',
+			'Nonspacing_Combining_Mark' => '\x{0951}-\x{0952}\x{0C3C}\x{0C4D}\x{0C55}-\x{0C56}\x{1CDA}',
+			'Nonspacing_Mark' => '\x{0951}-\x{0952}\x{0C00}\x{0C04}\x{0C3C}\x{0C3E}-\x{0C40}\x{0C46}-\x{0C48}\x{0C4A}-\x{0C4D}\x{0C55}-\x{0C56}\x{0C62}-\x{0C63}\x{1CDA}',
+			'Virama' => '\x{0C4D}',
+			'Vowel_Dependent' => '\x{0C3E}-\x{0C40}\x{0C41}-\x{0C44}\x{0C46}-\x{0C48}\x{0C4A}-\x{0C4C}\x{0C55}-\x{0C56}\x{0C62}-\x{0C63}',
+		),
+		'Kannada' => array(
+			'All' => '\x{0951}-\x{0952}\x{0964}-\x{0965}\x{0C80}-\x{0C8C}\x{0C8E}-\x{0C90}\x{0C92}-\x{0CA8}\x{0CAA}-\x{0CB3}\x{0CB5}-\x{0CB9}\x{0CBC}-\x{0CC4}\x{0CC6}-\x{0CC8}\x{0CCA}-\x{0CCD}\x{0CD5}-\x{0CD6}\x{0CDD}-\x{0CDE}\x{0CE0}-\x{0CE3}\x{0CE6}\x{0CE6}-\x{0CE8}\x{0CE8}-\x{0CEA}\x{0CEA}-\x{0CEC}\x{0CEC}-\x{0CEE}\x{0CEE}-\x{0CEF}\x{0CF1}-\x{0CF2}\x{1CD0}\x{1CD2}\x{1CDA}\x{1CF2}\x{1CF4}\x{A835}\x{A838}',
+			'Letter' => '\x{0C80}\x{0C85}-\x{0C8C}\x{0C8E}-\x{0C90}\x{0C92}-\x{0CA8}\x{0CAA}-\x{0CB3}\x{0CB5}-\x{0CB9}\x{0CBD}\x{0CDD}-\x{0CDE}\x{0CE0}-\x{0CE1}\x{0CF1}-\x{0CF2}\x{1CF2}',
+			'Nonspacing_Combining_Mark' => '\x{0951}-\x{0952}\x{0CBC}\x{0CCD}\x{1CD0}\x{1CD2}\x{1CDA}\x{1CF4}',
+			'Nonspacing_Mark' => '\x{0951}-\x{0952}\x{0C81}\x{0CBC}\x{0CBF}\x{0CC6}\x{0CCC}-\x{0CCD}\x{0CE2}-\x{0CE3}\x{1CD0}\x{1CD2}\x{1CDA}\x{1CF4}',
+			'Virama' => '\x{0CCD}',
+			'Vowel_Dependent' => '\x{0CBE}\x{0CBF}\x{0CC0}-\x{0CC4}\x{0CC6}\x{0CC7}-\x{0CC8}\x{0CCA}-\x{0CCB}\x{0CCC}\x{0CD5}-\x{0CD6}\x{0CE2}-\x{0CE3}',
+		),
+		'Gujarati' => array(
+			'All' => '\x{0951}-\x{0952}\x{0964}-\x{0965}\x{0A81}-\x{0A83}\x{0A85}-\x{0A8D}\x{0A8F}-\x{0A91}\x{0A93}-\x{0AA8}\x{0AAA}-\x{0AB0}\x{0AB2}-\x{0AB3}\x{0AB5}-\x{0AB9}\x{0ABC}-\x{0AC5}\x{0AC7}-\x{0AC9}\x{0ACB}-\x{0ACD}\x{0AD0}\x{0AE0}-\x{0AE3}\x{0AE6}\x{0AE6}-\x{0AE8}\x{0AE8}-\x{0AEA}\x{0AEA}-\x{0AEC}\x{0AEC}-\x{0AEE}\x{0AEE}-\x{0AF1}\x{0AF9}-\x{0AFF}\x{A832}\x{A835}\x{A838}\x{A838}-\x{A839}',
+			'Letter' => '\x{0A85}-\x{0A8D}\x{0A8F}-\x{0A91}\x{0A93}-\x{0AA8}\x{0AAA}-\x{0AB0}\x{0AB2}-\x{0AB3}\x{0AB5}-\x{0AB9}\x{0ABD}\x{0AD0}\x{0AE0}-\x{0AE1}\x{0AF9}',
+			'Nonspacing_Combining_Mark' => '\x{0951}-\x{0952}\x{0ABC}\x{0ACD}',
+			'Nonspacing_Mark' => '\x{0951}-\x{0952}\x{0A81}-\x{0A82}\x{0ABC}\x{0AC1}-\x{0AC5}\x{0AC7}-\x{0AC8}\x{0ACD}\x{0AE2}-\x{0AE3}\x{0AFA}-\x{0AFF}',
+			'Virama' => '\x{0ACD}',
+			'Vowel_Dependent' => '\x{0ABE}-\x{0AC0}\x{0AC1}-\x{0AC5}\x{0AC7}-\x{0AC8}\x{0AC9}\x{0ACB}-\x{0ACC}\x{0AE2}-\x{0AE3}',
+		),
+		'Sharada' => array(
+			'All' => '\x{0951}\x{1CD7}\x{1CD9}\x{1CDD}\x{1CE0}\x{11180}-\x{111DF}',
+			'Letter' => '\x{11183}-\x{111B2}\x{111C1}-\x{111C4}\x{111DA}\x{111DC}',
+			'Nonspacing_Combining_Mark' => '\x{0951}\x{1CD7}\x{1CD9}\x{1CDD}\x{1CE0}\x{111CA}',
+			'Nonspacing_Mark' => '\x{0951}\x{1CD7}\x{1CD9}\x{1CDD}\x{1CE0}\x{11180}-\x{11181}\x{111B6}-\x{111BE}\x{111C9}-\x{111CC}\x{111CF}',
+			'Virama' => '\x{111C0}',
+			'Vowel_Dependent' => '\x{111B3}-\x{111B5}\x{111B6}-\x{111BE}\x{111BF}\x{111CB}-\x{111CC}\x{111CE}',
+		),
+		'Oriya' => array(
+			'All' => '\x{0951}-\x{0952}\x{0964}-\x{0965}\x{0B01}-\x{0B03}\x{0B05}-\x{0B0C}\x{0B0F}-\x{0B10}\x{0B13}-\x{0B28}\x{0B2A}-\x{0B30}\x{0B32}-\x{0B33}\x{0B35}-\x{0B39}\x{0B3C}-\x{0B44}\x{0B47}-\x{0B48}\x{0B4B}-\x{0B4D}\x{0B55}-\x{0B57}\x{0B5C}-\x{0B5D}\x{0B5F}-\x{0B63}\x{0B66}-\x{0B77}\x{1CDA}\x{1CF2}',
+			'Letter' => '\x{0B05}-\x{0B0C}\x{0B0F}-\x{0B10}\x{0B13}-\x{0B28}\x{0B2A}-\x{0B30}\x{0B32}-\x{0B33}\x{0B35}-\x{0B39}\x{0B3D}\x{0B5C}-\x{0B5D}\x{0B5F}-\x{0B61}\x{0B71}\x{1CF2}',
+			'Nonspacing_Combining_Mark' => '\x{0951}-\x{0952}\x{0B3C}\x{0B4D}\x{1CDA}',
+			'Nonspacing_Mark' => '\x{0951}-\x{0952}\x{0B01}\x{0B3C}\x{0B3F}\x{0B41}-\x{0B44}\x{0B4D}\x{0B55}-\x{0B56}\x{0B62}-\x{0B63}\x{1CDA}',
+			'Virama' => '\x{0B4D}',
+			'Vowel_Dependent' => '\x{0B3E}\x{0B3F}\x{0B40}\x{0B41}-\x{0B44}\x{0B47}-\x{0B48}\x{0B4B}-\x{0B4C}\x{0B55}-\x{0B56}\x{0B57}\x{0B62}-\x{0B63}',
+		),
+		'Gurmukhi' => array(
+			'All' => '\x{0951}-\x{0952}\x{0964}-\x{0965}\x{0A01}-\x{0A03}\x{0A05}-\x{0A0A}\x{0A0F}-\x{0A10}\x{0A13}-\x{0A28}\x{0A2A}-\x{0A30}\x{0A32}-\x{0A33}\x{0A35}-\x{0A36}\x{0A38}-\x{0A39}\x{0A3C}\x{0A3E}-\x{0A42}\x{0A47}-\x{0A48}\x{0A4B}-\x{0A4D}\x{0A51}\x{0A59}-\x{0A5C}\x{0A5E}\x{0A66}\x{0A66}-\x{0A68}\x{0A68}-\x{0A6A}\x{0A6A}-\x{0A6C}\x{0A6C}-\x{0A6E}\x{0A6E}-\x{0A76}\x{A833}\x{A836}\x{A838}-\x{A839}\x{A839}',
+			'Letter' => '\x{0A05}-\x{0A0A}\x{0A0F}-\x{0A10}\x{0A13}-\x{0A28}\x{0A2A}-\x{0A30}\x{0A32}-\x{0A33}\x{0A35}-\x{0A36}\x{0A38}-\x{0A39}\x{0A59}-\x{0A5C}\x{0A5E}\x{0A72}-\x{0A74}',
+			'Nonspacing_Combining_Mark' => '\x{0951}-\x{0952}\x{0A3C}\x{0A4D}',
+			'Nonspacing_Mark' => '\x{0951}-\x{0952}\x{0A01}-\x{0A02}\x{0A3C}\x{0A41}-\x{0A42}\x{0A47}-\x{0A48}\x{0A4B}-\x{0A4D}\x{0A51}\x{0A70}-\x{0A71}\x{0A75}',
+			'Virama' => '\x{0A4D}',
+			'Vowel_Dependent' => '\x{0A3E}-\x{0A40}\x{0A41}-\x{0A42}\x{0A47}-\x{0A48}\x{0A4B}-\x{0A4C}',
+		),
+		'Kaithi' => array(
+			'All' => '\x{0968}\x{096C}\x{0970}\x{A836}\x{A838}-\x{A839}\x{A839}\x{A83B}\x{11080}-\x{110C2}\x{110CD}',
+			'Letter' => '\x{11083}-\x{110AF}',
+			'Nonspacing_Combining_Mark' => '\x{110B9}-\x{110BA}',
+			'Nonspacing_Mark' => '\x{11080}-\x{11081}\x{110B3}-\x{110B6}\x{110B9}-\x{110BA}\x{110C2}',
+			'Virama' => '\x{110B9}',
+			'Vowel_Dependent' => '\x{110B0}-\x{110B2}\x{110B3}-\x{110B6}\x{110B7}-\x{110B8}\x{110C2}',
+		),
+		'Syloti_Nagri' => array(
+			'All' => '\x{0964}-\x{0965}\x{09E8}\x{09EB}\x{09EE}\x{09F1}\x{A800}-\x{A82C}',
+			'Letter' => '\x{09F1}\x{A800}-\x{A801}\x{A803}-\x{A805}\x{A807}-\x{A80A}\x{A80C}-\x{A822}',
+			'Nonspacing_Combining_Mark' => '\x{A806}\x{A82C}',
+			'Nonspacing_Mark' => '\x{A802}\x{A806}\x{A80B}\x{A825}-\x{A826}\x{A82C}',
+			'Virama' => '\x{A806}',
+			'Vowel_Dependent' => '\x{A802}\x{A823}-\x{A824}\x{A825}-\x{A826}\x{A827}',
+		),
+		'Brahmi' => array(
+			'All' => '\x{11000}-\x{1104D}\x{11052}-\x{11075}\x{1107F}',
+			'Letter' => '\x{11003}-\x{11037}\x{11071}-\x{11072}\x{11075}',
+			'Nonspacing_Combining_Mark' => '\x{11046}\x{11070}\x{1107F}',
+			'Nonspacing_Mark' => '\x{11001}\x{11038}-\x{11046}\x{11070}\x{11073}-\x{11074}\x{1107F}',
+			'Virama' => '\x{11046}',
+			'Vowel_Dependent' => '\x{11038}-\x{11045}\x{11073}-\x{11074}',
+		),
+		'Javanese' => array(
+			'All' => '\x{A980}-\x{A9CD}\x{A9CF}-\x{A9D9}\x{A9DE}-\x{A9DF}',
+			'Letter' => '\x{A984}-\x{A9B2}\x{A9CF}',
+			'Nonspacing_Combining_Mark' => '\x{A9B3}',
+			'Nonspacing_Mark' => '\x{A980}-\x{A982}\x{A9B3}\x{A9B6}-\x{A9B9}\x{A9BC}-\x{A9BD}',
+			'Virama' => '\x{A9C0}',
+			'Vowel_Dependent' => '\x{A9B4}-\x{A9B5}\x{A9B6}-\x{A9B9}\x{A9BA}-\x{A9BB}\x{A9BC}',
+		),
+		'Modi' => array(
+			'All' => '\x{A838}-\x{A839}\x{A839}\x{A83B}\x{A83D}\x{11600}-\x{11644}\x{11650}-\x{11659}',
+			'Letter' => '\x{11600}-\x{1162F}\x{11644}',
+			'Nonspacing_Combining_Mark' => '\x{1163F}',
+			'Nonspacing_Mark' => '\x{11633}-\x{1163A}\x{1163D}\x{1163F}-\x{11640}',
+			'Virama' => '\x{1163F}',
+			'Vowel_Dependent' => '\x{11630}-\x{11632}\x{11633}-\x{1163A}\x{1163B}-\x{1163C}\x{11640}',
+		),
+		'Saurashtra' => array(
+			'All' => '\x{A880}-\x{A8C5}\x{A8CE}-\x{A8D9}',
+			'Letter' => '\x{A882}-\x{A8B3}',
+			'Nonspacing_Combining_Mark' => '\x{A8C4}',
+			'Nonspacing_Mark' => '\x{A8C4}-\x{A8C5}',
+			'Virama' => '\x{A8C4}',
+			'Vowel_Dependent' => '\x{A8B5}-\x{A8C3}',
+		),
+		'Balinese' => array(
+			'All' => '\x{1B00}-\x{1B4C}\x{1B50}-\x{1B7E}',
+			'Letter' => '\x{1B05}-\x{1B33}\x{1B45}-\x{1B4C}',
+			'Nonspacing_Combining_Mark' => '\x{1B34}\x{1B6B}-\x{1B73}',
+			'Nonspacing_Mark' => '\x{1B00}-\x{1B03}\x{1B34}\x{1B36}-\x{1B3A}\x{1B3C}\x{1B42}\x{1B6B}-\x{1B73}',
+			'Virama' => '\x{1B44}',
+			'Vowel_Dependent' => '\x{1B35}\x{1B36}-\x{1B3A}\x{1B3B}\x{1B3C}\x{1B3D}-\x{1B41}\x{1B42}\x{1B43}',
+		),
+		'Siddham' => array(
+			'All' => '\x{11580}-\x{115B5}\x{115B8}-\x{115DD}',
+			'Letter' => '\x{11580}-\x{115AE}\x{115D8}-\x{115DB}',
+			'Nonspacing_Combining_Mark' => '\x{115BF}-\x{115C0}',
+			'Nonspacing_Mark' => '\x{115B2}-\x{115B5}\x{115BC}-\x{115BD}\x{115BF}-\x{115C0}\x{115DC}-\x{115DD}',
+			'Virama' => '\x{115BF}',
+			'Vowel_Dependent' => '\x{115AF}-\x{115B1}\x{115B2}-\x{115B5}\x{115B8}-\x{115BB}\x{115DC}-\x{115DD}',
+		),
+		'Newa' => array(
+			'All' => '\x{11400}-\x{1145B}\x{1145D}-\x{11461}',
+			'Letter' => '\x{11400}-\x{11434}\x{11447}-\x{1144A}\x{1145F}-\x{11461}',
+			'Nonspacing_Combining_Mark' => '\x{11442}\x{11446}\x{1145E}',
+			'Nonspacing_Mark' => '\x{11438}-\x{1143F}\x{11442}-\x{11444}\x{11446}\x{1145E}',
+			'Virama' => '\x{11442}',
+			'Vowel_Dependent' => '\x{11435}-\x{11437}\x{11438}-\x{1143F}\x{11440}-\x{11441}',
+		),
+		'Bhaiksuki' => array(
+			'All' => '\x{11C00}-\x{11C08}\x{11C0A}-\x{11C36}\x{11C38}-\x{11C45}\x{11C50}-\x{11C6C}',
+			'Letter' => '\x{11C00}-\x{11C08}\x{11C0A}-\x{11C2E}\x{11C40}',
+			'Nonspacing_Combining_Mark' => '\x{11C3F}',
+			'Nonspacing_Mark' => '\x{11C30}-\x{11C36}\x{11C38}-\x{11C3D}\x{11C3F}',
+			'Virama' => '\x{11C3F}',
+			'Vowel_Dependent' => '\x{11C2F}\x{11C30}-\x{11C36}\x{11C38}-\x{11C3B}',
+		),
+	);
+}
+
 ?>

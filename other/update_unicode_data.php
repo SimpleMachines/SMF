@@ -97,6 +97,18 @@ $funcs = array(
 		),
 		'data' => array(),
 	),
+	'utf8_regex_joining_type' => array(
+		'file' => 'RegularExpressions.php',
+		'key_type' => 'string',
+		'val_type' => 'string',
+		'data' => array(),
+	),
+	'utf8_regex_indic' => array(
+		'file' => 'RegularExpressions.php',
+		'key_type' => 'string',
+		'val_type' => 'string',
+		'data' => array(),
+	),
 );
 
 foreach ($funcs as $func_name => $func_info) {
@@ -159,6 +171,7 @@ foreach (file($unicode_data_url . '/DerivedNormalizationProps.txt') as $line) {
 }
 
 // Go through all the characters in the Unicode database.
+$char_data = array();
 foreach (file($unicode_data_url . '/UnicodeData.txt') as $line) {
 	$fields = explode(';', $line);
 
@@ -172,6 +185,9 @@ foreach (file($unicode_data_url . '/UnicodeData.txt') as $line) {
 	// Lowercase maps.
 	if ($fields[13] !== '')
 		$funcs['utf8_strtolower_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[13] . ';';
+
+	// Remember this character's general category for later.
+	$char_data['&#x' . $fields[0] . ';']['General_Category'] = trim($fields[2]);
 
 	if ($fields[5] === '')
 		continue;
@@ -324,6 +340,348 @@ foreach ($funcs['utf8_regex_properties']['propfiles'] as $filename) {
 	}
 }
 ksort($funcs['utf8_regex_properties']['data']);
+
+// The regex classes for join control tests require info about language scripts.
+$script_stats = array();
+$script_aliases = array();
+foreach (file($unicode_data_url . '/PropertyValueAliases.txt') as $line) {
+	$line = substr($line, 0, strcspn($line, '#'));
+
+	if (strpos($line, ';') === false)
+		continue;
+
+	$fields = explode(';', $line);
+
+	foreach ($fields as $key => $value) {
+		$fields[$key] = trim($value);
+	}
+
+	if ($fields[0] !== 'sc')
+		continue;
+
+	$script_aliases[$fields[1]] = $fields[2];
+}
+foreach (file($unicode_data_url . '/Scripts.txt') as $line) {
+	$line = substr($line, 0, strcspn($line, '#'));
+
+	if (strpos($line, ';') === false)
+		continue;
+
+	$fields = explode(';', $line);
+
+	foreach ($fields as $key => $value) {
+		$fields[$key] = trim($value);
+	}
+
+	if (in_array($fields[1], array('Common', 'Inherited')))
+		continue;
+
+	if (strpos($fields[0], '..') === false) {
+		$char_data['&#x' . $fields[0] . ';']['scripts'][] = $fields[1];
+	} else {
+		list($start, $end) = explode('..', $fields[0]);
+
+		$ord_s = hexdec($start);
+		$ord_e = hexdec($end);
+
+		$ord = $ord_s;
+		while ($ord <= $ord_e) {
+			$char_data['&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';']['scripts'][] = $fields[1];
+		}
+	}
+}
+foreach (file($unicode_data_url . '/ScriptExtensions.txt') as $line) {
+	$line = substr($line, 0, strcspn($line, '#'));
+
+	if (strpos($line, ';') === false)
+		continue;
+
+	$fields = explode(';', $line);
+
+	foreach ($fields as $key => $value) {
+		$fields[$key] = trim($value);
+	}
+
+	$char_scripts = array();
+	foreach (explode(' ', $fields[1]) as $alias) {
+		if (!in_array($script_aliases[$alias], array('Common', 'Inherited'))) {
+			$char_scripts[] = $script_aliases[$alias];
+		}
+	}
+
+	if (strpos($fields[0], '..') === false) {
+		foreach ($char_scripts as $char_script) {
+			$char_data['&#x' . $fields[0] . ';']['scripts'][] = $char_script;
+		}
+	} else {
+		list($start, $end) = explode('..', $fields[0]);
+
+		$ord_s = hexdec($start);
+		$ord_e = hexdec($end);
+
+		$ord = $ord_s;
+		while ($ord <= $ord_e) {
+			foreach ($char_scripts as $char_script) {
+				$char_data['&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';']['scripts'][] = $char_script;
+			}
+		}
+	}
+}
+foreach (file($unicode_data_url . '/DerivedAge.txt') as $line) {
+	$line = substr($line, 0, strcspn($line, '#'));
+
+	if (strpos($line, ';') === false)
+		continue;
+
+	$fields = explode(';', $line);
+
+	foreach ($fields as $key => $value) {
+		$fields[$key] = trim($value);
+	}
+
+	$fields[1] = (float) $fields[1];
+
+	if (strpos($fields[0], '..') === false) {
+		$char_scripts = $char_data['&#x' . $fields[0] . ';']['scripts'];
+
+		if (empty($char_scripts))
+			continue;
+
+		foreach ($char_scripts as $char_script) {
+			if (!isset($script_stats[$char_script])) {
+				$script_stats[$char_script]['age'] = (float) $fields[1];
+				$script_stats[$char_script]['count'] = 1;
+			} else {
+				$script_stats[$char_script]['age'] = min((float) $fields[1], $script_stats[$char_script]['age']);
+				$script_stats[$char_script]['count']++;
+			}
+		}
+	} else {
+		list($start, $end) = explode('..', $fields[0]);
+
+		$ord_s = hexdec($start);
+		$ord_e = hexdec($end);
+
+		$ord = $ord_s;
+		while ($ord <= $ord_e) {
+			$char_scripts = $char_data['&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';']['scripts'];
+
+			if (empty($char_scripts))
+				continue;
+
+			foreach ($char_scripts as $char_script) {
+				if (!isset($script_stats[$char_script])) {
+					$script_stats[$char_script]['age'] = $fields[1];
+					$script_stats[$char_script]['count'] = 1;
+				} else {
+					$script_stats[$char_script]['age'] = min($fields[1], $script_stats[$char_script]['age']);
+					$script_stats[$char_script]['count']++;
+				}
+			}
+		}
+	}
+}
+
+// Build regex classes for join control tests in utf8_sanitize_invisibles:
+// 1. Cursive scripts like Arabic.
+foreach (file($unicode_data_url . '/extracted/DerivedJoiningType.txt') as $line) {
+	$line = substr($line, 0, strcspn($line, '#'));
+
+	if (strpos($line, ';') === false)
+		continue;
+
+	$fields = explode(';', $line);
+
+	foreach ($fields as $key => $value) {
+		$fields[$key] = trim($value);
+	}
+
+	switch ($fields[1]) {
+		case 'C':
+			$joining_type = 'Join_Causing';
+			break;
+
+		case 'D':
+			$joining_type = 'Dual_Joining';
+			break;
+
+		case 'R':
+			$joining_type = 'Right_Joining';
+			break;
+
+		case 'L':
+			$joining_type = 'Left_Joining';
+			break;
+
+		case 'T':
+			$joining_type = 'Transparent';
+			break;
+
+		default:
+			$joining_type = null;
+			break;
+	}
+
+	if (!isset($joining_type))
+		continue;
+
+	$char_scripts = $char_data['&#x' . substr($fields[0], 0, strcspn($fields[0], '.')) . ';']['scripts'];
+
+	if (empty($char_scripts))
+		continue;
+
+	foreach ($char_scripts as $char_script) {
+		if (!isset($funcs['utf8_regex_joining_type']['data'][$char_script]['stats']))
+			$funcs['utf8_regex_joining_type']['data'][$char_script]['stats'] = $script_stats[$char_script];
+
+		if (!isset($funcs['utf8_regex_joining_type']['data'][$char_script][$joining_type]))
+			$funcs['utf8_regex_joining_type']['data'][$char_script][$joining_type] = array();
+
+		$funcs['utf8_regex_joining_type']['data'][$char_script][$joining_type][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+	}
+}
+// This sort works decently well to ensure widely used scripts are ranked before rare scripts.
+uasort($funcs['utf8_regex_joining_type']['data'], function($a, $b) {
+	if ($a['stats']['age'] == $b['stats']['age']) {
+		return $b['stats']['count'] - $a['stats']['count'];
+	} else {
+		return $a['stats']['age'] - $b['stats']['age'];
+	}
+});
+foreach ($funcs['utf8_regex_joining_type']['data'] as $char_script => $joining_types) {
+	unset($funcs['utf8_regex_joining_type']['data'][$char_script]['stats'], $joining_types['stats']);
+
+	// If the only joining type in this script is transparent, we don't care about it.
+	if (array_keys($joining_types) === array('Transparent')) {
+		unset($funcs['utf8_regex_joining_type']['data'][$char_script]);
+		continue;
+	}
+
+	foreach ($joining_types as $joining_type => $value) {
+		sort($value);
+		$funcs['utf8_regex_joining_type']['data'][$char_script][$joining_type] = implode('', $value);
+	}
+}
+
+// 2. Indic scripts like Devanagari.
+foreach (file($unicode_data_url . '/IndicSyllabicCategory.txt') as $line) {
+	$line = substr($line, 0, strcspn($line, '#'));
+
+	if (strpos($line, ';') === false)
+		continue;
+
+	$fields = explode(';', $line);
+
+	foreach ($fields as $key => $value) {
+		$fields[$key] = trim($value);
+	}
+
+	$insc = $fields[1];
+
+	if (!in_array($insc, array('Virama', 'Vowel_Dependent')))
+		continue;
+
+	$char_scripts = $char_data['&#x' . substr($fields[0], 0, strcspn($fields[0], '.')) . ';']['scripts'];
+
+	if (empty($char_scripts))
+		continue;
+
+	foreach ($char_scripts as $char_script) {
+		if (!isset($funcs['utf8_regex_indic']['data'][$char_script]['stats']))
+			$funcs['utf8_regex_indic']['data'][$char_script]['stats'] = $script_stats[$char_script];
+
+		if (!isset($funcs['utf8_regex_indic']['data'][$char_script][$insc]))
+			$funcs['utf8_regex_indic']['data'][$char_script][$insc] = array();
+
+		$funcs['utf8_regex_indic']['data'][$char_script][$insc][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+	}
+}
+// Again, sort commonly used scripts before rare scripts.
+uasort($funcs['utf8_regex_indic']['data'], function($a, $b) {
+	if ($a['stats']['age'] == $b['stats']['age']) {
+		return $b['stats']['count'] - $a['stats']['count'];
+	} else {
+		return $a['stats']['age'] - $b['stats']['age'];
+	}
+});
+// We only want scripts with viramas.
+foreach ($funcs['utf8_regex_indic']['data'] as $char_script => $inscs) {
+	unset($funcs['utf8_regex_indic']['data'][$char_script]['stats'], $inscs['stats']);
+
+	if (!isset($inscs['Virama'])) {
+		unset($funcs['utf8_regex_indic']['data'][$char_script]);
+		continue;
+	}
+}
+// Now add some more classes that we need for each script.
+foreach ($char_data as $entity => $info) {
+	if (empty($info['scripts']))
+		continue;
+
+	$ord = hexdec(trim($entity, '&#x;'));
+
+	foreach ($info['scripts'] as $char_script) {
+		if (!isset($funcs['utf8_regex_indic']['data'][$char_script]))
+			continue;
+
+		$funcs['utf8_regex_indic']['data'][$char_script]['All'][] = $ord;
+
+		if ($info['General_Category'] == 'Mn') {
+			$funcs['utf8_regex_indic']['data'][$char_script]['Nonspacing_Mark'][] = $ord;
+
+			if (!empty($funcs['utf8_combining_classes']['data'][$entity])) {
+				$funcs['utf8_regex_indic']['data'][$char_script]['Nonspacing_Combining_Mark'][] = $ord;
+			}
+		} elseif (substr($info['General_Category'], 0, 1) == 'L') {
+			$funcs['utf8_regex_indic']['data'][$char_script]['Letter'][] = $ord;
+		}
+	}
+}
+foreach ($funcs['utf8_regex_indic']['data'] as $char_script => $inscs) {
+	foreach ($inscs as $insc => $value) {
+		sort($value);
+
+		if (!in_array($insc, array('All', 'Letter', 'Nonspacing_Mark', 'Nonspacing_Combining_Mark'))) {
+			$funcs['utf8_regex_indic']['data'][$char_script][$insc] = implode('', $value);
+			continue;
+		}
+
+		$class_string = '';
+
+		$current_range = array('start' => null, 'end' => null);
+		foreach($value as $ord) {
+			if (!isset($current_range['start'])) {
+				$current_range['start'] = $ord;
+			}
+
+			if (!isset($current_range['end']) || $ord == $current_range['end'] + 1) {
+				$current_range['end'] = $ord;
+				continue;
+			} else {
+				$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+
+				if ($current_range['start'] != $current_range['end']) {
+					$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+				}
+
+				$current_range = array('start' => $ord, 'end' => $ord);
+			}
+		}
+
+		if (isset($current_range['start'])) {
+			$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+
+			if ($current_range['start'] != $current_range['end']) {
+				$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+			}
+		}
+
+		$funcs['utf8_regex_indic']['data'][$char_script][$insc] = $class_string;
+	}
+
+	ksort($funcs['utf8_regex_indic']['data'][$char_script]);
+}
+unset($funcs['utf8_combining_classes']);
 
 foreach ($funcs as $func_name => $func_info) {
 	export_func_to_file($func_name, $func_info);
