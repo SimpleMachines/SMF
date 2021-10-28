@@ -512,9 +512,6 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 
 		// Tag characters not allowed inside words.
 		$disallowed[] = '(?<=\w)[\x{E0000}-\x{E007F}](?=\w)';
-
-		// Mongolian Free Variation Selectors.
-		$disallowed[] = '(?<!\p{Mongolian})[\x{180B}-\x{180D}\x{180F}]';
 	}
 
 	$string = preg_replace('/' . implode('|', $disallowed) . '/u', $substitute, $string);
@@ -579,34 +576,27 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 		/*
 			Unicode gives pre-defined lists of sanctioned variation sequences
 			and says any use of variation selectors outside those sequences is
-			unsanctioned. However, those lists will continue to grow over time.
-			Therefore, the regex patterns below are more permissive than
-			Unicode itself, making reasonable guesses about the types of
-			characters that are likely to be used as base characters for new
-			variation sequences in the future.
+			unsanctioned.
 		*/
 
-		// Base characters that take variation selectors 1 - 16
-		$variation_base_chars_low = implode('', array(
-			// Symbols.
-			'\p{S}',
-			// CJK Symbols and Punctuation.
-			'\x{3000}-\x{303F}',
-			// CJK Unified Ideographs.
-			'\x{3400}-\x{4DBF}',
-			'\x{4E00}-\x{9FFF}',
-			'\x{20000}-\x{2A6DF}',
-			// Halfwidth and Fullwidth Forms.
-			'\x{FF01}-\x{FFEE}',
-			// Multiple characters in these scripts can have variations.
-			'\p{Myanmar}',
-			'\p{Phags_Pa}',
-			'\p{Manichaean}',
-		));
-		$string = preg_replace('/[^' . $variation_base_chars_low . ']\K[\x{FE00}-\x{FE0F}]/u', $substitute, $string);
+		$patterns = array('/[' . $prop_classes['Ideographic'] . ']\K[\x{E0100}-\x{E01EF}]/u');
 
-		// For variation selectors 17 - 256, things are simpler.
-		$string = preg_replace('/[^' . $prop_classes['Ideographic'] . ']\K[\x{E0100}-\x{E01EF}]/u', $substitute, $string);
+		foreach (utf8_regex_variation_selectors() as $variation_selector => $allowed_base_chars)
+			$patterns[] = '/[' . $allowed_base_chars . ']\K[' . $variation_selector . ']/u';
+
+		// Use placeholders for sanctioned variation selectors.
+		$string = preg_replace_callback(
+			$patterns,
+			function ($matches) use (&$placeholders)
+			{
+				$placeholders[$matches[0]] = "\xEE\xB3\x9B" . md5($matches[0]) . "\xEE\xB3\x9C";
+				return $placeholders[$matches[0]];
+			},
+			$string
+		);
+
+		// Remove any unsanctioned variation selectors.
+		$string = preg_replace('/[' . $prop_classes['Variation_Selector'] . ']/u', $substitute, $string);
 	}
 
 	// Join controls are only allowed inside words in special circumstances.

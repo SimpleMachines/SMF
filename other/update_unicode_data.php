@@ -97,6 +97,12 @@ $funcs = array(
 		),
 		'data' => array(),
 	),
+	'utf8_regex_variation_selectors' => array(
+		'file' => 'RegularExpressions.php',
+		'key_type' => 'string',
+		'val_type' => 'string',
+		'data' => array(),
+	),
 	'utf8_regex_joining_type' => array(
 		'file' => 'RegularExpressions.php',
 		'key_type' => 'string',
@@ -340,6 +346,75 @@ foreach ($funcs['utf8_regex_properties']['propfiles'] as $filename) {
 	}
 }
 ksort($funcs['utf8_regex_properties']['data']);
+
+// Build regular expression classes for filtering variation selectors.
+$files = array('StandardizedVariants.txt', 'emoji/emoji-variation-sequences.txt');
+foreach ($files as $filename) {
+	foreach (file($unicode_data_url . '/' . $filename) as $line) {
+		$line = substr($line, 0, strcspn($line, '#'));
+
+		if (strpos($line, ';') === false)
+			continue;
+
+		$fields = explode(';', $line);
+
+		foreach ($fields as $key => $value) {
+			$fields[$key] = trim($value);
+		}
+
+		list($base_char, $variation_selector) = explode(' ', $fields[0]);
+
+		$funcs['utf8_regex_variation_selectors']['data']['\\x{' . $variation_selector . '}'][] = hexdec($base_char);
+	}
+
+}
+foreach ($funcs['utf8_regex_variation_selectors']['data'] as $variation_selector => $ords) {
+	$class_string = '';
+
+	$current_range = array('start' => null, 'end' => null);
+	foreach($ords as $ord) {
+		if (!isset($current_range['start'])) {
+			$current_range['start'] = $ord;
+		}
+
+		if (!isset($current_range['end']) || $ord == $current_range['end'] + 1) {
+			$current_range['end'] = $ord;
+			continue;
+		} else {
+			$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+
+			if ($current_range['start'] != $current_range['end']) {
+				$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+			}
+
+			$current_range = array('start' => $ord, 'end' => $ord);
+		}
+	}
+
+	if (isset($current_range['start'])) {
+		$class_string .= '\\x{' . strtoupper(sprintf('%04s', dechex($current_range['start']))) . '}';
+
+		if ($current_range['start'] != $current_range['end']) {
+			$class_string .= '-\\x{' . strtoupper(sprintf('%04s', dechex($current_range['end']))) . '}';
+		}
+	}
+
+	// As of Unicode 14.0, \x{FE0E} and \x{FE0F} work with identical ranges of base characters.
+	if (($identical = array_search($class_string, $funcs['utf8_regex_variation_selectors']['data'])) !== false) {
+		unset(
+			$funcs['utf8_regex_variation_selectors']['data'][$identical],
+			$funcs['utf8_regex_variation_selectors']['data'][$variation_selector]
+		);
+
+		$compound_selector = array($identical, $variation_selector);
+		sort($compound_selector);
+
+		$variation_selector = implode('', $compound_selector);
+	}
+
+	$funcs['utf8_regex_variation_selectors']['data'][$variation_selector] = $class_string;
+}
+krsort($funcs['utf8_regex_variation_selectors']['data']);
 
 // The regex classes for join control tests require info about language scripts.
 $script_stats = array();
