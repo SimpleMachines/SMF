@@ -164,7 +164,7 @@ function ShowXmlFeed()
 		// Either the board specified doesn't exist or you have no access.
 		$num_boards = $smcFunc['db_num_rows']($request);
 		if ($num_boards == 0)
-			fatal_lang_error('no_board');
+			fatal_lang_error('no_board', false);
 
 		$total_posts = 0;
 		$boards = array();
@@ -199,7 +199,7 @@ function ShowXmlFeed()
 		);
 
 		if ($smcFunc['db_num_rows']($request) == 0)
-			fatal_lang_error('no_board');
+			fatal_lang_error('no_board', false);
 
 		list ($total_posts) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
