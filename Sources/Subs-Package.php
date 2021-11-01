@@ -172,11 +172,11 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 		$offset += $size;
 
 		// Not a directory and doesn't exist already...
-		if (substr($current['filename'], -1, 1) != '/' && !file_exists($destination . '/' . $current['filename']))
+		if (substr($current['filename'], -1, 1) != '/' && $destination !== null && !file_exists($destination . '/' . $current['filename']))
 			$write_this = true;
 		// File exists... check if it is newer.
 		elseif (substr($current['filename'], -1, 1) != '/')
-			$write_this = $overwrite || filemtime($destination . '/' . $current['filename']) < $current['mtime'];
+			$write_this = $overwrite || ($destination !== null && filemtime($destination . '/' . $current['filename']) < $current['mtime']);
 		// Folder... create.
 		elseif ($destination !== null && !$single_file)
 		{
