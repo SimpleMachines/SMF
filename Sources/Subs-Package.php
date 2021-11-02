@@ -172,11 +172,11 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 		$offset += $size;
 
 		// Not a directory and doesn't exist already...
-		if (substr($current['filename'], -1, 1) != '/' && !file_exists($destination . '/' . $current['filename']))
+		if (substr($current['filename'], -1, 1) != '/' && $destination !== null && !file_exists($destination . '/' . $current['filename']))
 			$write_this = true;
 		// File exists... check if it is newer.
 		elseif (substr($current['filename'], -1, 1) != '/')
-			$write_this = $overwrite || filemtime($destination . '/' . $current['filename']) < $current['mtime'];
+			$write_this = $overwrite || ($destination !== null && filemtime($destination . '/' . $current['filename']) < $current['mtime']);
 		// Folder... create.
 		elseif ($destination !== null && !$single_file)
 		{
@@ -279,7 +279,7 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 		{
 			$i = $iterator->getSubPathname();
 			// If this is a file, and it doesn't exist.... happy days!
-			if (substr($i, -1) != '/' && !file_exists($destination . '/' . $i))
+			if (substr($i, -1) != '/' && $destination !== null && !file_exists($destination . '/' . $i))
 				$write_this = true;
 			// If the file exists, we may not want to overwrite it.
 			elseif (substr($i, -1) != '/')
