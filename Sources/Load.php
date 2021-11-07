@@ -280,6 +280,8 @@ function reloadSettings()
 		{
 			global $sourcedir;
 
+			$string = (string) $string;
+
 			if (!$utf8)
 				return $string;
 
