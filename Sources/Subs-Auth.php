@@ -682,6 +682,9 @@ function validateUsername($memID, $username, $return_error = false, $check_reser
 			$errors[] = array('done', '(' . $smcFunc['htmlspecialchars']($username) . ') ' . $txt['name_in_use']);
 	}
 
+	// Maybe a mod wants to perform more checks?
+	call_integration_hook('integrate_validate_username', array($username, &$errors));
+
 	if ($return_error)
 		return $errors;
 	elseif (empty($errors))
