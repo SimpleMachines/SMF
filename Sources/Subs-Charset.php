@@ -27,17 +27,19 @@ function utf8_strtolower($string)
 {
 	global $sourcedir;
 
+	$string = (string) $string;
+
+	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
+	if ($chars === false)
+		return false;
+
 	require_once($sourcedir . '/Unicode/CaseLower.php');
 
 	$substitutions = utf8_strtolower_maps();
 
-	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
 	foreach ($chars as &$char)
 		$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
-
-	if ($chars === false)
-		return false;
 
 	return implode('', $chars);
 }
@@ -55,14 +57,16 @@ function utf8_strtoupper($string)
 {
 	global $sourcedir;
 
-	require_once($sourcedir . '/Unicode/CaseUpper.php');
-
-	$substitutions = utf8_strtoupper_maps();
+	$string = (string) $string;
 
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 	if ($chars === false)
 		return false;
+
+	require_once($sourcedir . '/Unicode/CaseUpper.php');
+
+	$substitutions = utf8_strtoupper_maps();
 
 	foreach ($chars as &$char)
 		$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
@@ -83,14 +87,16 @@ function utf8_casefold($string)
 {
 	global $sourcedir;
 
-	require_once($sourcedir . '/Unicode/CaseFold.php');
-
-	$substitutions = utf8_casefold_maps();
+	$string = (string) $string;
 
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 	if ($chars === false)
 		return false;
+
+	require_once($sourcedir . '/Unicode/CaseFold.php');
+
+	$substitutions = utf8_casefold_maps();
 
 	foreach ($chars as &$char)
 		$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
@@ -106,6 +112,8 @@ function utf8_casefold($string)
  */
 function utf8_normalize_d($string)
 {
+	$string = (string) $string;
+
 	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_D))
 		return $string;
 
@@ -128,6 +136,8 @@ function utf8_normalize_d($string)
  */
 function utf8_normalize_kd($string)
 {
+	$string = (string) $string;
+
 	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_KD))
 		return $string;
 
@@ -150,6 +160,8 @@ function utf8_normalize_kd($string)
  */
 function utf8_normalize_c($string)
 {
+	$string = (string) $string;
+
 	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_C))
 		return $string;
 
@@ -172,6 +184,8 @@ function utf8_normalize_c($string)
  */
 function utf8_normalize_kc($string)
 {
+	$string = (string) $string;
+
 	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_KC))
 		return $string;
 
@@ -196,6 +210,8 @@ function utf8_normalize_kc($string)
 function utf8_normalize_kc_casefold($string)
 {
 	global $sourcedir;
+
+	$string = (string) $string;
 
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
