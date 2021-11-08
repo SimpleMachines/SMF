@@ -7686,17 +7686,17 @@ function parse_iri($iri, $component = -1)
 		$iri
 	);
 
-	$parts = parse_url($iri, $component);
+	$parsed = parse_url($iri, $component);
 
-	if (is_array($parts))
+	if (is_array($parsed))
 	{
-		foreach ($parts as &$part)
+		foreach ($parsed as &$part)
 			$part = rawurldecode($part);
 	}
-	else
-		$parts = rawurldecode($parts);
+	elseif (is_string($parsed))
+		$parsed = rawurldecode($parsed);
 
-	return $parts;
+	return $parsed;
 }
 
 /**
