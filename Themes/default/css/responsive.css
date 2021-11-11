@@ -209,7 +209,7 @@
 		display: none;
 	}
 	#messageindex .info {
-		padding: 0 5px 0 5px;
+		padding: 8px 10px;
 	}
 	.info_block {
 		display: block;
@@ -235,6 +235,9 @@
 	}
 	.postarea {
 		margin: 0;
+	}
+	.inner {
+		padding: 1em 2px;
 	}
 	.moderatorbar {
 		margin: 0;
