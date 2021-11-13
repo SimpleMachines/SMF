@@ -1475,7 +1475,7 @@ function corsPolicyHeader($set_header = true)
 			if (preg_match('~' . $host_regex . '~u', $origin['host']))
 			{
 				$context['cors_domain'] = trim($_SERVER['HTTP_ORIGIN']);
-				$context['valid_cors_found'] = !empty($allowed_origin['type']) ? $allowed_origin['type'] : true;
+				$context['valid_cors_found'] = $allowed_origin['type'];
 				break;
 			}
 		}
