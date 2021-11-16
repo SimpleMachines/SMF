@@ -4104,3 +4104,7 @@ div.sceditor-container:not(.sceditor-maximize) {
 #attach_current_directory {
 	word-break: break-word;
 }
+/* Add max-width for theme thumbnails */
+img.theme_thumbnail {
+	max-width: 250px;
+}
