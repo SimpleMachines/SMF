@@ -1493,7 +1493,7 @@ function PackageBrowse()
 									<a href="' . $scripturl . '?action=admin;area=packages;sa=uninstall;ve=' . $package['can_emulate_uninstall'] . ';package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '" class="button floatnone">' . $txt['package_emulate_uninstall'] . ' ' . $package['can_emulate_uninstall'] . '</a>';
 							elseif ($package['can_upgrade'])
 								$return = '
-									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button" floatnone>' . $txt['package_upgrade'] . '</a>';
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button floatnone">' . $txt['package_upgrade'] . '</a>';
 							elseif ($package['can_install'])
 								$return = '
 									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button floatnone">' . $txt['install_' . $type] . '</a>';
