@@ -1346,8 +1346,7 @@ function prepareDBSettingContext(&$config_vars)
 
 				$context['bbc_sections'][$bbcSection]['columns'][$col][] = array(
 					'tag' => $tag,
-					// @todo  'tag_' . ?
-					'show_help' => isset($helptxt[$tag]),
+					'show_help' => isset($helptxt['tag_' . $tag]),
 				);
 
 				$i++;

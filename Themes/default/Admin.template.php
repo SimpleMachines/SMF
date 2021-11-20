@@ -941,7 +941,7 @@ function template_show_settings()
 				{
 					echo '
 										<fieldset id="', $config_var['name'], '">
-											<legend>', $txt['enabled_bbc_select'], '</legend>
+											<legend>', $context['bbc_sections'][$config_var['name']]['title'], '</legend>
 											<ul>';
 
 					foreach ($context['bbc_sections'][$config_var['name']]['columns'] as $bbcColumn)
