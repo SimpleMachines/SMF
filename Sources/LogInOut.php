@@ -748,7 +748,7 @@ function Logout($internal = false, $redirect = true)
 			$_SESSION['logout_return'] = $_SESSION['logout_url'];
 		}
 		// Setup the return address.
-		else
+		elseif (isset($_SESSION['old_url']))
 			$_SESSION['logout_return'] = $_SESSION['old_url'];
 
 		// Don't go any further.
