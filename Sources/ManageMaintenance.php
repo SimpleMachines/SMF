@@ -2104,7 +2104,12 @@ function get_integration_hooks_data($start, $per_page, $sort, $filtered_hooks, $
 	foreach ($filtered_hooks as $hook => $functions)
 		foreach ($functions as $rawFunc)
 		{
-			$hookParsedData = parse_integration_hook($hook, $rawFunc, $files);
+			$hookParsedData = parse_integration_hook($hook, $rawFunc);
+
+			// Handle hooks pointing outside the sources directory.
+			if ($hookParsedData['absPath'] != '' && (!isset($files[$hookParsedData['absPath']]) || file_exists($hookParsedData['absPath'])))
+				$function_list += get_defined_functions_in_file($hookParsedData['absPath']);
+
 			$hook_exists = isset($function_list[$hookParsedData['call']]) || (substr($hook, -8) === '_include' && isset($files[$hookParsedData['absPath']]));
 			$temp = array(
 				'hook_name' => $hook,
@@ -2158,7 +2163,7 @@ function get_integration_hooks()
  * @param string $rawData A string as it was saved to the DB.
  * @return array everything found in the string itself
  */
-function parse_integration_hook(string $hook, string $rawData, array $files)
+function parse_integration_hook(string $hook, string $rawData)
 {
 	global $boarddir, $settings, $sourcedir;
 
@@ -2166,7 +2171,6 @@ function parse_integration_hook(string $hook, string $rawData, array $files)
 	$hookData = array(
 		'object' => false,
 		'enabled' => true,
-		'fileExists' => false,
 		'absPath' => '',
 		'hookFile' => '',
 		'pureFunc' => '',
@@ -2180,7 +2184,6 @@ function parse_integration_hook(string $hook, string $rawData, array $files)
 	if (empty($rawData))
 		return $hookData;
 
-	// For convenience purposes only!
 	$modFunc = $rawData;
 
 	// Any files?
@@ -2190,7 +2193,6 @@ function parse_integration_hook(string $hook, string $rawData, array $files)
 	{
 		list ($hookData['hookFile'], $modFunc) = explode('|', $modFunc);
 		$hookData['absPath'] = strtr(strtr(trim($hookData['hookFile']), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'] ?? '')), '\\', '/');
-		$hookData['fileExists'] = isset($files[$hookData['absPath']]) || file_exists($hookData['absPath']);
 	}
 
 	// Hook is an instance.
