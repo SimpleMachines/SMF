@@ -305,7 +305,7 @@ function adminLogin($type = 'admin')
 	obExit();
 
 	// We MUST exit at this point, because otherwise we CANNOT KNOW that the user is privileged.
-	trigger_error('Hacking attempt...', E_USER_ERROR);
+	trigger_error('No direct access...', E_USER_ERROR);
 }
 
 /**
