@@ -2017,13 +2017,16 @@ function parse_sql($filename)
 
 	// Our custom error handler - does nothing but does stop public errors from XML!
 	// Note that php error suppression - @ - used heavily in the upgrader, calls the error handler
-	// but error_reporting() will return 0 as it does so.
+	// but error_reporting() will return 0 as it does so (pre php8).
+	// Note error handling in php8+ no longer fails silently on many errors, but error_reporting()
+	// will return 4437 (E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_PARSE)
+	// as it does so.
 	set_error_handler(
 		function($errno, $errstr, $errfile, $errline) use ($support_js)
 		{
 			if ($support_js)
 				return true;
-			elseif (error_reporting() != 0)
+			elseif ((error_reporting() != 0) && (error_reporting() != (E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_PARSE)))
 				echo 'Error: ' . $errstr . ' File: ' . $errfile . ' Line: ' . $errline;
 		}
 	);
