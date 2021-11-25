@@ -90,88 +90,112 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 	if (!$single_file && $destination !== null && !file_exists($destination))
 		mktree($destination, 0777);
 
-	$flags = unpack('Ct/Cf', substr($data, 2, 2));
-
 	// Not deflate!
-	if ($flags['t'] != 8)
+	if (ord($data[2]) != 8)
 		return false;
-	$flags = $flags['f'];
 
+	// RFC 1952
+	$flags = ord($data[3]);
+
+	// Gzip file header is always 10 bytes.
 	$offset = 10;
-	$octdec = array('mode', 'uid', 'gid', 'size', 'mtime', 'checksum');
 
-	// "Read" the filename and comment.
-	// @todo Might be mussed.
-	if ($flags & 12)
-	{
-		while ($flags & 8 && $data[$offset++] != "\0")
-			continue;
-		while ($flags & 4 && $data[$offset++] != "\0")
-			continue;
-	}
+	// fHCRC
+	if ($flags & 0x2)
+		$offset += 2;
+	// fEXTRA
+	if ($flags & 0x4)
+		$offset += ord($data[$offset]);
+	// fNAME
+	while ($flags & 0x8 && $data[$offset++] != "\0")
+		continue;
+	// fCOMMENT
+	while ($flags & 0x10 && $data[$offset++] != "\0")
+		continue;
 
-	$crc = unpack('Vcrc32/Visize', substr($data, strlen($data) - 8, 8));
-	$data = @gzinflate(substr($data, $offset, strlen($data) - 8 - $offset));
+	$crc = unpack('V', $data, strlen($data) - 8);
+	$data = gzinflate(substr($data, $offset, -8));
 
-	// smf_crc32 and crc32 may not return the same results, so we accept either.
-	if ($crc['crc32'] != smf_crc32($data) && $crc['crc32'] != crc32($data))
+	// PKZip/ITU-T V.42 CRC-32
+	if (hash('crc32b', $data) !== sprintf('%08x', $crc[1]))
 		return false;
 
 	$blocks = strlen($data) / 512 - 1;
-	$offset = 0;
-
+	$block = 0;
 	$return = array();
 
-	while ($offset < $blocks)
+	// All data is block-aligned by 512 bytes.
+	while ($block < $blocks)
 	{
-		$header = substr($data, $offset << 9, 512);
-		$current = unpack('a100filename/a8mode/a8uid/a8gid/a12size/a12mtime/a8checksum/a1type/a100linkname/a6magic/a2version/a32uname/a32gname/a8devmajor/a8devminor/a155path', $header);
+		$offset = $block++ << 9;
+		$file_info = unpack('Z100filename/@124/A12size/A12mtime/A8checksum/Atype/@345/Z155prefix', $data, $offset);
 
-		// Blank record?  This is probably at the end of the file.
-		if (empty($current['filename']))
-		{
-			$offset += 512;
+		// Blank record? This is probably at the end of the file.
+		if (empty($file_info['filename']))
 			continue;
-		}
-
-		foreach ($current as $k => $v)
-		{
-			if (in_array($k, $octdec))
-				$current[$k] = octdec(trim($v));
-			else
-				$current[$k] = trim($v);
-		}
-
-		if ($current['type'] == '5' && substr($current['filename'], -1) != '/')
-			$current['filename'] .= '/';
 
 		$checksum = 256;
 		for ($i = 0; $i < 148; $i++)
-			$checksum += ord($header[$i]);
+			$checksum += ord($data[$offset + $i]);
 		for ($i = 156; $i < 512; $i++)
-			$checksum += ord($header[$i]);
+			$checksum += ord($data[$offset + $i]);
 
-		if ($current['checksum'] != $checksum)
+		if (octdec($file_info['checksum']) != $checksum)
 			break;
 
-		$size = ceil($current['size'] / 512);
-		$current['data'] = substr($data, ++$offset << 9, $current['size']);
-		$offset += $size;
+		// Handle ustar Posix compliant path prefixes
+		if (!empty($file_info['prefix']))
+			$file_info['filename'] = $file_info['prefix'] . '/' . $file_info['filename'];
+
+		switch ($file_info['type'])
+		{
+			case '5':
+				if (substr($file_info['filename'], -1) != '/')
+					$file_info['filename'] .= '/';
+				break;
+			case 'L':
+				// Handle Long-Link entries from GNU Tar
+				$filename = unpack('Z' . octdec($file_info['size']) . 'filename', $data, $offset + 512);
+				$block += ceil(octdec($file_info['size']) / 512);
+				$file_info = $filename + unpack('A12size/A12mtime/A8checksum/Atype', $data, ($block << 9) + 124);
+				$offset = $block++ << 9;
+			break;
+			case 'x':
+				$block += ceil(octdec($file_info['size']) / 512);
+				$file_info = array_merge(
+					unpack('A12size/A12mtime/A8checksum/Atype', $data, ($block << 9) + 124),
+					...array_map(
+						fn($h) => [substr(strtok($h, '='), strpos($h, ' ') + 1) => strtok('=')],
+						explode("\n", substr($data, $offset + 512, octdec($file_info['size'])))
+					)
+				);
+				$offset = $block++ << 9;
+				if (!empty($file_info['path']))
+					$file_info['filename'] = $file_info['path'];
+			break;
+		}
+		$file_info['dir'] = $destination . '/' . dirname($file_info['filename']);
+		$is_file = substr($file_info['filename'], -1) != '/';
+
+		// Calculate the number of blocks taken up by the data.
+		$size = ceil(octdec($file_info['size']) / 512);
+		$file_info['data'] = substr($data, $offset + 512, octdec($file_info['size']));
+		$block += $size;
 
 		// Not a directory and doesn't exist already...
-		if (substr($current['filename'], -1, 1) != '/' && $destination !== null && !file_exists($destination . '/' . $current['filename']))
+		if ($is_file && !file_exists($destination . '/' . $file_info['filename']))
 			$write_this = true;
 		// File exists... check if it is newer.
-		elseif (substr($current['filename'], -1, 1) != '/')
-			$write_this = $overwrite || ($destination !== null && filemtime($destination . '/' . $current['filename']) < $current['mtime']);
+		elseif ($is_file)
+			$write_this = $overwrite || filemtime($destination . '/' . $file_info['filename']) < $file_info['mtime'];
 		// Folder... create.
 		elseif ($destination !== null && !$single_file)
 		{
 			// Protect from accidental parent directory writing...
-			$current['filename'] = strtr($current['filename'], array('../' => '', '/..' => ''));
+			$file_info['filename'] = strtr($file_info['filename'], array('../' => '', '/..' => ''));
 
-			if (!file_exists($destination . '/' . $current['filename']))
-				mktree($destination . '/' . $current['filename'], 0777);
+			if (!file_exists($destination . '/' . $file_info['filename']))
+				mktree($destination . '/' . $file_info['filename'], 0777);
 			$write_this = false;
 		}
 		else
@@ -179,28 +203,28 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 
 		if ($write_this && $destination !== null)
 		{
-			if (strpos($current['filename'], '/') !== false && !$single_file)
-				mktree($destination . '/' . dirname($current['filename']), 0777);
+			if (strpos($file_info['filename'], '/') !== false && !$single_file)
+				mktree($destination . '/' . dirname($file_info['filename']), 0777);
 
 			// Is this the file we're looking for?
-			if ($single_file && ($destination == $current['filename'] || $destination == '*/' . basename($current['filename'])))
-				return $current['data'];
+			if ($single_file && ($destination == $file_info['filename'] || $destination == '*/' . basename($file_info['filename'])))
+				return $file_info['data'];
 			// If we're looking for another file, keep going.
 			elseif ($single_file)
 				continue;
 			// Looking for restricted files?
-			elseif ($files_to_extract !== null && !in_array($current['filename'], $files_to_extract))
+			elseif ($files_to_extract !== null && !in_array($file_info['filename'], $files_to_extract))
 				continue;
 
-			package_put_contents($destination . '/' . $current['filename'], $current['data']);
+			package_put_contents($destination . '/' . $file_info['filename'], $file_info['data']);
 		}
 
-		if (substr($current['filename'], -1, 1) != '/')
+		if ($is_file)
 			$return[] = array(
-				'filename' => $current['filename'],
-				'md5' => md5($current['data']),
-				'preview' => substr($current['data'], 0, 100),
-				'size' => $current['size'],
+				'filename' => $file_info['filename'],
+				'md5' => md5($file_info['data']),
+				'preview' => substr($file_info['data'], 0, 100),
+				'size' => octdec($file_info['size']),
 				'skipped' => false
 			);
 	}
@@ -208,10 +232,7 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 	if ($destination !== null && !$single_file)
 		package_flush_cache();
 
-	if ($single_file)
-		return false;
-	else
-		return $return;
+	return $single_file ? false : $return;
 }
 
 /**
