@@ -288,6 +288,8 @@ function BoardReport()
  */
 function BoardPermissionsReport()
 {
+	global $context, $txt;
+
 	global $txt, $modSettings, $smcFunc;
 
 	// Get as much memory as possible as this can be big.
@@ -319,38 +321,24 @@ function BoardPermissionsReport()
 
 	// Fetch all the board names.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_board, name, id_profile
-		FROM {db_prefix}boards
+		SELECT id_board, b.name, id_profile
+		FROM {db_prefix}categories AS c
+			JOIN {db_prefix}boards AS b USING (id_cat)
 		WHERE ' . $board_clause . '
-		ORDER BY id_board',
+		ORDER BY cat_order, child_level, board_order',
 		array(
 			'boards' => isset($_REQUEST['boards']) ? $_REQUEST['boards'] : array(),
 		)
 	);
-	$profiles = array();
+	$board_permissions = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$boards[$row['id_board']] = array(
+			'id' => $row['id_board'],
 			'name' => $row['name'],
 			'profile' => $row['id_profile'],
-			'mod_groups' => array(),
 		);
-		$profiles[] = $row['id_profile'];
-	}
-	$smcFunc['db_free_result']($request);
-
-	// Get the ids of any groups allowed to moderate this board
-	// Limit it to any boards and/or groups we're looking at
-	$request = $smcFunc['db_query']('', '
-		SELECT id_board, id_group
-		FROM {db_prefix}moderator_groups
-		WHERE ' . $board_clause . ' AND ' . $group_clause,
-		array(
-		)
-	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		$boards[$row['id_board']]['mod_groups'][] = $row['id_group'];
+		$board_permissions[$row['id_profile']] = [];
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -377,9 +365,6 @@ function BoardPermissionsReport()
 		$member_groups[$row['id_group']] = $row['group_name'];
 	$smcFunc['db_free_result']($request);
 
-	// Make sure that every group is represented - plus in rows!
-	setKeys('rows', $member_groups);
-
 	// Certain permissions should not really be shown.
 	$disabled_permissions = array();
 	if (!$modSettings['postmod_active'])
@@ -395,7 +380,6 @@ function BoardPermissionsReport()
 
 	// Cache every permission setting, to make sure we don't miss any allows.
 	$permissions = array();
-	$board_permissions = array();
 	$request = $smcFunc['db_query']('', '
 		SELECT id_profile, id_group, add_deny, permission
 		FROM {db_prefix}board_permissions
@@ -404,7 +388,7 @@ function BoardPermissionsReport()
 			AND add_deny = {int:not_deny}' : '') . '
 		ORDER BY id_profile, permission',
 		array(
-			'profile_list' => $profiles,
+			'profile_list' => array_keys($board_permissions),
 			'not_deny' => 1,
 			'groups' => isset($_REQUEST['groups']) ? $_REQUEST['groups'] : array(),
 		)
@@ -414,82 +398,49 @@ function BoardPermissionsReport()
 		if (in_array($row['permission'], $disabled_permissions))
 			continue;
 
-		foreach ($boards as $id => $board)
-			if ($board['profile'] == $row['id_profile'])
-				$board_permissions[$id][$row['id_group']][$row['permission']] = $row['add_deny'];
-
-		// Make sure we get every permission.
+		$board_permissions[$row['id_profile']][$row['id_group']][$row['permission']] = (int) $row['add_deny'];
 		if (!isset($permissions[$row['permission']]))
-		{
-			// This will be reused on other boards.
-			$permissions[$row['permission']] = array(
-				'title' => isset($txt['board_perms_name_' . $row['permission']]) ? $txt['board_perms_name_' . $row['permission']] : $row['permission'],
-			);
-		}
+			$permissions[$row['permission']] = true;
 	}
 	$smcFunc['db_free_result']($request);
 
-	// Now cycle through the board permissions array... lots to do ;)
-	foreach ($board_permissions as $board => $groups)
-	{
-		// Create the table for this board first.
-		newTable($boards[$board]['name'], 'x', 'all', 100, 'center', 200, 'left');
+	$context['sub_template'] = 'main2';
+	$context['default_value'] = 'x';
+	$context['table'] = array_column($boards, 'name', 'id');
+	$context['table_pointers'] = array_column($boards, 'profile', 'id');
+	$context['num_cols'] = count($member_groups);
+	$context['cols'] = $member_groups;
+	$context['rows'] = [];
 
-		// Add the header row - shows all the membergroups.
-		addData($member_groups);
+	// Find those permissions that have been removed (but not denied!) that differ from the default profile.
+	foreach ($board_permissions as $id_profile => $group_permissions)
+		foreach ($group_permissions as $id_group => $perm_info)
+			foreach ($permissions as $permission => $dunny)
+				if ($id_profile != 1 && !isset($perm_info[$permission]) && isset($board_permissions[1][$id_group][$permission]))
+					$board_permissions[$id_profile][$id_group][$permission] = 2;
 
-		// Add the separator.
-		addSeparator($txt['board_perms_permission']);
-
-		// Here cycle through all the detected permissions.
-		foreach ($permissions as $ID_PERM => $perm_info)
+	foreach ($board_permissions as $id_profile => $group_permissions)
+		foreach ($group_permissions as $id_group => $perm_info)
 		{
-			// Default data for this row.
-			$curData = array('col' => $perm_info['title']);
-
-			// Now cycle each membergroup in this set of permissions.
-			foreach ($member_groups as $id_group => $name)
+			$curData = [];
+			foreach ($perm_info as $permission => $add_deny)
 			{
-				// Don't overwrite the key column!
-				if ($id_group === 'col')
-					continue;
+				$curData['col'] = $txt['board_perms_name_' . $permission] ?? $permission;
 
-				$group_permissions = isset($groups[$id_group]) ? $groups[$id_group] : array();
-
-				// Do we have any data for this group?
-				if (isset($group_permissions[$ID_PERM]))
-				{
-					// Set the data for this group to be the local permission.
-					$curData[$id_group] = $group_permissions[$ID_PERM];
-				}
-				// Is it inherited from Moderator?
-				elseif (in_array($id_group, $boards[$board]['mod_groups']) && !empty($groups[3]) && isset($groups[3][$ID_PERM]))
-				{
-					$curData[$id_group] = $groups[3][$ID_PERM];
-				}
-				// Otherwise means it's set to disallow..
-				else
-				{
-					$curData[$id_group] = 'x';
-				}
-
-				// Now actually make the data for the group look right.
-				if (empty($curData[$id_group]))
+				if ($add_deny == 0)
 					$curData[$id_group] = '<span class="red">' . $txt['board_perms_deny'] . '</span>';
-				elseif ($curData[$id_group] == 1)
+				elseif ($add_deny == 1)
 					$curData[$id_group] = '<span style="color: darkgreen;">' . $txt['board_perms_allow'] . '</span>';
-				else
+				elseif ($add_deny == 2)
 					$curData[$id_group] = 'x';
 
 				// Embolden those permissions different from global (makes it a lot easier!)
-				if (@$board_permissions[0][$id_group][$ID_PERM] != @$group_permissions[$ID_PERM])
+				if (@$board_permissions[1][$id_group][$permission] != $add_deny)
 					$curData[$id_group] = '<strong>' . $curData[$id_group] . '</strong>';
-			}
 
-			// Now add the data for this permission.
-			addData($curData);
+				$context['rows'][$id_profile][$permission] = $curData;
+			}
 		}
-	}
 }
 
 /**

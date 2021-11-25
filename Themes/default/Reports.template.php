@@ -133,6 +133,124 @@ function template_main()
 }
 
 /**
+ * This is the standard template for showing reports.
+ */
+function template_main22()
+{
+	global $context, $txt;
+
+	echo '
+		<div id="report_buttons">';
+
+	if (!empty($context['report_buttons']))
+		template_button_strip($context['report_buttons'], 'right');
+
+	echo '
+		</div>';
+
+	// Go through each table!
+	foreach ($context['table'] as $id => $title)
+	{
+		echo '
+		<table class="table_grid">
+			<thead>
+				<tr>
+					<th class="lefttext" scope="col" colspan="', $context['num_cols'], '">
+						<div class="cat_bar">
+							<h3 class="catbg">', $title, '</h3>
+						</div>
+					</th>
+				</tr>
+				<tr class="title_bar">
+					<th scope="col">', implode('</th>
+					<th scope="col">', $context['cols']), '</th>
+				</tr>
+			</thead>
+			<tbody>';
+
+		// Now do each row!
+		foreach ($context['rows'][$context['table_pointers'][$id] ?? $id] as $row)
+		{
+			echo '
+				<tr class="smalltext centertext windowbg">';
+
+			foreach ($context['cols'] as $colId => $col)
+				echo '
+					<td>
+						', $row[$colId] ?? $context['default_value'], '
+					</td>';
+
+			echo '
+				</tr>';
+		}
+
+		echo '
+			</tbody>
+		</table>';
+	}
+}
+
+/**
+ * This is the standard template for showing reports.
+ */
+function template_main2()
+{
+	global $context, $txt;
+
+	$fp = fopen('php://output', 'W');
+	fwrite($fp, '
+		<table class="table_grid">');
+	foreach ($context['table'] as $id => $title)
+	{
+		fwrite($fp, '
+			<thead>
+				<tr>
+					<th class="lefttext" scope="col" colspan="');
+		fwrite($fp, $context['num_cols']);
+		fwrite($fp, '">
+						<div class="cat_bar">
+							<h3 class="catbg">');
+		fwrite($fp, $title);
+		fwrite($fp, '</h3>
+						</div>
+					</th>
+				</tr>
+				<tr class="title_bar">
+					<th scope="col">');
+		fwrite($fp, implode('</th>
+					<th scope="col">', $context['cols']));
+		fwrite($fp, '</th>
+				</tr>
+			</thead>
+			<tbody>');
+
+		foreach ($context['rows'][$context['table_pointers'][$id] ?? $id] as $row)
+		{
+			fwrite($fp, '
+				<tr class="smalltext centertext windowbg">');
+
+			foreach ($context['cols'] as $colId => $col)
+			{
+				fwrite($fp, '
+					<td>');
+				fwrite($fp, $row[$colId] ?? $context['default_value']);
+				fwrite($fp, '
+					</td>');
+			}
+
+			fwrite($fp, '
+				</tr>');
+		}
+
+		fwrite($fp, '
+			</tbody>');
+	}
+	fwrite($fp, '
+		</table>');
+	fclose($fp);
+}
+
+/**
  * Header of the print page!
  */
 function template_print_above()
