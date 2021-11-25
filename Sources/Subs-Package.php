@@ -2949,17 +2949,12 @@ function package_create_backup($id = 'backup')
 	global $sourcedir, $boarddir, $packagesdir, $smcFunc;
 
 	$files = array();
-
+	$dirs = array(strtr($sourcedir . '/', '\\', '/'));
 	$base_files = array('index.php', 'SSI.php', 'agreement.txt', 'cron.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php');
+	$root = strtr($boarddir, '\\', '/') . '/';
 	foreach ($base_files as $file)
-	{
 		if (file_exists($boarddir . '/' . $file))
-			$files[empty($_REQUEST['use_full_paths']) ? $file : $boarddir . '/' . $file] = $boarddir . '/' . $file;
-	}
-
-	$dirs = array(
-		$sourcedir => empty($_REQUEST['use_full_paths']) ? 'Sources/' : strtr($sourcedir . '/', '\\', '/')
-	);
+			$files[] = new SplFileInfo($root . $file);
 
 	$request = $smcFunc['db_query']('', '
 		SELECT value
@@ -2972,80 +2967,25 @@ function package_create_backup($id = 'backup')
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$dirs[$row['value']] = empty($_REQUEST['use_full_paths']) ? 'Themes/' . basename($row['value']) . '/' : strtr($row['value'] . '/', '\\', '/');
+		$dirs[] = strtr($row['value'], '\\', '/');
 	$smcFunc['db_free_result']($request);
 
 	try
 	{
-		foreach ($dirs as $dir => $dest)
+		foreach ($dirs as $dir)
 		{
 			$iter = new RecursiveIteratorIterator(
-				new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+				new RecursiveCallbackFilterIterator(
+					new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
+					fn($fileInfo) => ($fileInfo->isDir() && preg_match('/help|images/', $fileInfo->getFilename()) == 0) || $fileInfo->getExtension() !== 'php~'
+				),
 				RecursiveIteratorIterator::CHILD_FIRST,
 				RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
 			);
 
-			foreach ($iter as $entry => $dir)
-			{
-				if ($dir->isDir())
-					continue;
-
-				if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~)$~', $entry) != 0)
-					continue;
-
-				$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath($boarddir), '', $entry) : $entry] = $entry;
-			}
+			foreach ($iter as $fileInfo)
+				$files[] = $fileInfo;
 		}
-		$obj = new ArrayObject($files);
-		$iterator = $obj->getIterator();
-
-		if (!file_exists($packagesdir . '/backups'))
-			mktree($packagesdir . '/backups', 0777);
-		if (!is_writable($packagesdir . '/backups'))
-			package_chmod($packagesdir . '/backups');
-		$output_file = $packagesdir . '/backups/' . smf_strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
-		$output_ext = '.tar';
-		$output_ext_target = '.tar.gz';
-
-		if (file_exists($output_file . $output_ext_target))
-		{
-			$i = 2;
-			while (file_exists($output_file . '_' . $i . $output_ext_target))
-				$i++;
-			$output_file = $output_file . '_' . $i . $output_ext;
-		}
-		else
-			$output_file .= $output_ext;
-
-		@set_time_limit(300);
-		if (function_exists('apache_reset_timeout'))
-			@apache_reset_timeout();
-
-		// Phar doesn't handle open_basedir restrictions very well and throws a PHP Warning. Ignore that.
-		set_error_handler(
-			function($errno, $errstr, $errfile, $errline)
-			{
-				// error was suppressed with the @-operator
-				if (0 === error_reporting())
-					return false;
-
-				if (strpos($errstr, 'PharData::__construct(): open_basedir') === false && strpos($errstr, 'PharData::compress(): open_basedir') === false)
-					log_error($errstr, 'general', $errfile, $errline);
-
-				return true;
-			}
-		);
-		$a = new PharData($output_file);
-		$a->buildFromIterator($iterator);
-		$a->compress(Phar::GZ);
-		restore_error_handler();
-
-		/*
-		 * Destroying the local var tells PharData to close its internal
-		 * file pointer, enabling us to delete the uncompressed tarball.
-		 */
-		unset($a);
-		unlink($output_file);
 	}
 	catch (Exception $e)
 	{
@@ -3053,6 +2993,79 @@ function package_create_backup($id = 'backup')
 
 		return false;
 	}
+
+	$fopen = 'fopen';
+	$fwrite = 'fwrite';
+	$fclose = 'fclose';
+	$output_ext = '.tar';
+	if (function_exists('gzopen'))
+	{
+		$fopen = 'gzopen';
+		$fwrite = 'gzwrite';
+		$fclose = 'gzclose';
+		$output_ext = '.tar.gz';
+	}
+	if (!file_exists($packagesdir . '/backups'))
+		mktree($packagesdir . '/backups', 0777);
+	if (!is_writable($packagesdir . '/backups'))
+		package_chmod($packagesdir . '/backups');
+	$output_file = strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
+	package_unique_filename($packagesdir . '/backups', $output_file, $output_ext);
+
+	@set_time_limit(300);
+	if (function_exists('apache_reset_timeout'))
+		@apache_reset_timeout();
+
+	$output = $fopen($packagesdir . '/backups/' . $output_file . $output_ext, 'wb');
+	foreach ($files as $fileInfo)
+	{
+		$stat = stat($fileInfo->getPathname());
+		$data_first = pack(
+			'a100a8a8a8a12a12',
+			str_replace($root, '', $fileInfo->getPathname()),
+			sprintf('%6o ', $stat['mode']),
+			sprintf('%6o ', $stat['uid']),
+			sprintf('%6o ', $stat['gid']),
+			sprintf('%11o ', $fileInfo->isDir() ? 0 : $stat['size']),
+			sprintf('%11o ', $stat['mtime']),
+		);
+		$data_last = pack(
+			'a1a100a6a2a32a32a8a8a155a12',
+			$fileInfo->isDir() ? '5' : '0',
+			'',
+			'ustar',
+			'',
+			function_exists('posix_getpwuid') ? posix_getpwuid($stat['uid'])['name'] : '',
+			function_exists('posix_getgrgid') ? posix_getgrgid($stat['gid'])['name'] : '',
+			'',
+			'',
+			empty($_REQUEST['use_full_paths']) ? '' : trim($root, '/'),
+			''
+		);
+
+		$checksum = 256;
+		for ($i = 0; $i < 148; $i++)
+			if ($data_first[$i] != "\0")
+				$checksum += ord($data_first[$i]);
+		for ($i = 0; $i < 356; $i++)
+			if ($data_last[$i] != "\0")
+				$checksum += ord($data_last[$i]);
+
+		$fwrite($output, $data_first);
+		$fwrite($output, pack('a8', decoct($checksum)));
+		$fwrite($output, $data_last);
+
+		if ($fileInfo->isDir())
+			continue;
+
+		$fwrite($output, file_get_contents($fileInfo->getPathname()));
+		// Zerofill the rest of this block so that the archive stays block aligned.
+		$fwrite($output, str_repeat("\0", 512 - $stat['size'] % 512));
+	}
+
+	// End of file marker: Two blocks of zeros (NUL bytes)
+	$fwrite($output, str_repeat("\0", 1024));
+	$fclose($output);
 
 	return true;
 }
