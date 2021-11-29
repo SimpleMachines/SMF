@@ -2107,7 +2107,7 @@ function get_integration_hooks_data($start, $per_page, $sort, $filtered_hooks, $
 			$hookParsedData = parse_integration_hook($hook, $rawFunc);
 
 			// Handle hooks pointing outside the sources directory.
-			if ($hookParsedData['absPath'] != '' && (!isset($files[$hookParsedData['absPath']]) || file_exists($hookParsedData['absPath'])))
+			if ($hookParsedData['absPath'] != '' && !isset($files[$hookParsedData['absPath']]) && file_exists($hookParsedData['absPath']))
 				$function_list += get_defined_functions_in_file($hookParsedData['absPath']);
 
 			$hook_exists = isset($function_list[$hookParsedData['call']]) || (substr($hook, -8) === '_include' && isset($files[$hookParsedData['absPath']]));
