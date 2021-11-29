@@ -131,14 +131,33 @@ function RepairBoards()
 function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0, $force = false)
 {
 	global $context, $txt, $db_temp_cache, $db_cache;
+	static $loops = 0;
+	++$loops;
 
 	// More time, I need more time!
 	@set_time_limit(600);
 	if (function_exists('apache_reset_timeout'))
 		@apache_reset_timeout();
 
+	$return = true;
+
+	// If we are from a SSI/cron job, we can allow this through, if enabled.
+	if ((SMF === 'SSI' || SMF === 'BACKGROUND') && php_sapi_name() == 'cli' && !empty($context['no_pause_process']))
+		$return = true;
+	elseif ($force)
+		$return = false;
+	// Try to stay under our memory limit.
+	elseif ((memory_get_usage() + 65536) > memoryReturnBytes(ini_get('memory_limit')))
+		$return = false;
 	// Errr, wait.  How much time has this taken already?
-	if (!$force && (time() - TIME_START) < 3)
+	elseif ((time() - TIME_START) > 3)
+		$return = false;
+	// If we have a lot of errors, lets do smaller batches, to save on memory needs.
+	elseif (count($context['repair_errors']) > 100000 && $loops > 50)
+		$return = false;
+
+	// If we can return, lets do so.
+	if ($return)
 		return;
 
 	// Restore the query cache if interested.
