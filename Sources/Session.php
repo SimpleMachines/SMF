@@ -180,14 +180,14 @@ function sessionWrite($session_id, $data)
 	}
 
 	// If an insert fails due to a dupe, replace the existing session...
-	$smcFunc['db_insert']('replace',
+	$session_update = $smcFunc['db_insert']('replace',
 		'{db_prefix}sessions',
 		array('session_id' => 'string', 'data' => 'string', 'last_update' => 'int'),
 		array($session_id, $data, time()),
 		array('session_id')
 	);
 
-	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
+	return ($smcFunc['db_affected_rows']($session_update) == 0 ? false : true);
 }
 
 /**
@@ -231,7 +231,7 @@ function sessionGC($max_lifetime)
 		$max_lifetime = max($modSettings['databaseSession_lifetime'], 60);
 
 	// Clean up after yerself ;).
-	$smcFunc['db_query']('', '
+	$session_update = $smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}sessions
 		WHERE last_update < {int:last_update}',
 		array(
@@ -239,7 +239,7 @@ function sessionGC($max_lifetime)
 		)
 	);
 
-	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
+	return ($smcFunc['db_affected_rows']($session_update) == 0 ? false : true);
 }
 
 ?>
