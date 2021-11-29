@@ -383,9 +383,6 @@ foreach ($nameChanges as $table_name => $table)
 			'text' => 'CHANGE ' . $coldef,
 		);
 
-		// Check if this change may need a special edit.
-		checkChange($change);
-
 		if (protected_alter($change, $substep, true) == false)
 			$actualChanges[] = ' CHANGE COLUMN ' . $coldef;
 	}
