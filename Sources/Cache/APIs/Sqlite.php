@@ -138,7 +138,8 @@ class Sqlite extends CacheApi implements CacheApiInterface
 			'file',
 			'text',
 			36,
-			'cache_'. $class_name_txt_key .'_cachedir');
+			'cache_'. $class_name_txt_key .'_cachedir',
+		);
 
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';
@@ -161,14 +162,21 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	 */
 	public function setCachedir($dir = null)
 	{
-		global $cachedir, $cachedir_sqlite;
+		global $cachedir, $cachedir_sqlite, $sourcedir;
 
 		// If its invalid, use SMF's.
-		if (is_null($dir) || !is_writable($dir))
-			if (is_null($cachedir_sqlite) || !is_writable($cachedir_sqlite))
-				$this->cachedir = $cachedir;
-			else
-				$this->cachedir = $cachedir_sqlite;
+		if (!isset($dir) || !is_writable($dir))
+		{
+			if (!isset($cachedir_sqlite) || !is_writable($cachedir_sqlite))
+			{
+				$cachedir_sqlite = $cachedir;
+
+				require_once($sourcedir . '/Subs-Admin.php');
+				updateSettingsFile(array('cachedir_sqlite' => $cachedir_sqlite));
+			}
+
+			$this->cachedir = $cachedir_sqlite;
+		}
 		else
 			$this->cachedir = $dir;
 	}
