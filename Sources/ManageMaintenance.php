@@ -52,6 +52,7 @@ function ManageMaintenance()
 				'version' => 'VersionDetail',
 				'repair' => 'MaintainFindFixErrors',
 				'recount' => 'AdminBoardRecount',
+				'rebuild_settings' => 'RebuildSettingsFile',
 				'logs' => 'MaintainEmptyUnimportantLogs',
 				'cleancache' => 'MaintainCleanCache',
 			),
@@ -154,8 +155,8 @@ function MaintainRoutine()
 {
 	global $context, $txt;
 
-	if (isset($_GET['done']) && $_GET['done'] == 'recount')
-		$context['maintenance_finished'] = $txt['maintain_recount'];
+	if (isset($_GET['done']) && in_array($_GET['done'], array('recount', 'rebuild_settings')))
+		$context['maintenance_finished'] = $txt['maintain_' . $_GET['done']];
 }
 
 /**
@@ -1821,6 +1822,18 @@ function MaintainRecountPosts()
 	unset($_SESSION['total_members']);
 	$context['maintenance_finished'] = $txt['maintain_recountposts'];
 	redirectexit('action=admin;area=maintain;sa=members;done=recountposts');
+}
+
+function RebuildSettingsFile()
+{
+	global $sourcedir;
+
+	isAllowedTo('admin_forum');
+
+	require_once($sourcedir . '/Subs-Admin.php');
+	updateSettingsFile(array(), false, true);
+
+	redirectexit('action=admin;area=maintain;sa=routine;done=rebuild_settings');
 }
 
 /**
