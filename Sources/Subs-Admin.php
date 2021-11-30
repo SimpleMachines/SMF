@@ -1168,6 +1168,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 				else
 				{
 					$replacement = '';
+					$substitutions[$var]['placeholder'] = '';
 
 					// This is just for cosmetic purposes. Removes the blank line.
 					$substitutions[$var]['search_pattern'] = str_replace('(?<=^|\s)', '\n?', $substitutions[$var]['search_pattern']);
