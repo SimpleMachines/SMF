@@ -131,6 +131,18 @@ function template_maintain_routine()
 			</form>
 		</div>
 		<div class="cat_bar">
+			<h3 class="catbg">', $txt['maintain_rebuild_settings'], '</h3>
+		</div>
+		<div class="windowbg">
+			<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=rebuild_settings" method="post" accept-charset="', $context['character_set'], '">
+				<p>
+					', $txt['maintain_rebuild_settings_info'], '
+					<input type="submit" value="', $txt['maintain_run_now'], '" class="button">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				</p>
+			</form>
+		</div>
+		<div class="cat_bar">
 			<h3 class="catbg">', $txt['maintain_logs'], '</h3>
 		</div>
 		<div class="windowbg">
