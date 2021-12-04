@@ -483,7 +483,9 @@ function EditSearchMethod()
  * Requires the admin_forum permission.
  * Depending on the size of the message table, the process is divided in steps.
  *
- * @uses template_create_index(), template_create_index_progress(), template_create_index_done()
+ * @uses template_create_index()
+ * @uses template_create_index_progress()
+ * @uses template_create_index_done()
  */
 function CreateMessageIndex()
 {

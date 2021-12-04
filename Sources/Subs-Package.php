@@ -228,14 +228,13 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 }
 
 /**
- * Extract zip data. A functional copy of {@list read_zip_data()}.
+ * Extract zip data. A functional copy of {@list read_zip_data()} using PHP's {@link https://www.php.net/class.phardata PharData} class.
  *
  * @param string $file Input filename
  * @param string $destination Null to display a listing of files in the archive, the destination for the files in the archive or the name of a single file to display (if $single_file is true)
  * @param boolean $single_file If true, returns the contents of the file specified by destination or false if the file can't be found (default value is false).
  * @param boolean $overwrite If true, will overwrite files with newer modication times. Default is false.
  * @param array $files_to_extract Specific files to extract
- * @uses {@link PharData}
  * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
  */
 
