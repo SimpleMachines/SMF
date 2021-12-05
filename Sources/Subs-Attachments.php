@@ -1085,7 +1085,7 @@ function parseAttachBBC($attachID = 0)
  *
  * @param array $attachIDs An array of attachments IDs.
  *
- * @return array.
+ * @return array
  */
 function getRawAttachInfo($attachIDs)
 {
@@ -1131,7 +1131,7 @@ function getRawAttachInfo($attachIDs)
  *
  * @param int $attachID the attachment ID to load info from.
  *
- * @return array.
+ * @return array
  */
 function getAttachMsgInfo($attachID)
 {
@@ -1367,7 +1367,7 @@ function loadAttachmentContext($id_msg, $attachments)
  *
  * @param int array $msgIDs the message ID to load info from.
  *
- * @return void.
+ * @return void
  */
 function prepareAttachsByMsg($msgIDs)
 {

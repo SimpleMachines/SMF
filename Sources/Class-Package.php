@@ -137,7 +137,7 @@ class xmlArray
 	 *
 	 * @param $path string The path to the element to get
 	 * @param $return_full bool Whether to return the full result set
-	 * @return xmlArray, a new xmlArray.
+	 * @return xmlArray a new xmlArray.
 	 */
 	public function path($path, $return_full = false)
 	{
