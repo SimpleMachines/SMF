@@ -635,7 +635,7 @@ function printMemberListRows($request)
 
 		$context['members'][$member] = $memberContext[$member];
 		$context['members'][$member]['post_percent'] = round(($context['members'][$member]['real_posts'] * 100) / $most_posts);
-		$context['members'][$member]['registered_date'] = strftime('%Y-%m-%d', $context['members'][$member]['registered_timestamp']);
+		$context['members'][$member]['registered_date'] = smf_strftime('%Y-%m-%d', $context['members'][$member]['registered_timestamp']);
 
 		if (!empty($context['custom_profile_fields']['columns']))
 		{

@@ -723,16 +723,12 @@ function comma_format($number, $override_decimal_count = false)
  * @param int $log_time A timestamp
  * @param bool|string $show_today Whether to show "Today"/"Yesterday" or just a date. If a string is specified, that is used to temporarily override the date format.
  * @param bool|string $offset_type If false, uses both user time offset and forum offset. If 'forum', uses only the forum offset. Otherwise no offset is applied.
- * @param bool $process_safe Activate setlocale check for changes at runtime. Slower, but safer.
  * @return string A formatted timestamp
  */
-function timeformat($log_time, $show_today = true, $offset_type = false, $process_safe = false)
+function timeformat($log_time, $show_today = true, $offset_type = false)
 {
 	global $context, $user_info, $txt, $modSettings;
-	static $non_twelve_hour, $locale, $now;
-	static $unsupportedFormats, $finalizedFormats;
-
-	$unsupportedFormatsWindows = array('z', 'Z');
+	static $now;
 
 	// Ensure required values are set
 	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %H:%M');
@@ -743,10 +739,6 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	// Just the forum offset?
 	elseif ($offset_type == 'forum')
 		$log_time = forum_time(false, $log_time);
-
-	// We can't have a negative date (on Windows, at least.)
-	if ($log_time < 0)
-		$log_time = 0;
 
 	// Today and Yesterday?
 	$prefix = '';
@@ -773,181 +765,12 @@ function timeformat($log_time, $show_today = true, $offset_type = false, $proces
 	}
 
 	// If $show_today is not a bool, use it as the date format & don't use $user_info. Allows for temp override of the format.
-	$str = !is_bool($show_today) ? $show_today : $user_info['time_format'];
+	$format = !is_bool($show_today) ? $show_today : $user_info['time_format'];
 
-	// Use the cached formats if available
-	if (is_null($finalizedFormats))
-		$finalizedFormats = (array) cache_get_data('timeformatstrings', 86400);
-
-	if (!isset($finalizedFormats[$str]) || !is_array($finalizedFormats[$str]))
-		$finalizedFormats[$str] = array();
-
-	// Make a supported version for this format if we don't already have one
-	$format_type = !empty($prefix) ? 'time_only' : 'normal';
-	if (empty($finalizedFormats[$str][$format_type]))
-	{
-		$timeformat = $format_type == 'time_only' ? get_date_or_time_format('time', $str) : $str;
-
-		// Not all systems support all formats, and Windows fails altogether if unsupported ones are
-		// used, so let's prevent that. Some substitutions go to the nearest reasonable fallback, some
-		// turn into static strings, some (i.e. %a, %A, %b, %B, %p) have special handling below.
-		$strftimeFormatSubstitutions = array(
-			// Day
-			'a' => '#txt_days_short_%w#', 'A' => '#txt_days_%w#', 'e' => '%d', 'd' => '&#37;d', 'j' => '&#37;j', 'u' => '%w', 'w' => '&#37;w',
-			// Week
-			'U' => '&#37;U', 'V' => '%U', 'W' => '%U',
-			// Month
-			'b' => '#txt_months_short_%m#', 'B' => '#txt_months_%m#', 'h' => '%b', 'm' => '&#37;m',
-			// Year
-			'C' => '&#37;C', 'g' => '%y', 'G' => '%Y', 'y' => '&#37;y', 'Y' => '&#37;Y',
-			// Time
-			'H' => '&#37;H', 'k' => '%H', 'I' => '%H', 'l' => '%I', 'M' => '&#37;M', 'p' => '&#37;p', 'P' => '%p',
-			'r' => '%I:%M:%S %p', 'R' => '%H:%M', 'S' => '&#37;S', 'T' => '%H:%M:%S', 'X' => '%T', 'z' => '&#37;z', 'Z' => '&#37;Z',
-			// Time and Date Stamps
-			'c' => '%F %T', 'D' => '%m/%d/%y', 'F' => '%Y-%m-%d', 's' => '&#37;s', 'x' => '%F',
-			// Miscellaneous
-			'n' => "\n", 't' => "\t", '%' => '&#37;',
-		);
-
-		// No need to do this part again if we already did it once
-		if (is_null($unsupportedFormats))
-			$unsupportedFormats = (array) cache_get_data('unsupportedtimeformats', 86400);
-		if (empty($unsupportedFormats))
-		{
-			foreach ($strftimeFormatSubstitutions as $format => $substitution)
-			{
-				// Avoid a crashing bug with PHP 7 on certain versions of Windows
-				if ($context['server']['is_windows'] && in_array($format, $unsupportedFormatsWindows))
-				{
-					$unsupportedFormats[] = $format;
-					continue;
-				}
-
-				$value = @strftime('%' . $format);
-
-				// Windows will return false for unsupported formats
-				// Other operating systems return the format string as a literal
-				if ($value === false || $value === $format)
-					$unsupportedFormats[] = $format;
-			}
-			cache_put_data('unsupportedtimeformats', $unsupportedFormats, 86400);
-		}
-
-		// Windows needs extra help if $timeformat contains something completely invalid, e.g. '%Q'
-		if (DIRECTORY_SEPARATOR === '\\')
-			$timeformat = preg_replace('~%(?!' . implode('|', array_keys($strftimeFormatSubstitutions)) . ')~', '&#37;', $timeformat);
-
-		// Substitute unsupported formats with supported ones
-		if (!empty($unsupportedFormats))
-			while (preg_match('~%(' . implode('|', $unsupportedFormats) . ')~', $timeformat, $matches))
-				$timeformat = str_replace($matches[0], $strftimeFormatSubstitutions[$matches[1]], $timeformat);
-
-		// Remember this so we don't need to do it again
-		$finalizedFormats[$str][$format_type] = $timeformat;
-		cache_put_data('timeformatstrings', $finalizedFormats, 86400);
-	}
-
-	$timeformat = $finalizedFormats[$str][$format_type];
-
-	// Windows requires a slightly different language code identifier (LCID).
-	// https://msdn.microsoft.com/en-us/library/cc233982.aspx
-	$lang_locale = $context['server']['is_windows'] ? strtr($txt['lang_locale'], '_', '-') : $txt['lang_locale'];
-
-	// Make sure we are using the correct locale.
-	if (!isset($locale) || ($process_safe === true && setlocale(LC_TIME, '0') != $locale))
-		$locale = setlocale(LC_TIME, array($lang_locale . '.' . $modSettings['global_character_set'], $lang_locale . '.' . $txt['lang_character_set'], $lang_locale));
-
-	// If the current locale is unsupported, we'll have to localize the hard way.
-	if ($locale === false)
-	{
-		$timeformat = strtr($timeformat, array(
-			'%a' => '#txt_days_short_%w#',
-			'%A' => '#txt_days_%w#',
-			'%b' => '#txt_months_short_%m#',
-			'%B' => '#txt_months_%m#',
-			'%p' => '&#37;p',
-			'%P' => '&#37;p'
-		));
-	}
-	// Just in case the locale doesn't support '%p' properly.
-	// @todo Is this even necessary?
-	else
-	{
-		if (!isset($non_twelve_hour) && strpos($timeformat, '%p') !== false)
-			$non_twelve_hour = trim(strftime('%p')) === '';
-
-		if (!empty($non_twelve_hour))
-			$timeformat = strtr($timeformat, array(
-				'%p' => '&#37;p',
-				'%P' => '&#37;p'
-			));
-	}
+	$format = !empty($prefix) ? get_date_or_time_format('time', $format) : $format;
 
 	// And now, the moment we've all be waiting for...
-	$timestring = strftime($timeformat, $log_time);
-
-	// Do-it-yourself time localization.  Fun.
-	if (strpos($timestring, '&#37;p') !== false)
-		$timestring = str_replace('&#37;p', (strftime('%H', $log_time) < 12 ? $txt['time_am'] : $txt['time_pm']), $timestring);
-	if (strpos($timestring, '#txt_') !== false)
-	{
-		if (strpos($timestring, '#txt_days_short_') !== false)
-			$timestring = strtr($timestring, array(
-				'#txt_days_short_0#' => $txt['days_short'][0],
-				'#txt_days_short_1#' => $txt['days_short'][1],
-				'#txt_days_short_2#' => $txt['days_short'][2],
-				'#txt_days_short_3#' => $txt['days_short'][3],
-				'#txt_days_short_4#' => $txt['days_short'][4],
-				'#txt_days_short_5#' => $txt['days_short'][5],
-				'#txt_days_short_6#' => $txt['days_short'][6],
-			));
-
-		if (strpos($timestring, '#txt_days_') !== false)
-			$timestring = strtr($timestring, array(
-				'#txt_days_0#' => $txt['days'][0],
-				'#txt_days_1#' => $txt['days'][1],
-				'#txt_days_2#' => $txt['days'][2],
-				'#txt_days_3#' => $txt['days'][3],
-				'#txt_days_4#' => $txt['days'][4],
-				'#txt_days_5#' => $txt['days'][5],
-				'#txt_days_6#' => $txt['days'][6],
-			));
-
-		if (strpos($timestring, '#txt_months_short_') !== false)
-			$timestring = strtr($timestring, array(
-				'#txt_months_short_01#' => $txt['months_short'][1],
-				'#txt_months_short_02#' => $txt['months_short'][2],
-				'#txt_months_short_03#' => $txt['months_short'][3],
-				'#txt_months_short_04#' => $txt['months_short'][4],
-				'#txt_months_short_05#' => $txt['months_short'][5],
-				'#txt_months_short_06#' => $txt['months_short'][6],
-				'#txt_months_short_07#' => $txt['months_short'][7],
-				'#txt_months_short_08#' => $txt['months_short'][8],
-				'#txt_months_short_09#' => $txt['months_short'][9],
-				'#txt_months_short_10#' => $txt['months_short'][10],
-				'#txt_months_short_11#' => $txt['months_short'][11],
-				'#txt_months_short_12#' => $txt['months_short'][12],
-			));
-
-		if (strpos($timestring, '#txt_months_') !== false)
-			$timestring = strtr($timestring, array(
-				'#txt_months_01#' => $txt['months'][1],
-				'#txt_months_02#' => $txt['months'][2],
-				'#txt_months_03#' => $txt['months'][3],
-				'#txt_months_04#' => $txt['months'][4],
-				'#txt_months_05#' => $txt['months'][5],
-				'#txt_months_06#' => $txt['months'][6],
-				'#txt_months_07#' => $txt['months'][7],
-				'#txt_months_08#' => $txt['months'][8],
-				'#txt_months_09#' => $txt['months'][9],
-				'#txt_months_10#' => $txt['months'][10],
-				'#txt_months_11#' => $txt['months'][11],
-				'#txt_months_12#' => $txt['months'][12],
-			));
-	}
-
-	// Restore any literal percent characters, add the prefix, and we're done.
-	return $prefix . str_replace('&#37;', '%', $timestring);
+	return $prefix . smf_strftime($format, $log_time);
 }
 
 /**
@@ -1068,6 +891,333 @@ function get_date_or_time_format($type = '', $format = '')
 	$formats[$orig_format][$type] = trim($format);
 
 	return $formats[$orig_format][$type];
+}
+
+/**
+ * Replacement for strftime() that is compatible with PHP 8.1+.
+ *
+ * This does not use the system's strftime library or locale setting,
+ * so results may vary in a few cases from the results of strftime():
+ *
+ *  - %a, %A, %b, %B, %p, %P: Output will use SMF's language strings
+ *    to localize these values. If SMF's language strings have not
+ *    been loaded, PHP's default English strings will be used.
+ *
+ *  - %c, %x, %X: Output will always use ISO format.
+ *
+ * @param string $format A strftime() format string.
+ * @param int|null $timestamp A Unix timestamp.
+ *     If null, defaults to the current time.
+ * @param string|null $tzid Time zone identifier.
+ *     If null, defaults to the user's current time zone.
+ * @return string The formatted datetime string.
+ */
+function smf_strftime(string $format, int $timestamp = null, string $tzid = null)
+{
+	global $txt, $smcFunc, $sourcedir;
+
+	if (!isset($timestamp))
+		$timestamp = time();
+
+	if (!isset($tzid))
+		$tzid = getUserTimezone();
+
+	// In case this function is called before reloadSettings().
+	if (!isset($smcFunc['strtoupper']))
+	{
+		if (function_exists('mb_strtoupper'))
+		{
+			$smcFunc['strtoupper'] = 'mb_strtoupper';
+			$smcFunc['strtolower'] = 'mb_strtolower';
+		}
+		elseif (isset($sourcedir))
+		{
+			require_once($sourcedir . '/Subs-Charset.php');
+			$smcFunc['strtoupper'] = 'utf8_strtoupper';
+			$smcFunc['strtolower'] = 'utf8_strtolower';
+		}
+		else
+		{
+			$smcFunc['strtoupper'] = 'strtoupper';
+			$smcFunc['strtolower'] = 'strtolower';
+		}
+	}
+
+	// A couple substitutions to make life easier.
+	$format = strtr($format, array(
+		'%h' => '%b',
+		'%r' => '%I:%M:%S %p',
+	));
+
+	$format_equivalents = array(
+		// Day
+		'a' => 'D',
+		'A' => 'l',
+		'e' => 'j', // Complex: sprintf to prepend whitespace.
+		'd' => 'd',
+		'j' => 'z', // Complex: must add one and then sprintf to prepend zeros.
+		'u' => 'N',
+		'w' => 'w',
+		// Week
+		'U' => 'z_w_0', // Complex: calculated from these other values.
+		'V' => 'W',
+		'W' => 'z_w_1', // Complex: calculated from these other values.
+		// Month
+		'b' => 'M',
+		'B' => 'F',
+		'm' => 'm',
+		// Year
+		'C' => 'Y', // Complex: Get 'Y' then truncate to first two digits.
+		'g' => 'o', // Complex: Get 'o' then truncate to last two digits.
+		'G' => 'o', // Complex: Get 'o' then sprintf to ensure four digits.
+		'y' => 'y',
+		'Y' => 'Y',
+		// Time
+		'H' => 'H',
+		'k' => 'G',
+		'I' => 'h',
+		'l' => 'g',
+		'M' => 'i',
+		'p' => 'A',
+		'P' => 'a',
+		'R' => 'H:i',
+		'S' => 's',
+		'T' => 'H:i:s',
+		'X' => 'H:i:s', // No direct equivalent possible, so use ISO format.
+		'z' => 'O',
+		'Z' => 'T',
+		// Time and Date Stamps
+		'c' => 'c', // No direct equivalent possible, so use ISO format.
+		'D' => 'm/d/y',
+		'F' => 'Y-m-d',
+		's' => 'U',
+		'x' => 'Y-m-d', // No direct equivalent possible, so use ISO format.
+		// Miscellaneous
+		'n' => "\n",
+		't' => "\t",
+		'%' => '%',
+	);
+
+	$parts = preg_split('/%(' . implode('|', array_keys($format_equivalents)) . ')/', $format, 0, PREG_SPLIT_DELIM_CAPTURE);
+
+	$placeholders = array();
+	$complex = false;
+
+	for ($i = 0; $i < count($parts); $i++)
+	{
+		// Parts that are not strftime formats.
+		if ($i % 2 === 0 || !isset($format_equivalents[$parts[$i]]))
+		{
+			if ($parts[$i] === '')
+				continue;
+
+			$placeholder = "\xEE\x84\x80" . $i . "\xEE\x84\x81";
+
+			$placeholders[$placeholder] = $parts[$i];
+			$parts[$i] = $placeholder;
+		}
+		// Parts that need localized strings.
+		elseif (in_array($parts[$i], array('a', 'A', 'b', 'B')))
+		{
+			switch ($parts[$i])
+			{
+				case 'a':
+					$min = 0;
+					$max = 6;
+					$key = 'days_short';
+					$f = 'w';
+					$placeholder_end = "\xEE\x84\x83";
+
+					break;
+
+				case 'A':
+					$min = 0;
+					$max = 6;
+					$key = 'days';
+					$f = 'w';
+					$placeholder_end = "\xEE\x84\x82";
+
+					break;
+
+				case 'b':
+					$min = 1;
+					$max = 12;
+					$key = 'months_short';
+					$f = 'n';
+					$placeholder_end = "\xEE\x84\x85";
+
+					break;
+
+				case 'B':
+					$min = 1;
+					$max = 12;
+					$key = 'months';
+					$f = 'n';
+					$placeholder_end = "\xEE\x84\x84";
+
+					break;
+			}
+
+			$placeholder = "\xEE\x84\x80" . $f . $placeholder_end;
+
+			// Check whether $txt contains all expected strings.
+			// If not, use English default.
+			$txt_strings_exist = true;
+			for ($num = $min; $num <= $max; $num++)
+			{
+				if (!isset($txt[$key][$num]))
+				{
+					$txt_strings_exist = false;
+					break;
+				}
+				else
+					$placeholders[str_replace($f, $num, $placeholder)] = $txt[$key][$num];
+			}
+
+			$parts[$i] = $txt_strings_exist ? $placeholder : $format_equivalents[$parts[$i]];
+		}
+		elseif (in_array($parts[$i], array('p', 'P')))
+		{
+			if (!isset($txt['time_am']) || !isset($txt['time_pm']))
+				continue;
+
+			$placeholder = "\xEE\x84\x90" . $format_equivalents[$parts[$i]] . "\xEE\x84\x91";
+
+			switch ($parts[$i])
+			{
+				// Lower case
+				case 'p':
+					$placeholders[str_replace($format_equivalents[$parts[$i]], 'AM', $placeholder)] = $smcFunc['strtoupper']($txt['time_am']);
+					$placeholders[str_replace($format_equivalents[$parts[$i]], 'PM', $placeholder)] = $smcFunc['strtoupper']($txt['time_pm']);
+					break;
+
+				// Upper case
+				case 'P':
+					$placeholders[str_replace($format_equivalents[$parts[$i]], 'am', $placeholder)] = $smcFunc['strtolower']($txt['time_am']);
+					$placeholders[str_replace($format_equivalents[$parts[$i]], 'pm', $placeholder)] = $smcFunc['strtolower']($txt['time_pm']);
+					break;
+			}
+
+			$parts[$i] = $placeholder;
+		}
+		// Parts that will need further processing.
+		elseif (in_array($parts[$i], array('j', 'C', 'U', 'W', 'G', 'g', 'e', 'l')))
+		{
+			$complex = true;
+
+			switch ($parts[$i])
+			{
+				case 'j':
+					$placeholder_end = "\xEE\x84\xA1";
+					break;
+
+				case 'C':
+					$placeholder_end = "\xEE\x84\xA2";
+					break;
+
+				case 'U':
+				case 'W':
+					$placeholder_end = "\xEE\x84\xA3";
+					break;
+
+				case 'G':
+					$placeholder_end = "\xEE\x84\xA4";
+					break;
+
+				case 'g':
+					$placeholder_end = "\xEE\x84\xA5";
+					break;
+
+				case 'e':
+				case 'l':
+					$placeholder_end = "\xEE\x84\xA6";
+			}
+
+			$parts[$i] = "\xEE\x84\xA0" . $format_equivalents[$parts[$i]] . $placeholder_end;
+		}
+		// Parts with simple equivalents.
+		else
+			$parts[$i] = $format_equivalents[$parts[$i]];
+	}
+
+	// The main event.
+	$d = date_create('@' . $timestamp);
+
+	if (($tz = @timezone_open($tzid)) === false)
+		$tz = timezone_open(date_default_timezone_get());
+
+	date_timezone_set($d, $tz);
+
+	$date_string = strtr(date_format($d, implode('', $parts)), $placeholders);
+
+	// Deal with the complicated ones.
+	if ($complex)
+	{
+		$date_string = preg_replace_callback(
+			'/\xEE\x84\xA0([\d_]+)(\xEE\x84(?:[\xA1-\xAF]))/',
+			function ($matches)
+			{
+				switch ($matches[2])
+				{
+					// %j
+					case "\xEE\x84\xA1":
+						$replacement = sprintf('%03d', (int) $matches[1] + 1);
+						break;
+
+					// %C
+					case "\xEE\x84\xA2":
+						$replacement = substr(sprintf('%04d', $matches[1]), 0, 2);
+						break;
+
+					// %U and %W
+					case "\xEE\x84\xA3":
+						list($day_of_year, $day_of_week, $first_day) = explode('_', $matches[1]);
+						$replacement = sprintf('%02d', floor(((int) $day_of_year - (int) $day_of_week + (int) $first_day) / 7) + 1);
+						break;
+
+					// %G
+					case "\xEE\x84\xA4":
+						$replacement = sprintf('%04d', $matches[1]);
+						break;
+
+					// %g
+					case "\xEE\x84\xA5":
+						$replacement = substr(sprintf('%04d', $matches[1]), -2);
+						break;
+
+					// %e and %l
+					case "\xEE\x84\xA6":
+						$replacement = sprintf('%2d', $matches[1]);
+						break;
+
+					// Shouldn't happen, but just in case...
+					default:
+						$replacement = $matches[1];
+						break;
+				}
+
+				return $replacement;
+			},
+			$date_string
+		);
+	}
+
+	return $date_string;
+}
+
+/**
+ * Replacement for gmstrftime() that is compatible with PHP 8.1+.
+ *
+ * Calls smf_strftime() with the $tzid parameter set to 'UTC'.
+ *
+ * @param string $format A strftime() format string.
+ * @param int|null $timestamp A Unix timestamp.
+ *     If null, defaults to the current time.
+ * @return string The formatted datetime string.
+ */
+function smf_gmstrftime(string $format, int $timestamp = null)
+{
+	return smf_strftime($format, $timestamp, 'UTC');
 }
 
 /**

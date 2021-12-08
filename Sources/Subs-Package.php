@@ -3091,7 +3091,7 @@ function package_create_backup($id = 'backup')
 			mktree($packagesdir . '/backups', 0777);
 		if (!is_writable($packagesdir . '/backups'))
 			package_chmod($packagesdir . '/backups');
-		$output_file = $packagesdir . '/backups/' . strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
+		$output_file = $packagesdir . '/backups/' . smf_strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
 		$output_ext = '.tar';
 		$output_ext_target = '.tar.gz';
 

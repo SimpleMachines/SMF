@@ -382,10 +382,10 @@ function canLinkEvent()
 function getTodayInfo()
 {
 	return array(
-		'day' => (int) strftime('%d', forum_time()),
-		'month' => (int) strftime('%m', forum_time()),
-		'year' => (int) strftime('%Y', forum_time()),
-		'date' => strftime('%Y-%m-%d', forum_time()),
+		'day' => (int) smf_strftime('%d', forum_time()),
+		'month' => (int) smf_strftime('%m', forum_time()),
+		'year' => (int) smf_strftime('%Y', forum_time()),
+		'date' => smf_strftime('%Y-%m-%d', forum_time()),
 	);
 }
 
@@ -904,8 +904,8 @@ function cache_getOffsetIndependentEvents($eventOptions)
 {
 	$days_to_index = $eventOptions['num_days_shown'];
 
-	$low_date = strftime('%Y-%m-%d', forum_time(false) - 24 * 3600);
-	$high_date = strftime('%Y-%m-%d', forum_time(false) + $days_to_index * 24 * 3600);
+	$low_date = smf_strftime('%Y-%m-%d', forum_time(false) - 24 * 3600);
+	$high_date = smf_strftime('%Y-%m-%d', forum_time(false) + $days_to_index * 24 * 3600);
 
 	return array(
 		'data' => array(
@@ -913,7 +913,7 @@ function cache_getOffsetIndependentEvents($eventOptions)
 			'birthdays' => (!empty($eventOptions['include_birthdays']) ? getBirthdayRange($low_date, $high_date) : array()),
 			'events' => (!empty($eventOptions['include_events']) ? getEventRange($low_date, $high_date, false) : array()),
 		),
-		'refresh_eval' => 'return \'' . strftime('%Y%m%d', forum_time(false)) . '\' != strftime(\'%Y%m%d\', forum_time(false)) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
+		'refresh_eval' => 'return \'' . smf_strftime('%Y%m%d', forum_time(false)) . '\' != smf_strftime(\'%Y%m%d\', forum_time(false)) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
 		'expires' => time() + 3600,
 	);
 }
@@ -951,8 +951,8 @@ function cache_getRecentEvents($eventOptions)
 		// Holidays between now and now + days.
 		for ($i = $now; $i < $now + $days_for_index; $i += 86400)
 		{
-			if (isset($cached_data['holidays'][strftime('%Y-%m-%d', $i)]))
-				$return_data['calendar_holidays'] = array_merge($return_data['calendar_holidays'], $cached_data['holidays'][strftime('%Y-%m-%d', $i)]);
+			if (isset($cached_data['holidays'][smf_strftime('%Y-%m-%d', $i)]))
+				$return_data['calendar_holidays'] = array_merge($return_data['calendar_holidays'], $cached_data['holidays'][smf_strftime('%Y-%m-%d', $i)]);
 		}
 	}
 
@@ -961,11 +961,11 @@ function cache_getRecentEvents($eventOptions)
 		// Happy Birthday, guys and gals!
 		for ($i = $now; $i < $now + $days_for_index; $i += 86400)
 		{
-			$loop_date = strftime('%Y-%m-%d', $i);
+			$loop_date = smf_strftime('%Y-%m-%d', $i);
 			if (isset($cached_data['birthdays'][$loop_date]))
 			{
 				foreach ($cached_data['birthdays'][$loop_date] as $index => $dummy)
-					$cached_data['birthdays'][strftime('%Y-%m-%d', $i)][$index]['is_today'] = $loop_date === $today['date'];
+					$cached_data['birthdays'][smf_strftime('%Y-%m-%d', $i)][$index]['is_today'] = $loop_date === $today['date'];
 				$return_data['calendar_birthdays'] = array_merge($return_data['calendar_birthdays'], $cached_data['birthdays'][$loop_date]);
 			}
 		}
@@ -977,7 +977,7 @@ function cache_getRecentEvents($eventOptions)
 		for ($i = $now; $i < $now + $days_for_index; $i += 86400)
 		{
 			// Determine the date of the current loop step.
-			$loop_date = strftime('%Y-%m-%d', $i);
+			$loop_date = smf_strftime('%Y-%m-%d', $i);
 
 			// No events today? Check the next day.
 			if (empty($cached_data['events'][$loop_date]))
@@ -1018,7 +1018,7 @@ function cache_getRecentEvents($eventOptions)
 	return array(
 		'data' => $return_data,
 		'expires' => time() + 3600,
-		'refresh_eval' => 'return \'' . strftime('%Y%m%d', forum_time(false)) . '\' != strftime(\'%Y%m%d\', forum_time(false)) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
+		'refresh_eval' => 'return \'' . smf_strftime('%Y%m%d', forum_time(false)) . '\' != smf_strftime(\'%Y%m%d\', forum_time(false)) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
 		'post_retri_eval' => '
 			global $context, $scripturl, $user_info;
 
@@ -1440,7 +1440,7 @@ function getEventProperties($event_id)
 		),
 	);
 
-	$return_value['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $return_value['month'] == 12 ? 1 : $return_value['month'] + 1, 0, $return_value['month'] == 12 ? $return_value['year'] + 1 : $return_value['year']));
+	$return_value['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, $return_value['month'] == 12 ? 1 : $return_value['month'] + 1, 0, $return_value['month'] == 12 ? $return_value['year'] + 1 : $return_value['year']));
 
 	return $return_value;
 }
@@ -1896,15 +1896,15 @@ function convertDateToEnglish($date)
 	// Find all possible variants of AM and PM for this language.
 	$replacements[strtolower($txt['time_am'])] = 'AM';
 	$replacements[strtolower($txt['time_pm'])] = 'PM';
-	if (($am = strftime('%p', strtotime('01:00:00'))) !== 'p' && $am !== false)
+	if (($am = smf_strftime('%p', strtotime('01:00:00'))) !== 'p' && $am !== false)
 	{
 		$replacements[strtolower($am)] = 'AM';
-		$replacements[strtolower(strftime('%p', strtotime('23:00:00')))] = 'PM';
+		$replacements[strtolower(smf_strftime('%p', strtotime('23:00:00')))] = 'PM';
 	}
-	if (($am = strftime('%P', strtotime('01:00:00'))) !== 'P' && $am !== false)
+	if (($am = smf_strftime('%P', strtotime('01:00:00'))) !== 'P' && $am !== false)
 	{
 		$replacements[strtolower($am)] = 'AM';
-		$replacements[strtolower(strftime('%P', strtotime('23:00:00')))] = 'PM';
+		$replacements[strtolower(smf_strftime('%P', strtotime('23:00:00')))] = 'PM';
 	}
 
 	return strtr(strtolower($date), $replacements);
