@@ -916,11 +916,49 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 {
 	global $txt, $smcFunc, $sourcedir;
 
+	static $dates = array();
+
+	// Set default values as necessary.
 	if (!isset($timestamp))
 		$timestamp = time();
 
 	if (!isset($tzid))
 		$tzid = getUserTimezone();
+
+	// A few substitutions to make life easier.
+	$format = strtr($format, array(
+		'%h' => '%b',
+		'%r' => '%I:%M:%S %p',
+		'%R' => '%H:%M',
+		'%T' => '%H:%M:%S',
+		'%X' => '%H:%M:%S',
+		'%D' => '%m/%d/%y',
+		'%F' => '%Y-%m-%d',
+		'%x' => '%Y-%m-%d',
+	));
+
+	// Avoid unnecessary repetition.
+	if (isset($dates[$tzid . '_' . $timestamp]['results'][$format]))
+		return $dates[$tzid . '_' . $timestamp]['results'][$format];
+
+	// Ensure the TZID is valid.
+	if (($tz = @timezone_open($tzid)) === false)
+	{
+		$tzid = date_default_timezone_get();
+
+		// Check again now that we have a valid TZID.
+		if (isset($dates[$tzid . '_' . $timestamp]['results'][$format]))
+			return $dates[$tzid . '_' . $timestamp]['results'][$format];
+
+		$tz = timezone_open($tzid);
+	}
+
+	// Create the DateTime object and set its time zone.
+	if (!isset($dates[$tzid . '_' . $timestamp]['object']))
+	{
+		$dates[$tzid . '_' . $timestamp]['object'] = date_create('@' . $timestamp);
+		date_timezone_set($dates[$tzid . '_' . $timestamp]['object'], $tz);
+	}
 
 	// In case this function is called before reloadSettings().
 	if (!isset($smcFunc['strtoupper']))
@@ -943,16 +981,10 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 		}
 	}
 
-	// A couple substitutions to make life easier.
-	$format = strtr($format, array(
-		'%h' => '%b',
-		'%r' => '%I:%M:%S %p',
-	));
-
 	$format_equivalents = array(
 		// Day
-		'a' => 'D',
-		'A' => 'l',
+		'a' => 'D', // Complex: prefer $txt strings if available.
+		'A' => 'l', // Complex: prefer $txt strings if available.
 		'e' => 'j', // Complex: sprintf to prepend whitespace.
 		'd' => 'd',
 		'j' => 'z', // Complex: must add one and then sprintf to prepend zeros.
@@ -963,8 +995,8 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 		'V' => 'W',
 		'W' => 'z_w_1', // Complex: calculated from these other values.
 		// Month
-		'b' => 'M',
-		'B' => 'F',
+		'b' => 'M', // Complex: prefer $txt strings if available.
+		'B' => 'F', // Complex: prefer $txt strings if available.
 		'm' => 'm',
 		// Year
 		'C' => 'Y', // Complex: Get 'Y' then truncate to first two digits.
@@ -976,28 +1008,23 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 		'H' => 'H',
 		'k' => 'G',
 		'I' => 'h',
-		'l' => 'g',
+		'l' => 'g', // Complex: sprintf to prepend whitespace.
 		'M' => 'i',
-		'p' => 'A',
-		'P' => 'a',
-		'R' => 'H:i',
+		'p' => 'A', // Complex: prefer $txt strings if available.
+		'P' => 'a', // Complex: prefer $txt strings if available.
 		'S' => 's',
-		'T' => 'H:i:s',
-		'X' => 'H:i:s', // No direct equivalent possible, so use ISO format.
 		'z' => 'O',
 		'Z' => 'T',
 		// Time and Date Stamps
-		'c' => 'c', // No direct equivalent possible, so use ISO format.
-		'D' => 'm/d/y',
-		'F' => 'Y-m-d',
+		'c' => 'c',
 		's' => 'U',
-		'x' => 'Y-m-d', // No direct equivalent possible, so use ISO format.
 		// Miscellaneous
 		'n' => "\n",
 		't' => "\t",
 		'%' => '%',
 	);
 
+	// Translate from strftime format to DateTime format.
 	$parts = preg_split('/%(' . implode('|', array_keys($format_equivalents)) . ')/', $format, 0, PREG_SPLIT_DELIM_CAPTURE);
 
 	$placeholders = array();
@@ -1141,19 +1168,12 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 	}
 
 	// The main event.
-	$d = date_create('@' . $timestamp);
-
-	if (($tz = @timezone_open($tzid)) === false)
-		$tz = timezone_open(date_default_timezone_get());
-
-	date_timezone_set($d, $tz);
-
-	$date_string = strtr(date_format($d, implode('', $parts)), $placeholders);
+	$dates[$tzid . '_' . $timestamp]['results'][$format] = strtr(date_format($dates[$tzid . '_' . $timestamp]['object'], implode('', $parts)), $placeholders);
 
 	// Deal with the complicated ones.
 	if ($complex)
 	{
-		$date_string = preg_replace_callback(
+		$dates[$tzid . '_' . $timestamp]['results'][$format] = preg_replace_callback(
 			'/\xEE\x84\xA0([\d_]+)(\xEE\x84(?:[\xA1-\xAF]))/',
 			function ($matches)
 			{
@@ -1198,11 +1218,11 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 
 				return $replacement;
 			},
-			$date_string
+			$dates[$tzid . '_' . $timestamp]['results'][$format]
 		);
 	}
 
-	return $date_string;
+	return $dates[$tzid . '_' . $timestamp]['results'][$format];
 }
 
 /**
