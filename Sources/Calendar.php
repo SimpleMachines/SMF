@@ -394,7 +394,7 @@ function CalendarPost()
 		$eventDatetimes = getNewEventDatetimes();
 		$context['event'] = array_merge($context['event'], $eventDatetimes);
 
-		$context['event']['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $context['event']['month'] == 12 ? 1 : $context['event']['month'] + 1, 0, $context['event']['month'] == 12 ? $context['event']['year'] + 1 : $context['event']['year']));
+		$context['event']['last_day'] = (int) smf_strftime('%d', mktime(0, 0, 0, $context['event']['month'] == 12 ? 1 : $context['event']['month'] + 1, 0, $context['event']['month'] == 12 ? $context['event']['year'] + 1 : $context['event']['year']));
 	}
 	else
 	{

@@ -202,7 +202,7 @@ function DisplayStats()
 		}
 	}
 
-	$date = strftime('%Y-%m-%d', forum_time(false));
+	$date = smf_strftime('%Y-%m-%d', forum_time(false));
 
 	// Members online so far today.
 	$result = $smcFunc['db_query']('', '
