@@ -351,6 +351,8 @@ function setup_fatal_error_context($error_message, $error_code = null)
 
 	$context['error_code'] = isset($error_code) ? 'id="' . $error_code . '" ' : '';
 
+	$context['error_link'] = isset($context['error_link']) ? $context['error_link'] : 'javascript:document.location=document.referrer';
+
 	if (empty($context['page_title']))
 		$context['page_title'] = $context['error_title'];
 

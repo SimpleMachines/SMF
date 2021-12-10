@@ -47,10 +47,10 @@ function template_fatal_error()
 		</div>
 	</div>';
 
-		// Show a back button (using javascript.)
+		// Show a back button
 		echo '
 	<div class="centertext">
-		<a class="button" href="javascript:document.location=document.referrer">', $txt['back'], '</a>
+		<a class="button floatnone" href="', $context['error_link'], '">', $txt['back'], '</a>
 	</div>';
 	}
 }
