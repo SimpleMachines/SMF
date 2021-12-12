@@ -2309,8 +2309,8 @@ function Post2()
 		'sticky_mode' => isset($_POST['sticky']) ? (int) $_POST['sticky'] : null,
 		'mark_as_read' => true,
 		'is_approved' => !$modSettings['postmod_active'] || empty($topic) || !empty($board_info['cur_topic_approved']),
-		'first_msg' => $topic_info['id_first_msg'],
-		'last_msg' => $topic_info['id_last_msg'],
+		'first_msg' => empty($topic_info['id_first_msg']) ? null : $topic_info['id_first_msg'],
+		'last_msg' => empty($topic_info['id_last_msg']) ? null : $topic_info['id_last_msg'],
 	);
 	$posterOptions = array(
 		'id' => $user_info['id'],
