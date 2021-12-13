@@ -3304,33 +3304,38 @@ img.avatar {
 .messageicon img, #iconList img {
 	vertical-align: middle;
 }
-.keyinfo h5 {
+.keyinfo .postinfo {
 	padding: 1px 0 5px 0;
 	line-height: 1.5em;
 	font-size: 0.9em;
+	font-weight: bold;
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+	align-items: center;
 }
-.keyinfo h5::after, .under_message::after {
+.keyinfo .postinfo::after, .under_message::after {
 	content: "";
 	clear: right;
 	display: block;
 }
-.keyinfo h5 a, .keyinfo h5 a strong {
+.keyinfo .postinfo a, .keyinfo .postinfo a strong {
 	color: #ad6825;
 }
-.keyinfo h5 a.floatright {
-	padding: 0 12px 0 0; /* Deprecated? */
+.keyinfo .postinfo .spacer {
+	flex: 1 1 auto;
 }
-.keyinfo h5 .modified {
+.keyinfo .postinfo .modified {
 	color: #333;
 	font-weight: normal;
 	font-style: italic;
 	padding: 2px 4px 0 4px;
 }
 .mvisible::before {
-	content: "\00ab ";
+	/* content: "\00ab "; */
 }
 .mvisible::after {
-	content: " \00bb";
+	/* content: " \00bb"; */
 }
 #reason::before {
 	content: " - ";
@@ -3346,8 +3351,8 @@ img.avatar {
 .page_number {
 	color: #ad6825;
 	font-weight: bold;
-	opacity: 0.4;
-	padding: 2px 0 0 4px;
+	padding: 4px 0 0 4px;
+	line-height: 1.5em;
 }
 .inner {
 	padding: 7px 8px 2px 2px;

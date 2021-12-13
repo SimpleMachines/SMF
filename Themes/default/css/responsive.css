@@ -232,6 +232,8 @@
 	/* Display (Topics) */
 	.poster {
 		float: none;
+		width: auto;
+		position: relative;
 	}
 	.postarea {
 		margin: 0;
@@ -242,17 +244,41 @@
 	.moderatorbar {
 		margin: 0;
 	}
-	.keyinfo h5 .modified {
-		float: none;
+	.keyinfo {
+		padding-top: 5px;
+		margin-top: 5px;
+		clear: both;
+	}
+	.keyinfo .postinfo {
+		font-weight: normal;
+	}
+	.keyinfo .postinfo .smalltext,
+	.keyinfo .page_number {
+		opacity: 0.6;
+	}
+	.keyinfo .postinfo a.smalltext:hover {
+		opacity: 1;
 	}
 	img.icon, #forumposts .catbg img {
 		display: none;
 	}
-	.user_info li {
+	.poster h4 {
 		display: inline-block;
 	}
-	.user_info li.avatar, .user_info li.poster_ip {
+	.user_info {
+		display: inline;
+	}
+	.user_info li {
 		display: none;
+	}
+	.user_info li.title,
+	.user_info li.membergroup {
+		display: inline-block;
+		font-weight: normal;
+	}
+	.user_info li::before {
+		content: "·";
+		padding: 0 1ch 0 0.5ch;
 	}
 	.like_count,
 	.smflikebutton:last-child {
