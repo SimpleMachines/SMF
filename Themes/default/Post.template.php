@@ -524,7 +524,10 @@ function template_main()
 				<span>' . $txt['posted_by'] . '</span>
 				%PosterName%
 			</h5>
-			&nbsp;-&nbsp;%PostTime%&nbsp;&#187; <span class="new_posts" id="image_new_%PostID%">' . $txt['new'] . '</span>';
+			&nbsp;-&nbsp;%PostTime%&nbsp;&#187; <span class="new_posts" id="image_new_%PostID%">' . $txt['new'] . '</span>
+			<br class="clear">
+			<div id="msg_%PostID%_ignored_prompt" class="smalltext" style="display: none;">' . $txt['ignoring_user'] . '<a href="#" id="msg_%PostID%_ignored_link" style="%IgnoredStyle%">' . $txt['show_ignore_user_post'] . '</a></div>
+			<div class="list_posts smalltext" id="msg_%PostID%_body">%PostBody%</div>';
 
 	if ($context['can_quote'])
 		$newPostsHTML .= '
@@ -535,9 +538,6 @@ function template_main()
 			</ul>';
 
 	$newPostsHTML .= '
-			<br class="clear">
-			<div id="msg_%PostID%_ignored_prompt" class="smalltext" style="display: none;">' . $txt['ignoring_user'] . '<a href="#" id="msg_%PostID%_ignored_link" style="%IgnoredStyle%">' . $txt['show_ignore_user_post'] . '</a></div>
-			<div class="list_posts smalltext" id="msg_%PostID%_body">%PostBody%</div>
 		</div>';
 
 	// The functions used to preview a posts without loading a new page.
@@ -646,20 +646,12 @@ function template_main()
 			echo '
 			<div class="windowbg">
 				<div id="msg', $post['id'], '">
-					<h5 class="floatleft">
-						<span>', $txt['posted_by'], '</span> ', $post['poster'], '
-					</h5>
-					&nbsp;-&nbsp;', $post['time'];
-
-			if ($context['can_quote'])
-				echo '
-					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
-						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="main_icons quote_selected"></span>', $txt['quote_selected_action'], '</a></li>
-						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="main_icons quote"></span>', $txt['quote'], '</a></li>
-					</ul>';
-
-			echo '
-					<br class="clear">';
+					<div>
+						<h5 class="floatleft">
+							<span>', $txt['posted_by'], '</span> ', $post['poster'], '
+						</h5>
+						<span class="smalltext">&nbsp;-&nbsp;', $post['time'], '</span>
+					</div>';
 
 			if ($ignoring)
 				echo '
@@ -669,7 +661,16 @@ function template_main()
 					</div>';
 
 			echo '
-					<div class="list_posts smalltext" id="msg_', $post['id'], '_body" data-msgid="', $post['id'], '">', $post['message'], '</div>
+					<div class="list_posts smalltext" id="msg_', $post['id'], '_body" data-msgid="', $post['id'], '">', $post['message'], '</div>';
+
+			if ($context['can_quote'])
+				echo '
+					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
+						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="main_icons quote_selected"></span>', $txt['quote_selected_action'], '</a></li>
+						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="main_icons quote"></span>', $txt['quote'], '</a></li>
+					</ul>';
+
+			echo '
 				</div><!-- #msg[id] -->
 			</div><!-- .windowbg -->';
 		}

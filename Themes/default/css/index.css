@@ -2343,7 +2343,9 @@ dl {
 .list_posts {
 	border-top: 1px solid #ddd;
 	box-shadow: 0 1px 0 #fff inset;
-	padding-top: 12px;
+	padding-top: 1em;
+	margin-top: 1em;
+	margin-bottom: 1em;
 	clear: both;
 	-webkit-hyphens: auto;
 	-ms-hyphens: auto;

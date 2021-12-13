@@ -487,12 +487,6 @@ function template_user_watch_post_callback($post)
 						<div class="floatleft">
 							<strong><a href="' . $scripturl . '?topic=' . $post['id_topic'] . '.' . $post['id'] . '#msg' . $post['id'] . '">' . $post['subject'] . '</a></strong> ' . $txt['mc_reportedp_by'] . ' <strong>' . $post['author_link'] . '</strong>
 						</div>
-						<div class="floatright">';
-
-	$output_html .= template_quickbuttons($quickbuttons, 'user_watch_post', 'return');
-
-	$output_html .= '
-						</div>
 					</div>
 					<br>
 					<div class="smalltext">
@@ -501,6 +495,8 @@ function template_user_watch_post_callback($post)
 					<div class="list_posts double_height">
 						' . $post['body'] . '
 					</div>';
+
+	$output_html .= template_quickbuttons($quickbuttons, 'user_watch_post', 'return');
 
 	return $output_html;
 }
