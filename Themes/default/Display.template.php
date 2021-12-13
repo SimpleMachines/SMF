@@ -532,6 +532,16 @@ function template_single_post($message)
 							</h4>
 							<ul class="user_info">';
 
+	// Show the member's custom title, if they have one.
+	if (!empty($message['member']['title']))
+		echo '
+								<li class="title">', $message['member']['title'], '</li>';
+
+	// Show the member's primary group (like 'Administrator') if they have one.
+	if (!empty($message['member']['group']))
+		echo '
+								<li class="membergroup">', $message['member']['group'], '</li>';
+
 	// Show the user's avatar.
 	if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
 		echo '
@@ -549,16 +559,6 @@ function template_single_post($message)
 	if (!$message['member']['is_guest'])
 		echo '
 								<li class="icons">', $message['member']['group_icons'], '</li>';
-
-	// Show the member's primary group (like 'Administrator') if they have one.
-	if (!empty($message['member']['group']))
-		echo '
-								<li class="membergroup">', $message['member']['group'], '</li>';
-
-	// Show the member's custom title, if they have one.
-	if (!empty($message['member']['title']))
-		echo '
-								<li class="title">', $message['member']['title'], '</li>';
 
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'])
