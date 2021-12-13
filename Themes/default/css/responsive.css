@@ -254,6 +254,10 @@
 	.user_info li.avatar, .user_info li.poster_ip {
 		display: none;
 	}
+	.like_count,
+	.smflikebutton:last-child {
+		margin-bottom: 8px;
+	}
 	.button.mobile {
 		margin: 0 0 5px 0;
 	}

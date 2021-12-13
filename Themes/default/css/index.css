@@ -3548,6 +3548,13 @@ ul.post_options li {
 	border: none;
 	box-shadow: none;
 }
+.smflikebutton {
+	margin-top: 4px;
+}
+.like_count,
+.smflikebutton:last-child {
+	margin-bottom: 4px;
+}
 /* Events */
 .edit_event {
 	margin: 0 10px;
