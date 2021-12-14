@@ -6835,17 +6835,17 @@ function smf_list_timezones($when = 'now')
  */
 function getUserTimezone($id_member = null)
 {
-	global $smcFunc, $context, $user_info, $modSettings, $user_settings;
+	global $smcFunc, $user_info, $modSettings, $user_settings;
 	static $member_cache = array();
 
-	if (is_null($id_member) && $user_info['is_guest'] == false)
-		$id_member = $context['user']['id'];
+	if (is_null($id_member))
+		$id_member = empty($user_info['id']) ? 0 : (int) $user_info['id'];
+	else
+		$id_member = (int) $id_member;
 
 	// Did we already look this up?
-	if (isset($id_member) && isset($member_cache[$id_member]))
-	{
+	if (isset($member_cache[$id_member]))
 		return $member_cache[$id_member];
-	}
 
 	// Check if we already have this in $user_settings.
 	if (isset($user_settings['id_member']) && $user_settings['id_member'] == $id_member && !empty($user_settings['timezone']))
@@ -6855,19 +6855,16 @@ function getUserTimezone($id_member = null)
 	}
 
 	// Look it up in the database.
-	if (isset($id_member))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT timezone
-			FROM {db_prefix}members
-			WHERE id_member = {int:id_member}',
-			array(
-				'id_member' => $id_member,
-			)
-		);
-		list($timezone) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
-	}
+	$request = $smcFunc['db_query']('', '
+		SELECT timezone
+		FROM {db_prefix}members
+		WHERE id_member = {int:id_member}',
+		array(
+			'id_member' => $id_member,
+		)
+	);
+	list($timezone) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
 
 	// If it is invalid, fall back to the default.
 	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
