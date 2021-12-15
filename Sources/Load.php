@@ -311,8 +311,11 @@ function reloadSettings()
 		// If date.timezone is unset, invalid, or just plain weird, make a best guess
 		if (!in_array($modSettings['default_timezone'], timezone_identifiers_list()))
 		{
-			$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
+			$server_offset = @mktime(0, 0, 0, 1, 1, 1970) * -1;
 			$modSettings['default_timezone'] = timezone_name_from_abbr('', $server_offset, 0);
+
+			if (empty($modSettings['default_timezone']))
+				$modSettings['default_timezone'] = 'UTC';
 		}
 
 		date_default_timezone_set($modSettings['default_timezone']);
