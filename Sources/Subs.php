@@ -314,6 +314,7 @@ function updateMemberData($members, $data)
 			'website_url',
 			'location',
 			'time_format',
+			'timezone',
 			'time_offset',
 			'avatar',
 			'lngfile',

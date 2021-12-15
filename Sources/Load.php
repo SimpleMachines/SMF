@@ -756,16 +756,28 @@ function loadUserSettings()
 		if (!empty($user_settings['timezone']))
 		{
 			// Get the offsets from UTC for the server, then for the user.
-			$tz_system = new DateTimeZone(@date_default_timezone_get());
+			$tz_system = new DateTimeZone($modSettings['default_timezone']);
 			$tz_user = new DateTimeZone($user_settings['timezone']);
 			$time_system = new DateTime('now', $tz_system);
 			$time_user = new DateTime('now', $tz_user);
-			$user_info['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
+			$user_settings['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
 		}
+		// We need a time zone.
 		else
 		{
-			// !!! Compatibility.
-			$user_info['time_offset'] = empty($user_settings['time_offset']) ? 0 : $user_settings['time_offset'];
+			if (!empty($user_settings['time_offset']))
+			{
+				$tz_system = new DateTimeZone($modSettings['default_timezone']);
+				$time_system = new DateTime('now', $tz_system);
+
+				$user_settings['timezone'] = @timezone_name_from_abbr('', $tz_system->getOffset($time_system) + $user_settings['time_offset'] * 3600, (int) $time_system->format('I'));
+			}
+
+			if (empty($user_settings['timezone']))
+			{
+				$user_settings['timezone'] = $modSettings['default_timezone'];
+				$user_settings['time_offset'] = 0;
+			}
 		}
 	}
 	// If the user is a guest, initialize all the critical user settings.
@@ -814,8 +826,8 @@ function loadUserSettings()
 			$user_info['possibly_robot'] = (strpos($_SERVER['HTTP_USER_AGENT'], 'Mozilla') === false && strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') === false) || strpos($ci_user_agent, 'googlebot') !== false || strpos($ci_user_agent, 'slurp') !== false || strpos($ci_user_agent, 'crawl') !== false || strpos($ci_user_agent, 'bingbot') !== false || strpos($ci_user_agent, 'bingpreview') !== false || strpos($ci_user_agent, 'adidxbot') !== false || strpos($ci_user_agent, 'msnbot') !== false;
 		}
 
-		// We don't know the offset...
-		$user_info['time_offset'] = 0;
+		$user_settings['timezone'] = $modSettings['default_timezone'];
+		$user_settings['time_offset'] = 0;
 	}
 
 	// Set up the $user_info array.
@@ -834,6 +846,8 @@ function loadUserSettings()
 		'ip2' => $_SERVER['BAN_CHECK_IP'],
 		'posts' => empty($user_settings['posts']) ? 0 : $user_settings['posts'],
 		'time_format' => empty($user_settings['time_format']) ? $modSettings['time_format'] : $user_settings['time_format'],
+		'timezone' => $user_settings['timezone'],
+		'time_offset' => $user_settings['time_offset'],
 		'avatar' => array(
 			'url' => isset($user_settings['avatar']) ? $user_settings['avatar'] : '',
 			'filename' => empty($user_settings['filename']) ? '' : $user_settings['filename'],
@@ -904,7 +918,7 @@ function loadUserSettings()
  */
 function loadMinUserInfo($user_ids = array())
 {
-	global $smcFunc, $modSettings, $language;
+	global $smcFunc, $modSettings, $language, $modSettings;
 	static $user_info_min = array();
 
 	$user_ids = (array) $user_ids;
@@ -966,16 +980,32 @@ function loadMinUserInfo($user_ids = array())
 
 		if (!empty($row['timezone']))
 		{
-			$tz_system = new \DateTimeZone(@date_default_timezone_get());
+			$tz_system = new \DateTimeZone($modSettings['default_timezone']);
 			$tz_user = new \DateTimeZone($row['timezone']);
 			$time_system = new \DateTime('now', $tz_system);
 			$time_user = new \DateTime('now', $tz_user);
-			$user_info_min[$row['id_member']]['time_offset'] = ($tz_user->getOffset($time_user) -
+			$row['time_offset'] = ($tz_user->getOffset($time_user) -
 					$tz_system->getOffset($time_system)) / 3600;
 		}
-
 		else
-			$user_info_min[$row['id_member']]['time_offset'] = empty($row['time_offset']) ? 0 : $row['time_offset'];
+		{
+			if (!empty($row['time_offset']))
+			{
+				$tz_system = new \DateTimeZone($modSettings['default_timezone']);
+				$time_system = new \DateTime('now', $tz_system);
+
+				$row['timezone'] = @timezone_name_from_abbr('', $tz_system->getOffset($time_system) + $row['time_offset'] * 3600, (int) $time_system->format('I'));
+			}
+
+			if (empty($row['timezone']))
+			{
+				$row['timezone'] = $modSettings['default_timezone'];
+				$row['time_offset'] = 0;
+			}
+		}
+
+		$user_info_min[$row['id_member']]['timezone'] = $row['timezone'];
+		$user_info_min[$row['id_member']]['time_offset'] = $row['time_offset'];
 	}
 
 	$smcFunc['db_free_result']($request);
@@ -1699,17 +1729,28 @@ function loadMemberContext($user, $display_custom_fields = false)
 		if (!empty($profile['timezone']))
 		{
 			// Get the offsets from UTC for the server, then for the user.
-			$tz_system = new DateTimeZone(@date_default_timezone_get());
+			$tz_system = new DateTimeZone($modSettings['default_timezone']);
 			$tz_user = new DateTimeZone($profile['timezone']);
 			$time_system = new DateTime('now', $tz_system);
 			$time_user = new DateTime('now', $tz_user);
 			$profile['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
 		}
-
+		// We need a time zone.
 		else
 		{
-			// !!! Compatibility.
-			$profile['time_offset'] = empty($profile['time_offset']) ? 0 : $profile['time_offset'];
+			if (!empty($profile['time_offset']))
+			{
+				$tz_system = new DateTimeZone($modSettings['default_timezone']);
+				$time_system = new DateTime('now', $tz_system);
+
+				$profile['timezone'] = @timezone_name_from_abbr('', $tz_system->getOffset($time_system) + $profile['time_offset'] * 3600, (int) $time_system->format('I'));
+			}
+
+			if (empty($profile['timezone']))
+			{
+				$profile['timezone'] = $modSettings['default_timezone'];
+				$profile['time_offset'] = 0;
+			}
 		}
 
 		$memberContext[$user] += array(
@@ -2270,6 +2311,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 			'ignoreusers' => array(),
 			'possibly_robot' => true,
 			'time_offset' => 0,
+			'timezone' => $modSettings['default_timezone'],
 			'time_format' => $modSettings['time_format'],
 		);
 	}
