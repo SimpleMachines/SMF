@@ -2601,6 +2601,37 @@ ADD COLUMN IF NOT EXISTS modified_reason varchar(255) NOT NULL default '';
 ALTER TABLE {$db_prefix}members ADD timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
 ---#
 
+---# Converting time offset to timezone
+---{
+	if (!empty($modSettings['time_offset']))
+	{
+		$modSettings['default_timezone'] = empty($modSettings['default_timezone']) || !in_array($modSettings['default_timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)) ? 'UTC' : $modSettings['default_timezone'];
+
+		$now = date_create('now', timezone_open($modSettings['default_timezone']));
+
+		if (($new_tzid = timezone_name_from_abbr('', date_offset_get($now) + $modSettings['time_offset'] * 3600, date_format($now, 'I'))) !== false)
+		{
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}settings',
+				array('variable' => 'string-255', 'value' => 'string'),
+				array(
+					array('default_timezone', $new_tzid),
+				),
+				array('variable')
+			);
+
+			$modSettings['default_timezone'] = $new_tzid;
+		}
+
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}settings
+			WHERE variable = {literal:time_offset}',
+			array()
+		);
+	}
+---}
+---#
+
 /******************************************************************************/
 --- Adding mail queue settings
 /******************************************************************************/

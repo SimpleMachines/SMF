@@ -137,7 +137,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'date_registered' => array(
 			'type' => 'date',
-			'value' => empty($cur_profile['date_registered']) ? $txt['not_applicable'] : smf_strftime('%Y-%m-%d', $cur_profile['date_registered'] + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600),
+			'value' => empty($cur_profile['date_registered']) ? $txt['not_applicable'] : smf_strftime('%Y-%m-%d', $cur_profile['date_registered']),
 			'label' => $txt['date_registered'],
 			'log_change' => true,
 			'permission' => 'moderate_forum',
@@ -151,8 +151,11 @@ function loadProfileFields($force_reload = false)
 				}
 
 				// As long as it doesn't equal "N/A"...
-				elseif ($value != $txt['not_applicable'] && $value != strtotime(smf_strftime('%Y-%m-%d', $cur_profile['date_registered'] + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600)))
-					$value = $value - ($user_info['time_offset'] + $modSettings['time_offset']) * 3600;
+				elseif ($value != $txt['not_applicable'] && $value != strtotime(smf_strftime('%Y-%m-%d', $cur_profile['date_registered'])))
+				{
+					$diff = $cur_profile['date_registered'] - strtotime(smf_strftime('%Y-%m-%d', $cur_profile['date_registered']));
+					$value = $value + $diff;
+				}
 
 				else
 					$value = $cur_profile['date_registered'];
@@ -594,8 +597,8 @@ function loadProfileFields($force_reload = false)
 				);
 
 				$context['member']['time_format'] = $cur_profile['time_format'];
-				$context['current_forum_time'] = timeformat(time() - $user_info['time_offset'] * 3600, false);
-				$context['current_forum_time_js'] = smf_strftime('%Y,' . ((int) smf_strftime('%m', time() + $modSettings['time_offset'] * 3600) - 1) . ',%d,%H,%M,%S', time() + $modSettings['time_offset'] * 3600);
+				$context['current_forum_time'] = timeformat(time(), false, 'forum');
+				$context['current_forum_time_js'] = smf_strftime('%Y,' . ((int) smf_strftime('%m', time()) - 1) . ',%d,%H,%M,%S', time());
 				$context['current_forum_time_hour'] = (int) smf_strftime('%H', time());
 				return true;
 			},

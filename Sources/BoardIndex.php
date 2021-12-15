@@ -79,7 +79,7 @@ function BoardIndex()
 			'include_events' => $modSettings['cal_showevents'] > 1,
 			'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 		);
-		$context += cache_quick_get('calendar_index_offset_' . ($user_info['time_offset'] + $modSettings['time_offset']), 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+		$context += cache_quick_get('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 		// Whether one or multiple days are shown on the board index.
 		$context['calendar_only_today'] = $modSettings['cal_days_for_index'] == 1;

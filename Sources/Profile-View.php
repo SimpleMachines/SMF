@@ -1773,7 +1773,7 @@ function statPanel($memID)
 		GROUP BY hour',
 		array(
 			'current_member' => $memID,
-			'time_offset' => (($user_info['time_offset'] + $modSettings['time_offset']) * 3600),
+			'time_offset' => $user_info['time_offset'] * 3600,
 			'max_messages' => 1001,
 		)
 	);

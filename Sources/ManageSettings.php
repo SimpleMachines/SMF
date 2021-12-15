@@ -203,17 +203,8 @@ function ModifyBasicSettings($return_config = false)
 		array('text', 'meta_keywords', 'subtext' => $txt['meta_keywords_note'], 'size' => 50),
 		'',
 
-		// Number formatting, timezones.
+		// Time zone and formatting.
 		array('text', 'time_format'),
-		array(
-			'float',
-			'time_offset',
-			6,
-			'postinput' => $txt['hours'],
-			'step' => 0.25,
-			'min' => -23.5,
-			'max' => 23.5
-		),
 		array('select', 'default_timezone', array_filter(smf_list_timezones(), 'is_string', ARRAY_FILTER_USE_KEY)),
 		array('text', 'timezone_priority_countries', 'subtext' => $txt['setting_timezone_priority_countries_note']),
 		'',

@@ -1889,7 +1889,7 @@ function ssi_todaysBirthdays($output_method = 'echo')
 		'include_birthdays' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 	);
-	$return = cache_quick_get('calendar_index_offset_' . ($user_info['time_offset'] + $modSettings['time_offset']), 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+	$return = cache_quick_get('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 	// The ssi_todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 	call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
@@ -1919,7 +1919,7 @@ function ssi_todaysHolidays($output_method = 'echo')
 		'include_holidays' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 	);
-	$return = cache_quick_get('calendar_index_offset_' . ($user_info['time_offset'] + $modSettings['time_offset']), 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+	$return = cache_quick_get('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 	// The ssi_todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 	call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
@@ -1948,7 +1948,7 @@ function ssi_todaysEvents($output_method = 'echo')
 		'include_events' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 	);
-	$return = cache_quick_get('calendar_index_offset_' . ($user_info['time_offset'] + $modSettings['time_offset']), 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+	$return = cache_quick_get('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 	// The ssi_todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 	call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
@@ -1985,7 +1985,7 @@ function ssi_todaysCalendar($output_method = 'echo')
 		'include_events' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 	);
-	$return = cache_quick_get('calendar_index_offset_' . ($user_info['time_offset'] + $modSettings['time_offset']), 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+	$return = cache_quick_get('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 	// The ssi_todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 	call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
