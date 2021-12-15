@@ -721,11 +721,16 @@ function comma_format($number, $override_decimal_count = false)
  * - performs localization (more than just strftime would do alone.)
  *
  * @param int $log_time A timestamp
- * @param bool|string $show_today Whether to show "Today"/"Yesterday" or just a date. If a string is specified, that is used to temporarily override the date format.
- * @param bool|string $offset_type If false, uses both user time offset and forum offset. If 'forum', uses only the forum offset. Otherwise no offset is applied.
- * @return string A formatted timestamp
+ * @param bool|string $show_today Whether to show "Today"/"Yesterday" or just a date.
+ *     If a string is specified, that is used to temporarily override the date format.
+ * @param null|string $tzid Time zone to use when generating the formatted string.
+ *     If empty, the user's time zone will be used.
+ *     If set to 'forum', the value of $modSettings['default_timezone'] will be used.
+ *     If set to a valid time zone identifier, that will be used.
+ *     Otherwise, the value of date_default_timezone_get() will be used.
+ * @return string A formatted time string
  */
-function timeformat($log_time, $show_today = true, $offset_type = false)
+function timeformat($log_time, $show_today = true, $tzid = null)
 {
 	global $context, $user_info, $txt, $modSettings;
 	static $now;
@@ -762,8 +767,12 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
 
 	$format = !empty($prefix) ? get_date_or_time_format('time', $format) : $format;
 
+	// For backward compatibility, normalize empty values to null and replace 'forum' with forum's default time zone.
+	// Otherwise, just make sure $tzid is a string and let smf_strftime() handle it.
+	$tzid = empty($tzid) ? null : ($tzid === 'forum' ? $modSettings['default_timezone'] : (string) $tzid);
+
 	// And now, the moment we've all be waiting for...
-	return $prefix . smf_strftime($format, $log_time, $offset_type === false ? null : ($offset_type === 'forum' ? $modSettings['default_timezone'] : date_default_timezone_get()));
+	return $prefix . smf_strftime($format, $log_time, $tzid);
 }
 
 /**
