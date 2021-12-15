@@ -6851,25 +6851,27 @@ function getUserTimezone($id_member = null)
 		return $user_settings['timezone'];
 	}
 
-	// Look it up in the database.
-	$request = $smcFunc['db_query']('', '
-		SELECT timezone
-		FROM {db_prefix}members
-		WHERE id_member = {int:id_member}',
-		array(
-			'id_member' => $id_member,
-		)
-	);
-	list($timezone) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	if (!empty($id_member))
+	{
+		// Look it up in the database.
+		$request = $smcFunc['db_query']('', '
+			SELECT timezone
+			FROM {db_prefix}members
+			WHERE id_member = {int:id_member}',
+			array(
+				'id_member' => $id_member,
+			)
+		);
+		list($timezone) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+	}
 
 	// If it is invalid, fall back to the default.
 	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 		$timezone = isset($modSettings['default_timezone']) ? $modSettings['default_timezone'] : date_default_timezone_get();
 
 	// Save for later.
-	if (isset($id_member))
-		$member_cache[$id_member] = $timezone;
+	$member_cache[$id_member] = $timezone;
 
 	return $timezone;
 }
