@@ -6741,6 +6741,8 @@ function smf_list_timezones($when = 'now')
 			$member_tzkey = $tzkey;
 		if (isset($context['event']['tz']) && $context['event']['tz'] == $tzid)
 			$event_tzkey = $tzkey;
+		if ($modSettings['default_timezone'] == $tzid)
+			$default_tzkey = $tzkey;
 	}
 
 	// Sort by current offset, then standard offset, then DST type, then label.
@@ -6804,6 +6806,8 @@ function smf_list_timezones($when = 'now')
 			$cur_profile['timezone'] = $tzvalue['tzid'];
 		if (isset($event_tzkey) && $event_tzkey == $tzkey)
 			$context['event']['tz'] = $tzvalue['tzid'];
+		if (isset($default_tzkey) && $default_tzkey == $tzkey && $modSettings['default_timezone'] != $tzvalue['tzid'])
+			updateSettings(array('default_timezone' => $tzvalue['tzid']));
 	}
 
 	if (!empty($priority_timezones))
