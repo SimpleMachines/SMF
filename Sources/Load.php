@@ -1663,7 +1663,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		'email' => $profile['email_address'],
 		'show_email' => !$user_info['is_guest'] && ($user_info['id'] == $profile['id_member'] || allowedTo('moderate_forum')),
 		'registered' => empty($profile['date_registered']) ? $txt['not_applicable'] : timeformat($profile['date_registered']),
-		'registered_timestamp' => empty($profile['date_registered']) ? 0 : forum_time(true, $profile['date_registered']),
+		'registered_timestamp' => empty($profile['date_registered']) ? 0 : $profile['date_registered'],
 	);
 
 	// If the set isn't minimal then load the monstrous array.
@@ -1730,7 +1730,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'real_posts' => $profile['posts'],
 			'posts' => $profile['posts'] > 500000 ? $txt['geek'] : comma_format($profile['posts']),
 			'last_login' => empty($profile['last_login']) ? $txt['never'] : timeformat($profile['last_login']),
-			'last_login_timestamp' => empty($profile['last_login']) ? 0 : forum_time(0, $profile['last_login']),
+			'last_login_timestamp' => empty($profile['last_login']) ? 0 : $profile['last_login'],
 			'ip' => $smcFunc['htmlspecialchars']($profile['member_ip']),
 			'ip2' => $smcFunc['htmlspecialchars']($profile['member_ip2']),
 			'online' => array(

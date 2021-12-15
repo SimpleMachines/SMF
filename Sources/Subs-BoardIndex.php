@@ -390,7 +390,7 @@ function getBoardIndex($board_index_options)
 		$this_last_post = array(
 			'id' => $row_board['id_msg'],
 			'time' => $row_board['poster_time'],
-			'timestamp' => forum_time(true, $row_board['poster_time']),
+			'timestamp' => $row_board['poster_time'],
 			'subject' => $row_board['short_subject'],
 			'member' => array(
 				'id' => $row_board['id_member'],
@@ -434,7 +434,7 @@ function getBoardIndex($board_index_options)
 		// Set the last post in the root board
 		if (!$isChild && !empty($row_board['poster_time'])
 			&& (empty($this_category[$row_board['id_board']]['last_post']['timestamp'])
-				|| $this_category[$row_board['id_board']]['last_post']['timestamp'] < forum_time(true, $row_board['poster_time'])
+				|| $this_category[$row_board['id_board']]['last_post']['timestamp'] < $row_board['poster_time']
 			)
 		)
 			$this_category[$row_board['id_board']]['last_post'] = $this_last_post;

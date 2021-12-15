@@ -1011,7 +1011,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 			'recipients' => &$recipients[$subject['id_pm']],
 			'subject' => $subject['subject'],
 			'time' => timeformat($subject['msgtime']),
-			'timestamp' => forum_time(true, $subject['msgtime']),
+			'timestamp' => $subject['msgtime'],
 			'number_recipients' => count($recipients[$subject['id_pm']]['to']),
 			'labels' => &$context['message_labels'][$subject['id_pm']],
 			'fully_labeled' => count(isset($context['message_labels'][$subject['id_pm']]) ? $context['message_labels'][$subject['id_pm']] : array()) == count($context['labels']),
@@ -1080,7 +1080,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 		'member' => &$memberContext[$message['id_member_from']],
 		'subject' => $message['subject'],
 		'time' => timeformat($message['msgtime']),
-		'timestamp' => forum_time(true, $message['msgtime']),
+		'timestamp' => $message['msgtime'],
 		'counter' => $counter,
 		'body' => $message['body'],
 		'recipients' => &$recipients[$message['id_pm']],
@@ -1956,7 +1956,7 @@ function MessagePost()
 			),
 			'subject' => $row_quoted['subject'],
 			'time' => timeformat($row_quoted['msgtime']),
-			'timestamp' => forum_time(true, $row_quoted['msgtime']),
+			'timestamp' => $row_quoted['msgtime'],
 			'body' => $row_quoted['body']
 		);
 	}
@@ -2220,7 +2220,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 			),
 			'subject' => $row_quoted['subject'],
 			'time' => timeformat($row_quoted['msgtime']),
-			'timestamp' => forum_time(true, $row_quoted['msgtime']),
+			'timestamp' => $row_quoted['msgtime'],
 			'body' => parse_bbc($row_quoted['body'], true, 'pm' . $row_quoted['id_pm']),
 		);
 	}

@@ -2826,7 +2826,7 @@ function getTopic()
 			'poster' => $row['poster_name'],
 			'message' => $row['body'],
 			'time' => timeformat($row['poster_time']),
-			'timestamp' => forum_time(true, $row['poster_time']),
+			'timestamp' => $row['poster_time'],
 			'id' => $row['id_msg'],
 			'is_new' => !empty($context['new_replies']),
 			'is_ignored' => !empty($modSettings['enable_buddylist']) && !empty($options['posts_apply_ignore_list']) && in_array($row['id_member'], $context['user']['ignoreusers']),
@@ -3176,7 +3176,7 @@ function JavaScriptModify()
 				'id' => $row['id_msg'],
 				'modified' => array(
 					'time' => isset($msgOptions['modify_time']) ? timeformat($msgOptions['modify_time']) : '',
-					'timestamp' => isset($msgOptions['modify_time']) ? forum_time(true, $msgOptions['modify_time']) : 0,
+					'timestamp' => isset($msgOptions['modify_time']) ? $msgOptions['modify_time'] : 0,
 					'name' => isset($msgOptions['modify_time']) ? $msgOptions['modify_name'] : '',
 					'reason' => $msgOptions['modify_reason'],
 				),
@@ -3198,7 +3198,7 @@ function JavaScriptModify()
 				'id' => $row['id_msg'],
 				'modified' => array(
 					'time' => isset($msgOptions['modify_time']) ? timeformat($msgOptions['modify_time']) : '',
-					'timestamp' => isset($msgOptions['modify_time']) ? forum_time(true, $msgOptions['modify_time']) : 0,
+					'timestamp' => isset($msgOptions['modify_time']) ? $msgOptions['modify_time'] : 0,
 					'name' => isset($msgOptions['modify_time']) ? $msgOptions['modify_name'] : '',
 				),
 				'subject' => isset($msgOptions['subject']) ? $msgOptions['subject'] : '',

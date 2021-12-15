@@ -733,18 +733,11 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
 	// Ensure required values are set
 	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %H:%M');
 
-	// Offset the time.
-	if (!$offset_type)
-		$log_time = forum_time(true, $log_time);
-	// Just the forum offset?
-	elseif ($offset_type == 'forum')
-		$log_time = forum_time(false, $log_time);
-
 	// Today and Yesterday?
 	$prefix = '';
 	if ($modSettings['todayMod'] >= 1 && $show_today === true)
 	{
-		$now_time = forum_time();
+		$now_time = time();
 
 		if ($now_time - $log_time < (86400 * $modSettings['todayMod']))
 		{
@@ -770,7 +763,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
 	$format = !empty($prefix) ? get_date_or_time_format('time', $format) : $format;
 
 	// And now, the moment we've all be waiting for...
-	return $prefix . smf_strftime($format, $log_time);
+	return $prefix . smf_strftime($format, $log_time, $offset_type === false ? null : ($offset_type === 'forum' ? $modSettings['default_timezone'] : date_default_timezone_get()));
 }
 
 /**
@@ -1432,28 +1425,18 @@ function shorten_subject($subject, $len)
 }
 
 /**
- * Gets the current time with offset.
+ * Deprecated function that formerly applied manual offsets to Unix timestamps
+ * in order to provide a fake version of time zone support on ancient versions
+ * of PHP. It now simply returns an unaltered timestamp.
  *
- * - always applies the offset in the time_offset setting.
- *
- * @param bool $use_user_offset Whether to apply the user's offset as well
+ * @deprecated since 2.1
+ * @param bool $use_user_offset This parameter is deprecated and nonfunctional
  * @param int $timestamp A timestamp (null to use current time)
- * @return int Seconds since the unix epoch, with forum time offset and (optionally) user time offset applied
+ * @return int Seconds since the Unix epoch
  */
 function forum_time($use_user_offset = true, $timestamp = null)
 {
-	global $user_info, $modSettings;
-
-	// Ensure required values are set
-	$modSettings['time_offset'] = !empty($modSettings['time_offset']) ? $modSettings['time_offset'] : 0;
-	$user_info['time_offset'] = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
-
-	if ($timestamp === null)
-		$timestamp = time();
-	elseif ($timestamp == 0)
-		return 0;
-
-	return $timestamp + ($modSettings['time_offset'] + ($use_user_offset ? $user_info['time_offset'] : 0)) * 3600;
+	return !isset($timestamp) ? time() : (int) $timestamp;
 }
 
 /**

@@ -147,7 +147,7 @@ function loadProfileFields($force_reload = false)
 				if (($value = strtotime($value)) === false)
 				{
 					$value = $cur_profile['date_registered'];
-					return $txt['invalid_registration'] . ' ' . smf_strftime('%d %b %Y ' . (strpos($user_info['time_format'], '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), forum_time(false));
+					return $txt['invalid_registration'] . ' ' . smf_strftime('%d %b %Y ' . (strpos($user_info['time_format'], '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), time());
 				}
 
 				// As long as it doesn't equal "N/A"...
@@ -596,7 +596,7 @@ function loadProfileFields($force_reload = false)
 				$context['member']['time_format'] = $cur_profile['time_format'];
 				$context['current_forum_time'] = timeformat(time() - $user_info['time_offset'] * 3600, false);
 				$context['current_forum_time_js'] = smf_strftime('%Y,' . ((int) smf_strftime('%m', time() + $modSettings['time_offset'] * 3600) - 1) . ',%d,%H,%M,%S', time() + $modSettings['time_offset'] * 3600);
-				$context['current_forum_time_hour'] = (int) smf_strftime('%H', forum_time(false));
+				$context['current_forum_time_hour'] = (int) smf_strftime('%H', time());
 				return true;
 			},
 		),

@@ -311,7 +311,7 @@ function ViewMemberlist()
 				if ($param_info['type'] == 'age')
 				{
 					// All people that were born between $lowerlimit and $upperlimit are currently the specified age.
-					$datearray = getdate(forum_time());
+					$datearray = getdate(time());
 					$upperlimit = sprintf('%04d-%02d-%02d', $datearray['year'] - $search_params[$param_name], $datearray['mon'], $datearray['mday']);
 					$lowerlimit = sprintf('%04d-%02d-%02d', $datearray['year'] - $search_params[$param_name] - 1, $datearray['mon'], $datearray['mday']);
 					if (in_array($search_params['types'][$param_name], array('-', '--', '=')))
@@ -334,20 +334,20 @@ function ViewMemberlist()
 				{
 					if ($search_params['types'][$param_name] == '=')
 					{
-						$query_parts[] = $param_info['db_fields'][0] . ' >= ' . forum_time(true, $search_params[$param_name]) . ' AND ' . $param_info['db_fields'][0] . ' < ' . (forum_time(true, $search_params[$param_name]) + 86400);
+						$query_parts[] = $param_info['db_fields'][0] . ' >= ' . $search_params[$param_name] . ' AND ' . $param_info['db_fields'][0] . ' < ' . ($search_params[$param_name] + 86400);
 					}
 					// Less than or equal to
 					elseif ($search_params['types'][$param_name] == '-')
 					{
-						$query_parts[] = $param_info['db_fields'][0] . ' < ' . (forum_time(true, $search_params[$param_name]) + 86400);
+						$query_parts[] = $param_info['db_fields'][0] . ' < ' . ($search_params[$param_name] + 86400);
 					}
 					// Greater than
 					elseif ($search_params['types'][$param_name] == '++')
 					{
-						$query_parts[] = $param_info['db_fields'][0] . ' >= ' . (forum_time(true, $search_params[$param_name]) + 86400);
+						$query_parts[] = $param_info['db_fields'][0] . ' >= ' . ($search_params[$param_name] + 86400);
 					}
 					else
-						$query_parts[] = $param_info['db_fields'][0] . ' ' . $range_trans[$search_params['types'][$param_name]] . ' ' . forum_time(true, $search_params[$param_name]);
+						$query_parts[] = $param_info['db_fields'][0] . ' ' . $range_trans[$search_params['types'][$param_name]] . ' ' . $search_params[$param_name];
 				}
 				else
 					$query_parts[] = $param_info['db_fields'][0] . ' ' . $range_trans[$search_params['types'][$param_name]] . ' ' . $search_params[$param_name];
@@ -1291,7 +1291,7 @@ function AdminApprove()
 function jeffsdatediff($old)
 {
 	// Get the current time as the user would see it...
-	$forumTime = forum_time();
+	$forumTime = time();
 
 	// Calculate the seconds that have passed since midnight.
 	$sinceMidnight = date('H', $forumTime) * 60 * 60 + date('i', $forumTime) * 60 + date('s', $forumTime);
