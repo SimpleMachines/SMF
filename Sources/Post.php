@@ -1261,7 +1261,7 @@ function Post($post_errors = array())
 	// Load the drafts js file
 	if ($context['drafts_autosave'])
 		loadJavaScriptFile('drafts.js', array('defer' => false, 'minimize' => true), 'smf_drafts');
-	
+
 	// quotedText.js
 	loadJavaScriptFile('quotedText.js', array('defer' => true, 'minimize' => true), 'smf_quotedText');
 
@@ -2309,6 +2309,8 @@ function Post2()
 		'sticky_mode' => isset($_POST['sticky']) ? (int) $_POST['sticky'] : null,
 		'mark_as_read' => true,
 		'is_approved' => !$modSettings['postmod_active'] || empty($topic) || !empty($board_info['cur_topic_approved']),
+		'first_msg' => empty($topic_info['id_first_msg']) ? null : $topic_info['id_first_msg'],
+		'last_msg' => empty($topic_info['id_last_msg']) ? null : $topic_info['id_last_msg'],
 	);
 	$posterOptions = array(
 		'id' => $user_info['id'],
