@@ -187,7 +187,7 @@ function sessionWrite($session_id, $data)
 		array('session_id')
 	);
 
-	return ($smcFunc['db_affected_rows']($session_update) == 0 ? false : true);
+	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
 }
 
 /**
@@ -239,7 +239,7 @@ function sessionGC($max_lifetime)
 		)
 	);
 
-	return ($smcFunc['db_affected_rows']($session_update) == 0 ? false : true);
+	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
 }
 
 ?>
