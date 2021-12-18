@@ -314,6 +314,7 @@ function updateMemberData($members, $data)
 			'website_url',
 			'location',
 			'time_format',
+			'timezone',
 			'time_offset',
 			'avatar',
 			'lngfile',
@@ -721,11 +722,16 @@ function comma_format($number, $override_decimal_count = false)
  * - performs localization (more than just strftime would do alone.)
  *
  * @param int $log_time A timestamp
- * @param bool|string $show_today Whether to show "Today"/"Yesterday" or just a date. If a string is specified, that is used to temporarily override the date format.
- * @param bool|string $offset_type If false, uses both user time offset and forum offset. If 'forum', uses only the forum offset. Otherwise no offset is applied.
- * @return string A formatted timestamp
+ * @param bool|string $show_today Whether to show "Today"/"Yesterday" or just a date.
+ *     If a string is specified, that is used to temporarily override the date format.
+ * @param null|string $tzid Time zone to use when generating the formatted string.
+ *     If empty, the user's time zone will be used.
+ *     If set to 'forum', the value of $modSettings['default_timezone'] will be used.
+ *     If set to a valid time zone identifier, that will be used.
+ *     Otherwise, the value of date_default_timezone_get() will be used.
+ * @return string A formatted time string
  */
-function timeformat($log_time, $show_today = true, $offset_type = false)
+function timeformat($log_time, $show_today = true, $tzid = null)
 {
 	global $context, $user_info, $txt, $modSettings;
 	static $now;
@@ -733,18 +739,11 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
 	// Ensure required values are set
 	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %H:%M');
 
-	// Offset the time.
-	if (!$offset_type)
-		$log_time = forum_time(true, $log_time);
-	// Just the forum offset?
-	elseif ($offset_type == 'forum')
-		$log_time = forum_time(false, $log_time);
-
 	// Today and Yesterday?
 	$prefix = '';
 	if ($modSettings['todayMod'] >= 1 && $show_today === true)
 	{
-		$now_time = forum_time();
+		$now_time = time();
 
 		if ($now_time - $log_time < (86400 * $modSettings['todayMod']))
 		{
@@ -769,8 +768,12 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
 
 	$format = !empty($prefix) ? get_date_or_time_format('time', $format) : $format;
 
+	// For backward compatibility, normalize empty values to null and replace 'forum' with forum's default time zone.
+	// Otherwise, just make sure $tzid is a string and let smf_strftime() handle it.
+	$tzid = empty($tzid) ? null : ($tzid === 'forum' ? $modSettings['default_timezone'] : (string) $tzid);
+
 	// And now, the moment we've all be waiting for...
-	return $prefix . smf_strftime($format, $log_time);
+	return $prefix . smf_strftime($format, $log_time, $tzid);
 }
 
 /**
@@ -1432,28 +1435,18 @@ function shorten_subject($subject, $len)
 }
 
 /**
- * Gets the current time with offset.
+ * Deprecated function that formerly applied manual offsets to Unix timestamps
+ * in order to provide a fake version of time zone support on ancient versions
+ * of PHP. It now simply returns an unaltered timestamp.
  *
- * - always applies the offset in the time_offset setting.
- *
- * @param bool $use_user_offset Whether to apply the user's offset as well
+ * @deprecated since 2.1
+ * @param bool $use_user_offset This parameter is deprecated and nonfunctional
  * @param int $timestamp A timestamp (null to use current time)
- * @return int Seconds since the unix epoch, with forum time offset and (optionally) user time offset applied
+ * @return int Seconds since the Unix epoch
  */
 function forum_time($use_user_offset = true, $timestamp = null)
 {
-	global $user_info, $modSettings;
-
-	// Ensure required values are set
-	$modSettings['time_offset'] = !empty($modSettings['time_offset']) ? $modSettings['time_offset'] : 0;
-	$user_info['time_offset'] = !empty($user_info['time_offset']) ? $user_info['time_offset'] : 0;
-
-	if ($timestamp === null)
-		$timestamp = time();
-	elseif ($timestamp == 0)
-		return 0;
-
-	return $timestamp + ($modSettings['time_offset'] + ($use_user_offset ? $user_info['time_offset'] : 0)) * 3600;
+	return !isset($timestamp) ? time() : (int) $timestamp;
 }
 
 /**
@@ -6748,6 +6741,8 @@ function smf_list_timezones($when = 'now')
 			$member_tzkey = $tzkey;
 		if (isset($context['event']['tz']) && $context['event']['tz'] == $tzid)
 			$event_tzkey = $tzkey;
+		if ($modSettings['default_timezone'] == $tzid)
+			$default_tzkey = $tzkey;
 	}
 
 	// Sort by current offset, then standard offset, then DST type, then label.
@@ -6811,6 +6806,8 @@ function smf_list_timezones($when = 'now')
 			$cur_profile['timezone'] = $tzvalue['tzid'];
 		if (isset($event_tzkey) && $event_tzkey == $tzkey)
 			$context['event']['tz'] = $tzvalue['tzid'];
+		if (isset($default_tzkey) && $default_tzkey == $tzkey && $modSettings['default_timezone'] != $tzvalue['tzid'])
+			updateSettings(array('default_timezone' => $tzvalue['tzid']));
 	}
 
 	if (!empty($priority_timezones))
@@ -6854,25 +6851,27 @@ function getUserTimezone($id_member = null)
 		return $user_settings['timezone'];
 	}
 
-	// Look it up in the database.
-	$request = $smcFunc['db_query']('', '
-		SELECT timezone
-		FROM {db_prefix}members
-		WHERE id_member = {int:id_member}',
-		array(
-			'id_member' => $id_member,
-		)
-	);
-	list($timezone) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	if (!empty($id_member))
+	{
+		// Look it up in the database.
+		$request = $smcFunc['db_query']('', '
+			SELECT timezone
+			FROM {db_prefix}members
+			WHERE id_member = {int:id_member}',
+			array(
+				'id_member' => $id_member,
+			)
+		);
+		list($timezone) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+	}
 
 	// If it is invalid, fall back to the default.
 	if (empty($timezone) || !in_array($timezone, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)))
 		$timezone = isset($modSettings['default_timezone']) ? $modSettings['default_timezone'] : date_default_timezone_get();
 
 	// Save for later.
-	if (isset($id_member))
-		$member_cache[$id_member] = $timezone;
+	$member_cache[$id_member] = $timezone;
 
 	return $timezone;
 }

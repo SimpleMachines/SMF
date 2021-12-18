@@ -382,10 +382,10 @@ function canLinkEvent()
 function getTodayInfo()
 {
 	return array(
-		'day' => (int) smf_strftime('%d', forum_time()),
-		'month' => (int) smf_strftime('%m', forum_time()),
-		'year' => (int) smf_strftime('%Y', forum_time()),
-		'date' => smf_strftime('%Y-%m-%d', forum_time()),
+		'day' => (int) smf_strftime('%d', time()),
+		'month' => (int) smf_strftime('%m', time()),
+		'year' => (int) smf_strftime('%Y', time()),
+		'date' => smf_strftime('%Y-%m-%d', time()),
 	);
 }
 
@@ -904,8 +904,8 @@ function cache_getOffsetIndependentEvents($eventOptions)
 {
 	$days_to_index = $eventOptions['num_days_shown'];
 
-	$low_date = smf_strftime('%Y-%m-%d', forum_time(false) - 24 * 3600);
-	$high_date = smf_strftime('%Y-%m-%d', forum_time(false) + $days_to_index * 24 * 3600);
+	$low_date = smf_strftime('%Y-%m-%d', time() - 24 * 3600);
+	$high_date = smf_strftime('%Y-%m-%d', time() + $days_to_index * 24 * 3600);
 
 	return array(
 		'data' => array(
@@ -913,7 +913,7 @@ function cache_getOffsetIndependentEvents($eventOptions)
 			'birthdays' => (!empty($eventOptions['include_birthdays']) ? getBirthdayRange($low_date, $high_date) : array()),
 			'events' => (!empty($eventOptions['include_events']) ? getEventRange($low_date, $high_date, false) : array()),
 		),
-		'refresh_eval' => 'return \'' . smf_strftime('%Y%m%d', forum_time(false)) . '\' != smf_strftime(\'%Y%m%d\', forum_time(false)) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
+		'refresh_eval' => 'return \'' . smf_strftime('%Y%m%d', time()) . '\' != smf_strftime(\'%Y%m%d\', time()) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
 		'expires' => time() + 3600,
 	);
 }
@@ -944,7 +944,7 @@ function cache_getRecentEvents($eventOptions)
 	$days_for_index = $eventOptions['num_days_shown'] * 86400;
 
 	// Get the current member time/date.
-	$now = forum_time();
+	$now = time();
 
 	if (!empty($eventOptions['include_holidays']))
 	{
@@ -1018,7 +1018,7 @@ function cache_getRecentEvents($eventOptions)
 	return array(
 		'data' => $return_data,
 		'expires' => time() + 3600,
-		'refresh_eval' => 'return \'' . smf_strftime('%Y%m%d', forum_time(false)) . '\' != smf_strftime(\'%Y%m%d\', forum_time(false)) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
+		'refresh_eval' => 'return \'' . smf_strftime('%Y%m%d', time()) . '\' != smf_strftime(\'%Y%m%d\', time()) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
 		'post_retri_eval' => '
 			global $context, $scripturl, $user_info;
 

@@ -558,7 +558,7 @@ function logSpider()
 	// Attempt to update today's entry.
 	if ($modSettings['spider_mode'] == 1)
 	{
-		$date = smf_strftime('%Y-%m-%d', forum_time(false));
+		$date = smf_strftime('%Y-%m-%d', time());
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}log_spider_stats
 			SET last_seen = {int:current_time}, page_hits = page_hits + 1

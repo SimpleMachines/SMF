@@ -76,7 +76,7 @@ function summary($memID)
 	else
 	{
 		list ($birth_year, $birth_month, $birth_day) = sscanf($context['member']['birth_date'], '%d-%d-%d');
-		$datearray = getdate(forum_time());
+		$datearray = getdate(time());
 		$context['member'] += array(
 			'age' => $birth_year <= 1004 ? $txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
 			'today_is_birthday' => $datearray['mon'] == $birth_month && $datearray['mday'] == $birth_day && $birth_year > 1004
@@ -1087,7 +1087,7 @@ function showPosts($memID)
 			'subject' => $row['subject'],
 			'start' => 'msg' . $row['id_msg'],
 			'time' => timeformat($row['poster_time']),
-			'timestamp' => forum_time(true, $row['poster_time']),
+			'timestamp' => $row['poster_time'],
 			'id' => $row['id_msg'],
 			'can_reply' => false,
 			'can_mark_notify' => !$context['user']['is_guest'],
@@ -1773,7 +1773,7 @@ function statPanel($memID)
 		GROUP BY hour',
 		array(
 			'current_member' => $memID,
-			'time_offset' => (($user_info['time_offset'] + $modSettings['time_offset']) * 3600),
+			'time_offset' => $user_info['time_offset'] * 3600,
 			'max_messages' => 1001,
 		)
 	);
@@ -2197,7 +2197,7 @@ function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars 
 			'message' => strtr($row['message'], array('&lt;span class=&quot;remove&quot;&gt;' => '', '&lt;/span&gt;' => '')),
 			'url' => $row['url'],
 			'time' => timeformat($row['log_time']),
-			'timestamp' => forum_time(true, $row['log_time']),
+			'timestamp' => $row['log_time'],
 		);
 	$smcFunc['db_free_result']($request);
 
@@ -2270,7 +2270,7 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 			'id' => $row['id_msg'],
 			'subject' => $row['subject'],
 			'time' => timeformat($row['poster_time']),
-			'timestamp' => forum_time(true, $row['poster_time'])
+			'timestamp' => $row['poster_time']
 		);
 	$smcFunc['db_free_result']($request);
 

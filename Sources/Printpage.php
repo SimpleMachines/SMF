@@ -261,7 +261,7 @@ function PrintTopic()
 			'subject' => $row['subject'],
 			'member' => $row['poster_name'],
 			'time' => timeformat($row['poster_time'], false),
-			'timestamp' => forum_time(true, $row['poster_time']),
+			'timestamp' => $row['poster_time'],
 			'body' => parse_bbc($row['body'], 'print'),
 			'id_msg' => $row['id_msg'],
 		);

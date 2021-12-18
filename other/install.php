@@ -277,8 +277,11 @@ function initialize_inputs()
 		// If date.timezone is unset, invalid, or just plain weird, make a best guess
 		if (!in_array($timezone_id, timezone_identifiers_list()))
 		{
-			$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
+			$server_offset = @mktime(0, 0, 0, 1, 1, 1970) * -1;
 			$timezone_id = timezone_name_from_abbr('', $server_offset, 0);
+
+			if (empty($timezone_id))
+				$timezone_id = 'UTC';
 		}
 
 		date_default_timezone_set($timezone_id);
@@ -1363,8 +1366,11 @@ function DatabasePopulation()
 		// If date.timezone is unset, invalid, or just plain weird, make a best guess
 		if (!in_array($timezone_id, timezone_identifiers_list()))
 		{
-			$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
+			$server_offset = @mktime(0, 0, 0, 1, 1, 1970) * -1;
 			$timezone_id = timezone_name_from_abbr('', $server_offset, 0);
+
+			if (empty($timezone_id))
+				$timezone_id = 'UTC';
 		}
 
 		if (date_default_timezone_set($timezone_id))

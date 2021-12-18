@@ -2174,7 +2174,7 @@ function prepareSearchContext($reset = false)
 		'first_post' => array(
 			'id' => $message['first_msg'],
 			'time' => timeformat($message['first_poster_time']),
-			'timestamp' => forum_time(true, $message['first_poster_time']),
+			'timestamp' => $message['first_poster_time'],
 			'subject' => $message['first_subject'],
 			'href' => $scripturl . '?topic=' . $message['id_topic'] . '.0',
 			'link' => '<a href="' . $scripturl . '?topic=' . $message['id_topic'] . '.0">' . $message['first_subject'] . '</a>',
@@ -2190,7 +2190,7 @@ function prepareSearchContext($reset = false)
 		'last_post' => array(
 			'id' => $message['last_msg'],
 			'time' => timeformat($message['last_poster_time']),
-			'timestamp' => forum_time(true, $message['last_poster_time']),
+			'timestamp' => $message['last_poster_time'],
 			'subject' => $message['last_subject'],
 			'href' => $scripturl . '?topic=' . $message['id_topic'] . ($message['num_replies'] == 0 ? '.0' : '.msg' . $message['last_msg']) . '#msg' . $message['last_msg'],
 			'link' => '<a href="' . $scripturl . '?topic=' . $message['id_topic'] . ($message['num_replies'] == 0 ? '.0' : '.msg' . $message['last_msg']) . '#msg' . $message['last_msg'] . '">' . $message['last_subject'] . '</a>',
@@ -2250,11 +2250,11 @@ function prepareSearchContext($reset = false)
 		'subject' => $message['subject'],
 		'subject_highlighted' => $message['subject_highlighted'],
 		'time' => timeformat($message['poster_time']),
-		'timestamp' => forum_time(true, $message['poster_time']),
+		'timestamp' => $message['poster_time'],
 		'counter' => $counter,
 		'modified' => array(
 			'time' => timeformat($message['modified_time']),
-			'timestamp' => forum_time(true, $message['modified_time']),
+			'timestamp' => $message['modified_time'],
 			'name' => $message['modified_name']
 		),
 		'body' => $message['body'],
