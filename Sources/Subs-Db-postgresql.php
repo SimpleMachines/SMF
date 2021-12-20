@@ -174,7 +174,7 @@ function smf_db_replacement__callback($matches)
 		smf_db_error_backtrace('Invalid value inserted or no type specified.', '', E_USER_ERROR, __FILE__, __LINE__);
 
 	if ($matches[1] === 'literal')
-		return '\'' . pg_escape_string($matches[2]) . '\'';
+		return '\'' . pg_escape_string($connection, $matches[2]) . '\'';
 
 	if (!isset($values[$matches[2]]))
 		smf_db_error_backtrace('The database value you\'re trying to insert does not exist: ' . (isset($smcFunc['htmlspecialchars']) ? $smcFunc['htmlspecialchars']($matches[2]) : htmlspecialchars($matches[2])), '', E_USER_ERROR, __FILE__, __LINE__);
@@ -191,7 +191,7 @@ function smf_db_replacement__callback($matches)
 
 		case 'string':
 		case 'text':
-			return sprintf('\'%1$s\'', pg_escape_string($replacement));
+			return sprintf('\'%1$s\'', pg_escape_string($connection, $replacement));
 			break;
 
 		case 'array_int':
@@ -222,7 +222,7 @@ function smf_db_replacement__callback($matches)
 					smf_db_error_backtrace('Database error, given array of string values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 
 				foreach ($replacement as $key => $value)
-					$replacement[$key] = sprintf('\'%1$s\'', pg_escape_string($value));
+					$replacement[$key] = sprintf('\'%1$s\'', pg_escape_string($connection, $value));
 
 				return implode(', ', $replacement);
 			}
@@ -272,7 +272,7 @@ function smf_db_replacement__callback($matches)
 				return 'null';
 			if (inet_pton($replacement) === false)
 				smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-			return sprintf('\'%1$s\'::inet', pg_escape_string($replacement));
+			return sprintf('\'%1$s\'::inet', pg_escape_string($connection, $replacement));
 
 		case 'array_inet':
 			if (is_array($replacement))
@@ -286,7 +286,7 @@ function smf_db_replacement__callback($matches)
 						$replacement[$key] = 'null';
 					if (!isValidIP($value))
 						smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
-					$replacement[$key] = sprintf('\'%1$s\'::inet', pg_escape_string($value));
+					$replacement[$key] = sprintf('\'%1$s\'::inet', pg_escape_string($connection, $value));
 				}
 
 				return implode(', ', $replacement);
@@ -987,7 +987,7 @@ function smf_db_escape_string($string, $connection = null)
 {
 	global $db_connection;
 
-	return pg_escape_string($connection === null ? $db_connection : $connection, $string);
+	return pg_escape_string($connection, $connection === null ? $db_connection : $connection, $string);
 }
 
 /**
