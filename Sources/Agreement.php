@@ -14,7 +14,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /*	The purpose of this file is to show the user an updated registration
 	agreement, and get them to agree to it.

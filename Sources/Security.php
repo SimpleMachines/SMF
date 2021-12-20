@@ -143,7 +143,7 @@ function is_not_guest($message = '')
 	obExit();
 
 	// We should never get to this point, but if we did we wouldn't know the user isn't a guest.
-	trigger_error('Hacking attempt...', E_USER_ERROR);
+	trigger_error('No direct access...', E_USER_ERROR);
 }
 
 /**
@@ -348,7 +348,7 @@ function is_not_banned($forceCheck = false)
 		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']), false, 403);
 
 		// If we get here, something's gone wrong.... but let's try anyway.
-		trigger_error('Hacking attempt...', E_USER_ERROR);
+		trigger_error('No direct access...', E_USER_ERROR);
 	}
 	// You're not allowed to log in but yet you are. Let's fix that.
 	elseif (isset($_SESSION['ban']['cannot_login']) && !$user_info['is_guest'])
@@ -711,7 +711,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 		return $error;
 
 	// We really should never fall through here, for very important reasons.  Let's make sure.
-	trigger_error('Hacking attempt...', E_USER_ERROR);
+	trigger_error('No direct access...', E_USER_ERROR);
 }
 
 /**
@@ -1045,7 +1045,7 @@ function isAllowedTo($permission, $boards = null, $any = false)
 		fatal_lang_error('cannot_' . $error_permission, false);
 
 		// Getting this far is a really big problem, but let's try our best to prevent any cases...
-		trigger_error('Hacking attempt...', E_USER_ERROR);
+		trigger_error('No direct access...', E_USER_ERROR);
 	}
 
 	// If you're doing something on behalf of some "heavy" permissions, validate your session.
