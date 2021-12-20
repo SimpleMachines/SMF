@@ -987,7 +987,7 @@ function smf_db_escape_string($string, $connection = null)
 {
 	global $db_connection;
 
-	return pg_escape_string($connection, $connection === null ? $db_connection : $connection, $string);
+	return pg_escape_string($connection === null ? $db_connection : $connection, $string);
 }
 
 /**
