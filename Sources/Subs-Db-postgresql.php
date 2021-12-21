@@ -658,6 +658,9 @@ function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0,
 	if (empty($table) || empty($data))
 		return;
 
+	// Force method to lower case
+	$method = strtolower($method);
+
 	if (!is_array($data[array_rand($data)]))
 		$data = array($data);
 

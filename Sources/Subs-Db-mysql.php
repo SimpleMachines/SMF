@@ -743,6 +743,9 @@ function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0,
 	if (empty($table) || empty($data))
 		return;
 
+	// Force method to lower case
+	$method = strtolower($method);
+
 	// Replace the prefix holder with the actual prefix.
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
 
