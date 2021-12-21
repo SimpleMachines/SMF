@@ -71,7 +71,8 @@ $databases = array(
 		'name' => 'PostgreSQL',
 		'version' => '9.6',
 		'version_check' => function() {
-			$request = pg_query('SELECT version()');
+			global $db_connection;
+			$request = pg_query($db_connection, 'SELECT version()');
 			list ($version) = pg_fetch_row($request);
 			list($pgl, $version) = explode(' ', $version);
 			return $version;
@@ -80,7 +81,8 @@ $databases = array(
 		'always_has_db' => true,
 		'utf8_support' => function()
 		{
-			$request = pg_query('SHOW SERVER_ENCODING');
+			global $db_connection;
+			$request = pg_query($db_connection, 'SHOW SERVER_ENCODING');
 
 			list ($charcode) = pg_fetch_row($request);
 
@@ -91,7 +93,8 @@ $databases = array(
 		},
 		'utf8_version' => '8.0',
 		'utf8_version_check' => function (){
-			$request = pg_query('SELECT version()');
+			global $db_connection;
+			$request = pg_query($db_connection, 'SELECT version()');
 			list ($version) = pg_fetch_row($request);
 			list($pgl, $version) = explode(' ', $version);
 			return $version;
