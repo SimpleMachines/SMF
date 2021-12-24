@@ -161,13 +161,13 @@
 	.login {
 		width: 100%;
 	}
-	.navigate_section .unread_links {
-		width: 95%;
-		float: left;
+	#inner_wrap {
+		flex-flow: row wrap;
 	}
-	.navigate_section .unread_links a {
-		padding: 5px 0 5px 0;
-		margin-right: 3px;
+	#inner_wrap .user,
+	#inner_wrap .news {
+		width: auto;
+		max-width: initial;
 	}
 	#languages_form {
 		padding-right: 10px;
@@ -372,7 +372,7 @@
 		width: 75%;
 	}
 	/* Hide me */
-	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
+	#inner_wrap time, #inner_wrap .news, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
 	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
 	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
 	#member_list .ip, #member_list .last_active, #member_list .user_name,

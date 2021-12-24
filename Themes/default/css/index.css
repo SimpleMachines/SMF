@@ -1174,17 +1174,31 @@ img#smflogo {
 	clear: both;
 }
 /* The upper_section, float the two each way */
-.user {
-	width: 50%;
-	float: left;
-	overflow: auto;
-	padding: 0 4px 6px 4px;
-	font-size: 0.9em;
+#inner_wrap {
+	display: flex;
+	justify-content: space-between;
+	border-bottom: 1px solid #bbb;
+	margin-bottom: 12px;
 }
-.user ul {
-	padding: 0 0 5px 0;
+.user {
+	padding: 0 4px 8px 4px;
 	font-size: 0.9em;
-	line-height: 1.8em;
+	white-space: nowrap;
+}
+.user:only-child {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+}
+.user time,
+.user .unread_links,
+.user .unread_links li {
+	display: inline-block;
+}
+.user time:not(:only-child)::after,
+.user .unread_links li:not(:last-child)::after {
+	content: " • ";
+	margin: 0 1ch;
 }
 ul li.greeting {
 	font-weight: bold;
@@ -1197,14 +1211,18 @@ ul li.greeting {
 }
 /* News section. */
 #inner_wrap .news {
-	max-width: 50%;
-	float: right;
-	padding: 0 0 6px 0;
+	padding: 0 0 8px 1ch;
 	font-size: 0.9em;
+	display: flex;
+	align-items: baseline;
 }
-#inner_wrap .news h2, #inner_wrap .news p {
+#inner_wrap .news h2 {
+	line-height: initial;
+}
+#inner_wrap .news h2,
+#inner_wrap .news p {
 	display: inline;
-	padding: 0 0 0 4px;
+	padding-left: 1ch;
 }
 
 /* The navigation list (i.e. linktree) */
@@ -1255,14 +1273,6 @@ ul li.greeting {
 	text-decoration: underline;
 }
 
-/* "Unread posts" and "New replies" links, accessible with header collapsed. */
-.navigate_section .unread_links {
-	float: right;
-}
-.navigate_section .unread_links a {
-	padding: 4px 0 4px 10px;
-	margin-top: 4px;
-}
 /* The content section */
 #content_section {
 	margin: 0 auto;

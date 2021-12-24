@@ -340,7 +340,20 @@ function template_body_above()
 			<div id="inner_section">
 				<div id="inner_wrap">
 					<div class="user">
-						', $context['current_time'], '
+						<time>', $context['current_time'], '</time>';
+
+	if ($context['user']['is_logged'])
+		echo '
+						<ul class="unread_links">
+							<li>
+								<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a>
+							</li>
+							<li>
+								<a href="', $scripturl, '?action=unreadreplies" title="', $txt['show_unread_replies'], '">', $txt['unread_replies'], '</a>
+							</li>
+						</ul>';
+
+	echo '
 					</div>';
 
 	// Show a random news item? (or you could pick one from news_lines...)
@@ -352,7 +365,6 @@ function template_body_above()
 					</div>';
 
 	echo '
-					<hr class="clear">
 				</div>';
 
 	// Show the menu here, according to the menu sub template, followed by the navigation tree.
@@ -443,16 +455,10 @@ function theme_linktree($force_show = false)
 	// If linktree is empty, just return - also allow an override.
 	if (empty($context['linktree']) || (!empty($context['dont_default_linktree']) && !$force_show))
 		return;
+
 	echo '
 				<div class="navigate_section">
 					<ul>';
-
-	if ($context['user']['is_logged'])
-		echo '
-						<li class="unread_links">
-							<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a>
-							<a href="', $scripturl, '?action=unreadreplies" title="', $txt['show_unread_replies'], '">', $txt['unread_replies'], '</a>
-						</li>';
 
 	// Each tree item has a URL and name. Some may have extra_before and extra_after.
 	foreach ($context['linktree'] as $link_num => $tree)
