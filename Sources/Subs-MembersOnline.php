@@ -191,6 +191,8 @@ function getMembersOnlineStats($membersOnlineOptions)
 	// Hidden and non-hidden members make up all online members.
 	$membersOnlineStats['num_users_online'] = count($membersOnlineStats['users_online']) + $membersOnlineStats['num_users_hidden'] - (isset($modSettings['show_spider_online']) && $modSettings['show_spider_online'] > 1 ? count($spider_finds) : 0);
 
+	call_integration_hook('integrate_online_stats', array(&$membersOnlineStats));
+
 	return $membersOnlineStats;
 }
 
