@@ -188,6 +188,7 @@
 	}
 	.up_contain .lastpost {
 		border-top: 1px solid #ddd;
+		min-height: initial;
 	}
 	.lastpost p {
 		margin: 5px;
