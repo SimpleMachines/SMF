@@ -5239,8 +5239,10 @@ function host_from_ip($ip)
 		return $host;
 	$t = microtime(true);
 
+	$exists = function_exists('shell_exec');
+
 	// Try the Linux host command, perhaps?
-	if (!isset($host) && (strpos(strtolower(PHP_OS), 'win') === false || strpos(strtolower(PHP_OS), 'darwin') !== false) && mt_rand(0, 1) == 1)
+	if ($exists && !isset($host) && (strpos(strtolower(PHP_OS), 'win') === false || strpos(strtolower(PHP_OS), 'darwin') !== false) && mt_rand(0, 1) == 1)
 	{
 		if (!isset($modSettings['host_to_dis']))
 			$test = @shell_exec('host -W 1 ' . @escapeshellarg($ip));
@@ -5259,7 +5261,7 @@ function host_from_ip($ip)
 	}
 
 	// This is nslookup; usually only Windows, but possibly some Unix?
-	if (!isset($host) && stripos(PHP_OS, 'win') !== false && strpos(strtolower(PHP_OS), 'darwin') === false && mt_rand(0, 1) == 1)
+	if ($exists && !isset($host) && stripos(PHP_OS, 'win') !== false && strpos(strtolower(PHP_OS), 'darwin') === false && mt_rand(0, 1) == 1)
 	{
 		$test = @shell_exec('nslookup -timeout=1 ' . @escapeshellarg($ip));
 		if (strpos($test, 'Non-existent domain') !== false)
