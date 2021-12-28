@@ -3103,6 +3103,8 @@ function JavaScriptModify()
 			'lock_mode' => isset($_POST['lock']) ? (int) $_POST['lock'] : null,
 			'sticky_mode' => isset($_POST['sticky']) ? (int) $_POST['sticky'] : null,
 			'mark_as_read' => true,
+			'first_msg' => empty($topic_info['id_first_msg']) ? null : $topic_info['id_first_msg'],
+			'last_msg' => empty($topic_info['id_last_msg']) ? null : $topic_info['id_last_msg'],
 		);
 		$posterOptions = array(
 			'id' => $user_info['id'],
