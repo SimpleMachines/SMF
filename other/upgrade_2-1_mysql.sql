@@ -2632,8 +2632,8 @@ if ($doChange)
 
 ---# Add the new ip columns to members
 ALTER TABLE {$db_prefix}members
-ADD COLUMN member_ip VARBINARY(16),
-ADD COLUMN member_ip2 VARBINARY(16);
+ADD COLUMN member_ip VARBINARY(16) DEFAULT '',
+ADD COLUMN member_ip2 VARBINARY(16) DEFAULT '';
 ---#
 
 ---# Create an ip index for old ips
@@ -2685,7 +2685,7 @@ if ($doChange)
 ---#
 
 ---# Add the new ip column to messages
-ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
+ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16) DEFAULT '';
 ---#
 
 ---# Create an ip index for old ips
