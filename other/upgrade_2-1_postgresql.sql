@@ -4072,27 +4072,79 @@ foreach($files AS $filename)
 
 ---# Fix missing values in log_actions
 ---{
-// Find the missing id_members
-$request = upgrade_query("
-	SELECT id_action, extra
-		FROM {$db_prefix}log_actions
-		WHERE id_member = 0
-		AND action IN ('policy_accepted', 'agreement_accepted')");
+	$current_substep = !isset($_GET['substep']) ? 0 : (int) $_GET['substep'];
 
-// Fortunately they're in the extra field
-while ($row = $smcFunc['db_fetch_assoc']($request))
-{
-	$extra = @unserialize($row['extra']);
-	if ($extra === false)
-		continue;
-	if (!empty($extra['applicator']))
+	// Setup progress bar
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(*)
+			FROM {db_prefix}log_actions
+			WHERE id_member = {int:blank_id}
+			AND action IN ({array_string:target_actions})',
+		array(
+			'blank_id' => 0,
+			'target_actions' => array('policy_accepted', 'agreement_accepted'),
+		)
+	);
+	list ($step_progress['total']) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	if (empty($_GET['a']))
+		$_GET['a'] = 0;
+	$step_progress['name'] = 'Fixing missing IDs in log_actions';
+	$step_progress['current'] = $_GET['a'];
+
+	// Main process loop
+	$limit = 10000;
+	$is_done = false;
+	while (!$is_done)
 	{
-		upgrade_query("
-			UPDATE {$db_prefix}log_actions
-				SET id_member = " . $extra['applicator'] . "
-				WHERE id_action = " . $row['id_action']);
+		// Keep looping at the current step.
+		nextSubstep($current_substep);
+
+		$extras = array();
+		$request = $smcFunc['db_query']('', '
+			SELECT id_action, extra
+				FROM {db_prefix}log_actions
+				WHERE id_member = {int:blank_id}
+				AND action IN ({array_string:target_actions})
+				LIMIT {int:limit}',
+			array(
+				'blank_id' => 0,
+				'target_actions' => array('policy_accepted', 'agreement_accepted'),
+				'limit' => $limit,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$extras[$row['id_action']] = $row['extra'];
+		$smcFunc['db_free_result']($request);
+
+		if (empty($extras))
+			$is_done = true;
+
+		foreach ($extras AS $id => $extra_ser)
+		{
+			$extra = @unserialize($extra_ser);
+			if ($extra === false)
+				continue;
+			if (!empty($extra['applicator']))
+			{
+				$request = $smcFunc['db_query']('', '
+					UPDATE {db_prefix}log_actions
+						SET id_member = {int:id_member}
+						WHERE id_action = {int:id_action}',
+					array(
+						'id_member' => $extra['applicator'],
+						'id_action' => $id,
+					)
+				);
+			}
+		}
+		$_GET['a'] += $limit;
+		$step_progress['current'] = $_GET['a'];
 	}
-}
+
+	$step_progress = array();
+	unset($_GET['a']);
 
 ---}
 ---#
