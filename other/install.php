@@ -528,6 +528,10 @@ function Welcome()
 	if (!extension_loaded('mbstring'))
 		$incontext['error'] = $txt['install_no_mbstring'];
 
+	// Confirm fileinfo is loaded...
+	if (!extension_loaded('fileinfo'))
+		$incontext['error'] = $txt['install_no_fileinfo'];
+
 	// Check for https stream support.
 	$supported_streams = stream_get_wrappers();
 	if (!in_array('https', $supported_streams))
