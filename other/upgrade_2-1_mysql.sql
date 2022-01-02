@@ -585,40 +585,42 @@ if (!empty($attachs))
 
 ---# Fixing attachment directory setting...
 ---{
-if (!is_array($modSettings['attachmentUploadDir']) && is_dir($modSettings['attachmentUploadDir']))
+// If its a directory or an array, ensure it is stored as a serialized string (prep for later serial_to_json conversion)
+// Also ensure currentAttachmentUploadDir is set even for single directories
+// Make sure to do it in memory and in db...
+if (empty($modSettings['json_done']))
 {
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}settings
-		SET value = {string:attach_dir}
-		WHERE variable = {string:uploadDir}',
-		array(
-			'attach_dir' => json_encode(array(1 => $modSettings['attachmentUploadDir'])),
-			'uploadDir' => 'attachmentUploadDir'
-		)
-	);
-	$smcFunc['db_insert']('replace',
-		'{db_prefix}settings',
-		array('variable' => 'string', 'value' => 'string'),
-		array('currentAttachmentUploadDir', '1'),
-		array('variable')
-	);
-}
-elseif (empty($modSettings['json_done']))
-{
-	// Serialized maybe?
-	$array = is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'] : @unserialize($modSettings['attachmentUploadDir']);
-	if ($array !== false)
+	if (!is_array($modSettings['attachmentUploadDir']) && is_dir($modSettings['attachmentUploadDir']))
 	{
+		$modSettings['attachmentUploadDir'] = serialize(array(1 => $modSettings['attachmentUploadDir']));
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}settings
 			SET value = {string:attach_dir}
 			WHERE variable = {string:uploadDir}',
 			array(
-				'attach_dir' => json_encode($array),
+				'attach_dir' => $modSettings['attachmentUploadDir'],
 				'uploadDir' => 'attachmentUploadDir'
 			)
 		);
-
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('currentAttachmentUploadDir', '1'),
+			array('variable')
+		);
+	}
+	elseif (is_array($modSettings['attachmentUploadDir']))
+	{
+		$modSettings['attachmentUploadDir'] = serialize($modSettings['attachmentUploadDir']);
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}settings
+			SET value = {string:attach_dir}
+			WHERE variable = {string:uploadDir}',
+			array(
+				'attach_dir' => $modSettings['attachmentUploadDir'],
+				'uploadDir' => 'attachmentUploadDir'
+			)
+		);
 		// Assume currentAttachmentUploadDir is already set
 	}
 }
