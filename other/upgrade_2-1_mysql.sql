@@ -390,7 +390,7 @@ if (!is_writable($custom_av_dir))
 }
 
 // If we already are using a custom dir, delete the predefined one.
-if ($custom_av_dir != $GLOBALS['boarddir'] .'/custom_avatar')
+if (realpath($custom_av_dir) != realpath($GLOBALS['boarddir'] .'/custom_avatar'))
 {
 	// Borrow custom_avatars index.php file.
 	if (!file_exists($custom_av_dir . '/index.php'))
