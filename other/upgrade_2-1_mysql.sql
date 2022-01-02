@@ -424,7 +424,7 @@ if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings
 	$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
 
 // No need to do this if we already did it previously...
-if (empty($modSettings['json_done']))
+if (empty($modSettings['attachments_21_done']))
   $is_done = false;
 else
   $is_done = true;
@@ -549,6 +549,10 @@ while (!$is_done)
 
 unset($_GET['a']);
 ---}
+---#
+
+---# Note attachment conversion complete
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachments_21_done', '1');
 ---#
 
 ---# Fixing invalid sizes on attachments
