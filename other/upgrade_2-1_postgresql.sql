@@ -560,7 +560,7 @@ if (!is_writable($custom_av_dir))
 }
 
 // If we already are using a custom dir, delete the predefined one.
-if ($custom_av_dir != $GLOBALS['boarddir'] .'/custom_avatar')
+if (realpath($custom_av_dir) != realpath($GLOBALS['boarddir'] .'/custom_avatar'))
 {
 	// Borrow custom_avatars index.php file.
 	if (!file_exists($custom_av_dir . '/index.php'))
@@ -594,7 +594,7 @@ if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings
 	$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
 
 // No need to do this if we already did it previously...
-if (empty($modSettings['json_done']))
+if (empty($modSettings['attachments_21_done']))
   $is_done = false;
 else
   $is_done = true;
@@ -721,6 +721,10 @@ unset($_GET['a']);
 ---}
 ---#
 
+---# Note attachment conversion complete
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachments_21_done', '1');
+---#
+
 ---# Fixing invalid sizes on attachments
 ---{
 $attachs = array();
@@ -755,40 +759,42 @@ if (!empty($attachs))
 
 ---# Fixing attachment directory setting...
 ---{
-if (!is_array($modSettings['attachmentUploadDir']) && is_dir($modSettings['attachmentUploadDir']))
+// If its a directory or an array, ensure it is stored as a serialized string (prep for later serial_to_json conversion)
+// Also ensure currentAttachmentUploadDir is set even for single directories
+// Make sure to do it in memory and in db...
+if (empty($modSettings['json_done']))
 {
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}settings
-		SET value = {string:attach_dir}
-		WHERE variable = {string:uploadDir}',
-		array(
-			'attach_dir' => json_encode(array(1 => $modSettings['attachmentUploadDir'])),
-			'uploadDir' => 'attachmentUploadDir'
-		)
-	);
-	$smcFunc['db_insert']('replace',
-		'{db_prefix}settings',
-		array('variable' => 'string', 'value' => 'string'),
-		array('currentAttachmentUploadDir', '1'),
-		array('variable')
-	);
-}
-elseif (empty($modSettings['json_done']))
-{
-	// Serialized maybe?
-	$array = is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'] : @unserialize($modSettings['attachmentUploadDir']);
-	if ($array !== false)
+	if (!is_array($modSettings['attachmentUploadDir']) && is_dir($modSettings['attachmentUploadDir']))
 	{
+		$modSettings['attachmentUploadDir'] = serialize(array(1 => $modSettings['attachmentUploadDir']));
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}settings
 			SET value = {string:attach_dir}
 			WHERE variable = {string:uploadDir}',
 			array(
-				'attach_dir' => json_encode($array),
+				'attach_dir' => $modSettings['attachmentUploadDir'],
 				'uploadDir' => 'attachmentUploadDir'
 			)
 		);
-
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('currentAttachmentUploadDir', '1'),
+			array('variable')
+		);
+	}
+	elseif (is_array($modSettings['attachmentUploadDir']))
+	{
+		$modSettings['attachmentUploadDir'] = serialize($modSettings['attachmentUploadDir']);
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}settings
+			SET value = {string:attach_dir}
+			WHERE variable = {string:uploadDir}',
+			array(
+				'attach_dir' => $modSettings['attachmentUploadDir'],
+				'uploadDir' => 'attachmentUploadDir'
+			)
+		);
 		// Assume currentAttachmentUploadDir is already set
 	}
 }
