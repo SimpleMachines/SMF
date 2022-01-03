@@ -233,6 +233,7 @@ function ModifyBasicSettings($return_config = false)
 				'90' => $txt['alerts_auto_purge_90'],
 			),
 		),
+		array('int', 'alerts_per_page', 'step' => 1, 'min' => 0, 'max' => 999),
 	);
 
 	call_integration_hook('integrate_modify_basic_settings', array(&$config_vars));

@@ -68,6 +68,7 @@ $txt['alerts_auto_purge_7'] = 'After 1 week';
 $txt['alerts_auto_purge_30'] = 'After 1 month';
 $txt['alerts_auto_purge_90'] = 'After 3 months';
 $txt['alerts_auto_purge_0'] = 'Never';
+$txt['alerts_per_page'] = 'Alerts Per Page';
 $txt['jquery_source'] = 'Source for the jQuery Library';
 $txt['jquery_custom_label'] = 'Custom';
 $txt['jquery_custom'] = 'Custom URL to the jQuery Library';

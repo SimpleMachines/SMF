@@ -922,13 +922,14 @@ function alerts_popup($memID)
 
 	// No funny business allowed
 	$counter = isset($_REQUEST['counter']) ? max(0, (int) $_REQUEST['counter']) : 0;
+	$limit = !empty($modSettings['alerts_per_page']) && (int) $modSettings['alerts_per_page'] < 1000 ? min((int) $modSettings['alerts_per_page'], 1000) : 25;
 
 	$context['unread_alerts'] = array();
 	if ($counter < $cur_profile['alerts'])
 	{
 		// Now fetch me my unread alerts, pronto!
 		require_once($sourcedir . '/Profile-View.php');
-		$context['unread_alerts'] = fetch_alerts($memID, false, !empty($counter) ? $cur_profile['alerts'] - $counter : 0, 0, !isset($_REQUEST['counter']));
+		$context['unread_alerts'] = fetch_alerts($memID, false, !empty($counter) ? $cur_profile['alerts'] - $counter : $limit, 0, !isset($_REQUEST['counter']));
 
 		// This shouldn't happen, but just in case...
 		if (empty($counter) && $cur_profile['alerts'] != count($context['unread_alerts']))
