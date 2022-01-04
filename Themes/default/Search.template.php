@@ -294,11 +294,6 @@ function template_results()
 		echo '
 	</form>';
 
-		// Quick moderation set to checkboxes? Oh, how fun :/
-		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
-			echo '
-	<form action="', $scripturl, '?action=quickmod" method="post" accept-charset="', $context['character_set'], '" name="topicForm">';
-
 		echo '
 		<div id="display_head" class="information">
 			<h2 class="display_title">
@@ -323,17 +318,7 @@ function template_results()
 				</select>
 			</div>
 		</div>
-		<div class="pagesection">';
-
-			if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
-				echo '
-				<ul class="buttonlist floatright">
-					<li class="inline_mod_check">
-						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">
-					</li>
-				</ul>';
-
-		echo '
+		<div class="pagesection">
 			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 		}
@@ -360,42 +345,6 @@ function template_results()
 					<span class="smalltext">&#171;&nbsp;', $txt['by'], '&nbsp;<strong>', $message['member']['link'], '</strong>&nbsp;', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
 				</span>';
 
-				if (!empty($options['display_quick_mod']))
-				{
-					echo '
-				<span class="floatright">';
-
-					if ($options['display_quick_mod'] == 1)
-						echo '
-					<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
-
-					else
-					{
-						if ($topic['quick_mod']['remove'])
-							echo '
-					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons delete" title="', $txt['remove_topic'], '"></span></a>';
-
-						if ($topic['quick_mod']['lock'])
-							echo '
-					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
-
-						if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
-							echo '
-					<br>';
-
-						if ($topic['quick_mod']['sticky'])
-							echo '
-					<a href="', $scripturl, '?action=quickmod;board=' . $topic['board']['id'] . '.0;actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="main_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
-
-						if ($topic['quick_mod']['move'])
-							echo '
-					<a href="', $scripturl, '?action=movetopic;topic=', $topic['id'], '.0"><span class="main_icons move" title="', $txt['move_topic'], '"></span></a>';
-					}
-
-					echo '
-				</span><!-- .floatright -->';
-				}
-
 				echo '
 			</div><!-- .block -->';
 
@@ -407,42 +356,6 @@ function template_results()
 			echo '
 		</div><!-- $topic[css_class] -->';
 		}
-
-		if (!empty($context['topics']))
-			echo '
-		<div class="pagesection">
-			<div class="pagelinks">', $context['page_index'], '</div>
-		</div>';
-
-		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
-		{
-			echo '
-		<div class="quick_actions righttext">
-			<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.move_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
-				<option value="">--------</option>';
-
-			foreach ($context['qmod_actions'] as $qmod_action)
-				if ($context['can_' . $qmod_action])
-					echo '
-				<option value="' . $qmod_action . '">' . $txt['quick_mod_' . $qmod_action] . '</option>';
-
-			echo '
-			</select>';
-
-			if ($context['can_move'])
-				echo '
-			<span id="quick_mod_jump_to"></span>';
-
-			echo '
-			<input type="hidden" name="redirect_url" value="', $scripturl . '?action=search2;params=' . $context['params'], '">
-			<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return this.form.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button">
-		</div><!-- .quick_actions -->';
-		}
-
-		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
-			echo '
-		<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
-	</form>';
 	}
 	else
 	{
@@ -501,37 +414,19 @@ function template_results()
 	</div><!-- $topic[css_class] -->';
 			}
 		}
-
-		echo '
-	<div class="pagesection">
-		<div class="pagelinks">', $context['page_index'], '</div>
-	</div>';
 	}
+
+	echo '
+	<div class="pagesection">';
+
+	if (!empty($context['topics']))
+		echo '
+		<div class="pagelinks">', $context['page_index'], '</div>';
 
 	// Show a jump to box for easy navigation.
 	echo '
-	<br class="clear">
-	<div class="smalltext righttext" id="search_jump_to"></div>
-	<script>';
-
-	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']) && $context['can_move'])
-		echo '
-		if (typeof(window.XMLHttpRequest) != "undefined")
-			aJumpTo[aJumpTo.length] = new JumpTo({
-				sContainerId: "quick_mod_jump_to",
-				sClassName: "qaction",
-				sJumpToTemplate: "%dropdown_list%",
-				sCurBoardName: "', $context['jump_to']['board_name'], '",
-				sBoardChildLevelIndicator: "==",
-				sBoardPrefix: "=> ",
-				sCatSeparator: "-----------------------------",
-				sCatPrefix: "",
-				bNoRedirect: true,
-				bDisabled: true,
-				sCustomName: "move_to"
-			});';
-
-	echo '
+		<div class="smalltext pagelinks floatright" id="search_jump_to"></div>
+		<script>
 		if (typeof(window.XMLHttpRequest) != "undefined")
 			aJumpTo[aJumpTo.length] = new JumpTo({
 				sContainerId: "search_jump_to",
@@ -545,7 +440,8 @@ function template_results()
 				sCatPrefix: "",
 				sGoButtonLabel: "', $txt['quick_mod_go'], '"
 			});
-		</script>';
+		</script>
+	</div>';
 }
 
 ?>
