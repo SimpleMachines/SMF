@@ -144,9 +144,10 @@ function CalendarMain()
 
 	$end_object = null;
 
-	if ( (!empty($end_year) && !empty($end_month) && !empty($end_day)) && checkdate($end_month, $end_day, $end_year)) {
+	if (isset($end_month, $end_day, $end_year) && checkdate($end_month, $end_day, $end_year))
+	{
 		$end_object = date_create(implode('-', array($end_year, $end_month, $end_day)));
-	} 
+	}
 
 	if (empty($end_object) || $start_object >= $end_object)
 	{
