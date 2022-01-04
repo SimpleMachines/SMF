@@ -499,6 +499,10 @@ a img {
 	overflow: hidden;
 	clear: both;
 }
+.pagesection .pagelinks {
+	display: inline-block;
+	float: left;
+}
 .pages::after, .jump_to::after, .code::after,
 strong[id^='child_list_']::after {
 	content: ": ";

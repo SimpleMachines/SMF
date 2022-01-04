@@ -317,7 +317,7 @@ function template_results()
 		if (!empty($context['topics']))
 			echo '
 		<div class="pagesection">
-			<span>', $context['page_index'], '</span>
+			<div class="pagelinks">', $context['page_index'], '</div>
 			<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()">
 				<option value="relevance|desc">', $txt['search_orderby_relevant_first'], '</option>
 				<option value="num_replies|desc"', $context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', $txt['search_orderby_large_first'], '</option>
@@ -398,7 +398,7 @@ function template_results()
 		if (!empty($context['topics']))
 			echo '
 		<div class="pagesection">
-			<span>', $context['page_index'], '</span>
+			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
@@ -440,7 +440,7 @@ function template_results()
 		</h3>
 	</div>
 	<div class="pagesection">
-		<span>', $context['page_index'], '</span>
+		<div class="pagelinks">', $context['page_index'], '</div>
 	</div>';
 
 		if (empty($context['topics']))
@@ -470,7 +470,7 @@ function template_results()
 
 		echo '
 	<div class="pagesection">
-		<span>', $context['page_index'], '</span>
+		<div class="pagelinks">', $context['page_index'], '</div>
 	</div>';
 	}
 

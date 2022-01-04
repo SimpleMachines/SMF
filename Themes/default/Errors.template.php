@@ -70,7 +70,7 @@ function template_error_log()
 				</h3>
 			</div>
 			<div class="pagesection">
-				<div class="floatleft">
+				<div class="pagelinks">
 					', $context['page_index'], '
 				</div>';
 
@@ -179,7 +179,7 @@ function template_error_log()
 
 	echo '
 			<div class="pagesection">
-				<div class="floatleft">
+				<div class="pagelinks">
 					', $context['page_index'], '
 				</div>';
 

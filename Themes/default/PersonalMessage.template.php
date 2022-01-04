@@ -233,7 +233,7 @@ function template_folder()
 		if (empty($context['display_mode']))
 			echo '
 			<div class="pagesection">
-				<div class="floatleft">', $context['page_index'], '</div>
+				<div class="pagelinks">', $context['page_index'], '</div>
 				<div class="floatright">
 					<input type="submit" name="del_selected" value="', $txt['quickmod_delete_selected'], '" onclick="if (!confirm(\'', $txt['delete_selected_confirm'], '\')) return false;" class="button">
 				</div>
@@ -689,7 +689,7 @@ function template_subject_list()
 		</tbody>
 	</table>
 	<div class="pagesection">
-		<div class="floatleft">', $context['page_index'], '</div>
+		<div class="pagelinks">', $context['page_index'], '</div>
 		<div class="floatright">&nbsp;';
 
 	if ($context['show_delete'])
@@ -897,7 +897,7 @@ function template_search_results()
 			', sprintf($txt['pm_search_results_info'], $context['num_results'], sentence_list($context['search_in'])), '
 		</div>
 		<div class="pagesection">
-			', $context['page_index'], '
+			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 
 	// Complete results?
@@ -946,7 +946,7 @@ function template_search_results()
 
 	echo '
 		<div class="pagesection">
-			', $context['page_index'], '
+			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 
 }
@@ -1925,7 +1925,7 @@ function template_showPMDrafts()
 			</h3>
 		</div>
 		<div class="pagesection">
-			<span>', $context['page_index'], '</span>
+			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 
 	// No drafts? Just show an informative message.
@@ -1972,7 +1972,7 @@ function template_showPMDrafts()
 	// Show page numbers.
 	echo '
 	<div class="pagesection">
-		<span>', $context['page_index'], '</span>
+		<div class="pagelinks">', $context['page_index'], '</div>
 	</div>';
 }
 

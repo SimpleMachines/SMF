@@ -23,8 +23,13 @@ function template_recent()
 			<h3 class="catbg">
 				<span class="xx"></span>', $txt['recent_posts'], '
 			</h3>
-		</div>
-		<div class="pagesection">', $context['page_index'], '</div>';
+		</div>';
+
+	if (!empty($context['page_index']))
+		echo '
+		<div class="pagesection">
+			<div class="pagelinks">' . $context['page_index'] . '</div>
+		</div>';
 
 	if (empty($context['posts']))
 		echo '
@@ -49,7 +54,9 @@ function template_recent()
 	}
 
 	echo '
-		<div class="pagesection">', $context['page_index'], '</div>
+		<div class="pagesection">
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>
 	</div><!-- #recent -->';
 }
 

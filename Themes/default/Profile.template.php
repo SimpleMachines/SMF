@@ -619,9 +619,7 @@ function template_showAlerts()
 		echo '
 			</table>
 			<div class="pagesection">
-				<div class="floatleft">
-					', $context['pagination'], '
-				</div>
+				<div class="pagelinks">', $context['pagination'], '</div>
 				<div class="floatright">';
 
 		if ($context['showCheckboxes'])
