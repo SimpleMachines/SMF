@@ -108,11 +108,11 @@ function reloadSettings()
 	$ent_list = '&(?:#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . '|quot|amp|lt|gt|nbsp);';
 	$ent_check = empty($modSettings['disableEntityCheck']) ? function($string)
 		{
-			$string = preg_replace_callback('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', $string);
+			$string = preg_replace_callback('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', (string) $string);
 			return $string;
 		} : function($string)
 		{
-			return $string;
+			return (string) $string;
 		};
 	$fix_utf8mb4 = function($string) use ($utf8, $smcFunc)
 	{
