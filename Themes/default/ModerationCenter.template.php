@@ -410,12 +410,12 @@ function template_unapproved_posts()
 		);
 		echo '
 			<div class="windowbg clear">
-				<div class="counter">', $item['counter'], '</div>
+				<div class="page_number floatright"> #', $item['counter'], '</div>
 				<div class="topic_details">
 					<h5>
 						<strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong>
 					</h5>
-					<span class="smalltext"><strong>', $txt['mc_unapproved_by'], ' ', $item['poster']['link'], ' ', $txt['on'], ':</strong> ', $item['time'], '</span>
+					<span class="smalltext">', sprintf(str_replace('<br>', ' ', $txt['last_post_topic']), $item['time'], '<strong>' . $item['poster']['link'] . '</strong>'), '</span>
 				</div>
 				<div class="list_posts">
 					<div class="post">', $item['body'], '</div>
@@ -490,7 +490,7 @@ function template_user_watch_post_callback($post)
 					<div class="smalltext">
 						&#171; ' . $txt['mc_watched_users_posted'] . ': ' . $post['poster_time'] . ' &#187;
 					</div>
-					<div class="list_posts double_height">
+					<div class="list_posts">
 						' . $post['body'] . '
 					</div>';
 

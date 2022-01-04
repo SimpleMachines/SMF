@@ -1941,21 +1941,23 @@ function template_showPMDrafts()
 		{
 			echo '
 		<div class="windowbg">
-			<div class="counter">', $draft['counter'], '</div>
+			<div class="page_number floatright"> #', $draft['counter'], '</div>
 			<div class="topic_details">
-				<div class="floatright smalltext righttext">
-					<div class="recipient_to">&#171;&nbsp;<strong>', $txt['to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '&nbsp;&#187;</div>';
-
-			if(!empty($draft['recipients']['bcc']))
-				echo'
-					<div class="pm_bbc">&#171;&nbsp;<strong>', $txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '&nbsp;&#187;</div>';
-
-			echo '
-				</div>
 				<h5>
 					<strong>', $draft['subject'], '</strong>
 				</h5>
-				<span class="smalltext">&#171;&nbsp;<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '&#187;</span><br>
+				<div class="smalltext">
+					<div class="recipient_to"><strong>', $txt['to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '</div>';
+
+			if(!empty($draft['recipients']['bcc']))
+				echo'
+					<div class="pm_bbc"><strong>', $txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '</div>';
+
+			echo '
+				</div>
+				<div class="smalltext">
+					<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '
+				</div>
 			</div>
 			<div class="list_posts">
 				', $draft['body'], '

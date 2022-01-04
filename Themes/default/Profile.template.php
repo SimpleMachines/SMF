@@ -506,7 +506,7 @@ function template_showPosts()
 		{
 			echo '
 		<div class="', $post['css_class'], '">
-			<div class="counter">', $post['counter'], '</div>
+			<div class="page_number floatright"> #', $post['counter'], '</div>
 			<div class="topic_details">
 				<h5>
 					<strong><a href="', $scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong>
@@ -675,7 +675,7 @@ function template_showDrafts()
 		{
 			echo '
 		<div class="windowbg">
-			<div class="counter">', $draft['counter'], '</div>
+			<div class="page_number floatright"> #', $draft['counter'], '</div>
 			<div class="topic_details">
 				<h5>
 					<strong><a href="', $scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
@@ -690,7 +690,7 @@ function template_showDrafts()
 
 			echo '
 				</h5>
-				<span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> ', $draft['time'], '&nbsp;&#187;</span>
+				<span class="smalltext"><strong>', $txt['draft_saved_on'], ':</strong> ', $draft['time'], '</span>
 			</div><!-- .topic_details -->
 			<div class="list_posts">
 				', $draft['body'], '

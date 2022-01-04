@@ -339,18 +339,18 @@ function template_results()
 			{
 				echo '
 			<div class="block">
-				<span class="floatleft half_content">
-					<div class="counter">', $message['counter'], '</div>
-					<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.msg', $message['id'], '#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
-					<span class="smalltext">&#171;&nbsp;', $txt['by'], '&nbsp;<strong>', $message['member']['link'], '</strong>&nbsp;', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
-				</span>';
-
-				echo '
+				<div class="page_number floatright"> #', $message['counter'], '</div>
+				<div class="half_content">
+					<div class="topic_details">
+						<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.msg', $message['id'], '#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
+						<span class="smalltext">', sprintf(str_replace('<br>', ' ', $txt['last_post_topic']), $message['time'], '<strong>' . $message['member']['link'] . '</strong>'), '</span>
+					</div>
+				</div>
 			</div><!-- .block -->';
 
 				if ($message['body_highlighted'] != '')
 					echo '
-				<div class="list_posts double_height word_break">', $message['body_highlighted'], '</div>';
+			<div class="list_posts word_break">', $message['body_highlighted'], '</div>';
 			}
 
 			echo '
@@ -400,12 +400,12 @@ function template_results()
 			{
 				echo '
 	<div class="', $topic['css_class'], '">
-		<div class="counter">', $message['counter'], '</div>
+		<div class="page_number floatright"> #', $message['counter'], '</div>
 		<div class="topic_details">
 			<h5>
 				', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.', $message['start'], ';topicseen#msg', $message['id'], '">', $message['subject_highlighted'], '</a>
 			</h5>
-			<span class="smalltext">&#171;&nbsp;', $txt['message'], ' ', $txt['by'], ' <strong>', $message['member']['link'], ' </strong>', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
+			<span class="smalltext">', sprintf(str_replace('<br>', ' ', $txt['last_post_topic']), $message['time'], '<strong>' . $message['member']['link'] . '</strong>'), '</span>
 		</div>
 		<div class="list_posts">', $message['body_highlighted'], '</div>';
 
