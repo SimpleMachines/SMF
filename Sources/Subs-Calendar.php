@@ -80,7 +80,7 @@ function getBirthdayRange($low_date, $high_date)
 	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
 		if ($year_low != $year_high)
-			$age_year = substr($row['birthdate'], 5) < substr($high_date, 5) ? $year_high : $year_low;
+			$age_year = substr($row['birthdate'], 5) <= substr($high_date, 5) ? $year_high : $year_low;
 		else
 			$age_year = $year_low;
 
