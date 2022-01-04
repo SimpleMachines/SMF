@@ -142,7 +142,11 @@ function CalendarMain()
 	$end_month = !empty($_REQUEST['end_month']) ? (int) $_REQUEST['end_month'] : null;
 	$end_day = !empty($_REQUEST['end_day']) ? (int) $_REQUEST['end_day'] : null;
 
-	$end_object = checkdate($end_month, $end_day, $end_year) === true ? date_create(implode('-', array($end_year, $end_month, $end_day))) : null;
+	$end_object = null;
+
+	if ( (!empty($end_year) && !empty($end_month) && !empty($end_day)) && checkdate($end_month, $end_day, $end_year)) {
+		$end_object = date_create(implode('-', array($end_year, $end_month, $end_day)));
+	} 
 
 	if (empty($end_object) || $start_object >= $end_object)
 	{
