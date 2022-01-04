@@ -2636,11 +2636,6 @@ ADD COLUMN member_ip VARBINARY(16),
 ADD COLUMN member_ip2 VARBINARY(16);
 ---#
 
----# Set them all to empty strings for the ConvertIp function
-UPDATE {$db_prefix}members
-	SET member_ip = '', member_ip2 = '';
----#
-
 ---# Create an ip index for old ips
 ---{
 $results = $smcFunc['db_list_columns']('{db_prefix}members');
@@ -2648,6 +2643,16 @@ if (in_array('member_ip_old', $results))
 {
 	upgrade_query("CREATE INDEX {$db_prefix}temp_old_ip ON {$db_prefix}members (member_ip_old);");
 	upgrade_query("CREATE INDEX {$db_prefix}temp_old_ip2 ON {$db_prefix}members (member_ip2_old);");
+}
+---}
+---#
+
+---# Initialize new ip columns
+---{
+$results = $smcFunc['db_list_columns']('{db_prefix}members');
+if (in_array('member_ip_old', $results))
+{
+	upgrade_query("UPDATE {$db_prefix}members SET member_ip = '', member_ip2 = '';");
 }
 ---}
 ---#
@@ -2693,19 +2698,25 @@ if ($doChange)
 ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
 ---#
 
----# Set them all to empty strings for the ConvertIp function
-UPDATE {$db_prefix}messages SET poster_ip = '';
----#
-
 ---# Create an ip index for old ips
 ---{
 $doChange = true;
 $results = $smcFunc['db_list_columns']('{db_prefix}messages');
-if (!in_array('member_ip_old', $results))
+if (!in_array('poster_ip_old', $results))
 	$doChange = false;
 
 if ($doChange)
 	upgrade_query("CREATE INDEX {$db_prefix}temp_old_poster_ip ON {$db_prefix}messages (poster_ip_old);");
+---}
+---#
+
+---# Initialize new ip column
+---{
+$results = $smcFunc['db_list_columns']('{db_prefix}messages');
+if (in_array('poster_ip_old', $results))
+{
+	upgrade_query("UPDATE {$db_prefix}messages SET poster_ip = '';");
+}
 ---}
 ---#
 
