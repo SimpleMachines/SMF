@@ -4963,11 +4963,6 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 
 	$current_substep = !isset($_GET['substep']) ? 0 : (int) $_GET['substep'];
 
-	if (empty($_GET['a']))
-		$_GET['a'] = 0;
-	$step_progress['name'] = 'Converting ips';
-	$step_progress['current'] = $_GET['a'];
-
 	// Skip this if we don't have the column
 	$request = $smcFunc['db_query']('', '
 		SHOW FIELDS
@@ -4985,6 +4980,24 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 	}
 	$smcFunc['db_free_result']($request);
 
+	// Setup progress bar
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(DISTINCT {raw:old_col})
+		FROM {db_prefix}{raw:table_name}',
+		array(
+			'old_col' => $oldCol,
+			'table_name' => $targetTable,
+		)
+	);
+	list ($step_progress['total']) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	if (empty($_GET['a']))
+		$_GET['a'] = 0;
+	$step_progress['name'] = 'Converting ips';
+	$step_progress['current'] = $_GET['a'];
+
+	// Main process loop
 	$is_done = false;
 	while (!$is_done)
 	{
@@ -4997,9 +5010,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 		$request = $smcFunc['db_query']('', '
 			SELECT DISTINCT {raw:old_col}
 			FROM {db_prefix}{raw:table_name}
-			WHERE {raw:new_col} IS NULL AND
-				{raw:old_col} != {string:unknown} AND
-				{raw:old_col} != {string:empty}
+			WHERE {raw:new_col} = {string:empty}
 			LIMIT {int:limit}',
 			array(
 				'old_col' => $oldCol,
@@ -5007,7 +5018,6 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 				'table_name' => $targetTable,
 				'empty' => '',
 				'limit' => $limit,
-				'unknown' => 'unknown',
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -5015,31 +5025,28 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 
 		$smcFunc['db_free_result']($request);
 
-		// Special case, null ip could keep us in a loop.
-		if (!isset($arIp[0]))
-			unset($arIp[0]);
-
 		if (empty($arIp))
 			$is_done = true;
 
 		$updates = array();
+		$new_ips = array();
 		$cases = array();
 		$count = count($arIp);
 		for ($i = 0; $i < $count; $i++)
 		{
-			$arIp[$i] = trim($arIp[$i]);
+			$new_ip = trim($arIp[$i]);
 
-			if (!filter_var($arIp[$i], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6))
-				continue;
+			$new_ip = filter_var($new_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6);
+			if ($new_ip === false)
+				$new_ip = '';
 
 			$updates['ip' . $i] = $arIp[$i];
-			$cases[$arIp[$i]] = 'WHEN ' . $oldCol . ' = {string:ip' . $i . '} THEN {inet:ip' . $i . '}';
+			$new_ips['newip' . $i] = $new_ip;
+			$cases[$arIp[$i]] = 'WHEN ' . $oldCol . ' = {string:ip' . $i . '} THEN {inet:newip' . $i . '}';
 
-			if ($setSize > 0 && $i % $setSize === 0)
+			// Execute updates every $setSize & also when done with contents of $arIp
+			if ((($i + 1) == $count) || (($i + 1) % $setSize === 0))
 			{
-				if (count($updates) == 1)
-					continue;
-
 				$updates['whereSet'] = array_values($updates);
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}' . $targetTable . '
@@ -5049,53 +5056,20 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 						ELSE NULL
 					END
 					WHERE ' . $oldCol . ' IN ({array_string:whereSet})',
-					$updates
+					array_merge($updates, $new_ips)
 				);
 
 				$updates = array();
+				$new_ips = array();
 				$cases = array();
 			}
 		}
-
-		// Incase some extras made it through.
-		if (!empty($updates))
-		{
-			if (count($updates) == 1)
-			{
-				foreach ($updates as $key => $ip)
-				{
-					$smcFunc['db_query']('', '
-						UPDATE {db_prefix}' . $targetTable . '
-						SET ' . $newCol . ' = {inet:ip}
-						WHERE ' . $oldCol . ' = {string:ip}',
-						array(
-							'ip' => $ip
-						)
-					);
-				}
-			}
-			else
-			{
-				$updates['whereSet'] = array_values($updates);
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}' . $targetTable . '
-					SET ' . $newCol . ' = CASE ' .
-					implode('
-						', $cases) . '
-						ELSE NULL
-					END
-					WHERE ' . $oldCol . ' IN ({array_string:whereSet})',
-					$updates
-				);
-			}
-		}
-		else
-			$is_done = true;
 
 		$_GET['a'] += $limit;
 		$step_progress['current'] = $_GET['a'];
 	}
 
+	$step_progress = array();
 	unset($_GET['a']);
 }
 

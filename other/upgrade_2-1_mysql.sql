@@ -2636,6 +2636,11 @@ ADD COLUMN member_ip VARBINARY(16),
 ADD COLUMN member_ip2 VARBINARY(16);
 ---#
 
+---# Set them all to empty strings for the ConvertIp function
+UPDATE {$db_prefix}members
+	SET member_ip = '', member_ip2 = '';
+---#
+
 ---# Create an ip index for old ips
 ---{
 $results = $smcFunc['db_list_columns']('{db_prefix}members');
@@ -2686,6 +2691,10 @@ if ($doChange)
 
 ---# Add the new ip column to messages
 ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
+---#
+
+---# Set them all to empty strings for the ConvertIp function
+UPDATE {$db_prefix}messages SET poster_ip = '';
 ---#
 
 ---# Create an ip index for old ips
