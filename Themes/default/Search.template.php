@@ -300,36 +300,49 @@ function template_results()
 	<form action="', $scripturl, '?action=quickmod" method="post" accept-charset="', $context['character_set'], '" name="topicForm">';
 
 		echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<span class="floatright">';
-
-		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
-			echo '
-					<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">';
-		echo '
-				</span>
-				<span class="main_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
-			</h3>
-		</div>';
+		<div id="display_head" class="information">
+			<h2 class="display_title">
+				<span>', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '</span>
+			</h2>
+			<div class="floatleft">
+				<a class="button" href="', $scripturl, '?action=search;params=' . $context['params'], '">', $txt['search_adjust_query'], '</a>
+			</div>';
 
 		// Was anything even found?
 		if (!empty($context['topics']))
+		{
 			echo '
-		<div class="pagesection">
-			<div class="pagelinks">', $context['page_index'], '</div>
-			<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()">
-				<option value="relevance|desc">', $txt['search_orderby_relevant_first'], '</option>
-				<option value="num_replies|desc"', $context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', $txt['search_orderby_large_first'], '</option>
-				<option value="num_replies|asc"', $context['current_sorting'] == 'num_replies|asc' ? ' selected' : '', '>', $txt['search_orderby_small_first'], '</option>
-				<option value="id_msg|desc"', $context['current_sorting'] == 'id_msg|desc' ? ' selected' : '', '>', $txt['search_orderby_recent_first'], '</option>
-				<option value="id_msg|asc"', $context['current_sorting'] == 'id_msg|asc' ? ' selected' : '', '>', $txt['search_orderby_old_first'], '</option>
-			</select>
-		</div>';
+			<div class="floatright">
+				<span class="padding">', $txt['search_order'], '</span>
+				<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()">
+					<option value="relevance|desc">', $txt['search_orderby_relevant_first'], '</option>
+					<option value="num_replies|desc"', $context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', $txt['search_orderby_large_first'], '</option>
+					<option value="num_replies|asc"', $context['current_sorting'] == 'num_replies|asc' ? ' selected' : '', '>', $txt['search_orderby_small_first'], '</option>
+					<option value="id_msg|desc"', $context['current_sorting'] == 'id_msg|desc' ? ' selected' : '', '>', $txt['search_orderby_recent_first'], '</option>
+					<option value="id_msg|asc"', $context['current_sorting'] == 'id_msg|asc' ? ' selected' : '', '>', $txt['search_orderby_old_first'], '</option>
+				</select>
+			</div>
+		</div>
+		<div class="pagesection">';
 
+			if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+				echo '
+				<ul class="buttonlist floatright">
+					<li class="inline_mod_check">
+						<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">
+					</li>
+				</ul>';
+
+		echo '
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>';
+		}
 		else
+		{
 			echo '
-		<div class="roundframe noup">', $txt['find_no_results'], '</div>';
+		</div>
+		<div class="roundframe noup">', $txt['search_no_results'], '</div>';
+		}
 
 		// While we have results to show ...
 		while ($topic = $context['get_topics']())
@@ -434,18 +447,39 @@ function template_results()
 	else
 	{
 		echo '
-	<div class="cat_bar">
-		<h3 class="catbg">
-			<span class="main_icons filter"></span> ', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '
-		</h3>
+	<div id="display_head" class="information">
+		<h2 class="display_title">
+			<span>', $txt['mlist_search_results'], ': ', $context['search_params']['search'], '</span>
+		</h2>
+		<div class="floatleft">
+			<a class="button" href="', $scripturl, '?action=search;params=' . $context['params'], '">', $txt['search_adjust_query'], '</a>
+		</div>';
+
+		// Was anything even found?
+		if (!empty($context['topics']))
+		{
+			echo '
+		<div class="floatright">
+			<span class="padding">', $txt['search_order'], '</span>
+			<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()">
+				<option value="relevance|desc">', $txt['search_orderby_relevant_first'], '</option>
+				<option value="num_replies|desc"', $context['current_sorting'] == 'num_replies|desc' ? ' selected' : '', '>', $txt['search_orderby_large_first'], '</option>
+				<option value="num_replies|asc"', $context['current_sorting'] == 'num_replies|asc' ? ' selected' : '', '>', $txt['search_orderby_small_first'], '</option>
+				<option value="id_msg|desc"', $context['current_sorting'] == 'id_msg|desc' ? ' selected' : '', '>', $txt['search_orderby_recent_first'], '</option>
+				<option value="id_msg|asc"', $context['current_sorting'] == 'id_msg|asc' ? ' selected' : '', '>', $txt['search_orderby_old_first'], '</option>
+			</select>
+		</div>
 	</div>
 	<div class="pagesection">
 		<div class="pagelinks">', $context['page_index'], '</div>
 	</div>';
-
-		if (empty($context['topics']))
+		}
+		else
+		{
 			echo '
-	<div class="information">(', $txt['search_no_results'], ')</div>';
+	</div>
+	<div class="roundframe noup">', $txt['search_no_results'], '</div>';
+		}
 
 		while ($topic = $context['get_topics']())
 		{

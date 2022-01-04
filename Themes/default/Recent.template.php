@@ -19,10 +19,10 @@ function template_recent()
 
 	echo '
 	<div id="recent" class="main_section">
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<span class="xx"></span>', $txt['recent_posts'], '
-			</h3>
+		<div id="display_head" class="information">
+			<h2 class="display_title">
+				<span id="top_subject">', $txt['recent_posts'], '</span>
+			</h2>
 		</div>';
 
 	if (!empty($context['page_index']))
@@ -65,7 +65,7 @@ function template_recent()
  */
 function template_unread()
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
+	global $context, $settings, $txt, $scripturl, $modSettings, $board_info;
 
 	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
 	if (!empty($context['recent_buttons']))
@@ -81,7 +81,12 @@ function template_unread()
 	</div>';
 
 	echo '
-	<div id="recent" class="main_content">';
+	<div id="recent" class="main_content">
+		<div id="display_head" class="information">
+			<h2 class="display_title">
+				<span>', (!empty($board_info['name']) ? $board_info['name'] . ' - ' : '') . $context['page_title'], '</span>
+			</h2>
+		</div>';
 
 	if ($context['showCheckboxes'])
 		echo '
@@ -225,10 +230,10 @@ function template_unread()
 	}
 	else
 		echo '
-			<div class="cat_bar">
-				<h3 class="catbg centertext">
+			<div class="infobox">
+				<p class="centertext">
 					', $context['showing_all_topics'] ? $txt['topic_alert_none'] : sprintf($txt['unread_topics_visit_none'], $scripturl), '
-				</h3>
+				</p>
 			</div>';
 
 	if ($context['showCheckboxes'])
@@ -247,7 +252,7 @@ function template_unread()
  */
 function template_replies()
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
+	global $context, $settings, $txt, $scripturl, $modSettings, $board_info;
 
 	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
 	if (!empty($context['recent_buttons']))
@@ -263,7 +268,12 @@ function template_replies()
 	</div>';
 
 	echo '
-	<div id="recent">';
+	<div id="recent">
+		<div id="display_head" class="information">
+			<h2 class="display_title">
+				<span>', (!empty($board_info['name']) ? $board_info['name'] . ' - ' : '') . $context['page_title'], '</span>
+			</h2>
+		</div>';
 
 	if ($context['showCheckboxes'])
 		echo '

@@ -2913,6 +2913,9 @@ div#manage_boards dl dd textarea[name=desc] {
 
 /* BoardIndex */
 /* This place covers board places (boardindex/messageindex/recent) */
+.boardindex_table:not(:last-child) {
+	margin-bottom: 15px;
+}
 h3 .collapse {
 	float: right;
 	margin: 4px 4px 0 0;
@@ -3700,7 +3703,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 .generic_list_wrapper .information div {
 	background: none;
 }
-.information a {
+.information a:not(.button) {
 	font-weight: bold;
 }
 p.information img {
