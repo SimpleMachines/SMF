@@ -4130,11 +4130,7 @@ foreach($files AS $filename)
 
 		foreach ($extras AS $id => $extra_ser)
 		{
-			if (empty($modSettings['json_done']))
-				$extra = @unserialize($extra_ser);
-			else
-				$extra = @json_decode($extra_ser);
-
+			$extra = upgrade_unserialize($extra_ser);
 			if ($extra === false)
 				continue;
 
