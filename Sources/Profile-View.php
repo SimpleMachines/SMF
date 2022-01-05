@@ -236,7 +236,10 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	// Basic sanitation.
 	$memID = (int) $memID;
 	$unread = $to_fetch === false;
-	$limit = max(0, (int) $limit);
+	
+	if (empty($limit) || $limit > 1000)
+		$limit = min(!empty($modSettings['alerts_per_page']) && (int) $modSettings['alerts_per_page'] < 1000 ? (int) $modSettings['alerts_per_page'] : 1000, 1000);
+
 	$offset = !empty($alertIDs) ? 0 : max(0, (int) $offset);
 	$with_avatar = !empty($with_avatar);
 	$show_links = !empty($show_links);
@@ -660,7 +663,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
  */
 function showAlerts($memID)
 {
-	global $context, $smcFunc, $txt, $sourcedir, $scripturl, $options;
+	global $context, $smcFunc, $txt, $sourcedir, $scripturl, $options, $modSettings;
 
 	require_once($sourcedir . '/Profile-Modify.php');
 
@@ -690,7 +693,7 @@ function showAlerts($memID)
 	}
 
 	// Prepare the pagination vars.
-	$maxIndex = 10;
+	$maxIndex = !empty($modSettings['alerts_per_page']) && (int) $modSettings['alerts_per_page'] < 1000 ? min((int) $modSettings['alerts_per_page'], 1000) : 25;
 	$context['start'] = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
 	$count = alert_count($memID);
 
