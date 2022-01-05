@@ -3725,6 +3725,8 @@ foreach($files AS $filename)
 
 	if (empty($_GET['a']))
 		$_GET['a'] = 0;
+	if (empty($_GET['last_action_id']))
+		$_GET['last_action_id'] = 0;
 	$step_progress['name'] = 'Fixing missing IDs in log_actions';
 	$step_progress['current'] = $_GET['a'];
 
@@ -3742,10 +3744,13 @@ foreach($files AS $filename)
 				FROM {db_prefix}log_actions
 				WHERE id_member = {int:blank_id}
 				AND action IN ({array_string:target_actions})
+				AND id_action >  {int:last}
+				ORDER BY id_action
 				LIMIT {int:limit}',
 			array(
 				'blank_id' => 0,
 				'target_actions' => array('policy_accepted', 'agreement_accepted'),
+				'last' => $_GET['last_action_id'],
 				'limit' => $limit,
 			)
 		);
@@ -3755,12 +3760,19 @@ foreach($files AS $filename)
 
 		if (empty($extras))
 			$is_done = true;
+		else
+			$_GET['last_action_id'] = max(array_keys($extras));
 
 		foreach ($extras AS $id => $extra_ser)
 		{
-			$extra = @unserialize($extra_ser);
+			if (empty($modSettings['json_done']))
+				$extra = @unserialize($extra_ser);
+			else
+				$extra = @json_decode($extra_ser);
+
 			if ($extra === false)
 				continue;
+
 			if (!empty($extra['applicator']))
 			{
 				$request = $smcFunc['db_query']('', '
@@ -3776,10 +3788,14 @@ foreach($files AS $filename)
 		}
 		$_GET['a'] += $limit;
 		$step_progress['current'] = $_GET['a'];
+
+		if ($step_progress['current'] >= $step_progress['total'])
+			$is_done = true;
 	}
 
 	$step_progress = array();
 	unset($_GET['a']);
+	unset($_GET['last_action_id']);
 
 ---}
 ---#
