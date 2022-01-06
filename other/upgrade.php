@@ -4986,21 +4986,26 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 	$smcFunc['db_free_result']($request);
 
 	// Setup progress bar
-	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(DISTINCT {raw:old_col})
-		FROM {db_prefix}{raw:table_name}',
-		array(
-			'old_col' => $oldCol,
-			'table_name' => $targetTable,
-		)
-	);
-	list ($step_progress['total']) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	if (!isset($_GET['total_fixes']) || !isset($_GET['a']))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT COUNT(DISTINCT {raw:old_col})
+			FROM {db_prefix}{raw:table_name}',
+			array(
+				'old_col' => $oldCol,
+				'table_name' => $targetTable,
+			)
+		);
+		list ($step_progress['total']) = $smcFunc['db_fetch_row']($request);
+		$_GET['total_fixes'] = $step_progress['total'];
+		$smcFunc['db_free_result']($request);
 
-	if (empty($_GET['a']))
 		$_GET['a'] = 0;
+	}
+
 	$step_progress['name'] = 'Converting ips';
 	$step_progress['current'] = $_GET['a'];
+	$step_progress['total'] = $_GET['total_fixes'];
 
 	// Main process loop
 	$is_done = false;
@@ -5076,6 +5081,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 
 	$step_progress = array();
 	unset($_GET['a']);
+	unset($_GET['total_fixes']);
 }
 
 /**
