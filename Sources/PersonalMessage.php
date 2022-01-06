@@ -1102,8 +1102,6 @@ function prepareMessageContext($type = 'subject', $reset = false)
 		foreach ($memberContext[$message['id_member_from']]['custom_fields'] as $custom)
 			$output['custom_fields'][$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 
-	call_integration_hook('integrate_prepare_pm_context', array(&$output, &$message, $counter));
-
 	$output['quickbuttons'] = array(
 		'reply_to_all' => array(
 			'label' => $txt['reply_to_all'],
@@ -1144,6 +1142,8 @@ function prepareMessageContext($type = 'subject', $reset = false)
 			'show' => empty($context['display_mode'])
 		)
 	);
+
+	call_integration_hook('integrate_prepare_pm_context', array(&$output, &$message, $counter));
 
 	return $output;
 }
