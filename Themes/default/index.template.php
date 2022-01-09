@@ -447,7 +447,7 @@ function theme_linktree($force_show = false)
 				<div class="navigate_section">
 					<ul>';
 
-	if ($context['user']['is_logged'])
+	if ($context['user']['is_logged'] && empty($context['hide_unread_links']))
 		echo '
 						<li class="unread_links">
 							<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a>
