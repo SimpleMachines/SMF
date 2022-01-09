@@ -158,8 +158,11 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 		$current['data'] = substr($data, ++$offset << 9, $current['size']);
 		$offset += $size;
 
+		// Not an actual file...  Move along...
+		if (in_array($current['type'], array('x', 'g')))
+			continue;
 		// Not a directory and doesn't exist already...
-		if (substr($current['filename'], -1, 1) != '/' && $destination !== null && !file_exists($destination . '/' . $current['filename']))
+		elseif (substr($current['filename'], -1, 1) != '/' && $destination !== null && !file_exists($destination . '/' . $current['filename']))
 			$write_this = true;
 		// File exists... check if it is newer.
 		elseif (substr($current['filename'], -1, 1) != '/')
