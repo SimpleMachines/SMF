@@ -7957,6 +7957,7 @@ function normalize_iri($iri)
 	}
 	else
 	{
+		$host = '';
 		$normalized_host = '';
 		$pos = 0;
 	}
@@ -8002,6 +8003,7 @@ function iri_to_url($iri)
 	}
 	else
 	{
+		$host = '';
 		$encoded_host = '';
 		$pos = 0;
 	}
