@@ -7380,7 +7380,7 @@ function set_tld_regex($update = false)
 			$tlds = array();
 	}
 	// If we aren't updating and the regex is valid, we're done
-	elseif (!empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', null) !== false)
+	elseif (!empty($modSettings['tld_regex']) && @preg_match('~' . $modSettings['tld_regex'] . '~', '') !== false)
 	{
 		$done = true;
 		return;
