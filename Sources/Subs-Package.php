@@ -29,7 +29,7 @@ if (!defined('SMF'))
  * @param null|array $files_to_extract Specific files to extract
  * @return array|false An array of information about extracted files or false on failure
  */
-function read_tgz_file($gzfilename, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
+function read_tgz_file(string $gzfilename, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null)/* PHP 8: array|false */
 {
 	$data = substr($gzfilename, 0, 7) == 'http://' || substr($gzfilename, 0, 8) == 'https://'
 		? fetch_web_data($gzfilename)
@@ -77,7 +77,7 @@ function read_tgz_file($gzfilename, $destination, $single_file = false, $overwri
  * @param null|array $files_to_extract If set, only extracts the specified files
  * @return array|false An array of information about the extracted files or false on failure
  */
-function read_tgz_data($data, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
+function read_tgz_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null)/* PHP 8: array|false */
 {
 	// Make sure we have this loaded.
 	loadLanguage('Packages');
@@ -251,7 +251,7 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
  * @param array $files_to_extract
  * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
  */
-function read_zip_data($data, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
+function read_zip_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null)/* PHP 8: array|false */
 {
 	umask(0);
 	if ($destination !== null && !file_exists($destination) && !$single_file)
