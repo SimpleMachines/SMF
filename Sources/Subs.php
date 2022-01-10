@@ -4574,12 +4574,13 @@ function template_header()
 
 			// We are already checking so many files...just few more doesn't make any difference! :P
 			if (!empty($modSettings['currentAttachmentUploadDir']))
-				$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-
+				if (isset($modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']]))
+					$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 			else
 				$path = $modSettings['attachmentUploadDir'];
 
-			secureDirectory($path, true);
+			if (isset($path))
+				secureDirectory($path, true);
 			secureDirectory($cachedir);
 
 			// If agreement is enabled, at least the english version shall exist

@@ -116,7 +116,7 @@ class Attachments
 
 		$this->_attachmentUploadDir = $modSettings['attachmentUploadDir'];
 
-		$this->_attchDir = $context['attach_dir'] = $this->_attachmentUploadDir[$modSettings['currentAttachmentUploadDir']];
+		$this->_attchDir = $context['attach_dir'] = isset($this->_attachmentUploadDir[$modSettings['currentAttachmentUploadDir']]) ? $this->_attachmentUploadDir[$modSettings['currentAttachmentUploadDir']] : NULL;
 
 		$this->_canPostAttachment = $context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment', $this->_board) || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments', $this->_board)));
 	}
