@@ -191,7 +191,7 @@ function fatal_error($error, $log = 'general', $status = 500)
  * @param array $sprintf An array of data to be sprintf()'d into the specified message
  * @param int $status = false The HTTP status code associated with this error
  */
-function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status = 403)
+function fatal_lang_error($error, $log = 'general', array $sprintf = array(), $status = 403)
 {
 	global $txt, $language, $user_info, $context;
 	static $fatal_error_called = false;
