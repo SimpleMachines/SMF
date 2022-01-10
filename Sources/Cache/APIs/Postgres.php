@@ -167,7 +167,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	 */
 	public function getVersion()
 	{
-		return pg_version()['server'];
+		return pg_version($this->db_connection)['server'];
 	}
 
 	/**
