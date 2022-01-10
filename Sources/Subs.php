@@ -7875,7 +7875,7 @@ function parse_iri($iri, $component = -1)
  * @param int $flags Optional flags to pass to filter_var()
  * @return string|bool Either the original IRI, or false if the IRI was invalid.
  */
-function validate_iri($iri, $flags = null)
+function validate_iri($iri, $flags = 0)
 {
 	$url = iri_to_url($iri);
 
