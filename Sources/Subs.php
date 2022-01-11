@@ -912,7 +912,7 @@ function get_date_or_time_format($type = '', $format = '')
  * @param int|null $timestamp A Unix timestamp.
  *     If null, defaults to the current time.
  * @param string|null $tzid Time zone identifier.
- *     If null, defaults to the user's current time zone.
+ *     If null, uses default time zone.
  * @return string The formatted datetime string.
  */
 function smf_strftime(string $format, int $timestamp = null, string $tzid = null)
@@ -926,7 +926,7 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 		$timestamp = time();
 
 	if (!isset($tzid))
-		$tzid = getUserTimezone();
+		$tzid = date_default_timezone_get();
 
 	// A few substitutions to make life easier.
 	$format = strtr($format, array(
