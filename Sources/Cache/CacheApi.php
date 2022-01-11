@@ -70,32 +70,45 @@ abstract class CacheApi
 	}
 
 	/**
-	 * Overrides the default prefix. If left alone, this will use the default key defined in the class.
+	 * Sets the cache prefix.
 	 *
 	 * @access public
-	 * @param string $key The key to use
+	 * @param string $prefix The prefix to use.
+	 *     If empty, the prefix will be generated automatically.
 	 * @return bool If this was successful or not.
 	 */
-	public function setPrefix($key = '')
+	public function setPrefix($prefix = '')
 	{
-		global $boardurl, $cachedir;
+		global $boardurl, $cachedir, $boarddir;
 
-		// Find a valid good file to do mtime checks on.
-		if (file_exists($cachedir . '/' . 'index.php'))
-			$filemtime = $cachedir . '/' . 'index.php';
+		if (!is_string($prefix))
+			$prefix = '';
 
-		elseif (is_dir($cachedir . '/'))
-			$filemtime = $cachedir . '/';
-
-		else
-			$filemtime = $boardurl . '/index.php';
-
-		// Set the default if no prefix was specified.
-		if (empty($prefix))
-			$this->prefix = md5($boardurl . filemtime($filemtime)) . '-SMF-';
-
-		else
+		// Use the supplied prefix, if there is one.
+		if (!empty($prefix))
+		{
 			$this->prefix = $prefix;
+
+			return true;
+		}
+
+		// Ideally the prefix should reflect the last time the cache was reset.
+		if (!empty($cachedir) && file_exists($cachedir . '/index.php'))
+		{
+			$mtime = filemtime($cachedir . '/index.php');
+		}
+		// Fall back to the last time that Settings.php was updated.
+		elseif (!empty($boarddir) && file_exists($boarddir . '/Settings.php'))
+		{
+			$mtime = filemtime($boarddir . '/Settings.php');
+		}
+		// This should never happen, but just in case...
+		else
+		{
+			$mtime = filemtime(realpath($_SERVER['SCRIPT_FILENAME']));
+		}
+
+		$this->prefix = md5($boardurl . $mtime) . '-SMF-';
 
 		return true;
 	}
