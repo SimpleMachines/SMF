@@ -109,7 +109,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	public function cleanCache($type = '')
 	{
 		if ($type == 'expired')
-			$query = 'DELETE FROM cache WHERE ttl >= ' . time() . ';';
+			$query = 'DELETE FROM cache WHERE ttl < ' . time() . ';';
 		else
 			$query = 'DELETE FROM cache;';
 
