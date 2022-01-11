@@ -118,6 +118,8 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		$query = 'VACUUM;';
 		$this->cacheDB->exec($query);
 
+		$this->invalidateCache();
+
 		return $result;
 	}
 

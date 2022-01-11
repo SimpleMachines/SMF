@@ -253,8 +253,7 @@ function MaintainFindFixErrors()
 }
 
 /**
- * Wipes the whole cache directory.
- * This only applies to SMF's own cache directory, though.
+ * Wipes the whole cache.
  */
 function MaintainCleanCache()
 {

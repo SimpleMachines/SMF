@@ -159,6 +159,8 @@ class Postgres extends CacheApi implements CacheApiInterface
 	{
 		pg_query($this->db_connection, 'TRUNCATE ' . $this->db_prefix . 'cache');
 
+		$this->invalidateCache();
+
 		return true;
 	}
 
