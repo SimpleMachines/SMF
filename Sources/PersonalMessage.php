@@ -3352,17 +3352,17 @@ function ManageLabels()
 		}
 
 		// Update existing labels as needed
-		if (!empty($label_upates))
+		if (!empty($label_updates))
 		{
 			foreach ($label_updates AS $id => $name)
 			{
 				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}labels
+					UPDATE {db_prefix}pm_labels
 					SET name = {string:name}
 					WHERE id_label = {int:id_label}',
 					array(
 						'name' => $name,
-						'id' => $id
+						'id_label' => $id
 					)
 				);
 			}
