@@ -84,7 +84,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings, $user_info;
+		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings, $user_info, $txt;
 
 		require_once($sourcedir . '/Subs-Post.php');
 		require_once($sourcedir . '/Mentions.php');
@@ -97,6 +97,15 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$topicOptions = &$this->_details['topicOptions'];
 		$posterOptions = &$this->_details['posterOptions'];
 		$type = &$this->_details['type'];
+
+		// Board id is required; if missing, log an error and return
+		if (!isset($topicOptions['board']))
+		{
+			require_once($sourcedir . '/Errors.php');
+			loadLanguage('Errors');
+			log_error($txt['missing_board_id'], 'general', __FILE__, __LINE__);
+			return true;
+		}
 
 		$this->mention_mail_time = (isset($msgOptions['poster_time']) ? $msgOptions['poster_time'] : 0) + self::MENTION_DELAY * 60;
 
