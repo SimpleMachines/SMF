@@ -182,10 +182,6 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		// Modified post, or dealing with delayed mention and quote notifications.
 		if ($type == 'edit' || !empty($this->_details['respawns']))
 		{
-			// Filter out members who have already been notified about this post's topic
-			$this->members['quoted'] = array_intersect_key($this->members['quoted'], $unnotified);
-			$this->members['mentioned'] = array_intersect_key($this->members['mentioned'], $unnotified);
-
 			// Notifications about modified posts only go to members who were mentioned or quoted
 			$this->members['watching'] = $type == 'edit' ? array(): $unnotified;
 
