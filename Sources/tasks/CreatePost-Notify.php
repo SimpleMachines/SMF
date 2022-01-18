@@ -107,7 +107,11 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			return true;
 		}
 
-		$this->mention_mail_time = (isset($msgOptions['poster_time']) ? $msgOptions['poster_time'] : 0) + self::MENTION_DELAY * 60;
+		// poster_time not always supplied, but used throughout
+		if (empty($msgOptions['poster_time']))
+			$msgOptions['poster_time'] = 0;
+
+		$this->mention_mail_time = $msgOptions['poster_time'] + self::MENTION_DELAY * 60;
 
 		// We need some more info about the quoted and mentioned members.
 		if (!empty($msgOptions['quoted_members']))
