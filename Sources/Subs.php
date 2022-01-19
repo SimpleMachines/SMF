@@ -5541,12 +5541,25 @@ function setupMenuContext()
 						'is_last' => true,
 					),
 				),
-				'is_last' => !$context['right_to_left'] && (!$user_info['is_guest'] || !$context['can_register']),
+				'is_last' => !$context['right_to_left'] && (!$user_info['is_guest'] || empty($settings['login_main_menu'])),
+			),
+			// Theme authors: If you want the login and register buttons to appear in
+			// the main forum menu on your theme, set $settings['login_main_menu'] to
+			// true in your theme's template_init() function in index.template.php.
+			'login' => array(
+				'title' => $txt['login'],
+				'href' => $scripturl . '?action=login',
+				'onclick' => 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');',
+				'show' => $user_info['is_guest'] && !empty($settings['login_main_menu']),
+				'sub_buttons' => array(
+				),
+				'is_last' => !$context['right_to_left'],
 			),
 			'signup' => array(
 				'title' => $txt['register'],
 				'href' => $scripturl . '?action=signup',
-				'show' => $user_info['is_guest'] && $context['can_register'],
+				'icon' => 'regcenter',
+				'show' => $user_info['is_guest'] && $context['can_register'] && !empty($settings['login_main_menu']),
 				'sub_buttons' => array(
 				),
 				'is_last' => !$context['right_to_left'],
@@ -5622,8 +5635,8 @@ function setupMenuContext()
 		$current_action = 'search';
 	elseif ($context['current_action'] == 'theme')
 		$current_action = isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'pick' ? 'profile' : 'admin';
-	elseif ($context['current_action'] == 'register2')
-		$current_action = 'register';
+	elseif ($context['current_action'] == 'signup2')
+		$current_action = 'signup';
 	elseif ($context['current_action'] == 'login2' || ($user_info['is_guest'] && $context['current_action'] == 'reminder'))
 		$current_action = 'login';
 	elseif ($context['current_action'] == 'groups' && $context['allow_moderation_center'])

@@ -30,6 +30,9 @@
 }
 
 @media (min-width: 720px) and (max-width: 799px) {
+	#top_info .welcome {
+		display: none;
+	}
 	/* Calendar */
 	#event_time_options {
 		width: 44%;
@@ -112,6 +115,9 @@
 	}
 
 	/* Stuff */
+	#top_info {
+		padding: 5px;
+	}
 	.infolinks {
 		display: inline-block;
 		margin: 5px 7px 0 0;
@@ -460,6 +466,9 @@
 		margin: 10px 0;
 	}
 	.board_moderators {
+		display: none;
+	}
+	#top_info .welcome {
 		display: none;
 	}
 	#pm_menu, #alerts_menu, #profile_menu {

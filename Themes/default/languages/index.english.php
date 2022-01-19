@@ -76,7 +76,7 @@ $txt['on'] = 'on';
 $txt['remove'] = 'Remove';
 $txt['start_new_topic'] = 'Start new topic';
 
-$txt['login'] = 'Login';
+$txt['login'] = 'Sign in';
 // Use numeric entities in the below string.
 $txt['username'] = 'Username';
 $txt['password'] = 'Password';
@@ -108,7 +108,7 @@ $txt['position'] = 'Position';
 $txt['view_profile_of_username'] = 'View the profile of %1$s';
 $txt['total'] = 'Total';
 $txt['website'] = 'Website';
-$txt['register'] = 'Sign Up';
+$txt['register'] = 'Sign up';
 $txt['warning_status'] = 'Warning status';
 $txt['user_warn_watch'] = 'User is on moderator watch list';
 $txt['user_warn_moderate'] = 'User posts join approval queue';
@@ -129,7 +129,7 @@ $txt['post'] = 'Post';
 $txt['error_occured'] = 'An error has occurred';
 $txt['at'] = 'at';
 $txt['by'] = 'by';
-$txt['logout'] = 'Logout';
+$txt['logout'] = 'Sign out';
 $txt['started_by'] = 'Started by';
 $txt['topic_started_by'] = 'Started by <strong>%1$s</strong> in <em>%2$s</em>';
 $txt['replies'] = 'Replies';
@@ -252,16 +252,20 @@ $txt['female'] = 'Female';
 $txt['error_invalid_characters_username'] = 'Invalid character used in Username.';
 
 // argument(s): forum name, login URL, login JavaScript snippet
-$txt['welcome_guest'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">login</a>.';
+$txt['welcome_guest'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">sign in</a>.';
 
 // argument(s): forum name, login URL, login JavaScript snippet, signup URL
-$txt['welcome_guest_register'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">login</a> or <a href="%4$s">sign up</a>.';
+$txt['welcome_guest_register'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">sign in</a> or <a href="%4$s">sign up</a>.';
 
 // argument(s): $scripturl
 $txt['welcome_guest_activate'] = '<a href="%1$s?action=activate">Did you miss your activation email?</a>';
 
 // argument(s): $scripturl
 $txt['register_prompt'] = 'Don\'t have an account? <a href="%1$s?action=signup">Sign up</a>.';
+
+// argument(s): forum name
+$txt['welcome_to_forum'] = 'Welcome to <strong>%1$s</strong>.';
+
 // @todo the following to sprintf
 $txt['hello_member'] = 'Hey,';
 // Use numeric entities in the below string.

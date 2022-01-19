@@ -56,6 +56,9 @@ function template_init()
 	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last post on the board index.
 	$settings['avatars_on_boardIndex'] = false;
 
+	// Set the following variable to true if this theme wants to display the login and register buttons in the main forum menu.
+	$settings['login_main_menu'] = false;
+
 	// This defines the formatting for the page indexes used throughout the forum.
 	$settings['page_index'] = array(
 		'extra_before' => '<span class="pages">' . $txt['pages'] . '</span>',
@@ -244,10 +247,37 @@ function template_body_above()
 	}
 	// Otherwise they're a guest. Ask them to either register or login.
 	elseif (empty($maintenance))
-		echo '
-			<ul class="floatleft welcome">
-				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup'), '</li>
+	{
+		// Some people like to do things the old-fashioned way.
+		if (!empty($settings['login_main_menu']))
+		{
+			echo '
+			<ul class="floatleft">
+				<li class="welcome">', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup'), '</li>
 			</ul>';
+		}
+		else
+		{
+			echo '
+			<ul class="floatleft" id="top_info">
+				<li class="welcome">
+					', sprintf($txt['welcome_to_forum'], $context['forum_name_html_safe']), '
+				</li>
+				<li class="button_login">
+					<a href="', $scripturl, '?action=login" class="', $context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');">
+						<span class="main_icons login"></span>
+						<span class="textmenu">', $txt['login'], '</span>
+					</a>
+				</li>
+				<li class="button_signup">
+					<a href="', $scripturl, '?action=signup" class="', $context['current_action'] == 'signup' ? 'active' : 'open','">
+						<span class="main_icons regcenter"></span>
+						<span class="textmenu">', $txt['register'], '</span>
+					</a>
+				</li>
+			</ul>';
+		}
+	}
 	else
 		// In maintenance mode, only login is allowed and don't show OverlayDiv
 		echo '
@@ -509,7 +539,7 @@ function template_menu()
 	{
 		echo '
 						<li class="button_', $act, '', !empty($button['sub_buttons']) ? ' subsections"' : '"', '>
-							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
+							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', isset($button['onclick']) ? ' onclick="' . $button['onclick'] . '"' : '', '>
 								', $button['icon'], '<span class="textmenu">', $button['title'], !empty($button['amt']) ? ' <span class="amt">' . $button['amt'] . '</span>' : '', '</span>
 							</a>';
 
@@ -523,7 +553,7 @@ function template_menu()
 			{
 				echo '
 								<li', !empty($childbutton['sub_buttons']) ? ' class="subsections"' : '', '>
-									<a href="', $childbutton['href'], '"', isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', '>
+									<a href="', $childbutton['href'], '"', isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', isset($childbutton['onclick']) ? ' onclick="' . $childbutton['onclick'] . '"' : '', '>
 										', $childbutton['title'], !empty($childbutton['amt']) ? ' <span class="amt">' . $childbutton['amt'] . '</span>' : '', '
 									</a>';
 				// 3rd level menus :)
@@ -535,7 +565,7 @@ function template_menu()
 					foreach ($childbutton['sub_buttons'] as $grandchildbutton)
 						echo '
 										<li>
-											<a href="', $grandchildbutton['href'], '"', isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '', '>
+											<a href="', $grandchildbutton['href'], '"', isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '', isset($grandchildbutton['onclick']) ? ' onclick="' . $grandchildbutton['onclick'] . '"' : '', '>
 												', $grandchildbutton['title'], !empty($grandchildbutton['amt']) ? ' <span class="amt">' . $grandchildbutton['amt'] . '</span>' : '', '
 											</a>
 										</li>';
