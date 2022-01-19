@@ -259,6 +259,9 @@ $txt['welcome_guest_register'] = 'Welcome to <strong>%1$s</strong>. Please <a hr
 
 // argument(s): $scripturl
 $txt['welcome_guest_activate'] = '<a href="%1$s?action=activate">Did you miss your activation email?</a>';
+
+// argument(s): $scripturl
+$txt['register_prompt'] = 'Don\'t have an account? <a href="%1$s?action=signup">Sign up</a>.';
 // @todo the following to sprintf
 $txt['hello_member'] = 'Hey,';
 // Use numeric entities in the below string.

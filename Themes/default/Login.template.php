@@ -147,6 +147,13 @@ function template_login()
 					</script>
 				</form>';
 
+	if (!empty($context['can_register']))
+		echo '
+				<hr>
+				<div class="centertext">
+					', sprintf($txt['register_prompt'], $scripturl), '
+				</div>';
+
 	// It is a long story as to why we have this when we're clearly not going to use it.
 	if (!empty($context['from_ajax']))
 		echo '

@@ -1598,6 +1598,9 @@ fieldset.merge_options {
 .login input[type="submit"] {
 	margin: 1em 0 0 1em;
 }
+.login p:not(:last-of-type) input[type="submit"] {
+	margin-bottom: 1em;
+}
 
 /* Additional register fields */
 #registration fieldset {
