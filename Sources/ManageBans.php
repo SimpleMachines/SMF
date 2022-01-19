@@ -637,7 +637,7 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
 		SELECT
 			bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
 			bi.ip_low, bi.ip_high,
-			bg.id_ban_group, bg.name, bg.ban_time, COALESCE(bg.expire_time, 0) AS expire_time, bg.reason, bg.notes, bg.cannot_access, bg.cannot_register, bg.cannot_login, bg.cannot_post,
+			bg.id_ban_group, bg.name, bg.ban_time, bg.expire_time AS expire_time, bg.reason, bg.notes, bg.cannot_access, bg.cannot_register, bg.cannot_login, bg.cannot_post,
 			COALESCE(mem.id_member, 0) AS id_member, mem.member_name, mem.real_name
 		FROM {db_prefix}ban_groups AS bg
 			LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_ban_group = bg.id_ban_group)
@@ -661,7 +661,7 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
 				'id' => $row['id_ban_group'],
 				'name' => $row['name'],
 				'expiration' => array(
-					'status' => empty($row['expire_time']) ? 'never' : ($row['expire_time'] < time() ? 'expired' : 'one_day'),
+					'status' => $row['expire_time'] === null ? 'never' : ($row['expire_time'] < time() ? 'expired' : 'one_day'),
 					'days' => $row['expire_time'] > time() ? ($row['expire_time'] - time() < 86400 ? 1 : ceil(($row['expire_time'] - time()) / 86400)) : 0
 				),
 				'reason' => $row['reason'],
