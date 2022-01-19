@@ -894,8 +894,11 @@ function banEdit2()
 	if (!empty($context['ban_errors']))
 	{
 		$context['ban_suggestions'] = !empty($saved_triggers) ? $saved_triggers : array();
-		$context['ban']['from_user'] = true;
-		$context['ban_suggestions'] = array_merge($context['ban_suggestions'], getMemberData((int) $_REQUEST['u']));
+		if (isset($_REQUEST['u']))
+		{
+			$context['ban']['from_user'] = true;
+			$context['ban_suggestions'] = array_merge($context['ban_suggestions'], getMemberData((int) $_REQUEST['u']));
+		}
 
 		// Not strictly necessary, but it's nice
 		if (!empty($context['ban_suggestions']['member']['id']))
