@@ -111,7 +111,6 @@ function BanList()
 
 		// Unban them all!
 		removeBanGroups($_POST['remove']);
-		removeBanTriggers($_POST['remove']);
 
 		// No more caching this ban!
 		updateSettings(array('banLastUpdated' => time()));
@@ -1103,7 +1102,7 @@ function removeBanTriggers($items_ids = array(), $group_id = false)
  * Doesn't clean the inputs
  *
  * @param int[] $group_ids The IDs of the groups to remove
- * @return bool Returns ture if successful or false if $group_ids is empty
+ * @return bool Returns true if successful or false if $group_ids is empty
  */
 function removeBanGroups($group_ids)
 {
@@ -1124,6 +1123,25 @@ function removeBanGroups($group_ids)
 			'ban_list' => $group_ids,
 		)
 	);
+
+	// Remove all ban triggers for these bans groups
+	$request = $smcFunc['db_query']('', '
+		SELECT id_ban
+		FROM {db_prefix}ban_items
+		WHERE id_ban_group IN ({array_int:ban_list})',
+		array(
+			'ban_list' => $group_ids,
+		)
+	);
+
+	$id_ban_triggers = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$id_ban_triggers[] = $row['id_ban'];
+	}
+	$smcFunc['db_free_result']($request);
+
+	removeBanTriggers($id_ban_triggers);
 
 	return true;
 }
