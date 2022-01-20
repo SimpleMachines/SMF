@@ -157,7 +157,12 @@ class Postgres extends CacheApi implements CacheApiInterface
 	 */
 	public function cleanCache($type = '')
 	{
-		pg_query($this->db_connection, 'TRUNCATE ' . $this->db_prefix . 'cache');
+		if ($type == 'expired')
+			pg_query($this->db_connection, 'DELETE FROM ' . $this->db_prefix . 'cache WHERE ttl < ' . time() . ';');
+		else
+			pg_query($this->db_connection, 'TRUNCATE ' . $this->db_prefix . 'cache');
+
+		$this->invalidateCache();
 
 		return true;
 	}

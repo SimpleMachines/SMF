@@ -724,7 +724,7 @@ function ModifyGeneralSecuritySettings($return_config = false)
  */
 function ModifyCacheSettings($return_config = false)
 {
-	global $context, $scripturl, $txt;
+	global $context, $scripturl, $txt, $cacheAPI, $cache_enable;
 
 	// Detect all available optimizers
 	$detectedCacheApis = loadCacheAPIs();
@@ -785,6 +785,11 @@ function ModifyCacheSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		call_integration_hook('integrate_save_cache_settings');
+
+		if (is_callable(array($cacheAPI, 'cleanCache')) && ((int) $_POST['cache_enable'] < $cache_enable || $_POST['cache_accelerator'] != $cache_accelerator))
+		{
+			$cacheAPI->cleanCache();
+		}
 
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
