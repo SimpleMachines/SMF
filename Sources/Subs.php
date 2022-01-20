@@ -734,32 +734,36 @@ function comma_format($number, $override_decimal_count = false)
 function timeformat($log_time, $show_today = true, $tzid = null)
 {
 	global $context, $user_info, $txt, $modSettings;
-	static $now;
+	static $today;
 
 	// Ensure required values are set
 	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %H:%M');
+
+	// For backward compatibility, replace empty values with user's time zone
+	// and replace 'forum' with forum's default time zone.
+	$tzid = empty($tzid) ? getUserTimezone() : (($tzid === 'forum' || @timezone_open((string) $tzid) === false) ? $modSettings['default_timezone'] : (string) $tzid);
 
 	// Today and Yesterday?
 	$prefix = '';
 	if ($modSettings['todayMod'] >= 1 && $show_today === true)
 	{
-		$now_time = time();
+		if (!isset($today[$tzid]))
+			$today[$tzid] = date_format(date_create('today ' . $tzid), 'U');
 
-		if ($now_time - $log_time < (86400 * $modSettings['todayMod']))
+		// Tomorrow? We don't support the future. ;)
+		if ($log_time >= $today[$tzid] + 86400)
 		{
-			$then = @getdate($log_time);
-			$now = (!empty($now) ? $now : @getdate($now_time));
-
-			// Same day of the year, same year.... Today!
-			if ($then['yday'] == $now['yday'] && $then['year'] == $now['year'])
-			{
-				$prefix = $txt['today'];
-			}
-			// Day-of-year is one less and same year, or it's the first of the year and that's the last of the year...
-			elseif ($modSettings['todayMod'] == '2' && (($then['yday'] == $now['yday'] - 1 && $then['year'] == $now['year']) || ($now['yday'] == 0 && $then['year'] == $now['year'] - 1) && $then['mon'] == 12 && $then['mday'] == 31))
-			{
-				$prefix = $txt['yesterday'];
-			}
+			$prefix = '';
+		}
+		// Today.
+		elseif ($log_time >= $today[$tzid])
+		{
+			$prefix = $txt['today'];
+		}
+		// Yesterday.
+		elseif ($modSettings['todayMod'] > 1 && $log_time >= $today[$tzid] - 86400)
+		{
+			$prefix = $txt['yesterday'];
 		}
 	}
 
@@ -767,10 +771,6 @@ function timeformat($log_time, $show_today = true, $tzid = null)
 	$format = !is_bool($show_today) ? $show_today : $user_info['time_format'];
 
 	$format = !empty($prefix) ? get_date_or_time_format('time', $format) : $format;
-
-	// For backward compatibility, normalize empty values to null and replace 'forum' with forum's default time zone.
-	// Otherwise, just make sure $tzid is a string and let smf_strftime() handle it.
-	$tzid = empty($tzid) ? null : ($tzid === 'forum' ? $modSettings['default_timezone'] : (string) $tzid);
 
 	// And now, the moment we've all be waiting for...
 	return $prefix . smf_strftime($format, $log_time, $tzid);
@@ -912,7 +912,7 @@ function get_date_or_time_format($type = '', $format = '')
  * @param int|null $timestamp A Unix timestamp.
  *     If null, defaults to the current time.
  * @param string|null $tzid Time zone identifier.
- *     If null, defaults to the user's current time zone.
+ *     If null, uses default time zone.
  * @return string The formatted datetime string.
  */
 function smf_strftime(string $format, int $timestamp = null, string $tzid = null)
@@ -926,7 +926,7 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 		$timestamp = time();
 
 	if (!isset($tzid))
-		$tzid = getUserTimezone();
+		$tzid = date_default_timezone_get();
 
 	// A few substitutions to make life easier.
 	$format = strtr($format, array(
