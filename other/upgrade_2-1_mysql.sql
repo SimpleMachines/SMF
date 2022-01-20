@@ -304,6 +304,18 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 ---}
 ---#
 
+---# Adding new "samesiteCookies" setting
+---{
+	if (!isset($modSettings['samesiteCookies']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('samesiteCookies', 'lax'),
+			array()
+		);
+---}
+---#
+
 ---# Calculate appropriate hash cost
 ---{
 	$smcFunc['db_insert']('replace',

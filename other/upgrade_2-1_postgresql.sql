@@ -1992,6 +1992,18 @@ WHERE variable IN ('show_board_desc', 'display_quick_reply', 'show_mark_read', '
 ---}
 ---#
 
+---# Adding new "samesiteCookies" setting
+---{
+	if (!isset($modSettings['samesiteCookies']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('samesiteCookies', 'lax'),
+			array()
+		);
+---}
+---#
+
 ---# Calculate appropriate hash cost
 ---{
 	$smcFunc['db_insert']('replace',
