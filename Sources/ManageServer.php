@@ -527,10 +527,6 @@ function ModifyCookieSettings($return_config = false)
 	$("#localCookies, #globalCookies").click(function() {
 		hideGlobalCookies();
 	});
-	
-	if ( document.getElementById("samesiteCookies").getAttribute("selected") === null) { 
-		document.getElementById("samesiteCookies").selectedIndex=1; 
-	}
 	', true);
 
 	if (empty($user_settings['tfa_secret']))
@@ -565,6 +561,10 @@ function ModifyCookieSettings($return_config = false)
 			if (!preg_match('/(?:^|\.)' . preg_quote($_POST['globalCookiesDomain'], '/') . '$/u', parse_iri($boardurl, PHP_URL_HOST)))
 				fatal_lang_error('invalid_cookie_domain', false);
 		}
+
+		// Per spec, if samesite setting is 'none', cookies MUST be secure. Thems the rules. Else you lock everyone out...
+		if (!empty($_POST['samesiteCookies']) && ($_POST['samesiteCookies'] === 'none') && empty($_POST['secureCookies']))
+			fatal_lang_error('samesiteSecureRequired', false);
 
 		saveSettings($config_vars);
 
