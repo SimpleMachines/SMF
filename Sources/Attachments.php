@@ -519,9 +519,8 @@ class Attachments
 
 		ob_end_clean();
 
-		if (!empty($modSettings['CompressedOutput']))
+		if (!empty($modSettings['enableCompressedOutput']))
 			@ob_start('ob_gzhandler');
-
 		else
 			ob_start();
 
