@@ -1975,7 +1975,8 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 	background-position: -239px -187px;
 }
 /* 9th Row */
-.main_icons.languages::before {
+.main_icons.languages::before,
+.main_icons.recent_posts::before {
 	background-position: -5px -213px;
 }
 .main_icons.members_request::before {

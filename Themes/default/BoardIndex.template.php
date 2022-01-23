@@ -359,7 +359,7 @@ function template_ic_block_recent()
 	echo '
 			<div class="sub_bar">
 				<h4 class="subbg">
-					<a href="', $scripturl, '?action=recent"><span class="xx"></span>', $txt['recent_posts'], '</a>
+					<a href="', $scripturl, '?action=recent"><span class="main_icons recent_posts"></span> ', $txt['recent_posts'], '</a>
 				</h4>
 			</div>
 			<div id="recent_posts_content">';
