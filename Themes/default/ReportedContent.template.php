@@ -35,13 +35,13 @@ function template_reported_posts()
 
 	if (!empty($context['reports']) && !$context['view_closed'] && !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
 		echo '
-				<ul class="buttonlist floatright">
-					<li class="inline_mod_check">
-						<input type="checkbox" onclick="invertAll(this, this.form, \'close[]\');">
-					</li>
-				</ul>';
+			<ul class="buttonlist floatright">
+				<li class="inline_mod_check">
+					<input type="checkbox" onclick="invertAll(this, this.form, \'close[]\');">
+				</li>
+			</ul>';
 
-		echo '
+	echo '
 			<div class="pagelinks floatleft">' . $context['page_index'] . '</div>
 		</div>';
 
@@ -406,11 +406,11 @@ function template_reported_members()
 
 	if (!empty($context['reports']) && !$context['view_closed'] && !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
 		echo '
-				<ul class="buttonlist floatright">
-					<li class="inline_mod_check">
-						<input type="checkbox" onclick="invertAll(this, this.form, \'close[]\');">
-					</li>
-				</ul>';
+			<ul class="buttonlist floatright">
+				<li class="inline_mod_check">
+					<input type="checkbox" onclick="invertAll(this, this.form, \'close[]\');">
+				</li>
+			</ul>';
 
 		echo '
 			<div class="pagelinks">', $context['page_index'], '</div>

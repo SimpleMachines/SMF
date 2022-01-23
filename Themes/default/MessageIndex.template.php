@@ -100,9 +100,9 @@ function template_main()
 		', $txt['post_becomes_unapproved'], '
 	</div>';
 
-		// If this person can approve items and we have some awaiting approval tell them.
-		if (!empty($context['unapproved_posts_message']))
-			echo '
+	// If this person can approve items and we have some awaiting approval tell them.
+	if (!empty($context['unapproved_posts_message']))
+		echo '
 	<div class="noticebox">
 		', $context['unapproved_posts_message'], '
 	</div>';
