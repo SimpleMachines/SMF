@@ -83,7 +83,7 @@ function template_main()
 				</h3>', !empty($category['description']) ? '
 				<div class="desc">' . $category['description'] . '</div>' : '', '
 			</div>
-			<div id="category_', $category['id'], '_boards" ', (!empty($category['css_class']) ? ('class="' . $category['css_class'] . '"') : ''), '>';
+			<div id="category_', $category['id'], '_boards" ', (!empty($category['css_class']) ? ('class="' . $category['css_class'] . '"') : ''), $category['is_collapsed'] ? ' style="display: none;"' : '', '>';
 
 		/* Each board in each category's boards has:
 		new (is it new?), id, name, description, moderators (see below), link_moderators (just a list.),
