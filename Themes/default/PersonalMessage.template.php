@@ -1929,9 +1929,9 @@ function template_showPMDrafts()
 				<span class="main_icons inbox"></span> ', $txt['drafts_show'], '
 			</h3>
 		</div>
-		<div class="pagesection">
-			<div class="pagelinks">', $context['page_index'], '</div>
-		</div>';
+		<p class="information">
+			', $txt['drafts_show_desc'], '
+		</p>';
 
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
@@ -1941,6 +1941,11 @@ function template_showPMDrafts()
 		</div>';
 	else
 	{
+		echo '
+		<div class="pagesection">
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>';
+
 		// For every draft to be displayed, give it its own div, and show the important details of the draft.
 		foreach ($context['drafts'] as $draft)
 		{
@@ -1974,13 +1979,13 @@ function template_showPMDrafts()
 			echo '
 		</div><!-- .windowbg -->';
 		}
-	}
 
-	// Show page numbers.
-	echo '
-	<div class="pagesection">
-		<div class="pagelinks">', $context['page_index'], '</div>
-	</div>';
+		// Show page numbers.
+		echo '
+		<div class="pagesection">
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>';
+	}
 }
 
 ?>
