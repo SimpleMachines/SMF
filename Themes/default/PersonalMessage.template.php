@@ -611,6 +611,11 @@ function template_subject_list()
 	global $context, $settings, $txt, $scripturl;
 
 	echo '
+	<div class="cat_bar">
+		<h3 class="catbg">
+			', $context['folder'] == 'sent' ? $txt['sent_items'] : $context['current_label'], '
+		</h3>
+	</div>
 	<table class="table_grid">
 		<thead>
 			<tr class="title_bar">
@@ -965,7 +970,7 @@ function template_send()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pm_send_report'], '</h3>
 		</div>
-		<div class="windowbg">';
+		<div class="windowbg noup">';
 
 		if (!empty($context['send_log']['sent']))
 			foreach ($context['send_log']['sent'] as $log_entry)
@@ -990,7 +995,7 @@ function template_send()
 					<span id="preview_subject">', empty($context['preview_subject']) ? '' : $context['preview_subject'], '</span>
 				</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg noup">
 				<div class="post" id="preview_body">
 					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 				</div>
@@ -1006,7 +1011,7 @@ function template_send()
 					<span class="main_icons inbox icon" title="', $txt['new_message'], '"></span> ', $txt['new_message'], '
 				</h3>
 			</div>
-			<div class="roundframe">';
+			<div class="roundframe noup">';
 
 	// If there were errors for sending the PM, show them.
 	echo '

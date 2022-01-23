@@ -369,7 +369,7 @@ function template_unapproved_posts()
 	echo '
 	<div id="modcenter">
 		<form action="', $scripturl, '?action=moderate;area=postmod;start=', $context['start'], ';sa=', $context['current_view'], '" method="post" accept-charset="', $context['character_set'], '">
-			<div class="cat_bar">
+			<div class="cat_bar', !empty($context['unapproved_items']) ? ' cat_bar_round' : '', '">
 				<h3 class="catbg">', $txt['mc_unapproved_posts'], '</h3>
 			</div>';
 

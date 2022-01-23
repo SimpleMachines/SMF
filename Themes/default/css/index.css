@@ -632,7 +632,7 @@ dl.settings img {
 /* a general table class */
 table.table_grid {
 	border-collapse: collapse;
-	margin: 1px 0 5px 0;
+	margin: 0;
 	width: 100%;
 }
 table.table_grid td {
@@ -2986,7 +2986,7 @@ h3 .collapse {
 .up_contain {
 	overflow: hidden;
 	border: 1px solid #ddd;
-	margin: -1px 0 3px 0;
+	margin: 0 0 3px 0;
 	display: flex;
 	flex-wrap: wrap;
 }
@@ -3601,6 +3601,10 @@ div.cat_bar {
 	border-radius: 6px 6px 0 0;
 	box-shadow: 0 16px 20px rgba(255, 255, 255, 0.15) inset;
 	text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.2);
+}
+.cat_bar.collapsed,
+.cat_bar.cat_bar_round {
+	border-radius: 6px;
 }
 .cat_bar h3 {
 	padding: 8px 12px 6px 12px;

@@ -631,7 +631,7 @@ function template_main()
 	{
 		echo '
 		<div id="recent" class="flow_hidden main_section">
-			<div class="cat_bar">
+			<div class="cat_bar cat_bar_round">
 				<h3 class="catbg">', $txt['topic_summary'], '</h3>
 			</div>
 			<span id="new_replies"></span>';

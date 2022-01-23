@@ -283,25 +283,21 @@ function ViewModlog()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'top_of_list',
+				'position' => 'after_title',
 				'value' => '
 					' . $txt['modlog_search'] . ' (' . $txt['modlog_by'] . ': ' . $context['search']['label'] . '):
 					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '">
 					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button" style="float:none">
-					' . ($context['can_delete'] ? '&nbsp;
+					' . ($context['can_delete'] ? '
 					<input type="submit" name="remove" value="' . $txt['modlog_remove'] . '" data-confirm="' . $txt['modlog_remove_selected_confirm'] . '" class="button you_sure">
 					<input type="submit" name="removeall" value="' . $txt['modlog_removeall'] . '" data-confirm="' . $txt['modlog_remove_all_confirm'] . '" class="button you_sure">' : ''),
-				'class' => 'floatright',
+				'class' => '',
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '
-					' . $txt['modlog_search'] . ' (' . $txt['modlog_by'] . ': ' . $context['search']['label'] . '):
-					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '">
-					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button" style="float:none">
-					' . ($context['can_delete'] ? '&nbsp;
+				'value' => $context['can_delete'] ? '
 					<input type="submit" name="remove" value="' . $txt['modlog_remove'] . '" data-confirm="' . $txt['modlog_remove_selected_confirm'] . '" class="button you_sure">
-					<input type="submit" name="removeall" value="' . $txt['modlog_removeall'] . '" data-confirm="' . $txt['modlog_remove_all_confirm'] . '" class="button you_sure">' : ''),
+					<input type="submit" name="removeall" value="' . $txt['modlog_removeall'] . '" data-confirm="' . $txt['modlog_remove_all_confirm'] . '" class="button you_sure">' : '',
 				'class' => 'floatright',
 			),
 		),
