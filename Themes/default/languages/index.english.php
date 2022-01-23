@@ -396,7 +396,7 @@ $txt['info_center_title'] = '%1$s - Info Center';
 $txt['watch'] = 'Watch';
 $txt['unwatch'] = 'Stop watching';
 
-$txt['check_all'] = 'Check all';
+$txt['check_all'] = 'Select all';
 
 // Use numeric entities in the below string.
 $txt['database_error'] = 'Database Error';

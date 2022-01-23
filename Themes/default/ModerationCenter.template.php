@@ -375,17 +375,32 @@ function template_unapproved_posts()
 
 	// No posts?
 	if (empty($context['unapproved_items']))
+	{
 		echo '
 			<div class="windowbg">
 				<p class="centertext">
 					', $txt['mc_unapproved_' . $context['current_view'] . '_none_found'], '
 				</p>
 			</div>';
+	}
 	else
+	{
 		echo '
-			<div class="pagesection floatleft">
+			<div class="pagesection">';
+
+		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+			echo '
+				<ul class="buttonlist floatright">
+					<li class="inline_mod_check">
+						<input type="checkbox" onclick="invertAll(this, this.form, \'item[]\');" checked>
+					</li>
+				</ul>';
+
+		echo '
 				<div class="pagelinks">', $context['page_index'], '</div>
 			</div>';
+
+	}
 
 	foreach ($context['unapproved_items'] as $item)
 	{

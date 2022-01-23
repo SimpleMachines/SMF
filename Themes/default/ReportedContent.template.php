@@ -15,7 +15,7 @@
  */
 function template_reported_posts()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt, $scripturl, $options;
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']))
@@ -30,6 +30,19 @@ function template_reported_posts()
 			<h3 class="catbg">
 				', $context['view_closed'] ? $txt['mc_reportedp_closed'] : $txt['mc_reportedp_active'], '
 			</h3>
+		</div>
+		<div class="pagesection">';
+
+	if (!empty($context['reports']) && !$context['view_closed'] && !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+		echo '
+				<ul class="buttonlist floatright">
+					<li class="inline_mod_check">
+						<input type="checkbox" onclick="invertAll(this, this.form, \'close[]\');">
+					</li>
+				</ul>';
+
+		echo '
+			<div class="pagelinks floatleft">' . $context['page_index'] . '</div>
 		</div>';
 
 	foreach ($context['reports'] as $report)
@@ -69,17 +82,17 @@ function template_reported_posts()
 		</div>';
 
 	echo '
-		<div class="pagesection">';
-
-	if (!empty($context['total_reports']) && $context['total_reports'] >= $context['reports_how_many'])
-		echo '
+		<div class="pagesection">
 			<div class="pagelinks floatleft">' . $context['page_index'] . '</div>';
 
-	echo '
-			<div class="floatright">', !$context['view_closed'] ? '
+	if (!empty($context['reports']) && !$context['view_closed'] && !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+		echo '
+			<div class="floatright">
 				<input type="hidden" name="' . $context['mod-report-close-all_token_var'] . '" value="' . $context['mod-report-close-all_token'] . '">
-				<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button">' : '', '
-			</div>
+				<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button">
+			</div>';
+
+	echo '
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 	</form>';
@@ -373,7 +386,7 @@ function template_reported_members_block()
  */
 function template_reported_members()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt, $scripturl, $options;
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']) && !empty($txt['report_action_' . $context['report_post_action']]))
@@ -389,7 +402,17 @@ function template_reported_members()
 				', $context['view_closed'] ? $txt['mc_reportedp_closed'] : $txt['mc_reportedp_active'], '
 			</h3>
 		</div>
-		<div class="pagesection">
+		<div class="pagesection">';
+
+	if (!empty($context['reports']) && !$context['view_closed'] && !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+		echo '
+				<ul class="buttonlist floatright">
+					<li class="inline_mod_check">
+						<input type="checkbox" onclick="invertAll(this, this.form, \'close[]\');">
+					</li>
+				</ul>';
+
+		echo '
 			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 
@@ -427,7 +450,7 @@ function template_reported_members()
 		<div class="pagesection">
 			<div class="pagelinks floatleft">', $context['page_index'], '</div>
 			<div class="floatright">
-				', !$context['view_closed'] ? '<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button">' : '', '
+				', (!$context['view_closed'] && !empty($context['reports'])) ? '<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button">' : '', '
 			</div>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">

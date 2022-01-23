@@ -1004,7 +1004,6 @@ img.sort, .sort {
 .buttonlist, .buttonrow, .pagelinks {
 	z-index: 100;
 	padding: 5px 0 5px 0;
-	margin: 5px 0 5px 0;
 }
 .button, .quickbuttons > li > a, .inline_mod_check {
 	display: inline-block;
@@ -1022,11 +1021,12 @@ img.sort, .sort {
 	box-sizing: border-box;
 	vertical-align: middle;
 }
+.buttonlist .button {
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
 .pagesection .button {
 	color: #346;
-}
-.button:not(:first-child) {
-	margin-left: 4px;
 }
 .button:hover, .button:focus,
 .quickbuttons > li:hover > a, .quickbuttons > li > a:focus {
@@ -1353,6 +1353,11 @@ ul li.greeting {
 }
 .quickbuttons > li:last-child > a, .inline_mod_check:last-child {
 	border-radius: 0 4px 4px 0;
+}
+.quickbuttons > li:only-child > a, .inline_mod_check:only-child {
+	border-radius: 4px;
+	margin: 2px;
+	height: 23px;
 }
 .inline_mod_check input {
 	position: relative;
@@ -2342,6 +2347,9 @@ dl {
 }
 .topic_details {
 	padding: 0 4px 4px 4px;
+}
+.counter + .topic_details {
+	margin-left: 25px;
 }
 .list_posts {
 	border-top: 1px solid #ddd;
