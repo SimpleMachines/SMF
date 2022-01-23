@@ -281,7 +281,8 @@
 	.user_info {
 		display: inline;
 	}
-	.user_info li {
+	.user_info li,
+	.custom_fields_above_member {
 		display: none;
 	}
 	.user_info li.title,
