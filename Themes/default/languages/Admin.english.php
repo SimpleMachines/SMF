@@ -363,6 +363,7 @@ $txt['attachment_image_paranoid'] = 'Perform extensive security checks on upload
 $txt['attachmentThumbnails'] = 'Resize images when showing under posts';
 $txt['attachment_thumb_png'] = 'Save thumbnails as PNG';
 $txt['attachment_thumb_memory'] = 'Adaptive thumbnail memory';
+$txt['attachment_thumb_memory_note'] = 'If disabled, memory is limited to 128M';
 $txt['attachmentThumbWidth'] = 'Maximum width of thumbnails';
 $txt['attachmentThumbHeight'] = 'Maximum height of thumbnails';
 $txt['attachment_thumbnail_settings'] = 'Thumbnail Settings';
