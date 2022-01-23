@@ -175,7 +175,7 @@ function BoardReport()
 		array(
 		)
 	);
-	$groups = array(-1 => $txt['guest_title'], 0 => $txt['full_member']);
+	$groups = array(-1 => $txt['guest_title'], 0 => $txt['membergroups_members']);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$groups[$row['id_group']] = empty($row['online_color']) ? $row['group_name'] : '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>';
 	$smcFunc['db_free_result']($request);
@@ -821,7 +821,7 @@ function StaffReport()
 		array(
 		)
 	);
-	$groups = array(0 => $txt['full_member']);
+	$groups = array(0 => $txt['membergroups_members']);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$groups[$row['id_group']] = empty($row['online_color']) ? $row['group_name'] : '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>';
 	$smcFunc['db_free_result']($request);
