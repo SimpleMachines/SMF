@@ -1443,6 +1443,7 @@ ul li.greeting {
 /* The category separator string is 29 dashes */
 #display_jump_to_select,
 #message_index_jump_to_select,
+#search_jump_to_select,
 #quick_mod_jump_to_select {
 	width: 29ch;
 }
