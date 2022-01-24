@@ -4129,3 +4129,7 @@ div.sceditor-container:not(.sceditor-maximize) {
 img.theme_thumbnail {
 	max-width: 250px;
 }
+
+#lang_main_files_list .name {
+	word-break: break-word;
+}
