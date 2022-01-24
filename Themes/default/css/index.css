@@ -1726,12 +1726,19 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 	background: url(../images/icons/main_icons_sprite.png) no-repeat -5px -5px / 260px auto;
 	vertical-align: middle;
 }
+.main_icons.alerts::before {
+	background: url(../images/icons/bell.png);
+	background-size: 16px;
+}
 /* Load better icons for higher resolution screens */
 @media
 	screen and (-webkit-min-device-pixel-ratio: 1.66),
 	screen and (min-resolution: 160dpi) {
 	.main_icons::before {
 		background-image: url(../images/icons/main_icons_sprite_hd.png);
+	}
+	.main_icons.alerts::before {
+		background-image: url(../images/icons/bell_hd.png);
 	}
 }
 
@@ -1848,7 +1855,7 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 .main_icons.warning_mute::before {
 	background-position: -57px -83px;
 }
-.main_icons.alerts::before, .main_icons.warn_button::before,
+.main_icons.warn_button::before,
 .main_icons.warning_moderate::before {
 	background-position: -83px -83px;
 }
