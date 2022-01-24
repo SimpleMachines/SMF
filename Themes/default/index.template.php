@@ -346,7 +346,7 @@ function template_body_above()
 	<div id="wrapper">
 		<div id="upper_section">
 			<div id="inner_section">
-				<div id="inner_wrap">
+				<div id="inner_wrap"', !$context['user']['is_logged'] ? ' class="hide_720"' : '', '>
 					<div class="user">
 						<time>', $context['current_time'], '</time>';
 

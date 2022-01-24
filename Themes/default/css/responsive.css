@@ -386,7 +386,8 @@
 		width: 75%;
 	}
 	/* Hide me */
-	#inner_wrap time, #inner_wrap .news, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
+	#inner_wrap.hide_720, #inner_wrap time, #inner_wrap .news,
+	#search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
 	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
 	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
 	#member_list .ip, #member_list .last_active, #member_list .user_name,
