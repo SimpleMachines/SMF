@@ -5541,7 +5541,7 @@ function setupMenuContext()
 						'is_last' => true,
 					),
 				),
-				'is_last' => !$context['right_to_left'] && (!$user_info['is_guest'] || empty($settings['login_main_menu'])),
+				'is_last' => !$context['right_to_left'] && empty($settings['login_main_menu']),
 			),
 			// Theme authors: If you want the login and register buttons to appear in
 			// the main forum menu on your theme, set $settings['login_main_menu'] to
@@ -5551,6 +5551,14 @@ function setupMenuContext()
 				'href' => $scripturl . '?action=login',
 				'onclick' => 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');',
 				'show' => $user_info['is_guest'] && !empty($settings['login_main_menu']),
+				'sub_buttons' => array(
+				),
+				'is_last' => !$context['right_to_left'],
+			),
+			'logout' => array(
+				'title' => $txt['logout'],
+				'href' => $scripturl . '?action=login' . $context['session_var'] . '=' . $context['session_id'],
+				'show' => !$user_info['is_guest'] && !empty($settings['login_main_menu']),
 				'sub_buttons' => array(
 				),
 				'is_last' => !$context['right_to_left'],

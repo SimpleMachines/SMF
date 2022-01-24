@@ -235,7 +235,8 @@ function template_body_above()
 				</li>';
 
 		// A logout button for people without JavaScript.
-		echo '
+		if (empty($settings['login_main_menu']))
+			echo '
 				<li id="nojs_logout">
 					<a href="', $scripturl, '?action=logout;', $context['session_var'], '=', $context['session_id'], '">', $txt['logout'], '</a>
 					<script>document.getElementById("nojs_logout").style.display = "none";</script>
