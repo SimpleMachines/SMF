@@ -1206,7 +1206,7 @@ img#smflogo {
 .user .unread_links li {
 	display: inline-block;
 }
-.user time:not(:only-child)::after,
+.user:not(:last-child) time:not(:last-child)::after,
 .user .unread_links li:not(:last-child)::after {
 	content: " • ";
 	margin: 0 1ch;
