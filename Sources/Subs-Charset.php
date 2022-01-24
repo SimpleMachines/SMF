@@ -349,7 +349,7 @@ function utf8_compose($chars)
 			$lv_index = $l_index * 588 + $v_index * 28;
 			$s = 0xAC00 + $lv_index;
 
-			if ($chars[$c + 2] >= "\xE1\x86\xA8" && $chars[$c + 2] <= "\xE1\x87\x82")
+			if (isset($chars[$c + 2]) && $chars[$c + 2] >= "\xE1\x86\xA8" && $chars[$c + 2] <= "\xE1\x87\x82")
 			{
 				$t_part = $chars[$c + 2];
 				$t_index = mb_ord($t_part) - 0x11A7;
