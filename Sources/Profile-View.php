@@ -124,7 +124,8 @@ function summary($memID)
 		createToken($context['token_check'], 'get');
 
 		// Puerile comment
-		$context['activate_link'] = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve;' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context[$context['token_check'] . '_token_var'] . '=' . $context[$context['token_check'] . '_token'];
+		$type = in_array($context['member']['is_activated'], array(3, 4, 5, 13, 14, 15)) ? 'approve' : 'activate';
+		$context['activate_link'] = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=' . $type . ';' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context[$context['token_check'] . '_token_var'] . '=' . $context[$context['token_check'] . '_token'];
 	}
 
 	// Is the signature even enabled on this forum?
