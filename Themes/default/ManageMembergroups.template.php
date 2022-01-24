@@ -593,7 +593,9 @@ function template_group_members()
 				<h3 class="catbg">', $txt['membergroups_members_group_members'], '</h3>
 			</div>
 			<br>
-			<div class="pagesection">', $context['page_index'], '</div>
+			<div class="pagesection">
+				<div class="pagelinks">', $context['page_index'], '</div>
+			</div>
 			<table class="table_grid" id="group_members">
 				<thead>
 					<tr class="title_bar">
@@ -661,8 +663,8 @@ function template_group_members()
 			</div>';
 
 	echo '
-			<div class="pagesection flow_hidden">
-				<div class="floatleft">', $context['page_index'], '</div>
+			<div class="pagesection">
+				<div class="pagelinks">', $context['page_index'], '</div>
 			</div>
 			<br>';
 

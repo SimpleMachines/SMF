@@ -69,31 +69,43 @@ function template_error_log()
 					<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', $txt['help'], '"></span></a> ', $txt['errorlog'], '
 				</h3>
 			</div>
-			<div class="pagesection">
-				<div class="floatleft">
-					', $context['page_index'], '
-				</div>';
+			<div class="information flow_hidden">
+				<div class="additional_row">';
 
-	if (!empty($context['errors']))
+	// No errors, so just show a message and be done with it.
+	if (empty($context['errors']))
+	{
 		echo '
+					', $txt['errorlog_no_entries'], '
+				</div>
+			</div>
+		</form>';
+		return;
+	}
+
+	echo '
 				<div class="floatright">
 					<input type="submit" name="removeSelection" value="', $txt['remove_selection'], '" data-confirm="', $txt['remove_selection_confirm'], '" class="button you_sure">
 					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']), '" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']), '" class="button you_sure">
-				</div>';
-
-	echo '
-			</div>
-			<div class="title_bar">
-				<div style="padding: 6px 12px 5px 12px">
-					', $txt['apply_filter_of_type'], ':';
+				</div>
+				', $txt['apply_filter_of_type'], ':';
 
 	$error_types = array();
 
 	foreach ($context['error_types'] as $type => $details)
-		$error_types[] = ($details['is_selected'] ? '<span class="main_icons right_arrow"></span> ' : '') . '<a href="' . $details['url'] . '" ' . ($details['is_selected'] ? 'style="font-weight: bold;"' : '') . ' title="' . $details['description'] . '">' . ($details['error_type'] === 'critical' ? '<span class="error">' . $details['label'] . '</span>' : $details['label']) . '</a>';
+		$error_types[] = ($details['is_selected'] ? '<span class="main_icons right_arrow"></span> ' : '') . '<a href="' . $details['url'] . '" ' . ($details['is_selected'] ? 'style="font-weight: bold;"' : 'style="font-weight: normal;"') . ' title="' . $details['description'] . '">' . ($details['error_type'] === 'critical' ? '<span class="error">' . $details['label'] . '</span>' : $details['label']) . '</a>';
 
 	echo '
-					', implode(' | ', $error_types), '
+				', implode(' | ', $error_types), '
+				</div>
+			</div>
+			<div class="pagesection">
+				<div class="pagelinks">
+					', $context['page_index'], '
+				</div>
+				<div class="floatright" style="padding: 0 12px">
+					<label for="check_all"><strong>', $txt['check_all'], '</strong></label>
+					<input type="checkbox" id="check_all" onclick="invertAll(this, this.form, \'delete[]\');">
 				</div>
 			</div>';
 
@@ -102,21 +114,6 @@ function template_error_log()
 			<div class="information">
 				<strong>', $txt['applying_filter'], ':</strong> ', $context['filter']['entity'], ' ', $context['filter']['value']['html'], ' [<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', '">', $txt['clear_filter'], '</a>]
 			</div>';
-
-	// No errors, then show a message
-	if (empty($context['errors']))
-	{
-		echo '
-			<div class="information">', $txt['errorlog_no_entries'], '</div>';
-	}
-	else
-	{
-		echo '
-			<div class="righttext">
-				<label for="check_all"><strong>', $txt['check_all'], '</strong></label>
-				<input type="checkbox" id="check_all" onclick="invertAll(this, this.form, \'delete[]\');">
-			</div>';
-	}
 
 	// We have some errors, must be some mods installed :P
 	foreach ($context['errors'] as $error)
@@ -179,18 +176,13 @@ function template_error_log()
 
 	echo '
 			<div class="pagesection">
-				<div class="floatleft">
+				<div class="pagelinks">
 					', $context['page_index'], '
-				</div>';
-
-	if (!empty($context['errors']))
-		echo '
+				</div>
 				<div class="floatright">
 					<input type="submit" name="removeSelection" value="', $txt['remove_selection'], '" data-confirm="', $txt['remove_selection_confirm'], '" class="button you_sure">
 					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']), '" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']), '" class="button you_sure">
-				</div>';
-
-	echo '
+				</div>
 			</div>';
 
 	if ($context['sort_direction'] == 'down')

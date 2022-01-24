@@ -97,7 +97,7 @@ function template_select()
 					', $txt['please_select_split'], '
 				</div>
 				<div class="pagesection">
-					<span id="pageindex_not_selected">', $context['not_selected']['page_index'], '</span>
+					<div id="pageindex_not_selected" class="pagelinks">', $context['not_selected']['page_index'], '</div>
 				</div>
 				<ul id="messages_not_selected" class="split_messages smalltext">';
 
@@ -125,7 +125,7 @@ function template_select()
 					', $txt['split_selected_posts_desc'], '
 				</div>
 				<div class="pagesection">
-					<span id="pageindex_selected">', $context['selected']['page_index'], '</span>
+					<div id="pageindex_selected" class="pagelinks">', $context['selected']['page_index'], '</div>
 				</div>
 				<ul id="messages_selected" class="split_messages smalltext">';
 

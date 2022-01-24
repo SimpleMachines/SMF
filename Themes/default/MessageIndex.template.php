@@ -17,17 +17,41 @@ function template_main()
 {
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
 
-	// Let them know why their message became unapproved.
-	if ($context['becomesUnapproved'])
+	echo '<div id="display_head" class="information">
+			<h2 class="display_title">', $context['name'], '</h2>';
+
+	if (isset($context['description']) && $context['description'] != '')
 		echo '
-	<div class="noticebox">
-		', $txt['post_becomes_unapproved'], '
-	</div>';
+			<p>', $context['description'], '</p>';
+
+	if (!empty($context['moderators']))
+		echo '
+			<p>', count($context['moderators']) === 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $context['link_moderators']), '.</p>';
+
+	if (!empty($settings['display_who_viewing']))
+	{
+		echo '
+			<p>';
+
+		// Show just numbers...?
+		if ($settings['display_who_viewing'] == 1)
+			echo count($context['view_members']), ' ', count($context['view_members']) == 1 ? $txt['who_member'] : $txt['members'];
+		// Or show the actual people viewing the topic?
+		else
+			echo empty($context['view_members_list']) ? '0 ' . $txt['members'] : implode(', ', $context['view_members_list']) . ((empty($context['view_num_hidden']) || $context['can_moderate_forum']) ? '' : ' (+ ' . $context['view_num_hidden'] . ' ' . $txt['hidden'] . ')');
+
+		// Now show how many guests are here too.
+		echo $txt['who_and'], $context['view_num_guests'], ' ', $context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_board'], '
+			</p>';
+	}
+
+	echo '
+		</div>';
 
 	if (!empty($context['boards']) && (!empty($options['show_children']) || $context['start'] == 0))
 	{
 		echo '
-	<div id="board_', $context['current_board'], '_childboards" class="boardindex_table">
+	<div id="board_', $context['current_board'], '_childboards" class="boardindex_table main_container">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['sub_boards'], '</h3>
 		</div>';
@@ -69,6 +93,20 @@ function template_main()
 	</div><!-- #board_[current_board]_childboards -->';
 	}
 
+	// Let them know why their message became unapproved.
+	if ($context['becomesUnapproved'])
+		echo '
+	<div class="noticebox">
+		', $txt['post_becomes_unapproved'], '
+	</div>';
+
+	// If this person can approve items and we have some awaiting approval tell them.
+	if (!empty($context['unapproved_posts_message']))
+		echo '
+	<div class="noticebox">
+		', $context['unapproved_posts_message'], '
+	</div>';
+
 	if (!$context['no_topic_listing'])
 	{
 		echo '
@@ -90,26 +128,6 @@ function template_main()
 		echo '
 	</div>';
 
-		if ($context['description'] != '' || !empty($context['moderators']))
-		{
-			echo '
-	<div id="description_board" class="generic_list_wrapper">
-		<h3>', $context['name'], '</h3>
-		<div>';
-
-			if ($context['description'] != '')
-				echo '
-			', $context['description'];
-
-			if (!empty($context['moderators']))
-				echo '
-			', count($context['moderators']) === 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $context['link_moderators']), '.';
-
-			echo '
-		</div>
-	</div>';
-		}
-
 		// If Quick Moderation is enabled start the form.
 		if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] > 0 && !empty($context['topics']))
 			echo '
@@ -117,22 +135,6 @@ function template_main()
 
 		echo '
 		<div id="messageindex">';
-
-		if (!empty($settings['display_who_viewing']))
-		{
-			echo '
-			<div class="information">';
-
-			if ($settings['display_who_viewing'] == 1)
-				echo count($context['view_members']), ' ', count($context['view_members']) === 1 ? $txt['who_member'] : $txt['members'];
-
-			else
-				echo empty($context['view_members_list']) ? '0 ' . $txt['members'] : implode(', ', $context['view_members_list']) . (empty($context['view_num_hidden']) || $context['can_moderate_forum'] ? '' : ' (+ ' . $context['view_num_hidden'] . ' ' . $txt['hidden'] . ')');
-			echo $txt['who_and'], $context['view_num_guests'], ' ', $context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_board'];
-
-			echo '
-			</div>';
-		}
 
 		echo '
 			<div class="title_bar" id="topic_header">';
@@ -166,13 +168,6 @@ function template_main()
 
 		echo '
 			</div><!-- #topic_header -->';
-
-		// If this person can approve items and we have some awaiting approval tell them.
-		if (!empty($context['unapproved_posts_message']))
-			echo '
-			<div class="information">
-				<span class="alert">!</span> ', $context['unapproved_posts_message'], '
-			</div>';
 
 		// Contain the topic list
 		echo '

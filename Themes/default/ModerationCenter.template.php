@@ -342,7 +342,7 @@ function template_notes()
 		echo '
 					</ul>
 					<div class="pagesection notes">
-						<span class="smalltext">', $context['page_index'], '</span>
+						<div class="pagelinks">', $context['page_index'], '</div>
 					</div>';
 	}
 
@@ -369,23 +369,38 @@ function template_unapproved_posts()
 	echo '
 	<div id="modcenter">
 		<form action="', $scripturl, '?action=moderate;area=postmod;start=', $context['start'], ';sa=', $context['current_view'], '" method="post" accept-charset="', $context['character_set'], '">
-			<div class="cat_bar">
+			<div class="cat_bar', !empty($context['unapproved_items']) ? ' cat_bar_round' : '', '">
 				<h3 class="catbg">', $txt['mc_unapproved_posts'], '</h3>
 			</div>';
 
 	// No posts?
 	if (empty($context['unapproved_items']))
+	{
 		echo '
 			<div class="windowbg">
 				<p class="centertext">
 					', $txt['mc_unapproved_' . $context['current_view'] . '_none_found'], '
 				</p>
 			</div>';
+	}
 	else
+	{
 		echo '
-			<div class="pagesection floatleft">
-				', $context['page_index'], '
+			<div class="pagesection">';
+
+		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+			echo '
+				<ul class="buttonlist floatright">
+					<li class="inline_mod_check">
+						<input type="checkbox" onclick="invertAll(this, this.form, \'item[]\');" checked>
+					</li>
+				</ul>';
+
+		echo '
+				<div class="pagelinks">', $context['page_index'], '</div>
 			</div>';
+
+	}
 
 	foreach ($context['unapproved_items'] as $item)
 	{
@@ -410,12 +425,12 @@ function template_unapproved_posts()
 		);
 		echo '
 			<div class="windowbg clear">
-				<div class="counter">', $item['counter'], '</div>
+				<div class="page_number floatright"> #', $item['counter'], '</div>
 				<div class="topic_details">
 					<h5>
 						<strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong>
 					</h5>
-					<span class="smalltext"><strong>', $txt['mc_unapproved_by'], ' ', $item['poster']['link'], ' ', $txt['on'], ':</strong> ', $item['time'], '</span>
+					<span class="smalltext">', sprintf(str_replace('<br>', ' ', $txt['last_post_topic']), $item['time'], '<strong>' . $item['poster']['link'] . '</strong>'), '</span>
 				</div>
 				<div class="list_posts">
 					<div class="post">', $item['body'], '</div>
@@ -443,9 +458,7 @@ function template_unapproved_posts()
 
 	if (!empty($context['unapproved_items']))
 		echo '
-				<div class="floatleft">
-					<div class="pagelinks">', $context['page_index'], '</div>
-				</div>';
+				<div class="pagelinks">', $context['page_index'], '</div>';
 
 	echo '
 			</div><!-- .pagesection -->
@@ -487,20 +500,16 @@ function template_user_watch_post_callback($post)
 						<div class="floatleft">
 							<strong><a href="' . $scripturl . '?topic=' . $post['id_topic'] . '.' . $post['id'] . '#msg' . $post['id'] . '">' . $post['subject'] . '</a></strong> ' . $txt['mc_reportedp_by'] . ' <strong>' . $post['author_link'] . '</strong>
 						</div>
-						<div class="floatright">';
-
-	$output_html .= template_quickbuttons($quickbuttons, 'user_watch_post', 'return');
-
-	$output_html .= '
-						</div>
 					</div>
 					<br>
 					<div class="smalltext">
 						&#171; ' . $txt['mc_watched_users_posted'] . ': ' . $post['poster_time'] . ' &#187;
 					</div>
-					<div class="list_posts double_height">
+					<div class="list_posts">
 						' . $post['body'] . '
 					</div>';
+
+	$output_html .= template_quickbuttons($quickbuttons, 'user_watch_post', 'return');
 
 	return $output_html;
 }

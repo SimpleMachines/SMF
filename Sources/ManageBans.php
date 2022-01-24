@@ -2134,7 +2134,7 @@ function BanLog()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'top_of_list',
+				'position' => 'after_title',
 				'value' => '
 					<input type="submit" name="removeSelected" value="' . $txt['ban_log_remove_selected'] . '" data-confirm="' . $txt['ban_log_remove_selected_confirm'] . '" class="button you_sure">
 					<input type="submit" name="removeAll" value="' . $txt['ban_log_remove_all'] . '" data-confirm="' . $txt['ban_log_remove_all_confirm'] . '" class="button you_sure">',

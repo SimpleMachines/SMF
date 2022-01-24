@@ -499,6 +499,10 @@ a img {
 	overflow: hidden;
 	clear: both;
 }
+.pagesection .pagelinks {
+	display: inline-block;
+	float: left;
+}
 .pages::after, .jump_to::after, .code::after,
 strong[id^='child_list_']::after {
 	content: ": ";
@@ -628,7 +632,7 @@ dl.settings img {
 /* a general table class */
 table.table_grid {
 	border-collapse: collapse;
-	margin: 1px 0 5px 0;
+	margin: 0;
 	width: 100%;
 }
 table.table_grid td {
@@ -1000,7 +1004,6 @@ img.sort, .sort {
 .buttonlist, .buttonrow, .pagelinks {
 	z-index: 100;
 	padding: 5px 0 5px 0;
-	margin: 5px 0 5px 0;
 }
 .button, .quickbuttons > li > a, .inline_mod_check {
 	display: inline-block;
@@ -1018,11 +1021,12 @@ img.sort, .sort {
 	box-sizing: border-box;
 	vertical-align: middle;
 }
+.buttonlist .button {
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
 .pagesection .button {
 	color: #346;
-}
-.button:not(:first-child) {
-	margin-left: 4px;
 }
 .button:hover, .button:focus,
 .quickbuttons > li:hover > a, .quickbuttons > li > a:focus {
@@ -1349,6 +1353,11 @@ ul li.greeting {
 }
 .quickbuttons > li:last-child > a, .inline_mod_check:last-child {
 	border-radius: 0 4px 4px 0;
+}
+.quickbuttons > li:only-child > a, .inline_mod_check:only-child {
+	border-radius: 4px;
+	margin: 2px;
+	height: 23px;
 }
 .inline_mod_check input {
 	position: relative;
@@ -1966,7 +1975,8 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 	background-position: -239px -187px;
 }
 /* 9th Row */
-.main_icons.languages::before {
+.main_icons.languages::before,
+.main_icons.recent_posts::before {
 	background-position: -5px -213px;
 }
 .main_icons.members_request::before {
@@ -2207,7 +2217,7 @@ dl {
 }
 #basicinfo h4 {
 	font-size: 1.4em;
-	font-weight: 100;
+	font-weight: normal;
 	-webkit-hyphens: auto;
 	-ms-hyphens: auto;
 	hyphens: auto;
@@ -2216,7 +2226,6 @@ dl {
 }
 #basicinfo h4 span.position {
 	font-size: 0.8em;
-	font-weight: 100;
 	display: block;
 }
 #basicinfo img.avatar, dl.settings img.avatar {
@@ -2340,10 +2349,15 @@ dl {
 .topic_details {
 	padding: 0 4px 4px 4px;
 }
+.counter + .topic_details {
+	margin-left: 25px;
+}
 .list_posts {
 	border-top: 1px solid #ddd;
 	box-shadow: 0 1px 0 #fff inset;
-	padding-top: 12px;
+	padding-top: 1em;
+	margin-top: 1em;
+	margin-bottom: 1em;
 	clear: both;
 	-webkit-hyphens: auto;
 	-ms-hyphens: auto;
@@ -2908,6 +2922,9 @@ div#manage_boards dl dd textarea[name=desc] {
 
 /* BoardIndex */
 /* This place covers board places (boardindex/messageindex/recent) */
+.boardindex_table:not(:last-child) {
+	margin-bottom: 15px;
+}
 h3 .collapse {
 	float: right;
 	margin: 4px 4px 0 0;
@@ -2978,7 +2995,7 @@ h3 .collapse {
 .up_contain {
 	overflow: hidden;
 	border: 1px solid #ddd;
-	margin: -1px 0 3px 0;
+	margin: 0 0 3px 0;
 	display: flex;
 	flex-wrap: wrap;
 }
@@ -3594,6 +3611,10 @@ div.cat_bar {
 	box-shadow: 0 16px 20px rgba(255, 255, 255, 0.15) inset;
 	text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.2);
 }
+.cat_bar.collapsed,
+.cat_bar.cat_bar_round {
+	border-radius: 6px;
+}
 .cat_bar h3 {
 	padding: 8px 12px 6px 12px;
 }
@@ -3695,7 +3716,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 .generic_list_wrapper .information div {
 	background: none;
 }
-.information a {
+.information a:not(.button) {
 	font-weight: bold;
 }
 p.information img {

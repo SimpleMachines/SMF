@@ -233,7 +233,7 @@ function template_folder()
 		if (empty($context['display_mode']))
 			echo '
 			<div class="pagesection">
-				<div class="floatleft">', $context['page_index'], '</div>
+				<div class="pagelinks">', $context['page_index'], '</div>
 				<div class="floatright">
 					<input type="submit" name="del_selected" value="', $txt['quickmod_delete_selected'], '" onclick="if (!confirm(\'', $txt['delete_selected_confirm'], '\')) return false;" class="button">
 				</div>
@@ -611,6 +611,11 @@ function template_subject_list()
 	global $context, $settings, $txt, $scripturl;
 
 	echo '
+	<div class="cat_bar">
+		<h3 class="catbg">
+			', $context['folder'] == 'sent' ? $txt['sent_items'] : $context['current_label'], '
+		</h3>
+	</div>
 	<table class="table_grid">
 		<thead>
 			<tr class="title_bar">
@@ -689,7 +694,7 @@ function template_subject_list()
 		</tbody>
 	</table>
 	<div class="pagesection">
-		<div class="floatleft">', $context['page_index'], '</div>
+		<div class="pagelinks">', $context['page_index'], '</div>
 		<div class="floatright">&nbsp;';
 
 	if ($context['show_delete'])
@@ -897,7 +902,7 @@ function template_search_results()
 			', sprintf($txt['pm_search_results_info'], $context['num_results'], sentence_list($context['search_in'])), '
 		</div>
 		<div class="pagesection">
-			', $context['page_index'], '
+			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 
 	// Complete results?
@@ -946,7 +951,7 @@ function template_search_results()
 
 	echo '
 		<div class="pagesection">
-			', $context['page_index'], '
+			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 
 }
@@ -965,7 +970,7 @@ function template_send()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pm_send_report'], '</h3>
 		</div>
-		<div class="windowbg">';
+		<div class="windowbg noup">';
 
 		if (!empty($context['send_log']['sent']))
 			foreach ($context['send_log']['sent'] as $log_entry)
@@ -990,7 +995,7 @@ function template_send()
 					<span id="preview_subject">', empty($context['preview_subject']) ? '' : $context['preview_subject'], '</span>
 				</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg noup">
 				<div class="post" id="preview_body">
 					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 				</div>
@@ -1006,7 +1011,7 @@ function template_send()
 					<span class="main_icons inbox icon" title="', $txt['new_message'], '"></span> ', $txt['new_message'], '
 				</h3>
 			</div>
-			<div class="roundframe">';
+			<div class="roundframe noup">';
 
 	// If there were errors for sending the PM, show them.
 	echo '
@@ -1924,9 +1929,9 @@ function template_showPMDrafts()
 				<span class="main_icons inbox"></span> ', $txt['drafts_show'], '
 			</h3>
 		</div>
-		<div class="pagesection">
-			<span>', $context['page_index'], '</span>
-		</div>';
+		<p class="information">
+			', $txt['drafts_show_desc'], '
+		</p>';
 
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
@@ -1936,26 +1941,33 @@ function template_showPMDrafts()
 		</div>';
 	else
 	{
+		echo '
+		<div class="pagesection">
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>';
+
 		// For every draft to be displayed, give it its own div, and show the important details of the draft.
 		foreach ($context['drafts'] as $draft)
 		{
 			echo '
 		<div class="windowbg">
-			<div class="counter">', $draft['counter'], '</div>
+			<div class="page_number floatright"> #', $draft['counter'], '</div>
 			<div class="topic_details">
-				<div class="floatright smalltext righttext">
-					<div class="recipient_to">&#171;&nbsp;<strong>', $txt['to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '&nbsp;&#187;</div>';
-
-			if(!empty($draft['recipients']['bcc']))
-				echo'
-					<div class="pm_bbc">&#171;&nbsp;<strong>', $txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '&nbsp;&#187;</div>';
-
-			echo '
-				</div>
 				<h5>
 					<strong>', $draft['subject'], '</strong>
 				</h5>
-				<span class="smalltext">&#171;&nbsp;<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '&#187;</span><br>
+				<div class="smalltext">
+					<div class="recipient_to"><strong>', $txt['to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '</div>';
+
+			if(!empty($draft['recipients']['bcc']))
+				echo'
+					<div class="pm_bbc"><strong>', $txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '</div>';
+
+			echo '
+				</div>
+				<div class="smalltext">
+					<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '
+				</div>
 			</div>
 			<div class="list_posts">
 				', $draft['body'], '
@@ -1967,13 +1979,13 @@ function template_showPMDrafts()
 			echo '
 		</div><!-- .windowbg -->';
 		}
-	}
 
-	// Show page numbers.
-	echo '
-	<div class="pagesection">
-		<span>', $context['page_index'], '</span>
-	</div>';
+		// Show page numbers.
+		echo '
+		<div class="pagesection">
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>';
+	}
 }
 
 ?>

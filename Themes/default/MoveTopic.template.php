@@ -232,7 +232,7 @@ function template_merge()
 	{
 		echo '
 				<div class="pagesection">
-					', $context['page_index'], '
+					<div class="pagelinks">', $context['page_index'], '</div>
 				</div>
 				<div class="windowbg">
 					<ul class="merge_topics">';
@@ -248,7 +248,7 @@ function template_merge()
 					</ul>
 				</div>
 				<div class="pagesection">
-					', $context['page_index'], '
+					<div class="pagelinks">', $context['page_index'], '</div>
 				</div>';
 	}
 	// Just a nice "There aren't any topics" message
