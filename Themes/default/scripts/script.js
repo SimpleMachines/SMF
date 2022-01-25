@@ -342,7 +342,7 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 
 	var containerOptions;
 	if (typeof(sIcon) == 'string' && sIcon.match(/\.(gif|png|jpe?g|svg|bmp|tiff)$/) != null)
-		containerOptions = {heading: sHeader, content: sAjax_indicator, icon: sIcon};
+		containerOptions = {heading: sHeader, content: sAjax_indicator, icon: smf_images_url + '/' + sIcon};
 	else
 		containerOptions = {heading: sHeader, content: sAjax_indicator, icon_class: 'main_icons ' + (typeof(sIcon) != 'string' ? 'help' : sIcon)};
 

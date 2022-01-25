@@ -21,7 +21,7 @@ function template_login()
 		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
+					<span class="main_icons login"></span> ', $txt['login'], '
 				</h3>
 			</div>
 			<div class="roundframe">
@@ -273,7 +273,7 @@ function template_kick_guest()
 	echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
+					<span class="main_icons login"></span> ', $txt['login'], '
 				</h3>
 			</div>
 			<div class="roundframe">
@@ -374,7 +374,7 @@ function template_admin_login()
 		<div class="login" id="admin_login">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
+					<span class="main_icons login"></span> ', $txt['login'], '
 				</h3>
 			</div>
 			<div class="roundframe centertext">';
