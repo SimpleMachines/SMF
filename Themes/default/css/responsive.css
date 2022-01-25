@@ -450,6 +450,12 @@
 	.boardslist ul {
 		page-break-inside: avoid;
 	}
+	#main_menu .popup_window,
+	#genericmenu .popup_window {
+		box-shadow: none;
+		border-width: 0;
+		background: none;
+	}
 }
 
 @media (min-width: 480px) and (max-width: 560px) {
@@ -484,23 +490,15 @@
 	#main_menu {
 		margin: 0;
 	}
-	.popup_window, #main_menu .popup_window, #genericmenu .popup_window {
-		position: relative;
-		z-index: 99;
-		width: 90%;
-		box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
-		border: 1px solid #777;
-		border-radius: 7px 7px 3px 3px;
-		min-height: 285px !important;
-		max-height: 5em;
-		overflow-x: hidden !important;
-		overflow-y: scroll !important;
-		-webkit-overflow-scrolling: touch;
-		background: #fff; /* fallback for some browsers */
-		background-image: linear-gradient(to bottom, #e2e9f3 0%, #fff 70%);
+	.popup_window,
+	#main_menu .popup_window,
+	#genericmenu .popup_window {
 		top: 15%;
-		padding: 0;
-		margin: 0 auto;
+		width: 95vw;
+		min-height: auto;
+		max-height: 90vh;
+		overflow-x: hidden;
+		overflow-y: scroll;
 	}
 	h1.forumtitle a, h1.forumtitle {
 		padding: 5px 0 0 4px;
