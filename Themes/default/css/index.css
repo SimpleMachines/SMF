@@ -2787,7 +2787,7 @@ dl.addrules dt.floatleft {
 #main_menu .popup_window,
 #genericmenu .popup_window {
 	position: relative;
-	width: 480px;
+	width: auto;
 	z-index: 99;
 	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
 	border: 1px solid #777;
@@ -2797,6 +2797,7 @@ dl.addrules dt.floatleft {
 }
 .popup_window {
 	top: 15%;
+	width: 480px;
 }
 .popup_heading {
 	padding: 10px 8px;
