@@ -76,7 +76,7 @@ $txt['on'] = 'on';
 $txt['remove'] = 'Remove';
 $txt['start_new_topic'] = 'Start new topic';
 
-$txt['login'] = 'Sign in';
+$txt['login'] = 'Log in';
 // Use numeric entities in the below string.
 $txt['username'] = 'Username';
 $txt['password'] = 'Password';
@@ -129,7 +129,7 @@ $txt['post'] = 'Post';
 $txt['error_occured'] = 'An error has occurred';
 $txt['at'] = 'at';
 $txt['by'] = 'by';
-$txt['logout'] = 'Sign out';
+$txt['logout'] = 'Log out';
 $txt['started_by'] = 'Started by';
 $txt['topic_started_by'] = 'Started by <strong>%1$s</strong> in <em>%2$s</em>';
 $txt['replies'] = 'Replies';
@@ -252,10 +252,10 @@ $txt['female'] = 'Female';
 $txt['error_invalid_characters_username'] = 'Invalid character used in Username.';
 
 // argument(s): forum name, login URL, login JavaScript snippet
-$txt['welcome_guest'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">sign in</a>.';
+$txt['welcome_guest'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">log in</a>.';
 
 // argument(s): forum name, login URL, login JavaScript snippet, signup URL
-$txt['welcome_guest_register'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">sign in</a> or <a href="%4$s">sign up</a>.';
+$txt['welcome_guest_register'] = 'Welcome to <strong>%1$s</strong>. Please <a href="%2$s" onclick="%3$s">log in</a> or <a href="%4$s">sign up</a>.';
 
 // argument(s): $scripturl
 $txt['welcome_guest_activate'] = '<a href="%1$s?action=activate">Did you miss your activation email?</a>';
