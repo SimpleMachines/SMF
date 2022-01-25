@@ -376,7 +376,7 @@ function template_summary()
 		if (!empty($context['activate_message']))
 			echo '
 				<dt class="clear">
-					<span class="alert">', $context['activate_message'], '</span> (<a href="', $context['activate_link'], '"', ($context['activate_type'] == 4 ? ' class="you_sure" data-confirm="' . $txt['profileConfirm'] . '"' : ''), '>', $context['activate_link_text'], '</a>)
+					<span class="alert">', $context['activate_message'], '</span> (<a href="', $context['activate_link'], '">', $context['activate_link_text'], '</a>)
 				</dt>';
 
 		// If the current member is banned, show a message and possibly a link to the ban.
