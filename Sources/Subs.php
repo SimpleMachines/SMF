@@ -7318,9 +7318,8 @@ function smf_serverResponse($data = '', $type = 'content-type: application/json'
 	// Kill anything else.
 	ob_end_clean();
 
-	if (!empty($modSettings['CompressedOutput']))
+	if (!empty($modSettings['enableCompressedOutput']))
 		@ob_start('ob_gzhandler');
-
 	else
 		ob_start();
 
