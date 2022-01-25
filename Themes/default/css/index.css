@@ -2787,9 +2787,8 @@ dl.addrules dt.floatleft {
 #main_menu .popup_window,
 #genericmenu .popup_window {
 	position: relative;
-	width: 80vw;
+	width: 480px;
 	z-index: 99;
-	width: auto;
 	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
 	border: 1px solid #777;
 	border-radius: 7px 7px 3px 3px;
