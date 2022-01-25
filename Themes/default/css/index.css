@@ -2798,6 +2798,7 @@ dl.addrules dt.floatleft {
 .popup_window {
 	top: 15%;
 	width: 480px;
+	padding: 0 6px 6px 6px;
 }
 .popup_heading {
 	padding: 10px 8px;
