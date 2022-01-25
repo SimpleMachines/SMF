@@ -4072,30 +4072,21 @@ function ApplyRules($all_messages = false)
 			// Quickly check each label is valid!
 			$realLabels = array();
 			foreach ($context['labels'] as $label)
-			{
-				if (in_array($label['id'], $labels) && $label['id'] != -1 || empty($options['pm_remove_inbox_label']))
-				{
-					// Make sure this stays in the inbox
-					if ($label['id'] == '-1')
-					{
-						$smcFunc['db_query']('', '
-							UPDATE {db_prefix}pm_recipients
-							SET in_inbox = {int:in_inbox}
-							WHERE id_pm = {int:id_pm}
-								AND id_member = {int:current_member}',
-							array(
-								'in_inbox' => 1,
-								'id_pm' => $pm,
-								'current_member' => $user_info['id'],
-							)
-						);
-					}
-					else
-					{
-						$realLabels[] = $label['id'];
-					}
-				}
-			}
+				if (in_array($label['id'], $labels))
+					$realLabels[] = $label['id'];
+
+			if (!empty($options['pm_remove_inbox_label']))
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}pm_recipients
+					SET in_inbox = {int:in_inbox}
+					WHERE id_pm = {int:id_pm}
+						AND id_member = {int:current_member}',
+					array(
+						'in_inbox' => 0,
+						'id_pm' => $pm,
+						'current_member' => $user_info['id'],
+					)
+				);
 
 			$inserts = array();
 			// Now we insert the label info
