@@ -512,7 +512,7 @@ function template_topic_legend()
 	echo '
 	<div class="tborder" id="topic_icons">
 		<div class="information">
-			<p class="floatright" id="message_index_jump_to"></p>';
+			<p id="message_index_jump_to"></p>';
 
 	if (empty($context['no_topic_listing']))
 		echo '

@@ -212,7 +212,7 @@ function template_body_above()
 		if (!empty($context['user']['avatar']))
 			echo $context['user']['avatar']['image'];
 
-		echo $context['user']['name'], '</a>
+		echo '<span class="textmenu">', $context['user']['name'], '</span></a>
 					<div id="profile_menu" class="top_menu"></div>
 				</li>';
 
@@ -220,14 +220,22 @@ function template_body_above()
 		if ($context['allow_pm'])
 			echo '
 				<li>
-					<a href="', $scripturl, '?action=pm"', !empty($context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">', $txt['pm_short'], !empty($context['user']['unread_messages']) ? ' <span class="amt">' . $context['user']['unread_messages'] . '</span>' : '', '</a>
+					<a href="', $scripturl, '?action=pm"', !empty($context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">
+						<span class="main_icons inbox"></span>
+						<span class="textmenu">', $txt['pm_short'], '</span>', !empty($context['user']['unread_messages']) ? '
+						<span class="amt">' . $context['user']['unread_messages'] . '</span>' : '', '
+					</a>
 					<div id="pm_menu" class="top_menu scrollable"></div>
 				</li>';
 
 		// Thirdly, alerts
 		echo '
 				<li>
-					<a href="', $scripturl, '?action=profile;area=showalerts;u=', $context['user']['id'], '"', !empty($context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">', $txt['alerts'], !empty($context['user']['alerts']) ? ' <span class="amt">' . $context['user']['alerts'] . '</span>' : '', '</a>
+					<a href="', $scripturl, '?action=profile;area=showalerts;u=', $context['user']['id'], '"', !empty($context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">
+						<span class="main_icons alerts"></span>
+						<span class="textmenu">', $txt['alerts'], '</span>', !empty($context['user']['alerts']) ? '
+						<span class="amt">' . $context['user']['alerts'] . '</span>' : '', '
+					</a>
 					<div id="alerts_menu" class="top_menu scrollable"></div>
 				</li>';
 
@@ -338,9 +346,22 @@ function template_body_above()
 	<div id="wrapper">
 		<div id="upper_section">
 			<div id="inner_section">
-				<div id="inner_wrap">
+				<div id="inner_wrap"', !$context['user']['is_logged'] ? ' class="hide_720"' : '', '>
 					<div class="user">
-						', $context['current_time'], '
+						<time>', $context['current_time'], '</time>';
+
+	if ($context['user']['is_logged'])
+		echo '
+						<ul class="unread_links">
+							<li>
+								<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a>
+							</li>
+							<li>
+								<a href="', $scripturl, '?action=unreadreplies" title="', $txt['show_unread_replies'], '">', $txt['unread_replies'], '</a>
+							</li>
+						</ul>';
+
+	echo '
 					</div>';
 
 	// Show a random news item? (or you could pick one from news_lines...)
@@ -352,7 +373,6 @@ function template_body_above()
 					</div>';
 
 	echo '
-					<hr class="clear">
 				</div>';
 
 	// Show the menu here, according to the menu sub template, followed by the navigation tree.
@@ -443,16 +463,10 @@ function theme_linktree($force_show = false)
 	// If linktree is empty, just return - also allow an override.
 	if (empty($context['linktree']) || (!empty($context['dont_default_linktree']) && !$force_show))
 		return;
+
 	echo '
 				<div class="navigate_section">
 					<ul>';
-
-	if ($context['user']['is_logged'])
-		echo '
-						<li class="unread_links">
-							<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a>
-							<a href="', $scripturl, '?action=unreadreplies" title="', $txt['show_unread_replies'], '">', $txt['unread_replies'], '</a>
-						</li>';
 
 	// Each tree item has a URL and name. Some may have extra_before and extra_after.
 	foreach ($context['linktree'] as $link_num => $tree)
