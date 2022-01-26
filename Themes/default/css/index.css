@@ -1015,7 +1015,7 @@ img.sort, .sort {
 	line-height: 2em;
 	text-transform: uppercase;
 	cursor: pointer;
-	height: calc(2em + 2em * (0.9 - 0.85)); /* "input" font size minus ".button" font size */
+	min-height: calc(2em + 2em * (0.9 - 0.85)); /* "input" font size minus ".button" font size */
 	border: 1px solid;
 	border-color: #ddd #bbb #aaa #ddd;
 	border-radius: 3px;
