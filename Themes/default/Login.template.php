@@ -21,7 +21,7 @@ function template_login()
 		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
+					<span class="main_icons login"></span> ', $txt['login'], '
 				</h3>
 			</div>
 			<div class="roundframe">
@@ -147,6 +147,13 @@ function template_login()
 					</script>
 				</form>';
 
+	if (!empty($context['can_register']))
+		echo '
+				<hr>
+				<div class="centertext">
+					', sprintf($txt['register_prompt'], $scripturl), '
+				</div>';
+
 	// It is a long story as to why we have this when we're clearly not going to use it.
 	if (!empty($context['from_ajax']))
 		echo '
@@ -266,7 +273,7 @@ function template_kick_guest()
 	echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
+					<span class="main_icons login"></span> ', $txt['login'], '
 				</h3>
 			</div>
 			<div class="roundframe">
@@ -367,7 +374,7 @@ function template_admin_login()
 		<div class="login" id="admin_login">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
+					<span class="main_icons login"></span> ', $txt['login'], '
 				</h3>
 			</div>
 			<div class="roundframe centertext">';

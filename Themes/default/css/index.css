@@ -1172,7 +1172,8 @@ img#smflogo {
 }
 /* Even guests need to be aligned */
 .welcome {
-	padding: 7px 0 8px 10px;
+	padding: 0 10px;
+	line-height: 2.5em;
 }
 /*
 /* The user info, news, etc.*/
@@ -1632,6 +1633,9 @@ fieldset.merge_options {
 .login input[type="submit"] {
 	margin: 1em 0 0 1em;
 }
+.login p:not(:last-of-type) input[type="submit"] {
+	margin-bottom: 1em;
+}
 
 /* Additional register fields */
 #registration fieldset {
@@ -1965,7 +1969,7 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 .main_icons.personal_message::before {
 	background-position: -83px -161px;
 }
-.main_icons.permissions::before, .main_icons.signup::before {
+.main_icons.permissions::before, .main_icons.login::before {
 	background-position: -109px -161px;
 }
 .main_icons.paid::before {
