@@ -559,12 +559,14 @@
 		border-left: 0;
 		border-right: 0;
 	}
-	.dropmenu li a, .dropmenu li:hover a {
-		padding: 5px 0;
-	}
 	.dropmenu li a, .dropmenu li a:hover {
 		text-indent: 10px;
 		border-radius: 0;
+		padding: 5px 0 !important;
+	}
+	.dropmenu li li li a,
+	.dropmenu li li li a:hover {
+		padding: 5px 24px !important;
 	}
 	.dropmenu li a, .dropmenu li:hover a,
 	.dropmenu li a.active, .dropmenu li a.active:hover,
@@ -577,11 +579,19 @@
 	.dropmenu ul li a {
 		width: auto !important;
 	}
+	.dropmenu li.subsections > a::after {
+		position: absolute;
+		padding: 5px 0;
+		right: 10px;
+		font: 83.33%/150% Arial, sans-serif;
+		content: "\25bc" !important;
+	}
 	.dropmenu li ul,
 	.dropmenu li li:hover ul, .dropmenu li li ul {
 		position: relative;
 		border-radius: 0;
 		left: 0;
+		box-shadow: none;
 	}
 	#footer {
 		text-align: center;
