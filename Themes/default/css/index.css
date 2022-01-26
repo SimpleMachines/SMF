@@ -2783,18 +2783,22 @@ dl.addrules dt.floatleft {
 	background: rgba(40, 64, 80, 0.5);
 	z-index: 6;
 }
-.popup_window {
+.popup_window,
+#main_menu .popup_window,
+#genericmenu .popup_window {
 	position: relative;
-	width: 480px;
+	width: auto;
 	z-index: 99;
-	padding: 0 6px 6px 6px;
 	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
 	border: 1px solid #777;
 	border-radius: 7px 7px 3px 3px;
-	overflow: visible !important;
-	background: #fff;
-	top: 15%;
 	margin: 0 auto;
+	padding: 0;
+}
+.popup_window {
+	top: 15%;
+	width: 480px;
+	padding: 0 6px 6px 6px;
 }
 .popup_heading {
 	padding: 10px 8px;
@@ -2823,18 +2827,6 @@ dl.addrules dt.floatleft {
 	background: none;
 	margin: 0;
 	height: auto; /* In case anything fishy happens in the situations where this used make sure it stays still */
-}
-#main_menu .popup_window, #genericmenu .popup_window {
-	position: relative;
-	width: auto;
-	box-shadow: none;
-	border: none;
-	border-radius: 0;
-	background: none;
-	background-image: none;
-	margin: 0;
-	top: 0;
-	padding: 0;
 }
 .main_icons.hide_popup {
 	float: right;
