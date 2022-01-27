@@ -465,10 +465,10 @@ function template_single_pm($message)
 			</div><!-- .poster -->
 			<div class="postarea">
 				<div class="keyinfo">
-					<div id="subject_', $message['id'], '">
+					<div class="postinfo">
+						<div id="subject_', $message['id'], '">
 							', $message['subject'], '
-					</div>
-					<div class="postinfo">';
+						</div>';
 
 	// Show who the message was sent to.
 	echo '
