@@ -150,9 +150,8 @@ function template_generic_menu_tabs(&$menu_context)
 	if (!empty($tab_context['title']))
 	{
 		echo '
-					<div class="cat_bar">', (function_exists('template_admin_quick_search') ? '
-						<form action="' . $scripturl . '?action=admin;area=search" method="post" accept-charset="' . $context['character_set'] . '">' : ''), '
-							<h3 class="catbg">';
+					<div class="cat_bar">
+						<h3 class="catbg">';
 
 		// The function is in Admin.template.php, but since this template is used elsewhere too better check if the function is available
 		if (function_exists('template_admin_quick_search'))
@@ -229,8 +228,7 @@ function template_generic_menu_tabs(&$menu_context)
 								', $tab_context['title'];
 
 		echo '
-							</h3>', (function_exists('template_admin_quick_search') ? '
-						</form>' : ''), '
+						</h3>
 					</div><!-- .cat_bar -->';
 	}
 
