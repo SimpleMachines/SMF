@@ -355,7 +355,7 @@ function template_single_pm($message)
 	{
 		// Show the post group icons
 		echo '
-				<li class="icons">', $message['member']['group_icons'], '</li>';
+					<li class="icons">', $message['member']['group_icons'], '</li>';
 
 		// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
 		if ((empty($modSettings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
