@@ -489,11 +489,11 @@ function template_single_pm($message)
 	// If we're in the sent items, show who it was sent to besides the "To:" people.
 	if (!empty($message['recipients']['bcc']))
 		echo '<br>
-						<span class="smalltext"><strong> ', $txt['pm_bcc'], ':</strong> ', implode(', ', $message['recipients']['bcc']), ' & </span>';
+						<span class="smalltext"><strong> ', $txt['pm_bcc'], ':</strong> ', implode(', ', $message['recipients']['bcc']), ' </span>';
 
 	if (!empty($message['is_replied_to']))
 		echo '<br>
-						<span class="smalltext">', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' & </span>';
+						<span class="smalltext">', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' </span>';
 
 	echo '
 					</div><!-- .postinfo -->
