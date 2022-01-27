@@ -417,6 +417,11 @@
 	}
 
 	/* Admin */
+	.admin_search {
+		float: none;
+		width: 100%;
+		margin-bottom: 10px;
+	}
 	.table_grid.half_content {
 		width: 100%;
 		margin: 0;
@@ -751,23 +756,10 @@
 		padding: 0;
 		margin: 0 0 5px 0;
 	}
-	.admin_search {
-		float: none;
-		display: block;
-		width: 100%;
-		margin-bottom: 10px;
-	}
 	fieldset.admin_group a {
 		width: 50%;
 		float: left;
 		margin: 0 0 5px 0;
-	}
-	.action_admin .navigate_section {
-		display: none;
-	}
-	#quick_search input[type="search"],
-	#quick_search select {
-		width: 90%;
 	}
 
 	.error_info, #fatal_error {
