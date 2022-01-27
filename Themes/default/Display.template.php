@@ -555,14 +555,13 @@ function template_single_post($message)
 			echo '
 								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
-	// Show the post group icons, but not for guests.
-	if (!$message['member']['is_guest'])
-		echo '
-								<li class="icons">', $message['member']['group_icons'], '</li>';
-
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'])
 	{
+		// Show the post group icons
+		echo '
+								<li class="icons">', $message['member']['group_icons'], '</li>';
+
 		// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
 		if ((empty($modSettings['hide_post_group']) || empty($message['member']['group'])) && !empty($message['member']['post_group']))
 			echo '
@@ -688,9 +687,7 @@ function template_single_post($message)
 								</div>';
 
 	echo '
-								<span class="page_number floatright">
-									', !empty($message['counter']) ? ' #' . $message['counter'] : '', ' ', '
-								</span>
+								', !empty($message['counter']) ? '<span class="page_number floatright">#' . $message['counter'] . '</span>' : '', '
 								<div class="postinfo">
 									<span class="messageicon" ', ($message['icon_url'] === $settings['images_url'] . '/post/xx.png' && !$message['can_modify']) ? ' style="position: absolute; z-index: -1;"' : '', '>
 										<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>

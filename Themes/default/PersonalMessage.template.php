@@ -327,6 +327,16 @@ function template_single_pm($message)
 	echo '
 				<ul class="user_info">';
 
+	// Show the member's custom title, if they have one.
+	if (isset($message['member']['title']) && $message['member']['title'] != '')
+		echo '
+					<li class="title">', $message['member']['title'], '</li>';
+
+	// Show the member's primary group (like 'Administrator') if they have one.
+	if (isset($message['member']['group']) && $message['member']['group'] != '')
+		echo '
+					<li class="membergroup">', $message['member']['group'], '</li>';
+
 	// Show the user's avatar.
 	if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
 		echo '
@@ -340,22 +350,13 @@ function template_single_pm($message)
 			echo '
 					<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
-	if (!$message['member']['is_guest'])
-		echo '
-					<li class="icons">', $message['member']['group_icons'], '</li>';
-	// Show the member's primary group (like 'Administrator') if they have one.
-	if (isset($message['member']['group']) && $message['member']['group'] != '')
-		echo '
-					<li class="membergroup">', $message['member']['group'], '</li>';
-
-	// Show the member's custom title, if they have one.
-	if (isset($message['member']['title']) && $message['member']['title'] != '')
-		echo '
-					<li class="title">', $message['member']['title'], '</li>';
-
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'])
 	{
+		// Show the post group icons
+		echo '
+					<li class="icons">', $message['member']['group_icons'], '</li>';
+
 		// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
 		if ((empty($modSettings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
 			echo '
@@ -463,15 +464,15 @@ function template_single_pm($message)
 				</ul>
 			</div><!-- .poster -->
 			<div class="postarea">
-				<div class="flow_hidden">
-					<div class="keyinfo">
-						<h5 id="subject_', $message['id'], '">
-							', $message['subject'], '
-						</h5>';
+				<div class="keyinfo">
+					<div id="subject_', $message['id'], '" class="subject_title">
+						<h5>', $message['subject'], '</h5>
+					</div>
+					<div class="postinfo">';
 
 	// Show who the message was sent to.
 	echo '
-						<span class="smalltext">&#171; <strong> ', $txt['sent_to'], ':</strong> ';
+						<span class="smalltext"><strong> ', $txt['sent_to'], ':</strong> ';
 
 	// People it was sent directly to....
 	if (!empty($message['recipients']['to']))
@@ -482,21 +483,21 @@ function template_single_pm($message)
 		echo '(', $txt['pm_undisclosed_recipients'], ')';
 
 	echo '
-							<strong> ', $txt['on'], ':</strong> ', $message['time'], ' &#187;
+							<strong> ', $txt['on'], ':</strong> ', $message['time'], ' 
 						</span>';
 
 	// If we're in the sent items, show who it was sent to besides the "To:" people.
 	if (!empty($message['recipients']['bcc']))
-		echo '<br>
-						<span class="smalltext">&#171; <strong> ', $txt['pm_bcc'], ':</strong> ', implode(', ', $message['recipients']['bcc']), ' &#187;</span>';
+		echo '
+						<span class="smalltext"><strong> ', $txt['pm_bcc'], ':</strong> ', implode(', ', $message['recipients']['bcc']), ' </span>';
 
 	if (!empty($message['is_replied_to']))
-		echo '<br>
-						<span class="smalltext">&#171; ', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' &#187;</span>';
+		echo '
+						<span class="smalltext">', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' </span>';
 
 	echo '
-					</div><!-- .keyinfo -->
-				</div><!-- .flow_hidden -->
+					</div><!-- .postinfo -->
+				</div><!-- .keyinfo -->
 				<div class="post">
 					<div class="inner" id="msg_', $message['id'], '"', '>
 						', $message['body'], '
