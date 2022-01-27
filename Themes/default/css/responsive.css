@@ -442,7 +442,7 @@
 }
 
 /* Tricky menu */
-@media (min-width: 481px) {
+@media (min-width: 561px) {
 	#mobile_user_menu.popup_container {
 		display: block !important;
 	}
@@ -464,22 +464,7 @@
 		background: none;
 	}
 }
-
-@media (min-width: 480px) and (max-width: 560px) {
-	/* Calendar */
-	#event_time_options {
-		width: 40%;
-	}
-	#event_title, #event_board {
-		width: 100%;
-	}
-	#evtitle {
-		width: 98%;
-	}
-}
-
-/* Entry level phones */
-@media (max-width: 480px) {
+@media (max-width: 560px) {
 	/* This is general */
 	#main_menu .popup_container,
 	#genericmenu .popup_container,
@@ -511,21 +496,12 @@
 		overflow-x: hidden;
 		overflow-y: scroll;
 	}
-	h1.forumtitle a, h1.forumtitle {
-		padding: 5px 0 0 4px;
-		max-width: 300px;
-		margin: 10px 0;
+	#adm_submenus {
+		padding: 0;
 	}
-	.board_moderators {
-		display: none;
-	}
-	#top_info .welcome {
-		display: none;
-	}
-	#pm_menu, #alerts_menu, #profile_menu {
-		min-width: initial;
-		width: 25em;
-		max-width: calc(100vw - 17px);
+	#adm_submenus .dropmenu li {
+		float: left;
+		margin: 0;
 	}
 	.generic_menu {
 		display: none;
@@ -592,6 +568,43 @@
 		border-radius: 0;
 		left: 0;
 		box-shadow: none;
+	}
+	/* 3rd level menu tests */
+	.dropmenu li ul ul {
+		margin: 0 !important;
+	}
+}
+
+@media (min-width: 480px) and (max-width: 560px) {
+	/* Calendar */
+	#event_time_options {
+		width: 40%;
+	}
+	#event_title, #event_board {
+		width: 100%;
+	}
+	#evtitle {
+		width: 98%;
+	}
+}
+
+/* Entry level phones */
+@media (max-width: 480px) {
+	h1.forumtitle a, h1.forumtitle {
+		padding: 5px 0 0 4px;
+		max-width: 300px;
+		margin: 10px 0;
+	}
+	.board_moderators {
+		display: none;
+	}
+	#top_info .welcome {
+		display: none;
+	}
+	#pm_menu, #alerts_menu, #profile_menu {
+		min-width: initial;
+		width: 25em;
+		max-width: calc(100vw - 17px);
 	}
 	#footer {
 		text-align: center;
@@ -810,13 +823,6 @@
 	}
 
 	/* Menu tests */
-	#adm_submenus {
-		padding: 0;
-	}
-	#adm_submenus .dropmenu li {
-		float: left;
-		margin: 0;
-	}
 	#header_news_lists_preview, tr[id^="list_news_lists_"] td:nth-child(even),
 	#header_smiley_set_list_default, #header_smiley_set_list_url, #header_smiley_set_list_check,
 	tr[id^="list_smiley_set_list_"] td:nth-child(odd),
@@ -852,10 +858,6 @@
 	/* Likes */
 	#likes li .like_time {
 		display: none;
-	}
-	/* 3rd level menu tests */
-	.dropmenu li ul ul {
-		margin: 0 !important;
 	}
 	/* Generic Classes for Customizations */
 	.hide_480 {
