@@ -778,6 +778,11 @@ img.sort, .sort {
 	text-shadow: none;
 }
 
+a.mobile_user_menu,
+a[class^="mobile_generic_menu_"] {
+	display: none;
+}
+
 #main_menu {
 	margin: 0 0 4px 0;
 }
@@ -2787,9 +2792,16 @@ dl.addrules dt.floatleft {
 	background: rgba(40, 64, 80, 0.5);
 	z-index: 6;
 }
+#genericmenu > .popup_container {
+	z-index: 5;
+}
+#adm_submenus > .popup_container {
+	z-index: 4;
+}
 .popup_window,
 #main_menu .popup_window,
-#genericmenu .popup_window {
+#genericmenu .popup_window,
+#adm_submenus .popup_window {
 	position: relative;
 	width: auto;
 	z-index: 99;
@@ -2819,13 +2831,14 @@ dl.addrules dt.floatleft {
 	border-radius: 6px 6px 2px 2px;
 	box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(255, 255, 255, 0.2);
 }
-#main_menu .popup_heading, #genericmenu .popup_heading {
+#main_menu .popup_heading,
+#genericmenu .popup_heading,
+#adm_submenus .popup_heading {
 	display: none;
 }
-#genericmenu > .popup_container {
-	z-index: 5;
-}
-#main_menu .popup_container, #genericmenu > .popup_container {
+#main_menu .popup_container,
+#genericmenu > .popup_container,
+#adm_submenus > .popup_container {
 	display: block;
 	position: relative;
 	background: none;

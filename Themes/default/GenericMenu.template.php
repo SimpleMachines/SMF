@@ -20,20 +20,24 @@ function template_generic_menu_dropdown_above()
 	// Which menu are we rendering?
 	$context['cur_menu_id'] = isset($context['cur_menu_id']) ? $context['cur_menu_id'] + 1 : 1;
 	$menu_context = &$context['menu_data_' . $context['cur_menu_id']];
+	$menu_label = isset($context['admin_menu_name']) ? $txt['admin_center'] : (isset($context['moderation_menu_name']) ? $txt['moderation_center'] : '');
 
 	// Load the menu
 	// Add mobile menu as well
 	echo '
-	<a class="menu_icon mobile_generic_menu_', $context['cur_menu_id'], '"></a>
+	<a class="mobile_generic_menu_', $context['cur_menu_id'], '">
+		<span class="menu_icon"></span>
+		<span class="text_menu">', sprintf($txt['mobile_generic_menu'], $menu_label), '</span>
+	</a>
 	<div id="genericmenu">
 		<div id="mobile_generic_menu_', $context['cur_menu_id'], '" class="popup_container">
 			<div class="popup_window description">
 				<div class="popup_heading">
-					', $txt['mobile_user_menu'], '
+					', sprintf($txt['mobile_generic_menu'], $menu_label), '
 					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 				</div>
 				', template_generic_menu($menu_context), '
-				</div>
+			</div>
 		</div>
 	</div>
 	<script>
@@ -244,8 +248,21 @@ function template_generic_menu_tabs(&$menu_context)
 	{
 		// The admin tabs.
 		echo '
+					<a class="mobile_generic_menu_', $context['cur_menu_id'], '_tabs">
+						<span class="menu_icon"></span>
+						<span class="text_menu">', sprintf($txt['mobile_generic_menu'], $tab_context['title']), '</span>
+					</a>
 					<div id="adm_submenus">
-						<ul class="dropmenu">';
+						<div id="mobile_generic_menu_', $context['cur_menu_id'], '_tabs" class="popup_container">
+							<div class="popup_window description">
+								<div class="popup_heading">
+									', sprintf($txt['mobile_generic_menu'], $tab_context['title']), '
+									<a href="javascript:void(0);" class="main_icons hide_popup"></a>
+								</div>';
+
+		echo '
+								<div class="generic_menu">
+									<ul class="dropmenu dropdown_menu_', $context['cur_menu_id'], '_tabs">';
 
 		foreach ($tab_context['tabs'] as $sa => $tab)
 		{
@@ -254,20 +271,31 @@ function template_generic_menu_tabs(&$menu_context)
 
 			if (!empty($tab['is_selected']))
 				echo '
-							<li>
-								<a class="active" href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
-							</li>';
+										<li>
+											<a class="active" href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
+										</li>';
 			else
 				echo '
-							<li>
-								<a href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
-							</li>';
+										<li>
+											<a href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
+										</li>';
 		}
 
 		// The end of tabs
 		echo '
-						</ul>
-					</div><!-- #adm_submenus -->';
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div><!-- #adm_submenus -->
+					<script>
+						$( ".mobile_generic_menu_', $context['cur_menu_id'], '_tabs" ).click(function() {
+							$( "#mobile_generic_menu_', $context['cur_menu_id'], '_tabs" ).show();
+							});
+						$( ".hide_popup" ).click(function() {
+							$( "#mobile_generic_menu_', $context['cur_menu_id'], '_tabs" ).hide();
+						});
+					</script>';
 	}
 }
 

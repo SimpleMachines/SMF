@@ -409,7 +409,10 @@ function template_body_above()
 	// Show the menu here, according to the menu sub template, followed by the navigation tree.
 	// Load mobile menu here
 	echo '
-				<a class="menu_icon mobile_user_menu"></a>
+				<a class="mobile_user_menu">
+					<span class="menu_icon"></span>
+					<span class="text_menu">', $txt['mobile_user_menu'], '</span>
+				</a>
 				<div id="main_menu">
 					<div id="mobile_user_menu" class="popup_container">
 						<div class="popup_window description">

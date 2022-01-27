@@ -931,7 +931,8 @@ $txt['unsubscribe_announcements_manual'] = 'To unsubscribe from forum newsletter
 // Mobile Actions
 $txt['mobile_action'] = 'User actions';
 $txt['mobile_moderation'] = 'Moderation';
-$txt['mobile_user_menu'] = 'Mobile Main Menu';
+$txt['mobile_user_menu'] = 'Main Menu';
+$txt['mobile_generic_menu'] = '%1$s Menu';
 
 // Formats for lists in a sentence (e.g. "Alice, Bob, and Charlie")
 // Examples:
