@@ -84,7 +84,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings, $user_info;
+		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings, $user_info, $txt;
 
 		require_once($sourcedir . '/Subs-Post.php');
 		require_once($sourcedir . '/Mentions.php');
@@ -98,7 +98,20 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$posterOptions = &$this->_details['posterOptions'];
 		$type = &$this->_details['type'];
 
-		$this->mention_mail_time = (isset($msgOptions['poster_time']) ? $msgOptions['poster_time'] : 0) + self::MENTION_DELAY * 60;
+		// Board id is required; if missing, log an error and return
+		if (!isset($topicOptions['board']))
+		{
+			require_once($sourcedir . '/Errors.php');
+			loadLanguage('Errors');
+			log_error($txt['missing_board_id'], 'general', __FILE__, __LINE__);
+			return true;
+		}
+
+		// poster_time not always supplied, but used throughout
+		if (empty($msgOptions['poster_time']))
+			$msgOptions['poster_time'] = 0;
+
+		$this->mention_mail_time = $msgOptions['poster_time'] + self::MENTION_DELAY * 60;
 
 		// We need some more info about the quoted and mentioned members.
 		if (!empty($msgOptions['quoted_members']))
@@ -182,10 +195,6 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		// Modified post, or dealing with delayed mention and quote notifications.
 		if ($type == 'edit' || !empty($this->_details['respawns']))
 		{
-			// Filter out members who have already been notified about this post's topic
-			$this->members['quoted'] = array_intersect_key($this->members['quoted'], $unnotified);
-			$this->members['mentioned'] = array_intersect_key($this->members['mentioned'], $unnotified);
-
 			// Notifications about modified posts only go to members who were mentioned or quoted
 			$this->members['watching'] = $type == 'edit' ? array(): $unnotified;
 
