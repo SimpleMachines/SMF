@@ -496,7 +496,6 @@ function template_single_pm($message)
 						<span class="smalltext">&#171; ', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' &#187;</span>';
 
 	echo '
-						</div>
 					</div><!-- .postinfo -->
 				</div><!-- .keyinfo -->
 				<div class="post">
