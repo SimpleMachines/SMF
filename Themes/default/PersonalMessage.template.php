@@ -327,13 +327,6 @@ function template_single_pm($message)
 	echo '
 				<ul class="user_info">';
 
-	// Show the user's avatar.
-	if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
-		echo '
-					<li class="avatar">
-						<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
-					</li>';
-
 	// Are there any custom fields below the avatar?
 	if (!empty($message['custom_fields']['below_avatar']))
 		foreach ($message['custom_fields']['below_avatar'] as $custom)
@@ -343,10 +336,18 @@ function template_single_pm($message)
 	if (!$message['member']['is_guest'])
 		echo '
 					<li class="icons">', $message['member']['group_icons'], '</li>';
+
 	// Show the member's primary group (like 'Administrator') if they have one.
 	if (isset($message['member']['group']) && $message['member']['group'] != '')
 		echo '
 					<li class="membergroup">', $message['member']['group'], '</li>';
+
+	// Show the user's avatar.
+	if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
+		echo '
+					<li class="avatar">
+						<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
+					</li>';
 
 	// Show the member's custom title, if they have one.
 	if (isset($message['member']['title']) && $message['member']['title'] != '')
@@ -463,11 +464,11 @@ function template_single_pm($message)
 				</ul>
 			</div><!-- .poster -->
 			<div class="postarea">
-				<div class="flow_hidden">
-					<div class="keyinfo">
-						<h5 id="subject_', $message['id'], '">
+				<div class="keyinfo">
+					<div id="subject_', $message['id'], '">
 							', $message['subject'], '
-						</h5>';
+					</div>
+					<div class="postinfo">';
 
 	// Show who the message was sent to.
 	echo '
@@ -495,8 +496,9 @@ function template_single_pm($message)
 						<span class="smalltext">&#171; ', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' &#187;</span>';
 
 	echo '
-					</div><!-- .keyinfo -->
-				</div><!-- .flow_hidden -->
+						</div>
+					</div><!-- .postinfo -->
+				</div><!-- .keyinfo -->
 				<div class="post">
 					<div class="inner" id="msg_', $message['id'], '"', '>
 						', $message['body'], '
