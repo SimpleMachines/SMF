@@ -327,15 +327,10 @@ function template_single_pm($message)
 	echo '
 				<ul class="user_info">';
 
-	// Are there any custom fields below the avatar?
-	if (!empty($message['custom_fields']['below_avatar']))
-		foreach ($message['custom_fields']['below_avatar'] as $custom)
-			echo '
-					<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
-
-	if (!$message['member']['is_guest'])
+	// Show the member's custom title, if they have one.
+	if (isset($message['member']['title']) && $message['member']['title'] != '')
 		echo '
-					<li class="icons">', $message['member']['group_icons'], '</li>';
+					<li class="title">', $message['member']['title'], '</li>';
 
 	// Show the member's primary group (like 'Administrator') if they have one.
 	if (isset($message['member']['group']) && $message['member']['group'] != '')
@@ -349,14 +344,20 @@ function template_single_pm($message)
 						<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
 					</li>';
 
-	// Show the member's custom title, if they have one.
-	if (isset($message['member']['title']) && $message['member']['title'] != '')
-		echo '
-					<li class="title">', $message['member']['title'], '</li>';
+	// Are there any custom fields below the avatar?
+	if (!empty($message['custom_fields']['below_avatar']))
+		foreach ($message['custom_fields']['below_avatar'] as $custom)
+			echo '
+					<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'])
 	{
+		// Show the post group icons
+		if (!$message['member']['is_guest'])
+			echo '
+				<li class="icons">', $message['member']['group_icons'], '</li>';
+
 		// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
 		if ((empty($modSettings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
 			echo '

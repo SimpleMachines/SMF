@@ -555,14 +555,14 @@ function template_single_post($message)
 			echo '
 								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
-	// Show the post group icons, but not for guests.
-	if (!$message['member']['is_guest'])
-		echo '
-								<li class="icons">', $message['member']['group_icons'], '</li>';
-
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'])
 	{
+		// Show the post group icons
+		if (!$message['member']['is_guest'])
+			echo '
+								<li class="icons">', $message['member']['group_icons'], '</li>';
+
 		// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
 		if ((empty($modSettings['hide_post_group']) || empty($message['member']['group'])) && !empty($message['member']['post_group']))
 			echo '
