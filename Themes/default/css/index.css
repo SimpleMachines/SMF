@@ -4173,6 +4173,6 @@ img.theme_thumbnail {
 	max-width: 250px;
 }
 
-#lang_main_files_list .name {
+#lang_main_files_list .name, #member_list .email, #approve_list .email {
 	word-break: break-word;
 }
