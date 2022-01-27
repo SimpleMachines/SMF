@@ -465,14 +465,14 @@ function template_single_pm($message)
 			</div><!-- .poster -->
 			<div class="postarea">
 				<div class="keyinfo">
-					<div class="postinfo">
-						<div id="subject_', $message['id'], '">
-							', $message['subject'], '
-						</div>';
+					<div id="subject_', $message['id'], '" class="subject_title">
+						', $message['subject'], '
+					</div>
+					<div class="postinfo">';
 
 	// Show who the message was sent to.
 	echo '
-						<span class="smalltext">&#171; <strong> ', $txt['sent_to'], ':</strong> ';
+						<span class="smalltext"><strong> ', $txt['sent_to'], ':</strong> ';
 
 	// People it was sent directly to....
 	if (!empty($message['recipients']['to']))
@@ -483,17 +483,17 @@ function template_single_pm($message)
 		echo '(', $txt['pm_undisclosed_recipients'], ')';
 
 	echo '
-							<strong> ', $txt['on'], ':</strong> ', $message['time'], ' &#187;
+							<strong> ', $txt['on'], ':</strong> ', $message['time'], ' 
 						</span>';
 
 	// If we're in the sent items, show who it was sent to besides the "To:" people.
 	if (!empty($message['recipients']['bcc']))
 		echo '<br>
-						<span class="smalltext">&#171; <strong> ', $txt['pm_bcc'], ':</strong> ', implode(', ', $message['recipients']['bcc']), ' &#187;</span>';
+						<span class="smalltext"><strong> ', $txt['pm_bcc'], ':</strong> ', implode(', ', $message['recipients']['bcc']), ' & </span>';
 
 	if (!empty($message['is_replied_to']))
 		echo '<br>
-						<span class="smalltext">&#171; ', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' &#187;</span>';
+						<span class="smalltext">', $context['folder'] == 'sent' ? $txt['pm_sent_is_replied_to'] : $txt['pm_is_replied_to'], ' & </span>';
 
 	echo '
 					</div><!-- .postinfo -->
