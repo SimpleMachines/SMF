@@ -3385,6 +3385,11 @@ img.avatar {
 	font-style: italic;
 	padding: 2px 4px 0 4px;
 }
+/* PMs postinfo */
+#personal_messages .keyinfo .postinfo {
+	flex-direction: column;
+	align-items: flex-start;
+}
 #reason::before {
 	content: " - ";
 }
