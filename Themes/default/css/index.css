@@ -3389,6 +3389,7 @@ img.avatar {
 #personal_messages .keyinfo .postinfo {
 	flex-direction: column;
 	align-items: flex-start;
+	font-weight: normal;
 }
 #reason::before {
 	content: " - ";

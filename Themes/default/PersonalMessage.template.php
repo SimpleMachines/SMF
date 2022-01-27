@@ -466,7 +466,7 @@ function template_single_pm($message)
 			<div class="postarea">
 				<div class="keyinfo">
 					<div id="subject_', $message['id'], '" class="subject_title">
-						', $message['subject'], '
+						<h5>', $message['subject'], '</h5>
 					</div>
 					<div class="postinfo">';
 
