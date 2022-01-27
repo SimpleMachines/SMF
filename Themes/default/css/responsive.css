@@ -575,7 +575,7 @@
 	}
 }
 
-@media (min-width: 480px) and (max-width: 560px) {
+@media (min-width: 481px) and (max-width: 560px) {
 	/* Calendar */
 	#event_time_options {
 		width: 40%;
