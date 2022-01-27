@@ -1327,7 +1327,7 @@ function template_edit_profile_field()
  */
 function template_admin_search_results()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	echo '
 						<div id="section_header" class="cat_bar">
