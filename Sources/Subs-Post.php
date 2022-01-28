@@ -501,7 +501,7 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 				break;
 		}
 
-		$current_protocol = strtolower(parse_iri($replace, PHP_URL_SCHEME));
+		$current_protocol = strtolower(parse_iri($replace, PHP_URL_SCHEME) ?? "");
 
 		if (in_array($current_protocol, $forbidden_protocols))
 		{

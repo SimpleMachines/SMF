@@ -7895,7 +7895,7 @@ function parse_iri($iri, $component = -1)
  * @param int $flags Optional flags to pass to filter_var()
  * @return string|bool Either the original IRI, or false if the IRI was invalid.
  */
-function validate_iri($iri, $flags = null)
+function validate_iri($iri, $flags = 0)
 {
 	$url = iri_to_url($iri);
 
@@ -7977,6 +7977,7 @@ function normalize_iri($iri)
 	}
 	else
 	{
+		$host = '';
 		$normalized_host = '';
 		$pos = 0;
 	}
@@ -8022,6 +8023,7 @@ function iri_to_url($iri)
 	}
 	else
 	{
+		$host = '';
 		$encoded_host = '';
 		$pos = 0;
 	}

@@ -151,13 +151,13 @@ class Punycode
 							break;
 						}
 
-						$code = $t + (($q - $t) % (static::BASE - $t));
+						$code = $t + (((int) $q - $t) % (static::BASE - $t));
 						$output .= static::$encodeTable[$code];
 
 						$q = ($q - $t) / (static::BASE - $t);
 					}
 
-					$output .= static::$encodeTable[$q];
+					$output .= static::$encodeTable[(int) $q];
 					$bias = $this->adapt($delta, $h + 1, ($h === $b));
 					$delta = 0;
 					$h++;

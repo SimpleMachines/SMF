@@ -446,7 +446,7 @@ function html_to_bbc($text)
 	if (connection_aborted() && $context['server']['is_apache'])
 		@apache_reset_timeout();
 
-	if (count($parts = preg_split('~<(/?)(li|ol|ul)([^>]*)>~i', $text, null, PREG_SPLIT_DELIM_CAPTURE)) > 1)
+	if (count($parts = preg_split('~<(/?)(li|ol|ul)([^>]*)>~i', $text, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1)
 	{
 		// A toggle that dermines whether we're directly under a <ol> or <ul>.
 		$inList = false;

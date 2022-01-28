@@ -1607,16 +1607,10 @@ function setEventStartEnd($eventOptions = array())
 	}
 
 	// Validate input
-	$start_date_isvalid = checkdate($start_month, $start_day, $start_year);
-	$end_date_isvalid = checkdate($end_month, $end_day, $end_year);
-
-	$start_time_isset = (isset($start_hour) && isset($start_minute) && isset($start_second));
-	$d = date_parse(sprintf('%02d:%02d:%02d', $start_hour, $start_minute, $start_second));
-	$start_time_isvalid = ($d['error_count'] == 0 && $d['warning_count'] == 0) ? true : false;
-
-	$end_time_isset = (isset($end_hour) && isset($end_minute) && isset($end_second));
-	$d = date_parse(sprintf('%02d:%02d:%02d', $end_hour, $end_minute, $end_second));
-	$end_time_isvalid = ($d['error_count'] == 0 && $d['warning_count'] == 0) ? true : false;
+	$start_date_isvalid = isset($start_month, $start_day, $start_year) && checkdate($start_month, $start_day, $start_year);
+	$end_date_isvalid = isset($end_month, $end_day, $end_year) && checkdate($end_month, $end_day, $end_year);
+	$start_time_isvalid = isset($start_hour, $start_minute, $start_second) && $start_hour >= 0 && $start_hour < 25 && $start_minute >= 0 && $start_minute < 60 && $start_second >= 0 && $start_second < 60;
+	$end_time_isvalid = isset($end_hour, $end_minute, $end_second) && $end_hour >= 0 && $end_hour < 25 && $end_minute >= 0 && $end_minute < 60 && $end_second >= 0 && $end_second < 60;
 
 	// Uh-oh...
 	if ($start_date_isvalid === false)
@@ -1632,7 +1626,7 @@ function setEventStartEnd($eventOptions = array())
 		$end_day = $start_day;
 	}
 
-	if ($allday === true || $start_time_isset === false || $start_time_isvalid === false)
+	if ($allday || !$start_time_isvalid)
 	{
 		$allday = true;
 		$start_hour = 0;
@@ -1640,7 +1634,7 @@ function setEventStartEnd($eventOptions = array())
 		$start_second = 0;
 	}
 
-	if ($allday === true || $end_time_isvalid === false || $end_time_isset === false)
+	if ($allday || !$end_time_isvalid)
 	{
 		$end_hour = $start_hour;
 		$end_minute = $start_minute;
