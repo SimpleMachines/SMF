@@ -3895,6 +3895,9 @@ span.member.hidden {
 
 /* Icons (converted from img to css) */
 /* Stay here till I find a better place for you guys */
+h3.profile_hd::before {
+	vertical-align: middle;
+}
 h3.profile_hd::before,
 .main_icons.profile_hd::before {
 	content: "";;
