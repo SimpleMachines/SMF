@@ -24,6 +24,17 @@
 						text += XMLDoc.getElementsByTagName('quote')[0].childNodes[i].nodeValue;
 					self.insert(text);
 
+					// Manually move cursor to after the quote.
+					var
+						rangeHelper = self.getRangeHelper(),
+						parent = rangeHelper.parentNode();
+					if (parent && parent.nodeName === 'BLOCKQUOTE')
+					{
+						var range = rangeHelper.selectedRange();
+						range.setStartAfter(parent);
+						rangeHelper.selectRange(range);
+					}
+
 					ajax_indicator(false);
 				}
 			);
