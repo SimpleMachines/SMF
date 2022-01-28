@@ -595,6 +595,9 @@ function getCalendarWeek($selected_date, $calendarOptions)
 			'disabled' => $modSettings['cal_maxyear'] < date_format($next_object, 'Y'),
 		),
 		'start_date' => timeformat(date_format($selected_object, 'U'), get_date_or_time_format('date')),
+		'show_events' => $calendarOptions['show_events'],
+		'show_holidays' => $calendarOptions['show_holidays'],
+		'show_birthdays' => $calendarOptions['show_birthdays'],
 	);
 
 	// Fetch the arrays for birthdays, posted events, and holidays.
