@@ -3900,7 +3900,7 @@ h3.profile_hd::before {
 }
 h3.profile_hd::before,
 .main_icons.profile_hd::before {
-	content: "";;
+	content: "";
 	background: url(../images/icons/profile_hd.png) no-repeat;
 	height: 24px;
 	width: 24px;
