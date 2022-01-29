@@ -429,6 +429,9 @@
 		margin: 0;
 		padding: 0;
 	}
+	.table_grid select {
+		max-width: 85vw;
+	}
 	#private, #enclose {
 		width: 95%;
 	}
