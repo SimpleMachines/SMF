@@ -1198,6 +1198,7 @@ img#smflogo {
 #inner_wrap {
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
 	border-bottom: 1px solid #bbb;
 	margin-bottom: 12px;
 }
@@ -1236,6 +1237,7 @@ ul li.greeting {
 	font-size: 0.9em;
 	display: flex;
 	align-items: baseline;
+	max-width: 50%;
 }
 #inner_wrap .news h2 {
 	line-height: initial;
