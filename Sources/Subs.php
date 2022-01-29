@@ -557,7 +557,7 @@ function updateSettings($changeArray, $update = false)
  *
  * @return string The complete HTML of the page index that was requested, formatted by the template.
  */
-function constructPageIndex(string $base_url, int &$start, int $max_value, int $num_per_page, bool $flexible_start = false, bool $show_prevnext = true): string
+function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flexible_start = false, $show_prevnext = true)
 {
 	global $modSettings, $context, $smcFunc, $settings, $txt;
 
