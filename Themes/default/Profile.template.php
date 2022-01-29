@@ -491,7 +491,7 @@ function template_showPosts()
 	echo '
 		<div class="cat_bar', !isset($context['attachments']) ? ' cat_bar_round' : '', '">
 			<h3 class="catbg">
-				', (!isset($context['attachments']) && empty($context['is_topics']) ? $txt['showMessages'] : (!empty($context['is_topics']) ? $txt['showTopics'] : $txt['showAttachments'])), ' - ', $context['member']['name'], '
+				', (!isset($context['attachments']) && empty($context['is_topics']) ? $txt['showMessages'] : (!empty($context['is_topics']) ? $txt['showTopics'] : $txt['showAttachments'])), !$context['user']['is_owner'] ? ' - ' . $context['member']['name'] : '', '
 			</h3>
 		</div>', !empty($context['page_index']) ? '
 		<div class="pagesection">
@@ -569,7 +569,7 @@ function template_showAlerts()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-			', $txt['alerts'], ' - ', $context['member']['name'], '
+			', $txt['alerts'], !$context['user']['is_owner'] ? ' - ' . $context['member']['name'] : '', '
 			</h3>
 		</div>';
 
@@ -655,7 +655,7 @@ function template_showDrafts()
 	echo '
 		<div class="cat_bar cat_bar_round">
 			<h3 class="catbg">
-				', $txt['drafts'], ' - ', $context['member']['name'], '
+				', $txt['drafts'], !$context['user']['is_owner'] ? ' - ' . $context['member']['name'] : '', '
 			</h3>
 		</div>', !empty($context['page_index']) ? '
 		<div class="pagesection">
