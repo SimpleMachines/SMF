@@ -46,7 +46,7 @@ function summary($memID)
 	// Menu tab
 	$context[$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['summary'],
-		'icon' => 'profile_hd.png'
+		'icon_class' => 'main_icons profile_hd'
 	);
 
 	// See if they have broken any warning levels...
@@ -831,7 +831,7 @@ function showPosts($memID)
 	$context[$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['showPosts'],
 		'description' => $txt['showPosts_help'],
-		'icon' => 'profile_hd.png',
+		'icon_class' => 'main_icons profile_hd',
 		'tabs' => array(
 			'messages' => array(
 			),
@@ -1884,7 +1884,7 @@ function tracking($memID)
 	$context[$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['tracking'],
 		'description' => $txt['tracking_description'],
-		'icon' => 'profile_hd.png',
+		'icon_class' => 'main_icons profile_hd',
 		'tabs' => array(
 			'activity' => array(),
 			'ip' => array(),

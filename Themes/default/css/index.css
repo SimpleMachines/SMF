@@ -3705,7 +3705,6 @@ h3.catbg a:hover {
 	text-decoration: none;
 }
 h3.catbg .main_icons::before, h3.catbg .icon {
-	vertical-align: middle;
 	margin: 0 5px 0 0;
 }
 .cat_bar + .windowbg, .cat_bar + .roundframe {
@@ -3896,9 +3895,16 @@ span.member.hidden {
 
 /* Icons (converted from img to css) */
 /* Stay here till I find a better place for you guys */
-h3.profile_hd {
-	background: url(../images/icons/profile_hd.png) 15px no-repeat;
-	padding: 8px 0 8px 50px;
+h3.profile_hd::before {
+	vertical-align: middle;
+}
+h3.profile_hd::before,
+.main_icons.profile_hd::before {
+	content: "";
+	background: url(../images/icons/profile_hd.png) no-repeat;
+	height: 24px;
+	width: 24px;
+	display: inline-block;
 }
 .xx {
 	background: url(../images/post/xx.png) 2px no-repeat;
