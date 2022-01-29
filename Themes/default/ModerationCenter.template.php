@@ -503,7 +503,7 @@ function template_user_watch_post_callback($post)
 					</div>
 					<br>
 					<div class="smalltext">
-						&#171; ' . $txt['mc_watched_users_posted'] . ': ' . $post['poster_time'] . ' &#187;
+						' . $txt['mc_watched_users_posted'] . ': ' . $post['poster_time'] . '
 					</div>
 					<div class="list_posts">
 						' . $post['body'] . '

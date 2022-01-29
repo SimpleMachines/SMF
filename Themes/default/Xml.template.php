@@ -99,7 +99,7 @@ function template_modifytopicdone()
 		$modified .= empty($context['message']['modified']['reason']) ? '' : sprintf($txt['last_edit_reason'], $context['message']['modified']['reason']);
 
 		echo '
-		<modified><![CDATA[', empty($modified) ? '' : cleanXml('&#171; <em>' . $modified . '</em>&#187;'), ']]></modified>';
+		<modified><![CDATA[', empty($modified) ? '' : cleanXml('<em>' . $modified . '</em>'), ']]></modified>';
 
 		if (!empty($context['message']['subject']))
 			echo '
