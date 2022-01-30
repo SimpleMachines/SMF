@@ -517,7 +517,7 @@ function template_topic_legend()
 	if (empty($context['no_topic_listing']))
 		echo '
 			<p class="floatleft">', !empty($modSettings['enableParticipation']) && $context['user']['is_logged'] ? '
-				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon"> ' . $txt['participation_caption'] . '<br>' : '', '
+				<span class="main_icons profile_sm centericon"></span> ' . $txt['participation_caption'] . '<br>' : '', '
 				' . ($modSettings['pollMode'] == '1' ? '<span class="main_icons poll centericon"></span> ' . $txt['poll'] : '') . '<br>
 				<img src="' . $settings['images_url'] . '/post/moved.png" alt="" class="centericon sizefix"> ' . $txt['moved_topic'] . '<br>
 			</p>
