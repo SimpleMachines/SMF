@@ -517,14 +517,14 @@ function template_topic_legend()
 	if (empty($context['no_topic_listing']))
 		echo '
 			<p class="floatleft">', !empty($modSettings['enableParticipation']) && $context['user']['is_logged'] ? '
-				<span class="main_icons profile_sm centericon"></span> ' . $txt['participation_caption'] . '<br>' : '', '
-				' . ($modSettings['pollMode'] == '1' ? '<span class="main_icons poll centericon"></span> ' . $txt['poll'] : '') . '<br>
-				<span class="main_icons move centericon"></span> ' . $txt['moved_topic'] . '<br>
+				<span class="main_icons profile_sm"></span> ' . $txt['participation_caption'] . '<br>' : '', '
+				' . ($modSettings['pollMode'] == '1' ? '<span class="main_icons poll"></span> ' . $txt['poll'] : '') . '<br>
+				<span class="main_icons move"></span> ' . $txt['moved_topic'] . '<br>
 			</p>
 			<p>
-				<span class="main_icons lock centericon"></span> ' . $txt['locked_topic'] . '<br>
-				<span class="main_icons sticky centericon"></span> ' . $txt['sticky_topic'] . '<br>
-				<span class="main_icons watch centericon"></span> ' . $txt['watching_topic'] . '<br>
+				<span class="main_icons lock"></span> ' . $txt['locked_topic'] . '<br>
+				<span class="main_icons sticky"></span> ' . $txt['sticky_topic'] . '<br>
+				<span class="main_icons watch"></span> ' . $txt['watching_topic'] . '<br>
 			</p>';
 
 	if (!empty($context['jump_to']))
