@@ -476,13 +476,13 @@ function ModifyCookieSettings($return_config = false)
 	$config_vars = array(
 		// Cookies...
 		array('cookiename', $txt['cookie_name'], 'file', 'text', 20),
-		array('cookieTime', $txt['cookieTime'], 'db', 'select', array(
-			3153600 => $txt['always_logged_in'],
-			60 => $txt['one_hour'],
-			1440 => $txt['one_day'],
-			10080 => $txt['one_week'],
-			43200 => $txt['one_month'],
-		)),
+		array('cookieTime', $txt['cookieTime'], 'db', 'select', array_filter(array_map(
+			function ($str) use ($txt)
+			{
+				return isset($txt[$str]) ? $txt[$str] : '';
+			},
+			$context['login_cookie_times']
+		))),
 		array('localCookies', $txt['localCookies'], 'db', 'check', false, 'localCookies'),
 		array('globalCookies', $txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
 		array('globalCookiesDomain', $txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'),
