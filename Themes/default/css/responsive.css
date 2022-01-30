@@ -459,13 +459,6 @@
 	div[id^="mobile_generic_menu_"].popup_container {
 		display: block !important;
 	}
-	.boardslist {
-		columns: 2;
-	}
-
-	.boardslist ul {
-		page-break-inside: avoid;
-	}
 	#main_menu .popup_window,
 	#genericmenu .popup_window,
 	#adm_submenus .popup_window {

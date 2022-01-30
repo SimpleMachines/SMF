@@ -2222,12 +2222,39 @@ function template_ignoreboards()
 						<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'creator\'); return false;">', $category['name'], '</a>
 						<ul>';
 
-		foreach ($category['boards'] as $board)
+		$cat_boards = array_values($category['boards']);
+		foreach ($cat_boards as $key => $board)
 		{
 			echo '
-							<li style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
-								<label for="ignore_brd', $board['id'], '"><input type="checkbox" id="brd', $board['id'], '" name="ignore_brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '> ', $board['name'], '</label>
+							<li>
+								<label for="brd', $board['id'], '">
+									<input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '>
+									', $board['name'], '
+								</label>';
+
+			// Nest child boards inside another list.
+			$curr_child_level = $board['child_level'];
+			$next_child_level = $cat_boards[$key + 1]['child_level'] ?? 0;
+
+			if ($next_child_level > $curr_child_level)
+			{
+				echo '
+								<ul style="margin-', $context['right_to_left'] ? 'right' : 'left', ': 2.5ch;">';
+			}
+			else
+			{
+				// Close child board lists until we reach a common level
+				// with the next board.
+				while ($next_child_level < $curr_child_level--)
+				{
+					echo '
+									</li>
+								</ul>';
+				}
+
+				echo '
 							</li>';
+			}
 		}
 
 		echo '
