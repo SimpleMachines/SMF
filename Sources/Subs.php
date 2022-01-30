@@ -8355,27 +8355,30 @@ function cleanXml($string)
 }
 
 /**
- * Escapes (replaces) characters in strings to make them safe for use in javascript
+ * Escapes (replaces) characters in strings to make them safe for use in JavaScript
  *
  * @param string $string The string to escape
+ * @param bool $as_json If true, escape as double-quoted string. Default false.
  * @return string The escaped string
  */
-function JavaScriptEscape($string)
+function JavaScriptEscape($string, $as_json = false)
 {
 	global $scripturl;
 
-	return '\'' . strtr($string, array(
+	$q = !empty($as_json) ? '"' : '\'';
+
+	return $q . strtr($string, array(
 		"\r" => '',
 		"\n" => '\\n',
 		"\t" => '\\t',
 		'\\' => '\\\\',
-		'\'' => '\\\'',
-		'</' => '<\' + \'/',
-		'<script' => '<scri\'+\'pt',
-		'<body>' => '<bo\'+\'dy>',
-		'<a href' => '<a hr\'+\'ef',
-		$scripturl => '\' + smf_scripturl + \'',
-	)) . '\'';
+		$q => addslashes($q),
+		'</' => '<' . $q . ' + ' . $q . '/',
+		'<script' => '<scri' . $q . '+' . $q . 'pt',
+		'<body>' => '<bo' . $q . '+' . $q . 'dy>',
+		'<a href' => '<a hr' . $q . '+' . $q . 'ef',
+		$scripturl => $q . ' + smf_scripturl + ' . $q,
+	)) . $q;
 }
 
 function tokenTxtReplace($stringSubject = '')
