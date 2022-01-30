@@ -524,6 +524,7 @@ function template_topic_legend()
 			<p>
 				<span class="main_icons lock centericon"></span> ' . $txt['locked_topic'] . '<br>
 				<span class="main_icons sticky centericon"></span> ' . $txt['sticky_topic'] . '<br>
+				<span class="main_icons watch centericon"></span> ' . $txt['watching_topic'] . '<br>
 			</p>';
 
 	if (!empty($context['jump_to']))
