@@ -3927,6 +3927,9 @@ h3.profile_hd::before,
 	width: 24px;
 	display: inline-block;
 }
+.main_icons.profile_sm::before {
+	background: url(../images/icons/profile_sm.png) no-repeat;
+}
 .xx {
 	background: url(../images/post/xx.png) 2px no-repeat;
 	padding: 25px 6px 25px 18px;

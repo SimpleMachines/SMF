@@ -179,7 +179,7 @@ function template_main()
 				<div class="', $topic['css_class'], '">
 					<div class="board_icon">
 						<img src="', $topic['first_post']['icon_url'], '" alt="">
-						', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
+						', $topic['is_posted_in'] ? '<span class="main_icons profile_sm"></span>' : '', '
 					</div>
 					<div class="info', !empty($context['can_quick_mod']) ? '' : ' info_block', '">
 						<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '"  ondblclick="oQuickModifyTopic.modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>';
@@ -517,13 +517,14 @@ function template_topic_legend()
 	if (empty($context['no_topic_listing']))
 		echo '
 			<p class="floatleft">', !empty($modSettings['enableParticipation']) && $context['user']['is_logged'] ? '
-				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon"> ' . $txt['participation_caption'] . '<br>' : '', '
-				' . ($modSettings['pollMode'] == '1' ? '<span class="main_icons poll centericon"></span> ' . $txt['poll'] : '') . '<br>
-				<img src="' . $settings['images_url'] . '/post/moved.png" alt="" class="centericon sizefix"> ' . $txt['moved_topic'] . '<br>
+				<span class="main_icons profile_sm"></span> ' . $txt['participation_caption'] . '<br>' : '', '
+				' . ($modSettings['pollMode'] == '1' ? '<span class="main_icons poll"></span> ' . $txt['poll'] : '') . '<br>
+				<span class="main_icons move"></span> ' . $txt['moved_topic'] . '<br>
 			</p>
 			<p>
-				<span class="main_icons lock centericon"></span> ' . $txt['locked_topic'] . '<br>
-				<span class="main_icons sticky centericon"></span> ' . $txt['sticky_topic'] . '<br>
+				<span class="main_icons lock"></span> ' . $txt['locked_topic'] . '<br>
+				<span class="main_icons sticky"></span> ' . $txt['sticky_topic'] . '<br>
+				<span class="main_icons watch"></span> ' . $txt['watching_topic'] . '<br>
 			</p>';
 
 	if (!empty($context['jump_to']))

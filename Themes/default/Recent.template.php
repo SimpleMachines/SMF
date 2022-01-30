@@ -147,7 +147,7 @@ function template_unread()
 					<div class="', $topic['css_class'], '">
 						<div class="board_icon">
 							<img src="', $topic['first_post']['icon_url'], '" alt="">
-							', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
+							', $topic['is_posted_in'] ? '<span class="main_icons profile_sm"></span>' : '', '
 						</div>
 						<div class="info">';
 
@@ -334,7 +334,7 @@ function template_replies()
 					<div class="', $topic['css_class'], '">
 						<div class="board_icon">
 							<img src="', $topic['first_post']['icon_url'], '" alt="">
-							', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
+							', $topic['is_posted_in'] ? '<span class="main_icons profile_sm"></span>' : '', '
 						</div>
 						<div class="info">';
 
