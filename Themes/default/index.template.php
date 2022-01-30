@@ -379,7 +379,7 @@ function template_body_above()
 			<div id="inner_section">
 				<div id="inner_wrap"', !$context['user']['is_logged'] ? ' class="hide_720"' : '', '>
 					<div class="user">
-						<time>', $context['current_time'], '</time>';
+						<time datetime="', smf_gmstrftime('%FT%TZ'), '">', $context['current_time'], '</time>';
 
 	if ($context['user']['is_logged'])
 		echo '
