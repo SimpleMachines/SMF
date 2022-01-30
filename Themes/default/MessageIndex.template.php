@@ -519,7 +519,7 @@ function template_topic_legend()
 			<p class="floatleft">', !empty($modSettings['enableParticipation']) && $context['user']['is_logged'] ? '
 				<span class="main_icons profile_sm centericon"></span> ' . $txt['participation_caption'] . '<br>' : '', '
 				' . ($modSettings['pollMode'] == '1' ? '<span class="main_icons poll centericon"></span> ' . $txt['poll'] : '') . '<br>
-				<img src="' . $settings['images_url'] . '/post/moved.png" alt="" class="centericon sizefix"> ' . $txt['moved_topic'] . '<br>
+				<span class="main_icons move centericon"></span> ' . $txt['moved_topic'] . '<br>
 			</p>
 			<p>
 				<span class="main_icons lock centericon"></span> ' . $txt['locked_topic'] . '<br>
