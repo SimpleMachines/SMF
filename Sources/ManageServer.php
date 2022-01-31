@@ -1406,39 +1406,94 @@ function saveSettings(&$config_vars)
 		$_POST['boardurl'] = normalize_iri($_POST['boardurl']);
 	}
 
-	// Any passwords?
-	$config_passwords = array(
-		'db_passwd',
-		'ssi_db_passwd',
-	);
+	require_once($sourcedir . '/Subs-Admin.php');
 
-	// All the strings to write.
-	$config_strs = array(
-		'mtitle', 'mmessage',
-		'language', 'mbname', 'boardurl',
-		'cookiename',
-		'webmaster_email',
-		'db_name', 'db_user', 'db_server', 'db_prefix', 'ssi_db_user',
-		'boarddir', 'sourcedir',
-		'cachedir', 'cachedir_sqlite', 'cache_accelerator', 'cache_memcached',
-		'image_proxy_secret',
-	);
+	// Any passwords?
+	$config_passwords = array();
 
 	// All the numeric variables.
-	$config_ints = array(
-		'db_port',
-		'cache_enable',
-		'image_proxy_maxsize',
-	);
+	$config_nums = array();
 
 	// All the checkboxes
-	$config_bools = array('db_persist', 'db_error_send', 'maintenance', 'image_proxy_enabled');
+	$config_bools = array();
+
+	// Ones that accept multiple types (should be rare)
+	$config_multis = array();
+
+	// Get all known setting definitions and assign them to our groups above.
+	$settings_defs = get_settings_defs();
+	foreach ($settings_defs as $var => $def)
+	{
+		if (!is_string($var))
+			continue;
+
+		if (!empty($def['is_password']))
+		{
+			$config_passwords[] = $var;
+		}
+		else
+		{
+			// Special handling if multiple types are allowed.
+			if (is_array($def['type']))
+			{
+				// Obviously, we don't need null here.
+				$def['type'] = array_filter(
+					$def['type'],
+					function ($type)
+					{
+						return $type !== 'NULL';
+					}
+				);
+
+				$type = count($def['type']) == 1 ? reset($def['type']) : 'multiple';
+			}
+			else
+				$type = $def['type'];
+
+			switch ($type)
+			{
+				case 'multiple':
+					$config_multis[$var] = $def['type'];
+
+				case 'integer':
+				case 'double':
+					$config_nums[] = $var;
+					break;
+
+				case 'boolean':
+					$config_bools[] = $var;
+					break;
+
+				default:
+					break;
+			}
+		}
+	}
 
 	// Now sort everything into a big array, and figure out arrays and etc.
 	$new_settings = array();
 	// Figure out which config vars we're saving here...
 	foreach ($config_vars as $var)
 	{
+		// Unknown setting?
+		if (!isset($settings_defs[$var]) && isset($var[3]))
+		{
+			switch ($var[3])
+			{
+				case 'int':
+				case 'float':
+					$config_nums[] = $var[0];
+					break;
+
+				case 'check':
+					$config_bools[] = $var[0];
+					break;
+
+				default:
+					break;
+			}
+		}
+
 		if (!is_array($var) || $var[2] != 'file' || (!in_array($var[0], $config_bools) && !isset($_POST[$var[0]])))
 			continue;
 
@@ -1449,11 +1504,7 @@ function saveSettings(&$config_vars)
 			if (isset($_POST[$config_var][1]) && $_POST[$config_var][0] == $_POST[$config_var][1])
 				$new_settings[$config_var] = $_POST[$config_var][0];
 		}
-		elseif (in_array($config_var, $config_strs))
-		{
-			$new_settings[$config_var] = $_POST[$config_var];
-		}
-		elseif (in_array($config_var, $config_ints))
+		elseif (in_array($config_var, $config_nums))
 		{
 			$new_settings[$config_var] = (int) $_POST[$config_var];
 
@@ -1467,20 +1518,35 @@ function saveSettings(&$config_vars)
 		}
 		elseif (in_array($config_var, $config_bools))
 		{
-			if (!empty($_POST[$config_var]))
-				$new_settings[$config_var] = 1;
-			else
-				$new_settings[$config_var] = 0;
+			$new_settings[$config_var] = !empty($_POST[$config_var]);
+		}
+		elseif (isset($config_multis[$config_var]))
+		{
+			$is_acceptable_type = false;
+
+			foreach ($config_multis[$config_var] as $type)
+			{
+				$temp = $_POST[$config_var];
+				settype($temp, $type);
+
+				if ($temp == $_POST[$config_var])
+				{
+					$new_settings[$config_var] = $temp;
+					$is_acceptable_type = true;
+					break;
+				}
+			}
+
+			if (!$is_acceptable_type)
+				fatal_error('Invalid config_var \'' . $config_var . '\'');
 		}
 		else
 		{
-			// This shouldn't happen, but it might...
-			fatal_error('Unknown config_var \'' . $config_var . '\'');
+			$new_settings[$config_var] = $_POST[$config_var];
 		}
 	}
 
 	// Save the relevant settings in the Settings.php file.
-	require_once($sourcedir . '/Subs-Admin.php');
 	updateSettingsFile($new_settings);
 
 	// Now loop through the remaining (database-based) settings.
