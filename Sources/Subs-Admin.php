@@ -1699,11 +1699,11 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			// Insert it either before or after the path correction code, whichever is appropriate.
 			if (!$pathcode_reached || in_array($var, $force_before_pathcode))
 			{
-				$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], $substitutions[$var]['replacement'] . "\n$0", $settingsText);
+				$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], $substitutions[$var]['replacement'] . "\n\n$0", $settingsText);
 			}
 			else
 			{
-				$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], "$0\n" . $substitutions[$var]['replacement'], $settingsText);
+				$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], "$0\n\n" . $substitutions[$var]['replacement'], $settingsText);
 			}
 		}
 	}

@@ -806,7 +806,7 @@ function ModifyCacheSettings($return_config = false)
 		$_SESSION['adm-save'] = true;
 
 		// We need to save the $cache_enable to $modSettings as well
-		updatesettings(array('cache_enable' => (int) $_POST['cache_enable']));
+		updateSettings(array('cache_enable' => (int) $_POST['cache_enable']));
 
 		// exit so we reload our new settings on the page
 		redirectexit('action=admin;area=serversettings;sa=cache;' . $context['session_var'] . '=' . $context['session_id']);
