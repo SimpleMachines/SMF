@@ -1759,6 +1759,9 @@ function create_control_richedit($editorOptions)
 			'hr' => 'horizontalrule',
 		);
 
+		// Define this here so mods can add to it via the hook.
+		$context['disabled_tags'] = array();
+
 		// Allow mods to modify BBC buttons.
 		// Note: passing the array here is not necessary and is deprecated, but it is kept for backward compatibility with 2.0
 		call_integration_hook('integrate_bbc_buttons', array(&$context['bbc_tags'], &$editor_tag_map));
@@ -1776,6 +1779,12 @@ function create_control_richedit($editorOptions)
 			{
 				$context['disabled_tags']['bulletlist'] = true;
 				$context['disabled_tags']['orderedlist'] = true;
+			}
+
+			if ($tag === 'float')
+			{
+				$context['disabled_tags']['floatleft'] = true;
+				$context['disabled_tags']['floatright'] = true;
 			}
 
 			foreach ($editor_tag_map as $thisTag => $tagNameBBC)
@@ -1798,7 +1807,12 @@ function create_control_richedit($editorOptions)
 
 			foreach ($tagRow as $tag)
 			{
-				if ((!empty($tag['code'])) && empty($context['disabled_tags'][$tag['code']]))
+				if (empty($tag['code']))
+				{
+					$context['bbc_toolbar'][$row][] = implode(',', $tagsRow);
+					$tagsRow = array();
+				}
+				elseif (empty($context['disabled_tags'][$tag['code']]))
 				{
 					$tagsRow[] = $tag['code'];
 
@@ -1828,11 +1842,6 @@ function create_control_richedit($editorOptions)
 
 					$context['bbcodes_handlers'] .= '
 						});';
-				}
-				else
-				{
-					$context['bbc_toolbar'][$row][] = implode(',', $tagsRow);
-					$tagsRow = array();
 				}
 			}
 
