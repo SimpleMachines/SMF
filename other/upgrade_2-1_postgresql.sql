@@ -1396,7 +1396,7 @@ ADD COLUMN IF NOT EXISTS unwatched int NOT NULL DEFAULT 0;
 
 ---# Fixing column name change...
 ALTER TABLE {$db_prefix}log_topics
-DROP COLUMN IF NOT EXISTS disregarded;
+DROP COLUMN IF EXISTS disregarded;
 ---#
 
 /******************************************************************************/
