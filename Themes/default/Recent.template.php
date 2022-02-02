@@ -15,7 +15,7 @@
  */
 function template_recent()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	echo '
 	<div id="recent" class="main_section">
@@ -65,7 +65,7 @@ function template_recent()
  */
 function template_unread()
 {
-	global $context, $settings, $txt, $scripturl, $modSettings, $board_info;
+	global $context, $txt, $scripturl, $modSettings, $board_info;
 
 	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
 	if (!empty($context['recent_buttons']))
@@ -252,7 +252,7 @@ function template_unread()
  */
 function template_replies()
 {
-	global $context, $settings, $txt, $scripturl, $modSettings, $board_info;
+	global $context, $txt, $scripturl, $modSettings, $board_info;
 
 	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
 	if (!empty($context['recent_buttons']))
@@ -411,10 +411,10 @@ function template_replies()
 	}
 	else
 		echo '
-			<div class="cat_bar">
-				<h3 class="catbg centertext">
+			<div class="infobox">
+				<p class="centertext">
 					', $context['showing_all_topics'] ? $txt['topic_alert_none'] : $txt['updated_topics_visit_none'], '
-				</h3>
+				</p>
 			</div>';
 
 	if ($context['showCheckboxes'])
