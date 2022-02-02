@@ -287,110 +287,16 @@ function getFileVersions(&$versionOptions)
 }
 
 /**
- * Update the Settings.php file.
+ * Describes properties of all known Settings.php variables and other content.
+ * Helper for updateSettingsFile(); also called by saveSettings().
  *
- * The most important function in this file for mod makers happens to be the
- * updateSettingsFile() function, but it shouldn't be used often anyway.
- *
- * - Updates the Settings.php file with the changes supplied in config_vars.
- *
- * - Expects config_vars to be an associative array, with the keys as the
- *   variable names in Settings.php, and the values the variable values.
- *
- * - Correctly formats the values using smf_var_export().
- *
- * - Restores standard formatting of the file, if $rebuild is true.
- *
- * - Checks for changes to db_last_error and passes those off to a separate
- *   handler.
- *
- * - Creates a backup file and will use it should the writing of the
- *   new settings file fail.
- *
- * - Tries to intelligently trim quotes and remove slashes from string values.
- *   This is done for backwards compatibility purposes (old versions of this
- *   function expected strings to have been manually escaped and quoted). This
- *   behaviour can be controlled by the $keep_quotes parameter.
- *
- * @param array $config_vars An array of one or more variables to update.
- * @param bool|null $keep_quotes Whether to strip slashes & trim quotes from string values. Defaults to auto-detection.
- * @param bool $rebuild If true, attempts to rebuild with standard format. Default false.
- * @return bool True on success, false on failure.
+ * @return array Descriptions of all known Settings.php content
  */
-function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
+function get_settings_defs()
 {
-	// In this function we intentionally don't declare any global variables.
-	// This allows us to work with everything cleanly.
-
-	static $mtime;
-
-	// Should we try to unescape the strings?
-	if (empty($keep_quotes))
-	{
-		foreach ($config_vars as $var => $val)
-		{
-			if (is_string($val) && ($keep_quotes === false || strpos($val, '\'') === 0 && strrpos($val, '\'') === strlen($val) - 1))
-				$config_vars[$var] = trim(stripcslashes($val), '\'');
-		}
-	}
-
-	// Updating the db_last_error, then don't mess around with Settings.php
-	if (isset($config_vars['db_last_error']))
-	{
-		updateDbLastError($config_vars['db_last_error']);
-
-		if (count($config_vars) === 1 && empty($rebuild))
-			return true;
-
-		// Make sure we delete this from Settings.php, if present.
-		$config_vars['db_last_error'] = 0;
-	}
-
-	// Rebuilding should not be undertaken lightly, so we're picky about the parameter.
-	if (!is_bool($rebuild))
-		$rebuild = false;
-
-	$mtime = isset($mtime) ? (int) $mtime : (defined('TIME_START') ? TIME_START : $_SERVER['REQUEST_TIME']);
-
-	/*****************
-	 * PART 1: Setup *
-	 *****************/
-
-	// Typically Settings.php is in $boarddir, but maybe this is a custom setup...
-	foreach (get_included_files() as $settingsFile)
-		if (basename($settingsFile) === 'Settings.php')
-			break;
-
-	// Fallback in case Settings.php isn't loaded (e.g. while installing)
-	if (basename($settingsFile) !== 'Settings.php')
-		$settingsFile = (!empty($GLOBALS['boarddir']) && @realpath($GLOBALS['boarddir']) ? $GLOBALS['boarddir'] : (!empty($_SERVER['SCRIPT_FILENAME']) ? dirname($_SERVER['SCRIPT_FILENAME']) : dirname(__DIR__))) . '/Settings.php';
-
-	// File not found? Attempt an emergency on-the-fly fix!
-	if (!file_exists($settingsFile))
-		@touch($settingsFile);
-
-	// When was Settings.php last changed?
-	$last_settings_change = filemtime($settingsFile);
-
-	// Get the current values of everything in Settings.php.
-	$settings_vars = get_current_settings($mtime, $settingsFile);
-
-	// If Settings.php is empty for some reason, see if we can use the backup.
-	if (empty($settings_vars) && file_exists(dirname($settingsFile) . '/Settings_bak.php'))
-		$settings_vars = get_current_settings($mtime, dirname($settingsFile) . '/Settings_bak.php');
-
-	// False means there was a problem with the file and we can't safely continue.
-	if ($settings_vars === false)
-		return false;
-
-	// It works best to set everything afresh.
-	$new_settings_vars = array_merge($settings_vars, $config_vars);
-
-	// Are we using UTF-8?
-	$utf8 = isset($GLOBALS['context']['utf8']) ? $GLOBALS['context']['utf8'] : (isset($GLOBALS['utf8']) ? $GLOBALS['utf8'] : (isset($settings_vars['db_character_set']) ? $settings_vars['db_character_set'] === 'utf8' : false));
-
 	/*
-	 * A big, fat array to define properties of all the Settings.php variables.
+	 * A big, fat array to define properties of all the Settings.php variables
+	 * and other content like code blocks.
 	 *
 	 * - String keys are used to identify actual variables.
 	 *
@@ -421,6 +327,10 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	 *   depends on $rebuild: if $rebuild is true, 'auto_delete' == 2 behaves
 	 *   like 'auto_delete' == 1; if $rebuild is false, 'auto_delete' == 2
 	 *   behaves like 'auto_delete' == 0.
+	 *
+	 * - The 'is_password' element indicates that a value is a password. This
+	 *   is used primarily to tell SMF how to interpret input when the value
+	 *   is being set to a new value.
 	 *
 	 * - The optional 'search_pattern' element defines a custom regular
 	 *   expression to search for the existing entry in the file. This is
@@ -637,6 +547,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			'default' => '',
 			'required' => true,
 			'type' => 'string',
+			'is_password' => true,
 		),
 		'ssi_db_user' => array(
 			'text' => implode("\n", array(
@@ -659,6 +570,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			)),
 			'default' => '',
 			'type' => 'string',
+			'is_password' => true,
 		),
 		'db_prefix' => array(
 			'text' => implode("\n", array(
@@ -929,6 +841,118 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	// Check if function exists, in case we are calling from installer or upgrader.
 	if (function_exists('call_integration_hook'))
 		call_integration_hook('integrate_update_settings_file', array(&$settings_defs));
+
+	return $settings_defs;
+}
+
+/**
+ * Update the Settings.php file.
+ *
+ * The most important function in this file for mod makers happens to be the
+ * updateSettingsFile() function, but it shouldn't be used often anyway.
+ *
+ * - Updates the Settings.php file with the changes supplied in config_vars.
+ *
+ * - Expects config_vars to be an associative array, with the keys as the
+ *   variable names in Settings.php, and the values the variable values.
+ *
+ * - Correctly formats the values using smf_var_export().
+ *
+ * - Restores standard formatting of the file, if $rebuild is true.
+ *
+ * - Checks for changes to db_last_error and passes those off to a separate
+ *   handler.
+ *
+ * - Creates a backup file and will use it should the writing of the
+ *   new settings file fail.
+ *
+ * - Tries to intelligently trim quotes and remove slashes from string values.
+ *   This is done for backwards compatibility purposes (old versions of this
+ *   function expected strings to have been manually escaped and quoted). This
+ *   behaviour can be controlled by the $keep_quotes parameter.
+ *
+ * MOD AUTHORS: If you are adding a setting to Settings.php, you should use the
+ * integrate_update_settings_file hook to define it in get_settings_defs().
+ *
+ * @param array $config_vars An array of one or more variables to update.
+ * @param bool|null $keep_quotes Whether to strip slashes & trim quotes from string values. Defaults to auto-detection.
+ * @param bool $rebuild If true, attempts to rebuild with standard format. Default false.
+ * @return bool True on success, false on failure.
+ */
+function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
+{
+	// In this function we intentionally don't declare any global variables.
+	// This allows us to work with everything cleanly.
+
+	static $mtime;
+
+	// Should we try to unescape the strings?
+	if (empty($keep_quotes))
+	{
+		foreach ($config_vars as $var => $val)
+		{
+			if (is_string($val) && ($keep_quotes === false || strpos($val, '\'') === 0 && strrpos($val, '\'') === strlen($val) - 1))
+				$config_vars[$var] = trim(stripcslashes($val), '\'');
+		}
+	}
+
+	// Updating the db_last_error, then don't mess around with Settings.php
+	if (isset($config_vars['db_last_error']))
+	{
+		updateDbLastError($config_vars['db_last_error']);
+
+		if (count($config_vars) === 1 && empty($rebuild))
+			return true;
+
+		// Make sure we delete this from Settings.php, if present.
+		$config_vars['db_last_error'] = 0;
+	}
+
+	// Rebuilding should not be undertaken lightly, so we're picky about the parameter.
+	if (!is_bool($rebuild))
+		$rebuild = false;
+
+	$mtime = isset($mtime) ? (int) $mtime : (defined('TIME_START') ? TIME_START : $_SERVER['REQUEST_TIME']);
+
+	/*****************
+	 * PART 1: Setup *
+	 *****************/
+
+	// Typically Settings.php is in $boarddir, but maybe this is a custom setup...
+	foreach (get_included_files() as $settingsFile)
+		if (basename($settingsFile) === 'Settings.php')
+			break;
+
+	// Fallback in case Settings.php isn't loaded (e.g. while installing)
+	if (basename($settingsFile) !== 'Settings.php')
+		$settingsFile = (!empty($GLOBALS['boarddir']) && @realpath($GLOBALS['boarddir']) ? $GLOBALS['boarddir'] : (!empty($_SERVER['SCRIPT_FILENAME']) ? dirname($_SERVER['SCRIPT_FILENAME']) : dirname(__DIR__))) . '/Settings.php';
+
+	// File not found? Attempt an emergency on-the-fly fix!
+	if (!file_exists($settingsFile))
+		@touch($settingsFile);
+
+	// When was Settings.php last changed?
+	$last_settings_change = filemtime($settingsFile);
+
+	// Get the current values of everything in Settings.php.
+	$settings_vars = get_current_settings($mtime, $settingsFile);
+
+	// If Settings.php is empty for some reason, see if we can use the backup.
+	if (empty($settings_vars) && file_exists(dirname($settingsFile) . '/Settings_bak.php'))
+		$settings_vars = get_current_settings($mtime, dirname($settingsFile) . '/Settings_bak.php');
+
+	// False means there was a problem with the file and we can't safely continue.
+	if ($settings_vars === false)
+		return false;
+
+	// It works best to set everything afresh.
+	$new_settings_vars = array_merge($settings_vars, $config_vars);
+
+	// Are we using UTF-8?
+	$utf8 = isset($GLOBALS['context']['utf8']) ? $GLOBALS['context']['utf8'] : (isset($GLOBALS['utf8']) ? $GLOBALS['utf8'] : (isset($settings_vars['db_character_set']) ? $settings_vars['db_character_set'] === 'utf8' : false));
+
+	// Get our definitions for all known Settings.php variables and other content.
+	$settings_defs = get_settings_defs();
 
 	// If Settings.php is empty or invalid, try to recover using whatever is in $GLOBALS.
 	if ($settings_vars === array())
@@ -1675,11 +1699,11 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			// Insert it either before or after the path correction code, whichever is appropriate.
 			if (!$pathcode_reached || in_array($var, $force_before_pathcode))
 			{
-				$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], $substitutions[$var]['replacement'] . "\n$0", $settingsText);
+				$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], $substitutions[$var]['replacement'] . "\n\n$0", $settingsText);
 			}
 			else
 			{
-				$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], "$0\n" . $substitutions[$var]['replacement'], $settingsText);
+				$settingsText = preg_replace($substitutions[$pathcode_var]['search_pattern'], "$0\n\n" . $substitutions[$var]['replacement'], $settingsText);
 			}
 		}
 	}
