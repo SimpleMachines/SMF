@@ -722,7 +722,7 @@ unset($_GET['a']);
 ---#
 
 ---# Note attachment conversion complete
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachments_21_done', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachments_21_done', '1') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Fixing invalid sizes on attachments
