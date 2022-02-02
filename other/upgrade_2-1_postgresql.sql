@@ -496,10 +496,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 ---#
 
 ---# Adding new profile data export settings
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_dir', '{$boarddir}/exports');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_expiry', '7');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_min_diskspace_pct', '5');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_rate', '250');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_dir', '{$boarddir}/exports') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_expiry', '7') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_min_diskspace_pct', '5') ON CONFLICT DO NOTHING;
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_rate', '250') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Adding settings for marking boards as read
@@ -722,7 +722,7 @@ unset($_GET['a']);
 ---#
 
 ---# Note attachment conversion complete
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachments_21_done', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachments_21_done', '1') ON CONFLICT DO NOTHING;
 ---#
 
 ---# Fixing invalid sizes on attachments
@@ -1001,7 +1001,7 @@ VALUES
 ---- Adding background tasks support
 /******************************************************************************/
 ---# Adding the sequence
-CREATE SEQUENCE {$db_prefix}background_tasks_seq;
+CREATE SEQUENCE IF NOT EXISTS {$db_prefix}background_tasks_seq;
 ---#
 
 ---# Adding the table
@@ -1117,7 +1117,7 @@ ADD COLUMN IF NOT EXISTS alerts int NOT NULL default '0';
 ---#
 
 ---# Adding the new table for alerts.
-CREATE SEQUENCE {$db_prefix}user_alerts_seq;
+CREATE SEQUENCE IF NOT EXISTS {$db_prefix}user_alerts_seq;
 
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
 	id_alert bigint DEFAULT nextval('{$db_prefix}user_alerts_seq'),
@@ -1245,10 +1245,10 @@ if (in_array('notify_regularity', $results))
 
 ---# Dropping old notification fields from the members table
 ALTER TABLE {$db_prefix}members
-	DROP notify_send_body,
-	DROP notify_types,
-	DROP notify_regularity,
-	DROP notify_announcements;
+	DROP IF EXISTS notify_send_body,
+	DROP IF EXISTS notify_types,
+	DROP IF EXISTS notify_regularity,
+	DROP IF EXISTS notify_announcements;
 ---#
 
 ---# Creating alert prefs for watched topics
@@ -1396,7 +1396,7 @@ ADD COLUMN IF NOT EXISTS unwatched int NOT NULL DEFAULT 0;
 
 ---# Fixing column name change...
 ALTER TABLE {$db_prefix}log_topics
-DROP COLUMN disregarded;
+DROP COLUMN IF EXISTS disregarded;
 ---#
 
 /******************************************************************************/
@@ -1736,7 +1736,7 @@ ALTER TABLE {$db_prefix}members
 --- Adding support for drafts
 /******************************************************************************/
 ---# Creating drafts table.
-CREATE SEQUENCE {$db_prefix}user_drafts_seq;
+CREATE SEQUENCE IF NOT EXISTS {$db_prefix}user_drafts_seq;
 
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	id_draft bigint DEFAULT nextval('{$db_prefix}user_drafts_seq'),
@@ -1755,7 +1755,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	to_list varchar(255) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_draft)
 );
-CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
+CREATE UNIQUE INDEX IF NOT EXISTS {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
 ---#
 
 ---# Adding draft permissions...
@@ -2053,7 +2053,7 @@ $smcFunc['db_free_result']($file_check);
 --- Upgrading "verification questions" feature
 /******************************************************************************/
 ---# Creating qanda table
-CREATE SEQUENCE {$db_prefix}qanda_seq;
+CREATE SEQUENCE IF NOT EXISTS {$db_prefix}qanda_seq;
 
 CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 	id_question smallint DEFAULT nextval('{$db_prefix}qanda_seq'),
@@ -2285,7 +2285,7 @@ $request = upgrade_query("
 --- Upgrading PM labels...
 /******************************************************************************/
 ---# Creating pm_labels sequence...
-CREATE SEQUENCE {$db_prefix}pm_labels_seq;
+CREATE SEQUENCE IF NOT EXISTS {$db_prefix}pm_labels_seq;
 ---#
 
 ---# Adding pm_labels table...
@@ -2616,7 +2616,7 @@ ADD COLUMN IF NOT EXISTS modified_reason varchar(255) NOT NULL default '';
 --- Adding timezone support
 /******************************************************************************/
 ---# Adding the "timezone" column to the members table
-ALTER TABLE {$db_prefix}members ADD timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
+ALTER TABLE {$db_prefix}members ADD IF NOT EXISTS timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
 ---#
 
 ---# Converting time offset to timezone
