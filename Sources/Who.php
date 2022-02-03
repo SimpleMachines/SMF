@@ -600,8 +600,11 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_pm'],
 					'members' => array(
-						'Michele "Illori" Davis',
+						'Aleksi "Lex" Kilpinen',
 						// Former Project Managers
+						'Michele "Illori" Davis',
+						'Jessica "Suki" González',
+						'Will "Kindred" Wagner',
 					),
 				),
 				array(
@@ -644,15 +647,16 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_support'],
 					'members' => array(
 						// Lead Support Specialist
-						'Aleksi "Lex" Kilpinen',
-						// Support Specialists
 						'Will "Kindred" Wagner',
+						// Support Specialists
 						'lurkalot',
+						'shadav',
+						'Steve',
 
 						// Former Support Specialists
+						'Aleksi "Lex" Kilpinen',
 						'br360',
 						'GigaWatt',
-						'Steve',
 						'ziycon',
 						'Adam Tallon',
 						'Bigguy',
@@ -684,7 +688,7 @@ function Credits($in_admin = false)
 						// Customizers
 						'Diego Andrés',
 						'Jonathan "vbgamer45" Valentin',
-						'Mick.',
+						'Michael "Mick." Gomez',
 
 						// Former Customizers
 						'Sami "SychO" Mazouz',
@@ -703,8 +707,9 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_docs'],
 					'members' => array(
 						// Doc Coordinator
-						'Irisado',
+						'Michele "Illori" Davis',
 						// Doc Writers
+						'Irisado',
 
 						// Former Doc Writers
 						'AngelinaBelle',
@@ -717,11 +722,11 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_internationalizers'],
 					'members' => array(
 						// Lead Localizer
-						'Francisco "d3vcho" Domínguez',
-						// Localizers
 						'Nikola "Dzonny" Novaković',
+						// Localizers
 						'm4z',
 						// Former Localizers
+						'Francisco "d3vcho" Domínguez',
 						'Robert Monden',
 						'Relyana',
 					),
