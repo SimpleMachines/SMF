@@ -1455,8 +1455,25 @@ function saveSettings(&$config_vars)
 				case 'multiple':
 					$config_multis[$var] = $def['type'];
 
-				case 'integer':
 				case 'double':
+					$config_nums[] = $var;
+					break;
+
+				case 'integer':
+					// Some things saved as integers are presented as booleans
+					foreach ($config_vars as $config_var)
+					{
+						if (is_array($config_var) && $config_var[0] == $var)
+						{
+							if ($config_var[3] == 'check')
+							{
+								$config_bools[] = $var;
+								break 2;
+							}
+							else
+								break;
+						}
+					}
 					$config_nums[] = $var;
 					break;
 
