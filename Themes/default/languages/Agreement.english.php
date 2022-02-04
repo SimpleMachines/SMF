@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC4; Agreement
+// Version: 2.1.0; Agreement
 
 $txt['agreement'] = 'Registration Agreement';
 $txt['agreement_updated'] = 'Updated Registration Agreement';

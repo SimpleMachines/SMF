@@ -16,7 +16,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 RC4
+ * @version 2.1.0
  */
 
 $unicode_data_url = 'https://unicode.org/Public/UCD/latest/ucd';

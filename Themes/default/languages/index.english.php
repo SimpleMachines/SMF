@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 RC4; index
+// Version: 2.1.0; index
 
 global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 
