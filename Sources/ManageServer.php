@@ -1473,23 +1473,25 @@ function saveSettings(&$config_vars)
 	// Now sort everything into a big array, and figure out arrays and etc.
 	$new_settings = array();
 	// Figure out which config vars we're saving here...
-	foreach ($config_vars as $var)
+	foreach ($config_vars as $config_var)
 	{
-		if (!is_array($var) || $var[2] != 'file')
+		if (!is_array($config_var) || $config_var[2] != 'file')
 			continue;
 
+		$var_name = $config_var[0];
+
 		// Unknown setting?
-		if (!isset($settings_defs[$var]) && isset($var[3]))
+		if (!isset($settings_defs[$var_name]) && isset($config_var[3]))
 		{
-			switch ($var[3])
+			switch ($config_var[3])
 			{
 				case 'int':
 				case 'float':
-					$config_nums[] = $var[0];
+					$config_nums[] = $var_name;
 					break;
 
 				case 'check':
-					$config_bools[] = $var[0];
+					$config_bools[] = $var_name;
 					break;
 
 				default:
@@ -1497,55 +1499,53 @@ function saveSettings(&$config_vars)
 			}
 		}
 
-		if (!in_array($var[0], $config_bools) && !isset($_POST[$var[0]]))
+		if (!in_array($var_name, $config_bools) && !isset($_POST[$var_name]))
 			continue;
 
-		$config_var = $var[0];
-
-		if (in_array($config_var, $config_passwords))
+		if (in_array($var_name, $config_passwords))
 		{
-			if (isset($_POST[$config_var][1]) && $_POST[$config_var][0] == $_POST[$config_var][1])
-				$new_settings[$config_var] = $_POST[$config_var][0];
+			if (isset($_POST[$var_name][1]) && $_POST[$var_name][0] == $_POST[$var_name][1])
+				$new_settings[$var_name] = $_POST[$var_name][0];
 		}
-		elseif (in_array($config_var, $config_nums))
+		elseif (in_array($var_name, $config_nums))
 		{
-			$new_settings[$config_var] = (int) $_POST[$config_var];
+			$new_settings[$var_name] = (int) $_POST[$var_name];
 
 			// If no min is specified, assume 0. This is done to avoid having to specify 'min => 0' for all settings where 0 is the min...
-			$min = isset($var['min']) ? $var['min'] : 0;
-			$new_settings[$config_var] = max($min, $new_settings[$config_var]);
+			$min = isset($config_var['min']) ? $config_var['min'] : 0;
+			$new_settings[$var_name] = max($min, $new_settings[$var_name]);
 
 			// Is there a max value for this as well?
-			if (isset($var['max']))
-				$new_settings[$config_var] = min($var['max'], $new_settings[$config_var]);
+			if (isset($config_var['max']))
+				$new_settings[$var_name] = min($config_var['max'], $new_settings[$var_name]);
 		}
-		elseif (in_array($config_var, $config_bools))
+		elseif (in_array($var_name, $config_bools))
 		{
-			$new_settings[$config_var] = !empty($_POST[$config_var]);
+			$new_settings[$var_name] = !empty($_POST[$var_name]);
 		}
-		elseif (isset($config_multis[$config_var]))
+		elseif (isset($config_multis[$var_name]))
 		{
 			$is_acceptable_type = false;
 
-			foreach ($config_multis[$config_var] as $type)
+			foreach ($config_multis[$var_name] as $type)
 			{
-				$temp = $_POST[$config_var];
+				$temp = $_POST[$var_name];
 				settype($temp, $type);
 
-				if ($temp == $_POST[$config_var])
+				if ($temp == $_POST[$var_name])
 				{
-					$new_settings[$config_var] = $temp;
+					$new_settings[$var_name] = $temp;
 					$is_acceptable_type = true;
 					break;
 				}
 			}
 
 			if (!$is_acceptable_type)
-				fatal_error('Invalid config_var \'' . $config_var . '\'');
+				fatal_error('Invalid config_var \'' . $var_name . '\'');
 		}
 		else
 		{
-			$new_settings[$config_var] = $_POST[$config_var];
+			$new_settings[$var_name] = $_POST[$var_name];
 		}
 	}
 
