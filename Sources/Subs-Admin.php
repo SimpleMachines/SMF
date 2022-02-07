@@ -1306,7 +1306,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 			$settingsText = '<' . "?php\n";
 			foreach ($settings_defs as $var => $setting_def)
 			{
-				if (!empty($setting_def['text']) && strpos($substitutions[$var]['replacement'], $setting_def['text']) === false)
+				if (is_string($var) && !empty($setting_def['text']) && strpos($substitutions[$var]['replacement'], $setting_def['text']) === false)
 					$substitutions[$var]['replacement'] = $setting_def['text'] . "\n" . $substitutions[$var]['replacement'];
 
 				$settingsText .= $substitutions[$var]['replacement'] . "\n";

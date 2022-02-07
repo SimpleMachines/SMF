@@ -1098,7 +1098,7 @@ function ForumSettings()
 		}
 
 		// Set the character set here.
-		installer_updateSettingsFile(array('db_character_set' => 'utf8'));
+		installer_updateSettingsFile(array('db_character_set' => 'utf8'), true);
 
 		// Good, skip on.
 		return true;
