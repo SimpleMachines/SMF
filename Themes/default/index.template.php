@@ -277,13 +277,18 @@ function template_body_above()
 						<span class="main_icons login"></span>
 						<span class="textmenu">', $txt['login'], '</span>
 					</a>
-				</li>
+				</li>';
+
+			if ($context['can_register'])
+				echo '
 				<li class="button_signup">
 					<a href="', $scripturl, '?action=signup" class="', $context['current_action'] == 'signup' ? 'active' : 'open','">
 						<span class="main_icons regcenter"></span>
 						<span class="textmenu">', $txt['register'], '</span>
 					</a>
-				</li>
+				</li>';
+
+			echo '
 			</ul>';
 		}
 	}
