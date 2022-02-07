@@ -86,10 +86,10 @@ $txt['permissions_on'] = 'in profile';
 $txt['permissions_local_for'] = 'Permissions for group';
 $txt['permissions_option_own'] = 'Own';
 $txt['permissions_option_any'] = 'Any';
-$txt['permissions_option_on'] = 'A';
-$txt['permissions_option_off'] = 'X';
-$txt['permissions_option_deny'] = 'D';
-$txt['permissions_option_desc'] = 'For each permission you can pick either \'Allow\' (A), \'Disallow\' (X), or <span class="red">\'Deny\' (D)</span>.<br><br>Remember that if you deny a permission, any member - whether moderator or otherwise - that is in that group will be denied that as well.<br>For this reason, you should use deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
+$txt['permissions_option_on'] = '&#x2705;';
+$txt['permissions_option_off'] = '&mdash;';
+$txt['permissions_option_deny'] = '&#x1F6AB;';
+$txt['permissions_option_desc'] = 'For each permission you can pick either \'Allow\' (&#x2705;), \'Disallow\' (&mdash;), or <span class="red">\'Deny\' (&#x1F6AB;)</span>.<br><br>Remember that if you deny a permission, any member - whether moderator or otherwise - that is in that group will be denied that as well.<br>For this reason, you should use deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
 
 $txt['permissiongroup_general'] = 'General';
 $txt['permissionname_view_stats'] = 'View forum statistics';
