@@ -228,7 +228,7 @@ function getFileVersions(&$versionOptions)
 		$this_dir = dir($dirname);
 		while ($entry = $this_dir->read())
 		{
-			if (substr($entry, -12) == 'template.php' && !is_dir($dirname . '/' . $entry))
+			if (substr($entry, -12) === 'template.php' && !is_dir($dirname . '/' . $entry))
 			{
 				// Read the first 768 bytes from the file.... enough for the header.
 				$fp = fopen($dirname . '/' . $entry, 'rb');
@@ -250,7 +250,7 @@ function getFileVersions(&$versionOptions)
 	$this_dir = dir($lang_dir);
 	while ($entry = $this_dir->read())
 	{
-		if (substr($entry, -4) == '.php' && $entry != 'index.php' && !is_dir($lang_dir . '/' . $entry))
+		if (substr($entry, -4) === '.php' && $entry != 'index.php' && !is_dir($lang_dir . '/' . $entry))
 		{
 			// Read the first 768 bytes from the file.... enough for the header.
 			$fp = fopen($lang_dir . '/' . $entry, 'rb');
@@ -1294,14 +1294,14 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	$settingsText = trim(strtr(file_get_contents($settingsFile), array("\r\n" => "\n", "\r" => "\n")));
 
 	// If Settings.php is empty or corrupt for some reason, see if we can recover.
-	if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php')
+	if ($settingsText === '' || substr($settingsText, 0, 5) !== '<' . '?php')
 	{
 		// Try restoring from the backup.
 		if (file_exists(dirname($settingsFile) . '/Settings_bak.php'))
 			$settingsText = strtr(file_get_contents(dirname($settingsFile) . '/Settings_bak.php'), array("\r\n" => "\n", "\r" => "\n"));
 
 		// Backup is bad too? Our only option is to create one from scratch.
-		if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php' || substr($settingsText, -2) !== '?' . '>')
+		if ($settingsText === '' || substr($settingsText, 0, 5) !== '<' . '?php' || substr($settingsText, -2) !== '?' . '>')
 		{
 			$settingsText = '<' . "?php\n";
 			foreach ($settings_defs as $var => $setting_def)
@@ -1782,9 +1782,9 @@ function get_current_settings($mtime = null, $settingsFile = null)
 
 	// Strip out opening and closing PHP tags.
 	$settingsText = trim(file_get_contents($settingsFile));
-	if (substr($settingsText, 0, 5) == '<' . '?php')
+	if (substr($settingsText, 0, 5) === '<' . '?php')
 		$settingsText = substr($settingsText, 5);
-	if (substr($settingsText, -2) == '?' . '>')
+	if (substr($settingsText, -2) === '?' . '>')
 		$settingsText = substr($settingsText, 0, -2);
 
 	// Since we're using eval, we need to manually replace these with strings.
@@ -2075,14 +2075,14 @@ function strip_php_comments($code_str)
 		 *	1: in a single quote string
 		 *	2: in a double quote string
 		 */
-		if ($one_char == "'")
+		if ($one_char === "'")
 		{
 			if (!empty($in_comment))
 				$in_string = 0;
 			elseif (in_array($in_string, array(0, 1)))
 				$in_string = ($in_string ^ 1);
 		}
-		elseif ($one_char == '"')
+		elseif ($one_char === '"')
 		{
 			if (!empty($in_comment))
 				$in_string = 0;
@@ -2096,11 +2096,11 @@ function strip_php_comments($code_str)
 		 *	1: in a single line comment
 		 *	2: in a multi-line comment
 		 */
-		elseif ($one_char == '#' || $two_char == '//')
+		elseif ($one_char === '#' || $two_char === '//')
 		{
 			$in_comment = !empty($in_string) ? 0 : (empty($in_comment) ? 1 : $in_comment);
 
-			if ($in_comment == 1)
+			if ($in_comment === 1)
 			{
 				$parts[$partkey - 1] = rtrim($parts[$partkey - 1], "\t ");
 
@@ -2112,14 +2112,14 @@ function strip_php_comments($code_str)
 		}
 		elseif ($two_char === "\r\n" || $one_char === "\r" || $one_char === "\n")
 		{
-			if ($in_comment == 1)
+			if ($in_comment === 1)
 				$in_comment = 0;
 		}
-		elseif ($two_char == '/*')
+		elseif ($two_char === '/*')
 		{
 			$in_comment = !empty($in_string) ? 0 : (empty($in_comment) ? 2 : $in_comment);
 
-			if ($in_comment == 2)
+			if ($in_comment === 2)
 			{
 				$parts[$partkey - 1] = rtrim($parts[$partkey - 1], "\t ");
 
@@ -2129,9 +2129,9 @@ function strip_php_comments($code_str)
 					$parts[$partkey - 1] = substr($parts[$partkey - 1], 0, -1);
 			}
 		}
-		elseif ($two_char == '*/')
+		elseif ($two_char === '*/')
 		{
-			if ($in_comment == 2)
+			if ($in_comment === 2)
 			{
 				$in_comment = 0;
 

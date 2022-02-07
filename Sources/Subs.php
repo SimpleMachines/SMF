@@ -190,7 +190,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 				return;
 
 			$postgroups = cache_get_data('updateStats:postgroups', 360);
-			if ($postgroups == null || $parameter1 == null)
+			if ($postgroups === null || $parameter1 === null)
 			{
 				// Fetch the postgroups!
 				$request = $smcFunc['db_query']('', '
@@ -325,7 +325,7 @@ function updateMemberData($members, $data)
 		if (count($vars_to_integrate) != 0)
 		{
 			// Fetch a list of member_names if necessary
-			if ((!is_array($members) && $members === $user_info['id']) || (is_array($members) && count($members) == 1 && in_array($user_info['id'], $members)))
+			if ((!is_array($members) && $members === $user_info['id']) || (is_array($members) && count($members) === 1 && in_array($user_info['id'], $members)))
 				$member_names = array($user_info['username']);
 			else
 			{
@@ -1445,13 +1445,13 @@ function permute($array)
 	for ($i = 1; $i < $n; null)
 	{
 		$p[$i]--;
-		$j = $i % 2 != 0 ? $p[$i] : 0;
+		$j = $i % 2 !== 0 ? $p[$i] : 0;
 
 		$temp = $array[$i];
 		$array[$i] = $array[$j];
 		$array[$j] = $temp;
 
-		for ($i = 1; $p[$i] == 0; $i++)
+		for ($i = 1; $p[$i] === 0; $i++)
 			$p[$i] = 1;
 
 		$orders[] = $array;
@@ -2111,7 +2111,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					if (substr($data, 0, 1) == '#')
+					if (substr($data, 0, 1) === '#')
 						$data = '#post_' . substr($data, 1);
 					else
 					{
@@ -3187,7 +3187,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 		$tag_character = strtolower($message[$pos + 1]);
 
-		if ($tag_character == '/' && !empty($open_tags))
+		if ($tag_character === '/' && !empty($open_tags))
 		{
 			$pos2 = strpos($message, ']', $pos + 1);
 			if ($pos2 == $pos + 2)
@@ -5139,26 +5139,26 @@ function ip2range($fullip)
 	$ip_array = array();
 
 	// if ip 22.12.31.21
-	if (count($ip_parts) == 1 && isValidIP($fullip))
+	if (count($ip_parts) === 1 && isValidIP($fullip))
 	{
 		$ip_array['low'] = $fullip;
 		$ip_array['high'] = $fullip;
 		return $ip_array;
 	} // if ip 22.12.* -> 22.12.* - 22.12.*
-	elseif (count($ip_parts) == 1)
+	elseif (count($ip_parts) === 1)
 	{
 		$ip_parts[0] = $fullip;
 		$ip_parts[1] = $fullip;
 	}
 
 	// if ip 22.12.31.21-12.21.31.21
-	if (count($ip_parts) == 2 && isValidIP($ip_parts[0]) && isValidIP($ip_parts[1]))
+	if (count($ip_parts) === 2 && isValidIP($ip_parts[0]) && isValidIP($ip_parts[1]))
 	{
 		$ip_array['low'] = $ip_parts[0];
 		$ip_array['high'] = $ip_parts[1];
 		return $ip_array;
 	}
-	elseif (count($ip_parts) == 2) // if ip 22.22.*-22.22.*
+	elseif (count($ip_parts) === 2) // if ip 22.22.*-22.22.*
 	{
 		$valid_low = isValidIP($ip_parts[0]);
 		$valid_high = isValidIP($ip_parts[1]);
