@@ -764,6 +764,9 @@ function Credits($in_admin = false)
 	);
 
 	// Give the translators some credit for their hard work.
+	if (!is_array($txt['translation_credits']))
+		$txt['translation_credits'] = array_filter(array_map('trim', explode(',', $txt['translation_credits'])));
+
 	if (!empty($txt['translation_credits']))
 		$context['credits'][] = array(
 			'title' => $txt['credits_groups_translation'],
