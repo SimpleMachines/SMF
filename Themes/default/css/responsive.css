@@ -421,8 +421,6 @@
 	/* Admin */
 	.admin_search {
 		float: none;
-		width: 100%;
-		margin-bottom: 10px;
 	}
 	.table_grid.half_content {
 		width: 100%;

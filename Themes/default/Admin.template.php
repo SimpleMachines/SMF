@@ -1331,8 +1331,8 @@ function template_admin_search_results()
 
 	echo '
 						<div id="section_header" class="cat_bar">
+							', template_admin_quick_search(), '
 							<h3 class="catbg">
-								', template_admin_quick_search(), '
 								<span id="quick_search_results">
 									', sprintf($txt['admin_search_results_desc'], $context['search_term']), '
 								</span>

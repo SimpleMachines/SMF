@@ -50,7 +50,7 @@ legend {
 ------------------------------------------------------- */
 /* Admin quick search bar, and results page. */
 .admin_search {
-	margin: -3px 0;
+	padding: 5px;
 	font-size: 0.9em;
 	float: right;
 	display: flex;
