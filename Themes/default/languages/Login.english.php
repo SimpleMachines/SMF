@@ -71,7 +71,7 @@ $txt['change_password'] = 'New Password Details';
 $txt['change_password_login'] = 'Your login details at';
 $txt['change_password_new'] = 'have been changed and your password reset. Below are your new login details.';
 
-$txt['in_maintain_mode'] = 'This board is in Maintenance Mode.';
+$txt['in_maintain_mode'] = 'This forum is in Maintenance Mode.';
 
 // These two are used as a javascript alert; please use international characters directly, not as entities.
 $txt['register_agree'] = 'Please read and accept the agreement before signing up.';
