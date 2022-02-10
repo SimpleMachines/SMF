@@ -624,14 +624,14 @@ foreach (file($unicode_data_url . '/DerivedAge.txt') as $line)
 
 	if (strpos($fields[0], '..') === false)
 	{
-		$char_scripts = $char_data['&#x' . $fields[0] . ';']['scripts'];
+		$entity = '&#x' . $fields[0] . ';';
 
-		if (empty($char_scripts))
+		if (empty($char_data[$entity]['scripts']))
 		{
 			continue;
 		}
 
-		foreach ($char_scripts as $char_script)
+		foreach ($char_data[$entity]['scripts'] as $char_script)
 		{
 			if (!isset($script_stats[$char_script]))
 			{
@@ -655,14 +655,14 @@ foreach (file($unicode_data_url . '/DerivedAge.txt') as $line)
 		$ord = $ord_s;
 		while ($ord <= $ord_e)
 		{
-			$char_scripts = $char_data['&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';']['scripts'];
+			$entity = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
 
-			if (empty($char_scripts))
+			if (empty($char_data[$entity]['scripts']))
 			{
 				continue;
 			}
 
-			foreach ($char_scripts as $char_script)
+			foreach ($char_data[$entity]['scripts'] as $char_script)
 			{
 				if (!isset($script_stats[$char_script]))
 				{
@@ -729,14 +729,14 @@ foreach (file($unicode_data_url . '/extracted/DerivedJoiningType.txt') as $line)
 		continue;
 	}
 
-	$char_scripts = $char_data['&#x' . substr($fields[0], 0, strcspn($fields[0], '.')) . ';']['scripts'];
+	$entity = '&#x' . substr($fields[0], 0, strcspn($fields[0], '.')) . ';';
 
-	if (empty($char_scripts))
+	if (empty($char_data[$entity]['scripts']))
 	{
 		continue;
 	}
 
-	foreach ($char_scripts as $char_script)
+	foreach ($char_data[$entity]['scripts'] as $char_script)
 	{
 		if (!isset($funcs['utf8_regex_joining_type']['data'][$char_script]['stats']))
 		{
@@ -869,7 +869,11 @@ foreach ($char_data as $entity => $info)
 
 		$funcs['utf8_regex_indic']['data'][$char_script]['All'][] = $ord;
 
-		if ($info['General_Category'] == 'Mn')
+		if (empty($info['General_Category']))
+		{
+			continue;
+		}
+		elseif ($info['General_Category'] == 'Mn')
 		{
 			$funcs['utf8_regex_indic']['data'][$char_script]['Nonspacing_Mark'][] = $ord;
 
