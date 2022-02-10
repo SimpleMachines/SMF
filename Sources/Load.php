@@ -2995,7 +2995,7 @@ function addJavaScriptVar($key, $value, $escape = false)
 					{
 						if (is_string($v))
 							$replacements[json_encode($v)] = JavaScriptEscape($v, true);
-					},
+					}
 				);
 				$value = strtr(json_encode($value), $replacements);
 				break;
