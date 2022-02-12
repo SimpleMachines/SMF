@@ -10,5 +10,10 @@
     "prefer-stable": true,
     "require-dev": {
         "simplemachines/build-tools": "dev-master"
+    },
+    "config": {
+        "platform": {
+            "php": "7.0.2"
+        }
     }
 }
