@@ -260,6 +260,9 @@ function PlushSearch2()
 		send_http_status(403);
 		die;
 	}
+	
+	if (isset($_REQUEST['start']))
+		$_REQUEST['start'] = (int) $_REQUEST['start'];
 
 	$weight_factors = array(
 		'frequency' => array(
@@ -2017,7 +2020,7 @@ function prepareSearchContext($reset = false)
 	// Remember which message this is.  (ie. reply #83)
 	static $counter = null;
 	if ($counter == null || $reset)
-		$counter = $_REQUEST['start'] + 1;
+		$counter = ((int) $_REQUEST['start']) + 1;
 
 	// If the query returned false, bail.
 	if ($messages_request == false)
