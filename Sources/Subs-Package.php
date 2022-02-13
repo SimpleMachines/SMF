@@ -239,7 +239,7 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 	$return = array();
 
 	// End of central directory record (EOCD)
-	$cdir = unpack('vdisk/@4/vdisk_entries/ventries/@12/Voffset', $data, $data_ecr + 4);
+	$cdir = unpack('vdisk/@4/vdisk_entries/ventries/@12/Voffset', substr($data, $data_ecr + 4));
 
 	// We only support a single disk.
 	if ($cdir['disk_entries'] != $cdir['entries'])
@@ -251,7 +251,7 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 	for ($i = 0; $i < $cdir['entries']; $i++)
 	{
 		// Central directory file header
-		$header = unpack('Vcompressed_size/@8/vlen1/vlen2/vlen3/vdisk/@22/Voffset', $data, $pos_entry + 20);
+		$header = unpack('Vcompressed_size/@8/vlen1/vlen2/vlen3/vdisk/@22/Voffset', substr($data, $pos_entry + 20));
 
 		// Sanity check: same disk?
 		if ($header['disk'] != $cdir['disk'])
@@ -263,8 +263,7 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 		// Local file header (so called because it is in the same file as the data in multi-part archives)
 		$file_info = unpack(
 			'vflag/vcompression/vmtime/vmdate/Vcrc/Vcompressed_size/Vsize/vfilename_len/vextra_len',
-			$data,
-			$header['offset'] + 6
+			substr($data, $header['offset'] + 6)
 		);
 
 		$file_info['filename'] = substr($data, $header['offset'] + 30, $file_info['filename_len']);
@@ -285,7 +284,7 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 			if (substr($data, $gplen, 4) === "\x50\x4b\x07\x08")
 				$gplen += 4;
 
-			if (($general_purpose = unpack('Vcrc/Vcompressed_size/Vsize', $data, $gplen)) !== false)
+			if (($general_purpose = unpack('Vcrc/Vcompressed_size/Vsize', substr($data, $gplen))) !== false)
 				$file_info = $general_purpose + $file_info;
 		}
 
