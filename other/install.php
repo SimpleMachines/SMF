@@ -1293,7 +1293,7 @@ function DatabasePopulation()
 		$current_statement = '';
 
 		// Wait, wait, I'm still working here!
-		set_time_limit(60);
+		@set_time_limit(60);
 	}
 
 	// Sort out the context for the SQL.
