@@ -517,7 +517,7 @@ function Register2()
 	{
 		loadLanguage('Errors');
 		foreach ($custom_field_errors as $error)
-			$reg_errors[] = vsprintf($txt['error_' . $error[0]], $error[1]);
+			$reg_errors[] = vsprintf($txt['error_' . $error[0]], (array) $error[1]);
 	}
 
 	// Lets check for other errors before trying to register the member.
