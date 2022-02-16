@@ -693,7 +693,7 @@ function validateUsername($memID, $username, $return_error = false, $check_reser
 	loadLanguage('Errors');
 	$error = $errors[0];
 
-	$message = $error[0] == 'lang' ? (empty($error[3]) ? $txt[$error[1]] : vsprintf($txt[$error[1]], $error[3])) : $error[1];
+	$message = $error[0] == 'lang' ? (empty($error[3]) ? $txt[$error[1]] : vsprintf($txt[$error[1]], (array) $error[3])) : $error[1];
 	fatal_error($message, empty($error[2]) || $user_info['is_admin'] ? false : $error[2]);
 }
 

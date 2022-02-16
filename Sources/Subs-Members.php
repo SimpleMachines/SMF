@@ -549,7 +549,7 @@ function registerMember(&$regOptions, $return_errors = false)
 			3 = sprintf data if necessary. */
 		if ($error[0] == 'lang')
 			loadLanguage('Errors');
-		$message = $error[0] == 'lang' ? (empty($error[3]) ? $txt[$error[1]] : vsprintf($txt[$error[1]], $error[3])) : $error[1];
+		$message = $error[0] == 'lang' ? (empty($error[3]) ? $txt[$error[1]] : vsprintf($txt[$error[1]], (array) $error[3])) : $error[1];
 
 		// What to do, what to do, what to do.
 		if ($return_errors)

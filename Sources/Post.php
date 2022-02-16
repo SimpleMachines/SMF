@@ -1000,7 +1000,7 @@ function Post($post_errors = array())
 
 				if ($attachID == 'initial_error')
 				{
-					$txt['error_attach_initial_error'] = $txt['attach_no_upload'] . '<div style="padding: 0 1em;">' . (is_array($attachment) ? vsprintf($txt[$attachment[0]], $attachment[1]) : $txt[$attachment]) . '</div>';
+					$txt['error_attach_initial_error'] = $txt['attach_no_upload'] . '<div style="padding: 0 1em;">' . (is_array($attachment) ? vsprintf($txt[$attachment[0]], (array) $attachment[1]) : $txt[$attachment]) . '</div>';
 					$post_errors[] = 'attach_initial_error';
 					unset($_SESSION['temp_attachments']);
 					break;
@@ -1010,9 +1010,9 @@ function Post($post_errors = array())
 				if (!empty($attachment['errors']))
 				{
 					$txt['error_attach_errors'] = empty($txt['error_attach_errors']) ? '<br>' : '';
-					$txt['error_attach_errors'] .= vsprintf($txt['attach_warning'], $attachment['name']) . '<div style="padding: 0 1em;">';
+					$txt['error_attach_errors'] .= sprintf($txt['attach_warning'], $attachment['name']) . '<div style="padding: 0 1em;">';
 					foreach ($attachment['errors'] as $error)
-						$txt['error_attach_errors'] .= (is_array($error) ? vsprintf($txt[$error[0]], $error[1]) : $txt[$error]) . '<br >';
+						$txt['error_attach_errors'] .= (is_array($error) ? vsprintf($txt[$error[0]], (array) $error[1]) : $txt[$error]) . '<br >';
 					$txt['error_attach_errors'] .= '</div>';
 					$post_errors[] = 'attach_errors';
 
@@ -1098,7 +1098,7 @@ function Post($post_errors = array())
 			if (is_array($post_error))
 			{
 				$post_error_id = $post_error[0];
-				$context['post_error'][$post_error_id] = vsprintf($txt['error_' . $post_error_id], $post_error[1]);
+				$context['post_error'][$post_error_id] = vsprintf($txt['error_' . $post_error_id], (array) $post_error[1]);
 
 				// If it's not a minor error flag it as such.
 				if (!in_array($post_error_id, $minor_errors))
@@ -2183,7 +2183,7 @@ function Post2()
 			if ($attachID == 'initial_error')
 			{
 				$attach_errors[] = '<dt>' . $txt['attach_no_upload'] . '</dt>';
-				$attach_errors[] = '<dd>' . (is_array($attachment) ? vsprintf($txt[$attachment[0]], $attachment[1]) : $txt[$attachment]) . '</dd>';
+				$attach_errors[] = '<dd>' . (is_array($attachment) ? vsprintf($txt[$attachment[0]], (array) $attachment[1]) : $txt[$attachment]) . '</dd>';
 
 				unset($_SESSION['temp_attachments']);
 				break;
@@ -2216,7 +2216,7 @@ function Post2()
 			if (!empty($attachmentOptions['errors']))
 			{
 				// Sort out the errors for display and delete any associated files.
-				$attach_errors[] = '<dt>' . vsprintf($txt['attach_warning'], $attachment['name']) . '</dt>';
+				$attach_errors[] = '<dt>' . sprintf($txt['attach_warning'], $attachment['name']) . '</dt>';
 				$log_these = array('attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file');
 				foreach ($attachmentOptions['errors'] as $error)
 				{
@@ -2227,7 +2227,7 @@ function Post2()
 							log_error($attachment['name'] . ': ' . $txt[$error], 'critical');
 					}
 					else
-						$attach_errors[] = '<dd>' . vsprintf($txt[$error[0]], $error[1]) . '</dd>';
+						$attach_errors[] = '<dd>' . vsprintf($txt[$error[0]], (array) $error[1]) . '</dd>';
 				}
 				if (file_exists($attachment['tmp_name']))
 					unlink($attachment['tmp_name']);
