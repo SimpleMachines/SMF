@@ -575,7 +575,7 @@ function MLSearch()
 		}
 
 		foreach ($context['custom_search_fields'] as $field)
-			$context['search_fields']['cust_' . $field['colname']] = sprintf($txt['mlist_search_by'], $field['name']);
+			$context['search_fields']['cust_' . $field['colname']] = sprintf($txt['mlist_search_by'], tokenTxtReplace($field['name']));
 
 		$context['sub_template'] = 'search';
 		$context['old_search'] = isset($_GET['search']) ? $_GET['search'] : (isset($_POST['search']) ? $smcFunc['htmlspecialchars']($_POST['search']) : '');
