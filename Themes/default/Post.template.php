@@ -320,7 +320,7 @@ function template_main()
 		echo '
 						<dl id="postAttachment">
 							<dt>
-								', $txt['attached'], ':
+								', $txt['attachments'], ':
 							</dt>
 							<dd class="smalltext" style="width: 100%;">
 								<input type="hidden" name="attach_del[]" value="0">
@@ -349,7 +349,7 @@ function template_main()
 		echo '
 						<div class="files" id="attachment_previews">
 							<div>
-								<strong>', $txt['attached'], ':</strong>
+								<strong>', $txt['attachments'], ':</strong>
 							</div>
 							<div id="au-template">
 								<div class="attach-preview">
@@ -392,9 +392,6 @@ function template_main()
 
 		echo '
 						<dl id="postAttachment2">
-							<dt>
-								', $txt['attach'], ':
-							</dt>
 							<dd class="fallback">
 								<div id="attachment_upload" class="descbox">
 									<div id="drop_zone_ui">
