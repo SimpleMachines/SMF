@@ -5536,7 +5536,7 @@ function setupMenuContext()
 			),
 			'logout' => array(
 				'title' => $txt['logout'],
-				'href' => $scripturl . '?action=login' . $context['session_var'] . '=' . $context['session_id'],
+				'href' => $scripturl . '?action=logout;' . $context['session_var'] . '=' . $context['session_id'],
 				'show' => !$user_info['is_guest'] && !empty($settings['login_main_menu']),
 				'sub_buttons' => array(
 				),
