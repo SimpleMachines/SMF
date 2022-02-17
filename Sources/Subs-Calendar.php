@@ -1575,13 +1575,13 @@ function setEventStartEnd($eventOptions = array())
 		$start_string_parsed = date_parse(convertDateToEnglish($start_string));
 		if (empty($start_string_parsed['error_count']) && empty($start_string_parsed['warning_count']))
 		{
-			if ($start_string_parsed['year'] != false)
+			if ($start_string_parsed['year'] !== false)
 			{
 				$start_year = $start_string_parsed['year'];
 				$start_month = $start_string_parsed['month'];
 				$start_day = $start_string_parsed['day'];
 			}
-			if ($start_string_parsed['hour'] != false)
+			if ($start_string_parsed['hour'] !== false)
 			{
 				$start_hour = $start_string_parsed['hour'];
 				$start_minute = $start_string_parsed['minute'];
@@ -1594,13 +1594,13 @@ function setEventStartEnd($eventOptions = array())
 		$end_string_parsed = date_parse(convertDateToEnglish($end_string));
 		if (empty($end_string_parsed['error_count']) && empty($end_string_parsed['warning_count']))
 		{
-			if ($end_string_parsed['year'] != false)
+			if ($end_string_parsed['year'] !== false)
 			{
 				$end_year = $end_string_parsed['year'];
 				$end_month = $end_string_parsed['month'];
 				$end_day = $end_string_parsed['day'];
 			}
-			if ($end_string_parsed['hour'] != false)
+			if ($end_string_parsed['hour'] !== false)
 			{
 				$end_hour = $end_string_parsed['hour'];
 				$end_minute = $end_string_parsed['minute'];
