@@ -939,23 +939,22 @@ function SpiderStats()
 	$current_date = isset($_REQUEST['new_date']) && isset($date_choices[$_REQUEST['new_date']]) ? $_REQUEST['new_date'] : $max_date;
 
 	// Prepare the HTML.
-	$date_select = '
+	if (!empty($date_choices))
+	{
+		$date_select = '
 		' . $txt['spider_stats_select_month'] . ':
 		<select name="new_date" onchange="document.spider_stat_list.submit();">';
 
-	if (empty($date_choices))
-		$date_select .= '
-			<option></option>';
-	else
 		foreach ($date_choices as $id => $text)
 			$date_select .= '
 			<option value="' . $id . '"' . ($current_date == $id ? ' selected' : '') . '>' . $text . '</option>';
 
-	$date_select .= '
+		$date_select .= '
 		</select>
 		<noscript>
 			<input type="submit" name="go" value="' . $txt['go'] . '" class="button">
 		</noscript>';
+	}
 
 	// If we manually jumped to a date work out the offset.
 	if (isset($_REQUEST['new_date']))
@@ -976,7 +975,7 @@ function SpiderStats()
 
 	$listOptions = array(
 		'id' => 'spider_stat_list',
-		'title' => $txt['spider'] . ' ' . $txt['spider_stats'],
+		'title' => $txt['spider_stats'],
 		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=sengines;sa=stats',
 		'default_sort_col' => 'stat_date',
@@ -1029,7 +1028,7 @@ function SpiderStats()
 			'href' => $scripturl . '?action=admin;area=sengines;sa=stats',
 			'name' => 'spider_stat_list',
 		),
-		'additional_rows' => array(
+		'additional_rows' => empty($date_select) ? array() : array(
 			array(
 				'position' => 'below_table_data',
 				'value' => $date_select,
