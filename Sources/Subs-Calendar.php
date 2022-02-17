@@ -372,10 +372,10 @@ function canLinkEvent()
 function getTodayInfo()
 {
 	return array(
-		'day' => (int) smf_strftime('%d', time()),
-		'month' => (int) smf_strftime('%m', time()),
-		'year' => (int) smf_strftime('%Y', time()),
-		'date' => smf_strftime('%Y-%m-%d', time()),
+		'day' => (int) smf_strftime('%d', time(), getUserTimezone()),
+		'month' => (int) smf_strftime('%m', time(), getUserTimezone()),
+		'year' => (int) smf_strftime('%Y', time(), getUserTimezone()),
+		'date' => smf_strftime('%Y-%m-%d', time(), getUserTimezone()),
 	);
 }
 
@@ -392,12 +392,12 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
 {
 	global $scripturl, $modSettings;
 
-	$selected_object = date_create($selected_date);
+	$selected_object = date_create($selected_date . ' ' . getUserTimezone());
 
-	$next_object = date_create($selected_date);
+	$next_object = date_create($selected_date . ' ' . getUserTimezone());
 	$next_object->modify('first day of next month');
 
-	$prev_object = date_create($selected_date);
+	$prev_object = date_create($selected_date . ' ' . getUserTimezone());
 	$prev_object->modify('first day of previous month');
 
 	// Eventually this is what we'll be returning.
@@ -431,8 +431,8 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
 	// Get today's date.
 	$today = getTodayInfo();
 
-	$first_day_object = date_create(date_format($selected_object, 'Y-m-01'));
-	$last_day_object = date_create(date_format($selected_object, 'Y-m-t'));
+	$first_day_object = date_create(date_format($selected_object, 'Y-m-01') . ' ' . getUserTimezone());
+	$last_day_object = date_create(date_format($selected_object, 'Y-m-t') . ' ' . getUserTimezone());
 
 	// Get information about this month.
 	$month_info = array(
@@ -445,8 +445,8 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
 			'day_of_month' => date_format($last_day_object, 't'),
 			'date' => date_format($last_day_object, 'Y-m-d'),
 		),
-		'first_day_of_year' => date_format(date_create(date_format($selected_object, 'Y-01-01')), 'w'),
-		'first_day_of_next_year' => date_format(date_create((date_format($selected_object, 'Y') + 1) . '-01-01'), 'w'),
+		'first_day_of_year' => date_format(date_create(date_format($selected_object, 'Y-01-01') . ' ' . getUserTimezone()), 'w'),
+		'first_day_of_next_year' => date_format(date_create((date_format($selected_object, 'Y') + 1) . '-01-01' . ' ' . getUserTimezone()), 'w'),
 	);
 
 	// The number of days the first row is shifted to the right for the starting day.
@@ -545,7 +545,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 {
 	global $scripturl, $modSettings, $txt;
 
-	$selected_object = date_create($selected_date);
+	$selected_object = date_create($selected_date . ' ' . getUserTimezone());
 
 	// Get today's date.
 	$today = getTodayInfo();
@@ -553,7 +553,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 	// What is the actual "start date" for the passed day.
 	$calendarOptions['start_day'] = empty($calendarOptions['start_day']) ? 0 : (int) $calendarOptions['start_day'];
 	$day_of_week = date_format($selected_object, 'w');
-	$first_day_object = date_create($selected_date);
+	$first_day_object = date_create($selected_date . ' ' . getUserTimezone());
 	if ($day_of_week != $calendarOptions['start_day'])
 	{
 		// Here we offset accordingly to get things to the real start of a week.
@@ -564,17 +564,17 @@ function getCalendarWeek($selected_date, $calendarOptions)
 		date_sub($first_day_object, date_interval_create_from_date_string($date_diff . ' days'));
 	}
 
-	$last_day_object = date_create(date_format($first_day_object, 'Y-m-d'));
+	$last_day_object = date_create(date_format($first_day_object, 'Y-m-d') . ' ' . getUserTimezone());
 	date_add($last_day_object, date_interval_create_from_date_string('1 week'));
 
 	$month = date_format($first_day_object, 'n');
 	$year = date_format($first_day_object, 'Y');
 	$day = date_format($first_day_object, 'd');
 
-	$next_object = date_create($selected_date);
+	$next_object = date_create($selected_date . ' ' . getUserTimezone());
 	date_add($next_object, date_interval_create_from_date_string('1 week'));
 
-	$prev_object = date_create($selected_date);
+	$prev_object = date_create($selected_date . ' ' . getUserTimezone());
 	date_sub($prev_object, date_interval_create_from_date_string('1 week'));
 
 	// Now start filling in the calendar grid.
@@ -609,7 +609,7 @@ function getCalendarWeek($selected_date, $calendarOptions)
 
 	// This holds all the main data - there is at least one month!
 	$calendarGrid['months'] = array();
-	$current_day_object = date_create(date_format($first_day_object, 'Y-m-d'));
+	$current_day_object = date_create(date_format($first_day_object, 'Y-m-d') . ' ' . getUserTimezone());
 	for ($i = 0; $i < 7; $i++)
 	{
 		$current_month = date_format($current_day_object, 'n');
@@ -660,8 +660,8 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 	require_once($sourcedir . '/Subs.php');
 
 	// DateTime objects make life easier
-	$start_object = date_create($start_date);
-	$end_object = date_create($end_date);
+	$start_object = date_create($start_date . ' ' . getUserTimezone());
+	$end_object = date_create($end_date . ' ' . getUserTimezone());
 
 	$calendarGrid = array(
 		'start_date' => timeformat(date_format($start_object, 'U'), get_date_or_time_format('date')),
