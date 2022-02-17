@@ -122,10 +122,10 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 	require_once($sourcedir . '/Subs.php');
 
 	if (empty($timezone_array['default']))
-		$timezone_array['default'] = timezone_open(date_default_timezone_get());
+		$timezone_array['default'] = timezone_open(getUserTimezone());
 
-	$low_object = date_create($low_date);
-	$high_object = date_create($high_date);
+	$low_object = date_create($low_date, $timezone_array['default']);
+	$high_object = date_create($high_date, $timezone_array['default']);
 
 	// Find all the calendar info...
 	$result = $smcFunc['db_query']('calendar_get_events', '
