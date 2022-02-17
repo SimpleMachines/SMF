@@ -152,13 +152,6 @@ function ModifyGeneralSettings($return_config = false)
 {
 	global $scripturl, $context, $txt, $modSettings, $boardurl, $sourcedir, $smcFunc;
 
-	// If no cert, force_ssl must remain 0
-	require_once($sourcedir . '/Subs.php');
-	if (!ssl_cert_found($boardurl) && empty($modSettings['force_ssl']))
-		$disable_force_ssl = true;
-	else
-		$disable_force_ssl = false;
-
 	/* If you're writing a mod, it's a bad idea to add things here....
 	For each option:
 		variable name, description, type (constant), size/possible values, helptext, optional 'min' (minimum value for float/int, defaults to 0), optional 'max' (maximum value for float/int), optional 'step' (amount to increment/decrement value for float/int)
@@ -176,7 +169,7 @@ function ModifyGeneralSettings($return_config = false)
 		array('enableCompressedOutput', $txt['enableCompressedOutput'], 'db', 'check', null, 'enableCompressedOutput'),
 		array('disableHostnameLookup', $txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'),
 		'',
-		array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_complete']), 'force_ssl', 'disabled' => $disable_force_ssl),
+		'force_ssl' => array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_complete']), 'force_ssl'),
 		array('image_proxy_enabled', $txt['image_proxy_enabled'], 'file', 'check', null, 'image_proxy_enabled'),
 		array('image_proxy_secret', $txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'),
 		array('image_proxy_maxsize', $txt['image_proxy_maxsize'], 'file', 'int', null, 'image_proxy_maxsize'),
@@ -188,6 +181,9 @@ function ModifyGeneralSettings($return_config = false)
 
 	if ($return_config)
 		return $config_vars;
+
+	// If no cert, force_ssl must remain 0 (The admin search doesn't require this)
+	$config_vars['force_ssl']['disabled'] = empty($modSettings['force_ssl']) && !ssl_cert_found($boardurl);
 
 	// Setup the template stuff.
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=general;save';
