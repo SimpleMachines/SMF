@@ -35,6 +35,9 @@ if (!defined('SMF'))
 
 require_once('Sources/Class-Package.php');
 
+if (version_compare(PHP_VERSION, '8.0.0', '>='))
+	require_once('Sources/Subs-Compat.php');
+
 // Database info.
 $databases = array(
 	'mysql' => array(
