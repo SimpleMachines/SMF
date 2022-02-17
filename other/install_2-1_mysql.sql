@@ -735,7 +735,7 @@ CREATE TABLE {$db_prefix}members (
 	warning TINYINT NOT NULL DEFAULT '0',
 	passwd_flood VARCHAR(12) NOT NULL DEFAULT '',
 	pm_receive_from TINYINT UNSIGNED NOT NULL DEFAULT '1',
-	timezone VARCHAR(80) NOT NULL DEFAULT 'UTC',
+	timezone VARCHAR(80) NOT NULL DEFAULT '',
 	tfa_secret VARCHAR(24) NOT NULL DEFAULT '',
 	tfa_backup VARCHAR(64) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_member),

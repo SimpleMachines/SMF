@@ -2616,7 +2616,7 @@ ADD COLUMN IF NOT EXISTS modified_reason varchar(255) NOT NULL default '';
 --- Adding timezone support
 /******************************************************************************/
 ---# Adding the "timezone" column to the members table
-ALTER TABLE {$db_prefix}members ADD IF NOT EXISTS timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
+ALTER TABLE {$db_prefix}members ADD IF NOT EXISTS timezone VARCHAR(80) NOT NULL DEFAULT '';
 ---#
 
 ---# Converting time offset to timezone
