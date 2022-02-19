@@ -1028,10 +1028,6 @@ a[class^="mobile_generic_menu_"] {
 	box-sizing: border-box;
 	vertical-align: middle;
 }
-.buttonlist .button {
-	margin-top: 2px;
-	margin-bottom: 2px;
-}
 .pagesection .button {
 	color: #346;
 }
