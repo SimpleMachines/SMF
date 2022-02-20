@@ -2071,7 +2071,7 @@ function getXmlProfile($xml_format)
 				$data[] = array(
 					'tag' => $custom_field['col_name'],
 					'attributes' => array('label' => $custom_field['title']),
-					'content' => $custom_field['raw'],
+					'content' => $custom_field['simple'],
 					'cdata' => true,
 				);
 			}

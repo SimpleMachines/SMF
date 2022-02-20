@@ -1850,6 +1850,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 				$value = $value ? $txt['yes'] : $txt['no'];
 
 			// Enclosing the user input within some other text?
+			$simple_value = $value;
 			if (!empty($custom['enclose']))
 				$value = strtr($custom['enclose'], array(
 					'{SCRIPTURL}' => $scripturl,
@@ -1863,6 +1864,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 				'title' => tokenTxtReplace(!empty($custom['title']) ? $custom['title'] : $custom['col_name']),
 				'col_name' => tokenTxtReplace($custom['col_name']),
 				'value' => un_htmlspecialchars(tokenTxtReplace($value)),
+				'simple' => tokenTxtReplace($simple_value),
 				'raw' => $profile['options'][$custom['col_name']],
 				'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
 			);
