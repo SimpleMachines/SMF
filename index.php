@@ -77,6 +77,10 @@ require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
 require_once($sourcedir . '/Security.php');
 
+// Ensure we don't trip over disabled internal functions
+if (version_compare(PHP_VERSION, '8.0.0', '>='))
+	require_once($sourcedir . '/Subs-Compat.php');
+
 // If $maintenance is set specifically to 2, then we're upgrading or something.
 if (!empty($maintenance) &&  2 === $maintenance)
 {

@@ -115,7 +115,6 @@ $upcontext['steps'] = array(
 $upcontext['database_step'] = 3;
 
 // Secure some resources
-@set_time_limit(600);
 @ini_set('mysql.connect_timeout', -1);
 @ini_set('default_socket_timeout', 900);
 @ini_set('memory_limit', '512M');
@@ -688,6 +687,11 @@ function loadEssentialData()
 		$smcFunc = array();
 
 	require_once($sourcedir . '/Subs.php');
+
+	if (version_compare(PHP_VERSION, '8.0.0', '>='))
+		require_once($sourcedir . '/Subs-Compat.php');
+
+	@set_time_limit(600);
 
 	$smcFunc['random_int'] = function($min = 0, $max = PHP_INT_MAX)
 	{
@@ -2634,7 +2638,6 @@ function cmdStep0()
 	while (ob_get_level() > 0)
 		ob_end_clean();
 	ob_implicit_flush(1);
-	@set_time_limit(600);
 
 	if (!isset($_SERVER['argv']))
 		$_SERVER['argv'] = array();
