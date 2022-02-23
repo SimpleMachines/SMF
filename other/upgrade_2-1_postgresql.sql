@@ -824,7 +824,7 @@ CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_r
 /******************************************************************************/
 ---# Adding support for <credits> tag in package manager
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN IF NOT EXISTS credits TEXT NOT NULL;
+ADD COLUMN IF NOT EXISTS credits TEXT NOT NULL DEFAULT '';
 ---#
 
 ---# Adding support for package hashes
