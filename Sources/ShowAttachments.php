@@ -68,8 +68,8 @@ function showAttachment()
 	$showThumb = isset($_REQUEST['thumb']);
 	$attachTopic = isset($_REQUEST['topic']) ? (int) $_REQUEST['topic'] : 0;
 
-	// No access in strict maintenance mode or you don't have permission to see attachments.
-	if ((!empty($maintenance) && $maintenance == 2) || (!allowedTo('view_attachments') && !isset($_SESSION['attachments_can_preview'][$attachId])))
+	// No access in strict maintenance mode.
+	if (!empty($maintenance) && $maintenance == 2)
 	{
 		send_http_status(404, 'File Not Found');
 		die('404 File Not Found');
@@ -92,11 +92,12 @@ function showAttachment()
 			// Make sure this attachment is on this board and load its info while we are at it.
 			$request = $smcFunc['db_query']('', '
 				SELECT
-					id_folder, filename, file_hash, fileext, id_attach,
-					id_thumb, attachment_type, mime_type, approved, id_msg
-				FROM {db_prefix}attachments
-				WHERE id_attach = {int:attach}' . (!empty($context['preview_message']) ? '
-					AND a.id_msg != 0' : '') . '
+					a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach,
+					a.id_thumb, a.attachment_type, a.mime_type, a.approved, a.id_msg,
+					m.id_board
+				FROM {db_prefix}attachments AS a
+					LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+				WHERE a.id_attach = {int:attach}
 				LIMIT 1',
 				array(
 					'attach' => $attachId,
@@ -147,30 +148,6 @@ function showAttachment()
 			$smcFunc['db_free_result']($request2);
 		}
 
-		// If attachment is unapproved, see if user is allowed to approve
-		if (!$file['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts'))
-		{
-			$request3 = $smcFunc['db_query']('', '
-				SELECT id_member
-				FROM {db_prefix}messages
-				WHERE id_msg = {int:id_msg}
-				LIMIT 1',
-				array(
-					'id_msg' => $file['id_msg'],
-				)
-			);
-
-			$id_member = $smcFunc['db_fetch_assoc']($request3)['id_member'];
-			$smcFunc['db_free_result']($request3);
-
-			// Let users see own unapproved attachments
-			if ($id_member != $user_info['id'])
-			{
-				send_http_status(403, 'Forbidden');
-				die('403 Forbidden');
-			}
-		}
-
 		// set filePath and ETag time
 		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
 		// ensure variant attachment compatibility
@@ -208,6 +185,38 @@ function showAttachment()
 		// Cache it.
 		if (!empty($file) || !empty($thumbFile))
 			cache_put_data('attachment_lookup_id-' . $file['id_attach'], array($file, $thumbFile), mt_rand(850, 900));
+	}
+
+	// No access if you don't have permission to see attachments in this board.
+	// Exception: previewing a new post, since new posts have no board yet.
+	if ((empty($file['id_board']) || !allowedTo('view_attachments', $file['id_board'])) && !isset($_SESSION['attachments_can_preview'][$attachId]))
+	{
+		send_http_status(404, 'File Not Found');
+		die('404 File Not Found');
+	}
+
+	// If attachment is unapproved, see if user is allowed to approve
+	if (!$file['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts'))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member
+			FROM {db_prefix}messages
+			WHERE id_msg = {int:id_msg}
+			LIMIT 1',
+			array(
+				'id_msg' => $file['id_msg'],
+			)
+		);
+
+		$id_member = $smcFunc['db_fetch_assoc']($request)['id_member'];
+		$smcFunc['db_free_result']($request);
+
+		// Let users see own unapproved attachments
+		if ($id_member != $user_info['id'])
+		{
+			send_http_status(403, 'Forbidden');
+			die('403 Forbidden');
+		}
 	}
 
 	// Replace the normal file with its thumbnail if it has one!
