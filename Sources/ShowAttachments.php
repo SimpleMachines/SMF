@@ -64,9 +64,7 @@ function showAttachment()
 	}
 
 	// A thumbnail has been requested? madness! madness I say!
-	$preview = isset($_REQUEST['preview']) ? $_REQUEST['preview'] : (isset($_REQUEST['type']) && $_REQUEST['type'] == 'preview' ? $_REQUEST['type'] : 0);
 	$showThumb = isset($_REQUEST['thumb']);
-	$attachTopic = isset($_REQUEST['topic']) ? (int) $_REQUEST['topic'] : 0;
 
 	// No access in strict maintenance mode.
 	if (!empty($maintenance) && $maintenance == 2)
@@ -114,39 +112,6 @@ function showAttachment()
 
 		$file = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
-
-		// If theres a message ID stored, we NEED a topic ID.
-		if (!empty($file['id_msg']) && empty($attachTopic) && empty($preview))
-		{
-			send_http_status(404, 'File Not Found');
-			die('404 File Not Found');
-		}
-
-		// Previews doesn't have this info.
-		if (empty($preview) && is_resource($attachRequest))
-		{
-			$request2 = $smcFunc['db_query']('', '
-				SELECT a.id_msg
-				FROM {db_prefix}attachments AS a
-					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
-				WHERE {query_see_message_board}
-					AND a.id_attach = {int:attach}
-				LIMIT 1',
-				array(
-					'attach' => $attachId,
-					'current_topic' => $attachTopic,
-				)
-			);
-
-			// The provided topic must match the one stored in the DB for this particular attachment, also.
-			if ($smcFunc['db_num_rows']($request2) == 0)
-			{
-				send_http_status(404, 'File Not Found');
-				die('404 File Not Found');
-			}
-
-			$smcFunc['db_free_result']($request2);
-		}
 
 		// set filePath and ETag time
 		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
