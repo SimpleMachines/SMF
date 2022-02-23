@@ -1003,7 +1003,10 @@ function parseAttachBBC($attachID = 0)
 	$attachInfo = getAttachMsgInfo($attachID);
 
 	// There is always the chance this attachment no longer exists or isn't associated to a message anymore...
-	if (empty($attachInfo) || empty($attachInfo['msg']) && empty($context['preview_message']))
+	if (empty($attachInfo))
+		return 'attachments_no_data_loaded';
+
+	if (empty($attachInfo['msg']) && empty($context['preview_message']))
 		return 'attachments_no_msg_associated';
 
 	// Can the user view attachments on the board that holds the attachment's original post?
