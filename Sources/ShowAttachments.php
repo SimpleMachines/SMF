@@ -154,7 +154,7 @@ function showAttachment()
 
 	// No access if you don't have permission to see attachments in this board.
 	// Exception: previewing a new post, since new posts have no board yet.
-	if ((empty($file['id_board']) || !allowedTo('view_attachments', $file['id_board'])) && !isset($_SESSION['attachments_can_preview'][$attachId]))
+	if ((!empty($file['id_msg']) && (empty($file['id_board'] || !allowedTo('view_attachments', $file['id_board']))) && !isset($_SESSION['attachments_can_preview'][$attachId])))
 	{
 		send_http_status(404, 'File Not Found');
 		die('404 File Not Found');
