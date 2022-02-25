@@ -90,6 +90,7 @@ function showAttachment()
 			// Make sure this attachment is on this board and load its info while we are at it.
 			$request = $smcFunc['db_query']('', '
 				SELECT
+					{string:source} AS source,
 					a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach,
 					a.id_thumb, a.attachment_type, a.mime_type, a.approved, a.id_msg,
 					m.id_board
@@ -98,6 +99,7 @@ function showAttachment()
 				WHERE a.id_attach = {int:attach}
 				LIMIT 1',
 				array(
+					'source' => 'SMF',
 					'attach' => $attachId,
 				)
 			);
@@ -152,9 +154,34 @@ function showAttachment()
 			cache_put_data('attachment_lookup_id-' . $file['id_attach'], array($file, $thumbFile), mt_rand(850, 900));
 	}
 
-	// No access if you don't have permission to see attachments in this board.
-	// Exception: previewing a new post, since new posts have no board yet.
-	if ((!empty($file['id_msg']) && (empty($file['id_board'] || !allowedTo('view_attachments', $file['id_board']))) && !isset($_SESSION['attachments_can_preview'][$attachId])))
+	// No access if you don't have permission to see this attachment.
+	if
+	(
+		// This was from SMF or a hook didn't claim it.
+		(
+			empty($file['source'])
+			|| $file['source'] == 'SMF'
+		)
+		&& (
+			// No id_msg and no id_member, so we don't know where its from.
+			// Avatars will have id_msg = 0 and id_member > 0.
+			(
+				empty($file['id_msg'])
+				&& empty($file['id_member'])
+			)
+			// When we have a message, we need a board and that board needs to
+			// let us view the attachment.
+			|| (
+				!empty($file['id_msg'])
+				&& (
+					empty($file['id_board'])
+					|| !allowedTo('view_attachments', $file['id_board'])
+				)
+			)
+		)
+		// We are not previewing an attachment.
+		&& !isset($_SESSION['attachments_can_preview'][$attachId])
+	)
 	{
 		send_http_status(404, 'File Not Found');
 		die('404 File Not Found');
