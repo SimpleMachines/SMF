@@ -731,7 +731,7 @@ function ModifyGeneralSecuritySettings($return_config = false)
  */
 function ModifyCacheSettings($return_config = false)
 {
-	global $context, $scripturl, $txt, $cacheAPI, $cache_enable;
+	global $context, $scripturl, $txt, $cacheAPI, $cache_enable, $cache_accelerator;
 
 	// Detect all available optimizers
 	$detectedCacheApis = loadCacheAPIs();
