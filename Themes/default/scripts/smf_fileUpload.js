@@ -515,6 +515,9 @@ function smf_fileUpload(oOptions) {
 
 	$('#attachment_previews').show();
 
+	// Hide this, too. The progress bar does a better job.
+	$('.attach_available').remove();
+
 	// Show the drag-and-drop instructions and buttons
 	$('#drop_zone_ui').show();
 

@@ -3545,8 +3545,6 @@ ul.post_options li {
 	height: 22px;
 }
 #post_settings, #postAttachment, #postAttachment2, #attachment_previews {
-	border-top: 1px solid #ddd;
-	margin: -1px 0 0 0;
 	padding: 10px 0;
 }
 #postAttachment dd, #postAttachment2 dd {
