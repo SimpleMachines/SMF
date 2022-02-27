@@ -2242,8 +2242,8 @@ function Post2()
 					unlink($attachment['tmp_name']);
 			}
 		}
-		unset($_SESSION['temp_attachments']);
 	}
+	unset($_SESSION['temp_attachments']);
 
 	// Make the poll...
 	if (isset($_REQUEST['poll']))
