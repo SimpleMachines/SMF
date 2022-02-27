@@ -4196,6 +4196,7 @@ tr[id^='list_news_lists_'] textarea {
 .videocontainer video {
 	object-fit: contain;
 	background: black;
+	max-width: 100%;
 }
 
 .backtrace:not(:last-child) {
