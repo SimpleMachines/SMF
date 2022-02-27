@@ -2414,6 +2414,7 @@ dl {
 	-webkit-hyphens: auto;
 	-ms-hyphens: auto;
 	hyphens: auto;
+	overflow-wrap: break-word;
 }
 .topic h4 {
 	margin: 3px 0;
