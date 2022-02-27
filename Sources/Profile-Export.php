@@ -655,9 +655,6 @@ function export_attachment($uid)
 		send_http_status(403);
 		exit;
 	}
-
-	// We need the topic.
-	list ($_REQUEST['topic']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// This doesn't count as a normal download.

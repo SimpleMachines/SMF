@@ -1740,7 +1740,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					// parseAttachBBC will return a string ($txt key) rather than dying with a fatal_error. Up to you to decide what to do.
 					if (is_string($currentAttachment))
-						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
+						return $data = '<span style="display:inline-block" class="errorbox">' . (!empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment)  . '</span>';
 
 					// We need a display mode.
 					if (empty($params['{display}']))
