@@ -1053,7 +1053,7 @@ function validateEventPost()
 		// The 2.1 way
 		if (isset($_POST['start_date']))
 		{
-			$d = date_parse(convertDateToEnglish($_POST['start_date']));
+			$d = date_parse(str_replace(',', '', convertDateToEnglish($_POST['start_date'])));
 			if (!empty($d['error_count']) || !empty($d['warning_count']))
 				fatal_lang_error('invalid_date', false);
 			if (empty($d['year']))
@@ -1063,7 +1063,7 @@ function validateEventPost()
 		}
 		elseif (isset($_POST['start_datetime']))
 		{
-			$d = date_parse(convertDateToEnglish($_POST['start_datetime']));
+			$d = date_parse(str_replace(',', '', convertDateToEnglish($_POST['start_datetime'])));
 			if (!empty($d['error_count']) || !empty($d['warning_count']))
 				fatal_lang_error('invalid_date', false);
 			if (empty($d['year']))
@@ -1572,7 +1572,7 @@ function setEventStartEnd($eventOptions = array())
 	// If some form of string input was given, override individually defined options with it
 	if (isset($start_string))
 	{
-		$start_string_parsed = date_parse(convertDateToEnglish($start_string));
+		$start_string_parsed = date_parse(str_replace(',', '', convertDateToEnglish($start_string)));
 		if (empty($start_string_parsed['error_count']) && empty($start_string_parsed['warning_count']))
 		{
 			if ($start_string_parsed['year'] !== false)
@@ -1591,7 +1591,7 @@ function setEventStartEnd($eventOptions = array())
 	}
 	if (isset($end_string))
 	{
-		$end_string_parsed = date_parse(convertDateToEnglish($end_string));
+		$end_string_parsed = date_parse(str_replace(',', '', convertDateToEnglish($end_string)));
 		if (empty($end_string_parsed['error_count']) && empty($end_string_parsed['warning_count']))
 		{
 			if ($end_string_parsed['year'] !== false)
