@@ -573,6 +573,7 @@ $txt['Pacific/Gambier'] = 'Gambier Islands';
 $txt['Pacific/Guadalcanal'] = 'Guadalcanal';
 $txt['Pacific/Guam'] = 'Guam';
 $txt['Pacific/Honolulu'] = 'Honolulu';
+$txt['Pacific/Kanton'] = 'Canton Island';
 $txt['Pacific/Kiritimati'] = 'Kiritimati';
 $txt['Pacific/Kosrae'] = 'Tofol';
 $txt['Pacific/Kwajalein'] = 'Kwajalein';
