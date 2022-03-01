@@ -67,6 +67,7 @@ function template_pm_popup()
 			</div>
 			<div class="pm_mailbox centertext">
 				<a href="', $scripturl, '?action=pm" class="button">', $txt['inbox'], '</a>
+				<a href="', $scripturl, '?action=pm;f=sent" class="button">', $txt['sent_items'], '</a>
 			</div>
 		</div>
 		<div class="pm_unread">';
@@ -483,7 +484,7 @@ function template_single_pm($message)
 		echo '(', $txt['pm_undisclosed_recipients'], ')';
 
 	echo '
-							<strong> ', $txt['on'], ':</strong> ', $message['time'], ' 
+							<strong> ', $txt['on'], ':</strong> ', $message['time'], '
 						</span>';
 
 	// If we're in the sent items, show who it was sent to besides the "To:" people.
@@ -630,7 +631,7 @@ function template_subject_list()
 					<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=subject', $context['sort_by'] == 'subject' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', $txt['subject'], $context['sort_by'] == 'subject' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 				</th>
 				<th class="lefttext pm_from_to">
-					<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', ($context['from_or_to'] == 'from' ? $txt['from'] : $txt['to']), $context['sort_by'] == 'name' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
+					<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', ($context['from_or_to'] == 'from' ? $txt['from'] : $txt['pm_to']), $context['sort_by'] == 'name' ? ' <span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 				</th>
 				<th class="centercol table_icon pm_moderation">
 					<input type="checkbox" onclick="invertAll(this, this.form);">
@@ -1958,7 +1959,7 @@ function template_showPMDrafts()
 					<strong>', $draft['subject'], '</strong>
 				</h5>
 				<div class="smalltext">
-					<div class="recipient_to"><strong>', $txt['to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '</div>';
+					<div class="recipient_to"><strong>', $txt['pm_to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '</div>';
 
 			if(!empty($draft['recipients']['bcc']))
 				echo'
