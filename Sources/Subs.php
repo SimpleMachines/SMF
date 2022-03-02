@@ -1515,9 +1515,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	global $smcFunc, $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir, $cache_enable;
 	static $bbc_lang_locales = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled, $alltags_regex = '', $param_regexes = array(), $url_regex = '';
+	$returncodes = ($message === false ? true : false);
 
 	// Don't waste cycles
-	if ($message === '')
+	if ($message === '' && !$returncodes)
 		return '';
 
 	// Just in case it wasn't determined yet whether UTF-8 is enabled.
@@ -1528,7 +1529,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	$message = sanitizeMSCutPaste($message);
 
 	// If the load average is too high, don't parse the BBC.
-	if (!empty($context['load_average']) && !empty($modSettings['bbc']) && $context['load_average'] >= $modSettings['bbc'])
+	if (!empty($context['load_average']) && !empty($modSettings['bbc']) && $context['load_average'] >= $modSettings['bbc'] && !$returncodes)
 	{
 		$context['disabled_parse_bbc'] = true;
 		return $message;
@@ -1537,7 +1538,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	if ($smileys !== null && ($smileys == '1' || $smileys == '0'))
 		$smileys = (bool) $smileys;
 
-	if (empty($modSettings['enableBBC']) && $message !== false)
+	if (empty($modSettings['enableBBC']) && !$returncodes)
 	{
 		if ($smileys === true)
 			parsesmileys($message);
@@ -1563,7 +1564,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	call_integration_hook('integrate_pre_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
 
 	// Sift out the bbc for a performance improvement.
-	if (empty($bbc_codes) || $message === false || !empty($parse_tags))
+	if (empty($bbc_codes) || $returncodes || !empty($parse_tags))
 	{
 		if (!empty($modSettings['disabledBBC']))
 		{
@@ -2466,7 +2467,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		call_integration_hook('integrate_bbc_codes', array(&$codes, &$no_autolink_tags));
 
 		// This is mainly for the bbc manager, so it's easy to add tags above.  Custom BBC should be added above this line.
-		if ($message === false)
+		if ($returncodes)
 		{
 			usort(
 				$codes,
