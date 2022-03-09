@@ -733,7 +733,7 @@ CREATE TABLE {$db_prefix}log_packages (
 	failed_steps text NOT NULL,
 	themes_installed varchar(255) NOT NULL DEFAULT '',
 	db_changes text NOT NULL,
-	credits text NOT NULL DEFAULT '',
+	credits text NOT NULL,
 	sha256_hash TEXT,
 	PRIMARY KEY (id_install)
 );
