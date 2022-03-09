@@ -2383,7 +2383,7 @@ ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 --- Adding timezone support
 /******************************************************************************/
 ---# Adding the "timezone" column to the members table
-ALTER TABLE {$db_prefix}members ADD timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
+ALTER TABLE {$db_prefix}members ADD timezone VARCHAR(80) NOT NULL DEFAULT '';
 ---#
 
 ---# Converting time offset to timezone

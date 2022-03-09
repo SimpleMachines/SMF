@@ -1103,7 +1103,7 @@ CREATE TABLE {$db_prefix}members (
 	warning smallint NOT NULL DEFAULT '0',
 	passwd_flood varchar(12) NOT NULL DEFAULT '',
 	pm_receive_from smallint NOT NULL DEFAULT '1',
-	timezone varchar(80) NOT NULL DEFAULT 'UTC',
+	timezone varchar(80) NOT NULL DEFAULT '',
 	tfa_secret varchar(24) NOT NULL DEFAULT '',
 	tfa_backup varchar(64) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_member)

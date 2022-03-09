@@ -849,18 +849,23 @@ function get_date_or_time_format($type = '', $format = '')
 		array(
 			// Anything that isn't a specification, punctuation mark, or whitespace.
 			'~(?<!%)\p{L}|[^\p{L}\p{P}\s]~u',
-			// A series of punctuation marks (except %), possibly separated by whitespace.
-			'~([^%\P{P}])(\s*)(?'.'>(\1|[^%\P{Po}])\s*(?!$))*~u',
+			// Repeated punctuation marks (except %), possibly separated by whitespace.
+			'~(?'.'>([^%\P{P}])\s*(?=\1))*~u',
+			'~([^%\P{P}])(?'.'>\1(?!$))*~u',
 			// Unwanted trailing punctuation and whitespace.
 			'~(?'.'>([\p{Pd}\p{Ps}\p{Pi}\p{Pc}]|[^%\P{Po}])\s*)*$~u',
 			// Unwanted opening punctuation and whitespace.
 			'~^\s*(?'.'>([\p{Pd}\p{Pe}\p{Pf}\p{Pc}]|[^%\P{Po}])\s*)*~u',
+			// Runs of horizontal whitespace.
+			'~\s+~',
 		),
 		array(
 			'',
+			'$1',
 			'$1$2',
 			'',
 			'',
+			' ',
 		),
 		$format
 	);
