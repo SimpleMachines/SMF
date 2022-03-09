@@ -115,13 +115,7 @@ function ModifySettings()
 	$settings_not_writable = !is_writable($boarddir . '/Settings.php');
 	$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
 
-	if ($settings_not_writable)
-		$context['settings_message'] = array(
-			'label' => $txt['settings_not_writable'],
-			'tag' => 'div',
-			'class' => 'centertext strong'
-		);
-	elseif ($settings_backup_fail)
+	if ($settings_backup_fail)
 		$context['settings_message'] = array(
 			'label' => $txt['admin_backup_fail'],
 			'tag' => 'div',
@@ -188,6 +182,7 @@ function ModifyGeneralSettings($return_config = false)
 	// Setup the template stuff.
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=general;save';
 	$context['settings_title'] = $txt['general_settings'];
+	$context['save_disabled'] = $context['settings_not_writable'];
 
 	// Saving settings?
 	if (isset($_REQUEST['save']))
@@ -226,7 +221,8 @@ function ModifyGeneralSettings($return_config = false)
 	prepareServerSettingsContext($config_vars);
 
 	// Some javascript for SSL
-	addInlineJavaScript('
+	if (empty($context['settings_not_writable']))
+		addInlineJavaScript('
 $(function()
 {
 	$("#force_ssl").change(function()
@@ -535,6 +531,7 @@ function ModifyCookieSettings($return_config = false)
 
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=cookie;save';
 	$context['settings_title'] = $txt['cookies_sessions_settings'];
+	$context['save_disabled'] = $context['settings_not_writable'];
 
 	// Saving settings?
 	if (isset($_REQUEST['save']))
@@ -731,7 +728,7 @@ function ModifyGeneralSecuritySettings($return_config = false)
  */
 function ModifyCacheSettings($return_config = false)
 {
-	global $context, $scripturl, $txt, $cacheAPI, $cache_enable;
+	global $context, $scripturl, $txt, $cacheAPI, $cache_enable, $cache_accelerator;
 
 	// Detect all available optimizers
 	$detectedCacheApis = loadCacheAPIs();
@@ -1041,7 +1038,14 @@ function ModifyLoadBalancingSettings($return_config = false)
  */
 function prepareServerSettingsContext(&$config_vars)
 {
-	global $context, $modSettings, $smcFunc;
+	global $context, $modSettings, $smcFunc, $txt;
+
+	if ($context['settings_not_writable'])
+		$context['settings_message'] = array(
+			'label' => $txt['settings_not_writable'],
+			'tag' => 'div',
+			'class' => 'centertext strong'
+		);
 
 	if (isset($_SESSION['adm-save']))
 	{

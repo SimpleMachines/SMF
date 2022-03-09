@@ -186,6 +186,8 @@ function reencodeImage($fileName, $preferred_format = 0)
 
 	if (!rename($fileName . '.tmp', $fileName))
 		return false;
+
+	return true;
 }
 
 /**

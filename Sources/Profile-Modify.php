@@ -966,25 +966,25 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 		'ignore_boards',
 	);
 
-	if (isset($_POST['sa']) && $_POST['sa'] == 'ignoreboards' && empty($_POST['ignore_brd']))
-		$_POST['ignore_brd'] = array();
+	if (isset($_POST['sa']) && $_POST['sa'] == 'ignoreboards' && empty($_POST['brd']))
+		$_POST['brd'] = array();
 
 	unset($_POST['ignore_boards']); // Whatever it is set to is a dirty filthy thing.  Kinda like our minds.
-	if (isset($_POST['ignore_brd']))
+	if (isset($_POST['brd']))
 	{
-		if (!is_array($_POST['ignore_brd']))
-			$_POST['ignore_brd'] = array($_POST['ignore_brd']);
+		if (!is_array($_POST['brd']))
+			$_POST['brd'] = array($_POST['brd']);
 
-		foreach ($_POST['ignore_brd'] as $k => $d)
+		foreach ($_POST['brd'] as $k => $d)
 		{
 			$d = (int) $d;
 			if ($d != 0)
-				$_POST['ignore_brd'][$k] = $d;
+				$_POST['brd'][$k] = $d;
 			else
-				unset($_POST['ignore_brd'][$k]);
+				unset($_POST['brd'][$k]);
 		}
-		$_POST['ignore_boards'] = implode(',', $_POST['ignore_brd']);
-		unset($_POST['ignore_brd']);
+		$_POST['ignore_boards'] = implode(',', $_POST['brd']);
+		unset($_POST['brd']);
 	}
 
 	// Here's where we sort out all the 'other' values...
@@ -1278,7 +1278,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				if (empty($value) && !is_numeric($value))
 					$value = '';
 
-				if ($row['mask'] == 'nohtml' && ($valueReference != strip_tags($valueReference) || $value != filter_var($value, FILTER_SANITIZE_STRING) || preg_match('/<(.+?)[\s]*\/?[\s]*>/si', $valueReference)))
+				if ($row['mask'] == 'nohtml' && ($valueReference != strip_tags($valueReference) || $value != filter_var($value, FILTER_SANITIZE_FULL_SPECIAL_CHARS) || preg_match('/<(.+?)[\s]*\/?[\s]*>/si', $valueReference)))
 				{
 					if ($returnErrors)
 						$errors[] = 'custom_field_nohtml_fail';

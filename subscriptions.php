@@ -28,6 +28,10 @@ require_once($sourcedir . '/ManagePaid.php');
 // For any admin emailing.
 require_once($sourcedir . '/Subs-Admin.php');
 
+// Ensure we don't trip over disabled internal functions
+if (version_compare(PHP_VERSION, '8.0.0', '>='))
+	require_once($sourcedir . '/Subs-Compat.php');
+
 loadLanguage('ManagePaid');
 
 // If there's literally nothing coming in, let's take flight!

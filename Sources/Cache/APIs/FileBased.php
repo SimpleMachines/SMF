@@ -224,7 +224,8 @@ class FileBased extends CacheApi implements CacheApiInterface
 		if (!isset($context['settings_post_javascript']))
 			$context['settings_post_javascript'] = '';
 
-		$context['settings_post_javascript'] .= '
+		if (empty($context['settings_not_writable']))
+			$context['settings_post_javascript'] .= '
 			$("#cache_accelerator").change(function (e) {
 				var cache_type = e.currentTarget.value;
 				$("#cachedir").prop("disabled", cache_type != "'. $class_name .'");

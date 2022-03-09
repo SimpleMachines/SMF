@@ -811,7 +811,12 @@ ADD COLUMN IF NOT EXISTS status smallint NOT NULL default '0',
 ADD COLUMN IF NOT EXISTS id_member_acted int NOT NULL default '0',
 ADD COLUMN IF NOT EXISTS member_name_acted varchar(255) NOT NULL default '',
 ADD COLUMN IF NOT EXISTS time_acted int NOT NULL default '0',
-ADD COLUMN IF NOT EXISTS act_reason text NOT NULL;
+ADD COLUMN IF NOT EXISTS act_reason text NOT NULL default '';
+---#
+
+---# Adding new columns to log_group_requests - drop defaults now that existing rows have been set
+ALTER TABLE {$db_prefix}log_group_requests
+ALTER COLUMN act_reason DROP DEFAULT;
 ---#
 
 ---# Adjusting the indexes for log_group_requests
@@ -824,7 +829,12 @@ CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_r
 /******************************************************************************/
 ---# Adding support for <credits> tag in package manager
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN IF NOT EXISTS credits TEXT NOT NULL;
+ADD COLUMN IF NOT EXISTS credits TEXT NOT NULL default '';
+---#
+
+---# Adding support for <credits> - drop default now that existing rows have been set
+ALTER TABLE {$db_prefix}log_packages
+ALTER COLUMN credits DROP DEFAULT;
 ---#
 
 ---# Adding support for package hashes
@@ -2616,7 +2626,7 @@ ADD COLUMN IF NOT EXISTS modified_reason varchar(255) NOT NULL default '';
 --- Adding timezone support
 /******************************************************************************/
 ---# Adding the "timezone" column to the members table
-ALTER TABLE {$db_prefix}members ADD IF NOT EXISTS timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
+ALTER TABLE {$db_prefix}members ADD IF NOT EXISTS timezone VARCHAR(80) NOT NULL DEFAULT '';
 ---#
 
 ---# Converting time offset to timezone

@@ -35,6 +35,9 @@ if (!defined('SMF'))
 
 require_once('Sources/Class-Package.php');
 
+if (version_compare(PHP_VERSION, '8.0.0', '>='))
+	require_once('Sources/Subs-Compat.php');
+
 // Database info.
 $databases = array(
 	'mysql' => array(
@@ -1293,7 +1296,7 @@ function DatabasePopulation()
 		$current_statement = '';
 
 		// Wait, wait, I'm still working here!
-		set_time_limit(60);
+		@set_time_limit(60);
 	}
 
 	// Sort out the context for the SQL.

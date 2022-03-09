@@ -887,7 +887,7 @@ $txt['are_sure_mark_read'] = 'Are you sure you want to mark messages as read?';
 // Inline attachments messages.
 $txt['attachments_not_enable'] = 'Attachments are disabled';
 $txt['attachments_no_data_loaded'] = 'Not a valid attachment ID.';
-$txt['attachments_not_allowed_to_see'] = 'You cannot see attachments on this board.';
+$txt['attachments_not_allowed_to_see'] = 'You cannot view this attachment.';
 $txt['attachments_no_msg_associated'] = 'No message is associated with this attachment.';
 $txt['attachments_unapproved'] = 'Attachment is awaiting approval.';
 

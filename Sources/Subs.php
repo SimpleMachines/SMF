@@ -849,18 +849,23 @@ function get_date_or_time_format($type = '', $format = '')
 		array(
 			// Anything that isn't a specification, punctuation mark, or whitespace.
 			'~(?<!%)\p{L}|[^\p{L}\p{P}\s]~u',
-			// A series of punctuation marks (except %), possibly separated by whitespace.
-			'~([^%\P{P}])(\s*)(?'.'>(\1|[^%\P{Po}])\s*(?!$))*~u',
+			// Repeated punctuation marks (except %), possibly separated by whitespace.
+			'~(?'.'>([^%\P{P}])\s*(?=\1))*~u',
+			'~([^%\P{P}])(?'.'>\1(?!$))*~u',
 			// Unwanted trailing punctuation and whitespace.
 			'~(?'.'>([\p{Pd}\p{Ps}\p{Pi}\p{Pc}]|[^%\P{Po}])\s*)*$~u',
 			// Unwanted opening punctuation and whitespace.
 			'~^\s*(?'.'>([\p{Pd}\p{Pe}\p{Pf}\p{Pc}]|[^%\P{Po}])\s*)*~u',
+			// Runs of horizontal whitespace.
+			'~\s+~',
 		),
 		array(
 			'',
+			'$1',
 			'$1$2',
 			'',
 			'',
+			' ',
 		),
 		$format
 	);
@@ -1740,7 +1745,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					// parseAttachBBC will return a string ($txt key) rather than dying with a fatal_error. Up to you to decide what to do.
 					if (is_string($currentAttachment))
-						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
+						return $data = '<span style="display:inline-block" class="errorbox">' . (!empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment)  . '</span>';
 
 					// We need a display mode.
 					if (empty($params['{display}']))

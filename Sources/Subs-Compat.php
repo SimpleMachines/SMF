@@ -510,4 +510,34 @@ if (!function_exists('idn_to_utf8'))
 	}
 }
 
+/**
+ * Prevent fatal errors under PHP 8 when a disabled internal function is called.
+ *
+ * Before PHP 8, calling a disabled internal function merely generated a
+ * warning that could be easily suppressed by the @ operator. But as of PHP 8
+ * a disabled internal function is treated like it is undefined, which means
+ * a fatal error will be thrown and execution will halt. SMF expects the old
+ * behaviour, so these no-op polyfills make sure that is what happens.
+ */
+if (version_compare(PHP_VERSION, '8.0.0', '>='))
+{
+	/*
+	 * This array contains function names that meet the following conditions:
+	 *
+	 * 1. SMF assumes they are defined, even if disabled. Note that prior to
+	 *    PHP 8, this was always true for internal functions.
+	 *
+	 * 2. Some hosts are known to disable them.
+	 *
+	 * 3. SMF can get by without them (as opposed to missing functions that
+	 *    really SHOULD cause execution to halt).
+	 */
+	foreach (array('set_time_limit') as $func)
+	{
+		if (!function_exists($func))
+			eval('function ' . $func . '() { trigger_error("' . $func . '() has been disabled for security reasons", E_USER_WARNING); }');
+	}
+	unset($func);
+}
+
 ?>

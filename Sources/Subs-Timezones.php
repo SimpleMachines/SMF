@@ -486,7 +486,7 @@ function get_tzid_metazones($when = 'now')
 		'Pacific/Efate' => 'Pacific_Vanuatu',
 
 		// No DST
-		'Pacific/Enderbury' => 'Pacific_Phoenix_Islands',
+		'Pacific/Kanton' => 'Pacific_Phoenix_Islands',
 
 		// No DST
 		'Pacific/Fakaofo' => 'Pacific_Tokelau',
@@ -1065,6 +1065,7 @@ function get_sorted_tzids_for_country($country_code, $when = 'now')
 		'KI' => array(
 			'Pacific/Tarawa',
 			'Pacific/Kiritimati',
+			'Pacific/Kanton',
 			'Pacific/Enderbury',
 		),
 		'KM' => array(
@@ -1615,6 +1616,12 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 			array(
 				'ts' => PHP_INT_MIN,
 				'tzid' => 'Pacific/Truk',
+			),
+		),
+		'Pacific/Kanton' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => 'Pacific/Enderbury',
 			),
 		),
 		'Pacific/Pohnpei' => array(

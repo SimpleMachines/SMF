@@ -113,7 +113,7 @@ function CalendarMain()
 	// Need a start date for all views
 	if (!empty($_REQUEST['start_date']))
 	{
-		$start_parsed = date_parse(convertDateToEnglish($_REQUEST['start_date']));
+		$start_parsed = date_parse(str_replace(',', '', convertDateToEnglish($_REQUEST['start_date'])));
 		if (empty($start_parsed['error_count']) && empty($start_parsed['warning_count']))
 		{
 			$_REQUEST['year'] = $start_parsed['year'];
@@ -125,12 +125,12 @@ function CalendarMain()
 	$month = !empty($_REQUEST['month']) ? (int) $_REQUEST['month'] : $today['month'];
 	$day = !empty($_REQUEST['day']) ? (int) $_REQUEST['day'] : (!empty($_REQUEST['month']) ? 1 : $today['day']);
 
-	$start_object = checkdate($month, $day, $year) === true ? date_create(implode('-', array($year, $month, $day))) : date_create(implode('-', array($today['year'], $today['month'], $today['day'])));
+	$start_object = checkdate($month, $day, $year) === true ? date_create(implode('-', array($year, $month, $day)) . ' ' . getUserTimezone()) : date_create(implode('-', array($today['year'], $today['month'], $today['day'])) . ' ' . getUserTimezone());
 
 	// Need an end date for the list view
 	if (!empty($_REQUEST['end_date']))
 	{
-		$end_parsed = date_parse(convertDateToEnglish($_REQUEST['end_date']));
+		$end_parsed = date_parse(str_replace(',', '', convertDateToEnglish($_REQUEST['end_date'])));
 		if (empty($end_parsed['error_count']) && empty($end_parsed['warning_count']))
 		{
 			$_REQUEST['end_year'] = $end_parsed['year'];
@@ -146,14 +146,14 @@ function CalendarMain()
 
 	if (isset($end_month, $end_day, $end_year) && checkdate($end_month, $end_day, $end_year))
 	{
-		$end_object = date_create(implode('-', array($end_year, $end_month, $end_day)));
+		$end_object = date_create(implode('-', array($end_year, $end_month, $end_day)) . ' ' . getUserTimezone());
 	}
 
 	if (empty($end_object) || $start_object >= $end_object)
 	{
 		$num_days_shown = empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'];
 
-		$end_object = date_create(date_format($start_object, 'Y-m-d'));
+		$end_object = date_create(date_format($start_object, 'Y-m-d') . ' ' . getUserTimezone());
 
 		date_add($end_object, date_interval_create_from_date_string($num_days_shown . ' days'));
 	}
