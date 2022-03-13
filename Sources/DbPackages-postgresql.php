@@ -475,7 +475,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	{
 		// Fix the default.
 		$default = '';
-		if (isset($column_info['default']) && $column_info['default'] == 'NULL' && empty($column_info['not_null']))
+		if (isset($column_info['default']) && is_null($column_info['default']) && empty($column_info['not_null']))
 			$default = 'NULL';
 		else
 			$default = '\'' . $smcFunc['db_escape_string']($column_info['default']) . '\'';
