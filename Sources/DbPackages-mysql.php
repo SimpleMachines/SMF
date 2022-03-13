@@ -433,7 +433,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	$smcFunc['db_query']('', '
 		ALTER TABLE ' . $table_name . '
 		CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column_info['not_null']) ? 'NOT NULL' : '') . ' ' .
-				(empty($default) ? '' : 'default ' . $default) . ' ' .
+				($default === '' ? '' : 'default ' . $default) . ' ' .
 			(empty($column_info['auto']) ? '' : 'auto_increment') . ' ',
 		array(
 			'security_override' => true,

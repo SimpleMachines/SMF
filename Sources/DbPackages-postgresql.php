@@ -480,7 +480,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 		else
 			$default = '\'' . $smcFunc['db_escape_string']($column_info['default']) . '\'';
 
-		$action = $column_info['default'] !== null ? 'SET DEFAULT ' . $default : 'DROP DEFAULT';
+		$action = $default !== '' ? 'SET DEFAULT ' . $default : 'DROP DEFAULT';
 		$smcFunc['db_query']('', '
 			ALTER TABLE ' . $table_name . '
 			ALTER COLUMN ' . $column_info['name'] . ' ' . $action,
