@@ -2156,7 +2156,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 				// Second, is their answer in the list of possible answers?
 				else
 				{
-					$given_answer = trim($smcFunc['htmlspecialchars'](strtolower($_REQUEST[$verificationOptions['id'] . '_vv']['q'][$q])));
+					$given_answer = trim($smcFunc['htmlspecialchars']($smcFunc['strtolower']($_REQUEST[$verificationOptions['id'] . '_vv']['q'][$q])));
 					if (!in_array($given_answer, $modSettings['question_id_cache']['questions'][$q]['answers']))
 						$incorrectQuestions[] = $q;
 				}
