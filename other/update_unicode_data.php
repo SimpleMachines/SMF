@@ -116,6 +116,7 @@ $funcs = array(
 		),
 		'props' => array(
 			'Bidi_Control',
+			'Case_Ignorable',
 			'Cn',
 			'Default_Ignorable_Code_Point',
 			'Emoji',
