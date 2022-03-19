@@ -25,23 +25,7 @@ if (!defined('SMF'))
  */
 function utf8_strtolower($string)
 {
-	global $sourcedir;
-
-	$string = (string) $string;
-
-	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-	if ($chars === false)
-		return false;
-
-	require_once($sourcedir . '/Unicode/CaseLower.php');
-
-	$substitutions = utf8_strtolower_full_maps();
-
-	foreach ($chars as &$char)
-		$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
-
-	return implode('', $chars);
+	return utf8_convert_case($string, 'lower');
 }
 
 /**
@@ -55,23 +39,7 @@ function utf8_strtolower($string)
  */
 function utf8_strtoupper($string)
 {
-	global $sourcedir;
-
-	$string = (string) $string;
-
-	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-	if ($chars === false)
-		return false;
-
-	require_once($sourcedir . '/Unicode/CaseUpper.php');
-
-	$substitutions = utf8_strtoupper_full_maps();
-
-	foreach ($chars as &$char)
-		$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
-
-	return implode('', $chars);
+	return utf8_convert_case($string, 'upper');
 }
 
 /**
@@ -85,23 +53,227 @@ function utf8_strtoupper($string)
  */
 function utf8_casefold($string)
 {
-	global $sourcedir;
+	return utf8_convert_case($string, 'fold');
+}
 
-	$string = (string) $string;
+/**
+ * Converts the case of the given UTF-8 string.
+ *
+ * @param string $string The string.
+ * @param string $case One of 'upper', 'lower', 'fold', 'title', 'ucfirst', or 'ucwords'.
+ * @param bool $simple If true, use simple maps instead of full maps. Default: false.
+ * @return string A version of $string converted to the specified case.
+ */
+function utf8_convert_case($string, $case, $simple = false)
+{
+	global $sourcedir, $txt;
 
-	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+	$simple = !empty($simple);
 
-	if ($chars === false)
-		return false;
+	$lang = empty($txt['lang_locale']) ? '' : substr($txt['lang_locale'], 0, 2);
 
-	require_once($sourcedir . '/Unicode/CaseFold.php');
+	// The main case conversion logic
+	if (in_array($case, array('upper', 'lower', 'fold')))
+	{
+		$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
-	$substitutions = utf8_casefold_full_maps();
+		if ($chars === false)
+			return false;
 
-	foreach ($chars as &$char)
-		$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
+		switch ($case)
+		{
+			case 'upper':
+				require_once($sourcedir . '/Unicode/CaseUpper.php');
 
-	return implode('', $chars);
+				$substitutions = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_full_maps();
+
+				// Turkish & Azeri conditional casing, part 1.
+				if (in_array($lang, array('tr', 'az')))
+					$substitutions['i'] = 'İ';
+
+				break;
+
+			case 'lower':
+				require_once($sourcedir . '/Unicode/CaseLower.php');
+
+				$substitutions = $simple ? utf8_strtolower_simple_maps() : utf8_strtolower_full_maps();
+
+				// Turkish & Azeri conditional casing, part 1.
+				if (in_array($lang, array('tr', 'az')))
+				{
+					$substitutions['İ'] = 'i';
+					$substitutions['I' . "\xCC\x87"] = 'i';
+					$substitutions['I'] = 'ı';
+				}
+
+				break;
+
+			case 'fold':
+				require_once($sourcedir . '/Unicode/CaseFold.php');
+
+				$substitutions = $simple ? utf8_casefold_simple_maps() : utf8_casefold_full_maps();
+
+				break;
+		}
+
+		foreach ($chars as &$char)
+			$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
+
+		$string = implode('', $chars);
+	}
+	elseif (in_array($case, array('title', 'ucfirst', 'ucwords')))
+	{
+		require_once($sourcedir . '/Unicode/RegularExpressions.php');
+		require_once($sourcedir . '/Unicode/CaseUpper.php');
+		require_once($sourcedir . '/Unicode/CaseTitle.php');
+
+		$prop_classes = utf8_regex_properties();
+
+		$upper = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_full_maps();
+
+		// Turkish & Azeri conditional casing, part 1.
+		if (in_array($lang, array('tr', 'az')))
+			$upper['i'] = 'İ';
+
+		$title = array_merge($upper, $simple ? utf8_titlecase_simple_maps() : utf8_titlecase_full_maps());
+
+		switch ($case)
+		{
+			case 'title':
+				$string = utf8_convert_case($string, 'lower', $simple);
+				$regex = '/(?:^|[^\w' . $prop_classes['Case_Ignorable'] . '])\K(\p{L})/u';
+				break;
+
+			case 'ucwords':
+				$regex = '/(?:^|[^\w' . $prop_classes['Case_Ignorable'] . '])\K(\p{L})(?=[' . $prop_classes['Case_Ignorable'] . ']*(?:(?<upper>\p{Lu})|\w?))/u';
+				break;
+
+			case 'ucfirst':
+				$regex = '/^[^\w' . $prop_classes['Case_Ignorable'] . ']*\K(\p{L})(?=[' . $prop_classes['Case_Ignorable'] . ']*(?:(?<upper>\p{Lu})|\w?))/u';
+				break;
+		}
+
+		$string = preg_replace_callback(
+			$regex,
+			function($matches) use ($upper, $title)
+			{
+				// If second letter is uppercase, use uppercase for first letter.
+				// Otherwise, use titlecase for first letter.
+				$case = !empty($matches['upper']) ? 'upper' : 'title';
+
+				$matches[1] = isset($$case[$matches[1]]) ? $$case[$matches[1]] : $matches[1];
+
+				return $matches[1];
+			},
+			$string
+		);
+	}
+
+	// If casefolding, we're done.
+	if ($case === 'fold')
+		return $string;
+
+	// Handle conditional casing situations...
+	$substitutions = array();
+	$replacements = array();
+
+	// Greek conditional casing, part 1: Fix lowercase sigma.
+	// Note that this rule doesn't depend on $txt['lang_locale'].
+	if ($case !== 'upper' && strpos($string, 'ς') !== false || strpos($string, 'σ') !== false)
+	{
+		require_once($sourcedir . '/Unicode/RegularExpressions.php');
+
+		$prop_classes = utf8_regex_properties();
+
+		// First, convert all lowercase sigmas to regular form.
+		$substitutions['ς'] = 'σ';
+
+		// Then convert any at the end of words to final form.
+		$replacements['/\Bσ([' . $prop_classes['Case_Ignorable'] . ']*)(?!\p{L})/u'] = 'ς$1';
+	}
+	// Greek conditional casing, part 2: No accents on uppercase strings.
+	if ($lang === 'el' && $case === 'upper')
+	{
+		// Composed forms.
+		$substitutions += array(
+			'Ά' => 'Α', 'Ἀ' => 'Α', 'Ἁ' => 'Α', 'Ὰ' => 'Α', 'Ᾰ' => 'Α',
+			'Ᾱ' => 'Α', 'Α' => 'Α', 'Α' => 'Α', 'Ἂ' => 'Α', 'Ἃ' => 'Α',
+			'Ἄ' => 'Α', 'Ἅ' => 'Α', 'Ἆ' => 'Α', 'Ἇ' => 'Α', 'Ὰ' => 'Α',
+			'Ά' => 'Α', 'Α' => 'Α', 'Ἀ' => 'Α', 'Ἁ' => 'Α', 'Ἂ' => 'Α',
+			'Ἃ' => 'Α', 'Ἄ' => 'Α', 'Ἅ' => 'Α', 'Ἆ' => 'Α', 'Ἇ' => 'Α',
+			'Έ' => 'Ε', 'Ἐ' => 'Ε', 'Ἑ' => 'Ε', 'Ὲ' => 'Ε', 'Ἒ' => 'Ε',
+			'Ἓ' => 'Ε', 'Ἔ' => 'Ε', 'Ἕ' => 'Ε', 'Ή' => 'Η', 'Ἠ' => 'Η',
+			'Ἡ' => 'Η', 'Ὴ' => 'Η', 'Η' => 'Η', 'Η' => 'Η', 'Ἢ' => 'Η',
+			'Ἣ' => 'Η', 'Ἤ' => 'Η', 'Ἥ' => 'Η', 'Ἦ' => 'Η', 'Ἧ' => 'Η',
+			'Ἠ' => 'Η', 'Ἡ' => 'Η', 'Ὴ' => 'Η', 'Ή' => 'Η', 'Η' => 'Η',
+			'Ἢ' => 'Η', 'Ἣ' => 'Η', 'Ἤ' => 'Η', 'Ἥ' => 'Η', 'Ἦ' => 'Η',
+			'Ἧ' => 'Η', 'Ί' => 'Ι', 'Ἰ' => 'Ι', 'Ἱ' => 'Ι', 'Ὶ' => 'Ι',
+			'Ῐ' => 'Ι', 'Ῑ' => 'Ι', 'Ι' => 'Ι', 'Ϊ' => 'Ι', 'Ι' => 'Ι',
+			'Ἲ' => 'Ι', 'Ἳ' => 'Ι', 'Ἴ' => 'Ι', 'Ἵ' => 'Ι', 'Ἶ' => 'Ι',
+			'Ἷ' => 'Ι', 'Ι' => 'Ι', 'Ι' => 'Ι', 'Ό' => 'Ο', 'Ὀ' => 'Ο',
+			'Ὁ' => 'Ο', 'Ὸ' => 'Ο', 'Ὂ' => 'Ο', 'Ὃ' => 'Ο', 'Ὄ' => 'Ο',
+			'Ὅ' => 'Ο', 'Ῥ' => 'Ρ', 'Ύ' => 'Υ', 'Υ' => 'Υ', 'Ὑ' => 'Υ',
+			'Ὺ' => 'Υ', 'Ῠ' => 'Υ', 'Ῡ' => 'Υ', 'Υ' => 'Υ', 'Ϋ' => 'Υ',
+			'Υ' => 'Υ', 'Υ' => 'Υ', 'Ὓ' => 'Υ', 'Υ' => 'Υ', 'Ὕ' => 'Υ',
+			'Υ' => 'Υ', 'Ὗ' => 'Υ', 'Υ' => 'Υ', 'Υ' => 'Υ', 'Υ' => 'Υ',
+			'Ώ' => 'Ω', 'Ὠ' => 'Ω', 'Ὡ' => 'Ω', 'Ὼ' => 'Ω', 'Ω' => 'Ω',
+			'Ω' => 'Ω', 'Ὢ' => 'Ω', 'Ὣ' => 'Ω', 'Ὤ' => 'Ω', 'Ὥ' => 'Ω',
+			'Ὦ' => 'Ω', 'Ὧ' => 'Ω', 'Ὠ' => 'Ω', 'Ὡ' => 'Ω', 'Ώ' => 'Ω',
+			'Ω' => 'Ω', 'Ὢ' => 'Ω', 'Ὣ' => 'Ω', 'Ὤ' => 'Ω', 'Ὥ' => 'Ω',
+			'Ὦ' => 'Ω', 'Ὧ' => 'Ω',
+		);
+
+		// Individual Greek diacritics.
+		$substitutions += array(
+			"\xCC\x80" => '', "\xCC\x81" => '', "\xCC\x84" => '',
+			"\xCC\x86" => '', "\xCC\x88" => '', "\xCC\x93" => '',
+			"\xCC\x94" => '', "\xCD\x82" => '', "\xCD\x83" => '',
+			"\xCD\x84" => '', "\xCD\x85" => '', "\xCD\xBA" => '',
+			"\xCE\x84" => '', "\xCE\x85" => '',
+			"\xE1\xBE\xBD" => '', "\xE1\xBE\xBF" => '', "\xE1\xBF\x80" => '',
+			"\xE1\xBF\x81" => '', "\xE1\xBF\x8D" => '', "\xE1\xBF\x8E" => '',
+			"\xE1\xBF\x8F" => '', "\xE1\xBF\x9D" => '', "\xE1\xBF\x9E" => '',
+			"\xE1\xBF\x9F" => '', "\xE1\xBF\xAD" => '', "\xE1\xBF\xAE" => '',
+			"\xE1\xBF\xAF" => '', "\xE1\xBF\xBD" => '', "\xE1\xBF\xBE" => '',
+		);
+	}
+
+	// Turkish & Azeri conditional casing, part 2.
+	if ($case !== 'upper' && in_array($lang, array('tr', 'az')))
+	{
+		// Remove unnecessary "COMBINING DOT ABOVE" after i
+		$substitutions['i' . "\xCC\x87"] = 'i';
+	}
+
+	// Lithuanian conditional casing.
+	if ($lang === 'lt')
+	{
+		// Force a dot above lowercase i and j with accents by inserting
+		// the "COMBINING DOT ABOVE" character.
+		// Note: some fonts handle this incorrectly and show two dots,
+		// but that's a bug in those fonts and cannot be fixed here.
+		if ($case !== 'upper')
+			$replacements['/(i\x{328}?|\x{12F}|j)([\x{300}\x{301}\x{303}])/u'] = '$1' . "\xCC\x87" . '$2';
+
+		// Remove "COMBINING DOT ABOVE" after uppercase I and J.
+		if ($case !== 'lower')
+			$replacements['/(I\x{328}?|\x{12E}|J)\x{307}/u'] = '$1';
+	}
+
+	// Dutch has a special titlecase rule.
+	if ($lang === 'nl' && $case === 'title')
+	{
+		$replacements['/\bIj/u'] = 'IJ';
+	}
+
+	// Now perform whatever conditional casing fixes we need.
+	if (!empty($substitutions))
+		$string = strtr($string, $substitutions);
+
+	if (!empty($replacements))
+		$string = preg_replace(array_keys($replacements), $replacements, $string);
+
+	return $string;
 }
 
 /**
