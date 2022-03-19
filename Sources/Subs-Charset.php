@@ -36,7 +36,7 @@ function utf8_strtolower($string)
 
 	require_once($sourcedir . '/Unicode/CaseLower.php');
 
-	$substitutions = utf8_strtolower_maps();
+	$substitutions = utf8_strtolower_full_maps();
 
 	foreach ($chars as &$char)
 		$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
@@ -66,7 +66,7 @@ function utf8_strtoupper($string)
 
 	require_once($sourcedir . '/Unicode/CaseUpper.php');
 
-	$substitutions = utf8_strtoupper_maps();
+	$substitutions = utf8_strtoupper_full_maps();
 
 	foreach ($chars as &$char)
 		$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
@@ -96,7 +96,7 @@ function utf8_casefold($string)
 
 	require_once($sourcedir . '/Unicode/CaseFold.php');
 
-	$substitutions = utf8_casefold_maps();
+	$substitutions = utf8_casefold_full_maps();
 
 	foreach ($chars as &$char)
 		$char = isset($substitutions[$char]) ? $substitutions[$char] : $char;
@@ -223,7 +223,7 @@ function utf8_normalize_kc_casefold($string)
 	require_once($sourcedir . '/Unicode/CaseFold.php');
 	require_once($sourcedir . '/Unicode/DefaultIgnorables.php');
 
-	$substitutions = utf8_casefold_maps();
+	$substitutions = utf8_casefold_simple_maps();
 	$ignorables = array_flip(utf8_default_ignorables());
 
 	foreach ($chars as &$char)
