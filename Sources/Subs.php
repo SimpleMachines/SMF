@@ -950,16 +950,16 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 	// In case this function is called before reloadSettings().
 	if (!isset($smcFunc['strtoupper']))
 	{
-		if (function_exists('mb_strtoupper'))
-		{
-			$smcFunc['strtoupper'] = 'mb_strtoupper';
-			$smcFunc['strtolower'] = 'mb_strtolower';
-		}
-		elseif (isset($sourcedir))
+		if (isset($sourcedir))
 		{
 			require_once($sourcedir . '/Subs-Charset.php');
 			$smcFunc['strtoupper'] = 'utf8_strtoupper';
 			$smcFunc['strtolower'] = 'utf8_strtolower';
+		}
+		elseif (function_exists('mb_strtoupper'))
+		{
+			$smcFunc['strtoupper'] = 'mb_strtoupper';
+			$smcFunc['strtolower'] = 'mb_strtolower';
 		}
 		else
 		{
