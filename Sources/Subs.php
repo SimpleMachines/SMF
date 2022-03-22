@@ -1565,7 +1565,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		set_tld_regex();
 
 	// Allow mods access before entering the main parse_bbc loop
-	call_integration_hook('integrate_pre_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
+	if ($message !== false)
+		call_integration_hook('integrate_pre_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
 
 	// Sift out the bbc for a performance improvement.
 	if (empty($bbc_codes) || $message === false || !empty($parse_tags))
