@@ -120,8 +120,11 @@ function showAttachment()
 		// ensure variant attachment compatibility
 		$filePath = pathinfo($file['filePath']);
 
-		$file['filePath'] = !file_exists($file['filePath']) && isset($filePath['extension']) ? substr($file['filePath'], 0, -(strlen($filePath['extension']) + 1)) : $file['filePath'];
-		$file['etag'] = '"' . md5_file($file['filePath']) . '"';
+		$file['exists'] = file_exists($file['filePath']);
+		$file['filePath'] = !$file['exists'] && isset($filePath['extension']) ? substr($file['filePath'], 0, -(strlen($filePath['extension']) + 1)) : $file['filePath'];
+		$file['mtime'] = $file['exists'] ? filemtime($file['filePath']) : 0;
+		$file['size'] = $file['exists'] ? filesize($file['filePath']) : 0;
+		$file['etag'] = '"' . sha1_file($file['filePath']) . '"';
 
 		// now get the thumbfile!
 		$thumbFile = array();
@@ -143,9 +146,15 @@ function showAttachment()
 			// Got something! replace the $file var with the thumbnail info.
 			if ($thumbFile)
 			{
-				// set filePath and ETag time
 				$thumbFile['filePath'] = getAttachmentFilename($thumbFile['filename'], $thumbFile['id_attach'], $thumbFile['id_folder'], false, $thumbFile['file_hash']);
-				$thumbFile['etag'] = '"' . md5_file($thumbFile['filePath']) . '"';
+				$thumbPath = pathinfo($thumbFile['filePath']);
+
+				// set filePath and ETag time
+				$thumbFile['exists'] = file_exists($thumbFile['filePath']);
+				$file['filePath'] = !$thumbFile['exists'] && isset($thumbPath['extension']) ? substr($thumbFile['filePath'], 0, -(strlen($thumbPath['extension']) + 1)) : $thumbFile['filePath'];
+				$thumbFile['mtime'] = $thumbFile['exists'] ? filemtime($thumbFile['filePath']) : 0;
+				$thumbFile['size'] = $thumbFile['exists'] ? filesize($thumbFile['filePath']) : 0;
+				$thumbFile['etag'] = '"' . sha1_file($thumbFile['filePath']) . '"';
 			}
 		}
 
@@ -216,7 +225,7 @@ function showAttachment()
 		$file = $thumbFile;
 
 	// No point in a nicer message, because this is supposed to be an attachment anyway...
-	if (!file_exists($file['filePath']))
+	if (empty($file['exists']))
 	{
 		send_http_status(404);
 		header('content-type: text/plain; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
@@ -229,7 +238,7 @@ function showAttachment()
 	if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']))
 	{
 		list($modified_since) = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
-		if (strtotime($modified_since) >= filemtime($file['filePath']))
+		if (!empty($file['mtime']) && strtotime($modified_since) >= $file['mtime'])
 		{
 			ob_end_clean();
 
@@ -240,8 +249,7 @@ function showAttachment()
 	}
 
 	// Check whether the ETag was sent back, and cache based on that...
-	$eTag = '"' . substr($_REQUEST['attach'] . $file['filePath'] . filemtime($file['filePath']), 0, 64) . '"';
-	if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
+	if (!empty($file['etag']) && !empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $file['etag']) !== false)
 	{
 		ob_end_clean();
 
@@ -251,14 +259,13 @@ function showAttachment()
 
 	// If this is a partial download, we need to determine what data range to send
 	$range = 0;
-	$size = filesize($file['filePath']);
 	if (isset($_SERVER['HTTP_RANGE']))
 	{
 		list($a, $range) = explode("=", $_SERVER['HTTP_RANGE'], 2);
 		list($range) = explode(",", $range, 2);
 		list($range, $range_end) = explode("-", $range);
 		$range = intval($range);
-		$range_end = !$range_end ? $size - 1 : intval($range_end);
+		$range_end = !$range_end ? $file['size'] - 1 : intval($range_end);
 		$new_length = $range_end - $range + 1;
 	}
 
@@ -280,10 +287,10 @@ function showAttachment()
 		header('content-transfer-encoding: binary');
 
 	header('expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
-	header('last-modified: ' . gmdate('D, d M Y H:i:s', filemtime($file['filePath'])) . ' GMT');
+	header('last-modified: ' . gmdate('D, d M Y H:i:s', $file['mtime']) . ' GMT');
 	header('accept-ranges: bytes');
 	header('connection: close');
-	header('etag: ' . $eTag);
+	header('etag: ' . $file['etag']);
 
 	// Make sure the mime type warrants an inline display.
 	if (isset($_REQUEST['image']) && !empty($file['mime_type']) && strpos($file['mime_type'], 'image/') !== 0)
@@ -337,10 +344,10 @@ function showAttachment()
 	{
 		send_http_status(206);
 		header("content-length: $new_length");
-		header("content-range: bytes $range-$range_end/$size");
+		header("content-range: bytes $range-$range_end/$file[size]");
 	}
 	else
-		header("content-length: " . $size);
+		header("content-length: " . $file['size']);
 
 	// Try to buy some time...
 	@set_time_limit(600);
@@ -370,7 +377,7 @@ function showAttachment()
 	}
 
 	// Since we don't do output compression for files this large...
-	elseif ($size > 4194304)
+	elseif ($file['size'] > 4194304)
 	{
 		// Forcibly end any output buffering going on.
 		while (@ob_get_level() > 0)
