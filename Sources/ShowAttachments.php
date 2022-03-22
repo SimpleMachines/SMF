@@ -124,7 +124,7 @@ function showAttachment()
 		$file['filePath'] = !$file['exists'] && isset($filePath['extension']) ? substr($file['filePath'], 0, -(strlen($filePath['extension']) + 1)) : $file['filePath'];
 		$file['mtime'] = $file['exists'] ? filemtime($file['filePath']) : 0;
 		$file['size'] = $file['exists'] ? filesize($file['filePath']) : 0;
-		$file['etag'] = '"' . sha1(md5_file($file['filePath']) . '|' . $file['mtime']) . '"';
+		$file['etag'] = '"' . sha1_file($file['filePath']) . '"';
 
 		// now get the thumbfile!
 		$thumbFile = array();
@@ -154,7 +154,7 @@ function showAttachment()
 				$file['filePath'] = !$thumbFile['exists'] && isset($thumbPath['extension']) ? substr($thumbFile['filePath'], 0, -(strlen($thumbPath['extension']) + 1)) : $thumbFile['filePath'];
 				$thumbFile['mtime'] = $thumbFile['exists'] ? filemtime($thumbFile['filePath']) : 0;
 				$thumbFile['size'] = $thumbFile['exists'] ? filesize($thumbFile['filePath']) : 0;
-				$thumbFile['etag'] = '"' . sha1(md5_file($thumbFile['filePath']) . '|' . $thumbFile['mtime']) . '"';
+				$thumbFile['etag'] = '"' . sha1_file($thumbFile['filePath']) . '"';
 			}
 		}
 
