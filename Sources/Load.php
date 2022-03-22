@@ -3160,8 +3160,19 @@ function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload =
 				$found = true;
 
 				// setlocale is required for basename() & pathinfo() to work properly on the selected language
-				if (!empty($txt['lang_locale']) && !empty($modSettings['global_character_set']))
-					setlocale(LC_CTYPE, $txt['lang_locale'] . '.' . $modSettings['global_character_set']);
+				if (!empty($txt['lang_locale']))
+				{
+					if (strpos($txt['lang_locale'], '.') !== false)
+						$locale_variants = $txt['lang_locale'];
+					else
+						$locale_variants = array_unique(array_merge(
+							!empty($modSettings['global_character_set']) ? array($txt['lang_locale'] . '.' . $modSettings['global_character_set']) : array(),
+							!empty($context['utf8']) ? array($txt['lang_locale'] . '.UTF-8', $txt['lang_locale'] . '.UTF8', $txt['lang_locale'] . '.utf-8', $txt['lang_locale'] . '.utf8') : array(),
+							array($txt['lang_locale']),
+						));
+
+					setlocale(LC_CTYPE, $locale_variants);
+				}
 
 				break;
 			}
