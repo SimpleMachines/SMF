@@ -208,30 +208,14 @@ function reloadSettings()
 			$ent_arr = preg_split('~(' . $ent_list . '|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 			return $length === null ? implode('', array_slice($ent_arr, $start)) : implode('', array_slice($ent_arr, $start, $length));
 		},
-		'strtolower' => $utf8 ? function($string) use ($sourcedir, &$smcFunc)
+		'strtolower' => function($string) use (&$smcFunc)
 		{
-			$string = $smcFunc['normalize']($string);
-
-			if (!function_exists('mb_strtolower'))
-			{
-				require_once($sourcedir . '/Subs-Charset.php');
-				return utf8_strtolower($string);
-			}
-
-			return mb_strtolower($string, 'UTF-8');
-		} : 'strtolower',
-		'strtoupper' => $utf8 ? function($string) use ($sourcedir, &$smcFunc)
+			return $smcFunc['convert_case']($string, 'lower');
+		},
+		'strtoupper' => function($string) use (&$smcFunc)
 		{
-			$string = $smcFunc['normalize']($string);
-
-			if (!function_exists('mb_strtolower'))
-			{
-				require_once($sourcedir . '/Subs-Charset.php');
-				return utf8_strtoupper($string);
-			}
-
-			return mb_strtoupper($string, 'UTF-8');
-		} : 'strtoupper',
+			return $smcFunc['convert_case']($string, 'upper');
+		},
 		'truncate' => function($string, $length) use ($utf8, $ent_check, $ent_list, &$smcFunc)
 		{
 			$string = $ent_check($string);
@@ -241,17 +225,74 @@ function reloadSettings()
 				$string = preg_replace('~(?:' . $ent_list . '|.)$~' . ($utf8 ? 'u' : ''), '', $string);
 			return $string;
 		},
-		'ucfirst' => $utf8 ? function($string) use (&$smcFunc)
+		'ucfirst' => function($string) use (&$smcFunc)
 		{
-			return $smcFunc['strtoupper']($smcFunc['substr']($string, 0, 1)) . $smcFunc['substr']($string, 1);
-		} : 'ucfirst',
-		'ucwords' => $utf8 ? function($string) use (&$smcFunc)
+			return $smcFunc['convert_case']($string, 'ucfirst');
+		},
+		'ucwords' => function($string) use (&$smcFunc)
 		{
-			$words = preg_split('~([\s\r\n\t]+)~', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
-			for ($i = 0, $n = count($words); $i < $n; $i += 2)
-				$words[$i] = $smcFunc['ucfirst']($words[$i]);
-			return implode('', $words);
-		} : 'ucwords',
+			return $smcFunc['convert_case']($string, 'ucwords');
+		},
+		'convert_case' => function($string, $case, $simple = false, $form = 'c') use (&$smcFunc, $utf8, $ent_check, $fix_utf8mb4)
+		{
+			if (!$utf8)
+			{
+				switch ($case)
+				{
+					case 'upper':
+						$string = strtoupper($string);
+						break;
+
+					case 'lower':
+					case 'fold';
+						$string = strtolower($string);
+						break;
+
+					case 'title':
+						$string = ucwords(strtolower($string));
+						break;
+
+					case 'ucwords':
+						$string = ucwords($string);
+						break;
+
+					case 'ucfirst':
+						$string = ucfirst($string);
+						break;
+
+					default:
+						break;
+				}
+			}
+			else
+			{
+				// Convert numeric entities to characters, except special ones.
+				if (function_exists('mb_decode_numericentity') && strpos($string, '&#') !== false)
+				{
+					$string = strtr($ent_check($string), array(
+						'&#34;' => '&quot;',
+						'&#38;' => '&amp;',
+						'&#39;' => '&apos;',
+						'&#60;' => '&lt;',
+						'&#62;' => '&gt;',
+						'&#160;' => '&nbsp;',
+					));
+
+					$string = mb_decode_numericentity($string, array(0, 0x10FFFF, 0, 0xFFFFFF), 'UTF-8');
+				}
+
+				// Use optmized function for compatibility casefolding.
+				if ($form === 'kc_casefold' || ($case === 'fold' && $form === 'kc'))
+				{
+					$string = $smcFunc['normalize']($string, 'kc_casefold');
+				}
+				// Everything else.
+				else
+					$string = $smcFunc['normalize'](utf8_convert_case($string, $case, $simple), $form);
+			}
+
+			return $fix_utf8mb4($string);
+		},
 		'json_decode' => 'smf_json_decode',
 		'json_encode' => 'json_encode',
 		'random_int' => function($min = 0, $max = PHP_INT_MAX)
