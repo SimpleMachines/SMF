@@ -342,37 +342,8 @@ function showAttachment()
 	else
 		header("content-length: " . $size);
 
-	/* X-Send-File support.
-	 * This is a advanced server configuration option and requires configuration of your web server to support it.  Shared hosting will most likely not support this.
-	 * xsendfile_header is the header to send.  For Nginx use "X-Accel-Redirect", LightPD use "X-LIGHTTPD-send-file" and Apache HTTPD use "X-Sendfile".
-	 * xsendfile_base is the base path of the xsendfile directory.  This is a special directory used internally by the web server to process the header.
-	 * If multiple attachment directories is setup you, this will send the folder name of the attachment directory and the file name.  You will need to ensure the foldername is unquie.
-	 * If you have attachment directories in multiple locations, you will need to configure your server to handle each one from the single base.
-	 * When we can't figure out the proper header, this falls through and the rest of the attachment handling is processed.
-	*/
-	$use_sendfile = null;
-	if (!empty($modSettings['xsendfile_header']) && !empty($modSettings['xsendfile_base']))
-	{
-		// Multiple attachment directories, or we have support for it.
-		if (is_array($modSettings['attachmentUploadDir']))
-		{
-			// Try to find the right attachment folder.
-			$prevFolder = dirname(isset($modSettings['attachmentUploadDir'][$file['id_folder']]) ? $modSettings['attachmentUploadDir'][$file['id_folder']] : $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']]);
-
-			// Just a santiy check to ensure we didn't get this wrong.
-			if ($prevFolder == dirname(dirname($file['filePath'])))
-				$use_sendfile = substr($file['filePath'], strlen($prevFolder) + 1);
-		}
-		elseif ($modSettings['attachmentUploadDir'] == dirname($file['filePath']))
-				$use_sendfile = substr($file['filePath'], strlen(dirname($file['filePath'])) + 1);
-
-		// Send it using X-SendFile.
-		if (!empty($use_sendfile))
-		{
-			header($modSettings['xsendfile_header'] . ': ' . $modSettings['xsendfile_base'] . $use_sendfile);
-			die;
-		}
-	}
+	// Allow customizations to hook in here before we send anything to modify any headers needed.  Or to change the process of how we output.
+	call_integration_hook('integrate_download_headers');
 
 	// Try to buy some time...
 	@set_time_limit(600);
