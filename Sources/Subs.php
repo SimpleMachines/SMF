@@ -569,7 +569,8 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	$start = max(0, $start);
 	$start = min($start - ($start % $num_per_page), $max_value);
 
-	$context['current_page'] = $start / $num_per_page;
+	if (!isset($context['current_page']))
+		$context['current_page'] = $start / $num_per_page;
 
 	// Define some default page index settings for compatibility with old themes.
 	// !!! Should this be moved to loadTheme()?
