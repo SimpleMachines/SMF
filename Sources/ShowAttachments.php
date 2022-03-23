@@ -349,6 +349,9 @@ function showAttachment()
 	else
 		header("content-length: " . $file['size']);
 
+	// Allow customizations to hook in here before we send anything to modify any headers needed.  Or to change the process of how we output.
+	call_integration_hook('integrate_download_headers');
+
 	// Try to buy some time...
 	@set_time_limit(600);
 
