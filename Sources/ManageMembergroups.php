@@ -39,16 +39,6 @@ function ModifyMembergroups()
 		'settings' => array('ModifyMembergroupsettings', 'admin_forum'),
 	);
 
-	// Default to sub action 'index' or 'settings' depending on permissions.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('manage_membergroups') ? 'index' : 'settings');
-
-	// Is it elsewhere?
-	if (isset($subActions[$_REQUEST['sa']][2]))
-		require_once($sourcedir . '/' . $subActions[$_REQUEST['sa']][2]);
-
-	// Do the permission check, you might not be allowed her.
-	isAllowedTo($subActions[$_REQUEST['sa']][1]);
-
 	// Language and template stuff, the usual.
 	loadLanguage('ManageMembers');
 	loadTemplate('ManageMembergroups');
@@ -61,6 +51,16 @@ function ModifyMembergroups()
 	);
 
 	call_integration_hook('integrate_manage_membergroups', array(&$subActions));
+
+	// Default to sub action 'index' or 'settings' depending on permissions.
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('manage_membergroups') ? 'index' : 'settings');
+
+	// Is it elsewhere?
+	if (isset($subActions[$_REQUEST['sa']][2]))
+		require_once($sourcedir . '/' . $subActions[$_REQUEST['sa']][2]);
+
+	// Do the permission check, you might not be allowed her.
+	isAllowedTo($subActions[$_REQUEST['sa']][1]);
 
 	// Call the right function.
 	call_helper($subActions[$_REQUEST['sa']][0]);

@@ -968,4 +968,30 @@ function AdminEndSession()
 	redirectexit();
 }
 
+/**
+ * This function makes sure the requested subaction does exists, if it doesn't, it sets a default action or.
+ *
+ * @param array $subActions An array containing all possible subactions.
+ * @param string $defaultAction The default action to be called if no valid subaction was found.
+ */
+function loadGeneralSettingParameters($subActions = array(), $defaultAction = null)
+{
+	global $context, $sourcedir;
+
+	// You need to be an admin to edit settings!
+	isAllowedTo('admin_forum');
+
+	// Will need the utility functions from here.
+	require_once($sourcedir . '/ManageServer.php');
+
+	$context['sub_template'] = 'show_settings';
+
+	// If no fallback was specified, use the first subaction.
+	$defaultAction = $defaultAction ?: key($subActions);
+
+	// I want...
+	$_REQUEST['sa'] = isset($_REQUEST['sa'], $subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $defaultAction;
+	$context['sub_action'] = $_REQUEST['sa'];
+}
+
 ?>

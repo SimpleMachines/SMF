@@ -32,13 +32,16 @@ function Groups()
 		'requests' => array('GroupRequests', 'group_requests'),
 	);
 
-	// Default to sub action 'index'.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'index';
-
 	// Get the template stuff up and running.
 	loadLanguage('ManageMembers');
 	loadLanguage('ModerationCenter');
 	loadTemplate('ManageMembergroups');
+
+	// CRUD $subActions as needed.
+	call_integration_hook('integrate_manage_groups', array(&$subActions));
+
+	// Default to sub action 'index'.
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'index';
 
 	// If we can see the moderation center, and this has a mod bar entry, add the mod center bar.
 	if (allowedTo('access_mod_center') || $user_info['mod_cache']['bq'] != '0=1' || $user_info['mod_cache']['gq'] != '0=1' || allowedTo('manage_membergroups'))
@@ -57,9 +60,6 @@ function Groups()
 			'name' => $txt['groups'],
 		);
 	}
-
-	// CRUD $subActions as needed.
-	call_integration_hook('integrate_manage_groups', array(&$subActions));
 
 	// Call the actual function.
 	call_helper($subActions[$_REQUEST['sa']][0]);

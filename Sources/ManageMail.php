@@ -45,18 +45,16 @@ function ManageMail()
 		'test' => 'TestMailSend',
 	);
 
-	call_integration_hook('integrate_manage_mail', array(&$subActions));
-
-	// By default we want to browse
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'browse';
-	$context['sub_action'] = $_REQUEST['sa'];
-
 	// Load up all the tabs...
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['mailqueue_title'],
 		'help' => '',
 		'description' => $txt['mailqueue_desc'],
 	);
+
+	call_integration_hook('integrate_manage_mail', array(&$subActions));
+
+	loadGeneralSettingParameters($subActions, 'browse');
 
 	// Call the right function for this sub-action.
 	call_helper($subActions[$_REQUEST['sa']]);

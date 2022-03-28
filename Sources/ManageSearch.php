@@ -48,11 +48,6 @@ function ManageSearch()
 		'createmsgindex' => 'CreateMessageIndex',
 	);
 
-	// Default the sub-action to 'edit search settings'.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'weights';
-
-	$context['sub_action'] = $_REQUEST['sa'];
-
 	// Create the tabs for the template.
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['manage_search'],
@@ -72,6 +67,8 @@ function ManageSearch()
 	);
 
 	call_integration_hook('integrate_manage_search', array(&$subActions));
+
+	loadGeneralSettingParameters($subActions, 'weights');
 
 	// Call the right function for this sub-action.
 	call_helper($subActions[$_REQUEST['sa']]);

@@ -43,10 +43,6 @@ function ManageLanguages()
 		'editlang' => 'ModifyLanguage',
 	);
 
-	// By default we're managing languages.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'edit';
-	$context['sub_action'] = $_REQUEST['sa'];
-
 	// Load up all the tabs...
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['language_configuration'],
@@ -54,6 +50,8 @@ function ManageLanguages()
 	);
 
 	call_integration_hook('integrate_manage_languages', array(&$subActions));
+
+	loadGeneralSettingParameters($subActions, 'edit');
 
 	// Call the right function for this sub-action.
 	call_helper($subActions[$_REQUEST['sa']]);
