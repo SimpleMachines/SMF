@@ -29,13 +29,14 @@ function reloadSettings()
 	global $image_proxy_enabled;
 
 	// Most database systems have not set UTF-8 as their default input charset.
-	if (!empty($db_character_set))
-		$smcFunc['db_query']('', '
-			SET NAMES {string:db_character_set}',
-			array(
-				'db_character_set' => $db_character_set,
-			)
-		);
+	if (empty($db_character_set))
+		$db_character_set = 'utf8';
+	$smcFunc['db_query']('', '
+		SET NAMES {string:db_character_set}',
+		array(
+			'db_character_set' => $db_character_set,
+		)
+	);
 
 	// We need some caching support, maybe.
 	loadCacheAccelerator();
