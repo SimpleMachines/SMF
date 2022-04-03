@@ -151,7 +151,7 @@ function showAttachment()
 
 				// set filePath and ETag time
 				$thumbFile['exists'] = file_exists($thumbFile['filePath']);
-				$file['filePath'] = !$thumbFile['exists'] && isset($thumbPath['extension']) ? substr($thumbFile['filePath'], 0, -(strlen($thumbPath['extension']) + 1)) : $thumbFile['filePath'];
+				$thumbFile['filePath'] = !$thumbFile['exists'] && isset($thumbPath['extension']) ? substr($thumbFile['filePath'], 0, -(strlen($thumbPath['extension']) + 1)) : $thumbFile['filePath'];
 				$thumbFile['mtime'] = $thumbFile['exists'] ? filemtime($thumbFile['filePath']) : 0;
 				$thumbFile['size'] = $thumbFile['exists'] ? filesize($thumbFile['filePath']) : 0;
 				$thumbFile['etag'] = '"' . sha1_file($thumbFile['filePath']) . '"';
