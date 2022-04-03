@@ -473,7 +473,14 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	// Different default?
 	if (isset($column_info['default']) && $column_info['default'] != $old_info['default'])
 	{
-		$action = $column_info['default'] !== null ? 'SET DEFAULT \'' . $smcFunc['db_escape_string']($column_info['default']) . '\'' : 'DROP DEFAULT';
+		// Fix the default.
+		$default = '';
+		if (isset($column_info['default']) && is_null($column_info['default']) && empty($column_info['not_null']))
+			$default = 'NULL';
+		else
+			$default = '\'' . $smcFunc['db_escape_string']($column_info['default']) . '\'';
+
+		$action = $default === '' ? 'DROP DEFAULT' : 'SET DEFAULT ' . $default;
 		$smcFunc['db_query']('', '
 			ALTER TABLE ' . $table_name . '
 			ALTER COLUMN ' . $column_info['name'] . ' ' . $action,
