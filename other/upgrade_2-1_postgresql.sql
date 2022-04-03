@@ -4044,6 +4044,25 @@ ALTER TABLE {$db_prefix}log_spider_stats ALTER COLUMN page_hits TYPE INT;
 ---#
 
 /******************************************************************************/
+--- Update add unique index to members table
+/******************************************************************************/
+---# remove member_name index
+DROP INDEX IF EXISTS {$db_prefix}members_member_name_low;
+---#
+
+---# add member_name unique index
+CREATE UNIQUE INDEX {$db_prefix}members_member_name_low on {$db_prefix}members (LOWER(member_name) varchar_pattern_ops);
+---#
+
+---# removde email_address index
+DROP INDEX IF EXISTS {$db_prefix}members_email_address_uni;
+---#
+
+---# add email_address unique index
+CREATE UNIQUE INDEX {$db_prefix}members_email_address_uni on {$db_prefix}members (LOWER(email_address));
+---#
+
+/******************************************************************************/
 --- Update policy & agreement settings
 /******************************************************************************/
 ---# Strip -utf8 from policy settings
