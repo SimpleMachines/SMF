@@ -1693,6 +1693,9 @@ function saveDBSettings(&$config_vars)
 		// Email
 		elseif ($var[0] == 'email')
 			$setArray[$var[1]] = filter_var($_POST[$var[1]], FILTER_VALIDATE_EMAIL);
+		// Url
+		elseif ($var[0] == 'url')
+			$setArray[$var[1]] = filter_var($_POST[$var[1]], FILTER_VALIDATE_URL);
 		// Passwords!
 		elseif ($var[0] == 'password')
 		{

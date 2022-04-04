@@ -859,7 +859,7 @@ function template_show_settings()
 				$subtext = !empty($config_var['subtext']) ? '<br><span class="smalltext"> ' . $config_var['subtext'] . '</span>' : '';
 
 				// Various HTML5 input types that are basically enhanced textboxes
-				$text_types = array('color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time');
+				$text_types = array('color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time', 'url');
 
 				// Show the [?] button.
 				if ($config_var['help'])
