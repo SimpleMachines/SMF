@@ -101,6 +101,7 @@ function createWaveFile($word)
 
 	// Disable compression.
 	ob_end_clean();
+	header_remove('content-encoding');
 	header('content-encoding: none');
 	header('accept-ranges: bytes');
 	header('connection: close');
