@@ -1528,7 +1528,7 @@ function editBuddies($memID)
 
 	// Gotta load the custom profile fields names.
 	$request = $smcFunc['db_query']('', '
-		SELECT col_name, field_name, field_desc, field_type, bbc, enclose
+		SELECT col_name, field_name, field_desc, field_type, field_options, bbc, enclose
 		FROM {db_prefix}custom_fields
 		WHERE active = {int:active}
 			AND private < {int:private_level}',
@@ -1545,6 +1545,7 @@ function editBuddies($memID)
 			$context['custom_pf'][$row['col_name']] = array(
 				'label' => tokenTxtReplace($row['field_name']),
 				'type' => $row['field_type'],
+				'options' => !empty($row['field_options']) ? explode(',', $row['field_options']) : array(),
 				'bbc' => !empty($row['bbc']),
 				'enclose' => $row['enclose'],
 			);
@@ -1593,6 +1594,16 @@ function editBuddies($memID)
 					continue;
 				}
 
+				$currentKey = 0;
+				if (!empty($column['options']))
+				{
+					foreach ($column['options'] as $k => $v)
+					{
+						if (empty($currentKey))
+							$currentKey = $v == $context['buddies'][$buddy]['options'][$key] ? $k : 0;
+					}
+				}
+
 				if ($column['bbc'] && !empty($context['buddies'][$buddy]['options'][$key]))
 					$context['buddies'][$buddy]['options'][$key] = strip_tags(parse_bbc($context['buddies'][$buddy]['options'][$key]));
 
@@ -1605,7 +1616,8 @@ function editBuddies($memID)
 						'{SCRIPTURL}' => $scripturl,
 						'{IMAGES_URL}' => $settings['images_url'],
 						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-						'{INPUT}' => $context['buddies'][$buddy]['options'][$key],
+						'{KEY}' => $currentKey,
+						'{INPUT}' => tokenTxtReplace($context['buddies'][$buddy]['options'][$key]),
 					));
 			}
 		}
