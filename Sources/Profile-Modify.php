@@ -1549,10 +1549,6 @@ function editBuddies($memID)
 				'enclose' => $row['enclose'],
 			);
 
-	// Gotta disable the gender option.
-	if (isset($context['custom_pf']['cust_gender']) && $context['custom_pf']['cust_gender'] == 'None')
-		unset($context['custom_pf']['cust_gender']);
-
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($buddiesArray))
