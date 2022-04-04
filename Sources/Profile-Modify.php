@@ -1543,7 +1543,7 @@ function editBuddies($memID)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		if (!isset($disabled_fields[$row['col_name']]))
 			$context['custom_pf'][$row['col_name']] = array(
-				'label' => $row['field_name'],
+				'label' => tokenTxtReplace($row['field_name']),
 				'type' => $row['field_type'],
 				'bbc' => !empty($row['bbc']),
 				'enclose' => $row['enclose'],
