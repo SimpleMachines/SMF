@@ -1109,6 +1109,7 @@ function grabJumpToContent(elem)
 				isCategory: $(this).attr('type') == 'category',
 				name: this.firstChild.nodeValue.removeEntities(),
 				is_current: false,
+				isRedirect: parseInt($(this).attr('is_redirect')),
 				childLevel: parseInt($(this).attr('childlevel'))
 			}
 		});
@@ -1195,7 +1196,7 @@ JumpTo.prototype.fillSelect = function (aBoardsAndCategories)
 			oOption.value = aBoardsAndCategories[i].isCategory ? '#c' + aBoardsAndCategories[i].id : '?board=' + aBoardsAndCategories[i].id + '.0';
 		else
 		{
-			if (aBoardsAndCategories[i].isCategory)
+			if (aBoardsAndCategories[i].isCategory || aBoardsAndCategories[i].isRedirect)
 				oOption.disabled = 'disabled';
 			else
 				oOption.value = aBoardsAndCategories[i].id;
