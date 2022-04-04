@@ -158,7 +158,7 @@ function ModifyGeneralSettings($return_config = false)
 		array('mtitle', $txt['maintenance_subject'], 'file', 'text', 36),
 		array('mmessage', $txt['maintenance_message'], 'file', 'text', 36),
 		'',
-		array('webmaster_email', $txt['admin_webmaster_email'], 'file', 'text', 30),
+		array('webmaster_email', $txt['admin_webmaster_email'], 'file', 'email', 30),
 		'',
 		array('enableCompressedOutput', $txt['enableCompressedOutput'], 'db', 'check', null, 'enableCompressedOutput'),
 		array('disableHostnameLookup', $txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'),
