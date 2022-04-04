@@ -493,6 +493,7 @@ function download_export_file($uid)
 		if (strtotime($modified_since) >= $mtime)
 		{
 			ob_end_clean();
+			header_remove('content-encoding');
 
 			// Answer the question - no, it hasn't been modified ;).
 			send_http_status(304);
@@ -505,6 +506,7 @@ function download_export_file($uid)
 	if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
 	{
 		ob_end_clean();
+		header_remove('content-encoding');
 
 		send_http_status(304);
 		exit;
@@ -571,6 +573,8 @@ function download_export_file($uid)
 		while (@ob_get_level() > 0)
 			@ob_end_clean();
 
+		header_remove('content-encoding');
+
 		// 40 kilobytes is a good-ish amount
 		$chunksize = 40 * 1024;
 		$bytes_sent = 0;
@@ -595,6 +599,8 @@ function download_export_file($uid)
 		// Forcibly end any output buffering going on.
 		while (@ob_get_level() > 0)
 			@ob_end_clean();
+
+		header_remove('content-encoding');
 
 		$fp = fopen($filepath, 'rb');
 		while (!feof($fp))

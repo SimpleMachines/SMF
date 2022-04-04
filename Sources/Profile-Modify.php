@@ -3175,7 +3175,7 @@ function profileLoadSignatureData()
 		$context['signature_warning'] = sprintf($txt['profile_error_signature_max_image_' . ($context['signature_limits']['max_image_width'] ? 'width' : 'height')], $context['signature_limits'][$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']);
 
 	if (empty($context['do_preview']))
-		$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br>', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
+		$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br>', '<br/>', '<br />', '<', '>', '"', '\''), array("\n", "\n", "\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
 	else
 	{
 		$signature = $_POST['signature'] = !empty($_POST['signature']) ? $smcFunc['normalize']($_POST['signature']) : '';

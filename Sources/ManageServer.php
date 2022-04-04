@@ -1040,7 +1040,7 @@ function prepareServerSettingsContext(&$config_vars)
 {
 	global $context, $modSettings, $smcFunc, $txt;
 
-	if ($context['settings_not_writable'])
+	if (!empty($context['settings_not_writable']))
 		$context['settings_message'] = array(
 			'label' => $txt['settings_not_writable'],
 			'tag' => 'div',
