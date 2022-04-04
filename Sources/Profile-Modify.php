@@ -1528,7 +1528,7 @@ function editBuddies($memID)
 
 	// Gotta load the custom profile fields names.
 	$request = $smcFunc['db_query']('', '
-		SELECT col_name, field_name, field_desc, field_type, field_options, bbc, enclose
+		SELECT col_name, field_name, field_desc, field_type, field_options, show_mlist, bbc, enclose
 		FROM {db_prefix}custom_fields
 		WHERE active = {int:active}
 			AND private < {int:private_level}',
@@ -1541,7 +1541,7 @@ function editBuddies($memID)
 	$context['custom_pf'] = array();
 	$disabled_fields = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		if (!isset($disabled_fields[$row['col_name']]))
+		if (!isset($disabled_fields[$row['col_name']]) && !empty($row['show_mlist']))
 			$context['custom_pf'][$row['col_name']] = array(
 				'label' => tokenTxtReplace($row['field_name']),
 				'type' => $row['field_type'],
