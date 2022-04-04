@@ -1688,8 +1688,11 @@ function saveDBSettings(&$config_vars)
 				$setArray[$var[1]] = min($var['max'], $setArray[$var[1]]);
 		}
 		// Text!
-		elseif (in_array($var[0], array('text', 'large_text', 'color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time')))
+		elseif (in_array($var[0], array('text', 'large_text', 'color', 'date', 'datetime', 'datetime-local', 'month', 'time')))
 			$setArray[$var[1]] = $_POST[$var[1]];
+		// Email
+		elseif ($var[0] == 'email')
+			$setArray[$var[1]] = filter_var($_POST[$var[1]], FILTER_VALIDATE_EMAIL);
 		// Passwords!
 		elseif ($var[0] == 'password')
 		{
