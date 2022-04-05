@@ -8134,7 +8134,7 @@ function send_http_status($code, $status = '')
 	global $sourcedir;
 	
 	// This will fail anyways if headers have been sent.
-	if (!headers_sent())
+	if (headers_sent())
 		return;
 
 	$statuses = array(
