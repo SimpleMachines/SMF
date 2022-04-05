@@ -8132,6 +8132,10 @@ function check_cron()
 function send_http_status($code, $status = '')
 {
 	global $sourcedir;
+	
+	// This will fail anyways if headers have been sent.
+	if (!headers_sent())
+		return;
 
 	$statuses = array(
 		204 => 'No Content',
