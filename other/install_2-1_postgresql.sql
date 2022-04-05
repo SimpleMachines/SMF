@@ -1129,7 +1129,7 @@ CREATE INDEX {$db_prefix}members_total_time_logged_in ON {$db_prefix}members (to
 CREATE INDEX {$db_prefix}members_id_theme ON {$db_prefix}members (id_theme);
 CREATE INDEX {$db_prefix}members_member_name_low ON {$db_prefix}members (LOWER(member_name) varchar_pattern_ops);
 CREATE INDEX {$db_prefix}members_real_name_low ON {$db_prefix}members (LOWER(real_name) varchar_pattern_ops);
-
+CREATE INDEX {$db_prefix}members_active_real_name ON {$db_prefix}members (is_activated, real_name);
 
 #
 # Sequence for table `member_logins`

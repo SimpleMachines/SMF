@@ -751,7 +751,8 @@ CREATE TABLE {$db_prefix}members (
 	INDEX idx_id_post_group (id_post_group),
 	INDEX idx_warning (warning),
 	INDEX idx_total_time_logged_in (total_time_logged_in),
-	INDEX idx_id_theme (id_theme)
+	INDEX idx_id_theme (id_theme),
+	INDEX idx_active_real_name (is_activated, real_name)
 ) ENGINE={$engine};
 
 #
