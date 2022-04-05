@@ -79,8 +79,8 @@ function Memberlist()
 			'label' => $txt['website'],
 			'link_with' => 'website',
 			'sort' => array(
-				'down' => 'mem.website_url = \'\', mem.website_url is null, mem.website_url DESC',
-				'up' => 'mem.website_url != \'\', mem.website_url is not null, mem.website_url ASC'
+				'down' =>  $context['user']['is_guest'] ? '1=1' : 'mem.website_url = \'\', mem.website_url is null, mem.website_url DESC',
+				'up' => $context['user']['is_guest'] ? ' 1=1' : 'mem.website_url != \'\', mem.website_url is not null, mem.website_url ASC'
 			),
 		),
 		'id_group' => array(
