@@ -79,7 +79,7 @@ function Memberlist()
 			'label' => $txt['website'],
 			'link_with' => 'website',
 			'sort' => array(
-				'down' =>  $context['user']['is_guest'] ? '1=1' : 'mem.website_url = \'\', mem.website_url is null, mem.website_url DESC',
+				'down' => $context['user']['is_guest'] ? '1=1' : 'mem.website_url = \'\', mem.website_url is null, mem.website_url DESC',
 				'up' => $context['user']['is_guest'] ? ' 1=1' : 'mem.website_url != \'\', mem.website_url is not null, mem.website_url ASC'
 			),
 		),
@@ -271,6 +271,13 @@ function MLAll()
 
 		$context['columns'][$col]['link'] = '<a href="' . $context['columns'][$col]['href'] . '" rel="nofollow">' . $context['columns'][$col]['label'] . '</a>';
 		$context['columns'][$col]['selected'] = $_REQUEST['sort'] == $col;
+	}
+
+	// Don't offer website sort to guests
+	if ($context['user']['is_guest'])
+	{
+		$context['columns']['website_url']['href'] = '';
+		$context['columns']['website_url']['link'] = $context['columns']['website_url']['label'];
 	}
 
 	// Are we sorting the results
