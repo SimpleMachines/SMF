@@ -1152,7 +1152,8 @@ JumpTo.prototype.showSelect = function ()
 // Fill the jump to box with entries. Method of the JumpTo class.
 JumpTo.prototype.fillSelect = function (aBoardsAndCategories)
 {
-	var iIndexPointer = 0;
+	// Don't do this twice.
+	$('#' + this.opt.sContainerId).off('mouseenter');
 
 	// Create an option that'll be above and below the category.
 	var oDashOption = document.createElement('option');
