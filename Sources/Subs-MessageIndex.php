@@ -58,7 +58,7 @@ function getBoardList($boardListOptions = array())
 	}
 
 	$request = $smcFunc['db_query']('order_by_board_order', '
-		SELECT c.name AS cat_name, c.id_cat, b.id_board, b.name AS board_name, b.child_level
+		SELECT c.name AS cat_name, c.id_cat, b.id_board, b.name AS board_name, b.child_level, b.redirect
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' . (empty($where) ? '' : '
 		WHERE ' . implode('
@@ -82,6 +82,7 @@ function getBoardList($boardListOptions = array())
 				'id' => $row['id_board'],
 				'name' => $row['board_name'],
 				'child_level' => $row['child_level'],
+				'redirect' => $row['redirect'],
 				'selected' => isset($boardListOptions['selected_board']) && $boardListOptions['selected_board'] == $row['id_board'],
 			);
 		}
