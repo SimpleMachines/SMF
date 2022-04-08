@@ -569,7 +569,8 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	$start = max(0, $start);
 	$start = min($start - ($start % $num_per_page), $max_value);
 
-	$context['current_page'] = $start / $num_per_page;
+	if (!isset($context['current_page']))
+		$context['current_page'] = $start / $num_per_page;
 
 	// Define some default page index settings for compatibility with old themes.
 	// !!! Should this be moved to loadTheme()?
@@ -1565,7 +1566,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		set_tld_regex();
 
 	// Allow mods access before entering the main parse_bbc loop
-	call_integration_hook('integrate_pre_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
+	if ($message !== false)
+		call_integration_hook('integrate_pre_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
 
 	// Sift out the bbc for a performance improvement.
 	if (empty($bbc_codes) || $message === false || !empty($parse_tags))
@@ -8130,6 +8132,10 @@ function check_cron()
 function send_http_status($code, $status = '')
 {
 	global $sourcedir;
+	
+	// This will fail anyways if headers have been sent.
+	if (headers_sent())
+		return;
 
 	$statuses = array(
 		204 => 'No Content',

@@ -1528,7 +1528,7 @@ function editBuddies($memID)
 
 	// Gotta load the custom profile fields names.
 	$request = $smcFunc['db_query']('', '
-		SELECT col_name, field_name, field_desc, field_type, bbc, enclose
+		SELECT col_name, field_name, field_desc, field_type, field_options, show_mlist, bbc, enclose
 		FROM {db_prefix}custom_fields
 		WHERE active = {int:active}
 			AND private < {int:private_level}',
@@ -1541,17 +1541,14 @@ function editBuddies($memID)
 	$context['custom_pf'] = array();
 	$disabled_fields = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		if (!isset($disabled_fields[$row['col_name']]))
+		if (!isset($disabled_fields[$row['col_name']]) && !empty($row['show_mlist']))
 			$context['custom_pf'][$row['col_name']] = array(
-				'label' => $row['field_name'],
+				'label' => tokenTxtReplace($row['field_name']),
 				'type' => $row['field_type'],
+				'options' => !empty($row['field_options']) ? explode(',', $row['field_options']) : array(),
 				'bbc' => !empty($row['bbc']),
 				'enclose' => $row['enclose'],
 			);
-
-	// Gotta disable the gender option.
-	if (isset($context['custom_pf']['cust_gender']) && $context['custom_pf']['cust_gender'] == 'None')
-		unset($context['custom_pf']['cust_gender']);
 
 	$smcFunc['db_free_result']($request);
 
@@ -1597,6 +1594,16 @@ function editBuddies($memID)
 					continue;
 				}
 
+				$currentKey = 0;
+				if (!empty($column['options']))
+				{
+					foreach ($column['options'] as $k => $v)
+					{
+						if (empty($currentKey))
+							$currentKey = $v == $context['buddies'][$buddy]['options'][$key] ? $k : 0;
+					}
+				}
+
 				if ($column['bbc'] && !empty($context['buddies'][$buddy]['options'][$key]))
 					$context['buddies'][$buddy]['options'][$key] = strip_tags(parse_bbc($context['buddies'][$buddy]['options'][$key]));
 
@@ -1609,7 +1616,8 @@ function editBuddies($memID)
 						'{SCRIPTURL}' => $scripturl,
 						'{IMAGES_URL}' => $settings['images_url'],
 						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-						'{INPUT}' => $context['buddies'][$buddy]['options'][$key],
+						'{KEY}' => $currentKey,
+						'{INPUT}' => tokenTxtReplace($context['buddies'][$buddy]['options'][$key]),
 					));
 			}
 		}
@@ -3175,7 +3183,7 @@ function profileLoadSignatureData()
 		$context['signature_warning'] = sprintf($txt['profile_error_signature_max_image_' . ($context['signature_limits']['max_image_width'] ? 'width' : 'height')], $context['signature_limits'][$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']);
 
 	if (empty($context['do_preview']))
-		$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br>', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
+		$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br>', '<br/>', '<br />', '<', '>', '"', '\''), array("\n", "\n", "\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
 	else
 	{
 		$signature = $_POST['signature'] = !empty($_POST['signature']) ? $smcFunc['normalize']($_POST['signature']) : '';

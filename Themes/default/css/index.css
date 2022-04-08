@@ -1033,10 +1033,6 @@ html[lang="el-GR"] .quickbuttons > li > a,
 html[lang="el-GR"] .inline_mod_check {
 	text-transform: capitalize;
 }
-.buttonlist .button {
-	margin-top: 2px;
-	margin-bottom: 2px;
-}
 .pagesection .button {
 	color: #346;
 }
