@@ -506,7 +506,7 @@ function utf8_compose($chars)
 
 		// Hangul characters.
 		// See "Hangul Syllable Composition" in the Unicode standard, ch. 3.12.
-		if ($chars[$c] >= "\xE1\x84\x80" && $chars[$c] <= "\xE1\x84\x92" && $chars[$c + 1] >= "\xE1\x85\xA1" && $chars[$c + 1] <= "\xE1\x85\xB5")
+		if ($chars[$c] >= "\xE1\x84\x80" && $chars[$c] <= "\xE1\x84\x92" && isset($chars[$c + 1]) && $chars[$c + 1] >= "\xE1\x85\xA1" && $chars[$c + 1] <= "\xE1\x85\xB5")
 		{
 			if (!function_exists('mb_ord'))
 				require_once($sourcedir . '/Subs-Compat.php');
