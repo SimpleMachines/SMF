@@ -85,7 +85,7 @@ function utf8_convert_case($string, $case, $simple = false)
 			case 'upper':
 				require_once($sourcedir . '/Unicode/CaseUpper.php');
 
-				$substitutions = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_full_maps();
+				$substitutions = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_maps();
 
 				// Turkish & Azeri conditional casing, part 1.
 				if (in_array($lang, array('tr', 'az')))
@@ -96,7 +96,7 @@ function utf8_convert_case($string, $case, $simple = false)
 			case 'lower':
 				require_once($sourcedir . '/Unicode/CaseLower.php');
 
-				$substitutions = $simple ? utf8_strtolower_simple_maps() : utf8_strtolower_full_maps();
+				$substitutions = $simple ? utf8_strtolower_simple_maps() : utf8_strtolower_maps();
 
 				// Turkish & Azeri conditional casing, part 1.
 				if (in_array($lang, array('tr', 'az')))
@@ -111,7 +111,7 @@ function utf8_convert_case($string, $case, $simple = false)
 			case 'fold':
 				require_once($sourcedir . '/Unicode/CaseFold.php');
 
-				$substitutions = $simple ? utf8_casefold_simple_maps() : utf8_casefold_full_maps();
+				$substitutions = $simple ? utf8_casefold_simple_maps() : utf8_casefold_maps();
 
 				break;
 		}
@@ -129,13 +129,13 @@ function utf8_convert_case($string, $case, $simple = false)
 
 		$prop_classes = utf8_regex_properties();
 
-		$upper = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_full_maps();
+		$upper = $simple ? utf8_strtoupper_simple_maps() : utf8_strtoupper_maps();
 
 		// Turkish & Azeri conditional casing, part 1.
 		if (in_array($lang, array('tr', 'az')))
 			$upper['i'] = 'İ';
 
-		$title = array_merge($upper, $simple ? utf8_titlecase_simple_maps() : utf8_titlecase_full_maps());
+		$title = array_merge($upper, $simple ? utf8_titlecase_simple_maps() : utf8_titlecase_maps());
 
 		switch ($case)
 		{
@@ -395,7 +395,7 @@ function utf8_normalize_kc_casefold($string)
 	require_once($sourcedir . '/Unicode/CaseFold.php');
 	require_once($sourcedir . '/Unicode/DefaultIgnorables.php');
 
-	$substitutions = utf8_casefold_simple_maps();
+	$substitutions = utf8_casefold_maps();
 	$ignorables = array_flip(utf8_default_ignorables());
 
 	foreach ($chars as &$char)

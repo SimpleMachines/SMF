@@ -56,7 +56,7 @@ $funcs = array(
 		'val_type' => 'hexchar',
 		'data' => array(),
 	),
-	'utf8_strtolower_full_maps' => array(
+	'utf8_strtolower_maps' => array(
 		'file' => 'CaseLower.php',
 		'key_type' => 'hexchar',
 		'val_type' => 'hexchar',
@@ -68,7 +68,7 @@ $funcs = array(
 		'val_type' => 'hexchar',
 		'data' => array(),
 	),
-	'utf8_strtoupper_full_maps' => array(
+	'utf8_strtoupper_maps' => array(
 		'file' => 'CaseUpper.php',
 		'key_type' => 'hexchar',
 		'val_type' => 'hexchar',
@@ -80,7 +80,7 @@ $funcs = array(
 		'val_type' => 'hexchar',
 		'data' => array(),
 	),
-	'utf8_titlecase_full_maps' => array(
+	'utf8_titlecase_maps' => array(
 		'file' => 'CaseTitle.php',
 		'key_type' => 'hexchar',
 		'val_type' => 'hexchar',
@@ -92,7 +92,7 @@ $funcs = array(
 		'val_type' => 'hexchar',
 		'data' => array(),
 	),
-	'utf8_casefold_full_maps' => array(
+	'utf8_casefold_maps' => array(
 		'file' => 'CaseFold.php',
 		'key_type' => 'hexchar',
 		'val_type' => 'hexchar',
@@ -278,9 +278,9 @@ foreach (file($unicode_data_url . '/UnicodeData.txt') as $line)
 }
 
 // Full case conversion maps
-$funcs['utf8_strtoupper_full_maps']['data'] = $funcs['utf8_strtoupper_simple_maps']['data'];
-$funcs['utf8_strtolower_full_maps']['data'] = $funcs['utf8_strtolower_simple_maps']['data'];
-$funcs['utf8_titlecase_full_maps']['data'] = $funcs['utf8_titlecase_simple_maps']['data'];
+$funcs['utf8_strtoupper_maps']['data'] = $funcs['utf8_strtoupper_simple_maps']['data'];
+$funcs['utf8_strtolower_maps']['data'] = $funcs['utf8_strtolower_simple_maps']['data'];
+$funcs['utf8_titlecase_maps']['data'] = $funcs['utf8_titlecase_simple_maps']['data'];
 foreach (file($unicode_data_url . '/SpecialCasing.txt') as $line)
 {
 	$line = substr($line, 0, strcspn($line, '#'));
@@ -301,20 +301,20 @@ foreach (file($unicode_data_url . '/SpecialCasing.txt') as $line)
 	// Note: conditional mappings need to be handled by more complex code.
 	if (empty($fields[4]))
 	{
-		$funcs['utf8_strtolower_full_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[1])) . ';';
+		$funcs['utf8_strtolower_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[1])) . ';';
 
-		$funcs['utf8_strtoupper_full_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[3])) . ';';
+		$funcs['utf8_strtoupper_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[3])) . ';';
 
 		// Titlecase only where different from uppercase.
 		if ($fields[3] !== $fields[2])
 		{
-			$funcs['utf8_titlecase_full_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
+			$funcs['utf8_titlecase_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
 		}
 	}
 }
-ksort($funcs['utf8_strtolower_full_maps']['data']);
-ksort($funcs['utf8_strtoupper_full_maps']['data']);
-ksort($funcs['utf8_titlecase_full_maps']['data']);
+ksort($funcs['utf8_strtolower_maps']['data']);
+ksort($funcs['utf8_strtoupper_maps']['data']);
+ksort($funcs['utf8_titlecase_maps']['data']);
 
 foreach (file($unicode_data_url . '/CaseFolding.txt') as $line)
 {
@@ -335,7 +335,7 @@ foreach (file($unicode_data_url . '/CaseFolding.txt') as $line)
 	// Full casefolding.
 	if (in_array($fields[1], array('C', 'F')))
 	{
-		$funcs['utf8_casefold_full_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
+		$funcs['utf8_casefold_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
 	}
 
 	// Simple casefolding.

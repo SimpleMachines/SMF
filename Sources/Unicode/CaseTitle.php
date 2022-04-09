@@ -94,7 +94,7 @@ function utf8_titlecase_simple_maps()
  *
  * @return array Full title case maps.
  */
-function utf8_titlecase_full_maps()
+function utf8_titlecase_maps()
 {
 	return array(
 		"\xC3\x9F" => "\x53\x73",

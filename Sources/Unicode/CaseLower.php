@@ -1469,7 +1469,7 @@ function utf8_strtolower_simple_maps()
  *
  * @return array Uppercase to lowercase maps.
  */
-function utf8_strtolower_full_maps()
+function utf8_strtolower_maps()
 {
 	return array(
 		"\x41" => "\x61",

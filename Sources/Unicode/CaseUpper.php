@@ -1486,7 +1486,7 @@ function utf8_strtoupper_simple_maps()
  *
  * @return array Lowercase to uppercase maps.
  */
-function utf8_strtoupper_full_maps()
+function utf8_strtoupper_maps()
 {
 	return array(
 		"\x61" => "\x41",

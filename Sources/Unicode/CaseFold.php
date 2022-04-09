@@ -1490,7 +1490,7 @@ function utf8_casefold_simple_maps()
  *
  * @return array Casefolding maps.
  */
-function utf8_casefold_full_maps()
+function utf8_casefold_maps()
 {
 	return array(
 		"\x41" => "\x61",
