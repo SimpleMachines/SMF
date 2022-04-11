@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.0; Login
+// Version: 2.1.2; Login
 
 // Registration agreement page.
 $txt['registration_agreement'] = 'Registration Agreement';
