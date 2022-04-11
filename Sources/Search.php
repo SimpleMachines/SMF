@@ -260,7 +260,7 @@ function PlushSearch2()
 		send_http_status(403);
 		die;
 	}
-	
+
 	if (isset($_REQUEST['start']))
 		$_REQUEST['start'] = (int) $_REQUEST['start'];
 
