@@ -1109,6 +1109,7 @@ function grabJumpToContent(elem)
 				isCategory: $(this).attr('type') == 'category',
 				name: this.firstChild.nodeValue.removeEntities(),
 				is_current: false,
+				isRedirect: parseInt($(this).attr('is_redirect')),
 				childLevel: parseInt($(this).attr('childlevel'))
 			}
 		});
@@ -1151,7 +1152,8 @@ JumpTo.prototype.showSelect = function ()
 // Fill the jump to box with entries. Method of the JumpTo class.
 JumpTo.prototype.fillSelect = function (aBoardsAndCategories)
 {
-	var iIndexPointer = 0;
+	// Don't do this twice.
+	$('#' + this.opt.sContainerId).off('mouseenter');
 
 	// Create an option that'll be above and below the category.
 	var oDashOption = document.createElement('option');
@@ -1195,7 +1197,7 @@ JumpTo.prototype.fillSelect = function (aBoardsAndCategories)
 			oOption.value = aBoardsAndCategories[i].isCategory ? '#c' + aBoardsAndCategories[i].id : '?board=' + aBoardsAndCategories[i].id + '.0';
 		else
 		{
-			if (aBoardsAndCategories[i].isCategory)
+			if (aBoardsAndCategories[i].isCategory || aBoardsAndCategories[i].isRedirect)
 				oOption.disabled = 'disabled';
 			else
 				oOption.value = aBoardsAndCategories[i].id;

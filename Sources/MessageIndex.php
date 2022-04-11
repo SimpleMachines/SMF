@@ -11,7 +11,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.2
  */
 
 if (!defined('SMF'))
@@ -945,6 +945,23 @@ function QuickModeration()
 			$moveCache[1][$topic] = (int) (isset($_REQUEST['move_tos'][$topic]) ? $_REQUEST['move_tos'][$topic] : $_REQUEST['move_to']);
 
 			if (empty($moveCache[1][$topic]))
+				continue;
+
+			// Never move topics to redirect boards
+			$redirect_boards = array();
+			$request = $smcFunc['db_query']('', '
+				SELECT id_board
+				FROM {db_prefix}boards
+				WHERE redirect != {string:blank_redirect}',
+				array(
+					'blank_redirect' => '',
+				)
+			);
+			while ($row = $smcFunc['db_fetch_row']($request))
+				$redirect_boards[] = $row[0];
+			$smcFunc['db_free_result']($request);
+
+			if (in_array($moveCache[1][$topic], $redirect_boards))
 				continue;
 
 			$moveCache[0][] = $topic;

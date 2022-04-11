@@ -10,7 +10,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.2
  */
 
 if (!defined('SMF'))
@@ -260,7 +260,7 @@ function PlushSearch2()
 		send_http_status(403);
 		die;
 	}
-	
+
 	if (isset($_REQUEST['start']))
 		$_REQUEST['start'] = (int) $_REQUEST['start'];
 

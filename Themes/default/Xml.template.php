@@ -7,7 +7,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.2
  */
 
 /**
@@ -386,7 +386,7 @@ function template_jump_to()
 
 		foreach ($category['boards'] as $board)
 			echo '
-	<item type="board" id="', $board['id'], '" childlevel="', $board['child_level'], '"><![CDATA[', cleanXml($board['name']), ']]></item>';
+	<item type="board" id="', $board['id'], '" childlevel="', $board['child_level'], '" is_redirect="', (int) !empty($board['redirect']), '"><![CDATA[', cleanXml($board['name']), ']]></item>';
 	}
 	echo '
 </smf>';
