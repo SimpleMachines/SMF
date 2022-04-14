@@ -849,7 +849,7 @@ function utf8_sanitize_invisibles($string, $level, $substitute)
 				$zwj_pattern = '\x{200D}(?!' . (!empty($classes['Vowel_Dependent']) ? '[' . $classes['Vowel_Dependent'] . ']|' : '') . '[^' . $classes['All'] . '])';
 
 				// Now build the pattern for this script.
-				$pattern = $letter . $nonspacing_marks . '[' . $classes['viramas'] . ']' . $nonspacing_combining_marks . '\K' . (!empty($zwj_pattern) ? '(?:' . $zwj_pattern . '|' . $zwnj_pattern . ')' : $zwnj_pattern);
+				$pattern = $letter . $nonspacing_marks . '[' . $classes['Virama'] . ']' . $nonspacing_combining_marks . '\K' . (!empty($zwj_pattern) ? '(?:' . $zwj_pattern . '|' . $zwnj_pattern . ')' : $zwnj_pattern);
 			}
 
 			// Do the thing.
