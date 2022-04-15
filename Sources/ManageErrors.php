@@ -259,7 +259,8 @@ function ViewErrorLog()
 		{
 			$id = $filter['value']['sql'];
 			loadMemberData($id, false, 'minimal');
-			$context['filter']['value']['html'] = '<a href="' . $scripturl . '?action=profile;u=' . $id . '">' . $user_profile[$id]['real_name'] . '</a>';
+			$real_name = ($id == 0) ? $txt['guest'] : (isset($user_profile[$id]['real_name']) ? $user_profile[$id]['real_name'] : $txt['unknown']);
+			$context['filter']['value']['html'] = '<a href="' . $scripturl . '?action=profile;u=' . $id . '">' . strtolower($real_name) . '</a>';
 		}
 		elseif ($filter['variable'] == 'url')
 			$context['filter']['value']['html'] = '\'' . strtr($smcFunc['htmlspecialchars']((substr($filter['value']['sql'], 0, 1) == '?' ? $scripturl : '') . $filter['value']['sql']), array('\_' => '_')) . '\'';
