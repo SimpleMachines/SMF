@@ -440,7 +440,7 @@ function mb_ord_chr_encoding($encoding = null)
 foreach (
 	array(
 		'IDNA_DEFAULT' => 0,
-		'IDNA_ALLOW_UNASSIGNED' => 0,
+		'IDNA_ALLOW_UNASSIGNED' => 1,
 		'IDNA_USE_STD3_RULES' => 2,
 		'IDNA_CHECK_BIDI' => 4,
 		'IDNA_CHECK_CONTEXTJ' => 8,
