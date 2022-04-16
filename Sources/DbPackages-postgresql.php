@@ -197,6 +197,10 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	$index_queries = array();
 	foreach ($indexes as $index)
 	{
+		// MySQL you can do a "column_name (length)", postgresql does not allow this.  Strip it.
+		foreach ($index['columns'] as &$c)
+			$c = preg_replace('~\s+(\(\d+\))~', '', $c);
+
 		$columns = implode(',', $index['columns']);
 
 		// Primary goes in the table...
@@ -205,8 +209,9 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 		else
 		{
 			if (empty($index['name']))
-				$index['name'] = implode('_', $index['columns']);
-			$index_queries[] = 'CREATE ' . (isset($index['type']) && $index['type'] == 'unique' ? 'UNIQUE' : '') . ' INDEX ' . $table_name . '_' . $index['name'] . ' ON ' . $table_name . ' (' . $columns . ')';
+				$index['name'] = trim(implode('_', preg_replace('~(\(\d+\))~', '', $index['columns'])));
+
+			$index_queries[] = 'CREATE ' . (isset($index['type']) && $index['type'] == 'unique' ? 'UNIQUE' : '') . ' INDEX ' . $short_table_name . '_' . $index['name'] . ' ON ' . $short_table_name . ' (' . $columns . ')';
 		}
 	}
 

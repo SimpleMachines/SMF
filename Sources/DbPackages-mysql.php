@@ -158,9 +158,26 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 		$table_query .= "\n\t" . smf_db_create_query_column($column) . ',';
 
 	// Loop through the indexes next...
+	$version = $smcFunc['db_get_version']();
 	foreach ($indexes as $index)
 	{
-		$columns = implode(',', $index['columns']);
+		// MySQL If its a text column, we need to add a size.
+		foreach ($index['columns'] as &$c)
+		{
+			$c = trim($c);
+
+			// If a size was already specified, we won't be able to match it anyways.
+			if (!isset($columns[$c]) || !in_array($columns[$c]['type'], array('text', 'mediumntext', 'largetext')))
+				continue;
+
+			// This is a column we need a size on and we are below 5.7 we have to stick to a smaller size.
+			if (version_compare($version, '5.7', '<'))
+				$c .= '(64)';
+			else
+				$c .= '(255)';
+		}
+
+		$idx_columns = implode(',', $index['columns']);
 
 		// Is it the primary?
 		if (isset($index['type']) && $index['type'] == 'primary')
@@ -168,8 +185,9 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 		else
 		{
 			if (empty($index['name']))
-				$index['name'] = implode('_', $index['columns']);
-			$table_query .= "\n\t" . (isset($index['type']) && $index['type'] == 'unique' ? 'UNIQUE' : 'KEY') . ' ' . $index['name'] . ' (' . $columns . '),';
+				$index['name'] = trim(implode('_', preg_replace('~(\(\d+\))~', '', $index['columns'])));
+
+			$table_query .= "\n\t" . (isset($index['type']) && $index['type'] == 'unique' ? 'UNIQUE' : 'KEY') . ' ' . $index['name'] . ' (' . $idx_columns . '),';
 		}
 	}
 
