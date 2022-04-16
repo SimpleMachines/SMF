@@ -154,6 +154,8 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	$table_query = 'CREATE TABLE ' . $short_table_name . "\n" . '(';
 	foreach ($columns as $column)
 	{
+		$column = array_change_key_case($column);
+
 		// If we have an auto increment do it!
 		if (!empty($column['auto']))
 		{
@@ -201,7 +203,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 		foreach ($index['columns'] as &$c)
 			$c = preg_replace('~\s+(\(\d+\))~', '', $c);
 
-		$columns = implode(',', $index['columns']);
+		$idx_columns = implode(',', $index['columns']);
 
 		// Primary goes in the table...
 		if (isset($index['type']) && $index['type'] == 'primary')
@@ -211,7 +213,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 			if (empty($index['name']))
 				$index['name'] = trim(implode('_', preg_replace('~(\(\d+\))~', '', $index['columns'])));
 
-			$index_queries[] = 'CREATE ' . (isset($index['type']) && $index['type'] == 'unique' ? 'UNIQUE' : '') . ' INDEX ' . $short_table_name . '_' . $index['name'] . ' ON ' . $short_table_name . ' (' . $columns . ')';
+			$index_queries[] = 'CREATE ' . (isset($index['type']) && $index['type'] == 'unique' ? 'UNIQUE' : '') . ' INDEX ' . $short_table_name . '_' . $index['name'] . ' ON ' . $short_table_name . ' (' . $idx_columns . ')';
 		}
 	}
 
@@ -353,6 +355,7 @@ function smf_db_add_column($table_name, $column_info, $parameters = array(), $if
 	global $smcFunc, $db_package_log, $db_prefix;
 
 	$short_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$column_info = array_change_key_case($column_info);
 
 	// Log that we will want to uninstall this!
 	$db_package_log[] = array('remove_column', $short_table_name, $column_info['name']);
@@ -452,6 +455,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	global $smcFunc, $db_prefix;
 
 	$short_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$column_info = array_change_key_case($column_info);
 
 	// backward compatibility
 	if (isset($column_info['null']) && !isset($column_info['not_null']))

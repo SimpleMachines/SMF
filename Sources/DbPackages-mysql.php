@@ -325,6 +325,7 @@ function smf_db_add_column($table_name, $column_info, $parameters = array(), $if
 	global $smcFunc, $db_package_log, $db_prefix;
 
 	$short_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$column_info = array_change_key_case($column_info);
 
 	// Log that we will want to uninstall this!
 	$db_package_log[] = array('remove_column', $short_table_name, $column_info['name']);
@@ -407,6 +408,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	global $smcFunc, $db_prefix;
 
 	$short_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$column_info = array_change_key_case($column_info);
 
 	// Check it does exist!
 	$columns = $smcFunc['db_list_columns']($table_name, true);
@@ -850,6 +852,8 @@ function smf_db_list_indexes($table_name, $detail = false, $parameters = array()
 function smf_db_create_query_column($column)
 {
 	global $smcFunc;
+
+	$column = array_change_key_case($column);
 
 	// Auto increment is easy here!
 	$default = '';
