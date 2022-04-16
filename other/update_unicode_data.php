@@ -20,6 +20,7 @@
  */
 
 $unicode_data_url = 'https://unicode.org/Public/UCD/latest/ucd';
+$idna_data_url = 'https://www.unicode.org/Public/idna/latest';
 
 $sourcedir = realpath(dirname(__DIR__) . '/Sources');
 $unicodedir = $sourcedir . '/Unicode';
@@ -111,6 +112,30 @@ $funcs = array(
 	),
 	'utf8_regex_indic' => array(
 		'file' => 'RegularExpressions.php',
+		'key_type' => 'string',
+		'val_type' => 'string',
+		'data' => array(),
+	),
+	'idna_maps' => array(
+		'file' => 'Idna.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'idna_maps_deviation' => array(
+		'file' => 'Idna.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'idna_maps_not_std3' => array(
+		'file' => 'Idna.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'idna_regex' => array(
+		'file' => 'Idna.php',
 		'key_type' => 'string',
 		'val_type' => 'string',
 		'data' => array(),
@@ -947,6 +972,101 @@ unset($funcs['utf8_combining_classes']);
 
 foreach ($funcs as $func_name => $func_info)
 {
+	if (empty($func_info['data']))
+	{
+		continue;
+	}
+
+	export_func_to_file($func_name, $func_info);
+}
+
+/*********************************
+ * Part 3: IDNA maps and regexes *
+ *********************************/
+
+foreach (file($idna_data_url . '/IdnaMappingTable.txt') as $line)
+{
+	$line = substr($line, 0, strcspn($line, '#'));
+
+	if (strpos($line, ';') === false)
+	{
+		continue;
+	}
+
+	$fields = explode(';', $line);
+
+	foreach ($fields as $key => $value)
+	{
+		$fields[$key] = preg_replace('/\b(0(?!\b))+/', '', trim($value));
+	}
+
+	if (strpos($fields[0], '..') === false)
+	{
+		$entities = array('&#x' . $fields[0] . ';');
+	}
+	else
+	{
+		$entities = array();
+
+		list($start, $end) = explode('..', $fields[0]);
+
+		$ord_s = hexdec($start);
+		$ord_e = hexdec($end);
+
+		$ord = $ord_s;
+		while ($ord <= $ord_e)
+		{
+			$entities[] = '&#x' . strtoupper(sprintf('%04s', dechex($ord++))) . ';';
+		}
+	}
+
+	if ($fields[1] === 'mapped')
+	{
+		foreach ($entities as $entity)
+			$funcs['idna_maps']['data'][$entity] = $fields[2] === '' ? '' : '&#x' . str_replace(' ', '; &#x', $fields[2]) . ';';
+	}
+	elseif ($fields[1] === 'deviation')
+	{
+		foreach ($entities as $entity)
+			$funcs['idna_maps_deviation']['data'][$entity] = $fields[2] === '' ? '' : '&#x' . str_replace(' ', '; &#x', $fields[2]) . ';';
+
+		$funcs['idna_regex']['data']['deviation'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+	}
+	elseif ($fields[1] === 'ignored')
+	{
+		$funcs['idna_regex']['data']['ignored'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+	}
+	elseif ($fields[1] === 'disallowed')
+	{
+		if (in_array('&#xD800;', $entities))
+			continue;
+
+		$funcs['idna_regex']['data']['disallowed'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+	}
+	elseif ($fields[1] === 'disallowed_STD3_mapped')
+	{
+		foreach ($entities as $entity)
+			$funcs['idna_maps_not_std3']['data'][$entity] = $fields[2] === '' ? '' : '&#x' . str_replace(' ', '; &#x', $fields[2]) . ';';
+
+		$funcs['idna_regex']['data']['disallowed_std3'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+	}
+	elseif ($fields[1] === 'disallowed_STD3_valid')
+	{
+		$funcs['idna_regex']['data']['disallowed_std3'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+	}
+}
+foreach ($funcs['idna_regex']['data'] as $key => $value)
+{
+	$funcs['idna_regex']['data'][$key] = implode('', $value);
+}
+
+foreach ($funcs as $func_name => $func_info)
+{
+	if (empty($func_info['data']))
+	{
+		continue;
+	}
+
 	export_func_to_file($func_name, $func_info);
 }
 
