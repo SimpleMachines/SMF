@@ -453,7 +453,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	if (array_key_exists('default', $column_info) && is_null($column_info['default']))
 		$default = 'NULL';
 	elseif (isset($column_info['default']) && is_numeric($column_info['default']))
-		$default = 'DEFAULT ' . (strpos($column_info['default'], '.') ? floatval($column_info['default']) : intval($column_info['default']));
+		$default = strpos($column_info['default'], '.') ? floatval($column_info['default']) : intval($column_info['default']);
 	else
 		$default = '\'' . $smcFunc['db_escape_string']($column_info['default']) . '\'';
 
@@ -463,7 +463,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	$smcFunc['db_query']('', '
 		ALTER TABLE ' . $short_table_name . '
 		CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column_info['not_null']) ? 'NOT NULL' : '') . ' ' .
-				($default === '' ? '' : 'default ' . $default) . ' ' .
+				($default === '' ? '' : 'DEFAULT ' . $default) . ' ' .
 			(empty($column_info['auto']) ? '' : 'auto_increment') . ' ',
 		array(
 			'security_override' => true,
@@ -861,7 +861,7 @@ function smf_db_create_query_column($column)
 		$default = 'auto_increment';
 	// Make it null.
 	elseif (array_key_exists('default', $column) && is_null($column['default']))
-		$default = 'default NULL';
+		$default = 'DEFAULT NULL';
 	// Numbers don't need quotes.
 	elseif (isset($column['default']) && is_numeric($column['default']))
 		$default = 'DEFAULT ' . (strpos($column['default'], '.') ? floatval($column['default']) : intval($column['default']));
