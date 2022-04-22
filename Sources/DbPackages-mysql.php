@@ -420,20 +420,13 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	// Allow for unsigned integers (mysql only)
 	$unsigned = in_array($type, array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')) && !empty($column_info['unsigned']) ? 'unsigned ' : '';
 
-	// Fix the default.
-	$default = '';
-	if (isset($column_info['default']) && is_null($column_info['default']) && empty($column_info['not_null']))
-		$default = 'NULL';
-	else
-		$default = '\'' . $smcFunc['db_escape_string']($column_info['default']) . '\'';
-
 	if ($size !== null)
 		$type = $type . '(' . $size . ')';
 
 	$smcFunc['db_query']('', '
 		ALTER TABLE ' . $table_name . '
 		CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column_info['not_null']) ? 'NOT NULL' : '') . ' ' .
-				($default === '' ? '' : 'default ' . $default) . ' ' .
+			(!isset($column_info['default']) ? '' : 'default \'' . $smcFunc['db_escape_string']($column_info['default']) . '\'') . ' ' .
 			(empty($column_info['auto']) ? '' : 'auto_increment') . ' ',
 		array(
 			'security_override' => true,
@@ -795,15 +788,14 @@ function smf_db_create_query_column($column)
 	global $smcFunc;
 
 	// Auto increment is easy here!
-	$default = '';
 	if (!empty($column['auto']))
 	{
 		$default = 'auto_increment';
 	}
 	elseif (isset($column['default']) && $column['default'] !== null)
 		$default = 'default \'' . $smcFunc['db_escape_string']($column['default']) . '\'';
-	elseif (isset($column['default']) && is_null($column['default']))
-		$default = 'NULL';
+	else
+		$default = '';
 
 	// Sort out the size... and stuff...
 	$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
