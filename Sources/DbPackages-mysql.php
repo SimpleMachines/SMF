@@ -490,23 +490,18 @@ function smf_db_add_index($table_name, $index_info, $parameters = array(), $if_e
 	// No columns = no index.
 	if (empty($index_info['columns']))
 		return false;
-		
+
 	// MySQL If its a text column, we need to add a size.
 	$cols = $smcFunc['db_list_columns']($table_name, true);
-	$version = $smcFunc['db_get_version']();
 	foreach ($index_info['columns'] as &$c)
 	{
 		$c = trim($c);
 
 		// If a size was already specified, we won't be able to match it anyways.
-		if (!isset($cols[$c]) || !in_array($cols[$c]['type'], array('text', 'mediumntext', 'largetext')))
+		if (!isset($cols[$c]) || !in_array($cols[$c]['type'], array('text', 'mediumntext', 'largetext', 'varchar', 'char')))
 			continue;
 
-		// This is a column we need a size on and we are below 5.7 we have to stick to a smaller size.
-		if (version_compare($version, '5.7', '<'))
-			$c .= '(64)';
-		else
-			$c .= '(255)';
+		$c .= '(191)';
 	}
 
 	$columns = implode(',', $index_info['columns']);
