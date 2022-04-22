@@ -3116,6 +3116,16 @@ ALTER TABLE {$db_prefix}members
 DROP INDEX memberName;
 ---#
 
+---# Updating members active_real_name (drop)
+ALTER TABLE {$db_prefix}members
+DROP INDEX idx_active_real_name;
+---#
+
+---# Updating members active_real_name (add)
+ALTER TABLE {$db_prefix}members
+ADD INDEX idx_active_real_name (is_activated, real_name);
+---#
+
 ---# Updating messages drop old ipIndex
 ALTER TABLE {$db_prefix}messages
 DROP INDEX ipIndex;

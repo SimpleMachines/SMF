@@ -7,7 +7,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.2
  */
 
 /**
@@ -787,7 +787,7 @@ function template_editBuddies()
 			if (!empty($context['custom_pf']))
 				foreach ($context['custom_pf'] as $key => $column)
 					echo '
-					<td class="lefttext buddy_custom_fields">', $buddy['options'][$key], '</td>';
+					<td class="centertext buddy_custom_fields">', $buddy['options'][$key], '</td>';
 
 			echo '
 					<td class="centertext buddy_remove">

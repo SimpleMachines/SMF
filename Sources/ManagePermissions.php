@@ -10,7 +10,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.2
  */
 
 if (!defined('SMF'))
@@ -1519,8 +1519,8 @@ function loadAllPermissions()
 			'approve_posts' => array(false, 'general_board'),
 			'post_new' => array(false, 'topic'),
 			'post_unapproved_topics' => array(false, 'topic'),
-			'post_unapproved_replies' => array(true, 'topic'),
 			'post_reply' => array(true, 'topic'),
+			'post_unapproved_replies' => array(true, 'topic'),
 			'post_draft' => array(false, 'topic'),
 			'merge_any' => array(false, 'topic'),
 			'split_any' => array(false, 'topic'),

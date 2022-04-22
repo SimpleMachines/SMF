@@ -10,7 +10,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.2
  */
 
 if (!defined('SMF'))
@@ -8132,6 +8132,10 @@ function check_cron()
 function send_http_status($code, $status = '')
 {
 	global $sourcedir;
+
+	// This will fail anyways if headers have been sent.
+	if (headers_sent())
+		return;
 
 	$statuses = array(
 		204 => 'No Content',

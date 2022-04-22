@@ -851,9 +851,9 @@ function smf_db_create_query_column($column)
 	$column = array_change_key_case($column);
 
 	// Auto increment is easy here!
-	$default = '';
 	if (!empty($column['auto']))
 		$default = 'auto_increment';
+
 	// Make it null.
 	elseif (array_key_exists('default', $column) && is_null($column['default']))
 		$default = 'DEFAULT NULL';

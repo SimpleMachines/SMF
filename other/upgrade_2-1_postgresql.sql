@@ -2786,11 +2786,13 @@ ADD COLUMN IF NOT EXISTS tfa_required smallint NOT NULL default '0';
 ---# DROP INDEX to members
 DROP INDEX IF EXISTS {$db_prefix}members_member_name_low;
 DROP INDEX IF EXISTS {$db_prefix}members_real_name_low;
+DROP INDEX IF EXISTS {$db_prefix}members_active_real_name;
 ---#
 
 ---# ADD INDEX to members
 CREATE INDEX {$db_prefix}members_member_name_low ON {$db_prefix}members (LOWER(member_name) varchar_pattern_ops);
 CREATE INDEX {$db_prefix}members_real_name_low ON {$db_prefix}members (LOWER(real_name) varchar_pattern_ops);
+CREATE INDEX {$db_prefix}members_active_real_name ON {$db_prefix}members (is_activated, real_name);
 ---#
 
 /******************************************************************************/

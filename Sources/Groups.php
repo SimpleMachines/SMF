@@ -10,7 +10,7 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.2
  */
 
 if (!defined('SMF'))
@@ -659,7 +659,7 @@ function GroupRequests()
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<select name="req_action" onchange="if (this.value != 0 &amp;&amp; (this.value == \'reason\' || confirm(\'' . $txt['mc_groupr_warning'] . '\'))) this.form.submit();">
+					<select id="req_action" name="req_action" onchange="if (this.value != 0 &amp;&amp; (this.value == \'reason\' || confirm(\'' . $txt['mc_groupr_warning'] . '\'))) this.form.submit();">
 						<option value="0">' . $txt['with_selected'] . ':</option>
 						<option value="0" disabled>---------------------</option>
 						<option value="approve">' . $txt['mc_groupr_approve'] . '</option>
