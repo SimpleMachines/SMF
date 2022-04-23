@@ -2968,7 +2968,7 @@ function template_profile_avatar_select()
 										var size = avatar.alt.substr(3, 2) + " " + avatar.alt.substr(0, 2) + String.fromCharCode(117, 98, 116);
 										var file = document.getElementById("file");
 
-										if (avatar.src.indexOf("blank.png") > -1)
+										if (avatar.src.indexOf("blank.png") > -1 || selavatar.indexOf("blank.png") == -1)
 											changeSel(selavatar);
 										else
 											previewExternalAvatar(avatar.src)
