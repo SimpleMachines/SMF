@@ -649,6 +649,7 @@ function Credits($in_admin = false)
 						// Lead Support Specialist
 						'Will "Kindred" Wagner',
 						// Support Specialists
+						'Doug Heffernan',
 						'lurkalot',
 						'shadav',
 						'Steve',
