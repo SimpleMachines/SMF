@@ -853,7 +853,6 @@ function smf_db_create_query_column($column)
 	// Auto increment is easy here!
 	if (!empty($column['auto']))
 		$default = 'auto_increment';
-
 	// Make it null.
 	elseif (array_key_exists('default', $column) && is_null($column['default']))
 		$default = 'DEFAULT NULL';
@@ -863,6 +862,8 @@ function smf_db_create_query_column($column)
 	// Non empty string.
 	elseif (isset($column['default']))
 		$default = 'DEFAULT \'' . $smcFunc['db_escape_string']($column['default']) . '\'';
+	else
+		$default = '';
 
 	// Backwards compatible with the nullable column.
 	if (isset($column['null']) && !isset($column['not_null']))
