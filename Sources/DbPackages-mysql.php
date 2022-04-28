@@ -167,7 +167,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 
 			// If a size was already specified, we won't be able to match it anyways.
 			$key = array_search($c, array_column($columns, 'name'));
-			if ($key !== false && !isset($columns[$key]) || !in_array($columns[$key]['type'], array('text', 'mediumntext', 'largetext', 'varchar', 'char')))
+			if ($key === false || !isset($columns[$key]) || !in_array($columns[$key]['type'], array('text', 'mediumntext', 'largetext', 'varchar', 'char')))
 				continue;
 
 			$c .= '(191)';
