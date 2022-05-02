@@ -3384,6 +3384,8 @@ function censorText(&$text, $force = false)
 	if ((!empty($options['show_no_censored']) && !empty($modSettings['allow_no_censored']) && !$force) || empty($modSettings['censor_vulgar']) || trim($text) === '')
 		return $text;
 
+	call_integration_hook('integrate_word_censor', array(&$text));
+
 	// If they haven't yet been loaded, load them.
 	if ($censor_vulgar == null)
 	{
