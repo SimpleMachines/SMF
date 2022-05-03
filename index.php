@@ -51,7 +51,7 @@ require_once(dirname(__FILE__) . '/Settings.php');
 error_reporting(!empty($db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
 
 // Ensure there are no trailing slashes in these variables.
-foreach (array('boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'taskddir', 'cachedir') as $variable)
+foreach (array('boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'tasksdir', 'cachedir') as $variable)
 	if (!empty($GLOBALS[$variable]))
 		$GLOBALS[$variable] = rtrim($GLOBALS[$variable], "\\/");
 
