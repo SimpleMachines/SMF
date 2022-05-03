@@ -3381,7 +3381,7 @@ function censorText(&$text, $force = false)
 	global $modSettings, $options, $txt;
 	static $censor_vulgar = null, $censor_proper;
 
-	if ((!empty($options['show_no_censored']) && !empty($modSettings['allow_no_censored']) && !$force) || empty($modSettings['censor_vulgar']) || trim($text) === '')
+	if ((!empty($options['show_no_censored']) && !empty($modSettings['allow_no_censored']) && !$force) || empty($modSettings['censor_vulgar']) || !is_string($text) || trim($text) === '')
 		return $text;
 
 	call_integration_hook('integrate_word_censor', array(&$text));
