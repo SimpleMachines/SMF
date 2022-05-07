@@ -1963,7 +1963,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" target="_blank" rel="noopener">$1</a>',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					$data[0] = normalize_iri($data[0]);
+					$data[0] = normalize_iri(strtr(trim($data[0]), array('<br>' => '', ' ' => '%20')));
 
 					$scheme = parse_iri($data[0], PHP_URL_SCHEME);
 					if (empty($scheme))
@@ -2001,7 +2001,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = normalize_iri(strtr($data, array('<br>' => '')));
+					$data = normalize_iri(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
 					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
@@ -2020,7 +2020,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = iri_to_url($data);
+					$data = iri_to_url(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
 					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
@@ -2080,7 +2080,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '$1',
 				'validate' => function(&$tag, &$data, $disabled, $params)
 				{
-					$url = iri_to_url(strtr($data, array('<br>' => '')));
+					$url = iri_to_url(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
 					if (parse_iri($url, PHP_URL_SCHEME) === null)
 						$url = '//' . ltrim($url, ':/');
@@ -2100,7 +2100,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = normalize_iri(strtr($data, array('<br>' => '')));
+					$data = normalize_iri(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
 					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
@@ -2123,7 +2123,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$data = '#post_' . substr($data, 1);
 					else
 					{
-						$data = iri_to_url($data);
+						$data = iri_to_url(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
 						$scheme = parse_iri($data, PHP_URL_SCHEME);
 						if (empty($scheme))
@@ -2417,7 +2417,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = normalize_iri(strtr($data, array('<br>' => '')));
+					$data = normalize_iri(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
 					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
@@ -2436,7 +2436,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					$data = iri_to_url($data);
+					$data = iri_to_url(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
 					$scheme = parse_iri($data, PHP_URL_SCHEME);
 					if (empty($scheme))
