@@ -923,7 +923,7 @@ function smf_db_error_insert($error_array)
 		$error_array[2] = null;
 
 	// If we are in a transaction, abort.
-	if ($inTransaction)
+	if (!empty($inTransaction))
 		$smcFunc['db_transaction']('rollback');
 
 	if(empty($db_persist))
