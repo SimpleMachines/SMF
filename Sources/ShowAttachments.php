@@ -164,6 +164,22 @@ function showAttachment()
 			cache_put_data('attachment_lookup_id-' . $file['id_attach'], array($file, $thumbFile), mt_rand(850, 900));
 	}
 
+	// Can they see attachments on this board?
+	if (!empty($file['id_msg']))
+	{
+		// Special case for profile exports.
+		if (!empty($context['attachment_allow_hidden_boards']))
+		{
+			$boards_allowed = array(0);
+		}
+		// Check permissions and board access.
+		elseif (($boards_allowed = cache_get_data('view_attachment_boards_id-' . $user_info['id'])) == null)
+		{
+			$boards_allowed = boardsAllowedTo('view_attachments');
+			cache_put_data('view_attachment_boards_id-' . $user_info['id'], $boards_allowed, mt_rand(850, 900));
+		}
+	}
+
 	// No access if you don't have permission to see this attachment.
 	if
 	(
@@ -185,7 +201,7 @@ function showAttachment()
 				!empty($file['id_msg'])
 				&& (
 					empty($file['id_board'])
-					|| !allowedTo('view_attachments', $file['id_board'])
+					|| ($boards_allowed !== array(0) && !in_array($file['id_board'], $boards_allowed))
 				)
 			)
 		)
