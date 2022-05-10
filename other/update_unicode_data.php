@@ -50,14 +50,44 @@ $funcs = array(
 		'val_type' => 'int',
 		'data' => array(),
 	),
+	'utf8_strtolower_simple_maps' => array(
+		'file' => 'CaseLower.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
 	'utf8_strtolower_maps' => array(
 		'file' => 'CaseLower.php',
 		'key_type' => 'hexchar',
 		'val_type' => 'hexchar',
 		'data' => array(),
 	),
+	'utf8_strtoupper_simple_maps' => array(
+		'file' => 'CaseUpper.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
 	'utf8_strtoupper_maps' => array(
 		'file' => 'CaseUpper.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'utf8_titlecase_simple_maps' => array(
+		'file' => 'CaseTitle.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'utf8_titlecase_maps' => array(
+		'file' => 'CaseTitle.php',
+		'key_type' => 'hexchar',
+		'val_type' => 'hexchar',
+		'data' => array(),
+	),
+	'utf8_casefold_simple_maps' => array(
+		'file' => 'CaseFold.php',
 		'key_type' => 'hexchar',
 		'val_type' => 'hexchar',
 		'data' => array(),
@@ -86,6 +116,7 @@ $funcs = array(
 		),
 		'props' => array(
 			'Bidi_Control',
+			'Case_Ignorable',
 			'Cn',
 			'Default_Ignorable_Code_Point',
 			'Emoji',
@@ -200,25 +231,36 @@ foreach (file($unicode_data_url . '/UnicodeData.txt') as $line)
 {
 	$fields = explode(';', $line);
 
+	foreach ($fields as $key => $value)
+	{
+		$fields[$key] = trim($value);
+	}
+
 	if (!empty($fields[3]))
 	{
-		$funcs['utf8_combining_classes']['data']['&#x' . $fields[0] . ';'] = trim($fields[3]);
+		$funcs['utf8_combining_classes']['data']['&#x' . $fields[0] . ';'] = $fields[3];
 	}
 
 	// Uppercase maps.
 	if ($fields[12] !== '')
 	{
-		$funcs['utf8_strtoupper_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[12] . ';';
+		$funcs['utf8_strtoupper_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[12] . ';';
 	}
 
 	// Lowercase maps.
 	if ($fields[13] !== '')
 	{
-		$funcs['utf8_strtolower_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[13] . ';';
+		$funcs['utf8_strtolower_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[13] . ';';
+	}
+
+	// Titlecase maps, where different from uppercase maps.
+	if ($fields[14] !== '' && $fields[14] !== $fields[12])
+	{
+		$funcs['utf8_titlecase_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . $fields[14] . ';';
 	}
 
 	// Remember this character's general category for later.
-	$char_data['&#x' . $fields[0] . ';']['General_Category'] = trim($fields[2]);
+	$char_data['&#x' . $fields[0] . ';']['General_Category'] = $fields[2];
 
 	if ($fields[5] === '')
 	{
@@ -231,9 +273,48 @@ foreach (file($unicode_data_url . '/UnicodeData.txt') as $line)
 	// Just the canonical decompositions.
 	if (strpos($fields[5], '<') === false)
 	{
-		$funcs['utf8_normalize_d_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[5])) . ';';
+		$funcs['utf8_normalize_d_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', $fields[5]) . ';';
 	}
 }
+
+// Full case conversion maps
+$funcs['utf8_strtoupper_maps']['data'] = $funcs['utf8_strtoupper_simple_maps']['data'];
+$funcs['utf8_strtolower_maps']['data'] = $funcs['utf8_strtolower_simple_maps']['data'];
+$funcs['utf8_titlecase_maps']['data'] = $funcs['utf8_titlecase_simple_maps']['data'];
+foreach (file($unicode_data_url . '/SpecialCasing.txt') as $line)
+{
+	$line = substr($line, 0, strcspn($line, '#'));
+
+	if (strpos($line, ';') === false)
+	{
+		continue;
+	}
+
+	$fields = explode(';', $line);
+
+	foreach ($fields as $key => $value)
+	{
+		$fields[$key] = trim($value);
+	}
+
+	// Unconditional mappings.
+	// Note: conditional mappings need to be handled by more complex code.
+	if (empty($fields[4]))
+	{
+		$funcs['utf8_strtolower_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[1])) . ';';
+
+		$funcs['utf8_strtoupper_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[3])) . ';';
+
+		// Titlecase only where different from uppercase.
+		if ($fields[3] !== $fields[2])
+		{
+			$funcs['utf8_titlecase_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
+		}
+	}
+}
+ksort($funcs['utf8_strtolower_maps']['data']);
+ksort($funcs['utf8_strtoupper_maps']['data']);
+ksort($funcs['utf8_titlecase_maps']['data']);
 
 foreach (file($unicode_data_url . '/CaseFolding.txt') as $line)
 {
@@ -257,9 +338,9 @@ foreach (file($unicode_data_url . '/CaseFolding.txt') as $line)
 		$funcs['utf8_casefold_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
 	}
 
-	// Simple casefolding. Currently unused.
-	// if (in_array($fields[1], array('C', 'S')))
-	// 	$funcs['utf8_casefold_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
+	// Simple casefolding.
+	if (in_array($fields[1], array('C', 'S')))
+		$funcs['utf8_casefold_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
 }
 
 // Recursively iterate until we reach the final decomposition forms.
