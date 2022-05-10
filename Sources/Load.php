@@ -3169,7 +3169,7 @@ function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload =
 						$locale_variants = array_unique(array_merge(
 							!empty($modSettings['global_character_set']) ? array($txt['lang_locale'] . '.' . $modSettings['global_character_set']) : array(),
 							!empty($context['utf8']) ? array($txt['lang_locale'] . '.UTF-8', $txt['lang_locale'] . '.UTF8', $txt['lang_locale'] . '.utf-8', $txt['lang_locale'] . '.utf8') : array(),
-							array($txt['lang_locale']),
+							array($txt['lang_locale'])
 						));
 
 					setlocale(LC_CTYPE, $locale_variants);
