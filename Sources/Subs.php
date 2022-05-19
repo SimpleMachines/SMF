@@ -2467,6 +2467,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			'email',
 			'img',
 			'html',
+			'attach',
+			'ftp',
+			'flash',
+			'member',
+			'code',
+			'php',
+			'nobbc',
 		);
 
 		// Let mods add new BBC without hassle.
