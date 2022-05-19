@@ -56,13 +56,6 @@ function ManageSmileys()
 		unset($subActions['editicons']);
 	}
 
-	// Default the sub-action to 'edit smiley settings'.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'editsets';
-
-	$context['page_title'] = $txt['smileys_manage'];
-	$context['sub_action'] = $_REQUEST['sa'];
-	$context['sub_template'] = $context['sub_action'];
-
 	// Load up all the tabs...
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['smileys_manage'],
@@ -101,6 +94,13 @@ function ManageSmileys()
 	}
 
 	call_integration_hook('integrate_manage_smileys', array(&$subActions));
+
+	// Default the sub-action to 'edit smiley settings'.
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'editsets';
+
+	$context['page_title'] = $txt['smileys_manage'];
+
+	$context['sub_template'] = $context['sub_action'] = $_REQUEST['sa'];
 
 	// Call the right function for this sub-action.
 	call_helper($subActions[$_REQUEST['sa']]);

@@ -32,6 +32,8 @@ function Groups()
 		'requests' => array('GroupRequests', 'group_requests'),
 	);
 
+	call_integration_hook('integrate_manage_groups', array(&$subActions));
+
 	// Default to sub action 'index'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'index';
 
@@ -57,9 +59,6 @@ function Groups()
 			'name' => $txt['groups'],
 		);
 	}
-
-	// CRUD $subActions as needed.
-	call_integration_hook('integrate_manage_groups', array(&$subActions));
 
 	// Call the actual function.
 	call_helper($subActions[$_REQUEST['sa']][0]);

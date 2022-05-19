@@ -44,9 +44,6 @@ function ModifyPermissions()
 		'settings' => array('GeneralPermissionSettings', 'admin_forum'),
 	);
 
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && empty($subActions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : (allowedTo('manage_permissions') ? 'index' : 'settings');
-	isAllowedTo($subActions[$_REQUEST['sa']][1]);
-
 	// Create the tabs for the template.
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['permissions_title'],
@@ -72,6 +69,10 @@ function ModifyPermissions()
 	);
 
 	call_integration_hook('integrate_manage_permissions', array(&$subActions));
+
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && empty($subActions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : (allowedTo('manage_permissions') ? 'index' : 'settings');
+
+	isAllowedTo($subActions[$_REQUEST['sa']][1]);
 
 	call_helper($subActions[$_REQUEST['sa']][0]);
 }
