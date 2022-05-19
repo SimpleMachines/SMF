@@ -1370,8 +1370,8 @@ function prepareAttachsByMsg($msgIDs)
 	else
 		$msgIDs = array_diff($msgIDs, array_keys($context['loaded_attachments']), array(0));
 
-	if (!empty($context['preview_message']))
-		$msgIDs[] = 0;
+	// Ensure that $msgIDs doesn't contain zero or non-integers.
+	$msgIDs = array_filter(array_map('intval', $msgIDs));
 
 	if (!empty($msgIDs))
 	{
@@ -1384,10 +1384,11 @@ function prepareAttachsByMsg($msgIDs)
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 			WHERE a.attachment_type = {int:attachment_type}
-				AND a.id_msg IN ({array_int:message_id})',
+				AND (a.id_msg IN ({array_int:message_id})' . (!empty($context['preview_message']) && !empty($_SESSION['attachments_can_preview']) ? 'OR a.id_attach IN ({array_int:preview_attachments})' : '') . ')',
 			array(
 				'message_id' => $msgIDs,
 				'attachment_type' => 0,
+				'preview_attachments' => !empty($_SESSION['attachments_can_preview']) ? array_keys(array_filter($_SESSION['attachments_can_preview'])) : array(0),
 			)
 		);
 		$rows = $smcFunc['db_fetch_all']($request);
