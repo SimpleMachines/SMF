@@ -1028,6 +1028,11 @@ a[class^="mobile_generic_menu_"] {
 	box-sizing: border-box;
 	vertical-align: middle;
 }
+html[lang="el-GR"] .button,
+html[lang="el-GR"] .quickbuttons > li > a,
+html[lang="el-GR"] .inline_mod_check {
+	text-transform: capitalize;
+}
 .pagesection .button {
 	color: #346;
 }

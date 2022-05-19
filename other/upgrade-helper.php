@@ -343,7 +343,9 @@ function deleteFile($file)
  */
 function smf_strtolower($string)
 {
-	return mb_strtolower($string, 'UTF-8');
+	global $sourcedir;
+	require_once($sourcedir . '/Subs-Charset.php');
+	return utf8_strtolower($string);
 }
 
 /**

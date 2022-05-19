@@ -81,7 +81,7 @@ function setNotifyPrefs($memID, $prefs = array())
 
 	$update_rows = array();
 	foreach ($prefs as $k => $v)
-		$update_rows[] = array($memID, $k, $v);
+		$update_rows[] = array($memID, $k, min(max((int) $v, -128), 127));
 
 	$smcFunc['db_insert']('replace',
 		'{db_prefix}user_alerts_prefs',
