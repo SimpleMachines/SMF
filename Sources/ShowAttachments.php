@@ -125,7 +125,7 @@ function showAttachment()
 		$file['filePath'] = !$file['exists'] && isset($filePath['extension']) ? substr($file['filePath'], 0, -(strlen($filePath['extension']) + 1)) : $file['filePath'];
 		$file['mtime'] = $file['exists'] ? filemtime($file['filePath']) : 0;
 		$file['size'] = $file['exists'] ? filesize($file['filePath']) : 0;
-		$file['etag'] = '"' . sha1_file($file['filePath']) . '"';
+		$file['etag'] = $file['exists'] ? sha1_file($file['filePath']) : '';
 
 		// now get the thumbfile!
 		$thumbFile = array();
@@ -155,7 +155,7 @@ function showAttachment()
 				$thumbFile['filePath'] = !$thumbFile['exists'] && isset($thumbPath['extension']) ? substr($thumbFile['filePath'], 0, -(strlen($thumbPath['extension']) + 1)) : $thumbFile['filePath'];
 				$thumbFile['mtime'] = $thumbFile['exists'] ? filemtime($thumbFile['filePath']) : 0;
 				$thumbFile['size'] = $thumbFile['exists'] ? filesize($thumbFile['filePath']) : 0;
-				$thumbFile['etag'] = '"' . sha1_file($thumbFile['filePath']) . '"';
+				$thumbFile['etag'] = $thumbFile['exists'] ? sha1_file($thumbFile['filePath']) : '';
 			}
 		}
 
@@ -309,7 +309,7 @@ function showAttachment()
 	header('last-modified: ' . gmdate('D, d M Y H:i:s', $file['mtime']) . ' GMT');
 	header('accept-ranges: bytes');
 	header('connection: close');
-	header('etag: ' . $file['etag']);
+	header('etag: "' . $file['etag'] . '"');
 
 	// Make sure the mime type warrants an inline display.
 	if (isset($_REQUEST['image']) && !empty($file['mime_type']) && strpos($file['mime_type'], 'image/') !== 0)
