@@ -726,7 +726,8 @@ function Activate()
 	// Also do a proper member stat re-evaluation.
 	updateStats('member', false);
 
-	if (!isset($_POST['new_email']))
+	// Notify the admin about new activations, but not re-activations.
+	if (empty($row['is_activated']))
 	{
 		require_once($sourcedir . '/Subs-Post.php');
 
