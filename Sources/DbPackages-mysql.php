@@ -113,20 +113,23 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 
 	// Strip out the table name, we might not need it in some cases
 	$real_prefix = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $db_prefix, $match) === 1 ? $match[3] : $db_prefix;
+	$database = !empty($match[2]) ? $match[2] : $db_name;
 
 	// With or without the database name, the fullname looks like this.
 	$full_table_name = str_replace('{db_prefix}', $real_prefix, $table_name);
-	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	// Do not overwrite $table_name, this causes issues if we pass it onto a helper function.
+	$short_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
 
 	// First - no way do we touch SMF tables.
-	if (in_array(strtolower($table_name), $reservedTables))
+	if (in_array(strtolower($short_table_name), $reservedTables))
 		return false;
 
 	// Log that we'll want to remove this on uninstall.
-	$db_package_log[] = array('remove_table', $table_name);
+	$db_package_log[] = array('remove_table', $short_table_name);
 
 	// Slightly easier on MySQL than the others...
-	$tables = $smcFunc['db_list_tables']();
+	$tables = $smcFunc['db_list_tables']($database);
+
 	if (in_array($full_table_name, $tables))
 	{
 		// This is a sad day... drop the table? If not, return false (error) by default.
@@ -136,9 +139,9 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 		{
 			$smcFunc['db_transaction']('begin');
 			$db_trans = true;
-			$smcFunc['db_drop_table']($table_name . '_old');
+			$smcFunc['db_drop_table']($short_table_name . '_old');
 			$smcFunc['db_query']('', '
-				RENAME TABLE ' . $table_name . ' TO ' . $table_name . '_old',
+				RENAME TABLE ' . $short_table_name . ' TO ' . $short_table_name . '_old',
 				array(
 					'security_override' => true,
 				)
@@ -150,14 +153,27 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	}
 
 	// Righty - let's do the damn thing!
-	$table_query = 'CREATE TABLE ' . $table_name . "\n" . '(';
+	$table_query = 'CREATE TABLE ' . $short_table_name . "\n" . '(';
 	foreach ($columns as $column)
 		$table_query .= "\n\t" . smf_db_create_query_column($column) . ',';
 
 	// Loop through the indexes next...
 	foreach ($indexes as $index)
 	{
-		$columns = implode(',', $index['columns']);
+		// MySQL If its a text column, we need to add a size.
+		foreach ($index['columns'] as &$c)
+		{
+			$c = trim($c);
+
+			// If a size was already specified, we won't be able to match it anyways.
+			$key = array_search($c, array_column($columns, 'name'));
+			if ($key === false || !isset($columns[$key]) || !in_array($columns[$key]['type'], array('text', 'mediumntext', 'largetext', 'varchar', 'char')))
+				continue;
+
+			$c .= '(191)';
+		}
+
+		$idx_columns = implode(',', $index['columns']);
 
 		// Is it the primary?
 		if (isset($index['type']) && $index['type'] == 'primary')
@@ -165,8 +181,9 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 		else
 		{
 			if (empty($index['name']))
-				$index['name'] = implode('_', $index['columns']);
-			$table_query .= "\n\t" . (isset($index['type']) && $index['type'] == 'unique' ? 'UNIQUE' : 'KEY') . ' ' . $index['name'] . ' (' . $columns . '),';
+				$index['name'] = trim(implode('_', preg_replace('~(\(\d+\))~', '', $index['columns'])));
+
+			$table_query .= "\n\t" . (isset($index['type']) && $index['type'] == 'unique' ? 'UNIQUE' : 'KEY') . ' ' . $index['name'] . ' (' . $idx_columns . '),';
 		}
 	}
 
@@ -219,8 +236,8 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 			GROUP BY column_name
 			HAVING count(*) > 1',
 			array(
-				'table1' => $table_name,
-				'table2' => $table_name . '_old',
+				'table1' => $short_table_name,
+				'table2' => $short_table_name . '_old',
 				'schema' => $db_name,
 			)
 		);
@@ -231,15 +248,15 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 		}
 
 		$smcFunc['db_query']('', '
-			INSERT INTO ' . $table_name . '('
+			INSERT INTO ' . $short_table_name . '('
 			. implode(',', $same_col) .
 			')
 			SELECT ' . implode(',', $same_col) . '
-			FROM ' . $table_name . '_old',
+			FROM ' . $short_table_name . '_old',
 			array()
 		);
 
-		$smcFunc['db_drop_table']($table_name . '_old');
+		$smcFunc['db_drop_table']($short_table_name . '_old');
 	}
 
 	return true;
@@ -255,23 +272,26 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
  */
 function smf_db_drop_table($table_name, $parameters = array(), $error = 'fatal')
 {
-	global $reservedTables, $smcFunc, $db_prefix;
+	global $reservedTables, $smcFunc, $db_prefix, $db_name;
 
 	// After stripping away the database name, this is what's left.
 	$real_prefix = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $db_prefix, $match) === 1 ? $match[3] : $db_prefix;
+	$database = !empty($match[2]) ? $match[2] : $db_name;
 
 	// Get some aliases.
 	$full_table_name = str_replace('{db_prefix}', $real_prefix, $table_name);
-	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	// Do not overwrite $table_name, this causes issues if we pass it onto a helper function.
+	$short_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
 
 	// God no - dropping one of these = bad.
-	if (in_array(strtolower($table_name), $reservedTables))
+	if (in_array(strtolower($short_table_name), $reservedTables))
 		return false;
 
 	// Does it exist?
-	if (in_array($full_table_name, $smcFunc['db_list_tables']()))
+	$tables = $smcFunc['db_list_tables']($database);
+	if (in_array($full_table_name, $tables))
 	{
-		$query = 'DROP TABLE ' . $table_name;
+		$query = 'DROP TABLE ' . $short_table_name;
 		$smcFunc['db_query']('',
 			$query,
 			array(
@@ -300,10 +320,11 @@ function smf_db_add_column($table_name, $column_info, $parameters = array(), $if
 {
 	global $smcFunc, $db_package_log, $db_prefix;
 
-	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$short_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$column_info = array_change_key_case($column_info);
 
 	// Log that we will want to uninstall this!
-	$db_package_log[] = array('remove_column', $table_name, $column_info['name']);
+	$db_package_log[] = array('remove_column', $short_table_name, $column_info['name']);
 
 	// Does it exist - if so don't add it again!
 	$columns = $smcFunc['db_list_columns']($table_name, false);
@@ -322,7 +343,7 @@ function smf_db_add_column($table_name, $column_info, $parameters = array(), $if
 
 	// Now add the thing!
 	$query = '
-		ALTER TABLE ' . $table_name . '
+		ALTER TABLE ' . $short_table_name . '
 		ADD ' . smf_db_create_query_column($column_info) . (empty($column_info['auto']) ? '' : ' primary key'
 	);
 	$smcFunc['db_query']('', $query,
@@ -347,15 +368,16 @@ function smf_db_remove_column($table_name, $column_name, $parameters = array(), 
 {
 	global $smcFunc, $db_prefix;
 
-	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$short_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
 
 	// Does it exist?
 	$columns = $smcFunc['db_list_columns']($table_name, true);
+
 	foreach ($columns as $column)
 		if ($column['name'] == $column_name)
 		{
 			$smcFunc['db_query']('', '
-				ALTER TABLE ' . $table_name . '
+				ALTER TABLE ' . $short_table_name . '
 				DROP COLUMN ' . $column_name,
 				array(
 					'security_override' => true,
@@ -381,7 +403,8 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 {
 	global $smcFunc, $db_prefix;
 
-	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$short_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$column_info = array_change_key_case($column_info);
 
 	// Check it does exist!
 	$columns = $smcFunc['db_list_columns']($table_name, true);
@@ -399,6 +422,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 		$column_info['not_null'] = !$column_info['null'];
 	if (isset($old_info['null']))
 		$old_info['not_null'] = !$old_info['null'];
+
 	// Get the right bits.
 	if (!isset($column_info['name']))
 		$column_info['name'] = $old_column;
@@ -420,13 +444,23 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	// Allow for unsigned integers (mysql only)
 	$unsigned = in_array($type, array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')) && !empty($column_info['unsigned']) ? 'unsigned ' : '';
 
+	// Fix the default.
+	$default = '';
+	if (array_key_exists('default', $column_info) && is_null($column_info['default']))
+		$default = 'NULL';
+	elseif (isset($column_info['default']) && is_numeric($column_info['default']))
+		$default = strpos($column_info['default'], '.') ? floatval($column_info['default']) : intval($column_info['default']);
+	else
+		$default = '\'' . $smcFunc['db_escape_string']($column_info['default']) . '\'';
+
 	if ($size !== null)
 		$type = $type . '(' . $size . ')';
 
 	$smcFunc['db_query']('', '
-		ALTER TABLE ' . $table_name . '
-		CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column_info['not_null']) ? 'NOT NULL' : '') . ' ' .
-			(!isset($column_info['default']) ? '' : 'default \'' . $smcFunc['db_escape_string']($column_info['default']) . '\'') . ' ' .
+		ALTER TABLE ' . $short_table_name . '
+		CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . ' ' .
+			(!empty($unsigned) ? $unsigned : '') . (!empty($column_info['not_null']) ? 'NOT NULL' : '') . ' ' .
+			($default === '' ? '' : 'DEFAULT ' . $default) . ' ' .
 			(empty($column_info['auto']) ? '' : 'auto_increment') . ' ',
 		array(
 			'security_override' => true,
@@ -448,11 +482,25 @@ function smf_db_add_index($table_name, $index_info, $parameters = array(), $if_e
 {
 	global $smcFunc, $db_package_log, $db_prefix;
 
-	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$short_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
 
 	// No columns = no index.
 	if (empty($index_info['columns']))
 		return false;
+
+	// MySQL If its a text column, we need to add a size.
+	$cols = $smcFunc['db_list_columns']($table_name, true);
+	foreach ($index_info['columns'] as &$c)
+	{
+		$c = trim($c);
+
+		// If a size was already specified, we won't be able to match it anyways.
+		if (!isset($cols[$c]) || !in_array($cols[$c]['type'], array('text', 'mediumntext', 'largetext', 'varchar', 'char')))
+			continue;
+
+		$c .= '(191)';
+	}
+
 	$columns = implode(',', $index_info['columns']);
 
 	// No name - make it up!
@@ -462,11 +510,11 @@ function smf_db_add_index($table_name, $index_info, $parameters = array(), $if_e
 		if (isset($index_info['type']) && $index_info['type'] == 'primary')
 			$index_info['name'] = '';
 		else
-			$index_info['name'] = implode('_', $index_info['columns']);
+			$index_info['name'] = trim(implode('_', preg_replace('~(\(\d+\))~', '', $index_info['columns'])));
 	}
 
 	// Log that we are going to want to remove this!
-	$db_package_log[] = array('remove_index', $table_name, $index_info['name']);
+	$db_package_log[] = array('remove_index', $short_table_name, $index_info['name']);
 
 	// Let's get all our indexes.
 	$indexes = $smcFunc['db_list_indexes']($table_name, true);
@@ -487,7 +535,7 @@ function smf_db_add_index($table_name, $index_info, $parameters = array(), $if_e
 	if (!empty($index_info['type']) && $index_info['type'] == 'primary')
 	{
 		$smcFunc['db_query']('', '
-			ALTER TABLE ' . $table_name . '
+			ALTER TABLE ' . $short_table_name . '
 			ADD PRIMARY KEY (' . $columns . ')',
 			array(
 				'security_override' => true,
@@ -497,7 +545,7 @@ function smf_db_add_index($table_name, $index_info, $parameters = array(), $if_e
 	else
 	{
 		$smcFunc['db_query']('', '
-			ALTER TABLE ' . $table_name . '
+			ALTER TABLE ' . $short_table_name . '
 			ADD ' . (isset($index_info['type']) && $index_info['type'] == 'unique' ? 'UNIQUE' : 'INDEX') . ' ' . $index_info['name'] . ' (' . $columns . ')',
 			array(
 				'security_override' => true,
@@ -519,7 +567,7 @@ function smf_db_remove_index($table_name, $index_name, $parameters = array(), $e
 {
 	global $smcFunc, $db_prefix;
 
-	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$short_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
 
 	// Better exist!
 	$indexes = $smcFunc['db_list_indexes']($table_name, true);
@@ -531,7 +579,7 @@ function smf_db_remove_index($table_name, $index_name, $parameters = array(), $e
 		{
 			// Dropping primary key?
 			$smcFunc['db_query']('', '
-				ALTER TABLE ' . $table_name . '
+				ALTER TABLE ' . $short_table_name . '
 				DROP PRIMARY KEY',
 				array(
 					'security_override' => true,
@@ -544,7 +592,7 @@ function smf_db_remove_index($table_name, $index_name, $parameters = array(), $e
 		{
 			// Drop the bugger...
 			$smcFunc['db_query']('', '
-				ALTER TABLE ' . $table_name . '
+				ALTER TABLE ' . $short_table_name . '
 				DROP INDEX ' . $index_name,
 				array(
 					'security_override' => true,
@@ -618,16 +666,20 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
  */
 function smf_db_table_structure($table_name)
 {
-	global $smcFunc, $db_prefix;
+	global $smcFunc, $db_prefix, $db_name;
 
-	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$parsed_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
+	$database = !empty($match[2]) ? $match[2] : $db_name;
 
 	// Find the table engine and add that to the info as well
 	$table_status = $smcFunc['db_query']('', '
 		SHOW TABLE STATUS
+		IN {raw:db}
 		LIKE {string:table}',
 		array(
-			'table' => strtr($table_name, array('_' => '\\_', '%' => '\\%'))
+			'db' => $database,
+			'table' => $real_table_name
 		)
 	);
 
@@ -637,7 +689,7 @@ function smf_db_table_structure($table_name)
 	$smcFunc['db_free_result']($table_status);
 
 	return array(
-		'name' => $table_name,
+		'name' => $parsed_table_name,
 		'columns' => $smcFunc['db_list_columns']($table_name, true),
 		'indexes' => $smcFunc['db_list_indexes']($table_name, true),
 		'engine' => $row['Engine'],
@@ -656,7 +708,9 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 {
 	global $smcFunc, $db_prefix, $db_name;
 
-	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$parsed_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
+	$database = !empty($match[2]) ? $match[2] : $db_name;
 
 	$result = $smcFunc['db_query']('', '
 		SELECT column_name "Field", COLUMN_TYPE "Type", is_nullable "Null", COLUMN_KEY "Key" , column_default "Default", extra "Extra"
@@ -665,7 +719,7 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 			AND table_schema = {string:db_name}
 		ORDER BY ordinal_position',
 		array(
-			'table_name' => $table_name,
+			'table_name' => $real_table_name,
 			'db_name' => $db_name,
 		)
 	);
@@ -727,15 +781,19 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
  */
 function smf_db_list_indexes($table_name, $detail = false, $parameters = array())
 {
-	global $smcFunc, $db_prefix;
+	global $smcFunc, $db_prefix, $db_name;
 
-	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$parsed_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
+	$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
+	$database = !empty($match[2]) ? $match[2] : $db_name;
 
 	$result = $smcFunc['db_query']('', '
 		SHOW KEYS
-		FROM {raw:table_name}',
+		FROM {raw:table_name}
+		IN {raw:db}',
 		array(
-			'table_name' => substr($table_name, 0, 1) == '`' ? $table_name : '`' . $table_name . '`',
+			'db' => $database,
+			'table_name' => $real_table_name,
 		)
 	);
 	$indexes = array();
@@ -787,15 +845,26 @@ function smf_db_create_query_column($column)
 {
 	global $smcFunc;
 
+	$column = array_change_key_case($column);
+
 	// Auto increment is easy here!
 	if (!empty($column['auto']))
-	{
 		$default = 'auto_increment';
-	}
-	elseif (isset($column['default']) && $column['default'] !== null)
-		$default = 'default \'' . $smcFunc['db_escape_string']($column['default']) . '\'';
+	// Make it null.
+	elseif (array_key_exists('default', $column) && is_null($column['default']))
+		$default = 'DEFAULT NULL';
+	// Numbers don't need quotes.
+	elseif (isset($column['default']) && is_numeric($column['default']))
+		$default = 'DEFAULT ' . (strpos($column['default'], '.') ? floatval($column['default']) : intval($column['default']));
+	// Non empty string.
+	elseif (isset($column['default']))
+		$default = 'DEFAULT \'' . $smcFunc['db_escape_string']($column['default']) . '\'';
 	else
 		$default = '';
+
+	// Backwards compatible with the nullable column.
+	if (isset($column['null']) && !isset($column['not_null']))
+		$column['not_null'] = !$column['null'];
 
 	// Sort out the size... and stuff...
 	$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
