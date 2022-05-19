@@ -1370,6 +1370,9 @@ function prepareAttachsByMsg($msgIDs)
 	else
 		$msgIDs = array_diff($msgIDs, array_keys($context['loaded_attachments']), array(0));
 
+	// Ensure that $msgIDs doesn't contain zero or non-integers.
+	$msgIDs = array_filter(array_map('intval', $msgIDs));
+
 	if (!empty($msgIDs))
 	{
 		$request = $smcFunc['db_query']('', '
