@@ -163,24 +163,24 @@ class Punycode
 			$validation_status = $this->validateLabel($part, true);
 
 			switch ($validation_status) {
-				case IDNA_ERROR_LABEL_TOO_LONG:
-				case IDNA_ERROR_LEADING_HYPHEN:
-				case IDNA_ERROR_TRAILING_HYPHEN:
-				case IDNA_ERROR_LEADING_COMBINING_MARK:
-				case IDNA_ERROR_DISALLOWED:
-				case IDNA_ERROR_PUNYCODE:
-				case IDNA_ERROR_LABEL_HAS_DOT:
-				case IDNA_ERROR_INVALID_ACE_LABEL:
-				case IDNA_ERROR_BIDI:
-				case IDNA_ERROR_CONTEXTJ:
+				case self::IDNA_ERROR_LABEL_TOO_LONG:
+				case self::IDNA_ERROR_LEADING_HYPHEN:
+				case self::IDNA_ERROR_TRAILING_HYPHEN:
+				case self::IDNA_ERROR_LEADING_COMBINING_MARK:
+				case self::IDNA_ERROR_DISALLOWED:
+				case self::IDNA_ERROR_PUNYCODE:
+				case self::IDNA_ERROR_LABEL_HAS_DOT:
+				case self::IDNA_ERROR_INVALID_ACE_LABEL:
+				case self::IDNA_ERROR_BIDI:
+				case self::IDNA_ERROR_CONTEXTJ:
 					return false;
 					break;
 
-				case IDNA_ERROR_HYPHEN_3_4:
+				case self::IDNA_ERROR_HYPHEN_3_4:
 					$part = $parts[$p];
 					break;
 
-				case IDNA_ERROR_EMPTY_LABEL:
+				case self::IDNA_ERROR_EMPTY_LABEL:
 					$parts_count = count($parts);
 					if ($parts_count === 1 || $p !== $parts_count - 1)
 						return false;
@@ -553,40 +553,40 @@ class Punycode
 
 		if ($length === 0)
 		{
-			return IDNA_ERROR_EMPTY_LABEL;
+			return self::IDNA_ERROR_EMPTY_LABEL;
 		}
 
 		if ($toPunycode)
 		{
 			if ($length > 63)
 			{
-				return IDNA_ERROR_LABEL_TOO_LONG;
+				return self::IDNA_ERROR_LABEL_TOO_LONG;
 			}
 
 			if ($this->std3 && $length !== strspn($label, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-'))
 			{
-				return IDNA_ERROR_PUNYCODE;
+				return self::IDNA_ERROR_PUNYCODE;
 			}
 		}
 
 		if (strpos($label, '-') === 0)
 		{
-			return IDNA_ERROR_LEADING_HYPHEN;
+			return self::IDNA_ERROR_LEADING_HYPHEN;
 		}
 
 		if (strrpos($label, '-') === $length - 1)
 		{
-			return IDNA_ERROR_TRAILING_HYPHEN;
+			return self::IDNA_ERROR_TRAILING_HYPHEN;
 		}
 
 		if (substr($label, 2, 2) === '--')
 		{
-			return IDNA_ERROR_HYPHEN_3_4;
+			return self::IDNA_ERROR_HYPHEN_3_4;
 		}
 
 		if (preg_match('/^\p{M}/u', $label))
 		{
-			return IDNA_ERROR_LEADING_COMBINING_MARK;
+			return self::IDNA_ERROR_LEADING_COMBINING_MARK;
 		}
 
 		require_once($sourcedir . '/Unicode/Idna.php');
@@ -596,12 +596,12 @@ class Punycode
 
 		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $label))
 		{
-			return IDNA_ERROR_INVALID_ACE_LABEL;
+			return self::IDNA_ERROR_INVALID_ACE_LABEL;
 		}
 
 		if (!$toPunycode && $label !== utf8_normalize_kc($label))
 		{
-			return IDNA_ERROR_INVALID_ACE_LABEL;
+			return self::IDNA_ERROR_INVALID_ACE_LABEL;
 		}
 
 		return 0;
