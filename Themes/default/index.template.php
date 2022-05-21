@@ -210,7 +210,7 @@ function template_body_above()
 		echo '
 			<ul class="floatleft" id="top_info">
 				<li>
-					<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">';
+					<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top">';
 
 		if (!empty($context['user']['avatar']))
 			echo $context['user']['avatar']['image'];
