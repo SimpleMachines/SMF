@@ -944,20 +944,6 @@ a[class^="mobile_generic_menu_"] {
 .top_menu .login input {
 	width: 90%;
 }
-/* Note: The next declarations are for keyboard access with js disabled. */
-.dropmenu ul a:focus, .dropmenu ul ul a:focus {
-	margin-left: 9990px;
-	border: none;
-	width: 17em;
-}
-.dropmenu ul ul a:focus {
-	margin-left: 19950px;
-}
-/* Cancel those for hover and/or js access. */
-.dropmenu ul li:hover a:focus, .dropmenu ul li a:focus {
-	margin-left: 0;
-	width: auto;
-}
 /* Level 3 submenu wrapper positioning. */
 .dropmenu li ul ul {
 	margin: -2em 0 0 15.3em;
@@ -1344,14 +1330,6 @@ ul li.greeting {
 .mark_read .buttonlist {
 	margin: 0;
 	padding: 0;
-}
-
-/* the small stats */
-#index_common_stats {
-	margin: -4px 8px 6px 8px;
-	padding: 4px 0 0 0;
-	font-size: 0.9em;
-	border-top: 1px solid #ddd;
 }
 
 .fix_rtl_names {
