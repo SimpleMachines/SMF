@@ -5143,6 +5143,13 @@ function ip2range($fullip)
 	if ($fullip == 'unknown')
 		$fullip = '255.255.255.255';
 
+	// Cleanup the IP as needed.
+	$fullip = strtr($fullip,
+		[
+			// IPv6 ending in :: is valid for a network, but SMF doesn't handle itwell.
+			'::*' => ':*',
+		]);
+
 	$ip_parts = explode('-', $fullip);
 	$ip_array = array();
 
