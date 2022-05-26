@@ -270,25 +270,6 @@ function template_main()
 	echo '
 					', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
-	// If we're editing and displaying edit details, show a box where they can say why
-	if (isset($context['editing']) && $modSettings['show_modify'])
-		echo '
-					<dl>
-						<dt class="clear">
-							<span id="caption_edit_reason">', $txt['reason_for_edit'], ':</span>
-						</dt>
-						<dd>
-							<input type="text" name="modify_reason"', isset($context['last_modified_reason']) ? ' value="' . $context['last_modified_reason'] . '"' : '', ' tabindex="', $context['tabindex']++, '" size="80" maxlength="80">
-						</dd>
-					</dl>';
-
-	// If this message has been edited in the past - display when it was.
-	if (isset($context['last_modified']))
-		echo '
-					<div class="padding smalltext">
-						', $context['last_modified_text'], '
-					</div>';
-
 	// If the admin has enabled the hiding of the additional options - show a link and image for it.
 	if (!empty($modSettings['additional_options_collapsable']))
 		echo '

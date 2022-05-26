@@ -1597,6 +1597,45 @@ function Post($post_errors = array())
 		);
 	}
 
+	// If we're editing and displaying edit details, show a box where they can say why.
+	if (isset($context['editing']) && $modSettings['show_modify'])
+	{
+		$context['posting_fields']['modify_reason'] = array(
+			'label' => array(
+				'text' => $txt['reason_for_edit'],
+			),
+			'input' => array(
+				'type' => 'text',
+				'attributes' => array(
+					'size' => 80,
+					'maxlength' => 80,
+					'value' => isset($context['last_modified_reason']) ? $context['last_modified_reason'] : '',
+				),
+			),
+		);
+
+		// If this message has been edited in the past - display when it was.
+		if (!empty($context['last_modified_text']))
+		{
+			$context['posting_fields']['modified_time'] = array(
+				'label' => array(
+					'text' => $txt['modified_time'],
+				),
+				'input' => array(
+					'type' => '',
+					'html' => !empty($context['last_modified_text']) ? ltrim(preg_replace('~<span[^>]*>[^<]*</span>~u', '', $context['last_modified_text']), ': ') : '',
+				),
+			);
+		}
+
+		// Prior to 2.1.4, the edit reason was not handled as a posting field,
+		// but instead using a hardcoded input in the template file. We've fixed
+		// that in the default theme, but to support any custom themes based on
+		// the default, we do this to fix it for them.
+		addInlineCss("\n\t" . '#caption_edit_reason, dl:not(#post_header) input[name="modify_reason"] { display: none; }');
+		addInlineJavaScript("\n\t" . '$("#caption_edit_reason").remove(); $("dl:not(#post_header) input[name=\"modify_reason\"]").remove();', true);
+	}
+
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('Post');
