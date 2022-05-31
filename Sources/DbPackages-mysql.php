@@ -167,7 +167,17 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 
 			// If a size was already specified, we won't be able to match it anyways.
 			$key = array_search($c, array_column($columns, 'name'));
-			if ($key === false || !isset($columns[$key]) || !in_array($columns[$key]['type'], array('text', 'mediumntext', 'largetext', 'varchar', 'char')))
+			$columns[$key]['size'] = isset($columns[$key]['size']) && is_numeric($columns[$key]['size']) ? $columns[$key]['size'] : null;
+			list ($type, $size) = $smcFunc['db_calculate_type']($columns[$key]['type'], $columns[$key]['size']);
+			if (
+				$key === false
+				|| !isset($columns[$key])
+				|| !in_array($columns[$key]['type'], array('text', 'mediumntext', 'largetext', 'varchar', 'char'))
+				|| (
+					isset($size)
+					&& $size <= 191
+				)
+			)
 				continue;
 
 			$c .= '(191)';
@@ -493,9 +503,18 @@ function smf_db_add_index($table_name, $index_info, $parameters = array(), $if_e
 	foreach ($index_info['columns'] as &$c)
 	{
 		$c = trim($c);
+		$cols[$c]['size'] = isset($cols[$c]['size']) && is_numeric($cols[$c]['size']) ? $cols[$c]['size'] : null;
+		list ($type, $size) = $smcFunc['db_calculate_type']($cols[$c]['type'], $cols[$c]['size']);
 
 		// If a size was already specified, we won't be able to match it anyways.
-		if (!isset($cols[$c]) || !in_array($cols[$c]['type'], array('text', 'mediumntext', 'largetext', 'varchar', 'char')))
+		if (
+			!isset($cols[$c])
+			|| !in_array($cols[$c]['type'], array('text', 'mediumntext', 'largetext', 'varchar', 'char'))
+			|| (
+				isset($size)
+				&& $size <= 191
+			)
+		)
 			continue;
 
 		$c .= '(191)';
