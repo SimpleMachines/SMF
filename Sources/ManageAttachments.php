@@ -127,6 +127,7 @@ function ManageAttachmentSettings($return_config = false)
 	// See if we can find if the server is set up to support the attachment limits
 	$post_max_kb = floor(memoryReturnBytes(ini_get('post_max_size')) / 1024);
 	$file_max_kb = floor(memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
+	$max_file_uploads = ini_get('max_file_uploads');
 
 	$config_vars = array(
 		array('title', 'attachment_manager_settings'),
@@ -147,7 +148,7 @@ function ManageAttachmentSettings($return_config = false)
 		// Posting limits
 		array('int', 'attachmentPostLimit', 'subtext' => sprintf($txt['attachment_ini_max'], $post_max_kb . ' ' . $txt['kilobyte']), 6, 'postinput' => $txt['kilobyte'], 'min' => 1, 'max' => $post_max_kb, 'disabled' => empty($post_max_kb)),
 		array('int', 'attachmentSizeLimit', 'subtext' => sprintf($txt['attachment_ini_max'], $file_max_kb . ' ' . $txt['kilobyte']), 6, 'postinput' => $txt['kilobyte'], 'min' => 1, 'max' => $file_max_kb, 'disabled' => empty($file_max_kb)),
-		array('int', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
+		array('int', 'attachmentNumPerPostLimit', 'subtext' => $max_file_uploads >= 50 ? $txt['zero_for_no_limit'] : (sprintf($txt['attachment_ini_max'], $max_file_uploads)), 6, 'min' => 0, 'max' => $max_file_uploads),
 		// Security Items
 		array('title', 'attachment_security_settings'),
 		// Extension checks etc.
