@@ -415,7 +415,7 @@ function reloadSettings()
 	$file_max_kb = floor(memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
 	$modSettings['attachmentPostLimit'] = empty($modSettings['attachmentPostLimit']) ? $post_max_kb : min($modSettings['attachmentPostLimit'], $post_max_kb);
 	$modSettings['attachmentSizeLimit'] = empty($modSettings['attachmentSizeLimit']) ? $file_max_kb : min($modSettings['attachmentSizeLimit'], $file_max_kb);
-	$modSettings['attachmentNumPerPostLimit'] = min(ini_get('max_file_uploads'), (empty($modSettings['attachmentNumPerPostLimit']) ? 50 : $modSettings['attachmentNumPerPostLimit']));
+	$modSettings['attachmentNumPerPostLimit'] = !isset($modSettings['attachmentNumPerPostLimit']) ? 4 : $modSettings['attachmentNumPerPostLimit'];
 
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
