@@ -916,16 +916,12 @@ function allowedTo($permission, $boards = null, $any = false)
 	// Are we checking the _current_ board, or some other boards?
 	if ($boards === null)
 	{
-		$user_permissions = $user_info['permissions'];
+		$user_permissions = (array) $user_info['permissions'];
 
 		// Allow temporary overrides for general permissions?
 		call_integration_hook('integrate_allowed_to_general', array(&$user_permissions, $permission));
 
-		if (count(array_intersect($permission, $user_permissions)) != 0)
-			return true;
-		// You aren't allowed, by default.
-		else
-			return false;
+		return array_intersect($permission, $user_permissions) != [];
 	}
 	elseif (!is_array($boards))
 		$boards = array($boards);
