@@ -234,7 +234,7 @@ function reloadSettings()
 		{
 			return $smcFunc['convert_case']($string, 'ucwords');
 		},
-		'convert_case' => function($string, $case, $simple = false, $form = 'c') use (&$smcFunc, $utf8, $ent_check, $fix_utf8mb4)
+		'convert_case' => function($string, $case, $simple = false, $form = 'c') use (&$smcFunc, $utf8, $ent_check, $fix_utf8mb4, $sourcedir)
 		{
 			if (!$utf8)
 			{
@@ -289,7 +289,10 @@ function reloadSettings()
 				}
 				// Everything else.
 				else
+				{
+					include_once($sourcedir . '/Subs-Charset.php');
 					$string = $smcFunc['normalize'](utf8_convert_case($string, $case, $simple), $form);
+				}
 			}
 
 			return $fix_utf8mb4($string);
