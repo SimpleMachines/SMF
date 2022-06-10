@@ -147,7 +147,7 @@ function ManageAttachmentSettings($return_config = false)
 		// Posting limits
 		array('int', 'attachmentPostLimit', 'subtext' => sprintf($txt['attachment_ini_max'], $post_max_kb . ' ' . $txt['kilobyte']), 6, 'postinput' => $txt['kilobyte'], 'min' => 1, 'max' => $post_max_kb, 'disabled' => empty($post_max_kb)),
 		array('int', 'attachmentSizeLimit', 'subtext' => sprintf($txt['attachment_ini_max'], $file_max_kb . ' ' . $txt['kilobyte']), 6, 'postinput' => $txt['kilobyte'], 'min' => 1, 'max' => $file_max_kb, 'disabled' => empty($file_max_kb)),
-		array('int', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
+		array('int', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'min' => 0),
 		// Security Items
 		array('title', 'attachment_security_settings'),
 		// Extension checks etc.
