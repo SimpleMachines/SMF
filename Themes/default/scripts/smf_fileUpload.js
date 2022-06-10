@@ -249,6 +249,15 @@ function smf_fileUpload(oOptions) {
 							_innerElement.removeClass('infobox').addClass('errorbox');
 						}
 					});
+
+					// Remove BBC from the post text, if present.
+					var attachBbcRegex = new RegExp('\\[attach[^\\]]+id=' + attachmentId + '[^\\]]*\\][^\\[\\]]*\\[/attach\\]', 'g');
+
+					var e = $('#' + oEditorID).get(0);
+					var oEditor = sceditor.instance(e);
+					var newEditorVal = oEditor.val().replace(attachBbcRegex, '');
+
+					oEditor.val(newEditorVal);
 				})
 				.appendTo(_innerElement.find('.attach-ui'));
 
