@@ -290,7 +290,7 @@ function reloadSettings()
 				// Everything else.
 				else
 				{
-					include_once($sourcedir . '/Subs-Charset.php');
+					require_once($sourcedir . '/Subs-Charset.php');
 					$string = $smcFunc['normalize'](utf8_convert_case($string, $case, $simple), $form);
 				}
 			}
