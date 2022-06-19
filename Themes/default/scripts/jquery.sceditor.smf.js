@@ -767,13 +767,11 @@ sceditor.formats.bbcode.set(
 	'url', {
 		allowsEmpty: true,
 		quoteType: sceditor.BBCodeParser.QuoteType.always,
-		tags: {
-			a: {
-				'data-type': ['url']
-			}
-		},
-		format: function (element, content)
+		format(element, content)
 		{
+			if (element.hasAttribute('data-type') && element.getAttribute('data-type') != 'url')
+				return content;
+
 			return '[url=' + decodeURI(element.href) + ']' + content + '[/url]';
 		},
 		html: function (token, attrs, content)
