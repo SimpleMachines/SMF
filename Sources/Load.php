@@ -920,6 +920,16 @@ function loadUserSettings()
 	if (!empty($user_info['ignoreboards']) && empty($user_info['ignoreboards'][$tmp = count($user_info['ignoreboards']) - 1]))
 		unset($user_info['ignoreboards'][$tmp]);
 
+	// Double-check the alert counter; it can stray when left untended...
+	require_once($sourcedir . '/Profile-Modify.php');
+	$unread_alerts = alert_count($user_info['id'], true);
+	if ($user_info['alerts'] != $unread_alerts)
+	{
+		$user_info['alerts'] = $unread_alerts;
+		$user_settings['alerts'] = $unread_alerts;
+		updateMemberData($user_info['id'], array('alerts' => $unread_alerts));
+	}
+
 	// Allow the user to change their language.
 	if (!empty($modSettings['userLanguage']))
 	{
