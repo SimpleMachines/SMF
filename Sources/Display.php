@@ -1039,8 +1039,13 @@ function Display()
 					'now' => time(),
 				)
 			);
-			$user_info['alerts'] = max(0, $user_info['alerts'] - max(0, $smcFunc['db_affected_rows']()));
-			updateMemberData($user_info['id'], array('alerts' => $user_info['alerts']));
+			// If changes made, update the member record as well
+			if ($smcFunc['db_affected_rows']() > 0)
+			{
+				require_once($sourcedir . '/Profile-Modify.php');
+				$user_info['alerts'] = alert_count($user_info['id'], true);
+				updateMemberData($user_info['id'], array('alerts' => $user_info['alerts']));
+			}
 		}
 	}
 
