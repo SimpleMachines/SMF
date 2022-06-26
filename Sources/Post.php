@@ -2340,10 +2340,6 @@ function Post2()
 			$msgOptions['poster_time'] = $row['poster_time'];
 		}
 
-		// This will save some time...
-		if (empty($approve_has_changed))
-			unset($msgOptions['approved']);
-
 		modifyPost($msgOptions, $topicOptions, $posterOptions);
 	}
 	// This is a new topic or an already existing one. Save it.
@@ -3105,6 +3101,7 @@ function JavaScriptModify()
 			'body' => isset($_POST['message']) ? $_POST['message'] : null,
 			'icon' => isset($_REQUEST['icon']) ? preg_replace('~[\./\\\\*\':"<>]~', '', $_REQUEST['icon']) : null,
 			'modify_reason' => (isset($_POST['modify_reason']) ? $_POST['modify_reason'] : ''),
+			'approved' => (isset($row['approved']) ? $row['approved'] : null),
 		);
 		$topicOptions = array(
 			'id' => $topic,
