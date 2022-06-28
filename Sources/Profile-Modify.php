@@ -2495,12 +2495,32 @@ function alert_count($memID, $unread = false)
 	}
 
 	// Now check alerts again and remove any they can't see.
+	$mark_read = array();
 	foreach ($alerts as $id_alert => $alert)
 	{
 		if (!$alert['visible'])
+		{
 			unset($alerts[$id_alert]);
+			$mark_read[] = $id_alert;
+		}
 	}
 
+	// One last thing - unread alerts are not purged...
+	// Mark these orphaned, invisible alerts as read, otherwise they will hang around forever.
+	// This can happen if they are deleted or moved to a board this user cannot access.
+	if (!empty($mark_read))
+	{
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}user_alerts
+			SET is_read = {int:now}
+			WHERE is_read = 0
+				AND id_alert IN ({array_int:alerts})',
+			array(
+				'alerts' => $mark_read,
+				'now' => time(),
+			)
+		);
+	}
 	return count($alerts);
 }
 
