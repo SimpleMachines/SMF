@@ -915,14 +915,19 @@ function MessageFolder()
 			);
 		}
 
+		$group_by = $context['folder'] == 'sent' ? '
+			GROUP BY pm.id_pm, pm.subject, pm.id_member_from, pm.body, pm.msgtime, pm.from_name' . 
+				($context['sort_by'] == 'name' ? ', mem.real_name' : '')  
+		: '';
+
 		// Execute the query!
 		$messages_request = $smcFunc['db_query']('', '
 			SELECT pm.id_pm, pm.subject, pm.id_member_from, pm.body, pm.msgtime, pm.from_name
 			FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? '
 				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') . ($context['sort_by'] == 'name' ? '
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:id_member})' : '') . '
-			WHERE pm.id_pm IN ({array_int:display_pms})' . ($context['folder'] == 'sent' ? '
-			GROUP BY pm.id_pm, pm.subject, pm.id_member_from, pm.body, pm.msgtime, pm.from_name' : '') . '
+			WHERE pm.id_pm IN ({array_int:display_pms})' . 
+			$group_by . '
 			ORDER BY ' . ($context['display_mode'] == 2 ? 'pm.id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . '
 			LIMIT {int:limit}',
 			array(
