@@ -2398,7 +2398,7 @@ function alert_count($memID, $unread = false)
 
 	// We have to do this the slow way as to iterate over all possible boards the user can see.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_alert, content_id, content_type, content_action
+		SELECT id_alert, content_id, content_type, content_action, is_read
 		FROM {db_prefix}user_alerts
 		WHERE id_member = {int:id_member}
 			' . ($unread ? '
@@ -2495,32 +2495,51 @@ function alert_count($memID, $unread = false)
 	}
 
 	// Now check alerts again and remove any they can't see.
-	$mark_read = array();
+	$deletes = array();
+	$num_unread_deletes = 0;
 	foreach ($alerts as $id_alert => $alert)
 	{
 		if (!$alert['visible'])
 		{
+			if (empty($alert['is_read']))
+				$num_unread_deletes++;
+
 			unset($alerts[$id_alert]);
-			$mark_read[] = $id_alert;
+			$deletes[] = $id_alert;
 		}
 	}
 
-	// One last thing - unread alerts are not purged...
-	// Mark these orphaned, invisible alerts as read, otherwise they will hang around forever.
+	// Penultimate task - delete these orphaned, invisible alerts, otherwise they might hang around forever.
 	// This can happen if they are deleted or moved to a board this user cannot access.
-	if (!empty($mark_read))
+	// Note that unread alerts are never purged.
+	if (!empty($deletes))
 	{
 		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}user_alerts
-			SET is_read = {int:now}
-			WHERE is_read = 0
-				AND id_alert IN ({array_int:alerts})',
+			DELETE FROM {db_prefix}user_alerts
+			WHERE id_alert IN ({array_int:alerts})',
 			array(
-				'alerts' => $mark_read,
-				'now' => time(),
+				'alerts' => $deletes,
 			)
 		);
 	}
+
+	// One last thing - tweak counter on member record.
+	// Do it directly, as updateMemberData() calls this function, and may create a loop.
+	if ($num_unread_deletes > 0)
+	{
+		$user_info['alerts'] = max(0, $user_info['alerts'] - $num_unread_deletes);
+			
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}members
+			SET alerts = {int:num_alerts}
+			WHERE id_member = {int:member}',
+			array(
+				'num_alerts' => $user_info['alerts'],
+				'member' => $memID,
+			)
+		);
+	}
+
 	return count($alerts);
 }
 
