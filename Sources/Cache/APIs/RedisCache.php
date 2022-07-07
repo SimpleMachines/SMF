@@ -82,25 +82,30 @@ class RedisCache extends CacheApi implements CacheApiInterface
 		$this->cacheDB = new Redis();
 		$success = false;
 
-		if($this->unixSocket && !empty($this->unixSocketData))
-			if($this->pooling)
-				$success = $this->cacheDB->pconnect($this->unixSocketData);
+		try{
+			if($this->unixSocket && !empty($this->unixSocketData))
+				if($this->pooling)
+					$success = $this->cacheDB->pconnect($this->unixSocketData);
+				else
+					$success = $this->cacheDB->connect($this->unixSocketData);
 			else
-				$success = $this->cacheDB->connect($this->unixSocketData);
-		else
-			if($this->pooling)
-				$success = $this->cacheDB->pconnect($this->url, $this->port, $this->timeout);
-			else
-				$success = $this->cacheDB->connect($this->url, $this->port, $this->timeout);
+				if($this->pooling)
+					$success = $this->cacheDB->pconnect($this->url, $this->port, $this->timeout);
+				else
+					$success = $this->cacheDB->connect($this->url, $this->port, $this->timeout);
 
-		if($success && $this->auth && !empty($this->password))
-			if(!empty($this->username))
-				$success = $this->cacheDB->auth([$this->username, $this->password]);
-			else
-				$success = $this->cacheDB->auth([$this->password]);
-		
-		if($success && !empty($this->dbIndex))
-			$success = $this->cacheDB->select($this->dbIndex);
+			if($success && $this->auth && !empty($this->password))
+				if(!empty($this->username))
+					$success = $this->cacheDB->auth([$this->username, $this->password]);
+				else
+					$success = $this->cacheDB->auth([$this->password]);
+			
+			if($success && !empty($this->dbIndex))
+				$success = $this->cacheDB->select($this->dbIndex);
+		} catch(\RedisException $ex)
+		{
+			$success = false;
+		}
 
 		return $success;
 	}
@@ -231,6 +236,14 @@ class RedisCache extends CacheApi implements CacheApiInterface
 			36,
 			'cache_'. $class_name_txt_key .'_password',
 		);
+		$config_vars[] = array(
+			'dbindex_'. $class_name_txt_key,
+			$txt['dbindex_'. $class_name_txt_key],
+			'file',
+			'int',
+			3,
+			'cache_'. $class_name_txt_key .'_dbindex',
+		);
 
 
 		if (!isset($context['settings_post_javascript']))
@@ -245,6 +258,7 @@ class RedisCache extends CacheApi implements CacheApiInterface
 				$("#auth_'. $class_name_txt_key .'").prop("disabled", cache_type != "'. $class_name .'");
 				$("#unixsocket_'. $class_name_txt_key .'").change();
 				$("#auth_'. $class_name_txt_key .'").change();
+				$("#dbindex_'. $class_name_txt_key .'").prop("disabled", cache_type != "'. $class_name .'");
 			});';
 			$context['settings_post_javascript'] .= '
 			$("#unixsocket_'. $class_name_txt_key . '").change(function (e) {
