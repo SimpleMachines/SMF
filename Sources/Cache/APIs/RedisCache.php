@@ -54,24 +54,13 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	{
 		parent::__construct();
 
-		global
-			$pooling_rediscache,
-			$url_rediscache, $port_rediscache, $timeout_rediscache,
-			$unixSocket_rediscache, $unixSocketData_rediscache,
-			$auth_rediscache, $username_rediscache, $password_rediscache,
-			$dbIndex_rediscache;
-
-			$this->pooling = isset($pooling_rediscache) ? $pooling_rediscache : false;
-			$this->url = isset($url_rediscache) ? $url_rediscache : null;
-			$this->port = isset($port_rediscache) ? $port_rediscache : null;
-			$this->timeout = isset($timeout_rediscache) ? $timeout_rediscache : null;
-			$this->unixSocket = isset($unixSocket_rediscache) ? $unixSocket_rediscache : false;
-			$this->unixSocketData = isset($unixSocketData_rediscache) ? $unixSocketData_rediscache : null;
-			$this->auth = isset($auth_rediscache) ? $auth_rediscache : false;
-			$this->username = isset($username_rediscache) ? $username_rediscache : null;
-			$this->password = isset($password_rediscache) ? $password_rediscache : null;
-			$this->dbIndex = isset($dbIndex_rediscache) ? $dbIndex_rediscache : null;
-		
+		$this->setPooling();
+		$this->setUnixSocket();
+		$this->setConnectingData();
+		$this->setUnixSocketData();
+		$this->setAuth();
+		$this->setAuthData();
+		$this->setDbIndex();	
 	}
 
 	/**
@@ -284,19 +273,22 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	 *
 	 * @access public
 	 *
-	 * @param boolean $pooling true = on
+	 * @param boolean $pooling true = on default off
 	 *
-	 * @return boolean If this was successful or not.
+	 * @return void
 	 */
-	public function setPooling(bool $pooling = false)
+	public function setPooling(bool $pooling = null)
 	{
-		require_once($sourcedir . '/Subs-Admin.php');
-		$success = updateSettingsFile(array('pooling_rediscache' => $pooling));
+		global $pooling_rediscache;
 
-		if ($success)
-			$this->pooling = $pooling;
+		if(empty($pooling))
+			$pooling = isset($pooling_rediscache) ? $pooling_rediscache : false;
 
-		return $success;
+		if($pooling <> $pooling_rediscache)
+		{
+			require_once($sourcedir . '/Subs-Admin.php');
+			updateSettingsFile(array('pooling_rediscache' => $pooling));
+		}
 	}
 
 	/**
@@ -310,25 +302,28 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	 * 
 	 * @param int $timeout default 1
 	 *
-	 * @return boolean If this was successful or not.
+	 * @return void
 	 */
-	public function setConnectingData(string $url, int $port = 6379, int $timeout = 1)
+	public function setConnectingData(string $url = null, int $port = 6379, int $timeout = 1)
 	{
-		require_once($sourcedir . '/Subs-Admin.php');
-		$success = updateSettingsFile(array(
-				'url_rediscache' => $url, 
-				'port_rediscache' => $port, 
-				'timeout_rediscache' => $timeout
-			));
+		global $url_rediscache, $port_rediscache, $timeout_rediscache;
 
-		if ($success) 
+		if(empty($url))
+			$url = !empty($url_rediscache) ? $url_rediscache : null;
+		if(empty($port))
+			$port = !empty($port_rediscache) ? $port_rediscache : 6379;
+		if(empty($timeout))
+			$timeout = !empty($timeout_rediscache) ? $timeout_rediscache : 1;
+
+		if($url <> $url_rediscache || $port <> $port_rediscache || $timeout <> $timeout_rediscache)	
 		{
-			$this->url = $url;
-			$this->port = $port;
-			$this->timeout = $timeout;
+			require_once($sourcedir . '/Subs-Admin.php');
+			updateSettingsFile(array(
+					'url_rediscache' => $url, 
+					'port_rediscache' => $port, 
+					'timeout_rediscache' => $timeout
+				));
 		}
-
-		return $success;
 	}
 
 	/**
@@ -338,17 +333,20 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	 *
 	 * @param string $unixSocketData socketname
 	 *
-	 * @return boolean If this was successful or not.
+	 * @return void
 	 */
-	public function setUnixSocketData(string $unixSocketData)
+	public function setUnixSocketData(string $unixSocketData = null)
 	{
-		require_once($sourcedir . '/Subs-Admin.php');
-		$success = updateSettingsFile(array('unixSocketData_rediscache' => $unixSocketData));
+		global $unixSocketData_rediscache;
 
-		if ($success) 
-			$this->unixSocketData = $unixSocketData;
+		if(empty($unixSocketData))
+			$unixSocketData = !empty($unixSocketData_rediscache) ? $unixSocketData_rediscache : null;
 
-		return $success;
+		if($unixSocketData <> $unixSocketData_rediscache)
+		{
+			require_once($sourcedir . '/Subs-Admin.php');
+			updateSettingsFile(array('unixSocketData_rediscache' => $unixSocketData));
+		}
 	}
 
 	/**
@@ -358,43 +356,51 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	 *
 	 * @param boolean $unixSocket enable or disable
 	 *
-	 * @return boolean If this was successful or not.
+	 * @return void
 	 */
-	public function setUnixSocket(bool $unixSocket = false)
+	public function setUnixSocket(bool $unixSocket = null)
 	{
-		require_once($sourcedir . '/Subs-Admin.php');
-		$success = updateSettingsFile(array('unixSocket_rediscache' => $unixSocket));
+		global $unixSocket_rediscache;
 
-		if ($success) 
-			$this->unixSocket = $unixSocket;
+		if(empty($unixSocket))
+			$unixSocket = !empty($unixSocket_rediscache) ? $unixSocket_rediscache : false;
 
-		return $success;
+		if($unixSocket <> $unixSocket_rediscache)
+		{
+			require_once($sourcedir . '/Subs-Admin.php');
+			updateSettingsFile(array('unixSocket_rediscache' => $unixSocket));
+		}
 	}
 
-		/**
-	 * Sets the unix socket info
+	/**
+	 * Sets the auth data
 	 *
 	 * @access public
 	 *
-	 * @param string $unixSocketData socketname
+	 * @param string $password password
+	 * 
+	 * @param string $username username
 	 *
-	 * @return boolean If this was successful or not.
+	 * @return void
 	 */
-	public function setAuthData(string $password, string $username = null)
+	public function setAuthData(string $password = null, string $username = null)
 	{
-		require_once($sourcedir . '/Subs-Admin.php');
-		$success = updateSettingsFile(array(
-			'username_rediscache' => $username, 
-			'password_rediscache' => $password
-		));
+		global $username_rediscache, $password_rediscache;
 
-		if ($success) 
+		if(empty($password))
+			$password = !empty($password_rediscache) ? $password_rediscache : null;
+
+		if(empty($username))
+			$username = !empty($username_rediscache) ? $username_rediscache : null;
+
+		if($username <> $username_rediscache || $password <> $password_rediscache)	
 		{
-			$this->username = $username;
-			$this->password = $password;
+			require_once($sourcedir . '/Subs-Admin.php');
+			updateSettingsFile(array(
+				'username_rediscache' => $username, 
+				'password_rediscache' => $password
+			));
 		}
-
-		return $success;
 	}
 
 	/**
@@ -404,17 +410,20 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	 *
 	 * @param boolean $auth enable or disable
 	 *
-	 * @return boolean If this was successful or not.
+	 * @return void
 	 */
-	public function setAuth(bool $auth = false)
+	public function setAuth(bool $auth = null)
 	{
-		require_once($sourcedir . '/Subs-Admin.php');
-		$success = updateSettingsFile(array('auth_rediscache' => $auth));
+		global $auth_rediscache;
 
-		if ($success) 
-			$this->auth = $auth;
-
-		return $success;
+		if(empty($auth))
+			$auth = !empty($auth_rediscache) ? $auth_rediscache : false;
+	
+		if ( $auth <> $auth_rediscache )
+		{
+			require_once($sourcedir . '/Subs-Admin.php');
+			updateSettingsFile(array('auth_rediscache' => $auth));
+		}
 	}
 
 	/**
@@ -424,17 +433,20 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	 *
 	 * @param integer $dbIndex database number
 	 *
-	 * @return boolean If this was successful or not.
+	 * @return void
 	 */
-	public function setDbIndex(int $dbIndex = 0)
+	public function setDbIndex(int $dbIndex = null)
 	{
-		require_once($sourcedir . '/Subs-Admin.php');
-		$success = updateSettingsFile(array('dbIndex_rediscache' => $dbIndex));
+		global $dbIndex_rediscache;
 
-		if ($success) 
-			$this->dbIndex = $dbIndex;
-
-		return $success;
+		if(empty($dbIndex))
+			$dbIndex = !empty($dbIndex_rediscache) ? $dbIndex_rediscache : 0;
+		
+		if ( $dbIndex <> $dbIndex_rediscache )
+		{
+			require_once($sourcedir . '/Subs-Admin.php');
+			updateSettingsFile(array('dbIndex_rediscache' => $dbIndex));
+		}
 	}
 
 	/**
