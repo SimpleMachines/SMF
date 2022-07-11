@@ -1500,13 +1500,12 @@ ul li.greeting {
 }
 .event_options_left {
 	box-sizing: border-box;
-	width: 49%;
-	padding-right: 1em;
+	width: 55%;
 	min-width: 238px;
 }
 .event_options_right {
 	box-sizing: border-box;
-	width: 50%;
+	width: 45%;
 	min-width: 270px;
 }
 .event_options_left div,
@@ -1520,9 +1519,18 @@ ul li.greeting {
 #event_time_input {
 	clear: left;
 }
-#event_time_input input[type="text"] {
-	width: 100px;
-	display: inline-block;
+#event_time_input > div {
+	display: flex;
+}
+#event_time_input input.date_input {
+	width: 40%;
+	margin: 2px 0.5ch 0;
+	flex: 1 1 auto;
+}
+#event_time_input input.time_input {
+	width: 13ch;
+	margin: 2px 0.5ch 0;
+	flex: 0 1 auto;
 }
 #post_event input[type="checkbox"] {
 	height: auto;
