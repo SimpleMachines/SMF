@@ -127,7 +127,7 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	 */
 	public function putData($key, $value, $ttl = null)
 	{
-		$result = $this->cacheDB->set($key,$value,$ttl);;
+		$result = $this->cacheDB->set($key, $value, $ttl);;
 
 		return $result;
 	}
@@ -279,16 +279,18 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	 */
 	public function setPooling(bool $pooling = null)
 	{
-		global $pooling_rediscache;
+		global $sourcedir, $pooling_rediscache;
 
 		if(empty($pooling))
-			$pooling = isset($pooling_rediscache) ? $pooling_rediscache : false;
+			$pooling = !empty($pooling_rediscache) ? $pooling_rediscache : false;
 
 		if($pooling <> $pooling_rediscache)
 		{
 			require_once($sourcedir . '/Subs-Admin.php');
 			updateSettingsFile(array('pooling_rediscache' => $pooling));
 		}
+
+		$this->pooling = $pooling;
 	}
 
 	/**
@@ -306,7 +308,7 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	 */
 	public function setConnectingData(string $url = null, int $port = 6379, int $timeout = 1)
 	{
-		global $url_rediscache, $port_rediscache, $timeout_rediscache;
+		global $sourcedir, $url_rediscache, $port_rediscache, $timeout_rediscache;
 
 		if(empty($url))
 			$url = !empty($url_rediscache) ? $url_rediscache : null;
@@ -324,6 +326,10 @@ class RedisCache extends CacheApi implements CacheApiInterface
 					'timeout_rediscache' => $timeout
 				));
 		}
+
+		$this->url = $url;
+		$this->port = $port;
+		$this->timeout = $timeout;
 	}
 
 	/**
@@ -337,7 +343,7 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	 */
 	public function setUnixSocketData(string $unixSocketData = null)
 	{
-		global $unixSocketData_rediscache;
+		global $sourcedir, $unixSocketData_rediscache;
 
 		if(empty($unixSocketData))
 			$unixSocketData = !empty($unixSocketData_rediscache) ? $unixSocketData_rediscache : null;
@@ -347,6 +353,8 @@ class RedisCache extends CacheApi implements CacheApiInterface
 			require_once($sourcedir . '/Subs-Admin.php');
 			updateSettingsFile(array('unixSocketData_rediscache' => $unixSocketData));
 		}
+
+		$this->unixSocketData = $unixSocketData;
 	}
 
 	/**
@@ -360,7 +368,7 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	 */
 	public function setUnixSocket(bool $unixSocket = null)
 	{
-		global $unixSocket_rediscache;
+		global $sourcedir, $unixSocket_rediscache;
 
 		if(empty($unixSocket))
 			$unixSocket = !empty($unixSocket_rediscache) ? $unixSocket_rediscache : false;
@@ -370,6 +378,8 @@ class RedisCache extends CacheApi implements CacheApiInterface
 			require_once($sourcedir . '/Subs-Admin.php');
 			updateSettingsFile(array('unixSocket_rediscache' => $unixSocket));
 		}
+
+		$this->unixSocket = $unixSocket;
 	}
 
 	/**
@@ -385,7 +395,7 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	 */
 	public function setAuthData(string $password = null, string $username = null)
 	{
-		global $username_rediscache, $password_rediscache;
+		global $sourcedir, $username_rediscache, $password_rediscache;
 
 		if(empty($password))
 			$password = !empty($password_rediscache) ? $password_rediscache : null;
@@ -401,6 +411,9 @@ class RedisCache extends CacheApi implements CacheApiInterface
 				'password_rediscache' => $password
 			));
 		}
+
+		$this->password = $password;
+		$this->username = $username;
 	}
 
 	/**
@@ -414,7 +427,7 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	 */
 	public function setAuth(bool $auth = null)
 	{
-		global $auth_rediscache;
+		global $sourcedir, $auth_rediscache;
 
 		if(empty($auth))
 			$auth = !empty($auth_rediscache) ? $auth_rediscache : false;
@@ -424,6 +437,8 @@ class RedisCache extends CacheApi implements CacheApiInterface
 			require_once($sourcedir . '/Subs-Admin.php');
 			updateSettingsFile(array('auth_rediscache' => $auth));
 		}
+
+		$this->auth = $auth;
 	}
 
 	/**
@@ -437,7 +452,7 @@ class RedisCache extends CacheApi implements CacheApiInterface
 	 */
 	public function setDbIndex(int $dbIndex = null)
 	{
-		global $dbIndex_rediscache;
+		global $sourcedir, $dbIndex_rediscache;
 
 		if(empty($dbIndex))
 			$dbIndex = !empty($dbIndex_rediscache) ? $dbIndex_rediscache : 0;
@@ -447,6 +462,8 @@ class RedisCache extends CacheApi implements CacheApiInterface
 			require_once($sourcedir . '/Subs-Admin.php');
 			updateSettingsFile(array('dbIndex_rediscache' => $dbIndex));
 		}
+
+		$this->dbIndex = $dbIndex;
 	}
 
 	/**
