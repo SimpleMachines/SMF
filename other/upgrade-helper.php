@@ -416,7 +416,7 @@ function smf_mysql_free_result($rs)
  * @param $rs Ignored
  * @return int|string
  */
-function smf_mysql_insert_id($rs)
+function smf_mysql_insert_id($rs = null)
 {
 	global $db_connection;
 	return mysqli_insert_id($db_connection);
