@@ -267,14 +267,22 @@ function EditSearchMethod()
 		checkSession('get');
 		validateToken('admin-msm', 'get');
 
-		$smcFunc['db_query']('', '
-			ALTER TABLE {db_prefix}messages
-			DROP INDEX ' . implode(',
-			DROP INDEX ', $context['fulltext_index']),
-			array(
-				'db_error_skip' => true,
-			)
-		);
+		if ($db_type == 'postgresql')
+			$smcFunc['db_query']('', '
+				DROP INDEX IF EXISTS {db_prefix}messages_ftx',
+				array(
+					'db_error_skip' => true,
+				)
+			);
+		else
+			$smcFunc['db_query']('', '
+				ALTER TABLE {db_prefix}messages
+				DROP INDEX ' . implode(',
+				DROP INDEX ', $context['fulltext_index']),
+				array(
+					'db_error_skip' => true,
+				)
+			);
 
 		// Go back to the default search method.
 		if (!empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext')
