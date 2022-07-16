@@ -3773,7 +3773,7 @@ function loadCacheAccelerator($overrideCache = '', $fallbackSMF = true)
 		}
 
 		// Connect up to the accelerator.
-		$cache_api->connect();
+		if ($cache_api->connect() === false) return false;
 
 		// Don't set this if we are overriding the cache.
 		if (empty($overrideCache))
