@@ -156,7 +156,7 @@ $txt['cache_rediscache_settings'] = 'Redis settings';
 
 $txt['pooling_rediscache'] = 'Pooling';
 $txt['unixsocket_rediscache'] = 'Unixsocket Enable';
-$txt['unixsocketdata_rediscache'] = 'Unixsocket data';
+$txt['unixsocketdata_rediscache'] = 'Unixsocket';
 $txt['url_rediscache'] = 'Url';
 $txt['port_rediscache'] = 'Port';
 $txt['timeout_rediscache'] = 'Timeout';

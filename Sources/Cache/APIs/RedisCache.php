@@ -175,7 +175,6 @@ class RedisCache extends CacheApi implements CacheApiInterface
 			'file',
 			'text',
 			36,
-			'cache_'. $class_name_txt_key .'_unixsocketdata',
 		);
 		$config_vars[] = array(
 			'url_'. $class_name_txt_key,
@@ -215,7 +214,6 @@ class RedisCache extends CacheApi implements CacheApiInterface
 			'file',
 			'text',
 			36,
-			'cache_'. $class_name_txt_key .'_username',
 		);
 		$config_vars[] = array(
 			'password_'. $class_name_txt_key,
@@ -223,7 +221,6 @@ class RedisCache extends CacheApi implements CacheApiInterface
 			'file',
 			'text',
 			36,
-			'cache_'. $class_name_txt_key .'_password',
 		);
 		$config_vars[] = array(
 			'dbindex_'. $class_name_txt_key,

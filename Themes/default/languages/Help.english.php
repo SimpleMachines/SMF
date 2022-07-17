@@ -261,6 +261,12 @@ $helptxt['cache_enable'] = 'SMF performs caching at a variety of levels. The hig
 $helptxt['cache_memcached'] = 'If you are using memcached you need to provide the server details. This should be entered as a comma separated list as shown in the example below:<br><br>	&quot;server1,server2,server3:port,server4&quot;<br><br>Note that if no port is specified SMF will use port 11211 unless the host contains a slash, then it is assumed to be an alternative transport and the port will be set to 0. SMF will attempt to perform rough/random load balancing across the specified servers.';
 $helptxt['cache_cachedir'] = 'This setting is only for the smf file-based cache system. It specifies the path to the cache directory. It is recommended that you place this in /tmp/ if you are going to use this, although it will work in any directory';
 $helptxt['cache_sqlite_cachedir'] = 'This setting is only for the SQLite database cache system. It specifies the path to the cache directory. It is recommended that you place this in /tmp/ if you are going to use this, although it will work in any directory';
+$helptxt['cache_rediscache_dbindex'] = 'Select the Redis logical database having the specified zero-based numeric index. New connections always use the database 0. <br><br> <a href="https://redis.io/commands/select/">more info</a>';
+$helptxt['cache_rediscache_auth'] = 'AUTH [username] password <br><br> <a href="https://redis.io/commands/auth/">more info</a>';
+$helptxt['cache_rediscache_timeout'] = 'in seconds';
+$helptxt['cache_rediscache_port'] = 'default port of redis 6379';
+$helptxt['cache_rediscache_url'] = 'support ip and hostname, use tls:// to enable transport level security';
+$helptxt['cache_rediscache_unixsocket'] = 'Connecting to Redis via Unix sockets is usually faster than connecting via TCP/IP.';
 $helptxt['enableErrorLogging'] = 'This will log any errors, like a failed login, so you can see what went wrong.';
 $helptxt['enableErrorQueryLogging'] = 'This will include the full query sent to the database in the error log. It requires error logging to be turned on.<br><br><strong>Note:  This will affect the ability to filter the error log by the error message.</strong>';
 $helptxt['disallow_sendBody'] = 'This setting removes the option to receive the text of replies, posts, and personal messages in notification emails.<br><br>Often, members will reply to the notification email, which in most cases means the webmaster receives the reply.';
