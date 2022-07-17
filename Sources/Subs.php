@@ -566,8 +566,8 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	$start_invalid = $start < 0;
 
 	// $start must be within bounds and be a multiple of $num_per_page.
-	$start = max(0, $start);
-	$start = min($start - ($start % $num_per_page), $max_value);
+	$start = min(max(0, $start), $max_value);
+	$start = $start - ($start % $num_per_page);
 
 	if (!isset($context['current_page']))
 		$context['current_page'] = $start / $num_per_page;
