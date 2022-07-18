@@ -2525,16 +2525,19 @@ function alert_count($memID, $unread = false)
 
 	// One last thing - tweak counter on member record.
 	// Do it directly, as updateMemberData() calls this function, and may create a loop.
+	// Note that $user_info is not populated when this is invoked via cron, hence the CASE statement.
 	if ($num_unread_deletes > 0)
 	{
-		$user_info['alerts'] = max(0, $user_info['alerts'] - $num_unread_deletes);
-			
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}members
-			SET alerts = {int:num_alerts}
+			SET alerts =
+				CASE
+					WHEN alerts < {int:unread_deletes} THEN 0
+					ELSE alerts - {int:unread_deletes}
+				END
 			WHERE id_member = {int:member}',
 			array(
-				'num_alerts' => $user_info['alerts'],
+				'unread_deletes' => $num_unread_deletes,
 				'member' => $memID,
 			)
 		);
