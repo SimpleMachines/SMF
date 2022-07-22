@@ -437,8 +437,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				array()
 			);
 
-			foreach ($this->alert_rows as $alert_row)
-				updateMemberData($alert_row['id_member'], array('alerts' => '+'));
+			updateMemberData(array_column($alert_rows, 'id_member'), array('alerts' => '+'));
 		}
 	}
 
