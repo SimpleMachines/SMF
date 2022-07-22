@@ -191,8 +191,7 @@ function clearReportAlerts($log_report, $extra)
 			)
 		);
 		// Decrement counter for each moderator who had an unread alert
-		foreach ($moderators AS $moderator)
-			updateMemberData($moderator, array('alerts' => '-'));
+		updateMemberData($moderators, array('alerts' => '-'));
 	}
 }
 
