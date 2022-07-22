@@ -2754,8 +2754,7 @@ function clearApprovalAlerts($content_ids, $content_action)
 			)
 		);
 		// Decrement counter for each moderator who received an alert
-		foreach ($moderators AS $moderator)
-			updateMemberData($moderator, array('alerts' => '-'));
+		updateMemberData($moderators, array('alerts' => '-'));
 	}
 }
 
