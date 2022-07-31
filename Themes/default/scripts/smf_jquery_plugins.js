@@ -739,21 +739,27 @@ $(function() {
 /* Mobile Pop */
 $(function() {
 	$( '.mobile_act' ).click(function() {
+		event.preventDefault();
 		$( '#mobile_action' ).show();
 		});
 	$( '.hide_popup' ).click(function() {
+		event.preventDefault();
 		$( '#mobile_action' ).hide();
 	});
 	$( '.mobile_mod' ).click(function() {
+		event.preventDefault();
 		$( '#mobile_moderation' ).show();
 	});
 	$( '.hide_popup' ).click(function() {
+		event.preventDefault();
 		$( '#mobile_moderation' ).hide();
 	});
 	$( '.mobile_user_menu' ).click(function() {
+		event.preventDefault();
 		$( '#mobile_user_menu' ).show();
 		});
 	$( '.hide_popup' ).click(function() {
+		event.preventDefault();
 		$( '#mobile_user_menu' ).hide();
 	});
 });

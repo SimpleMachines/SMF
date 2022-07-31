@@ -148,7 +148,7 @@ function template_bi_board_icon($board)
 	global $context, $scripturl;
 
 	echo '
-		<a href="', ($context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>';
+		<a href="', ($context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', ' aria-label="', $board['name'], '"></a>';
 }
 
 /**
@@ -161,7 +161,7 @@ function template_bi_redirect_icon($board)
 	global $context, $scripturl;
 
 	echo '
-		<a href="', $board['href'], '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>';
+		<a href="', $board['href'], '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '  aria-label="', $board['name'], '"></a>';
 }
 
 /**

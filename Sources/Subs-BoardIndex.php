@@ -194,9 +194,10 @@ function getBoardIndex($board_index_options)
 					'css_class' => ''
 				);
 
-				$categories[$row_board['id_cat']]['link'] = '<a id="c' . $row_board['id_cat'] . '"></a>' . (!$context['user']['is_guest'] ?
-						'<a href="' . $scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], $row_board['cat_name']) . '">' . $row_board['cat_name'] . '</a>' :
-						$row_board['cat_name']);
+				if (!$context['user']['is_guest'])
+					$categories[$row_board['id_cat']]['link'] = '<a id="c' . $row_board['id_cat'] . '" href="' . $scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], $row_board['cat_name']) . '">' . $row_board['cat_name'] . '</a>';
+				else
+					$categories[$row_board['id_cat']]['link'] = '<span id="c' . $row_board['id_cat'] . '">' . $row_board['cat_name'] . '</span>';
 
 			}
 

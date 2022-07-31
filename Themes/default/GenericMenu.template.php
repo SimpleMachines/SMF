@@ -25,7 +25,7 @@ function template_generic_menu_dropdown_above()
 	// Load the menu
 	// Add mobile menu as well
 	echo '
-	<a class="mobile_generic_menu_', $context['cur_menu_id'], '">
+	<a class="mobile_generic_menu_', $context['cur_menu_id'], '" rel="nofollow" href="#">
 		<span class="menu_icon"></span>
 		<span class="text_menu">', sprintf($txt['mobile_generic_menu'], $menu_label), '</span>
 	</a>
@@ -34,7 +34,7 @@ function template_generic_menu_dropdown_above()
 			<div class="popup_window description">
 				<div class="popup_heading">
 					', sprintf($txt['mobile_generic_menu'], $menu_label), '
-					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
+					<a href="#" class="main_icons hide_popup" rel="nofollow" href="#" tabindex="-1"></a>
 				</div>
 				', template_generic_menu($menu_context), '
 			</div>
@@ -250,7 +250,7 @@ function template_generic_menu_tabs(&$menu_context)
 	{
 		// The admin tabs.
 		echo '
-					<a class="mobile_generic_menu_', $context['cur_menu_id'], '_tabs">
+					<a class="mobile_generic_menu_', $context['cur_menu_id'], '_tabs" rel="nofollow" href="#">
 						<span class="menu_icon"></span>
 						<span class="text_menu">', sprintf($txt['mobile_generic_menu'], $tab_context['title']), '</span>
 					</a>
@@ -259,7 +259,7 @@ function template_generic_menu_tabs(&$menu_context)
 							<div class="popup_window description">
 								<div class="popup_heading">
 									', sprintf($txt['mobile_generic_menu'], $tab_context['title']), '
-									<a href="javascript:void(0);" class="main_icons hide_popup"></a>
+									<a class="main_icons hide_popup" rel="nofollow" href="#" tabindex="-1"></a>
 								</div>';
 
 		echo '

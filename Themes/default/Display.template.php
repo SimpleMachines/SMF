@@ -237,7 +237,7 @@ function template_main()
 	if (!empty($context['normal_buttons']))
 		echo '
 		<div class="mobile_buttons floatright">
-			<a class="button mobile_act">', $txt['mobile_action'], '</a>
+			<a class="button mobile_act" href="#">', $txt['mobile_action'], '</a>
 			', !empty($context['mod_buttons']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
 		</div>';
 
@@ -274,7 +274,7 @@ function template_main()
 	if (!empty($context['normal_buttons']))
 		echo '
 		<div class="mobile_buttons floatright">
-			<a class="button mobile_act">', $txt['mobile_action'], '</a>
+			<a class="button mobile_act" href="#">', $txt['mobile_action'], '</a>
 			', !empty($context['mod_buttons']) ? '<a class="button mobile_mod">' . $txt['mobile_moderation'] . '</a>' : '', '
 		</div>';
 
@@ -304,7 +304,7 @@ function template_main()
 			<div class="popup_window description">
 				<div class="popup_heading">
 					', $txt['mobile_action'], '
-					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
+					<a href="#" rel="nofollow" class="main_icons hide_popup"></a>
 				</div>
 				', template_button_strip($context['normal_buttons']), '
 			</div>
@@ -317,7 +317,7 @@ function template_main()
 			<div class="popup_window description">
 				<div class="popup_heading">
 					', $txt['mobile_moderation'], '
-					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
+					<a href="#" rel="nofollow" class="main_icons hide_popup"></a>
 				</div>
 				<div id="moderationbuttons_mobile">
 					', template_button_strip($context['mod_buttons'], 'bottom', array('id' => 'moderationbuttons_strip_mobile')), '
@@ -546,7 +546,7 @@ function template_single_post($message)
 	if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
 		echo '
 								<li class="avatar">
-									<a href="', $message['member']['href'], '">', $message['member']['avatar']['image'], '</a>
+									<a href="', $message['member']['href'], '" aria-label="', $txt['view_profile'], '">', $message['member']['avatar']['image'], '</a>
 								</li>';
 
 	// Are there any custom fields below the avatar?

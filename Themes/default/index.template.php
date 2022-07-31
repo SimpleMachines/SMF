@@ -321,7 +321,7 @@ function template_body_above()
 	{
 		echo '
 			<form id="search_form" class="floatright" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-				<input type="search" name="search" value="">&nbsp;';
+				<input type="search" name="search" value="" placeholder="', $txt['search'], '">&nbsp;';
 
 		// Using the quick search dropdown?
 		$selected = !empty($context['current_topic']) ? 'current_topic' : (!empty($context['current_board']) ? 'current_board' : 'all');
@@ -636,7 +636,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 				$value['id'] = $key;
 
 			$button = '
-				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>'.(!empty($value['icon']) ? '<span class="main_icons '.$value['icon'].'"></span>' : '').'' . $txt[$value['text']] . '</a>';
+				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : 'href="#"') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>'.(!empty($value['icon']) ? '<span class="main_icons '.$value['icon'].'"></span>' : '').'' . $txt[$value['text']] . '</a>';
 
 			if (!empty($value['sub_buttons']))
 			{
