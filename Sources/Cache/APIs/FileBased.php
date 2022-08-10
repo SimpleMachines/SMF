@@ -59,7 +59,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 	private function readFile($file)
 	{
-		if (($fp = fopen($file, 'rb')) !== false)
+		if (file_exists($file) && ($fp = fopen($file, 'rb')) !== false)
 		{
 			if (!flock($fp, LOCK_SH))
 			{
@@ -129,7 +129,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 		// SMF Data returns $value and $expired.  $expired has a unix timestamp of when this expires.
 		if (file_exists($file) && ($raw = $this->readFile($file)) !== false)
 		{
-			if (($value = smf_json_decode($raw, true, false)) !== array() && $value['expiration'] >= time())
+			if (($value = smf_json_decode($raw, true, false)) !== array() && isset($value['expiration']) && $value['expiration'] >= time())
 				return $value['value'];
 			else
 				@unlink($file);
