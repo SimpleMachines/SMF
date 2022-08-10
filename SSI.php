@@ -34,7 +34,7 @@ global $boardurl, $boarddir, $sourcedir, $webmaster_email, $cookiename, $db_char
 global $db_type, $db_server, $db_name, $db_user, $db_prefix, $db_persist, $db_error_send, $db_last_error, $db_show_debug;
 global $db_connection, $db_port, $modSettings, $context, $sc, $user_info, $topic, $board, $txt;
 global $smcFunc, $ssi_db_user, $scripturl, $ssi_db_passwd, $db_passwd, $cache_enable, $cachedir;
-global $auth_secret;
+global $auth_secret, $cache_accelerator, $cache_memcached;
 
 if (!defined('TIME_START'))
 	define('TIME_START', microtime(true));
