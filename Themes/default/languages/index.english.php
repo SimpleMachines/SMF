@@ -15,8 +15,8 @@ $txt['lang_recaptcha'] = 'en';
 
 // Ensure you remember to use uppercase for character set strings.
 $txt['lang_character_set'] = 'UTF-8';
-// Character set and right to left?
-$txt['lang_rtl'] = false;
+// Character set right to left?  0 = ltr; 1 = rtl
+$txt['lang_rtl'] = '0';
 // Number format.
 $txt['number_format'] = '1,234.00';
 
