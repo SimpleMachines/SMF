@@ -1063,6 +1063,38 @@ function Post($post_errors = array())
 			$_SESSION['attachments_can_preview'][$attachment['thumb']] = true;
 	}
 
+	// Previously uploaded attachments have 2 flavors:
+	// - Existing post - at this point, now in $context['current_attachments']
+	// - Just added, current session only - at this point, now in $_SESSION['already_attached']
+	// We need to make sure *all* of these are in $context['current_attachments'], otherwise they won't show in dropzone during edits.
+	if (!empty($_SESSION['already_attached']))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT
+				a.id_attach, a.filename, COALESCE(a.size, 0) AS filesize, a.approved, a.mime_type, a.id_thumb
+			FROM {db_prefix}attachments AS a
+			WHERE a.attachment_type = {int:attachment_type}
+				AND a.id_attach IN ({array_int:just_uploaded})',
+			array(
+				'attachment_type' => 0,
+				'just_uploaded' => $_SESSION['already_attached']
+			)
+		);
+
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$context['current_attachments'][$row['id_attach']] = array(
+				'name' => $smcFunc['htmlspecialchars']($row['filename']),
+				'size' => $row['filesize'],
+				'attachID' => $row['id_attach'],
+				'approved' => $row['approved'],
+				'mime_type' => $row['mime_type'],
+				'thumb' => $row['id_thumb'],
+			);
+		}
+		$smcFunc['db_free_result']($request);
+	}
+
 	// Do we need to show the visual verification image?
 	$context['require_verification'] = !$user_info['is_mod'] && !$user_info['is_admin'] && !empty($modSettings['posts_require_captcha']) && ($user_info['posts'] < $modSettings['posts_require_captcha'] || ($user_info['is_guest'] && $modSettings['posts_require_captcha'] == -1));
 	if ($context['require_verification'])

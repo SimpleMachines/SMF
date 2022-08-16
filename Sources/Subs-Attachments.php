@@ -1373,8 +1373,21 @@ function prepareAttachsByMsg($msgIDs)
 	// Ensure that $msgIDs doesn't contain zero or non-integers.
 	$msgIDs = array_filter(array_map('intval', $msgIDs));
 
-	if (!empty($msgIDs))
+	if (!empty($msgIDs) || !empty($_SESSION['attachments_can_preview']))
 	{
+		// Where clause - there may or may not be msg ids, & may or may not be attachs to preview,
+		// depending on post vs edit, inserted or not, preview or not, post error or not, etc.  
+		// Either way, they may be needed in a display of a list of posts or in the dropzone 'mock' list of thumbnails.
+		$msg_or_att = '';
+		if (!empty($msgIDs))
+			$msg_or_att .= 'a.id_msg IN ({array_int:message_id}) ';
+		if (!empty($msgIDs) && !empty($_SESSION['attachments_can_preview']))
+			$msg_or_att .= 'OR ';
+		if (!empty($_SESSION['attachments_can_preview']))
+			$msg_or_att .= 'a.id_attach IN ({array_int:preview_attachments})';
+
+		// This tries to get all attachments for the page being displayed, to build a cache of attach info.
+		// This is also being used by POST, so it may need to grab attachs known only in the session.
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board, m.id_member, a.mime_type,
@@ -1384,7 +1397,7 @@ function prepareAttachsByMsg($msgIDs)
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 			WHERE a.attachment_type = {int:attachment_type}
-				AND (a.id_msg IN ({array_int:message_id})' . (!empty($context['preview_message']) && !empty($_SESSION['attachments_can_preview']) ? 'OR a.id_attach IN ({array_int:preview_attachments})' : '') . ')',
+				AND (' . $msg_or_att . ')',
 			array(
 				'message_id' => $msgIDs,
 				'attachment_type' => 0,
