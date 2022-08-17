@@ -644,7 +644,7 @@ function loadProfileFields($force_reload = false)
 			'link_with' => 'website',
 			'input_validate' => function(&$value) use ($smcFunc)
 			{
-				if ($smcFunc['strlen']($value) > 250)
+				if (mb_strlen($value) > 250)
 					return 'website_title_too_long';
 
 				return true;
