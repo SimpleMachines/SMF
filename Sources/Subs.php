@@ -5159,7 +5159,7 @@ function ip2range($fullip)
 		$ip_array['low'] = $fullip;
 		$ip_array['high'] = $fullip;
 		return $ip_array;
-	} // if ip 22.12.* -> 22.12.* - 22.12.*
+	} // if ip 22.12.* -> 22.12.*-22.12.*
 	elseif (count($ip_parts) == 1)
 	{
 		$ip_parts[0] = $fullip;

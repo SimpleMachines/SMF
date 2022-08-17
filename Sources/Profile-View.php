@@ -2325,7 +2325,7 @@ function TrackIP($memID = 0)
 	$ip_var = $context['ip'];
 
 	if ($context['ip']['low'] !== $context['ip']['high'])
-		$context['ip'] = $context['ip']['low'] . ' - ' . $context['ip']['high'];
+		$context['ip'] = $context['ip']['low'] . '-' . $context['ip']['high'];
 	else
 		$context['ip'] = $context['ip']['low'];
 
