@@ -642,6 +642,13 @@ function loadProfileFields($force_reload = false)
 			'size' => 50,
 			'permission' => 'profile_website',
 			'link_with' => 'website',
+			'input_validate' => function(&$value) use ($smcFunc)
+			{
+				if (mb_strlen($value) > 250)
+					return 'website_title_too_long';
+
+				return true;
+			},
 		),
 		'website_url' => array(
 			'type' => 'url',
