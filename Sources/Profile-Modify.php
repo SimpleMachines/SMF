@@ -2405,7 +2405,7 @@ function alert_count($memID, $unread = false)
 
 	// We have to do this the slow way as to iterate over all possible boards the user can see.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_alert, content_id, content_type, content_action
+		SELECT id_alert, content_id, content_type, content_action, is_read
 		FROM {db_prefix}user_alerts
 		WHERE id_member = {int:id_member}
 			' . ($unread ? '
@@ -2502,10 +2502,52 @@ function alert_count($memID, $unread = false)
 	}
 
 	// Now check alerts again and remove any they can't see.
+	$deletes = array();
+	$num_unread_deletes = 0;
 	foreach ($alerts as $id_alert => $alert)
 	{
 		if (!$alert['visible'])
+		{
+			if (empty($alert['is_read']))
+				$num_unread_deletes++;
+
 			unset($alerts[$id_alert]);
+			$deletes[] = $id_alert;
+		}
+	}
+
+	// Penultimate task - delete these orphaned, invisible alerts, otherwise they might hang around forever.
+	// This can happen if they are deleted or moved to a board this user cannot access.
+	// Note that unread alerts are never purged.
+	if (!empty($deletes))
+	{
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}user_alerts
+			WHERE id_alert IN ({array_int:alerts})',
+			array(
+				'alerts' => $deletes,
+			)
+		);
+	}
+
+	// One last thing - tweak counter on member record.
+	// Do it directly, as updateMemberData() calls this function, and may create a loop.
+	// Note that $user_info is not populated when this is invoked via cron, hence the CASE statement.
+	if ($num_unread_deletes > 0)
+	{
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}members
+			SET alerts =
+				CASE
+					WHEN alerts < {int:unread_deletes} THEN 0
+					ELSE alerts - {int:unread_deletes}
+				END
+			WHERE id_member = {int:member}',
+			array(
+				'unread_deletes' => $num_unread_deletes,
+				'member' => $memID,
+			)
+		);
 	}
 
 	return count($alerts);
