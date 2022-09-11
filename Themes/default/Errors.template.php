@@ -208,7 +208,7 @@ function template_show_file()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['file_data']['file'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
+		', template_css(), '
 	</head>
 	<body>
 		<table class="errorfile_table">';

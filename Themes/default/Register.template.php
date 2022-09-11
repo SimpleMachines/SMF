@@ -448,7 +448,7 @@ function template_verification_sound()
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['visual_verification_sound'], '</title>
 		<meta name="robots" content="noindex">
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $context['browser_cache'], '">
+		', template_css(), '
 		<style>';
 
 	// Just show the help text and a "close window" link.
