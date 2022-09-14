@@ -1499,7 +1499,7 @@ function corsPolicyHeader($set_header = true)
 		foreach ($cors_headers as &$ch)
 			$ch = str_replace(' ', '-', trim($ch));
 
-		$context['cors_headers'] .= ',' .  implode(',', $cors_headers);
+		$context['cors_headers'] .= ',' . implode(',', $cors_headers);
 	}
 
 	// Allowing Cross-Origin Resource Sharing (CORS).
