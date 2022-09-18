@@ -87,7 +87,7 @@ function MessageIndex()
 				$context['robot_no_index'] = true;
 		}
 	}
-	if (!empty($_REQUEST['start']) && (!is_numeric($_REQUEST['start']) || $_REQUEST['start'] % $context['messages_per_page'] != 0))
+	if (!empty($_REQUEST['start']) && (!is_numeric($_REQUEST['start']) || $_REQUEST['start'] % $context['topics_per_page'] != 0))
 		$context['robot_no_index'] = true;
 
 	// If we can view unapproved messages and there are some build up a list.
