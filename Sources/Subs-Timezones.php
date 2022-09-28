@@ -1454,7 +1454,7 @@ function get_sorted_tzids_for_country($country_code, $when = 'now')
 			'Africa/Dar_es_Salaam',
 		),
 		'UA' => array(
-			'Europe/Kiev',
+			'Europe/Kyiv',
 			'Europe/Zaporozhye',
 			'Europe/Simferopol',
 			'Europe/Uzhgorod',
@@ -1640,6 +1640,12 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 			array(
 				'ts' => PHP_INT_MIN,
 				'tzid' => 'America/Godthab',
+			),
+		),
+		'Europe/Kyiv' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => 'Europe/Kiev',
 			),
 		),
 
