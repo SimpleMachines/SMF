@@ -579,7 +579,7 @@ function get_tzid_metazones($when = 'now')
 			continue;
 
 		// Use fallback where possible.
-		if (!empty($alt_tzid))
+		if (!empty($alt_tzid) && empty($tzid_metazones[$alt_tzid]))
 		{
 			$tzid_metazones[$alt_tzid] = $tzid_metazones[$orig_tzid];
 			$txt[$alt_tzid] = $txt[$orig_tzid];
@@ -1565,7 +1565,7 @@ function get_sorted_tzids_for_country($country_code, $when = 'now')
 		$country_tzids[$country_code] = array_unique(array_merge($country_tzids[$country_code], array_intersect($recognized_country_tzids, timezone_identifiers_list())));
 
 		// Get fallbacks where necessary.
-		$country_tzids[$country_code] = array_values(get_tzid_fallbacks($country_tzids[$country_code], $when));
+		$country_tzids[$country_code] = array_unique(array_values(get_tzid_fallbacks($country_tzids[$country_code], $when)));
 
 		// Filter out any time zones that are still undefined.
 		$country_tzids[$country_code] = array_intersect(array_filter($country_tzids[$country_code]), timezone_identifiers_list(DateTimeZone::ALL_WITH_BC));
@@ -1642,6 +1642,12 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => 'America/Godthab',
 			),
 		),
+		'Europe/Busingen' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => 'Europe/Zurich',
+			),
+		),
 		'Europe/Kyiv' => array(
 			array(
 				'ts' => PHP_INT_MIN,
@@ -1650,6 +1656,10 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 		),
 
 		// 2. Newly created time zones.
+
+		// The initial entry in many of the following zones is set to '' because
+		// the records go back to eras before the adoption of standardized time
+		// zones, which means no substitutes are possible then.
 
 		// The same as Tasmania, except it stayed on DST all year in 2010.
 		// Australia/Tasmania is an otherwise unused backwards compatibility
@@ -1669,6 +1679,55 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 			),
 		),
 
+		// Added in version 2013a.
+		'Asia/Khandyga' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1919-12-14T14:57:47+0000'),
+				'tzid' => 'Etc/GMT-8',
+			),
+			array(
+				'ts' => strtotime('1930-06-20T16:00:00+0000'),
+				'tzid' => 'Asia/Yakutsk',
+			),
+			array(
+				'ts' => strtotime('2003-12-31T15:00:00+0000'),
+				'tzid' => 'Asia/Vladivostok',
+			),
+			array(
+				'ts' => strtotime('2011-09-12T13:00:00+0000'),
+				'tzid' => 'Asia/Yakutsk',
+			),
+		),
+
+		// Added in version 2013a.
+		'Asia/Ust-Nera' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1919-12-14T14:27:06+0000'),
+				'tzid' => 'Etc/GMT-8',
+			),
+			array(
+				'ts' => strtotime('1930-06-20T16:00:00+0000'),
+				'tzid' => 'Asia/Yakutsk',
+			),
+			array(
+				'ts' => strtotime('1981-03-31T15:00:00+0000'),
+				'tzid' => 'Asia/Magadan',
+			),
+			array(
+				'ts' => strtotime('2011-09-12T12:00:00+0000'),
+				'tzid' => 'Asia/Vladivostok',
+			),
+		),
+
+		// Created in version 2014b.
 		// This place uses two hours for DST. No substitutes are possible.
 		'Antarctica/Troll' => array(
 			array(
@@ -1677,12 +1736,65 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 			),
 		),
 
-		// Diverged from Pacific/Port_Moresby in version 2014i.
-		'Pacific/Bougainville' => array(
-			// Before the divergence, we don't actually need this one at all.
+		// Diverged from Asia/Yakustsk in version 2014f.
+		'Asia/Chita' => array(
 			array(
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1919-12-14T16:26:08+0000'),
+				'tzid' => 'Asia/Yakutsk',
+			),
+			array(
+				'ts' => strtotime('2014-10-25T16:00:00+0000'),
+				'tzid' => 'Etc/GMT-8',
+			),
+			array(
+				'ts' => strtotime('2016-03-26T18:00:00+0000'),
+				'tzid' => 'Asia/Yakutsk',
+			),
+		),
+
+		// Diverged from Asia/Magadan in version 2014f.
+		'Asia/Srednekolymsk' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1924-05-01T13:45:08+0000'),
+				'tzid' => 'Etc/GMT-10',
+			),
+			array(
+				'ts' => strtotime('1930-06-20T14:00:00+0000'),
+				'tzid' => 'Asia/Magadan',
+			),
+			array(
+				'ts' => strtotime('2014-10-25T14:00:00+0000'),
+				'tzid' => 'Etc/GMT-11',
+			),
+		),
+
+		// Diverged from Pacific/Port_Moresby in version 2014i.
+		'Pacific/Bougainville' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			// Pacific/Yap is an unused link to Pacific/Port_Moresby.
+			array(
+				'ts' => strtotime('1879-12-31T14:11:20+0000'),
+				'tzid' => 'Pacific/Yap',
+			),
+			// Apparently this was different for a while in World War II.
+			array(
+				'ts' => strtotime('1942-06-30T14:00:00+0000'),
+				'tzid' => 'Singapore',
+			),
+			array(
+				'ts' => strtotime('1945-08-20T15:00:00+0000'),
+				'tzid' => 'Pacific/Yap',
 			),
 			// For dates after divergence, it is the same as Pacific/Kosrae.
 			// If this ever ceases to be true, add another entry.
@@ -1692,18 +1804,249 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 			),
 		),
 
-		// Diverged from America/Santiago in version 2017a.
-		'America/Punta_Arenas' => array(
-			// Before the divergence, we don't actually need this one at all.
+		// Added in version 2015g.
+		'America/Fort_Nelson' => array(
 			array(
 				'ts' => PHP_INT_MIN,
 				'tzid' => '',
 			),
-			// For dates after divergence, it is the same as Antarctica/Palmer.
-			// If this ever ceases to be true, add another entry.
 			array(
-				'ts' => strtotime('2017-05-14T03:00:00+0000'),
-				'tzid' => 'Antarctica/Palmer',
+				'ts' => strtotime('1884-01-01T08:12:28+0000'),
+				'tzid' => 'Canada/Pacific',
+			),
+			array(
+				'ts' => strtotime('1946-01-01T08:00:00+0000'),
+				'tzid' => 'Etc/GMT+8',
+			),
+			array(
+				'ts' => strtotime('1947-01-01T08:00:00+0000'),
+				'tzid' => 'Canada/Pacific',
+			),
+			array(
+				'ts' => strtotime('2015-03-08T10:00:00+0000'),
+				'tzid' => 'MST',
+			),
+		),
+
+		// Created in version 2016b.
+		'Europe/Astrakhan' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1935-01-26T20:00:00+0000'),
+				'tzid' => 'Europe/Samara',
+			),
+			array(
+				'ts' => strtotime('1989-03-25T22:00:00+0000'),
+				'tzid' => 'Europe/Volgograd',
+			),
+			array(
+				'ts' => strtotime('2016-03-26T23:00:00+0000'),
+				'tzid' => 'Europe/Samara',
+			),
+		),
+
+		// Created in version 2016b.
+		'Europe/Ulyanovsk' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1935-01-26T20:00:00+0000'),
+				'tzid' => 'Europe/Samara',
+			),
+			array(
+				'ts' => strtotime('1989-03-25T22:00:00+0000'),
+				'tzid' => 'W-SU',
+			),
+			array(
+				'ts' => strtotime('2016-03-26T23:00:00+0000'),
+				'tzid' => 'Europe/Samara',
+			),
+		),
+
+		// Created in version 2016b.
+		'Asia/Barnaul' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1919-12-09T18:25:00+0000'),
+				'tzid' => 'Etc/GMT-6',
+			),
+			array(
+				'ts' => strtotime('1930-06-20T18:00:00+0000'),
+				'tzid' => 'Asia/Novokuznetsk',
+			),
+			array(
+				'ts' => strtotime('1995-05-27T17:00:00+0000'),
+				'tzid' => 'Asia/Novosibirsk',
+			),
+			array(
+				'ts' => strtotime('2016-03-26T20:00:00+0000'),
+				'tzid' => 'Asia/Novokuznetsk',
+			),
+		),
+
+		// Created in version 2016b.
+		'Asia/Tomsk' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1919-12-21T18:20:09+0000'),
+				'tzid' => 'Asia/Novosibirsk',
+			),
+			array(
+				'ts' => strtotime('1930-06-20T18:00:00+0000'),
+				'tzid' => 'Asia/Novokuznetsk',
+			),
+			array(
+				'ts' => strtotime('2002-04-30T20:00:00+0000'),
+				'tzid' => 'Asia/Novosibirsk',
+			),
+			array(
+				'ts' => strtotime('2016-05-28T20:00:00+0000'),
+				'tzid' => 'Asia/Novokuznetsk',
+			),
+		),
+
+		// Created in version 2016d.
+		'Europe/Kirov' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1935-01-26T20:00:00+0000'),
+				'tzid' => 'Europe/Samara',
+			),
+			array(
+				'ts' => strtotime('1989-03-25T22:00:00+0000'),
+				'tzid' => 'Europe/Volgograd',
+			),
+			array(
+				'ts' => strtotime('1992-03-28T22:00:00+0000'),
+				'tzid' => 'W-SU',
+			),
+		),
+
+		// Diverged from Asia/Nicosia in version 2016i.
+		'Asia/Famagusta' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			// Europe/Nicosia is an otherwise unused link to Asia/Nicosia.
+			array(
+				'ts' => strtotime('1921-11-13T21:46:32+0000'),
+				'tzid' => 'Europe/Nicosia',
+			),
+			// Became same as Europe/Istanbul.
+			// Turkey is an otherwise unused link to Europe/Istanbul.
+			array(
+				'ts' => strtotime('2016-09-07T21:00:00+0000'),
+				'tzid' => 'Turkey',
+			),
+			// Became same as Asia/Nicosia again.
+			array(
+				'ts' => strtotime('2017-10-29T01:00:00+0000'),
+				'tzid' => 'Europe/Nicosia',
+			),
+		),
+
+		// Created in version 2016j.
+		'Asia/Atyrau' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1924-05-01T20:32:16+0000'),
+				'tzid' => 'Etc/GMT-3',
+			),
+			array(
+				'ts' => strtotime('1930-06-20T21:00:00+0000'),
+				'tzid' => 'Asia/Aqtau',
+			),
+			array(
+				'ts' => strtotime('1981-09-30T19:00:00+0000'),
+				'tzid' => 'Asia/Aqtobe',
+			),
+			array(
+				'tz' => strtotime('1999-03-27T21:00:00+0000'),
+				'tzid' => 'Etc/GMT-5'
+			),
+		),
+
+		// Diverged from Europe/Volgograd in version 2016j.
+		'Europe/Saratov' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1935-01-26T20:00:00+0000'),
+				'tzid' => 'Europe/Samara',
+			),
+			array(
+				'ts' => strtotime('1988-03-26T22:00:00+0000'),
+				'tzid' => 'Europe/Volgograd',
+			),
+			array(
+				'ts' => strtotime('2016-12-03T23:00:00+0000'),
+				'tzid' => 'Europe/Samara',
+			),
+		),
+
+		// Diverged from America/Santiago in version 2017a.
+		'America/Punta_Arenas' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			// Chile/Continental is an otherwise unused link to America/Santiago.
+			array(
+				'ts' => strtotime('1890-01-01T04:43:40+0000'),
+				'tzid' => 'Chile/Continental',
+			),
+			array(
+				'ts' => strtotime('1942-08-01T05:00:00+0000'),
+				'tzid' => 'Etc/GMT+4',
+			),
+			array(
+				'ts' => strtotime('1946-08-29T04:00:00+0000'),
+				'tzid' => 'Chile/Continental',
+			),
+			// America/Mendoza is an otherwise unused link to America/Argentina/Mendoza.
+			array(
+				'ts' => strtotime('2016-12-04T03:00:00+0000'),
+				'tzid' => 'America/Mendoza',
+			),
+		),
+
+		// Diverged from Asia/Qyzylorda in version 2018h.
+		'Asia/Qostanay' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1924-05-01T19:45:32+0000'),
+				'tzid' => 'Asia/Qyzylorda',
+			),
+			array(
+				'ts' => strtotime('1930-06-20T20:00:00+0000'),
+				'tzid' => 'Asia/Aqtobe',
+			),
+			array(
+				'ts' => strtotime('2004-10-30T21:00:00+0000'),
+				'tzid' => 'Asia/Almaty',
 			),
 		),
 	);
@@ -1742,6 +2085,10 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 
 				$replacements[$tzid] = $alt['tzid'];
 			}
+
+			// Replacement is already in use.
+			if (in_array($alt['tzid'], $replacements) || (in_array($alt['tzid'], $tzids) && strpos($alt['tzid'], 'Etc/') === false))
+				$replacements[$tzid] = '';
 
 			if (empty($replacements[$tzid]))
 				$replacements[$tzid] = '';
