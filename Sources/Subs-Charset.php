@@ -440,6 +440,7 @@ function utf8_decompose($chars, $compatibility = false)
 	for ($i=0; $i < count($chars); $i++)
 	{
 		// Hangul characters.
+		// http://unicode.org/L2/L2006/06310-hangul-decompose9.pdf
 		if ($chars[$i] >= "\xEA\xB0\x80" && $chars[$i] <= "\xED\x9E\xA3")
 		{
 			if (!function_exists('mb_ord'))
@@ -447,8 +448,8 @@ function utf8_decompose($chars, $compatibility = false)
 
 			$s = mb_ord($chars[$i]);
 			$sindex = $s - 0xAC00;
-			$l = 0x1100 + $sindex / (21 * 28);
-			$v = 0x1161 + ($sindex % (21 * 28)) / 28;
+			$l = (int) (0x1100 + $sindex / (21 * 28));
+			$v = (int) (0x1161 + ($sindex % (21 * 28)) / 28);
 			$t = $sindex % 28;
 
 			$chars[$i] = implode('', array(mb_chr($l), mb_chr($v), $t ? mb_chr(0x11A7 + $t) : ''));
