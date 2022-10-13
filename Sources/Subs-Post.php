@@ -572,8 +572,9 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	// Use sendmail if it's set or if no SMTP server is set.
 	$use_sendmail = empty($modSettings['mail_type']) || $modSettings['smtp_host'] == '';
 
-	// Starting with php 8x, line breaks need to be \r\n for windows & linux.
-	$line_break = "\r\n";
+	// Line breaks need to be \r\n only in windows or for SMTP.
+	// Starting with php 8x, line breaks need to be \r\n even for linux.
+	$line_break = ($context['server']['is_windows'] || !$use_sendmail || version_compare(PHP_VERSION, '8.0.0', '>=')) ? "\r\n" : "\n";
 
 	// So far so good.
 	$mail_result = true;
