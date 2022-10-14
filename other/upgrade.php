@@ -3699,7 +3699,7 @@ function template_chmod()
 					popup = window.open(\'\',\'popup\',\'height=150,width=400,scrollbars=yes\');
 					var content = popup.document;
 					content.write(\'<!DOCTYPE html>\n\');
-					content.write(\'<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
+					content.write(\'<html', $txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
 					content.write(\'<title>', $txt['upgrade_ftp_warning'], '</title>\n\t\t<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
 					content.write(\'<div class="windowbg description">\n\t\t\t<h4>', $txt['upgrade_ftp_files'], '</h4>\n\t\t\t\');
 					content.write(\'<p>', implode('<br>\n\t\t\t', $upcontext['chmod']['files']), '</p>\n\t\t\t\');';
@@ -3780,14 +3780,14 @@ function template_upgrade_above()
 	global $modSettings, $txt, $settings, $upcontext, $upgradeurl;
 
 	echo '<!DOCTYPE html>
-<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
+<html', $txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>
 <head>
 	<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
 	<meta name="robots" content="noindex">
 	<title>', $txt['upgrade_upgrade_utility'], '</title>
 	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">
 	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/install.css">
-	', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css">' : '', '
+	', $txt['lang_rtl'] == '1' ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css">' : '', '
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/', JQUERY_VERSION, '/jquery.min.js"></script>
 	<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 	<script>
