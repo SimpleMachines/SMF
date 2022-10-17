@@ -1592,7 +1592,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				);
 		}
 
-		if (!empty($parse_tags))
+		if (!empty($parse_tags) && $message === false)
 		{
 			if (!in_array('email', $parse_tags))
 				$disabled['email'] = true;
