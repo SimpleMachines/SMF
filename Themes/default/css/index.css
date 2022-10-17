@@ -3920,6 +3920,7 @@ p.information img {
 	margin-top: -1px !important;
 }
 span.member.hidden {
+	display: inline-block;
 	font-style: italic;
 }
 
