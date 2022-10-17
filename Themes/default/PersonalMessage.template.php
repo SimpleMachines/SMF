@@ -420,7 +420,7 @@ function template_single_pm($message)
 			// Show the profile button
 			if ($message['member']['can_view_profile'])
 				echo '
-							<li><a href="', $message['member']['href'], '" title="' . $txt['view_profile'] . '">', ($settings['use_image_buttons'] ? '<span class="main_icons profile_sm"></span>' : $txt['view_profile']), '</a></li>';
+							<li><a href="', $message['member']['href'], '" title="' . $txt['view_profile'] . '">', ($settings['use_image_buttons'] ? '<span class="main_icons members"></span>' : $txt['view_profile']), '</a></li>';
 
 			// Don't show an icon if they haven't specified a website.
 			if ($message['member']['website']['url'] != '' && !isset($context['disabled_fields']['website']))
