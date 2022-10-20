@@ -480,10 +480,10 @@ foreach ($funcs['utf8_regex_properties']['propfiles'] as $filename)
 		{
 			if (!isset($funcs['utf8_regex_properties']['data'][$fields[1]]))
 			{
-				$funcs['utf8_regex_properties']['data'][$fields[1]] = '';
+				$funcs['utf8_regex_properties']['data'][$fields[1]] = array();
 			}
 
-			$funcs['utf8_regex_properties']['data'][$fields[1]] .= '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
+			$funcs['utf8_regex_properties']['data'][$fields[1]][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
 		}
 
 		// We also track 'Default_Ignorable_Code_Point' property in a separate array.
@@ -593,6 +593,10 @@ foreach ($funcs['utf8_regex_variation_selectors']['data'] as $variation_selector
 	}
 
 	$funcs['utf8_regex_variation_selectors']['data'][$variation_selector] = $class_string;
+}
+foreach ($funcs['utf8_regex_variation_selectors']['data'] as $variation_selector => $class_string)
+{
+	$funcs['utf8_regex_variation_selectors']['data'][$variation_selector] = preg_split('/(?<=})(?=\\\x{)/', $class_string);
 }
 krsort($funcs['utf8_regex_variation_selectors']['data']);
 
@@ -883,7 +887,6 @@ foreach ($funcs['utf8_regex_joining_type']['data'] as $char_script => $joining_t
 	foreach ($joining_types as $joining_type => $value)
 	{
 		sort($value);
-		$funcs['utf8_regex_joining_type']['data'][$char_script][$joining_type] = implode('', $value);
 	}
 }
 
@@ -1002,7 +1005,6 @@ foreach ($funcs['utf8_regex_indic']['data'] as $char_script => $inscs)
 
 		if (!in_array($insc, array('All', 'Letter', 'Nonspacing_Mark', 'Nonspacing_Combining_Mark')))
 		{
-			$funcs['utf8_regex_indic']['data'][$char_script][$insc] = implode('', $value);
 			continue;
 		}
 
@@ -1044,7 +1046,7 @@ foreach ($funcs['utf8_regex_indic']['data'] as $char_script => $inscs)
 			}
 		}
 
-		$funcs['utf8_regex_indic']['data'][$char_script][$insc] = $class_string;
+		$funcs['utf8_regex_indic']['data'][$char_script][$insc] = preg_split('/(?<=})(?=\\\x{)/', $class_string);
 	}
 
 	ksort($funcs['utf8_regex_indic']['data'][$char_script]);
@@ -1136,10 +1138,6 @@ foreach (file($idna_data_url . '/IdnaMappingTable.txt') as $line)
 		$funcs['idna_regex']['data']['disallowed_std3'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
 	}
 }
-foreach ($funcs['idna_regex']['data'] as $key => $value)
-{
-	$funcs['idna_regex']['data'][$key] = implode('', $value);
-}
 
 foreach ($funcs as $func_name => $func_info)
 {
@@ -1207,20 +1205,31 @@ function build_func_array(&$func_text, $data, $key_type, $val_type)
 
 			$func_text .= '" => ';
 		}
-		elseif ($key_type == 'string')
+		elseif ($key_type == 'string' && !is_int($key))
 		{
 			$func_text .= var_export($key, true) . ' => ';
 		}
 
 		if (is_array($value))
 		{
-			$func_text .= 'array(' . "\n";
+			if ($val_type == 'string' && ($string_count = count($value)) === count($value, COUNT_RECURSIVE))
+			{
+				$nextline = "\n" . str_repeat("\t", $indent + 1);
 
-			$indent++;
-			build_func_array($func_text, $value, $key_type, $val_type);
-			$indent--;
+				$func_text = rtrim($func_text);
 
-			$func_text .= str_repeat("\t", $indent) . ')';
+				$func_text .= $nextline . implode(' .' . $nextline, array_map(function ($v) { return var_export($v, true); }, $value));
+			}
+			else
+			{
+				$func_text .= 'array(' . "\n";
+
+				$indent++;
+				build_func_array($func_text, $value, $key_type, $val_type);
+				$indent--;
+
+				$func_text .= str_repeat("\t", $indent) . ')';
+			}
 		}
 		elseif ($val_type == 'hexchar')
 		{
