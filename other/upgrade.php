@@ -1052,6 +1052,9 @@ function WelcomeLogin()
 	if (!in_array('https', $supported_streams))
 		$upcontext['custom_warning'] = $txt['install_no_https'];
 
+	// Make sure attachment & avatar folders exist.  Big problem if folks move or restructure sites upon upgrade.
+	checkFolders();
+
 	// Either we're logged in or we're going to present the login.
 	if (checkLogin())
 		return true;
@@ -1059,6 +1062,92 @@ function WelcomeLogin()
 	$upcontext += createToken('login');
 
 	return false;
+}
+
+// Do a number of attachment & avatar folder checks.
+// Display a warning if issues found.  Does not force a hard stop.
+function checkFolders()
+{
+	global $modSettings, $upcontext, $txt;
+
+	$warnings = '';
+
+	// First, check the avatar directory...
+	if (!is_dir($modSettings['avatar_directory']))
+		$warnings .= $txt['warning_av_missing'];
+
+	// Next, check the custom avatar directory...  Note this is optional in 2.0.
+	if (!empty($modSettings['custom_avatar_dir']) && !is_dir($modSettings['custom_avatar_dir']))
+	{
+		if (empty($warnings))
+			$warnings = $txt['warning_custom_av_missing'];
+		else
+			$warnings .= '<br><br>' . $txt['warning_custom_av_missing'];
+	}
+
+	// Finally, attachment folders.
+	// A bit more complex, since it may be json or serialized, and it may be an array or just a string...
+	$ser_test = @unserialize($modSettings['attachmentUploadDir']);
+	$json_test = @json_decode($modSettings['attachmentUploadDir'], true);
+
+	// Serialized?
+	$attdr_problem_found = false;
+	if ($ser_test !== false)
+	{
+		if (is_array($ser_test))
+		{
+			foreach($ser_test AS $dir)
+			{
+				if (!is_dir($dir))
+					$attdr_problem_found = true;
+			}	
+		}
+		else
+		{
+			if (!is_dir($ser_test))
+				$attdr_problem_found = true;
+		}
+	}
+	// Json???
+	elseif ($json_test !== false)
+	{
+		if (is_array($json_test))
+		{
+			foreach($json_test AS $dir)
+			{
+				if (!is_dir($dir))
+					$attdr_problem_found = true;
+			}	
+		}
+		else
+		{
+			if (!is_dir($json_test))
+				$attdr_problem_found = true;
+		}
+	}
+	// Must be a plain string...
+	else
+	{
+		if (!is_dir($modSettings['attachmentUploadDir']))
+			$attdr_problem_found = true;
+	}
+
+	if ($attdr_problem_found)
+	{
+		if (empty($warnings))
+			$warnings = $txt['warning_att_dir_missing'];
+		else
+			$warnings .= '<br><br>' . $txt['warning_att_dir_missing'];
+	}
+
+	// Might be adding to an existing warning...
+	if (!empty($warnings))
+	{
+		if (empty($upcontext['custom_warning']))
+			$upcontext['custom_warning'] = $warnings;
+		else
+			$upcontext['custom_warning'] .= '<br><br>' . $warnings;
+	}
 }
 
 // Step 0.5: Does the login work?
