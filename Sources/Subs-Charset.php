@@ -14,6 +14,9 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
+if (!defined('SMF_UNICODE_VERSION'))
+	define('SMF_UNICODE_VERSION', '15.0.0.0');
+
 /**
  * Converts the given UTF-8 string into lowercase.
  * Equivalent to mb_strtolower($string, 'UTF-8'), except that we can keep the
@@ -286,11 +289,14 @@ function utf8_normalize_d($string)
 {
 	$string = (string) $string;
 
-	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_D))
-		return $string;
+	if (is_callable('IntlChar::getUnicodeVersion') && version_compare(implode('.', IntlChar::getUnicodeVersion()), SMF_UNICODE_VERSION, '>='))
+	{
+		if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_D))
+			return $string;
 
-	if (is_callable('normalizer_normalize'))
-		return normalizer_normalize($string, Normalizer::FORM_D);
+		if (is_callable('normalizer_normalize'))
+			return normalizer_normalize($string, Normalizer::FORM_D);
+	}
 
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
@@ -310,11 +316,14 @@ function utf8_normalize_kd($string)
 {
 	$string = (string) $string;
 
-	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_KD))
-		return $string;
+	if (is_callable('IntlChar::getUnicodeVersion') && version_compare(implode('.', IntlChar::getUnicodeVersion()), SMF_UNICODE_VERSION, '>='))
+	{
+		if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_KD))
+			return $string;
 
-	if (is_callable('normalizer_normalize'))
-		return normalizer_normalize($string, Normalizer::FORM_KD);
+		if (is_callable('normalizer_normalize'))
+			return normalizer_normalize($string, Normalizer::FORM_KD);
+	}
 
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
@@ -334,11 +343,14 @@ function utf8_normalize_c($string)
 {
 	$string = (string) $string;
 
-	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_C))
-		return $string;
+	if (is_callable('IntlChar::getUnicodeVersion') && version_compare(implode('.', IntlChar::getUnicodeVersion()), SMF_UNICODE_VERSION, '>='))
+	{
+		if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_C))
+			return $string;
 
-	if (is_callable('normalizer_normalize'))
-		return normalizer_normalize($string, Normalizer::FORM_C);
+		if (is_callable('normalizer_normalize'))
+			return normalizer_normalize($string, Normalizer::FORM_C);
+	}
 
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
@@ -358,11 +370,14 @@ function utf8_normalize_kc($string)
 {
 	$string = (string) $string;
 
-	if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_KC))
-		return $string;
+	if (is_callable('IntlChar::getUnicodeVersion') && version_compare(implode('.', IntlChar::getUnicodeVersion()), SMF_UNICODE_VERSION, '>='))
+	{
+		if (is_callable('normalizer_is_normalized') && normalizer_is_normalized($string, Normalizer::FORM_KC))
+			return $string;
 
-	if (is_callable('normalizer_normalize'))
-		return normalizer_normalize($string, Normalizer::FORM_KC);
+		if (is_callable('normalizer_normalize'))
+			return normalizer_normalize($string, Normalizer::FORM_KC);
+	}
 
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
