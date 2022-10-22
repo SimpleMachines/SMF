@@ -1073,7 +1073,8 @@ function checkFolders()
 	$warnings = '';
 
 	// First, check the avatar directory...
-	if (!is_dir($modSettings['avatar_directory']))
+	// Note it wasn't specified in yabbse, but there was no smfVersion either.
+	if (!empty($modSettings['smfVersion']) && !is_dir($modSettings['avatar_directory']))
 		$warnings .= $txt['warning_av_missing'];
 
 	// Next, check the custom avatar directory...  Note this is optional in 2.0.
@@ -1089,10 +1090,16 @@ function checkFolders()
 	// A bit more complex, since it may be json or serialized, and it may be an array or just a string...
 	$ser_test = @unserialize($modSettings['attachmentUploadDir']);
 	$json_test = @json_decode($modSettings['attachmentUploadDir'], true);
+	$string_test = !empty($modSettings['attachmentUploadDir']) && is_string($modSettings['attachmentUploadDir']) && is_dir($modSettings['attachmentUploadDir']);
 
-	// Serialized?
+	// String?
 	$attdr_problem_found = false;
-	if ($ser_test !== false)
+	if ($string_test === true)
+	{
+		// OK...
+	}
+	// Serialized?
+	elseif ($ser_test !== false)
 	{
 		if (is_array($ser_test))
 		{
@@ -1108,8 +1115,8 @@ function checkFolders()
 				$attdr_problem_found = true;
 		}
 	}
-	// Json???
-	elseif ($json_test !== false)
+	// Json?  Note the test returns null if encoding was unsuccessful
+	elseif ($json_test !== null)
 	{
 		if (is_array($json_test))
 		{
@@ -1125,11 +1132,10 @@ function checkFolders()
 				$attdr_problem_found = true;
 		}
 	}
-	// Must be a plain string...
+	// Unclear, needs a look...
 	else
 	{
-		if (!is_dir($modSettings['attachmentUploadDir']))
-			$attdr_problem_found = true;
+		$attdr_problem_found = true;
 	}
 
 	if ($attdr_problem_found)
