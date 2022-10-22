@@ -534,6 +534,7 @@ function utf8_is_normalized($text, $form)
  * Helper function for utf8_normalize_d and utf8_normalize_kd.
  *
  * @param array $chars Array of Unicode characters
+ * @param bool $compatibility If true, perform compatibility decomposition. Default false.
  * @return array Array of decomposed Unicode characters.
  */
 function utf8_decompose($chars, $compatibility = false)
@@ -560,7 +561,7 @@ function utf8_decompose($chars, $compatibility = false)
 	for ($i=0; $i < count($chars); $i++)
 	{
 		// Hangul characters.
-		// http://unicode.org/L2/L2006/06310-hangul-decompose9.pdf
+		// See "Hangul Syllable Decomposition" in the Unicode standard, ch. 3.12.
 		if ($chars[$i] >= "\xEA\xB0\x80" && $chars[$i] <= "\xED\x9E\xA3")
 		{
 			if (!function_exists('mb_ord'))
