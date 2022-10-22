@@ -298,13 +298,13 @@ function utf8_normalize_d($string)
 			return normalizer_normalize($string, Normalizer::FORM_D);
 	}
 
+	if (utf8_is_normalized($string, 'd'))
+		return $string;
+
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 	if ($chars === false)
 		return false;
-
-	if (utf8_is_normalized($chars, 'd'))
-		return $string;
 
 	return implode('', utf8_decompose($chars, false));
 }
@@ -328,13 +328,13 @@ function utf8_normalize_kd($string)
 			return normalizer_normalize($string, Normalizer::FORM_KD);
 	}
 
+	if (utf8_is_normalized($string, 'kd'))
+		return $string;
+
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 	if ($chars === false)
 		return false;
-
-	if (utf8_is_normalized($chars, 'kd'))
-		return $string;
 
 	return implode('', utf8_decompose($chars, true));
 }
@@ -358,13 +358,13 @@ function utf8_normalize_c($string)
 			return normalizer_normalize($string, Normalizer::FORM_C);
 	}
 
+	if (utf8_is_normalized($string, 'c'))
+		return $string;
+
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 	if ($chars === false)
 		return false;
-
-	if (utf8_is_normalized($chars, 'c'))
-		return $string;
 
 	return implode('', utf8_compose(utf8_decompose($chars, false)));
 }
@@ -388,13 +388,13 @@ function utf8_normalize_kc($string)
 			return normalizer_normalize($string, Normalizer::FORM_KC);
 	}
 
+	if (utf8_is_normalized($string, 'kc'))
+		return $string;
+
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 	if ($chars === false)
 		return false;
-
-	if (utf8_is_normalized($chars, 'kc'))
-		return $string;
 
 	return implode('', utf8_compose(utf8_decompose($chars, true)));
 }
@@ -412,13 +412,13 @@ function utf8_normalize_kc_casefold($string)
 
 	$string = (string) $string;
 
+	if (utf8_is_normalized($string, 'kc_casefold'))
+		return $string;
+
 	$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 	if ($chars === false)
 		return false;
-
-	if (utf8_is_normalized($chars, 'kc_casefold'))
-		return $string;
 
 	$chars = utf8_decompose($chars, true);
 
@@ -443,29 +443,13 @@ function utf8_normalize_kc_casefold($string)
 /**
  * Checks whether a string is already normalized to a given form.
  *
- * @param string|array $text A string or an array of UTF-8 characters.
+ * @param string|array $string A string of UTF-8 characters.
  * @param string $form One of 'd', 'c', 'kd', 'kc', or 'kc_casefold'
  * @return bool Whether the string is already normalized to the given form.
  */
-function utf8_is_normalized($text, $form)
+function utf8_is_normalized($string, $form)
 {
 	global $sourcedir;
-
-	if (is_array($text))
-	{
-		$chars = &$text;
-		$chars = array_map('strval', $chars);
-
-		$string = implode('', $text);
-	}
-	else
-	{
-		$string = &$text;
-		$chars = preg_split('/(.)/su', $text, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-		if ($chars === false)
-			return false;
-	}
 
 	// Check whether string contains characters that are disallowed in this form.
 	switch ($form)
@@ -507,21 +491,27 @@ function utf8_is_normalized($text, $form)
 	// That means the more thorough checks will occasionally be performed on
 	// strings that don't need them, but building and running a perfect regex
 	// would be more expensive in the vast majority of cases, so meh.
-	if (preg_match('/[\p{M}\p{Cn}]/u', $string))
+	if (preg_match_all('/([\p{M}\p{Cn}])/u', $string, $matches, PREG_OFFSET_CAPTURE))
 	{
 		require_once($sourcedir . '/Unicode/CombiningClasses.php');
 
 		$combining_classes = utf8_combining_classes();
 
+		$last_pos = 0;
+		$last_len = 0;
 		$last_ccc = 0;
-		foreach ($chars as $char)
+		foreach ($matches[1] as $match)
 		{
+			$char = $match[0];
+			$pos = $match[1];
 			$ccc = isset($combining_classes[$char]) ? $combining_classes[$char] : 0;
 
 			// Not in canonical order, so return false.
-			if ($ccc > 0 && $last_ccc > $ccc)
+			if ($pos === $last_pos + $last_len && $ccc > 0 && $last_ccc > $ccc)
 				return false;
 
+			$last_pos = $pos;
+			$last_len = strlen($char);
 			$last_ccc = $ccc;
 		}
 	}
