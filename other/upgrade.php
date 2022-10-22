@@ -1146,13 +1146,26 @@ function checkFolders()
 			$warnings .= '<br><br>' . $txt['warning_att_dir_missing'];
 	}
 
-	// Might be adding to an existing warning...
-	if (!empty($warnings))
+	// Might be using CLI
+	if ($command_line)
 	{
-		if (empty($upcontext['custom_warning']))
-			$upcontext['custom_warning'] = $warnings;
-		else
-			$upcontext['custom_warning'] .= '<br><br>' . $warnings;
+		// Change brs to new lines & display
+		if (!empty($warnings))
+		{
+			$warnings = str_replace('<br>', "\n", $warnings);
+			echo "\n\n" . $warnings . "\n\n";
+		}
+	}
+	else
+	{
+		// Might be adding to an existing warning...
+		if (!empty($warnings))
+		{
+			if (empty($upcontext['custom_warning']))
+				$upcontext['custom_warning'] = $warnings;
+			else
+				$upcontext['custom_warning'] .= '<br><br>' . $warnings;
+		}
 	}
 }
 
@@ -2883,6 +2896,9 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		updateSettings(array('custom_avatar_dir' => $custom_av_dir));
 		updateSettings(array('custom_avatar_url' => $custom_av_url));
 	}
+
+	// Make sure attachment & avatar folders exist.  Big problem if folks move or restructure sites upon upgrade.
+	checkFolders();
 
 	// Make sure we skip the HTML for login.
 	$_POST['upcont'] = true;
