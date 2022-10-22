@@ -1068,7 +1068,7 @@ function WelcomeLogin()
 // Display a warning if issues found.  Does not force a hard stop.
 function checkFolders()
 {
-	global $modSettings, $upcontext, $txt;
+	global $modSettings, $upcontext, $txt, $command_line;
 
 	$warnings = '';
 
