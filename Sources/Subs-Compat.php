@@ -485,8 +485,10 @@ if (!function_exists('idn_to_ascii'))
 		if (!is_object($Punycode))
 			$Punycode = new Punycode();
 
-		$Punycode->useStd3($flags === ($flags | IDNA_USE_STD3_RULES));
-		$Punycode->useNonTransitional($flags === ($flags | IDNA_NONTRANSITIONAL_TO_ASCII));
+		if (method_exists($Punycode, 'useStd3'))
+			$Punycode->useStd3($flags === ($flags | IDNA_USE_STD3_RULES));
+		if (method_exists($Punycode, 'useNonTransitional'))
+			$Punycode->useNonTransitional($flags === ($flags | IDNA_NONTRANSITIONAL_TO_ASCII));
 
 		return $Punycode->encode($domain);
 	}
