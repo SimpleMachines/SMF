@@ -189,8 +189,22 @@ foreach ($funcs as $func_name => $func_info)
 
 // We need some of these for further analysis below.
 $derived_normalization_props = array();
+$unicode_version = '';
 foreach (file($unicode_data_url . '/DerivedNormalizationProps.txt') as $line)
 {
+	if ($unicode_version === '' && preg_match('/(\d+\.\d+\.\d+(?:\.\d+)?)\.txt$/', $line, $matches))
+	{
+		$unicode_version = implode('.', array_pad(explode('.', $matches[1]), 4, '0'));
+
+		$file_contents = file_get_contents($unicodedir . '/Metadata.php');
+		$file_contents = preg_replace(
+			"~\bdefine\('SMF_UNICODE_VERSION', '[^']+'\)~",
+			"define('SMF_UNICODE_VERSION', '" . $unicode_version . "')",
+			$file_contents
+		);
+		file_put_contents($unicodedir . '/Metadata.php', $file_contents);
+	}
+
 	$line = substr($line, 0, strcspn($line, '#'));
 
 	if (strpos($line, ';') === false)
