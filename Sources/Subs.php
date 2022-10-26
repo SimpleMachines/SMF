@@ -2811,7 +2811,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								'pct' => '%[0-9A-Fa-f]{2}',
 								'domain_label_char' => '[' . $domain_label_chars . ']',
 								'not_domain_label_char' => '[^' . $domain_label_chars . ']',
-								'domain' => '(?:(?P>domain_label_char)+\.)+(?P>tlds)',
+								'domain' => '(?:(?P>domain_label_char)+\.)+(?P>tlds)(?!\.(?P>domain_label_char))',
 								'no_domain' => '(?:(?P>domain_label_char)|[._\~!$&\'()*+,;=:@]|(?P>pct))+',
 								'scheme_need_domain' => build_regex($schemes['need_domain'], '~'),
 								'scheme_empty_authority' => build_regex($schemes['empty_authority'], '~'),
@@ -2939,7 +2939,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								'(?:' .
 
 									// URI scheme (or lack thereof for schemeless URLs)
-									'(?:' .
+									'(?>' .
 										// URI scheme and colon
 										'\b' .
 										'(?:' .
