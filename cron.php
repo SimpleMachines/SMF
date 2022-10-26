@@ -17,11 +17,11 @@
  * @copyright 2022 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.2
+ * @version 2.1.3
  */
 
 define('SMF', 'BACKGROUND');
-define('SMF_VERSION', '2.1.2');
+define('SMF_VERSION', '2.1.3');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2022');
 define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
