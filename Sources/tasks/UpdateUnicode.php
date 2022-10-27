@@ -18,19 +18,55 @@
  */
 class Update_Unicode extends SMF_BackgroundTask
 {
+	/**
+	 * URLs where we can fetch the Unicode data files.
+	 */
 	const DATA_URL_UCD = 'https://unicode.org/Public/UCD/latest/ucd';
 	const DATA_URL_IDNA = 'https://www.unicode.org/Public/idna/latest';
 
+	/**
+	 * @var string The latest official release of the Unicode Character Database.
+	 */
 	public $ucd_version = '';
+
+	/**
+	 * @var string Path to temporary working directory.
+	 */
 	public $temp_dir = '';
+
+	/**
+	 * @var string Convenince alias of $sourcedir . '/Unicode'.
+	 */
 	public $unicodedir = '';
 
+	/**
+	 * @var array Key-value pairs of character decompositions.
+	 */
 	private $full_decomposition_maps = array();
+
+	/**
+	 * @var array Character properties used during normalization.
+	 */
 	private $derived_normalization_props = array();
+
+	/**
+	 * @var array Assorted info about Unicode characters.
+	 */
 	private $char_data = array();
+
+	/**
+	 * @var array Statistical info about character scripts (e.g. Latin, Greek, Cyrillic, etc.)
+	 */
 	private $script_stats = array();
+
+	/**
+	 * @var array Tracks associations between character scripts' short and long names.
+	 */
 	private $script_aliases = array();
 
+	/**
+	 * @var array Info about functions to build in SMF's Unicode data files.
+	 */
 	private $funcs = array(
 		array(
 			'file' => 'Metadata.php',
@@ -316,7 +352,9 @@ class Update_Unicode extends SMF_BackgroundTask
 		),
 	);
 
-	// Prefetching the files helps ensure the task runs smoothly.
+	/**
+	 * @var array Files to fetch from unicode.org.
+	 */
 	private $prefetch = array(
 		self::DATA_URL_UCD => array(
 			'CaseFolding.txt',
