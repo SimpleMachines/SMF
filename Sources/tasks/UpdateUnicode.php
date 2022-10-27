@@ -40,6 +40,11 @@ class Update_Unicode extends SMF_BackgroundTask
 	public $unicodedir = '';
 
 	/**
+	 * @var int Used to ensure we exit long running tasks cleanly.
+	 */
+	private $time_limit = 30;
+
+	/**
 	 * @var array Key-value pairs of character decompositions.
 	 */
 	private $full_decomposition_maps = array();
@@ -408,6 +413,8 @@ class Update_Unicode extends SMF_BackgroundTask
 
 		@ini_set('memory_limit', '256M');
 
+		$this->time_limit = (empty(ini_get('max_execution_time')) || @set_time_limit(MAX_CLAIM_THRESHOLD) !== false) ? MAX_CLAIM_THRESHOLD : ini_get('max_execution_time');
+
 		foreach ($this->funcs as $func_name => &$func_info)
 		{
 			$file_paths['temp'] = implode(DIRECTORY_SEPARATOR, array($this->temp_dir, $func_info['file']));
@@ -442,12 +449,18 @@ class Update_Unicode extends SMF_BackgroundTask
 		// Prefetch the files in case the network is slow.
 		foreach ($this->prefetch as $data_url => $files)
 		{
+			$max_fetch_time = 0;
+
 			foreach ($files as $filename)
 			{
+				$fetch_start = microtime(true);
+
 				$local_file = $this->fetch_unicode_file($filename, $data_url);
 
+				$max_fetch_time = max($max_fetch_time, microtime(true) - $fetch_start);
+
 				// If prefetch is taking a really long time, pause and try again later.
-				if ($local_file === false || microtime(true) - TIME_START >= MAX_CLAIM_THRESHOLD - 1)
+				if ($local_file === false || microtime(true) - TIME_START >= $this->time_limit - $max_fetch_time)
 				{
 					$smcFunc['db_insert']('',
 						'{db_prefix}background_tasks',
@@ -884,6 +897,8 @@ class Update_Unicode extends SMF_BackgroundTask
 	private function should_update()
 	{
 		$this->lookup_ucd_version();
+
+		return true; // For testing
 
 		// We can't do anything if lookup failed.
 		if (empty($this->ucd_version))
