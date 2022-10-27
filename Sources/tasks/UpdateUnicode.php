@@ -898,8 +898,6 @@ class Update_Unicode extends SMF_BackgroundTask
 	{
 		$this->lookup_ucd_version();
 
-		return true; // For testing
-
 		// We can't do anything if lookup failed.
 		if (empty($this->ucd_version))
 			return false;
