@@ -1446,6 +1446,9 @@ function UpgradeOptions()
 	// Emptying the error log?
 	$_SESSION['empty_error'] = !empty($_POST['empty_error']);
 
+	// Reprocessing attachments?
+	$_SESSION['reprocess_attachments'] = !empty($_POST['reprocess_attachments']);
+
 	$changes = array();
 
 	// Add proxy settings.
@@ -1690,6 +1693,7 @@ function DatabaseChanges()
 
 	$upcontext['delete_karma'] = !empty($_SESSION['delete_karma']);
 	$upcontext['empty_error'] = !empty($_SESSION['empty_error']);
+	$upcontext['reprocess_attachments'] = !empty($_SESSION['reprocess_attachments']);
 
 	// All possible files.
 	// Name, < version, insert_on_complete
@@ -4305,6 +4309,15 @@ function template_upgrade_options()
 					<li>
 						<input type="checkbox" name="delete_karma" id="delete_karma" value="1">
 						<label for="delete_karma">', $txt['upgrade_delete_karma'], '</label>
+					</li>';
+
+	// If attachment step has been run previously, offer an option to do it again.
+	// Helpful if folks had improper attachment folders specified previously.
+	if (!empty($modSettings['attachments_21_done']))
+		echo '
+					<li>
+						<input type="checkbox" name="reprocess_attachments" id="reprocess_attachments" value="1">
+						<label for="reprocess_attachments">', $txt['upgrade_reprocess_attachments'], '</label>
 					</li>';
 
 	echo '
