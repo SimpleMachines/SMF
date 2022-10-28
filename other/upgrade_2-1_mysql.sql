@@ -439,8 +439,8 @@ if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings
 	else
 		$modSettings['attachmentUploadDir'] = @json_decode($modSettings['attachmentUploadDir'], true);
 
-// No need to do this if we already did it previously...
-if (empty($modSettings['attachments_21_done']))
+// No need to do this if we already did it previously...  Unless requested...
+if (empty($modSettings['attachments_21_done']) || !empty($upcontext['reprocess_attachments'])) 
   $is_done = false;
 else
   $is_done = true;
