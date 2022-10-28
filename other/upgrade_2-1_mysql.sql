@@ -440,7 +440,6 @@ if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings
 		$modSettings['attachmentUploadDir'] = @json_decode($modSettings['attachmentUploadDir'], true);
 
 // No need to do this if we already did it previously...
-// If we want the upgrader to re-process attachments upon a rerun, attachments_21_done must be deleted.
 if (empty($modSettings['attachments_21_done']))
   $is_done = false;
 else
