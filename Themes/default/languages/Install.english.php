@@ -372,9 +372,9 @@ $txt['warning_lang_old'] = 'The language files for your selected language, %1$s,
 $txt['warning_lang_missing'] = 'The upgrader could not find the &quot;Install&quot; language file for your selected language, %1$s. Upgrade will continue with the forum default, %2$s.';
 
 // Attachment & Avatar folder checks
-$txt['warning_av_missing'] = 'Warning!  Avatar directory not found.  Continuing may be unsafe.  Please confirm folder settings before proceeding.';
-$txt['warning_custom_av_missing'] = 'Warning!  Custom avatar directory not found.  Continuing may be unsafe.  Please confirm folder settings before proceeding.';
-$txt['warning_att_dir_missing'] = 'Warning!  One or more attachment directories not found.  Continuing may be unsafe.  Please confirm folder settings before proceeding.';
+$txt['warning_av_missing'] = 'Warning! Avatar directory not found. Continuing may be unsafe. Please confirm folder settings before proceeding.';
+$txt['warning_custom_av_missing'] = 'Warning! Custom avatar directory not found. Continuing may be unsafe. Please confirm folder settings before proceeding.';
+$txt['warning_att_dir_missing'] = 'Warning! One or more attachment directories not found. Continuing may be unsafe. Please confirm folder settings before proceeding.';
 
 // Page titles
 $txt['updating_smf_installation'] = 'Updating Your SMF Installation!';
