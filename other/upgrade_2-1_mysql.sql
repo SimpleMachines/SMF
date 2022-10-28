@@ -432,10 +432,15 @@ $step_progress['name'] = 'Converting legacy attachments';
 $step_progress['current'] = $_GET['a'];
 
 // We may be using multiple attachment directories.
-if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']) && empty($modSettings['json_done']))
-	$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
+// Allow for reruns - it's possible it's json...
+if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']))
+	if (empty($modSettings['json_done']))
+		$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
+	else
+		$modSettings['attachmentUploadDir'] = @json_decode($modSettings['attachmentUploadDir'], true);
 
 // No need to do this if we already did it previously...
+// If we want the upgrader to re-process attachments upon a rerun, attachments_21_done must be deleted.
 if (empty($modSettings['attachments_21_done']))
   $is_done = false;
 else
