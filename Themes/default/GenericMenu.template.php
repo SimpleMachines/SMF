@@ -34,7 +34,7 @@ function template_generic_menu_dropdown_above()
 			<div class="popup_window description">
 				<div class="popup_heading">
 					', sprintf($txt['mobile_generic_menu'], $menu_label), '
-					<a href="#" class="main_icons hide_popup" rel="nofollow" href="#" tabindex="-1"></a>
+					<a href="#" class="main_icons hide_popup" rel="nofollow" tabindex="-1"></a>
 				</div>
 				', template_generic_menu($menu_context), '
 			</div>
