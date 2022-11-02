@@ -484,67 +484,76 @@ class Update_Unicode extends SMF_BackgroundTask
 			}
 		}
 
+		// Track whether anything goes wrong along the way.
+		$success = true;
+
 		/*********************************************
 		 * Part 2: Normalization, case folding, etc. *
 		 *********************************************/
-		$this->process_derived_normalization_props();
-		$this->process_main_unicode_data();
-		$this->process_casing_data();
-		$this->finalize_decomposition_forms();
+		$success = $this->process_derived_normalization_props() & $success;
+		$success = $this->process_main_unicode_data() & $success;
+		$success = $this->process_casing_data() & $success;
+		$success = $this->finalize_decomposition_forms() & $success;
 
 		$this->full_decomposition_maps = array();
 		$this->derived_normalization_props = array();
+
 		$this->export_funcs_to_file();
 
 		/***********************************
 		 * Part 3: Regular expression data *
 		 ***********************************/
-		$this->build_regex_properties();
-		$this->build_regex_variation_selectors();
-		$this->build_script_stats();
-		$this->build_regex_joining_type();
-		$this->build_regex_indic();
+		$success = $this->build_regex_properties() & $success;
+		$success = $this->build_regex_variation_selectors() & $success;
+		$success = $this->build_script_stats() & $success;
+		$success = $this->build_regex_joining_type() & $success;
+		$success = $this->build_regex_indic() & $success;
 
 		unset($this->funcs['utf8_combining_classes']['data']);
+
 		$this->export_funcs_to_file();
 
 		/*********************************
 		 * Part 4: IDNA maps and regexes *
 		 *********************************/
-		$this->build_idna();
+		$success = $this->build_idna() & $success;
+
 		$this->export_funcs_to_file();
 
 		/*******************
 		 * Part 5: Wrapup. *
 		 *******************/
-		$done_files = array();
-
-		foreach ($this->funcs as $func_name => $func_info)
+		if ($success)
 		{
-			$file_paths['temp'] = $this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'];
-			$file_paths['real'] = $this->unicodedir . DIRECTORY_SEPARATOR . $func_info['file'];
+			$done_files = array();
 
-			if (in_array($file_paths['temp'], $done_files))
-				continue;
-
-			// Add closing PHP tag to the temp file.
-			file_put_contents($file_paths['temp'], '?' . '>', FILE_APPEND);
-
-			$done_files[] = $file_paths['temp'];
-
-			// Only move if the file has changed, discounting the license block.
-			foreach (array('temp', 'real') as $f)
+			foreach ($this->funcs as $func_name => $func_info)
 			{
-				if (file_exists($file_paths[$f]))
-				{
-					$file_contents[$f] = preg_replace('~/\*\*.*?@package\h+SMF\b.*?\*/~s', '', file_get_contents($file_paths[$f]));
-				}
-				else
-					$file_contents[$f] = '';
-			}
+				$file_paths['temp'] = $this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'];
+				$file_paths['real'] = $this->unicodedir . DIRECTORY_SEPARATOR . $func_info['file'];
 
-			if ($file_contents['temp'] !== $file_contents['real'])
-				rename($file_paths['temp'], $file_paths['real']);
+				if (in_array($file_paths['temp'], $done_files))
+					continue;
+
+				// Add closing PHP tag to the temp file.
+				file_put_contents($file_paths['temp'], '?' . '>', FILE_APPEND);
+
+				$done_files[] = $file_paths['temp'];
+
+				// Only move if the file has changed, discounting the license block.
+				foreach (array('temp', 'real') as $f)
+				{
+					if (file_exists($file_paths[$f]))
+					{
+						$file_contents[$f] = preg_replace('~/\*\*.*?@package\h+SMF\b.*?\*/~s', '', file_get_contents($file_paths[$f]));
+					}
+					else
+						$file_contents[$f] = '';
+				}
+
+				if ($file_contents['temp'] !== $file_contents['real'])
+					rename($file_paths['temp'], $file_paths['real']);
+			}
 		}
 
 		// Clean up after ourselves.
@@ -619,16 +628,12 @@ class Update_Unicode extends SMF_BackgroundTask
 				return false;
 		}
 
-		require_once($sourcedir . DIRECTORY_SEPARATOR . 'Subs-Admin.php');
-
 		$file_contents = fetch_web_data($data_url . '/' . $file_url_name);
 
 		if (empty($file_contents))
 			return false;
 
 		file_put_contents($local_file, $file_contents);
-
-		$this->files_to_fetch[$sub_dir][] = $filename;
 
 		return $local_file;
 	}
@@ -902,16 +907,15 @@ class Update_Unicode extends SMF_BackgroundTask
 		if (empty($this->ucd_version))
 			return false;
 
-		require_once($this->unicodedir . DIRECTORY_SEPARATOR . 'Metadata.php');
+		// If this file is missing, force an update.
+		if (!@include_once($this->unicodedir . DIRECTORY_SEPARATOR . 'Metadata.php'))
+			return true;
 
-		if (version_compare($this->ucd_version, SMF_UNICODE_VERSION, '<='))
-			return false;
+		return version_compare($this->ucd_version, SMF_UNICODE_VERSION, '>=');
 	}
 
 	/**
-	 * Compares version of SMF's local Unicode data with the latest release.
-	 *
-	 * @return bool Whether SMF should update its local Unicode data or not.
+	 * Sets $this->ucd_version to latest version number of the UCD.
 	 */
 	private function lookup_ucd_version()
 	{
@@ -1017,6 +1021,8 @@ class Update_Unicode extends SMF_BackgroundTask
 				$this->derived_normalization_props[$fields[1]][$entity] = $value === 'SAME' ? $entity : $value;
 			}
 		}
+
+		return true;
 	}
 
 	/**
@@ -1080,6 +1086,8 @@ class Update_Unicode extends SMF_BackgroundTask
 				$this->funcs['utf8_normalize_d_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', $fields[5]) . ';';
 			}
 		}
+
+		return true;
 	}
 
 	/**
@@ -1167,6 +1175,8 @@ class Update_Unicode extends SMF_BackgroundTask
 			if (in_array($fields[1], array('C', 'S')))
 				$this->funcs['utf8_casefold_simple_maps']['data']['&#x' . $fields[0] . ';'] = '&#x' . str_replace(' ', '; &#x', trim($fields[2])) . ';';
 		}
+
+		return true;
 	}
 
 	/**
@@ -1243,6 +1253,8 @@ class Update_Unicode extends SMF_BackgroundTask
 
 		// Avoid bloat.
 		$this->funcs['utf8_normalize_kd_maps']['data'] = array_diff_assoc($this->full_decomposition_maps, $this->funcs['utf8_normalize_d_maps']['data']);
+
+		return true;
 	}
 
 	/**
@@ -1310,6 +1322,8 @@ class Update_Unicode extends SMF_BackgroundTask
 		}
 
 		ksort($this->funcs['utf8_regex_properties']['data']);
+
+		return true;
 	}
 
 	/**
@@ -1411,6 +1425,8 @@ class Update_Unicode extends SMF_BackgroundTask
 		}
 
 		krsort($this->funcs['utf8_regex_variation_selectors']['data']);
+
+		return true;
 	}
 
 	/**
@@ -1626,6 +1642,8 @@ class Update_Unicode extends SMF_BackgroundTask
 				}
 			}
 		}
+
+		return true;
 	}
 
 	/**
@@ -1737,6 +1755,8 @@ class Update_Unicode extends SMF_BackgroundTask
 				sort($value);
 			}
 		}
+
+		return true;
 	}
 
 	/**
@@ -1910,6 +1930,8 @@ class Update_Unicode extends SMF_BackgroundTask
 
 			ksort($this->funcs['utf8_regex_indic']['data'][$char_script]);
 		}
+
+		return true;
 	}
 
 	/**
@@ -1993,6 +2015,8 @@ class Update_Unicode extends SMF_BackgroundTask
 				$this->funcs['idna_regex']['data']['disallowed_std3'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
 			}
 		}
+
+		return true;
 	}
 }
 
