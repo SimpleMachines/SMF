@@ -31,6 +31,10 @@ if (!defined('SMF'))
  */
 function read_tgz_file($gzfilename, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
+	// Directories are not compressed files.
+	if (is_dir($gzfilename))
+		return false;
+
 	$data = substr($gzfilename, 0, 7) == 'http://' || substr($gzfilename, 0, 8) == 'https://'
 		? fetch_web_data($gzfilename)
 		: file_get_contents($gzfilename);
