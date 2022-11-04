@@ -772,11 +772,14 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 				'name' => $row['Field'],
 				'not_null' => $row['Null'] != 'YES',
 				'null' => $row['Null'] == 'YES',
-				'default' => isset($row['Default']) ? $row['Default'] : null,
 				'type' => $type,
 				'size' => $size,
 				'auto' => $auto,
 			);
+
+			// Allow for unspecified (!isset) as opposed to null (null)
+			if (isset($row['Default']))
+				$columns[$row['Field']]['default'] = $row['Default'];
 
 			if (isset($unsigned))
 			{
