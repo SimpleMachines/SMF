@@ -518,6 +518,9 @@ function reloadSettings()
 		1440 => 'one_day',
 		10080 => 'one_week',
 		43200 => 'one_month',
+		172800 => 'four_month',
+		259200 => 'six_month',
+		518400 => 'one_year',
 	);
 
 	$context['show_spellchecking'] = false;
