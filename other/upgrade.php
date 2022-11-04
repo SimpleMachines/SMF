@@ -1088,8 +1088,28 @@ function checkFolders()
 
 	// Finally, attachment folders.
 	// A bit more complex, since it may be json or serialized, and it may be an array or just a string...
-	$ser_test = @unserialize($modSettings['attachmentUploadDir']);
-	$json_test = @json_decode($modSettings['attachmentUploadDir'], true);
+
+	// PHP currently has a terrible handling with unserialize in which errors are fatal and not catchable.  Lets borrow some code from the RFC that intends to fix this
+	// https://wiki.php.net/rfc/improve_unserialize_error_handling
+	try {
+    	set_error_handler(static function ($severity, $message, $file, $line) {
+			throw new \ErrorException($message, 0, $severity, $file, $line);
+		});
+		$ser_test = @unserialize($modSettings['attachmentUploadDir']);
+	} catch (\Throwable $e) {
+		$ser_test = false;
+	}
+	finally {
+	 	restore_error_handler();
+	}
+
+	// Json is simple, it can be caught.
+	try {
+		$json_test = @json_decode($modSettings['attachmentUploadDir'], true);
+	} catch (\Throwable $e) {
+		$json_test = null;
+	}
+
 	$string_test = !empty($modSettings['attachmentUploadDir']) && is_string($modSettings['attachmentUploadDir']) && is_dir($modSettings['attachmentUploadDir']);
 
 	// String?
@@ -1105,13 +1125,13 @@ function checkFolders()
 		{
 			foreach($ser_test AS $dir)
 			{
-				if (!is_dir($dir))
+				if (!empty($dir) && !is_dir($dir))
 					$attdr_problem_found = true;
 			}	
 		}
 		else
 		{
-			if (!is_dir($ser_test))
+			if (!empty($ser_test) && !is_dir($ser_test))
 				$attdr_problem_found = true;
 		}
 	}
@@ -5057,8 +5077,8 @@ function template_upgrade_complete()
 	{
 		$active = time() - $upcontext['started'];
 		$hours = floor($active / 3600);
-		$minutes = intval(($active / 60) % 60);
-		$seconds = intval($active % 60);
+		$minutes = intval((int) ($active / 60) % 60);
+		$seconds = intval((int) $active % 60);
 
 		if ($hours > 0)
 			echo '', sprintf($txt['upgrade_completed_time_hms'], $seconds, $minutes, $hours), '';
