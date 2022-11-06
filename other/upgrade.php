@@ -1118,6 +1118,13 @@ function checkFolders()
 	{
 		// OK...
 	}
+	// An array already?
+	elseif (is_array($modSettings['attachmentUploadDir']))
+	{
+		foreach($modSettings['attachmentUploadDir'] AS $dir)
+			if (!empty($dir) && !is_dir($dir))
+				$attdr_problem_found = true;
+	}
 	// Serialized?
 	elseif ($ser_test !== false)
 	{
