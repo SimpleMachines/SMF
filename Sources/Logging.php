@@ -52,7 +52,7 @@ function writeLog($force = false)
 
 	if (!empty($modSettings['who_enabled']))
 	{
-		$encoded_get = truncate_array($_GET) + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
+		$encoded_get = truncate_array($_GET) + array('USER_AGENT' => mb_substr($_SERVER['HTTP_USER_AGENT'], 0, 128));
 
 		// In the case of a dlattach action, session_var may not be set.
 		if (!isset($context['session_var']))
@@ -60,6 +60,10 @@ function writeLog($force = false)
 
 		unset($encoded_get['sesc'], $encoded_get[$context['session_var']]);
 		$encoded_get = $smcFunc['json_encode']($encoded_get);
+
+		// Sometimes folks mess with USER_AGENT & $_GET data, so one last check to avoid 'data too long' errors
+		if (mb_strlen($encoded_get) > 2048)
+			$encoded_get = '';
 	}
 	else
 		$encoded_get = '';
