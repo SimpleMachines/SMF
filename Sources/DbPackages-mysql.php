@@ -436,7 +436,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	// Get the right bits.
 	if (!isset($column_info['name']))
 		$column_info['name'] = $old_column;
-	if (!isset($column_info['default']))
+	if (!array_key_exists('default', $column_info) && isset($old_info['default']) && empty($column_info['drop_default']))
 		$column_info['default'] = $old_info['default'];
 	if (!isset($column_info['not_null']))
 		$column_info['not_null'] = $old_info['not_null'];
@@ -454,14 +454,30 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	// Allow for unsigned integers (mysql only)
 	$unsigned = in_array($type, array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')) && !empty($column_info['unsigned']) ? 'unsigned ' : '';
 
-	// Fix the default.
-	$default = '';
-	if (array_key_exists('default', $column_info) && is_null($column_info['default']))
-		$default = 'NULL';
-	elseif (isset($column_info['default']) && is_numeric($column_info['default']))
-		$default = strpos($column_info['default'], '.') ? floatval($column_info['default']) : intval($column_info['default']);
-	else
-		$default = '\'' . $smcFunc['db_escape_string']($column_info['default']) . '\'';
+	// If you need to drop the default, that needs it's own thing...
+	// Must be done first, in case the default type is inconsistent with the other changes.
+	if (!empty($column_info['drop_default']))
+	{
+		$smcFunc['db_query']('', '
+			ALTER TABLE ' . $short_table_name . '
+			ALTER COLUMN `' . $old_column . '` DROP DEFAULT',
+			array(
+				'security_override' => true,
+			)
+		);
+	}
+
+	// Set the default clause.
+	$default_clause = '';
+	if (empty($column_info['drop_default']) && isset($column_info['default']))
+	{
+		if (is_null($column_info['default']))
+			$default_clause = 'DEFAULT NULL';
+		elseif (is_numeric($column_info['default']))
+			$default_clause = 'DEFAULT ' . (strpos($column_info['default'], '.') ? floatval($column_info['default']) : intval($column_info['default']));
+		elseif (is_string($column_info['default']))
+			$default_clause = 'DEFAULT \'' . $smcFunc['db_escape_string']($column_info['default']) . '\'';
+	}
 
 	if ($size !== null)
 		$type = $type . '(' . $size . ')';
@@ -470,7 +486,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 		ALTER TABLE ' . $short_table_name . '
 		CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . ' ' .
 			(!empty($unsigned) ? $unsigned : '') . (!empty($column_info['not_null']) ? 'NOT NULL' : '') . ' ' .
-			($default === '' ? '' : 'DEFAULT ' . $default) . ' ' .
+			$default_clause . ' ' .
 			(empty($column_info['auto']) ? '' : 'auto_increment') . ' ',
 		array(
 			'security_override' => true,
