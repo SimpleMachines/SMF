@@ -45,6 +45,11 @@ function Ban()
 		'log' => 'BanLog',
 	);
 
+	call_integration_hook('integrate_manage_bans', array(&$subActions));
+
+	// Default the sub-action to 'view ban list'.
+	$_REQUEST['sa'] = isset($_REQUEST['sa'], $subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'list';
+
 	// Tabs for browsing the different ban functions.
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['ban_title'],
@@ -74,11 +79,6 @@ function Ban()
 			),
 		),
 	);
-
-	call_integration_hook('integrate_manage_bans', array(&$subActions));
-
-	// Default the sub-action to 'view ban list'.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'list';
 
 	$context['page_title'] = $txt['ban_title'];
 	$context['sub_action'] = $_REQUEST['sa'];
