@@ -402,11 +402,13 @@ function smf_db_remove_column($table_name, $column_name, $parameters = array(), 
 }
 
 /**
- * Change a column.
+ * Change a column.  You only need to specify the column attributes that are changing.
  *
  * @param string $table_name The name of the table this column is in
  * @param string $old_column The name of the column we want to change
  * @param array $column_info An array of info about the "new" column definition (see {@link smf_db_create_table()})
+ * Note that $column_info also supports two additional parameters that only make sense when changing columns:
+ * - drop_default - to drop a default that was previously specified
  * @return bool
  */
 function smf_db_change_column($table_name, $old_column, $column_info)
@@ -428,15 +430,17 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 		return false;
 
 	// backward compatibility
-	if (isset($column_info['null']))
+	if (isset($column_info['null']) && !isset($column_info['not_null']))
 		$column_info['not_null'] = !$column_info['null'];
-	if (isset($old_info['null']))
-		$old_info['not_null'] = !$old_info['null'];
 
 	// Get the right bits.
+	if (isset($column_info['drop_default']) && !empty($column_info['drop_default']))
+		$column_info['drop_default'] = true;
+	else
+		$column_info['drop_default'] = false;
 	if (!isset($column_info['name']))
 		$column_info['name'] = $old_column;
-	if (!array_key_exists('default', $column_info) && isset($old_info['default']) && empty($column_info['drop_default']))
+	if (!array_key_exists('default', $column_info) && array_key_exists('default', $old_info) && empty($column_info['drop_default']))
 		$column_info['default'] = $old_info['default'];
 	if (!isset($column_info['not_null']))
 		$column_info['not_null'] = $old_info['not_null'];
@@ -449,6 +453,11 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	if (!isset($column_info['unsigned']) || !in_array($column_info['type'], array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')))
 		$column_info['unsigned'] = '';
 
+	// If truly unspecified, make that clear, otherwise, might be confused with NULL...
+	// (Unspecified = no default whatsoever = column is not nullable with a value of null...)
+	if (($column_info['not_null'] === true) && !$column_info['drop_default'] && array_key_exists('default', $column_info) && is_null($column_info['default']))
+		unset($column_info['default']);
+
 	list ($type, $size) = $smcFunc['db_calculate_type']($column_info['type'], $column_info['size']);
 
 	// Allow for unsigned integers (mysql only)
@@ -456,7 +465,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 
 	// If you need to drop the default, that needs it's own thing...
 	// Must be done first, in case the default type is inconsistent with the other changes.
-	if (!empty($column_info['drop_default']))
+	if ($column_info['drop_default'])
 	{
 		$smcFunc['db_query']('', '
 			ALTER TABLE ' . $short_table_name . '
@@ -469,7 +478,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 
 	// Set the default clause.
 	$default_clause = '';
-	if (empty($column_info['drop_default']) && isset($column_info['default']))
+	if (!$column_info['drop_default'] && array_key_exists('default', $column_info))
 	{
 		if (is_null($column_info['default']))
 			$default_clause = 'DEFAULT NULL';
@@ -788,14 +797,11 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 				'name' => $row['Field'],
 				'not_null' => $row['Null'] != 'YES',
 				'null' => $row['Null'] == 'YES',
+				'default' => isset($row['Default']) ? $row['Default'] : null,
 				'type' => $type,
 				'size' => $size,
 				'auto' => $auto,
 			);
-
-			// Allow for unspecified (!isset) as opposed to null (null)
-			if (isset($row['Default']))
-				$columns[$row['Field']]['default'] = $row['Default'];
 
 			if (isset($unsigned))
 			{
