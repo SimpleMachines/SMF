@@ -858,24 +858,26 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 		else
 		{
 			$auto = false;
+			$default = null;
 			// What is the default?
-			if (preg_match('~nextval\(\'(.+?)\'(.+?)*\)~i', $row['column_default'], $matches) != 0)
+			if ($row['column_default'] !== null)
 			{
-				$default = null;
-				$auto = true;
+				if (preg_match('~nextval\(\'(.+?)\'(.+?)*\)~i', $row['column_default'], $matches) != 0)
+					$auto = true;
+				elseif (substr($row['column_default'], 0, 4) != 'NULL' && trim($row['column_default']) != '')
+				{
+					$pos = strpos($row['column_default'], '::');
+					$default = trim($pos === false ? $row['column_default'] : substr($row['column_default'], 0, $pos), '\'');
+				}
 			}
-			elseif (trim($row['column_default']) != '')
-				$default = trim(strpos($row['column_default'], '::') === false ? $row['column_default'] : substr($row['column_default'], 0, strpos($row['column_default'], '::')), '\'');
-			else
-				$default = null;
 
 			// Make the type generic.
 			list ($type, $size) = $smcFunc['db_calculate_type']($row['data_type'], $row['character_maximum_length'], true);
 
 			$columns[$row['column_name']] = array(
 				'name' => $row['column_name'],
-				'not_null' => $row['is_nullable'] == 'YES' ? false : true,
-				'null' => $row['is_nullable'] == 'YES' ? true : false,
+				'not_null' => $row['is_nullable'] != 'YES',
+				'null' => $row['is_nullable'] == 'YES',
 				'default' => $default,
 				'type' => $type,
 				'size' => $size,
