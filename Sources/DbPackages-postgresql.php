@@ -566,7 +566,8 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	}
 
 	// Different default?
-	if (!$column_info['drop_default'] && array_key_exists('default', $column_info) && $column_info['default'] !== $old_info['default'])
+	// Just go ahead & honor the setting.  Type changes above introduce defaults that we might need to override here...
+	if (!$column_info['drop_default'] && array_key_exists('default', $column_info))
 	{
 		// Fix the default.
 		$default = '';
@@ -880,10 +881,6 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 				'size' => $size,
 				'auto' => $auto,
 			);
-
-			// Allow for unspecified (!isset) as opposed to null (null)
-			if (isset($row['Default']))
-				$columns[$row['Field']]['default'] = $row['Default'];
 		}
 	}
 	$smcFunc['db_free_result']($result);
