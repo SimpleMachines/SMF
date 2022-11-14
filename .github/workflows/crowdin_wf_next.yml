@@ -34,7 +34,7 @@ jobs:
     - name: Checkout
       # This prevents all the forks from attempting to run the interface...
       if: env.CROWDIN_API_TOKEN != null
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: crowdin-action
       # This prevents all the forks from attempting to run the interface...
