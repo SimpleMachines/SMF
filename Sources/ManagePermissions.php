@@ -1157,6 +1157,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'profile_displayed_name',
 		'profile_upload_avatar',
 		'profile_remote_avatar',
+		'profile_gravatar',
 		'profile_remove_own',
 		'report_user',
 	));
@@ -1506,6 +1507,7 @@ function loadAllPermissions()
 			'profile_server_avatar' => array(false, 'profile'),
 			'profile_upload_avatar' => array(false, 'profile'),
 			'profile_remote_avatar' => array(false, 'profile'),
+			'profile_gravatar' => array(false, 'profile'),
 			'report_user' => array(false, 'profile'),
 			'profile_identity' => array(true, 'profile_account'),
 			'profile_displayed_name' => array(true, 'profile_account'),
@@ -1620,7 +1622,7 @@ function loadAllPermissions()
 		$hiddenPermissions[] = 'post_attachment';
 	}
 
-	// Hide Likes/Mentions permissions...
+	// Hide Likes/Mentions/Gravatar permissions...
 	if (empty($modSettings['enable_likes']))
 	{
 		$hiddenPermissions[] = 'likes_like';
@@ -1628,6 +1630,10 @@ function loadAllPermissions()
 	if (empty($modSettings['enable_mentions']))
 	{
 		$hiddenPermissions[] = 'mention';
+	}
+	if (empty($modSettings['gravatarEnabled']))
+	{
+		$hiddenPermissions[] = 'profile_gravatar';
 	}
 
 	// Provide a practical way to modify permissions.
@@ -2348,6 +2354,7 @@ function loadIllegalGuestPermissions()
 		'profile_remove',
 		'profile_remote_avatar',
 		'profile_server_avatar',
+		'profile_gravatar',
 		'profile_signature',
 		'profile_title',
 		'profile_upload_avatar',
