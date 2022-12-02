@@ -1206,7 +1206,7 @@ class Profile extends User implements \ArrayAccess
 			'allow_server_stored' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_server_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
 			'allow_upload' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_upload_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
 			'allow_external' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_remote_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
-			'allow_gravatar' => !empty(Config::$modSettings['gravatarEnabled']),
+			'allow_gravatar' => !empty(Config::$modSettings['gravatarEnabled']) && User::$me->allowedTo('profile_gravatar'),
 		];
 
 		// Gravatar?
