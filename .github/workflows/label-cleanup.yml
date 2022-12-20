@@ -25,7 +25,7 @@ jobs:
             for (const label of labels)
                 try
                 {
-                    await github.issues.removeLabel({
+                    await github.rest.issues.removeLabel({
                         name: label,
                         issue_number: context.issue.number,
                         owner: context.repo.owner,
