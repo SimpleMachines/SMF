@@ -691,18 +691,10 @@ function PlushSearch2()
 	$is_search_regex = !empty($modSettings['search_match_words']) || !$no_regexp;
 
 	// Specify the function to search with. Regex is for word boundaries.
-	$regex_keyword = $smcFunc['db_title'] === POSTGRE_TITLE ? '~*' : 'REGEXP';
-	$query_match_type = $is_search_regex ? $regex_keyword : 'LIKE';
-	db_extend();
-	$version = $smcFunc['db_get_version']();
-	$supports_pcre = $smcFunc['db_title'] === POSTGRE_TITLE || version_compare($version, strpos($version, 'MariaDB') !== false ? '10.0.5' : '8.0.4', '>=');
-	$word_boundary_wrapper = function(string $str) use ($supports_pcre): string
+	$query_match_type = $is_search_regex ? 'RLIKE' : 'LIKE';
+	$word_boundary_wrapper = function(string $str) use ($smcFunc): string
 	{
-		return sprintf($supports_pcre ? '\\b%s\\b' : '[[:<:]]%s[[:>:]]', $str);
-	};
-	$escape_sql_pattern = function(string $str): string
-	{
-		return preg_replace('/[_%]/', '\\$0', $str);
+		return sprintf($smcFunc['db_supports_pcre'] ? '\\b%s\\b' : '[[:<:]]%s[[:>:]]', $str);
 	};
 	$escape_sql_regex = function(string $str): string
 	{
@@ -1202,7 +1194,7 @@ function PlushSearch2()
 							if ($is_search_regex)
 								$subject_query_params['excluded_phrases_' . $count++] = $word_boundary_wrapper($escape_sql_regex($phrase));
 							else
-								$subject_query_params['excluded_phrases_' . $count++] = '%' . $escape_sql_pattern($phrase) . '%';
+								$subject_query_params['excluded_phrases_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($phrase) . '%';
 						}
 					}
 
@@ -1417,7 +1409,7 @@ function PlushSearch2()
 								if ($is_search_regex)
 									$subject_query['params']['body_not_' . $count++] = $word_boundary_wrapper($escape_sql_regex($subjectWord));
 								else
-									$subject_query['params']['body_not_' . $count++] ='%' . $escape_sql_pattern($subjectWord) . '%';
+									$subject_query['params']['body_not_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($subjectWord) . '%';
 							}
 							else
 							{
@@ -1472,7 +1464,7 @@ function PlushSearch2()
 								if ($is_search_regex)
 									$subject_query['params']['exclude_phrase_' . $count++] = $word_boundary_wrapper($escape_sql_regex($phrase));
 								else
-									$subject_query['params']['exclude_phrase_' . $count++] = '%' . $escape_sql_pattern($phrase) . '%';
+									$subject_query['params']['exclude_phrase_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($phrase) . '%';
 							}
 						}
 						call_integration_hook('integrate_subject_search_query', array(&$subject_query));
@@ -1665,7 +1657,7 @@ function PlushSearch2()
 							if ($is_search_regex)
 								$main_query['parameters']['all_word_body_' . $count++] = $word_boundary_wrapper($escape_sql_regex($regularWord));
 							else
-								$main_query['parameters']['all_word_body_' . $count++] = '%' . $escape_sql_pattern($regularWord) . '%';
+								$main_query['parameters']['all_word_body_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($regularWord) . '%';
 						}
 						if (!empty($where))
 							$orWhere[] = count($where) > 1 ? '(' . implode(' AND ', $where) . ')' : $where[0];
