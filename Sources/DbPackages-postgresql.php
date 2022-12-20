@@ -443,11 +443,13 @@ function smf_db_remove_column($table_name, $column_name, $parameters = array(), 
 }
 
 /**
- * Change a column.
+ * Change a column.  You only need to specify the column attributes that are changing.
  *
  * @param string $table_name The name of the table this column is in
  * @param string $old_column The name of the column we want to change
  * @param array $column_info An array of info about the "new" column definition (see {@link smf_db_create_table()})
+ * Note that $column_info also supports two additional parameters that only make sense when changing columns:
+ * - drop_default - to drop a default that was previously specified
  * @return bool
  */
 function smf_db_change_column($table_name, $old_column, $column_info)
@@ -456,10 +458,6 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 
 	$short_table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
 	$column_info = array_change_key_case($column_info);
-
-	// backward compatibility
-	if (isset($column_info['null']) && !isset($column_info['not_null']))
-		$column_info['not_null'] = !$column_info['null'];
 
 	// Check it does exist!
 	$columns = $smcFunc['db_list_columns']($table_name, true);
@@ -472,6 +470,48 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 	if ($old_info == null)
 		return false;
 
+	// backward compatibility
+	if (isset($column_info['null']) && !isset($column_info['not_null']))
+		$column_info['not_null'] = !$column_info['null'];
+
+	// Get the right bits.
+	if (isset($column_info['drop_default']) && !empty($column_info['drop_default']))
+		$column_info['drop_default'] = true;
+	else
+		$column_info['drop_default'] = false;
+	if (!isset($column_info['name']))
+		$column_info['name'] = $old_column;
+	if (!array_key_exists('default', $column_info) && array_key_exists('default', $old_info) && empty($column_info['drop_default']))
+		$column_info['default'] = $old_info['default'];
+	if (!isset($column_info['not_null']))
+		$column_info['not_null'] = $old_info['not_null'];
+	if (!isset($column_info['auto']))
+		$column_info['auto'] = $old_info['auto'];
+	if (!isset($column_info['type']))
+		$column_info['type'] = $old_info['type'];
+	if (!isset($column_info['size']) || !is_numeric($column_info['size']))
+		$column_info['size'] = $old_info['size'];
+	if (!isset($column_info['unsigned']) || !in_array($column_info['type'], array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')))
+		$column_info['unsigned'] = '';
+
+	// If truly unspecified, make that clear, otherwise, might be confused with NULL...
+	// (Unspecified = no default whatsoever = column is not nullable with a value of null...)
+	if (($column_info['not_null'] === true) && !$column_info['drop_default'] && array_key_exists('default', $column_info) && is_null($column_info['default']))
+		unset($column_info['default']);
+
+	// If you need to drop the default, that needs it's own thing...
+	// Must be done first, in case the default type is inconsistent with the other changes.
+	if ($column_info['drop_default'])
+	{
+		$smcFunc['db_query']('', '
+			ALTER TABLE ' . $short_table_name . '
+			ALTER COLUMN ' . $old_column . ' DROP DEFAULT',
+			array(
+				'security_override' => true,
+			)
+		);
+	}
+
 	// Now we check each bit individually and ALTER as required.
 	if (isset($column_info['name']) && $column_info['name'] != $old_column)
 	{
@@ -483,55 +523,7 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 			)
 		);
 	}
-	// Different default?
-	if (array_key_exists('default', $column_info) && $column_info['default'] != $old_info['default'])
-	{
-		// Fix the default.
-		$default = '';
-		if (array_key_exists('default', $column_info) && is_null($column_info['default']))
-			$default = 'NULL';
-		elseif (isset($column_info['default']) && is_numeric($column_info['default']))
-			$default = strpos($column_info['default'], '.') ? floatval($column_info['default']) : intval($column_info['default']);
-		else
-			$default = '\'' . $smcFunc['db_escape_string']($column_info['default']) . '\'';
 
-		$action = $default === '' ? 'DROP DEFAULT' : 'SET DEFAULT ' . $default;
-		$smcFunc['db_query']('', '
-			ALTER TABLE ' . $short_table_name . '
-			ALTER COLUMN ' . $column_info['name'] . ' ' . $action,
-			array(
-				'security_override' => true,
-			)
-		);
-	}
-
-	// Is it null - or otherwise?
-	if (isset($column_info['not_null']) && $column_info['not_null'] != $old_info['not_null'])
-	{
-		$action = $column_info['not_null'] ? 'SET' : 'DROP';
-		$smcFunc['db_transaction']('begin');
-		if ($column_info['not_null'])
-		{
-			// We have to set it to something if we are making it NOT NULL. And we must comply with the current column format.
-			$setTo = isset($column_info['default']) ? $column_info['default'] : (strpos($old_info['type'], 'int') !== false ? 0 : '');
-			$smcFunc['db_query']('', '
-				UPDATE ' . $short_table_name . '
-				SET ' . $column_info['name'] . ' = \'' . $setTo . '\'
-				WHERE ' . $column_info['name'] . ' IS NULL',
-				array(
-					'security_override' => true,
-				)
-			);
-		}
-		$smcFunc['db_query']('', '
-			ALTER TABLE ' . $short_table_name . '
-			ALTER COLUMN ' . $column_info['name'] . ' ' . $action . ' NOT NULL',
-			array(
-				'security_override' => true,
-			)
-		);
-		$smcFunc['db_transaction']('commit');
-	}
 	// What about a change in type?
 	if (isset($column_info['type']) && ($column_info['type'] != $old_info['type'] || (isset($column_info['size']) && $column_info['size'] != $old_info['size'])))
 	{
@@ -572,52 +564,44 @@ function smf_db_change_column($table_name, $old_column, $column_info)
 		);
 		$smcFunc['db_transaction']('commit');
 	}
-	// Finally - auto increment?!
-	if (isset($column_info['auto']) && $column_info['auto'] != $old_info['auto'])
-	{
-		// Are we removing an old one?
-		if ($old_info['auto'])
-		{
-			// Alter the table first - then drop the sequence.
-			$smcFunc['db_query']('', '
-				ALTER TABLE ' . $short_table_name . '
-				ALTER COLUMN ' . $column_info['name'] . ' SET DEFAULT \'0\'',
-				array(
-					'security_override' => true,
-				)
-			);
-			$smcFunc['db_query']('', '
-				DROP SEQUENCE IF EXISTS ' . $short_table_name . '_seq',
-				array(
-					'security_override' => true,
-				)
-			);
-		}
-		// Otherwise add it!
-		else
-		{
-			$smcFunc['db_query']('', '
-				DROP SEQUENCE IF EXISTS ' . $short_table_name . '_seq',
-				array(
-					'security_override' => true,
-				)
-			);
 
-			$smcFunc['db_query']('', '
-				CREATE SEQUENCE ' . $short_table_name . '_seq',
-				array(
-					'security_override' => true,
-				)
-			);
-			$smcFunc['db_query']('', '
-				ALTER TABLE ' . $short_table_name . '
-				ALTER COLUMN ' . $column_info['name'] . ' SET DEFAULT nextval(\'' . $short_table_name . '_seq\')',
-				array(
-					'security_override' => true,
-				)
-			);
-		}
+	// Different default?
+	// Just go ahead & honor the setting.  Type changes above introduce defaults that we might need to override here...
+	if (!$column_info['drop_default'] && array_key_exists('default', $column_info))
+	{
+		// Fix the default.
+		$default = '';
+		if (is_null($column_info['default']))
+			$default = 'NULL';
+		elseif (isset($column_info['default']) && is_numeric($column_info['default']))
+			$default = strpos($column_info['default'], '.') ? floatval($column_info['default']) : intval($column_info['default']);
+		else
+			$default = '\'' . $smcFunc['db_escape_string']($column_info['default']) . '\'';
+
+		$action = 'SET DEFAULT ' . $default;
+		$smcFunc['db_query']('', '
+			ALTER TABLE ' . $short_table_name . '
+			ALTER COLUMN ' . $column_info['name'] . ' ' . $action,
+			array(
+				'security_override' => true,
+			)
+		);
 	}
+
+	// Is it null - or otherwise?
+	// Just go ahead & honor the setting.  Type changes above introduce defaults that we might need to override here...
+	if ($column_info['not_null'])
+		$action = 'SET NOT NULL';
+	else
+		$action = 'DROP NOT NULL';
+
+	$smcFunc['db_query']('', '
+		ALTER TABLE ' . $short_table_name . '
+		ALTER COLUMN ' . $column_info['name'] . ' ' . $action,
+		array(
+			'security_override' => true,
+		)
+	);
 
 	return true;
 }
@@ -874,24 +858,26 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 		else
 		{
 			$auto = false;
+			$default = null;
 			// What is the default?
-			if (preg_match('~nextval\(\'(.+?)\'(.+?)*\)~i', $row['column_default'], $matches) != 0)
+			if ($row['column_default'] !== null)
 			{
-				$default = null;
-				$auto = true;
+				if (preg_match('~nextval\(\'(.+?)\'(.+?)*\)~i', $row['column_default'], $matches) != 0)
+					$auto = true;
+				elseif (substr($row['column_default'], 0, 4) != 'NULL' && trim($row['column_default']) != '')
+				{
+					$pos = strpos($row['column_default'], '::');
+					$default = trim($pos === false ? $row['column_default'] : substr($row['column_default'], 0, $pos), '\'');
+				}
 			}
-			elseif (trim($row['column_default']) != '')
-				$default = trim(strpos($row['column_default'], '::') === false ? $row['column_default'] : substr($row['column_default'], 0, strpos($row['column_default'], '::')), '\'');
-			else
-				$default = null;
 
 			// Make the type generic.
 			list ($type, $size) = $smcFunc['db_calculate_type']($row['data_type'], $row['character_maximum_length'], true);
 
 			$columns[$row['column_name']] = array(
 				'name' => $row['column_name'],
-				'not_null' => $row['is_nullable'] == 'YES' ? false : true,
-				'null' => $row['is_nullable'] == 'YES' ? true : false,
+				'not_null' => $row['is_nullable'] != 'YES',
+				'null' => $row['is_nullable'] == 'YES',
 				'default' => $default,
 				'type' => $type,
 				'size' => $size,
