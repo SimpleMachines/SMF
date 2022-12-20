@@ -2887,7 +2887,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 							$pcre_subroutines['bracket_quote'] = '[' . $bracket_quote_chars . ']|&' . build_regex($bracket_quote_entities, '~');
 							$pcre_subroutines['allowed_entities'] = '&(?!' . build_regex(array_merge($bracket_quote_entities, array('lt;', 'gt;')), '~') . ')';
-							$pcre_subroutines['excluded_lookahead'] = '(?![' . $excluded_trailing_chars . ']*(?>[\h\v]|<br>|$))';
+							$pcre_subroutines['excluded_lookahead'] = '(?![' . $excluded_trailing_chars . ']*(?' . '>[\h\v]|<br>|$))';
 
 							foreach (array('path', 'query', 'fragment') as $part)
 							{
@@ -2939,7 +2939,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 								'(?:' .
 
 									// URI scheme (or lack thereof for schemeless URLs)
-									'(?>' .
+									'(?' . '>' .
 										// URI scheme and colon
 										'\b' .
 										'(?:' .
