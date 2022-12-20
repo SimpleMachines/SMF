@@ -69,9 +69,8 @@ function createMenu($menuData, $menuOptions = array())
 			integrate_admin_areas
 			integrate_moderate_areas
 			integrate_pm_areas
-			integrate_profile_areas
 	*/
-	if (!empty($menu_context['current_action']))
+	if (!empty($menu_context['current_action']) && empty($menuOptions['disable_hook_call']))
 		call_integration_hook('integrate_' . $menu_context['current_action'] . '_areas', array(&$menuData));
 
 	// What is the current area selected?
