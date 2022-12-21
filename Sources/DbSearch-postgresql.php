@@ -74,26 +74,26 @@ function smf_db_search_query($identifier, $db_string, $db_values = array(), $con
 		'insert_into_log_messages_fulltext' => array(
 			'/NOT\sLIKE/' => 'NOT ILIKE',
 			'/\bLIKE\b/' => 'ILIKE',
-			'/RLIKE/' => '~*',
 			'/NOT RLIKE/' => '!~*',
+			'/RLIKE/' => '~*',
 		),
 		'insert_log_search_results_subject' => array(
 			'/NOT\sLIKE/' => 'NOT ILIKE',
 			'/\bLIKE\b/' => 'ILIKE',
-			'/RLIKE/' => '~*',
 			'/NOT RLIKE/' => '!~*',
+			'/RLIKE/' => '~*',
 		),
 		'insert_log_search_topics' => array(
 			'/NOT\sLIKE/' => 'NOT ILIKE',
 			'/\bLIKE\b/' => 'ILIKE',
-			'/RLIKE/' => '~*',
 			'/NOT RLIKE/' => '!~*',
+			'/RLIKE/' => '~*',
 		),
 		'insert_log_search_results_no_index' => array(
 			'/NOT\sLIKE/' => 'NOT ILIKE',
 			'/\bLIKE\b/' => 'ILIKE',
-			'/RLIKE/' => '~*',
 			'/NOT RLIKE/' => '!~*',
+			'/RLIKE/' => '~*',
 		),
 	);
 

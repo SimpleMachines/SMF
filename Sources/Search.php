@@ -688,7 +688,7 @@ function PlushSearch2()
 		$stripped_query = strtr($stripped_query, array('"' => ''));
 
 	$no_regexp = preg_match('~&#(?:\d{1,7}|x[0-9a-fA-F]{1,6});~', $stripped_query) === 1;
-	$is_search_regex = !empty($modSettings['search_match_words']) || !$no_regexp;
+	$is_search_regex = !empty($modSettings['search_match_words']) && !$no_regexp;
 
 	// Specify the function to search with. Regex is for word boundaries.
 	$query_match_type = $is_search_regex ? 'RLIKE' : 'LIKE';
