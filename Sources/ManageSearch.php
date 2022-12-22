@@ -758,6 +758,10 @@ function loadSearchAPIs()
 		{
 			if (is_file($sourcedir . '/' . $file) && preg_match('~^SearchAPI-([A-Za-z\d_]+)\.php$~', $file, $matches))
 			{
+				// Skip if we already have an API by this name.
+				if (isset($loadedApis[strtolower($matches[1])]))
+					continue;
+
 				// Check this is definitely a valid API!
 				$fp = fopen($sourcedir . '/' . $file, 'rb');
 				$header = fread($fp, 4096);
