@@ -11,14 +11,15 @@
  * @version 3.0 Alpha 1
  */
 
-if (!defined('SMF'))
-	die('No direct access...');
+namespace SMF\Search\APIs;
+
+use SMF\Search\SearchApi;
 
 /**
  * Used for the "custom search index" option
- * Class custom_search
+ * Class Custom
  */
-class custom_search extends search_api
+class Custom extends SearchApi
 {
 	/**
 	 * @var array Index settings
@@ -66,7 +67,7 @@ class custom_search extends search_api
 	/**
 	 * {@inheritDoc}
 	 */
-	public function supportsMethod($methodName, $query_params = null)
+	public function supportsMethod($methodName, $query_params = null): bool
 	{
 		$return = false;
 		switch ($methodName)
@@ -95,7 +96,7 @@ class custom_search extends search_api
 	/**
 	 * {@inheritDoc}
 	 */
-	public function isValid()
+	public function isValid(): bool
 	{
 		global $modSettings;
 
@@ -105,7 +106,7 @@ class custom_search extends search_api
 	/**
 	 * {@inheritDoc}
 	 */
-	public function searchSort($a, $b)
+	public function searchSort($a, $b): int
 	{
 		global $excludedWords;
 
@@ -118,7 +119,7 @@ class custom_search extends search_api
 	/**
 	 * {@inheritDoc}
 	 */
-	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded)
+	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded): void
 	{
 		global $modSettings, $smcFunc;
 
@@ -137,6 +138,7 @@ class custom_search extends search_api
 				if ($smcFunc['strlen']($subword) >= $this->min_word_length && !in_array($subword, $this->bannedWords))
 				{
 					$wordsSearch['indexed_words'][] = $subword;
+
 					if ($isExcluded)
 						$wordsExclude[] = $subword;
 				}
@@ -262,7 +264,7 @@ class custom_search extends search_api
 	/**
 	 * {@inheritDoc}
 	 */
-	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions)
+	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
 	{
 		global $modSettings, $smcFunc;
 
@@ -284,7 +286,7 @@ class custom_search extends search_api
 	/**
 	 * {@inheritDoc}
 	 */
-	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions)
+	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
 	{
 		global $modSettings, $smcFunc;
 

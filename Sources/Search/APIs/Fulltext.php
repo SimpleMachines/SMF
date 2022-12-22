@@ -11,14 +11,15 @@
  * @version 3.0 Alpha 1
  */
 
-if (!defined('SMF'))
-	die('No direct access...');
+namespace SMF\Search\APIs;
+
+use SMF\Search\SearchApi;
 
 /**
- * Class fulltext_search
+ * Class Fulltext
  * Used for fulltext index searching
  */
-class fulltext_search extends search_api
+class Fulltext extends SearchApi
 {
 	/**
 	 * @var array Which words are banned
@@ -56,7 +57,7 @@ class fulltext_search extends search_api
 	/**
 	 * {@inheritDoc}
 	 */
-	public function supportsMethod($methodName, $query_params = null)
+	public function supportsMethod($methodName, $query_params = null): bool
 	{
 		$return = false;
 		switch ($methodName)
@@ -81,7 +82,7 @@ class fulltext_search extends search_api
 	}
 
 	/**
-	 * fulltext_search::_getMinWordLength()
+	 * SMF\Search\APIs\Fulltext::_getMinWordLength()
 	 *
 	 * What is the minimum word length full text supports?
 	 *
@@ -116,7 +117,7 @@ class fulltext_search extends search_api
 	/**
 	 * {@inheritDoc}
 	 */
-	public function searchSort($a, $b)
+	public function searchSort($a, $b): int
 	{
 		global $excludedWords, $smcFunc;
 
@@ -129,7 +130,7 @@ class fulltext_search extends search_api
 	/**
 	 * {@inheritDoc}
 	 */
-	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded)
+	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded): void
 	{
 		global $modSettings, $smcFunc;
 
@@ -158,6 +159,7 @@ class fulltext_search extends search_api
 
 		$fulltextWord = count($subwords) === 1 ? $word : '"' . $word . '"';
 		$wordsSearch['indexed_words'][] = $fulltextWord;
+
 		if ($isExcluded)
 			$wordsExclude[] = $fulltextWord;
 	}

@@ -11,13 +11,14 @@
  * @version 3.0 Alpha 1
  */
 
-if (!defined('SMF'))
-	die('No direct access...');
+namespace SMF\Search\APIs;
+
+use SMF\Search\SearchApi;
 
 /**
  * Standard non full index, non custom index search
  */
-class standard_search extends search_api
+class Standard extends SearchApi
 {
 	/**
 	 * {@inheritDoc}

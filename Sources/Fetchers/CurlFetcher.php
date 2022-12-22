@@ -10,11 +10,10 @@
  * @version 3.0 Alpha 1
  */
 
-if (!defined('SMF'))
-	die('No direct access...');
+namespace SMF\Fetchers;
 
 /**
- * Class curl_fetch_web_data
+ * Class CurlFetcher
  * Simple cURL class to fetch a web page
  * Properly redirects even with safe mode and basedir restrictions
  * Can provide simple post options to a page
@@ -22,11 +21,11 @@ if (!defined('SMF'))
  * ### Load class
  * Initiate as
  * ```
- * $fetch_data = new cURL_fetch_web_data();
+ * $fetch_data = new CurlFetcher();
  * ```
  * Optionally pass an array of cURL options and redirect count
  * ```
- * $fetch_data = new cURL_fetch_web_data(array(CURLOPT_SSL_VERIFYPEER => 1), 5);
+ * $fetch_data = new CurlFetcher(array(CURLOPT_SSL_VERIFYPEER => 1), 5);
  * ```
  *
  * ### Make the call
@@ -61,7 +60,7 @@ if (!defined('SMF'))
  * $fetch_data->result_raw(0);
  * ```
  */
-class curl_fetch_web_data
+class CurlFetcher
 {
 	/**
 	 * Set the default items for this class
@@ -140,7 +139,7 @@ class curl_fetch_web_data
 	 *
 	 * @param string $url the site we are going to fetch
 	 * @param array $post_data any post data as form name => value
-	 * @return object An instance of the curl_fetch_web_data class
+	 * @return object An instance of the CurlFetcher class
 	 */
 	public function get_url_data($url, $post_data = array())
 	{
@@ -350,7 +349,7 @@ class curl_fetch_web_data
 	 * Callback function to parse returned headers
 	 *  - lowercases everything to make it consistent
 	 *
-	 * @param curl_fetch_web_data $cr The curl request
+	 * @param CurlFetcher $cr The curl request
 	 * @param string $header The header
 	 * @return int The length of the header
 	 */

@@ -1792,10 +1792,11 @@ function loadCacheAPIs()
 
 	foreach ($api_classes as $file_path => $file_info)
 	{
-		require_once($apis_dir . '/' . $file_path);
-
 		$class_name = $file_info->getBasename('.php');
 		$fully_qualified_class_name = CacheApi::APIS_NAMESPACE . $class_name;
+
+		if (!class_exists($fully_qualified_class_name))
+			continue;
 
 		/* @var CacheApiInterface $cache_api */
 		$cache_api = new $fully_qualified_class_name();

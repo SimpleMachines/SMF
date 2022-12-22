@@ -1,4 +1,5 @@
 <?php
+
 /**
  * A class for encoding/decoding Punycode.
  *
@@ -18,8 +19,7 @@
  * @version 3.0 Alpha 1
  */
 
-if (!defined('SMF'))
-	die('No direct access...');
+namespace SMF;
 
 /**
  * Punycode implementation as described in RFC 3492
