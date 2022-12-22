@@ -2069,7 +2069,7 @@ function template_groupMembership()
 	if (!empty($context['update_message']))
 		echo '
 			<div class="infobox">
-				', $context['update_message'], '.
+				', $context['update_message'], '
 			</div>';
 
 	echo '
