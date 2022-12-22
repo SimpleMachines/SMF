@@ -11,11 +11,10 @@
  * @version 3.0 Alpha 1
  */
 
-if (!defined('SMF'))
-	die('No direct access...');
+namespace SMF;
 
 /**
- * Class browser_detector
+ * Class BrowserDetector
  *  This class is an experiment for the job of correctly detecting browsers and settings needed for them.
  * - Detects the following browsers
  * - Opera, Webkit, Firefox, Web_tv, Konqueror, IE, Gecko
@@ -27,7 +26,7 @@ if (!defined('SMF'))
  * - MS Edge
  * - Nokia
  */
-class browser_detector
+class BrowserDetector
 {
 	/**
 	 * @var array Holds all the browser information. Its contents will be placed into $context['browser']

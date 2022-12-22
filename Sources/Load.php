@@ -3729,9 +3729,6 @@ function loadCacheAccelerator($overrideCache = '', $fallbackSMF = true)
 	elseif (is_null($cacheAPI))
 		$cacheAPI = false;
 
-	require_once($sourcedir . '/Cache/CacheApi.php');
-	require_once($sourcedir . '/Cache/CacheApiInterface.php');
-
 	// What accelerator we are going to try.
 	$cache_class_name = !empty($cache_accelerator) ? $cache_accelerator : CacheApi::APIS_DEFAULT;
 	$fully_qualified_class_name = !empty($overrideCache) ? $overrideCache :
