@@ -13,6 +13,9 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\PackageManager\FtpConnection;
+use SMF\PackageManager\XmlArray;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -121,8 +124,7 @@ function PackageServers()
 	{
 		if (isset($_POST['ftp_username']))
 		{
-			require_once($sourcedir . '/Class-Package.php');
-			$ftp = new ftp_connection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
+			$ftp = new FtpConnection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
 
 			if ($ftp->error === false)
 			{
@@ -139,8 +141,7 @@ function PackageServers()
 		{
 			if (!isset($ftp))
 			{
-				require_once($sourcedir . '/Class-Package.php');
-				$ftp = new ftp_connection(null);
+				$ftp = new FtpConnection(null);
 			}
 			elseif ($ftp->error !== false && !isset($ftp_error))
 				$ftp_error = $ftp->last_message === null ? '' : $ftp->last_message;
@@ -278,9 +279,8 @@ function PackageGBrowse()
 	// Might take some time.
 	@set_time_limit(600);
 
-	// Read packages.xml and parse into xmlArray. (the true tells it to trim things ;).)
-	require_once($sourcedir . '/Class-Package.php');
-	$listing = new xmlArray(fetch_web_data($_GET['package']), true);
+	// Read packages.xml and parse into XmlArray. (the true tells it to trim things ;).)
+	$listing = new XmlArray(fetch_web_data($_GET['package']), true);
 
 	// Errm.... empty file?  Try the URL....
 	if (!$listing->exists('package-list'))

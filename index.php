@@ -107,7 +107,6 @@ if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
 // And important includes.
 require_once($sourcedir . '/Session.php');
 require_once($sourcedir . '/Logging.php');
-require_once($sourcedir . '/Class-BrowserDetect.php');
 
 // If a Preflight is occurring, lets stop now.
 if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS')

@@ -16,6 +16,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Punycode;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -480,8 +482,6 @@ if (!function_exists('idn_to_ascii'))
 
 		static $Punycode;
 
-		require_once($sourcedir . '/Class-Punycode.php');
-
 		if (!is_object($Punycode))
 			$Punycode = new Punycode();
 
@@ -517,8 +517,6 @@ if (!function_exists('idn_to_utf8'))
 		global $sourcedir;
 
 		static $Punycode;
-
-		require_once($sourcedir . '/Class-Punycode.php');
 
 		if (!is_object($Punycode))
 			$Punycode = new Punycode();

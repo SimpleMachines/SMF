@@ -13,6 +13,9 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Search\SearchApiInterface;
+use SMF\Search\APIs\Standard as SearchStandard;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -2305,37 +2308,35 @@ function prepareSearchContext($reset = false)
 /**
  * Creates a search API and returns the object.
  *
- * @return search_api_interface An instance of the search API interface
+ * @return SMF\Search\SearchApiInterface An instance of the search API interface
  */
 function findSearchAPI()
 {
 	global $sourcedir, $modSettings, $searchAPI, $txt;
 
 	require_once($sourcedir . '/Subs-Package.php');
-	require_once($sourcedir . '/Class-SearchAPI.php');
 
 	// Search has a special database set.
 	db_extend('search');
 
 	// Load up the search API we are going to use.
 	$modSettings['search_index'] = empty($modSettings['search_index']) ? 'standard' : $modSettings['search_index'];
-	if (!file_exists($sourcedir . '/SearchAPI-' . ucwords($modSettings['search_index']) . '.php'))
+
+	if (!file_exists($sourcedir . '/Search/APIs/' . ucwords($modSettings['search_index']) . '.php'))
 		fatal_lang_error('search_api_missing');
-	require_once($sourcedir . '/SearchAPI-' . ucwords($modSettings['search_index']) . '.php');
 
 	// Create an instance of the search API and check it is valid for this version of SMF.
-	$search_class_name = $modSettings['search_index'] . '_search';
+	$search_class_name = 'SMF\\Search\\APIs\\' . ucwords($modSettings['search_index']);
 	$searchAPI = new $search_class_name();
 
 	// An invalid Search API.
-	if (!$searchAPI || !($searchAPI instanceof search_api_interface) || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion(SMF_VERSION, $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
+	if (!$searchAPI || !($searchAPI instanceof SearchApiInterface) || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion(SMF_VERSION, $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
 	{
 		// Log the error.
 		loadLanguage('Errors');
-		log_error(sprintf($txt['search_api_not_compatible'], 'SearchAPI-' . ucwords($modSettings['search_index']) . '.php'), 'critical');
+		log_error(sprintf($txt['search_api_not_compatible'], 'Search/APIs/' . ucwords($modSettings['search_index']) . '.php'), 'critical');
 
-		require_once($sourcedir . '/SearchAPI-Standard.php');
-		$searchAPI = new standard_search();
+		$searchAPI = new SearchStandard();
 	}
 
 	return $searchAPI;

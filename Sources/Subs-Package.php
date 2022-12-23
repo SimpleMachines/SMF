@@ -16,6 +16,10 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\PackageManager\FtpConnection;
+use SMF\PackageManager\XmlArray;
+
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -439,7 +443,7 @@ function loadInstalledPackages()
  * - expects the file to be a package in Packages/.
  * - returns a error string if the package-info is invalid.
  * - otherwise returns a basic array of id, version, filename, and similar information.
- * - an xmlArray is available in 'xml'.
+ * - an XmlArray is available in 'xml'.
  *
  * @param string $gzfilename The path to the file
  * @return array|string An array of info about the file or a string indicating an error
@@ -475,9 +479,8 @@ function getPackageInfo($gzfilename)
 			return 'package_get_error_is_zero';
 	}
 
-	// Parse package-info.xml into an xmlArray.
-	require_once($sourcedir . '/Class-Package.php');
-	$packageInfo = new xmlArray($packageInfo);
+	// Parse package-info.xml into an XmlArray.
+	$packageInfo = new XmlArray($packageInfo);
 
 	// @todo Error message of some sort?
 	if (!$packageInfo->exists('package-info[0]'))
@@ -707,17 +710,13 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 	// If we have some FTP information already, then let's assume it was required and try to get ourselves connected.
 	if (!empty($_SESSION['pack_ftp']['connected']))
 	{
-		// Load the file containing the ftp_connection class.
-		require_once($sourcedir . '/Class-Package.php');
-
-		$package_ftp = new ftp_connection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], package_crypt($_SESSION['pack_ftp']['password']));
+		$package_ftp = new FtpConnection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], package_crypt($_SESSION['pack_ftp']['password']));
 	}
 
 	// Just got a submission did we?
 	if (empty($package_ftp) && isset($_POST['ftp_username']))
 	{
-		require_once($sourcedir . '/Class-Package.php');
-		$ftp = new ftp_connection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
+		$ftp = new FtpConnection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
 
 		// We're connected, jolly good!
 		if ($ftp->error === false)
@@ -782,8 +781,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 		{
 			if (!isset($ftp))
 			{
-				require_once($sourcedir . '/Class-Package.php');
-				$ftp = new ftp_connection(null);
+				$ftp = new FtpConnection(null);
 			}
 			elseif ($ftp->error !== false && !isset($ftp_error))
 				$ftp_error = $ftp->last_message === null ? '' : $ftp->last_message;
@@ -901,10 +899,7 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 	}
 	elseif (isset($_SESSION['pack_ftp']))
 	{
-		// Load the file containing the ftp_connection class.
-		require_once($sourcedir . '/Class-Package.php');
-
-		$package_ftp = new ftp_connection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], package_crypt($_SESSION['pack_ftp']['password']));
+		$package_ftp = new FtpConnection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], package_crypt($_SESSION['pack_ftp']['password']));
 
 		if ($files === null)
 			return array();
@@ -942,8 +937,7 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 	}
 	elseif (isset($_POST['ftp_username']))
 	{
-		require_once($sourcedir . '/Class-Package.php');
-		$ftp = new ftp_connection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
+		$ftp = new FtpConnection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
 
 		if ($ftp->error === false)
 		{
@@ -960,8 +954,7 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 	{
 		if (!isset($ftp))
 		{
-			require_once($sourcedir . '/Class-Package.php');
-			$ftp = new ftp_connection(null);
+			$ftp = new FtpConnection(null);
 		}
 		elseif ($ftp->error !== false && !isset($ftp_error))
 			$ftp_error = $ftp->last_message === null ? '' : $ftp->last_message;
@@ -1025,13 +1018,13 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 /**
  * Parses the actions in package-info.xml file from packages.
  *
- * - package should be an xmlArray with package-info as its base.
+ * - package should be an XmlArray with package-info as its base.
  * - testing_only should be true if the package should not actually be applied.
  * - method can be upgrade, install, or uninstall.  Its default is install.
  * - previous_version should be set to the previous installed version of this package, if any.
  * - does not handle failure terribly well; testing first is always better.
  *
- * @param xmlArray &$packageXML The info from the package-info file
+ * @param XmlArray &$packageXML The info from the package-info file
  * @param bool $testing_only Whether we're only testing
  * @param string $method The method ('install', 'upgrade', or 'uninstall')
  * @param string $previous_version The previous version of the mod, if method is 'upgrade'
@@ -1088,7 +1081,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 	}
 
 	// Bad news, a matching script wasn't found!
-	if (!($script instanceof xmlArray))
+	if (!($script instanceof XmlArray))
 		return array();
 
 	// Find all the actions in this method - in theory, these should only be allowed actions. (* means all.)
@@ -1668,7 +1661,7 @@ function parse_path($path)
  */
 function deltree($dir, $delete_dir = true)
 {
-	/** @var ftp_connection $package_ftp */
+	/** @var SMF\PackageManager\FtpConnection $package_ftp */
 	global $package_ftp;
 
 	if (!file_exists($dir))
@@ -1745,7 +1738,7 @@ function deltree($dir, $delete_dir = true)
  */
 function mktree($strPath, $mode)
 {
-	/** @var ftp_connection $package_ftp */
+	/** @var SMF\PackageManager\FtpConnection $package_ftp */
 	global $package_ftp;
 
 	if (is_dir($strPath))
@@ -1815,7 +1808,7 @@ function mktree($strPath, $mode)
  */
 function copytree($source, $destination)
 {
-	/** @var ftp_connection $package_ftp */
+	/** @var SMF\PackageManager\FtpConnection $package_ftp */
 	global $package_ftp;
 
 	if (!file_exists($destination) || !is_writable($destination))
@@ -1903,8 +1896,7 @@ function parseModification($file, $testing = true, $undo = false, $theme_paths =
 	global $boarddir, $sourcedir, $txt, $modSettings;
 
 	@set_time_limit(600);
-	require_once($sourcedir . '/Class-Package.php');
-	$xml = new xmlArray(strtr($file, array("\r" => '')));
+	$xml = new XmlArray(strtr($file, array("\r" => '')));
 	$actions = array();
 	$everything_found = true;
 
@@ -2627,7 +2619,7 @@ function package_get_contents($filename)
  */
 function package_put_contents($filename, $data, $testing = false)
 {
-	/** @var ftp_connection $package_ftp */
+	/** @var SMF\PackageManager\FtpConnection $package_ftp */
 	global $package_ftp, $package_cache, $modSettings;
 	static $text_filetypes = array('php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm');
 
@@ -2686,7 +2678,7 @@ function package_put_contents($filename, $data, $testing = false)
  */
 function package_flush_cache($trash = false)
 {
-	/** @var ftp_connection $package_ftp */
+	/** @var SMF\PackageManager\FtpConnection $package_ftp */
 	global $package_ftp, $package_cache, $txt;
 	static $text_filetypes = array('php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm');
 
@@ -2754,7 +2746,7 @@ function package_flush_cache($trash = false)
  */
 function package_chmod($filename, $perm_state = 'writable', $track_change = false)
 {
-	/** @var ftp_connection $package_ftp */
+	/** @var SMF\PackageManager\FtpConnection $package_ftp */
 	global $package_ftp;
 
 	if (file_exists($filename) && is_writable($filename) && $perm_state == 'writable')

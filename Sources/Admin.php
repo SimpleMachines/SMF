@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\PackageManager\XmlArray;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -867,10 +869,9 @@ function AdminSearchOM()
 
 	// Otherwise we simply walk through the XML and stick it in context for display.
 	$context['search_results'] = array();
-	require_once($sourcedir . '/Class-Package.php');
 
 	// Get the results loaded into an array for processing!
-	$results = new xmlArray($search_results, false);
+	$results = new XmlArray($search_results, false);
 
 	// Move through the api layer.
 	if (!$results->exists('api'))

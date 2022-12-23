@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Fetchers\CurlFetcher;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -6114,13 +6116,12 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 		return false;
 
 	// An FTP url. We should try connecting and RETRieving it...
+	// @todo Move this to a SMF\Fetchers\FtpFetcher class.
 	elseif ($match[1] == 'ftp')
 	{
-		// Include the file containing the ftp_connection class.
-		require_once($sourcedir . '/Class-Package.php');
-
 		// Establish a connection and attempt to enable passive mode.
-		$ftp = new ftp_connection(($match[2] ? 'ssl://' : '') . $match[3], empty($match[5]) ? 21 : $match[5], 'anonymous', $webmaster_email);
+		$ftp = new SMF\PackageManager\FtpConnection(($match[2] ? 'ssl://' : '') . $match[3], empty($match[5]) ? 21 : $match[5], 'anonymous', $webmaster_email);
+
 		if ($ftp->error !== false || !$ftp->passive())
 			return false;
 
@@ -6149,6 +6150,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 	elseif (isset($match[1]) && $match[1] == 'http')
 	{
 		// First try to use fsockopen, because it is fastest.
+		// @todo Move this to a SMF\Fetchers\SocketFetcher class.
 		if ($keep_alive && $match[3] == $keep_alive_dom)
 			$fp = $keep_alive_fp;
 		if (empty($fp))
@@ -6247,10 +6249,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 		// If using fsockopen didn't work, try to use cURL if available.
 		elseif (function_exists('curl_init'))
 		{
-			// Include the file containing the curl_fetch_web_data class.
-			require_once($sourcedir . '/Class-CurlFetchWeb.php');
-
-			$fetch_data = new curl_fetch_web_data();
+			$fetch_data = new CurlFetcher();
 			$fetch_data->get_url_data($url, $post_data);
 
 			// no errors and a 200 result, then we have a good dataset, well we at least have data. ;)

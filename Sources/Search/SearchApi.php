@@ -42,7 +42,7 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function supportsMethod($methodName, $query_params = null)
+	public function supportsMethod($methodName, $query_params = array()): bool
 	{
 		switch ($methodName)
 		{
@@ -60,21 +60,21 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function isValid()
+	public function isValid(): bool
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function searchSort($a, $b)
+	public function searchSort($a, $b): int
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded)
+	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded): void
 	{
 	}
 
@@ -88,21 +88,21 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions)
+	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions)
+	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function postRemoved($id_msg)
+	public function postRemoved($id_msg): void
 	{
 
 		global $smcFunc;
@@ -151,14 +151,14 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function topicsRemoved(array $topics)
+	public function topicsRemoved(array $topics): void
 	{
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function topicsMoved(array $topics, $board_to)
+	public function topicsMoved(array $topics, $board_to): void
 	{
 	}
 

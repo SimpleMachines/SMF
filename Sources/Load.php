@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 
@@ -2018,7 +2019,7 @@ function loadMemberCustomFields($users, $params)
 function detectBrowser()
 {
 	// Load the current user's browser of choice
-	$detector = new browser_detector;
+	$detector = new BrowserDetector;
 	$detector->detectBrowser();
 }
 

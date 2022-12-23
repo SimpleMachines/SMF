@@ -14,6 +14,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\TOTP\Auth as Tfa;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -490,7 +492,6 @@ function LoginTFA()
 		fatal_lang_error('no_access', false);
 
 	loadLanguage('Profile');
-	require_once($sourcedir . '/Class-TOTP.php');
 
 	$member = $context['tfa_member'];
 
@@ -498,7 +499,7 @@ function LoginTFA()
 	if (time() - $member['last_login'] < 120)
 		fatal_lang_error('tfa_wait', false);
 
-	$totp = new \TOTP\Auth($member['tfa_secret']);
+	$totp = new Tfa($member['tfa_secret']);
 	$totp->setRange(1);
 
 	/* This is true when:

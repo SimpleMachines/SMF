@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\PackageManager\XmlArray;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -248,9 +250,8 @@ function get_theme_info($path)
 		fatal_lang_error('package_theme_upload_error_broken', false, $txt['package_get_error_is_mod']);
 	}
 
-	// Parse theme-info.xml into an xmlArray.
-	require_once($sourcedir . '/Class-Package.php');
-	$theme_info_xml = new xmlArray(file_get_contents($path . '/theme_info.xml'));
+	// Parse theme-info.xml into an XmlArray.
+	$theme_info_xml = new XmlArray(file_get_contents($path . '/theme_info.xml'));
 
 	// Error message, there isn't any valid info.
 	if (!$theme_info_xml->exists('theme-info[0]'))

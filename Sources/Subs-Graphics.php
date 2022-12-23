@@ -18,6 +18,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Graphics\Gif;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -888,7 +890,7 @@ if (!function_exists('imagecreatefrombmp'))
  */
 function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
 {
-	if (!is_a($gif, 'gif_file') || $lpszFileName == '')
+	if (!is_a($gif, Gif\File::class) || $lpszFileName == '')
 		return false;
 
 	if (($fd = $gif->get_png_data($background_color)) === false)

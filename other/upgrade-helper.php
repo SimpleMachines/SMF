@@ -183,10 +183,10 @@ function makeFilesWritable(&$files)
 			$upcontext['chmod']['path'] = $_POST['ftp_path'];
 		}
 
-		require_once($sourcedir . '/Class-Package.php');
+		require_once($sourcedir . '/PackageManager/FtpConnection.php');
 		if (isset($upcontext['chmod']['username']))
 		{
-			$ftp = new ftp_connection($upcontext['chmod']['server'], $upcontext['chmod']['port'], $upcontext['chmod']['username'], $upcontext['chmod']['password']);
+			$ftp = new \SMF\PackageManager\FtpConnection($upcontext['chmod']['server'], $upcontext['chmod']['port'], $upcontext['chmod']['username'], $upcontext['chmod']['password']);
 
 			if ($ftp->error === false)
 			{
@@ -202,7 +202,7 @@ function makeFilesWritable(&$files)
 		if (!isset($ftp) || $ftp->error !== false)
 		{
 			if (!isset($ftp))
-				$ftp = new ftp_connection(null);
+				$ftp = new \SMF\PackageManager\FtpConnection(null);
 			// Save the error so we can mess with listing...
 			elseif ($ftp->error !== false && !isset($upcontext['chmod']['ftp_error']))
 				$upcontext['chmod']['ftp_error'] = $ftp->last_message === null ? '' : $ftp->last_message;
