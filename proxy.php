@@ -80,6 +80,7 @@ class ProxyServer
 
 		require_once(dirname(__FILE__) . '/Settings.php');
 		require_once($sourcedir . '/Subs.php');
+		require_once($sourcedir . '/Autoloader.php');
 
 		// Ensure we don't trip over disabled internal functions
 		require_once($sourcedir . '/Subs-Compat.php');

@@ -102,6 +102,7 @@ require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
 require_once($sourcedir . '/Security.php');
 require_once($sourcedir . '/Subs.php');
+require_once($sourcedir . '/Autoloader.php');
 
 // Ensure we don't trip over disabled internal functions
 require_once($sourcedir . '/Subs-Compat.php');
