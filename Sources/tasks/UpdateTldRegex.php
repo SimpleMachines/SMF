@@ -1,8 +1,6 @@
 <?php
 
 /**
- * This file contains code used to initiate updates of $modSettings['tld_regex']
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -13,10 +11,12 @@
  * @version 3.0 Alpha 1
  */
 
+namespace SMF\Tasks;
+
 /**
- * Class Update_TLD_Regex
+ * This file contains code used to initiate updates of $modSettings['tld_regex']
  */
-class Update_TLD_Regex extends SMF_BackgroundTask
+class UpdateTldRegex extends BackgroundTask
 {
 	/**
 	 * This executes the task. It just calls set_tld_regex() in Subs.php

@@ -1,9 +1,6 @@
 <?php
 
 /**
- * This file contains code used to notify moderators when there are posts that
- * need to be approved.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,10 +11,13 @@
  * @version 3.0 Alpha 1
  */
 
+namespace SMF\Tasks;
+
 /**
- * Class ApprovePost_Notify_Background
+ * This class contains code used to notify moderators when there are posts that
+ * need to be approved.
  */
-class ApprovePost_Notify_Background extends SMF_BackgroundTask
+class ApprovePost_Notify extends BackgroundTask
 {
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue

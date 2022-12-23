@@ -220,7 +220,7 @@ function export_profile_data($uid)
 				WHERE task_class = {string:class}
 					AND task_data LIKE {string:details}',
 				array(
-					'class' => 'ExportProfileData_Background',
+					'class' => 'SMF\Tasks\ExportProfileData',
 					'details' => substr($smcFunc['json_encode'](array('format' => $format, 'uid' => $uid)), 0, -1) . ',%',
 				)
 			);
@@ -371,7 +371,7 @@ function export_profile_data($uid)
 
 		$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 			array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/ExportProfileData.php', 'ExportProfileData_Background', $data, 0),
+			array('$sourcedir/tasks/ExportProfileData.php', 'SMF\Tasks\ExportProfileData', $data, 0),
 			array()
 		);
 
@@ -686,6 +686,8 @@ function export_attachment($uid)
 function get_export_formats()
 {
 	global $txt;
+
+	loadLanguage('Profile');
 
 	$export_formats = array(
 		'XML_XSLT' => array(

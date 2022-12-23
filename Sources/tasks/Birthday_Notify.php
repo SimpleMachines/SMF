@@ -1,8 +1,6 @@
 <?php
 
 /**
- * This file contains code used to send out "Happy Birthday" emails.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -13,10 +11,12 @@
  * @version 3.0 Alpha 1
  */
 
+namespace SMF\Tasks;
+
 /**
- * Class Birthday_Notify_Background
+ * This class contains code used to send out "Happy Birthday" emails.
  */
-class Birthday_Notify_Background extends SMF_BackgroundTask
+class Birthday_Notify extends BackgroundTask
 {
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue

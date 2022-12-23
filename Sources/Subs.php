@@ -7470,7 +7470,7 @@ function set_tld_regex($update = false)
 		{
 			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/UpdateTldRegex.php', 'Update_TLD_Regex', '', 0), array()
+				array('$sourcedir/tasks/UpdateTldRegex.php', 'SMF\Tasks\UpdateTldRegex', '', 0), array()
 			);
 		}
 	}

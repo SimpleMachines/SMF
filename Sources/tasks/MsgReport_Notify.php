@@ -1,9 +1,6 @@
 <?php
 
 /**
- * This file contains code used to notify moderators when someone files a report
- * about another member's profile.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,10 +11,13 @@
  * @version 3.0 Alpha 1
  */
 
+namespace SMF\Tasks;
+
 /**
- * Class MemberReport_Notify_Background
+ * This class contains code used to notify moderators when someone files a report
+ * about a message.
  */
-class MemberReport_Notify_Background extends SMF_BackgroundTask
+class MsgReport_Notify extends BackgroundTask
 {
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
@@ -29,16 +29,51 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 	{
 		global $smcFunc, $sourcedir, $modSettings, $language, $scripturl;
 
-		// Anyone with moderate_forum can see this report
+		// We need to know who can moderate this board - and therefore who can see this report.
+		// First up, people who have moderate_board in the board this topic was in.
 		require_once($sourcedir . '/Subs-Members.php');
-		$members = membersAllowedTo('moderate_forum');
+		$members = membersAllowedTo('moderate_board', $this->_details['board_id']);
+
+		// Second, anyone assigned to be a moderator of this board directly.
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member
+			FROM {db_prefix}moderators
+			WHERE id_board = {int:current_board}',
+			array(
+				'current_board' => $this->_details['board_id'],
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$members[] = $row['id_member'];
+		$smcFunc['db_free_result']($request);
+
+		// Thirdly, anyone assigned to be a moderator of this group as a group->board moderator.
+		$request = $smcFunc['db_query']('', '
+			SELECT mem.id_member
+			FROM {db_prefix}members AS mem, {db_prefix}moderator_groups AS bm
+			WHERE bm.id_board = {int:current_board}
+				AND(
+					mem.id_group = bm.id_group
+					OR FIND_IN_SET(bm.id_group, mem.additional_groups) != 0
+				)',
+			array(
+				'current_board' => $this->_details['board_id'],
+			)
+		);
+
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$members[] = $row['id_member'];
+		$smcFunc['db_free_result']($request);
+
+		// And now weed out the duplicates.
+		$members = array_flip(array_flip($members));
 
 		// And don't send it to them if they're the one who reported it.
 		$members = array_diff($members, array($this->_details['sender_id']));
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
 		require_once($sourcedir . '/Subs-Notify.php');
-		$prefs = getNotifyPrefs($members, 'member_report', true);
+		$prefs = getNotifyPrefs($members, 'msg_report', true);
 
 		// So now we find out who wants what.
 		$alert_bits = array(
@@ -50,7 +85,7 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 		foreach ($prefs as $member => $pref_option)
 		{
 			foreach ($alert_bits as $type => $bitvalue)
-				if ($pref_option['member_report'] & $bitvalue)
+				if ($pref_option['msg_report'] & $bitvalue)
 					$notifies[$type][] = $member;
 		}
 
@@ -66,15 +101,13 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 					'id_member' => $member,
 					'id_member_started' => $this->_details['sender_id'],
 					'member_name' => $this->_details['sender_name'],
-					'content_type' => 'member',
-					'content_id' => $this->_details['user_id'],
+					'content_type' => 'msg',
+					'content_id' => $this->_details['msg_id'],
 					'content_action' => 'report',
 					'is_read' => 0,
 					'extra' => $smcFunc['json_encode'](
 						array(
-							'report_link' => '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'], // We don't put $scripturl in these!
-							'user_name' => $this->_details['user_name'],
-							'user_id' => $this->_details['user_id'],
+							'report_link' => '?action=moderate;area=reportedposts;sa=details;rid=' . $this->_details['report_id'], // We don't put $scripturl in these!
 						)
 					),
 				);
@@ -119,22 +152,39 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 			}
 			$smcFunc['db_free_result']($request);
 
-			// Iterate through each language, load the relevant templates and set up sending.
+			// Second, get some details that might be nice for the report email.
+			// We don't bother cluttering up the tasks data for this, when it's really no bother to fetch it.
+			$request = $smcFunc['db_query']('', '
+				SELECT lr.subject, lr.membername, lrc.comment
+				FROM {db_prefix}log_reported AS lr
+					INNER JOIN {db_prefix}log_reported_comments AS lrc ON (lr.id_report = lrc.id_report)
+				WHERE lr.id_report = {int:report}
+					AND lrc.id_comment = {int:comment}',
+				array(
+					'report' => $this->_details['report_id'],
+					'comment' => $this->_details['comment_id'],
+				)
+			);
+			list ($subject, $poster_name, $comment) = $smcFunc['db_fetch_row']($request);
+			$smcFunc['db_free_result']($request);
+
+			// Third, iterate through each language, load the relevant templates and set up sending.
 			foreach ($emails as $this_lang => $recipients)
 			{
 				$replacements = array(
-					'MEMBERNAME' => $this->_details['user_name'],
+					'TOPICSUBJECT' => $subject,
+					'POSTERNAME' => $poster_name,
 					'REPORTERNAME' => $this->_details['sender_name'],
-					'PROFILELINK' => $scripturl . '?action=profile;u=' . $this->_details['user_id'],
-					'REPORTLINK' => $scripturl . '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'],
-					'COMMENT' => $this->_details['comment'],
+					'TOPICLINK' => $scripturl . '?topic=' . $this->_details['topic_id'] . '.msg' . $this->_details['msg_id'] . '#msg' . $this->_details['msg_id'],
+					'REPORTLINK' => $scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $this->_details['report_id'],
+					'COMMENT' => $comment,
 				);
 
-				$emaildata = loadEmailTemplate('report_member_profile', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
+				$emaildata = loadEmailTemplate('report_to_moderator', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)
-					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, 'ureport' . $this->_details['report_id'], $emaildata['is_html'], 2);
+					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, 'report' . $this->_details['report_id'], $emaildata['is_html'], 2);
 			}
 		}
 

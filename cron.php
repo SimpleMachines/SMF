@@ -124,6 +124,9 @@ $_SERVER['REQUEST_URL'] = FROM_CLI ? 'CLI cron.php' : $boardurl . '/cron.php';
 // Now 'clean the request' (or more accurately, ignore everything we're not going to use)
 cleanRequest_cron();
 
+// Backward compatibility for tasks in the global namespace.
+class_alias('SMF\Tasks\BackgroundTask', '\SMF_BackgroundTask');
+
 // At this point we could reseed the RNG but I don't think we need to risk it being seeded *even more*.
 // Meanwhile, time we got on with the real business here.
 while ($task_details = fetch_task())
@@ -227,6 +230,7 @@ function perform_task($task_details)
 	global $smcFunc, $sourcedir, $boarddir;
 
 	// This indicates the file to load.
+	// Only needed for tasks that don't use the SMF\Tasks\ namespace.
 	if (!empty($task_details['task_file']))
 	{
 		$include = strtr(trim($task_details['task_file']), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
@@ -242,10 +246,18 @@ function perform_task($task_details)
 	}
 
 	// All background tasks need to be classes.
-	elseif (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF_BackgroundTask'))
+	elseif (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF\Tasks\BackgroundTask'))
 	{
 		$details = empty($task_details['task_data']) ? array() : $smcFunc['json_decode']($task_details['task_data'], true);
 		$bgtask = new $task_details['task_class']($details);
+		return $bgtask->execute();
+	}
+	// Backward compatibility with tasks in global namespace.
+	elseif (class_exists('SMF\Tasks\\' . $task_details['task_class']) && is_subclass_of('SMF\Tasks\\' . $task_details['task_class'], 'SMF\Tasks\BackgroundTask'))
+	{
+		$details = empty($task_details['task_data']) ? array() : $smcFunc['json_decode']($task_details['task_data'], true);
+		$task_class = 'SMF\Tasks\\' . $task_details['task_class'];
+		$bgtask = new $task_class($details);
 		return $bgtask->execute();
 	}
 	else
@@ -314,70 +326,6 @@ function obExit_cron()
 	{
 		header('content-type: image/gif');
 		die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
-	}
-}
-
-// We would like this to be defined, but we don't want to have to load more stuff than necessary.
-// Thus we declare it here, and any legitimate background task must implement this.
-/**
- * Class SMF_BackgroundTask
- */
-abstract class SMF_BackgroundTask
-{
-	/**
-	 * Constants for notification types.
-	*/
-	const RECEIVE_NOTIFY_EMAIL = 0x02;
-	const RECEIVE_NOTIFY_ALERT = 0x01;
-
-	/**
-	 * @var array Holds the details for the task
-	 */
-	protected $_details;
-
-	/**
-	 * @var array Temp property to hold the current user info while tasks make use of $user_info
-	 */
-	private $current_user_info = array();
-
-	/**
-	 * The constructor.
-	 *
-	 * @param array $details The details for the task
-	 */
-	public function __construct($details)
-	{
-		global $user_info;
-
-		$this->_details = $details;
-
-		$this->current_user_info = $user_info;
-	}
-
-	/**
-	 * The function to actually execute a task
-	 *
-	 * @return mixed
-	 */
-	abstract public function execute();
-
-	/**
-	 * Loads minimal info for the previously loaded user ids
-	 *
-	 * @param array $user_ids
-	 * @return array
-	 * @throws Exception
-	 */
-	public function getMinUserInfo($user_ids = array())
-	{
-		return loadMinUserInfo($user_ids);
-	}
-
-	public function __destruct()
-	{
-		global $user_info;
-
-		$user_info = $this->current_user_info;
 	}
 }
 

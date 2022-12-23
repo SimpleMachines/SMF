@@ -1,9 +1,6 @@
 <?php
 
 /**
- * This file contains code used to notify a moderator when another moderator
- * replies to a profile moderation report that the first mod has commented on.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,10 +11,13 @@
  * @version 3.0 Alpha 1
  */
 
+namespace SMF\Tasks;
+
 /**
- * Class MemberReportReply_Notify_Background
+ * This class contains code used to notify a moderator when another moderator
+ * replies to a profile moderation report that the first mod has commented on.
  */
-class MemberReportReply_Notify_Background extends SMF_BackgroundTask
+class MemberReportReply_Notify extends BackgroundTask
 {
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue

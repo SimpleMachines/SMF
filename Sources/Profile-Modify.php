@@ -4333,7 +4333,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 		// Add a background task to handle notifying people of this request
 		$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 			array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/GroupReq-Notify.php', 'GroupReq_Notify_Background', $data, 0), array()
+			array('$sourcedir/tasks/GroupReq_Notify.php', 'SMF\Tasks\GroupReq_Notify', $data, 0), array()
 		);
 
 		return $changeType;

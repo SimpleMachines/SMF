@@ -1,8 +1,6 @@
 <?php
 
 /**
- * This file contains code used to notify members when something is liked.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -13,10 +11,12 @@
  * @version 3.0 Alpha 1
  */
 
+namespace SMF\Tasks;
+
 /**
- * Class Likes_Notify_Background
+ * This class contains code used to notify members when something is liked.
  */
-class Likes_Notify_Background extends SMF_BackgroundTask
+class Likes_Notify extends BackgroundTask
 {
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue

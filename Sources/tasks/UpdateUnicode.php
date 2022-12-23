@@ -1,8 +1,6 @@
 <?php
 
 /**
- * This file contains code used to update SMF's Unicode data files.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -13,10 +11,12 @@
  * @version 3.0 Alpha 1
  */
 
+namespace SMF\Tasks;
+
 /**
- * Class Update_Unicode
+ * This class contains code used to update SMF's Unicode data files.
  */
-class Update_Unicode extends SMF_BackgroundTask
+class UpdateUnicode extends BackgroundTask
 {
 	/**
 	 * URLs where we can fetch the Unicode data files.
@@ -675,7 +675,7 @@ class Update_Unicode extends SMF_BackgroundTask
 		if (strpos($dir_path, $this->temp_dir) !== 0)
 			return;
 
-		$dir = new DirectoryIterator($dir_path);
+		$dir = new \DirectoryIterator($dir_path);
 
 		$to_delete = array();
 		foreach ($dir as $fileinfo)
