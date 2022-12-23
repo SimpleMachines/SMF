@@ -748,12 +748,46 @@ function loadSearchAPIs()
 {
 	global $sourcedir, $txt;
 
-	// Ensure we have class.
-	require_once($sourcedir . '/Class-SearchAPI.php');
-
 	$apis = array();
+
+	// Check for autoloading search APIs.
+	$search_apis_dir = $sourcedir . '/Search/APIs';
+	if ($dh = opendir($search_apis_dir))
+	{
+		while (($file = readdir($dh)) !== false)
+		{
+			if (is_file($search_apis_dir . '/' . $file))
+			{
+				$index_name = strtolower(pathinfo($file, PATHINFO_FILENAME));
+				$search_class_name = 'SMF\\Search\\APIs\\' . $index_name;
+
+				if (!class_exists($search_class_name))
+					continue;
+
+				$searchAPI = new $search_class_name();
+
+				if (!$searchAPI->is_supported)
+					continue;
+
+				$apis[$index_name] = array(
+					'filename' => 'Search/APIs/' . $file,
+					'setting_index' => $index_name,
+					'has_template' => in_array($index_name, array('custom', 'fulltext', 'standard')),
+					'label' => $index_name && isset($txt['search_index_' . $index_name]) ? $txt['search_index_' . $index_name] : '',
+					'desc' => $index_name && isset($txt['search_index_' . $index_name . '_desc']) ? $txt['search_index_' . $index_name . '_desc'] : '',
+				);
+			}
+		}
+	}
+	closedir($dh);
+
+	// Check for search APIs using the old SearchAPI-*.php system.
+	// Kept for backward compatibility.
 	if ($dh = opendir($sourcedir))
 	{
+		// Ensure we have class.
+		require_once($sourcedir . '/Class-SearchAPI.php');
+
 		while (($file = readdir($dh)) !== false)
 		{
 			if (is_file($sourcedir . '/' . $file) && preg_match('~^SearchAPI-([A-Za-z\d_]+)\.php$~', $file, $matches))

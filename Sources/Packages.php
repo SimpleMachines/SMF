@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\PackageManager\FtpConnection;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -1750,7 +1752,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 					}
 				}
 
-				// Save some memory by not passing the xmlArray object into context.
+				// Save some memory by not passing the XmlArray object into context.
 				unset($packageInfo['xml']);
 
 				if (isset($sort_id[$packageInfo['type']]) && $params == $packageInfo['type'])
@@ -1979,8 +1981,7 @@ function PackagePermissions()
 
 	if (empty($package_ftp) && !isset($_POST['skip_ftp']))
 	{
-		require_once($sourcedir . '/Class-Package.php');
-		$ftp = new ftp_connection(null);
+		$ftp = new FtpConnection(null);
 		list ($username, $detect_path, $found_path) = $ftp->detect_path($boarddir);
 
 		$context['package_ftp'] = array(

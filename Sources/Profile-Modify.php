@@ -15,6 +15,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\TOTP\Auth as Tfa;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -4398,7 +4400,6 @@ function tfasetup($memID)
 {
 	global $user_info, $context, $user_settings, $sourcedir, $modSettings, $smcFunc;
 
-	require_once($sourcedir . '/Class-TOTP.php');
 	require_once($sourcedir . '/Subs-Auth.php');
 
 	// load JS lib for QR
@@ -4423,7 +4424,7 @@ function tfasetup($memID)
 		if (!empty($_REQUEST['save']) && !empty($_SESSION['tfa_secret']))
 		{
 			$code = $_POST['tfa_code'];
-			$totp = new \TOTP\Auth($_SESSION['tfa_secret']);
+			$totp = new Tfa($_SESSION['tfa_secret']);
 			$totp->setRange(1);
 			$valid_code = strlen($code) == $totp->getCodeLength() && $totp->validateCode($code);
 
@@ -4456,7 +4457,7 @@ function tfasetup($memID)
 		}
 		else
 		{
-			$totp = new \TOTP\Auth();
+			$totp = new Tfa();
 			$secret = $totp->generateCode();
 			$_SESSION['tfa_secret'] = $secret;
 			$context['tfa_secret'] = $secret;
