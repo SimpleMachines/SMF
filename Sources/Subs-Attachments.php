@@ -834,8 +834,8 @@ function createAttachment(&$attachmentOptions)
 				'claimed_time' => 'int'
 			),
 			array(
-					'$sourcedir/tasks/CreateAttachment-Notify.php',
-					'CreateAttachment_Notify_Background',
+					'$sourcedir/tasks/CreateAttachment_Notify.php',
+					'SMF\Tasks\CreateAttachment_Notify',
 					$smcFunc['json_encode'](
 						array(
 							'id' => $attachmentOptions['id'],

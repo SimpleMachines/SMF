@@ -1143,7 +1143,7 @@ function scheduled_birthdayemails()
 
 	$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 		array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-		array('$sourcedir/tasks/Birthday-Notify.php', 'Birthday_Notify_Background', '', 0),
+		array('$sourcedir/tasks/Birthday_Notify.php', 'SMF\Tasks\Birthday_Notify', '', 0),
 		array()
 	);
 
@@ -1340,13 +1340,13 @@ function scheduled_weekly_maintenance()
 	// Update the regex of top level domains with the IANA's latest official list
 	$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 		array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-		array('$sourcedir/tasks/UpdateTldRegex.php', 'Update_TLD_Regex', '', 0), array()
+		array('$sourcedir/tasks/UpdateTldRegex.php', 'SMF\\Tasks\\UpdateTldRegex', '', 0), array()
 	);
 
 	// Ensure Unicode data files are up to date
 	$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 		array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-		array('$sourcedir/tasks/UpdateUnicode.php', 'Update_Unicode', '', 0), array()
+		array('$sourcedir/tasks/UpdateUnicode.php', 'SMF\\Tasks\\UpdateUnicode', '', 0), array()
 	);
 
 	// Run Cache housekeeping

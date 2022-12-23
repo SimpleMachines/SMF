@@ -1,10 +1,6 @@
 <?php
 
 /**
- * This file contains code used to notify people when a new post is created that
- * is relevant to them in some way: new topics in boards they watch, replies to
- * topics they watch, posts that mention them, and/or posts that quote them.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -15,10 +11,14 @@
  * @version 3.0 Alpha 1
  */
 
+namespace SMF\Tasks;
+
 /**
- * Class CreatePost_Notify_Background
+ * This class contains code used to notify people when a new post is created that
+ * is relevant to them in some way: new topics in boards they watch, replies to
+ * topics they watch, posts that mention them, and/or posts that quote them.
  */
-class CreatePost_Notify_Background extends SMF_BackgroundTask
+class CreatePost_Notify extends BackgroundTask
 {
 	/**
 	 * Constants for reply types.
@@ -328,8 +328,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 						'claimed_time' => 'int',
 					),
 					array(
-						'$sourcedir/tasks/CreatePost-Notify.php',
-						'CreatePost_Notify_Background',
+						'$sourcedir/tasks/CreatePost_Notify.php',
+						'SMF\Tasks\CreatePost_Notify',
 						$smcFunc['json_encode']($new_details),
 						max(0, $this->mention_mail_time - MAX_CLAIM_THRESHOLD),
 					),

@@ -538,7 +538,7 @@ function GroupRequests()
 			$data = $smcFunc['json_encode'](array('member_id' => $user_info['id'], 'member_ip' => $user_info['ip'], 'request_list' => $request_list, 'status' => $_POST['req_action'], 'reason' => isset($_POST['groupreason']) ? $_POST['groupreason'] : '', 'time' => time()));
 			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/GroupAct-Notify.php', 'GroupAct_Notify_Background', $data, 0), array()
+				array('$sourcedir/tasks/GroupAct_Notify.php', 'SMF\Tasks\GroupAct_Notify', $data, 0), array()
 			);
 
 			// Some changes to log?

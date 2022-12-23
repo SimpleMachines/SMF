@@ -50,19 +50,11 @@ define('SMF_USER_AGENT', 'SMF');
 define('MAX_CLAIM_THRESHOLD', 300);
 define('TIME_START', microtime(true));
 
-abstract class SMF_BackgroundTask
-{
-	abstract public function execute();
-}
-
-// This should never be needed, but set it for completeness.
-$smcFunc['db_insert'] = function($method, $table, $columns, $data, $keys, $returnmode = 0, $connection = null) {};
-
 // 3. Do the job.
+require_once($sourcedir . '/Autoloader.php');
 require_once($sourcedir . '/Subs.php');
-require_once($sourcedir . '/tasks/UpdateUnicode.php');
 
-$unicode_updater = new Update_Unicode();
+$unicode_updater = new SMF\Tasks\UpdateUnicode(array());
 $unicode_updater->execute();
 
 ?>
