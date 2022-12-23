@@ -59,7 +59,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 	private function readFile($file)
 	{
-		if (file_exists($file) && ($fp = fopen($file, 'rb')) !== false)
+		if (($fp = @fopen($file, 'rb')) !== false)
 		{
 			if (!flock($fp, LOCK_SH))
 			{
