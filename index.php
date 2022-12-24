@@ -20,40 +20,86 @@
  * @version 3.0 Alpha 1
  */
 
-// Get everything started up...
-define('SMF', 1);
-define('SMF_VERSION', '3.0 Alpha 1');
-define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2023');
+/********************************************************
+ * Initialize things that are common to all entry points.
+ * (i.e. index.php, SSI.php, cron.php, proxy.php)
+ ********************************************************/
 
-define('JQUERY_VERSION', '3.6.3');
-define('POSTGRE_TITLE', 'PostgreSQL');
-define('MYSQL_TITLE', 'MySQL');
-define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
+/*
+ * 1. Define some constants we need.
+ */
+
+if (!defined('SMF'))
+	define('SMF', 1);
+
+if (!defined('SMF_VERSION'))
+	define('SMF_VERSION', '3.0 Alpha 1');
+
+if (!defined('SMF_FULL_VERSION'))
+	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
+
+if (!defined('SMF_SOFTWARE_YEAR'))
+	define('SMF_SOFTWARE_YEAR', '2023');
+
+if (!defined('JQUERY_VERSION'))
+	define('JQUERY_VERSION', '3.6.3');
+
+if (!defined('POSTGRE_TITLE'))
+	define('POSTGRE_TITLE', 'PostgreSQL');
+
+if (!defined('MYSQL_TITLE'))
+	define('MYSQL_TITLE', 'MySQL');
+
+if (!defined('SMF_USER_AGENT'))
+	define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
 
 if (!defined('TIME_START'))
 	define('TIME_START', microtime(true));
 
-// If anything goes wrong loading Settings.php, make sure the admin knows it.
-error_reporting(E_ALL);
+/*
+ * 2. Load the Settings.php file.
+ */
 
-// This makes it so headers can be sent!
-ob_start();
+// Don't load it twice.
+if (in_array(dirname(__FILE__) . '/Settings.php', get_included_files()))
+	return;
+
+if (SMF === 1)
+{
+	// If anything goes wrong loading Settings.php, make sure the admin knows it.
+	error_reporting(E_ALL);
+
+	// This makes it so headers can be sent!
+	ob_start();
+}
 
 // Do some cleaning, just in case.
 foreach (array('db_character_set', 'cachedir') as $variable)
-	unset($GLOBALS[$variable]);
+	$GLOBALS[$variable] = null;
 
 // Load the settings...
 require_once(dirname(__FILE__) . '/Settings.php');
 
-// Devs want all error messages, but others don't.
-error_reporting(!empty($db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
+if (SMF === 1)
+{
+	// Devs want all error messages, but others don't.
+	error_reporting(!empty($db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
+}
 
 // Ensure there are no trailing slashes in these variables.
 foreach (array('boardurl', 'boarddir', 'sourcedir', 'packagesdir', 'tasksdir', 'cachedir') as $variable)
-	if (!empty($GLOBALS[$variable]))
-		$GLOBALS[$variable] = rtrim($GLOBALS[$variable], "\\/");
+	$GLOBALS[$variable] = rtrim($GLOBALS[$variable], "\\/");
+
+// Make sure the paths are correct... at least try to fix them.
+// @todo Remove similar path correction code from Settings.php.
+if (empty($boarddir) || !is_dir(realpath($boarddir)))
+	$boarddir = __DIR__;
+if ((empty($sourcedir) || !is_dir(realpath($sourcedir))) && is_dir($boarddir . '/Sources'))
+	$sourcedir = $boarddir . '/Sources';
+if ((empty($tasksdir) || !is_dir(realpath($tasksdir))) && is_dir($sourcedir . '/tasks'))
+	$tasksdir = $sourcedir . '/tasks';
+if ((empty($packagesdir) || !is_dir(realpath($packagesdir))) && is_dir($boarddir . '/Packages'))
+	$packagesdir = $boarddir . '/Packages';
 
 // Make absolutely sure the cache directory is defined and writable.
 if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
@@ -69,17 +115,42 @@ if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
 	}
 }
 
-// Without those we can't go anywhere
-require_once($sourcedir . '/QueryString.php');
-require_once($sourcedir . '/Subs.php');
-require_once($sourcedir . '/Subs-Auth.php');
-require_once($sourcedir . '/Errors.php');
-require_once($sourcedir . '/Load.php');
-require_once($sourcedir . '/Security.php');
-require_once($sourcedir . '/Autoloader.php');
+/*
+ * 3. Load some other essential includes.
+ */
+
+// Some entry points need more includes than others.
+switch (SMF)
+{
+	case 1:
+	case 'SSI':
+		require_once($sourcedir . '/QueryString.php');
+		require_once($sourcedir . '/Subs-Auth.php');
+		require_once($sourcedir . '/Session.php');
+		require_once($sourcedir . '/Logging.php');
+		// no break
+
+	case 'BACKGROUND':
+		require_once($sourcedir . '/Security.php');
+		// no break
+
+	default:
+		require_once($sourcedir . '/Subs.php');
+		require_once($sourcedir . '/Errors.php');
+		require_once($sourcedir . '/Load.php');
+		require_once($sourcedir . '/Autoloader.php');
+		break;
+}
 
 // Ensure we don't trip over disabled internal functions
 require_once($sourcedir . '/Subs-Compat.php');
+
+
+/*********************************************************************
+ * From this point forward, do stuff specific to normal forum loading.
+ *********************************************************************/
+if (SMF !== 1)
+	return;
 
 // If $maintenance is set specifically to 2, then we're upgrading or something.
 if (!empty($maintenance) &&  2 === $maintenance)
@@ -103,10 +174,6 @@ cleanRequest();
 // Seed the random generator.
 if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
 	smf_seed_generator();
-
-// And important includes.
-require_once($sourcedir . '/Session.php');
-require_once($sourcedir . '/Logging.php');
 
 // If a Preflight is occurring, lets stop now.
 if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS')

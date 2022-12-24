@@ -16,17 +16,6 @@ if (defined('SMF'))
 	return true;
 
 define('SMF', 'SSI');
-define('SMF_VERSION', '3.0 Alpha 1');
-define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2023');
-define('JQUERY_VERSION', '3.6.3');
-define('POSTGRE_TITLE', 'PostgreSQL');
-define('MYSQL_TITLE', 'MySQL');
-define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
-
-// Just being safe...  Do this before defining globals as otherwise it unsets the global.
-foreach (array('db_character_set', 'cachedir') as $variable)
-	unset($GLOBALS[$variable]);
 
 // We're going to want a few globals... these are all set later.
 global $maintenance, $msubject, $mmessage, $mbname, $language;
@@ -36,23 +25,8 @@ global $db_connection, $db_port, $modSettings, $context, $sc, $user_info, $topic
 global $smcFunc, $ssi_db_user, $scripturl, $ssi_db_passwd, $db_passwd, $cache_enable, $cachedir;
 global $auth_secret, $cache_accelerator, $cache_memcached;
 
-if (!defined('TIME_START'))
-	define('TIME_START', microtime(true));
-
-// Get the forum's settings for database and file paths.
-require_once(dirname(__FILE__) . '/Settings.php');
-
-// Make absolutely sure the cache directory is defined and writable.
-if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
-{
-	if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
-		$cachedir = $boarddir . '/cache';
-	else
-	{
-		$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
-		@mkdir($cachedir, 0750);
-	}
-}
+// Initialize.
+require_once(__DIR__ . '/index.php');
 
 $ssi_error_reporting = error_reporting(!empty($db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
 /* Set this to one of three values depending on what you want to happen in the case of a fatal error.
@@ -64,25 +38,7 @@ $ssi_on_error_method = false;
 
 // Don't do john didley if the forum's been shut down completely.
 if ($maintenance == 2 && (!isset($ssi_maintenance_off) || $ssi_maintenance_off !== true))
-	die($mmessage);
-
-// Fix for using the current directory as a path.
-if (substr($sourcedir, 0, 1) == '.' && substr($sourcedir, 1, 1) != '.')
-	$sourcedir = dirname(__FILE__) . substr($sourcedir, 1);
-
-// Load the important includes.
-require_once($sourcedir . '/QueryString.php');
-require_once($sourcedir . '/Session.php');
-require_once($sourcedir . '/Subs.php');
-require_once($sourcedir . '/Errors.php');
-require_once($sourcedir . '/Logging.php');
-require_once($sourcedir . '/Load.php');
-require_once($sourcedir . '/Security.php');
-require_once($sourcedir . '/Subs-Auth.php');
-require_once($sourcedir . '/Autoloader.php');
-
-// Ensure we don't trip over disabled internal functions
-require_once($sourcedir . '/Subs-Compat.php');
+	display_maintenance_message();
 
 // Create a variable to store some SMF specific functions in.
 $smcFunc = array();
@@ -92,6 +48,7 @@ loadDatabase();
 
 // Load installed 'Mods' settings.
 reloadSettings();
+
 // Clean the request variables.
 cleanRequest();
 
@@ -102,12 +59,16 @@ if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
 // Check on any hacking attempts.
 if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS']))
 	die('No direct access...');
-elseif (isset($_REQUEST['ssi_theme']) && (int) $_REQUEST['ssi_theme'] == (int) $ssi_theme)
+
+if (isset($_REQUEST['ssi_theme']) && (int) $_REQUEST['ssi_theme'] == (int) $ssi_theme)
 	die('No direct access...');
-elseif (isset($_COOKIE['ssi_theme']) && (int) $_COOKIE['ssi_theme'] == (int) $ssi_theme)
+
+if (isset($_COOKIE['ssi_theme']) && (int) $_COOKIE['ssi_theme'] == (int) $ssi_theme)
 	die('No direct access...');
-elseif (isset($_REQUEST['ssi_layers'], $ssi_layers) && (@get_magic_quotes_gpc() ? stripslashes($_REQUEST['ssi_layers']) : $_REQUEST['ssi_layers']) == $ssi_layers)
+
+if (isset($_REQUEST['ssi_layers'], $ssi_layers) && (@get_magic_quotes_gpc() ? stripslashes($_REQUEST['ssi_layers']) : $_REQUEST['ssi_layers']) == $ssi_layers)
 	die('No direct access...');
+
 if (isset($_REQUEST['context']))
 	die('No direct access...');
 
