@@ -20,16 +20,12 @@
  * @version 3.0 Alpha 1
  */
 
-define('SMF', 'BACKGROUND');
-define('SMF_VERSION', '3.0 Alpha 1');
-define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2023');
-define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
+// Don't do anything if SMF is already loaded.
+if (defined('SMF'))
+	return true;
 
-define('JQUERY_VERSION', '3.6.3');
-define('POSTGRE_TITLE', 'PostgreSQL');
-define('MYSQL_TITLE', 'MySQL');
-define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
+define('SMF', 'BACKGROUND');
+define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
 
 // This one setting is worth bearing in mind. If you are running this from proper cron, make sure you
 // don't run this file any more frequently than indicated here. It might turn ugly if you do.
@@ -46,36 +42,12 @@ global $db_server, $db_name, $db_user, $db_prefix, $db_persist, $db_error_send, 
 global $db_connection, $modSettings, $context, $sc, $user_info, $txt;
 global $smcFunc, $ssi_db_user, $scripturl, $db_passwd, $cachedir;
 
-if (!defined('TIME_START'))
-	define('TIME_START', microtime(true));
-
-// Just being safe...
-foreach (array('db_character_set', 'cachedir') as $variable)
-	if (isset($GLOBALS[$variable]))
-		unset($GLOBALS[$variable]);
-
-// Get the forum's settings for database and file paths.
-require_once(dirname(__FILE__) . '/Settings.php');
-
-// Make absolutely sure the cache directory is defined and writable.
-if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
-{
-	if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
-		$cachedir = $boarddir . '/cache';
-	else
-	{
-		$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
-		@mkdir($cachedir, 0750);
-	}
-}
+// Initialize.
+require_once(__DIR__ . '/index.php');
 
 // Don't do john didley if the forum's been shut down completely.
-if ($maintenance == 2)
-	die($mmessage);
-
-// Fix for using the current directory as a path.
-if (substr($sourcedir, 0, 1) == '.' && substr($sourcedir, 1, 1) != '.')
-	$sourcedir = dirname(__FILE__) . substr($sourcedir, 1);
+if (!empty($maintenance) &&  2 === $maintenance)
+	display_maintenance_message();
 
 // Have we already turned this off? If so, exist gracefully.
 if (file_exists($cachedir . '/cron.lock'))
@@ -96,16 +68,6 @@ if (!FROM_CLI)
 
 else
 	$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
-
-// Load the most important includes. In general, a background should be loading its own dependencies.
-require_once($sourcedir . '/Errors.php');
-require_once($sourcedir . '/Load.php');
-require_once($sourcedir . '/Security.php');
-require_once($sourcedir . '/Subs.php');
-require_once($sourcedir . '/Autoloader.php');
-
-// Ensure we don't trip over disabled internal functions
-require_once($sourcedir . '/Subs-Compat.php');
 
 // Create a variable to store some SMF specific functions in.
 $smcFunc = array();

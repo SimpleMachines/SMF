@@ -16,27 +16,6 @@
 if (!defined('SMF'))
 	define('SMF', 'PROXY');
 
-if (!defined('SMF_VERSION'))
-	define('SMF_VERSION', '3.0 Alpha 1');
-
-if (!defined('SMF_FULL_VERSION'))
-	define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-
-if (!defined('SMF_SOFTWARE_YEAR'))
-	define('SMF_SOFTWARE_YEAR', '2023');
-
-if (!defined('JQUERY_VERSION'))
-	define('JQUERY_VERSION', '3.6.3');
-
-if (!defined('POSTGRE_TITLE'))
-	define('POSTGRE_TITLE', 'PostgreSQL');
-
-if (!defined('MYSQL_TITLE'))
-	define('MYSQL_TITLE', 'MySQL');
-
-if (!defined('SMF_USER_AGENT'))
-	define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m') . ') AppleWebKit/605.1.15 (KHTML, like Gecko)  SMF/' . strtr(SMF_VERSION, ' ', '.'));
-
 /**
  * Class ProxyServer
  */
@@ -76,26 +55,7 @@ class ProxyServer
 	 */
 	public function __construct()
 	{
-		global $image_proxy_enabled, $image_proxy_maxsize, $image_proxy_secret, $cachedir, $sourcedir;
-
-		require_once(dirname(__FILE__) . '/Settings.php');
-		require_once($sourcedir . '/Subs.php');
-		require_once($sourcedir . '/Autoloader.php');
-
-		// Ensure we don't trip over disabled internal functions
-		require_once($sourcedir . '/Subs-Compat.php');
-
-		// Make absolutely sure the cache directory is defined and writable.
-		if (empty($cachedir) || !is_dir($cachedir) || !is_writable($cachedir))
-		{
-			if (is_dir($boarddir . '/cache') && is_writable($boarddir . '/cache'))
-				$cachedir = $boarddir . '/cache';
-			else
-			{
-				$cachedir = sys_get_temp_dir() . '/smf_cache_' . md5($boarddir);
-				@mkdir($cachedir, 0750);
-			}
-		}
+		global $image_proxy_enabled, $image_proxy_maxsize, $image_proxy_secret, $cachedir;
 
 		// Turn off all error reporting; any extra junk makes for an invalid image.
 		error_reporting(0);
@@ -322,6 +282,9 @@ class ProxyServer
 
 if (SMF == 'PROXY')
 {
+	// Initialize.
+	require_once(__DIR__ . '/index.php');
+
 	$proxy = new ProxyServer();
 	$proxy->serve();
 }

@@ -33,27 +33,31 @@
 $boarddir = realpath(dirname(__DIR__));
 $sourcedir = $boarddir . '/Sources';
 
-// 2. Borrow a bit of stuff from cron.php.
-$cron_php_start = file_get_contents($boarddir . '/cron.php', false, null, 0, 4096);
+// 2. Impersonate cron.php
+define('SMF', 'BACKGROUND');
+define('SMF_USER_AGENT', 'SMF');
+define('MAX_CLAIM_THRESHOLD', 300);
+define('TIME_START', microtime(true));
+define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
 
-foreach (array('SMF', 'SMF_VERSION', 'SMF_SOFTWARE_YEAR') as $const)
+// 3. Borrow a bit of stuff from index.php.
+$index_php_start = file_get_contents($boarddir . '/index.php', false, null, 0, 4096);
+
+foreach (array('SMF_VERSION', 'SMF_SOFTWARE_YEAR') as $const)
 {
-	preg_match("/define\('$const', '([^)]+)'\);/", $cron_php_start, $matches);
+	preg_match("/define\('$const', '([^)]+)'\);/", $index_php_start, $matches);
 
 	if (empty($matches[1]))
-		die("Could not find value for $const in cron.php");
+		die("Could not find value for $const in index.php");
 
 	define($const, $matches[1]);
 }
 
-define('SMF_USER_AGENT', 'SMF');
-define('MAX_CLAIM_THRESHOLD', 300);
-define('TIME_START', microtime(true));
-
-// 3. Do the job.
+// 4. Get some more stuff we need.
 require_once($sourcedir . '/Autoloader.php');
 require_once($sourcedir . '/Subs.php');
 
+// 5. Do the job.
 $unicode_updater = new SMF\Tasks\UpdateUnicode(array());
 $unicode_updater->execute();
 
