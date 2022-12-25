@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Forum;
 use SMF\Fetchers\CurlFetcher;
 
 if (!defined('SMF'))
@@ -4105,7 +4106,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
  */
 function obExit($header = null, $do_footer = null, $from_index = false, $from_fatal_error = false)
 {
-	global $context, $settings, $modSettings, $txt, $smcFunc, $should_log;
+	global $context, $settings, $modSettings, $txt, $smcFunc;
 	static $header_done = false, $footer_done = false, $level = 0, $has_fatal_error = false;
 
 	// Attempt to prevent a recursive loop.
@@ -4183,7 +4184,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	}
 
 	// Remember this URL in case someone doesn't like sending HTTP_REFERER.
-	if ($should_log)
+	if (!is_filtered_request(Forum::$unlogged_actions, 'action'))
 		$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];
 
 	// For session check verification.... don't switch browsers...
