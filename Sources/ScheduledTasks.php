@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\ProxyServer;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -258,7 +260,6 @@ function scheduled_daily_maintenance()
 	// Run Imageproxy housekeeping
 	if (!empty($image_proxy_enabled))
 	{
-		require_once($boarddir . '/proxy.php');
 		$proxy = new ProxyServer();
 		$proxy->housekeeping();
 	}
