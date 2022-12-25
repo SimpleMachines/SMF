@@ -13,6 +13,8 @@
 
 namespace SMF\Tasks;
 
+use SMF\TaskRunner;
+
 /**
  * @todo Find a way to throttle the export rate dynamically when dealing with
  * truly enormous amounts of data. Specifically, if the dataset contains lots
@@ -78,7 +80,7 @@ class ExportProfileData extends BackgroundTask
 		// Avoid leaving files in an inconsistent state.
 		ignore_user_abort(true);
 
-		$this->time_limit = (ini_get('safe_mode') === false && @set_time_limit(MAX_CLAIM_THRESHOLD) !== false) ? MAX_CLAIM_THRESHOLD : ini_get('max_execution_time');
+		$this->time_limit = (ini_get('safe_mode') === false && @set_time_limit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false) ? Taskrunner::MAX_CLAIM_THRESHOLD : ini_get('max_execution_time');
 
 		// This could happen if the user manually changed the URL params of the export request.
 		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor')))
@@ -256,20 +258,20 @@ class ExportProfileData extends BackgroundTask
 
 			// Cache for subsequent reuse.
 			$profile_basic_items = $context['feed']['items'];
-			cache_put_data('export_profile_basic-' . $uid, $profile_basic_items, MAX_CLAIM_THRESHOLD);
+			cache_put_data('export_profile_basic-' . $uid, $profile_basic_items, Taskrunner::MAX_CLAIM_THRESHOLD);
 		}
 
 		// Posts and PMs...
 		else
 		{
 			// We need the basic profile data in every export file.
-			$profile_basic_items = cache_get_data('export_profile_basic-' . $uid, MAX_CLAIM_THRESHOLD);
+			$profile_basic_items = cache_get_data('export_profile_basic-' . $uid, Taskrunner::MAX_CLAIM_THRESHOLD);
 			if (empty($profile_basic_items))
 			{
 				$profile_data = call_user_func($included['profile']['func'], 'smf', true);
 				buildXmlFeed('smf', $profile_data, $feed_meta, 'profile');
 				$profile_basic_items = $context['feed']['items'];
-				cache_put_data('export_profile_basic-' . $uid, $profile_basic_items, MAX_CLAIM_THRESHOLD);
+				cache_put_data('export_profile_basic-' . $uid, $profile_basic_items, Taskrunner::MAX_CLAIM_THRESHOLD);
 				unset($context['feed']);
 			}
 
@@ -359,7 +361,7 @@ class ExportProfileData extends BackgroundTask
 					// Write failed. We'll try again next time.
 					if (empty($bytes_written))
 					{
-						$delay = MAX_CLAIM_THRESHOLD;
+						$delay = Taskrunner::MAX_CLAIM_THRESHOLD;
 						break;
 					}
 
@@ -434,7 +436,7 @@ class ExportProfileData extends BackgroundTask
 			if (!empty($new_item_count))
 				$new_details['item_count'] = $new_item_count;
 
-			$this->next_task = array(__FILE__, __CLASS__, $smcFunc['json_encode']($new_details), time() - MAX_CLAIM_THRESHOLD + $delay);
+			$this->next_task = array(__FILE__, __CLASS__, $smcFunc['json_encode']($new_details), time() - Taskrunner::MAX_CLAIM_THRESHOLD + $delay);
 
 			if (!file_exists($tempfile))
 			{
@@ -521,7 +523,7 @@ class ExportProfileData extends BackgroundTask
 					$new_details = $this->_details;
 					$new_details['start'] = $smcFunc['json_decode'](file_get_contents($progressfile), true);
 
-					$this->next_task = array(__FILE__, __CLASS__, $smcFunc['json_encode']($new_details), time() - MAX_CLAIM_THRESHOLD);
+					$this->next_task = array(__FILE__, __CLASS__, $smcFunc['json_encode']($new_details), time() - Taskrunner::MAX_CLAIM_THRESHOLD);
 				}
 
 				// So let's just relax and take a well deserved...
