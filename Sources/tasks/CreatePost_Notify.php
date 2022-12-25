@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\Mentions;
+use SMF\TaskRunner;
 
 /**
  * This class contains code used to notify people when a new post is created that
@@ -332,7 +333,7 @@ class CreatePost_Notify extends BackgroundTask
 						'$sourcedir/tasks/CreatePost_Notify.php',
 						'SMF\Tasks\CreatePost_Notify',
 						$smcFunc['json_encode']($new_details),
-						max(0, $this->mention_mail_time - MAX_CLAIM_THRESHOLD),
+						max(0, $this->mention_mail_time - TaskRunner::MAX_CLAIM_THRESHOLD),
 					),
 					array('id_task')
 				);

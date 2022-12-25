@@ -36,9 +36,7 @@ $sourcedir = $boarddir . '/Sources';
 // 2. Impersonate cron.php
 define('SMF', 'BACKGROUND');
 define('SMF_USER_AGENT', 'SMF');
-define('MAX_CLAIM_THRESHOLD', 300);
 define('TIME_START', microtime(true));
-define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
 
 // 3. Borrow a bit of stuff from index.php.
 $index_php_start = file_get_contents($boarddir . '/index.php', false, null, 0, 4096);
