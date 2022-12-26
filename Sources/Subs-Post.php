@@ -15,6 +15,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Mentions;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -1782,8 +1784,6 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
 	global $user_info, $txt, $modSettings, $smcFunc, $sourcedir;
 
-	require_once($sourcedir . '/Mentions.php');
-
 	// Set optional parameters to the default value.
 	$msgOptions['icon'] = empty($msgOptions['icon']) ? 'xx' : $msgOptions['icon'];
 	$msgOptions['smileys_enabled'] = !empty($msgOptions['smileys_enabled']);
@@ -2256,8 +2256,6 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		$searchAPI->postRemoved($msgOptions['id']);
 
 	// Anyone quoted or mentioned?
-	require_once($sourcedir . '/Mentions.php');
-
 	$quoted_members = Mentions::getQuotedMembers($msgOptions['body'], $posterOptions['id']);
 	$quoted_modifications = Mentions::modifyMentions('quote', $msgOptions['id'], $quoted_members, $posterOptions['id']);
 

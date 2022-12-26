@@ -13,6 +13,8 @@
 
 namespace SMF\Tasks;
 
+use SMF\Mentions;
+
 /**
  * This class contains code used to notify people when a new post is created that
  * is relevant to them in some way: new topics in boards they watch, replies to
@@ -87,7 +89,6 @@ class CreatePost_Notify extends BackgroundTask
 		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings, $user_info, $txt;
 
 		require_once($sourcedir . '/Subs-Post.php');
-		require_once($sourcedir . '/Mentions.php');
 		require_once($sourcedir . '/Subs-Notify.php');
 		require_once($sourcedir . '/Subs.php');
 		require_once($sourcedir . '/ScheduledTasks.php');
