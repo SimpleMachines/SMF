@@ -354,7 +354,7 @@ function smf_main()
 		'about:unknown' => array('Likes.php', 'BookOfUnknown'),
 		'unread' => array('Recent.php', 'UnreadTopics'),
 		'unreadreplies' => array('Recent.php', 'UnreadTopics'),
-		'uploadAttach' => array('Attachments.php', 'Attachments::call#'),
+		'uploadAttach' => array('Attachments.php', 'SMF\\Attachments::call#'),
 		'verificationcode' => array('Register.php', 'VerificationCode'),
 		'viewprofile' => array('Profile.php', 'ModifyProfile'),
 		'vote' => array('Poll.php', 'Vote'),
