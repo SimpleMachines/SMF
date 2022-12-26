@@ -2007,6 +2007,27 @@ function loadPaymentGateways()
 	global $sourcedir;
 
 	$gateways = array();
+
+	// Check for autoloading payment gateways.
+	$subscriptions_dir = $sourcedir . '/Subscriptions';
+	foreach (glob($sourcedir . '/Subscriptions/*') as $gateway_dir)
+	{
+		$gateway_dir = basename($gateway_dir);
+
+		if ($gateway_dir === 'index.php')
+			continue;
+
+		$gateways[] = array(
+			'filename' => null,
+			'code' => strtolower($gateway_dir),
+			'valid_version' => class_exists('SMF\\Subscriptions\\' . $gateway_dir . '\\Payment') && class_exists('SMF\\Subscriptions\\' . $gateway_dir . '\\Display'),
+			'payment_class' => 'SMF\\Subscriptions\\' . $gateway_dir . '\\Payment',
+			'display_class' => 'SMF\\Subscriptions\\' . $gateway_dir . '\\Display',
+		);
+	}
+
+	// Check for payment gateways using the old comment-based system.
+	// Kept for backward compatibility.
 	if ($dh = opendir($sourcedir))
 	{
 		while (($file = readdir($dh)) !== false)
