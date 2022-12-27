@@ -18,6 +18,8 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
+use SMF\ServerSideIncludes as SSI;
+
 /**
  * Log an error, if the error logging is enabled.
  * filename and line should be __FILE__ and __LINE__, respectively.
@@ -344,7 +346,7 @@ function smf_error_handler($error_level, $error_string, $file, $line)
  */
 function setup_fatal_error_context($error_message, $error_code = null)
 {
-	global $context, $txt, $ssi_on_error_method;
+	global $context, $txt;
 	static $level = 0;
 
 	// Attempt to prevent a recursive loop.
@@ -376,13 +378,13 @@ function setup_fatal_error_context($error_message, $error_code = null)
 	// If this is SSI, what do they want us to do?
 	if (SMF == 'SSI')
 	{
-		if (!empty($ssi_on_error_method) && $ssi_on_error_method !== true && is_callable($ssi_on_error_method))
-			$ssi_on_error_method();
-		elseif (empty($ssi_on_error_method) || $ssi_on_error_method !== true)
+		if (!empty(SSI::$on_error_method) && SSI::$on_error_method !== true && is_callable(SSI::$on_error_method))
+			call_user_func(SSI::$on_error_method);
+		elseif (empty(SSI::$on_error_method) || SSI::$on_error_method !== true)
 			loadSubTemplate('fatal_error');
 
 		// No layers?
-		if (empty($ssi_on_error_method) || $ssi_on_error_method !== true)
+		if (empty(SSI::$on_error_method) || SSI::$on_error_method !== true)
 			exit;
 	}
 	// Alternatively from the cron call?
