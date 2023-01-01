@@ -36,8 +36,6 @@ function ManageSearch()
 	loadLanguage('Search');
 	loadTemplate('ManageSearch');
 
-	db_extend('search');
-
 	$subActions = array(
 		'settings' => 'EditSearchSettings',
 		'weights' => 'EditWeights',
@@ -296,7 +294,6 @@ function EditSearchMethod()
 		checkSession('get');
 		validateToken('admin-msm', 'get');
 
-		db_extend();
 		$tables = $smcFunc['db_list_tables'](false, $db_prefix . 'log_search_words');
 		if (!empty($tables))
 		{
@@ -401,7 +398,6 @@ function EditSearchMethod()
 	elseif ($db_type == 'postgresql')
 	{
 		// In order to report the sizes correctly we need to perform vacuum (optimize) on the tables we will be using.
-		//db_extend();
 		//$temp_tables = $smcFunc['db_list_tables']();
 		//foreach ($temp_tables as $table)
 		//	if ($table == $db_prefix. 'messages' || $table == $db_prefix. 'log_search_words')
@@ -562,7 +558,6 @@ function CreateMessageIndex()
 
 		if ($context['start'] === 0)
 		{
-			db_extend();
 			$tables = $smcFunc['db_list_tables'](false, $db_prefix . 'log_search_words');
 			if (!empty($tables))
 			{
@@ -836,9 +831,6 @@ function loadSearchAPIs()
 function detectFulltextIndex()
 {
 	global $smcFunc, $context, $db_prefix;
-
-	// We need this for db_get_version
-	db_extend();
 
 	if ($smcFunc['db_title'] === POSTGRE_TITLE)
 	{

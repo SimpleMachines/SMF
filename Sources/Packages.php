@@ -1058,9 +1058,6 @@ function PackageInstall()
 				global $txt, $boarddir, $sourcedir, $modSettings, $context, $settings, $smcFunc;
 				global $db_package_log;
 
-				// We'll likely want the package specific database functionality!
-				db_extend('packages');
-
 				// Let the file work its magic ;)
 				if (file_exists($packagesdir . '/temp/' . $context['base_path'] . $action['filename']))
 					require($packagesdir . '/temp/' . $context['base_path'] . $action['filename']);
@@ -1235,9 +1232,6 @@ function PackageInstall()
 	// If there's database changes - and they want them removed - let's do it last!
 	if (!empty($db_changes) && !empty($_POST['do_db_changes']))
 	{
-		// We're gonna be needing the package db functions!
-		db_extend('packages');
-
 		foreach ($db_changes as $change)
 		{
 			if ($change[0] == 'remove_table' && isset($change[1]))

@@ -335,9 +335,6 @@ function PlushSearch2()
 	require_once($sourcedir . '/Display.php');
 	require_once($sourcedir . '/Subs-Package.php');
 
-	// Search has a special database set.
-	db_extend('search');
-
 	// Load up the search API we are going to use.
 	$searchAPI = findSearchAPI();
 
@@ -2315,9 +2312,6 @@ function findSearchAPI()
 	global $sourcedir, $modSettings, $searchAPI, $txt;
 
 	require_once($sourcedir . '/Subs-Package.php');
-
-	// Search has a special database set.
-	db_extend('search');
 
 	// Load up the search API we are going to use.
 	$modSettings['search_index'] = empty($modSettings['search_index']) ? 'standard' : $modSettings['search_index'];

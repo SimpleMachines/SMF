@@ -392,7 +392,6 @@ function BoardurlMatch($url = '')
 function ModifyDatabaseSettings($return_config = false)
 {
 	global $scripturl, $context, $txt, $smcFunc;
-	db_extend('extra');
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 		For each option:

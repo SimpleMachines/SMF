@@ -14,6 +14,7 @@
  */
 
 use SMF\Cache\CacheApiInterface;
+use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -26,7 +27,7 @@ if (!defined('SMF'))
  */
 function getServerVersions($checkFor)
 {
-	global $txt, $db_connection, $sourcedir, $smcFunc, $modSettings;
+	global $txt, $sourcedir, $smcFunc, $modSettings;
 
 	loadLanguage('Admin');
 	loadLanguage('ManageSettings');
@@ -64,8 +65,7 @@ function getServerVersions($checkFor)
 	// Now lets check for the Database.
 	if (in_array('db_server', $checkFor))
 	{
-		db_extend();
-		if (!isset($db_connection) || $db_connection === false)
+		if (!isset(Db::$db_connection) || Db::$db_connection === false)
 		{
 			loadLanguage('Errors');
 			trigger_error($txt['get_server_versions_no_database'], E_USER_NOTICE);

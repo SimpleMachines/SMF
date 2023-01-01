@@ -14,6 +14,7 @@
  */
 
 use SMF\Forum;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Fetchers\CurlFetcher;
 
 if (!defined('SMF'))
@@ -4042,7 +4043,7 @@ function get_proxied_url($url)
  */
 function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 {
-	global $scripturl, $context, $modSettings, $db_show_debug, $db_cache;
+	global $scripturl, $context, $modSettings, $db_show_debug;
 
 	// In case we have mail to send, better do that - as obExit doesn't always quite make it...
 	if (!empty($context['flush_mail']))
@@ -4091,7 +4092,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 
 	// Debugging.
 	if (isset($db_show_debug) && $db_show_debug === true)
-		$_SESSION['debug_redirect'] = $db_cache;
+		$_SESSION['debug_redirect'] = Db::$cache;
 
 	obExit(false);
 }
@@ -4677,12 +4678,12 @@ function theme_copyright()
  */
 function template_footer()
 {
-	global $context, $modSettings, $db_count;
+	global $context, $modSettings;
 
 	// Show the load time?  (only makes sense for the footer.)
 	$context['show_load_time'] = !empty($modSettings['timeLoadPageEnable']);
 	$context['load_time'] = round(microtime(true) - TIME_START, 3);
-	$context['load_queries'] = $db_count;
+	$context['load_queries'] = Db::$count;
 
 	if (!empty($context['template_layers']) && is_array($context['template_layers']))
 		foreach (array_reverse($context['template_layers']) as $layer)

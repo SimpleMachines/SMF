@@ -133,8 +133,6 @@ function MaintainDatabase()
 
 	if ($db_type == 'mysql')
 	{
-		db_extend('packages');
-
 		$colData = $smcFunc['db_list_columns']('{db_prefix}messages', true);
 		foreach ($colData as $column)
 			if ($column['name'] == 'body')
@@ -345,8 +343,6 @@ function ConvertMsgBody()
 
 	if ($db_type != 'mysql')
 		return;
-
-	db_extend('packages');
 
 	$colData = $smcFunc['db_list_columns']('{db_prefix}messages', true);
 	foreach ($colData as $column)
@@ -723,7 +719,6 @@ function OptimizeTables()
 		validateToken('admin-optimize', 'post', false);
 
 	ignore_user_abort(true);
-	db_extend();
 
 	$context['page_title'] = $txt['database_optimize'];
 	$context['sub_template'] = 'optimize';

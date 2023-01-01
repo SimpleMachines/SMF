@@ -1150,7 +1150,7 @@ function getEventPoster($event_id)
 	);
 
 	// No results, return false.
-	if ($smcFunc['db_num_rows'] === 0)
+	if ($smcFunc['db_num_rows']($request) === 0)
 		return false;
 
 	// Grab the results and return.

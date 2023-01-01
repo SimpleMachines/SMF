@@ -42,10 +42,9 @@ $databases = array(
 		'name' => 'MySQL',
 		'version' => '5.6.0',
 		'version_check' => function() {
-			global $db_connection;
 			if (!function_exists('mysqli_fetch_row'))
 				return false;
-			return mysqli_fetch_row(mysqli_query($db_connection, 'SELECT VERSION();'))[0];
+			return mysqli_fetch_row(mysqli_query(SMF\Db\DatabaseApi::$db_connection, 'SELECT VERSION();'))[0];
 		},
 		'supported' => function_exists('mysqli_connect'),
 		'default_user' => 'mysql.default_user',
@@ -58,8 +57,7 @@ $databases = array(
 		},
 		'utf8_version' => '5.0.22',
 		'utf8_version_check' => function() {
-			global $db_connection;
-			return mysqli_get_server_info($db_connection);
+			return mysqli_get_server_info(SMF\Db\DatabaseApi::$db_connection);
 		},
 		'alter_support' => true,
 		'validate_prefix' => function(&$value)
@@ -72,8 +70,7 @@ $databases = array(
 		'name' => 'PostgreSQL',
 		'version' => '9.6',
 		'version_check' => function() {
-			global $db_connection;
-			$request = pg_query($db_connection, 'SELECT version()');
+			$request = pg_query(SMF\Db\DatabaseApi::$db_connection, 'SELECT version()');
 			list ($version) = pg_fetch_row($request);
 			list($pgl, $version) = explode(' ', $version);
 			return $version;
@@ -82,8 +79,7 @@ $databases = array(
 		'always_has_db' => true,
 		'utf8_support' => function()
 		{
-			global $db_connection;
-			$request = pg_query($db_connection, 'SHOW SERVER_ENCODING');
+			$request = pg_query(SMF\Db\DatabaseApi::$db_connection, 'SHOW SERVER_ENCODING');
 
 			list ($charcode) = pg_fetch_row($request);
 
@@ -94,8 +90,7 @@ $databases = array(
 		},
 		'utf8_version' => '8.0',
 		'utf8_version_check' => function (){
-			global $db_connection;
-			$request = pg_query($db_connection, 'SELECT version()');
+			$request = pg_query(SMF\Db\DatabaseApi::$db_connection, 'SELECT version()');
 			list ($version) = pg_fetch_row($request);
 			list($pgl, $version) = explode(' ', $version);
 			return $version;
@@ -387,7 +382,7 @@ function load_lang_file()
 // This handy function loads some settings and the like.
 function load_database()
 {
-	global $db_prefix, $db_connection, $sourcedir, $smcFunc, $modSettings, $db_port;
+	global $db_prefix, $sourcedir, $smcFunc, $modSettings, $db_port;
 	global $db_server, $db_passwd, $db_type, $db_name, $db_user, $db_persist, $db_mb4;
 
 	if (empty($sourcedir))
@@ -402,21 +397,12 @@ function load_database()
 
 	$modSettings['disableQueryCheck'] = true;
 
+	require_once($sourcedir . '/Autoloader.php');
+
 	// Connect the database.
-	if (!$db_connection)
+	if (empty(SMF\Db\DatabaseApi::$db_connection))
 	{
-		require_once($sourcedir . '/Subs-Db-' . $db_type . '.php');
-
-		$options = array('persist' => $db_persist);
-
-		if (!empty($db_port))
-			$options['port'] = $db_port;
-
-		if (!empty($db_mb4))
-			$options['db_mb4'] = $db_mb4;
-
-		if (!$db_connection)
-			$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
+		SMF\Db\DatabaseApi::load();
 	}
 }
 
@@ -747,7 +733,7 @@ function CheckFilesWritable()
 function DatabaseSettings()
 {
 	global $txt, $databases, $incontext, $smcFunc, $sourcedir;
-	global $db_server, $db_name, $db_user, $db_passwd, $db_port, $db_mb4, $db_connection;
+	global $db_server, $db_name, $db_user, $db_passwd, $db_port, $db_mb4;
 
 	$incontext['sub_template'] = 'database_settings';
 	$incontext['page_title'] = $txt['db_settings'];
@@ -857,9 +843,9 @@ function DatabaseSettings()
 			$sourcedir = dirname(__FILE__) . '/Sources';
 
 		// Better find the database file!
-		if (!file_exists($sourcedir . '/Subs-Db-' . $db_type . '.php'))
+		if (!file_exists($sourcedir . '/Db/APIs/' . $db_type . '.php'))
 		{
-			$incontext['error'] = sprintf($txt['error_db_file'], 'Subs-Db-' . $db_type . '.php');
+			$incontext['error'] = sprintf($txt['error_db_file'], 'Db/APIs/' . $db_type . '.php');
 			return false;
 		}
 
@@ -871,23 +857,15 @@ function DatabaseSettings()
 		if (empty($smcFunc))
 			$smcFunc = array();
 
-		require_once($sourcedir . '/Subs-Db-' . $db_type . '.php');
+		require_once($sourcedir . '/Autoloader.php');
 
 		// Attempt a connection.
 		$needsDB = !empty($databases[$db_type]['always_has_db']);
 
-		$options = array('non_fatal' => true, 'dont_select_db' => !$needsDB);
-		// Add in the port if needed
-		if (!empty($db_port))
-			$options['port'] = $db_port;
-
-		if (!empty($db_mb4))
-			$options['db_mb4'] = $db_mb4;
-
-		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
+		SMF\Db\DatabaseApi::load(array('non_fatal' => true, 'dont_select_db' => !$needsDB));
 
 		// Still no connection?  Big fat error message :P.
-		if (!$db_connection)
+		if (!SMF\Db\DatabaseApi::$db_connection)
 		{
 			// Get error info...  Recast just in case we get false or 0...
 			$error_message = $smcFunc['db_connect_error']();
@@ -919,11 +897,11 @@ function DatabaseSettings()
 					'security_override' => true,
 					'db_error_skip' => true,
 				),
-				$db_connection
+				SMF\Db\DatabaseApi::$db_connection
 			);
 
 			// Okay, let's try the prefix if it didn't work...
-			if (!$smcFunc['db_select_db']($db_name, $db_connection) && $db_name != '')
+			if (!$smcFunc['db_select_db']($db_name, SMF\Db\DatabaseApi::$db_connection) && $db_name != '')
 			{
 				$smcFunc['db_query']('', "
 					CREATE DATABASE IF NOT EXISTS `$_POST[db_prefix]$db_name`",
@@ -931,10 +909,10 @@ function DatabaseSettings()
 						'security_override' => true,
 						'db_error_skip' => true,
 					),
-					$db_connection
+					SMF\Db\DatabaseApi::$db_connection
 				);
 
-				if ($smcFunc['db_select_db']($_POST['db_prefix'] . $db_name, $db_connection))
+				if ($smcFunc['db_select_db']($_POST['db_prefix'] . $db_name, SMF\Db\DatabaseApi::$db_connection))
 				{
 					$db_name = $_POST['db_prefix'] . $db_name;
 					installer_updateSettingsFile(array('db_name' => $db_name));
@@ -942,7 +920,7 @@ function DatabaseSettings()
 			}
 
 			// Okay, now let's try to connect...
-			if (!$smcFunc['db_select_db']($db_name, $db_connection))
+			if (!$smcFunc['db_select_db']($db_name, SMF\Db\DatabaseApi::$db_connection))
 			{
 				$incontext['error'] = sprintf($txt['error_db_database'], $db_name);
 				return false;
@@ -958,7 +936,7 @@ function DatabaseSettings()
 // Let's start with basic forum type settings.
 function ForumSettings()
 {
-	global $txt, $incontext, $databases, $db_type, $db_connection, $smcFunc;
+	global $txt, $incontext, $databases, $db_type, $smcFunc;
 
 	$incontext['sub_template'] = 'forum_settings';
 	$incontext['page_title'] = $txt['install_settings'];
@@ -1111,7 +1089,7 @@ function ForumSettings()
 // Step one: Do the SQL thang.
 function DatabasePopulation()
 {
-	global $db_character_set, $txt, $db_connection, $smcFunc, $databases, $modSettings, $db_type, $db_prefix, $incontext, $db_name, $boardurl;
+	global $db_character_set, $txt, $smcFunc, $databases, $modSettings, $db_type, $db_prefix, $incontext, $db_name, $boardurl;
 
 	$incontext['sub_template'] = 'populate_database';
 	$incontext['page_title'] = $txt['db_populate'];
@@ -1261,11 +1239,11 @@ function DatabasePopulation()
 			continue;
 		}
 
-		if ($smcFunc['db_query']('', $current_statement, array('security_override' => true, 'db_error_skip' => true), $db_connection) === false)
+		if ($smcFunc['db_query']('', $current_statement, array('security_override' => true, 'db_error_skip' => true), SMF\Db\DatabaseApi::$db_connection) === false)
 		{
 			// Error 1050: Table already exists!
 			// @todo Needs to be made better!
-			if ((($db_type != 'mysql' && $db_type != 'mysqli') || mysqli_errno($db_connection) == 1050) && preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1)
+			if ((($db_type != 'mysql' && $db_type != 'mysqli') || mysqli_errno(SMF\Db\DatabaseApi::$db_connection) == 1050) && preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1)
 			{
 				$exists[] = $match[1];
 				$incontext['sql_results']['table_dups']++;
@@ -1274,7 +1252,7 @@ function DatabasePopulation()
 			elseif (!preg_match('~^\s*CREATE( UNIQUE)? INDEX ([^\n\r]+?)~', $current_statement, $match) && !($db_type == 'postgresql' && preg_match('~^\s*CREATE OPERATOR (^\n\r]+?)~', $current_statement, $match)))
 			{
 				// MySQLi requires a connection object. It's optional with MySQL and Postgres
-				$incontext['failures'][$count] = $smcFunc['db_error']($db_connection);
+				$incontext['failures'][$count] = $smcFunc['db_error'](SMF\Db\DatabaseApi::$db_connection);
 			}
 		}
 		else
@@ -1446,7 +1424,6 @@ function DatabasePopulation()
 	// Let's optimize those new tables, but not on InnoDB, ok?
 	if (!$has_innodb)
 	{
-		db_extend();
 		$tables = $smcFunc['db_list_tables']($db_name, $db_prefix . '%');
 		foreach ($tables as $table)
 		{

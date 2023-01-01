@@ -447,7 +447,7 @@ function display_maintenance_message()
 function display_db_error()
 {
 	global $mbname, $modSettings, $maintenance;
-	global $db_connection, $webmaster_email, $db_last_error, $db_error_send, $smcFunc, $sourcedir, $cache_enable;
+	global $webmaster_email, $db_last_error, $db_error_send, $smcFunc, $sourcedir, $cache_enable;
 
 	require_once($sourcedir . '/Logging.php');
 	set_fatal_error_headers();
@@ -466,8 +466,8 @@ function display_db_error()
 			logLastDatabaseError();
 
 		// Language files aren't loaded yet :(.
-		$db_error = @$smcFunc['db_error']($db_connection);
-		@mail($webmaster_email, $mbname . ': SMF Database Error!', 'There has been a problem with the database!' . ($db_error == '' ? '' : "\n" . $smcFunc['db_title'] . ' reported:' . "\n" . $db_error) . "\n\n" . 'This is a notice email to let you know that SMF could not connect to the database, contact your host if this continues.');
+		$db_error = isset(Db::$db) ? @Db::$db->error() : '';
+		@mail($webmaster_email, $mbname . ': SMF Database Error!', 'There has been a problem with the database!' . ($db_error == '' ? '' : "\n" . Db::$db->title . ' reported:' . "\n" . $db_error) . "\n\n" . 'This is a notice email to let you know that SMF could not connect to the database, contact your host if this continues.');
 	}
 
 	// What to do?  Language files haven't and can't be loaded yet...
