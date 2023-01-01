@@ -1519,7 +1519,7 @@ function list_getNumSmileys()
 		FROM {db_prefix}smileys',
 		array()
 	);
-	list($numSmileys) = $smcFunc['db_fetch_row'];
+	list($numSmileys) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	return $numSmileys;

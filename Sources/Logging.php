@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Db\DatabaseApi as Db;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -206,7 +208,7 @@ function logLastDatabaseError()
 function displayDebug()
 {
 	global $context, $scripturl, $boarddir, $sourcedir, $cachedir, $settings, $modSettings;
-	global $db_cache, $db_count, $cache_misses, $cache_count_misses, $db_show_debug, $cache_count, $cache_hits, $smcFunc, $txt, $cache_enable;
+	global $cache_misses, $cache_count_misses, $db_show_debug, $cache_count, $cache_hits, $smcFunc, $txt, $cache_enable;
 
 	// Add to Settings.php if you want to show the debugging information.
 	if (!isset($db_show_debug) || $db_show_debug !== true || (isset($_GET['action']) && $_GET['action'] == 'viewquery'))
@@ -229,15 +231,15 @@ function displayDebug()
 	}
 
 	$warnings = 0;
-	if (!empty($db_cache))
+	if (!empty(Db::$cache))
 	{
-		foreach ($db_cache as $q => $query_data)
+		foreach (Db::$cache as $q => $query_data)
 		{
 			if (!empty($query_data['w']))
 				$warnings += count($query_data['w']);
 		}
 
-		$_SESSION['debug'] = &$db_cache;
+		$_SESSION['debug'] = &Db::$cache;
 	}
 
 	// Gotta have valid HTML ;).
@@ -285,11 +287,11 @@ function displayDebug()
 	}
 
 	echo '
-	<a href="', $scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? sprintf($txt['debug_queries_used'], (int) $db_count) : sprintf($txt['debug_queries_used_and_warnings'], (int) $db_count, $warnings), '</a><br>
+	<a href="', $scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? sprintf($txt['debug_queries_used'], (int) Db::$count) : sprintf($txt['debug_queries_used_and_warnings'], (int) Db::$count, $warnings), '</a><br>
 	<br>';
 
-	if ($_SESSION['view_queries'] == 1 && !empty($db_cache))
-		foreach ($db_cache as $q => $query_data)
+	if ($_SESSION['view_queries'] == 1 && !empty(Db::$cache))
+		foreach (Db::$cache as $q => $query_data)
 		{
 			$is_select = strpos(trim($query_data['q']), 'SELECT') === 0 || preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+SELECT .+$~s', trim($query_data['q'])) != 0 || strpos(trim($query_data['q']), 'WITH') === 0;
 			// Temporary tables created in earlier queries are not explainable.

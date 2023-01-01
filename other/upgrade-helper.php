@@ -418,8 +418,7 @@ function smf_mysql_free_result($rs)
  */
 function smf_mysql_insert_id($rs = null)
 {
-	global $db_connection;
-	return mysqli_insert_id($db_connection);
+	return mysqli_insert_id(SMF\Db\DatabaseApi::$db_connection);
 }
 
 /**
@@ -436,8 +435,7 @@ function smf_mysql_num_rows($rs)
  */
 function smf_mysql_real_escape_string($string)
 {
-	global $db_connection;
-	return mysqli_real_escape_string($db_connection, $string);
+	return mysqli_real_escape_string(SMF\Db\DatabaseApi::$db_connection, $string);
 }
 
 /**

@@ -27,7 +27,7 @@ if (!defined('SMF'))
  */
 function ViewQuery()
 {
-	global $scripturl, $settings, $context, $db_connection, $boarddir, $smcFunc, $txt, $db_show_debug;
+	global $scripturl, $settings, $context, $boarddir, $smcFunc, $txt, $db_show_debug;
 
 	// We should have debug mode enabled, as well as something to display!
 	if (!isset($db_show_debug) || $db_show_debug !== true || !isset($_SESSION['debug']))
@@ -147,7 +147,7 @@ function ViewQuery()
 			{
 				echo '
 		<table>
-			<tr><td>', $smcFunc['db_error']($db_connection), '</td></tr>
+			<tr><td>', $smcFunc['db_error'](), '</td></tr>
 		</table>';
 				continue;
 			}

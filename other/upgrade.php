@@ -42,10 +42,9 @@ $databases = array(
 		'name' => 'MySQL',
 		'version' => '5.6.0',
 		'version_check' => function() {
-			global $db_connection;
 			if (!function_exists('mysqli_fetch_row'))
 				return false;
-			return mysqli_fetch_row(mysqli_query($db_connection, 'SELECT VERSION();'))[0];
+			return mysqli_fetch_row(mysqli_query(SMF\Db\DatabaseApi::$db_connection, 'SELECT VERSION();'))[0];
 		},
 		'alter_support' => true,
 	),
@@ -662,7 +661,7 @@ function redirectLocation($location, $addForm = true)
 // Load all essential data and connect to the DB as this is pre SSI.php
 function loadEssentialData()
 {
-	global $db_server, $db_user, $db_passwd, $db_name, $db_connection;
+	global $db_server, $db_user, $db_passwd, $db_name;
 	global $db_prefix, $db_character_set, $db_type, $db_port, $db_show_debug;
 	global $db_mb4, $modSettings, $sourcedir, $smcFunc, $txt, $utf8;
 
@@ -751,29 +750,21 @@ function loadEssentialData()
 		updateSettingsFile($changes);
 	}
 
-	if (file_exists($sourcedir . '/Subs-Db-' . $db_type . '.php'))
+	require_once($sourcedir . '/Autoloader.php');
+
+	if (class_exists('SMF\\Db\\APIs\\' . $db_type))
 	{
-		require_once($sourcedir . '/Subs-Db-' . $db_type . '.php');
-
 		// Make the connection...
-		if (empty($db_connection))
+		if (empty(SMF\Db\DatabaseApi::$db_connection))
 		{
-			$options = array('non_fatal' => true);
-			// Add in the port if needed
-			if (!empty($db_port))
-				$options['port'] = $db_port;
-
-			if (!empty($db_mb4))
-				$options['db_mb4'] = $db_mb4;
-
-			$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
+			SMF\Db\DatabaseApi::load(array('non_fatal' => true));
 		}
 		else
 			// If we've returned here, ping/reconnect to be safe
-			$smcFunc['db_ping']($db_connection);
+			$smcFunc['db_ping'](SMF\Db\DatabaseApi::$db_connection);
 
 		// Oh dear god!!
-		if ($db_connection === null)
+		if (SMF\Db\DatabaseApi::$db_connection === null)
 		{
 			// Get error info...  Recast just in case we get false or 0...
 			$error_message = $smcFunc['db_connect_error']();
@@ -810,7 +801,7 @@ function loadEssentialData()
 		$smcFunc['db_free_result']($request);
 	}
 	else
-		return throw_error(sprintf($txt['error_sourcefile_missing'], 'Subs-Db-' . $db_type . '.php'));
+		return throw_error(sprintf($txt['error_sourcefile_missing'], 'Db/APIs/' . $db_type . '.php'));
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
 	if (file_exists($sourcedir . '/QueryString.php') && php_version_check())
@@ -905,7 +896,7 @@ function WelcomeLogin()
 	// Check for some key files - one template, one language, and a new and an old source file.
 	$check = @file_exists($modSettings['theme_dir'] . '/index.template.php')
 		&& @file_exists($sourcedir . '/QueryString.php')
-		&& @file_exists($sourcedir . '/Subs-Db-' . $db_type . '.php')
+		&& @file_exists($sourcedir . '/Db/APIs/' . $db_type . '.php')
 		&& @file_exists(dirname(__FILE__) . '/upgrade_2-1_' . $db_type . '.sql');
 
 	// Need legacy scripts?
@@ -929,9 +920,6 @@ function WelcomeLogin()
 
 	if (!db_version_check())
 		return throw_error(sprintf($txt['error_db_too_low'], $databases[$db_type]['name']));
-
-	// Do some checks to make sure they have proper privileges
-	db_extend('packages');
 
 	// CREATE
 	$create = $smcFunc['db_create_table']('{db_prefix}priv_check', array(array('name' => 'id_test', 'type' => 'int', 'size' => 10, 'unsigned' => true, 'auto' => true)), array(array('columns' => array('id_test'), 'type' => 'primary')), array(), 'overwrite');
@@ -1385,7 +1373,6 @@ function UpgradeOptions()
 	$upcontext['sub_template'] = 'upgrade_options';
 	$upcontext['page_title'] = $txt['upgrade_options'];
 
-	db_extend('packages');
 	$upcontext['karma_installed'] = array('good' => false, 'bad' => false);
 	$member_columns = $smcFunc['db_list_columns']('{db_prefix}members');
 
@@ -1615,12 +1602,6 @@ function BackupDatabase()
 
 	// We cannot execute this step in strict mode - strict mode data fixes are not applied yet
 	setSqlMode(false);
-
-	// Some useful stuff here.
-	db_extend();
-
-	// Might need this as well
-	db_extend('packages');
 
 	// Get all the table names.
 	$filter = str_replace('_', '\_', preg_match('~^`(.+?)`\.(.+?)$~', $db_prefix, $match) != 0 ? $match[2] : $db_prefix) . '%';
@@ -1853,7 +1834,7 @@ function DatabaseChanges()
 // Different versions of the files use different sql_modes
 function setSqlMode($strict = true)
 {
-	global $db_type, $db_connection;
+	global $db_type;
 
 	if ($db_type != 'mysql')
 		return;
@@ -1863,7 +1844,7 @@ function setSqlMode($strict = true)
 	else
 		$mode = '';
 
-	mysqli_query($db_connection, 'SET SESSION sql_mode = \'' . $mode . '\'');
+	mysqli_query(SMF\Db\DatabaseApi::$db_connection, 'SET SESSION sql_mode = \'' . $mode . '\'');
 
 	return;
 }
@@ -2156,10 +2137,6 @@ function parse_sql($filename)
 		- {$db_collation}
 */
 
-	// May want to use extended functionality.
-	db_extend();
-	db_extend('packages');
-
 	// Our custom error handler - does nothing but does stop public errors from XML!
 	// Note that php error suppression - @ - used heavily in the upgrader, calls the error handler
 	// but error_reporting() will return 0 as it does so (pre php8).
@@ -2361,7 +2338,7 @@ function parse_sql($filename)
 					// Bit of a bodge - do we want the error?
 					if (!empty($upcontext['return_error']))
 					{
-						$upcontext['error_message'] = $smcFunc['db_error']($db_connection);
+						$upcontext['error_message'] = $smcFunc['db_error'](SMF\Db\DatabaseApi::$db_connection);
 						return false;
 					}
 				}*/
@@ -2396,27 +2373,27 @@ function parse_sql($filename)
 
 function upgrade_query($string, $unbuffered = false)
 {
-	global $db_connection, $db_server, $db_user, $db_passwd, $db_type;
+	global $db_server, $db_user, $db_passwd, $db_type;
 	global $command_line, $upcontext, $upgradeurl, $modSettings;
-	global $db_name, $db_unbuffered, $smcFunc, $txt;
+	global $db_name, $smcFunc, $txt;
 
 	// Get the query result - working around some SMF specific security - just this once!
 	$modSettings['disableQueryCheck'] = true;
-	$db_unbuffered = $unbuffered;
+	SMF\Db\DatabaseApi::$unbuffered = $unbuffered;
 	$ignore_insert_error = false;
 
 	$result = $smcFunc['db_query']('', $string, array('security_override' => true, 'db_error_skip' => true));
-	$db_unbuffered = false;
+	SMF\Db\DatabaseApi::$unbuffered = false;
 
 	// Failure?!
 	if ($result !== false)
 		return $result;
 
-	$db_error_message = $smcFunc['db_error']($db_connection);
+	$db_error_message = $smcFunc['db_error'](SMF\Db\DatabaseApi::$db_connection);
 	// If MySQL we do something more clever.
 	if ($db_type == 'mysql')
 	{
-		$mysqli_errno = mysqli_errno($db_connection);
+		$mysqli_errno = mysqli_errno(SMF\Db\DatabaseApi::$db_connection);
 		$error_query = in_array(substr(trim($string), 0, 11), array('INSERT INTO', 'UPDATE IGNO', 'ALTER TABLE', 'DROP TABLE ', 'ALTER IGNOR', 'INSERT IGNO'));
 
 		// Error numbers:
@@ -2436,19 +2413,19 @@ function upgrade_query($string, $unbuffered = false)
 		{
 			if (preg_match('~\'([^\.\']+)~', $db_error_message, $match) != 0 && !empty($match[1]))
 			{
-				mysqli_query($db_connection, 'REPAIR TABLE `' . $match[1] . '`');
-				$result = mysqli_query($db_connection, $string);
+				mysqli_query(SMF\Db\DatabaseApi::$db_connection, 'REPAIR TABLE `' . $match[1] . '`');
+				$result = mysqli_query(SMF\Db\DatabaseApi::$db_connection, $string);
 				if ($result !== false)
 					return $result;
 			}
 		}
 		elseif ($mysqli_errno == 2013)
 		{
-			$db_connection = mysqli_connect($db_server, $db_user, $db_passwd);
-			mysqli_select_db($db_connection, $db_name);
-			if ($db_connection)
+			SMF\Db\DatabaseApi::$db_connection = mysqli_connect($db_server, $db_user, $db_passwd);
+			mysqli_select_db(SMF\Db\DatabaseApi::$db_connection, $db_name);
+			if (SMF\Db\DatabaseApi::$db_connection)
 			{
-				$result = mysqli_query($db_connection, $string);
+				$result = mysqli_query(SMF\Db\DatabaseApi::$db_connection, $string);
 				if ($result !== false)
 					return $result;
 			}
@@ -2528,8 +2505,6 @@ function upgrade_query($string, $unbuffered = false)
 function protected_alter($change, $substep, $is_test = false)
 {
 	global $db_prefix, $smcFunc;
-
-	db_extend('packages');
 
 	// Firstly, check whether the current index/column exists.
 	$found = false;
@@ -2818,9 +2793,6 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: PHP ' . PHP_VERSION . ' does not match version requirements.', true);
 	if (!db_version_check())
 		print_error('Error: ' . $databases[$db_type]['name'] . ' ' . $databases[$db_type]['version'] . ' does not match minimum requirements.', true);
-
-	// Do some checks to make sure they have proper privileges
-	db_extend('packages');
 
 	// CREATE
 	$create = $smcFunc['db_create_table']('{db_prefix}priv_check', array(array('name' => 'id_test', 'type' => 'int', 'size' => 10, 'unsigned' => true, 'auto' => true)), array(array('columns' => array('id_test'), 'primary' => true)), array(), 'overwrite');
@@ -3246,7 +3218,6 @@ function ConvertUtf8()
 		}
 
 		// Get a list of table names ahead of time... This makes it easier to set our substep and such
-		db_extend();
 		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
 
 		$queryTables = array_values(array_filter($queryTables, function($v){
@@ -5250,9 +5221,6 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 function upgradeGetColumnInfo($targetTable, $column)
 {
 	global $smcFunc;
-
-	// This should already be here, but be safe.
-	db_extend('packages');
 
 	$columns = $smcFunc['db_list_columns']($targetTable, true);
 

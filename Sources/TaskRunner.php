@@ -13,6 +13,8 @@
 
 namespace SMF;
 
+use SMF\Db\DatabaseApi as Db;
+
 /**
  * Runs background tasks (a.k.a. cron jobs).
  *
@@ -95,7 +97,7 @@ class TaskRunner
 
 		unset($db_show_debug);
 
-		loadDatabase();
+		Db::load();
 
 		reloadSettings();
 

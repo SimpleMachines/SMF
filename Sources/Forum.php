@@ -13,6 +13,8 @@
 
 namespace SMF;
 
+use SMF\Db\DatabaseApi as Db;
+
 /**
  * The root Forum class. Used when browsing the forum normally.
  *
@@ -203,7 +205,7 @@ class Forum
 		$smcFunc = array();
 
 		// Initiate the database connection and define some database functions to use.
-		loadDatabase();
+		Db::load();
 
 		// Load the settings from the settings table, and perform operations like optimizing.
 		$context = array();

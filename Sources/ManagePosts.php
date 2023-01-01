@@ -237,8 +237,6 @@ function ModifyPostSettings($return_config = false)
 		// If we're changing the message length (and we are using MySQL) let's check the column is big enough.
 		if (isset($_POST['max_messageLength']) && $_POST['max_messageLength'] != $modSettings['max_messageLength'] && ($db_type == 'mysql'))
 		{
-			db_extend('packages');
-
 			$colData = $smcFunc['db_list_columns']('{db_prefix}messages', true);
 			foreach ($colData as $column)
 				if ($column['name'] == 'body')

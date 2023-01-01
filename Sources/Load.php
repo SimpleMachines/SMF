@@ -29,16 +29,6 @@ function reloadSettings()
 	global $cache_enable, $sourcedir, $context, $forum_version, $boardurl;
 	global $image_proxy_enabled;
 
-	// Most database systems have not set UTF-8 as their default input charset.
-	if (empty($db_character_set))
-		$db_character_set = 'utf8';
-	$smcFunc['db_query']('', '
-		SET NAMES {string:db_character_set}',
-		array(
-			'db_character_set' => $db_character_set,
-		)
-	);
-
 	// We need some caching support, maybe.
 	loadCacheAccelerator();
 
@@ -3656,55 +3646,6 @@ function template_include($filename, $once = false)
 
 		die;
 	}
-}
-
-/**
- * Initialize a database connection.
- */
-function loadDatabase()
-{
-	global $db_persist, $db_connection, $db_server, $db_user, $db_passwd;
-	global $db_type, $db_name, $ssi_db_user, $ssi_db_passwd, $sourcedir, $db_prefix, $db_port, $db_mb4;
-
-	// Figure out what type of database we are using.
-	if (empty($db_type) || !file_exists($sourcedir . '/Subs-Db-' . $db_type . '.php'))
-		$db_type = 'mysql';
-
-	// Load the file for the database.
-	require_once($sourcedir . '/Subs-Db-' . $db_type . '.php');
-
-	$db_options = array();
-
-	// Add in the port if needed
-	if (!empty($db_port))
-		$db_options['port'] = $db_port;
-
-	if (!empty($db_mb4))
-		$db_options['db_mb4'] = $db_mb4;
-
-	// If we are in SSI try them first, but don't worry if it doesn't work, we have the normal username and password we can use.
-	if (SMF == 'SSI' && !empty($ssi_db_user) && !empty($ssi_db_passwd))
-	{
-		$options = array_merge($db_options, array('persist' => $db_persist, 'non_fatal' => true, 'dont_select_db' => true));
-
-		$db_connection = smf_db_initiate($db_server, $db_name, $ssi_db_user, $ssi_db_passwd, $db_prefix, $options);
-	}
-
-	// Either we aren't in SSI mode, or it failed.
-	if (empty($db_connection))
-	{
-		$options = array_merge($db_options, array('persist' => $db_persist, 'dont_select_db' => SMF == 'SSI'));
-
-		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $options);
-	}
-
-	// Safe guard here, if there isn't a valid connection lets put a stop to it.
-	if (!$db_connection)
-		display_db_error();
-
-	// If in SSI mode fix up the prefix.
-	if (SMF == 'SSI')
-		db_fix_prefix($db_prefix, $db_name);
 }
 
 /**

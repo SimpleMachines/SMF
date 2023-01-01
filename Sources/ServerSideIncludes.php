@@ -13,6 +13,8 @@
 
 namespace SMF;
 
+use SMF\Db\DatabaseApi as Db;
+
 /**
  * Performs all the necessary setup and security checks for SSI access, and
  * provides a number of useful functions that allow external scripts to access
@@ -2666,7 +2668,7 @@ class ServerSideIncludes
 		$smcFunc = array();
 
 		// Initiate the database connection and define some database functions to use.
-		loadDatabase();
+		Db::load();
 
 		// Load installed 'Mods' settings.
 		reloadSettings();
