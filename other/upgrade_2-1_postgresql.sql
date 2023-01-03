@@ -1262,6 +1262,67 @@ ALTER TABLE {$db_prefix}members
 	DROP IF EXISTS notify_announcements;
 ---#
 
+---# Upgrading auto notify setting
+---{
+$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
+$step_progress['name'] = 'Upgrading auto notify setting';
+$step_progress['current'] = $_GET['a'];
+
+$limit = 100000;
+$is_done = false;
+
+$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}themes WHERE variable = \'auto_notify\'');
+list($maxMembers) = $smcFunc['db_fetch_row']($request);
+$smcFunc['db_free_result']($request);
+
+while (!$is_done)
+{
+	nextSubStep($substep);
+	$inserts = array();
+
+	// This setting is stored over in the themes table in 2.0...
+	$request = $smcFunc['db_query']('', '
+		SELECT id_member, value
+		FROM {db_prefix}themes
+		WHERE variable = \'auto_notify\'
+		ORDER BY id_member
+		LIMIT {int:start}, {int:limit}',
+		array(
+			'start' => $_GET['a'],
+			'limit' => $limit,
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) != 0)
+	{
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$inserts[] = array($row['id_member'], 'msg_auto_notify', !empty($row['value']) ? 1 : 0);
+		}
+		$smcFunc['db_free_result']($request);
+	}
+
+	$smcFunc['db_insert']('ignore',
+		'{db_prefix}user_alerts_prefs',
+		array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
+		$inserts,
+		array('id_member', 'alert_pref')
+	);
+
+	$_GET['a'] += $limit;
+	$step_progress['current'] = $_GET['a'];
+
+	if ($step_progress['current'] >= $maxMembers)
+		$is_done = true;
+}
+unset($_GET['a']);
+---}
+---#
+
+---# Dropping old auto notify settings from the themes table
+DELETE FROM {$db_prefix}themes
+	WHERE variable = 'auto_notify';
+---#
+
 ---# Creating alert prefs for watched topics
 ---{
 	$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
