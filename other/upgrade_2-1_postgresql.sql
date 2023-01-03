@@ -1214,7 +1214,7 @@ if (in_array('notify_regularity', $results))
 
 		// Skip errors here so we don't croak if the columns don't exist...
 		$request = $smcFunc['db_query']('', '
-			SELECT id_member, notify_regularity, notify_send_body, notify_types
+			SELECT id_member, notify_regularity, notify_send_body, notify_types, notify_announcements
 			FROM {db_prefix}members
 			ORDER BY id_member
 			LIMIT {int:start}, {int:limit}',
@@ -1229,8 +1229,9 @@ if (in_array('notify_regularity', $results))
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
 				$inserts[] = array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0);
-				$inserts[] = array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']);
+				$inserts[] = array($row['id_member'], 'msg_notify_pref', intval($row['notify_regularity']) + 1);
 				$inserts[] = array($row['id_member'], 'msg_notify_type', $row['notify_types']);
+				$inserts[] = array($row['id_member'], 'announcements', !empty($row['notify_announcements']) ? 1 : 0);
 			}
 			$smcFunc['db_free_result']($request);
 		}
