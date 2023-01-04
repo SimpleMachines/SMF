@@ -22,17 +22,9 @@ if (!defined('SMF_VERSION'))
  */
 function upgrade_clean_cache()
 {
-	global $cacheAPI, $sourcedir;
-
 	// Initialize the cache API if it does not have an instance yet.
-	require_once($sourcedir . '/Load.php');
-	if (empty($cacheAPI))
-	{
-		loadCacheAccelerator();
-	}
-
-	// Just through back to Load.php's clean_cache function.
-	clean_cache();
+	SMF\Cache\CacheApi::load();
+	SMF\Cache\CacheApi::clean();
 }
 
 /**

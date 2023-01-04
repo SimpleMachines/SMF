@@ -14,6 +14,7 @@
 namespace SMF\Tasks;
 
 use SMF\TaskRunner;
+use SMF\Cache\CacheApi;
 
 /**
  * @todo Find a way to throttle the export rate dynamically when dealing with
@@ -258,20 +259,20 @@ class ExportProfileData extends BackgroundTask
 
 			// Cache for subsequent reuse.
 			$profile_basic_items = $context['feed']['items'];
-			cache_put_data('export_profile_basic-' . $uid, $profile_basic_items, Taskrunner::MAX_CLAIM_THRESHOLD);
+			CacheApi::put('export_profile_basic-' . $uid, $profile_basic_items, Taskrunner::MAX_CLAIM_THRESHOLD);
 		}
 
 		// Posts and PMs...
 		else
 		{
 			// We need the basic profile data in every export file.
-			$profile_basic_items = cache_get_data('export_profile_basic-' . $uid, Taskrunner::MAX_CLAIM_THRESHOLD);
+			$profile_basic_items = CacheApi::get('export_profile_basic-' . $uid, Taskrunner::MAX_CLAIM_THRESHOLD);
 			if (empty($profile_basic_items))
 			{
 				$profile_data = call_user_func($included['profile']['func'], 'smf', true);
 				buildXmlFeed('smf', $profile_data, $feed_meta, 'profile');
 				$profile_basic_items = $context['feed']['items'];
-				cache_put_data('export_profile_basic-' . $uid, $profile_basic_items, Taskrunner::MAX_CLAIM_THRESHOLD);
+				CacheApi::put('export_profile_basic-' . $uid, $profile_basic_items, Taskrunner::MAX_CLAIM_THRESHOLD);
 				unset($context['feed']);
 			}
 

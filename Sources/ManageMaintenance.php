@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Cache\CacheApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -260,8 +262,8 @@ function MaintainCleanCache()
 	checkSession();
 	validateToken('admin-maint');
 
-	// Just wipe the whole cache directory!
-	clean_cache();
+	// Just wipe the whole cache!
+	CacheApi::clean();
 
 	$context['maintenance_finished'] = $txt['maintain_cache'];
 }
@@ -1620,8 +1622,8 @@ function MaintainMassMoveTopics()
 			// Just return if we don't have any topics left to move.
 			if (empty($topics))
 			{
-				cache_put_data('board-' . $id_board_from, null, 120);
-				cache_put_data('board-' . $id_board_to, null, 120);
+				CacheApi::put('board-' . $id_board_from, null, 120);
+				CacheApi::put('board-' . $id_board_to, null, 120);
 				redirectexit('action=admin;area=maintain;sa=topics;done=massmove');
 			}
 
@@ -1646,8 +1648,8 @@ function MaintainMassMoveTopics()
 	}
 
 	// Don't confuse admins by having an out of date cache.
-	cache_put_data('board-' . $id_board_from, null, 120);
-	cache_put_data('board-' . $id_board_to, null, 120);
+	CacheApi::put('board-' . $id_board_from, null, 120);
+	CacheApi::put('board-' . $id_board_to, null, 120);
 
 	redirectexit('action=admin;area=maintain;sa=topics;done=massmove');
 }

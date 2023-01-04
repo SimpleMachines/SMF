@@ -30,6 +30,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Cache\CacheApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -99,7 +101,7 @@ function ThemesMain()
 	call_integration_hook('integrate_manage_themes', array(&$subActions));
 
 	// Whatever you decide to do, clean the minify cache.
-	cache_put_data('minimized_css', null);
+	CacheApi::put('minimized_css', null);
 
 	// Follow the sa or just go to administration.
 	if (isset($_GET['sa']) && !empty($subActions[$_GET['sa']]))
@@ -216,7 +218,7 @@ function ThemeList()
 				$setValues[] = array($id, 0, 'base_images_url', $_POST['reset_url'] . '/' . basename($theme['base_theme_dir']) . '/' . basename($theme['base_images_url']));
 			}
 
-			cache_put_data('theme_settings-' . $id, null, 90);
+			CacheApi::put('theme_settings-' . $id, null, 90);
 		}
 
 		if (!empty($setValues))
@@ -386,8 +388,8 @@ function SetThemeOptions()
 			);
 		}
 
-		cache_put_data('theme_settings-' . $_GET['th'], null, 90);
-		cache_put_data('theme_settings-1', null, 90);
+		CacheApi::put('theme_settings-' . $_GET['th'], null, 90);
+		CacheApi::put('theme_settings-1', null, 90);
 
 		redirectexit('action=admin;area=theme;' . $context['session_var'] . '=' . $context['session_id'] . ';sa=reset');
 	}
@@ -740,8 +742,8 @@ function SetThemeSettings()
 			);
 		}
 
-		cache_put_data('theme_settings-' . $_GET['th'], null, 90);
-		cache_put_data('theme_settings-1', null, 90);
+		CacheApi::put('theme_settings-' . $_GET['th'], null, 90);
+		CacheApi::put('theme_settings-1', null, 90);
 
 		// Invalidate the cache.
 		updateSettings(array('settings_updated' => time()));
@@ -946,7 +948,7 @@ function PickTheme()
 					array($id_theme, (int) $_REQUEST['u'], 'theme_variant', $variant),
 					array('id_theme', 'id_member', 'variable')
 				);
-				cache_put_data('theme_settings-' . $id_theme . ':' . (int) $_REQUEST['u'], null, 90);
+				CacheApi::put('theme_settings-' . $id_theme . ':' . (int) $_REQUEST['u'], null, 90);
 
 				if ($user_info['id'] == $_REQUEST['u'])
 					$_SESSION['id_variant'] = 0;
@@ -1546,7 +1548,7 @@ function SetJavaScript()
 	if (isset($_GET['th']) || isset($_GET['id']))
 	{
 		// Invalidate the current themes cache too.
-		cache_put_data('theme_settings-' . $settings['theme_id'] . ':' . $user_info['id'], null, 60);
+		CacheApi::put('theme_settings-' . $settings['theme_id'] . ':' . $user_info['id'], null, 60);
 
 		$settings['theme_id'] = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
 	}
@@ -1571,7 +1573,7 @@ function SetJavaScript()
 		array('id_theme', 'id_member', 'variable')
 	);
 
-	cache_put_data('theme_settings-' . $settings['theme_id'] . ':' . $user_info['id'], null, 60);
+	CacheApi::put('theme_settings-' . $settings['theme_id'] . ':' . $user_info['id'], null, 60);
 
 	// Don't output anything...
 	redirectexit($settings['images_url'] . '/blank.png');

@@ -15,6 +15,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -428,7 +429,7 @@ function Post($post_errors = array())
 	}
 
 	// Get a response prefix (like 'Re:') in the default forum language.
-	if (!isset($context['response_prefix']) && !($context['response_prefix'] = cache_get_data('response_prefix')))
+	if (!isset($context['response_prefix']) && !($context['response_prefix'] = CacheApi::get('response_prefix')))
 	{
 		if ($language === $user_info['language'])
 			$context['response_prefix'] = $txt['response_prefix'];
@@ -438,7 +439,7 @@ function Post($post_errors = array())
 			$context['response_prefix'] = $txt['response_prefix'];
 			loadLanguage('index');
 		}
-		cache_put_data('response_prefix', $context['response_prefix'], 600);
+		CacheApi::put('response_prefix', $context['response_prefix'], 600);
 	}
 
 	// Previewing, modifying, or posting?
@@ -2571,7 +2572,7 @@ function Post2()
 	}
 
 	if ($board_info['num_topics'] == 0)
-		cache_put_data('board-' . $board, null, 120);
+		CacheApi::put('board-' . $board, null, 120);
 
 	call_integration_hook('integrate_post2_end');
 
@@ -3218,7 +3219,7 @@ function JavaScriptModify()
 		if (isset($_POST['subject']) && isset($_REQUEST['change_all_subjects']) && $row['id_first_msg'] == $row['id_msg'] && !empty($row['num_replies']) && (allowedTo('modify_any') || ($row['id_member_started'] == $user_info['id'] && allowedTo('modify_replies'))))
 		{
 			// Get the proper (default language) response prefix first.
-			if (!isset($context['response_prefix']) && !($context['response_prefix'] = cache_get_data('response_prefix')))
+			if (!isset($context['response_prefix']) && !($context['response_prefix'] = CacheApi::get('response_prefix')))
 			{
 				if ($language === $user_info['language'])
 					$context['response_prefix'] = $txt['response_prefix'];
@@ -3228,7 +3229,7 @@ function JavaScriptModify()
 					$context['response_prefix'] = $txt['response_prefix'];
 					loadLanguage('index');
 				}
-				cache_put_data('response_prefix', $context['response_prefix'], 600);
+				CacheApi::put('response_prefix', $context['response_prefix'], 600);
 			}
 
 			$smcFunc['db_query']('', '

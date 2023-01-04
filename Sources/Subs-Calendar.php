@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Cache\CacheApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -923,7 +925,7 @@ function cache_getOffsetIndependentEvents($eventOptions)
 function cache_getRecentEvents($eventOptions)
 {
 	// With the 'static' cached data we can calculate the user-specific data.
-	$cached_data = cache_quick_get('calendar_index', 'Subs-Calendar.php', 'cache_getOffsetIndependentEvents', array($eventOptions));
+	$cached_data = CacheApi::quickGet('calendar_index', 'Subs-Calendar.php', 'cache_getOffsetIndependentEvents', array($eventOptions));
 
 	// Get the information about today (from user perspective).
 	$today = getTodayInfo();

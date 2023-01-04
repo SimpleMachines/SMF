@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 use SMF\Db\DatabaseApi as Db;
 
@@ -84,8 +85,7 @@ function getServerVersions($checkFor)
 	}
 
 	// Check to see if we have any accelerators installed.
-	require_once($sourcedir . '/ManageServer.php');
-	$detected = loadCacheAPIs();
+	$detected = CacheApi::detect();
 
 	/* @var CacheApiInterface $cache_api */
 	foreach ($detected as $class_name => $cache_api)
@@ -2226,7 +2226,7 @@ function updateAdminPreferences()
 	);
 
 	// Make sure we invalidate any cache.
-	cache_put_data('theme_settings-' . $settings['theme_id'] . ':' . $user_info['id'], null, 0);
+	CacheApi::put('theme_settings-' . $settings['theme_id'] . ':' . $user_info['id'], null, 0);
 }
 
 /**

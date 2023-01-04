@@ -61,7 +61,6 @@
 
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
-use SMF\Cache\CacheApiInterface;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -729,10 +728,10 @@ function ModifyGeneralSecuritySettings($return_config = false)
  */
 function ModifyCacheSettings($return_config = false)
 {
-	global $context, $scripturl, $txt, $cacheAPI, $cache_enable, $cache_accelerator;
+	global $context, $scripturl, $txt;
 
 	// Detect all available optimizers
-	$detectedCacheApis = loadCacheAPIs();
+	$detectedCacheApis = CacheApi::detect();
 	$apis_names = array();
 
 	/* @var CacheApiInterface $cache_api */
@@ -791,15 +790,15 @@ function ModifyCacheSettings($return_config = false)
 	{
 		call_integration_hook('integrate_save_cache_settings');
 
-		if (is_callable(array($cacheAPI, 'cleanCache')) && ((int) $_POST['cache_enable'] < $cache_enable || $_POST['cache_accelerator'] != $cache_accelerator))
+		if (is_callable(array(CacheApi::$loadedApi, 'cleanCache')) && ((int) $_POST['cache_enable'] < CacheApi::$enable || $_POST['cache_accelerator'] != CacheApi::$accelerator))
 		{
-			$cacheAPI->cleanCache();
+			CacheApi::clean();
 		}
 
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 
-		// We need to save the $cache_enable to $modSettings as well
+		// We need to save the CacheApi::$enable to $modSettings as well
 		updateSettings(array('cache_enable' => (int) $_POST['cache_enable']));
 
 		// exit so we reload our new settings on the page
@@ -1773,48 +1772,6 @@ function ShowPHPinfoSettings()
 	$context['page_title'] = $txt['admin_server_settings'];
 	$context['sub_template'] = 'php_info';
 	return;
-}
-
-/**
- * Get the installed Cache API implementations.
- *
- */
-function loadCacheAPIs()
-{
-	global $sourcedir;
-
-	$cacheAPIdir = $sourcedir . '/Cache';
-
-	$loadedApis = array();
-	$apis_dir = $cacheAPIdir .'/'. CacheApi::APIS_FOLDER;
-
-	$api_classes = new GlobIterator($apis_dir . '/*.php', FilesystemIterator::NEW_CURRENT_AND_KEY);
-
-	foreach ($api_classes as $file_path => $file_info)
-	{
-		$class_name = $file_info->getBasename('.php');
-		$fully_qualified_class_name = CacheApi::APIS_NAMESPACE . $class_name;
-
-		if (!class_exists($fully_qualified_class_name))
-			continue;
-
-		/* @var CacheApiInterface $cache_api */
-		$cache_api = new $fully_qualified_class_name();
-
-		// Deal with it!
-		if (!($cache_api instanceof CacheApiInterface) || !($cache_api instanceof CacheApi))
-			continue;
-
-		// No Support?  NEXT!
-		if (!$cache_api->isSupported(true))
-			continue;
-
-		$loadedApis[$class_name] = $cache_api;
-	}
-
-	call_integration_hook('integrate_load_cache_apis', array(&$loadedApis));
-
-	return $loadedApis;
 }
 
 /**

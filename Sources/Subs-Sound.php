@@ -15,6 +15,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Cache\CacheApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -32,10 +34,10 @@ function createWaveFile($word)
 	global $settings, $user_info;
 
 	// Allow max 2 requests per 20 seconds.
-	if (($ip = cache_get_data('wave_file/' . $user_info['ip'], 20)) > 2 || ($ip2 = cache_get_data('wave_file/' . $user_info['ip2'], 20)) > 2)
+	if (($ip = CacheApi::get('wave_file/' . $user_info['ip'], 20)) > 2 || ($ip2 = CacheApi::get('wave_file/' . $user_info['ip2'], 20)) > 2)
 		die(send_http_status(400));
-	cache_put_data('wave_file/' . $user_info['ip'], $ip ? $ip + 1 : 1, 20);
-	cache_put_data('wave_file/' . $user_info['ip2'], $ip2 ? $ip2 + 1 : 1, 20);
+	CacheApi::put('wave_file/' . $user_info['ip'], $ip ? $ip + 1 : 1, 20);
+	CacheApi::put('wave_file/' . $user_info['ip2'], $ip2 ? $ip2 + 1 : 1, 20);
 
 	// Fixate randomization for this word.
 	$tmp = unpack('n', md5($word . session_id()));

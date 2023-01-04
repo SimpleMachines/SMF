@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Cache\CacheApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -75,7 +77,7 @@ function showAttachment()
 	}
 
 	// Use cache when possible.
-	if (($cache = cache_get_data('attachment_lookup_id-' . $attachId)) != null)
+	if (($cache = CacheApi::get('attachment_lookup_id-' . $attachId)) != null)
 		list ($file, $thumbFile) = $cache;
 
 	// Get the info from the DB.
@@ -161,7 +163,7 @@ function showAttachment()
 
 		// Cache it.
 		if (!empty($file) || !empty($thumbFile))
-			cache_put_data('attachment_lookup_id-' . $file['id_attach'], array($file, $thumbFile), mt_rand(850, 900));
+			CacheApi::put('attachment_lookup_id-' . $file['id_attach'], array($file, $thumbFile), mt_rand(850, 900));
 	}
 
 	// Can they see attachments on this board?
@@ -173,10 +175,10 @@ function showAttachment()
 			$boards_allowed = array(0);
 		}
 		// Check permissions and board access.
-		elseif (($boards_allowed = cache_get_data('view_attachment_boards_id-' . $user_info['id'])) == null)
+		elseif (($boards_allowed = CacheApi::get('view_attachment_boards_id-' . $user_info['id'])) == null)
 		{
 			$boards_allowed = boardsAllowedTo('view_attachments');
-			cache_put_data('view_attachment_boards_id-' . $user_info['id'], $boards_allowed, mt_rand(850, 900));
+			CacheApi::put('view_attachment_boards_id-' . $user_info['id'], $boards_allowed, mt_rand(850, 900));
 		}
 	}
 

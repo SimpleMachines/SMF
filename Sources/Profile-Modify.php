@@ -16,6 +16,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Cache\CacheApi;
 use SMF\TOTP\Auth as Tfa;
 
 if (!defined('SMF'))
@@ -1137,7 +1138,7 @@ function makeThemeChanges($memID, $id_theme)
 		// Admins can choose any theme, even if it's not enabled...
 		$themes = allowedTo('admin_forum') ? explode(',', $modSettings['knownThemes']) : explode(',', $modSettings['enableThemes']);
 		foreach ($themes as $t)
-			cache_put_data('theme_settings-' . $t . ':' . $memID, null, 60);
+			CacheApi::put('theme_settings-' . $t . ':' . $memID, null, 60);
 	}
 }
 

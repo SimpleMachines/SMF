@@ -15,6 +15,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -976,7 +977,7 @@ function ModifyAntispamSettings($return_config = false)
 		saveDBSettings($save_vars);
 		$_SESSION['adm-save'] = true;
 
-		cache_put_data('verificationQuestions', null, 300);
+		CacheApi::put('verificationQuestions', null, 300);
 
 		redirectexit('action=admin;area=antispam');
 	}

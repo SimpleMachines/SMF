@@ -16,6 +16,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -795,7 +796,7 @@ function ModifyProfile($post_errors = array())
 			$context['profile_updated'] = $context['user']['is_owner'] ? $txt['profile_updated_own'] : sprintf($txt['profile_updated_else'], $cur_profile['member_name']);
 
 			// Invalidate any cached data.
-			cache_put_data('member_data-profile-' . $memID, null, 0);
+			CacheApi::put('member_data-profile-' . $memID, null, 0);
 		}
 	}
 

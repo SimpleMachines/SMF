@@ -16,7 +16,6 @@
 use SMF\BBCodeParser;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
-use SMF\Cache\CacheApiInterface;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -27,14 +26,14 @@ if (!defined('SMF'))
 function reloadSettings()
 {
 	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set;
-	global $cache_enable, $sourcedir, $context, $forum_version, $boardurl;
+	global $sourcedir, $context, $forum_version, $boardurl;
 	global $image_proxy_enabled;
 
 	// We need some caching support, maybe.
-	loadCacheAccelerator();
+	CacheApi::load();
 
 	// Try to load it from the cache first; it'll never get cached if the setting is off.
-	if (($modSettings = cache_get_data('modSettings', 90)) == null)
+	if (($modSettings = CacheApi::get('modSettings', 90)) == null)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT variable, value
@@ -66,15 +65,15 @@ function reloadSettings()
 			$modSettings['attachmentUploadDir'] = !empty($attachmentUploadDir) ? $attachmentUploadDir : $modSettings['attachmentUploadDir'];
 		}
 
-		if (!empty($cache_enable))
-			cache_put_data('modSettings', $modSettings, 90);
+		if (!empty(CacheApi::$enable))
+			CacheApi::put('modSettings', $modSettings, 90);
 	}
 
 	// Going anything further when the files don't match the database can make nasty messes (unless we're actively installing or upgrading)
 	if (!defined('SMF_INSTALLING') && (!isset($_REQUEST['action']) || $_REQUEST['action'] !== 'admin' || !isset($_REQUEST['area']) || $_REQUEST['area'] !== 'packages') && !empty($modSettings['smfVersion']) && version_compare(strtolower(strtr($modSettings['smfVersion'], array(' ' => '.'))), strtolower(strtr(SMF_VERSION, array(' ' => '.'))), '!='))
 	{
 		// Wipe the cached $modSettings values so they don't interfere with anything later
-		cache_put_data('modSettings', null);
+		CacheApi::put('modSettings', null);
 
 		// Redirect to the upgrader if we can
 		if (file_exists($boarddir . '/upgrade.php'))
@@ -83,7 +82,7 @@ function reloadSettings()
 		die('SMF file version (' . SMF_VERSION . ') does not match SMF database version (' . $modSettings['smfVersion'] . ').<br>Run the SMF upgrader to fix this.<br><a href="https://wiki.simplemachines.org/smf/Upgrading">More information</a>.');
 	}
 
-	$modSettings['cache_enable'] = $cache_enable;
+	$modSettings['cache_enable'] = CacheApi::$enable;
 
 	// Used to force browsers to download fresh CSS and JavaScript when necessary
 	$modSettings['browser_cache'] = !empty($modSettings['browser_cache']) ? (int) $modSettings['browser_cache'] : 0;
@@ -361,7 +360,7 @@ function reloadSettings()
 	// Check the load averages?
 	if (!empty($modSettings['loadavg_enable']))
 	{
-		if (($modSettings['load_average'] = cache_get_data('loadavg', 90)) == null)
+		if (($modSettings['load_average'] = CacheApi::get('loadavg', 90)) == null)
 		{
 			$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
 			if (!empty($modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', $modSettings['load_average'], $matches) != 0)
@@ -372,7 +371,7 @@ function reloadSettings()
 				unset($modSettings['load_average']);
 
 			if (!empty($modSettings['load_average']) || $modSettings['load_average'] === 0.0)
-				cache_put_data('loadavg', $modSettings['load_average'], 90);
+				CacheApi::put('loadavg', $modSettings['load_average'], 90);
 		}
 
 		if (!empty($modSettings['load_average']) || $modSettings['load_average'] === 0.0)
@@ -532,7 +531,7 @@ function reloadSettings()
 function loadUserSettings()
 {
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
-	global $cookiename, $user_info, $language, $context, $cache_enable;
+	global $cookiename, $user_info, $language, $context;
 
 	require_once($sourcedir . '/Subs-Auth.php');
 
@@ -587,7 +586,7 @@ function loadUserSettings()
 	if ($id_member != 0)
 	{
 		// Is the member data cached?
-		if (empty($cache_enable) || $cache_enable < 2 || ($user_settings = cache_get_data('user_settings-' . $id_member, 60)) == null)
+		if (empty(CacheApi::$enable) || CacheApi::$enable < 2 || ($user_settings = CacheApi::get('user_settings-' . $id_member, 60)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT mem.*, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type, a.width AS "attachment_width", a.height AS "attachment_height"
@@ -605,8 +604,8 @@ function loadUserSettings()
 			if (!empty($user_settings['avatar']))
 				$user_settings['avatar'] = get_proxied_url($user_settings['avatar']);
 
-			if (!empty($cache_enable) && $cache_enable >= 2)
-				cache_put_data('user_settings-' . $id_member, $user_settings, 60);
+			if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2)
+				CacheApi::put('user_settings-' . $id_member, $user_settings, 60);
 		}
 
 		// Did we find 'im?  If not, junk it.
@@ -735,7 +734,7 @@ function loadUserSettings()
 		// 3. If it was set within this session, no need to set it again.
 		// 4. New session, yet updated < five hours ago? Maybe cache can help.
 		// 5. We're still logging in or authenticating
-		if (SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('.xml', 'login2', 'logintfa'))) && empty($_SESSION['id_msg_last_visit']) && (empty($cache_enable) || ($_SESSION['id_msg_last_visit'] = cache_get_data('user_last_visit-' . $id_member, 5 * 3600)) === null))
+		if (SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('.xml', 'login2', 'logintfa'))) && empty($_SESSION['id_msg_last_visit']) && (empty(CacheApi::$enable) || ($_SESSION['id_msg_last_visit'] = CacheApi::get('user_last_visit-' . $id_member, 5 * 3600)) === null))
 		{
 			// @todo can this be cached?
 			// Do a quick query to make sure this isn't a mistake.
@@ -759,11 +758,11 @@ function loadUserSettings()
 				updateMemberData($id_member, array('id_msg_last_visit' => (int) $modSettings['maxMsgID'], 'last_login' => time(), 'member_ip' => $_SERVER['REMOTE_ADDR'], 'member_ip2' => $_SERVER['BAN_CHECK_IP']));
 				$user_settings['last_login'] = time();
 
-				if (!empty($cache_enable) && $cache_enable >= 2)
-					cache_put_data('user_settings-' . $id_member, $user_settings, 60);
+				if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2)
+					CacheApi::put('user_settings-' . $id_member, $user_settings, 60);
 
-				if (!empty($cache_enable))
-					cache_put_data('user_last_visit-' . $id_member, $_SESSION['id_msg_last_visit'], 5 * 3600);
+				if (!empty(CacheApi::$enable))
+					CacheApi::put('user_last_visit-' . $id_member, $_SESSION['id_msg_last_visit'], 5 * 3600);
 			}
 		}
 		elseif (empty($_SESSION['id_msg_last_visit']))
@@ -1067,7 +1066,7 @@ function loadMinUserInfo($user_ids = array())
 function loadBoard()
 {
 	global $txt, $scripturl, $context, $modSettings;
-	global $board_info, $board, $topic, $user_info, $smcFunc, $cache_enable;
+	global $board_info, $board, $topic, $user_info, $smcFunc;
 
 	// Assume they are not a moderator.
 	$user_info['is_mod'] = false;
@@ -1083,7 +1082,7 @@ function loadBoard()
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
 		// Looking through the message table can be slow, so try using the cache first.
-		if (($topic = cache_get_data('msg_topic-' . $_REQUEST['msg'], 120)) === null)
+		if (($topic = CacheApi::get('msg_topic-' . $_REQUEST['msg'], 120)) === null)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT id_topic
@@ -1101,7 +1100,7 @@ function loadBoard()
 				list ($topic) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 				// Save save save.
-				cache_put_data('msg_topic-' . $_REQUEST['msg'], $topic, 120);
+				CacheApi::put('msg_topic-' . $_REQUEST['msg'], $topic, 120);
 			}
 		}
 
@@ -1123,13 +1122,13 @@ function loadBoard()
 		return;
 	}
 
-	if (!empty($cache_enable) && (empty($topic) || $cache_enable >= 3))
+	if (!empty(CacheApi::$enable) && (empty($topic) || CacheApi::$enable >= 3))
 	{
 		// @todo SLOW?
 		if (!empty($topic))
-			$temp = cache_get_data('topic_board-' . $topic, 120);
+			$temp = CacheApi::get('topic_board-' . $topic, 120);
 		else
-			$temp = cache_get_data('board-' . $board, 120);
+			$temp = CacheApi::get('board-' . $board, 120);
 
 		if (!empty($temp))
 		{
@@ -1262,12 +1261,12 @@ function loadBoard()
 				list ($board_info['unapproved_user_topics']) = $smcFunc['db_fetch_row']($request);
 			}
 
-			if (!empty($cache_enable) && (empty($topic) || $cache_enable >= 3))
+			if (!empty(CacheApi::$enable) && (empty($topic) || CacheApi::$enable >= 3))
 			{
 				// @todo SLOW?
 				if (!empty($topic))
-					cache_put_data('topic_board-' . $topic, $board_info, 120);
-				cache_put_data('board-' . $board, $board_info, 120);
+					CacheApi::put('topic_board-' . $topic, $board_info, 120);
+				CacheApi::put('board-' . $board, $board_info, 120);
 			}
 		}
 		else
@@ -1372,7 +1371,7 @@ function loadBoard()
  */
 function loadPermissions()
 {
-	global $user_info, $board, $board_info, $modSettings, $smcFunc, $sourcedir, $cache_enable;
+	global $user_info, $board, $board_info, $modSettings, $smcFunc, $sourcedir;
 
 	if ($user_info['is_admin'])
 	{
@@ -1380,7 +1379,7 @@ function loadPermissions()
 		return;
 	}
 
-	if (!empty($cache_enable))
+	if (!empty(CacheApi::$enable))
 	{
 		$cache_groups = $user_info['groups'];
 		asort($cache_groups);
@@ -1389,14 +1388,14 @@ function loadPermissions()
 		if ($user_info['possibly_robot'])
 			$cache_groups .= '-spider';
 
-		if ($cache_enable >= 2 && !empty($board) && ($temp = cache_get_data('permissions:' . $cache_groups . ':' . $board, 240)) != null && time() - 240 > $modSettings['settings_updated'])
+		if (CacheApi::$enable >= 2 && !empty($board) && ($temp = CacheApi::get('permissions:' . $cache_groups . ':' . $board, 240)) != null && time() - 240 > $modSettings['settings_updated'])
 		{
 			list ($user_info['permissions']) = $temp;
 			banPermissions();
 
 			return;
 		}
-		elseif (($temp = cache_get_data('permissions:' . $cache_groups, 240)) != null && time() - 240 > $modSettings['settings_updated'])
+		elseif (($temp = CacheApi::get('permissions:' . $cache_groups, 240)) != null && time() - 240 > $modSettings['settings_updated'])
 			list ($user_info['permissions'], $removals) = $temp;
 	}
 
@@ -1427,7 +1426,7 @@ function loadPermissions()
 		$smcFunc['db_free_result']($request);
 
 		if (isset($cache_groups))
-			cache_put_data('permissions:' . $cache_groups, array($user_info['permissions'], $removals), 240);
+			CacheApi::put('permissions:' . $cache_groups, array($user_info['permissions'], $removals), 240);
 	}
 
 	// Get the board permissions.
@@ -1463,8 +1462,8 @@ function loadPermissions()
 	if (!empty($modSettings['permission_enable_deny']))
 		$user_info['permissions'] = array_diff($user_info['permissions'], $removals);
 
-	if (isset($cache_groups) && !empty($board) && $cache_enable >= 2)
-		cache_put_data('permissions:' . $cache_groups . ':' . $board, array($user_info['permissions'], null), 240);
+	if (isset($cache_groups) && !empty($board) && CacheApi::$enable >= 2)
+		CacheApi::put('permissions:' . $cache_groups . ':' . $board, array($user_info['permissions'], null), 240);
 
 	// Banned?  Watch, don't touch..
 	banPermissions();
@@ -1501,7 +1500,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
-	global $user_info, $cache_enable, $txt;
+	global $user_info, $txt;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1514,12 +1513,12 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 	$users = !is_array($users) ? array($users) : array_unique($users);
 	$loaded_ids = array();
 
-	if (!$is_name && !empty($cache_enable) && $cache_enable >= 3)
+	if (!$is_name && !empty(CacheApi::$enable) && CacheApi::$enable >= 3)
 	{
 		$users = array_values($users);
 		for ($i = 0, $n = count($users); $i < $n; $i++)
 		{
-			$data = cache_get_data('member_data-' . $set . '-' . $users[$i], 240);
+			$data = CacheApi::get('member_data-' . $set . '-' . $users[$i], 240);
 			if ($data == null)
 				continue;
 
@@ -1646,16 +1645,16 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		}
 	}
 
-	if (!empty($new_loaded_ids) && !empty($cache_enable) && $cache_enable >= 3)
+	if (!empty($new_loaded_ids) && !empty(CacheApi::$enable) && CacheApi::$enable >= 3)
 	{
 		for ($i = 0, $n = count($new_loaded_ids); $i < $n; $i++)
-			cache_put_data('member_data-' . $set . '-' . $new_loaded_ids[$i], $user_profile[$new_loaded_ids[$i]], 240);
+			CacheApi::put('member_data-' . $set . '-' . $new_loaded_ids[$i], $user_profile[$new_loaded_ids[$i]], 240);
 	}
 
 	// Are we loading any moderators?  If so, fix their group data...
 	if (!empty($loaded_ids) && (!empty($board_info['moderators']) || !empty($board_info['moderator_groups'])) && $set === 'normal' && count($temp_mods = array_merge(array_intersect($loaded_ids, array_keys($board_info['moderators'])), $additional_mods)) !== 0)
 	{
-		if (($row = cache_get_data('moderator_group_info', 480)) == null)
+		if (($row = CacheApi::get('moderator_group_info', 480)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT group_name AS member_group, online_color AS member_group_color, icons
@@ -1669,7 +1668,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			$row = $smcFunc['db_fetch_assoc']($request);
 			$smcFunc['db_free_result']($request);
 
-			cache_put_data('moderator_group_info', $row, 480);
+			CacheApi::put('moderator_group_info', $row, 480);
 		}
 
 		foreach ($temp_mods as $id)
@@ -2043,7 +2042,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 {
 	global $user_info, $user_settings, $board_info, $boarddir, $maintenance;
 	global $txt, $boardurl, $scripturl, $mbname, $modSettings;
-	global $context, $settings, $options, $sourcedir, $smcFunc, $language, $board, $cache_enable;
+	global $context, $settings, $options, $sourcedir, $smcFunc, $language, $board;
 
 	if (empty($id_theme))
 	{
@@ -2093,12 +2092,12 @@ function loadTheme($id_theme = 0, $initialize = true)
 	{
 		$member = empty($user_info['id']) ? -1 : $user_info['id'];
 
-		if (!empty($cache_enable) && $cache_enable >= 2 && ($temp = cache_get_data('theme_settings-' . $id_theme . ':' . $member, 60)) != null && time() - 60 > $modSettings['settings_updated'])
+		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2 && ($temp = CacheApi::get('theme_settings-' . $id_theme . ':' . $member, 60)) != null && time() - 60 > $modSettings['settings_updated'])
 		{
 			$themeData = $temp;
 			$flag = true;
 		}
-		elseif (($temp = cache_get_data('theme_settings-' . $id_theme, 90)) != null && time() - 60 > $modSettings['settings_updated'])
+		elseif (($temp = CacheApi::get('theme_settings-' . $id_theme, 90)) != null && time() - 60 > $modSettings['settings_updated'])
 			$themeData = $temp + array($member => array());
 		else
 			$themeData = array(-1 => array(), 0 => array(), $member => array());
@@ -2141,11 +2140,11 @@ function loadTheme($id_theme = 0, $initialize = true)
 						$themeData[$member][$k] = $v;
 				}
 
-			if (!empty($cache_enable) && $cache_enable >= 2)
-				cache_put_data('theme_settings-' . $id_theme . ':' . $member, $themeData, 60);
+			if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2)
+				CacheApi::put('theme_settings-' . $id_theme . ':' . $member, $themeData, 60);
 			// Only if we didn't already load that part of the cache...
 			elseif (!isset($temp))
-				cache_put_data('theme_settings-' . $id_theme, array(-1 => $themeData[-1], 0 => $themeData[0]), 90);
+				CacheApi::put('theme_settings-' . $id_theme, array(-1 => $themeData[-1], 0 => $themeData[0]), 90);
 		}
 
 		$settings = $themeData[0];
@@ -3218,7 +3217,7 @@ function getBoardParents($id_parent)
 	global $scripturl, $smcFunc;
 
 	// First check if we have this cached already.
-	if (($boards = cache_get_data('board_parents-' . $id_parent, 480)) === null)
+	if (($boards = CacheApi::get('board_parents-' . $id_parent, 480)) === null)
 	{
 		$boards = array();
 		$original_parent = $id_parent;
@@ -3286,7 +3285,7 @@ function getBoardParents($id_parent)
 			$smcFunc['db_free_result']($result);
 		}
 
-		cache_put_data('board_parents-' . $original_parent, $boards, 480);
+		CacheApi::put('board_parents-' . $original_parent, $boards, 480);
 	}
 
 	return $boards;
@@ -3301,10 +3300,10 @@ function getBoardParents($id_parent)
  */
 function getLanguages($use_cache = true)
 {
-	global $context, $smcFunc, $settings, $modSettings, $cache_enable;
+	global $context, $smcFunc, $settings, $modSettings;
 
 	// Either we don't use the cache, or its expired.
-	if (!$use_cache || ($context['languages'] = cache_get_data('known_languages', !empty($cache_enable) && $cache_enable < 1 ? 86400 : 3600)) == null)
+	if (!$use_cache || ($context['languages'] = CacheApi::get('known_languages', !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600)) == null)
 	{
 		// If we don't have our ucwords function defined yet, let's load the settings data.
 		if (empty($smcFunc['ucwords']))
@@ -3391,8 +3390,8 @@ function getLanguages($use_cache = true)
 			$context['languages']['english']['name'] = 'English (US)';
 
 		// Let's cash in on this deal.
-		if (!empty($cache_enable))
-			cache_put_data('known_languages', $context['languages'], !empty($cache_enable) && $cache_enable < 1 ? 86400 : 3600);
+		if (!empty(CacheApi::$enable))
+			CacheApi::put('known_languages', $context['languages'], !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600);
 	}
 
 	return $context['languages'];
@@ -3647,228 +3646,6 @@ function template_include($filename, $once = false)
 
 		die;
 	}
-}
-
-/**
- * Try to load up a supported caching method. This is saved in $cacheAPI if we are not overriding it.
- *
- * @param string $overrideCache Try to use a different cache method other than that defined in $cache_accelerator.
- * @param bool $fallbackSMF Use the default SMF method if the accelerator fails.
- * @return object|false A object of $cacheAPI, or False on failure.
- */
-function loadCacheAccelerator($overrideCache = '', $fallbackSMF = true)
-{
-	global $cacheAPI, $cache_accelerator, $cache_enable;
-	global $sourcedir;
-
-	// Is caching enabled?
-	if (empty($cache_enable) && empty($overrideCache))
-		return false;
-
-	// Not overriding this and we have a cacheAPI, send it back.
-	if (empty($overrideCache) && is_object($cacheAPI))
-		return $cacheAPI;
-
-	elseif (is_null($cacheAPI))
-		$cacheAPI = false;
-
-	// What accelerator we are going to try.
-	$cache_class_name = !empty($cache_accelerator) ? $cache_accelerator : CacheApi::APIS_DEFAULT;
-	$fully_qualified_class_name = !empty($overrideCache) ? $overrideCache :
-		CacheApi::APIS_NAMESPACE . $cache_class_name;
-
-	// Do some basic tests.
-	if (class_exists($fully_qualified_class_name))
-	{
-		/* @var CacheApiInterface $cache_api */
-		$cache_api = new $fully_qualified_class_name();
-
-		// There are rules you know...
-		if (!($cache_api instanceof CacheApiInterface) || !($cache_api instanceof CacheApi))
-			return false;
-
-		// No Support?  NEXT!
-		if (!$cache_api->isSupported())
-		{
-			// Can we save ourselves?
-			if (!empty($fallbackSMF) && $overrideCache == '' &&
-				$cache_class_name !== CacheApi::APIS_DEFAULT)
-				return loadCacheAccelerator(CacheApi::APIS_NAMESPACE . CacheApi::APIS_DEFAULT, false);
-
-			return false;
-		}
-
-		// Connect up to the accelerator.
-		if ($cache_api->connect() === false) return false;
-
-		// Don't set this if we are overriding the cache.
-		if (empty($overrideCache))
-			$cacheAPI = $cache_api;
-
-		return $cache_api;
-	}
-
-	return false;
-}
-
-/**
- * Try to retrieve a cache entry. On failure, call the appropriate function.
- *
- * @param string $key The key for this entry
- * @param string $file The file associated with this entry
- * @param string $function The function to call
- * @param array $params Parameters to be passed to the specified function
- * @param int $level The cache level
- * @return string The cached data
- */
-function cache_quick_get($key, $file, $function, $params, $level = 1)
-{
-	global $modSettings, $sourcedir, $cache_enable;
-
-	if (function_exists('call_integration_hook'))
-		call_integration_hook('pre_cache_quick_get', array(&$key, &$file, &$function, &$params, &$level));
-
-	/* Refresh the cache if either:
-		1. Caching is disabled.
-		2. The cache level isn't high enough.
-		3. The item has not been cached or the cached item expired.
-		4. The cached item has a custom expiration condition evaluating to true.
-		5. The expire time set in the cache item has passed (needed for Zend).
-	*/
-	if (empty($cache_enable) || $cache_enable < $level || !is_array($cache_block = cache_get_data($key, 3600)) || (!empty($cache_block['refresh_eval']) && eval($cache_block['refresh_eval'])) || (!empty($cache_block['expires']) && $cache_block['expires'] < time()))
-	{
-		require_once($sourcedir . '/' . $file);
-		$cache_block = call_user_func_array($function, $params);
-
-		if (!empty($cache_enable) && $cache_enable >= $level)
-			cache_put_data($key, $cache_block, $cache_block['expires'] - time());
-	}
-
-	// Some cached data may need a freshening up after retrieval.
-	if (!empty($cache_block['post_retri_eval']))
-		eval($cache_block['post_retri_eval']);
-
-	if (function_exists('call_integration_hook'))
-		call_integration_hook('post_cache_quick_get', array(&$cache_block));
-
-	return $cache_block['data'];
-}
-
-/**
- * Puts value in the cache under key for ttl seconds.
- *
- * - It may "miss" so shouldn't be depended on
- * - Uses the cache engine chosen in the ACP and saved in settings.php
- * - It supports:
- *	 memcache: https://php.net/memcache
- *   APCu: https://php.net/book.apcu
- *	 Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
- *	 Zend: http://files.zend.com/help/Zend-Platform/zend_cache_functions.htm
- *
- * @param string $key A key for this value
- * @param mixed $value The data to cache
- * @param int $ttl How long (in seconds) the data should be cached for
- */
-function cache_put_data($key, $value, $ttl = 120)
-{
-	global $smcFunc, $cache_enable, $cacheAPI;
-	global $cache_hits, $cache_count, $db_show_debug;
-
-	if (empty($cache_enable) || empty($cacheAPI))
-		return;
-
-	$cache_count = isset($cache_count) ? $cache_count + 1 : 1;
-	if (isset($db_show_debug) && $db_show_debug === true)
-	{
-		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(isset($smcFunc['json_encode']) ? $smcFunc['json_encode']($value) : json_encode($value)));
-		$st = microtime(true);
-	}
-
-	// The API will handle the rest.
-	$value = $value === null ? null : (isset($smcFunc['json_encode']) ? $smcFunc['json_encode']($value) : json_encode($value));
-	$cacheAPI->putData($key, $value, $ttl);
-
-	if (function_exists('call_integration_hook'))
-		call_integration_hook('cache_put_data', array(&$key, &$value, &$ttl));
-
-	if (isset($db_show_debug) && $db_show_debug === true)
-		$cache_hits[$cache_count]['t'] = microtime(true) - $st;
-}
-
-/**
- * Gets the value from the cache specified by key, so long as it is not older than ttl seconds.
- * - It may often "miss", so shouldn't be depended on.
- * - It supports the same as cache_put_data().
- *
- * @param string $key The key for the value to retrieve
- * @param int $ttl The maximum age of the cached data
- * @return array|null The cached data or null if nothing was loaded
- */
-function cache_get_data($key, $ttl = 120)
-{
-	global $smcFunc, $cache_enable, $cacheAPI;
-	global $cache_hits, $cache_count, $cache_misses, $cache_count_misses, $db_show_debug;
-
-	if (empty($cache_enable) || empty($cacheAPI))
-		return null;
-
-	$cache_count = isset($cache_count) ? $cache_count + 1 : 1;
-	if (isset($db_show_debug) && $db_show_debug === true)
-	{
-		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'get');
-		$st = microtime(true);
-		$original_key = $key;
-	}
-
-	// Ask the API to get the data.
-	$value = $cacheAPI->getData($key, $ttl);
-
-	if (isset($db_show_debug) && $db_show_debug === true)
-	{
-		$cache_hits[$cache_count]['t'] = microtime(true) - $st;
-		$cache_hits[$cache_count]['s'] = isset($value) ? strlen($value) : 0;
-
-		if (empty($value))
-		{
-			if (!is_array($cache_misses))
-				$cache_misses = array();
-
-			$cache_count_misses = isset($cache_count_misses) ? $cache_count_misses + 1 : 1;
-			$cache_misses[$cache_count_misses] = array('k' => $original_key, 'd' => 'get');
-		}
-	}
-
-	if (function_exists('call_integration_hook') && isset($value))
-		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
-
-	return empty($value) ? null : (isset($smcFunc['json_decode']) ? $smcFunc['json_decode']($value, true) : smf_json_decode($value, true));
-}
-
-/**
- * Empty out the cache in use as best it can
- *
- * It may only remove the files of a certain type (if the $type parameter is given)
- * Type can be user, data or left blank
- * 	- user clears out user data
- *  - data clears out system / opcode data
- *  - If no type is specified will perform a complete cache clearing
- * For cache engines that do not distinguish on types, a full cache flush will be done
- *
- * @param string $type The cache type ('memcached', 'zend' or something else for SMF's file cache)
- */
-function clean_cache($type = '')
-{
-	global $cacheAPI;
-
-	// If we can't get to the API, can't do this.
-	if (empty($cacheAPI))
-		return;
-
-	// Ask the API to do the heavy lifting. cleanCache also calls invalidateCache to be sure.
-	$cacheAPI->cleanCache($type);
-
-	call_integration_hook('integrate_clean_cache');
-	clearstatcache();
 }
 
 /**

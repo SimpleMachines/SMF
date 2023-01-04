@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Cache\CacheApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -158,7 +160,7 @@ function DisplayStats()
 	$disabled_fields = isset($modSettings['disabled_profile_fields']) ? explode(',', $modSettings['disabled_profile_fields']) : array();
 	if (!in_array('gender', $disabled_fields))
 	{
-		if (($context['gender'] = cache_get_data('stats_gender', 240)) == null)
+		if (($context['gender'] = CacheApi::get('stats_gender', 240)) == null)
 		{
 			$result = $smcFunc['db_query']('', '
 				SELECT default_value
@@ -198,7 +200,7 @@ function DisplayStats()
 
 			$context['gender'][$default_gender] += $modSettings['totalMembers'] - array_sum($context['gender']);
 
-			cache_put_data('stats_gender', $context['gender'], 240);
+			CacheApi::put('stats_gender', $context['gender'], 240);
 		}
 	}
 
@@ -434,7 +436,7 @@ function DisplayStats()
 	}
 
 	// Try to cache this when possible, because it's a little unavoidably slow.
-	if (($members = cache_get_data('stats_top_starters', 360)) == null)
+	if (($members = CacheApi::get('stats_top_starters', 360)) == null)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member_started, COUNT(*) AS hits
@@ -452,7 +454,7 @@ function DisplayStats()
 			$members[$row['id_member_started']] = $row['hits'];
 		$smcFunc['db_free_result']($request);
 
-		cache_put_data('stats_top_starters', $members, 360);
+		CacheApi::put('stats_top_starters', $members, 360);
 	}
 
 	if (empty($members))
@@ -497,7 +499,7 @@ function DisplayStats()
 	}
 
 	// Time online top 10.
-	$temp = cache_get_data('stats_total_time_members', 600);
+	$temp = CacheApi::get('stats_total_time_members', 600);
 	$members_result = $smcFunc['db_query']('', '
 		SELECT id_member, real_name, total_time_logged_in
 		FROM {db_prefix}members
@@ -550,7 +552,7 @@ function DisplayStats()
 
 	// Cache the ones we found for a bit, just so we don't have to look again.
 	if ($temp !== $temp2)
-		cache_put_data('stats_total_time_members', $temp2, 480);
+		CacheApi::put('stats_total_time_members', $temp2, 480);
 
 	// Likes.
 	if (!empty($modSettings['enable_likes']))

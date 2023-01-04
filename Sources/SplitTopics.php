@@ -16,6 +16,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -1464,7 +1465,7 @@ function MergeExecute($topics = array())
 	}
 
 	// Grab the response prefix (like 'Re: ') in the default forum language.
-	if (!isset($context['response_prefix']) && !($context['response_prefix'] = cache_get_data('response_prefix')))
+	if (!isset($context['response_prefix']) && !($context['response_prefix'] = CacheApi::get('response_prefix')))
 	{
 		if ($language === $user_info['language'])
 			$context['response_prefix'] = $txt['response_prefix'];
@@ -1474,7 +1475,7 @@ function MergeExecute($topics = array())
 			$context['response_prefix'] = $txt['response_prefix'];
 			loadLanguage('index');
 		}
-		cache_put_data('response_prefix', $context['response_prefix'], 600);
+		CacheApi::put('response_prefix', $context['response_prefix'], 600);
 	}
 
 	// Change the topic IDs of all messages that will be merged.  Also adjust subjects if 'enforce subject' was checked.

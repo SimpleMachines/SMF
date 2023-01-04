@@ -276,7 +276,7 @@ if (!isset($settings['default_theme_dir']))
 if (!isset($modSettings['rand_seed']))
 {
 	if (!function_exists('cache_put_data'))
-		require_once($sourcedir . '/Load.php');
+		require_once($sourcedir . '/Cache/CacheApi.php');
 	smf_seed_generator();
 }
 
@@ -969,7 +969,7 @@ function WelcomeLogin()
 	elseif ($need_settings_update)
 	{
 		if (!function_exists('cache_put_data'))
-			require_once($sourcedir . '/Load.php');
+			require_once($sourcedir . '/Cache/CacheApi.php');
 
 		updateSettings(array('custom_avatar_dir' => $custom_av_dir));
 		updateSettings(array('custom_avatar_url' => $custom_av_url));
@@ -1472,7 +1472,7 @@ function UpgradeOptions()
 
 	// If $boardurl reflects https, set force_ssl
 	if (!function_exists('cache_put_data'))
-		require_once($sourcedir . '/Load.php');
+		require_once($sourcedir . '/Cache/CacheApi.php');
 	if (stripos($boardurl, 'https://') !== false && !isset($modSettings['force_ssl']))
 		updateSettings(array('force_ssl' => '1'));
 
@@ -2891,7 +2891,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	elseif ($need_settings_update)
 	{
 		if (!function_exists('cache_put_data'))
-			require_once($sourcedir . '/Load.php');
+			require_once($sourcedir . '/Cache/CacheApi.php');
 
 		updateSettings(array('custom_avatar_dir' => $custom_av_dir));
 		updateSettings(array('custom_avatar_url' => $custom_av_url));
@@ -3502,7 +3502,7 @@ function serialize_to_json()
 
 	// Needed when writing settings
 	if (!function_exists('cache_put_data'))
-		require_once($sourcedir . '/Load.php');
+		require_once($sourcedir . '/Cache/CacheApi.php');
 
 	// Done it already - js wise?
 	if (!empty($_POST['json_done']))

@@ -14,6 +14,7 @@
  */
 
 use SMF\ProxyServer;
+use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -179,7 +180,7 @@ function scheduled_daily_maintenance()
 	global $smcFunc, $modSettings, $sourcedir, $boarddir, $db_type, $image_proxy_enabled;
 
 	// First clean out the cache.
-	clean_cache();
+	CacheApi::clean();
 
 	// If warning decrement is enabled and we have people who have not had a new warning in 24 hours, lower their warning level.
 	list (, , $modSettings['warning_decrement']) = explode(',', $modSettings['warning_settings']);
@@ -1156,7 +1157,7 @@ function scheduled_birthdayemails()
  */
 function scheduled_weekly_maintenance()
 {
-	global $modSettings, $smcFunc, $cache_enable, $cacheAPI;
+	global $modSettings, $smcFunc;
 
 	// Delete some settings that needn't be set if they are otherwise empty.
 	$emptySettings = array(
@@ -1351,8 +1352,8 @@ function scheduled_weekly_maintenance()
 	);
 
 	// Run Cache housekeeping
-	if (!empty($cache_enable) && !empty($cacheAPI))
-		$cacheAPI->housekeeping();
+	if (!empty(CacheApi::$enable) && !empty(CacheApi::$loadedApi))
+		CacheApi::$loadedApi->housekeeping();
 
 	// Prevent stale minimized CSS and JavaScript from cluttering up the theme directories
 	deleteAllMinified();

@@ -15,6 +15,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -840,9 +841,9 @@ function modifyBoard($board_id, &$boardOptions)
 			$context['description_allowed_tags']
 		);
 
-	clean_cache('data');
+	CacheApi::clean('data');
 
-	cache_put_data('parsed_boards_descriptions_'. $parsed_boards_cat_id, $already_parsed_boards, 864000);
+	CacheApi::put('parsed_boards_descriptions_'. $parsed_boards_cat_id, $already_parsed_boards, 864000);
 
 	if (empty($boardOptions['dont_log']))
 		logAction('edit_board', array('board' => $board_id), 'admin');
@@ -945,7 +946,7 @@ function createBoard($boardOptions)
 	}
 
 	// Clean the data cache.
-	clean_cache('data');
+	CacheApi::clean('data');
 
 	// Created it.
 	logAction('add_board', array('board' => $board_id), 'admin');
@@ -1108,7 +1109,7 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 	updateSettings(array('settings_updated' => time()));
 
 	// Clean the cache as well.
-	clean_cache('data');
+	CacheApi::clean('data');
 
 	// Let's do some serious logging.
 	foreach ($boards_to_remove as $id_board)
@@ -1145,7 +1146,7 @@ function reorderBoards()
 	}
 
 	// Empty the board order cache
-	cache_put_data('board_order', null, -3600);
+	CacheApi::put('board_order', null, -3600);
 }
 
 /**
@@ -1209,7 +1210,7 @@ function getTreeOrder()
 	if (!empty($tree_order['boards']))
 		return $tree_order;
 
-	if (($cached = cache_get_data('board_order', 86400)) !== null)
+	if (($cached = CacheApi::get('board_order', 86400)) !== null)
 	{
 		$tree_order = $cached;
 		return $cached;
@@ -1230,7 +1231,7 @@ function getTreeOrder()
 	}
 	$smcFunc['db_free_result']($request);
 
-	cache_put_data('board_order', $tree_order, 86400);
+	CacheApi::put('board_order', $tree_order, 86400);
 
 	return $tree_order;
 }
@@ -1561,7 +1562,7 @@ function setBoardParsedDescription($category_id = 0, $boards_info = array())
 			$context['description_allowed_tags']
 		);
 
-	cache_put_data('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);
+	CacheApi::put('parsed_boards_descriptions_'. $category_id, $already_parsed_boards, 864000);
 
 	return $already_parsed_boards;
 }
@@ -1571,7 +1572,7 @@ function getBoardsParsedDescription($category_id = 0)
 	if (empty($category_id))
 		return array();
 
-	return (array) cache_get_data('parsed_boards_descriptions_' . $category_id, 864000);
+	return (array) CacheApi::get('parsed_boards_descriptions_' . $category_id, 864000);
 }
 
 ?>

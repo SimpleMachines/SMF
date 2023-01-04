@@ -17,6 +17,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Cache\CacheApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -25,7 +27,7 @@ if (!defined('SMF'))
  */
 function loadSession()
 {
-	global $modSettings, $boardurl, $sc, $smcFunc, $cache_enable;
+	global $modSettings, $boardurl, $sc, $smcFunc;
 
 	// Attempt to change a few PHP settings.
 	@ini_set('session.use_cookies', true);
@@ -75,7 +77,7 @@ function loadSession()
 			@ini_set('session.gc_maxlifetime', max($modSettings['databaseSession_lifetime'], 60));
 
 		// Use cache setting sessions?
-		if (empty($modSettings['databaseSession_enable']) && !empty($cache_enable) && php_sapi_name() != 'cli')
+		if (empty($modSettings['databaseSession_enable']) && !empty(CacheApi::$enable) && php_sapi_name() != 'cli')
 			call_integration_hook('integrate_session_handlers');
 
 		session_start();
