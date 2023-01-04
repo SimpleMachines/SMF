@@ -14,6 +14,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Cache\CacheApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -221,7 +223,7 @@ function MoveTopic2()
 			if (isset($_POST['enforce_subject']))
 			{
 				// Get a response prefix, but in the forum's default language.
-				if (!isset($context['response_prefix']) && !($context['response_prefix'] = cache_get_data('response_prefix')))
+				if (!isset($context['response_prefix']) && !($context['response_prefix'] = CacheApi::get('response_prefix')))
 				{
 					if ($language === $user_info['language'])
 						$context['response_prefix'] = $txt['response_prefix'];
@@ -231,7 +233,7 @@ function MoveTopic2()
 						$context['response_prefix'] = $txt['response_prefix'];
 						loadLanguage('index');
 					}
-					cache_put_data('response_prefix', $context['response_prefix'], 600);
+					CacheApi::put('response_prefix', $context['response_prefix'], 600);
 				}
 
 				$smcFunc['db_query']('', '
@@ -388,7 +390,7 @@ function MoveTopic2()
  */
 function moveTopics($topics, $toBoard)
 {
-	global $sourcedir, $user_info, $modSettings, $smcFunc, $cache_enable;
+	global $sourcedir, $user_info, $modSettings, $smcFunc;
 
 	// Empty array?
 	if (empty($topics))
@@ -691,9 +693,9 @@ function moveTopics($topics, $toBoard)
 	}
 
 	// Update the cache?
-	if (!empty($cache_enable) && $cache_enable >= 3)
+	if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3)
 		foreach ($topics as $topic_id)
-			cache_put_data('topic_board-' . $topic_id, null, 120);
+			CacheApi::put('topic_board-' . $topic_id, null, 120);
 
 	require_once($sourcedir . '/Subs-Post.php');
 

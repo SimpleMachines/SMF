@@ -14,6 +14,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -271,7 +272,7 @@ function deleteCategories($categories, $moveBoardsTo = null)
 
 function setCategoryParsedDescription($category_info = array())
 {
-	global $cache_enable, $context;
+	global $context;
 
 	if (empty($category_info))
 		return $category_info;
@@ -283,20 +284,18 @@ function setCategoryParsedDescription($category_info = array())
 	$already_parsed_categories[$category_id] = !empty($category_description) ?
 		BBCodeParser::load()->parse($category_description, false, '', $context['description_allowed_tags']) : '';
 
-	if (!empty($cache_enable))
-		cache_put_data('parsed_category_descriptions', $already_parsed_categories, 864000);
+	if (!empty(CacheApi::$enable))
+		CacheApi::put('parsed_category_descriptions', $already_parsed_categories, 864000);
 
 	return $already_parsed_categories;
 }
 
 function getCategoriesParsedDescription()
 {
-	global $cache_enable;
-
-	if (empty($cache_enable))
+	if (empty(CacheApi::$enable))
 		return array();
 
-	return cache_get_data('parsed_category_descriptions', 864000);
+	return CacheApi::get('parsed_category_descriptions', 864000);
 }
 
 ?>

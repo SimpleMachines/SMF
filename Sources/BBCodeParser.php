@@ -13,6 +13,8 @@
 
 namespace SMF;
 
+use SMF\Cache\CacheApi;
+
 /**
  * Parses Bulletin Board Code in a string and converts it to HTML.
  *
@@ -1157,8 +1159,6 @@ class BBCodeParser
 	 */
 	public function parse(string $message, bool $smileys = true, string $cache_id = '', array $parse_tags = array()): string
 	{
-		global $cache_enable;
-
 		// Don't waste cycles
 		if (strval($message) === '')
 			return '';
@@ -1226,7 +1226,7 @@ class BBCodeParser
 			return $this->results[$cache_key];
 
 		// Or maybe we cached the results recently?
-		if (($this->results[$cache_key] = cache_get_data($cache_key, 240)) != null)
+		if (($this->results[$cache_key] = CacheApi::get($cache_key, 240)) != null)
 			return $this->results[$cache_key];
 
 		// Keep track of how long this takes.
@@ -1239,8 +1239,8 @@ class BBCodeParser
 		call_integration_hook('integrate_post_parsebbc', array(&$this->message, &$this->smileys, &$cache_id, &$this->parse_tags));
 
 		// Cache the output if it took some time...
-		if (!empty($cache_enable) && microtime(true) - $cache_t > pow(50, -$cache_enable))
-			cache_put_data($cache_key, $this->message, 240);
+		if (!empty(CacheApi::$enable) && microtime(true) - $cache_t > pow(50, -CacheApi::$enable))
+			CacheApi::put($cache_key, $this->message, 240);
 
 		// Remember for later.
 		$this->results[$cache_key] = $this->message;
@@ -1273,7 +1273,7 @@ class BBCodeParser
 			$cache_time = !$this->custom_smileys_enabled ? 7200 : 480;
 
 			// Load the smileys in reverse order by length so they don't get parsed incorrectly.
-			if (($temp = cache_get_data('parsing_smileys_' . $this->smiley_set, $cache_time)) == null)
+			if (($temp = CacheApi::get('parsing_smileys_' . $this->smiley_set, $cache_time)) == null)
 			{
 				$smileysfrom = array();
 				$smileysto = array();
@@ -1299,7 +1299,7 @@ class BBCodeParser
 				}
 				$smcFunc['db_free_result']($result);
 
-				cache_put_data('parsing_smileys_' . $this->smiley_set, array($smileysfrom, $smileysto, $smileysdescs), $cache_time);
+				CacheApi::put('parsing_smileys_' . $this->smiley_set, array($smileysfrom, $smileysto, $smileysdescs), $cache_time);
 			}
 			else
 			{

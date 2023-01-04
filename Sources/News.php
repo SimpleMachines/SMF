@@ -14,6 +14,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -44,7 +45,7 @@ if (!defined('SMF'))
 function ShowXmlFeed()
 {
 	global $board, $board_info, $context, $scripturl, $boardurl, $txt, $modSettings, $user_info;
-	global $query_this_board, $smcFunc, $forum_version, $settings, $cache_enable, $cachedir;
+	global $query_this_board, $smcFunc, $forum_version, $settings, $cachedir;
 
 	// List all the different types of data they can pull.
 	$subActions = array(
@@ -237,9 +238,9 @@ function ShowXmlFeed()
 	$cache_t = microtime(true);
 
 	// Get the associative array representing the xml.
-	if (!empty($cache_enable) && (!$user_info['is_guest'] || $cache_enable >= 3))
+	if (!empty(CacheApi::$enable) && (!$user_info['is_guest'] || CacheApi::$enable >= 3))
 	{
-		$xml_data = cache_get_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, 240);
+		$xml_data = CacheApi::get('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, 240);
 	}
 	if (empty($xml_data))
 	{
@@ -248,9 +249,9 @@ function ShowXmlFeed()
 		if (!empty($call))
 			$xml_data = call_user_func($call, $xml_format);
 
-		if (!empty($cache_enable) && (($user_info['is_guest'] && $cache_enable >= 3)
+		if (!empty(CacheApi::$enable) && (($user_info['is_guest'] && CacheApi::$enable >= 3)
 		|| (!$user_info['is_guest'] && (microtime(true) - $cache_t > 0.2))))
-			cache_put_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, $xml_data, 240);
+			CacheApi::put('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, $xml_data, 240);
 	}
 
 	buildXmlFeed($xml_format, $xml_data, $feed_meta, $subaction);

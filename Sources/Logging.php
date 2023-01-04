@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
 if (!defined('SMF'))
@@ -25,7 +26,7 @@ if (!defined('SMF'))
  */
 function writeLog($force = false)
 {
-	global $user_info, $user_settings, $context, $modSettings, $settings, $topic, $board, $smcFunc, $sourcedir, $cache_enable;
+	global $user_info, $user_settings, $context, $modSettings, $settings, $topic, $board, $smcFunc, $sourcedir;
 
 	// If we are showing who is viewing a topic, let's see if we are, and force an update if so - to make it accurate.
 	if (!empty($settings['display_who_viewing']) && ($topic || $board))
@@ -74,7 +75,7 @@ function writeLog($force = false)
 	$session_id = $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id();
 
 	// Grab the last all-of-SMF-specific log_online deletion time.
-	$do_delete = cache_get_data('log_online-update', 30) < time() - 30;
+	$do_delete = CacheApi::get('log_online-update', 30) < time() - 30;
 
 	// If the last click wasn't a long time ago, and there was a last click...
 	if (!empty($_SESSION['log_time']) && $_SESSION['log_time'] >= time() - $modSettings['lastActive'] * 20)
@@ -92,7 +93,7 @@ function writeLog($force = false)
 			);
 
 			// Cache when we did it last.
-			cache_put_data('log_online-update', time(), 30);
+			CacheApi::put('log_online-update', time(), 30);
 		}
 
 		$smcFunc['db_query']('', '
@@ -152,8 +153,8 @@ function writeLog($force = false)
 		$user_settings['total_time_logged_in'] += time() - $_SESSION['timeOnlineUpdated'];
 		updateMemberData($user_info['id'], array('last_login' => time(), 'member_ip' => $user_info['ip'], 'member_ip2' => $_SERVER['BAN_CHECK_IP'], 'total_time_logged_in' => $user_settings['total_time_logged_in']));
 
-		if (!empty($cache_enable) && $cache_enable >= 2)
-			cache_put_data('user_settings-' . $user_info['id'], $user_settings, 60);
+		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2)
+			CacheApi::put('user_settings-' . $user_info['id'], $user_settings, 60);
 
 		$user_info['total_time_logged_in'] += time() - $_SESSION['timeOnlineUpdated'];
 		$_SESSION['timeOnlineUpdated'] = time();
@@ -208,7 +209,7 @@ function logLastDatabaseError()
 function displayDebug()
 {
 	global $context, $scripturl, $boarddir, $sourcedir, $cachedir, $settings, $modSettings;
-	global $cache_misses, $cache_count_misses, $db_show_debug, $cache_count, $cache_hits, $smcFunc, $txt, $cache_enable;
+	global $db_show_debug, $smcFunc, $txt;
 
 	// Add to Settings.php if you want to show the debugging information.
 	if (!isset($db_show_debug) || $db_show_debug !== true || (isset($_GET['action']) && $_GET['action'] == 'viewquery'))
@@ -264,26 +265,26 @@ function displayDebug()
 	if (isset($_SESSION['token']))
 		echo $txt['debug_tokens'] . '<em>' . implode(',</em> <em>', array_keys($_SESSION['token'])), '</em>.<br>';
 
-	if (!empty($cache_enable) && !empty($cache_hits))
+	if (!empty(CacheApi::$enable) && !empty(CacheApi::$hits))
 	{
 		$missed_entries = array();
 		$entries = array();
 		$total_t = 0;
 		$total_s = 0;
-		foreach ($cache_hits as $cache_hit)
+		foreach (CacheApi::$hits as $cache_hit)
 		{
 			$entries[] = $cache_hit['d'] . ' ' . $cache_hit['k'] . ': ' . sprintf($txt['debug_cache_seconds_bytes'], comma_format($cache_hit['t'], 5), $cache_hit['s']);
 			$total_t += $cache_hit['t'];
 			$total_s += $cache_hit['s'];
 		}
-		if (!isset($cache_misses))
-			$cache_misses = array();
-		foreach ($cache_misses as $missed)
+		if (!isset(CacheApi::$misses))
+			CacheApi::$misses = array();
+		foreach (CacheApi::$misses as $missed)
 			$missed_entries[] = $missed['d'] . ' ' . $missed['k'];
 
 		echo '
-	', $txt['debug_cache_hits'], $cache_count, ': ', sprintf($txt['debug_cache_seconds_bytes_total'], comma_format($total_t, 5), comma_format($total_s)), ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_info" style="display: none;"><em>', implode('</em>, <em>', $entries), '</em></span>)<br>
-	', $txt['debug_cache_misses'], $cache_count_misses, ': (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_misses_info" style="display: none;"><em>', implode('</em>, <em>', $missed_entries), '</em></span>)<br>';
+	', $txt['debug_cache_hits'], CacheApi::$count_hits, ': ', sprintf($txt['debug_cache_seconds_bytes_total'], comma_format($total_t, 5), comma_format($total_s)), ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_info" style="display: none;"><em>', implode('</em>, <em>', $entries), '</em></span>)<br>
+	', $txt['debug_cache_misses'], CacheApi::$count_misses, ': (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_misses_info" style="display: none;"><em>', implode('</em>, <em>', $missed_entries), '</em></span>)<br>';
 	}
 
 	echo '

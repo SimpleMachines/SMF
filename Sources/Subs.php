@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Forum;
+use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Fetchers\CurlFetcher;
 
@@ -196,7 +197,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			if ($parameter2 !== null && !in_array('posts', $parameter2))
 				return;
 
-			$postgroups = cache_get_data('updateStats:postgroups', 360);
+			$postgroups = CacheApi::get('updateStats:postgroups', 360);
 			if ($postgroups == null || $parameter1 == null)
 			{
 				// Fetch the postgroups!
@@ -217,7 +218,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 				// Sort them this way because if it's done with MySQL it causes a filesort :(.
 				arsort($postgroups);
 
-				cache_put_data('updateStats:postgroups', $postgroups, 360);
+				CacheApi::put('updateStats:postgroups', $postgroups, 360);
 			}
 
 			// Oh great, they've screwed their post groups.
@@ -275,7 +276,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
  */
 function updateMemberData($members, $data)
 {
-	global $modSettings, $user_info, $smcFunc, $sourcedir, $cache_enable;
+	global $modSettings, $user_info, $smcFunc, $sourcedir;
 
 	// An empty array means there's nobody to update.
 	if ($members === array())
@@ -428,20 +429,20 @@ function updateMemberData($members, $data)
 	updateStats('postgroups', $members, array_keys($data));
 
 	// Clear any caching?
-	if (!empty($cache_enable) && $cache_enable >= 2 && !empty($members))
+	if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2 && !empty($members))
 	{
 		if (!is_array($members))
 			$members = array($members);
 
 		foreach ($members as $member)
 		{
-			if ($cache_enable >= 3)
+			if (CacheApi::$enable >= 3)
 			{
-				cache_put_data('member_data-profile-' . $member, null, 120);
-				cache_put_data('member_data-normal-' . $member, null, 120);
-				cache_put_data('member_data-minimal-' . $member, null, 120);
+				CacheApi::put('member_data-profile-' . $member, null, 120);
+				CacheApi::put('member_data-normal-' . $member, null, 120);
+				CacheApi::put('member_data-minimal-' . $member, null, 120);
 			}
-			cache_put_data('user_settings-' . $member, null, 60);
+			CacheApi::put('user_settings-' . $member, null, 60);
 		}
 	}
 }
@@ -506,7 +507,7 @@ function updateSettings($changeArray, $update = false)
 		}
 
 		// Clean out the cache and make sure the cobwebs are gone too.
-		cache_put_data('modSettings', null, 90);
+		CacheApi::put('modSettings', null, 90);
 
 		return;
 	}
@@ -537,7 +538,7 @@ function updateSettings($changeArray, $update = false)
 	);
 
 	// Kill the cache - it needs redoing now, but we won't bother ourselves with that here.
-	cache_put_data('modSettings', null, 90);
+	CacheApi::put('modSettings', null, 90);
 }
 
 /**
@@ -1695,7 +1696,7 @@ function url_image_size($url)
 	$url = str_replace(' ', '%20', $url);
 
 	// Can we pull this from the cache... please please?
-	if (($temp = cache_get_data('url_image_size-' . md5($url), 240)) !== null)
+	if (($temp = CacheApi::get('url_image_size-' . md5($url), 240)) !== null)
 		return $temp;
 	$t = microtime(true);
 
@@ -1753,7 +1754,7 @@ function url_image_size($url)
 
 	// If this took a long time, we may never have to do it again, but then again we might...
 	if (microtime(true) - $t > 0.8)
-		cache_put_data('url_image_size-' . md5($url), $size, 240);
+		CacheApi::put('url_image_size-' . md5($url), $size, 240);
 
 	// Didn't work.
 	return $size;
@@ -1994,7 +1995,7 @@ function memoryReturnBytes($val)
  */
 function template_header()
 {
-	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir, $cache_enable, $language;
+	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir, $language;
 
 	setupThemeContext();
 
@@ -2069,7 +2070,7 @@ function template_header()
 				$policy_agreement = empty($modSettings['policy_' . $language]);
 
 			if (!empty($securityFiles) ||
-				(!empty($cache_enable) && !is_writable($cachedir)) ||
+				(!empty(CacheApi::$enable) && !is_writable($cachedir)) ||
 				!empty($agreement) ||
 				!empty($policy_agreement) ||
 				!empty($context['auth_secret_missing']))
@@ -2090,7 +2091,7 @@ function template_header()
 				', sprintf($txt['not_removed_extra'], $securityFile, substr($securityFile, 0, -1)), '<br>';
 				}
 
-				if (!empty($cache_enable) && !is_writable($cachedir))
+				if (!empty(CacheApi::$enable) && !is_writable($cachedir))
 					echo '
 				<strong>', $txt['cache_writable'], '</strong><br>';
 
@@ -2713,7 +2714,7 @@ function host_from_ip($ip)
 {
 	global $modSettings;
 
-	if (($host = cache_get_data('hostlookup-' . $ip, 600)) !== null)
+	if (($host = CacheApi::get('hostlookup-' . $ip, 600)) !== null)
 		return $host;
 	$t = microtime(true);
 
@@ -2754,7 +2755,7 @@ function host_from_ip($ip)
 
 	// It took a long time, so let's cache it!
 	if (microtime(true) - $t > 0.5)
-		cache_put_data('hostlookup-' . $ip, $host, 600);
+		CacheApi::put('hostlookup-' . $ip, $host, 600);
 
 	return $host;
 }
@@ -2848,7 +2849,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  */
 function setupMenuContext()
 {
-	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc, $cache_enable;
+	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings, $smcFunc;
 
 	// Set up the menu privileges.
 	$context['allow_search'] = !empty($modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
@@ -2900,7 +2901,7 @@ function setupMenuContext()
 	}
 
 	// All the buttons we can possible want and then some, try pulling the final list of buttons from cache first.
-	if (($menu_buttons = cache_get_data('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $cacheTime)) === null || time() - $cacheTime <= $modSettings['settings_updated'])
+	if (($menu_buttons = CacheApi::get('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $cacheTime)) === null || time() - $cacheTime <= $modSettings['settings_updated'])
 	{
 		$buttons = array(
 			'home' => array(
@@ -3101,8 +3102,8 @@ function setupMenuContext()
 				$menu_buttons[$act] = $button;
 			}
 
-		if (!empty($cache_enable) && $cache_enable >= 2)
-			cache_put_data('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $menu_buttons, $cacheTime);
+		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2)
+			CacheApi::put('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $menu_buttons, $cacheTime);
 	}
 
 	$context['menu_buttons'] = $menu_buttons;
@@ -3865,7 +3866,7 @@ function prepareLikesContext($topic)
 	$cache_key = 'likes_topic_' . $topic . '_' . $user;
 	$ttl = 180;
 
-	if (($temp = cache_get_data($cache_key, $ttl)) === null)
+	if (($temp = CacheApi::get($cache_key, $ttl)) === null)
 	{
 		$temp = array();
 		$request = $smcFunc['db_query']('', '
@@ -3883,7 +3884,7 @@ function prepareLikesContext($topic)
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$temp[] = (int) $row['content_id'];
 
-		cache_put_data($cache_key, $temp, $ttl);
+		CacheApi::put($cache_key, $temp, $ttl);
 	}
 
 	return $temp;

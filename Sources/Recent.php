@@ -14,6 +14,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -77,7 +78,7 @@ function getLastPost()
  */
 function RecentPosts()
 {
-	global $txt, $scripturl, $user_info, $context, $modSettings, $board, $smcFunc, $cache_enable;
+	global $txt, $scripturl, $user_info, $context, $modSettings, $board, $smcFunc;
 
 	loadTemplate('Recent');
 	$context['page_title'] = $txt['recent_posts'];
@@ -277,7 +278,7 @@ function RecentPosts()
 		$messages = 0;
 
 	$key = 'recent-' . $user_info['id'] . '-' . md5($smcFunc['json_encode'](array_diff_key($query_parameters, array('max_id_msg' => 0)))) . '-' . (int) $_REQUEST['start'];
-	if (!$context['is_redirect'] && (empty($cache_enable) || ($messages = cache_get_data($key, 120)) == null))
+	if (!$context['is_redirect'] && (empty(CacheApi::$enable) || ($messages = CacheApi::get($key, 120)) == null))
 	{
 		$done = false;
 		while (!$done)
@@ -315,7 +316,7 @@ function RecentPosts()
 			$messages[] = $row['id_msg'];
 		$smcFunc['db_free_result']($request);
 		if (!empty($cache_results))
-			cache_put_data($key, $messages, 120);
+			CacheApi::put($key, $messages, 120);
 	}
 
 	// Nothing here... Or at least, nothing you can see...

@@ -14,6 +14,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Cache\CacheApi;
 use SMF\Search\SearchApiInterface;
 use SMF\Search\APIs\Standard as SearchStandard;
 
@@ -248,7 +249,7 @@ function PlushSearch2()
 {
 	global $scripturl, $modSettings, $sourcedir, $txt;
 	global $user_info, $context, $options, $messages_request, $boards_can;
-	global $excludedWords, $participants, $smcFunc, $cache_enable;
+	global $excludedWords, $participants, $smcFunc;
 
 	// if coming from the quick search box, and we want to search on members, well we need to do that ;)
 	if (isset($_REQUEST['search_selection']) && $_REQUEST['search_selection'] === 'members')
@@ -2007,8 +2008,8 @@ function PlushSearch2()
 	$context['page_index'] = constructPageIndex($scripturl . '?action=search2;params=' . $context['params'], $_REQUEST['start'], $num_results, $modSettings['search_results_per_page'], false);
 
 	// Consider the search complete!
-	if (!empty($cache_enable) && $cache_enable >= 2)
-		cache_put_data('search_start:' . ($user_info['is_guest'] ? $user_info['ip'] : $user_info['id']), null, 90);
+	if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2)
+		CacheApi::put('search_start:' . ($user_info['is_guest'] ? $user_info['ip'] : $user_info['id']), null, 90);
 
 	$context['key_words'] = &$searchArray;
 

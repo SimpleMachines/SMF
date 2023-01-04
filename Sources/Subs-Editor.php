@@ -15,6 +15,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -65,7 +66,7 @@ function getMessageIcons($board_id)
 	// Otherwise load the icons, and check we give the right image too...
 	else
 	{
-		if (($temp = cache_get_data('posting_icons-' . $board_id, 480)) == null)
+		if (($temp = CacheApi::get('posting_icons-' . $board_id, 480)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT title, filename
@@ -92,7 +93,7 @@ function getMessageIcons($board_id)
 				);
 			}
 
-			cache_put_data('posting_icons-' . $board_id, $icons, 480);
+			CacheApi::put('posting_icons-' . $board_id, $icons, 480);
 		}
 		else
 			$icons = $temp;
@@ -504,7 +505,7 @@ function create_control_richedit($editorOptions)
 			// Cache for longer when customized smiley codes aren't enabled
 			$cache_time = empty($modSettings['smiley_enable']) ? 7200 : 480;
 
-			if (($temp = cache_get_data('posting_smileys_' . $user_info['smiley_set'], $cache_time)) == null)
+			if (($temp = CacheApi::get('posting_smileys_' . $user_info['smiley_set'], $cache_time)) == null)
 			{
 				$request = $smcFunc['db_query']('', '
 					SELECT s.code, f.filename, s.description, s.smiley_row, s.hidden
@@ -536,7 +537,7 @@ function create_control_richedit($editorOptions)
 						$context['smileys'][$section][count($smileyRows) - 1]['isLast'] = true;
 				}
 
-				cache_put_data('posting_smileys_' . $user_info['smiley_set'], $context['smileys'], $cache_time);
+				CacheApi::put('posting_smileys_' . $user_info['smiley_set'], $context['smileys'], $cache_time);
 			}
 			else
 				$context['smileys'] = $temp;
@@ -699,7 +700,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	// If we want questions do we have a cache of all the IDs?
 	if (!empty($thisVerification['number_questions']) && empty($modSettings['question_id_cache']))
 	{
-		if (($modSettings['question_id_cache'] = cache_get_data('verificationQuestions', 300)) == null)
+		if (($modSettings['question_id_cache'] = CacheApi::get('verificationQuestions', 300)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT id_question, lngfile, question, answers
@@ -725,7 +726,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			}
 			$smcFunc['db_free_result']($request);
 
-			cache_put_data('verificationQuestions', $modSettings['question_id_cache'], 300);
+			CacheApi::put('verificationQuestions', $modSettings['question_id_cache'], 300);
 		}
 	}
 

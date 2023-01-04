@@ -19,6 +19,7 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 use SMF\ServerSideIncludes as SSI;
+use SMF\Cache\CacheApi;
 
 /**
  * Log an error, if the error logging is enabled.
@@ -447,22 +448,22 @@ function display_maintenance_message()
 function display_db_error()
 {
 	global $mbname, $modSettings, $maintenance;
-	global $webmaster_email, $db_last_error, $db_error_send, $smcFunc, $sourcedir, $cache_enable;
+	global $webmaster_email, $db_last_error, $db_error_send, $smcFunc, $sourcedir;
 
 	require_once($sourcedir . '/Logging.php');
 	set_fatal_error_headers();
 
 	// For our purposes, we're gonna want this on if at all possible.
-	$cache_enable = '1';
+	CacheApi::$enable = 1;
 
-	if (($temp = cache_get_data('db_last_error', 600)) !== null)
+	if (($temp = CacheApi::get('db_last_error', 600)) !== null)
 		$db_last_error = max($db_last_error, $temp);
 
 	if ($db_last_error < time() - 3600 * 24 * 3 && empty($maintenance) && !empty($db_error_send))
 	{
 		// Avoid writing to the Settings.php file if at all possible; use shared memory instead.
-		cache_put_data('db_last_error', time(), 600);
-		if (($temp = cache_get_data('db_last_error', 600)) === null)
+		CacheApi::put('db_last_error', time(), 600);
+		if (($temp = CacheApi::get('db_last_error', 600)) === null)
 			logLastDatabaseError();
 
 		// Language files aren't loaded yet :(.

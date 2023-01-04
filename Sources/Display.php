@@ -15,6 +15,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -540,7 +541,7 @@ function Display()
 	$context['canonical_url'] = $scripturl . '?topic=' . $topic . '.' . ($can_show_all ? '0;all' : $context['start']);
 
 	// For quick reply we need a response prefix in the default forum language.
-	if (!isset($context['response_prefix']) && !($context['response_prefix'] = cache_get_data('response_prefix', 600)))
+	if (!isset($context['response_prefix']) && !($context['response_prefix'] = CacheApi::get('response_prefix', 600)))
 	{
 		if ($language === $user_info['language'])
 			$context['response_prefix'] = $txt['response_prefix'];
@@ -550,7 +551,7 @@ function Display()
 			$context['response_prefix'] = $txt['response_prefix'];
 			loadLanguage('index');
 		}
-		cache_put_data('response_prefix', $context['response_prefix'], 600);
+		CacheApi::put('response_prefix', $context['response_prefix'], 600);
 	}
 
 	// If we want to show event information in the topic, prepare the data.

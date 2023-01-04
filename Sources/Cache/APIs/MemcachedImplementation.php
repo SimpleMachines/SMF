@@ -29,10 +29,18 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 {
 	const CLASS_KEY = 'cache_memcached';
 
-	/** @var Memcached The memcache instance. */
+	/**
+	 * @var object
+	 *
+	 * The Memcache instance.
+	 */
 	private $memcached = null;
 
-	/** @var string[] */
+	/**
+	 * @var array
+	 *
+	 * Known Memcache servers.
+	 */
 	private $servers;
 
 	/**
@@ -45,6 +53,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 		$this->servers = array_map(
 			function($server)
 			{
+				// Normal host names do not contain slashes, while e.g. unix sockets do. Assume alternative transport pipe with port 0.
 				if (strpos($server, '/') !== false)
 					return array($server, 0);
 
@@ -65,14 +74,12 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function isSupported($test = false)
 	{
-		global $cache_memcached;
-
 		$supported = class_exists('Memcached');
 
 		if ($test)
 			return $supported;
 
-		return parent::isSupported() && $supported && !empty($cache_memcached);
+		return parent::isSupported() && $supported && !empty($this->servers);
 	}
 
 	/**

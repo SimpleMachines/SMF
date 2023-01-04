@@ -14,6 +14,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Cache\CacheApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -863,7 +865,7 @@ function Credits($in_admin = false)
 
 	// Support for mods that use the <credits> tag via the package manager
 	$context['credits_modifications'] = array();
-	if (($mods = cache_get_data('mods_credits', 86400)) === null)
+	if (($mods = CacheApi::get('mods_credits', 86400)) === null)
 	{
 		$mods = array();
 		$request = $smcFunc['db_query']('substring', '
@@ -892,7 +894,7 @@ function Credits($in_admin = false)
 			$mod_name = empty($credit_info['url']) ? $title : '<a href="' . $credit_info['url'] . '">' . $title . '</a>';
 			$mods[] = $mod_name . (!empty($license) ? ' | ' . $license : '') . (!empty($copyright) ? ' | ' . $copyright : '');
 		}
-		cache_put_data('mods_credits', $mods, 86400);
+		CacheApi::put('mods_credits', $mods, 86400);
 	}
 	$context['credits_modifications'] = $mods;
 

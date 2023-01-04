@@ -16,6 +16,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -46,7 +47,7 @@ function MessageMain()
 	// Load up the members maximum message capacity.
 	if ($user_info['is_admin'])
 		$context['message_limit'] = 0;
-	elseif (($context['message_limit'] = cache_get_data('msgLimit:' . $user_info['id'], 360)) === null)
+	elseif (($context['message_limit'] = CacheApi::get('msgLimit:' . $user_info['id'], 360)) === null)
 	{
 		// @todo Why do we do this?  It seems like if they have any limit we should use it.
 		$request = $smcFunc['db_query']('', '
@@ -63,7 +64,7 @@ function MessageMain()
 		$context['message_limit'] = $minMessage == 0 ? 0 : $maxMessage;
 
 		// Save us doing it again!
-		cache_put_data('msgLimit:' . $user_info['id'], $context['message_limit'], 360);
+		CacheApi::put('msgLimit:' . $user_info['id'], $context['message_limit'], 360);
 	}
 
 	// Prepare the context for the capacity bar.
@@ -87,7 +88,7 @@ function MessageMain()
 	$context['labels'] = array();
 
 	// Load the label data.
-	if ($user_settings['new_pm'] || ($context['labels'] = cache_get_data('labelCounts:' . $user_info['id'], 720)) === null)
+	if ($user_settings['new_pm'] || ($context['labels'] = CacheApi::get('labelCounts:' . $user_info['id'], 720)) === null)
 	{
 		// Looks like we need to reseek!
 
@@ -148,7 +149,7 @@ function MessageMain()
 		$smcFunc['db_free_result']($result);
 
 		// Store it please!
-		cache_put_data('labelCounts:' . $user_info['id'], $context['labels'], 720);
+		CacheApi::put('labelCounts:' . $user_info['id'], $context['labels'], 720);
 	}
 
 	// Now we have the labels, and assuming we have unsorted mail, apply our rules!
@@ -1917,7 +1918,7 @@ function MessagePost()
 		censorText($row_quoted['body']);
 
 		// Add 'Re: ' to it....
-		if (!isset($context['response_prefix']) && !($context['response_prefix'] = cache_get_data('response_prefix')))
+		if (!isset($context['response_prefix']) && !($context['response_prefix'] = CacheApi::get('response_prefix')))
 		{
 			if ($language === $user_info['language'])
 				$context['response_prefix'] = $txt['response_prefix'];
@@ -1927,7 +1928,7 @@ function MessagePost()
 				$context['response_prefix'] = $txt['response_prefix'];
 				loadLanguage('index');
 			}
-			cache_put_data('response_prefix', $context['response_prefix'], 600);
+			CacheApi::put('response_prefix', $context['response_prefix'], 600);
 		}
 		$form_subject = $row_quoted['subject'];
 		if ($context['reply'] && trim($context['response_prefix']) != '' && $smcFunc['strpos']($form_subject, trim($context['response_prefix'])) !== 0)
@@ -3127,7 +3128,7 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 	}
 
 	// Any cached numbers may be wrong now.
-	cache_put_data('labelCounts:' . $user_info['id'], null, 720);
+	CacheApi::put('labelCounts:' . $user_info['id'], null, 720);
 }
 
 /**
@@ -3247,7 +3248,7 @@ function markMessages($personal_messages = null, $label = null, $owner = null)
 		$smcFunc['db_free_result']($result);
 
 		// Need to store all this.
-		cache_put_data('labelCounts:' . $owner, $context['labels'], 720);
+		CacheApi::put('labelCounts:' . $owner, $context['labels'], 720);
 		updateMemberData($owner, array('unread_messages' => $total_unread));
 
 		// If it was for the current member, reflect this in the $user_info array too.
@@ -3498,7 +3499,7 @@ function ManageLabels()
 		}
 
 		// Make sure we're not caching this!
-		cache_put_data('labelCounts:' . $user_info['id'], null, 720);
+		CacheApi::put('labelCounts:' . $user_info['id'], null, 720);
 
 		// To make the changes appear right away, redirect.
 		redirectexit('action=pm;sa=manlabels');

@@ -14,6 +14,7 @@
  */
 
 use SMF\BBCodeParser;
+use SMF\Cache\CacheApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -177,8 +178,8 @@ function EditSmileySettings($return_config = false)
 
 		foreach (explode(',', $modSettings['smiley_sets_known']) as $smiley_set)
 		{
-			cache_put_data('parsing_smileys_' . $smiley_set, null, 480);
-			cache_put_data('posting_smileys_' . $smiley_set, null, 480);
+			CacheApi::put('parsing_smileys_' . $smiley_set, null, 480);
+			CacheApi::put('posting_smileys_' . $smiley_set, null, 480);
 		}
 
 		redirectexit('action=admin;area=smileys;sa=settings');
@@ -293,8 +294,8 @@ function EditSmileySets()
 
 		foreach ($set_paths as $smiley_set)
 		{
-			cache_put_data('parsing_smileys_' . $smiley_set, null, 480);
-			cache_put_data('posting_smileys_' . $smiley_set, null, 480);
+			CacheApi::put('parsing_smileys_' . $smiley_set, null, 480);
+			CacheApi::put('posting_smileys_' . $smiley_set, null, 480);
 		}
 	}
 
@@ -876,8 +877,8 @@ function AddSmiley()
 
 		foreach ($context['smiley_sets'] as $smiley_set)
 		{
-			cache_put_data('parsing_smileys_' . $smiley_set['raw_path'], null, 480);
-			cache_put_data('posting_smileys_' . $smiley_set['raw_path'], null, 480);
+			CacheApi::put('parsing_smileys_' . $smiley_set['raw_path'], null, 480);
+			CacheApi::put('posting_smileys_' . $smiley_set['raw_path'], null, 480);
 		}
 
 		// No errors? Out of here!
@@ -1156,8 +1157,8 @@ function EditSmileys()
 
 		foreach ($known_sets as $smiley_set)
 		{
-			cache_put_data('parsing_smileys_' . $smiley_set, null, 480);
-			cache_put_data('posting_smileys_' . $smiley_set, null, 480);
+			CacheApi::put('parsing_smileys_' . $smiley_set, null, 480);
+			CacheApi::put('posting_smileys_' . $smiley_set, null, 480);
 		}
 	}
 
@@ -1601,8 +1602,8 @@ function EditSmileyOrder()
 
 		foreach (explode(',', $modSettings['smiley_sets_known']) as $smiley_set)
 		{
-			cache_put_data('parsing_smileys_' . $smiley_set, null, 480);
-			cache_put_data('posting_smileys_' . $smiley_set, null, 480);
+			CacheApi::put('parsing_smileys_' . $smiley_set, null, 480);
+			CacheApi::put('posting_smileys_' . $smiley_set, null, 480);
 		}
 	}
 
@@ -1691,8 +1692,8 @@ function EditSmileyOrder()
 
 	foreach (explode(',', $modSettings['smiley_sets_known']) as $smiley_set)
 	{
-		cache_put_data('parsing_smileys_' . $smiley_set, null, 480);
-		cache_put_data('posting_smileys_' . $smiley_set, null, 480);
+		CacheApi::put('parsing_smileys_' . $smiley_set, null, 480);
+		CacheApi::put('posting_smileys_' . $smiley_set, null, 480);
 	}
 }
 
@@ -1914,8 +1915,8 @@ function InstallSmileySet()
 
 		foreach (explode(',', $modSettings['smiley_sets_known']) as $smiley_set)
 		{
-			cache_put_data('parsing_smileys_' . $smiley_set, null, 480);
-			cache_put_data('posting_smileys_' . $smiley_set, null, 480);
+			CacheApi::put('parsing_smileys_' . $smiley_set, null, 480);
+			CacheApi::put('posting_smileys_' . $smiley_set, null, 480);
 		}
 	}
 
@@ -2165,8 +2166,8 @@ function ImportSmileys($smileyPath, $create = false)
 
 		foreach ($known_sets as $set)
 		{
-			cache_put_data('parsing_smileys_' . $set, null, 480);
-			cache_put_data('posting_smileys_' . $set, null, 480);
+			CacheApi::put('parsing_smileys_' . $set, null, 480);
+			CacheApi::put('posting_smileys_' . $set, null, 480);
 		}
 	}
 }

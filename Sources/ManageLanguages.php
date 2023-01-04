@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Cache\CacheApi;
 use SMF\PackageManager\XmlArray;
 
 if (!defined('SMF'))
@@ -195,7 +196,7 @@ function list_getLanguagesList()
  */
 function DownloadLanguage()
 {
-	global $context, $sourcedir, $boarddir, $txt, $scripturl, $modSettings, $cache_enable;
+	global $context, $sourcedir, $boarddir, $txt, $scripturl, $modSettings;
 
 	loadLanguage('ManageSettings');
 	require_once($sourcedir . '/Subs-Package.php');
@@ -476,10 +477,10 @@ function DownloadLanguage()
 	);
 
 	// Kill the cache, as it is now invalid..
-	if (!empty($cache_enable))
+	if (!empty(CacheApi::$enable))
 	{
-		cache_put_data('known_languages', null, !empty($cache_enable) && $cache_enable < 1 ? 86400 : 3600);
-		cache_put_data('known_languages_all', null, !empty($cache_enable) && $cache_enable < 1 ? 86400 : 3600);
+		CacheApi::put('known_languages', null, !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600);
+		CacheApi::put('known_languages_all', null, !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600);
 	}
 
 	require_once($sourcedir . '/Subs-List.php');
@@ -801,7 +802,7 @@ function ModifyLanguageSettings($return_config = false)
  */
 function ModifyLanguage()
 {
-	global $settings, $context, $smcFunc, $txt, $modSettings, $boarddir, $sourcedir, $language, $cache_enable;
+	global $settings, $context, $smcFunc, $txt, $modSettings, $boarddir, $sourcedir, $language;
 
 	loadLanguage('ManageSettings');
 
@@ -974,9 +975,9 @@ function ModifyLanguage()
 		);
 
 		// Fifth, update getLanguages() cache.
-		if (!empty($cache_enable))
+		if (!empty(CacheApi::$enable))
 		{
-			cache_put_data('known_languages', null, !empty($cache_enable) && $cache_enable < 1 ? 86400 : 3600);
+			CacheApi::put('known_languages', null, !empty(CacheApi::$enable) && CacheApi::$enable < 1 ? 86400 : 3600);
 		}
 
 		// Sixth, if we deleted the default language, set us back to english?

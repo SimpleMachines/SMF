@@ -13,6 +13,7 @@
 
 namespace SMF;
 
+use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -1323,7 +1324,7 @@ class ServerSideIncludes
 		// Showing membergroups?
 		if (!empty($settings['show_group_key']) && !empty($return['online_groups']))
 		{
-			$membergroups = cache_quick_get('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
+			$membergroups = CacheApi::quickGet('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
 
 			$groups = array();
 			foreach ($return['online_groups'] as $group)
@@ -1962,7 +1963,7 @@ class ServerSideIncludes
 			'include_birthdays' => true,
 			'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 		);
-		$return = cache_quick_get('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+		$return = CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
@@ -1997,7 +1998,7 @@ class ServerSideIncludes
 			'include_holidays' => true,
 			'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 		);
-		$return = cache_quick_get('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+		$return = CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
@@ -2031,7 +2032,7 @@ class ServerSideIncludes
 			'include_events' => true,
 			'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 		);
-		$return = cache_quick_get('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+		$return = CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));
@@ -2073,7 +2074,7 @@ class ServerSideIncludes
 			'include_events' => true,
 			'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
 		);
-		$return = cache_quick_get('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
+		$return = CacheApi::quickGet('calendar_index_offset_' . $user_info['time_offset'], 'Subs-Calendar.php', 'cache_getRecentEvents', array($eventOptions));
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		call_integration_hook('integrate_ssi_calendar', array(&$return, $eventOptions));

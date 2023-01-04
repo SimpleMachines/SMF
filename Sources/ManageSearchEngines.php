@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Cache\CacheApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -201,7 +203,7 @@ function ViewSpiders()
 			)
 		);
 
-		cache_put_data('spider_search', null, 300);
+		CacheApi::put('spider_search', null, 300);
 		recacheSpiderNames();
 	}
 
@@ -433,7 +435,7 @@ function EditSpider()
 				array('id_spider')
 			);
 
-		cache_put_data('spider_search', null);
+		CacheApi::put('spider_search', null);
 		recacheSpiderNames();
 
 		redirectexit('action=admin;area=sengines;sa=spiders');
@@ -486,7 +488,7 @@ function SpiderCheck()
 	$_SESSION['robot_check'] = time();
 
 	// We cache the spider data for ten minutes if we can.
-	if (($spider_data = cache_get_data('spider_search', 600)) === null)
+	if (($spider_data = CacheApi::get('spider_search', 600)) === null)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT id_spider, user_agent, ip_info
@@ -500,7 +502,7 @@ function SpiderCheck()
 			$spider_data[] = $row;
 		$smcFunc['db_free_result']($request);
 
-		cache_put_data('spider_search', $spider_data, 600);
+		CacheApi::put('spider_search', $spider_data, 600);
 	}
 
 	if (empty($spider_data))

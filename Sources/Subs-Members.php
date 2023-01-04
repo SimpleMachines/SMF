@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Cache\CacheApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -34,7 +36,7 @@ if (!defined('SMF'))
  */
 function deleteMembers($users, $check_not_admin = false)
 {
-	global $sourcedir, $modSettings, $user_info, $smcFunc, $cache_enable;
+	global $sourcedir, $modSettings, $user_info, $smcFunc;
 
 	// Try give us a while to sort this out...
 	@set_time_limit(600);
@@ -124,8 +126,8 @@ function deleteMembers($users, $check_not_admin = false)
 		);
 
 		// Remove any cached data if enabled.
-		if (!empty($cache_enable) && $cache_enable >= 2)
-			cache_put_data('user_settings-' . $user[0], null, 60);
+		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2)
+			CacheApi::put('user_settings-' . $user[0], null, 60);
 	}
 
 	// Make these peoples' posts guest posts.
@@ -1322,7 +1324,7 @@ function BuddyListToggle()
 		$user_info['buddies'][] = $userReceiver;
 
 		// And add a nice alert. Don't abuse though!
-		if ((cache_get_data('Buddy-sent-' . $user_info['id'] . '-' . $userReceiver, 86400)) == null)
+		if ((CacheApi::get('Buddy-sent-' . $user_info['id'] . '-' . $userReceiver, 86400)) == null)
 		{
 			$smcFunc['db_insert']('insert',
 				'{db_prefix}background_tasks',
@@ -1337,7 +1339,7 @@ function BuddyListToggle()
 			);
 
 			// Store this in a cache entry to avoid creating multiple alerts. Give it a long life cycle.
-			cache_put_data('Buddy-sent-' . $user_info['id'] . '-' . $userReceiver, '1', 86400);
+			CacheApi::put('Buddy-sent-' . $user_info['id'] . '-' . $userReceiver, '1', 86400);
 		}
 	}
 
