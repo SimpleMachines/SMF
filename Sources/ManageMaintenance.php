@@ -1979,11 +1979,8 @@ function list_integration_hooks()
 					{
 						$change_status = array('before' => '', 'after' => '');
 
-						if ($data['can_disable'])
-						{
-							$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
-							$change_status['after'] = '</a>';
-						}
+						$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
+						$change_status['after'] = '</a>';
 
 						return $change_status['before'] . '<span class="main_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>' . $change_status['after'];
 					},
@@ -2098,10 +2095,11 @@ function get_integration_hooks_data($start, $per_page, $sort, $filtered_hooks, $
 			$hookParsedData = parse_integration_hook($hook, $rawFunc);
 
 			// Handle hooks pointing outside the sources directory.
-			if ($hookParsedData['absPath'] != '' && !isset($files[$hookParsedData['absPath']]) && file_exists($hookParsedData['absPath']))
-				$function_list += get_defined_functions_in_file($hookParsedData['absPath']);
+			$absPath_clean =  rtrim($hookParsedData['absPath'], '!');
+			if ($absPath_clean != '' && !isset($files[$absPath_clean]) && file_exists($absPath_clean))
+				$function_list += get_defined_functions_in_file($absPath_clean);
 
-			$hook_exists = isset($function_list[$hookParsedData['call']]) || (substr($hook, -8) === '_include' && isset($files[$hookParsedData['absPath']]));
+			$hook_exists = isset($function_list[$hookParsedData['call']]) || (substr($hook, -8) === '_include' && isset($absPath_clean));
 			$temp = array(
 				'hook_name' => $hook,
 				'function_name' => $hookParsedData['rawData'],
@@ -2113,7 +2111,6 @@ function get_integration_hooks_data($start, $per_page, $sort, $filtered_hooks, $
 				'status' => $hook_exists ? ($hookParsedData['enabled'] ? 'allow' : 'moderate') : 'deny',
 				'img_text' => $txt['hooks_' . ($hook_exists ? ($hookParsedData['enabled'] ? 'active' : 'disabled') : 'missing')],
 				'enabled' => $hookParsedData['enabled'],
-				'can_disable' => $hookParsedData['call'] != '',
 			);
 			$sort_array[] = $temp[$sort_types[$sort][0]];
 			$temp_data[] = $temp;
@@ -2194,7 +2191,8 @@ function parse_integration_hook(string $hook, string $rawData)
 	}
 
 	// Hook is "disabled"
-	if (strpos($modFunc, '!') !== false)
+	// May need to inspect $rawData here for includes...
+	if ((strpos($modFunc, '!') !== false) || (empty($modFunc) && (strpos($rawData, '!') !== false)))
 	{
 		$modFunc = str_replace('!', '', $modFunc);
 		$hookData['enabled'] = false;
