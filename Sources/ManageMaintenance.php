@@ -1981,7 +1981,7 @@ function list_integration_hooks()
 
 						if ($data['can_disable'])
 						{
-							$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['real_function']) . $filter_url . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
+							$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
 							$change_status['after'] = '</a>';
 						}
 
