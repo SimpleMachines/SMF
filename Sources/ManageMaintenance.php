@@ -1884,8 +1884,9 @@ function list_integration_hooks()
 
 		else
 		{
-			$function_remove = urldecode($_REQUEST['function']) . (($_REQUEST['do'] == 'disable') ? '' : '!');
-			$function_add = urldecode($_REQUEST['function']) . (($_REQUEST['do'] == 'disable') ? '!' : '');
+			// Disable/enable logic; always remove exactly what was passed
+			$function_remove = urldecode($_REQUEST['function']);
+			$function_add = urldecode(rtrim($_REQUEST['function'], '!')) . (($_REQUEST['do'] == 'disable') ? '!' : '');
 
 			remove_integration_function($_REQUEST['hook'], $function_remove);
 			add_integration_function($_REQUEST['hook'], $function_add);
