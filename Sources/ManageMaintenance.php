@@ -2099,7 +2099,7 @@ function get_integration_hooks_data($start, $per_page, $sort, $filtered_hooks, $
 			if ($absPath_clean != '' && !isset($files[$absPath_clean]) && file_exists($absPath_clean))
 				$function_list += get_defined_functions_in_file($absPath_clean);
 
-			$hook_exists = isset($function_list[$hookParsedData['call']]) || (substr($hook, -8) === '_include' && isset($absPath_clean));
+			$hook_exists = isset($function_list[$hookParsedData['call']]) || (substr($hook, -8) === '_include' && isset($files[$absPath_clean]));
 			$temp = array(
 				'hook_name' => $hook,
 				'function_name' => $hookParsedData['rawData'],
