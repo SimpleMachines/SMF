@@ -15,8 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
-use SMF\Search\SearchApiInterface;
-use SMF\Search\APIs\Standard as SearchStandard;
+use SMF\Search\SearchApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -338,7 +337,7 @@ function PlushSearch2()
 	require_once($sourcedir . '/Subs-Package.php');
 
 	// Load up the search API we are going to use.
-	$searchAPI = findSearchAPI();
+	$searchAPI = SearchApi::load();
 
 	// $search_params will carry all settings that differ from the default search parameters.
 	// That way, the URLs involved in a search page will be kept as short as possible.
@@ -2302,40 +2301,6 @@ function prepareSearchContext($reset = false)
 	call_integration_hook('integrate_search_message_context', array(&$output, &$message, $counter));
 
 	return $output;
-}
-
-/**
- * Creates a search API and returns the object.
- *
- * @return SMF\Search\SearchApiInterface An instance of the search API interface
- */
-function findSearchAPI()
-{
-	global $sourcedir, $modSettings, $searchAPI, $txt;
-
-	require_once($sourcedir . '/Subs-Package.php');
-
-	// Load up the search API we are going to use.
-	$modSettings['search_index'] = empty($modSettings['search_index']) ? 'standard' : $modSettings['search_index'];
-
-	if (!file_exists($sourcedir . '/Search/APIs/' . ucwords($modSettings['search_index']) . '.php'))
-		fatal_lang_error('search_api_missing');
-
-	// Create an instance of the search API and check it is valid for this version of SMF.
-	$search_class_name = 'SMF\\Search\\APIs\\' . ucwords($modSettings['search_index']);
-	$searchAPI = new $search_class_name();
-
-	// An invalid Search API.
-	if (!$searchAPI || !($searchAPI instanceof SearchApiInterface) || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion(SMF_VERSION, $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
-	{
-		// Log the error.
-		loadLanguage('Errors');
-		log_error(sprintf($txt['search_api_not_compatible'], 'Search/APIs/' . ucwords($modSettings['search_index']) . '.php'), 'critical');
-
-		$searchAPI = new SearchStandard();
-	}
-
-	return $searchAPI;
 }
 
 /**

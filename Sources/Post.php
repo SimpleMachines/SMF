@@ -16,6 +16,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
+use SMF\Search\SearchApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -2033,8 +2034,8 @@ function Post2()
 		}
 
 		// Update search api
-		require_once($sourcedir . '/Search.php');
-		$searchAPI = findSearchAPI();
+		$searchAPI = SearchApi::load();
+
 		if ($searchAPI->supportsMethod('postRemoved'))
 			$searchAPI->postRemoved($_REQUEST['msg']);
 	}

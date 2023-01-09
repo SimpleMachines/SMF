@@ -17,6 +17,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Mentions;
+use SMF\Search\SearchApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -2134,8 +2135,8 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		);
 
 	// If there's a custom search index, it may need updating...
-	require_once($sourcedir . '/Search.php');
-	$searchAPI = findSearchAPI();
+	$searchAPI = SearchApi::load();
+
 	if (is_callable(array($searchAPI, 'postCreated')))
 		$searchAPI->postCreated($msgOptions, $topicOptions, $posterOptions);
 
@@ -2251,8 +2252,8 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	);
 
 	// Update search api
-	require_once($sourcedir . '/Search.php');
-	$searchAPI = findSearchAPI();
+	$searchAPI = SearchApi::load();
+
 	if ($searchAPI->supportsMethod('postRemoved'))
 		$searchAPI->postRemoved($msgOptions['id']);
 
@@ -2360,8 +2361,8 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	}
 
 	// If there's a custom search index, it needs to be modified...
-	require_once($sourcedir . '/Search.php');
-	$searchAPI = findSearchAPI();
+	$searchAPI = SearchApi::load();
+
 	if (is_callable(array($searchAPI, 'postModified')))
 		$searchAPI->postModified($msgOptions, $topicOptions, $posterOptions);
 
