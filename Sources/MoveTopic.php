@@ -15,6 +15,7 @@
  */
 
 use SMF\Cache\CacheApi;
+use SMF\Search\SearchApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -410,8 +411,8 @@ function moveTopics($topics, $toBoard)
 	$isRecycleDest = !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $toBoard;
 
 	// Callback for search APIs to do their thing
-	require_once($sourcedir . '/Search.php');
-	$searchAPI = findSearchAPI();
+	$searchAPI = SearchApi::load();
+
 	if ($searchAPI->supportsMethod('topicsMoved'))
 		$searchAPI->topicsMoved($topics, $toBoard);
 

@@ -13,6 +13,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Search\SearchApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -104,8 +106,8 @@ function EditSearchSettings($return_config = false)
 	call_integration_hook('integrate_modify_search_settings', array(&$config_vars));
 
 	// Perhaps the search method wants to add some settings?
-	require_once($sourcedir . '/Search.php');
-	$searchAPI = findSearchAPI();
+	$searchAPI = SearchApi::load();
+
 	if (is_callable(array($searchAPI, 'searchSettings')))
 		call_user_func_array(array($searchAPI, 'searchSettings'), array(&$config_vars));
 
@@ -210,7 +212,7 @@ function EditSearchMethod()
 	$context['supports_fulltext'] = $smcFunc['db_search_support']('fulltext');
 
 	// Load any apis.
-	$context['search_apis'] = loadSearchAPIs();
+	$context['search_apis'] = SearchApi::detect();
 
 	// Detect whether a fulltext index is set.
 	if ($context['supports_fulltext'])
@@ -730,98 +732,6 @@ function CreateMessageIndex()
 			)
 		);
 	}
-}
-
-/**
- * Get the installed Search API implementations.
- * This function checks for patterns in comments on top of the Search-API files!
- * In addition to filenames pattern.
- * It loads the search API classes if identified.
- * This function is used by EditSearchMethod to list all installed API implementations.
- */
-function loadSearchAPIs()
-{
-	global $sourcedir, $txt;
-
-	$apis = array();
-
-	// Check for autoloading search APIs.
-	$search_apis_dir = $sourcedir . '/Search/APIs';
-	if ($dh = opendir($search_apis_dir))
-	{
-		while (($file = readdir($dh)) !== false)
-		{
-			if (is_file($search_apis_dir . '/' . $file))
-			{
-				$index_name = strtolower(pathinfo($file, PATHINFO_FILENAME));
-				$search_class_name = 'SMF\\Search\\APIs\\' . $index_name;
-
-				if (!class_exists($search_class_name))
-					continue;
-
-				$searchAPI = new $search_class_name();
-
-				if (!$searchAPI->is_supported)
-					continue;
-
-				$apis[$index_name] = array(
-					'filename' => 'Search/APIs/' . $file,
-					'setting_index' => $index_name,
-					'has_template' => in_array($index_name, array('custom', 'fulltext', 'standard')),
-					'label' => $index_name && isset($txt['search_index_' . $index_name]) ? $txt['search_index_' . $index_name] : '',
-					'desc' => $index_name && isset($txt['search_index_' . $index_name . '_desc']) ? $txt['search_index_' . $index_name . '_desc'] : '',
-				);
-			}
-		}
-	}
-	closedir($dh);
-
-	// Check for search APIs using the old SearchAPI-*.php system.
-	// Kept for backward compatibility.
-	if ($dh = opendir($sourcedir))
-	{
-		// Ensure we have class.
-		require_once($sourcedir . '/Class-SearchAPI.php');
-
-		while (($file = readdir($dh)) !== false)
-		{
-			if (is_file($sourcedir . '/' . $file) && preg_match('~^SearchAPI-([A-Za-z\d_]+)\.php$~', $file, $matches))
-			{
-				// Skip if we already have an API by this name.
-				if (isset($loadedApis[strtolower($matches[1])]))
-					continue;
-
-				// Check this is definitely a valid API!
-				$fp = fopen($sourcedir . '/' . $file, 'rb');
-				$header = fread($fp, 4096);
-				fclose($fp);
-
-				if (strpos($header, '* SearchAPI-' . $matches[1] . '.php') !== false)
-				{
-					require_once($sourcedir . '/' . $file);
-
-					$index_name = strtolower($matches[1]);
-					$search_class_name = $index_name . '_search';
-					$searchAPI = new $search_class_name();
-
-					// No Support?  NEXT!
-					if (!$searchAPI->is_supported)
-						continue;
-
-					$apis[$index_name] = array(
-						'filename' => $file,
-						'setting_index' => $index_name,
-						'has_template' => in_array($index_name, array('custom', 'fulltext', 'standard')),
-						'label' => $index_name && isset($txt['search_index_' . $index_name]) ? $txt['search_index_' . $index_name] : '',
-						'desc' => $index_name && isset($txt['search_index_' . $index_name . '_desc']) ? $txt['search_index_' . $index_name . '_desc'] : '',
-					);
-				}
-			}
-		}
-	}
-	closedir($dh);
-
-	return $apis;
 }
 
 /**

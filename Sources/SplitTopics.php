@@ -17,6 +17,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
+use SMF\Search\SearchApi;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -789,8 +790,8 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	sendNotifications($split1_ID_TOPIC, 'split');
 
 	// If there's a search index that needs updating, update it...
-	require_once($sourcedir . '/Search.php');
-	$searchAPI = findSearchAPI();
+	$searchAPI = SearchApi::load();
+
 	if (is_callable(array($searchAPI, 'topicSplit')))
 		$searchAPI->topicSplit($split2_ID_TOPIC, $splitMessages);
 
@@ -1761,8 +1762,8 @@ function MergeExecute($topics = array())
 	sendNotifications($id_topic, 'merge');
 
 	// If there's a search index that needs updating, update it...
-	require_once($sourcedir . '/Search.php');
-	$searchAPI = findSearchAPI();
+	$searchAPI = SearchApi::load();
+
 	if (is_callable(array($searchAPI, 'topicMerge')))
 		$searchAPI->topicMerge($id_topic, $topics, $affected_msgs, empty($_POST['enforce_subject']) ? null : array($context['response_prefix'], $target_subject));
 

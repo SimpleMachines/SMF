@@ -14,6 +14,8 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\Search\SearchApi;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -359,8 +361,8 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 		return;
 
 	// Callback for search APIs to do their thing
-	require_once($sourcedir . '/Search.php');
-	$searchAPI = findSearchAPI();
+	$searchAPI = SearchApi::load();
+
 	if ($searchAPI->supportsMethod('topicsRemoved'))
 		$searchAPI->topicsRemoved($topics);
 
@@ -951,8 +953,8 @@ function removeMessage($message, $decreasePostCount = true)
 	if (!$recycle)
 	{
 		// Callback for search APIs to do their thing
-		require_once($sourcedir . '/Search.php');
-		$searchAPI = findSearchAPI();
+		$searchAPI = SearchApi::load();
+
 		if ($searchAPI->supportsMethod('postRemoved'))
 			$searchAPI->postRemoved($message);
 
