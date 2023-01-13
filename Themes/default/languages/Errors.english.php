@@ -139,7 +139,6 @@ $txt['no_theme'] = 'That theme does not exist.';
 $txt['theme_dir_wrong'] = 'The default theme\'s directory is wrong, please correct it by clicking this text.';
 $txt['registration_disabled'] = 'Sorry, registration is currently disabled.';
 $txt['registration_no_secret_question'] = 'Sorry, there is no secret question set for this member.';
-$txt['registration_no_verification_questions'] = 'Verification questions not configured properly. Please report this error to an administrator.';
 $txt['poll_range_error'] = 'Sorry, the poll must run for more than 0 days.';
 $txt['delFirstPost'] = 'You are not allowed to delete the first post in a topic.<p>If you want to delete this topic, click on the Remove Topic link, or ask a moderator/administrator to do it for you.</p>';
 $txt['parent_error'] = 'Unable to create board!';
