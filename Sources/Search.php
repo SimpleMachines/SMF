@@ -688,6 +688,18 @@ function PlushSearch2()
 		$stripped_query = strtr($stripped_query, array('"' => ''));
 
 	$no_regexp = preg_match('~&#(?:\d{1,7}|x[0-9a-fA-F]{1,6});~', $stripped_query) === 1;
+	$is_search_regex = !empty($modSettings['search_match_words']) && !$no_regexp;
+
+	// Specify the function to search with. Regex is for word boundaries.
+	$query_match_type = $is_search_regex ? 'RLIKE' : 'LIKE';
+	$word_boundary_wrapper = function(string $str) use ($smcFunc): string
+	{
+		return sprintf($smcFunc['db_supports_pcre'] ? '\\b%s\\b' : '[[:<:]]%s[[:>:]]', $str);
+	};
+	$escape_sql_regex = function(string $str): string
+	{
+		return addcslashes(preg_replace('/[\[\]$.+*?&^|{}()]/', '[$0]', $str), '\\\'');
+	};
 
 	// Extract phrase parts first (e.g. some words "this is a phrase" some more words.)
 	preg_match_all('/(?:^|\s)([-]?)"([^"]+)"(?:$|\s)/', $stripped_query, $matches, PREG_PATTERN_ORDER);
@@ -695,7 +707,7 @@ function PlushSearch2()
 	$phraseArray = $matches[2];
 
 	// Remove the phrase parts and extract the words.
-	$wordArray = preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
+	$wordArray = preg_replace('~(?:^|\s)[-]?"[^"]+"(?:$|\s)~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
 
 	$wordArray = explode(' ', $smcFunc['htmlspecialchars'](un_htmlspecialchars($wordArray), ENT_QUOTES));
 
@@ -1170,16 +1182,19 @@ function PlushSearch2()
 					{
 						if ($subject_query['from'] != '{db_prefix}messages AS m')
 						{
-							$subject_query['inner_join'][] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
+							$subject_query['inner_join']['m'] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
 						}
 
 						$count = 0;
 
 						foreach ($excludedPhrases as $phrase)
 						{
-							$subject_query['where'][] = 'm.subject NOT ' . (empty($modSettings['search_match_words']) || $no_regexp ? ' LIKE ' : ' RLIKE ') . '{string:excluded_phrases_' . $count . '}';
+							$subject_query['where'][] = 'm.subject NOT ' . $query_match_type . ' {string:excluded_phrases_' . $count . '}';
 
-							$subject_query_params['excluded_phrases_' . $count++] = empty($modSettings['search_match_words']) || $no_regexp ? '%' . strtr($phrase, array('_' => '\\_', '%' => '\\%')) . '%' : '[[:<:]]' . addcslashes(preg_replace(array('/([\[\]$.+*?|{}()])/'), array('[$1]'), $phrase), '\\\'') . '[[:>:]]';
+							if ($is_search_regex)
+								$subject_query_params['excluded_phrases_' . $count++] = $word_boundary_wrapper($escape_sql_regex($phrase));
+							else
+								$subject_query_params['excluded_phrases_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($phrase) . '%';
 						}
 					}
 
@@ -1382,15 +1397,19 @@ function PlushSearch2()
 							{
 								if (($subject_query['from'] != '{db_prefix}messages AS m') && !$excluded)
 								{
-									$subject_query['inner_join'][] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
+									$subject_query['inner_join']['m'] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
 									$excluded = true;
 								}
 								$subject_query['left_join'][] = '{db_prefix}log_search_subjects AS subj' . $numTables . ' ON (subj' . $numTables . '.word ' . (empty($modSettings['search_match_words']) ? 'LIKE {string:subject_not_' . $count . '}' : '= {string:subject_not_' . $count . '}') . ' AND subj' . $numTables . '.id_topic = t.id_topic)';
 								$subject_query['params']['subject_not_' . $count] = empty($modSettings['search_match_words']) ? '%' . $subjectWord . '%' : $subjectWord;
 
 								$subject_query['where'][] = '(subj' . $numTables . '.word IS NULL)';
-								$subject_query['where'][] = 'm.body NOT ' . (empty($modSettings['search_match_words']) || $no_regexp ? ' LIKE ' : ' RLIKE ') . '{string:body_not_' . $count . '}';
-								$subject_query['params']['body_not_' . $count++] = empty($modSettings['search_match_words']) || $no_regexp ? '%' . strtr($subjectWord, array('_' => '\\_', '%' => '\\%')) . '%' : '[[:<:]]' . addcslashes(preg_replace(array('/([\[\]$.+*?|{}()])/'), array('[$1]'), $subjectWord), '\\\'') . '[[:>:]]';
+								$subject_query['where'][] = 'm.body NOT ' . $query_match_type . ' {string:body_not_' . $count . '}';
+
+								if ($is_search_regex)
+									$subject_query['params']['body_not_' . $count++] = $word_boundary_wrapper($escape_sql_regex($subjectWord));
+								else
+									$subject_query['params']['body_not_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($subjectWord) . '%';
 							}
 							else
 							{
@@ -1405,7 +1424,7 @@ function PlushSearch2()
 						{
 							if ($subject_query['from'] != '{db_prefix}messages AS m')
 							{
-								$subject_query['inner_join'][] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
+								$subject_query['inner_join']['m'] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
 							}
 							$subject_query['where'][] = '{raw:user_query}';
 							$subject_query['params']['user_query'] = $userQuery;
@@ -1434,14 +1453,18 @@ function PlushSearch2()
 						{
 							if ($subject_query['from'] != '{db_prefix}messages AS m')
 							{
-								$subject_query['inner_join'][] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
+								$subject_query['inner_join']['m'] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
 							}
 							$count = 0;
 							foreach ($excludedPhrases as $phrase)
 							{
-								$subject_query['where'][] = 'm.subject NOT ' . (empty($modSettings['search_match_words']) || $no_regexp ? ' LIKE ' : ' RLIKE ') . '{string:exclude_phrase_' . $count . '}';
-								$subject_query['where'][] = 'm.body NOT ' . (empty($modSettings['search_match_words']) || $no_regexp ? ' LIKE ' : ' RLIKE ') . '{string:exclude_phrase_' . $count . '}';
-								$subject_query['params']['exclude_phrase_' . $count++] = empty($modSettings['search_match_words']) || $no_regexp ? '%' . strtr($phrase, array('_' => '\\_', '%' => '\\%')) . '%' : '[[:<:]]' . addcslashes(preg_replace(array('/([\[\]$.+*?|{}()])/'), array('[$1]'), $phrase), '\\\'') . '[[:>:]]';
+								$subject_query['where'][] = 'm.subject NOT ' . $query_match_type . ' {string:exclude_phrase_' . $count . '}';
+								$subject_query['where'][] = 'm.body NOT ' . $query_match_type . ' {string:exclude_phrase_' . $count . '}';
+
+								if ($is_search_regex)
+									$subject_query['params']['exclude_phrase_' . $count++] = $word_boundary_wrapper($escape_sql_regex($phrase));
+								else
+									$subject_query['params']['exclude_phrase_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($phrase) . '%';
 							}
 						}
 						call_integration_hook('integrate_subject_search_query', array(&$subject_query));
@@ -1623,10 +1646,18 @@ function PlushSearch2()
 						$where = array();
 						foreach ($words['all_words'] as $regularWord)
 						{
-							$where[] = 'm.body' . (in_array($regularWord, $excludedWords) ? ' NOT' : '') . (empty($modSettings['search_match_words']) || $no_regexp ? ' LIKE ' : ' RLIKE ') . '{string:all_word_body_' . $count . '}';
 							if (in_array($regularWord, $excludedWords))
-								$where[] = 'm.subject NOT' . (empty($modSettings['search_match_words']) || $no_regexp ? ' LIKE ' : ' RLIKE ') . '{string:all_word_body_' . $count . '}';
-							$main_query['parameters']['all_word_body_' . $count++] = empty($modSettings['search_match_words']) || $no_regexp ? '%' . strtr($regularWord, array('_' => '\\_', '%' => '\\%')) . '%' : '[[:<:]]' . addcslashes(preg_replace(array('/([\[\]$.+*?|{}()])/'), array('[$1]'), $regularWord), '\\\'') . '[[:>:]]';
+							{
+								$where[] = 'm.subject NOT ' . $query_match_type . ' {string:all_word_body_' . $count . '}';
+								$where[] = 'm.body NOT ' . $query_match_type . ' {string:all_word_body_' . $count . '}';
+							}
+							else
+								$where[] = 'm.body ' . $query_match_type . ' {string:all_word_body_' . $count . '}';
+
+							if ($is_search_regex)
+								$main_query['parameters']['all_word_body_' . $count++] = $word_boundary_wrapper($escape_sql_regex($regularWord));
+							else
+								$main_query['parameters']['all_word_body_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($regularWord) . '%';
 						}
 						if (!empty($where))
 							$orWhere[] = count($where) > 1 ? '(' . implode(' AND ', $where) . ')' : $where[0];
