@@ -716,7 +716,7 @@ sceditor.formats.bbcode.set(
 				return '[attach' + attribs + ']' + content + '[/attach]';
 			}
 
-			attribs += ' data-attachment="' + id + '"'
+			attribs += ' data-type="attachment" data-attachment="' + id + '"';
 			if (typeof attrs.alt !== "undefined")
 				attribs += ' alt="' + attrs.alt + '"';
 
