@@ -14,6 +14,7 @@
 namespace SMF\Search;
 
 use SMF\BackwardCompatibility;
+use SMF\PackageManager\SubsPackage;
 
 /**
  * Class SearchApi
@@ -222,8 +223,6 @@ abstract class SearchApi implements SearchApiInterface
 	{
 		global $sourcedir, $modSettings, $txt;
 
-		require_once($sourcedir . '/Subs-Package.php');
-
 		// Load up the search API we are going to use.
 		$modSettings['search_index'] = empty($modSettings['search_index']) ? 'standard' : $modSettings['search_index'];
 
@@ -236,7 +235,7 @@ abstract class SearchApi implements SearchApiInterface
 		self::$loadedApi = new $search_class_name();
 
 		// An invalid Search API.
-		if (!self::$loadedApi || !(self::$loadedApi instanceof SearchApiInterface) || (self::$loadedApi->supportsMethod('isValid') && !self::$loadedApi->isValid()) || !matchPackageVersion(SMF_VERSION, self::$loadedApi->min_smf_version . '-' . self::$loadedApi->version_compatible))
+		if (!self::$loadedApi || !(self::$loadedApi instanceof SearchApiInterface) || (self::$loadedApi->supportsMethod('isValid') && !self::$loadedApi->isValid()) || !SubsPackage::matchPackageVersion(SMF_VERSION, self::$loadedApi->min_smf_version . '-' . self::$loadedApi->version_compatible))
 		{
 			// Log the error.
 			loadLanguage('Errors');

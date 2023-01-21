@@ -14,6 +14,7 @@
  */
 
 use SMF\Cache\CacheApi;
+use SMF\PackageManager\SubsPackage;
 use SMF\PackageManager\XmlArray;
 
 if (!defined('SMF'))
@@ -199,7 +200,6 @@ function DownloadLanguage()
 	global $context, $sourcedir, $boarddir, $txt, $scripturl, $modSettings;
 
 	loadLanguage('ManageSettings');
-	require_once($sourcedir . '/Subs-Package.php');
 
 	// Clearly we need to know what to request.
 	if (!isset($_GET['did']))
@@ -231,7 +231,7 @@ function DownloadLanguage()
 		}
 
 		// Call this in case we have work to do.
-		$file_status = create_chmod_control($chmod_files);
+		$file_status = SubsPackage::create_chmod_control($chmod_files);
 		$files_left = $file_status['files']['notwritable'];
 
 		// Something not writable?
@@ -240,10 +240,10 @@ function DownloadLanguage()
 		// Otherwise, go go go!
 		elseif (!empty($install_files))
 		{
-			read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), $boarddir, false, true, $install_files);
+			SubsPackage::read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), $boarddir, false, true, $install_files);
 
 			// Make sure the files aren't stuck in the cache.
-			package_flush_cache();
+			SubsPackage::package_flush_cache();
 			$context['install_complete'] = sprintf($txt['languages_download_complete_desc'], $scripturl . '?action=admin;area=languages');
 
 			return;
@@ -252,7 +252,7 @@ function DownloadLanguage()
 
 	// Open up the old china.
 	if (!isset($archive_content))
-		$archive_content = read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), null);
+		$archive_content = SubsPackage::read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), null);
 
 	if (empty($archive_content))
 		fatal_error($txt['add_language_error_no_response']);
@@ -386,7 +386,7 @@ function DownloadLanguage()
 	if (!empty($context['make_writable']))
 	{
 		// What is left to be made writable?
-		$file_status = create_chmod_control($context['make_writable']);
+		$file_status = SubsPackage::create_chmod_control($context['make_writable']);
 		$context['still_not_writable'] = $file_status['files']['notwritable'];
 
 		// Mark those which are now writable as such.
@@ -929,14 +929,11 @@ function ModifyLanguage()
 		checkSession();
 		validateToken('admin-mlang');
 
-		// @todo Todo: FTP Controls?
-		require_once($sourcedir . '/Subs-Package.php');
-
 		// First, Make a backup?
 		if (!empty($modSettings['package_make_backups']) && (!isset($_SESSION['last_backup_for']) || $_SESSION['last_backup_for'] != $context['lang_id'] . '$$$'))
 		{
 			$_SESSION['last_backup_for'] = $context['lang_id'] . '$$$';
-			$result = package_create_backup('backup_lang_' . $context['lang_id']);
+			$result = SubsPackage::package_create_backup('backup_lang_' . $context['lang_id']);
 			if (!$result)
 				fatal_lang_error('could_not_language_backup', false);
 		}
@@ -961,7 +958,7 @@ function ModifyLanguage()
 		if (!empty($images_dirs))
 			foreach ($images_dirs as $curPath)
 				if (is_dir($curPath))
-					deltree($curPath);
+					SubsPackage::deltree($curPath);
 
 		// Members can no longer use this language.
 		$smcFunc['db_query']('', '
