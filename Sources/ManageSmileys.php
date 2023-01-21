@@ -15,6 +15,7 @@
 
 use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
+use SMF\PackageManager\SubsPackage;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -1710,8 +1711,6 @@ function InstallSmileySet()
 	loadLanguage('Errors');
 	loadLanguage('Packages');
 
-	require_once($sourcedir . '/Subs-Package.php');
-
 	// Installing unless proven otherwise
 	$testing = false;
 
@@ -1749,24 +1748,24 @@ function InstallSmileySet()
 
 	// Make sure temp directory exists and is empty.
 	if (file_exists($packagesdir . '/temp'))
-		deltree($packagesdir . '/temp', false);
+		SubsPackage::deltree($packagesdir . '/temp', false);
 
-	if (!mktree($packagesdir . '/temp', 0755))
+	if (!SubsPackage::mktree($packagesdir . '/temp', 0755))
 	{
-		deltree($packagesdir . '/temp', false);
-		if (!mktree($packagesdir . '/temp', 0777))
+		SubsPackage::deltree($packagesdir . '/temp', false);
+		if (!SubsPackage::mktree($packagesdir . '/temp', 0777))
 		{
-			deltree($packagesdir . '/temp', false);
+			SubsPackage::deltree($packagesdir . '/temp', false);
 			// @todo not sure about url in destination_url
-			create_chmod_control(array($packagesdir . '/temp/delme.tmp'), array('destination_url' => $scripturl . '?action=admin;area=smileys;sa=install;set_gz=' . $_REQUEST['set_gz'], 'crash_on_error' => true));
+			SubsPackage::create_chmod_control(array($packagesdir . '/temp/delme.tmp'), array('destination_url' => $scripturl . '?action=admin;area=smileys;sa=install;set_gz=' . $_REQUEST['set_gz'], 'crash_on_error' => true));
 
-			deltree($packagesdir . '/temp', false);
-			if (!mktree($packagesdir . '/temp', 0777))
+			SubsPackage::deltree($packagesdir . '/temp', false);
+			if (!SubsPackage::mktree($packagesdir . '/temp', 0777))
 				fatal_lang_error('package_cant_download', false);
 		}
 	}
 
-	$extracted = read_tgz_file($destination, $packagesdir . '/temp');
+	$extracted = SubsPackage::read_tgz_file($destination, $packagesdir . '/temp');
 	if (!$extracted)
 		fatal_lang_error('packageget_unable', false, array('https://custom.simplemachines.org/mods/index.php?action=search;type=12;basic_search=' . $name));
 	if ($extracted && !file_exists($packagesdir . '/temp/package-info.xml'))
@@ -1783,7 +1782,7 @@ function InstallSmileySet()
 	if (!file_exists($packagesdir . '/temp/' . $base_path . 'package-info.xml'))
 		fatal_lang_error('package_get_error_missing_xml', false);
 
-	$smileyInfo = getPackageInfo($context['filename']);
+	$smileyInfo = SubsPackage::getPackageInfo($context['filename']);
 	if (!is_array($smileyInfo))
 		fatal_lang_error($smileyInfo, false);
 
@@ -1805,7 +1804,7 @@ function InstallSmileySet()
 		fatal_lang_error('package_installed_warning1', false);
 
 	// Everything is fine, now it's time to do something
-	$actions = parsePackageInfo($smileyInfo['xml'], true, 'install');
+	$actions = SubsPackage::parsePackageInfo($smileyInfo['xml'], true, 'install');
 
 	$context['post_url'] = $scripturl . '?action=admin;area=smileys;sa=install;package=' . $base_name;
 	$context['has_failure'] = false;
@@ -1881,7 +1880,7 @@ function InstallSmileySet()
 	else
 	{
 		// @TODO Does this call have side effects? ($actions is not used)
-		$actions = parsePackageInfo($smileyInfo['xml'], false, 'install');
+		$actions = SubsPackage::parsePackageInfo($smileyInfo['xml'], false, 'install');
 		foreach ($context['actions'] as $action)
 		{
 			updateSettings(array(
@@ -1890,7 +1889,7 @@ function InstallSmileySet()
 			));
 		}
 
-		package_flush_cache();
+		SubsPackage::package_flush_cache();
 
 		// Credits tag?
 		$credits_tag = (empty($credits_tag)) ? '' : $smcFunc['json_encode']($credits_tag);
@@ -1921,7 +1920,7 @@ function InstallSmileySet()
 	}
 
 	if (file_exists($packagesdir . '/temp'))
-		deltree($packagesdir . '/temp');
+		SubsPackage::deltree($packagesdir . '/temp');
 
 	if (!$testing)
 		redirectexit('action=admin;area=smileys');

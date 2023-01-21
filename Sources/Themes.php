@@ -31,6 +31,7 @@
  */
 
 use SMF\Cache\CacheApi;
+use SMF\PackageManager\SubsPackage;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -1175,8 +1176,6 @@ function ThemeInstall()
 	checkSession('request');
 	isAllowedTo('admin_forum');
 
-	require_once($sourcedir . '/Subs-Package.php');
-
 	// Make it easier to change the path and url.
 	$themedir = $boarddir . '/Themes';
 	$themeurl = $boardurl . '/Themes';
@@ -1274,7 +1273,7 @@ function InstallFile()
 	);
 
 	// Extract the file on the proper themes dir.
-	$extracted = read_tgz_file($_FILES['theme_gz']['tmp_name'], $dirtemp, false, true);
+	$extracted = SubsPackage::read_tgz_file($_FILES['theme_gz']['tmp_name'], $dirtemp, false, true);
 
 	if ($extracted)
 	{
@@ -1370,8 +1369,8 @@ function InstallCopy()
 	}
 
 	// And now the entire images directory!
-	copytree($settings['default_theme_dir'] . '/images', $context['to_install']['theme_dir'] . '/images');
-	package_flush_cache();
+	SubsPackage::copytree($settings['default_theme_dir'] . '/images', $context['to_install']['theme_dir'] . '/images');
+	SubsPackage::package_flush_cache();
 
 	// Any data from the default theme that we want?
 	foreach (get_single_theme(1, array('theme_layers', 'theme_templates')) as $variable => $value)

@@ -13,6 +13,7 @@
  * @version 3.0 Alpha 1
  */
 
+use SMF\PackageManager\SubsPackage;
 use SMF\PackageManager\XmlArray;
 
 if (!defined('SMF'))
@@ -272,8 +273,7 @@ function get_theme_info($path)
 	$install_versions = $theme_info_xml->fetch('theme-info/install/@for');
 
 	// The theme isn't compatible with the current SMF version.
-	require_once($sourcedir . '/Subs-Package.php');
-	if (!$install_versions || !matchPackageVersion($the_version, $install_versions))
+	if (!$install_versions || !SubsPackage::matchPackageVersion($the_version, $install_versions))
 	{
 		remove_dir($path);
 		fatal_lang_error('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
@@ -352,7 +352,7 @@ function theme_install($to_install = array())
 
 		// Got something, lets figure it out what to do next.
 		if (!empty($id_to_update) && !empty($to_update['version']))
-			switch (compareVersions($context['to_install']['version'], $to_update['version']))
+			switch (SubsPackage::compareVersions($context['to_install']['version'], $to_update['version']))
 			{
 				case 1: // Got a newer version, update the old entry.
 					$smcFunc['db_query']('', '

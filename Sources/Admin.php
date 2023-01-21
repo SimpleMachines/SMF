@@ -73,8 +73,7 @@ function AdminMain()
 				),
 				'packages' => array(
 					'label' => $txt['package'],
-					'file' => 'Packages.php',
-					'function' => 'Packages',
+					'function' => 'SMF\\PackageManager\\PackageManager::call',
 					'permission' => array('admin_forum'),
 					'icon' => 'packages',
 					'subsections' => array(

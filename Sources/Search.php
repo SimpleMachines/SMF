@@ -334,7 +334,6 @@ function PlushSearch2()
 	isAllowedTo('search_posts');
 
 	require_once($sourcedir . '/Display.php');
-	require_once($sourcedir . '/Subs-Package.php');
 
 	// Load up the search API we are going to use.
 	$searchAPI = SearchApi::load();
